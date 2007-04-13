@@ -27,7 +27,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This software consists of voluntary contributions made by many individuals
+ * This software consists of voluntary contributions made by many individuals 
  * on behalf of the Hypersonic SQL Group.
  *
  *
@@ -140,17 +140,30 @@ class DatabaseManagerCommon {
         "SCRIPT", "SCRIPT ['file']\n\n" + "(HSQLDB SQL only)"
     };
     static String[] shutdownHelp   = {
-        "SHUTDOWN", "SHUTDOWN [COMPACT|IMMEDIATELY]\n\n" + "(HSQLDB SQL only)"
+        "SHUTDOWN", "SHUTDOWN [COMPACT|IMMEDIATELY|SCRIPT]\n\n"
+                + "(HSQLDB SQL only)"
     };
     static String[] setHelp        = {
         "SET ",
-        "AUTOCOMMIT { TRUE | FALSE }\n" + "IGNORECASE { TRUE | FALSE }\n"
-        + "LOGSIZE size\n" + "MAXROWS maxrows\n" + "PASSWORD password\n"
-        + "READONLY { TRUE | FALSE }\n"
-        + "REFERENTIAL_INTEGRITY { TRUE | FALSE }\n"
-        + "TABLE table READONLY { TRUE | FALSE }\n"
-        + "TABLE table SOURCE \"file\" [DESC]\n"
-        + "WRITE_DELAY { TRUE | FALSE }\n\n" + "(HSQLDB SQL only)"
+        "SET AUTOCOMMIT { TRUE | FALSE }\n"
+        + "SET DATABASE COLLATION \"<collationname>\"\n"
+        + "SET CHECKPOINT DEFRAG <size>\n"
+        + "SET IGNORECASE { TRUE | FALSE }\n"
+        + "SET INITIAL SCHEMA <schemaname>\n"
+        + "SET LOGSIZE <size>\n"
+        + "SET MAXROWS maxrows\n"
+        + "SET PASSWORD <password>\n"
+        + "SET PROPERTY \"<propname>\" <propvalue>\n"
+        + "SET READONLY { TRUE | FALSE }\n"
+        + "SET REFERENTIAL_INTEGRITY { TRUE | FALSE }\n"
+        + "SET SCHEMA <schemaname>\n"
+        + "SET SCRIPTFORMAT { TEXT | BINARY | COMPRESSED }\n"
+        + "SET TABLE INDEX <tablename> '<index1rootPos>...'\n"
+        + "SET TABLE <tablename> READONLY { TRUE | FALSE }\n"
+        + "SET TABLE <tablename> SOURCE \"<file>\" [DESC]\n"
+        + "SET WRITE_DELAY { TRUE | FALSE | <seconds> | <ms> MILLIS }"
+        + "\n\n" 
+        + "(HSQLDB SQL only)"
     };
     static String[] testHelp = {
         "-->>>TEST<<<-- ;\n" + "--#1000;\n" + "DROP TABLE Test IF EXISTS;\n"
@@ -217,9 +230,9 @@ class DatabaseManagerCommon {
         String[] demo = {
             "DROP TABLE Item IF EXISTS;", "DROP TABLE Invoice IF EXISTS;",
             "DROP TABLE Product IF EXISTS;", "DROP TABLE Customer IF EXISTS;",
-            "CREATE TABLE Customer(ID INTEGER PRIMARY KEY,FirstName VARCHAR(20),"
-            + "LastName VARCHAR(20),Street VARCHAR(20),City VARCHAR(20));",
-            "CREATE TABLE Product(ID INTEGER PRIMARY KEY,Name VARCHAR(20),"
+            "CREATE TABLE Customer(ID INTEGER PRIMARY KEY,FirstName VARCHAR,"
+            + "LastName VARCHAR,Street VARCHAR,City VARCHAR);",
+            "CREATE TABLE Product(ID INTEGER PRIMARY KEY,Name VARCHAR,"
             + "Price DECIMAL);",
             "CREATE TABLE Invoice(ID INTEGER PRIMARY KEY,CustomerID INTEGER,"
             + "Total DECIMAL, FOREIGN KEY (CustomerId) "
@@ -238,7 +251,7 @@ class DatabaseManagerCommon {
             try {
                 sStatement.execute(demo[i]);
             } catch (SQLException e) {
-                System.out.println(e);
+                ;
             }
         }
     }
