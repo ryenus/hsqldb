@@ -49,4 +49,7 @@
 /*u1*/INSERT INTO multicol(openc) values(13);
 
 /*u0*/CONNECT USER SA PASSWORD "";
+/*u0*/DROP USER u1;
+/*u0*/DROP USER privd;
+/*u0*/DROP USER unprivd;
 /*u0*/SHUTDOWN;
