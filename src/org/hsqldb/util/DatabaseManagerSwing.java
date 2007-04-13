@@ -27,7 +27,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This software consists of voluntary contributions made by many individuals
+ * This software consists of voluntary contributions made by many individuals 
  * on behalf of the Hypersonic SQL Group.
  *
  *
@@ -72,7 +72,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.security.AccessControlException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -90,10 +89,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Vector;
-
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Event;
@@ -106,6 +102,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.Component;
+import java.awt.Container;
+
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -128,12 +127,14 @@ import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
-import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.RootPaneContainer;
+
+import java.security.AccessControlException;
 
 import org.hsqldb.lib.java.JavaSystem;
 
@@ -243,19 +244,38 @@ implements ActionListener, WindowListener, KeyListener {
     ArrayList                   localActionList = new ArrayList();
     private JFrame              jframe          = null;
     private static final String DEFAULT_RCFILE  = homedir + "/dbmanager.rc";
+    private static boolean TT_AVAILABLE = false;
+    static {
+        try {
+            Class.forName(DatabaseManagerSwing.class.getPackage().getName()
+                    + ".Transfer");
+            TT_AVAILABLE = true;
+        } catch (Throwable t) {
+            //System.err.println("Failed to get "
+                    //+ DatabaseManagerSwing.class.getPackage().getName()
+                    //+ ".Transfer: " + t);
+            // Enable this print statement for debugging class access problems.
+        }
+    }
     private static final String HELP_TEXT =
         "See the forums, mailing lists, and HSQLDB User Guide\n"
         + "at http://hsqldb.org.\n\n"
         + "Please paste the following version identifier with any\n"
-        + "problem reports or help requests:  $Revision: 1.8 $";
+        + "problem reports or help requests:  $Revision: 1.73 $"
+        + (TT_AVAILABLE ? ""
+                : ("\n\nTransferTool classes are not in CLASSPATH.\n"
+                       + "To enable the Tools menu, add 'transfer.jar' "
+                       + "to your class path."));
+        ;
     private static final String ABOUT_TEXT =
-        "$Revision: 1.8 $ of DatabaseManagerSwing\n\n"
+        "$Revision: 1.73 $ of DatabaseManagerSwing\n\n"
         + "Copyright (c) 1995-2000, The Hypersonic SQL Group.\n"
-        + "Copyright (c) 2001-2005, The HSQL Development Group.\n"
-        + "http://hsqldb.org\n\n\n"
+        + "Copyright (c) 2001-2007, The HSQL Development Group.\n"
+        + "http://hsqldb.org  (User Guide available at this site).\n\n\n"
         + "You may use and redistribute according to the HSQLDB\n"
         + "license documented in the source code and at the web\n"
-        + "site above.";
+        + "site above."
+        + (TT_AVAILABLE ? "\n\nTransferTool options are available." : "");
     static final String    NL         = System.getProperty("line.separator");
     static final String    NULL_STR   = "[null]";
     static int             iMaxRecent = 24;
@@ -613,8 +633,7 @@ implements ActionListener, WindowListener, KeyListener {
             showIndexDetails =
                 (dMeta.getDatabaseProductName().indexOf("Oracle") < 0);
 
-            String url    = dMeta.getURL();
-            Driver driver = DriverManager.getDriver(url);
+            Driver driver = DriverManager.getDriver(dMeta.getURL());
             ConnectionSetting newSetting = new ConnectionSetting(
                 dMeta.getDatabaseProductName(), driver.getClass().getName(),
                 dMeta.getURL(),
@@ -757,7 +776,8 @@ implements ActionListener, WindowListener, KeyListener {
         String[] sitems = {
             "SSELECT", "IINSERT", "UUPDATE", "DDELETE", "EEXECUTE", "---",
             "-CREATE TABLE", "-DROP TABLE", "-CREATE INDEX", "-DROP INDEX",
-            "--", "-CHECKPOINT", "-SCRIPT", "-SET", "-SHUTDOWN", "--",
+            "--", "CCOMMIT*", "LROLLBACK*",
+            "-CHECKPOINT*", "-SCRIPT", "-SET", "-SHUTDOWN", "--",
             "-Test Script"
         };
 
@@ -827,7 +847,7 @@ implements ActionListener, WindowListener, KeyListener {
 
             // Added: (weconsultants@users) New menu options
             rbNativeLF, rbJavaLF, rbMotifLF, "--", "-Set Fonts", "--",
-            boxAutoCommit, "CCommit", "LRollback", "--", "-Disable MaxRows",
+            boxAutoCommit, "--", "-Disable MaxRows",
             "-Set MaxRows to 100", "--", boxLogging, "--", "-Insert test data"
         };
 
@@ -838,6 +858,7 @@ implements ActionListener, WindowListener, KeyListener {
         };
 
         jmenu = addMenu(bar, "Tools", stools);
+        jmenu.setEnabled(TT_AVAILABLE);
 
         localActionList.add(jmenu);
 
@@ -1060,7 +1081,17 @@ implements ActionListener, WindowListener, KeyListener {
         } else if (s.equals("Dump")) {
             Transfer.work(new String[]{ "-d" });
         } else if (s.equals("Restore")) {
+            JOptionPane.showMessageDialog(fMain.getContentPane(),
+                    "Use Ctrl-R or the View menu to\n"
+                    + "update nav. tree after Restoration", "Suggestion",
+                    JOptionPane.INFORMATION_MESSAGE);
+            // Regardless of whether autoRefresh is on, half of
+            // Restore runs asynchronously, so we could only
+            // update the tree from within the Transfer class.
             Transfer.work(new String[]{ "-r" });
+            // Would be better to put the modal suggestion here, after the
+            // user selects the import file, but that messes up the z
+            // layering of the 3 windows already displayed.
         } else if (s.equals(LOGGING_BOX_TEXT)) {
             JavaSystem.setLogToSystem(boxLogging.isSelected());
         } else if (s.equals(AUTOREFRESH_BOX_TEXT)) {
@@ -1212,9 +1243,10 @@ implements ActionListener, WindowListener, KeyListener {
                 //  Added: (weconsultants@users)
                 CommonSwing.errorMessage(e);
             }
-        } else if (s.equals("Commit")) {
+        } else if (s.equals("COMMIT*")) {
             try {
                 cConn.commit();
+                showHelp(new String[] {"", "COMMIT executed"});
             } catch (SQLException e) {
 
                 //  Added: (weconsultants@users)
@@ -1223,9 +1255,10 @@ implements ActionListener, WindowListener, KeyListener {
         } else if (s.equals("Insert test data")) {
             insertTestData();
             refreshTree();
-        } else if (s.equals("Rollback")) {
+        } else if (s.equals("ROLLBACK*")) {
             try {
                 cConn.rollback();
+                showHelp(new String[] {"", "ROLLBACK executed"});
             } catch (SQLException e) {
 
                 //  Added: (weconsultants@users)
@@ -1263,8 +1296,13 @@ implements ActionListener, WindowListener, KeyListener {
             showHelp(DatabaseManagerCommon.createIndexHelp);
         } else if (s.equals("DROP INDEX")) {
             showHelp(DatabaseManagerCommon.dropIndexHelp);
-        } else if (s.equals("CHECKPOINT")) {
-            showHelp(DatabaseManagerCommon.checkpointHelp);
+        } else if (s.equals("CHECKPOINT*")) {
+            try {
+                cConn.createStatement().executeUpdate("CHECKPOINT");
+                showHelp(new String[] {"", "CHECKPOINT executed"});
+            } catch (SQLException e) {
+                CommonSwing.errorMessage(e);
+            }
         } else if (s.equals("SCRIPT")) {
             showHelp(DatabaseManagerCommon.scriptHelp);
         } else if (s.equals("SHUTDOWN")) {

@@ -41,7 +41,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
@@ -103,6 +102,32 @@ implements ActionListener, WindowListener, KeyListener {
         System.getProperty("user.home") + "/dbmanager.rc";
     static final String NL         = System.getProperty("line.separator");
     static final int    iMaxRecent = 24;
+    private static boolean TT_AVAILABLE = false;
+    static {
+        try {
+            Class.forName(DatabaseManagerSwing.class.getPackage().getName()
+                    + ".Transfer");
+            TT_AVAILABLE = true;
+        } catch (Throwable t) { }
+    }
+    private static final String HELP_TEXT =
+        "See the forums, mailing lists, and HSQLDB User Guide\n"
+        + "at http://hsqldb.org.\n\n"
+        + "Please paste the following version identifier with any\n"
+        + "problem reports or help requests:  $Revision: 1.31 $"
+        + (TT_AVAILABLE ? ""
+                : ("\n\nTransferTool classes are not in CLASSPATH.\n"
+               + "To enable the Tools menu, add 'transfer.jar' to your class path."));
+        ;
+    private static final String ABOUT_TEXT =
+        "$Revision: 1.31 $ of DatabaseManagerSwing\n\n"
+        + "Copyright (c) 1995-2000, The Hypersonic SQL Group.\n"
+        + "Copyright (c) 2001-2007, The HSQL Development Group.\n"
+        + "http://hsqldb.org  (User Guide available at this site).\n\n\n"
+        + "You may use and redistribute according to the HSQLDB\n"
+        + "license documented in the source code and at the web\n"
+        + "site above."
+        + (TT_AVAILABLE ? "\n\nTransferTool options are available." : "");
     Connection          cConn;
     DatabaseMetaData    dMeta;
     Statement           sStatement;
@@ -390,6 +415,19 @@ implements ActionListener, WindowListener, KeyListener {
         };
 
         addMenu(bar, "Tools", stools);
+
+        Menu hMenu = new Menu("Help");
+        MenuItem aItem = new MenuItem("About");
+        aItem.setShortcut(new MenuShortcut('A'));
+        aItem.addActionListener(this);
+        hMenu.add(aItem);
+        MenuItem hItem = new MenuItem("Help");
+        hItem.setShortcut(new MenuShortcut('H'));
+        hItem.addActionListener(this);
+        hMenu.add(hItem);
+        //bar.add(hMenu);
+        // Command above disabled only until a help display bug is fixed.
+
         fMain.setMenuBar(bar);
         fMain.setSize(640, 480);
         fMain.add("Center", this);
@@ -432,8 +470,15 @@ implements ActionListener, WindowListener, KeyListener {
      * @param items
      */
     void addMenu(MenuBar b, String name, String[] items) {
+        /* It's a very poor design to encapsulate menu creation this way.
+         * Can't customize the menus this way (e.g. shortcut keys,
+         * mnemonics, disabling, etc. */
 
         Menu menu = new Menu(name);
+        if (name.equals("Tools") && !TT_AVAILABLE) {
+            // Terrible place to do this.  Forced to due to method design.
+            menu.setEnabled(false);
+        }
 
         addMenuItems(menu, items);
         b.add(menu);
@@ -522,10 +567,15 @@ implements ActionListener, WindowListener, KeyListener {
             Transfer.work(new String[]{ "-d" });
         } else if (s.equals("Restore")) {
             Transfer.work(new String[]{ "-r" });
+            refreshTree();
         } else if (s.equals("Logging on")) {
             JavaSystem.setLogToSystem(true);
         } else if (s.equals("Logging off")) {
             JavaSystem.setLogToSystem(false);
+        } else if (s.equals("Help")) {
+            showHelp(new String[] { "", HELP_TEXT });
+        } else if (s.equals("About")) {
+            showHelp(new String[] { "", ABOUT_TEXT });
         } else if (s.equals("Refresh Tree")) {
             refreshTree();
         } else if (s.startsWith("#")) {
