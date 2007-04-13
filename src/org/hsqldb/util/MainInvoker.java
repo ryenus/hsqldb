@@ -31,9 +31,9 @@
 
 package org.hsqldb.util;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Invokes the static main(String[]) method from each class specified.
@@ -42,7 +42,7 @@ import java.util.ArrayList;
  *
  * @author   Blaine Simpson, unsaved@users
  * @since    HSQLDB 1.8.0
- * @version  $Revision: 1.6 $
+ * @version  $Revision: 1.7 $
  */
 public class MainInvoker {
 
@@ -108,11 +108,13 @@ public class MainInvoker {
         }
     }
 
+    public static String LS = System.getProperty("line.separator");
+
     private static final String SYNTAX_MSG =
         "    java org.hsqldb.util.MainInvoker "
-        + "[package1.Class1 [arg1a arg1b...] \"\"]... \\\n"
-        + "    packageX.ClassX [argXa argXb...]\nOR\n"
-        + "    java org.hsqldb.util.MainInvoker --help\n\n"
+        + "[package1.Class1 [arg1a arg1b...] \"\"]... \\" + LS
+        + "    packageX.ClassX [argXa argXb...]" + LS + "OR" + LS
+        + "    java org.hsqldb.util.MainInvoker --help" + LS + LS
         + "Note that you can only invoke classes in 'named' (non-default) "
         + "packages.  Delimit multiple classes with empty strings.";
 

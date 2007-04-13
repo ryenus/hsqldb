@@ -57,7 +57,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-/* $Id: SqlFile.java,v 1.12 2006/07/12 03:02:33 unsaved Exp $ */
+/* $Id: SqlFile.java,v 1.146 2007/03/30 13:16:43 unsaved Exp $ */
 
 /**
  * Encapsulation of a sql text file like 'myscript.sql'.
@@ -105,11 +105,11 @@ import java.util.TreeMap;
  * setters would be best) instead of constructor args and System
  * Properties.
  *
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.146 $
  * @author Blaine Simpson unsaved@users
  */
-public class SqlFile {
 
+public class SqlFile {
     private static final int DEFAULT_HISTORY_SIZE = 20;
     private File             file;
     private boolean          interactive;
@@ -122,13 +122,13 @@ public class SqlFile {
     private String[]         statementHistory = null;
     private boolean          chunking         = false;
     private String           csvNullRep       = null;
+    public static String     LS = System.getProperty("line.separator");
 
     /**
      * Private class to "share" a variable among a family of SqlFile
      * instances.
      */
     private static class BooleanBucket {
-
         private boolean bPriv = false;
 
         public void set(boolean bIn) {
@@ -146,112 +146,116 @@ public class SqlFile {
     BooleanBucket possiblyUncommitteds = new BooleanBucket();
 
     // Ascii field separator blanks
-    private static final int SEP_LEN = 2;
     private static final String DIVIDER =
         "-----------------------------------------------------------------"
         + "-----------------------------------------------------------------";
     private static final String SPACES =
         "                                                                 "
         + "                                                                 ";
-    public static final float REVISION = 2.01f;
-    private static String revnum = Float.toString(REVISION);
+    private static String revnum = null;
+
+    static {
+        revnum = "$Revision: 1.146 $".substring("$Revision: ".length(),
+                "$Revision: 1.146 $".length() - 2);
+    }
 
     private static String BANNER =
-        "(SqlFile processor v. " + revnum + ")\n"
-        + "Distribution is permitted under the terms of the HSQLDB license.\n"
-        + "(c) 2004-2005 Blaine Simpson and the HSQLDB Development Group.\n\n"
-        + "    \\q    to Quit.\n" + "    \\?    lists Special Commands.\n"
-        + "    :?    lists Buffer/Editing commands.\n"
-        + "    *?    lists PL commands (including alias commands).\n\n"
-        + "SPECIAL Commands begin with '\\' and execute when you hit ENTER.\n"
-        + "BUFFER Commands begin with ':' and execute when you hit ENTER.\n"
-        + "COMMENTS begin with '/*' and end with the very next '*/'.\n"
-        + "PROCEDURAL LANGUAGE commands begin with '*' and end when you hit ENTER.\n"
-        + "All other lines comprise SQL Statements.\n"
-        + "  SQL Statements are terminated by either a blank line (which moves the\n"
-        + "  statement into the buffer without executing) or a line ending with ';'\n"
-        + "  (which executes the statement).\n"
-        + "  SQL Statements may begin with '/PLVARNAME' and/or contain *{PLVARNAME}s.\n";
+        "(SqlFile processor v. " + revnum + ")" + LS
+        + "Distribution is permitted under the terms of the HSQLDB license." + LS
+        + "(c) 2004-2007 Blaine Simpson and the HSQLDB Development Group." + LS + LS
+        + "    \\q    to Quit." + LS + "    \\?    lists Special Commands." + LS
+        + "    :?    lists Buffer/Editing commands." + LS
+        + "    *?    lists PL commands (including alias commands)." + LS + LS
+        + "SPECIAL Commands begin with '\\' and execute when you hit ENTER." + LS
+        + "BUFFER Commands begin with ':' and execute when you hit ENTER." + LS
+        + "COMMENTS begin with '/*' and end with the very next '*/'." + LS
+        + "PROCEDURAL LANGUAGE commands begin with '*' and end when you hit ENTER." + LS
+        + "All other lines comprise SQL Statements." + LS
+        + "  SQL Statements are terminated by either a blank line (which moves the" + LS
+        + "  statement into the buffer without executing) or a line ending with ';'" + LS
+        + "  (which executes the statement)." + LS
+        + "  SQL Statements may begin with '/PLVARNAME' and/or contain *{PLVARNAME}s." + LS;
     private static final String BUFFER_HELP_TEXT =
-        "BUFFER Commands (only \":;\" is available for non-interactive use).\n"
-        + "    :?                Help\n"
-        + "    :;                Execute current buffer as an SQL Statement\n"
-        + "    :a[text]          Enter append mode with a copy of the buffer\n"
-        + "    :l                List current contents of buffer\n"
-        + "    :s/from/to        Substitute \"to\" for first occurrence of \"from\"\n"
-        + "    :s/from/to/[i;g2] Substitute \"to\" for occurrence(s) of \"from\"\n"
-        + "                from:  '$'s represent line breaks\n"
-        + "                to:    If empty, from's will be deleted (e.g. \":s/x//\").\n"
-        + "                       '$'s represent line breaks\n"
-        + "                       You can't use ';' in order to execute the SQL (use\n"
-        + "                       the ';' switch for this purpose, as explained below).\n"
-        + "                /:     Can actually be any character which occurs in\n"
-        + "                       neither \"to\" string nor \"from\" string.\n"
-        + "                SUBSTITUTION MODE SWITCHES:\n"
-        + "                       i:  case Insensitive\n"
-        + "                       ;:  execute immediately after substitution\n"
-        + "                       g:  Global (substitute ALL occurrences of \"from\" string)\n"
-        + "                       2:  Narrows substitution to specified buffer line number\n"
-        + "                           (Use any line number in place of '2').\n"
+        "BUFFER Commands (only \":;\" is available for non-interactive use)." + LS
+        + "    :?                Help" + LS
+        + "    :;                Execute current buffer as an SQL Statement" + LS
+        + "    :a[text]          Enter append mode with a copy of the buffer" + LS
+        + "    :l                List current contents of buffer" + LS
+        + "    :s/from/to        Substitute \"to\" for first occurrence of \"from\"" + LS
+        + "    :s/from/to/[i;g2] Substitute \"to\" for occurrence(s) of \"from\"" + LS
+        + "                from:  '$'s represent line breaks" + LS
+        + "                to:    If empty, from's will be deleted (e.g. \":s/x//\")." + LS
+        + "                       '$'s represent line breaks" + LS
+        + "                       You can't use ';' in order to execute the SQL (use" + LS
+        + "                       the ';' switch for this purpose, as explained below)." + LS
+        + "                /:     Can actually be any character which occurs in" + LS
+        + "                       neither \"to\" string nor \"from\" string." + LS
+        + "                SUBSTITUTION MODE SWITCHES:" + LS
+        + "                       i:  case Insensitive" + LS
+        + "                       ;:  execute immediately after substitution" + LS
+        + "                       g:  Global (substitute ALL occurrences of \"from\" string)" + LS
+        + "                       2:  Narrows substitution to specified buffer line number" + LS
+        + "                           (Use any line number in place of '2')." + LS
     ;
-    private static final String HELP_TEXT = "SPECIAL Commands.\n"
-        + "* commands only available for interactive use.\n"
-        + "In place of \"3\" below, you can use nothing for the previous command, or\n"
-        + "an integer \"X\" to indicate the Xth previous command.\n"
-        + "Filter substrings are cases-sensitive!  Use \"SCHEMANAME.\" to narrow schema.\n"
-        + "    \\?                   Help\n"
-        + "    \\p [line to print]   Print string to stdout\n"
-        + "    \\w file/path.sql     Append current buffer to file\n"
-        + "    \\i file/path.sql     Include/execute commands from external file\n"
-        + "    \\d{tvsiSanur*} [substr]  List objects of specified type:\n"
-        + "  (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)\n"
-        + "    \\d OBJECTNAME [subs] Describe table or view columns\n"
-        + "    \\o [file/path.html]  Tee (or stop teeing) query output to specified file\n"
-        + "    \\H                   Toggle HTML output mode\n"
-        + "    \\! COMMAND ARGS      Execute external program (no support for stdin)\n"
-        + "    \\c [true|false]      Continue upon errors (a.o.t. abort upon error)\n"
-        + "    \\a [true|false]      Auto-commit JDBC DML commands\n"
-        + "    \\b                   save next result to Binary buffer (no display)\n"
-        + "    \\bd file/path.bin    Dump Binary buffer to file\n"
-        + "    \\bl file/path.bin    Load file into Binary buffer\n"
-        + "    \\bp                  Use ? in next SQL statement to upload Bin. buffer\n"
-        + "    \\.                   Enter raw SQL.  End with line containing only \".\"\n"
-        + "    \\s                   * Show previous commands (i.e. SQL command history)\n"
-        + "    \\-[3][;]             * reload a command to buffer (opt. exec. w/ \":;\"))\n"
-        + "    \\x {TABLE|SELECT...} eXport table or query to CSV text file\n"
-        + "    \\m file/path.csv     iMport CSV text file records into a table\n"
-        + "    \\q [abort message]   Quit (or end input like Ctrl-Z or Ctrl-D)\n"
+    private static final String HELP_TEXT = "SPECIAL Commands." + LS
+        + "* commands only available for interactive use." + LS
+        + "In place of \"3\" below, you can use nothing for the previous command, or" + LS
+        + "an integer \"X\" to indicate the Xth previous command." + LS
+        + "Filter substrings are cases-sensitive!  Use \"SCHEMANAME.\" to narrow schema." + LS
+        + "    \\?                   Help" + LS
+        + "    \\p [line to print]   Print string to stdout" + LS
+        + "    \\w file/path.sql     Append current buffer to file" + LS
+        + "    \\i file/path.sql     Include/execute commands from external file" + LS
+        + "    \\d{tvsiSanur*} [substr]  List objects of specified type:" + LS
+        + "  (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)" + LS
+        + "    \\d OBJECTNAME [subs] Describe table or view columns" + LS
+        + "    \\o [file/path.html]  Tee (or stop teeing) query output to specified file" + LS
+        + "    \\H                   Toggle HTML output mode" + LS
+        + "    \\! COMMAND ARGS      Execute external program (no support for stdin)" + LS
+        + "    \\c [true|false]      Continue upon errors (a.o.t. abort upon error)" + LS
+        + "    \\a [true|false]      Auto-commit JDBC DML commands" + LS
+        + "    \\b                   save next result to Binary buffer (no display)" + LS
+        + "    \\bd file/path.bin    Dump Binary buffer to file" + LS
+        + "    \\bl file/path.bin    Load file into Binary buffer" + LS
+        + "    \\bp                  Use ? in next SQL statement to upload Bin. buffer" + LS
+        + "    \\.                   Enter raw SQL.  End with line containing only \".\"" + LS
+        + "    \\s                   * Show previous commands (i.e. SQL command history)" + LS
+        + "    \\-[3][;]             * reload a command to buffer (opt. exec. w/ \":;\"))" + LS
+        + "    \\=                   commit JDBC session" + LS
+        + "    \\x {TABLE|SELECT...} eXport table or query to CSV text file" + LS
+        + "    \\m file/path.csv [*] iMport CSV text file records into a table" + LS
+        + "    \\q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)" + LS
     ;
-    private static final String PL_HELP_TEXT = "PROCEDURAL LANGUAGE Commands.\n"
-        + "    *?                            Help\n"
-        + "    *                             Expand PL variables from now on.\n"
-        + "                                  (this is also implied by all the following).\n"
-        + "    * VARNAME = Variable value    Set variable value\n"
-        + "    * VARNAME =                   Unset variable\n"
-        + "    * VARNAME ~                   Set variable value to the value of the very\n"
-        + "                                  next SQL statement executed (see details\n"
-        + "                                  at the bottom of this listing).\n"
-        + "    * VARNAME _                   Same as * VARNAME _, except the query is\n"
-        + "                                  done silently (i.e, no rows to screen)\n"
-        + "    * list[value] [VARNAME1...]   List variable(s) (defaults to all)\n"
-        + "    * load VARNAME path.txt       Load variable value from text file\n"
-        + "    * dump VARNAME path.txt       Dump variable value to text file\n"
-        + "    * prepare VARNAME             Use ? in next SQL statement to upload val.\n"
-        + "    * foreach VARNAME ([val1...]) Repeat the following PL block with the\n"
-        + "                                  variable set to each value in turn.\n"
-        + "    * if (logical expr)           Execute following PL block only if expr true\n"
-        + "    * while (logical expr)        Repeat following PL block while expr true\n"
-        + "    * end foreach|if|while        Ends a PL block\n"
-        + "    * break [foreach|if|while|file] Exits a PL block or file early\n"
-        + "    * continue [foreach|while]    Exits a PL block iteration early\n\n"
-        + "Use PL variables (which you have set) like: *{VARNAME}.\n"
-        + "You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.\n"
-        + "Use PL variables in logical expressions like: *VARNAME.\n\n"
-        + "'* VARNAME ~' or '* VARNAME _' sets the variable value according to the very\n"
-        + "next SQL statement (~ will echo the value, _ will do it silently):\n"
-        + "    Query:  The value of the first field of the first row returned.\n"
-        + "    other:  Return status of the command (for updates this will be\n"
-        + "            the number of rows updated).\n"
+    private static final String PL_HELP_TEXT = "PROCEDURAL LANGUAGE Commands." + LS
+        + "    *?                            Help" + LS
+        + "    *                             Expand PL variables from now on." + LS
+        + "                                  (this is also implied by all the following)." + LS
+        + "    * VARNAME = Variable value    Set variable value" + LS
+        + "    * VARNAME =                   Unset variable" + LS
+        + "    * VARNAME ~                   Set variable value to the value of the very" + LS
+        + "                                  next SQL statement executed (see details" + LS
+        + "                                  at the bottom of this listing)." + LS
+        + "    * VARNAME _                   Same as * VARNAME _, except the query is" + LS
+        + "                                  done silently (i.e, no rows to screen)" + LS
+        + "    * list[value] [VARNAME1...]   List variable(s) (defaults to all)" + LS
+        + "    * load VARNAME path.txt       Load variable value from text file" + LS
+        + "    * dump VARNAME path.txt       Dump variable value to text file" + LS
+        + "    * prepare VARNAME             Use ? in next SQL statement to upload val." + LS
+        + "    * foreach VARNAME ([val1...]) Repeat the following PL block with the" + LS
+        + "                                  variable set to each value in turn." + LS
+        + "    * if (logical expr)           Execute following PL block only if expr true" + LS
+        + "    * while (logical expr)        Repeat following PL block while expr true" + LS
+        + "    * end foreach|if|while        Ends a PL block" + LS
+        + "    * break [foreach|if|while|file] Exits a PL block or file early" + LS
+        + "    * continue [foreach|while]    Exits a PL block iteration early" + LS + LS
+        + "Use PL variables (which you have set) like: *{VARNAME}." + LS
+        + "You may use /VARNAME instead iff /VARNAME is the first word of a SQL command." + LS
+        + "Use PL variables in logical expressions like: *VARNAME." + LS + LS
+        + "'* VARNAME ~' or '* VARNAME _' sets the variable value according to the very" + LS
+        + "next SQL statement (~ will echo the value, _ will do it silently):" + LS
+        + "    Query:  The value of the first field of the first row returned." + LS
+        + "    other:  Return status of the command (for updates this will be" + LS
+        + "            the number of rows updated)." + LS
     ;
 
     /**
@@ -267,7 +271,6 @@ public class SqlFile {
      */
     public SqlFile(File inFile, boolean inInteractive,
                    HashMap inVars) throws IOException {
-
         file        = inFile;
         interactive = inInteractive;
         userVars    = inVars;
@@ -359,7 +362,6 @@ public class SqlFile {
                                      Boolean coeOverride)
                                      throws IOException, SqlToolError,
                                          SQLException {
-
         psStd      = stdIn;
         psErr      = errIn;
         curConn    = conn;
@@ -447,7 +449,6 @@ public class SqlFile {
                     postCommentIndex = inputLine.indexOf("*/") + 2;
 
                     if (postCommentIndex > 1) {
-
                         // I see no reason to leave comments in history.
                         inputLine = inputLine.substring(postCommentIndex);
 
@@ -458,7 +459,6 @@ public class SqlFile {
 
                         inComment = false;
                     } else {
-
                         // Just completely ignore the input line.
                         continue;
                     }
@@ -467,7 +467,6 @@ public class SqlFile {
                 trimmedInput = inputLine.trim();
 
                 try {
-
                     // This is the try for SQLException.  SQLExceptions are
                     // normally thrown below in Statement processing, but
                     // could be called up above if a Special processing
@@ -478,7 +477,6 @@ public class SqlFile {
                                                + 2;
 
                             if (postCommentIndex > 1) {
-
                                 // I see no reason to leave comments in
                                 // history.
                                 inputLine = inputLine.substring(
@@ -486,7 +484,6 @@ public class SqlFile {
                                     - trimmedInput.length());
                                 trimmedInput = inputLine.trim();
                             } else {
-
                                 // Just so we get continuation lines:
                                 stringBuffer.append("COMMENT");
 
@@ -514,11 +511,9 @@ public class SqlFile {
                                 errprintln("Error at '"
                                            + ((file == null) ? "stdin"
                                                              : file.toString()) + "' line "
-                                                             + curLinenum
-                                                             + ":\n\""
-                                                             + inputLine
-                                                             + "\"\n"
-                                                             + bs.getMessage());
+                                                             + curLinenum + ':');
+                                errprintln("\"" + inputLine + '"');
+                                errprintln(bs.getMessage());
 
                                 if (!continueOnError) {
                                     throw new SqlToolError(bs);
@@ -535,11 +530,9 @@ public class SqlFile {
                                 errprintln("Error at '"
                                            + ((file == null) ? "stdin"
                                                              : file.toString()) + "' line "
-                                                             + curLinenum
-                                                             + ":\n\""
-                                                             + inputLine
-                                                             + "\"\n"
-                                                             + bs.getMessage());
+                                                             + curLinenum + ':');
+                                errprintln("\"" + inputLine + '"');
+                                errprintln(bs.getMessage());
 
                                 if (!continueOnError) {
                                     throw new SqlToolError(bs);
@@ -558,11 +551,9 @@ public class SqlFile {
                                 errprintln("Error at '"
                                            + ((file == null) ? "stdin"
                                                              : file.toString()) + "' line "
-                                                             + curLinenum
-                                                             + ":\n\""
-                                                             + inputLine
-                                                             + "\"\n"
-                                                             + bs.getMessage());
+                                                             + curLinenum + ':');
+                                errprintln(inputLine + '"');
+                                errprintln(bs.getMessage());
 
                                 if (!continueOnError) {
                                     throw new SqlToolError(bs);
@@ -591,7 +582,6 @@ public class SqlFile {
                     }
 
                     if (trimmedInput.length() == 0) {
-
                         // Blank lines delimit commands ONLY IN INTERACTIVE
                         // MODE!
                         if (interactive &&!inComment) {
@@ -634,11 +624,9 @@ public class SqlFile {
                     errprintln("SQL Error at '" + ((file == null) ? "stdin"
                                                                   : file.toString()) + "' line "
                                                                   + curLinenum
-                                                                      + ":\n\""
-                                                                          + curCommand
-                                                                              + "\"\n"
-                                                                                  + se
-                                                                                  .getMessage());
+                                                                      + ':');
+                    errprintln("\"" + curCommand + '"');
+                    errprintln(se.getMessage());
 
                     if (!continueOnError) {
                         throw se;
@@ -733,7 +721,6 @@ public class SqlFile {
      *                 a "copy" will be returned).
      */
     private static String deTerminated(String inString) {
-
         int index = inString.lastIndexOf(';');
 
         if (index < 0) {
@@ -753,7 +740,6 @@ public class SqlFile {
      * Utility nested Exception class for internal use.
      */
     private class BadSpecial extends Exception {
-
         // Special-purpose constructor
         private BadSpecial() {}
 
@@ -772,7 +758,6 @@ public class SqlFile {
      * SqlTool.execute() on throws a QuitNow if it is in a recursive call.
      */
     private class QuitNow extends SqlToolError {
-
         public QuitNow(String s) {
             super(s);
         }
@@ -787,7 +772,6 @@ public class SqlFile {
      * Very similar to QuitNow.
      */
     private class BreakException extends SqlToolError {
-
         public BreakException() {
             super();
         }
@@ -802,7 +786,6 @@ public class SqlFile {
      * Very similar to QuitNow.
      */
     private class ContinueException extends SqlToolError {
-
         public ContinueException() {
             super();
         }
@@ -816,7 +799,6 @@ public class SqlFile {
      * Utility nested Exception class for internal use.
      */
     private class BadSwitch extends Exception {
-
         private BadSwitch(int i) {
             super(Integer.toString(i));
         }
@@ -834,9 +816,6 @@ public class SqlFile {
      */
     private void processBuffer(String inString)
     throws BadSpecial, SQLException {
-
-        int    index = 0;
-        int    special;
         char   commandChar = 'i';
         String other       = null;
 
@@ -850,12 +829,12 @@ public class SqlFile {
         }
 
         switch (commandChar) {
-
             case ';' :
                 curCommand = commandFromHistory(0);
 
-                stdprintln("Executing command from buffer:\n" + curCommand
-                           + '\n');
+                stdprintln("Executing command from buffer:");
+                stdprintln(curCommand);
+                stdprintln();
                 processSQL();
 
                 return;
@@ -873,13 +852,14 @@ public class SqlFile {
                     }
 
                     if (deTerminated != null) {
-
                         // If we reach here, then stringBuffer contains a
                         // complete SQL command.
                         curCommand = stringBuffer.toString();
 
                         setBuf(curCommand);
-                        stdprintln("Executing:\n" + curCommand + '\n');
+                        stdprintln("Executing:");
+                        stdprintln(curCommand);
+                        stdprintln();
                         processSQL();
                         stringBuffer.setLength(0);
 
@@ -887,13 +867,15 @@ public class SqlFile {
                     }
                 }
 
-                stdprintln("Appending to:\n" + stringBuffer);
+                stdprintln("Appending to:");
+                stdprintln(stringBuffer.toString());
 
                 return;
 
             case 'l' :
             case 'L' :
-                stdprintln("Current Buffer:\n" + commandFromHistory(0));
+                stdprintln("Current Buffer:");
+                stdprintln(commandFromHistory(0));
 
                 return;
 
@@ -948,7 +930,6 @@ public class SqlFile {
 
                         for (int j = 0; j < opts.length(); j++) {
                             switch (opts.charAt(j)) {
-
                                 case 'i' :
                                     modeIC = true;
                                     break;
@@ -1032,8 +1013,8 @@ public class SqlFile {
 
                     setBuf(curCommand);
                     stdprintln((modeExecute ? "Executing"
-                                            : "Current Buffer") + ":\n"
-                                            + curCommand);
+                                            : "Current Buffer") + ':');
+                    stdprintln(curCommand);
 
                     if (modeExecute) {
                         stdprintln();
@@ -1064,10 +1045,14 @@ public class SqlFile {
     private boolean doPrepare   = false;
     private String  prepareVar  = null;
     private String  csvColDelim = null;
+    private String  csvSkipPrefix = null;
     private String  csvRowDelim = null;
-    private static final String CSV_SYNTAX_MSG =
-        "Export syntax:  x table_or_view_anme "
+    private static final String CSV_X_SYNTAX_MSG =
+        "Export syntax:  \\x table_or_view_name "
         + "[column_delimiter [record_delimiter]]";
+    private static final String CSV_M_SYNTAX_MSG =
+        "Import syntax:  \\m file/path.csv "
+        + "[*]   (* means no comments in CSV file)";
 
     /**
      * Process a Special Command.
@@ -1079,9 +1064,6 @@ public class SqlFile {
      */
     private void processSpecial(String inString)
     throws BadSpecial, QuitNow, SQLException, SqlToolError {
-
-        int    index = 0;
-        int    special;
         String arg1,
                other = null;
 
@@ -1102,7 +1084,6 @@ public class SqlFile {
         }
 
         switch (arg1.charAt(0)) {
-
             case 'q' :
                 if (other != null) {
                     throw new QuitNow(other);
@@ -1118,14 +1099,34 @@ public class SqlFile {
 
             case 'm' :
                 if (arg1.length() != 1 || other == null) {
-                    throw new BadSpecial();
+                    throw new BadSpecial(CSV_M_SYNTAX_MSG);
                 }
+                boolean noComments = other.charAt(other.length() - 1) == '*';
 
+                if (noComments) {
+                    csvSkipPrefix = null;
+                    other = other.substring(0, other.length()-1).trim();
+                    if (other.length() < 1) {
+                        throw new BadSpecial(CSV_M_SYNTAX_MSG);
+                    }
+                } else {
+                    csvSkipPrefix = convertEscapes(
+                            (String) userVars.get("*CSV_SKIP_PREFIX"));
+                    if (csvSkipPrefix == null) {
+                        csvSkipPrefix = DEFAULT_SKIP_PREFIX;
+                    }
+
+                }
                 csvColDelim =
                     convertEscapes((String) userVars.get("*CSV_COL_DELIM"));
                 csvRowDelim =
                     convertEscapes((String) userVars.get("*CSV_ROW_DELIM"));
                 csvNullRep = (String) userVars.get("*CSV_NULL_REP");
+                int colonIndex = other.indexOf(" :");
+                if (colonIndex > -1 && colonIndex < other.length() - 2) {
+                    csvSkipPrefix = other.substring(colonIndex + 2);
+                    other = other.substring(0, colonIndex).trim();
+                }
 
                 if (csvColDelim == null) {
                     csvColDelim = DEFAULT_COL_DELIM;
@@ -1163,7 +1164,10 @@ public class SqlFile {
                     csvNullRep = (String) userVars.get("*CSV_NULL_REP");
 
                     String csvFilepath =
-                        (String) userVars.get("*CSV_FILEPATH");
+                        (String) userVars.get("*CSV_TARGET_FILE");
+					if (csvFilepath == null) {
+						csvFilepath = (String) userVars.get("*CSV_FILEPATH");
+					}
 
                     if (csvFilepath == null && tableName == null) {
                         throw new BadSpecial(
@@ -1202,19 +1206,16 @@ public class SqlFile {
                                + " characters to file '" + csvFile + "'");
                 } catch (Exception e) {
                     if (e instanceof BadSpecial) {
-
                         // Not sure this test is right.  Maybe .length() == 0?
                         if (e.getMessage() == null) {
-                            throw new BadSpecial(CSV_SYNTAX_MSG);
-                        } else {
-                            throw (BadSpecial) e;
+                            throw new BadSpecial(CSV_X_SYNTAX_MSG);
                         }
+                        throw (BadSpecial) e;
                     }
 
                     throw new BadSpecial("Failed to write to file '" + other
                                          + "':  " + e);
                 } finally {
-
                     // Reset all state changes
                     if (pwCsv != null) {
                         pwCsv.close();
@@ -1274,16 +1275,17 @@ public class SqlFile {
                             new FileOutputStream(other, true), charset));
 
                     /* Opening in append mode, so it's possible that we will
-                     * be adding superfluous <HTML> and <BODY> tages.
+                     * be adding superfluous <HTML> and <BODY> tags.
                      * I think that browsers can handle that */
-                    pwQuery.println((htmlMode ? "<HTML>\n<!--"
+                    pwQuery.println((htmlMode ? ("<HTML>" + LS + "<!--")
                                               : "#") + " "
                                                      + (new java.util.Date())
                                                      + ".  Query output from "
                                                      + getClass().getName()
                                                      + (htmlMode
-                                                        ? ". -->\n\n<BODY>"
-                                                        : ".\n"));
+                                                        ? (". -->" + LS + LS
+                                                            + "<BODY>")
+                                                        : ("." + LS)));
                     pwQuery.flush();
                 } catch (Exception e) {
                     throw new BadSpecial("Failed to write to file '" + other
@@ -1369,6 +1371,12 @@ public class SqlFile {
                            + curConn.getAutoCommit());
 
                 return;
+            case '=' :
+                curConn.commit();
+                possiblyUncommitteds.set(false);
+                stdprintln("Session committed");
+
+                return;
 
             case 'b' :
                 if (arg1.length() == 1) {
@@ -1407,7 +1415,6 @@ public class SqlFile {
             case '*' :
             case 'c' :
                 if (other != null) {
-
                     // But remember that we have to abort on some I/O errors.
                     continueOnError = Boolean.valueOf(other).booleanValue();
                 }
@@ -1427,7 +1434,6 @@ public class SqlFile {
                 boolean executeMode = arg1.charAt(arg1.length() - 1) == ';';
 
                 if (executeMode) {
-
                     // Trim off terminating ';'
                     arg1 = arg1.substring(0, arg1.length() - 1);
                 }
@@ -1453,8 +1459,8 @@ public class SqlFile {
                 } else {
                     stdprintln(
                         "RESTORED following command to buffer.  Enter \":?\" "
-                        + "to see buffer commands:\n"
-                        + commandFromHistory(0));
+                        + "to see buffer commands:");
+                    stdprintln(commandFromHistory(0));
                 }
 
                 return;
@@ -1534,7 +1540,6 @@ public class SqlFile {
      * @returns Index within inString, 1 past end of the variable name
      */
     static int pastName(String inString, int startIndex) {
-
         String workString = inString.substring(startIndex);
         int    e          = inString.length();    // Index 1 past end of var name.
         int    nonVarIndex;
@@ -1558,11 +1563,9 @@ public class SqlFile {
      */
     private String dereference(String inString,
                                boolean permitAlias) throws SQLException {
-
         String       varName, varValue;
         StringBuffer expandBuffer = new StringBuffer(inString);
         int          b, e;    // begin and end of name.  end really 1 PAST name
-        int          nonVarIndex;
 
         if (permitAlias && inString.trim().charAt(0) == '/') {
             int slashIndex = inString.indexOf('/');
@@ -1592,7 +1595,6 @@ public class SqlFile {
             b = s.indexOf("*{");
 
             if (b < 0) {
-
                 // No more unexpanded variable uses
                 break;
             }
@@ -1636,7 +1638,6 @@ public class SqlFile {
      */
     private void processPL(String inString)
     throws BadSpecial, SqlToolError, SQLException {
-
         if (inString.length() < 1) {
             plMode = true;
 
@@ -1677,12 +1678,11 @@ public class SqlFile {
 
                 if (s.equals("foreach") || s.equals("while")) {
                     throw new ContinueException(s);
-                } else {
-                    throw new BadSpecial(
-                        "Bad continue statement."
-                        + "You may use no argument or one of 'foreach', "
-                        + "'while'");
                 }
+                throw new BadSpecial(
+                    "Bad continue statement."
+                    + "You may use no argument or one of 'foreach', "
+                    + "'while'");
             }
 
             throw new ContinueException();
@@ -1695,12 +1695,11 @@ public class SqlFile {
                 if (s.equals("foreach") || s.equals("if")
                         || s.equals("while") || s.equals("file")) {
                     throw new BreakException(s);
-                } else {
-                    throw new BadSpecial(
-                        "Bad break statement."
-                        + "You may use no argument or one of 'foreach', "
-                        + "'if', 'while', 'file'");
                 }
+                throw new BadSpecial(
+                    "Bad break statement."
+                    + "You may use no argument or one of 'foreach', "
+                    + "'if', 'while', 'file'");
             }
 
             throw new BreakException();
@@ -2006,11 +2005,9 @@ public class SqlFile {
             throw new BadSpecial("Unterminated PL variable definition");
         }
 
-        char   operator  = inString.charAt(index);
         String remainder = inString.substring(index + 1);
 
         switch (inString.charAt(index)) {
-
             case '_' :
                 silentFetch = true;
             case '~' :
@@ -2058,7 +2055,6 @@ public class SqlFile {
      * to a separate history but not executed.
      */
     private File plBlockFile(String type) throws IOException, SqlToolError {
-
         String          s;
         StringTokenizer toker;
 
@@ -2080,7 +2076,8 @@ public class SqlFile {
             new OutputStreamWriter(new FileOutputStream(tmpFile), charset));
 
         pw.println("/* " + (new java.util.Date()) + ". "
-                   + getClass().getName() + " PL block. */\n");
+                   + getClass().getName() + " PL block. */");
+        pw.println();
 
         while (true) {
             s = br.readLine();
@@ -2163,7 +2160,6 @@ public class SqlFile {
      * Conditionally HTML-ifies output.
      */
     private void stdprintln(boolean queryOutput) {
-
         if (htmlMode) {
             psStd.println("<BR>");
         } else {
@@ -2187,7 +2183,6 @@ public class SqlFile {
      * Conditionally HTML-ifies error output.
      */
     private void errprint(String s) {
-
         psErr.print(htmlMode
                     ? ("<DIV style='color:white; background: red; "
                        + "font-weight: bold'>" + s + "</DIV>")
@@ -2200,7 +2195,6 @@ public class SqlFile {
      * Conditionally HTML-ifies error output.
      */
     private void errprintln(String s) {
-
         psErr.println(htmlMode
                       ? ("<DIV style='color:white; background: red; "
                          + "font-weight: bold'>" + s + "</DIV>")
@@ -2213,7 +2207,6 @@ public class SqlFile {
      * Conditionally HTML-ifies output.
      */
     private void stdprint(String s, boolean queryOutput) {
-
         psStd.print(htmlMode ? ("<P>" + s + "</P>")
                              : s);
 
@@ -2230,7 +2223,6 @@ public class SqlFile {
      * Conditionally HTML-ifies output.
      */
     private void stdprintln(String s, boolean queryOutput) {
-
         psStd.println(htmlMode ? ("<P>" + s + "</P>")
                                : s);
 
@@ -2248,6 +2240,7 @@ public class SqlFile {
     private static final String DEFAULT_ROW_DELIM =
         System.getProperty("line.separator");
     private static final String DEFAULT_COL_DELIM = "|";
+    private static final String DEFAULT_SKIP_PREFIX = "#";
     private static final int    DEFAULT_ELEMENT   = 0,
                                 HSQLDB_ELEMENT    = 1,
                                 ORACLE_ELEMENT    = 2
@@ -2310,7 +2303,6 @@ public class SqlFile {
      * @throws BadSpecial
      */
     private void listTables(char c, String inFilter) throws BadSpecial {
-
         String   schema  = null;
         int[]    listSet = null;
         String[] types   = null;
@@ -2335,7 +2327,6 @@ public class SqlFile {
 
             //System.err.println("DB NAME = (" + dbProductName + ')');
             // Database-specific table filtering.
-            String excludePrefix = null;
 
             /* 3 Types of actions:
              *    1) Special handling.  Return from the "case" block directly.
@@ -2346,16 +2337,16 @@ public class SqlFile {
             types = new String[1];
 
             switch (c) {
-
                 case '*' :
                     types = null;
                     break;
 
                 case 'S' :
                     if (dbProductName.indexOf("Oracle") > -1) {
-                        System.err.println(
-                            "*** WARNING:\n*** Listing tables in "
-                            + "system-supplied schemas since\n*** Oracle"
+                        System.err.println("*** WARNING:");
+                        System.err.println("*** Listing tables in "
+                            + "system-supplied schemas since");
+                        System.err.println("*** Oracle"
                             + "(TM) doesn't return a JDBC system table list.");
 
                         types[0]          = "TABLE";
@@ -2368,7 +2359,6 @@ public class SqlFile {
 
                 case 's' :
                     if (dbProductName.indexOf("HSQL") > -1) {
-
                         //  HSQLDB does not consider Sequences as "tables",
                         //  hence we do not list them in
                         //  DatabaseMetaData.getTables().
@@ -2404,7 +2394,6 @@ public class SqlFile {
                             + "ORDER BY authorization_name");
                     } else if (dbProductName.indexOf(
                             "Adaptive Server Enterprise") > -1) {
-
                         // This is the basic Sybase server.  Sybase also has
                         // their "Anywhere", ASA (for embedded), and replication
                         // databases, but I don't know the Metadata strings for
@@ -2413,6 +2402,10 @@ public class SqlFile {
 
                         statement.execute(
                             "SELECT name FROM syssrvroles ORDER BY name");
+                    } else if (dbProductName.indexOf(
+                            "Apache Derby") > -1) {
+                        throw new BadSpecial(
+                            "Derby has not implemented SQL Roles");
                     } else {
                         throw new BadSpecial(
                             "SqlFile does not yet support "
@@ -2442,7 +2435,6 @@ public class SqlFile {
                             + "ORDER BY usename");
                     } else if (dbProductName.indexOf(
                             "Adaptive Server Enterprise") > -1) {
-
                         // This is the basic Sybase server.  Sybase also has
                         // their "Anywhere", ASA (for embedded), and replication
                         // databases, but I don't know the Metadata strings for
@@ -2452,6 +2444,11 @@ public class SqlFile {
                         statement.execute(
                             "SELECT name, accdate, fullname FROM syslogins "
                             + "ORDER BY name");
+                    } else if (dbProductName.indexOf(
+                            "Apache Derby") > -1) {
+                        throw new BadSpecial(
+                            "It's impossible to get a reliable user list from "
+                            + "Derby");
                     } else {
                         throw new BadSpecial(
                             "SqlFile does not yet support "
@@ -2461,7 +2458,6 @@ public class SqlFile {
 
                 case 'a' :
                     if (dbProductName.indexOf("HSQL") > -1) {
-
                         //  HSQLDB Aliases are not the same things as the
                         //  aliases listed in DatabaseMetaData.getTables().
                         if (filter != null
@@ -2526,7 +2522,6 @@ public class SqlFile {
                                               : null);
 
                         if (dotat < filter.length() - 1) {
-
                             // Not a schema-only specifier
                             table = ((dotat > 0) ? filter.substring(dotat + 1)
                                                  : filter);
@@ -2634,7 +2629,6 @@ public class SqlFile {
      * Process the current command as an SQL Statement
      */
     private void processSQL() throws SQLException {
-
         // Really don't know whether to take the network latency hit here
         // in order to check autoCommit in order to set
         // possiblyUncommitteds more accurately.
@@ -2714,8 +2708,8 @@ public class SqlFile {
     private void displayResultSet(Statement statement, ResultSet r,
                                   int[] incCols,
                                   String filter) throws SQLException {
-
         java.sql.Timestamp ts;
+		int dotAt;
         int                updateCount = (statement == null) ? -1
                                                              : statement
                                                                  .getUpdateCount();
@@ -2726,14 +2720,13 @@ public class SqlFile {
         fetchBinary = false;
 
         if (excludeSysSchemas) {
+            stdprintln("*** WARNING:");
+            stdprintln("*** Omitting tables from system-supplied schemas");
             stdprintln(
-                "*** WARNING:\n*** Omitting tables from system-supplied "
-                + "schemas\n*** (because Oracle(TM) "
-                + "doesn't differentiate them to JDBC).");
+                "*** (because Oracle(TM) doesn't differentiate them to JDBC).");
         }
 
         switch (updateCount) {
-
             case -1 :
                 if (r == null) {
                     stdprintln("No result", true);
@@ -2753,7 +2746,6 @@ public class SqlFile {
                 int[]             maxWidth = new int[incCount];
                 int               insi;
                 boolean           skip;
-                boolean           ok;
 
                 // STEP 1: GATHER DATA
                 if (!htmlMode) {
@@ -2790,7 +2782,6 @@ public class SqlFile {
                     autonulls[insi]     = true;
 
                     switch (dataType[insi]) {
-
                         case java.sql.Types.BIGINT :
                         case java.sql.Types.BIT :
                         case java.sql.Types.DECIMAL :
@@ -2828,7 +2819,6 @@ public class SqlFile {
                     filteredOut = filter != null;
 
                     for (int i = 1; i <= cols; i++) {
-
                         // This is the only case where we can save a data
                         // read by recognizing we don't need this datum early.
                         if (incCols != null) {
@@ -2857,35 +2847,50 @@ public class SqlFile {
                         val = null;
 
                         if (!binary) {
+                            /*
+							 * The special formatting for all time-related
+							 * fields is because the most popular current 
+							 * databases are extremely inconsistent about 
+							 * what resolution is returned for the same types.
+							 * In my experience so far, Dates MAY have 
+							 * resolution down to second, but only TIMESTAMPs
+							 * support sub-second res. (and always can).
+							 * On top of that there is no consistency across
+							 * getObject().toString().  Oracle doesn't even
+							 * implement it for their custom TIMESTAMP type.
+							 */
+							switch (dataType[insi]) {
+								case java.sql.Types.TIMESTAMP:
+								case java.sql.Types.DATE:
+								case java.sql.Types.TIME:
+									ts  = r.getTimestamp(i);
+									val = ((ts == null) ? null : ts.toString());
+									if (dataType[insi]
+											!= java.sql.Types.TIMESTAMP
+											&& val != null) {
+										dotAt = val.indexOf('.');
+										if (dotAt > 1) {
+											val = val.substring(0, dotAt);
+										}
+									}
+									break;
+								default:
+									val = r.getString(i);
 
-                            // The special formatting for Timestamps is
-                            // because the most popular current databases
-                            // are VERY inconsistent about the format
-                            // returned by getString() for a Timestamp field.
-                            // In many cases, the output is very user-
-                            // unfriendly.  However, getTimestamp().toString()
-                            // is consistent and convenient.
-                            if (dataType[insi] == java.sql.Types.TIMESTAMP) {
-                                ts  = r.getTimestamp(i);
-                                val = ((ts == null) ? null
-                                                    : ts.toString());
-                            } else {
-                                val = r.getString(i);
-
-                                // If we tried to get a String but it failed,
-                                // try getting it with a String Stream
-                                if (val == null) {
-                                    try {
-                                        val = streamToString(
-                                            r.getAsciiStream(i));
-                                    } catch (Exception e) {}
-                                }
-                            }
+									// If we tried to get a String but it 
+									// failed, try getting it with a String 
+									// Stream
+									if (val == null) {
+										try {
+											val = streamToString(
+												r.getAsciiStream(i));
+										} catch (Exception e) {}
+									}
+							}
                         }
 
                         if (binary || (val == null &&!r.wasNull())) {
                             if (pwCsv != null) {
-
                                 // TODO:  Should throw something other than
                                 // a SQLException
                                 throw new SQLException(
@@ -2976,7 +2981,7 @@ public class SqlFile {
                     condlPrintln("<TABLE border='1'>", true);
 
                     if (incCount > 1) {
-                        condlPrint(htmlRow(COL_HEAD) + '\n' + PRE_TD, true);
+                        condlPrint(htmlRow(COL_HEAD) + LS + PRE_TD, true);
 
                         for (int i = 0; i < headerArray.length; i++) {
                             condlPrint("<TD>" + headerArray[i] + "</TD>",
@@ -2990,7 +2995,7 @@ public class SqlFile {
                                                      - 1 || rightJust[i])), false);
                         }
 
-                        condlPrintln("\n" + PRE_TR + "</TR>", true);
+                        condlPrintln(LS + PRE_TR + "</TR>", true);
                         condlPrintln("", false);
 
                         if (!htmlMode) {
@@ -3006,7 +3011,7 @@ public class SqlFile {
 
                     for (int i = 0; i < rows.size(); i++) {
                         condlPrint(htmlRow(((i % 2) == 0) ? COL_EVEN
-                                                          : COL_ODD) + '\n'
+                                                          : COL_ODD) + LS
                                                           + PRE_TD, true);
 
                         fieldArray = (String[]) rows.get(i);
@@ -3023,14 +3028,14 @@ public class SqlFile {
                                                      - 1 || rightJust[j])), false);
                         }
 
-                        condlPrintln("\n" + PRE_TR + "</TR>", true);
+                        condlPrintln(LS + PRE_TR + "</TR>", true);
                         condlPrintln("", false);
                     }
 
                     condlPrintln("</TABLE>", true);
 
                     if (rows.size() != 1) {
-                        stdprintln("\n" + rows.size() + " rows", true);
+                        stdprintln(LS + rows.size() + " rows", true);
                     }
 
                     condlPrintln("<HR>", true);
@@ -3104,9 +3109,7 @@ public class SqlFile {
      * @param colType Column type:  COL_HEAD, COL_ODD or COL_EVEN.
      */
     private static String htmlRow(int colType) {
-
         switch (colType) {
-
             case COL_HEAD :
                 return PRE_TR + "<TR style='font-weight: bold;'>";
 
@@ -3154,7 +3157,6 @@ public class SqlFile {
      */
     private static String pad(String inString, int fulllen,
                               boolean rightJustify, boolean doPad) {
-
         if (!doPad) {
             return inString;
         }
@@ -3177,7 +3179,6 @@ public class SqlFile {
      * commands.
      */
     private void showHistory() {
-
         int      ctr = -1;
         String   s;
         String[] reversedList = new String[statementHistory.length];
@@ -3211,12 +3212,13 @@ public class SqlFile {
 
             for (int i = ctr; i >= 0; i--) {
                 psStd.println(((i == 0) ? "BUFR"
-                                        : ("-" + i + "  ")) + " **********************************************\n"
-                                        + reversedList[i]);
+                                        : ("-" + i + "  ")) + " **********************************************"
+                                        + LS + reversedList[i]);
             }
 
+            psStd.println();
             psStd.println(
-                "\n<<<  Copy a command to buffer like \"\\-3\"       "
+                "<<<  Copy a command to buffer like \"\\-3\"       "
                 + "Re-execute buffer like \":;\"  >>>");
         }
     }
@@ -3225,7 +3227,6 @@ public class SqlFile {
      * Return a SQL Command from command history.
      */
     private String commandFromHistory(int commandsAgo) throws BadSpecial {
-
         if (commandsAgo >= statementHistory.length) {
             throw new BadSpecial("History can only hold up to "
                                  + statementHistory.length + " commands");
@@ -3246,7 +3247,6 @@ public class SqlFile {
      * is the "Buffer").
      */
     private void setBuf(String inString) {
-
         curHist++;
 
         if (curHist == statementHistory.length) {
@@ -3264,13 +3264,11 @@ public class SqlFile {
      */
     private void describe(String tableName,
                           String inFilter) throws SQLException {
-
         /*
          * Doing case-sensitive filters now, for greater portability.
         String filter = ((inFilter == null) ? null : inFilter.toUpperCase());
          */
         String    filter = inFilter;
-        String    val;
         ArrayList rows        = new ArrayList();
         String[]  headerArray = {
             "name", "datatype", "width", "no-nulls"
@@ -3332,7 +3330,7 @@ public class SqlFile {
             }
 
             // STEP 2: DISPLAY DATA
-            condlPrint("<TABLE border='1'>\n" + htmlRow(COL_HEAD) + '\n'
+            condlPrint("<TABLE border='1'>" + LS + htmlRow(COL_HEAD) + LS
                        + PRE_TD, true);
 
             for (int i = 0; i < headerArray.length; i++) {
@@ -3344,7 +3342,7 @@ public class SqlFile {
                                                  || rightJust[i])), false);
             }
 
-            condlPrintln("\n" + PRE_TR + "</TR>", true);
+            condlPrintln(LS + PRE_TR + "</TR>", true);
             condlPrintln("", false);
 
             if (!htmlMode) {
@@ -3358,7 +3356,7 @@ public class SqlFile {
 
             for (int i = 0; i < rows.size(); i++) {
                 condlPrint(htmlRow(((i % 2) == 0) ? COL_EVEN
-                                                  : COL_ODD) + '\n'
+                                                  : COL_ODD) + LS
                                                   + PRE_TD, true);
 
                 fieldArray = (String[]) rows.get(i);
@@ -3373,11 +3371,11 @@ public class SqlFile {
                                              || rightJust[j])), false);
                 }
 
-                condlPrintln("\n" + PRE_TR + "</TR>", true);
+                condlPrintln(LS + PRE_TR + "</TR>", true);
                 condlPrintln("", false);
             }
 
-            condlPrintln("\n</TABLE>\n<HR>", true);
+            condlPrintln(LS + "</TABLE>" + LS + "<HR>", true);
         } finally {
             try {
                 if (r != null) {
@@ -3392,7 +3390,6 @@ public class SqlFile {
     }
 
     public static String[] getTokenArray(String inString) {
-
         // I forget how to code a String array literal outside of a
         // definition.
         String[] mtString = {};
@@ -3412,7 +3409,6 @@ public class SqlFile {
     }
 
     private boolean eval(String[] inTokens) throws BadSpecial {
-
         // dereference *VARNAME variables.
         // N.b. we work with a "copy" of the tokens.
         boolean  negate = inTokens.length > 0 && inTokens[0].equals("!");
@@ -3465,7 +3461,6 @@ public class SqlFile {
     }
 
     private void closeQueryOutputStream() {
-
         if (pwQuery == null) {
             return;
         }
@@ -3485,7 +3480,6 @@ public class SqlFile {
      * supplied printHtml.
      */
     private void condlPrintln(String s, boolean printHtml) {
-
         if ((printHtml &&!htmlMode) || (htmlMode &&!printHtml)) {
             return;
         }
@@ -3503,7 +3497,6 @@ public class SqlFile {
      * supplied printHtml.
      */
     private void condlPrint(String s, boolean printHtml) {
-
         if ((printHtml &&!htmlMode) || (htmlMode &&!printHtml)) {
             return;
         }
@@ -3517,17 +3510,16 @@ public class SqlFile {
     }
 
     private static String formatNicely(Map map, boolean withValues) {
-
         String       key;
         StringBuffer sb = new StringBuffer();
         Iterator     it = (new TreeMap(map)).keySet().iterator();
 
         if (withValues) {
-            sb.append("The outermost parentheses are not part of "
-                      + "the values.\n");
+            appendLine(sb, "The outermost parentheses are not part of "
+                      + "the values.");
         } else {
-            sb.append("Showing variable names and length of values "
-                      + "(use 'listvalue' to see values).\n");
+            appendLine(sb, "Showing variable names and length of values "
+                      + "(use 'listvalue' to see values).");
         }
 
         while (it.hasNext()) {
@@ -3535,9 +3527,9 @@ public class SqlFile {
 
             String s = (String) map.get(key);
 
-            sb.append("    " + key + ": " + (withValues ? ("(" + s + ')')
+            appendLine(sb, "    " + key + ": " + (withValues ? ("(" + s + ')')
                                                         : Integer.toString(
-                                                        s.length())) + '\n');
+                                                        s.length())));
         }
 
         return sb.toString();
@@ -3548,7 +3540,6 @@ public class SqlFile {
      */
     private void dump(String varName,
                       File dumpFile) throws IOException, BadSpecial {
-
         String val = (String) userVars.get(varName);
 
         if (val == null) {
@@ -3561,15 +3552,11 @@ public class SqlFile {
 
         osw.write(val);
 
-        boolean terminated = false;
-
         if (val.length() > 0) {
             char lastChar = val.charAt(val.length() - 1);
 
             if (lastChar != '\n' && lastChar != '\r') {
-                terminated = true;
-
-                osw.write('\n');    // I hope this really writes \r\n for DOS
+                osw.write(LS);
             }
         }
 
@@ -3588,7 +3575,6 @@ public class SqlFile {
      * Binary file dump
      */
     private void dump(File dumpFile) throws IOException, BadSpecial {
-
         if (binBuffer == null) {
             throw new BadSpecial("Binary SqlFile buffer is currently empty");
         }
@@ -3607,7 +3593,6 @@ public class SqlFile {
     }
 
     private String streamToString(InputStream is) throws IOException {
-
         char[]            xferBuffer   = new char[10240];
         StringWriter      stringWriter = new StringWriter();
         InputStreamReader isr          = new InputStreamReader(is, charset);
@@ -3621,7 +3606,6 @@ public class SqlFile {
     }
 
     private byte[] streamToBytes(InputStream is) throws IOException {
-
         byte[]                xferBuffer = new byte[10240];
         ByteArrayOutputStream baos       = new ByteArrayOutputStream();
         int                   i;
@@ -3637,7 +3621,6 @@ public class SqlFile {
      * Ascii file load.
      */
     private void load(String varName, File asciiFile) throws IOException {
-
         char[]       xferBuffer   = new char[10240];
         StringWriter stringWriter = new StringWriter();
         InputStreamReader isr =
@@ -3656,7 +3639,6 @@ public class SqlFile {
      * Binary file load
      */
     private void load(File binFile) throws IOException {
-
         byte[]                xferBuffer = new byte[10240];
         ByteArrayOutputStream baos       = new ByteArrayOutputStream();
         FileInputStream       fis        = new FileInputStream(binFile);
@@ -3693,11 +3675,9 @@ public class SqlFile {
      * @see java.sql.Types
      */
     public static boolean canDisplayType(int i) {
-
         /* I don't now about some of the more obscure types, like REF and
          * DATALINK */
         switch (i) {
-
             //case java.sql.Types.BINARY :
             case java.sql.Types.BLOB :
             case java.sql.Types.JAVA_OBJECT :
@@ -3719,9 +3699,7 @@ public class SqlFile {
     private static final int JDBC3_DATALINK = 70;
 
     public static String sqlTypeToString(int i) {
-
         switch (i) {
-
             case java.sql.Types.ARRAY :
                 return "ARRAY";
 
@@ -3823,7 +3801,6 @@ public class SqlFile {
      * not an SQL problem.  Fix the caller!)
      */
     public void csvSafe(String s) throws SQLException {
-
         if (pwCsv == null || csvColDelim == null || csvRowDelim == null
                 || csvNullRep == null) {
             throw new RuntimeException(
@@ -3854,7 +3831,6 @@ public class SqlFile {
     }
 
     public static String convertEscapes(String inString) {
-
         if (inString == null) {
             return null;
         }
@@ -3899,7 +3875,6 @@ public class SqlFile {
      * substrings.
      */
     public void importCsv(String filePath) throws IOException, BadSpecial {
-
         char[] bfr  = null;
         File   file = new File(filePath);
 
@@ -3922,16 +3897,21 @@ public class SqlFile {
         int retval = isr.read(bfr, 0, bfr.length);
 
         isr.close();
-
+        /*  Per tracker 1547196, File.length is in bytes, but
+         *  InputStreamReader.read returns size in characters.
+         *  Therefore, this test fails if char size != 1 byte.
         if (retval != bfr.length) {
             throw new IOException("Didn't read all characters.  Read in "
                                   + retval + " characters");
         }
+        */
 
         String string = null;
+        String dateString;
 
         try {
-            string = new String(bfr);
+            string = new String(bfr, 0, retval);
+            // Sized explicitly to truncate nulls due to multibye characters.
         } catch (RuntimeException re) {
             throw new IOException(
                 "SqlFile converts your entire CSV file to a String at this time.\n"
@@ -3939,22 +3919,78 @@ public class SqlFile {
         }
 
         ArrayList headerList = new ArrayList();
-        String    recordString;
+        String    tableName = (String) userVars.get("*CSV_TARGET_TABLE");
+        if (tableName == null) {
+            tableName = (String) userVars.get("*CSV_TABLENAME");
+            // This just for legacy variable name.
+        }
 
         // N.b.  ENDs are the index of 1 PAST the current item
-        int recEnd;
+        int recEnd = -1000; // Recognizable value incase something goes
+                            // horrifically wrong.
         int colStart;
         int colEnd;
 
-        // First read header line
-        int recStart = 0;
+        // First read one until we get one header line
+        int lineCount = 0; // Assume a 1 line header?
+        int recStart = -1;
+        String trimmedLine = null;
+        boolean switching = false;
 
-        recEnd = string.indexOf(csvRowDelim, recStart);
+        while (true) {
+            recStart = (recStart < 0) ? 0 : (recEnd + csvRowDelim.length());
+            if (recStart > string.length() - 2) {
+                throw new IOException("No header record");
+            }
+            recEnd = string.indexOf(csvRowDelim, recStart);
+            lineCount++; // Increment when we have line start and end
 
-        if (recEnd < 0) {
-
-            // File consists of only a header line
-            recEnd = string.length();
+            if (recEnd < 0) {
+                // Last line in file.  No data records.
+                recEnd = string.length();
+            }
+            trimmedLine = string.substring(recStart, recEnd).trim();
+            if (trimmedLine.length() < 1
+                    || (csvSkipPrefix != null 
+                            && trimmedLine.startsWith(csvSkipPrefix))) {
+                continue;
+            }
+            if (trimmedLine.startsWith("targettable=")) {
+                if (tableName == null) {
+                    tableName = trimmedLine.substring(
+                            "targettable=".length()).trim();
+                }
+                continue;
+            }
+            if (trimmedLine.equals("headerswitch{")) {
+                if (tableName == null) {
+                    throw new IOException("Headerswitch in CSV file, but "
+                            + "no target table specified yet.  Line "
+                            + lineCount);
+                }
+                switching = true;
+                continue;
+            }
+            if (trimmedLine.equals("}")) {
+                throw new IOException(
+                        "Reached close of headerswitch at line " + lineCount
+                        + " without matching a header line");
+            }
+            if (!switching) {
+                break;
+            }
+            int colonAt = trimmedLine.indexOf(':');
+            if (colonAt < 1 || colonAt == trimmedLine.length() - 1) {
+                throw new IOException(
+                        "Header line without table matcher at line "
+                        + lineCount);
+            }
+            String matcher = trimmedLine.substring(0, colonAt).trim();
+            if (matcher.equals("*") || matcher.equalsIgnoreCase(tableName)){
+                recStart = 1 + string.indexOf(':', recStart);
+                break;
+            }
+            // Skip non-matched header line
         }
 
         colStart = recStart;
@@ -3962,7 +3998,6 @@ public class SqlFile {
 
         while (true) {
             if (colEnd == recEnd) {
-
                 // We processed final column last time through loop
                 break;
             }
@@ -3978,14 +4013,15 @@ public class SqlFile {
                                       + (headerList.size() + 1));
             }
 
-            headerList.add(string.substring(colStart, colEnd));
+            headerList.add(
+                (colEnd - colStart == 1 && string.charAt(colStart) == '-')
+                ? ((String) null)
+                : string.substring(colStart, colEnd));
 
             colStart = colEnd + csvColDelim.length();
         }
 
         String[]  headers   = (String[]) headerList.toArray(new String[0]);
-        boolean[] autonulls = new boolean[headers.length];
-        String    tableName = (String) userVars.get("*CSV_TABLENAME");
 
         if (tableName == null) {
             tableName = file.getName();
@@ -3999,13 +4035,23 @@ public class SqlFile {
 
         StringBuffer tmpSb = new StringBuffer();
 
+        int skippers = 0;
         for (int i = 0; i < headers.length; i++) {
-            if (i > 0) {
+            if (headers[i] == null) {
+                skippers++;
+                continue;
+            }
+            if (tmpSb.length() > 0) {
                 tmpSb.append(", ");
             }
 
             tmpSb.append(headers[i]);
         }
+        boolean[] autonulls = new boolean[headers.length - skippers];
+        boolean[] parseDate = new boolean[autonulls.length];
+        // Remember that the headers array has all columns in CSV file,
+        // even skipped columns.
+        // The autonulls array only has columns that we will insert into.
 
         StringBuffer sb = new StringBuffer("INSERT INTO " + tableName + " ("
                                            + tmpSb + ") VALUES (");
@@ -4022,19 +4068,26 @@ public class SqlFile {
             }
 
             for (int i = 0; i < autonulls.length; i++) {
-                ctype = rsmd.getColumnType(i + 1);
-
-                // I.e., for VAR* column types, "" in CSV file means
-                // to insert "".  Otherwise, we'll insert null for "".
-                autonulls[i] = (ctype != java.sql.Types.VARBINARY
-                                && ctype != java.sql.Types.VARCHAR);
+                autonulls[i] = true;
+                parseDate[i] = false;
+                switch(rsmd.getColumnType(i + 1)) {
+                    case java.sql.Types.VARBINARY:
+                    case java.sql.Types.VARCHAR:
+                        // to insert "".  Otherwise, we'll insert null for "".
+                        autonulls[i] = false;
+                        break;
+                    case java.sql.Types.DATE:
+                    case java.sql.Types.TIME:
+                    case java.sql.Types.TIMESTAMP:
+                        parseDate[i] = true;
+                }
             }
         } catch (SQLException se) {
             throw new BadSpecial("Failed to get metadata for query: "
                                  + se.getMessage());
         }
 
-        for (int i = 0; i < headers.length; i++) {
+        for (int i = 0; i < autonulls.length; i++) {
             if (i > 0) {
                 sb.append(", ");
             }
@@ -4046,9 +4099,12 @@ public class SqlFile {
         try {
             PreparedStatement ps = curConn.prepareStatement(sb.toString()
                 + ')');
-            String[] dataVals = new String[headers.length];
-            int      recCount = 0;
-            int      colCount;
+            String[] dataVals = new String[autonulls.length];
+            // Length is number of cols to insert INTO, not nec. # in CSV file.
+            int recCount = 0;
+            int skipCount = 0;
+            int      readColCount;
+            int      storeColCount;
 
             // Insert data rows 1-row-at-a-time
             while (true) {
@@ -4059,22 +4115,45 @@ public class SqlFile {
                 }
 
                 recEnd = string.indexOf(csvRowDelim, recStart);
+                lineCount++; // Increment when we have line start and end
 
                 if (recEnd < 0) {
-
                     // Last record
                     recEnd = string.length();
                 }
+                trimmedLine = string.substring(recStart, recEnd).trim();
+                if (trimmedLine.length() < 1) {
+                    continue;  // Silently skip blank lines
+                }
+                if (csvSkipPrefix != null
+                        && trimmedLine.startsWith(csvSkipPrefix)) {
+                    skipCount++;
+                    continue;
+                }
+                if (switching) {
+                    if (trimmedLine.equals("}")) {
+                        switching = false;
+                        continue;
+                    }
+                    int colonAt = trimmedLine.indexOf(':');
+                    if (colonAt < 1 || colonAt == trimmedLine.length() - 1) {
+                        throw new IOException(
+                                "Non-Header line within table matcher block "
+                                + "at line " + lineCount);
+                    }
+                    continue;
+                }
+
+                // Finally we will readlly add a record!
+                recCount++;
 
                 colStart = recStart;
                 colEnd   = -1;
-                colCount = 0;
-
-                recCount++;
+                readColCount = 0;
+                storeColCount = 0;
 
                 while (true) {
                     if (colEnd == recEnd) {
-
                         // We processed final column last time through loop
                         break;
                     }
@@ -4085,33 +4164,67 @@ public class SqlFile {
                         colEnd = recEnd;
                     }
 
-                    if (colCount == dataVals.length) {
+                    if (readColCount == headers.length) {
                         throw new IOException(
                             "Header has " + headers.length
-                            + " columns.  CSV record " + recCount
-                            + " has too many column values.");
+                            + " columns.  CSV input line " + lineCount
+                            + " has too many column values ("
+                            + (1 + readColCount) + ").");
                     }
 
-                    dataVals[colCount++] = string.substring(colStart, colEnd);
+                    if (headers[readColCount++] != null) {
+                        dataVals[storeColCount++] =
+                                string.substring(colStart, colEnd);
+                    }
                     colStart             = colEnd + csvColDelim.length();
                 }
 
-                if (colCount != dataVals.length) {
+                /* It's too late for the following two tests, since if
+                 * we inserted *ColCount > array.length, we would have
+                 * generated a runtime array index exception. */
+                if (readColCount != headers.length) {
                     throw new IOException("Header has " + headers.length
-                                          + " columns.  CSV record "
-                                          + recCount + " has " + colCount
+                                          + " columns.  CSV input line "
+                                          + lineCount + " has " + readColCount
                                           + " column values.");
+                }
+                if (storeColCount != dataVals.length) {
+                    throw new IOException("Header has " + dataVals.length
+                                      + " non-skip columns.  CSV input line "
+                                      + lineCount + " has " + storeColCount
+                                      + " column insertion values.");
                 }
 
                 for (int i = 0; i < dataVals.length; i++) {
-
+                    // N.b. WE SPECIFICALLY DO NOT HANDLE TIMES WITHOUT
+                    // DATES, LIKE "3:14:00", BECAUSE, WHILE THIS MAY BE
+                    // USEFUL AND EFFICIENT, IT IS NOT PORTABLE.
                     //System.err.println("ps.setString(" + i + ", "
                     //      + dataVals[i] + ')');
-                    ps.setString(
-                        i + 1,
-                        (((dataVals[i].length() < 1 && autonulls[i]) || dataVals[i].equals(csvNullRep))
-                         ? null
-                         : dataVals[i]));
+                    if (parseDate[i]) {
+                        if ((dataVals[i].length() < 1 && autonulls[i])
+                              || dataVals[i].equals(csvNullRep)) {
+                            ps.setTimestamp(i + 1, null);
+                        } else {
+                            dateString = (dataVals[i].indexOf(':') > 0)
+                                ? dataVals[i] : (dataVals[i] + " 0:00:00");
+                            try {
+                                ps.setTimestamp(i + 1,
+                                        java.sql.Timestamp.valueOf(dateString));
+                            } catch (IllegalArgumentException iae) {
+                                throw new IOException(iae.getMessage()
+                                        + " for value '"
+                                    + dateString + "' at Line " + lineCount);
+                            }
+                        }
+                    } else {
+                        ps.setString(
+                            i + 1,
+                            (((dataVals[i].length() < 1 && autonulls[i])
+                              || dataVals[i].equals(csvNullRep))
+                             ? null
+                             : dataVals[i]));
+                    }
                 }
 
                 retval = ps.executeUpdate();
@@ -4119,7 +4232,7 @@ public class SqlFile {
                 if (retval != 1) {
                     curConn.rollback();
 
-                    throw new BadSpecial("Insert of row " + recCount
+                    throw new BadSpecial("Insert from input line " + lineCount
                                          + " failed.  " + retval
                                          + " rows modified");
                 }
@@ -4129,13 +4242,23 @@ public class SqlFile {
 
             stdprintln("Successfully inserted " + recCount
                        + " rows into table '" + tableName + "'");
+            if (skipCount > 0) {
+                stdprintln("Skipped " + skipCount + " rows with prefix '"
+                        + csvSkipPrefix + "'");
+            }
         } catch (SQLException se) {
             try {
                 curConn.rollback();
             } catch (SQLException se2) {}
 
             throw new BadSpecial(
-                "SQL error encountered when inserting CSV data: " + se);
+                "SQL error encountered when inserting CSV data"
+                + ((lineCount > 1) ? (" from input line " + lineCount) : "")
+                + ": " + se);
         }
+    }
+
+    public static void appendLine(StringBuffer sb, String s) {
+        sb.append(s + LS);
     }
 }
