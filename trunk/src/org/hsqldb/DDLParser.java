@@ -904,12 +904,21 @@ public class DDLParser extends Parser {
         database.schemaManager.checkTriggerExists(name.name,
                 name.schema.name, false);
 
-        String        oldTableName    = null;
-        String        newTableName    = null;
-        String        oldRowName      = null;
-        String        newRowName      = null;
-        HsqlArrayList sqlStatements   = new HsqlArrayList();
-        HsqlArrayList sqlReplacements = new HsqlArrayList();
+        if (columns != null) {
+            int[] cols = table.getColumnIndexes(columns);
+
+            // do this inside trigger class
+            table.getColumnCheckList(cols);
+        }
+
+        Expression      condition       = null;
+        String          oldTableName    = null;
+        String          newTableName    = null;
+        String          oldRowName      = null;
+        String          newRowName      = null;
+        RangeVariable[] rangeVars       = new RangeVariable[4];
+        HsqlArrayList   sqlStatements   = new HsqlArrayList();
+        HsqlArrayList   sqlReplacements = new HsqlArrayList();
 
         if (tokenType == Token.REFERENCING) {
             read();
@@ -944,6 +953,11 @@ public class DDLParser extends Parser {
                                 || n.equals(newRowName)) {
                             throw unexpectedToken();
                         }
+
+                        RangeVariable range = new RangeVariable(table, n,
+                            null, compileContext);
+
+                        rangeVars[TriggerDef.OLD_TABLE] = range;
                     } else if (tokenType == Token.ROW) {
                         if (oldRowName != null) {
                             throw unexpectedToken();
@@ -963,6 +977,11 @@ public class DDLParser extends Parser {
                         }
 
                         isForEachRow = true;
+
+                        RangeVariable range = new RangeVariable(table, n,
+                            null, compileContext);
+
+                        rangeVars[TriggerDef.OLD_ROWS] = range;
                     } else {
                         throw unexpectedToken();
                     }
@@ -991,6 +1010,11 @@ public class DDLParser extends Parser {
                                 || n.equals(newRowName)) {
                             throw unexpectedToken();
                         }
+
+                        RangeVariable range = new RangeVariable(table, n,
+                            null, compileContext);
+
+                        rangeVars[TriggerDef.NEW_TABLE] = range;
                     } else if (tokenType == Token.ROW) {
                         if (newRowName != null) {
                             throw unexpectedToken();
@@ -1009,6 +1033,11 @@ public class DDLParser extends Parser {
                                 || n.equals(oldRowName)) {
                             throw unexpectedToken();
                         }
+
+                        RangeVariable range = new RangeVariable(table, n,
+                            null, compileContext);
+
+                        rangeVars[TriggerDef.NEW_ROWS] = range;
                     } else {
                         throw unexpectedToken();
                     }
@@ -1055,8 +1084,19 @@ public class DDLParser extends Parser {
         if (tokenType == Token.WHEN) {
             read();
             readThis(Token.OPENBRACKET);
-            readCondition();
+
+            condition = readCondition();
+
             readThis(Token.CLOSEBRACKET);
+
+            OrderedHashSet unresolved =
+                condition.resolveColumnReferences(rangeVars, null);
+
+            if (unresolved != null) {
+                Expression col = (Expression) unresolved.get(0);
+
+                throw Trace.error(Trace.COLUMN_NOT_FOUND, col.getAlias());
+            }
         }
 
         if (tokenType == Token.CALL) {
@@ -1089,26 +1129,10 @@ public class DDLParser extends Parser {
             return;
         }
 
-        CompiledStatement cs = null;
-
-        switch (tokenType) {
-
-            case Token.INSERT :
-                cs = compileInsertStatement();
-                break;
-
-            case Token.UPDATE :
-                cs = compileUpdateStatement();
-                break;
-
-            case Token.MERGE :
-                cs = compileMergeStatement();
-                break;
-
-            default :
-                throw unexpectedToken();
-        }
+        throw unexpectedToken();
     }
+
+    //read
 
     /**
      * Responsible for handling the creation of table columns during the process

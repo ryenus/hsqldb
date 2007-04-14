@@ -2965,9 +2965,8 @@ class Parser extends BaseParser {
         checkIsNameOrKeyword();
 
         String schema = session.getSchemaName(namePrefix);
-
-        NumberSequence sequence = database.schemaManager.getSequence(tokenString,
-            schema);
+        NumberSequence sequence =
+            database.schemaManager.getSequence(tokenString, schema);
 
         read();
 
@@ -3071,8 +3070,13 @@ class Parser extends BaseParser {
     CompiledStatement compileCallStatement() throws HsqlException {
 
         Expression expression = parseExpression();
-        CompiledStatement cs = new CompiledStatement(session,
-            session.currentSchema, expression, compileContext);
+
+        expression.resolveTypes(session, null);
+
+        expression.paramMode = Expression.PARAM_OUT;
+
+        CompiledStatement cs = new CompiledStatement(session, expression,
+            compileContext);
 
         return cs;
     }
@@ -3082,13 +3086,13 @@ class Parser extends BaseParser {
      */
     CompiledStatement compileDeleteStatement() throws HsqlException {
 
-        Expression    condition = null;
-        RangeVariable rangeVar;
+        Expression condition = null;
 
         read();
         readThis(Token.FROM);
 
-        rangeVar = readSimpleRangeVariable(GrantConstants.DELETE);
+        RangeVariable[] rangeVars = {
+            readSimpleRangeVariable(GrantConstants.DELETE) };
 
         if (tokenType == Token.WHERE) {
             read();
@@ -3098,10 +3102,23 @@ class Parser extends BaseParser {
             if (condition.getDataType().type != Types.SQL_BOOLEAN) {
                 throw Trace.error(Trace.NOT_A_CONDITION);
             }
+
+            OrderedHashSet set = condition.resolveColumnReferences(rangeVars,
+                null);
+
+            Select.checkColumnsResolved(set);
+            condition.resolveTypes(session, null);
+
+            RangeVariableResolver fr = new RangeVariableResolver(rangeVars,
+                condition, compileContext);
+
+            fr.processConditions(session);
+
+            rangeVars = fr.rangeVariables;
         }
 
-        CompiledStatement cs = new CompiledStatement(session,
-            session.currentSchema, rangeVar, condition, compileContext);
+        CompiledStatement cs = new CompiledStatement(session, rangeVars,
+            compileContext);
 
         return cs;
     }
@@ -3327,9 +3344,12 @@ class Parser extends BaseParser {
             read();
             readThis(Token.VALUES);
 
-            Expression e = new Expression(Expression.ROW, new Expression[]{});
+            Expression insertExpression = new Expression(Expression.ROW,
+                new Expression[]{});
 
-            e = new Expression(Expression.TABLE, new Expression[]{ e });
+            insertExpression = new Expression(Expression.TABLE,
+                                              new Expression[]{
+                                                  insertExpression });
             columnCheckList = table.getNewColumnCheckList();
 
             for (int i = 0; i < table.colDefaults.length; i++) {
@@ -3341,9 +3361,8 @@ class Parser extends BaseParser {
                 }
             }
 
-            CompiledStatement cs = new CompiledStatement(session,
-                session.currentSchema, table, columnMap, e, columnCheckList,
-                compileContext);
+            CompiledStatement cs = new CompiledStatement(session, table,
+                columnMap, insertExpression, columnCheckList, compileContext);
 
             return cs;
         }
@@ -3370,17 +3389,54 @@ class Parser extends BaseParser {
             case Token.VALUES : {
                 read();
 
-                Expression e = readFormattedRowOrTable(colCount);
+                Expression insertExpressions =
+                    readFormattedRowOrTable(colCount);
 
-                e.resolveTypes(session, null);
+                insertExpressions.resolveTypes(session, null);
 
                 Type[] tableColumnTypes = table.getColumnTypes();
 
-                setParameterTypes(e, tableColumnTypes, columnMap);
+                setParameterTypes(insertExpressions, tableColumnTypes,
+                                  columnMap);
 
-                CompiledStatement cs = new CompiledStatement(session,
-                    session.currentSchema, table, columnMap, e,
-                    columnCheckList, compileContext);
+                Expression[] rowList              = insertExpressions.argList;
+                int          enforcedDefaultIndex = -1;
+
+                if (table.hasIdentityColumn()
+                        && table.identitySequence.isAlways()) {
+                    enforcedDefaultIndex = table.getIdentityColumn();
+                }
+
+                for (int j = 0; j < rowList.length; j++) {
+                    Expression[] rowArgs = rowList[j].argList;
+
+                    for (int i = 0; i < rowArgs.length; i++) {
+                        Expression e = rowArgs[i];
+
+                        if (enforcedDefaultIndex == columnMap[i]) {
+                            if (e.exprType != Expression.DEFAULT) {
+                                throw Trace.error(
+                                    Trace.SQL_DEFAULT_CLAUSE_REQUITED);
+                            }
+                        }
+
+                        // non-parameters have already been resolved in Parser
+                        if (e.isParam()) {
+                            e.setAttributesAsColumn(table, columnMap[i]);
+                        } else if (e.exprType == Expression.DEFAULT) {
+                            if (table.colDefaults[i] == null
+                                    && table.identityColumn != columnMap[i]) {
+
+                                // todo - SQL error
+                                throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
+                            }
+                        }
+                    }
+                }
+
+                CompiledStatement cs = new CompiledStatement(session, table,
+                    columnMap, insertExpressions, columnCheckList,
+                    compileContext);
 
                 return cs;
             }
@@ -3396,9 +3452,18 @@ class Parser extends BaseParser {
                     throw Trace.error(Trace.COLUMN_COUNT_DOES_NOT_MATCH);
                 }
 
-                CompiledStatement cs = new CompiledStatement(session,
-                    session.currentSchema, table, columnMap, columnCheckList,
-                    select, compileContext);
+                for (int i = 0; i < select.visibleColumnCount; i++) {
+                    Expression colexpr = select.exprColumns[i];
+
+                    if (colexpr.getDataType() == null) {
+                        Column col = table.getColumn(columnMap[i]);
+
+                        colexpr.setDataType(col.getType());
+                    }
+                }
+
+                CompiledStatement cs = new CompiledStatement(session, table,
+                    columnMap, columnCheckList, select, compileContext);
 
                 return cs;
             }
@@ -3441,8 +3506,8 @@ class Parser extends BaseParser {
             }
         }
 
-        CompiledStatement cs = new CompiledStatement(session,
-            session.currentSchema, select, compileContext);
+        CompiledStatement cs = new CompiledStatement(session, select,
+            compileContext);
 
         return cs;
     }
@@ -3454,21 +3519,23 @@ class Parser extends BaseParser {
 
         read();
 
-        RangeVariable rangeVar =
-            readSimpleRangeVariable(GrantConstants.UPDATE);
-        Table          table = rangeVar.rangeTable;
-        Expression[]   expressions;
-        int[]          colMap;
+        Table          table;
+        Expression[]   updateExpressions;
+        int[]          columnMap;
         OrderedHashSet colNames = new OrderedHashSet();
         HsqlArrayList  exprList = new HsqlArrayList();
+        RangeVariable rangeVars[] = {
+            readSimpleRangeVariable(GrantConstants.UPDATE) };
+
+        table = rangeVars[0].rangeTable;
 
         readThis(Token.SET);
-        readSetClauseList(rangeVar, colNames, exprList);
+        readSetClauseList(rangeVars[0], colNames, exprList);
 
-        colMap      = table.getColumnIndexes(colNames);
-        expressions = new Expression[exprList.size()];
+        columnMap         = table.getColumnIndexes(colNames);
+        updateExpressions = new Expression[exprList.size()];
 
-        exprList.toArray(expressions);
+        exprList.toArray(updateExpressions);
 
         Expression condition = null;
 
@@ -3482,11 +3549,116 @@ class Parser extends BaseParser {
             }
         }
 
-        CompiledStatement cs = new CompiledStatement(session,
-            session.currentSchema, rangeVar, colMap, expressions, condition,
-            compileContext);
+        resolveUpdateExpressions(table, rangeVars, columnMap,
+                                 updateExpressions);
+
+        if (condition != null) {
+            OrderedHashSet set = condition.resolveColumnReferences(rangeVars,
+                null);
+
+            Select.checkColumnsResolved(set);
+            condition.resolveTypes(session, null);
+
+            RangeVariableResolver resolver =
+                new RangeVariableResolver(rangeVars, condition,
+                                          compileContext);
+
+            resolver.processConditions(session);
+
+            rangeVars = resolver.rangeVariables;
+        }
+
+        CompiledStatement cs = new CompiledStatement(session, rangeVars,
+            columnMap, updateExpressions, compileContext);
 
         return cs;
+    }
+
+    private void resolveUpdateExpressions(Table targetTable,
+                                          RangeVariable[] rangeVariables,
+                                          int[] updateColumnMap,
+                                          Expression[] colExpressions)
+                                          throws HsqlException {
+
+        OrderedHashSet set                  = null;
+        int            enforcedDefaultIndex = -1;
+
+        if (targetTable.hasIdentityColumn()
+                && targetTable.identitySequence.isAlways()) {
+            enforcedDefaultIndex = targetTable.getIdentityColumn();
+        }
+
+        for (int i = 0, ix = 0; i < updateColumnMap.length; ) {
+            Expression expr = colExpressions[ix++];
+            Expression e;
+
+            if (expr.exprType == Expression.ROW) {
+                Expression[] argList = expr.argList;
+
+                for (int j = 0; j < argList.length; j++, i++) {
+                    e = argList[j];
+
+                    if (enforcedDefaultIndex == updateColumnMap[i]) {
+                        if (e.exprType != Expression.DEFAULT) {
+                            throw Trace.error(
+                                Trace.SQL_DEFAULT_CLAUSE_REQUITED);
+                        }
+                    }
+
+                    if (e.isParam()) {
+                        e.setAttributesAsColumn(targetTable,
+                                                updateColumnMap[i]);
+                    } else if (e.exprType == Expression.DEFAULT) {
+                        if (targetTable
+                                .colDefaults[updateColumnMap[i]] == null && targetTable
+                                .identityColumn != updateColumnMap[i]) {
+                            throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
+                        }
+                    } else {
+                        set = e.resolveColumnReferences(rangeVariables, set);
+
+                        e.resolveTypes(session, null);
+                    }
+                }
+            } else if (expr.exprType == Expression.TABLE_SUBQUERY) {
+                set = expr.resolveColumnReferences(rangeVariables, set);
+
+                expr.resolveTypes(session, null);
+
+                for (int j = 0; j < expr.subQuery.select.visibleColumnCount;
+                        j++, i++) {
+                    if (enforcedDefaultIndex == updateColumnMap[i]) {
+                        throw Trace.error(Trace.SQL_DEFAULT_CLAUSE_REQUITED);
+                    }
+                }
+            } else {
+                e = expr;
+
+                if (enforcedDefaultIndex == updateColumnMap[i]) {
+                    if (e.exprType != Expression.DEFAULT) {
+                        throw Trace.error(Trace.SQL_DEFAULT_CLAUSE_REQUITED);
+                    }
+                }
+
+                if (e.isParam()) {
+                    e.setAttributesAsColumn(targetTable, updateColumnMap[i]);
+                } else if (e.exprType == Expression.DEFAULT) {
+                    if (targetTable.colDefaults[updateColumnMap[i]] == null
+                            && targetTable.identityColumn
+                               != updateColumnMap[i]) {
+                        throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
+                    }
+                } else {
+                    set = e.resolveColumnReferences(rangeVariables, set);
+
+                    e.resolveTypes(session, null);
+                }
+
+                i++;
+            }
+        }
+
+        Select.checkColumnsResolved(set);
     }
 
     private void readSetClauseList(RangeVariable rangeVar,
@@ -3579,11 +3751,11 @@ class Parser extends BaseParser {
         Table         targetTable;
         RangeVariable targetRange;
         RangeVariable sourceRange;
-        Expression    onCondition;
-        HsqlArrayList updateList       = new HsqlArrayList();
-        Expression[]  updateValues     = null;
-        HsqlArrayList insertList       = new HsqlArrayList();
-        Expression    insertExpression = null;
+        Expression    mergeCondition;
+        HsqlArrayList updateList        = new HsqlArrayList();
+        Expression[]  updateExpressions = null;
+        HsqlArrayList insertList        = new HsqlArrayList();
+        Expression    insertExpression  = null;
 
         read();
         readThis(Token.INTO);
@@ -3593,14 +3765,14 @@ class Parser extends BaseParser {
 
         readThis(Token.USING);
 
-        sourceRange = this.readTableOrSubquery();
+        sourceRange = readTableOrSubquery();
 
         // parse ON search conditions
         readThis(Token.ON);
 
-        onCondition = readOr();
+        mergeCondition = readOr();
 
-        Type type = onCondition.getDataType();
+        Type type = mergeCondition.getDataType();
 
         if (type == null ||!type.isBooleanType()) {
             throw Trace.error(Trace.NOT_A_CONDITION);
@@ -3635,17 +3807,54 @@ class Parser extends BaseParser {
         }
 
         if (updateList.size() > 0) {
-            updateValues = new Expression[updateList.size()];
+            updateExpressions = new Expression[updateList.size()];
 
-            updateList.toArray(updateValues);
+            updateList.toArray(updateExpressions);
 
             updateColumnMap = targetTable.getColumnIndexes(updateColNames);
         }
 
+        RangeVariable[] targetRangeVars = new RangeVariable[] {
+            sourceRange, targetRange
+        };
+        RangeVariable[] sourceRangeVars = new RangeVariable[]{ sourceRange };
+
+        if (updateExpressions != null) {
+            resolveUpdateExpressions(targetTable, sourceRangeVars,
+                                     updateColumnMap, updateExpressions);
+        }
+
+        OrderedHashSet set = null;
+
+        // should never be null, but to be safe...
+        if (mergeCondition != null) {
+            set = mergeCondition.resolveColumnReferences(targetRangeVars,
+                    null);
+
+            Select.checkColumnsResolved(set);
+            mergeCondition.resolveTypes(session, null);
+
+            RangeVariableResolver fr =
+                new RangeVariableResolver(targetRangeVars, mergeCondition,
+                                          compileContext);
+
+            fr.processConditions(session);
+
+            targetRangeVars = fr.rangeVariables;
+        }
+
+        if (insertExpression != null) {
+            set = insertExpression.resolveColumnReferences(sourceRangeVars,
+                    set);
+
+            Select.checkColumnsResolved(set);
+            insertExpression.resolveTypes(session, null);
+        }
+
         CompiledStatement cs = new CompiledStatement(session,
-            session.currentSchema, targetRange, sourceRange, insertColumnMap,
-            updateColumnMap, insertColumnCheckList, onCondition,
-            insertExpression, updateValues, compileContext);
+            targetRangeVars, insertColumnMap, updateColumnMap,
+            insertColumnCheckList, mergeCondition, insertExpression,
+            updateExpressions, compileContext);
 
         return cs;
     }

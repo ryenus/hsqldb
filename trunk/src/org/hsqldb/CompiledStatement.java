@@ -69,11 +69,7 @@ public final class CompiledStatement {
     public static final int SELECT_INTO   = 6;
     public static final int CALL          = 7;
     public static final int MERGE         = 8;
-
-    // enumeration of catagories
-    static final int DML = 9;
-    static final int DQL = 10;
-    static final int DDL = 11;
+    public static final int DDL           = 10;
 
     // resusables
     static final Expression[] parameters0 = new Expression[0];
@@ -214,31 +210,14 @@ public final class CompiledStatement {
     /**
      * Initializes this as a DELETE statement
      */
-    CompiledStatement(Session session, HsqlName schema,
-                      RangeVariable rangeVar, Expression condition,
+    CompiledStatement(Session session,
+                      RangeVariable[] rangeVars,
                       CompileContext compileContext) throws HsqlException {
 
-        schemaHsqlName       = schema;
-        this.targetTable     = rangeVar.rangeTable;
-        targetRangeVariables = new RangeVariable[]{ rangeVar };
-
-        if (condition != null) {
-            OrderedHashSet set =
-                condition.resolveColumnReferences(targetRangeVariables, null);
-
-            Select.checkColumnsResolved(set);
-            condition.resolveTypes(session, null);
-
-            RangeVariableResolver fr =
-                new RangeVariableResolver(targetRangeVariables, condition,
-                                          compileContext);
-
-            fr.processConditions(session);
-
-            targetRangeVariables = fr.rangeVariables;
-        }
-
-        type = DELETE;
+        this.schemaHsqlName       = session.currentSchema;
+        this.targetTable          = rangeVars[0].rangeTable;
+        this.targetRangeVariables = rangeVars;
+        type                      = DELETE;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -247,180 +226,38 @@ public final class CompiledStatement {
     /**
      * Instantiate this as an UPDATE statement.
      */
-    CompiledStatement(Session session, HsqlName schema,
-                      RangeVariable rangeVar, int[] updateColumnMap,
-                      Expression[] colExpressions, Expression condition,
+    CompiledStatement(Session session,
+                      RangeVariable rangeVars[], int[] updateColumnMap,
+                      Expression[] colExpressions,
                       CompileContext compileContext) throws HsqlException {
 
-        schemaHsqlName         = schema;
-        this.targetTable       = rangeVar.rangeTable;
+        this.schemaHsqlName       = session.currentSchema;
+        this.targetTable       = rangeVars[0].rangeTable;
         this.updateColumnMap   = updateColumnMap;
         this.updateExpressions = colExpressions;
         this.updateCheckColumns =
             targetTable.getColumnCheckList(updateColumnMap);
-        targetRangeVariables = new RangeVariable[]{ rangeVar };
-
-        resolveUpdateExpressions(session, targetRangeVariables,
-                                 updateColumnMap, colExpressions);
-
-        if (condition != null) {
-            OrderedHashSet set =
-                condition.resolveColumnReferences(targetRangeVariables, null);
-
-            Select.checkColumnsResolved(set);
-            condition.resolveTypes(session, null);
-
-            RangeVariableResolver resolver =
-                new RangeVariableResolver(targetRangeVariables, condition,
-                                          compileContext);
-
-            resolver.processConditions(session);
-
-            targetRangeVariables = resolver.rangeVariables;
-        }
-
-        type = UPDATE;
+        this.targetRangeVariables = rangeVars;
+        type                      = UPDATE;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
-    private void resolveUpdateExpressions(Session session,
-                                          RangeVariable[] rangeVariables,
-                                          int[] updateColumnMap,
-                                          Expression[] colExpressions)
-                                          throws HsqlException {
-
-        OrderedHashSet set                  = null;
-        int            enforcedDefaultIndex = -1;
-
-        if (targetTable.hasIdentityColumn()
-                && targetTable.identitySequence.isAlways()) {
-            enforcedDefaultIndex = targetTable.getIdentityColumn();
-        }
-
-        for (int i = 0, ix = 0; i < updateColumnMap.length; ) {
-            Expression expr = colExpressions[ix++];
-            Expression e;
-
-            if (expr.exprType == Expression.ROW) {
-                Expression[] argList = expr.argList;
-
-                for (int j = 0; j < argList.length; j++, i++) {
-                    e = argList[j];
-
-                    if (enforcedDefaultIndex == updateColumnMap[i]) {
-                        if (e.exprType != Expression.DEFAULT) {
-                            throw Trace.error(
-                                Trace.SQL_DEFAULT_CLAUSE_REQUITED);
-                        }
-                    }
-
-                    if (e.isParam()) {
-                        e.setAttributesAsColumn(targetTable,
-                                                updateColumnMap[i]);
-                    } else if (e.exprType == Expression.DEFAULT) {
-                        if (targetTable
-                                .colDefaults[updateColumnMap[i]] == null && targetTable
-                                .identityColumn != updateColumnMap[i]) {
-                            throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
-                        }
-                    } else {
-                        set = e.resolveColumnReferences(rangeVariables, set);
-
-                        e.resolveTypes(session, null);
-                    }
-                }
-            } else if (expr.exprType == Expression.TABLE_SUBQUERY) {
-                set = expr.resolveColumnReferences(rangeVariables, set);
-
-                expr.resolveTypes(session, null);
-
-                for (int j = 0; j < expr.subQuery.select.visibleColumnCount;
-                        j++, i++) {
-                    if (enforcedDefaultIndex == updateColumnMap[i]) {
-                        throw Trace.error(Trace.SQL_DEFAULT_CLAUSE_REQUITED);
-                    }
-                }
-            } else {
-                e = expr;
-
-                if (enforcedDefaultIndex == updateColumnMap[i]) {
-                    if (e.exprType != Expression.DEFAULT) {
-                        throw Trace.error(Trace.SQL_DEFAULT_CLAUSE_REQUITED);
-                    }
-                }
-
-                if (e.isParam()) {
-                    e.setAttributesAsColumn(targetTable, updateColumnMap[i]);
-                } else if (e.exprType == Expression.DEFAULT) {
-                    if (targetTable.colDefaults[updateColumnMap[i]] == null
-                            && targetTable.identityColumn
-                               != updateColumnMap[i]) {
-                        throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
-                    }
-                } else {
-                    set = e.resolveColumnReferences(rangeVariables, set);
-
-                    e.resolveTypes(session, null);
-                }
-
-                i++;
-            }
-        }
-
-        Select.checkColumnsResolved(set);
-    }
-
     /**
      * Instantiate this as an INSERT_VALUES statement.
      */
-    CompiledStatement(Session session, HsqlName schema, Table targetTable,
+    CompiledStatement(Session session, Table targetTable,
                       int[] columnMap, Expression insertExpression,
                       boolean[] checkColumns,
                       CompileContext compileContext) throws HsqlException {
 
-        schemaHsqlName          = schema;
+        this.schemaHsqlName       = session.currentSchema;
         this.targetTable        = targetTable;
         this.insertColumnMap    = columnMap;
         this.insertCheckColumns = checkColumns;
         this.insertExpression   = insertExpression;
-
-        Expression[] rowList              = insertExpression.argList;
-        int          enforcedDefaultIndex = -1;
-
-        if (targetTable.hasIdentityColumn()
-                && targetTable.identitySequence.isAlways()) {
-            enforcedDefaultIndex = targetTable.getIdentityColumn();
-        }
-
-        for (int j = 0; j < rowList.length; j++) {
-            Expression[] rowArgs = rowList[j].argList;
-
-            for (int i = 0; i < rowArgs.length; i++) {
-                Expression e = rowArgs[i];
-
-                if (enforcedDefaultIndex == insertColumnMap[i]) {
-                    if (e.exprType != Expression.DEFAULT) {
-                        throw Trace.error(Trace.SQL_DEFAULT_CLAUSE_REQUITED);
-                    }
-                }
-
-                // non-parameters have already been resolved in Parser
-                if (e.isParam()) {
-                    e.setAttributesAsColumn(targetTable, columnMap[i]);
-                } else if (e.exprType == Expression.DEFAULT) {
-                    if (targetTable.colDefaults[i] == null
-                            && targetTable.identityColumn != columnMap[i]) {
-
-                        // todo - SQL error
-                        throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
-                    }
-                }
-            }
-        }
-
-        type = INSERT_VALUES;
+        type                    = INSERT_VALUES;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -429,20 +266,16 @@ public final class CompiledStatement {
     /**
      * Instantiate this as an INSERT_SELECT statement.
      */
-    CompiledStatement(Session session, HsqlName schema, Table targetTable,
+    CompiledStatement(Session session, Table targetTable,
                       int[] columnMap, boolean[] checkColumns, Select select,
                       CompileContext compileContext) throws HsqlException {
 
-        schemaHsqlName          = schema;
+        this.schemaHsqlName       = session.currentSchema;
         this.targetTable        = targetTable;
         this.insertColumnMap    = columnMap;
         this.insertCheckColumns = checkColumns;
         this.select             = select;
-
-        // resolve any parameters in SELECT
-        resolveInsertParameterTypes();
-
-        type = INSERT_SELECT;
+        type                    = INSERT_SELECT;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -451,13 +284,13 @@ public final class CompiledStatement {
     /**
      * Instantiate this as a SELECT statement.
      */
-    CompiledStatement(Session session, HsqlName schema, Select select,
+    CompiledStatement(Session session, Select select,
                       CompileContext compileContext) throws HsqlException {
 
-        schemaHsqlName = schema;
-        this.select    = select;
-        type           = (select.intoTableName == null) ? SELECT
-                                                        : SELECT_INTO;
+        this.schemaHsqlName       = session.currentSchema;
+        this.select         = select;
+        type                = (select.intoTableName == null) ? SELECT
+                                                             : SELECT_INTO;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -466,17 +299,13 @@ public final class CompiledStatement {
     /**
      * Instantiate this as a CALL statement.
      */
-    CompiledStatement(Session session, HsqlName schema,
+    CompiledStatement(Session session,
                       Expression expression,
                       CompileContext compileContext) throws HsqlException {
 
-        schemaHsqlName  = schema;
-        this.expression = expression;
-
-        expression.resolveTypes(session, null);
-
-        expression.paramMode = Expression.PARAM_OUT;
-        type                 = CALL;
+        this.schemaHsqlName       = session.currentSchema;
+        this.expression     = expression;
+        type                = CALL;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -485,62 +314,24 @@ public final class CompiledStatement {
     /**
      * Instantiate this as a MERGE statement.
      */
-    CompiledStatement(Session session, HsqlName schema,
-                      RangeVariable targetRangeVar,
-                      RangeVariable sourceRangeVar, int[] insertColMap,
+    CompiledStatement(Session session,
+                      RangeVariable[] targetRangeVars, int[] insertColMap,
                       int[] updateColMap, boolean[] checkColumns,
                       Expression mergeCondition, Expression insertExpr,
                       Expression[] updateExpr,
                       CompileContext compileContext) throws HsqlException {
 
-        this.schemaHsqlName     = schema;
-        this.targetTable        = targetRangeVar.rangeTable;
-        this.sourceTable        = sourceRangeVar.rangeTable;
-        this.insertCheckColumns = checkColumns;
-        this.insertColumnMap    = insertColMap;
-        this.updateColumnMap    = updateColMap;
-        this.insertExpression   = insertExpr;
-        this.updateExpressions  = updateExpr;
-        targetRangeVariables    = new RangeVariable[] {
-            sourceRangeVar, targetRangeVar
-        };
-
-        RangeVariable[] sourceRangeVariables = new RangeVariable[]{
-            sourceRangeVar };
-        OrderedHashSet set = null;
-
-        if (updateExpr != null) {
-            resolveUpdateExpressions(session, sourceRangeVariables,
-                                     updateColumnMap, updateExpr);
-        }
-
-        // should never be null, but to be safe...
-        if (mergeCondition != null) {
-            set = mergeCondition.resolveColumnReferences(targetRangeVariables,
-                    null);
-
-            Select.checkColumnsResolved(set);
-            mergeCondition.resolveTypes(session, null);
-
-            RangeVariableResolver fr =
-                new RangeVariableResolver(targetRangeVariables,
-                                          mergeCondition, compileContext);
-
-            fr.processConditions(session);
-
-            targetRangeVariables = fr.rangeVariables;
-            condition            = mergeCondition;
-        }
-
-        if (insertExpr != null) {
-            set = insertExpr.resolveColumnReferences(sourceRangeVariables,
-                    set);
-
-            Select.checkColumnsResolved(set);
-            insertExpr.resolveTypes(session, null);
-        }
-
-        type = MERGE;
+        this.schemaHsqlName       = session.currentSchema;
+        this.sourceTable          = targetRangeVars[0].rangeTable;
+        this.targetTable          = targetRangeVars[1].rangeTable;
+        this.insertCheckColumns   = checkColumns;
+        this.insertColumnMap      = insertColMap;
+        this.updateColumnMap      = updateColMap;
+        this.insertExpression     = insertExpr;
+        this.updateExpressions    = updateExpr;
+        this.targetRangeVariables = targetRangeVars;
+        this.condition            = mergeCondition;
+        type                      = MERGE;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -634,22 +425,6 @@ public final class CompiledStatement {
         return generatedIndexes != null;
     }
 
-    /**
-     * For parameters in INSERT_VALUES and INSERT_SELECT lists
-     */
-    private void resolveInsertParameterTypes() {
-
-        for (int i = 0; i < select.visibleColumnCount; i++) {
-            Expression colexpr = select.exprColumns[i];
-
-            if (colexpr.getDataType() == null) {
-                Column col = targetTable.getColumn(insertColumnMap[i]);
-
-                colexpr.setDataType(col.getType());
-            }
-        }
-    }
-
     private void setParameters(Expression[] params) {
 
         this.parameters = params;
@@ -741,7 +516,8 @@ public final class CompiledStatement {
 
         if (sequenceExpressions != null) {
             for (int i = 0; i < sequenceExpressions.size(); i++) {
-                NumberSequence s = (NumberSequence) sequenceExpressions.get(i);
+                NumberSequence s =
+                    (NumberSequence) sequenceExpressions.get(i);
 
                 session.getUser().checkAccess(s);
             }
@@ -749,18 +525,18 @@ public final class CompiledStatement {
 
         if (routineExpressions != null) {
             for (int i = 0; i < routineExpressions.size(); i++) {
-                String   s = (String) routineExpressions.get(i);
+                String s = (String) routineExpressions.get(i);
 
                 session.getUser().checkAccess(s);
             }
         }
 
         if (rangeVariables != null) {
-
             for (int i = 0; i < rangeVariables.size(); i++) {
                 RangeVariable range = (RangeVariable) rangeVariables.get(i);
 
-                if (range.rangeTable.getSchemaName() == SchemaManager.SYSTEM_SCHEMA_HSQLNAME ) {
+                if (range.rangeTable.getSchemaName()
+                        == SchemaManager.SYSTEM_SCHEMA_HSQLNAME) {
                     continue;
                 }
 
@@ -784,6 +560,7 @@ public final class CompiledStatement {
             }
             case SELECT :
                 break;
+
             case DELETE : {
 
                 // session level user rights
@@ -818,31 +595,13 @@ public final class CompiledStatement {
                 session.getUser().checkUpdate(targetTable,
                                               updateCheckColumns);
                 targetTable.checkDataReadOnly();
+
+                break;
             }
             case DDL : {
                 session.checkReadWrite();
             }
         }
-    }
-
-    /**
-     * Under construction. Determines if table can be written to, both
-     * according to user rights and according to database / table readonly
-     * attributes.
-     */
-    void checkTableWriteAccess(Session session,
-                               Table table) throws HsqlException {
-
-        // session level user rights
-        session.checkReadWrite();
-
-        // object type
-        if (table.isView()) {
-            throw Trace.error(Trace.NOT_A_TABLE, table.getName().name);
-        }
-
-        // object readonly
-        table.checkDataReadOnly();
     }
 
     /**

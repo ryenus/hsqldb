@@ -2318,8 +2318,6 @@ public class Table extends BaseTable implements SchemaObject {
         }
     }
 
-// fredt@users 20020130 - patch 491987 by jimbag@users - modified
-
     /**
      *  Fires all row-level triggers of the given set (trigger type)
      *
