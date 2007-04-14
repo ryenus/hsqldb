@@ -40,7 +40,7 @@ import java.sql.Statement;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.DataSet;
+//import java.sql.DataSet;
 import java.sql.NClob;
 import java.sql.ResultSet;
 import java.sql.SQLXML;
@@ -388,17 +388,39 @@ public class jdbcConnectionTest extends JdbcTestCase {
 
         String     catalog = null;
         Connection conn    = newConnection();
-
-        conn.setCatalog(catalog);
+        
+        try {
+            conn.setCatalog(catalog);
+        } catch (SQLException ex) {
+            
+        }
 
         catalog = "acatalog";
 
         try {
             conn.setCatalog(catalog);
-            fail("Allowed non-null catalog argument");
         } catch (Exception e) {
-
+            fail("setCatalog(acatalog): " + e);
         }
+        
+        conn.close();
+        
+        catalog = null;
+        
+        try {
+            conn.setCatalog(catalog);
+            fail("Allowed setCatalog(null) on closed connection");
+        } catch (SQLException ex) {            
+        }
+
+        catalog = "acatalog";
+
+        try {
+            conn.setCatalog(catalog);
+            
+            fail("Allowed setCatalog(acatalog) on closed connection");
+        } catch (Exception e) {            
+        }        
     }
 
     /**
@@ -578,11 +600,37 @@ public class jdbcConnectionTest extends JdbcTestCase {
         System.out.println("setSavepoint");
 
         Connection conn = newConnection();
+        
+        conn.setAutoCommit(true);
+        
+        try
+        {
+             Savepoint result = conn.setSavepoint("s1");
+             fail("Allowed setSavepoint(name) in autoCommit mode.");
+        } catch (Exception e){}
+        
+        conn.setAutoCommit(false);
+
+        try {
+            Savepoint result = conn.setSavepoint("s2");
+        } catch (Exception e) {
+             fail("setSavepoint(name): " + e.getMessage());
+        }        
+        
+        conn.setAutoCommit(true);
+        
+        try
+        {
+             Savepoint result = conn.setSavepoint();
+             fail("Allowed setSavepoint() [no args] in autoCommit mode.");
+        } catch (Exception e){}
+        
+        conn.setAutoCommit(false);
 
         try {
             Savepoint result = conn.setSavepoint();
         } catch (Exception e) {
-            fail("setSavepoint() [no args]: " + e.getMessage());
+             fail("setSavepoint() [no args]: " + e.getMessage());
         }
     }
 
@@ -726,32 +774,32 @@ public class jdbcConnectionTest extends JdbcTestCase {
     /**
      * Test of createQueryObject method, of interface java.sql.Connection.
      */
-    public void testCreateQueryObject() throws Exception {
-        System.out.println("createQueryObject");
-
-        setUpSampleData();
-
-        Class<CustomerDao> ifc         = CustomerDao.class;
-        Connection         conn        = newConnection();
-        CustomerDao        customerDao = conn.createQueryObject(ifc);
-        DataSet<Customer>  customers   = customerDao.getAllCustomers();
-        ResultSet          rs          = conn.createStatement()
-                                            .executeQuery(
-                "select id, firstname, lastname, street, city from customer order by 1");
-
-        for (Customer customer: customers) {
-            rs.next();
-
-            assertEquals("customer.id", rs.getInt(1), customer.id.intValue());
-            assertEquals("customer.firstname", rs.getString(2), customer.firstname);
-            assertEquals("customer.lastname", rs.getString(3), customer.lastname);
-            assertEquals("customer.street", rs.getString(4), customer.street);
-            assertEquals("customer.city", rs.getString(5), customer.city);
-
-        }
-
-        // TODO:  test update and delete functions.
-    }
+//    public void testCreateQueryObject() throws Exception {
+//        System.out.println("createQueryObject");
+//
+//        setUpSampleData();
+//
+//        Class<CustomerDao> ifc         = CustomerDao.class;
+//        Connection         conn        = newConnection();
+//        CustomerDao        customerDao = conn.createQueryObject(ifc);
+//        DataSet<Customer>  customers   = customerDao.getAllCustomers();
+//        ResultSet          rs          = conn.createStatement()
+//                                            .executeQuery(
+//                "select id, firstname, lastname, street, city from customer order by 1");
+//
+//        for (Customer customer: customers) {
+//            rs.next();
+//
+//            assertEquals("customer.id", rs.getInt(1), customer.id.intValue());
+//            assertEquals("customer.firstname", rs.getString(2), customer.firstname);
+//            assertEquals("customer.lastname", rs.getString(3), customer.lastname);
+//            assertEquals("customer.street", rs.getString(4), customer.street);
+//            assertEquals("customer.city", rs.getString(5), customer.city);
+//
+//        }
+//
+//        // TODO:  test update and delete functions.
+//    }
 
     /**
      * Test of unwrap method, of interface java.sql.Connection.
