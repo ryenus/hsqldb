@@ -1,7 +1,9 @@
 drop table all_types if exists;
 
+-- CHECKME : Why does "integer identity primary key" fail now?
+
 create table all_types(
-     id                   integer identity primary key,
+     id                   integer identity,
      c_bigint             bigint,
      c_binary             binary,
      c_boolean            boolean,
