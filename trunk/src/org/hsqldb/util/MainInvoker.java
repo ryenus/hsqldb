@@ -31,9 +31,9 @@
 
 package org.hsqldb.util;
 
-import java.util.ArrayList;
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 /**
  * Invokes the static main(String[]) method from each class specified.
@@ -109,7 +109,6 @@ public class MainInvoker {
     }
 
     public static String LS = System.getProperty("line.separator");
-
     private static final String SYNTAX_MSG =
         "    java org.hsqldb.util.MainInvoker "
         + "[package1.Class1 [arg1a arg1b...] \"\"]... \\" + LS
