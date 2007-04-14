@@ -58,4 +58,5 @@
 /*u0*/DROP USER u1;
 /*u0*/DROP USER privd;
 /*u0*/DROP USER unprivd;
+/*u0*/DROP TABLE multicol;
 /*u0*/SHUTDOWN;
