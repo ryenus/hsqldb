@@ -34,6 +34,8 @@ package org.hsqldb.jdbc;
 import java.io.InputStream;
 import java.io.Reader;
 
+import java.lang.reflect.Array;
+
 import java.math.BigDecimal;
 
 import java.sql.Blob;
@@ -54,6 +56,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.Set;
+import org.hsqldb.lib.StringConverter;
 
 /**
  * Abstract JDBC-focused Junit test case. <p>
@@ -416,7 +419,7 @@ public abstract class JdbcTestCase extends TestCase {
 
         while(it.hasNext()) {
             String sql = (String) it.next();
-            System.out.println("sql: " + sql);
+            //System.out.println("sql: " + sql);
             stmt.execute(sql);
         }
 
@@ -450,8 +453,8 @@ public abstract class JdbcTestCase extends TestCase {
      * for multi-arrays, we return 'N' (n-dimensional). <p>
      *
      * for (non-null, non-array) object ref, we return 'O' (Object).
-     * @param o
-     * @return
+     * @param o for which to retrieve the component type.
+     * @return the component type.
      */
     protected static char getComponentDescriptor(Object o) {
 
@@ -482,64 +485,171 @@ public abstract class JdbcTestCase extends TestCase {
             return 'O';
         }
     }
+    
+    /**
+     * Computes a shallow string representation of the given array.
+     *
+     * @param array the array
+     * @return a shallow string representation.
+     */
+    protected static String arrayToString(Object array)
+    {
+        if (array == null)
+        {
+            return "null";            
+        }
+        
+        int length = Array.getLength(array);
+        
+        StringBuffer sb = new StringBuffer();
+        
+        sb.append('[');
+        
+        for(int i = 0; i < length; i++)
+        {
+            if (i > 0)
+            {
+                sb.append(',');
+            }
+            
+            sb.append(Array.get(array,i));
+        }
+        
+        sb.append(']');
+        
+        return sb.toString();
+    }
+    
+    /**
+     * Computes an arrays not equal failure message
+     * for the given arrays.
+     *
+     * @param expected array
+     * @param actual array
+     * @return failure message
+     */
+    protected static String arraysNotEqualMessage(Object expected, Object actual)
+    {
+         return "expected:<" 
+                 + arrayToString(expected) 
+                 + "> but was:<" 
+                 + arrayToString(actual) 
+                 + ">";    
+    }
 
     /**
+     * Assert that the given objects are equal.
      *
-     * @param expected
-     * @param actual
+     * Provides special handling for Java array objects.
+     *
+     * @param expected object
+     * @param actual object
      * @throws java.lang.Exception
      */
     protected static void assertJavaArrayEquals(Object expected, Object actual) throws Exception {
-        String msg = "" + expected + "==" + actual;
-
+        
         switch(getComponentDescriptor(expected)) {
             case 'X' : {
-                Assert.assertEquals(msg, null, actual);
+                if (actual != null) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'B' : {
-                Assert.assertTrue(msg, Arrays.equals((byte[]) expected, (byte[]) actual));
+                if (!Arrays.equals((byte[]) expected, (byte[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
                break;
             }
             case 'C' : {
-                Assert.assertTrue(msg, Arrays.equals((char[]) expected, (char[]) actual));
+                if (!Arrays.equals((char[]) expected, (char[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'D' : {
-                Assert.assertTrue(msg, Arrays.equals((double[])expected, (double[])actual));
+                if (!Arrays.equals((double[])expected, (double[])actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'F' : {
-                Assert.assertTrue(msg, Arrays.equals((float[])expected, (float[])actual));
+                if (!Arrays.equals((float[])expected, (float[])actual)) {
+                     fail(arraysNotEqualMessage(expected, actual));
+                }            
                 break;
             }
             case 'I' : {
-                Assert.assertTrue(msg, Arrays.equals((int[])expected, (int[])actual));
+                if(!Arrays.equals((int[])expected, (int[])actual)) {
+                     fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'J' : {
-                Assert.assertTrue(msg, Arrays.equals((long[])expected, (long[])actual));
+                if (!Arrays.equals((long[])expected, (long[])actual)) {
+                     fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'L' : {
-                Assert.assertTrue(msg, Arrays.deepEquals((Object[])expected, (Object[])actual));
+                if (!Arrays.deepEquals((Object[])expected, (Object[])actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'S' : {
-                Assert.assertTrue(msg, Arrays.equals((short[])expected, (short[])actual));
+                if (!Arrays.equals((short[])expected, (short[])actual)) {
+                     fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'Z' : {
-                Assert.assertTrue(msg, Arrays.equals((boolean[])expected, (boolean[])actual));
+                if (!Arrays.equals((boolean[])expected, (boolean[])actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'N' : {
-                Assert.assertTrue("multi-arrays not yet handled: " + msg, false);
+                if (actual == null)
+                {
+                    fail("expected:<" 
+                       + arrayToString(expected) 
+                       + "> but was:<null>");
+                }
+                else if(Object[].class.isAssignableFrom(expected.getClass()) 
+                     && Object[].class.isAssignableFrom(actual.getClass())) 
+                {
+                    if (!Arrays.deepEquals(
+                            (Object[])expected,
+                            (Object[])actual)) {
+                         fail(arraysNotEqualMessage(expected, actual));
+                    }
+                }
+                else
+                {
+                    assertEquals(
+                            "Array Class",                                                        
+                            expected.getClass(),
+                            actual.getClass());
+                    assertEquals(
+                            "Array Length",
+                            Array.getLength(expected),
+                            Array.getLength(actual));
+                    
+                    int len = Array.getLength(expected);
+                    
+                    for (int i = 0; i < len; i++)
+                    {
+                        assertJavaArrayEquals(
+                                Array.get(expected, i), 
+                                Array.get(actual, i));
+                    }
+                }
                 break;
             }
             case '0' :
             default : {
-                Assert.assertEquals(msg, expected, actual);
+                assertEquals(expected, actual);
                 break;
             }
         }
@@ -691,10 +801,21 @@ public abstract class JdbcTestCase extends TestCase {
         }
     }
 
+    /**
+     * 
+     * @param key 
+     * @return 
+     */
     protected String translatePropertyKey(final String key) {
         return "org.hsqldb.jdbc.JdbcTestCase." + key;
     }
 
+    /**
+     * 
+     * @param key 
+     * @param defaultValue 
+     * @return 
+     */
     public String getProperty(final String key, final String defaultValue) {
         try {
             return System.getProperty(translatePropertyKey(key), defaultValue);
@@ -703,21 +824,37 @@ public abstract class JdbcTestCase extends TestCase {
         }
     }
 
+    /**
+     * 
+     * @return 
+     */
     public String getDriver() {
         return getProperty("driver", DEFAULT_DRIVER);
     }
 
 
+    /**
+     * 
+     * @return 
+     */
     public String getUrl() {
         return getProperty("url", DEFAULT_URL);
     }
 
 
+    /**
+     * 
+     * @return 
+     */
     public String getUser() {
         return getProperty("user", DEFAULT_USER);
     }
 
 
+    /**
+     * 
+     * @return 
+     */
     public String getPassword() {
         return getProperty("password", DEFAULT_PASSWORD);
     }
