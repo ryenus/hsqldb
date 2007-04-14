@@ -79,8 +79,9 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         return newConnection().prepareCall(call);
     }
 
-    void setObjectTest(String typeName, Object x, int type) throws Exception {
-        CallableStatement stmt = prepareCall("select cast(? as " + typeName + ") from dual");
+    void setObjectTest(String typeName, Object x, int type) throws Exception {        
+        CallableStatement stmt 
+                = prepareCall("select cast(? as " + typeName + ") from dual");
 
         stmt.setObject("@p1", x, type);
 
@@ -88,7 +89,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
 
         rs.next();
 
-        Object result = rs.getObject(1);
+        Object result = rs.getObject(1);        
 
         if (x instanceof Number) {
             assertEquals(((Number)x).doubleValue(), ((Number)result).doubleValue());
@@ -111,7 +112,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of close method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of close method, of inteface java.sql.CallableStatement.
      */
     public void testClose() throws Exception {
         System.out.println("close");
@@ -124,7 +125,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of registerOutParameter method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of registerOutParameter method, of inteface java.sql.CallableStatement.
      */
     public void testRegisterOutParameter() throws Exception {
         System.out.println("registerOutParameter");
@@ -141,7 +142,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of wasNull method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of wasNull method, of inteface java.sql.CallableStatement.
      */
     public void testWasNull() throws Exception {
         System.out.println("wasNull");
@@ -164,7 +165,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getString method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getString method, of inteface java.sql.CallableStatement.
      */
     public void testGetString() throws Exception {
         System.out.println("getString");
@@ -187,7 +188,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getBoolean method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getBoolean method, of inteface java.sql.CallableStatement.
      */
     public void testGetBoolean() throws Exception {
         System.out.println("getBoolean");
@@ -210,7 +211,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getByte method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getByte method, of inteface java.sql.CallableStatement.
      */
     public void testGetByte() throws Exception {
         System.out.println("getByte");
@@ -233,7 +234,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getShort method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getShort method, of inteface java.sql.CallableStatement.
      */
     public void testGetShort() throws Exception {
         System.out.println("getShort");
@@ -256,7 +257,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getInt method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getInt method, of inteface java.sql.CallableStatement.
      */
     public void testGetInt() throws Exception {
         System.out.println("getInt");
@@ -279,7 +280,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getLong method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getLong method, of inteface java.sql.CallableStatement.
      */
     public void testGetLong() throws Exception {
         System.out.println("getLong");
@@ -302,7 +303,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getFloat method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getFloat method, of inteface java.sql.CallableStatement.
      */
     public void testGetFloat() throws Exception {
         System.out.println("getFloat");
@@ -325,7 +326,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getDouble method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getDouble method, of inteface java.sql.CallableStatement.
      */
     public void testGetDouble() throws Exception {
         System.out.println("getDouble");
@@ -360,7 +361,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getBigDecimal method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getBigDecimal method, of inteface java.sql.CallableStatement.
      */
     public void testGetBigDecimal() throws Exception {
         System.out.println("getBigDecimal");
@@ -383,7 +384,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getBytes method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getBytes method, of inteface java.sql.CallableStatement.
      */
     public void testGetBytes() throws Exception {
         System.out.println("getBytes");
@@ -409,7 +410,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getDate method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getDate method, of inteface java.sql.CallableStatement.
      */
     public void testGetDate() throws Exception {
         System.out.println("getDate");
@@ -432,7 +433,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getTime method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getTime method, of inteface java.sql.CallableStatement.
      */
     public void testGetTime() throws Exception {
         System.out.println("getTime");
@@ -455,7 +456,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getTimestamp method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getTimestamp method, of inteface java.sql.CallableStatement.
      */
     public void testGetTimestamp() throws Exception {
         System.out.println("getTimestamp");
@@ -478,7 +479,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getObject method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getObject method, of inteface java.sql.CallableStatement.
      */
     public void testGetObject() throws Exception {
         System.out.println("getObject");
@@ -503,7 +504,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getRef method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getRef method, of inteface java.sql.CallableStatement.
      */
     public void testGetRef() throws Exception {
         System.out.println("getRef");
@@ -513,7 +514,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getBlob method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getBlob method, of of inteface java.sql.CallableStatement.
      */
     public void testGetBlob() throws Exception {
         System.out.println("getBlob");
@@ -536,7 +537,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getClob method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getClob method, of inteface java.sql.CallableStatement.
      */
     public void testGetClob() throws Exception {
         System.out.println("getClob");
@@ -559,7 +560,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getArray method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getArray method, of inteface java.sql.CallableStatement.
      */
     public void testGetArray() throws Exception {
         System.out.println("getArray");
@@ -568,7 +569,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getURL method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getURL method, of inteface java.sql.CallableStatement.
      */
     public void testGetURL() throws Exception {
         System.out.println("getURL");
@@ -577,7 +578,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setURL method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setURL method, of inteface java.sql.CallableStatement.
      */
     public void testSetURL() throws Exception {
         System.out.println("setURL");
@@ -586,7 +587,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setNull method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setNull method, of inteface java.sql.CallableStatement.
      */
     public void testSetNull() throws Exception {
         System.out.println("setNull");
@@ -597,18 +598,21 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setBoolean method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setBoolean method, of inteface java.sql.CallableStatement.
      */
     public void testSetBoolean() throws Exception {
         System.out.println("setBoolean");
 
         setUpDualTable();
-        prepareCall("select cast(? as boolean) from dual")
-            .setBoolean("@p1", true);
+        
+        java.sql.CallableStatement stmt 
+                = prepareCall("select ((1=1) or ?) from dual");
+        
+        stmt.setBoolean("@p1", true);
     }
 
     /**
-     * Test of setByte method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setByte method, of inteface java.sql.CallableStatement.
      */
     public void testSetByte() throws Exception {
         System.out.println("setByte");
@@ -619,7 +623,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setShort method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setShort method, of inteface java.sql.CallableStatement.
      */
     public void testSetShort() throws Exception {
         System.out.println("setShort");
@@ -630,7 +634,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setInt method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setInt method, of inteface java.sql.CallableStatement.
      */
     public void testSetInt() throws Exception {
         System.out.println("setInt");
@@ -640,7 +644,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setLong method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setLong method, of inteface java.sql.CallableStatement.
      */
     public void testSetLong() throws Exception {
         System.out.println("setLong");
@@ -650,7 +654,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setFloat method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setFloat method, of inteface java.sql.CallableStatement.
      */
     public void testSetFloat() throws Exception {
         System.out.println("setFloat");
@@ -670,7 +674,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setDouble method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setDouble method, of inteface java.sql.CallableStatement.
      */
     public void testSetDouble() throws Exception {
         System.out.println("setDouble");
@@ -701,7 +705,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setBigDecimal method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setBigDecimal method, of inteface java.sql.CallableStatement.
      */
     public void testSetBigDecimal() throws Exception {
         System.out.println("setBigDecimal");
@@ -712,7 +716,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setString method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setString method, of inteface java.sql.CallableStatement.
      */
     public void testSetString() throws Exception {
         System.out.println("setString");
@@ -723,7 +727,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setBytes method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setBytes method, of inteface java.sql.CallableStatement.
      */
     public void testSetBytes() throws Exception {
         System.out.println("setBytes");
@@ -734,7 +738,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setDate method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setDate method, of inteface java.sql.CallableStatement.
      */
     public void testSetDate() throws Exception {
         System.out.println("setDate");
@@ -745,7 +749,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setTime method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setTime method, of inteface java.sql.CallableStatement.
      */
     public void testSetTime() throws Exception {
         System.out.println("setTime");
@@ -756,7 +760,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setTimestamp method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setTimestamp method, of inteface java.sql.CallableStatement.
      */
     public void testSetTimestamp() throws Exception {
         System.out.println("setTimestamp");
@@ -767,7 +771,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setAsciiStream method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setAsciiStream method, of inteface java.sql.CallableStatement.
      */
     public void testSetAsciiStream() throws Exception {
         System.out.println("setAsciiStream");
@@ -782,7 +786,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setBinaryStream method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setBinaryStream method, of inteface java.sql.CallableStatement.
      */
     public void testSetBinaryStream() throws Exception {
         System.out.println("setBinaryStream");
@@ -792,60 +796,444 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         byte[]               bytes = "2005-12-13 11:23:02.1234".getBytes();
         ByteArrayInputStream bais  = new ByteArrayInputStream(bytes);
 
-        prepareCall("select cast(? as varchar) from dual")
+        prepareCall("select cast(? as binary) from dual")
             .setBinaryStream("@p1", bais, bytes.length);
     }
-
+    
     /**
-     * Test of setObject method, of class org.hsqldb.jdbc.jdbcCallableStatement.
-     */
-    public void testSetObject() throws Exception {
-        System.out.println("setObject");
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */    
+    public void testSetObject_bigint() throws Exception
+    {
+        System.out.println("setObject - BIGINT");
 
         setUpDualTable();
 
-        setObjectTest("bigint", new Long(Long.MAX_VALUE), Types.BIGINT);
-        setObjectTest("binary", "setObject".getBytes(), Types.BINARY);
-        setObjectTest("boolean",  Boolean.TRUE, Types.BOOLEAN);
-        setObjectTest("char", "setObject  ", Types.CHAR);
-        setObjectTest("date", Date.valueOf("2005-12-13"), Types.DATE);
-        setObjectTest("decimal", new BigDecimal(1.123456789), Types.DECIMAL);
-        setObjectTest("double", new Double(Double.MAX_VALUE), Types.DOUBLE);
-        setObjectTest("float", new Double(Double.MAX_VALUE), Types.FLOAT);
-        setObjectTest("integer", new Integer(Integer.MIN_VALUE), Types.INTEGER);
-        setObjectTest("longvarbinary", "setObject".getBytes(), Types.LONGVARBINARY);
-        setObjectTest("longvarchar", "setObject", Types.LONGVARCHAR);
-        //
-        setObjectTest("object", new boolean[10], Types.OTHER);
-        setObjectTest("object", new byte[10], Types.OTHER);
-        setObjectTest("object", new short[10], Types.OTHER);
-        setObjectTest("object", new char[10], Types.OTHER);
-        setObjectTest("object", new int[10], Types.OTHER);
-        setObjectTest("object", new long[10], Types.OTHER);
-        setObjectTest("object", new float[10], Types.OTHER);
-        setObjectTest("object", new double[10], Types.OTHER);
-        //
-        setObjectTest("object", new String[10], Types.OTHER);
-        setObjectTest("object", new Boolean[10], Types.OTHER);
-        setObjectTest("object", new Byte[10], Types.OTHER);
-        setObjectTest("object", new Short[10], Types.OTHER);
-        setObjectTest("object", new Character[10], Types.OTHER);
-        setObjectTest("object", new Integer[10], Types.OTHER);
-        setObjectTest("object", new Long[10], Types.OTHER);
-        setObjectTest("object", new Float[10], Types.OTHER);
-        setObjectTest("object", new Double[10], Types.OTHER);
-        //
-        setObjectTest("real", new Float(Float.MAX_VALUE), Types.REAL);
-        setObjectTest("smallint", new Short(Short.MAX_VALUE), Types.SMALLINT);
-        setObjectTest("time", Time.valueOf("1:23:47"), Types.TIME);
-        setObjectTest("timestamp", Timestamp.valueOf("2005-12-13 01:23:47.1234"), Types.TIMESTAMP);
-        setObjectTest("tinyint", new Byte(Byte.MAX_VALUE), Types.TINYINT);
-        setObjectTest("varbinary", "setObject".getBytes(), Types.VARBINARY);
-        setObjectTest("varchar", "setObject", Types.VARCHAR);
+        setObjectTest("bigint", new Long(Long.MAX_VALUE), Types.BIGINT);            
     }
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_binary() throws Exception
+    {
+        System.out.println("setObject - BINARY");
+
+        setUpDualTable();
+
+        setObjectTest("binary", "setObject_binary".getBytes(), Types.BINARY);
+    }  
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_boolean() throws Exception
+    {
+        System.out.println("setObject - BOOLEAN");
+
+        setUpDualTable();
+
+        setObjectTest("boolean",  Boolean.TRUE, Types.BOOLEAN);
+    }  
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_char() throws Exception
+    {
+        System.out.println("setObject - CHAR");
+
+        setUpDualTable();
+
+        setObjectTest("char", "setObject  ", Types.CHAR);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_date() throws Exception
+    {
+        System.out.println("setObject - DATE");
+
+        setUpDualTable();
+
+        setObjectTest("date", Date.valueOf("2005-12-13"), Types.DATE);
+    }       
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_decimal() throws Exception
+    {
+        System.out.println("setObject - DECIMAL");
+
+        setUpDualTable();
+
+        setObjectTest("decimal", new BigDecimal(1.123456789), Types.DECIMAL);
+    }
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_double() throws Exception
+    {
+        System.out.println("setObject - DOUBLE");
+
+        setUpDualTable();
+
+        setObjectTest("double", new Double(Double.MAX_VALUE), Types.DOUBLE);
+    }
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_float() throws Exception
+    {
+        System.out.println("setObject - FLOAT");
+
+        setUpDualTable();
+
+        setObjectTest("float", new Double(Double.MAX_VALUE), Types.FLOAT);
+    }    
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_integer() throws Exception
+    {
+        System.out.println("setObject - INTEGER");
+
+        setUpDualTable();
+
+        setObjectTest("integer", new Integer(Integer.MIN_VALUE), Types.INTEGER);
+    }
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_longvarbinary() throws Exception
+    {
+        System.out.println("setObject - LONGVARBINARY");
+
+        setUpDualTable();
+
+        setObjectTest(
+                "longvarbinary",
+                "setObject_longvarbinary".getBytes(),
+                Types.LONGVARBINARY);
+    }  
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_longvarchar() throws Exception
+    {
+        System.out.println("setObject - LONGVARCHAR");
+
+        setUpDualTable();
+
+        setObjectTest(
+                "longvarchar", 
+                "setObject_longvarchar", 
+                Types.LONGVARCHAR);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_boolean_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - boolean[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new boolean[10], Types.OTHER);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_byte_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - byte[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new byte[10], Types.OTHER);
+    }       
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_short_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - short[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new short[10], Types.OTHER);
+    } 
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_char_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - char[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new char[10], Types.OTHER);
+    }  
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_int_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - int[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new int[10], Types.OTHER);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_long_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - long[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new long[10], Types.OTHER);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_float_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - float[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new float[10], Types.OTHER);
+    } 
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_double_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - double[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new double[10], Types.OTHER);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_String_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - String[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new String[10], Types.OTHER);
+    }    
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_Boolean_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - Boolean[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new Boolean[10], Types.OTHER);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_Byte_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - Byte[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new Byte[10], Types.OTHER);
+    }   
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_Short_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - Short[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new Short[10], Types.OTHER);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_Character_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - Character[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new Character[10], Types.OTHER);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_Integer_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - Integer[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new Integer[10], Types.OTHER);
+    }     
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_Long_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - Long[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new Long[10], Types.OTHER);
+    }        
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_Float_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - Float[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new Float[10], Types.OTHER);
+    }    
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_other_Double_array() throws Exception
+    {
+        System.out.println("setObject - OTHER - Double[]");
+
+        setUpDualTable();
+
+        setObjectTest("object", new Double[10], Types.OTHER);
+    }      
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_real() throws Exception
+    {
+        System.out.println("setObject - REAL");
+
+        setUpDualTable();
+
+        setObjectTest("real", new Float(Float.MAX_VALUE), Types.REAL);
+    }    
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_smallint() throws Exception
+    {
+        System.out.println("setObject - SMALLINT");
+
+        setUpDualTable();
+
+        setObjectTest("smallint", new Short(Short.MAX_VALUE), Types.SMALLINT);
+    }    
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_time() throws Exception
+    {
+        System.out.println("setObject - TIME");
+
+        setUpDualTable();
+
+        setObjectTest("time", Time.valueOf("1:23:47"), Types.TIME);
+    }   
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_timestamp() throws Exception
+    {
+        System.out.println("setObject - TIMESTAMP");
+
+        setUpDualTable();
+
+        setObjectTest(
+                "timestamp", 
+                Timestamp.valueOf("2005-12-13 01:23:47.1234"),
+                Types.TIMESTAMP);
+    }   
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_tinyint() throws Exception
+    {
+        System.out.println("setObject - TINYINT");
+
+        setUpDualTable();
+
+        setObjectTest("tinyint", new Byte(Byte.MAX_VALUE), Types.TINYINT);
+    }      
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_varbinary() throws Exception
+    {
+        System.out.println("setObject - VARBINARY");
+
+        setUpDualTable();
+
+        setObjectTest(
+                "varbinary",
+                "setObject_varbinary".getBytes(),
+                Types.VARBINARY);
+    }   
+    
+    /**
+     * Test of setObject method, of inteface java.sql.CallableStatement.
+     */     
+    public void testSetObject_varchar() throws Exception
+    {
+        System.out.println("setObject - VARCHAR");
+
+        setUpDualTable();
+
+        setObjectTest("varchar", "setObject", Types.VARCHAR);
+    }      
 
     /**
-     * Test of setCharacterStream method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setCharacterStream method, of inteface java.sql.CallableStatement.
      */
     public void testSetCharacterStream() throws Exception {
         System.out.println("setCharacterStream");
@@ -858,7 +1246,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getRowId method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getRowId method, of inteface java.sql.CallableStatement.
      */
     public void testGetRowId() throws Exception {
         System.out.println("getRowId");
@@ -867,7 +1255,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setRowId method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setRowId method, of inteface java.sql.CallableStatement..
      */
     public void testSetRowId() throws Exception {
         System.out.println("setRowId");
@@ -876,7 +1264,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setNString method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setNString method, of inteface java.sql.CallableStatement.
      */
     public void testSetNString() throws Exception {
         System.out.println("setNString");
@@ -887,7 +1275,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setNCharacterStream method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setNCharacterStream method, of inteface java.sql.CallableStatement.
      */
     public void testSetNCharacterStream() throws Exception {
         System.out.println("setNCharacterStream");
@@ -900,7 +1288,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setNClob method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setNClob method, of inteface java.sql.CallableStatement.
      */
     public void testSetNClob() throws Exception {
         System.out.println("setNClob");
@@ -911,7 +1299,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setClob method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setClob method, of inteface java.sql.CallableStatement.
      */
     public void testSetClob() throws Exception {
         System.out.println("setClob");
@@ -922,7 +1310,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setBlob method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setBlob method, of inteface java.sql.CallableStatement.
      */
     public void testSetBlob() throws Exception {
         System.out.println("setBlob");
@@ -933,7 +1321,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getNClob method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getNClob method, of inteface java.sql.CallableStatement.
      */
     public void testGetNClob() throws Exception {
         System.out.println("getNClob");
@@ -956,7 +1344,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setSQLXML method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of setSQLXML method, of inteface java.sql.CallableStatement.
      */
     public void testSetSQLXML() throws Exception {
         System.out.println("setSQLXML");
@@ -965,7 +1353,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getSQLXML method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getSQLXML method, of inteface java.sql.CallableStatement.
      */
     public void testGetSQLXML() throws Exception {
         System.out.println("getSQLXML");
@@ -975,7 +1363,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getNString method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getNString method, of inteface java.sql.CallableStatement.
      */
     public void testGetNString() throws Exception {
         System.out.println("getNString");
@@ -998,7 +1386,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getNCharacterStream method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getNCharacterStream method, of inteface java.sql.CallableStatement.
      */
     public void testGetNCharacterStream() throws Exception {
         System.out.println("getNCharacterStream");
@@ -1019,7 +1407,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getCharacterStream method, of class org.hsqldb.jdbc.jdbcCallableStatement.
+     * Test of getCharacterStream method, of inteface java.sql.CallableStatement.
      */
     public void testGetCharacterStream() throws Exception {
         System.out.println("getCharacterStream");
