@@ -29,16 +29,16 @@
  */
 
 
-package org.hsqldb.jdbc;
-
-/**
- *
- * @author boucherb@users
- */
-public class Customer {
-    public Integer id;
-    public String firstname;
-    public String lastname;
-    public String street;
-    public String city;
-}
+//package org.hsqldb.jdbc;
+//
+///**
+// *
+// * @author boucherb@users
+// */
+//public class Customer {
+//    public Integer id;
+//    public String firstname;
+//    public String lastname;
+//    public String street;
+//    public String city;
+//}

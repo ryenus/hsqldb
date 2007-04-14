@@ -27,29 +27,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
-package org.hsqldb.jdbc;
-
-import java.sql.BaseQuery;
-import java.sql.DataSet;
-import java.sql.Select;
-import java.sql.Update;
-
-/**
- *
- * @author boucherb@users
- */
-public interface CustomerDao extends BaseQuery {
-    @Select("select id, firstname, lastname, street, city from customer order by 1")
-    DataSet<Customer> getAllCustomers();
-    
-    @Select("select * from customer where id = {id}")
-    DataSet<Customer> getCustomerById(int id);
-    
-    @Update("delete from customer where lastname = {lastName} and firstname = {firstName}")
-    int deleteCustomerByName(String lastName, String firstName);
-    
-    @Update("update customer set lastname = {lastName}, firstname = {firstName} where id = {id}")
-    int updateCustomerNameById(int id, String lastName, String firstName);    
-}
+//
+//
+//package org.hsqldb.jdbc;
+//
+//import java.sql.BaseQuery;
+//import java.sql.DataSet;
+//import java.sql.Select;
+//import java.sql.Update;
+//
+///**
+// *
+// * @author boucherb@users
+// */
+//public interface CustomerDao extends BaseQuery {
+//    @Select("select id, firstname, lastname, street, city from customer order by 1")
+//    DataSet<Customer> getAllCustomers();
+//    
+//    @Select("select * from customer where id = {id}")
+//    DataSet<Customer> getCustomerById(int id);
+//    
+//    @Update("delete from customer where lastname = {lastName} and firstname = {firstName}")
+//    int deleteCustomerByName(String lastName, String firstName);
+//    
+//    @Update("update customer set lastname = {lastName}, firstname = {firstName} where id = {id}")
+//    int updateCustomerNameById(int id, String lastName, String firstName);    
+//}
