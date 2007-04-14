@@ -100,25 +100,28 @@ implements ActionListener, WindowListener, KeyListener {
 
     private static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/dbmanager.rc";
-    static final String NL         = System.getProperty("line.separator");
-    static final int    iMaxRecent = 24;
+    static final String    NL           = System.getProperty("line.separator");
+    static final int       iMaxRecent   = 24;
     private static boolean TT_AVAILABLE = false;
+
     static {
         try {
             Class.forName(DatabaseManagerSwing.class.getPackage().getName()
-                    + ".Transfer");
+                          + ".Transfer");
+
             TT_AVAILABLE = true;
-        } catch (Throwable t) { }
+        } catch (Throwable t) {}
     }
+
     private static final String HELP_TEXT =
         "See the forums, mailing lists, and HSQLDB User Guide\n"
         + "at http://hsqldb.org.\n\n"
         + "Please paste the following version identifier with any\n"
         + "problem reports or help requests:  $Revision: 1.31 $"
         + (TT_AVAILABLE ? ""
-                : ("\n\nTransferTool classes are not in CLASSPATH.\n"
-               + "To enable the Tools menu, add 'transfer.jar' to your class path."));
-        ;
+                        : ("\n\nTransferTool classes are not in CLASSPATH.\n"
+                           + "To enable the Tools menu, add 'transfer.jar' to your class path."));
+    ;
     private static final String ABOUT_TEXT =
         "$Revision: 1.31 $ of DatabaseManagerSwing\n\n"
         + "Copyright (c) 1995-2000, The Hypersonic SQL Group.\n"
@@ -126,28 +129,29 @@ implements ActionListener, WindowListener, KeyListener {
         + "http://hsqldb.org  (User Guide available at this site).\n\n\n"
         + "You may use and redistribute according to the HSQLDB\n"
         + "license documented in the source code and at the web\n"
-        + "site above."
-        + (TT_AVAILABLE ? "\n\nTransferTool options are available." : "");
-    Connection          cConn;
-    DatabaseMetaData    dMeta;
-    Statement           sStatement;
-    Menu                mRecent;
-    String[]            sRecent;
-    int                 iRecent;
-    TextArea            txtCommand;
-    Button              butExecute;
-    Button              butClear;
-    Tree                tTree;
-    Panel               pResult;
-    long                lTime;
-    int                 iResult;    // 0: grid; 1: text
-    Grid                gResult;
-    TextArea            txtResult;
-    boolean             bHelp;
-    Frame               fMain;
-    Image               imgEmpty;
-    static boolean      bMustExit;
-    String              ifHuge = "";
+        + "site above."          //
+        + (TT_AVAILABLE ? "\n\nTransferTool options are available."
+                        : "");
+    Connection       cConn;
+    DatabaseMetaData dMeta;
+    Statement        sStatement;
+    Menu             mRecent;
+    String[]         sRecent;
+    int              iRecent;
+    TextArea         txtCommand;
+    Button           butExecute;
+    Button           butClear;
+    Tree             tTree;
+    Panel            pResult;
+    long             lTime;
+    int              iResult;    // 0: grid; 1: text
+    Grid             gResult;
+    TextArea         txtResult;
+    boolean          bHelp;
+    Frame            fMain;
+    Image            imgEmpty;
+    static boolean   bMustExit;
+    String           ifHuge = "";
 
     // (ulrivo): variables set by arguments from the commandline
     static String defDriver   = "org.hsqldb.jdbcDriver";
@@ -296,11 +300,14 @@ implements ActionListener, WindowListener, KeyListener {
                 }
 
                 autoConnect = true;
-                c = (new RCData(new File((rcFile == null) ? DEFAULT_RCFILE
-                                                          : rcFile), urlid).getConnection(
-                                                          null, System.getProperty(
-                                                              "sqlfile.charset"), System.getProperty(
-                                                                  "javax.net.ssl.trustStore")));
+
+                if (rcFile == null) {
+                    rcFile = DEFAULT_RCFILE;
+                }
+
+                c = new RCData(new File(rcFile), urlid).getConnection(
+                    null, System.getProperty("sqlfile.charset"),
+                    System.getProperty("javax.net.ssl.trustStore"));
             } else {
                 c = ConnectionDialog.createConnection(m.fMain, "Connect");
             }
@@ -389,9 +396,8 @@ implements ActionListener, WindowListener, KeyListener {
 
         String[] sitems = {
             "SSELECT", "IINSERT", "UUPDATE", "DDELETE", "--", "-CREATE TABLE",
-            "-DROP TABLE", "-CREATE INDEX", "-DROP INDEX", "--",
-            "-CHECKPOINT", "-SCRIPT", "-SET", "-SHUTDOWN", "--",
-            "-Test Script"
+            "-DROP TABLE", "-CREATE INDEX", "-DROP INDEX", "--", "-CHECKPOINT",
+            "-SCRIPT", "-SET", "-SHUTDOWN", "--", "-Test Script"
         };
 
         addMenu(bar, "Command", sitems);
@@ -416,18 +422,21 @@ implements ActionListener, WindowListener, KeyListener {
 
         addMenu(bar, "Tools", stools);
 
-        Menu hMenu = new Menu("Help");
+        Menu     hMenu = new Menu("Help");
         MenuItem aItem = new MenuItem("About");
+
         aItem.setShortcut(new MenuShortcut('A'));
         aItem.addActionListener(this);
         hMenu.add(aItem);
+
         MenuItem hItem = new MenuItem("Help");
+
         hItem.setShortcut(new MenuShortcut('H'));
         hItem.addActionListener(this);
         hMenu.add(hItem);
+
         //bar.add(hMenu);
         // Command above disabled only until a help display bug is fixed.
-
         fMain.setMenuBar(bar);
         fMain.setSize(640, 480);
         fMain.add("Center", this);
@@ -470,12 +479,14 @@ implements ActionListener, WindowListener, KeyListener {
      * @param items
      */
     void addMenu(MenuBar b, String name, String[] items) {
+
         /* It's a very poor design to encapsulate menu creation this way.
          * Can't customize the menus this way (e.g. shortcut keys,
          * mnemonics, disabling, etc. */
-
         Menu menu = new Menu(name);
+
         if (name.equals("Tools") && !TT_AVAILABLE) {
+
             // Terrible place to do this.  Forced to due to method design.
             menu.setEnabled(false);
         }
@@ -573,9 +584,13 @@ implements ActionListener, WindowListener, KeyListener {
         } else if (s.equals("Logging off")) {
             JavaSystem.setLogToSystem(false);
         } else if (s.equals("Help")) {
-            showHelp(new String[] { "", HELP_TEXT });
+            showHelp(new String[] {
+                "", HELP_TEXT
+            });
         } else if (s.equals("About")) {
-            showHelp(new String[] { "", ABOUT_TEXT });
+            showHelp(new String[] {
+                "", ABOUT_TEXT
+            });
         } else if (s.equals("Refresh Tree")) {
             refreshTree();
         } else if (s.startsWith("#")) {
@@ -1334,11 +1349,11 @@ implements ActionListener, WindowListener, KeyListener {
                 // sqlbob@users Added remarks.
                 String remark = (String) remarks.elementAt(i);
 
-                if ((schema != null) &&!schema.trim().equals("")) {
+                if ((schema != null) && !schema.trim().equals("")) {
                     tTree.addRow(key + "s", "schema: " + schema);
                 }
 
-                if ((remark != null) &&!remark.trim().equals("")) {
+                if ((remark != null) && !remark.trim().equals("")) {
                     tTree.addRow(key + "r", " " + remark);
                 }
 
@@ -1376,7 +1391,7 @@ implements ActionListener, WindowListener, KeyListener {
                         String  iname     = ind.getString(6);
                         String  k2        = key + "ind-" + iname + "-";
 
-                        if ((oldiname == null ||!oldiname.equals(iname))) {
+                        if ((oldiname == null || !oldiname.equals(iname))) {
                             tTree.addRow(k2, iname, "+", color_index);
                             tTree.addRow(k2 + "u", "Unique: " + !nonunique);
 

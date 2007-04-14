@@ -27,7 +27,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This software consists of voluntary contributions made by many individuals 
+ * This software consists of voluntary contributions made by many individuals
  * on behalf of the Hypersonic SQL Group.
  *
  *
@@ -95,12 +95,13 @@ class DatabaseManagerCommon {
     private static Random rRandom    = new Random(100);
     static String[]       selectHelp = {
         "SELECT * FROM ",
+
         "SELECT [LIMIT n m] [DISTINCT] \n"
         + "{ selectExpression | table.* | * } [, ... ] \n"
         + "[INTO [CACHED|TEMP|TEXT] newTable] \n" + "FROM tableList \n"
         + "[WHERE Expression] \n"
         + "[ORDER BY selectExpression [{ASC | DESC}] [, ...] ] \n"
-        + "[GROUP BY Expression [, ...] ] \n"
+        + "[GROUP BY Expression [, ...] ] \n"                             //
         + "[UNION [ALL] selectStatement]"
     };
     static String[] insertHelp = {
@@ -140,19 +141,20 @@ class DatabaseManagerCommon {
         "SCRIPT", "SCRIPT ['file']\n\n" + "(HSQLDB SQL only)"
     };
     static String[] shutdownHelp   = {
-        "SHUTDOWN", "SHUTDOWN [COMPACT|IMMEDIATELY|SCRIPT]\n\n"
-                + "(HSQLDB SQL only)"
+        "SHUTDOWN",
+        "SHUTDOWN [COMPACT|IMMEDIATELY|SCRIPT]\n\n" + "(HSQLDB SQL only)"
     };
-    static String[] setHelp        = {
+    static String[] setHelp = {
         "SET ",
+
         "SET AUTOCOMMIT { TRUE | FALSE }\n"
         + "SET DATABASE COLLATION \"<collationname>\"\n"
         + "SET CHECKPOINT DEFRAG <size>\n"
         + "SET IGNORECASE { TRUE | FALSE }\n"
-        + "SET INITIAL SCHEMA <schemaname>\n"
-        + "SET LOGSIZE <size>\n"
-        + "SET MAXROWS maxrows\n"
-        + "SET PASSWORD <password>\n"
+        + "SET INITIAL SCHEMA <schemaname>\n"                             //
+        + "SET LOGSIZE <size>\n"                                          //
+        + "SET MAXROWS maxrows\n"                                         //
+        + "SET PASSWORD <password>\n"                                     //
         + "SET PROPERTY \"<propname>\" <propvalue>\n"
         + "SET READONLY { TRUE | FALSE }\n"
         + "SET REFERENTIAL_INTEGRITY { TRUE | FALSE }\n"
@@ -161,8 +163,8 @@ class DatabaseManagerCommon {
         + "SET TABLE INDEX <tablename> '<index1rootPos>...'\n"
         + "SET TABLE <tablename> READONLY { TRUE | FALSE }\n"
         + "SET TABLE <tablename> SOURCE \"<file>\" [DESC]\n"
-        + "SET WRITE_DELAY { TRUE | FALSE | <seconds> | <ms> MILLIS }"
-        + "\n\n" 
+        + "SET WRITE_DELAY { TRUE | FALSE | <seconds> | <ms> MILLIS }"    //
+        + "\n\n"                                                          //
         + "(HSQLDB SQL only)"
     };
     static String[] testHelp = {
@@ -182,7 +184,7 @@ class DatabaseManagerCommon {
         + "- lines starting with --#<count> means set new count\n"
     };
     static String[] testDataSql = {
-        "SELECT * FROM Product", "SELECT * FROM Invoice",
+        "SELECT * FROM Product", "SELECT * FROM Invoice",                 //
         "SELECT * FROM Item",
         "SELECT * FROM Customer a INNER JOIN Invoice i ON a.ID=i.CustomerID",
         "SELECT * FROM Customer a LEFT OUTER JOIN Invoice i ON a.ID=i.CustomerID",
@@ -310,9 +312,8 @@ class DatabaseManagerCommon {
         sStatement.execute(
             "UPDATE Item SET Cost=Cost*"
             + "SELECT Price FROM Product prod WHERE ProductID=prod.ID");
-        sStatement.execute(
-            "UPDATE Invoice SET Total=SELECT SUM(Cost*"
-            + "Quantity) FROM Item WHERE InvoiceID=Invoice.ID");
+        sStatement.execute("UPDATE Invoice SET Total=SELECT SUM(Cost*"
+                           + "Quantity) FROM Item WHERE InvoiceID=Invoice.ID");
 
         return ("SELECT * FROM Customer");
     }
