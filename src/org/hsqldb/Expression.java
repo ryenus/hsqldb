@@ -1940,7 +1940,8 @@ public class Expression {
                 for (int i = 0; i < rangeVarArray.length; i++) {
                     RangeVariable rangeVar = rangeVarArray[i];
 
-                    if (!rangeVar.resolvesTableName(this)) {
+                    if (rangeVar == null
+                            ||!rangeVar.resolvesTableName(this)) {
                         continue;
                     }
 
