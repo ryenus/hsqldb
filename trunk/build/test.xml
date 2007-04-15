@@ -16,10 +16,10 @@
    <!-- U S E R  B U I L D  P R O P E R T I E S  O V E R R I D E S           -->
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <property file="${basedir}/build/build.properties"/>
-   
+
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <!-- D E F A U L T  B U I L D  P R O P E R T I E S                        -->
-   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->   
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <property name="test.suite.version" 
              value="1.9.0"/>
                  
@@ -67,33 +67,33 @@
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <path id="test.suite.javac.classpath">
         <pathelement location="${hsqldb.jar}"/>
-	<pathelement location="${junit.jar}" />        
+        <pathelement location="${junit.jar}" />
    </path>
 
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <!-- S H A R E D  I N I T I A L I Z A T I O N                             -->
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <target name="-init">
-   	<available classname="java.net.IDN" 
-   	           property="ant.java.iscjava16"/>
-   	           
+        <available classname="java.net.IDN" 
+                   property="ant.java.iscjava16"/>
+
         <fail unless='ant.java.iscjava16'
               message="JDK must be 1.6 or greater"/> 
-              
+
         <available file="${hsqldb.jar}" 
                    type='file' 
                    property="hsqldb.available"/>
-                   
+
         <fail unless='hsqldb.available'
-              message="'hsqldb.jar' must reside at ${hsqldb.jar}"/>        	           
-   	           
+              message="'hsqldb.jar' must reside at ${hsqldb.jar}"/>
+
         <available file="${junit.jar}" 
                    type='file' 
                    property="junit.available"/>
-                   
+
         <fail unless='junit.available'
               message="'junit.jar' must reside at ${junit.jar}"/>
-        
+
    </target>
 
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -103,7 +103,7 @@
            description="Builds test classes and creates test suite jar"
            depends="-init">
       <mkdir dir="${test.classes.dir}"/>
-      
+
       <!-- Compile Classes -->
       <javac srcdir="${test.src.dir}"
              destdir="${test.classes.dir}"
@@ -113,19 +113,19 @@
           <classpath refid="test.suite.javac.classpath"/>
           <include name="**/*.java"/>
       </javac>
-      
+
       <!-- Copy Resources -->
       <copy todir="${test.classes.dir}/org/hsqldb/jdbc">
          <fileset dir="${test.src.dir}/org/hsqldb/jdbc" 
                   includes="*.sql"/>
-                  
+
          <fileset dir="${test.src.dir}/org/hsqldb/jdbc" 
                   includes="*.dtd"/>
-                  
+
          <fileset dir="${test.src.dir}/org/hsqldb/jdbc" 
-                  includes="*.ent"/>                 
-      </copy>      
-      
+                  includes="*.ent"/>
+      </copy>
+
       <!-- Build Jar -->
       <jar jarfile="${test.suite.jar}"
            basedir="${test.classes.dir}">
@@ -154,25 +154,25 @@
    
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <!-- R U N  T E S T  S U I T E                                            -->
-   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->   
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <target name="run.test.suite"
            description="Runs the test suite and generates test result reports"
            depends="-init">
-   
+
       <available file="${test.suite.jar}" 
                  type='file' 
                  property="test.suite.jar.available"/>
                    
       <fail unless='test.suite.jar.available'
             message="The test suite jar must reside at ${test.suite.jar}"/>
-                   
+
       <mkdir dir="${test.results.dir}"/> 
       <mkdir dir="${test.results.dir}/resources"/>
       <mkdir dir="${test.results.dir}/resources/org"/>
       <mkdir dir="${test.results.dir}/resources/org/hsqldb"/>
       <mkdir dir="${test.results.dir}/resources/org/hsqldb/util"/>
       <mkdir dir="${test.results.dir}/resources/org/hsqldb/util/preprocessor"/>
-      
+
       <copy todir="${test.results.dir}/resources/org/hsqldb/util/preprocessor">
            <fileset dir="${test.src.dir}/org/hsqldb/util/preprocessor" 
                   includes="*.exp"/>
@@ -188,8 +188,21 @@
       <copy todir="${test.results.dir}/resources/org/hsqldb/util/preprocessor">
           <fileset dir="${test.src.dir}/org/hsqldb/util/preprocessor" 
                    includes="*.src"/>
-      </copy>      
-       
+      </copy>
+
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc"/>
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources"/>
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/xml"/>
+
+      <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/xml">
+         <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/xml"
+                  includes="*.*"/>
+      </copy>
+
+
+      <!-- User Test Properties -->
+      <property file="${basedir}/build/test.properties"/>
+
       <!-- Execute JUNIT Tests -->
       <junit showoutput="true" 
              fork="false"
@@ -201,15 +214,15 @@
           </batchtest>
           <classpath>
               <pathelement location="${test.results.dir}/resources"/>
-              <path path="${hsqldb.jar}"/>              
+              <path path="${hsqldb.jar}"/>
               <path path="${test.suite.jar}"/>
           </classpath>
           <formatter type="xml"/>
       </junit>
-        
+
       <mkdir dir="${test.results.dir}/reports"/>
       <mkdir dir="${test.results.dir}/reports/html"/>
-        
+
       <!-- Generate Test Reports -->
       <junitreport todir="${test.results.dir}/reports">
           <fileset dir="${test.results.dir}">
@@ -222,7 +235,7 @@
    
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <!-- C L E A N  T E S T  S U I T E                                        -->
-   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->   
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <target name="clean.test.suite"
            description="Deletes compiled classes, test results and suite jar">
       <delete dir="${test.classes.dir}" />
