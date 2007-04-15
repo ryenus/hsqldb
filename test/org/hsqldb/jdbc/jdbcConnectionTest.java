@@ -640,17 +640,58 @@ public class jdbcConnectionTest extends JdbcTestCase {
     public void testReleaseSavepoint() throws Exception {
         System.out.println("releaseSavepoint");
 
+        Savepoint  savepoint;
         Connection conn      = newConnection();
-        Savepoint  savepoint = conn.setSavepoint("sp1");
-
-        assertEquals(false, conn.getAutoCommit());
-
+        
+        assertEquals(true, conn.getAutoCommit());        
+        
+        try {
+            savepoint = conn.setSavepoint("sp1");
+            
+            fail("Allowed setSavepoint while autoCommit == true.");
+        } catch (SQLException ex) {
+            //ex.printStackTrace();
+        }
+        
+        conn.setAutoCommit(false);
+        
+        savepoint = conn.setSavepoint("sp1");
+        
         conn.releaseSavepoint(savepoint);
-
-        assertEquals("after releasing final savepoint with no enclosing "
-                   + "transaction, getAutoCommit() return value",
-                     true,
-                    conn.getAutoCommit()); // ????
+        
+        try {
+            conn.releaseSavepoint(savepoint);
+            
+            fail("Allowed releaseSavepoint on invalid Savepoint object");
+        } catch (SQLException ex) {
+            //ex.printStackTrace();
+        }  
+        
+        savepoint = conn.setSavepoint("sp1");
+        
+        conn.setAutoCommit(true);
+        
+        try {
+            conn.releaseSavepoint(savepoint);
+            
+            fail("Allowed releaseSavepoint while autoCommit == true");
+        } catch (SQLException ex) {
+            //ex.printStackTrace();
+        }  
+        
+        conn.setAutoCommit(false);
+        
+        savepoint = conn.setSavepoint("sp1");
+        
+        conn.close();
+        
+        try {
+            conn.releaseSavepoint(savepoint);
+            
+            fail("Allowed releaseSavepoint on closed connection");
+        } catch (SQLException ex) {
+            //ex.printStackTrace();
+        }
     }
 
     /**
