@@ -957,7 +957,8 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        rangeVars[TriggerDef.OLD_TABLE] = range;
+                        // TODO: Commit TriggerDef with OLD_TABLE defined
+                        // rangeVars[TriggerDef.OLD_TABLE] = range;
                     } else if (tokenType == Token.ROW) {
                         if (oldRowName != null) {
                             throw unexpectedToken();
@@ -981,7 +982,8 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        rangeVars[TriggerDef.OLD_ROWS] = range;
+                        // TODO: Commit TriggerDef with OLD_ROWS defined
+                        // rangeVars[TriggerDef.OLD_ROWS] = range;
                     } else {
                         throw unexpectedToken();
                     }
@@ -1014,7 +1016,8 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        rangeVars[TriggerDef.NEW_TABLE] = range;
+                        // TODO: Commit TriggerDef with NEW_TABLE defined
+                        // rangeVars[TriggerDef.NEW_TABLE] = range;
                     } else if (tokenType == Token.ROW) {
                         if (newRowName != null) {
                             throw unexpectedToken();
@@ -1037,7 +1040,8 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        rangeVars[TriggerDef.NEW_ROWS] = range;
+                        // TODO: Commit TriggerDef with NEW_ROWS defined
+                        // rangeVars[TriggerDef.NEW_ROWS] = range;
                     } else {
                         throw unexpectedToken();
                     }
