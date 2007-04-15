@@ -31,7 +31,6 @@
 
 package org.hsqldb.types;
 
-import java.io.IOException;
 import org.hsqldb.Expression;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
@@ -336,22 +335,7 @@ public class BinaryType extends Type {
         if (otherType.isBinaryType()) {
             return convertToTypeLimits(a);
         }
-        else if (otherType.isCharacterType())
-        {
-            //System.out.println("Convert from character type to binary type");
-            
-            String s = otherType.convertToString(a);
-            
-            try {                    
-                byte[] bytes = StringConverter.hexToByteArray(s);
-                
-                return convertToTypeLimits(new BinaryData(bytes,false));
-            } catch (IOException ex) {
-                System.out.println(ex);
-                throw Trace.error(Trace.INVALID_CONVERSION, ex.getMessage());
-            }                        
-        }
-        
+
         throw Trace.error(Trace.INVALID_CONVERSION);
     }
 
