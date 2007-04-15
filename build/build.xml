@@ -26,7 +26,7 @@
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQLDB Development Group"/>
    <property name="src" value="${basedir}/src"/>
-   <property name="build.debug" value="off"/>
+   <property name="build.debug" value="on"/>
 
    <target name="init">
    </target>
