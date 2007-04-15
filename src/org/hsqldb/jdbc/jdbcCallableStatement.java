@@ -70,7 +70,7 @@ import org.hsqldb.result.ResultConstants;
 //       being "@p1" => 1, "@p2" => 2, etc.  Problems: return value is "@p0"
 //       and there is no support for registering the return value as an out
 //       parameter.
-// TODO: 1.8.x
+// TODO: 1.9.x
 //       engine and client-side mechanisms for adding, retrieving,
 //       navigating (and perhaps controlling holdability of) multiple
 //       results generated from a single execution.
@@ -187,7 +187,7 @@ import org.hsqldb.result.ResultConstants;
  * </PRE>
  *
  * Please note the use of the term &quot;uniquely named&quot; above. Including
- * 1.8.0.x, no support is provided to deterministically resolve overloaded
+ * the present release, no support is provided to deterministically resolve overloaded
  * method names, and there can be issues with inherited methods as well;
  * currently, it is strongly recommended that developers creating stored
  * procedure library classes for HSQLDB simply avoid designs such that SQL
@@ -201,7 +201,7 @@ import org.hsqldb.result.ResultConstants;
  * Also, please note that <code>OUT</code> and <code>IN OUT</code> parameters
  * are not yet supported due to some unresolved low level support issues. <p>
  *
- * Including 1.8.0.x, the HSQLDB stored procedure call mechanism is essentially a
+ * Including the present release, the HSQLDB stored procedure call mechanism is essentially a
  * thin wrap of the HSQLDB SQL function call mechanism, extended to include the
  * more general HSQLDB SQL expression evaluation mechanism.  In addition to
  * stored procedure calls that resolve directly to Java method invocations, the
@@ -310,7 +310,7 @@ import org.hsqldb.result.ResultConstants;
  * <!-- end Release-specific documentation -->
  *
  * @author boucherb@users
- * @version 1.8.x
+ * @version 1.9.0
  * @since 1.7.2
  * @revised JDK 1.6, HSQLDB 1.8.x
  * @see jdbcConnection#prepareCall
@@ -344,7 +344,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -396,7 +396,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -437,7 +437,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -471,7 +471,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -504,7 +504,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -534,7 +534,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -564,7 +564,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -594,7 +594,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -624,7 +624,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -654,7 +654,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -684,7 +684,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -715,7 +715,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -756,7 +756,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -785,7 +785,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -814,7 +814,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -844,7 +844,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -884,7 +884,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -917,7 +917,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -956,7 +956,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1000,7 +1000,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1035,7 +1035,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1069,7 +1069,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1103,7 +1103,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1143,7 +1143,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1192,7 +1192,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1241,7 +1241,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1307,7 +1307,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1360,7 +1360,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1415,7 +1415,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1482,7 +1482,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1524,7 +1524,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -1563,7 +1563,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2546,7 +2546,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2583,7 +2583,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2618,7 +2618,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2653,7 +2653,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2688,7 +2688,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2723,7 +2723,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2758,7 +2758,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2793,7 +2793,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2829,7 +2829,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2864,7 +2864,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2899,7 +2899,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2934,7 +2934,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2976,7 +2976,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3012,7 +3012,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3055,7 +3055,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3092,7 +3092,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3127,7 +3127,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3162,7 +3162,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3197,7 +3197,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3238,7 +3238,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3282,7 +3282,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3326,7 +3326,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3365,7 +3365,7 @@ implements CallableStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * HSQLDB does not yet support this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -3392,8 +3392,22 @@ implements CallableStatement {
     //------------------------- JDBC 4.0 -----------------------------------
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated JDBC <code>ROWID</code> parameter as a
      * <code>java.sql.RowId</code> object.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param parameterIndex the first parameter is 1, the second is 2,...
      * @return a <code>RowId</code> object that represents the JDBC <code>ROWID</code>
@@ -3403,7 +3417,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public RowId getRowId(int parameterIndex) throws SQLException {
@@ -3413,8 +3427,22 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated JDBC <code>ROWID</code> parameter as a
      * <code>java.sql.RowId</code> object.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param parameterName the name of the parameter
      * @return a <code>RowId</code> object that represents the JDBC <code>ROWID</code>
@@ -3424,7 +3452,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public RowId getRowId(String parameterName) throws SQLException {
@@ -3434,9 +3462,23 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *     
      * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
      * driver converts this to a SQL <code>ROWID</code> when it sends it to the
      * database.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param parameterName the name of the parameter
      * @param x the parameter value
@@ -3444,7 +3486,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void setRowId(String parameterName, RowId x) throws SQLException {
@@ -3465,7 +3507,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void setNString(String parameterName, String value) throws SQLException {
@@ -3488,7 +3530,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException {
@@ -3509,7 +3551,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
      public void setNClob(String parameterName, NClob value) throws SQLException {
@@ -3537,7 +3579,7 @@ implements CallableStatement {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
      public void setClob(String parameterName, Reader reader, long length) throws SQLException {
@@ -3570,7 +3612,7 @@ implements CallableStatement {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
      public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
@@ -3600,7 +3642,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
      public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
@@ -3610,8 +3652,22 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated JDBC <code>NCLOB</code> parameter as a
      * <code>java.sql.NClob</code> object in the Java programming language.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param parameterIndex the first parameter is 1, the second is 2, and
      * so on
@@ -3624,7 +3680,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public NClob getNClob (int parameterIndex) throws SQLException {
@@ -3634,8 +3690,23 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of a JDBC <code>NCLOB</code> parameter as a
      * <code>java.sql.NClob</code> object in the Java programming language.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param parameterName the name of the parameter
      * @return the parameter value as a <code>NClob</code> object in the
      *         Java programming language.  If the value was SQL <code>NULL</code>,
@@ -3646,7 +3717,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public NClob getNClob (String parameterName) throws SQLException {
@@ -3667,7 +3738,7 @@ implements CallableStatement {
      *  <code>Writer</code> or <code>OutputStream</code> has not been closed for the <code>SQLXML</code> object
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException {
@@ -3677,15 +3748,30 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated <code>SQL XML</code> parameter as a
      * <code>java.sql.SQLXML</code> object in the Java programming language.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public SQLXML getSQLXML(int parameterIndex) throws SQLException {
@@ -3695,15 +3781,30 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated <code>SQL XML</code> parameter as a
      * <code>java.sql.SQLXML</code> object in the Java programming language.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *     
      * @param parameterName the name of the parameter
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public SQLXML getSQLXML(String parameterName) throws SQLException {
@@ -3713,6 +3814,8 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     * 
      * Retrieves the value of the designated <code>NCHAR</code>,
      * <code>NVARCHAR</code>
      * or <code>LONGNVARCHAR</code> parameter as
@@ -3724,6 +3827,18 @@ implements CallableStatement {
      * <code>NCHAR</code> value had in the
      * database, including any padding added by the database.
      *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
      * @return a <code>String</code> object that maps an
      * <code>NCHAR</code>, <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
@@ -3731,7 +3846,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      * @see #setNString
      */
 //#ifdef JDBC4
@@ -3742,6 +3857,8 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      *  Retrieves the value of the designated <code>NCHAR</code>,
      * <code>NVARCHAR</code>
      * or <code>LONGNVARCHAR</code> parameter as
@@ -3753,6 +3870,18 @@ implements CallableStatement {
      * <code>NCHAR</code> value had in the
      * database, including any padding added by the database.
      *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param parameterName the name of the parameter
      * @return a <code>String</code> object that maps an
      * <code>NCHAR</code>, <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
@@ -3760,7 +3889,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      * @see #setNString
      */
 //#ifdef JDBC4
@@ -3771,11 +3900,25 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated parameter as a
      * <code>java.io.Reader</code> object in the Java programming language.
      * It is intended for use when
      * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
      * and <code>LONGNVARCHAR</code> parameters.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @return a <code>java.io.Reader</code> object that contains the parameter
      * value; if the value is SQL <code>NULL</code>, the value returned is
@@ -3785,7 +3928,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
@@ -3795,11 +3938,25 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated parameter as a
      * <code>java.io.Reader</code> object in the Java programming language.
      * It is intended for use when
      * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
      * and <code>LONGNVARCHAR</code> parameters.
+     *
+     * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param parameterName the name of the parameter
      * @return a <code>java.io.Reader</code> object that contains the parameter
@@ -3809,7 +3966,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public Reader getNCharacterStream(String parameterName) throws SQLException {
@@ -3819,8 +3976,22 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated parameter as a
      * <code>java.io.Reader</code> object in the Java programming language.
+     *
+     * <!-- end generic documentstion -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @return a <code>java.io.Reader</code> object that contains the parameter
      * value; if the value is SQL <code>NULL</code>, the value returned is
@@ -3828,7 +3999,7 @@ implements CallableStatement {
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public Reader getCharacterStream(int parameterIndex) throws SQLException {
@@ -3838,8 +4009,22 @@ implements CallableStatement {
 //#endif JDBC4
 
     /**
+     * <!-- start generic documentation -->
+     *
      * Retrieves the value of the designated parameter as a
      * <code>java.io.Reader</code> object in the Java programming language.
+     *
+     * <!-- end generic documentstion -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB does not yet support this feature. <p>
+     *
+     * Calling this method always throws an <code>SQLException</code>.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param parameterName the name of the parameter
      * @return a <code>java.io.Reader</code> object that contains the parameter
@@ -3849,7 +4034,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public Reader getCharacterStream(String parameterName) throws SQLException {
@@ -3869,7 +4054,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     *  @since JDK 1.6, HSQLDB 1.8.x
+     *  @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void setBlob (String parameterName, Blob x) throws SQLException {
@@ -3889,7 +4074,7 @@ implements CallableStatement {
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     *  @since JDK 1.6, HSQLDB 1.8.x
+     *  @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void setClob (String parameterName, Clob x) throws SQLException {
@@ -4034,10 +4219,13 @@ implements CallableStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *   @since 1.6
      */
+//#ifdef JDBC4
     public void setAsciiStream(String parameterName,
                                java.io.InputStream x) throws SQLException {
-        throw Util.notSupported();
+        super.setAsciiStream(findParameterIndex(parameterName), x);
     }
+    
+//#endif JDBC4
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -4061,10 +4249,13 @@ implements CallableStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
+//#ifdef JDBC4
     public void setBinaryStream(String parameterName,
                                 java.io.InputStream x) throws SQLException {
-        throw Util.notSupported();
+        super.setBinaryStream(findParameterIndex(parameterName), x);
     }
+
+//#endif JDBC4
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -4091,11 +4282,14 @@ implements CallableStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
+//#ifdef JDBC4
     public void setCharacterStream(String parameterName,
                                    java.io.Reader reader)
                                    throws SQLException {
-        throw Util.notSupported();
+        super.setCharacterStream(findParameterIndex(parameterName), reader);
     }
+
+//#endif JDBC4
 
     /**
      *   Sets the designated parameter to a <code>Reader</code> object. The
@@ -4120,10 +4314,13 @@ implements CallableStatement {
      *   @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *   @since 1.6
      */
+//#ifdef JDBC4
     public void setNCharacterStream(String parameterName,
                                     Reader value) throws SQLException {
-        throw Util.notSupported();
+        super.setNCharacterStream(findParameterIndex(parameterName), value);
     }
+
+//#endif JDBC4
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -4146,10 +4343,13 @@ implements CallableStatement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
+//#ifdef JDBC4
     public void setClob(String parameterName,
                         Reader reader) throws SQLException {
-        throw Util.notSupported();
+        super.setClob(findParameterIndex(parameterName), reader);
     }
+
+//#endif JDBC4
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.
@@ -4173,10 +4373,13 @@ implements CallableStatement {
      *
      * @since 1.6
      */
+//#ifdef JDBC4
     public void setBlob(String parameterName,
                         InputStream inputStream) throws SQLException {
-        throw Util.notSupported();
+        super.setBlob(findParameterIndex(parameterName), inputStream);
     }
+
+//#endif JDBC4
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -4200,10 +4403,13 @@ implements CallableStatement {
      *
      * @since 1.6
      */
+//#ifdef JDBC4
     public void setNClob(String parameterName,
                          Reader reader) throws SQLException {
-        throw Util.notSupported();
+        super.setNClob(findParameterIndex(parameterName), reader);
     }
+
+//#endif JDBC4
 
 // --------------------------- Internal Implementation -------------------------
 
