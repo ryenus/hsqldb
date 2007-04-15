@@ -90,8 +90,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String THIS_CACHE_VERSION       = "1.7.0";
     public static final String PRODUCT_NAME = "HSQL Database Engine";
     public static final int    MAJOR                    = 1,
-                               MINOR                    = 8,
-                               REVISION                 = 1;
+                               MINOR                    = 9,
+                               REVISION                 = 0;
 
     /**
      * system properties supported by HSQLDB
