@@ -803,7 +803,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */    
-    public void testSetObject_bigint() throws Exception
+    public void testSetObject_BIGINT() throws Exception
     {
         System.out.println("setObject - BIGINT");
 
@@ -815,19 +815,21 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_binary() throws Exception
+    public void testSetObject_BINARY() throws Exception
     {
         System.out.println("setObject - BINARY");
 
         setUpDualTable();
+        
+        byte[] bytes = "setObject_binary".getBytes();
 
-        setObjectTest("binary", "setObject_binary".getBytes(), Types.BINARY);
+        setObjectTest("binary(" + bytes.length + ")", bytes, Types.BINARY);
     }  
     
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_boolean() throws Exception
+    public void testSetObject_BOOLEAN() throws Exception
     {
         System.out.println("setObject - BOOLEAN");
 
@@ -839,7 +841,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_char() throws Exception
+    public void testSetObject_CHAR() throws Exception
     {
         System.out.println("setObject - CHAR");
 
@@ -851,7 +853,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_date() throws Exception
+    public void testSetObject_DATE() throws Exception
     {
         System.out.println("setObject - DATE");
 
@@ -863,19 +865,19 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_decimal() throws Exception
+    public void testSetObject_DECIMAL() throws Exception
     {
         System.out.println("setObject - DECIMAL");
 
         setUpDualTable();
 
-        setObjectTest("decimal", new BigDecimal(1.123456789), Types.DECIMAL);
+        setObjectTest("decimal(10,9)", new BigDecimal(1.123456789), Types.DECIMAL);
     }
     
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_double() throws Exception
+    public void testSetObject_DOUBLE() throws Exception
     {
         System.out.println("setObject - DOUBLE");
 
@@ -887,7 +889,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_float() throws Exception
+    public void testSetObject_FLOAT() throws Exception
     {
         System.out.println("setObject - FLOAT");
 
@@ -899,7 +901,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_integer() throws Exception
+    public void testSetObject_INTEGER() throws Exception
     {
         System.out.println("setObject - INTEGER");
 
@@ -911,22 +913,24 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_longvarbinary() throws Exception
+    public void testSetObject_LONGVARBINARY() throws Exception
     {
         System.out.println("setObject - LONGVARBINARY");
 
         setUpDualTable();
+        
+        byte[] bytes = "setObject_longvarbinary".getBytes();
 
         setObjectTest(
-                "longvarbinary",
-                "setObject_longvarbinary".getBytes(),
+                "longvarbinary(" + bytes.length + ")",
+                bytes,
                 Types.LONGVARBINARY);
     }  
     
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_longvarchar() throws Exception
+    public void testSetObject_LONGVARCHAR() throws Exception
     {
         System.out.println("setObject - LONGVARCHAR");
 
@@ -941,7 +945,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_boolean_array() throws Exception
+    public void testSetObject_OTHER_boolean_array() throws Exception
     {
         System.out.println("setObject - OTHER - boolean[]");
 
@@ -953,7 +957,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_byte_array() throws Exception
+    public void testSetObject_OTHER_byte_array() throws Exception
     {
         System.out.println("setObject - OTHER - byte[]");
 
@@ -965,7 +969,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_short_array() throws Exception
+    public void testSetObject_OTHER_short_array() throws Exception
     {
         System.out.println("setObject - OTHER - short[]");
 
@@ -977,7 +981,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_char_array() throws Exception
+    public void testSetObject_OTHER_char_array() throws Exception
     {
         System.out.println("setObject - OTHER - char[]");
 
@@ -989,7 +993,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_int_array() throws Exception
+    public void testSetObject_OTHER_int_array() throws Exception
     {
         System.out.println("setObject - OTHER - int[]");
 
@@ -1001,7 +1005,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_long_array() throws Exception
+    public void testSetObject_OTHER_long_array() throws Exception
     {
         System.out.println("setObject - OTHER - long[]");
 
@@ -1013,7 +1017,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_float_array() throws Exception
+    public void testSetObject_OTHER_float_array() throws Exception
     {
         System.out.println("setObject - OTHER - float[]");
 
@@ -1025,7 +1029,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_double_array() throws Exception
+    public void testSetObject_OTHER_double_array() throws Exception
     {
         System.out.println("setObject - OTHER - double[]");
 
@@ -1037,7 +1041,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_String_array() throws Exception
+    public void testSetObject_OTHER_String_array() throws Exception
     {
         System.out.println("setObject - OTHER - String[]");
 
@@ -1049,7 +1053,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_Boolean_array() throws Exception
+    public void testSetObject_OTHER_Boolean_array() throws Exception
     {
         System.out.println("setObject - OTHER - Boolean[]");
 
@@ -1061,7 +1065,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_Byte_array() throws Exception
+    public void testSetObject_OTHER_Byte_array() throws Exception
     {
         System.out.println("setObject - OTHER - Byte[]");
 
@@ -1073,7 +1077,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_Short_array() throws Exception
+    public void testSetObject_OTHER_Short_array() throws Exception
     {
         System.out.println("setObject - OTHER - Short[]");
 
@@ -1085,7 +1089,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_Character_array() throws Exception
+    public void testSetObject_OTHER_Character_array() throws Exception
     {
         System.out.println("setObject - OTHER - Character[]");
 
@@ -1097,7 +1101,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_Integer_array() throws Exception
+    public void testSetObject_OTHER_Integer_array() throws Exception
     {
         System.out.println("setObject - OTHER - Integer[]");
 
@@ -1109,7 +1113,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_Long_array() throws Exception
+    public void testSetObject_OTHER_Long_array() throws Exception
     {
         System.out.println("setObject - OTHER - Long[]");
 
@@ -1121,7 +1125,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_Float_array() throws Exception
+    public void testSetObject_OTHER_Float_array() throws Exception
     {
         System.out.println("setObject - OTHER - Float[]");
 
@@ -1133,7 +1137,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_other_Double_array() throws Exception
+    public void testSetObject_OTHER_Double_array() throws Exception
     {
         System.out.println("setObject - OTHER - Double[]");
 
@@ -1145,7 +1149,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_real() throws Exception
+    public void testSetObject_REAL() throws Exception
     {
         System.out.println("setObject - REAL");
 
@@ -1157,7 +1161,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_smallint() throws Exception
+    public void testSetObject_SMALLINT() throws Exception
     {
         System.out.println("setObject - SMALLINT");
 
@@ -1169,7 +1173,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_time() throws Exception
+    public void testSetObject_TIME() throws Exception
     {
         System.out.println("setObject - TIME");
 
@@ -1181,22 +1185,27 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_timestamp() throws Exception
+    public void testSetObject_TIMESTAMP() throws Exception
     {
         System.out.println("setObject - TIMESTAMP");
 
         setUpDualTable();
 
         setObjectTest(
-                "timestamp", 
-                Timestamp.valueOf("2005-12-13 01:23:47.1234"),
+                "timestamp(6)", 
+                Timestamp.valueOf("2005-12-13 01:23:47.123456"),
                 Types.TIMESTAMP);
+        
+        setObjectTest(
+                "timestamp(0)", 
+                Timestamp.valueOf("2005-12-13 01:23:47"),
+                Types.TIMESTAMP);        
     }   
     
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_tinyint() throws Exception
+    public void testSetObject_TINYINT() throws Exception
     {
         System.out.println("setObject - TINYINT");
 
@@ -1208,22 +1217,24 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_varbinary() throws Exception
+    public void testSetObject_VARBINARY() throws Exception
     {
         System.out.println("setObject - VARBINARY");
 
         setUpDualTable();
+        
+        byte[] bytes = "setObject_varbinary".getBytes();
 
         setObjectTest(
-                "varbinary",
-                "setObject_varbinary".getBytes(),
+                "varbinary(" + bytes.length + ")",
+                bytes,
                 Types.VARBINARY);
     }   
     
     /**
      * Test of setObject method, of inteface java.sql.CallableStatement.
      */     
-    public void testSetObject_varchar() throws Exception
+    public void testSetObject_VARCHAR() throws Exception
     {
         System.out.println("setObject - VARCHAR");
 
