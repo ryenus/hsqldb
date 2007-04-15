@@ -165,9 +165,7 @@ class Parser extends BaseParser {
                                   col.getName().name);
             }
 
-            if (tokenType == Token.COMMA) {
-                read();
-
+            if (readIfNext(Token.COMMA)) {
                 continue;
             }
 
@@ -226,15 +224,11 @@ class Parser extends BaseParser {
                 }
             }
 
-            if (tokenType == Token.COMMA) {
-                read();
-
+            if (readIfNext(Token.COMMA)) {
                 continue;
             }
 
-            if (tokenType == Token.CLOSEBRACKET) {
-                read();
-
+            if (readIfNext(Token.CLOSEBRACKET)) {
                 break;
             }
 
@@ -370,7 +364,7 @@ class Parser extends BaseParser {
 
             case Token.INTERSECT :
                 read();
-                readNoiseWord(Token.DISTINCT);
+                readIfNext(Token.DISTINCT);
 
                 unionType = Select.INTERSECT;
                 break;
@@ -378,7 +372,7 @@ class Parser extends BaseParser {
             case Token.EXCEPT :
             case Token.MINUS_EXCEPT :
                 read();
-                readNoiseWord(Token.DISTINCT);
+                readIfNext(Token.DISTINCT);
 
                 unionType = Select.EXCEPT;
                 break;
@@ -484,7 +478,7 @@ class Parser extends BaseParser {
             select.unionType  = unionType;
             select.unionDepth = brackets;
 
-            if (unionType != Select.NOUNION &&!enclosed) {
+            if (unionType != Select.NOUNION && !enclosed) {
                 if (select.orderByColumnCount != 0) {
                     throw Trace.error(Trace.INVALID_ORDER_BY);
                 }
@@ -571,7 +565,7 @@ class Parser extends BaseParser {
         while (true) {
             Expression e = readOr();
 
-            readNoiseWord(Token.AS);
+            readIfNext(Token.AS);
 
             if (tokenType == Token.X_NAME) {
                 checkIsSimpleName();
@@ -585,9 +579,7 @@ class Parser extends BaseParser {
                 break;
             }
 
-            if (tokenType == Token.COMMA) {
-                read();
-
+            if (readIfNext(Token.COMMA)) {
                 continue;
             }
 
@@ -649,9 +641,7 @@ class Parser extends BaseParser {
         while (true) {
             readTableReference(select);
 
-            if (tokenType == Token.COMMA) {
-                read();
-
+            if (readIfNext(Token.COMMA)) {
                 continue;
             }
 
@@ -723,7 +713,7 @@ class Parser extends BaseParser {
                     continue;
                 case Token.LEFT :
                     read();
-                    readNoiseWord(Token.OUTER);
+                    readIfNext(Token.OUTER);
                     readThis(Token.JOIN);
 
                     outer = true;
@@ -731,7 +721,7 @@ class Parser extends BaseParser {
 
                 case Token.RIGHT :
                     read();
-                    readNoiseWord(Token.OUTER);
+                    readIfNext(Token.OUTER);
                     readThis(Token.JOIN);
 
                     outer = true;
@@ -739,7 +729,7 @@ class Parser extends BaseParser {
 
                 case Token.FULL :
                     read();
-                    readNoiseWord(Token.OUTER);
+                    readIfNext(Token.OUTER);
                     readThis(Token.JOIN);
 
                     outer = true;
@@ -937,7 +927,7 @@ class Parser extends BaseParser {
             Expression e    = readOr();
             Type       type = e.getDataType();
 
-            if (type == null ||!type.isBooleanType()) {
+            if (type == null || !type.isBooleanType()) {
                 throw Trace.error(Trace.NOT_A_CONDITION);
             }
 
@@ -971,7 +961,7 @@ class Parser extends BaseParser {
             Expression e    = readOr();
             Type       type = e.getDataType();
 
-            if (type == null ||!type.isBooleanType()) {
+            if (type == null || !type.isBooleanType()) {
                 throw Trace.error(Trace.NOT_A_CONDITION);
             }
 
@@ -1000,15 +990,15 @@ class Parser extends BaseParser {
         boolean hasLimit = select.limitCondition != null;
 
         if (limitWithOrder) {
-            if (hasLimit &&!hasOrder) {
+            if (hasLimit && !hasOrder) {
                 throw Trace.error(Trace.ORDER_LIMIT_REQUIRED);
             }
         } else {
-            if (hasOrder &&!canHaveOrder) {
+            if (hasOrder && !canHaveOrder) {
                 throw Trace.error(Trace.INVALID_ORDER_BY);
             }
 
-            if (hasLimit &&!canHaveLimit) {
+            if (hasLimit && !canHaveLimit) {
                 throw Trace.error(Trace.INVALID_LIMIT);
             }
         }
@@ -1022,8 +1012,7 @@ class Parser extends BaseParser {
 // in other RDBMS's
 // "SELECT LIMIT n 0" discards the first n rows and returns the remaining rows
 // fredt@users 20020225 - patch 456679 by hiep256 - TOP keyword
-    private void readLimit(Select select,
-                           boolean isEnd) throws HsqlException {
+    private void readLimit(Select select, boolean isEnd) throws HsqlException {
 
         if (select.limitCondition != null) {
             return;
@@ -1036,11 +1025,10 @@ class Parser extends BaseParser {
 
         if (isEnd) {
             if (tokenType == Token.LIMIT) {
-                islimit = true;
-
                 read();
 
-                e2 = readTerm();
+                islimit = true;
+                e2      = readTerm();
 
                 if (tokenType == Token.OFFSET) {
                     read();
@@ -1098,8 +1086,7 @@ class Parser extends BaseParser {
         if (e2.isParam()) {
             e2.setDataType(Type.SQL_INTEGER);
         } else {
-            valid &= (e2.getType() == Expression.VALUE
-                      && e2.valueData != null
+            valid &= (e2.getType() == Expression.VALUE && e2.valueData != null
                       && e2.getDataType().type == Types.SQL_INTEGER
                       && ((Integer) e2.getValue(null)).intValue() >= 0);
         }
@@ -1211,7 +1198,7 @@ class Parser extends BaseParser {
 
         if (tokenType == Token.LEFT || tokenType == Token.RIGHT) {}
         else {
-            readNoiseWord(Token.OUTER);
+            readIfNext(Token.OUTER);
 
             if (isSimpleName()) {
                 alias = tokenString;
@@ -1616,8 +1603,7 @@ class Parser extends BaseParser {
 
             Expression c = readTerm();
 
-            Trace.check(c.getType() == Expression.VALUE,
-                        Trace.INVALID_ESCAPE);
+            Trace.check(c.getType() == Expression.VALUE, Trace.INVALID_ESCAPE);
 
             String s = (String) c.getValue(session, Type.SQL_VARCHAR);
 
@@ -1648,9 +1634,9 @@ class Parser extends BaseParser {
         read();
 
         if (tokenType == Token.UNIQUE) {
-            isUnique = true;
-
             read();
+
+            isUnique = true;
         }
 
         if (tokenType == Token.SIMPLE) {
@@ -1798,9 +1784,8 @@ class Parser extends BaseParser {
 
             compileContext.subQueryLevel++;
 
-            SubQuery sq = new SubQuery(database,
-                                       compileContext.subQueryLevel, true,
-                                       false, true, null, null);
+            SubQuery sq = new SubQuery(database, compileContext.subQueryLevel,
+                                       true, false, true, null, null);
 
             compileContext.subQueryList.add(sq);
 
@@ -1840,9 +1825,9 @@ class Parser extends BaseParser {
         Expression e = readSum();
 
         while (tokenType == Token.CONCAT) {
-            Expression a = e;
-
             read();
+
+            Expression a = e;
 
             e = new Expression(Expression.CONCAT, a, readSum());
         }
@@ -1867,9 +1852,9 @@ class Parser extends BaseParser {
                 break;
             }
 
-            Expression a = e;
-
             read();
+
+            Expression a = e;
 
             e = new Expression(type, a, readFactor());
         }
@@ -1891,9 +1876,9 @@ class Parser extends BaseParser {
                 break;
             }
 
-            Expression a = e;
-
             read();
+
+            Expression a = e;
 
             e = new Expression(type, a, readTerm());
         }
@@ -2092,8 +2077,7 @@ class Parser extends BaseParser {
                         r, e
                     });
                 } else {
-                    r.argList =
-                        (Expression[]) ArrayUtil.resizeArray(r.argList,
+                    r.argList = (Expression[]) ArrayUtil.resizeArray(r.argList,
                             r.argList.length + 1);
                     r.argList[r.argList.length - 1] = e;
                 }
@@ -2417,11 +2401,11 @@ class Parser extends BaseParser {
             }
 
             if (tokenType == Token.COMMA) {
+                read();
+
                 if (startToken != Token.SECOND) {
                     throw Trace.error(Trace.INVALID_IDENTIFIER);
                 }
-
-                read();
 
                 scale = readInteger();
 
@@ -2442,11 +2426,11 @@ class Parser extends BaseParser {
         }
 
         if (tokenType == Token.OPENBRACKET) {
+            read();
+
             if (endToken != Token.SECOND || endToken == startToken) {
                 throw Trace.error(Trace.INVALID_IDENTIFIER);
             }
-
-            read();
 
             scale = readInteger();
 
@@ -2457,8 +2441,7 @@ class Parser extends BaseParser {
             readThis(Token.CLOSEBRACKET);
         }
 
-        return getIntervalSpecificType(startToken, endToken, precision,
-                                       scale);
+        return getIntervalSpecificType(startToken, endToken, precision, scale);
     }
 
     IntervalType getIntervalSpecificType(int startToken, int endToken,
@@ -2534,14 +2517,14 @@ class Parser extends BaseParser {
             elseExpr = readOr();
 
             readThis(Token.END);
-            readNoiseWord(Token.CASE);
+            readIfNext(Token.CASE);
         } else {
             elseExpr = l == null
                        ? new Expression((Object) null, Type.SQL_ALL_TYPES)
                        : new Expression((Object) "", Type.SQL_CHAR);
 
             readThis(Token.END);
-            readNoiseWord(Token.CASE);
+            readIfNext(Token.CASE);
         }
 
         Expression alternatives = new Expression(Expression.ALTERNATIVE,
@@ -2784,8 +2767,7 @@ class Parser extends BaseParser {
                 break;
             }
 
-            Expression condition = new Expression(Expression.IS_NULL,
-                                                  current);
+            Expression condition = new Expression(Expression.IS_NULL, current);
             Expression alternatives = new Expression(Expression.ALTERNATIVE,
                 new Expression((Object) null, (Type) null), current);
             Expression casewhen = new Expression(Expression.CASEWHEN,
@@ -3126,7 +3108,7 @@ class Parser extends BaseParser {
     private void checkCatalogName() throws HsqlException {
 
         if (namePrePrefix != null
-                &&!namePrePrefix.equals(database.getCatalog())) {
+                && !namePrePrefix.equals(database.getCatalog())) {
 
             // todo - SQL error catalog not found
             throw Trace.error(Trace.TOO_MANY_IDENTIFIER_PARTS);
@@ -3157,7 +3139,7 @@ class Parser extends BaseParser {
         }
 
         if (namePrefix != null
-                &&!namePrePrefix.equals(database.getCatalog())) {
+                && !namePrePrefix.equals(database.getCatalog())) {
             throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,
                               namePrefix);
         }
@@ -3240,7 +3222,7 @@ class Parser extends BaseParser {
         }
 
         if (namePrefix != null
-                &&!namePrePrefix.equals(database.getCatalog())) {
+                && !namePrePrefix.equals(database.getCatalog())) {
             throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,
                               namePrefix);
         }
@@ -3276,7 +3258,7 @@ class Parser extends BaseParser {
             throw Trace.error(Trace.TOO_MANY_IDENTIFIER_PARTS);
         }
 
-        if (namePrefix != null &&!namePrefix.equals(schema)) {
+        if (namePrefix != null && !namePrefix.equals(schema)) {
             throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,
                               namePrefix);
         }
@@ -3311,8 +3293,8 @@ class Parser extends BaseParser {
 
         int i = rangeVar.findColumn(tokenString);
 
-        if (i == -1 ||!rangeVar.resolvesTableName(namePrefix)
-                ||!rangeVar.resolvesSchemaName(namePrePrefix)) {
+        if (i == -1 || !rangeVar.resolvesTableName(namePrefix)
+                || !rangeVar.resolvesSchemaName(namePrePrefix)) {
             throw Trace.error(Trace.COLUMN_NOT_FOUND, tokenString);
         }
 
@@ -3443,8 +3425,8 @@ class Parser extends BaseParser {
             case Token.SELECT : {
 
                 // accept ORDER BY or ORDRY BY with LIMIT, or just LIMIT
-                Select select = this.readQueryExpression(brackets, true,
-                    true, false, false);
+                Select select = this.readQueryExpression(brackets, true, true,
+                    false, false);
 
                 select.checkColumnsResolved();
 
@@ -3493,8 +3475,7 @@ class Parser extends BaseParser {
     CompiledStatement compileSelectStatement(int brackets)
     throws HsqlException {
 
-        Select select = readQueryExpression(brackets, true, true, false,
-                                            true);
+        Select select = readQueryExpression(brackets, true, true, false, true);
 
         if (select.intoTableName != null) {
             String name   = select.intoTableName.name;
@@ -3705,8 +3686,7 @@ class Parser extends BaseParser {
                         throw Trace.error(Trace.COLUMN_COUNT_DOES_NOT_MATCH);
                     }
 
-                    Expression e = new Expression(Expression.ROW_SUBQUERY,
-                                                  sq);
+                    Expression e = new Expression(Expression.ROW_SUBQUERY, sq);
 
                     expressions.add(e);
                 } else {
@@ -3774,7 +3754,7 @@ class Parser extends BaseParser {
 
         Type type = mergeCondition.getDataType();
 
-        if (type == null ||!type.isBooleanType()) {
+        if (type == null || !type.isBooleanType()) {
             throw Trace.error(Trace.NOT_A_CONDITION);
         }
 
@@ -3792,8 +3772,7 @@ class Parser extends BaseParser {
             int colCount = insertColNames.size();
 
             if (colCount != 0) {
-                insertColumnMap =
-                    targetTable.getColumnIndexes(insertColNames);
+                insertColumnMap = targetTable.getColumnIndexes(insertColNames);
                 insertColumnCheckList =
                     targetTable.getColumnCheckList(insertColumnMap);
             }
@@ -3851,10 +3830,10 @@ class Parser extends BaseParser {
             insertExpression.resolveTypes(session, null);
         }
 
-        CompiledStatement cs = new CompiledStatement(session,
-            targetRangeVars, insertColumnMap, updateColumnMap,
-            insertColumnCheckList, mergeCondition, insertExpression,
-            updateExpressions, compileContext);
+        CompiledStatement cs = new CompiledStatement(session, targetRangeVars,
+            insertColumnMap, updateColumnMap, insertColumnCheckList,
+            mergeCondition, insertExpression, updateExpressions,
+            compileContext);
 
         return cs;
     }

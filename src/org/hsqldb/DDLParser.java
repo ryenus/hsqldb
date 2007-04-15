@@ -570,11 +570,10 @@ public class DDLParser extends Parser {
                         database.nameManager.newAutoName("IDX",
                                                          (HsqlName) null);
                     Index index = table.createIndex(session, c.core.refCols,
-                                                    null, refIndexName,
-                                                    false, true, isForward);
-                    HsqlName mainName =
-                        database.nameManager.newAutoName("REF",
-                                                         c.getName().name);
+                                                    null, refIndexName, false,
+                                                    true, isForward);
+                    HsqlName mainName = database.nameManager.newAutoName("REF",
+                        c.getName().name);
 
                     c.core.uniqueName = uniqueConstraint.getName();
                     c.core.mainName   = mainName;
@@ -625,7 +624,7 @@ public class DDLParser extends Parser {
             mainTable = refTable;
 
             if (namePrefix != null
-                    &&!refTable.getName().schema.name.equals(namePrefix)) {
+                    && !refTable.getName().schema.name.equals(namePrefix)) {
                 throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,
                                   namePrefix);
             }
@@ -754,10 +753,9 @@ public class DDLParser extends Parser {
 
         readThis(Token.AS);
 
-        int logPosition = getPosition();
-        int brackets    = readOpenBrackets();
-        Select select = readQueryExpression(brackets, true, false, true,
-                                            true);
+        int    logPosition = getPosition();
+        int    brackets    = readOpenBrackets();
+        Select select = readQueryExpression(brackets, true, false, true, true);
 
         if (select.intoTableName != null) {
             throw (Trace.error(Trace.INVALID_IDENTIFIER, Token.INTO));
@@ -901,8 +899,8 @@ public class DDLParser extends Parser {
         }
 
         name.setAndCheckSchema(table.getSchemaName());
-        database.schemaManager.checkTriggerExists(name.name,
-                name.schema.name, false);
+        database.schemaManager.checkTriggerExists(name.name, name.schema.name,
+                false);
 
         if (columns != null) {
             int[] cols = table.getColumnIndexes(columns);
@@ -942,7 +940,7 @@ public class DDLParser extends Parser {
                         }
 
                         read();
-                        readNoiseWord(Token.AS);
+                        readIfNext(Token.AS);
                         checkIsSimpleName();
 
                         oldTableName = tokenString;
@@ -957,15 +955,14 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        // TODO: Commit TriggerDef with OLD_TABLE defined
-                        // rangeVars[TriggerDef.OLD_TABLE] = range;
+                        rangeVars[TriggerDef.OLD_TABLE] = range;
                     } else if (tokenType == Token.ROW) {
                         if (oldRowName != null) {
                             throw unexpectedToken();
                         }
 
                         read();
-                        readNoiseWord(Token.AS);
+                        readIfNext(Token.AS);
                         checkIsSimpleName();
 
                         oldRowName = tokenString;
@@ -982,8 +979,7 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        // TODO: Commit TriggerDef with OLD_ROWS defined
-                        // rangeVars[TriggerDef.OLD_ROWS] = range;
+                        rangeVars[TriggerDef.OLD_ROWS] = range;
                     } else {
                         throw unexpectedToken();
                     }
@@ -1001,7 +997,7 @@ public class DDLParser extends Parser {
                         }
 
                         read();
-                        readNoiseWord(Token.AS);
+                        readIfNext(Token.AS);
                         checkIsSimpleName();
 
                         newTableName = tokenString;
@@ -1016,15 +1012,14 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        // TODO: Commit TriggerDef with NEW_TABLE defined
-                        // rangeVars[TriggerDef.NEW_TABLE] = range;
+                        rangeVars[TriggerDef.NEW_TABLE] = range;
                     } else if (tokenType == Token.ROW) {
                         if (newRowName != null) {
                             throw unexpectedToken();
                         }
 
                         read();
-                        readNoiseWord(Token.AS);
+                        readIfNext(Token.AS);
                         checkIsSimpleName();
 
                         newRowName   = tokenString;
@@ -1040,8 +1035,7 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        // TODO: Commit TriggerDef with NEW_ROWS defined
-                        // rangeVars[TriggerDef.NEW_ROWS] = range;
+                        rangeVars[TriggerDef.NEW_ROWS] = range;
                     } else {
                         throw unexpectedToken();
                     }
@@ -1089,9 +1083,13 @@ public class DDLParser extends Parser {
             read();
             readThis(Token.OPENBRACKET);
 
-            condition = readCondition();
+            condition = readOr();
 
             readThis(Token.CLOSEBRACKET);
+
+            if (condition.getDataType().type != Types.SQL_BOOLEAN) {
+                throw Trace.error(Trace.NOT_A_CONDITION);
+            }
 
             OrderedHashSet unresolved =
                 condition.resolveColumnReferences(rangeVars, null);
@@ -1133,10 +1131,36 @@ public class DDLParser extends Parser {
             return;
         }
 
-        throw unexpectedToken();
-    }
+        CompiledStatement cs = null;
 
-    //read
+        switch (tokenType) {
+
+            case Token.INSERT :
+                cs = compileInsertStatement();
+                break;
+
+            case Token.UPDATE :
+                cs = compileUpdateStatement();
+                break;
+
+            case Token.MERGE :
+                cs = compileMergeStatement();
+                break;
+
+            case Token.SET :
+                break;
+
+            default :
+                throw unexpectedToken();
+        }
+
+        td = new TriggerDef(name, beforeOrAfter, operation, isForEachRow,
+                            table, condition);
+
+        table.addTrigger(td);
+        database.schemaManager.addTrigger(td, table.getName());
+        session.setScripting(true);
+    }
 
     /**
      * Responsible for handling the creation of table columns during the process
@@ -1178,7 +1202,7 @@ public class DDLParser extends Parser {
             read();
 
             defaultExpr = readAndCheckDefaultClause(typeObject);
-        } else if (tokenType == Token.GENERATED &&!isIdentity) {
+        } else if (tokenType == Token.GENERATED && !isIdentity) {
             read();
 
             if (tokenType == Token.BY) {
@@ -1220,7 +1244,7 @@ public class DDLParser extends Parser {
 
         readColumnConstraints(table, column, constraintList);
 
-        if (tokenType == Token.IDENTITY &&!isIdentity) {
+        if (tokenType == Token.IDENTITY && !isIdentity) {
             read();
 
             isIdentity   = true;
@@ -1232,7 +1256,7 @@ public class DDLParser extends Parser {
             column.setIdentity(sequence);
         }
 
-        if (isPKIdentity &&!column.isPrimaryKey()) {
+        if (isPKIdentity && !column.isPrimaryKey()) {
             OrderedHashSet set = new OrderedHashSet();
 
             set.add(column.getName().name);
@@ -1766,7 +1790,7 @@ public class DDLParser extends Parser {
 
         checkSchemaUpdateAuthorization(tableSchemaName);
 
-        if (schema != null &&!tableSchemaName.equals(schema)) {
+        if (schema != null && !tableSchemaName.equals(schema)) {
             throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
         }
 
@@ -2017,9 +2041,9 @@ public class DDLParser extends Parser {
 
     void processAlterTableAddColumn(Table table) throws HsqlException {
 
-        int           colIndex = table.getColumnCount();
-        HsqlArrayList list     = new HsqlArrayList();
-        Constraint constraint  = new Constraint(null, null, Constraint.TEMP);
+        int           colIndex   = table.getColumnCount();
+        HsqlArrayList list       = new HsqlArrayList();
+        Constraint    constraint = new Constraint(null, null, Constraint.TEMP);
 
         list.add(constraint);
         checkIsName();
@@ -2150,8 +2174,7 @@ public class DDLParser extends Parser {
                         //ALTER TABLE .. ALTER COLUMN .. SET DEFAULT
                         TableWorks tw   = new TableWorks(session, table);
                         Type       type = column.getType();
-                        Expression expr =
-                            this.readAndCheckDefaultClause(type);
+                        Expression expr = this.readAndCheckDefaultClause(type);
 
                         tw.setColDefaultExpression(columnIndex, expr);
 
@@ -2399,8 +2422,7 @@ public class DDLParser extends Parser {
      * @throws HsqlException
      */
     private void processAlterColumnRename(Table table,
-                                          Column column)
-                                          throws HsqlException {
+                                          Column column) throws HsqlException {
 
         checkIsSimpleName();
 
@@ -2644,7 +2666,7 @@ public class DDLParser extends Parser {
         }
 
         if (ifexists && schema != null
-                &&!database.schemaManager.schemaExists(schema)) {
+                && !database.schemaManager.schemaExists(schema)) {
             return;
         }
 
@@ -2679,8 +2701,7 @@ public class DDLParser extends Parser {
             read();
         }
 
-        Grantee grantee =
-            database.getUserManager().get(userName).getGrantee();
+        Grantee grantee = database.getUserManager().get(userName).getGrantee();
 
         if (database.getSessionManager().isUserActive(userName)) {
 
@@ -2763,7 +2784,7 @@ public class DDLParser extends Parser {
         }
 
         if (ifexists && schema != null
-                &&!database.schemaManager.schemaExists(schema)) {
+                && !database.schemaManager.schemaExists(schema)) {
             return;
         }
 
@@ -2821,7 +2842,7 @@ public class DDLParser extends Parser {
         }
 
         if (ifexists && schema != null
-                &&!database.schemaManager.schemaExists(schema)) {
+                && !database.schemaManager.schemaExists(schema)) {
             return;
         }
 
@@ -2912,7 +2933,7 @@ public class DDLParser extends Parser {
         read();
 
         // this will catch all the keywords
-        if (isQuoted ||!isGrantToken()) {
+        if (isQuoted || !isGrantToken()) {
             session.checkAdmin();
             processRoleGrantOrRevoke(grant);
 
@@ -3001,7 +3022,7 @@ public class DDLParser extends Parser {
         accessKey = null;
 
         if (tokenString.equals(Token.T_CLASS)) {
-            if (!isExec &&!isAll) {
+            if (!isExec && !isAll) {
                 throw unexpectedToken();
             }
 
@@ -3015,7 +3036,7 @@ public class DDLParser extends Parser {
             // grant
             read();
         } else if (tokenType == Token.SEQUENCE) {
-            if (!isUsage &&!isAll) {
+            if (!isUsage && !isAll) {
                 throw unexpectedToken();
             }
 
@@ -3031,11 +3052,11 @@ public class DDLParser extends Parser {
 
             read();
         } else {
-            if (!isTable &&!isAll) {
+            if (!isTable && !isAll) {
                 throw unexpectedToken();
             }
 
-            readNoiseWord(Token.TABLE);
+            readIfNext(Token.TABLE);
 
             Table  t      = readTableName();
             String schema = t.getSchemaName().name;
@@ -3046,7 +3067,7 @@ public class DDLParser extends Parser {
 
             right.setColumns(t);
 
-            if (t.getTableType() == Table.TEMP_TABLE &&!isAll) {
+            if (t.getTableType() == Table.TEMP_TABLE && !isAll) {
                 throw unexpectedToken();
             }
         }
