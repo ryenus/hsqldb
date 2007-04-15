@@ -60,6 +60,11 @@ import org.hsqldb.rights.Grantee;
  */
 public class TriggerDef implements Runnable, SchemaObject {
 
+    static final int OLD_ROWS  = 0;
+    static final int NEW_ROWS  = 1;
+    static final int OLD_TABLE = 2;
+    static final int NEW_TABLE = 3;
+
     /**
      *  member variables
      */
@@ -422,6 +427,10 @@ public class TriggerDef implements Runnable, SchemaObject {
     public boolean isBusy() {
         return rowsQueued != 0;
     }
+
+    public TriggerDef(HsqlNameManager.HsqlName name, String when,
+                      String operation, boolean forEachRow, Table table,
+                      Expression condition) throws HsqlException {}
 
     /**
      * Class to store the data used to fire a trigger. The username attribute

@@ -713,7 +713,7 @@ public class CommandParser extends DDLParser {
     private void processCommit() throws HsqlException {
 
         read();
-        readNoiseWord(Token.WORK);
+        readIfNext(Token.WORK);
         session.commit();
     }
 
@@ -725,7 +725,7 @@ public class CommandParser extends DDLParser {
     private void processRollback() throws HsqlException {
 
         read();
-        readNoiseWord(Token.WORK);
+        readIfNext(Token.WORK);
 
         if (tokenType == Token.TO) {
             read();

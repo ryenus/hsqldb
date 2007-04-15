@@ -157,11 +157,14 @@ public class BaseParser {
         read();
     }
 
-    void readNoiseWord(int tokenId) throws HsqlException {
+    boolean readIfNext(int tokenId) throws HsqlException {
 
         if (tokenType == tokenId) {
             read();
+            return true;
         }
+
+        return false;
     }
 
     void checkIsNotQuoted() throws HsqlException {
