@@ -217,6 +217,9 @@
               <path path="${hsqldb.jar}"/>
               <path path="${test.suite.jar}"/>
           </classpath>
+          <syspropertyset id="test.suite.system.properties">
+            <propertyref prefix="hsqldb.test.suite."/>
+          </syspropertyset>
           <formatter type="xml"/>
       </junit>
 
