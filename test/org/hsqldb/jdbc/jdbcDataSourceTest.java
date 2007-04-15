@@ -33,8 +33,8 @@ package org.hsqldb.jdbc;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.DataSet;
-import java.sql.QueryObjectGenerator;
+//import java.sql.DataSet;
+//import java.sql.QueryObjectGenerator;
 import java.sql.ResultSet;
 import javax.sql.DataSource;
 import junit.framework.Test;
@@ -99,69 +99,69 @@ public class jdbcDataSourceTest extends JdbcTestCase {
     /**
      * Test of createQueryObject method, of interface javax.sql.DataSource.
      */
-    public void testCreateQueryObject() throws Exception {
-        System.out.println("createQueryObject");
-
-        setUpSampleData();
-
-        Class<CustomerDao> ifc         = CustomerDao.class;
-        Connection         conn        = newConnection();
-        CustomerDao        customerDao = conn.createQueryObject(ifc);
-        DataSet<Customer>  customers   = customerDao.getAllCustomers();
-        ResultSet          rs          = conn.createStatement()
-                                            .executeQuery(
-                "select id, firstname, lastname, street, city from customer order by 1");
-
-        for (Customer customer: customers) {
-            rs.next();
-
-            assertEquals("customer.id", rs.getInt(1), customer.id.intValue());
-            assertEquals("customer.firstname", rs.getString(2), customer.firstname);
-            assertEquals("customer.lastname", rs.getString(3), customer.lastname);
-            assertEquals("customer.street", rs.getString(4), customer.street);
-            assertEquals("customer.city", rs.getString(5), customer.city);
-        }
-
-        // TODO:  test update and delete functions.
-    }
+//    public void testCreateQueryObject() throws Exception {
+//        System.out.println("createQueryObject");
+//
+//        setUpSampleData();
+//
+//        Class<CustomerDao> ifc         = CustomerDao.class;
+//        Connection         conn        = newConnection();
+//        CustomerDao        customerDao = conn.createQueryObject(ifc);
+//        DataSet<Customer>  customers   = customerDao.getAllCustomers();
+//        ResultSet          rs          = conn.createStatement()
+//                                            .executeQuery(
+//                "select id, firstname, lastname, street, city from customer order by 1");
+//
+//        for (Customer customer: customers) {
+//            rs.next();
+//
+//            assertEquals("customer.id", rs.getInt(1), customer.id.intValue());
+//            assertEquals("customer.firstname", rs.getString(2), customer.firstname);
+//            assertEquals("customer.lastname", rs.getString(3), customer.lastname);
+//            assertEquals("customer.street", rs.getString(4), customer.street);
+//            assertEquals("customer.city", rs.getString(5), customer.city);
+//        }
+//
+//        // TODO:  test update and delete functions.
+//    }
 
     /**
      * Test of getQueryObjectGenerator method, of interface javax.sql.DataSource.
      */
-    public void testGetQueryObjectGenerator() throws Exception {
-        System.out.println("getQueryObjectGenerator");
-
-        DataSource instance = new jdbcDataSource();
-
-
-        setUpSampleData();
-
-        Class<CustomerDao>   ifc       = CustomerDao.class;
-        DataSource           ds        = newDataSource();
-        QueryObjectGenerator gen       = ds.getQueryObjectGenerator();
-
-        if (gen == null) {
-            return;
-        }
-
-        CustomerDao        customerDao = gen.createQueryObject(ifc, ds);
-        DataSet<Customer>  customers   = customerDao.getAllCustomers();
-        ResultSet          rs          = ds.getConnection().createStatement()
-                                            .executeQuery(
-                "select id, firstname, lastname, street, city from customer order by 2, 1");
-
-        for (Customer customer: customers) {
-            rs.next();
-
-            assertEquals(rs.getInt(1), customer.id.intValue());
-            assertEquals(rs.getString(2), customer.firstname);
-            assertEquals(rs.getString(3), customer.lastname);
-            assertEquals(rs.getString(4), customer.street);
-            assertEquals(rs.getString(5), customer.city);
-        }
-
-        // TODO:  test update and delete functions.
-    }
+//    public void testGetQueryObjectGenerator() throws Exception {
+//        System.out.println("getQueryObjectGenerator");
+//
+//        DataSource instance = new jdbcDataSource();
+//
+//
+//        setUpSampleData();
+//
+//        Class<CustomerDao>   ifc       = CustomerDao.class;
+//        DataSource           ds        = newDataSource();
+//        QueryObjectGenerator gen       = ds.getQueryObjectGenerator();
+//
+//        if (gen == null) {
+//            return;
+//        }
+//
+//        CustomerDao        customerDao = gen.createQueryObject(ifc, ds);
+//        DataSet<Customer>  customers   = customerDao.getAllCustomers();
+//        ResultSet          rs          = ds.getConnection().createStatement()
+//                                            .executeQuery(
+//                "select id, firstname, lastname, street, city from customer order by 2, 1");
+//
+//        for (Customer customer: customers) {
+//            rs.next();
+//
+//            assertEquals(rs.getInt(1), customer.id.intValue());
+//            assertEquals(rs.getString(2), customer.firstname);
+//            assertEquals(rs.getString(3), customer.lastname);
+//            assertEquals(rs.getString(4), customer.street);
+//            assertEquals(rs.getString(5), customer.city);
+//        }
+//
+//        // TODO:  test update and delete functions.
+//    }
 
     /**
      * Test of unwrap method, of interface javax.sql.DataSource.
