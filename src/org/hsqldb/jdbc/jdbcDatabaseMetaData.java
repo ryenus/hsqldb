@@ -5590,7 +5590,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *
      * @return the status indicating the lifetime of a <code>RowId</code>
      * @throws SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public RowIdLifetime getRowIdLifetime() throws SQLException {
@@ -5620,7 +5620,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *         schema description
      * @exception SQLException if a database access error occurs
      * @see #getSearchStringEscape
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
@@ -5642,7 +5642,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public boolean supportsStoredFunctionsUsingCallSyntax() throws SQLException {
@@ -5660,7 +5660,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public boolean autoCommitFailureClosesAllResultSets() throws SQLException {
@@ -5689,7 +5689,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <p>
      *  @exception SQLException if a database access error occurs
      * <p>
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public ResultSet getClientInfoProperties() throws SQLException {
@@ -5703,7 +5703,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public boolean providesQueryObjectGenerator() throws SQLException {
@@ -5716,22 +5716,33 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * Retrieves a description of the user functions available in the given
      * catalog.
      * <P>
-     * Only user function descriptions matching the schema and
+     * Only system and user function descriptions matching the schema and
      * function name criteria are returned.  They are ordered by
-     * <code>FUNCTION_SCHEM</code>, <code>FUNCTION_NAME</code> and
+     * <code>FUNCTION_CAT</code>, <code>FUNCTION_SCHEM</code>,
+     * <code>FUNCTION_NAME</code> and 
      * <code>SPECIFIC_ NAME</code>.
      *
      * <P>Each function description has the the following columns:
      *  <OL>
-     *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
-     *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
-     *  <LI><B>FUNCTION_NAME</B> String => function name
-     *  <LI><B>REMARKS</B> String => explanatory comment on the function
-     *  <LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies
-     *  this function within its schema
+     *	<LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
+     *	<LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
+     *	<LI><B>FUNCTION_NAME</B> String => function name.  This is the name
+     * used to invoke the function
+     *	<LI><B>REMARKS</B> String => explanatory comment on the function
+     * <LI><B>FUNCTION_TYPE</B> short => kind of function:
+     *      <UL>
+     *      <LI>functionResultUnknown - Cannot determine if a return value
+     *       or table will be returned
+     *      <LI> functionNoTable- Does not return a table
+     *      <LI> functionReturnsTable - Returns a table
+     *      </UL>
+     *	<LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies 
+     *  this function within its schema.  This is a user specified, or DBMS
+     * generated, name that may be different then the <code>FUNCTION_NAME</code> 
+     * for example with overload functions
      *  </OL>
      * <p>
-     * A user may not have permissions to execute any of the functions that are
+     * A user may not have permission to execute any of the functions that are
      * returned by <code>getFunctions</code>
      *
      * @param catalog a catalog name; must match the catalog name as it
@@ -5747,7 +5758,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @return <code>ResultSet</code> - each row is a function description
      * @exception SQLException if a database access error occurs
      * @see #getSearchStringEscape
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public ResultSet getFunctions(String catalog,
@@ -5758,14 +5769,15 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
         StringBuffer select = new StringBuffer(256);
 
         select.append("select ")
-              .append("procedure_cat as function_cat,")
-              .append("procedure_schem as function_schem,")
-              .append("procedure_name as function_name,")
-              .append("remarks,")
-              .append("specific_name,")
-              .append("origin ")
-              .append("from information_schema.system_procedures ")
-              .append("where procedure_type = 2 ");
+              .append("sp.procedure_cat as FUNCTION_CAT,")
+              .append("sp.procedure_schem as FUNCTION_SCHEM,")
+              .append("sp.procedure_name as FUNCTION_NAME,")
+              .append("sp.remarks as REMARKS,")
+              .append("1 as FUNCTION_TYPE,")
+              .append("sp.specific_name as SPECIFIC_NAME,")
+              .append("sp.origin ")
+              .append("from information_schema.system_procedures sp ")
+              .append("where sp.procedure_type = 2 ");
 
         if (wantsIsNull(functionNamePattern)) {
             return execute(select.append("and 1=0").toString());
@@ -5773,9 +5785,9 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
 
         schemaPattern = translateSchema(schemaPattern);
 
-        select.append(and("FUNCTION_CAT", "=", catalog))
-              .append(and("FUNCTION_SCHEM", "LIKE", schemaPattern))
-              .append(and("FUNCTION_NAME", "LIKE", functionNamePattern));
+        select.append(and("sp.procedure_cat", "=", catalog))
+              .append(and("sp.procedure_schem", "LIKE", schemaPattern))
+              .append(and("sp.procedure_name", "LIKE", functionNamePattern));
 
         // By default, query already returns the result ordered by
         // FUNCTION_SCHEM, FUNCTION_NAME...
@@ -5786,62 +5798,75 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
 //#endif JDBC4
 
     /**
-     * Retrieves a description of the given catalog's user function parameters
-     * and return type.
+     * Retrieves a description of the given catalog's system or user
+     * function parameters and return type.
      *
-     * <P>Only descriptions matching the schema, user function and
-     * parameter name criteria are returned.  They are ordered by
-     * FUNCTION_SCHEM, FUNCTION_NAME and SPECIFIC_NAME and ORDINAL_POSITION.
+     * <P>Only descriptions matching the schema,  function and
+     * parameter name criteria are returned. They are ordered by
+     * <code>FUNCTION_CAT</code>, <code>FUNCTION_SCHEM</code>,
+     * <code>FUNCTION_NAME</code> and 
+     * <code>SPECIFIC_ NAME</code>. Within this, the return value,
+     * if any, is first. Next are the parameter descriptions in call
+     * order. The column descriptions follow in column number order.
      *
-     * <P>Each row in the <code>ResultSet</code> is a parameter description or
+     * <P>Each row in the <code>ResultSet</code> 
+     * is a parameter description, column description or
      * return type description with the following fields:
      *  <OL>
      *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
-     *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
-     *  <LI><B>FUNCTION_NAME</B> String => function name
-     *  <LI><B>PARAMETER_NAME</B> String => parameter name
-     *  <LI><B>PARAMETER_TYPE</B> Short => kind of parameter:
+     *	<LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
+     *	<LI><B>FUNCTION_NAME</B> String => function name.  This is the name
+     * used to invoke the function
+     *	<LI><B>COLUMN_NAME</B> String => column/parameter name
+     *	<LI><B>COLUMN_TYPE</B> Short => kind of column/parameter:
      *      <UL>
-     *      <LI> functionParameterUnknown - nobody knows
-     *      <LI> functionParameterIn - IN parameter
-     *      <LI> functionParameterInOut - INOUT parameter
-     *      <LI> functionParameterOut - OUT parameter
-     *      <LI> functionReturn - function return value
+     *      <LI> functionColumnUnknown - nobody knows
+     *      <LI> functionColumnIn - IN parameter
+     *      <LI> functionColumnInOut - INOUT parameter
+     *      <LI> functionColumnOut - OUT parameter
+     *      <LI> functionColumnReturn - function return value
+     *      <LI> functionColumnResult - Indicates that the parameter or column
+     *  is a column in the <code>ResultSet</code>
      *      </UL>
      *  <LI><B>DATA_TYPE</B> int => SQL type from java.sql.Types
-     *  <LI><B>TYPE_NAME</B> String => SQL type name, for a UDT type the
+     *	<LI><B>TYPE_NAME</B> String => SQL type name, for a UDT type the
      *  type name is fully qualified
-     *  <LI><B>PRECISION</B> int => precision
-     *  <LI><B>LENGTH</B> int => length in bytes of data
-     *  <LI><B>SCALE</B> short => scale -  null is returned for data types where
+     *	<LI><B>PRECISION</B> int => precision
+     *	<LI><B>LENGTH</B> int => length in bytes of data
+     *	<LI><B>SCALE</B> short => scale -  null is returned for data types where
      * SCALE is not applicable.
-     *  <LI><B>RADIX</B> short => radix
-     *  <LI><B>NULLABLE</B> short => can it contain NULL.
+     *	<LI><B>RADIX</B> short => radix
+     *	<LI><B>NULLABLE</B> short => can it contain NULL.
      *      <UL>
      *      <LI> functionNoNulls - does not allow NULL values
      *      <LI> functionNullable - allows NULL values
      *      <LI> functionNullableUnknown - nullability unknown
      *      </UL>
-     *  <LI><B>REMARKS</B> String => comment describing parameter
+     *  <LI><B>REMARKS</B> String => comment describing column/parameter
      *  <LI><B>CHAR_OCTET_LENGTH</B> int  => the maximum length of binary
-     * and character based parameters.  For any other datatype the returned value
+     * and character based parameters or columns.  For any other datatype the returned value
      * is a NULL
      *  <LI><B>ORDINAL_POSITION</B> int  => the ordinal position, starting
-     * from 1, for the input and output parameters for a procedure. A value of 0
+     * from 1, for the input and output parameters. A value of 0
      * is returned if this row describes the function's return value.
-     *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine the nullability for a column.
+     * For result set columns, it is the
+     * ordinal position of the column in the result set starting from 1.
+     *  <LI><B>IS_NULLABLE</B> String  => ISO rules are used to determine
+     * the nullability for a parameter or column.
      *       <UL>
-     *       <LI> YES           --- if the parameter can include NULLs
-     *       <LI> NO            --- if the parameter cannot include NULLs
+     *       <LI> YES           --- if the parameter or column can include NULLs
+     *       <LI> NO            --- if the parameter or column  cannot include NULLs
      *       <LI> empty string  --- if the nullability for the
-     * parameter is unknown
+     * parameter  or column is unknown
      *       </UL>
      *  <LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies
-     * this function within its schema.
+     * this function within its schema.  This is a user specified, or DBMS
+     * generated, name that may be different then the <code>FUNCTION_NAME</code>
+     * for example with overload functions
      *  </OL>
      *
      * <p>The PRECISION column represents the specified column size for the given
-     * parameter.
+     * parameter or column.
      * For numeric data, this is the maximum precision.  For character data, this is the length in characters.
      * For datetime datatypes, this is the length in characters of the String representation (assuming the
      * maximum allowed precision of the fractional seconds component). For binary data, this is the length in bytes.  For the ROWID datatype,
@@ -5857,20 +5882,20 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *        the search
      * @param functionNamePattern a procedure name pattern; must match the
      *        function name as it is stored in the database
-     * @param parameterNamePattern a parameter name pattern; must match the
-     * parameter name as it is stored in the database
+     * @param columnNamePattern a parameter name pattern; must match the
+     * parameter or column name as it is stored in the database
      * @return <code>ResultSet</code> - each row describes a
-     * user function parameter or return type
+     * user function parameter, column  or return type
      *
      * @exception SQLException if a database access error occurs
      * @see #getSearchStringEscape
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
-    public ResultSet getFunctionParameters(String catalog,
-                                           String schemaPattern,
-                                           String functionNamePattern,
-                                           String parameterNamePattern)
+    public ResultSet getFunctionColumns(String catalog,
+                                        String schemaPattern,
+                                        String functionNamePattern,
+                                        String columnNamePattern)
                                             throws SQLException {
 
         StringBuffer select = new StringBuffer(256);
@@ -5879,15 +5904,13 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
       .append("select pc.procedure_cat as FUNCTION_CAT,")
              .append("pc.procedure_schem as FUNCTION_SCHEM,")
              .append("pc.procedure_name as FUNCTION_NAME,")
-             .append("pc.column_name as PARAMETER_NAME,")
+             .append("pc.column_name as COLUMN_NAME,")
              .append("case pc.column_type")
-             .append(" when 0 then 0")
-             .append(" when 1 then 1")
-             .append(" when 2 then 2")
+             .append(" when 3 then 5")
              .append(" when 4 then 3")
-             .append(" when 3 then 4")
              .append(" when 5 then 4")
-             .append(" end as PARAMETER_TYPE,")
+             .append(" else pc.column_type")
+             .append(" end as COLUMN_TYPE,")
              .append("pc.DATA_TYPE,")
              .append("pc.TYPE_NAME,")
              .append("pc.PRECISION,")
@@ -5899,7 +5922,11 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
              .append("pc.CHAR_OCTET_LENGTH,")
              .append("pc.ORDINAL_POSITION,")
              .append("pc.IS_NULLABLE,")
-             .append("pc.SPECIFIC_NAME ")
+             .append("pc.SPECIFIC_NAME,")
+             .append("case pc.column_type")
+             .append(" when 3 then 1")
+             .append(" else 0")
+             .append(" end AS COLUMN_GROUP ")
         .append("from information_schema.system_procedurecolumns pc ")
         .append("join (select procedure_schem,")
                      .append("procedure_name,")
@@ -5914,20 +5941,20 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
               .append("(pc.column_type <> 3)) ");
 
         if (wantsIsNull(functionNamePattern)
-                || wantsIsNull(parameterNamePattern)) {
+                || wantsIsNull(columnNamePattern)) {
             return execute(select.append("where 1=0").toString());
         }
 
         schemaPattern = translateSchema(schemaPattern);
 
-        select.append(" where 1=1 ")
-              .append(and("FUNCTION_CAT", "=", catalog))
-              .append(and("FUNCTION_SCHEM", "LIKE", schemaPattern))
-              .append(and("FUNCTION_NAME", "LIKE", functionNamePattern))
-              .append(and("PARAMETER_NAME", "LIKE", parameterNamePattern))
-              .append(" order by 2, 3, 17, 15");
-              // Order by FUNCTION_SCHEM, FUNCTION_NAME, SPECIFIC_NAME
-              //      and ORDINAL_POSITION
+        select.append("where 1=1 ")
+              .append(and("pc.procedure_cat", "=", catalog))
+              .append(and("pc.procedure_schem", "LIKE", schemaPattern))
+              .append(and("pc.procedure_name", "LIKE", functionNamePattern))
+              .append(and("pc.column_name", "LIKE", columnNamePattern))
+              .append(" order by 1, 2, 3, 17, 18 , 15");
+              // Order by FUNCTION_CAT, FUNCTION_SCHEM, FUNCTION_NAME, SPECIFIC_NAME
+              //      COLUMN_GROUP and ORDINAL_POSITION
 
         return execute(select.toString());
     }
@@ -5946,7 +5973,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
@@ -5972,7 +5999,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
     public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
@@ -6305,12 +6332,5 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
         }
 
         return schemaName;
-    }
-//------------- temp
-    public ResultSet getFunctionColumns(String catalog, String schemaPattern,
-                                        String functionNamePattern,
-                                        String columnNamePattern) throws
-        SQLException {
-        throw Util.notSupported();
     }
 }
