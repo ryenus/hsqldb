@@ -807,7 +807,7 @@ public abstract class JdbcTestCase extends TestCase {
      * @return 
      */
     protected String translatePropertyKey(final String key) {
-        return "org.hsqldb.jdbc.JdbcTestCase." + key;
+        return "hsqldb.test.suite." + key;
     }
 
     /**
@@ -822,6 +822,45 @@ public abstract class JdbcTestCase extends TestCase {
         } catch(SecurityException se) {
             return defaultValue;
         }
+    }
+    
+    public int getIntProperty(final String key, final int defaultValue)
+    {
+        try
+        {
+            return Integer.getInteger(translatePropertyKey(key), defaultValue);
+        } catch(SecurityException se) {
+            return defaultValue;
+        }
+    }
+    
+    public boolean getBooleanProperty(final String key, final boolean defaultValue)
+    {
+        try
+        {
+           String value = getProperty(key, String.valueOf(defaultValue));
+           
+           if (
+              value.equalsIgnoreCase("true") 
+           || value.equalsIgnoreCase("on") 
+           || value.equals("1"))
+           {
+               return true;
+           }
+           else if (
+               value.equalsIgnoreCase("false") 
+            || value.equalsIgnoreCase("off")
+            || value.equals("0"))
+           {
+               return false;
+           }
+           else
+           {
+               return defaultValue;
+           }           
+        } catch(SecurityException se) {
+            return defaultValue;
+        }        
     }
 
     /**
