@@ -4401,7 +4401,16 @@ public class Expression {
         switch (exprType) {
 
             case VALUE :
-                return dataType.type == Types.SQL_BOOLEAN;
+                // CBB (2007-04-14 32:11:50 CMT)
+                // CAREFUL : *both* cases have to be true.
+                // FIXED: missing !isParam was causing NPE on things like
+                //        cast(? as boolean) because getValue(Session)
+                //        was entered erronously, finding
+                //        session.compiledStatementExecutor.paramValues
+                //        array null.
+                // SEE ESPECIALLY:
+                //        case CONVERT : of resolveTypes(Session session, Expression parent)
+                return !isParam && (dataType.type == Types.SQL_BOOLEAN);
 
             case NOT_DISTINCT :
             case EQUAL :
