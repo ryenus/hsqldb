@@ -79,6 +79,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
 
     protected PreparedStatement queryBy(String column) throws Exception {
         String sql = "select * from all_types where " + column + " = ?";
+
         return newConnection().prepareStatement(sql);
     }
 
@@ -90,6 +91,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
                     + " = ? where "
                     + whereColumn
                     + " = ?";
+
         return newConnection().prepareStatement(sql);
     }
 
@@ -756,8 +758,39 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
     public void testGetMetaData() throws Exception {
         System.out.println("getMetaData");
 
+        int expColCount = 21;
         PreparedStatement stmt = queryBy("id");
         ResultSetMetaData rsmd = stmt.getMetaData();
+        
+        try {
+            int count = rsmd.getColumnCount();
+            
+            this.assertEquals("Column Count", expColCount, count);
+
+            for (int i = 1; i <= count; i++) {
+                rsmd.getCatalogName(i);
+                rsmd.getColumnClassName(i);
+                rsmd.getColumnDisplaySize(i);
+                rsmd.getColumnLabel(i);
+                rsmd.getColumnName(i);
+                rsmd.getColumnType(i);
+                rsmd.getColumnTypeName(i);
+                rsmd.getPrecision(i);
+                rsmd.getScale(i);
+                rsmd.getTableName(i);
+                rsmd.isAutoIncrement(i);
+                rsmd.isCaseSensitive(i);
+                rsmd.isCurrency(i);
+                rsmd.isDefinitelyWritable(i);
+                rsmd.isNullable(i);
+                rsmd.isReadOnly(i);
+                rsmd.isSearchable(i);
+                rsmd.isSigned(i);
+                rsmd.isWritable(i);
+            }
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        }        
 
         stmt.close();
 
@@ -790,6 +823,8 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+        
+        System.out.println(rsmd);
     }
 
     /**
@@ -804,7 +839,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
         try {
             stmt.setURL(1, x);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            fail("TODO: " + ex.getMessage());
         }
 
         stmt.executeQuery();
