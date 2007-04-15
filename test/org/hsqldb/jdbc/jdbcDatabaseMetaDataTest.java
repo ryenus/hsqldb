@@ -1180,7 +1180,7 @@ public class jdbcDatabaseMetaDataTest extends JdbcTestCase {
         DatabaseMetaData dbmd = getMetaData();
         
         boolean expResult = getBooleanProperty(
-                "dbmd.suppports.extended.sql.grammar",
+                "dbmd.supports.extended.sql.grammar",
                 true);
         boolean result = dbmd.supportsExtendedSQLGrammar();
         assertEquals("TODO:", expResult, result);

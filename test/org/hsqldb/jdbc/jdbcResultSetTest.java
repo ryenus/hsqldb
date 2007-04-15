@@ -68,6 +68,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         return suite;
     }
+    
+    protected boolean isTestUpdates()
+    {        
+        return getBooleanProperty("test.result.set.updates", true);
+    }
 
     private final String select =
     "select id as           id_column, " +                            // 1
@@ -937,16 +942,32 @@ public class jdbcResultSetTest extends JdbcTestCase {
     /**
      * Test of getType method, of interface java.sql.ResultSet.
      */
-    public void testGetType() throws Exception {
-        System.out.println("getType");
+    public void testGetType_FORWARD_ONLY() throws Exception {
+        System.out.println("getType_FORWARD_ONLY");
 
         assertEquals(ResultSet.TYPE_FORWARD_ONLY,
                      newFOROJdbcResultSet().getType());
+    }
+    
+    /**
+     * Test of getType method, of interface java.sql.ResultSet.
+     */
+    public void testGetType_SCROLL_INSENSITIVE() throws Exception {
+        System.out.println("getType_SCROLL_INSENSITIVE");
+
         assertEquals(ResultSet.TYPE_SCROLL_INSENSITIVE,
                      newJdbcResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE).getType());
-        assertEquals(ResultSet.TYPE_SCROLL_INSENSITIVE,
+    }   
+    
+    /**
+     * Test of getType method, of interface java.sql.ResultSet.
+     */
+    public void testGetType_SCROLL_SENSITIVE() throws Exception {
+        System.out.println("getType_SCROLL_SENSITIVE");
+
+        assertEquals(ResultSet.TYPE_SCROLL_SENSITIVE,
                      newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE).getType());
-    }
+    }       
 
     /**
      * Test of getConcurrency method, of interface java.sql.ResultSet.
@@ -956,6 +977,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         assertEquals(ResultSet.CONCUR_READ_ONLY,
                      newFOROJdbcResultSet().getConcurrency());
+        
         assertEquals(ResultSet.CONCUR_READ_ONLY,
                      newJdbcResultSet(ResultSet.TYPE_FORWARD_ONLY,
                                      ResultSet.CONCUR_UPDATABLE).getConcurrency());
@@ -966,6 +988,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testRowUpdated() throws Exception {
         System.out.println("rowUpdated");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -987,6 +1014,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testRowInserted() throws Exception {
         System.out.println("rowInserted");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -997,6 +1029,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testRowDeleted() throws Exception {
         System.out.println("rowDeleted");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         fail("TODO: The test case is empty.");
     }
@@ -1006,6 +1043,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateNull() throws Exception {
         System.out.println("updateNull");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1024,6 +1066,13 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateBoolean method, of interface java.sql.ResultSet.
      */
     public void testUpdateBoolean() throws Exception {
+        System.out.println("testUpdateBoolean");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }
+        
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
 
@@ -1039,6 +1088,13 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateByte method, of interface java.sql.ResultSet.
      */
     public void testUpdateByte() throws Exception {
+        System.out.println("testUpdateByte");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }
+        
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
 
@@ -1055,6 +1111,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateShort() throws Exception {
         System.out.println("updateShort");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1072,6 +1133,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateInt() throws Exception {
         System.out.println("updateInt");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1089,6 +1155,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateLong() throws Exception {
         System.out.println("updateLong");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1106,6 +1177,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateFloat() throws Exception {
         System.out.println("updateFloat");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1123,6 +1199,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateDouble() throws Exception {
         System.out.println("updateDouble");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1141,6 +1222,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBigDecimal() throws Exception {
         System.out.println("updateBigDecimal");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1159,6 +1245,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateString() throws Exception {
         System.out.println("updateString");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1198,6 +1289,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBytes() throws Exception {
         System.out.println("updateBytes");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1217,6 +1313,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateDate() throws Exception {
         System.out.println("updateDate");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1234,6 +1335,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateTime() throws Exception {
         System.out.println("updateTime");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1251,6 +1357,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateTimestamp() throws Exception {
         System.out.println("updateTimestamp");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1268,6 +1379,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateAsciiStream() throws Exception {
         System.out.println("updateAsciiStream");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1285,6 +1401,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBinaryStream() throws Exception {
         System.out.println("updateBinaryStream");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1302,6 +1423,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateCharacterStream() throws Exception {
         System.out.println("updateCharacterStream");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1319,6 +1445,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateObject() throws Exception {
         System.out.println("updateObject");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1360,6 +1491,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateRow() throws Exception {
         System.out.println("updateRow");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1382,6 +1518,10 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of deleteRow method, of interface java.sql.ResultSet.
      */
     public void testDeleteRow() throws Exception {
+        if (!isTestUpdates())
+        {
+            return;
+        }        
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
 
@@ -1398,6 +1538,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testRefreshRow() throws Exception {
         System.out.println("refreshRow");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         try {
             ResultSet rs = this.newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
@@ -1415,6 +1560,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testCancelRowUpdates() throws Exception {
         System.out.println("cancelRowUpdates");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1438,6 +1588,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testMoveToInsertRow() throws Exception {
         System.out.println("moveToInsertRow");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1453,6 +1608,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testMoveToCurrentRow() throws Exception {
         System.out.println("moveToCurrentRow");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1526,6 +1686,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateRef() throws Exception {
         System.out.println("updateRef");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -1536,6 +1701,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBlob() throws Exception {
         System.out.println("updateBlob");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }        
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -1546,6 +1716,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateClob() throws Exception {
         System.out.println("updateClob");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -1557,7 +1732,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
     public void testUpdateArray() throws Exception {
         System.out.println("updateArray");
 
-
+        if (!isTestUpdates())
+        {
+            return;
+        }
+        
         // TODO:
         fail("TODO: The test case is empty.");
     }
@@ -1576,6 +1755,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateRowId() throws Exception {
         System.out.println("updateRowId");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -1613,6 +1797,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateNString() throws Exception {
         System.out.println("updateNString");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         // TODO
         fail("TODO: The test case is empty.");
@@ -1623,6 +1812,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateNClob() throws Exception {
         System.out.println("updateNClob");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         // TODO
         fail("TODO: The test case is empty.");
@@ -1651,6 +1845,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateSQLXML() throws Exception {
         System.out.println("updateSQLXML");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         // TODO.
         fail("TODO: The test case is empty.");
@@ -1679,6 +1878,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateNCharacterStream() throws Exception {
         System.out.println("updateNCharacterStream");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }          
 
         // TODO
         fail("TODO: The test case is empty.");

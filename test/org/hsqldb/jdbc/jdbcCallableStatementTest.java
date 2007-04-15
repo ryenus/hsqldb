@@ -78,6 +78,13 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     protected CallableStatement prepareCall(String call) throws Exception {
         return newConnection().prepareCall(call);
     }
+    
+    protected boolean isTestOutParameters()
+    {
+        return super.getBooleanProperty(
+                "test.callable.statement.out.parameters",
+                true);   
+    }
 
     void setObjectTest(String typeName, Object x, int type) throws Exception {        
         CallableStatement stmt 
@@ -129,6 +136,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testRegisterOutParameter() throws Exception {
         System.out.println("registerOutParameter");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         int parameterIndex = 0;
         int sqlType = Types.INTEGER;
@@ -146,6 +158,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testWasNull() throws Exception {
         System.out.println("wasNull");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt = prepareCall("{?= call cast(null as integer)}");
 
@@ -169,6 +186,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetString() throws Exception {
         System.out.println("getString");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         String            expResult = "getString";
@@ -192,6 +214,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetBoolean() throws Exception {
         System.out.println("getBoolean");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         boolean           expResult = true;
@@ -215,6 +242,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetByte() throws Exception {
         System.out.println("getByte");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         byte              expResult = (byte) 1;
@@ -238,6 +270,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetShort() throws Exception {
         System.out.println("getShort");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         short             expResult = (short) 1;
@@ -261,6 +298,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetInt() throws Exception {
         System.out.println("getInt");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         int               expResult = 1;
@@ -284,6 +326,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetLong() throws Exception {
         System.out.println("getLong");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         long              expResult = 1;
@@ -307,6 +354,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetFloat() throws Exception {
         System.out.println("getFloat");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         float             expResult = 1F;
@@ -330,6 +382,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetDouble() throws Exception {
         System.out.println("getDouble");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         double            expResult = 1D;
@@ -365,6 +422,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetBigDecimal() throws Exception {
         System.out.println("getBigDecimal");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }       
 
         CallableStatement stmt;
         BigDecimal        expResult = new BigDecimal("1.00");
@@ -388,6 +450,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetBytes() throws Exception {
         System.out.println("getBytes");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         byte[]            expResult = new byte[]{(byte) 0xca,
@@ -414,6 +481,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetDate() throws Exception {
         System.out.println("getDate");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         Date              expResult = Date.valueOf("2005-12-13");
@@ -437,6 +509,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetTime() throws Exception {
         System.out.println("getTime");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         Time              expResult = Time.valueOf("11:12:02");
@@ -460,13 +537,18 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetTimestamp() throws Exception {
         System.out.println("getTimestamp");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         Timestamp         expResult = Timestamp.valueOf("2005-12-13 11:23:02.1234");
         Timestamp         result    = null;
 
         try {
-            stmt = prepRegAndExec("{?= call cast('2005-12-13 11:23:02.1234' as timestamp)}",
+            stmt = prepRegAndExec("{?= call cast('2005-12-13 11:23:02.1234' as timestamp(6))}",
                                   1,
                                   Types.TIMESTAMP);
 
@@ -483,6 +565,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetObject() throws Exception {
         System.out.println("getObject");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         byte[]            expResult = new byte[]{(byte) 0xca, (byte) 0xfe};
@@ -509,8 +596,13 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     public void testGetRef() throws Exception {
         System.out.println("getRef");
 
-        // TODO add your test code below by replacing the default call to fail.
+        if (!isTestOutParameters())
+        {
+            return;
+        }
+        
         fail("TODO: The test case is empty.");
+
     }
 
     /**
@@ -518,6 +610,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetBlob() throws Exception {
         System.out.println("getBlob");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }       
 
         CallableStatement stmt;
         byte[]            expResult = new byte[]{(byte) 0xca, (byte) 0xfe};
@@ -541,6 +638,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetClob() throws Exception {
         System.out.println("getClob");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         String            expResult = "getString";
@@ -564,7 +666,12 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetArray() throws Exception {
         System.out.println("getArray");
-
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }
+        
         fail("TODO: The test case is empty.");
     }
 
@@ -573,6 +680,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetURL() throws Exception {
         System.out.println("getURL");
+
+        if (!isTestOutParameters())
+        {
+            return;
+        }
 
         fail("TODO: The test case is empty.");
     }
@@ -1261,6 +1373,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetRowId() throws Exception {
         System.out.println("getRowId");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         fail("TODO: The test case is empty.");
     }
@@ -1336,6 +1453,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetNClob() throws Exception {
         System.out.println("getNClob");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         NClob             expResult = new jdbcNClob("getString");
@@ -1369,7 +1491,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     public void testGetSQLXML() throws Exception {
         System.out.println("getSQLXML");
 
-        // TODO add your test code below by replacing the default call to fail.
+        if (!isTestOutParameters())
+        {
+            return;
+        }
+        
         fail("TODO: The test case is empty.");
     }
 
@@ -1378,6 +1504,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetNString() throws Exception {
         System.out.println("getNString");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         String            expResult = "getString";
@@ -1401,6 +1532,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetNCharacterStream() throws Exception {
         System.out.println("getNCharacterStream");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         String            expResult = "getString";
@@ -1422,6 +1558,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testGetCharacterStream() throws Exception {
         System.out.println("getCharacterStream");
+        
+        if (!isTestOutParameters())
+        {
+            return;
+        }        
 
         CallableStatement stmt;
         String            expResult = "getString";

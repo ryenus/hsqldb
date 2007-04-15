@@ -502,6 +502,47 @@ public class jdbcConnectionTest extends JdbcTestCase {
         int        result    = conn.getTransactionIsolation();
 
         assertEquals(expResult, result);
+        
+        int[] levels = new int[] {
+            Connection.TRANSACTION_READ_UNCOMMITTED,
+            Connection.TRANSACTION_READ_COMMITTED,
+            Connection.TRANSACTION_REPEATABLE_READ,
+            Connection.TRANSACTION_SERIALIZABLE
+        };
+
+        boolean wasSet;
+        
+        for (int i = 0; i < levels.length; i++) {
+            wasSet = false;
+            
+            try {
+                conn.setTransactionIsolation(levels[i]);
+                wasSet = true;
+            } catch (Exception e) {
+            }
+            
+            if (wasSet)
+            {
+                SQLWarning warning = conn.getWarnings();
+                
+                if (warning == null)
+                {
+                    assertEquals(
+                            "Reported Isolation:",
+                            levels[i],
+                            conn.getTransactionIsolation());                    
+                }
+                else                    
+                {
+                    while(warning != null)
+                    {
+                        System.out.println(warning);
+                        
+                        warning = warning.getNextWarning();
+                    }
+                }
+            }
+        }        
     }
 
     /**
@@ -562,23 +603,62 @@ public class jdbcConnectionTest extends JdbcTestCase {
     /**
      * Test of setHoldability method, of interface java.sql.Connection.
      */
-    public void testSetHoldability() throws Exception {
-        System.out.println("setHoldability");
+    public void testSetHoldability_HOLD_CURSORS_OVER_COMMIT() throws Exception {
+        System.out.println("setHoldability_HOLD_CURSORS_OVER_COMMIT");
 
         int        holdability = ResultSet.HOLD_CURSORS_OVER_COMMIT;
         Connection conn        = newConnection();
 
         conn.setHoldability(holdability);
 
-        holdability = ResultSet.CLOSE_CURSORS_AT_COMMIT;
-
-        try {
-            conn.setHoldability(holdability);
-            fail("conn allows setHoldability to CLOSE_CURSORS_AT_COMMIT");
-        } catch (Exception e) {
-
+        int actualHoldability = conn.getHoldability();
+        
+        SQLWarning warning = conn.getWarnings();
+        
+        if (warning == null)
+        {        
+            assertEquals("Holdability:", holdability, actualHoldability);
+        }
+        else
+        {                        
+            while(warning != null)
+            {
+                System.out.println(warning);      
+                
+                warning = warning.getNextWarning();
+            }
         }
     }
+    
+    /**
+     * Test of setHoldability method, of interface java.sql.Connection.
+     */
+    public void testSetHoldability_CLOSE_CURSORS_AT_COMMIT() throws Exception {
+        System.out.println("setHoldability_CLOSE_CURSORS_AT_COMMIT");
+
+        int        holdability = ResultSet.CLOSE_CURSORS_AT_COMMIT;
+        Connection conn        = newConnection();
+
+        conn.setHoldability(holdability);
+
+        int actualHoldability = conn.getHoldability();
+        
+        SQLWarning warning = conn.getWarnings();
+        
+        if (warning == null)
+        {        
+            assertEquals("Holdability:", holdability, actualHoldability);
+        }
+        else
+        {                        
+            while(warning != null)
+            {
+                System.out.println(warning);      
+                
+                warning = warning.getNextWarning();
+            }
+        }
+    }    
 
     /**
      * Test of getHoldability method, of interface java.sql.Connection.

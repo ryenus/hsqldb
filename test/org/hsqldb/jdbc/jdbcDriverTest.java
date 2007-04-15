@@ -65,15 +65,20 @@ public class jdbcDriverTest extends JdbcTestCase {
     }
 
     protected int getExpectedDriverPropertyInfoCount() {
-        return 6;
+        return getIntProperty("driver.property.info.count", 6);
     }
 
     protected int getExpectedMajorVersion() {
-        return 1;
+        return getIntProperty("driver.major.version", 1);
     }
 
     protected int getExpectedMinorVersion() {
-        return 8;
+       return getIntProperty("driver.minor.version", 9);
+    }
+    
+    protected boolean getExpectedJdbcCompliant()
+    {
+        return getBooleanProperty("driver.jdbc.compliant", true);
     }
 
     /**
@@ -119,7 +124,7 @@ public class jdbcDriverTest extends JdbcTestCase {
         String               url      = getUrl();
         Properties           info     = new Properties();
         Driver               driver   = newDriver();
-        int                  expCount = this.getExpectedDriverPropertyInfoCount();
+        int                  expCount = getExpectedDriverPropertyInfoCount();
         DriverPropertyInfo[] result   = driver.getPropertyInfo(url, info);
 
         assertNotNull(result);
@@ -163,7 +168,7 @@ public class jdbcDriverTest extends JdbcTestCase {
         System.out.println("jdbcCompliant");
 
         Driver  driver    = newDriver();
-        boolean expResult = true;
+        boolean expResult = getExpectedJdbcCompliant();
         boolean result    = driver.jdbcCompliant();
 
         assertEquals(expResult, result);
