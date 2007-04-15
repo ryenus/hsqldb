@@ -1368,6 +1368,16 @@ public class jdbcConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * Although HSQLDB presently supports only
+     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>,
+     * all valid isolation levels are accepted and
+     * reported as set. Calling this method during
+     * a transaction presently has no effect, other
+     * than to change the value reported by
+     * <code>getTransactionIsolation()</code>.<p>
+     *
      * </div> <!-- end release-specific documentation -->
      *
      * @param level one of the following <code>Connection</code> constants:
@@ -1421,8 +1431,10 @@ public class jdbcConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB always returns
-     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>. <p>
+     * Although HSQLDB presently supports only
+     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>,
+     * all valid isolation levels are accepted and
+     * reported as set. <p>
      *
      * </div> <!-- end release-specific documentation -->
      *
