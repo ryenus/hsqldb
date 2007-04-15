@@ -2870,17 +2870,6 @@ public class UtilTest extends TestCase {
     }
     
     /**
-     * Test of sqlException(Trace.LAST_ERROR_HANDLE,"") method, of class org.hsqldb.jdbc.Util.
-     */
-    public void testSqlException_LAST_ERROR_HANDLE() throws Exception {
-        System.out.println("testSqlException_LAST_ERROR_HANDLE");
-        
-        SQLException ex = Util.sqlException(Trace.LAST_ERROR_HANDLE,"");
-        
-        checkSQLException(ex);
-    }
-    
-    /**
      * Test of sqlException(Trace.BLOB_IS_NO_LONGER_VALID,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_BLOB_IS_NO_LONGER_VALID() throws Exception {
@@ -2897,8 +2886,8 @@ public class UtilTest extends TestCase {
     public void testSqlException_BLOB_STREAM_IS_CLOSED() throws Exception {
         System.out.println("testSqlException_BLOB_STREAM_IS_CLOSED");
         
-        SQLException ex = Util.sqlException(Trace.BLOB_STREAM_IS_CLOSED,"");
-        
+        SQLException ex = Util.sqlException(Trace.BLOB_STREAM_IS_CLOSED,"");       
+           
         checkSQLException(ex);
     }
     
@@ -3062,6 +3051,9 @@ public class UtilTest extends TestCase {
 //                continue;
 //            }
 //            if (fields[i].getName().startsWith("NOT_USED_")) {
+//                continue;
+//            }
+//            if (fields[i].getName().startsWith("LAST_ERROR_HANDLE")) {
 //                continue;
 //            }
 //            System.out.println("/**");

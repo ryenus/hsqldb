@@ -816,9 +816,9 @@ public abstract class JdbcTestCase extends TestCase {
      * @param defaultValue 
      * @return 
      */
-    public String getProperty(final String key, final String defaultValue) {
-        try {
-            return System.getProperty(translatePropertyKey(key), defaultValue);
+    public String getProperty(final String key, final String defaultValue) {        
+        try {                        
+             return System.getProperty(translatePropertyKey(key), defaultValue);
         } catch(SecurityException se) {
             return defaultValue;
         }
