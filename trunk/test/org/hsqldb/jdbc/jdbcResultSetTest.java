@@ -1468,6 +1468,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testInsertRow() throws Exception {
         System.out.println("insertRow");
+        
+        if (!isTestUpdates())
+        {
+            return;
+        }
 
         try {
 
