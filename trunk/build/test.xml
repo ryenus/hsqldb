@@ -41,6 +41,9 @@
    <property name="hsqldb.jar"
              value="${basedir}/lib/hsqldb.jar" />
              
+   <property name="hsqldbtest.jar"
+             value="${basedir}/lib/hsqldbtest.jar" />             
+             
    <property name="junit.jar"
              value="${basedir}/lib/junit.jar" />
              
@@ -69,6 +72,11 @@
         <pathelement location="${hsqldb.jar}"/>
         <pathelement location="${junit.jar}" />
    </path>
+   
+   <path id="test.all.classpath">
+        <pathelement location="${hsqldbtest.jar}"/>
+        <pathelement location="${junit.jar}" />
+   </path>   
 
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <!-- S H A R E D  I N I T I A L I Z A T I O N                             -->
@@ -245,4 +253,12 @@
       <delete dir="${test.results.dir}" />
       <delete file="${test.suite.jar}" />
    </target>
+   
+   <target name="run.test.all">
+       <java classname="org.hsqldb.test.TestAll" 
+             classpathref="test.all.classpath" 
+             dir="${basedir}/testrun/hsqldb" 
+             fork="true"/>
+   </target>
+
 </project>
