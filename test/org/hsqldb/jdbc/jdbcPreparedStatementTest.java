@@ -693,6 +693,11 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetRef() throws Exception {
         System.out.println("setRef");
+        
+        if (!getBooleanProperty("test.types.ref", true))
+        {
+            return;
+        }
 
         Ref               x    = null;
         PreparedStatement stmt = queryBy("c_object");
@@ -739,6 +744,11 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetArray() throws Exception {
         System.out.println("setArray");
+        
+        if (!getBooleanProperty("test.types.array", true))
+        {
+            return;
+        }
 
         Array x = null;
         PreparedStatement stmt = queryBy("c_object");
@@ -832,6 +842,11 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetURL() throws Exception {
         System.out.println("setURL");
+        
+        if (!getBooleanProperty("test.types.datalink", true))
+        {
+            return;
+        }
 
         java.net.URL x = null;
         PreparedStatement stmt = queryBy("c_object");
@@ -880,6 +895,11 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetRowId() throws Exception {
         System.out.println("setRowId");
+        
+        if (!getBooleanProperty("test.types.rowid", true))
+        {
+            return;
+        }
 
         RowId             x    = null;
         PreparedStatement stmt = queryBy("c_object");
@@ -937,6 +957,11 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetSQLXML() throws Exception {
         System.out.println("setSQLXML");
+        
+        if (!getBooleanProperty("test.types.sqlxml", true))
+        {
+            return;
+        }
 
         SQLXML            xmlObject = null;
         PreparedStatement stmt      = queryBy("c_object");
