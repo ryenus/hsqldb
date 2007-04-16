@@ -464,7 +464,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         byte[]            result    = null;
 
         try {
-            stmt = prepRegAndExec("{?= call cast('cafebabe' as binary)}",
+            stmt = prepRegAndExec("{?= call cast(X'cafebabe' as binary(4))}",
                                   1,
                                   Types.BINARY);
 
@@ -577,9 +577,9 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         Object            temp      = null;
 
         try {
-            stmt = prepRegAndExec("{?= call cast(cast('cafe' as binary) as object)}",
+            stmt = prepRegAndExec("{?= call cast(X'cafebabe' as object)}",
                                   1,
-                                  Types.DATE);
+                                  Types.OTHER);
 
             temp = stmt.getObject(1);
             result = (byte[]) temp;
@@ -601,6 +601,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
             return;
         }
         
+        if (!getBooleanProperty("test.types.ref", true))
+        {
+            return;
+        }
+
         fail("TODO: The test case is empty.");
 
     }
@@ -621,7 +626,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         Blob              result    = null;
 
         try {
-            stmt = prepRegAndExec("{?= call cast('cafe' as binary)}",
+            stmt = prepRegAndExec("{?= call cast(X'cafe' as binary(2))}",
                                   1,
                                   Types.BINARY);
 
@@ -672,6 +677,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
             return;
         }
         
+        if (!getBooleanProperty("test.types.array", true))
+        {
+            return;
+        }
+
         fail("TODO: The test case is empty.");
     }
 
@@ -685,6 +695,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         {
             return;
         }
+        
+        if (!getBooleanProperty("test.types.datalink", true))
+        {
+            return;
+        }
 
         fail("TODO: The test case is empty.");
     }
@@ -694,8 +709,15 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testSetURL() throws Exception {
         System.out.println("setURL");
+        
+        if (!getBooleanProperty("test.types.datalink", true))
+        {
+            return;
+        }
 
-        fail("TODO: The test case is empty.");
+        setUpDualTable();
+        prepareCall("select cast(? as object) from dual")
+            .setURL("@p1", new java.net.URL("http://localhost"));
     }
 
     /**
@@ -845,7 +867,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         System.out.println("setBytes");
 
         setUpDualTable();
-        prepareCall("select cast(? as binary) from dual")
+        prepareCall("select (X'cafebabe' || ?) from dual")
             .setBytes("@p1", new byte[10]);
     }
 
@@ -908,7 +930,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         byte[]               bytes = "2005-12-13 11:23:02.1234".getBytes();
         ByteArrayInputStream bais  = new ByteArrayInputStream(bytes);
 
-        prepareCall("select cast(? as binary) from dual")
+        prepareCall("select (X'cafebabe' || ?) from dual")
             .setBinaryStream("@p1", bais, bytes.length);
     }
     
@@ -1377,7 +1399,12 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         if (!isTestOutParameters())
         {
             return;
-        }        
+        }    
+        
+        if (!getBooleanProperty("test.types.rowid", true))
+        {
+            return;
+        }
 
         fail("TODO: The test case is empty.");
     }
@@ -1387,6 +1414,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testSetRowId() throws Exception {
         System.out.println("setRowId");
+        
+        if (!getBooleanProperty("test.types.rowid", true))
+        {
+            return;
+        }
 
         fail("TODO: The test case is empty.");
     }
@@ -1481,6 +1513,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
      */
     public void testSetSQLXML() throws Exception {
         System.out.println("setSQLXML");
+        
+        if (!getBooleanProperty("test.types.sqlxml", true))
+        {
+            return;
+        }
 
         fail("TODO: The test case is empty.");
     }
@@ -1492,6 +1529,11 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         System.out.println("getSQLXML");
 
         if (!isTestOutParameters())
+        {
+            return;
+        }
+
+        if (!getBooleanProperty("test.types.sqlxml", true))
         {
             return;
         }
