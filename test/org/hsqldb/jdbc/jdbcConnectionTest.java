@@ -574,6 +574,10 @@ public class jdbcConnectionTest extends JdbcTestCase {
      */
     public void testGetTypeMap() throws Exception {
         System.out.println("getTypeMap");
+        
+        if(!getBooleanProperty("test.typemap", true)) {
+            return;
+        }
 
 //        Connection conn = newConnection();
 //
@@ -590,6 +594,10 @@ public class jdbcConnectionTest extends JdbcTestCase {
      */
     public void testSetTypeMap() throws Exception {
         System.out.println("setTypeMap");
+        
+        if(!getBooleanProperty("test.typemap", true)) {
+            return;
+        }
 
 //        Map<String, Class<Object>> map = null;
 //        Connection conn = newConnection();
