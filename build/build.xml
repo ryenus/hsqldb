@@ -966,20 +966,32 @@ examples:
             <!-- Mappers don't work with multiple patterns.
             Therefore, have to use a timestamp file.  -->
             <srcfiles dir='src/org/hsqldb/sample'
-             includes='*.java, *.txt, *.ksh, *.properties, *.rc, *.cfg, *.sql'/>
+             includes='*.java'/>
+            <srcfiles dir='sample'
+             includes='*.txt, *.ksh, *.properties, *.rc, *.cfg, *.sql'/>
         </uptodate></not><then>
             <!-- This copies files matching the fileset below to the docwork
                  dir w/ data so that DocBook may entity include them.
                  For the time being, these files must reside in the main
                  directory  for this specific book. -->
-            <pathconvert property='_virginfiles' targetos='unix' pathsep='|'
+            <pathconvert property='_virginfiles1' targetos='unix' pathsep='|'
                          setonempty='false'> <path>
-                 <fileset dir='src/org/hsqldb/sample'
-             includes='*.java, *.txt, *.ksh, *.properties, *.rc, *.cfg, *.sql'/>
+                 <fileset dir='src/org/hsqldb/sample' includes='*.java'/>
             </path> </pathconvert>
-            <if><isset property='_virginfiles'/><then>
-                <foreach list='${_virginfiles}' param='vfile' inheritall='false'
-                    target='-sandwich' delimiter='|'>
+            <pathconvert property='_virginfiles2' targetos='unix' pathsep='|'
+                         setonempty='false'> <path>
+                 <fileset dir='sample'
+                 includes='*.txt, *.ksh, *.properties, *.rc, *.cfg, *.sql'/>
+            </path> </pathconvert>
+            <if><isset property='_virginfiles1'/><then>
+              <foreach list='${_virginfiles1}' param='vfile' inheritall='false'
+                    target='-sandwich1' delimiter='|'>
+                    <param name='book' value='${book}'/>
+                </foreach>
+            </then></if>
+            <if><isset property='_virginfiles2'/><then>
+              <foreach list='${_virginfiles2}' param='vfile' inheritall='false'
+                    target='-sandwich2' delimiter='|'>
                     <param name='book' value='${book}'/>
                 </foreach>
             </then></if>
@@ -1137,11 +1149,26 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
                 includes='*.xml, *.txt, *.png, *.java, *.jpg, *.html, *.sql'/>
     </target>
 
-    <target name='-sandwich'>
+    <target name='-sandwich1'>
         <basename property='base' file='${vfile}'/>
         <loadfile srcfile='${vfile}' property='content'/>
         <dependset>
             <srcfilelist dir='src/org/hsqldb/sample' files='${base}'/>
+            <targetfilelist dir='docwork/${book}/cdata' files='${base}'/>
+        </dependset>
+        <if><not><available file='docwork/${book}/cdata/${base}'/></not>
+        <then>
+            <mkdir dir='docwork/${book}/cdata'/>
+            <echo file='docwork/${book}/cdata/${base}'
+                  message='&lt;![CDATA[${content}]]&gt;'/>
+        </then></if>
+    </target>
+
+    <target name='-sandwich2'>
+        <basename property='base' file='${vfile}'/>
+        <loadfile srcfile='${vfile}' property='content'/>
+        <dependset>
+            <srcfilelist dir='sample' files='${base}'/>
             <targetfilelist dir='docwork/${book}/cdata' files='${base}'/>
         </dependset>
         <if><not><available file='docwork/${book}/cdata/${base}'/></not>
