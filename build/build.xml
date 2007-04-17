@@ -502,17 +502,17 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
-         <exclude name="org/hsqldb/util/*Transfer*.*"/>
-         <exclude name="org/hsqldb/util/*Swing*.*"/>
-         <exclude name="org/hsqldb/util/DataAccess*.*"/>
-         <exclude name="org/hsqldb/util/*Helper*.*"/>
+         <exclude name="org/hsqldb/util/*Transfer*"/>
+         <exclude name="org/hsqldb/util/*Swing*"/>
+         <exclude name="org/hsqldb/util/DataAccess*"/>
+         <exclude name="org/hsqldb/util/*Helper*"/>
          <exclude name="org/hsqldb/util/JDBCTypes.*"/>
          <exclude name="org/hsqldb/util/SQLStatements.*"/>
          <exclude name="org/hsqldb/util/QueryTool.*"/>
          <exclude name="org/hsqldb/util/ShutdownServer.*"/>
          <exclude name="org/hsqldb/util/CodeSwitcher.*"/>
-         <exclude name="org/hsqldb/test/*.*"/>
-         <exclude name="org/hsqldb/sample/*.*"/>
+         <exclude name="org/hsqldb/test/*"/>
+         <exclude name="org/hsqldb/sample/*"/>
          <exclude name="hsqlServlet.class"/>
          <exclude name="org/hsqldb/server/Servlet.class"/>
          <exclude name="org/hsqldb/server/HsqlServerFactory.class"/>
@@ -552,7 +552,7 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
-         <exclude name="org/hsqldb/sample/*.*"/>
+         <exclude name="org/hsqldb/sample/*"/>
          <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
          <exclude name="org/hsqldb/jdbc/Array.class"/>
          <exclude name="org/hsqldb/jdbc/Blob.class"/>
@@ -584,9 +584,9 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
-         <exclude name="org/hsqldb/util/*.*"/>
-         <exclude name="org/hsqldb/test/*.*"/>
-         <exclude name="org/hsqldb/sample/*.*"/>
+         <exclude name="org/hsqldb/util/*"/>
+         <exclude name="org/hsqldb/test/*"/>
+         <exclude name="org/hsqldb/sample/*"/>
          <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
          <exclude name="org/hsqldb/jdbc/Array.class"/>
          <exclude name="org/hsqldb/jdbc/Blob.class"/>
@@ -618,11 +618,11 @@ examples:
          <exclude name="org/hsqldb/jdbc/Array.class"/>
          <exclude name="org/hsqldb/jdbc/Ref.class"/>
          <exclude name="org/hsqldb/jdbc/Map.class"/>
-         <exclude name="org/hsqldb/jdbc/pool/*.*"/>
+         <exclude name="org/hsqldb/jdbc/pool/*"/>
          <exclude name="org/hsqldb/jmx/**"/>
-         <exclude name="org/hsqldb/util/*.*"/>
-         <exclude name="org/hsqldb/test/*.*"/>
-         <exclude name="org/hsqldb/sample/*.*"/>
+         <exclude name="org/hsqldb/util/*"/>
+         <exclude name="org/hsqldb/test/*"/>
+         <exclude name="org/hsqldb/sample/*"/>
          <exclude name="org/hsqldb/resources/*.properties"/>
          <include name="org/hsqldb/resources/sql-error-messages.properties"/>
          <exclude name="hsqlServlet.class"/>
@@ -668,13 +668,13 @@ examples:
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/*Swing.*" if="noswing"/>
-         <exclude name="org/hsqldb/util/*Transfer*.*"/>
-         <exclude name="org/hsqldb/util/DataAccess*.*"/>
-         <exclude name="org/hsqldb/util/*Helper*.*"/>
+         <exclude name="org/hsqldb/util/*Transfer*"/>
+         <exclude name="org/hsqldb/util/DataAccess*"/>
+         <exclude name="org/hsqldb/util/*Helper*"/>
          <exclude name="org/hsqldb/util/JDBCTypes.*"/>
          <exclude name="org/hsqldb/util/SQLStatements.*"/>
          <exclude name="org/hsqldb/util/QueryTool.*"/>
-         <exclude name="org/hsqldb/util/Zaurus*.*"/>
+         <exclude name="org/hsqldb/util/Zaurus*"/>
          <exclude name="org/hsqldb/test/*.class"/>
          <exclude name="org/hsqldb/sample/*.class"/>
          <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
