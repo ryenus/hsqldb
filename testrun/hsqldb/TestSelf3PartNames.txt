@@ -1,4 +1,4 @@
--- $Id: TestSelf3PartNames.txt,v 1.5 2006/06/28 12:54:52 unsaved Exp $
+-- $Id$
 -- Test 3-part names like:  schemaname.tablename.columname
 SET PROPERTY "hsqldb.default_table_type" 'cached'
 -- Setup
