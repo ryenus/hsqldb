@@ -1,4 +1,4 @@
--- $Id: TestSelfSeqRightsB.txt,v 1.3 2005/10/20 16:07:19 fredt Exp $
+-- $Id$
 -- Test .log persistence of Sequence rights
 
 CONNECT USER blaine PASSWORD "b";
