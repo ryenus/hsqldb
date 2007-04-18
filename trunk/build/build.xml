@@ -25,7 +25,10 @@
    <property name="build.vendor" value="${user.name}"/>
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQLDB Development Group"/>
-   <property name="src" value="src"/>
+   <property name="swsrc" value="tmp/switchedsrc"/>
+   <property name="abs_swsrc" value="${basedir}/${swsrc}"/>
+   <!-- This last property uses absolute path because CodeSwitcher takes
+        parameters dependent upon ${user.dir}. -->
 
    <!-- It is safe to override these with settings in your own 
         build.properties file. -->
@@ -129,8 +132,9 @@ examples:
    </target>
 
    <target name="clean" depends="clean-docwork"
-           description="Delete the /classes directory created by ant tasks">
+           description="Delete the /classes and work directories created by ant tasks">
         <delete dir="classes"/>
+        <delete dir="${swsrc}"/>
    </target>
 
    <target name="cleanall" depends="clean,clean-doc"
@@ -143,16 +147,20 @@ examples:
     <target name="codeswitcher" depends="-prepare"
             description="uses +-JDBC2 +-JDBC2 +-JAVA2">
       <javac destdir="classes">
-         <src path="${src}"/>
+         <src path="src"/>
          <include name="org/hsqldb/util/CodeSwitcher.java"/>
        </javac>
+       <mkdir dir='${swsrc}'/>
+       <copy todir='${swsrc}'>
+           <fileset dir='src' includes='**/*.java'/>
+       </copy>
     </target>
 
     <target name="switchtojava1target" depends="codeswitcher"
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg line="${src}/org/hsqldb/lib/java/JavaSystem.java
-                    ${src}/org/hsqldb/util/ConnectionDialogCommon.java
+         <arg line="${abs_swsrc}/org/hsqldb/lib/java/JavaSystem.java
+                    ${abs_swsrc}/org/hsqldb/util/ConnectionDialogCommon.java
                     +JAVA1TARGET"/>
 
        </java>
@@ -161,8 +169,8 @@ examples:
     <target name="switchoffjava1target" depends="codeswitcher"
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg line="${src}/org/hsqldb/lib/java/JavaSystem.java
-                    ${src}/org/hsqldb/util/ConnectionDialogCommon.java
+         <arg line="${abs_swsrc}/org/hsqldb/lib/java/JavaSystem.java
+                    ${abs_swsrc}/org/hsqldb/util/ConnectionDialogCommon.java
                     -JAVA1TARGET"/>
        </java>
     </target>
@@ -170,18 +178,18 @@ examples:
     <target name="switchtodeprecatedjdbc" depends="codeswitcher"
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg line="${src}/org/hsqldb/jdbc/jdbcCallableStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcPreparedStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSet.java +DEPRECATEDJDBC"/>
+         <arg line="${abs_swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSet.java +DEPRECATEDJDBC"/>
        </java>
     </target>
 
     <target name="switchoffdeprecatedjdbc" depends="codeswitcher"
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg line="${src}/org/hsqldb/jdbc/jdbcCallableStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcPreparedStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSet.java -DEPRECATEDJDBC"/>
+         <arg line="${abs_swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSet.java -DEPRECATEDJDBC"/>
        </java>
     </target>
 
@@ -194,26 +202,26 @@ examples:
     <target name="switchtojdk11" depends="switches"
             description="self explanatory" unless="ant.java.iscjavamodern">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg line="${src}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
-                    ${src}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
-                    ${src}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java
-                    ${src}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
-                    ${src}/org/hsqldb/jdbc/jdbcStubs.java
-                    ${src}/org/hsqldb/jdbc/jdbcBlob.java
-                    ${src}/org/hsqldb/jdbc/jdbcCallableStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcClob.java
-                    ${src}/org/hsqldb/jdbc/jdbcConnection.java
-                    ${src}/org/hsqldb/jdbc/jdbcDataSource.java
-                    ${src}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcParameterMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcPreparedStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSet.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSetMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcStatement.java
-                    ${src}/org/hsqldb/jdbc/Util.java
-                    ${src}/org/hsqldb/lib/SimpleLog.java
-                    ${src}/org/hsqldb/rowio/RowInputTextLog.java
-                    ${src}/org/hsqldb/HsqlDateTime.java -JAVA2 -JDBC3 -JDBC4"/>
+         <arg line="${abs_swsrc}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcStubs.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcBlob.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcClob.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcConnection.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcParameterMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSet.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSetMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/Util.java
+                    ${abs_swsrc}/org/hsqldb/lib/SimpleLog.java
+                    ${abs_swsrc}/org/hsqldb/rowio/RowInputTextLog.java
+                    ${abs_swsrc}/org/hsqldb/HsqlDateTime.java -JAVA2 -JDBC3 -JDBC4"/>
        </java>
        <available classname="java.util.Vector" property="noswing"/>
     </target>
@@ -221,84 +229,84 @@ examples:
     <target name="switchtojdk12" depends="switches"
             description="self explanatory" if="ant.java.iscjava12">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg line="${src}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
-                    ${src}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
-                    ${src}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java
-                    ${src}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
-                    ${src}/org/hsqldb/jdbc/jdbcStubs.java
-                    ${src}/org/hsqldb/jdbc/jdbcBlob.java
-                    ${src}/org/hsqldb/jdbc/jdbcCallableStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcClob.java
-                    ${src}/org/hsqldb/jdbc/jdbcConnection.java
-                    ${src}/org/hsqldb/jdbc/jdbcDataSource.java
-                    ${src}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcParameterMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcPreparedStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSet.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSetMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcStatement.java
-                    ${src}/org/hsqldb/jdbc/Util.java
-                    ${src}/org/hsqldb/lib/SimpleLog.java
-                    ${src}/org/hsqldb/rowio/RowInputTextLog.java
-                    ${src}/org/hsqldb/HsqlDateTime.java +JAVA2 -JDBC3 -JDBC4"/>
+         <arg line="${abs_swsrc}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcStubs.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcBlob.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcClob.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcConnection.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcParameterMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSet.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSetMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/Util.java
+                    ${abs_swsrc}/org/hsqldb/lib/SimpleLog.java
+                    ${abs_swsrc}/org/hsqldb/rowio/RowInputTextLog.java
+                    ${abs_swsrc}/org/hsqldb/HsqlDateTime.java +JAVA2 -JDBC3 -JDBC4"/>
        </java>
     </target>
 
     <target name="switchtojdk14" depends="switches"
             description="self explanatory" if="ant.java.iscjava14" unless="ant.java.iscjava16">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg line="${src}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
-                    ${src}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
-                    ${src}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java
-                    ${src}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
-                    ${src}/org/hsqldb/jdbc/jdbcStubs.java
-                    ${src}/org/hsqldb/jdbc/jdbcBlob.java
-                    ${src}/org/hsqldb/jdbc/jdbcCallableStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcClob.java
-                    ${src}/org/hsqldb/jdbc/jdbcConnection.java
-                    ${src}/org/hsqldb/jdbc/jdbcDataSource.java
-                    ${src}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcParameterMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcPreparedStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSet.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSetMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcStatement.java
-                    ${src}/org/hsqldb/jdbc/Util.java
-                    ${src}/org/hsqldb/lib/SimpleLog.java
-                    ${src}/org/hsqldb/rowio/RowInputTextLog.java
-                    ${src}/org/hsqldb/HsqlDateTime.java +JAVA2 +JDBC3 -JDBC4"/>
+         <arg line="${abs_swsrc}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcStubs.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcBlob.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcClob.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcConnection.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcParameterMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSet.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSetMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/Util.java
+                    ${abs_swsrc}/org/hsqldb/lib/SimpleLog.java
+                    ${abs_swsrc}/org/hsqldb/rowio/RowInputTextLog.java
+                    ${abs_swsrc}/org/hsqldb/HsqlDateTime.java +JAVA2 +JDBC3 -JDBC4"/>
        </java>
     </target>
 
     <target name="switchtojdk16" depends="switches"
             description="self explanatory" if="ant.java.iscjava16">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-         <arg line="${src}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
-                    ${src}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
-                    ${src}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java
-                    ${src}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
-                    ${src}/org/hsqldb/jdbc/jdbcStubs.java
-                    ${src}/org/hsqldb/jdbc/jdbcBlob.java
-                    ${src}/org/hsqldb/jdbc/jdbcCallableStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcClob.java
-                    ${src}/org/hsqldb/jdbc/jdbcConnection.java
-                    ${src}/org/hsqldb/jdbc/jdbcDataSource.java
-                    ${src}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcParameterMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcPreparedStatement.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSet.java
-                    ${src}/org/hsqldb/jdbc/jdbcResultSetMetaData.java
-                    ${src}/org/hsqldb/jdbc/jdbcStatement.java
-                    ${src}/org/hsqldb/jdbc/Util.java
-                    ${src}/org/hsqldb/lib/SimpleLog.java
-                    ${src}/org/hsqldb/rowio/RowInputTextLog.java
-                    ${src}/org/hsqldb/HsqlDateTime.java +JAVA2 +JDBC3 +JDBC4"/>
+         <arg line="${abs_swsrc}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcStubs.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcBlob.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcClob.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcConnection.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcDataSource.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcParameterMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSet.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcResultSetMetaData.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/jdbcStatement.java
+                    ${abs_swsrc}/org/hsqldb/jdbc/Util.java
+                    ${abs_swsrc}/org/hsqldb/lib/SimpleLog.java
+                    ${abs_swsrc}/org/hsqldb/rowio/RowInputTextLog.java
+                    ${abs_swsrc}/org/hsqldb/HsqlDateTime.java +JAVA2 +JDBC3 +JDBC4"/>
        </java>
     </target>
 
     <target name="store" depends="switchtojdk11,switchtojdk12,switchtojdk14,switchtojdk16"
             description="compiles the /store folder">
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
                  optimize="${build.optimize}"
@@ -309,7 +317,7 @@ examples:
 
     <target name="lib" depends="store"
             description="compiles the /lib folder">
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
                  optimize="${build.optimize}"
@@ -325,7 +333,7 @@ examples:
                  classname='javax.servlet.ServletException'/>
       <fail unless='_servlet_available'
             message="Put '${servletapi.lib}' into place"/>
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
                  optimize="${build.optimize}"
@@ -370,13 +378,13 @@ examples:
          <exclude name="org/hsqldb/persist/NIOScaledRAFile.java"/>
       </javac>
       <copy todir="classes/org/hsqldb/resources">
-         <fileset dir="${src}/org/hsqldb/resources" includes="*.properties"/>
+         <fileset dir="src/org/hsqldb/resources" includes="*.properties"/>
       </copy>
     </target>
 
    <target name="classes12" depends="classes" if="ant.java.iscjavamodern"
            description="compiles 1.2 specific classes">
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
                  optimize="${build.optimize}"
@@ -388,7 +396,7 @@ examples:
 
    <target name="classes14" depends="classes12" if="ant.java.iscjava14"
            description="compiles 1.4 specific classes">
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
                  optimize="${build.optimize}"
@@ -404,7 +412,7 @@ examples:
 
    <target name="classes16" depends="classes14" if="ant.java.iscjava16"
            description="compiles 1.6 specific classes">
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
                  optimize="${build.optimize}"
@@ -421,7 +429,7 @@ examples:
 -->
       </javac>
       <copy todir="classes/META-INF">
-         <fileset dir="${src}/META-INF"/>
+         <fileset dir="src/META-INF"/>
       </copy>
    </target>
 
@@ -432,11 +440,11 @@ examples:
 
         compiles 1.4-specific test classes
    -->
-    <target name="-test14" if="ant.java.iscjava14">
+    <target name="-test14" if="ant.java.iscjava14" depends='switches'>
       <antcall inheritall='true' target='-requireJunit'/>
       <!-- using antcall instead of depends so that it is not called if the
            target "if" above is false. -->
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -450,7 +458,7 @@ examples:
 
     <target name="util" depends="lib"
             description="compiles the /util folder">
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -460,13 +468,13 @@ examples:
          <exclude name="org/hsqldb/util/TableSorter.java"/>
       </javac>
       <copy todir="classes/org/hsqldb/util">
-          <fileset dir="${src}/org/hsqldb/util" includes='*.gif, *.png'/>
+          <fileset dir="src/org/hsqldb/util" includes='*.gif, *.png'/>
       </copy>
     </target>
 
    <target name="swing" depends="util" unless="noswing"
            description="compiles the swing based classes in the /util folder">
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -485,7 +493,7 @@ examples:
 
    <target name="test" depends="-requireJunit, classes16"
            description="compiles the /test folder">
-      <javac srcdir="${src}"
+      <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -857,13 +865,13 @@ examples:
     <target name="javadoc" depends="-preparedoc,-javaversion2,-doclink-1.2"
             description="Create javadoc for the distribution package">
       <javadoc
-           sourcefiles="${src}/org/hsqldb/jdbc/jdbcDriver.java,
-                        ${src}/org/hsqldb/Trigger.java,
-                        ${src}/org/hsqldb/server/Server.java,
-                        ${src}/org/hsqldb/server/WebServer.java,
-                        ${src}/org/hsqldb/sample/TriggerSample.java,
-                        ${src}/org/hsqldb/util/RCData.java,
-                        ${src}/org/hsqldb/util/SqlTool.java"
+           sourcefiles="src/org/hsqldb/jdbc/jdbcDriver.java,
+                        src/org/hsqldb/Trigger.java,
+                        src/org/hsqldb/server/Server.java,
+                        src/org/hsqldb/server/WebServer.java,
+                        src/org/hsqldb/sample/TriggerSample.java,
+                        src/org/hsqldb/util/RCData.java,
+                        src/org/hsqldb/util/SqlTool.java"
            destdir="doc/src"
            classpath="${servletapi.lib};${junit38.lib}"
            author="true"
@@ -874,7 +882,7 @@ examples:
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2005 HSQL Development Group. All Rights Reserved.&lt;/i&gt;">
-           <packageset dir='${src}'>
+           <packageset dir='src'>
                <include name='org/hsqldb/jdbc'/>
            </packageset>
            <link href="${jse.doc.link}"/>
@@ -885,7 +893,7 @@ examples:
     <target name="javadocdev" depends="-preparedoc,-javaversion2,-doclink-1.2"
             description="Create javadoc for developers">
       <javadoc packagenames="org.hsqldb.*,org.hsqldb.jdbc.*,org.hsqldb.lib.*,org.hsqldb.util.*"
-           sourcepath="${src}"
+           sourcepath="src"
            destdir="doc/src"
            classpath="${servletapi.lib};${junit38.lib}"
            author="true"
@@ -977,8 +985,8 @@ examples:
     <target name='-preDocbook'>
         <!-- description='Run before generating docbook for a partic. dir -->
         <!-- Required Props:  book -->
-        <mkdir dir='docwork/${book}/cdata'/>
-        <if><not><uptodate targetfile='docwork/${book}/cdata/.status'>
+        <mkdir dir='tmp/docwork/${book}/cdata'/>
+        <if><not><uptodate targetfile='tmp/docwork/${book}/cdata/.status'>
             <!-- Mappers don't work with multiple patterns.
             Therefore, have to use a timestamp file.  -->
             <srcfiles dir='src/org/hsqldb/sample'
@@ -1012,7 +1020,7 @@ examples:
                 </foreach>
             </then></if>
         </then></if>
-        <touch file='docwork/${book}/cdata/.status'/>
+        <touch file='tmp/docwork/${book}/cdata/.status'/>
     </target>
 
     <target name='-postDocbook'>
@@ -1093,10 +1101,10 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
             <srcfileset refid='bookXsltSrcFiles'/>
               <!-- This messy because ant doesn't support wildcard
               ch[0-9]*.html -->
-            <targetfilelist  dir='docwork/${book}' files='${book}.fo'/>
+              <targetfilelist  dir='tmp/docwork/${book}' files='${book}.fo'/>
         </dependset>
         <if><not><available type='file'
-                            file='docwork/${book}/${book}.fo'/></not>
+                    file='tmp/docwork/${book}/${book}.fo'/></not>
         <then>
             <antcall target='-preDocbook'/>
             <fail unless='style.html'
@@ -1114,7 +1122,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
                  pdf/ps gen.  Need to test that to optimize the dependsets. -->
             <srcfileset refid='sharedXsltSrcFiles'/>
             <srcfileset refid='bookXsltSrcFiles'/>
-            <srcfilelist dir='docwork/${book}' files='${book}.fo'/>
+            <srcfilelist dir='tmp/docwork/${book}' files='${book}.fo'/>
             <targetfilelist dir='doc/${book}' files='${book}.pdf'/>
         </dependset>
         <if><not><available type='file' file='doc/${book}/${book}.pdf'/></not>
@@ -1133,7 +1141,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
                  pdf/ps gen.  Need to test that to optimize the dependsets. -->
             <srcfileset refid='sharedXsltSrcFiles'/>
             <srcfileset refid='bookXsltSrcFiles'/>
-            <srcfilelist dir='docwork/${book}' files='${book}.fo'/>
+            <srcfilelist dir='tmp/docwork/${book}' files='${book}.fo'/>
             <targetfilelist dir='doc/${book}' files='${book}.ps'/>
         </dependset>
         <if><not><available type='file' file='doc/${book}/${book}.ps'/></not>
@@ -1170,12 +1178,12 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
         <loadfile srcfile='${vfile}' property='content'/>
         <dependset>
             <srcfilelist dir='src/org/hsqldb/sample' files='${base}'/>
-            <targetfilelist dir='docwork/${book}/cdata' files='${base}'/>
+            <targetfilelist dir='tmp/docwork/${book}/cdata' files='${base}'/>
         </dependset>
-        <if><not><available file='docwork/${book}/cdata/${base}'/></not>
+        <if><not><available file='tmp/docwork/${book}/cdata/${base}'/></not>
         <then>
-            <mkdir dir='docwork/${book}/cdata'/>
-            <echo file='docwork/${book}/cdata/${base}'
+            <mkdir dir='tmp/docwork/${book}/cdata'/>
+            <echo file='tmp/docwork/${book}/cdata/${base}'
                   message='&lt;![CDATA[${content}]]&gt;'/>
         </then></if>
     </target>
@@ -1185,12 +1193,12 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
         <loadfile srcfile='${vfile}' property='content'/>
         <dependset>
             <srcfilelist dir='sample' files='${base}'/>
-            <targetfilelist dir='docwork/${book}/cdata' files='${base}'/>
+            <targetfilelist dir='tmp/docwork/${book}/cdata' files='${base}'/>
         </dependset>
-        <if><not><available file='docwork/${book}/cdata/${base}'/></not>
+        <if><not><available file='tmp/docwork/${book}/cdata/${base}'/></not>
         <then>
-            <mkdir dir='docwork/${book}/cdata'/>
-            <echo file='docwork/${book}/cdata/${base}'
+            <mkdir dir='tmp/docwork/${book}/cdata'/>
+            <echo file='tmp/docwork/${book}/cdata/${base}'
                   message='&lt;![CDATA[${content}]]&gt;'/>
         </then></if>
     </target>
@@ -1229,7 +1237,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
         <!-- Required properties:  book, _lvl, _fmt -->
         <fop format="${_fmt}" outdir="doc/${book}" messagelevel="${_lvl}"
             basedir='docsrc/${book}'>
-            <fileset file='docwork/${book}/${book}.fo'/>
+            <fileset file='tmp/docwork/${book}/${book}.fo'/>
         </fop>
     </target>
 
@@ -1269,7 +1277,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
         </then></if>
         <style
                basedir='docsrc/${book}'
-               destdir='docwork/${book}'
+               destdir='tmp/docwork/${book}'
                force='yes'
                style='${style.fo}'
                includes='${book}.xml'
@@ -1291,11 +1299,11 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
             <fileset dir='doc' includes='*.gif, *.css, guide/**'/>
             <fileset dir='doc/src' excludes='*.gif, *.css'/>
         </delete>
-        <delete dir='docwork' quiet='true' includeEmptyDirs='true'/>
+        <delete dir='tmp/docwork' quiet='true' includeEmptyDirs='true'/>
     </target>
 
     <target name='clean-docwork' description='Remove temporary documentation files'>
-        <delete dir='docwork' quiet='true' includeEmptyDirs='true'/>
+        <delete dir='tmp/docwork' quiet='true' includeEmptyDirs='true'/>
         <delete quiet='true' includeEmptyDirs='true'>
             <fileset dir='doc' includes='**/*.xml'/>
         </delete>
