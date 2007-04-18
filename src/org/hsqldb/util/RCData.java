@@ -45,7 +45,7 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 
-/* $Id: RCData.java,v 1.16 2007/03/30 13:15:34 unsaved Exp $ */
+/* $Id$ */
 
 /**
  * All the info we need to connect up to a database.

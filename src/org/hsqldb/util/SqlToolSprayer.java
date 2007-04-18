@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
-/* $Id: SqlToolSprayer.java,v 1.6 2006/01/24 16:57:07 fredt Exp $ */
+/* $Id$ */
 
 /**
  * Sql Tool Sprayer.
@@ -54,7 +54,7 @@ import java.util.Properties;
  * </UL>
  *
  * @see @main()
- * @version $Revision: 1.6 $
+ * @version $Revision$
  * @author Blaine Simpson unsaved@users
  */
 public class SqlToolSprayer {

@@ -33,7 +33,7 @@ package org.hsqldb.util.preprocessor;
 
 import java.io.File;
 
-/* $Id: IResolver.java,v 1.2 2006/05/29 01:00:51 boucherb Exp $ */
+/* $Id$ */
 
 /**
  * Property and file path resolution contract. <p>

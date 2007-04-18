@@ -57,7 +57,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-/* $Id: SqlFile.java,v 1.146 2007/03/30 13:16:43 unsaved Exp $ */
+/* $Id$ */
 
 /**
  * Encapsulation of a sql text file like 'myscript.sql'.
@@ -105,7 +105,7 @@ import java.util.TreeMap;
  * setters would be best) instead of constructor args and System
  * Properties.
  *
- * @version $Revision: 1.146 $
+ * @version $Revision$
  * @author Blaine Simpson unsaved@users
  */
 
@@ -155,8 +155,8 @@ public class SqlFile {
     private static String revnum = null;
 
     static {
-        revnum = "$Revision: 1.146 $".substring("$Revision: ".length(),
-                "$Revision: 1.146 $".length() - 2);
+        revnum = "$Revision$".substring("$Revision: ".length(),
+                "$Revision$".length() - 2);
     }
 
     private static String BANNER =

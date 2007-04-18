@@ -38,7 +38,7 @@ import java.util.Arrays;
 import org.hsqldb.Trace;
 import org.hsqldb.lib.StringConverter;
 
-/* $Id: jdbcRowId.java,v 1.8 2006/07/12 12:32:46 boucherb Exp $ */
+/* $Id$ */
 
 // boucherb@users 20060522 - doc 1.8.1 full synch up to Mustang Build 84
 

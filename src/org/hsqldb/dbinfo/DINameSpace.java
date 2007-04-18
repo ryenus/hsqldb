@@ -48,7 +48,7 @@ import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 
-/* $Id: DINameSpace.java,v 1.8 2006/07/12 11:24:05 boucherb Exp $ */
+/* $Id$ */
 
 // boucherb@users - 2004xxxx - patch 1.7.2
 // -- canonical database uri for catalog name reporting

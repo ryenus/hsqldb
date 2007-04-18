@@ -52,7 +52,7 @@ import javax.sql.CommonDataSource;
 
 //#endif JDBC4
 
-/* $Id: jdbcDataSource.java,v 1.14 2006/07/12 12:13:53 boucherb Exp $ */
+/* $Id$ */
 
 // boucherb@users 20040411 - doc 1.7.2 - javadoc updates toward 1.7.2 final
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work

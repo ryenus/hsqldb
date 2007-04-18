@@ -81,7 +81,7 @@ import org.hsqldb.types.ClobDataRemoteClient;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.result.Result;
 
-/* $Id: jdbcResultSet.java,v 1.21 2006/07/12 12:27:25 boucherb Exp $ */
+/* $Id$ */
 
 // boucherb@users 20051207 - patch 1.8.0.x - initial JDBC 4.0 support work
 // fredt@users    20060431 - patch 1.9.0 rewrite with RowSetNavigator

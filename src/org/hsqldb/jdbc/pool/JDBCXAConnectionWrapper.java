@@ -30,7 +30,7 @@
 
 
 
-// @(#)$Id: JDBCXAConnectionWrapper.java,v 1.1 2006/02/27 14:44:45 unsaved Exp $
+// @(#)$Id$
 package org.hsqldb.jdbc.pool;
 
 import org.hsqldb.jdbc.jdbcConnection;

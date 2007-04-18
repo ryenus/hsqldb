@@ -40,7 +40,7 @@ import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.Types;
 import org.hsqldb.types.Type;
 
-/* $Id: jdbcParameterMetaData.java,v 1.15 2006/07/12 12:21:40 boucherb Exp $ */
+/* $Id$ */
 
 // fredt@users 20040412 - removed DITypeInfo dependencies
 // fredt@usres 1.9.0 - utilise the new type support

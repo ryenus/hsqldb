@@ -60,7 +60,7 @@ import org.hsqldb.Trace;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.result.ResultConstants;
 
-/* $Id: jdbcCallableStatement.java,v 1.14 2006/07/12 11:58:49 boucherb Exp $ */
+/* $Id$ */
 
 // boucherb@users patch 1.7.2 - CallableStatement impl removed
 // from jdbcPreparedStatement and moved here; sundry changes elsewhere to
