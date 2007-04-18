@@ -30,17 +30,17 @@
     <!ENTITY transfertool-appendix.xml SYSTEM "transfertool.xml">
 
     <!-- Imported cdata sandwich files -->
-    <!ENTITY Testdb.java-cdata SYSTEM "../../docwork/guide/cdata/Testdb.java">
+    <!ENTITY Testdb.java-cdata SYSTEM "../../tmp/docwork/guide/cdata/Testdb.java">
     <!ENTITY sample-server.properties-cdata
-             SYSTEM "../../docwork/guide/cdata/sample-server.properties">
-    <!ENTITY sqltool.rc-cdata SYSTEM "../../docwork/guide/cdata/sqltool.rc">
-    <!ENTITY plsql.sql-cdata SYSTEM "../../docwork/guide/cdata/plsql.sql">
+             SYSTEM "../../tmp/docwork/guide/cdata/sample-server.properties">
+    <!ENTITY sqltool.rc-cdata SYSTEM "../../tmp/docwork/guide/cdata/sqltool.rc">
+    <!ENTITY plsql.sql-cdata SYSTEM "../../tmp/docwork/guide/cdata/plsql.sql">
     <!ENTITY sample-hsqldb.cfg-cdata
-             SYSTEM "../../docwork/guide/cdata/sample-hsqldb.cfg">
+             SYSTEM "../../tmp/docwork/guide/cdata/sample-hsqldb.cfg">
     <!ENTITY sample.sql-cdata
-             SYSTEM "../../docwork/guide/cdata/sample.sql">
+             SYSTEM "../../tmp/docwork/guide/cdata/sample.sql">
     <!ENTITY pl.sql-cdata
-             SYSTEM "../../docwork/guide/cdata/pl.sql">
+             SYSTEM "../../tmp/docwork/guide/cdata/pl.sql">
 ]>
     
 <book>
