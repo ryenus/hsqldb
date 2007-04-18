@@ -65,11 +65,11 @@ If you don't know what the hell CDATA is, just follow the instructions
 in the next paragraph.
 
 To import a document verbatim, define an external parsed entity for 
-the file ../../docwork/BOOKNAME/cdata/file.name, where BOOKNAME is 
+the file ../../tmp/docwork/BOOKNAME/cdata/file.name, where BOOKNAME is 
 your book name and file.name is the name of the file to be imported
 (which resides in the current directory).
 If you want to know, what will happen is, the Ant build will copy the 
-file-to-be-imported to the directory .../docwork/BOOKNAME/cdata and will 
+file-to-be-imported to the directory .../tmp/docwork/BOOKNAME/cdata and will 
 sandwich it in a CDATA directive.
 If you want to provide a link to the document, you just ulink to 
 the document in the current directory, not to the one in the cdata
