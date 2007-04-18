@@ -33,7 +33,7 @@ package org.hsqldb.util.preprocessor;
 
 import java.util.Hashtable;
 
-/* $Id: Defines.java,v 1.2 2006/05/29 01:00:51 boucherb Exp $ */
+/* $Id$ */
 
 /**
  * Simple preprocessor symbol table.

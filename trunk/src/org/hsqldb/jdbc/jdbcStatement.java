@@ -46,7 +46,7 @@ import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 
-/* $Id: jdbcStatement.java,v 1.16 2006/07/12 12:40:59 boucherb Exp $ */
+/* $Id$ */
 
 // fredt@users   20020320 - patch 1.7.0 - JDBC 2 support and error trapping
 //

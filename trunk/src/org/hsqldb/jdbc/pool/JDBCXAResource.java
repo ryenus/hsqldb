@@ -30,7 +30,7 @@
 
 
 
-// @(#)$Id: JDBCXAResource.java,v 1.6 2006/03/03 16:31:57 unsaved Exp $
+// @(#)$Id$
 package org.hsqldb.jdbc.pool;
 
 import javax.transaction.xa.XAResource;

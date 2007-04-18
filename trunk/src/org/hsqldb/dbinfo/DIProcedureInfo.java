@@ -44,7 +44,7 @@ import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Type;
 
-/* $Id: DIProcedureInfo.java,v 1.7 2006/07/12 11:27:53 boucherb Exp $ */
+/* $Id$ */
 /*
  * $Log: DIProcedureInfo.java,v $
  * Revision 1.7  2006/07/12 11:27:53  boucherb

@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-/* $Id: SqlTool.java,v 1.61 2007/04/01 15:59:28 unsaved Exp $ */
+/* $Id$ */
 
 /**
  * Sql Tool.  A command-line and/or interactive SQL tool.
@@ -59,7 +59,7 @@ import java.util.StringTokenizer;
  * Java way.
  *
  * @see #main()
- * @version $Revision: 1.61 $
+ * @version $Revision$
  * @author Blaine Simpson unsaved@users
  */
 public class SqlTool {
@@ -87,8 +87,8 @@ public class SqlTool {
     private static String CMDLINE_ID = "cmdline";
 
     static {
-        revnum = "$Revision: 1.61 $".substring("$Revision: ".length(),
-                                               "$Revision: 1.61 $".length()
+        revnum = "$Revision$".substring("$Revision: ".length(),
+                                               "$Revision$".length()
                                                - 2);
     }
     public static String LS = System.getProperty("line.separator");

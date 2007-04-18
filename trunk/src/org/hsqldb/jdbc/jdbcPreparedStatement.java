@@ -89,7 +89,7 @@ import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
 
-/* $Id: jdbcPreparedStatement.java,v 1.19 2006/07/12 12:24:17 boucherb Exp $ */
+/* $Id$ */
 
 // changes by fredt
 // SimpleDateFormat objects moved out of methods to improve performance

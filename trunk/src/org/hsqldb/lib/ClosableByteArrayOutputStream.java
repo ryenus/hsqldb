@@ -68,7 +68,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-/* $Id: ClosableByteArrayOutputStream.java,v 1.4 2006/07/09 07:59:14 boucherb Exp $ */
+/* $Id$ */
 
 /*
  * $Log: ClosableByteArrayOutputStream.java,v $

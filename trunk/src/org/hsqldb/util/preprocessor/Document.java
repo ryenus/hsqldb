@@ -46,7 +46,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Vector;
 
-/* $Id: Document.java,v 1.1 2006/05/28 10:29:14 boucherb Exp $ */
+/* $Id$ */
 
 /**
  * Simple line-oriented text document ADT.

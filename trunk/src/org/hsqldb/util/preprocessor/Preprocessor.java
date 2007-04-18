@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Stack;
 
-/* $Id: Preprocessor.java,v 1.2 2006/05/29 01:00:51 boucherb Exp $ */
+/* $Id$ */
 
 /**
  * Simple text document preprocessor. <p>

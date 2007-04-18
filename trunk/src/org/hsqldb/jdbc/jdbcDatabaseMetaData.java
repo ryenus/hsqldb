@@ -48,7 +48,7 @@ import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.types.Type;
 
-/* $Id: jdbcDatabaseMetaData.java,v 1.20 2006/07/12 12:06:54 boucherb Exp $ */
+/* $Id$ */
 
 // fredt@users 20020320 - patch 1.7.0 - JDBC 2 support and error trapping
 //

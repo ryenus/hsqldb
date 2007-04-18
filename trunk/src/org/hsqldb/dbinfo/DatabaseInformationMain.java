@@ -56,7 +56,7 @@ import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
-/* $Id: DatabaseInformationMain.java,v 1.9 2006/07/12 11:36:59 boucherb Exp $ */
+/* $Id$ */
 
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
 // boucherb@users - 1.7.2 - 20020225

@@ -39,7 +39,7 @@ import org.hsqldb.Types;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.ResultMetaData;
 
-/* $Id: jdbcResultSetMetaData.java,v 1.15 2006/07/12 12:29:42 boucherb Exp $ */
+/* $Id$ */
 
 // fredt@users    - 20040412 - removed DITypeInfo dependencies
 // boucherb@users - 200404xx - removed unused imports;refinement for better

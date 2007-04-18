@@ -49,7 +49,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.Trace;
 import org.hsqldb.result.Result;
 
-/* $Id: Util.java,v 1.16 2006/07/12 11:53:53 boucherb Exp $ */
+/* $Id$ */
 
 // boucherb@users - 20060523 - patch 1.9.0 - removed some unused imports
 /*

@@ -34,7 +34,7 @@ package org.hsqldb.util.preprocessor;
 import java.io.File;
 import java.io.IOException;
 
-/* $Id: BasicResolver.java,v 1.2 2006/05/29 01:00:51 boucherb Exp $ */
+/* $Id$ */
 
 /**
  * Resolves paths using a parent directory; does not resolve properties.

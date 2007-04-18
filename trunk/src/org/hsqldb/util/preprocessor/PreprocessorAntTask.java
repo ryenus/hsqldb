@@ -36,7 +36,7 @@ import java.io.File;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 
-/* $Id: PreprocessorAntTask.java,v 1.3 2006/07/09 07:51:24 boucherb Exp $ */
+/* $Id$ */
 
 /*
  * $Log: PreprocessorAntTask.java,v $
