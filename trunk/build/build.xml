@@ -25,8 +25,13 @@
    <property name="build.vendor" value="${user.name}"/>
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQLDB Development Group"/>
-   <property name="src" value="${basedir}/src"/>
+   <property name="src" value="src"/>
+
+   <!-- It is safe to override these with settings in your own 
+        build.properties file. -->
    <property name="build.debug" value="on"/>
+   <property name="servletapi.lib" value="lib/servlet.jar"/>
+   <property name="junit38.lib" value="lib/junit.jar"/>
 
    <target name="init">
    </target>
@@ -316,13 +321,17 @@ examples:
 
     <target name="classes" depends="lib,-javajsse"
             description="compiles all the classes">
+      <available property='_servlet_available' classpath='${servletapi.lib}'
+                 classname='javax.servlet.ServletException'/>
+      <fail unless='_servlet_available'
+            message="Put '${servletapi.lib}' into place"/>
       <javac srcdir="${src}"
              destdir="classes"
                  debug="${build.debug}"
                  optimize="${build.optimize}"
        >
          <classpath>
-            <pathelement location="lib/servlet.jar"/>
+            <pathelement location="${servletapi.lib}"/>
             <pathelement location="lib/JAMon.jar"/>
          </classpath>
          <include name="*.java"/>
@@ -360,7 +369,7 @@ examples:
          <exclude name="org/hsqldb/persist/NIOLockFile.java"/>
          <exclude name="org/hsqldb/persist/NIOScaledRAFile.java"/>
       </javac>
-      <copy todir="${basedir}/classes/org/hsqldb/resources">
+      <copy todir="classes/org/hsqldb/resources">
          <fileset dir="${src}/org/hsqldb/resources" includes="*.properties"/>
       </copy>
     </target>
@@ -424,11 +433,14 @@ examples:
         compiles 1.4-specific test classes
    -->
     <target name="-test14" if="ant.java.iscjava14">
+      <antcall inheritall='true' target='-requireJunit'/>
+      <!-- using antcall instead of depends so that it is not called if the
+           target "if" above is false. -->
       <javac srcdir="${src}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
-             classpath="lib/junit.jar"
+             classpath="${junit38.lib}"
        >
           <include name="org/hsqldb/test/TestJDBCSavepoints.java"/>
           <include name="org/hsqldb/test/SqlToolHarness.java"/>
@@ -464,18 +476,22 @@ examples:
       </javac>
    </target>
 
-   <target name="test" depends="classes16"
-           description="compiles the /test folder">
-      <available property='_junit_available' file='lib/junit.jar' type='file'/>
+   <target name='-requireJunit'>
+      <available property='_junit_available' classpath='${junit38.lib}'
+                 classname='junit.swingui.TestRunner'/>
       <fail unless='_junit_available'
-            message="'junit.jar' must reside in the /lib directory in order to use this target"/>
+            message="Put '${junit38.lib}' into place"/>
+   </target>
+
+   <target name="test" depends="-requireJunit, classes16"
+           description="compiles the /test folder">
       <javac srcdir="${src}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
          >
          <classpath>
-            <pathelement location="lib/junit.jar"/>
+            <pathelement location="${junit38.lib}"/>
             <pathelement location="lib/dbunit.jar"/>
          </classpath>
          <include name="org/hsqldb/test/**"/>
@@ -848,13 +864,13 @@ examples:
                         ${src}/org/hsqldb/sample/TriggerSample.java,
                         ${src}/org/hsqldb/util/RCData.java,
                         ${src}/org/hsqldb/util/SqlTool.java"
-           destdir="${basedir}/doc/src"
-           classpath="${basedir}/lib/servlet.jar;${basedir}/lib/junit.jar"
+           destdir="doc/src"
+           classpath="${servletapi.lib};${junit38.lib}"
            author="true"
            version="false"
            use="true"
            public="true"
-           stylesheetfile="${basedir}/doc/src/hsqldbstylesheet.css"
+           stylesheetfile="doc/src/hsqldbstylesheet.css"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2005 HSQL Development Group. All Rights Reserved.&lt;/i&gt;">
@@ -870,13 +886,13 @@ examples:
             description="Create javadoc for developers">
       <javadoc packagenames="org.hsqldb.*,org.hsqldb.jdbc.*,org.hsqldb.lib.*,org.hsqldb.util.*"
            sourcepath="${src}"
-           destdir="${basedir}/doc/src"
-           classpath="${basedir}/lib/servlet.jar;${basedir}/lib/junit.jar"
+           destdir="doc/src"
+           classpath="${servletapi.lib};${junit38.lib}"
            author="true"
            version="true"
            use="true"
            package="true"
-           stylesheetfile="${basedir}/doc/src/hsqldbstylesheet.css"
+           stylesheetfile="doc/src/hsqldbstylesheet.css"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2005 HSQL Development Group. All Rights Reserved.&lt;/i&gt;">
