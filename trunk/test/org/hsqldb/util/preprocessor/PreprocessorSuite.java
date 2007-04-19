@@ -34,7 +34,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/* $Id: PreprocessorSuite.java,v 1.1 2006/05/28 10:48:08 boucherb Exp $ */
+/* $Id$ */
 
 /**
  *
