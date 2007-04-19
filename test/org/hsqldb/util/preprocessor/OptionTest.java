@@ -34,7 +34,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-/* $Id: OptionTest.java,v 1.3 2006/05/29 01:07:06 boucherb Exp $ */
+/* $Id$ */
 
 /**
  *
