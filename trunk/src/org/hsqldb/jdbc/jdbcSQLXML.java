@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2006, The HSQL Development Group
+/* Copyright (c) 2001-2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 package org.hsqldb.jdbc;
 
 import java.io.ByteArrayInputStream;
@@ -42,16 +43,11 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-
 import java.nio.charset.Charset;
-
 import java.sql.SQLException;
-//import java.sql.SQLRuntimeException;
 import java.sql.SQLXML;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -60,21 +56,17 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
 import javax.xml.bind.util.JAXBResult;
 import javax.xml.bind.util.JAXBSource;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -82,25 +74,18 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
-
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
-
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
-
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
-
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.hsqldb.Trace;
-
 import org.hsqldb.lib.ClosableByteArrayOutputStream;
-//import org.hsqldb.lib.ClosableCharArrayWriter;
 import org.hsqldb.lib.StringConverter;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -111,7 +96,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -275,7 +259,7 @@ import org.xml.sax.SAXException;
  * writing APIs are called: setBinaryStream(), setCharacterStream(), setResult(), and setString().
  * Implementations may also change the state to not readable when this occurs.
  * <p>
- * All methods on the <code>SQLXML</code> interface must be fully implemented if the 
+ * All methods on the <code>SQLXML</code> interface must be fully implemented if the
  * JDBC driver supports the data type.
  * <!-- end generic documentation -->
  *
@@ -551,6 +535,7 @@ public class jdbcSQLXML implements SQLXML {
 
         return value;
     }
+
 
     /**
      * Sets the XML value designated by this SQLXML instance to the given String representation.
@@ -1146,25 +1131,25 @@ public class jdbcSQLXML implements SQLXML {
      *      error occurs
      * @return this object's SQLXML value
      */
-    protected byte[] getGZipData() throws SQLException {   
-       
+    protected byte[] getGZipData() throws SQLException {
+
         byte[] bytes = gZipData();
-        
+
         if (bytes != null)
         {
             return bytes;
         }
-       
-        if (this.outputStream == null 
+
+        if (this.outputStream == null
                || !this.outputStream.isClosed()
                || this.outputStream.isFreed())
         {
            throw Exceptions.notReadable();
         }
 
-        try {     
+        try {
             setGZipData(this.outputStream.toByteArray());
-            
+
             return gZipData();
         } catch (IOException ex) {
             throw Exceptions.notReadable();
