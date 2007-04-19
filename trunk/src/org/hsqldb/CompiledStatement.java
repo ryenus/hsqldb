@@ -69,6 +69,7 @@ public final class CompiledStatement {
     public static final int SELECT_INTO   = 6;
     public static final int CALL          = 7;
     public static final int MERGE         = 8;
+    public static final int SET           = 9;
     public static final int DDL           = 10;
 
     // resusables
@@ -332,6 +333,27 @@ public final class CompiledStatement {
         this.targetRangeVariables = targetRangeVars;
         this.condition            = mergeCondition;
         type                      = MERGE;
+
+        setDatabseObjects(session, compileContext);
+        checkAccessRights(session);
+    }
+
+    /**
+     * Instantiate this as a SET statement.
+     */
+    CompiledStatement(Session session, Table table,
+                      RangeVariable rangeVars[], int[] updateColumnMap,
+                      Expression[] colExpressions,
+                      CompileContext compileContext) throws HsqlException {
+
+        this.schemaHsqlName       = session.currentSchema;
+        this.targetTable       = table;
+        this.updateColumnMap   = updateColumnMap;
+        this.updateExpressions = colExpressions;
+        this.updateCheckColumns =
+            targetTable.getColumnCheckList(updateColumnMap);
+        this.targetRangeVariables = rangeVars;
+        type                      = SET;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);

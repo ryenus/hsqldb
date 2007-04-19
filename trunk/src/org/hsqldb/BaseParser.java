@@ -53,16 +53,14 @@ public class BaseParser {
     /**
      *  Constructs a new BaseParser object with the given context.
      *
-     * @param  db the Database instance against which to resolve named
-     *      database object references
-     * @param  t the token source from which to parse commands
      * @param  session the connected context
+     * @param  t the token source from which to parse commands
      */
-    BaseParser(Session session, Database db, Tokenizer t) {
+    BaseParser(Session session, Tokenizer t) {
 
-        database     = db;
         tokenizer    = t;
         this.session = session;
+        database     = session.getDatabase();
     }
 
     /**
@@ -116,8 +114,7 @@ public class BaseParser {
             tokenType = Token.getKeyword(tokenString, Token.X_ENDPARSE);
 
             if (tokenType == Token.X_ENDPARSE) {
-                tokenType = Token.getNonKeyword(tokenString,
-                                                Token.X_ENDPARSE);
+                tokenType = Token.getNonKeyword(tokenString, Token.X_ENDPARSE);
                 isSpecial = tokenizer.wasSpecial();
             } else {
                 isReservedKey     = true;
@@ -131,7 +128,7 @@ public class BaseParser {
     }
 
     boolean isName() throws HsqlException {
-        return tokenizer.wasNameOrKeyword() &&!isCoreReservedKey;
+        return tokenizer.wasNameOrKeyword() && !isCoreReservedKey;
     }
 
     void checkIsName() throws HsqlException {
@@ -157,10 +154,11 @@ public class BaseParser {
         read();
     }
 
-    boolean readIfNext(int tokenId) throws HsqlException {
+    boolean readIfThis(int tokenId) throws HsqlException {
 
         if (tokenType == tokenId) {
             read();
+
             return true;
         }
 
@@ -189,7 +187,7 @@ public class BaseParser {
     }
 
     boolean isSimpleName() {
-        return tokenizer.wasSimpleName() &&!isCoreReservedKey;
+        return tokenizer.wasSimpleName() && !isCoreReservedKey;
     }
 
     void checkIsSimpleName() throws HsqlException {
@@ -217,8 +215,7 @@ public class BaseParser {
         checkIsValue();
 
         if (minus && valueType.type == Types.SQL_BIGINT
-                && ((Number) value).longValue()
-                   == -(long) Integer.MIN_VALUE) {
+                && ((Number) value).longValue() == -(long) Integer.MIN_VALUE) {
             read();
 
             return Integer.MIN_VALUE;

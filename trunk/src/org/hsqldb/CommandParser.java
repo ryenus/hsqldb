@@ -47,8 +47,8 @@ import org.hsqldb.types.Type;
 
 public class CommandParser extends DDLParser {
 
-    CommandParser(Session session, Database db, Tokenizer t) {
-        super(session, db, t);
+    CommandParser(Session session, Tokenizer t) {
+        super(session, t);
     }
 
     Result execute(String sql) {
@@ -105,9 +105,9 @@ public class CommandParser extends DDLParser {
 
             switch (tokenType) {
 
-                case Token.OPENBRACKET : {
-                    brackets = readOpenBrackets();
-                }
+                case Token.OPENBRACKET :
+                case Token.VALUES :
+                case Token.TABLE :
                 case Token.SELECT : {
                     CompiledStatement cs = compileSelectStatement(brackets);
 
@@ -249,7 +249,7 @@ public class CommandParser extends DDLParser {
         }
 
         try {
-            if (session.isScripting() &&!result.isError()) {
+            if (session.isScripting() && !result.isError()) {
                 database.logger.writeToLog(session,
                                            getLastPart(parsePosition));
             }
@@ -263,8 +263,7 @@ public class CommandParser extends DDLParser {
                 session.endSchemaDefinition();
             }
         } catch (HsqlException e) {
-            result = Result.newErrorResult(e.getMessage(), e.getSQLState(),
-                                           0);
+            result = Result.newErrorResult(e.getMessage(), e.getSQLState(), 0);
         }
 
         return result;
@@ -713,7 +712,7 @@ public class CommandParser extends DDLParser {
     private void processCommit() throws HsqlException {
 
         read();
-        readIfNext(Token.WORK);
+        readIfThis(Token.WORK);
         session.commit();
     }
 
@@ -725,7 +724,7 @@ public class CommandParser extends DDLParser {
     private void processRollback() throws HsqlException {
 
         read();
-        readIfNext(Token.WORK);
+        readIfThis(Token.WORK);
 
         if (tokenType == Token.TO) {
             read();
@@ -878,7 +877,8 @@ public class CommandParser extends DDLParser {
         switch (tokenType) {
 
             case Token.OPENBRACKET :
-                brackets = readOpenBrackets();
+            case Token.VALUES :
+            case Token.TABLE :
             case Token.SELECT :
                 cs = compileSelectStatement(brackets);
                 break;

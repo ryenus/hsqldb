@@ -60,8 +60,8 @@ import org.hsqldb.rights.Grantee;
  */
 public class TriggerDef implements Runnable, SchemaObject {
 
-    static final int OLD_ROWS  = 0;
-    static final int NEW_ROWS  = 1;
+    static final int OLD_ROW   = 0;
+    static final int NEW_ROW   = 1;
     static final int OLD_TABLE = 2;
     static final int NEW_TABLE = 3;
 
@@ -76,6 +76,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     HsqlName name;
     String   when;
     String   operation;
+    int      operationPrivilegeType;
     boolean  forEachRow;
     boolean  nowait;                                               // block or overwrite if queue full
     int      maxRowsQueued;                                        // max size of queue of pending triggers
@@ -102,6 +103,8 @@ public class TriggerDef implements Runnable, SchemaObject {
     protected int              rowsQueued;          // rows in pendingQueue
     protected boolean          valid     = true;    // parsing valid
     protected volatile boolean keepGoing = true;
+
+    TriggerDef() {}
 
     /**
      *  Constructs a new TriggerDef object to represent an HSQLDB trigger
@@ -144,10 +147,11 @@ public class TriggerDef implements Runnable, SchemaObject {
         this.nowait           = noWait;
         this.maxRowsQueued    = queueSize;
         this.table            = table;
-        vectorIndex           = SqlToIndex();
         this.triggerClassName = triggerClassName;
         rowsQueued            = 0;
         pendingQueue          = new HsqlDeque();
+
+        setUpIndexesAndTypes();
 
         if (vectorIndex < 0) {
             throw Trace.error(Trace.UNEXPECTED_TOKEN,
@@ -240,72 +244,51 @@ public class TriggerDef implements Runnable, SchemaObject {
         }
 
         a.append(Token.T_CALL).append(' ');
-        a.append(StringConverter.toQuotedString(triggerClassName, '"',
-                false));
+        a.append(StringConverter.toQuotedString(triggerClassName, '"', false));
 
         return a;
     }
 
     /**
-     *  SqlToIndex method declaration <P>
-     *
-     *  Given the SQL creating the trigger, say what the index to the
-     *  HsqlArrayList[] is
+     *  Given the SQL creating the trigger, set up the index to the
+     *  HsqlArrayList[] and the associated GRANT type
      *
      * @return  index to the HsqlArrayList[]
      */
-    public int SqlToIndex() {
+    private void setUpIndexesAndTypes() {
 
-        int indx;
+        vectorIndex = 0;
 
         if (operation.equals(Token.T_INSERT)) {
-            indx = Trigger.INSERT_AFTER;
+            vectorIndex            = Trigger.INSERT_AFTER;
+            operationPrivilegeType = GrantConstants.INSERT;
         } else if (operation.equals(Token.T_DELETE)) {
-            indx = Trigger.DELETE_AFTER;
+            operationPrivilegeType = GrantConstants.DELETE;
+            vectorIndex            = Trigger.DELETE_AFTER;
         } else if (operation.equals(Token.T_UPDATE)) {
-            indx = Trigger.UPDATE_AFTER;
+            operationPrivilegeType = GrantConstants.UPDATE;
+            vectorIndex            = Trigger.UPDATE_AFTER;
         } else {
-            return -1;
+            vectorIndex = -1;
+
+            return;
         }
 
         if (when.equals(Token.T_BEFORE)) {
-            indx += NUM_TRIGGER_OPS;    // number of operations
+            vectorIndex += NUM_TRIGGER_OPS;    // number of operations
         } else if (!when.equals(Token.T_AFTER)) {
-            return -1;
+            vectorIndex = -1;
+
+            return;
         }
 
         if (forEachRow) {
-            indx += 2 * NUM_TRIGGER_OPS;
+            vectorIndex += 2 * NUM_TRIGGER_OPS;
         }
-
-        return indx;
     }
 
-    public static int indexToRight(int idx) {
-
-        switch (idx) {
-
-            case Trigger.DELETE_AFTER :
-            case Trigger.DELETE_AFTER_ROW :
-            case Trigger.DELETE_BEFORE :
-            case Trigger.DELETE_BEFORE_ROW :
-                return GrantConstants.DELETE;
-
-            case Trigger.INSERT_AFTER :
-            case Trigger.INSERT_AFTER_ROW :
-            case Trigger.INSERT_BEFORE :
-            case Trigger.INSERT_BEFORE_ROW :
-                return GrantConstants.INSERT;
-
-            case Trigger.UPDATE_AFTER :
-            case Trigger.UPDATE_AFTER_ROW :
-            case Trigger.UPDATE_BEFORE :
-            case Trigger.UPDATE_BEFORE_ROW :
-                return GrantConstants.UPDATE;
-
-            default :
-                return 0;
-        }
+    public int getPrivilegeType() {
+        return operationPrivilegeType;
     }
 
     /**
@@ -393,8 +376,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      * @param  row1
      * @param  row2
      */
-    synchronized void pushPair(Session session, Object[] row1,
-                               Object[] row2) {
+    synchronized void pushPair(Session session, Object[] row1, Object[] row2) {
 
         if (maxRowsQueued == 0) {
             trigger.fire(vectorIndex, name.name, table.getName().name, row1,
@@ -443,8 +425,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         public Object[] newRow;
         public String   username;
 
-        public TriggerData(Session session, Object[] oldRow,
-                           Object[] newRow) {
+        public TriggerData(Session session, Object[] oldRow, Object[] newRow) {
 
             this.oldRow   = oldRow;
             this.newRow   = newRow;

@@ -132,13 +132,11 @@ class Parser extends BaseParser {
     /**
      *  Constructs a new Parser object with the given context.
      *
-     * @param  db the Database instance against which to resolve named
-     *      database object references
-     * @param  t the token source from which to parse commands
      * @param  session the connected context
+     * @param  t the token source from which to parse commands
      */
-    Parser(Session session, Database db, Tokenizer t) {
-        super(session, db, t);
+    Parser(Session session, Tokenizer t) {
+        super(session, t);
     }
 
     /**
@@ -165,7 +163,7 @@ class Parser extends BaseParser {
                                   col.getName().name);
             }
 
-            if (readIfNext(Token.COMMA)) {
+            if (readIfThis(Token.COMMA)) {
                 continue;
             }
 
@@ -224,11 +222,11 @@ class Parser extends BaseParser {
                 }
             }
 
-            if (readIfNext(Token.COMMA)) {
+            if (readIfThis(Token.COMMA)) {
                 continue;
             }
 
-            if (readIfNext(Token.CLOSEBRACKET)) {
+            if (readIfThis(Token.CLOSEBRACKET)) {
                 break;
             }
 
@@ -364,7 +362,7 @@ class Parser extends BaseParser {
 
             case Token.INTERSECT :
                 read();
-                readIfNext(Token.DISTINCT);
+                readIfThis(Token.DISTINCT);
 
                 unionType = Select.INTERSECT;
                 break;
@@ -372,7 +370,7 @@ class Parser extends BaseParser {
             case Token.EXCEPT :
             case Token.MINUS_EXCEPT :
                 read();
-                readIfNext(Token.DISTINCT);
+                readIfThis(Token.DISTINCT);
 
                 unionType = Select.EXCEPT;
                 break;
@@ -565,7 +563,7 @@ class Parser extends BaseParser {
         while (true) {
             Expression e = readOr();
 
-            readIfNext(Token.AS);
+            readIfThis(Token.AS);
 
             if (tokenType == Token.X_NAME) {
                 checkIsSimpleName();
@@ -579,7 +577,7 @@ class Parser extends BaseParser {
                 break;
             }
 
-            if (readIfNext(Token.COMMA)) {
+            if (readIfThis(Token.COMMA)) {
                 continue;
             }
 
@@ -641,7 +639,7 @@ class Parser extends BaseParser {
         while (true) {
             readTableReference(select);
 
-            if (readIfNext(Token.COMMA)) {
+            if (readIfThis(Token.COMMA)) {
                 continue;
             }
 
@@ -713,7 +711,7 @@ class Parser extends BaseParser {
                     continue;
                 case Token.LEFT :
                     read();
-                    readIfNext(Token.OUTER);
+                    readIfThis(Token.OUTER);
                     readThis(Token.JOIN);
 
                     outer = true;
@@ -721,7 +719,7 @@ class Parser extends BaseParser {
 
                 case Token.RIGHT :
                     read();
-                    readIfNext(Token.OUTER);
+                    readIfThis(Token.OUTER);
                     readThis(Token.JOIN);
 
                     outer = true;
@@ -729,7 +727,7 @@ class Parser extends BaseParser {
 
                 case Token.FULL :
                     read();
-                    readIfNext(Token.OUTER);
+                    readIfThis(Token.OUTER);
                     readThis(Token.JOIN);
 
                     outer = true;
@@ -1198,7 +1196,7 @@ class Parser extends BaseParser {
 
         if (tokenType == Token.LEFT || tokenType == Token.RIGHT) {}
         else {
-            readIfNext(Token.OUTER);
+            readIfThis(Token.OUTER);
 
             if (isSimpleName()) {
                 alias = tokenString;
@@ -2517,14 +2515,14 @@ class Parser extends BaseParser {
             elseExpr = readOr();
 
             readThis(Token.END);
-            readIfNext(Token.CASE);
+            readIfThis(Token.CASE);
         } else {
             elseExpr = l == null
                        ? new Expression((Object) null, Type.SQL_ALL_TYPES)
                        : new Expression((Object) "", Type.SQL_CHAR);
 
             readThis(Token.END);
-            readIfNext(Token.CASE);
+            readIfThis(Token.CASE);
         }
 
         Expression alternatives = new Expression(Expression.ALTERNATIVE,
@@ -2983,11 +2981,9 @@ class Parser extends BaseParser {
 
         switch (tokenType) {
 
-            case Token.OPENBRACKET : {
-                brackets = readOpenBrackets();
-
-                readThis(Token.SELECT);
-            }
+            case Token.OPENBRACKET :
+            case Token.VALUES :
+            case Token.TABLE :
             case Token.SELECT : {
                 cs = compileSelectStatement(brackets);
 
@@ -3555,11 +3551,11 @@ class Parser extends BaseParser {
         return cs;
     }
 
-    private void resolveUpdateExpressions(Table targetTable,
-                                          RangeVariable[] rangeVariables,
-                                          int[] updateColumnMap,
-                                          Expression[] colExpressions)
-                                          throws HsqlException {
+    void resolveUpdateExpressions(Table targetTable,
+                                  RangeVariable[] rangeVariables,
+                                  int[] updateColumnMap,
+                                  Expression[] colExpressions)
+                                  throws HsqlException {
 
         OrderedHashSet set                  = null;
         int            enforcedDefaultIndex = -1;
@@ -3642,10 +3638,8 @@ class Parser extends BaseParser {
         Select.checkColumnsResolved(set);
     }
 
-    private void readSetClauseList(RangeVariable rangeVar,
-                                   OrderedHashSet colNames,
-                                   HsqlArrayList expressions)
-                                   throws HsqlException {
+    void readSetClauseList(RangeVariable rangeVar, OrderedHashSet colNames,
+                           HsqlArrayList expressions) throws HsqlException {
 
         while (true) {
             int degree;
