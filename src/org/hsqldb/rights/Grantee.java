@@ -247,8 +247,7 @@ public class Grantee {
                         map);
                 } catch (HsqlException he) {
                     throw Trace.runtimeError(
-                        Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                        he.getMessage());
+                        Trace.UNSUPPORTED_INTERNAL_OPERATION, he.getMessage());
                 }
             }
         }
@@ -312,7 +311,7 @@ public class Grantee {
      * database object, then the key/value pair for that object is removed
      * from the rights map
      */
-    void revoke(SchemaObject object, Right rights) {
+    void revoke(SchemaObject object, Right right) {
 
         HsqlName name     = object.getName();
         Right    existing = (Right) directRightsMap.get(name);
@@ -321,13 +320,19 @@ public class Grantee {
             return;
         }
 
-        if (rights.isFull) {
+        if (right.isFull) {
             directRightsMap.remove(name);
 
             return;
         }
 
-        existing.remove(rights);
+        if (existing.isFull) {
+            existing = new Right((Table) object);
+
+            directRightsMap.put(name, existing);
+        }
+
+        existing.remove(right);
 
         if (existing.isEmpty()) {
             directRightsMap.remove(name);
@@ -547,8 +552,7 @@ public class Grantee {
             return;
         }
 
-        throw Trace.error(Trace.NOT_AUTHORIZED,
-                          "Update schema " + schemaName);
+        throw Trace.error(Trace.NOT_AUTHORIZED, "Update schema " + schemaName);
     }
 
     public boolean isFullyAccessibleByRole(SchemaObject object) {
@@ -676,7 +680,7 @@ public class Grantee {
 
         OrderedHashSet out = getGrantedClassNamesDirect();
 
-        if (andToPublic &&!isPublic) {
+        if (andToPublic && !isPublic) {
             rights = granteeManager.publicRole.directRightsMap;
             i      = rights.keySet().iterator();
 
@@ -865,8 +869,8 @@ public class Grantee {
         } else {
             grantees.add(this);
 
-            for (Iterator it = getAllRoles().keySet().iterator();
-                    it.hasNext(); ) {
+            for (Iterator it =
+                    getAllRoles().keySet().iterator(); it.hasNext(); ) {
                 grantees.add(gm.getRole((String) it.next()));
             }
         }
@@ -908,6 +912,10 @@ public class Grantee {
 
     public String[] getRightsArray(Table table) {
 
+        if (isAdmin()) {
+            return getFullTableRightsArray();
+        }
+
         Right right = (Right) fullRightsMap.get(table.getName());
 
         if (right == null) {
@@ -917,9 +925,33 @@ public class Grantee {
         return right.getTableRightsArray();
     }
 
-    public boolean isAccessible(SchemaObject object, int i) {
+    public boolean isAccessible(SchemaObject object, int privilegeType) {
 
         if (isFullyAccessibleByRole(object)) {
+            return true;
+        }
+
+        Right right = (Right) fullRightsMap.get(object.getName());
+
+        if (right == null) {
+            return false;
+        }
+
+        return right.canAccess(object, privilegeType);
+    }
+
+    /**
+     * returns true if grantee has any privilege (to any column) of the object
+     */
+    public boolean isAccessible(SchemaObject object) {
+
+        if (isFullyAccessibleByRole(object)) {
+            return true;
+        }
+
+        Right right = (Right) fullRightsMap.get(object.getName());
+
+        if (right != null && !right.isEmpty()) {
             return true;
         }
 

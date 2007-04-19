@@ -232,10 +232,8 @@ final class DINameSpace {
      * @return the fully qualified name of the specified Method object.
      */
     static String getMethodFQN(Method m) {
-
         return m == null ? null
-                         : m.getDeclaringClass().getName() + '.'
-                           + m.getName();
+                         : m.getDeclaringClass().getName() + '.' + m.getName();
     }
 
     /**
@@ -450,12 +448,10 @@ final class DINameSpace {
     throws HsqlException {
 
         Table           table;
-        Class           clazz;
         HashSet         classSet;
         TriggerDef      triggerDef;
         HsqlArrayList[] triggerLists;
         HsqlArrayList   triggerList;
-        HsqlArrayList   tableList;
         int             listSize;
 
         classSet = new HashSet();
@@ -467,14 +463,7 @@ final class DINameSpace {
             Iterator tables = database.schemaManager.tablesIterator(schema);
 
             while (tables.hasNext()) {
-                table = (Table) tables.next();
-
-                if (!grantee.isAccessible(table,
-                                          GrantConstants.INSERT
-                                          | GrantConstants.UPDATE)) {
-                    continue;
-                }
-
+                table        = (Table) tables.next();
                 triggerLists = table.getTriggers();
 
                 if (triggerLists == null) {
@@ -494,9 +483,8 @@ final class DINameSpace {
                         triggerDef = (TriggerDef) triggerList.get(k);
 
                         if (!triggerDef.isValid()
-                                ||!grantee.isAccessible(
-                                    table,
-                                    TriggerDef.indexToRight(k))) {
+                                || !grantee.isAccessible(
+                                    table, triggerDef.getPrivilegeType())) {
                             continue;
                         }
 

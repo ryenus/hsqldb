@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2006, The HSQL Development Group
+/* Copyright (c) 2001-2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,9 @@
 package org.hsqldb.jdbc;
 
 //#ifdef JDBC4
-import  java.sql.NClob;
-//#endif JDBC4
+import java.sql.NClob;
 
+//#endif JDBC4
 
 /**
  * The mapping in the Java<sup><font size=-2>TM</font></sup> programming language
@@ -87,6 +87,7 @@ import  java.sql.NClob;
  * @see jdbcClob
  */
 public class jdbcNClob extends jdbcClob implements NClob {
+
     public jdbcNClob(String data) throws java.sql.SQLException {
         super(data);
     }

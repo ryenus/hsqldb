@@ -502,8 +502,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         for (int i = 0; i < sysTableHsqlNames.length; i++) {
             if (sysTables[i] != null) {
-                gm.grant(GranteeManager.PUBLIC_ROLE_NAME, sysTables[i],
-                         right, null, false);
+                gm.grant(GranteeManager.PUBLIC_ROLE_NAME, sysTables[i], right,
+                         null, false);
             }
         }
 /*
@@ -522,11 +522,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      */
     protected final boolean isAccessibleTable(Table table)
     throws HsqlException {
-
-        return session.getUser().isAccessible(table,
-                                              GrantConstants.SELECT
-                                              | GrantConstants.INSERT
-                                              | GrantConstants.UPDATE);
+        return session.getUser().isAccessible(table);
     }
 
     /**
@@ -833,7 +829,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() ||!isAccessibleTable(table)) {
+            if (table.isView() || !isAccessibleTable(table)) {
                 continue;
             }
 
@@ -1515,7 +1511,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() ||!isAccessibleTable(table)) {
+            if (table.isView() || !isAccessibleTable(table)) {
                 continue;
             }
 
@@ -1657,8 +1653,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() ||!isAccessibleTable(table)
-                    ||!table.hasPrimaryKey()) {
+            if (table.isView() || !isAccessibleTable(table)
+                    || !table.hasPrimaryKey()) {
                 continue;
             }
 
@@ -2060,19 +2056,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             tableSchema  = table.getSchemaName().name;
 
             for (int i = 0; i < users.size(); i++) {
-                user        = (User) users.get(i);
-                granteeName = user.getName();
-
-                if (user.isAdmin()) {
-                    tablePrivileges = user.getFullTableRightsArray();
-                    tablePrivileges = new String[0];
-                } else {
-                    tablePrivileges = user.getRightsArray(table);
-                    tablePrivileges = new String[0];
-                }
-
-                isGrantable = (user.isAdmin()) ? "YES"
-                                               : "NO";
+                user            = (User) users.get(i);
+                granteeName     = user.getName();
+                tablePrivileges = user.getRightsArray(table);
+                isGrantable     = (user.isAdmin()) ? "YES"
+                                                   : "NO";
 
                 for (int j = 0; j < tablePrivileges.length; j++) {
                     privilege          = (String) tablePrivileges[j];

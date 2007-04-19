@@ -190,7 +190,7 @@ public class Session implements SessionInterface {
         isAutoCommit              = autocommit;
         isReadOnly                = readonly;
         compiledStatementExecutor = new CompiledStatementExecutor(this);
-        parser = new CommandParser(this, database, new Tokenizer());
+        parser = new CommandParser(this, new Tokenizer());
         resultMaxMemoryRows       = database.getResultMaxMemoryRows();
 
         resetSchema();

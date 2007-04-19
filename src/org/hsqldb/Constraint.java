@@ -545,7 +545,7 @@ public class Constraint implements SchemaObject {
 
         String     ddl       = check.getDDL();
         Tokenizer  tokenizer = new Tokenizer(ddl);
-        Parser     parser = new Parser(session, session.database, tokenizer);
+        Parser     parser = new Parser(session, tokenizer);
         Expression condition = parser.parseExpression();
 
         check = condition;

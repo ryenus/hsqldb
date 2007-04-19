@@ -504,8 +504,7 @@ public class Table extends BaseTable implements SchemaObject {
                 int[] newRefTableCols = new int[mainTableCols.length];
 
                 for (int j = 0; j < mainTableCols.length; j++) {
-                    int pos = ArrayUtil.find(constraintCols,
-                                             mainTableCols[j]);
+                    int pos = ArrayUtil.find(constraintCols, mainTableCols[j]);
 
                     newRefTableCols[pos] = refTableCols[j];
                 }
@@ -792,11 +791,10 @@ public class Table extends BaseTable implements SchemaObject {
         int[] pkCols = null;
 
         if (hasPrimaryKey()
-                &&!dropConstraints.contains(
+                && !dropConstraints.contains(
                     getPrimaryConstraint().getName())) {
             pkCols = primaryKeyCols;
-            pkCols = ArrayUtil.toAdjustedColumnArray(pkCols, colIndex,
-                    adjust);
+            pkCols = ArrayUtil.toAdjustedColumnArray(pkCols, colIndex, adjust);
         } else if (newPK) {
             pkCols = constraint.getMainColumns();
         }
@@ -910,7 +908,7 @@ public class Table extends BaseTable implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.constType == Constraint.CHECK &&!c.isNotNull
+            if (c.constType == Constraint.CHECK && !c.isNotNull
                     && c.hasColumn(colIndex)) {
                 throw Trace.error(Trace.COLUMN_IS_REFERENCED,
                                   c.getName().name);
@@ -940,8 +938,7 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      * Returns list of constraints dependent only on one column
      */
-    OrderedHashSet getDependentConstraints(int colIndex)
-    throws HsqlException {
+    OrderedHashSet getDependentConstraints(int colIndex) throws HsqlException {
 
         OrderedHashSet set = new OrderedHashSet();
 
@@ -975,8 +972,7 @@ public class Table extends BaseTable implements SchemaObject {
         return set;
     }
 
-    OrderedHashSet getContainingIndexNames(int colIndex)
-    throws HsqlException {
+    OrderedHashSet getContainingIndexNames(int colIndex) throws HsqlException {
 
         OrderedHashSet set = new OrderedHashSet();
 
@@ -1041,8 +1037,7 @@ public class Table extends BaseTable implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.getType() == Constraint.FOREIGN_KEY
-                    && c.hasColumn(colIndex)
+            if (c.getType() == Constraint.FOREIGN_KEY && c.hasColumn(colIndex)
                     && (actionType == c.getUpdateAction()
                         || actionType == c.getDeleteAction())) {
                 throw Trace.error(Trace.COLUMN_IS_REFERENCED,
@@ -1412,8 +1407,8 @@ public class Table extends BaseTable implements SchemaObject {
      */
     String getIndexRoots() {
 
-        String roots   = StringUtil.getList(getIndexRootsArray(), " ", "");
-        StringBuffer s = new StringBuffer(roots);
+        String       roots = StringUtil.getList(getIndexRootsArray(), " ", "");
+        StringBuffer s     = new StringBuffer(roots);
 
 /*
         s.append(' ');
@@ -1489,8 +1484,7 @@ public class Table extends BaseTable implements SchemaObject {
      *  colTypes array. Finalises the creation of the table. (fredt@users)
      */
     public void createPrimaryKey(HsqlName indexName, int[] columns,
-                                 boolean columnsNotNull)
-                                 throws HsqlException {
+                                 boolean columnsNotNull) throws HsqlException {
 
         if (primaryKeyCols != null) {
             Trace.doAssert(false, "Table.createPrimaryKey(column)");
@@ -1548,7 +1542,7 @@ public class Table extends BaseTable implements SchemaObject {
         Column column = getColumn(i);
 
         colTypes[i]         = column.getType();
-        colNotNull[i]       = column.isPrimaryKey() ||!column.isNullable();
+        colNotNull[i]       = column.isPrimaryKey() || !column.isNullable();
         defaultColumnMap[i] = i;
 
         if (column.isIdentity()) {
@@ -1561,8 +1555,7 @@ public class Table extends BaseTable implements SchemaObject {
         colDefaults[i] = column.getDefaultExpression();
     }
 
-    void createPrimaryIndex(int[] pkcols,
-                            HsqlName name) throws HsqlException {
+    void createPrimaryIndex(int[] pkcols, HsqlName name) throws HsqlException {
 
         Index newindex = new Index(database, name, this, pkcols, null,
                                    primaryKeyTypes, true, true, false);
@@ -1846,6 +1839,17 @@ public class Table extends BaseTable implements SchemaObject {
         return set;
     }
 
+    public OrderedHashSet getColumnSet() {
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        for (int i = 0; i < columnCount; i++) {
+            set.add(columnList.get(i));
+        }
+
+        return set;
+    }
+
     public OrderedHashSet getUniqueColumnNameSet() throws HsqlException {
 
         OrderedHashSet set = new OrderedHashSet();
@@ -2044,8 +2048,7 @@ public class Table extends BaseTable implements SchemaObject {
      *
      * Not used for INSERT INTO .... SELECT ... FROM queries
      */
-    void insertIntoTable(Session session,
-                         Result result) throws HsqlException {
+    void insertIntoTable(Session session, Result result) throws HsqlException {
 
         insertResult(session, result);
 
@@ -2113,8 +2116,7 @@ public class Table extends BaseTable implements SchemaObject {
         indexRow(session, newrow);
 
         if (log && isLogged) {
-            database.logger.writeInsertStatement(session, this,
-                                                 row.getData());
+            database.logger.writeInsertStatement(session, this, row.getData());
         }
     }
 
@@ -2148,8 +2150,7 @@ public class Table extends BaseTable implements SchemaObject {
         while (nav.hasNext()) {
             Object[] data = (Object[]) nav.getNext();
             Object[] newData =
-                (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
-                    columnCount);
+                (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
             insertData(session, newData);
 
@@ -2225,8 +2226,7 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      * Checks a row against NOT NULL constraints on columns.
      */
-    protected void enforceNullConstraints(Object[] data)
-    throws HsqlException {
+    protected void enforceNullConstraints(Object[] data) throws HsqlException {
 
         for (int i = 0; i < columnCount; i++) {
             if (data[i] == null && colNotNull[i]) {
@@ -2525,8 +2525,7 @@ public class Table extends BaseTable implements SchemaObject {
 
                 // reached end of range
                 if (bestIndex.compareRowNonUnique(
-                        session, data, bestIndex.getColumns(),
-                        rowdata) != 0) {
+                        session, data, bestIndex.getColumns(), rowdata) != 0) {
                     row = null;
 
                     break;
@@ -2579,8 +2578,7 @@ public class Table extends BaseTable implements SchemaObject {
         removeRowFromStore(row);
 
         if (log && isLogged) {
-            database.logger.writeDeleteStatement(session, this,
-                                                 row.getData());
+            database.logger.writeDeleteStatement(session, this, row.getData());
         }
     }
 
@@ -2604,7 +2602,7 @@ public class Table extends BaseTable implements SchemaObject {
             for (int j = 0; j < constraintList.length; j++) {
                 Constraint c = constraintList[j];
 
-                if (c.getType() == Constraint.CHECK &&!c.isNotNull) {
+                if (c.getType() == Constraint.CHECK && !c.isNotNull) {
                     c.checkCheckConstraint(session, this, data);
 
                     continue;
@@ -2921,8 +2919,8 @@ public class Table extends BaseTable implements SchemaObject {
     void drop() throws HsqlException {}
 
     public boolean isWritable() {
-        return !isReadOnly &&!database.databaseReadOnly
-               &&!(database.isFilesReadOnly() && (isCached || isText));
+        return !isReadOnly && !database.databaseReadOnly
+               && !(database.isFilesReadOnly() && (isCached || isText));
     }
 
     public int getRowCount(Session session) throws HsqlException {

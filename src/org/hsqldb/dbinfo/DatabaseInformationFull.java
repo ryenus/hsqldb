@@ -2982,11 +2982,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             while (iterator.hasNext()) {
                 expression = (Expression) iterator.next();
 
-                if (!session.getUser().isAccessible(expression.getTable(),
-                                                    GrantConstants.SELECT)) {
-                    continue;
-                }
-
                 row           = t.getEmptyRowData();
                 row[iv_cat]   = viewCatalog;
                 row[iv_schem] = viewSchema;

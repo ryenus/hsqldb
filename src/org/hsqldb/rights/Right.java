@@ -38,7 +38,11 @@ import org.hsqldb.Trace;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.SchemaObject;
 
+/**
+ * Represents the set of rights
+ */
 public class Right {
 
     final boolean  isFull;
@@ -62,6 +66,16 @@ public class Right {
 
     public Right() {
         this.isFull = false;
+    }
+
+    Right(Table table) {
+
+        isFull              = false;
+        isFullDelete        = true;
+        selectColumnSet     = table.getColumnSet();
+        insertColumnSet     = table.getColumnSet();
+        updateColumnSet     = table.getColumnSet();
+        referencesColumnSet = table.getColumnSet();
     }
 
     public Right duplicate() {
@@ -134,33 +148,61 @@ public class Right {
     }
 
     /**
-     * Not yet supporting column level REVOKE
+     * supports column level REVOKE
      */
-    public void remove(Right rights) {
+    public void remove(Right right) {
 
-        if (rights.isFullSelect) {
-            isFullSelect = false;
+        if (right.isFullSelect) {
+            isFullSelect    = false;
+            selectColumnSet = null;
+        } else if (right.selectColumnSet != null) {
+            selectColumnSet.removeAll(right.selectColumnSet);
+
+            if (selectColumnSet.isEmpty()) {
+                selectColumnSet = null;
+            }
         }
 
-        if (rights.isFullInsert) {
-            isFullInsert = false;
+        if (right.isFullInsert) {
+            isFullInsert    = false;
+            insertColumnSet = null;
+        } else if (right.insertColumnSet != null) {
+            insertColumnSet.removeAll(right.insertColumnSet);
+
+            if (insertColumnSet.isEmpty()) {
+                insertColumnSet = null;
+            }
         }
 
-        if (rights.isFullUpdate) {
-            isFullUpdate = false;
+        if (right.isFullUpdate) {
+            isFullUpdate    = false;
+            updateColumnSet = null;
+        } else if (right.updateColumnSet != null) {
+            updateColumnSet.removeAll(right.updateColumnSet);
+
+            if (updateColumnSet.isEmpty()) {
+                updateColumnSet = null;
+            }
         }
 
-        if (rights.isFullDelete) {
+        if (right.isFullDelete) {
             isFullDelete = false;
         }
 
-        if (rights.isFullReferences) {
-            isFullReferences = false;
+        if (right.isFullReferences) {
+            isFullReferences    = false;
+            referencesColumnSet = null;
+        } else if (right.referencesColumnSet != null) {
+            referencesColumnSet.removeAll(right.referencesColumnSet);
+
+            if (referencesColumnSet.isEmpty()) {
+                referencesColumnSet = null;
+            }
         }
     }
 
     /**
-     * Not yet supporting column level GRANT / REVOKE
+     * supports column level GRANT / REVOKE
      */
     public boolean isEmpty() {
 
@@ -169,14 +211,42 @@ public class Right {
             return false;
         }
 
-        // check the sets
+        if (selectColumnSet != null && !selectColumnSet.isEmpty()) {
+            return false;
+        }
+
+        if (insertColumnSet != null && !insertColumnSet.isEmpty()) {
+            return false;
+        }
+
+        if (updateColumnSet != null && !updateColumnSet.isEmpty()) {
+            return false;
+        }
+
+        if (referencesColumnSet != null && !referencesColumnSet.isEmpty()) {
+            return false;
+        }
+
         return true;
+    }
+
+    void removeDroppedColumns(OrderedHashSet columnSet, Table table) {
+
+        for (int i = 0; i < columnSet.size(); i++) {
+            Column column = (Column) columnSet.get(i);
+
+            if (table.findColumn(column.getName().name) >= 0) {
+                columnSet.remove(i);
+
+                i--;
+            }
+        }
     }
 
     /**
      * Supports column level checks
      */
-    boolean containsAllColumns(HashSet columnSet, Table table,
+    boolean containsAllColumns(OrderedHashSet columnSet, Table table,
                                boolean[] columnCheckList) {
 
         for (int i = 0; i < columnCheckList.length; i++) {
@@ -201,7 +271,7 @@ public class Right {
             return true;
         }
 
-        HashSet columnSet = selectColumnSet;
+        OrderedHashSet columnSet = selectColumnSet;
 
         if (columnSet == null) {
             return false;
@@ -219,7 +289,7 @@ public class Right {
             return true;
         }
 
-        HashSet columnSet = insertColumnSet;
+        OrderedHashSet columnSet = insertColumnSet;
 
         if (columnSet == null) {
             return false;
@@ -237,7 +307,7 @@ public class Right {
             return true;
         }
 
-        HashSet columnSet = updateColumnSet;
+        OrderedHashSet columnSet = updateColumnSet;
 
         if (columnSet == null) {
             return false;
@@ -255,7 +325,7 @@ public class Right {
             return true;
         }
 
-        HashSet columnSet = referencesColumnSet;
+        OrderedHashSet columnSet = referencesColumnSet;
 
         if (columnSet == null) {
             return false;
@@ -266,6 +336,44 @@ public class Right {
 
     boolean canDelete() {
         return isFull || isFullDelete;
+    }
+
+    /**
+     * Supports column level checks
+     */
+    boolean canAccess(SchemaObject object, int privilegeType) {
+
+        if (isFull) {
+            return true;
+        }
+
+        switch (privilegeType) {
+
+            case GrantConstants.SELECT :
+                if (isFullSelect) {
+                    return true;
+                }
+            case GrantConstants.INSERT :
+                if (isFullInsert) {
+                    return true;
+                }
+
+                return insertColumnSet != null && !insertColumnSet.isEmpty();
+
+            case GrantConstants.UPDATE :
+                if (isFullUpdate) {
+                    return true;
+                }
+
+                return updateColumnSet != null && !updateColumnSet.isEmpty();
+
+            case GrantConstants.DELETE :
+                return isFullDelete;
+
+            default :
+                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                                         "Right");
+        }
     }
 
     String getMethodRightsDDL() {
@@ -497,8 +605,8 @@ public class Right {
 
         if (isFull) {
             return new String[] {
-                Token.T_SELECT, Token.T_INSERT, Token.T_UPDATE,
-                Token.T_DELETE, Token.T_REFERENCES
+                Token.T_SELECT, Token.T_INSERT, Token.T_UPDATE, Token.T_DELETE,
+                Token.T_REFERENCES
             };
         }
 

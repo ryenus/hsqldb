@@ -103,8 +103,7 @@ public class View extends Table {
     void compile(Session session) throws HsqlException {
 
         // create the working table
-        Parser p = new Parser(session, this.database,
-                              new Tokenizer(statement));
+        Parser p = new Parser(session, new Tokenizer(statement));
 
         viewSubQuery   = p.parseViewSubquery(this);
         viewSubqueries = p.compileContext.getSortedSubqueries(session);
@@ -113,7 +112,10 @@ public class View extends Table {
         if (super.columnCount == 0) {
 
             // do not add columns at recompile time
-            TableUtil.addColumns(this, viewSelect);
+            columnList =  viewSubQuery.table.columnList;
+            columnCount = viewSubQuery.table.columnCount;
+        } else {
+            viewSubQuery.table.columnList = columnList;
         }
     }
 

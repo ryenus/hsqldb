@@ -45,8 +45,8 @@ import org.hsqldb.types.Type;
 //4-8-2005 MarcH and HuugO ALTER TABLE <tablename> ALTER COLUMN <column name> SET [NOT] NULL support added
 public class DDLParser extends Parser {
 
-    DDLParser(Session session, Database db, Tokenizer t) {
-        super(session, db, t);
+    DDLParser(Session session, Tokenizer t) {
+        super(session, t);
     }
 
     void processCreate() throws HsqlException {
@@ -754,8 +754,7 @@ public class DDLParser extends Parser {
         readThis(Token.AS);
 
         int    logPosition = getPosition();
-        int    brackets    = readOpenBrackets();
-        Select select = readQueryExpression(brackets, true, false, true, true);
+        Select select = readQueryExpression(0, true, false, true, true);
 
         if (select.intoTableName != null) {
             throw (Trace.error(Trace.INVALID_IDENTIFIER, Token.INTO));
@@ -845,14 +844,17 @@ public class DDLParser extends Parser {
         boolean        isNowait     = false;
         int            queueSize;
         String         beforeOrAfter;
+        int            beforeOrAfterType;
         String         operation;
+        int            operationType;
         String         className;
         TriggerDef     td;
         HsqlName       name    = readNewDependentSchemaObjectName();
         OrderedHashSet columns = null;
 
-        queueSize     = TriggerDef.getDefaultQueueSize();
-        beforeOrAfter = tokenString;
+        queueSize         = TriggerDef.getDefaultQueueSize();
+        beforeOrAfter     = tokenString;
+        beforeOrAfterType = tokenType;
 
         switch (tokenType) {
 
@@ -865,7 +867,8 @@ public class DDLParser extends Parser {
                 throw unexpectedToken();
         }
 
-        operation = tokenString;
+        operation     = tokenString;
+        operationType = tokenType;
 
         switch (tokenType) {
 
@@ -909,14 +912,13 @@ public class DDLParser extends Parser {
             table.getColumnCheckList(cols);
         }
 
-        Expression      condition       = null;
-        String          oldTableName    = null;
-        String          newTableName    = null;
-        String          oldRowName      = null;
-        String          newRowName      = null;
-        RangeVariable[] rangeVars       = new RangeVariable[4];
-        HsqlArrayList   sqlStatements   = new HsqlArrayList();
-        HsqlArrayList   sqlReplacements = new HsqlArrayList();
+        Expression      condition          = null;
+        String          oldTableName       = null;
+        String          newTableName       = null;
+        String          oldRowName         = null;
+        String          newRowName         = null;
+        RangeVariable[] rangeVars          = new RangeVariable[4];
+        HsqlArrayList   compiledStatements = new HsqlArrayList();
 
         if (tokenType == Token.REFERENCING) {
             read();
@@ -927,7 +929,7 @@ public class DDLParser extends Parser {
 
             while (true) {
                 if (tokenType == Token.OLD) {
-                    if (operation.equals(Token.T_INSERT)) {
+                    if (operationType == Token.INSERT) {
                         throw unexpectedToken();
                     }
 
@@ -935,12 +937,12 @@ public class DDLParser extends Parser {
 
                     if (tokenType == Token.TABLE) {
                         if (oldTableName != null
-                                || operation.equals(Token.BEFORE)) {
+                                || beforeOrAfterType == Token.BEFORE) {
                             throw unexpectedToken();
                         }
 
                         read();
-                        readIfNext(Token.AS);
+                        readIfThis(Token.AS);
                         checkIsSimpleName();
 
                         oldTableName = tokenString;
@@ -962,7 +964,7 @@ public class DDLParser extends Parser {
                         }
 
                         read();
-                        readIfNext(Token.AS);
+                        readIfThis(Token.AS);
                         checkIsSimpleName();
 
                         oldRowName = tokenString;
@@ -979,12 +981,12 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        rangeVars[TriggerDef.OLD_ROWS] = range;
+                        rangeVars[TriggerDef.OLD_ROW] = range;
                     } else {
                         throw unexpectedToken();
                     }
                 } else if (tokenType == Token.NEW) {
-                    if (operation.equals(Token.T_DELETE)) {
+                    if (operationType == Token.DELETE) {
                         throw unexpectedToken();
                     }
 
@@ -992,12 +994,12 @@ public class DDLParser extends Parser {
 
                     if (tokenType == Token.TABLE) {
                         if (newTableName != null
-                                || operation.equals(Token.BEFORE)) {
+                                || beforeOrAfterType == Token.BEFORE) {
                             throw unexpectedToken();
                         }
 
                         read();
-                        readIfNext(Token.AS);
+                        readIfThis(Token.AS);
                         checkIsSimpleName();
 
                         newTableName = tokenString;
@@ -1019,7 +1021,7 @@ public class DDLParser extends Parser {
                         }
 
                         read();
-                        readIfNext(Token.AS);
+                        readIfThis(Token.AS);
                         checkIsSimpleName();
 
                         newRowName   = tokenString;
@@ -1035,7 +1037,7 @@ public class DDLParser extends Parser {
                         RangeVariable range = new RangeVariable(table, n,
                             null, compileContext);
 
-                        rangeVars[TriggerDef.NEW_ROWS] = range;
+                        rangeVars[TriggerDef.NEW_ROW] = range;
                     } else {
                         throw unexpectedToken();
                     }
@@ -1131,35 +1133,127 @@ public class DDLParser extends Parser {
             return;
         }
 
-        CompiledStatement cs = null;
+        boolean isBlock = false;
 
-        switch (tokenType) {
+        if (readIfThis(Token.BEGIN)) {
+            readThis(Token.ATOMIC);
 
-            case Token.INSERT :
-                cs = compileInsertStatement();
-                break;
-
-            case Token.UPDATE :
-                cs = compileUpdateStatement();
-                break;
-
-            case Token.MERGE :
-                cs = compileMergeStatement();
-                break;
-
-            case Token.SET :
-                break;
-
-            default :
-                throw unexpectedToken();
+            isBlock = true;
         }
 
-        td = new TriggerDef(name, beforeOrAfter, operation, isForEachRow,
-                            table, condition);
+        while (true) {
+            CompiledStatement cs = null;
+
+            switch (tokenType) {
+
+                case Token.INSERT :
+                    if (beforeOrAfterType == Token.BEFORE) {
+                        throw unexpectedToken();
+                    }
+
+                    cs = compileInsertStatement();
+
+                    compiledStatements.add(cs);
+
+                    if (isBlock) {
+                        readThis(Token.SEMICOLON);
+                    }
+                    break;
+
+                case Token.UPDATE :
+                    if (beforeOrAfterType == Token.BEFORE) {
+                        throw unexpectedToken();
+                    }
+
+                    cs = compileUpdateStatement();
+
+                    compiledStatements.add(cs);
+
+                    if (isBlock) {
+                        readThis(Token.SEMICOLON);
+                    }
+                    break;
+
+                case Token.MERGE :
+                    if (beforeOrAfterType == Token.BEFORE) {
+                        throw unexpectedToken();
+                    }
+
+                    cs = compileMergeStatement();
+
+                    compiledStatements.add(cs);
+
+                    if (isBlock) {
+                        readThis(Token.SEMICOLON);
+                    }
+                    break;
+
+                case Token.SET :
+                    if (beforeOrAfterType != Token.BEFORE) {
+                        throw unexpectedToken();
+                    }
+
+                    cs = compileSetStatement(table, rangeVars);
+
+                    compiledStatements.add(cs);
+
+                    if (isBlock) {
+                        readThis(Token.SEMICOLON);
+                    }
+                    break;
+
+                case Token.END :
+                    break;
+
+                default :
+                    throw unexpectedToken();
+            }
+
+            if (!isBlock || tokenType == Token.END) {
+                break;
+            }
+        }
+
+        if (isBlock) {
+            readThis(Token.END);
+        }
+
+        td = new TriggerDefSQL(name, beforeOrAfter, operation, isForEachRow,
+                            table, condition, compiledStatements);
+
 
         table.addTrigger(td);
         database.schemaManager.addTrigger(td, table.getName());
         session.setScripting(true);
+    }
+
+    /**
+     * Retrieves an UPDATE-type CompiledStatement from this parse context.
+     */
+    CompiledStatement compileSetStatement(Table table,
+                                          RangeVariable[] rangeVars)
+                                          throws HsqlException {
+
+        read();
+
+        Expression[]   updateExpressions;
+        int[]          columnMap;
+        OrderedHashSet colNames = new OrderedHashSet();
+        HsqlArrayList  exprList = new HsqlArrayList();
+
+        readSetClauseList(rangeVars[TriggerDef.NEW_ROW], colNames, exprList);
+
+        columnMap         = table.getColumnIndexes(colNames);
+        updateExpressions = new Expression[exprList.size()];
+
+        exprList.toArray(updateExpressions);
+        resolveUpdateExpressions(table, rangeVars, columnMap,
+                                 updateExpressions);
+
+        CompiledStatement cs = new CompiledStatement(session, rangeVars,
+            columnMap, updateExpressions, compileContext);
+
+        return cs;
     }
 
     /**
@@ -3056,7 +3150,7 @@ public class DDLParser extends Parser {
                 throw unexpectedToken();
             }
 
-            readIfNext(Token.TABLE);
+            readIfThis(Token.TABLE);
 
             Table  t      = readTableName();
             String schema = t.getSchemaName().name;
