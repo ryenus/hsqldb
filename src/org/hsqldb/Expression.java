@@ -606,12 +606,12 @@ public class Expression {
 
     boolean isConstantCondition() {
         return dataType.type == Types.SQL_BOOLEAN && exprType == VALUE
-               &&!isParam;
+               && !isParam;
     }
 
-    private void setAggregateSpec() {
+    void setAggregateSpec() {
 
-        if (isAggregate(exprType)) {
+        if (isSelfAggregate()) {
             aggregateSpec = AGGREGATE_SELF;
         } else {
             aggregateSpec = AGGREGATE_NONE;
@@ -717,8 +717,7 @@ public class Expression {
                     }
 
                     buf.append(
-                        table.getColumn(
-                            columnIndex).columnName.statementName);
+                        table.getColumn(columnIndex).columnName.statementName);
                 } else {
                     buf.append(getAlias());
                 }
@@ -761,7 +760,9 @@ public class Expression {
                 return buf.toString();
 
             case ORDER_BY :
-                buf.append(left);
+                if (left == null) {
+                    buf.append(left);
+                } else if (columnAlias != null) {}
 
                 if (isDescending) {
                     buf.append(' ').append(Token.T_DESC);
@@ -1322,7 +1323,7 @@ public class Expression {
         }
 
         /** @todo fredt - equals() method for subSelect needed */
-        if (exprType != other.exprType ||!equals(dataType, other.dataType)) {
+        if (exprType != other.exprType || !equals(dataType, other.dataType)) {
             return false;
         }
 
@@ -1570,9 +1571,9 @@ public class Expression {
         return aggregateSpec != AGGREGATE_NONE;
     }
 
-    static boolean isAggregate(int type) {
+    boolean isSelfAggregate() {
 
-        switch (type) {
+        switch (exprType) {
 
             case COUNT :
             case MAX :
@@ -1702,30 +1703,6 @@ public class Expression {
         return rangeVariable;
     }
 
-    void replaceColumnReferenceInOrderBy(Expression[] columns, int length) {
-
-        Expression e = eArg;
-
-        for (int i = 0; i < length; i++) {
-            if (eArg.equals(columns[i])) {
-                eArg                  = columns[i];
-                queryTableColumnIndex = i;
-
-                return;
-            }
-
-            if (e.columnName != null
-                    && e.columnName.equals(columns[i].columnName)
-                    && (e.tableName == null || e.tableName.equals(
-                        columns[i].tableName)) && (e.schema == null
-                                                   || e.schema.equals(
-                                                       columns[i].schema))) {
-                queryTableColumnIndex = i;
-                eArg                  = columns[i];
-            }
-        }
-    }
-
     /**
      * return the expression for an aliase used in an ORDER BY clause
      */
@@ -1734,10 +1711,18 @@ public class Expression {
 
         if (eArg != null) {
             eArg = eArg.replaceAliasInOrderBy(columns, length, this);
+
+            if (eArg.isAggregate()) {
+                setAggregateSpec();
+            }
         }
 
         if (eArg2 != null) {
             eArg2 = eArg2.replaceAliasInOrderBy(columns, length, this);
+
+            if (eArg2.isAggregate()) {
+                setAggregateSpec();
+            }
         }
 
         switch (exprType) {
@@ -1752,6 +1737,10 @@ public class Expression {
                     if (e != null) {
                         argList[i] = e.replaceAliasInOrderBy(columns, length,
                                                              this);
+
+                        if (argList[i].isAggregate()) {
+                            setAggregateSpec();
+                        }
                     }
                 }
 
@@ -1761,10 +1750,21 @@ public class Expression {
                 for (int i = 0; i < length; i++) {
                     if (columnName.equals(columns[i].columnAlias)
                             && tableName == null && schema == null) {
-                        if (parent.exprType == ORDER_BY) {
-                            parent.queryTableColumnIndex = i;
-                        }
+                        return columns[i];
+                    }
+                }
 
+                for (int i = 0; i < length; i++) {
+                    if (this.equals(columns[i])) {
+                        return columns[i];
+                    }
+
+                    if (columnName != null
+                            && columnName.equals(columns[i].columnName)
+                            && (tableName == null || tableName
+                                .equals(columns[i].tableName)) && (schema
+                                    == null || schema
+                                        .equals(columns[i].schema))) {
                         return columns[i];
                     }
                 }
@@ -1915,8 +1915,7 @@ public class Expression {
             RangeVariable[] rangeVarArray,
             OrderedHashSet unresolvedSet) throws HsqlException {
 
-        if (isParam || rangeVarArray == null
-                || exprType == Expression.VALUE) {
+        if (isParam || rangeVarArray == null || exprType == Expression.VALUE) {
             return unresolvedSet;
         }
 
@@ -1941,7 +1940,7 @@ public class Expression {
                     RangeVariable rangeVar = rangeVarArray[i];
 
                     if (rangeVar == null
-                            ||!rangeVar.resolvesTableName(this)) {
+                            || !rangeVar.resolvesTableName(this)) {
                         continue;
                     }
 
@@ -1972,8 +1971,9 @@ public class Expression {
                 // we now (1_7_2_ALPHA_R) resolve independently first, then
                 // resolve in the enclosing context
                 if (subQuery != null) {
-                    unresolvedSet = subQuery.select.resolveCorrelatedColumns(
-                        rangeVarArray, unresolvedSet);
+                    unresolvedSet =
+                        subQuery.select.resolveCorrelatedColumns(rangeVarArray,
+                            unresolvedSet);
                 }
                 break;
 
@@ -2274,8 +2274,7 @@ public class Expression {
             case TABLE_SUBQUERY : {
                 subQuery.select.resolveTypes(session);
 
-                argListDataType =
-                    new Type[subQuery.select.visibleColumnCount];
+                argListDataType = new Type[subQuery.select.visibleColumnCount];
 
                 for (int i = 0; i < argListDataType.length; i++) {
                     argListDataType[i] =
@@ -2545,8 +2544,7 @@ public class Expression {
                 throw Trace.error(Trace.WRONG_DATA_TYPE);
             }
         } else {
-            dataType = eArg.dataType.getCombinedType(eArg2.dataType,
-                    exprType);
+            dataType = eArg.dataType.getCombinedType(eArg2.dataType, exprType);
         }
 
         if (isFixedConstant()) {
@@ -2585,7 +2583,7 @@ public class Expression {
 
         // conversion of second arg to character for backward compatibility
         if (eArg.dataType.isCharacterType()
-                &&!eArg2.dataType.isCharacterType()) {
+                && !eArg2.dataType.isCharacterType()) {
             Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
                 eArg2.dataType.displaySize());
 
@@ -2674,9 +2672,8 @@ public class Expression {
             eArg2      = null;
             likeObject = null;
         } else if (likeObject.isEquivalentToEqualsPredicate()) {
-            exprType = EQUAL;
-            eArg2 = new Expression(likeObject.getRangeLow(),
-                                   Type.SQL_VARCHAR);
+            exprType   = EQUAL;
+            eArg2 = new Expression(likeObject.getRangeLow(), Type.SQL_VARCHAR);
             likeObject = null;
         } else if (likeObject.isEquivalentToNotNullPredicate()) {}
         else {
@@ -2716,7 +2713,7 @@ public class Expression {
             Expression eLast = new Expression(likeObject.getRangeHigh(),
                                               Type.SQL_VARCHAR);
 
-            if (between &&!like) {
+            if (between && !like) {
                 Expression eArgOld = eArg;
 
                 eArg       = new Expression(GREATER_EQUAL, eArgOld, eFirst);
@@ -2770,7 +2767,7 @@ public class Expression {
         }
 
         if (!isValidDatetimeRange(eArg.argList)
-                ||!isValidDatetimeRange(eArg2.argList)) {
+                || !isValidDatetimeRange(eArg2.argList)) {
             Trace.error(Trace.WRONG_DATA_TYPE);
         }
 
@@ -2975,7 +2972,7 @@ public class Expression {
             }
 
             if (argListDataType[j].isCharacterType()
-                    &&!((CharacterType) argListDataType[j])
+                    && !((CharacterType) argListDataType[j])
                         .isEqualIdentical()) {
                 isConstantValueList = false;
             }
@@ -3259,9 +3256,8 @@ public class Expression {
                     currValue = new Object[2];
                 }
 
-                leftValue =
-                    eArg.getAggregatedValue(session,
-                                            ((Object[]) currValue)[0]);
+                leftValue = eArg.getAggregatedValue(session,
+                                                    ((Object[]) currValue)[0]);
                 rightValue =
                     eArg2.getAggregatedValue(session,
                                              ((Object[]) currValue)[1]);
@@ -3909,8 +3905,7 @@ public class Expression {
         return nulls;
     }
 
-    static void convertToType(Session session, Object[] data,
-                              Type[] dataType,
+    static void convertToType(Session session, Object[] data, Type[] dataType,
                               Type[] newType) throws HsqlException {
 
         for (int i = 0; i < data.length; i++) {
@@ -4007,7 +4002,7 @@ public class Expression {
                 Object[] rowData = eArg2.argList[i].getRowValue(session);
                 Boolean  result  = compareValues(session, data, rowData);
 
-                if (result == null ||!result.booleanValue()) {
+                if (result == null || !result.booleanValue()) {
                     continue;
                 }
 
@@ -4112,8 +4107,7 @@ public class Expression {
         throw Trace.error(Trace.WRONG_DATA_TYPE);
     }
 
-    private Boolean testExistsCondition(Session session)
-    throws HsqlException {
+    private Boolean testExistsCondition(Session session) throws HsqlException {
 
         if (!subQuery.isCorrelated) {
             return subQuery.table.isEmpty(session) ? Boolean.FALSE
@@ -4204,12 +4198,11 @@ public class Expression {
                                         : Boolean.FALSE;
                 }
 
-                Row      lastrow   = index.lastRow(session);
-                Object[] firstdata = firstrow.getData();
-                Object[] lastdata  = lastrow.getData();
-                Boolean comparefirst = compareValues(session, data,
-                                                     firstdata);
-                Boolean comparelast = compareValues(session, data, lastdata);
+                Row      lastrow     = index.lastRow(session);
+                Object[] firstdata   = firstrow.getData();
+                Object[] lastdata    = lastrow.getData();
+                Boolean comparefirst = compareValues(session, data, firstdata);
+                Boolean  comparelast = compareValues(session, data, lastdata);
 
                 switch (exprType) {
 
@@ -4282,12 +4275,11 @@ public class Expression {
                                           : Boolean.TRUE;
                 }
 
-                Row      lastrow   = index.lastRow(session);
-                Object[] firstdata = firstrow.getData();
-                Object[] lastdata  = lastrow.getData();
-                Boolean comparefirst = compareValues(session, data,
-                                                     firstdata);
-                Boolean comparelast = compareValues(session, data, lastdata);
+                Row      lastrow     = index.lastRow(session);
+                Object[] firstdata   = firstrow.getData();
+                Object[] lastdata    = lastrow.getData();
+                Boolean comparefirst = compareValues(session, data, firstdata);
+                Boolean  comparelast = compareValues(session, data, lastdata);
 
                 switch (exprType) {
 
@@ -4329,13 +4321,11 @@ public class Expression {
         s.exprColumns    = new Expression[1];
         s.exprColumns[0] = EXPR_TRUE;
 
-        RangeVariable range = new RangeVariable(t, null, null,
-            compileContext);
+        RangeVariable range = new RangeVariable(t, null, null, compileContext);
 
         s.rangeVariables = new RangeVariable[]{ range };
 
-        OrderedHashSet set = e.resolveColumnReferences(s.rangeVariables,
-            null);
+        OrderedHashSet set = e.resolveColumnReferences(s.rangeVariables, null);
 
         Select.checkColumnsResolved(set);
         e.resolveTypes(session, null);
@@ -4423,8 +4413,7 @@ public class Expression {
 
             case AND :
             case OR :
-                return eArg.isFixedConditional()
-                       && eArg2.isFixedConditional();
+                return eArg.isFixedConditional() && eArg2.isFixedConditional();
 
             default :
                 return false;
@@ -4447,8 +4436,8 @@ public class Expression {
         dataType     = column.getType();
         isWritable   = t.isWritable();
         isIdentity   = column.isIdentity();
-        nullability = column.isNullable() &&!column.isPrimaryKey() ? NULLABLE
-                                                                   : NO_NULLS;
+        nullability = column.isNullable() && !column.isPrimaryKey() ? NULLABLE
+                                                                    : NO_NULLS;
         columnName   = column.columnName.name;
         columnQuoted = column.columnName.isNameQuoted;
         tableName    = t.getName().name;
@@ -4505,8 +4494,8 @@ public class Expression {
     public static final int PARAM_OUT = 4;        // java.sql.ParameterMetaData.parameterModeOut
 
     // result set (output column value) or parameter expression nullability
-    static final byte NO_NULLS = 0;               // java.sql.ResultSetMetaData.columnNoNulls
-    static final byte NULLABLE = 1;               // java.sql.ResultSetMetaData.columnNullable
+    static final byte NO_NULLS         = 0;       // java.sql.ResultSetMetaData.columnNoNulls
+    static final byte NULLABLE         = 1;       // java.sql.ResultSetMetaData.columnNullable
     static final byte NULLABLE_UNKNOWN = 2;       // java.sql.ResultSetMetaData.columnNullableUnknown
 
     // output column and parameter expression metadata values
@@ -4673,8 +4662,7 @@ public class Expression {
 
         HashSet set = new HashSet();
 
-        Expression.collectAllExpressions(set, this,
-                                         Expression.TABLE_SUBQUERY);
+        Expression.collectAllExpressions(set, this, Expression.TABLE_SUBQUERY);
 
         if (!set.isEmpty()) {
             throw Trace.error(Trace.OPERATION_NOT_SUPPORTED,
@@ -4694,8 +4682,7 @@ public class Expression {
         if (eArg.exprType == Expression.AND) {
             exprType = Expression.AND;
 
-            Expression temp = new Expression(Expression.OR, eArg.eArg2,
-                                             eArg2);
+            Expression temp = new Expression(Expression.OR, eArg.eArg2, eArg2);
 
             eArg.exprType = Expression.OR;
             eArg.eArg2    = eArg2;

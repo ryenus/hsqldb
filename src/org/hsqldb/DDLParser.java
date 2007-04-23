@@ -754,7 +754,7 @@ public class DDLParser extends Parser {
         readThis(Token.AS);
 
         int    logPosition = getPosition();
-        Select select = readQueryExpression(0, true, false, true, true);
+        Select select      = readQueryExpression(0, true, false, true, true);
 
         if (select.intoTableName != null) {
             throw (Trace.error(Trace.INVALID_IDENTIFIER, Token.INTO));
@@ -1189,7 +1189,8 @@ public class DDLParser extends Parser {
                     break;
 
                 case Token.SET :
-                    if (beforeOrAfterType != Token.BEFORE) {
+                    if (beforeOrAfterType != Token.BEFORE
+                            || operationType == Token.DELETE) {
                         throw unexpectedToken();
                     }
 
@@ -1217,18 +1218,18 @@ public class DDLParser extends Parser {
         if (isBlock) {
             readThis(Token.END);
         }
-
+/*
         td = new TriggerDefSQL(name, beforeOrAfter, operation, isForEachRow,
-                            table, condition, compiledStatements);
-
+                               table, condition, compiledStatements);
 
         table.addTrigger(td);
         database.schemaManager.addTrigger(td, table.getName());
         session.setScripting(true);
+*/
     }
 
     /**
-     * Retrieves an UPDATE-type CompiledStatement from this parse context.
+     * Retrieves an SET CompiledStatement from this parse context.
      */
     CompiledStatement compileSetStatement(Table table,
                                           RangeVariable[] rangeVars)

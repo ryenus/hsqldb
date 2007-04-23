@@ -59,6 +59,10 @@ public class ClientRowSetNavigator extends RowSetNavigator {
     //
     public ClientRowSetNavigator() {}
 
+    public ClientRowSetNavigator(int blockSize) {
+        table              = new Object[blockSize][];
+    }
+
     public ClientRowSetNavigator(RowSetNavigator source, int offset,
                                  int blockSize) {
 
@@ -108,8 +112,7 @@ public class ClientRowSetNavigator extends RowSetNavigator {
     }
 
     public void add(Object data) {
-        Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                           "ClientRowSetNavigator");
+        table[size] = (Object[]) data;
     }
 
     public void clear() {

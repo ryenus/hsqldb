@@ -746,7 +746,7 @@ final class RangeVariable {
 
             if (rangeVar.isFullJoin) {
                 try {
-                    lookupTable.insert(
+                    lookupTable.insertRow(
                         session,
                         new Object[]{
                             ValuePool.getInt(currentRow.getPos()) });

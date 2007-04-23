@@ -17,18 +17,32 @@ insert into test (sel, name1, name2) values (1, 'baz', 'foo')
 insert into test (sel, name1, name2) values (1, 'foo', 'qux')
 -- select expressions are all composed of columns of group by
 /*r
+ baz,foo,1
+ foo,bar,1
+ foo,qux,1
+*/select a.name1, a.name2,
+  count(a.name1) as counter from test a group by sel, name1, name2 order by 1, 2, 3
+/*r
  foo,1
  foo,1
  qux,1
 */select case when a.sel=1 then a.name2 else a.name1 end as name,
   count(a.name1) as counter from test a group by sel, name1, name2
+  order by 1, 2
 --
 /*r
  foo,2
  qux,1
 */select case when a.sel=1 then a.name2 else a.name1 end as name,
   count(a.name1) as counter from test a group by case when a.sel=1
-  then a.name2 else a.name1 end
+  then a.name2 else a.name1 end order by 1, 2
+--
+/*r
+ qux,1
+ foo,2
+*/select case when a.sel=1 then a.name2 else a.name1 end as name,
+  count(a.name1) as counter from test a group by case when a.sel=1
+  then a.name2 else a.name1 end order by counter, name
 --
 select coalesce(a.name1, a.name2) as name,count(a.sel) as counter from test a
  group by coalesce(a.name1, a.name2)

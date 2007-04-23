@@ -192,8 +192,7 @@ public class Select {
         } else {
             rangeVariableList.add(rangeVar);
 
-            rangeSequence[rangeSequence.length - 1] = rangeSequence.length
-                    - 1;
+            rangeSequence[rangeSequence.length - 1] = rangeSequence.length - 1;
         }
     }
 
@@ -358,16 +357,21 @@ public class Select {
         orderByStart = visibleColumnCount + groupByColumnCount
                        + havingColumnCount;
         orderByLimitIndex = orderByStart + orderByColumnCount;
+
+        if (orderByColumnCount != 0) {
+            for (int i = 0; i < visibleColumnCount; i++) {
+                exprColumns[i].queryTableColumnIndex = i;
+            }
+        }
     }
 
     void checkColumnsResolved() throws HsqlException {
         checkColumnsResolved(unresolvedColumns);
     }
 
-    static void checkColumnsResolved(OrderedHashSet set)
-    throws HsqlException {
+    static void checkColumnsResolved(OrderedHashSet set) throws HsqlException {
 
-        if (set != null &&!set.isEmpty()) {
+        if (set != null && !set.isEmpty()) {
             Expression   e  = (Expression) set.get(0);
             StringBuffer sb = new StringBuffer();
 
@@ -412,39 +416,19 @@ public class Select {
             resolveColumnReferences(queryCondition);
         }
 
-        if (orderByColumnCount == 0) {
-            return;
-        }
-
         // replace the aliases with expressions
+        // replace column names with expressions and resolve the table columns
         for (int i = orderByStart; i < orderByLimitIndex; i++) {
             Expression orderBy = exprColumns[i];
 
             replaceColumnIndexInOrderBy(orderBy);
 
-            if (orderBy.queryTableColumnIndex != -1) {
+            if (orderBy.eArg.queryTableColumnIndex != -1) {
                 continue;
             }
 
             orderBy.replaceAliasInOrderBy(exprColumns, visibleColumnCount,
                                           null);
-        }
-
-        // replace column names with expressions and resolve the table columns
-        for (int i = orderByStart; i < orderByLimitIndex; i++) {
-            Expression orderBy = exprColumns[i];
-
-            if (orderBy.queryTableColumnIndex != -1) {
-                continue;
-            }
-
-            orderBy.replaceColumnReferenceInOrderBy(exprColumns,
-                    visibleColumnCount);
-
-            if (orderBy.queryTableColumnIndex != -1) {
-                continue;
-            }
-
             resolveColumnReferences(orderBy);
         }
     }
@@ -464,7 +448,8 @@ public class Select {
 
             if (0 < i && i <= visibleColumnCount) {
                 orderBy.eArg = (Expression) exprColumnList.get(i - 1);
-                orderBy.queryTableColumnIndex = i - 1;
+
+                orderBy.setAggregateSpec();
             }
 
             return;
@@ -693,9 +678,9 @@ public class Select {
                 throw Trace.error(Trace.UNRESOLVED_TYPE);
             }
 
-            Expression.collectAllExpressions(
-                tempSet, exprColumns[i], Expression.aggregateFunctionSet,
-                Expression.subqueryExpressionSet);
+            Expression.collectAllExpressions(tempSet, exprColumns[i],
+                                             Expression.aggregateFunctionSet,
+                                             Expression.subqueryExpressionSet);
 
             if (!tempSet.isEmpty()) {
                 tempSet.clear();
@@ -708,8 +693,7 @@ public class Select {
 
         if (havingColumnCount != 0) {
             Expression.collectAllExpressions(
-                tempSet,
-                exprColumns[visibleColumnCount + groupByColumnCount],
+                tempSet, exprColumns[visibleColumnCount + groupByColumnCount],
                 Expression.aggregateFunctionSet,
                 Expression.subqueryExpressionSet);
 
@@ -742,7 +726,7 @@ public class Select {
                 }
             }
 
-            if (!tempSet.isEmpty() &&!resolveForGroupBy(tempSet)) {
+            if (!tempSet.isEmpty() && !resolveForGroupBy(tempSet)) {
                 throw Trace.error(Trace.NOT_IN_AGGREGATE_OR_GROUP_BY,
                                   ((Expression) tempSet.get(0)).getDDL());
             }
@@ -764,8 +748,7 @@ public class Select {
                 tempSet.addAll(unresolvedColumns);
             }
 
-            for (int i = 0; i < visibleColumnCount + groupByColumnCount;
-                    i++) {
+            for (int i = 0; i < visibleColumnCount + groupByColumnCount; i++) {
                 tempSet.add(exprColumns[i]);
             }
 
@@ -775,10 +758,10 @@ public class Select {
                             ? Trace.NOT_IN_AGGREGATE_OR_GROUP_BY
                             : Trace.INVALID_HAVING;
 
-                throw Trace.error(
-                    error,
-                    exprColumns[visibleColumnCount + groupByColumnCount]
-                        .getDDL());
+                throw Trace
+                    .error(error,
+                           exprColumns[visibleColumnCount + groupByColumnCount]
+                               .getDDL());
             }
 
             tempSet.clear();
@@ -1006,8 +989,8 @@ public class Select {
         for (int i = orderByStart, j = 0; i < orderByLimitIndex; i++, j++) {
             int colindex = i;
 
-            if (exprColumns[i].queryTableColumnIndex != -1) {
-                colindex = exprColumns[i].queryTableColumnIndex;
+            if (exprColumns[i].eArg.queryTableColumnIndex != -1) {
+                colindex = exprColumns[i].eArg.queryTableColumnIndex;
             }
 
             sortOrder[j]     = colindex;
@@ -1055,7 +1038,6 @@ public class Select {
 
         Result r    = getResult(session, 2);    // 2 records are required for test
         int    size = r.getNavigator().getSize();
-        int    len  = r.getColumnCount();
 
         if (size == 0) {
             return new Object[visibleColumnCount];
@@ -1147,8 +1129,7 @@ public class Select {
                 (DataRowSetNavigator) result.getNavigator();
 
             nav.sortOrder();
-            nav.trim(getLimitStart(session),
-                     getLimitCount(session, rowCount));
+            nav.trim(getLimitStart(session), getLimitCount(session, rowCount));
         }
 
         return result;
@@ -1198,8 +1179,7 @@ public class Select {
 
         if (!sortUnion) {
             nav.sortOrder();
-            nav.trim(getLimitStart(session),
-                     getLimitCount(session, rowCount));
+            nav.trim(getLimitStart(session), getLimitCount(session, rowCount));
         }
 
         return r;
@@ -1323,7 +1303,7 @@ public class Select {
             }
         }
 
-        if (isAggregated &&!isGrouped && gResult.size() == 0) {
+        if (isAggregated && !isGrouped && gResult.size() == 0) {
             Object[] row = new Object[exprColumns.length];
 
             for (int i = 0; i < exprColumns.length; i++) {
@@ -1335,33 +1315,15 @@ public class Select {
             gResult.addRow(row);
         }
 
-        RowSetNavigator nav = gResult.navigator();
+        Result          result = gResult.getResult();
+        RowSetNavigator nav    = result.getNavigator();
 
-        while (nav.hasNext()) {
-            Object[] row = (Object[]) nav.getNext();
+        nav.reset();
 
-            if (isAggregated) {
-/*
-           // new aggregates
-                for (int i = 0; i < aggregates.length; i++) {
-                    row[iPostOrderIndex + i] =
-                        aggregates[i].getAggregatedValue(
-                            session, row[iPostOrderIndex + i]);
-                }
-*/
-                for (int i = 0; i < exprColumns.length; i++) {
-                    if (exprColumns[i].isAggregate()) {
-                        row[i] = exprColumns[i].getAggregatedValue(session,
-                                row[i]);
-                    }
-                }
-            }
+        if (havingColumnCount > 0) {
+            while (nav.hasNext()) {
+                Object[] row = (Object[]) nav.getNext();
 
-            if (havingColumnCount > 0) {
-
-                // The test value, either aggregate or not, is set already.
-                // Removes the row that does not satisfy the HAVING
-                // condition.
                 if (!Boolean.TRUE.equals(
                         row[visibleColumnCount + groupByColumnCount])) {
                     nav.remove();
@@ -1369,7 +1331,9 @@ public class Select {
             }
         }
 
-        return gResult.getResult();
+        nav.reset();
+
+        return result;
     }
 
     /**
@@ -1428,8 +1392,8 @@ public class Select {
         // if has HAVING
         sb.append(' ').append(Token.T_HAVING).append(' ');
 
-        for (int i = visibleColumnCount + groupByColumnCount;
-                i < orderByStart; i++) {
+        for (int i = visibleColumnCount + groupByColumnCount; i < orderByStart;
+                i++) {
             sb.append(exprColumns[i].getDDL());
 
             if (i < orderByStart - 1) {
@@ -1501,8 +1465,7 @@ public class Select {
         sb.append(super.toString()).append("[\n");
 
         if (intoTableName != null) {
-            sb.append("into table=[").append(intoTableName.name).append(
-                "]\n");
+            sb.append("into table=[").append(intoTableName.name).append("]\n");
         }
 
         if (limitCondition != null) {
@@ -1512,8 +1475,7 @@ public class Select {
                 limitCondition.getArg2().describe(session)).append("]\n");
         }
 
-        sb.append("isDistinctSelect=[").append(isDistinctSelect).append(
-            "]\n");
+        sb.append("isDistinctSelect=[").append(isDistinctSelect).append("]\n");
         sb.append("isGrouped=[").append(isGrouped).append("]\n");
         sb.append("isAggregated=[").append(isAggregated).append("]\n");
         sb.append("columns=[");

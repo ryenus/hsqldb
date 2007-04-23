@@ -525,6 +525,7 @@ examples:
             description="Build the hsqldbz.jar for Zaurus">
         <fail if="ant.java.iscjava14"
               message="Zarus jar must be built with JDK 1.3 or previous"/>
+        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbz.jar"
              basedir="classes"
          >
@@ -575,6 +576,7 @@ examples:
 
     <target name="hsqldbtest" depends="test,swing"
             description="Build the hsqldbtest.jar (default plus test classes)">
+        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbtest.jar"
              basedir="classes"
          >
@@ -607,6 +609,7 @@ examples:
     -->
     <target name="hsqldbmain" depends="classes16"
             description="Build the hsqldbmain.jar (no utilities)">
+        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbmain.jar"
              basedir="classes"
          >
@@ -634,6 +637,7 @@ examples:
 
     <target name="hsqldbmin" depends="classes16"
             description="Build the hsqldbmin.jar (no connection pooling or servers)">
+        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbmin.jar"
              basedir="classes"
          >
@@ -686,6 +690,7 @@ examples:
 
     <target name="hsqldb" depends="classes16,util,swing"
             description="Build the default hsqldb.jar">
+        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldb.jar"
              basedir="classes"
              compress="true"
@@ -793,6 +798,7 @@ examples:
 <!-- ommissions where the calling methods are not actually used -->
     <target name="hsqljdbc" depends="classes16"
              description="Build the hsqljdbc.jar">
+        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqljdbc.jar" compress="true">
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -809,6 +815,7 @@ examples:
 
     <target name="hsqltool" depends="classes16, util"
             description="Build the hsqltool.jar">
+        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqltool.jar">
             <manifest>
                 <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -828,6 +835,7 @@ examples:
 
     <target name="hsqldbutil" depends="util,swing"
             description="Build the utility hsqldbutil.jar">
+        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbutil.jar" compress="true">
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
