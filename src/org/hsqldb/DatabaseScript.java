@@ -306,7 +306,7 @@ public class DatabaseScript {
                 }
 
                 // data source
-                String dataSource = getDataSource(t);
+                String dataSource = getDataSourceDDL(t);
 
                 if (dataSource != null) {
                     addRow(r, dataSource);
@@ -694,7 +694,7 @@ public class DatabaseScript {
      * Generates the SET TABLE <tablename> SOURCE <string> statement for a
      * text table;
      */
-    static String getDataSource(Table t) {
+    static String getDataSourceDDL(Table t) {
 
         String dataSource = t.getDataSource();
 
@@ -722,7 +722,7 @@ public class DatabaseScript {
      * Generates the SET TABLE <tablename> SOURCE HEADER <string> statement for a
      * text table;
      */
-    static String getDataSourceHeader(Table t) {
+    private static String getDataSourceHeader(Table t) {
 
         String header = t.getHeader();
 

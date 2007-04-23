@@ -410,10 +410,6 @@ public class TriggerDef implements Runnable, SchemaObject {
         return rowsQueued != 0;
     }
 
-    public TriggerDef(HsqlNameManager.HsqlName name, String when,
-                      String operation, boolean forEachRow, Table table,
-                      Expression condition) throws HsqlException {}
-
     /**
      * Class to store the data used to fire a trigger. The username attribute
      * is not used but it allows developers to change the signature of the

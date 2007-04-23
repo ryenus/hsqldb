@@ -91,19 +91,19 @@ List compiled by Andrew Knight (quozzbat@users)
  */
 public interface Trigger {
 
-    // indexes into the triggers list
+    // type of trigger
     int INSERT_AFTER      = 0;
     int DELETE_AFTER      = 1;
     int UPDATE_AFTER      = 2;
-    int INSERT_BEFORE     = INSERT_AFTER + TriggerDef.NUM_TRIGGER_OPS;
-    int DELETE_BEFORE     = DELETE_AFTER + TriggerDef.NUM_TRIGGER_OPS;
-    int UPDATE_BEFORE     = UPDATE_AFTER + TriggerDef.NUM_TRIGGER_OPS;
-    int INSERT_AFTER_ROW  = INSERT_AFTER + 2 * TriggerDef.NUM_TRIGGER_OPS;
-    int DELETE_AFTER_ROW  = DELETE_AFTER + 2 * TriggerDef.NUM_TRIGGER_OPS;
-    int UPDATE_AFTER_ROW  = UPDATE_AFTER + 2 * TriggerDef.NUM_TRIGGER_OPS;
-    int INSERT_BEFORE_ROW = INSERT_BEFORE + 2 * TriggerDef.NUM_TRIGGER_OPS;
-    int DELETE_BEFORE_ROW = DELETE_BEFORE + 2 * TriggerDef.NUM_TRIGGER_OPS;
-    int UPDATE_BEFORE_ROW = UPDATE_BEFORE + 2 * TriggerDef.NUM_TRIGGER_OPS;
+    int INSERT_BEFORE     = 3;
+    int DELETE_BEFORE     = 4;
+    int UPDATE_BEFORE     = 5;
+    int INSERT_AFTER_ROW  = 6;
+    int DELETE_AFTER_ROW  = 7;
+    int UPDATE_AFTER_ROW  = 8;
+    int INSERT_BEFORE_ROW = 9;
+    int DELETE_BEFORE_ROW = 10;
+    int UPDATE_BEFORE_ROW = 11;
 
     /**
      * The method invoked upon each triggered action. <p>

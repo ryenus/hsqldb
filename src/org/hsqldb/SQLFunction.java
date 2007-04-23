@@ -378,8 +378,8 @@ public class SQLFunction extends Expression {
                     Token.X_OPTION, 1, Token.QUESTION,        //
                     Token.FROM, Token.QUESTION, Token.CLOSEBRACKET
                 };
-
                 break;
+
             /*
             case FUNCTION_CHAR_NORMALIZE :
                 break;
@@ -389,10 +389,9 @@ public class SQLFunction extends Expression {
                 name      = Token.T_OVERLAY;
                 parseList = new short[] {
                     Token.OPENBRACKET, Token.QUESTION, Token.PLACING,
-                    Token.QUESTION, Token.FROM, Token.QUESTION,
-                    Token.X_OPTION, 2, Token.FOR, Token.QUESTION,
-                    Token.X_OPTION, 2, Token.USING, Token.X_KEYSET,
-                    Token.CLOSEBRACKET
+                    Token.QUESTION, Token.FROM, Token.QUESTION, Token.X_OPTION,
+                    2, Token.FOR, Token.QUESTION, Token.X_OPTION, 2,
+                    Token.USING, Token.X_KEYSET, Token.CLOSEBRACKET
                 };
                 break;
 
@@ -630,8 +629,7 @@ public class SQLFunction extends Expression {
                     ((NumberType) argList[0].dataType).divide(argList[0],
                         argList[1]);
 
-                value =
-                    ((NumberType) argList[0].dataType).subtract(argList[0],
+                value = ((NumberType) argList[0].dataType).subtract(argList[0],
                         value);
 
                 // result type is the same as argList[1]
@@ -709,9 +707,8 @@ public class SQLFunction extends Expression {
                         return null;
                     }
 
-                    value =
-                        Type.SQL_BIGINT.convertToType(session, data[2],
-                                                      argList[2].dataType);
+                    value = Type.SQL_BIGINT.convertToType(session, data[2],
+                                                          argList[2].dataType);
                     length = ((Number) value).longValue();
                 }
 
@@ -811,9 +808,8 @@ public class SQLFunction extends Expression {
                         return null;
                     }
 
-                    value =
-                        Type.SQL_BIGINT.convertToType(session, data[3],
-                                                      argList[3].dataType);
+                    value = Type.SQL_BIGINT.convertToType(session, data[3],
+                                                          argList[3].dataType);
                     length = ((Number) value).longValue();
                 }
 
@@ -842,9 +838,8 @@ public class SQLFunction extends Expression {
                         return null;
                     }
 
-                    value =
-                        Type.SQL_BIGINT.convertToType(session, data[2],
-                                                      argList[2].dataType);
+                    value = Type.SQL_BIGINT.convertToType(session, data[2],
+                                                          argList[2].dataType);
                     length = ((Number) value).intValue();
                 }
 
@@ -911,9 +906,8 @@ public class SQLFunction extends Expression {
                         return null;
                     }
 
-                    value =
-                        Type.SQL_BIGINT.convertToType(session, data[3],
-                                                      argList[3].dataType);
+                    value = Type.SQL_BIGINT.convertToType(session, data[3],
+                                                          argList[3].dataType);
                     length = ((Number) value).longValue();
                 }
 
@@ -975,7 +969,8 @@ public class SQLFunction extends Expression {
         }
     }
 
-    public void resolveTypes(Session session, Expression expression) throws HsqlException {
+    public void resolveTypes(Session session,
+                             Expression expression) throws HsqlException {
 
         for (int i = 0; i < argList.length; i++) {
             if (argList[i] != null) {
@@ -1033,7 +1028,7 @@ public class SQLFunction extends Expression {
                 }
 
                 if (!argList[1].dataType.isIntervalType()
-                        &&!argList[1].dataType.isDateTimeType()) {
+                        && !argList[1].dataType.isDateTimeType()) {
                     throw Trace.error(Trace.WRONG_DATA_TYPE);
                 }
 
@@ -1053,7 +1048,7 @@ public class SQLFunction extends Expression {
                 }
 
                 if (!argList[0].dataType.isCharacterType()
-                        &&!argList[0].dataType.isBinaryType()) {
+                        && !argList[0].dataType.isBinaryType()) {
                     throw Trace.error(Trace.WRONG_DATA_TYPE);
                 }
 
@@ -1080,7 +1075,7 @@ public class SQLFunction extends Expression {
                 }
 
                 if (!argList[0].dataType.isNumberType()
-                        ||!argList[1].dataType.isNumberType()) {
+                        || !argList[1].dataType.isNumberType()) {
                     throw Trace.error(Trace.WRONG_DATA_TYPE);
                 }
 
@@ -1106,7 +1101,7 @@ public class SQLFunction extends Expression {
                 }
 
                 if (!argList[0].dataType.isNumberType()
-                        ||!argList[1].dataType.isNumberType()) {
+                        || !argList[1].dataType.isNumberType()) {
                     throw Trace.error(Trace.WRONG_DATA_TYPE);
                 }
 
@@ -1148,17 +1143,16 @@ public class SQLFunction extends Expression {
                 break;
             }
             case FUNC_WIDTH_BUCKET : {
-                if (argList[0].dataType == null
-                        || argList[1].dataType == null
+                if (argList[0].dataType == null || argList[1].dataType == null
                         || argList[2].dataType == null
                         || argList[3].dataType == null) {
                     throw Trace.error(Trace.UNRESOLVED_PARAMETER_TYPE);
                 }
 
                 if (!argList[0].dataType.isNumberType()
-                        ||!argList[1].dataType.isNumberType()
-                        ||!argList[2].dataType.isNumberType()
-                        ||!argList[3].dataType.isIntegralType()) {
+                        || !argList[1].dataType.isNumberType()
+                        || !argList[2].dataType.isNumberType()
+                        || !argList[3].dataType.isIntegralType()) {
                     throw Trace.error(Trace.WRONG_DATA_TYPE);
                 }
 

@@ -111,7 +111,6 @@ public class View extends Table {
 
         if (super.columnCount == 0) {
 
-            // do not add columns at recompile time
             columnList =  viewSubQuery.table.columnList;
             columnCount = viewSubQuery.table.columnCount;
         } else {
