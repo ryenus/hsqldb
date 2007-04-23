@@ -1985,47 +1985,10 @@ public class Table extends BaseTable implements SchemaObject {
     }
 
     /**
-     *  Highest level multiple row insert method. Corresponds to an SQL
-     *  INSERT INTO ... SELECT ... statement.
-     */
-    int insert(Session session, Result ins) throws HsqlException {
-
-        RowSetNavigator nav   = ins.initialiseNavigator();
-        int             count = 0;
-
-        fireAll(session, Trigger.INSERT_BEFORE);
-
-        while (nav.hasNext()) {
-            Object[] data = (Object[]) nav.getNext();
-
-            insertRow(session, data);
-
-            count++;
-        }
-
-        fireAll(session, Trigger.INSERT_AFTER);
-
-        return count;
-    }
-
-    /**
-     *  Highest level method for inserting a single row. Corresponds to an
-     *  SQL INSERT INTO .... VALUES(,,) statement.
-     *  fires triggers.
-     */
-    void insert(Session session, Object[] data) throws HsqlException {
-
-        fireAll(session, Trigger.INSERT_BEFORE);
-        insertRow(session, data);
-        fireAll(session, Trigger.INSERT_AFTER);
-    }
-
-    /**
      *  Mid level method for inserting rows. Performs constraint checks and
      *  fires row level triggers.
      */
-    private void insertRow(Session session,
-                           Object[] data) throws HsqlException {
+    void insertRow(Session session, Object[] data) throws HsqlException {
 
         if (triggerLists[Trigger.INSERT_BEFORE_ROW] != null) {
             fireAll(session, Trigger.INSERT_BEFORE_ROW, null, data);
@@ -2318,12 +2281,16 @@ public class Table extends BaseTable implements SchemaObject {
         }
     }
 
+    boolean hasTrigger(int trigVecIndex) {
+        return triggerLists[trigVecIndex] != null
+               && !triggerLists[trigVecIndex].isEmpty();
+    }
+
     /**
-     *  Fires all row-level triggers of the given set (trigger type)
-     *
+     *  Statement level triggers.
      */
-    void fireAll(Session session, int trigVecIndx, Object[] oldrow,
-                 Object[] newrow) {
+    void fireAll(Session session, int trigVecIndex,
+                 RowSetNavigator rowSetNavigator) {
 
         if (!database.isReferentialIntegrity()) {
 
@@ -2331,7 +2298,7 @@ public class Table extends BaseTable implements SchemaObject {
             return;
         }
 
-        HsqlArrayList trigVec = triggerLists[trigVecIndx];
+        HsqlArrayList trigVec = triggerLists[trigVecIndex];
 
         if (trigVec == null) {
             return;
@@ -2340,17 +2307,60 @@ public class Table extends BaseTable implements SchemaObject {
         for (int i = 0, size = trigVec.size(); i < size; i++) {
             TriggerDef td = (TriggerDef) trigVec.get(i);
 
-            td.pushPair(session, oldrow, newrow);    // tell the trigger thread to fire with this row
+            if (!td.isForEachRow()) {
+                td.pushPair(session, null, null);
+            }
+        }
+    }
+
+    void fireAfterTriggers(Session session, int trigVecIndex, HashMappedList rowSet, int[] cols) {
+        for (int i = 0; i < rowSet.size(); i++) {
+            Row row = (Row) rowSet.getKey(i);
+            Object[] data = (Object[]) rowSet.get(i);
+
+            if (triggerLists[trigVecIndex] != null) {
+                fireAll(session, trigVecIndex, row.getData(),
+                        data);
+            }
+        }
+    }
+
+    void fireAfterTriggers(Session session, RowSetNavigator rowSet) {
+        for (int i = 0; i < rowSet.getSize(); i++) {
+            Row row = (Row) rowSet.getNext();
+
+            if (triggerLists[Trigger.UPDATE_AFTER_ROW] != null) {
+                fireAll(session, Trigger.UPDATE_AFTER_ROW, row.getData(),
+                        row.getData());
+            }
         }
     }
 
     /**
-     *  Statement level triggers.
+     *  Fires all row-level triggers of the given set (trigger type)
+     *
      */
-    void fireAll(Session session, int trigVecIndex) {
+    void fireAll(Session session, int trigVecIndex, Object[] oldrow,
+                 Object[] newrow) {
 
-        if (triggerLists[trigVecIndex] != null) {
-            fireAll(session, trigVecIndex, null, null);
+        if (!database.isReferentialIntegrity()) {
+
+            // isReferentialIntegrity is false when reloading db
+            return;
+        }
+
+        HsqlArrayList trigVec = triggerLists[trigVecIndex];
+
+        if (trigVec == null) {
+            return;
+        }
+
+        for (int i = 0, size = trigVec.size(); i < size; i++) {
+            TriggerDef td = (TriggerDef) trigVec.get(i);
+
+            if (td.isForEachRow()) {
+                td.pushPair(session, oldrow, newrow);    // tell the trigger thread to fire with this row
+            }
         }
     }
 
@@ -2419,6 +2429,22 @@ public class Table extends BaseTable implements SchemaObject {
 
             triggerLists[tv] = null;
         }
+    }
+
+    /**
+     *  Mid level row delete method. Fires triggers but no integrity
+     *  constraint checks.
+     */
+    void deleteRowAsTriggeredAction(Session session,
+                                    Row row) throws HsqlException {
+
+        Object[] data = row.getData();
+
+        fireAll(session, Trigger.DELETE_BEFORE_ROW, data, null);
+        deleteNoCheck(session, row, true);
+
+        // fire the delete after statement trigger
+        fireAll(session, Trigger.DELETE_AFTER_ROW, data, null);
     }
 
     /**
@@ -2583,33 +2609,22 @@ public class Table extends BaseTable implements SchemaObject {
     }
 
     void updateRowSet(Session session, HashMappedList rowSet, int[] cols,
-                      boolean nodelete) throws HsqlException {
+                      boolean noDelete) throws HsqlException {
 
-        for (int i = rowSet.size() - 1; i >= 0; i--) {
-            Row      row  = (Row) rowSet.getKey(i);
-            Object[] data = (Object[]) rowSet.get(i);
+        for (int i = 0; i < rowSet.size(); i++) {
+            Row row = (Row) rowSet.getKey(i);
 
             if (row.isCascadeDeleted()) {
-                if (nodelete) {
+                if (noDelete) {
                     throw Trace.error(Trace.TRIGGERED_DATA_CHANGE);
                 } else {
                     rowSet.remove(i);
 
-                    continue;
-                }
-            }
-
-            for (int j = 0; j < constraintList.length; j++) {
-                Constraint c = constraintList[j];
-
-                if (c.getType() == Constraint.CHECK && !c.isNotNull) {
-                    c.checkCheckConstraint(session, this, data);
+                    i--;
 
                     continue;
                 }
             }
-
-            deleteNoCheck(session, row, true);
         }
 
         for (int i = 0; i < rowSet.size(); i++) {
@@ -2619,18 +2634,19 @@ public class Table extends BaseTable implements SchemaObject {
             if (triggerLists[Trigger.UPDATE_BEFORE_ROW] != null) {
                 fireAll(session, Trigger.UPDATE_BEFORE_ROW, row.getData(),
                         data);
-                checkRowDataUpdate(session, data, cols);
             }
+
+            checkRowDataUpdate(session, data, cols);
+            deleteNoCheck(session, row, true);
+        }
+
+        for (int i = 0; i < rowSet.size(); i++) {
+            Object[] data = (Object[]) rowSet.get(i);
 
             insertNoCheck(session, data);
-
-            if (triggerLists[Trigger.UPDATE_AFTER_ROW] != null) {
-                fireAll(session, Trigger.UPDATE_AFTER_ROW, row.getData(),
-                        data);
-                checkRowDataUpdate(session, data, cols);
-            }
         }
     }
+
 
     void checkRowDataInsert(Session session,
                             Object[] data) throws HsqlException {
@@ -2654,7 +2670,7 @@ public class Table extends BaseTable implements SchemaObject {
         for (int j = 0; j < constraintList.length; j++) {
             Constraint c = constraintList[j];
 
-            if (c.getType() == Constraint.CHECK) {
+            if (c.getType() == Constraint.CHECK && !c.isNotNull) {
                 c.checkCheckConstraint(session, this, data);
             }
         }

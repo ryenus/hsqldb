@@ -188,21 +188,24 @@ public abstract class JdbcTestCase extends TestCase {
         {"getBigDecimal",      "1111111111111100000000000000000001"},
         {"getBoolean",         "1111111111111100000000000000000001"},
         {"getString",          "1111111111111111111100001000111001"},
+        {"getNString",         "1111111111111111111100001000111001"},
         {"getBytes",           "0000000000000011100000000000000001"},
         {"getDate",            "0000000000011100010100000000000001"},
         {"getTime",            "0000000000011100001100000000000001"},
         {"getTimestamp",       "0000000000011100011100000000000001"},
-        {"getAsciiStream",     "0000000000011111100010000000000001"},
-        {"getBinaryStream",    "0000000000000011100001000000000001"},
-        {"getCharacterStream", "0000000000011111100010000000000001"},
-        {"getClob",            "0000000000000000000010000000000001"},
+        {"getAsciiStream",     "0000000000011111100010000000000101"},
+        {"getBinaryStream",    "0000000000000011100001000000000011"},
+        {"getCharacterStream", "0000000000011111100010000000111111"},
+        {"getNCharacterStream","0000000000011111100010000000111111"},
+        {"getClob",            "0000000000000000000010000000000101"},
+        {"getNClob",           "0000000000000000000010000000000101"},
         {"getBlob",            "0000000000000000000001000000000001"},
         {"getArray",           "0000000000000000000000100000000000"},
         {"getRef",             "0000000000000000000000010000000000"},
         {"getURL",             "0000000000000000000000001000000000"},
         {"getObject",          "1111111111111111111111111111111111"},
         {"getRowId",           "0000000000000000000000000001000000"},
-        {"getSQLXML",          "0000000000000000000000000000000000"}
+        {"getSQLXML",          "0000000000000000000000000000000010"}
     };
 
     // JDBC 4.0, Table B5, Conversions Performed by setObject Between
@@ -223,7 +226,7 @@ public abstract class JdbcTestCase extends TestCase {
                                   //N N E..........................M E
                                   //T T R..........................L R
                                   //0123456789012345678901234567890123
-        {String.class,             "1111111111111111111100000000000001"},
+        {String.class,             "1111111111111111111100000000111001"},
         {BigDecimal.class,         "1111111111111100000000000000000001"},
         {Boolean.class,            "1111111111111100000000000000000001"},
         {Integer.class,            "1111111111111100000000000000000001"},
@@ -331,12 +334,12 @@ public abstract class JdbcTestCase extends TestCase {
 
     /**
      * Retrieves a Set containing the names of the JDBC 4 getter methods that
-     * are required tp perform a conversion from the given java.sql.Types
+     * are required to perform a conversion from the given java.sql.Types
      * data type.
      *
      * @param dataType a java.sql.Types data type code
      * @return a set containing the names of the JDBC 4 getter methods that
-     * are required tp perform a conversion from the given java.sql.Types
+     * are required to perform a conversion from the given java.sql.Types
      * data type.
      */
     protected static Set getRequiredGetXXX(int dataType) {

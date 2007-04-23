@@ -45,6 +45,8 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.types.Type;
+import org.hsqldb.navigator.ClientRowSetNavigator;
+import org.hsqldb.navigator.LinkedListRowSetNavigator;
 
 // boucherb@users 200404xx - fixed broken CALL statement result set unwrapping;
 //                           fixed broken support for prepared SELECT...INTO
@@ -112,6 +114,19 @@ public final class CompiledStatementExecutor {
         database       = session.database;
         rangeIterators = new RangeIterator[4];
         subqueryPopSet = new HashSet();
+    }
+
+    /**
+     * Executes a generic CompiledStatement. Execution includes first building
+     * any subquery result dependencies and clearing them after the main result
+     * is built.
+     *
+     * @return the result of executing the statement
+     * @param cs any valid CompiledStatement
+     * @param paramValues parameter values
+     */
+    void initialiseExec(Object[] paramValues) {
+        this.paramValues = paramValues;
     }
 
     /**
@@ -290,17 +305,17 @@ public final class CompiledStatementExecutor {
     private Result executeDeleteStatement(CompiledStatement cs)
     throws HsqlException {
 
-        Table         table = cs.targetTable;
-        int           count = 0;
-        HsqlArrayList del   = new HsqlArrayList();
+        Table                     table   = cs.targetTable;
+        int                       count   = 0;
+        LinkedListRowSetNavigator oldRows = new LinkedListRowSetNavigator();
         RangeIterator it = RangeVariable.getIterator(session,
             cs.targetRangeVariables);
 
         while (it.next()) {
-            del.add(it.currentRow);
+            oldRows.add(it.currentRow);
         }
 
-        count = delete(session, table, del);
+        count = delete(session, table, oldRows);
 
         return Result.newUpdateCountResult(count);
     }
@@ -316,37 +331,19 @@ public final class CompiledStatementExecutor {
     private Result executeInsertSelectStatement(CompiledStatement cs)
     throws HsqlException {
 
-        Table           t         = cs.targetTable;
-        Select          s         = cs.select;
-        Type[]          colTypes  = t.getColumnTypes();       // column types
-        Result          r         = s.getResult(session, 0);
-        RowSetNavigator nav       = r.initialiseNavigator();
-        int[]           columnMap = cs.insertColumnMap;       // column map
-        boolean[]       colCheck  = cs.insertCheckColumns;    // column check list
-        int             count;
-        boolean         success = false;
-        Result          insert  = Result.newDataResult(r.metaData);
+        Result          result    = cs.select.getResult(session, 0);
+        RowSetNavigator nav       = result.initialiseNavigator();
+        Table           table     = cs.targetTable;
+        int[]           columnMap = cs.insertColumnMap;
+        boolean[]       colCheck  = cs.insertCheckColumns;
+        boolean         success   = false;
 
         session.beginNestedTransaction();
 
         try {
-            while (nav.hasNext()) {
-                Object[] data       = t.getNewRowData(session, colCheck);
-                Object[] sourceData = (Object[]) nav.getNext();
+            insertRowSet(table, nav, result.metaData.colTypes, columnMap,
+                         colCheck);
 
-                for (int i = 0; i < columnMap.length; i++) {
-                    int  j          = columnMap[i];
-                    Type sourceType = r.metaData.colTypes[i];
-
-                    data[j] = colTypes[j].convertToType(session,
-                                                        sourceData[i],
-                                                        sourceType);
-                }
-
-                insert.getNavigator().add(data);
-            }
-
-            count   = t.insert(session, insert);
             success = true;
         } finally {
             if (!success) {
@@ -354,7 +351,34 @@ public final class CompiledStatementExecutor {
             }
         }
 
-        return Result.newUpdateCountResult(count);
+        return Result.newUpdateCountResult(nav.getSize());
+    }
+
+    void insertRowSet(Table table, RowSetNavigator nav, Type[] sourceTypes,
+                      int[] columnMap,
+                      boolean[] colCheck) throws HsqlException {
+
+        Type[] colTypes = table.getColumnTypes();    // column types
+        ClientRowSetNavigator newData =
+            new ClientRowSetNavigator(nav.getSize());
+
+        while (nav.hasNext()) {
+            Object[] data       = table.getNewRowData(session, colCheck);
+            Object[] sourceData = (Object[]) nav.getNext();
+
+            for (int i = 0; i < columnMap.length; i++) {
+                int  j          = columnMap[i];
+                Type sourceType = sourceTypes[i];
+
+                data[j] = colTypes[j].convertToType(session, sourceData[i],
+                                                    sourceType);
+            }
+
+            table.insertRow(session, data);
+            newData.add(data);
+        }
+
+        table.fireAll(session, Trigger.INSERT_AFTER, newData);
     }
 
     /**
@@ -373,26 +397,28 @@ public final class CompiledStatementExecutor {
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
         boolean         success            = false;
+        int[]           columnMap          = cs.insertColumnMap;
+        boolean[]       colCheck           = cs.insertCheckColumns;
 
         if (cs.generatedIndexes != null) {
-            resultOut =
-                Result.newUpdateCountResult(cs.generatedResultMetaData, 0);
+            resultOut = Result.newUpdateCountResult(cs.generatedResultMetaData,
+                    0);
             generatedNavigator = resultOut.getChainedResult().getNavigator();
         }
 
         session.beginNestedTransaction();
 
-        Expression[] list = cs.insertExpression.argList;
+        Expression[]          list    = cs.insertExpression.argList;
+        ClientRowSetNavigator newData = new ClientRowSetNavigator(list.length);
 
         try {
             for (int j = 0; j < list.length; j++) {
                 Expression[] rowArgs = list[j].argList;
-                Object[] data = table.getNewRowData(session,
-                                                    cs.insertCheckColumns);
+                Object[]     data    = table.getNewRowData(session, colCheck);
 
                 for (int i = 0; i < rowArgs.length; i++) {
                     Expression e        = rowArgs[i];
-                    int        colIndex = cs.insertColumnMap[i];
+                    int        colIndex = columnMap[i];
 
                     if (e.exprType == Expression.DEFAULT) {
                         if (table.identityColumn == colIndex) {
@@ -409,7 +435,8 @@ public final class CompiledStatementExecutor {
                             e.getValue(session), e.getDataType());
                 }
 
-                table.insert(session, data);
+                table.insertRow(session, data);
+                newData.add(data);
 
                 if (generatedNavigator != null) {
                     Object[] generatedValues = cs.getGeneratedColumns(data);
@@ -417,6 +444,8 @@ public final class CompiledStatementExecutor {
                     generatedNavigator.add(generatedValues);
                 }
             }
+
+            table.fireAll(session, Trigger.INSERT_AFTER, newData);
 
             success = true;
         } finally {
@@ -531,7 +560,7 @@ public final class CompiledStatementExecutor {
         DatabaseScript.getTableDDL(session.database, t, 0, null, true,
                                    tableDDL);
 
-        sourceDDL = DatabaseScript.getDataSource(t);
+        sourceDDL = DatabaseScript.getDataSourceDDL(t);
 
         session.database.logger.writeToLog(session, tableDDL.toString());
 
@@ -669,6 +698,23 @@ public final class CompiledStatementExecutor {
         return data;
     }
 
+    private Result executeSetStatement(CompiledStatement cs)
+    throws HsqlException {
+
+        Table        table          = cs.targetTable;
+        int[]        colMap         = cs.updateColumnMap;    // column map
+        Expression[] colExpressions = cs.updateExpressions;
+        Type[]       colTypes       = table.getColumnTypes();
+        int          index = cs.targetRangeVariables[TriggerDef.NEW_ROW].index;
+        Row          row            = rangeIterators[index].currentRow;
+        Object[] data = getUpdatedData(table, colMap, colExpressions,
+                                       colTypes, row);
+
+        rangeIterators[index].currentData = data;
+
+        return Result.updateOneResult;
+    }
+
     /**
      * Executes a MERGE statement.  It is assumed that the argument
      * is of the correct type.
@@ -684,8 +730,8 @@ public final class CompiledStatementExecutor {
         RowSetNavigator generatedNavigator = null;
 
         if (cs.generatedIndexes != null) {
-            resultOut =
-                Result.newUpdateCountResult(cs.generatedResultMetaData, 0);
+            resultOut = Result.newUpdateCountResult(cs.generatedResultMetaData,
+                    0);
             generatedNavigator = resultOut.getChainedResult().getNavigator();
         }
 
@@ -693,7 +739,7 @@ public final class CompiledStatementExecutor {
         int   count       = 0;
 
         // data generated for non-matching rows
-        HsqlArrayList insertData = new HsqlArrayList();
+        LinkedListRowSetNavigator newData = new LinkedListRowSetNavigator();
 
         // rowset for update operation
         HashMappedList updateRowSet = new HashMappedList();
@@ -727,7 +773,7 @@ public final class CompiledStatementExecutor {
                     Object[] data = getMergeInsertData(cs);
 
                     if (data != null) {
-                        insertData.add(data);
+                        newData.add(data);
                     }
                 }
 
@@ -769,10 +815,12 @@ public final class CompiledStatementExecutor {
             // Insert any non-matched rows
             success = false;
 
-            for (int j = 0; j < insertData.size(); j++) {
-                Object[] data = (Object[]) insertData.get(j);
+            newData.beforeFirst();
 
-                targetTable.insert(session, data);
+            while (newData.hasNext()) {
+                Object[] data = (Object[]) newData.getNext();
+
+                targetTable.insertRow(session, data);
 
                 if (generatedNavigator != null) {
                     Object[] generatedValues = cs.getGeneratedColumns(data);
@@ -781,8 +829,10 @@ public final class CompiledStatementExecutor {
                 }
             }
 
+            targetTable.fireAll(session, Trigger.INSERT_AFTER, newData);
+
             success = true;
-            count   += insertData.size();
+            count   += newData.getSize();
         } finally {
             if (!success) {
                 session.failNestedTransaction();
@@ -1042,7 +1092,7 @@ public final class CompiledStatementExecutor {
                         if (delete) {
 
                             //  foreign key referencing own table - do not update the row to be deleted
-                            if (reftable != table ||!refrow.equals(row)) {
+                            if (reftable != table || !refrow.equals(row)) {
                                 mergeUpdate(rowSet, refrow, rnd, r_columns);
                             }
                         }
@@ -1066,8 +1116,8 @@ public final class CompiledStatementExecutor {
                         }
                     }
 
-                    if (delete &&!isUpdate &&!refrow.isCascadeDeleted()) {
-                        reftable.deleteNoRefCheck(session, refrow);
+                    if (delete && !isUpdate && !refrow.isCascadeDeleted()) {
+                        reftable.deleteRowAsTriggeredAction(session, refrow);
                     }
                 }
             } finally {
@@ -1171,16 +1221,15 @@ public final class CompiledStatementExecutor {
 
                 // there must be no record in the 'slave' table
                 // sebastian@scienion -- dependent on forDelete | forUpdate
-                RowIterator refiterator = c.findFkRef(session,
-                                                      orow.getData(), false);
+                RowIterator refiterator = c.findFkRef(session, orow.getData(),
+                                                      false);
 
                 if (refiterator.hasNext()) {
                     if (c.core.updateAction == Constraint.NO_ACTION) {
-                        throw Trace.error(
-                            Trace.INTEGRITY_CONSTRAINT_VIOLATION,
-                            Trace.Constraint_violation, new Object[] {
-                            c.core.refName.name,
-                            c.core.refTable.getName().name
+                        throw Trace.error(Trace.INTEGRITY_CONSTRAINT_VIOLATION,
+                                          Trace.Constraint_violation,
+                                          new Object[] {
+                            c.core.refName.name, c.core.refTable.getName().name
                         });
                     }
                 } else {
@@ -1229,8 +1278,7 @@ public final class CompiledStatementExecutor {
                         for (int j = 0; j < r_columns.length; j++) {
                             rnd[r_columns[j]] = null;
                         }
-                    } else if (c.getUpdateAction()
-                               == Constraint.SET_DEFAULT) {
+                    } else if (c.getUpdateAction() == Constraint.SET_DEFAULT) {
 
                         // -- set default; we check referential integrity with ref==null; since we manipulated
                         // -- the values and referential integrity is no longer guaranteed to be valid
@@ -1322,14 +1370,16 @@ public final class CompiledStatementExecutor {
      *  DELETE.
      */
     int delete(Session session, Table table,
-               HsqlArrayList deleteList) throws HsqlException {
+               RowSetNavigator oldRows) throws HsqlException {
 
         HashSet        path            = getConstraintPath();
         HashMappedList tableUpdateList = getTableUpdateList();
 
         if (database.isReferentialIntegrity()) {
-            for (int i = 0; i < deleteList.size(); i++) {
-                Row row = (Row) deleteList.get(i);
+            oldRows.beforeFirst();
+
+            while (oldRows.hasNext()) {
+                Row row = (Row) oldRows.getNext();
 
                 path.clear();
                 checkCascadeDelete(session, table, tableUpdateList, row,
@@ -1338,7 +1388,7 @@ public final class CompiledStatementExecutor {
         }
 
         // check transactions
-        database.txManager.checkDelete(session, deleteList);
+        database.txManager.checkDelete(session, oldRows);
 
         for (int i = 0; i < tableUpdateList.size(); i++) {
             HashMappedList updateList =
@@ -1347,21 +1397,22 @@ public final class CompiledStatementExecutor {
             database.txManager.checkDelete(session, updateList);
         }
 
-        // perform delete
-        table.fireAll(session, Trigger.DELETE_BEFORE);
-
         if (database.isReferentialIntegrity()) {
-            for (int i = 0; i < deleteList.size(); i++) {
-                Row row = (Row) deleteList.get(i);
+            oldRows.beforeFirst();
+
+            while (oldRows.hasNext()) {
+                Row row = (Row) oldRows.getNext();
 
                 path.clear();
-                checkCascadeDelete(session, table, tableUpdateList, row,
-                                   true, path);
+                checkCascadeDelete(session, table, tableUpdateList, row, true,
+                                   path);
             }
         }
 
-        for (int i = 0; i < deleteList.size(); i++) {
-            Row row = (Row) deleteList.get(i);
+        oldRows.beforeFirst();
+
+        while (oldRows.hasNext()) {
+            Row row = (Row) oldRows.getNext();
 
             if (!row.isCascadeDeleted()) {
                 table.deleteNoRefCheck(session, row);
@@ -1377,10 +1428,13 @@ public final class CompiledStatementExecutor {
             updateList.clear();
         }
 
-        table.fireAll(session, Trigger.DELETE_AFTER);
+        if (table.hasTrigger(Trigger.DELETE_AFTER)) {
+            table.fireAll(session, Trigger.DELETE_AFTER, oldRows);
+        }
+
         path.clear();
 
-        return deleteList.size();
+        return oldRows.getSize();
     }
 
     /**
@@ -1439,11 +1493,8 @@ public final class CompiledStatementExecutor {
             }
         }
 
-        table.fireAll(session, Trigger.UPDATE_BEFORE);
-
         // merge any triggered change to this table with the update list
-        HashMappedList triggeredList =
-            (HashMappedList) tUpdateList.get(table);
+        HashMappedList triggeredList = (HashMappedList) tUpdateList.get(table);
 
         if (triggeredList != null) {
             for (int i = 0; i < triggeredList.size(); i++) {
@@ -1476,7 +1527,6 @@ public final class CompiledStatementExecutor {
         }
 
         table.updateRowSet(session, updateList, cols, true);
-        table.fireAll(session, Trigger.UPDATE_AFTER);
         path.clear();
 
         return updateList.size();

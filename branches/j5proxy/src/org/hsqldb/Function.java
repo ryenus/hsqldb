@@ -148,12 +148,13 @@ public class Function extends Expression {
 
 //        cSession      = session;
         fullyQualifiedName = fqn;
-        fID       = Library.functionID(fqn);
+        fID                = Library.functionID(fqn);
 
         int i = fqn.lastIndexOf('.');
 
-        if (i == -1)
+        if (i == -1) {
             throw Trace.error(Trace.UNEXPECTED_TOKEN, fqn);
+        }
 
         String classname = fqn.substring(0, i);
 
@@ -320,8 +321,7 @@ public class Function extends Expression {
 
             case Library.isReadOnlyDatabaseFiles :
                 return session.getDatabase().isFilesReadOnly() ? Boolean.TRUE
-                                                               : Boolean
-                                                               .FALSE;
+                                                               : Boolean.FALSE;
         }
 
         Object[] oArg = getArguments(session);
@@ -336,8 +336,7 @@ public class Function extends Expression {
     /**
      * Evaluates the Function with the given arguments in the session context.
      */
-    Object getValue(Session session,
-                    Object[] arguments) throws HsqlException {
+    Object getValue(Session session, Object[] arguments) throws HsqlException {
 
         if (bConnection) {
             arguments[0] = session.getInternalConnection();
@@ -380,7 +379,7 @@ public class Function extends Expression {
                 o = e.getValue(session, argType[i]);
             }
 
-            if ((o == null) &&!bArgNullable[i]) {
+            if ((o == null) && !bArgNullable[i]) {
 
                 // null argument for primitive datatype: don't call
                 return null;
@@ -409,7 +408,7 @@ public class Function extends Expression {
         for (; i < iArgCount; i++) {
             Object o = values[i];
 
-            if (o == null &&!bArgNullable[i]) {
+            if (o == null && !bArgNullable[i]) {
 
                 // null argument for primitive datatype: don't call
                 return null;

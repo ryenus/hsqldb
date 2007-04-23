@@ -32,7 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.DataRowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
@@ -70,13 +70,16 @@ import org.hsqldb.result.Result;
 class GroupedResult {
 
 /** @todo fredt - initialise results on first use */
-    private Result        result;
-    int                   groupBegin;
-    int                   groupEnd;
-    private final boolean isGrouped;
-    private final boolean isAggregated;
-    private HashSet       groups;
-    private ResultGroup   currGroup;
+    private Result         result;
+    int                    groupBegin;
+    int                    groupEnd;
+    private final boolean  isGrouped;
+    private final boolean  isAggregated;
+    private OrderedHashSet groups;
+    private ResultGroup    currGroup;
+    private int            size;
+    Expression[]           exprColumns;
+    Session                session;
 
     GroupedResult(Session session, Select select) throws HsqlException {
 
@@ -88,10 +91,13 @@ class GroupedResult {
         groupEnd        = groupBegin + select.groupByColumnCount;
         isGrouped       = groupBegin != groupEnd;
         isAggregated    = select.isAggregated;
+        exprColumns     = select.exprColumns;
 
-        if (isGrouped) {
-            groups = new HashSet();
+        if (isGrouped || isAggregated) {
+            groups = new OrderedHashSet();
         }
+
+        this.session = session;
     }
 
     Object[] getRow(Object[] row) {
@@ -101,11 +107,11 @@ class GroupedResult {
             ResultGroup group    = (ResultGroup) groups.get(newGroup);
 
             if (group != null) {
-                ArrayUtil.copyArray(group.row, row, row.length);
+                ArrayUtil.copyArray(group.data, row, row.length);
             }
         } else if (isAggregated) {
             if (currGroup != null) {
-                ArrayUtil.copyArray(currGroup.row, row, row.length);
+                ArrayUtil.copyArray(currGroup.data, row, row.length);
             }
         }
 
@@ -123,44 +129,68 @@ class GroupedResult {
                 currGroup = newGroup;
 
                 groups.add(currGroup);
-                result.getNavigator().add(row);
+
+                if (!isAggregated) {
+                    result.getNavigator().add(row);
+                }
+
+                size++;
             } else {
-                System.arraycopy(row, 0, currGroup.row, 0, row.length);
+                System.arraycopy(row, 0, currGroup.data, 0, row.length);
             }
         } else if (isAggregated) {
             if (currGroup == null) {
                 currGroup = new ResultGroup(row);
-
-                result.getNavigator().add(row);
+                groups.add(currGroup);
+                size++;
             } else {
-                System.arraycopy(row, 0, currGroup.row, 0, row.length);
+                System.arraycopy(row, 0, currGroup.data, 0, row.length);
             }
         } else {
             result.getNavigator().add(row);
+
+            size++;
         }
     }
 
     int size() {
-        return result.getNavigator().getSize();
+        return size;
     }
 
     RowSetNavigator navigator() {
         return result.initialiseNavigator();
     }
 
-    Result getResult() {
+    Result getResult() throws HsqlException {
+
+        if (isAggregated) {
+            for (int i = 0; i < groups.size(); i++) {
+                ResultGroup group = (ResultGroup) groups.get(i);
+
+                for (int j = 0; j < exprColumns.length; j++) {
+                    if (exprColumns[j].isAggregate()) {
+                        group.data[j] =
+                            exprColumns[j].getAggregatedValue(session,
+                                                              group.data[j]);
+                    }
+                }
+
+                result.getNavigator().add(group.data);
+            }
+        }
+
         return result;
     }
 
     class ResultGroup {
 
-        Object[] row;
+        Object[] data;
         int      hashCode;
 
         private ResultGroup(Object[] row) {
 
-            this.row = row;
-            hashCode = 0;
+            this.data = row;
+            hashCode  = 0;
 
             for (int i = groupBegin; i < groupEnd; i++) {
                 if (row[i] != null) {
@@ -186,7 +216,7 @@ class GroupedResult {
             ResultGroup group = (ResultGroup) obj;
 
             for (int i = groupBegin; i < groupEnd; i++) {
-                if (!equals(row[i], group.row[i])) {
+                if (!equals(data[i], group.data[i])) {
                     return false;
                 }
             }
