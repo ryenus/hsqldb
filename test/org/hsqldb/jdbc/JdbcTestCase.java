@@ -339,7 +339,7 @@ public abstract class JdbcTestCase extends TestCase {
      *
      * @param dataType a java.sql.Types data type code
      * @return a set containing the names of the JDBC 4 getter methods that
-     * are required tp perform a conversion from the given java.sql.Types
+     * are required to perform a conversion from the given java.sql.Types
      * data type.
      */
     protected static Set getRequiredGetXXX(int dataType) {
