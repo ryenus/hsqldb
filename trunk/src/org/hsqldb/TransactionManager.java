@@ -35,6 +35,7 @@ import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
+import org.hsqldb.navigator.RowSetNavigator;
 
 /**
  * Manages rows involved in transactions
@@ -46,8 +47,8 @@ import org.hsqldb.lib.LongKeyLongValueHashMap;
 public class TransactionManager {
 
     LongKeyLongValueHashMap rowSessionMap;
-    boolean                reWriteProtect;
-    Database               database;
+    boolean                 reWriteProtect;
+    Database                database;
 
     TransactionManager(Database db) {
         database      = db;
@@ -81,7 +82,7 @@ public class TransactionManager {
     }
 
     void checkDelete(Session session,
-                     HsqlArrayList rowSet) throws HsqlException {
+                     RowSetNavigator rowSet) throws HsqlException {
 
         if (!reWriteProtect) {
             return;
@@ -89,8 +90,8 @@ public class TransactionManager {
 
         long sessionid = session.getId();
 
-        for (int i = 0, size = rowSet.size(); i < size; i++) {
-            Row  row   = (Row) rowSet.get(i);
+        while (rowSet.hasNext()) {
+            Row  row   = (Row) rowSet.getNext();
             long rowid = row.getId();
 
             if (rowSessionMap.get(rowid, sessionid) != sessionid) {
@@ -122,8 +123,7 @@ public class TransactionManager {
         session.savepoints.clear();
     }
 
-    void rollbackSavepoint(Session session,
-                           String name) throws HsqlException {
+    void rollbackSavepoint(Session session, String name) throws HsqlException {
 
         int index = session.savepoints.getIndex(name);
 
@@ -219,8 +219,7 @@ public class TransactionManager {
 
                 if (tIndex[i] < tSize) {
                     Transaction current =
-                        (Transaction) sessions[i].rowActionList.get(
-                            tIndex[i]);
+                        (Transaction) sessions[i].rowActionList.get(tIndex[i]);
 
                     if (current.SCN < minChangeNo) {
                         minChangeNo  = current.SCN;

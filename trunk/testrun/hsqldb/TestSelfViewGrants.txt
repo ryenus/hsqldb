@@ -12,6 +12,7 @@
 /*c1*/SELECT * from rtable;
 /*u0*/CREATE VIEW v as SELECT c1, c2 FROM rtable;
 /*c1*/SELECT * from v;
+/*u0*/GRANT ALL ON v TO privd;
 /*u0*/GRANT SELECT ON v TO privd;
 /*u0*/GRANT SELECT(c1) ON v TO u1;
 
@@ -22,9 +23,7 @@
 /*e*/SELECT c2 from rtable;
 /*e*/SELECT c3 from rtable;
 /*e*/SELECT c2 from v;
--- u1 has visibility to v.c2 -> rtable.c2 only by virtue of the v.c1 grant.
--- According to Fred, col-specific View grants should not cascade to the
--- underlying table(s).  /*c1*/SELECT c1 from v;
+/*c1*/SELECT c1 from v;
 
 /*u0*/CONNECT USER privd PASSWORD "privd";
 /*e*/SELECT c1 from rtable;
