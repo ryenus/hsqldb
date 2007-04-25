@@ -1,7 +1,7 @@
 <!-- $Id$ -->
 
 <chapter id='unix-chapter'>
-    <title id='unix-title'>UNIX Quick Start</title>
+    <title id='unix-title'>Hsqldb on UNIX</title>
     <subtitle>
         How to quickly get Hsqldb up and running on UNIX, including Mac OS X
     </subtitle>
@@ -663,5 +663,28 @@
     sh -x path/to/hsqldb start > /tmp/hstart.log 2>&amp;1</screen>
             </para>
         </section>
+    </section>
+
+    <section>
+        <title>Upgrading</title>
+        <simpara>
+            This section is for users who are using our UNIX init script, and
+            who are upgrading their HSQLDB installation.
+        </simpara> <simpara>
+            Most users will not have customized the init script itself, and
+            your customizations will all be encapsulated in the init script
+            configuration file.
+            These users should just overwrite their init script (wherever
+            they installed it to) with the file
+            <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/sample-hsqldb.cfg</filename>.
+            If you installed HSQLDB to a different location than your original
+            installation (a requirement if you want to keep both around), or
+            if you are using a different (probably newer) JRE, you will need
+            to update the relevant settings in your init script configuration
+            file.
+        </simpara> <simpara>
+            Users who customized their init script will need to merge their
+            customizations into the new init script.
+        </simpara>
     </section>
 </chapter>
