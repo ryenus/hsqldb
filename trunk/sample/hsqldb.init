@@ -121,8 +121,7 @@ MAX_TERMINATE_SECS=1
 # We require all Server/WebServer instances to be accessible within 
 # $MAX_START_SECS from when the Server/WebServer is started.
 MAX_START_SECS=60
-# Class in the org.hsqldb package to start.
-# At this time, only the values "Server" or "WebServer" will work.
+# Class to start (package org.hsqldb.server used if no package in given name).
 TARGET_CLASS=Server
 
 CLIENT_JVMARGS=
@@ -241,13 +240,23 @@ SERVER_ADDL_CLASSPATH="${SERVER_ADDL_CLASSPATH}:"
     exit 2
 }
 
-# PROPERTY_FILE is a derived value.
 case "$TARGET_CLASS" in
-    Server) PROPERTY_FILE="$SERVER_HOME"/server.properties;;
-    WebServer) PROPERTY_FILE="$SERVER_HOME"/webserver.properties;;
+    *.*) ABS_TARGET_CLASS=$TARGET_CLASS;;
+    *) ABS_TARGET_CLASS=org.hsqldb.server.$TARGET_CLASS;;
+esac
+
+# PROPERTY_FILE is a derived value.
+case "$ABS_TARGET_CLASS" in
+    org.hsqldb.server.Server) PROPERTY_FILE="$SERVER_HOME"/server.properties;;
+    org.hsqldb.server.WebServer) PROPERTY_FILE="$SERVER_HOME"/webserver.properties;;
     *)
-        echo 'Unsupported value for $TARGET_CLASS:  '"$TARGET_CLASS" 1>&2
-        exit 2;;
+        # Allow people to use this to start an arbitrary class, but they must
+        # set variable PROPERTY_FILE.
+        [ -n "$PROPERTY_FILE" ] || {
+            echo 'Unsupported value for $ABS_TARGET_CLASS:  '"$ABS_TARGET_CLASS" 1>&2
+            exit 2
+        }
+        ;;
 esac
 [ -f "$PROPERTY_FILE" ] || {
     echo "'$PROPERTY_FILE' is missing" 1>&2
@@ -370,7 +379,7 @@ running with pid $HSQLDB_PID."
             # Some OSes choke if there are newlines in this string.
             # N.b.!!!  The shell of the -c command is the target user's default
             # login shell, so keep this command shell-independent!
-            nohup su "$HSQLDB_OWNER" -c "cd '$SERVER_HOME' && echo "'$$'" > '$PIDFILE' && exec '$JAVA_EXECUTABLE' $SERVER_JVMARGS $TLS_SWITCHES -classpath '${SERVER_ADDL_CLASSPATH}${HSQLDB_JAR_PATH}' org.hsqldb.util.MainInvoker org.hsqldb.$TARGET_CLASS $INVOC_ADDL_ARGS" >> "$LOGFILE" 2>&1 &
+            nohup su "$HSQLDB_OWNER" -c "cd '$SERVER_HOME' && echo "'$$'" > '$PIDFILE' && exec '$JAVA_EXECUTABLE' $SERVER_JVMARGS $TLS_SWITCHES -classpath '${SERVER_ADDL_CLASSPATH}${HSQLDB_JAR_PATH}' org.hsqldb.util.MainInvoker $ABS_TARGET_CLASS $INVOC_ADDL_ARGS" >> "$LOGFILE" 2>&1 &
         else
             cd "$SERVER_HOME" || {
                 echo "Failed to cd to '$SERVER_HOME'" 1>&2
@@ -381,14 +390,14 @@ running with pid $HSQLDB_PID."
             export PIDFILE
             export TLS_SWITCHES
             export SERVER_JVMARGS
-            export TARGET_CLASS
+            export ABS_TARGET_CLASS
             export INVOC_ADDL_ARGS
             nohup sh -c '
                 echo $$ > "$PIDFILE" || {
                     echo "Failed to write pid to pid file" 1>&2
                     exit 1
                 }
-                eval exec "$JAVA_EXECUTABLE" $SERVER_JVMARGS $TLS_SWITCHES -classpath "${SERVER_ADDL_CLASSPATH}${HSQLDB_JAR_PATH}"  org.hsqldb.util.MainInvoker org.hsqldb.$TARGET_CLASS $INVOC_ADDL_ARGS
+                eval exec "$JAVA_EXECUTABLE" $SERVER_JVMARGS $TLS_SWITCHES -classpath "${SERVER_ADDL_CLASSPATH}${HSQLDB_JAR_PATH}"  org.hsqldb.util.MainInvoker $ABS_TARGET_CLASS $INVOC_ADDL_ARGS
             ' >> "$LOGFILE" 2>&1 &
         fi
         sleep $SU_ECHO_SECS  # Make sure bg commands have time to echo pid.
@@ -426,11 +435,11 @@ running with pid $HSQLDB_PID."
             "-Dsqltoolsprayer.maxtime=${MAX_START_SECS}000" \
             org.hsqldb.util.SqlToolSprayer -- && {
             rm -f "$PIDCHECKER_FLAGFILE"
-            echo "org.hsqldb.$TARGET_CLASS started with pid `cat $PIDFILE`"
+            echo "$ABS_TARGET_CLASS started with pid `cat $PIDFILE`"
             exit 0
         }
         rm -f "$PIDCHECKER_FLAGFILE"
-        echo "Failed to start org.hsqldb.$TARGET_CLASS.
+        echo "Failed to start $ABS_TARGET_CLASS.
 See log file '$LOGFILE'." 1>&2
         exit 1
     ;;
@@ -462,7 +471,7 @@ See log file '$LOGFILE'." 1>&2
             echo "Failed to remove pid file '$PIDFILE'" 1>&2
             exit 1
         }
-        echo "Successful shutdown ${SHUTDOWN_OPTION} (for the $TARGET_CLASS process)!"
+        echo "Successful shutdown ${SHUTDOWN_OPTION} (for the $ABS_TARGET_CLASS process)!"
         exit 0
     ;;
     restart|restartcompacted)
