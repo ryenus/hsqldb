@@ -357,7 +357,7 @@ running with pid $HSQLDB_PID."
         exec "$JAVA_EXECUTABLE" $AUTH_FILE_SWITCH $CLIENT_JVMARGS \
             "-Dsqltoolsprayer.propfile=$PROPERTY_FILE" \
             "-Dsqltoolsprayer.monfile=$PIDFILE" \
-            org.hsqldb.util.SqlToolSprayer --
+            org.hsqldb.util.SqlToolSprayer 'CALL true'
     ;;
     start)
         [ -n "$HSQLDB_PID" ] && {
@@ -433,7 +433,7 @@ running with pid $HSQLDB_PID."
             "-Dsqltoolsprayer.propfile=$PROPERTY_FILE" \
             "-Dsqltoolsprayer.monfile=$PIDFILE" \
             "-Dsqltoolsprayer.maxtime=${MAX_START_SECS}000" \
-            org.hsqldb.util.SqlToolSprayer -- && {
+            org.hsqldb.util.SqlToolSprayer 'CALL true' && {
             rm -f "$PIDCHECKER_FLAGFILE"
             echo "$ABS_TARGET_CLASS started with pid `cat $PIDFILE`"
             exit 0
