@@ -239,7 +239,7 @@
             </step><step><simpara>
                 Become the <emphasis role='bold'>HSQLDB_OWNER</emphasis>.
                 Copy the sample file 
-                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/src/org/hsqldb/sample/sample-server.properties</filename>
+                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/sample-server.properties</filename>
                 to the <emphasis role='bold'>HSQLDB_OWNER</emphasis>'s home
                 directory and rename it to 
                 <filename>server.properties</filename>.
@@ -287,7 +287,7 @@
         <title>Accessing your Database</title>
         <simpara>
             Copy the file
-            <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/src/org/hsqldb/sample/sqltool.rc</filename>
+            <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/sqltool.rc</filename>
             to the
             <emphasis role='bold'>HSQLDB_OWNER</emphasis>'s home directory.
             Use <literal>chmod</literal> to make the file readable and
@@ -359,13 +359,14 @@
             HSQLDB accounts are database-instance-specific, not 
             <classname>Server</classname>-specific.
         </simpara> <simpara>
-            For the current version of HSQLDB, only users with Role of
-            <literal>DBA</literal> may create or own database objects.
-            DBA members have privileges to do anything.  Non-DBAs may be 
-            granted some privileges, but may never create or own database 
-            objects.
-            (Before long, non-DBAs will be able to create objects if they
-            have permission to do so in the target schema).
+            In SQL-compliant databases, all database objects are created in
+            a <emphasis>schema</emphasis>.
+            If you don't specify a schema, then the new object will be created 
+            in the default schema.
+            To create a database object, your account (the account that you
+            connected with) must have the role <literal>DBA</literal>, or 
+            your account must have authorization for the target schema
+            (see the CREATE SCHEMA command about this last).
             When you first create a hsqldb database, it has only one database 
             user-- SA, a DBA account, with an empty string password.
             You should set a password (as described above).
@@ -374,15 +375,14 @@
             <link linkend='create_user-section'>CREATE USER</link> command,
             or GRANT the DBA Role to the account after creating it.
         </simpara> <simpara>
-            If you create a user without the ADMIN tag (and without granting
-            the DBA role to them) this user will be able to read the data
-            dictionary tables, but will be able unable to create or own his
-            own objects.
-            He will have only the rights which the pseudo-user PUBLIC has.
-            To give him more permissions, even rights to read objects,
-            you can GRANT permissions for specific objects, grant Roles
-            (which encompass a set of permissions), or grant the DBA Role
-            itself.
+            Once an object is created, the object creator and users with the
+            DBA role will have all privileges to work with that object.
+            Other users will have only the rights which the pseudo-user 
+            PUBLIC has.
+            To give specific users more permissions, even rights to read 
+            objects, you can GRANT permissions for specific objects,
+            grant Roles (which encompass a set of permissions), or grant 
+            the DBA Role itself.
         </simpara> <simpara>
             Since only people with a database account may do anything at all 
             with the database, it is often useful to permit other database 
@@ -473,10 +473,10 @@
             </simpara>
             <procedure>
             <step><simpara>
-                Copy the init script <filename>hsqldb</filename> from
-                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/bin</filename>
-                into the directory where init scripts live on your variety of 
-                UNIX.
+                Copy the init script <filename>hsqldb.init</filename> from
+                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample</filename>
+                to <filename>hsqldb</filename> in the directory where init 
+                scripts live on your variety of UNIX.
                 The most common locations are <filename>/etc/init.d</filename>
                 or <filename>/etc/rc.d/init.d</filename> on System V style
                 UNIXes, <filename>/usr/local/etc/rc.d</filename> on BSD style
@@ -487,7 +487,7 @@
                 lists recommended locations for the configuration file for
                 various UNIX platforms.
                 Copy the sample config file
-                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/src/org/hsqldb/sample/sample-hsqldb.cfg</filename>
+                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/sample-hsqldb.cfg</filename>
                 to one of the listed locations (your choice).
                 Edit the config file according to the instructions in it.
                 </simpara>
@@ -502,7 +502,8 @@
                 hsqldb as non-root (by setting HSQLDB_OWNER in the config file).
                 If you copy the file, make sure to use <literal>chmod</literal>
                 to restrict permissions on the new copy.
-                (The init script now enforces permissions on this file).
+                The init script will abort with an appropriate exhortation
+                if you have the permissions set incorrectly.
             </simpara></step> <step><simpara>
                 Edit your <filename>server.properties</filename> file.
                 For every <literal>server.database.X</literal> that you have
