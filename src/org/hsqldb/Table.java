@@ -174,7 +174,6 @@ public class Table extends BaseTable implements SchemaObject {
     protected boolean    isTemp;
     protected boolean    isCached;
     protected boolean    isText;
-    protected boolean    isMemory;
     private boolean      isView;
     protected boolean    isLogged;
     protected int        indexType;                   // fredt - type of index used
@@ -196,14 +195,11 @@ public class Table extends BaseTable implements SchemaObject {
 
         database       = db;
         sqlEnforceSize = db.sqlEnforceStrictSize;
-
-//        identitySequence = new NumberSequence(null, 0, 1, Type.SQL_BIGINT);
-        rowIdSequence = new NumberSequence(null, 0, 1, Type.SQL_BIGINT);
+        rowIdSequence  = new NumberSequence(null, 0, 1, Type.SQL_BIGINT);
 
         switch (type) {
 
             case RESULT :
-                isMemory = true;
                 break;
 
             case CACHED_RESULT :
@@ -212,12 +208,10 @@ public class Table extends BaseTable implements SchemaObject {
                 break;
 
             case SYSTEM_SUBQUERY :
-                isTemp   = true;
-                isMemory = true;
+                isTemp = true;
                 break;
 
             case SYSTEM_TABLE :
-                isMemory = true;
                 break;
 
             case CACHED_TABLE :
@@ -233,13 +227,11 @@ public class Table extends BaseTable implements SchemaObject {
 
                 type = MEMORY_TABLE;
             case MEMORY_TABLE :
-                isMemory = true;
                 isLogged = !database.isFilesReadOnly();
                 break;
 
             case TEMP_TABLE :
-                isMemory = true;
-                isTemp   = true;
+                isTemp = true;
                 break;
 
             case TEMP_TEXT_TABLE :
@@ -297,23 +289,35 @@ public class Table extends BaseTable implements SchemaObject {
         }
     }
 
-    boolean equals(Session session, String name) {
+    public Table() {}
 
-/*
-        if (isTemp && (session != null
-                       && session.getId() != ownerSessionId)) {
-            return false;
-        }
-*/
-        return (tableName.name.equals(name));
+    /**
+     * returns a basic duplicate of the table without the data structures.
+     */
+    protected Table duplicate() throws HsqlException {
+
+        Table t = (new Table(database, tableName, tableType));
+
+        return t;
     }
 
-    boolean equals(String name) {
-        return (tableName.name.equals(name));
-    }
+    Table newTransitionTable(HsqlName name) {
 
-    boolean equals(HsqlName name) {
-        return (tableName.equals(name));
+        Table transition = new Table();
+
+        name.schema               = SchemaManager.SYSTEM_SCHEMA_HSQLNAME;
+        transition.tableName      = name;
+        transition.database       = database;
+        transition.tableType      = Table.RESULT;
+        transition.columnList     = columnList;
+        transition.columnCount    = columnCount;
+        transition.indexType      = indexType;
+        transition.indexList      = new Index[0];
+        transition.constraintList = new Constraint[0];
+
+        transition.createPrimaryKey();
+
+        return transition;
     }
 
     public final boolean isText() {
@@ -596,7 +600,7 @@ public class Table extends BaseTable implements SchemaObject {
                                   column.columnName.name);
             }
 
-            identityColumn   = columnCount;
+            identityColumn   = getColumnCount();
             identitySequence = column.getIdentitySequence();
         }
 
@@ -637,6 +641,12 @@ public class Table extends BaseTable implements SchemaObject {
         return tableName.schema.owner;
     }
 
+    public OrderedHashSet getReferences() {
+        return new OrderedHashSet();
+    }
+
+    public void compile(Session session) throws HsqlException {}
+
     public int getId() {
         return tableName.hashCode();
     }
@@ -647,42 +657,6 @@ public class Table extends BaseTable implements SchemaObject {
 
     public long getNextIdentity() {
         return identitySequence.peek();
-    }
-
-    /**
-     * Changes table name. Used by 'alter table rename to'.
-     * Essential to use the existing HsqlName as this is is referenced by
-     * intances of Constraint etc.
-     */
-    void rename(Session session, String newname,
-                boolean isquoted) throws HsqlException {
-
-        String oldname = tableName.name;
-
-        tableName.rename(newname, isquoted);
-
-        if (HsqlName.isReservedName(getPrimaryIndex().getName().name)) {
-            getPrimaryIndex().getName().rename("SYS_PK", newname, isquoted);
-        }
-
-        renameTableInCheckConstraints(session, oldname, newname);
-    }
-
-    /**
-     *  Returns total column counts, including hidden ones.
-     */
-    int getInternalColumnCount() {
-        return columnCount;
-    }
-
-    /**
-     * returns a basic duplicate of the table without the data structures.
-     */
-    protected Table duplicate() throws HsqlException {
-
-        Table t = (new Table(database, tableName, tableType));
-
-        return t;
     }
 
     /**
@@ -703,7 +677,8 @@ public class Table extends BaseTable implements SchemaObject {
         for (int i = 0; i < col.length; i++) {
 
             // integrity check - should not throw in normal operation
-            if (col[i] >= columnCount || othercol[i] >= other.columnCount) {
+            if (col[i] >= getColumnCount()
+                    || othercol[i] >= other.getColumnCount()) {
                 throw Trace.error(Trace.COLUMN_COUNT_DOES_NOT_MATCH);
             }
 
@@ -768,7 +743,7 @@ public class Table extends BaseTable implements SchemaObject {
 
         Table tn = duplicate();
 
-        for (int i = 0; i < columnCount; i++) {
+        for (int i = 0; i < getColumnCount(); i++) {
             Column col = (Column) columnList.get(i);
 
             if (i == colIndex) {
@@ -784,7 +759,7 @@ public class Table extends BaseTable implements SchemaObject {
             tn.addColumn(col);
         }
 
-        if (columnCount == colIndex) {
+        if (getColumnCount() == colIndex) {
             tn.addColumn(column);
         }
 
@@ -887,20 +862,6 @@ public class Table extends BaseTable implements SchemaObject {
     }
 
     /**
-     * Used for table rename
-     */
-    private void renameTableInCheckConstraints(Session session,
-            String oldName, String newName) throws HsqlException {
-
-        for (int i = 0, size = constraintList.length; i < size; i++) {
-            Constraint c = constraintList[i];
-
-            c.renameTable(oldName, newName);
-            c.recompile(session, this);
-        }
-    }
-
-    /**
      * Used for drop / retype column.
      */
     void checkColumnInCheckConstraint(int colIndex) throws HsqlException {
@@ -910,8 +871,10 @@ public class Table extends BaseTable implements SchemaObject {
 
             if (c.constType == Constraint.CHECK && !c.isNotNull
                     && c.hasColumn(colIndex)) {
+                HsqlName name = c.getName();
+
                 throw Trace.error(Trace.COLUMN_IS_REFERENCED,
-                                  c.getName().name);
+                                  name.schema.name + '.' + name.name);
             }
         }
     }
@@ -929,8 +892,10 @@ public class Table extends BaseTable implements SchemaObject {
             if (c.hasColumn(colIndex)
                     && (c.getType() == Constraint.MAIN
                         || c.getType() == Constraint.FOREIGN_KEY)) {
+                HsqlName name = c.getName();
+
                 throw Trace.error(Trace.COLUMN_IS_REFERENCED,
-                                  c.getName().name);
+                                  name.schema.name + '.' + name.name);
             }
         }
     }
@@ -1040,8 +1005,10 @@ public class Table extends BaseTable implements SchemaObject {
             if (c.getType() == Constraint.FOREIGN_KEY && c.hasColumn(colIndex)
                     && (actionType == c.getUpdateAction()
                         || actionType == c.getDeleteAction())) {
+                HsqlName name = c.getName();
+
                 throw Trace.error(Trace.COLUMN_IS_REFERENCED,
-                                  c.getName().name);
+                                  name.schema.name + '.' + name.name);
             }
         }
     }
@@ -1263,7 +1230,7 @@ public class Table extends BaseTable implements SchemaObject {
 
         hasDefaultValues = false;
 
-        for (int i = 0; i < columnCount; i++) {
+        for (int i = 0; i < colDefaults.length; i++) {
             hasDefaultValues = hasDefaultValues || colDefaults[i] != null;
         }
     }
@@ -1279,7 +1246,7 @@ public class Table extends BaseTable implements SchemaObject {
 
         try {
             HsqlName indexName = database.nameManager.newAutoName("IDX_T",
-                (HsqlName) null);
+                getSchemaName(), getName(), SchemaObject.INDEX);
 
             return createIndex(session, columns, null, indexName, false,
                                false, false);
@@ -1468,14 +1435,14 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      *  Shortcut for creating system table PK's.
      */
-    void createPrimaryKey(int[] cols) throws HsqlException {
+    void createPrimaryKey(int[] cols) {
         createPrimaryKey(null, cols, false);
     }
 
     /**
      *  Shortcut for creating default PK's.
      */
-    public void createPrimaryKey() throws HsqlException {
+    public void createPrimaryKey() {
         createPrimaryKey(null, null, false);
     }
 
@@ -1484,10 +1451,11 @@ public class Table extends BaseTable implements SchemaObject {
      *  colTypes array. Finalises the creation of the table. (fredt@users)
      */
     public void createPrimaryKey(HsqlName indexName, int[] columns,
-                                 boolean columnsNotNull) throws HsqlException {
+                                 boolean columnsNotNull) {
 
         if (primaryKeyCols != null) {
-            Trace.doAssert(false, "Table.createPrimaryKey(column)");
+            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                                     "Table");
         }
 
         if (columns == null) {
@@ -1503,10 +1471,12 @@ public class Table extends BaseTable implements SchemaObject {
         setColumnStructures();
         setPrimaryKeyStructures();
 
-        // tony_lai@users 20020820 - patch 595099
-        HsqlName name = indexName != null ? indexName
-                                          : database.nameManager.newAutoName(
-                                              "IDX", (HsqlName) null);
+        HsqlName name = indexName;
+
+        if (name == null) {
+            name = database.nameManager.newAutoName("IDX", getSchemaName(),
+                    getName(), SchemaObject.INDEX);
+        }
 
         createPrimaryIndex(columns, name);
         setBestRowIdentifiers();
@@ -1524,6 +1494,8 @@ public class Table extends BaseTable implements SchemaObject {
     }
 
     void setColumnStructures() {
+
+        int columnCount = getColumnCount();
 
         colTypes         = new Type[columnCount];
         colDefaults      = new Expression[columnCount];
@@ -1555,7 +1527,7 @@ public class Table extends BaseTable implements SchemaObject {
         colDefaults[i] = column.getDefaultExpression();
     }
 
-    void createPrimaryIndex(int[] pkcols, HsqlName name) throws HsqlException {
+    void createPrimaryIndex(int[] pkcols, HsqlName name) {
 
         Index newindex = new Index(database, name, this, pkcols, null,
                                    primaryKeyTypes, true, true, false);
@@ -1675,11 +1647,11 @@ public class Table extends BaseTable implements SchemaObject {
 
     Index createIndexStructure(int[] columns, boolean[] descending,
                                HsqlName name, boolean unique,
-                               boolean constraint,
-                               boolean forward) throws HsqlException {
+                               boolean constraint, boolean forward) {
 
         if (primaryKeyCols == null) {
-            Trace.doAssert(false, "createIndex");
+            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                                     "createIndex");
         }
 
         int    s     = columns.length;
@@ -1774,19 +1746,19 @@ public class Table extends BaseTable implements SchemaObject {
      * Returns empty mapping array.
      */
     int[] getNewColumnMap() {
-        return new int[columnCount];
+        return new int[getColumnCount()];
     }
 
     /**
      * Returns empty boolean array.
      */
     public boolean[] getNewColumnCheckList() {
-        return new boolean[columnCount];
+        return new boolean[getColumnCount()];
     }
 
     boolean[] getColumnCheckList(int[] columnIndexes) {
 
-        boolean[] columnCheckList = new boolean[columnCount];
+        boolean[] columnCheckList = new boolean[getColumnCount()];
 
         for (int i = 0; i < columnIndexes.length; i++) {
             int index = columnIndexes[i];
@@ -1839,11 +1811,20 @@ public class Table extends BaseTable implements SchemaObject {
         return set;
     }
 
+    public void getColumnNames(boolean[] columnCheckList, Set set) {
+
+        for (int i = 0; i < columnCheckList.length; i++) {
+            if (columnCheckList[i]) {
+                set.add(((Column) columnList.get(i)).getName());
+            }
+        }
+    }
+
     public OrderedHashSet getColumnSet() {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        for (int i = 0; i < columnCount; i++) {
+        for (int i = 0; i < getColumnCount(); i++) {
             set.add(columnList.get(i));
         }
 
@@ -1883,7 +1864,7 @@ public class Table extends BaseTable implements SchemaObject {
      * Returns empty Object array for a new row.
      */
     public Object[] getEmptyRowData() {
-        return new Object[columnCount];
+        return new Object[getColumnCount()];
     }
 
     /**
@@ -1895,11 +1876,11 @@ public class Table extends BaseTable implements SchemaObject {
     Object[] getNewRowData(Session session,
                            boolean[] exists) throws HsqlException {
 
-        Object[] data = new Object[columnCount];
+        Object[] data = new Object[getColumnCount()];
         int      i;
 
         if (exists != null && hasDefaultValues) {
-            for (i = 0; i < columnCount; i++) {
+            for (i = 0; i < getColumnCount(); i++) {
                 Expression def = colDefaults[i];
 
                 if (exists[i] == false && def != null) {
@@ -1990,18 +1971,15 @@ public class Table extends BaseTable implements SchemaObject {
      */
     void insertRow(Session session, Object[] data) throws HsqlException {
 
-        if (triggerLists[Trigger.INSERT_BEFORE_ROW] != null) {
-            fireAll(session, Trigger.INSERT_BEFORE_ROW, null, data);
+        setIdentityColumn(session, data);
+
+        if (triggerLists[Trigger.INSERT_BEFORE] != null) {
+            fireBeforeTriggers(session, Trigger.INSERT_BEFORE, null, data,
+                               null);
         }
 
-        setIdentityColumn(session, data);
         checkRowDataInsert(session, data);
         insertNoCheck(session, data);
-
-        if (triggerLists[Trigger.INSERT_AFTER_ROW] != null) {
-            fireAll(session, Trigger.INSERT_AFTER_ROW, null, data);
-            checkRowDataInsert(session, data);
-        }
     }
 
     /**
@@ -2113,7 +2091,8 @@ public class Table extends BaseTable implements SchemaObject {
         while (nav.hasNext()) {
             Object[] data = (Object[]) nav.getNext();
             Object[] newData =
-                (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
+                (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
+                    getColumnCount());
 
             insertData(session, newData);
 
@@ -2191,7 +2170,7 @@ public class Table extends BaseTable implements SchemaObject {
      */
     protected void enforceNullConstraints(Object[] data) throws HsqlException {
 
-        for (int i = 0; i < columnCount; i++) {
+        for (int i = 0; i < colNotNull.length; i++) {
             if (data[i] == null && colNotNull[i]) {
                 Trace.throwerror(Trace.TRY_TO_INSERT_NULL,
                                  "column: " + getColumn(i).columnName.name
@@ -2286,15 +2265,11 @@ public class Table extends BaseTable implements SchemaObject {
                && !triggerLists[trigVecIndex].isEmpty();
     }
 
-    /**
-     *  Statement level triggers.
-     */
-    void fireAll(Session session, int trigVecIndex,
-                 RowSetNavigator rowSetNavigator) {
+    void fireAfterTriggers(Session session, int trigVecIndex,
+                           HashMappedList rowSet,
+                           int[] cols) throws HsqlException {
 
         if (!database.isReferentialIntegrity()) {
-
-            // isReferentialIntegrity is false when reloading db
             return;
         }
 
@@ -2305,33 +2280,87 @@ public class Table extends BaseTable implements SchemaObject {
         }
 
         for (int i = 0, size = trigVec.size(); i < size; i++) {
-            TriggerDef td = (TriggerDef) trigVec.get(i);
+            TriggerDef td         = (TriggerDef) trigVec.get(i);
+            boolean    sqlTrigger = td instanceof TriggerDefSQL;
 
-            if (!td.isForEachRow()) {
+            if (cols != null && td.getUpdateColumns() != null
+                    && !ArrayUtil.haveCommonElement(td.getUpdateColumns(),
+                        cols, cols.length)) {
+                continue;
+            }
+
+            if (td.isForEachRow()) {
+                for (int j = 0; j < rowSet.size(); j++) {
+                    Object[] oldData = ((Row) rowSet.getKey(j)).getData();
+                    Object[] newData = (Object[]) rowSet.get(j);
+
+                    if (sqlTrigger) {
+                        oldData = (Object[]) ArrayUtil.duplicateArray(oldData);
+                        newData = (Object[]) ArrayUtil.duplicateArray(newData);
+                    }
+
+                    td.pushPair(session, oldData, newData);
+                }
+            } else {
                 td.pushPair(session, null, null);
             }
         }
     }
 
-    void fireAfterTriggers(Session session, int trigVecIndex, HashMappedList rowSet, int[] cols) {
-        for (int i = 0; i < rowSet.size(); i++) {
-            Row row = (Row) rowSet.getKey(i);
-            Object[] data = (Object[]) rowSet.get(i);
+    void fireAfterTriggers(Session session, int trigVecIndex,
+                           RowSetNavigator rowSet) throws HsqlException {
 
-            if (triggerLists[trigVecIndex] != null) {
-                fireAll(session, trigVecIndex, row.getData(),
-                        data);
-            }
+        if (!database.isReferentialIntegrity()) {
+            return;
         }
-    }
 
-    void fireAfterTriggers(Session session, RowSetNavigator rowSet) {
-        for (int i = 0; i < rowSet.getSize(); i++) {
-            Row row = (Row) rowSet.getNext();
+        HsqlArrayList trigVec = triggerLists[trigVecIndex];
 
-            if (triggerLists[Trigger.UPDATE_AFTER_ROW] != null) {
-                fireAll(session, Trigger.UPDATE_AFTER_ROW, row.getData(),
-                        row.getData());
+        if (trigVec == null) {
+            return;
+        }
+
+        for (int i = 0, size = trigVec.size(); i < size; i++) {
+            TriggerDef td         = (TriggerDef) trigVec.get(i);
+            boolean    sqlTrigger = td instanceof TriggerDefSQL;
+
+            if (td.hasOldTable()) {
+
+                //
+            }
+
+            if (td.isForEachRow()) {
+                while (rowSet.hasNext()) {
+                    Object[] oldData = null;
+                    Object[] newData = null;
+
+                    switch (td.triggerType) {
+
+                        case Trigger.DELETE_AFTER_ROW :
+                            oldData = (Object[]) rowSet.getNext();
+
+                            if (!sqlTrigger) {
+                                oldData = (Object[]) ArrayUtil.duplicateArray(
+                                    oldData);
+                            }
+                            break;
+
+                        case Trigger.INSERT_AFTER_ROW :
+                            newData = (Object[]) rowSet.getNext();
+
+                            if (!sqlTrigger) {
+                                newData = (Object[]) ArrayUtil.duplicateArray(
+                                    newData);
+                            }
+                            break;
+                    }
+
+                    td.pushPair(session, oldData, newData);
+                }
+
+                rowSet.beforeFirst();
+            } else {
+                td.pushPair(session, null, null);
             }
         }
     }
@@ -2340,12 +2369,11 @@ public class Table extends BaseTable implements SchemaObject {
      *  Fires all row-level triggers of the given set (trigger type)
      *
      */
-    void fireAll(Session session, int trigVecIndex, Object[] oldrow,
-                 Object[] newrow) {
+    void fireBeforeTriggers(Session session, int trigVecIndex,
+                            Object[] oldData, Object[] newData,
+                            int[] cols) throws HsqlException {
 
         if (!database.isReferentialIntegrity()) {
-
-            // isReferentialIntegrity is false when reloading db
             return;
         }
 
@@ -2356,10 +2384,30 @@ public class Table extends BaseTable implements SchemaObject {
         }
 
         for (int i = 0, size = trigVec.size(); i < size; i++) {
-            TriggerDef td = (TriggerDef) trigVec.get(i);
+            TriggerDef td         = (TriggerDef) trigVec.get(i);
+            boolean    sqlTrigger = td instanceof TriggerDefSQL;
+
+            if (cols != null && td.getUpdateColumns() != null
+                    && !ArrayUtil.haveCommonElement(td.getUpdateColumns(),
+                        cols, cols.length)) {
+                continue;
+            }
 
             if (td.isForEachRow()) {
-                td.pushPair(session, oldrow, newrow);    // tell the trigger thread to fire with this row
+                switch (td.triggerType) {
+
+                    case Trigger.UPDATE_BEFORE_ROW :
+                    case Trigger.DELETE_BEFORE_ROW :
+                        if (!sqlTrigger) {
+                            oldData =
+                                (Object[]) ArrayUtil.duplicateArray(oldData);
+                        }
+                        break;
+                }
+
+                td.pushPair(session, oldData, newData);
+            } else {
+                td.pushPair(session, null, null);
             }
         }
     }
@@ -2374,6 +2422,33 @@ public class Table extends BaseTable implements SchemaObject {
         }
 
         triggerLists[trigDef.vectorIndex].add(trigDef);
+    }
+
+    /**
+     * Drops a trigger.
+     */
+    TriggerDef getTrigger(String name) throws HsqlException {
+
+        // look in each trigger list of each type of trigger
+        int numTrigs = TriggerDef.NUM_TRIGS;
+
+        for (int tv = 0; tv < numTrigs; tv++) {
+            HsqlArrayList v = triggerLists[tv];
+
+            if (v == null) {
+                continue;
+            }
+
+            for (int tr = v.size() - 1; tr >= 0; tr--) {
+                TriggerDef td = (TriggerDef) v.get(tr);
+
+                if (td.name.name.equals(name)) {
+                    return td;
+                }
+            }
+        }
+
+        throw Trace.error(Trace.TRIGGER_NOT_FOUND, name);
     }
 
     /**
@@ -2432,19 +2507,14 @@ public class Table extends BaseTable implements SchemaObject {
     }
 
     /**
-     *  Mid level row delete method. Fires triggers but no integrity
-     *  constraint checks.
+     *  Delete method for referential  triggered actions.
      */
     void deleteRowAsTriggeredAction(Session session,
                                     Row row) throws HsqlException {
 
         Object[] data = row.getData();
 
-        fireAll(session, Trigger.DELETE_BEFORE_ROW, data, null);
         deleteNoCheck(session, row, true);
-
-        // fire the delete after statement trigger
-        fireAll(session, Trigger.DELETE_AFTER_ROW, data, null);
     }
 
     /**
@@ -2455,11 +2525,8 @@ public class Table extends BaseTable implements SchemaObject {
 
         Object[] data = row.getData();
 
-        fireAll(session, Trigger.DELETE_BEFORE_ROW, data, null);
+        fireBeforeTriggers(session, Trigger.DELETE_BEFORE, data, null, null);
         deleteNoCheck(session, row, true);
-
-        // fire the delete after statement trigger
-        fireAll(session, Trigger.DELETE_AFTER_ROW, data, null);
     }
 
     /**
@@ -2609,20 +2676,20 @@ public class Table extends BaseTable implements SchemaObject {
     }
 
     void updateRowSet(Session session, HashMappedList rowSet, int[] cols,
-                      boolean noDelete) throws HsqlException {
+                      boolean isTriggeredSet) throws HsqlException {
 
         for (int i = 0; i < rowSet.size(); i++) {
             Row row = (Row) rowSet.getKey(i);
 
             if (row.isCascadeDeleted()) {
-                if (noDelete) {
-                    throw Trace.error(Trace.TRIGGERED_DATA_CHANGE);
-                } else {
+                if (isTriggeredSet) {
                     rowSet.remove(i);
 
                     i--;
 
                     continue;
+                } else {
+                    throw Trace.error(Trace.TRIGGERED_DATA_CHANGE);
                 }
             }
         }
@@ -2630,11 +2697,6 @@ public class Table extends BaseTable implements SchemaObject {
         for (int i = 0; i < rowSet.size(); i++) {
             Row      row  = (Row) rowSet.getKey(i);
             Object[] data = (Object[]) rowSet.get(i);
-
-            if (triggerLists[Trigger.UPDATE_BEFORE_ROW] != null) {
-                fireAll(session, Trigger.UPDATE_BEFORE_ROW, row.getData(),
-                        data);
-            }
 
             checkRowDataUpdate(session, data, cols);
             deleteNoCheck(session, row, true);
@@ -2646,7 +2708,6 @@ public class Table extends BaseTable implements SchemaObject {
             insertNoCheck(session, data);
         }
     }
-
 
     void checkRowDataInsert(Session session,
                             Object[] data) throws HsqlException {

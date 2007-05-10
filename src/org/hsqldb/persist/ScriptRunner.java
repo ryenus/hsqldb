@@ -66,8 +66,7 @@ public class ScriptRunner {
                                  int logType) throws HsqlException {
 
         IntKeyHashMap sessionMap = new IntKeyHashMap();
-        Session sysSession = database.getSessionManager().getSysSession();
-        Session       current    = sysSession;
+        Session       current    = null;
         int           currentId  = 0;
 
         database.setReferentialIntegrity(false);
@@ -83,14 +82,15 @@ public class ScriptRunner {
             while (scr.readLoggedStatement(current)) {
                 int sessionId = scr.getSessionNumber();
 
-                if (currentId != sessionId) {
+                if (current == null || currentId != sessionId) {
                     currentId = sessionId;
                     current   = (Session) sessionMap.get(currentId);
 
                     if (current == null) {
                         current =
                             database.getSessionManager().newSession(database,
-                                sysSession.getUser(), false, true);
+                                database.getUserManager().getSysUser(), false,
+                                true);
 
                         sessionMap.put(currentId, current);
                     }
@@ -120,8 +120,7 @@ public class ScriptRunner {
                         break;
 
                     case ScriptReaderBase.SEQUENCE_STATEMENT :
-                        scr.getCurrentSequence().reset(
-                            scr.getSequenceValue());
+                        scr.getCurrentSequence().reset(scr.getSequenceValue());
                         break;
 
                     case ScriptReaderBase.COMMIT_STATEMENT :
@@ -135,7 +134,7 @@ public class ScriptRunner {
 
                         scr.getCurrentTable().insertNoCheckFromLog(current,
                                 data);
-                        current.endAction();
+                        current.endAction(Result.updateOneResult);
 
                         break;
                     }
@@ -146,11 +145,11 @@ public class ScriptRunner {
 
                         scr.getCurrentTable().deleteNoCheckFromLog(current,
                                 data);
-                        current.endAction();
+                        current.endAction(Result.updateOneResult);
 
                         break;
                     }
-                    case ScriptReaderBase.SCHEMA_STATEMENT : {
+                    case ScriptReaderBase.SET_SCHEMA_STATEMENT : {
                         current.setSchema(scr.getCurrentSchema());
                     }
                 }

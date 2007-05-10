@@ -33,22 +33,25 @@ package org.hsqldb;
 
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.types.Type;
+import org.hsqldb.lib.HsqlArrayList;
 
 public class BaseParser {
 
-    protected Database database;
-    private Tokenizer  tokenizer;
-    protected Session  session;
-    protected String   namePrePrefix;
-    protected String   namePrefix;
-    protected String   tokenString;
-    protected boolean  isQuoted;
-    protected Object   value;
-    protected Type     valueType;
-    protected int      tokenType;
-    protected boolean  isReservedKey;
-    protected boolean  isCoreReservedKey;
-    protected boolean  isSpecial;
+    protected Database      database;
+    private Tokenizer       tokenizer;
+    protected Session       session;
+    protected String        namePrePrefix;
+    protected String        namePrefix;
+    protected String        tokenString;
+    protected boolean       isQuoted;
+    protected Object        value;
+    protected Type          valueType;
+    protected int           tokenType;
+    protected boolean       isReservedKey;
+    protected boolean       isCoreReservedKey;
+    protected boolean       isSpecial;
+    protected boolean       isRecording;
+    protected HsqlArrayList recordedStatement;
 
     /**
      *  Constructs a new BaseParser object with the given context.
@@ -79,6 +82,26 @@ public class BaseParser {
         value       = null;
 
         tokenizer.reset(sql);
+    }
+
+    void startRecording() {
+        recordedStatement = new HsqlArrayList();
+        isRecording       = false;
+    }
+
+    Object[] getRecordedStatement() {
+
+        isRecording = false;
+
+        Object[] statements = recordedStatement.toArray();
+
+        recordedStatement = null;
+
+        return statements;
+    }
+
+    void endRecording() {
+        isRecording = false;
     }
 
     /**
@@ -125,6 +148,8 @@ public class BaseParser {
                 tokenType = Token.X_NAME;
             }
         }
+
+
     }
 
     boolean isName() throws HsqlException {

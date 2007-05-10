@@ -418,19 +418,19 @@ public class Log {
 
         Session[] sessions = database.sessionManager.getAllSessions();
 
+/*
         try {
             for (int i = 0; i < sessions.length; i++) {
                 Session session = sessions[i];
 
                 if (session.isAutoCommit() == false) {
-                    dbLogWriter.writeLogStatement(
-                        session, session.getAutoCommitStatement());
+                    dbLogWriter.writeLogStatement(session, session.getAutoCommitStatement());
                 }
             }
         } catch (IOException e) {
             throw Trace.error(Trace.FILE_IO_ERROR, logFileName);
         }
-
+*/
         database.logger.appLog.logContext(SimpleLog.LOG_NORMAL, "end");
     }
 
@@ -668,8 +668,10 @@ public class Log {
                                                        scriptFileName,
                                                        scriptFormat);
 
-                scr.readAll(database.sessionManager.getSysSession(null,
-                        true));
+                Session session =
+                    database.sessionManager.getSysSessionForScript(database);
+
+                scr.readAll(session);
                 scr.close();
             }
         } catch (Throwable e) {
@@ -703,7 +705,7 @@ public class Log {
     private void processDataFile() throws HsqlException {
 
         if (cache == null || filesReadOnly || database.isStoredFileAccess()
-                ||!fa.isStreamElement(logFileName)) {
+                || !fa.isStreamElement(logFileName)) {
             return;
         }
 

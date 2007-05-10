@@ -190,7 +190,7 @@ public class Session implements SessionInterface {
         isAutoCommit              = autocommit;
         isReadOnly                = readonly;
         compiledStatementExecutor = new CompiledStatementExecutor(this);
-        parser = new CommandParser(this, new Tokenizer());
+        parser                    = new CommandParser(this, new Tokenizer());
         resultMaxMemoryRows       = database.getResultMaxMemoryRows();
 
         resetSchema();
@@ -202,9 +202,9 @@ public class Session implements SessionInterface {
 
         HsqlName initialSchema = user.getInitialSchema();
 
-        currentSchema = ((initialSchema == null)
-                         ? database.schemaManager.getDefaultSchemaHsqlName()
-                         : initialSchema);
+        currentSchema = initialSchema == null
+                        ? database.schemaManager.getDefaultSchemaHsqlName()
+                        : initialSchema;
     }
 
     /**
@@ -437,11 +437,6 @@ public class Session implements SessionInterface {
                 commit();
 
                 isAutoCommit = autocommit;
-
-                try {
-                    database.logger.writeToLog(this,
-                                               getAutoCommitStatement());
-                } catch (HsqlException e) {}
             }
         }
     }
@@ -450,26 +445,14 @@ public class Session implements SessionInterface {
         actionIndex = rowActionList.size();
     }
 
-    public void endAction() throws HsqlException {
+    public void endAction(Result r) throws HsqlException {
 
-        boolean wasNested = isNestedTransaction;
-
-        isNestedTransaction = false;
-
-        if (rollbackNestedTransaction) {
+        if (r.isError()) {
             database.txManager.rollbackNested(this);
-
-            rollbackNestedTransaction = false;
         }
 
         if (isAutoCommit) {
             commit();
-
-            if (wasNested) {
-                try {
-                    database.logger.writeToLog(this, "SET AUTOCOMMIT TRUE");
-                } catch (HsqlException e) {}
-            }
         }
     }
 
@@ -543,10 +526,8 @@ public class Session implements SessionInterface {
         savepoints.add(name, ValuePool.getInt(rowActionList.size()));
 
         try {
-            StringBuffer sb = new StringBuffer(Token.T_SAVEPOINT);
-
-            sb.append(' ').append('"').append(name).append('"');
-            database.logger.writeToLog(this, sb.toString());
+            database.logger.writeToLog(this,
+                                       DatabaseScript.getSavepointDDL(name));
         } catch (HsqlException e) {}
     }
 
@@ -563,10 +544,8 @@ public class Session implements SessionInterface {
         }
 
         try {
-            database.logger.writeToLog(this,
-                                       Token.T_ROLLBACK + " " + Token.T_TO
-                                       + " " + Token.T_SAVEPOINT + " "
-                                       + name);
+            database.logger.writeToLog(
+                this, DatabaseScript.getSavepointRollbackDDL(name));
         } catch (HsqlException e) {}
 
         database.txManager.rollbackSavepoint(this, name);
@@ -588,30 +567,6 @@ public class Session implements SessionInterface {
         while (savepoints.size() > index) {
             savepoints.remove(savepoints.size() - 1);
         }
-    }
-
-    /**
-     * Starts a nested transaction.
-     *
-     * @throws  HsqlException
-     */
-    void beginNestedTransaction() throws HsqlException {
-
-        isNestedTransaction = true;
-
-        if (isAutoCommit) {
-            try {
-                database.logger.writeToLog(this, "SET AUTOCOMMIT FALSE");
-            } catch (HsqlException e) {}
-        }
-    }
-
-    /**
-     * Sets flag when a nested transaction fails.
-     * @throws  HsqlException
-     */
-    void failNestedTransaction() throws HsqlException {
-        rollbackNestedTransaction = true;
     }
 
     /**
@@ -648,10 +603,8 @@ public class Session implements SessionInterface {
 
     /**
      *  A switch to set scripting on the basis of type of statement executed.
-     *  A method in DatabaseCommandInterpreter.java sets this value to false
-     *  before other  methods are called to act on an SQL statement, which may
-     *  set this to true. Afterwards the method reponsible for logging uses
-     *  getScripting() to determine if logging is required for the executed
+     *  Afterwards the method reponsible for logging uses
+     *  isScripting() to determine if logging is required for the executed
      *  statement. (fredt@users)
      *
      * @param  script The new scripting value
@@ -667,11 +620,6 @@ public class Session implements SessionInterface {
      */
     boolean isScripting() {
         return script;
-    }
-
-    public String getAutoCommitStatement() {
-        return isAutoCommit ? "SET AUTOCOMMIT TRUE"
-                            : "SET AUTOCOMMIT FALSE";
     }
 
     /**
@@ -813,8 +761,7 @@ public class Session implements SessionInterface {
                     ResultMetaData rmd = cs.getResultMetaData();
                     ResultMetaData pmd = cs.getParametersMetaData();
 
-                    return Result.newPrepareResponse(cs.id, cs.type, rmd,
-                                                     pmd);
+                    return Result.newPrepareResponse(cs.id, cs.type, rmd, pmd);
                 }
                 case ResultConstants.CLOSE_RESULT : {
                     closeNavigator(cmd.getResultId());
@@ -887,9 +834,9 @@ public class Session implements SessionInterface {
                     return Result.updateZeroResult;
                 }
                 case ResultConstants.REQUESTDATA : {
-                    return sessionData.getDataResultSlice(
-                        cmd.getResultId(), cmd.getUpdateCount(),
-                        cmd.getFetchSize());
+                    return sessionData.getDataResultSlice(cmd.getResultId(),
+                                                          cmd.getUpdateCount(),
+                                                          cmd.getFetchSize());
                 }
                 case ResultConstants.DISCONNECT : {
                     close();
@@ -975,7 +922,7 @@ public class Session implements SessionInterface {
 
 //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
         try {
-            endAction();
+            endAction(r);
         } catch (HsqlException e) {
             return Result.newErrorResult(e, null);
         }
@@ -1010,8 +957,7 @@ public class Session implements SessionInterface {
         Result generatedResult = null;
 
         if (cs.hasGeneratedColumns()) {
-            generatedResult =
-                Result.newDataResult(cs.generatedResultMetaData);
+            generatedResult = Result.newDataResult(cs.generatedResultMetaData);
         }
 
         Result error = null;
@@ -1050,8 +996,8 @@ public class Session implements SessionInterface {
             }
         }
 
-        return Result.newBatchedExecuteResponse(updateCounts,
-                generatedResult, error);
+        return Result.newBatchedExecuteResponse(updateCounts, generatedResult,
+                error);
     }
 
     private Result executeDirectBatchStatement(Result cmd) {
@@ -1331,8 +1277,7 @@ public class Session implements SessionInterface {
                 }
             }
             case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :
-            case ResultLob.LobResultTypes
-                    .REQUEST_GET_CHAR_PATTERN_POSITION : {
+            case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION : {
                 throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
                                          "Session");
             }
@@ -1385,8 +1330,8 @@ public class Session implements SessionInterface {
         oldSchema     = null;
 
         database.logger.writeToLog(this,
-                                   "SET SCHEMA "
-                                   + currentSchema.statementName);
+                                   DatabaseScript.getSetSchemaDDL(database,
+                                       currentSchema));
     }
 
     // schema object methods
@@ -1412,37 +1357,16 @@ public class Session implements SessionInterface {
                             : database.schemaManager.getSchemaName(name);
     }
 
-    /**
-     * If schemaName is null, return the current schema name, else return
-     * the HsqlName object for the schema. If schemaName does not exist, or
-     * schema readonly, throw.
-     */
-    HsqlName getSchemaHsqlNameForWrite(String name) throws HsqlException {
-
-        HsqlName schema = getSchemaHsqlName(name);
-
-        if (database.schemaManager.isSystemSchema(schema)) {
-            throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
-        }
-
-        return schema;
-    }
-
-    /**
-     * Same as above, but return string
-     */
-    public String getSchemaNameForWrite(String name) throws HsqlException {
-
-        HsqlName schema = getSchemaHsqlNameForWrite(name);
-
-        return schema.name;
-    }
-
     public HsqlName getCurrentSchemaHsqlName() {
         return currentSchema;
     }
 
+// session tables
     Table[] transitionTables = new Table[0];
+
+    public void setSessionTables(Table[] tables) {
+        transitionTables = tables;
+    }
 
     public Table findSessionTable(String name) {
 
@@ -1455,6 +1379,7 @@ public class Session implements SessionInterface {
         return null;
     }
 
+//
     public int getResultMemoryRowCount() {
         return resultMaxMemoryRows;
     }

@@ -81,8 +81,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             new InputStreamReader(new BufferedInputStream(d)));
     }
 
-    protected void readDDL(Session session)
-    throws IOException, HsqlException {
+    protected void readDDL(Session session) throws IOException, HsqlException {
 
         for (; readLoggedStatement(session); ) {
             if (rowIn.getStatementType() == INSERT_STATEMENT) {
@@ -117,7 +116,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
             for (; isInsert || readLoggedStatement(session);
                     isInsert = false) {
-                if (statementType == SCHEMA_STATEMENT) {
+                if (statementType == SET_SCHEMA_STATEMENT) {
                     session.setSchema(currentSchema);
 
                     continue;
@@ -191,7 +190,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                 currentTable = null;
 
                 return;
-            } else if (statementType == SCHEMA_STATEMENT) {
+            } else if (statementType == SET_SCHEMA_STATEMENT) {
                 rowData       = null;
                 currentTable  = null;
                 currentSchema = rowIn.getSchemaName();

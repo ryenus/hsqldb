@@ -1915,7 +1915,8 @@ public class Expression {
             RangeVariable[] rangeVarArray,
             OrderedHashSet unresolvedSet) throws HsqlException {
 
-        if (isParam || rangeVarArray == null || exprType == Expression.VALUE) {
+        if (rangeVarArray == null || rangeVarArray.length == 0
+                || exprType == Expression.VALUE || isParam) {
             return unresolvedSet;
         }
 
@@ -3114,6 +3115,10 @@ public class Expression {
         return getAlias();
     }
 
+    Column getColumn() {
+        return column;
+    }
+
     /**
      * Returns the name of a column as string
      */
@@ -3532,8 +3537,6 @@ public class Expression {
 
     public Object getValue(Session session) throws HsqlException {
 
-        boolean compareNulls = false;
-
         switch (exprType) {
 
             case VALUE :
@@ -3628,10 +3631,6 @@ public class Expression {
                 return eArg.testExistsCondition(session);
 
             case NOT : {
-                if (eArg2 != null) {
-                    Trace.doAssert(false, "Expression.test");
-                }
-
                 Boolean result = (Boolean) eArg.getValue(session);
 
                 return result == null ? null
@@ -3698,7 +3697,6 @@ public class Expression {
                 };
             }
             case NOT_DISTINCT :
-                compareNulls = true;
             case EQUAL :
             case GREATER :
             case GREATER_EQUAL :
@@ -4327,7 +4325,7 @@ public class Expression {
 
         OrderedHashSet set = e.resolveColumnReferences(s.rangeVariables, null);
 
-        Select.checkColumnsResolved(set);
+        Expression.checkColumnsResolved(set);
         e.resolveTypes(session, null);
 
         if (Types.SQL_BOOLEAN != e.getDataType().type) {
@@ -4667,6 +4665,25 @@ public class Expression {
         if (!set.isEmpty()) {
             throw Trace.error(Trace.OPERATION_NOT_SUPPORTED,
                               "CHECK CONSTRAINT");
+        }
+    }
+
+    static void checkColumnsResolved(OrderedHashSet set) throws HsqlException {
+
+        if (set != null && !set.isEmpty()) {
+            Expression   e  = (Expression) set.get(0);
+            StringBuffer sb = new StringBuffer();
+
+            if (e.getSchemaName() != null) {
+                sb.append(e.getSchemaName() + '.');
+            }
+
+            if (e.getTableName() != null) {
+                sb.append(e.getTableName() + '.');
+            }
+
+            throw Trace.error(Trace.COLUMN_NOT_FOUND,
+                              sb.toString() + e.getColumnName());
         }
     }
 

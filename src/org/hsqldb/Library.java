@@ -1507,8 +1507,7 @@ public class Library {
             return ValuePool.getLong(getElapsed(Calendar.SECOND, d1, d2));
         } else if ("ms".equalsIgnoreCase(datepart)
                    || "millisecond".equalsIgnoreCase(datepart)) {
-            return ValuePool.getLong(getElapsed(Calendar.MILLISECOND, d1,
-                                                d2));
+            return ValuePool.getLong(getElapsed(Calendar.MILLISECOND, d1, d2));
         } else {
             throw Trace.error(Trace.INVALID_CONVERSION);
         }
@@ -1793,9 +1792,8 @@ public class Library {
 /** @todo  see bitxor and datediff numbering */
 
     //
-    private static final IntValueHashMap functionMap =
-        new IntValueHashMap(68);
-    static final Double piValue = new Double(Library.pi());
+    private static final IntValueHashMap functionMap = new IntValueHashMap(68);
+    static final Double                  piValue = new Double(Library.pi());
 
     static {
         functionMap.put("ascii", ascii);
@@ -1892,8 +1890,7 @@ public class Library {
                     return concat((String) params[0], (String) params[1]);
                 }
                 case cot : {
-                    return new Double(
-                        cot(((Number) params[0]).doubleValue()));
+                    return new Double(cot(((Number) params[0]).doubleValue()));
                 }
                 case curdate : {
                     return null;
@@ -1905,8 +1902,7 @@ public class Library {
                     return null;
                 }
                 case datediff : {
-                    return datediff((String) params[0],
-                                    (Timestamp) params[1],
+                    return datediff((String) params[0], (Timestamp) params[1],
                                     (Timestamp) params[2]);
                 }
                 case dayname : {
@@ -2022,9 +2018,8 @@ public class Library {
                                  ((Number) params[1]).intValue());
                 }
                 case round : {
-                    return new Double(
-                        round(((Number) params[0]).doubleValue(),
-                              ((Number) params[1]).intValue()));
+                    return new Double(round(((Number) params[0]).doubleValue(),
+                                            ((Number) params[1]).intValue()));
                 }
                 case roundMagic : {
                     return new Double(
@@ -2075,9 +2070,8 @@ public class Library {
                 default : {
 
                     // coding error
-                    Trace.doAssert(false);
-
-                    return null;
+                    throw Trace.runtimeError(
+                        Trace.UNSUPPORTED_INTERNAL_OPERATION, "Library");
                 }
             }
         } catch (Exception e) {

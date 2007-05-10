@@ -36,6 +36,7 @@ import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.lib.OrderedHashSet;
 
 // peterhudson@users 20020130 - patch 478657 by peterhudson - triggers support
 // fredt@users 20020130 - patch 1.7.0 by fredt
@@ -69,7 +70,8 @@ public class TriggerDef implements Runnable, SchemaObject {
      *  member variables
      */
     static final int NUM_TRIGGER_OPS = 3;                          // {ins,del,upd}
-    static final int NUM_TRIGS       = NUM_TRIGGER_OPS * 2 * 2;    // {b, a},{fer, fes}
+    static final int NUM_TRIGS       = NUM_TRIGGER_OPS * 2;    // {b, a},{fer, fes}
+    static final int defaultQueueSize = 1024;
 
     // other variables
     Thread   thread;
@@ -81,22 +83,13 @@ public class TriggerDef implements Runnable, SchemaObject {
     boolean  nowait;                                               // block or overwrite if queue full
     int      maxRowsQueued;                                        // max size of queue of pending triggers
 
-    /**
-     *  Retrieves the queue size assigned to trigger definitions when no
-     *  queue size is explicitly declared. <p>
-     *
-     * @return the queue size assigned to trigger definitions when no
-     *      queue size is explicitly declared
-     */
-    public static int getDefaultQueueSize() {
-        return defaultQueueSize;
-    }
-
-    protected static int defaultQueueSize = 1024;
     Table                table;
     Trigger              trigger;
     String               triggerClassName;
+    int                  triggerType;
     int                  vectorIndex;               // index into HsqlArrayList[]
+    int[] updateColumns;
+
 
     //protected boolean busy;               // firing trigger in progress
     protected HsqlDeque        pendingQueue;        // row triggers pending
@@ -193,6 +186,12 @@ public class TriggerDef implements Runnable, SchemaObject {
         return name.schema.owner;
     }
 
+    public OrderedHashSet getReferences() {
+        return new OrderedHashSet();
+    }
+
+    public void compile(Session session) throws HsqlException {}
+
     public String getClassName() {
         return trigger.getClass().getName();
     }
@@ -209,6 +208,17 @@ public class TriggerDef implements Runnable, SchemaObject {
         return forEachRow;
     }
 
+    public int[] getUpdateColumns() {
+        return updateColumns;
+    }
+
+    public boolean hasOldTable() {
+        return false;
+    }
+
+    public boolean hasNewTable() {
+        return false;
+    }
     /**
      *  Retrieves the SQL character sequence required to (re)create the
      *  trigger, as a StringBuffer
@@ -216,7 +226,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      * @return the SQL character sequence required to (re)create the
      *  trigger
      */
-    public StringBuffer getDDL() {
+    public String getDDL() {
 
         StringBuffer a = new StringBuffer(256);
 
@@ -238,7 +248,7 @@ public class TriggerDef implements Runnable, SchemaObject {
             a.append(Token.T_NOWAIT).append(' ');
         }
 
-        if (maxRowsQueued != getDefaultQueueSize()) {
+        if (maxRowsQueued != defaultQueueSize) {
             a.append(Token.T_QUEUE).append(' ');
             a.append(maxRowsQueued).append(' ');
         }
@@ -246,7 +256,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         a.append(Token.T_CALL).append(' ');
         a.append(StringConverter.toQuotedString(triggerClassName, '"', false));
 
-        return a;
+        return a.toString();
     }
 
     /**
@@ -255,7 +265,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      *
      * @return  index to the HsqlArrayList[]
      */
-    private void setUpIndexesAndTypes() {
+    void setUpIndexesAndTypes() {
 
         vectorIndex = 0;
 
@@ -282,8 +292,10 @@ public class TriggerDef implements Runnable, SchemaObject {
             return;
         }
 
+        triggerType = vectorIndex;
+
         if (forEachRow) {
-            vectorIndex += 2 * NUM_TRIGGER_OPS;
+            triggerType += 2 * NUM_TRIGGER_OPS;
         }
     }
 
@@ -376,10 +388,10 @@ public class TriggerDef implements Runnable, SchemaObject {
      * @param  row1
      * @param  row2
      */
-    synchronized void pushPair(Session session, Object[] row1, Object[] row2) {
+    synchronized void pushPair(Session session, Object[] row1, Object[] row2) throws HsqlException {
 
         if (maxRowsQueued == 0) {
-            trigger.fire(vectorIndex, name.name, table.getName().name, row1,
+            trigger.fire(triggerType, name.name, table.getName().name, row1,
                          row2);
 
             return;

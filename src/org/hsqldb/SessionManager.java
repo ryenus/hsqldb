@@ -48,7 +48,7 @@ public class SessionManager {
 
     long                   sessionIdCount = 1;
     private LongKeyHashMap sessionMap     = new LongKeyHashMap();
-    private Session       sysSession;
+    private Session        sysSession;
 
 // TODO:
 //
@@ -89,15 +89,15 @@ public class SessionManager {
      *  as the final step, when a successful connection has been made.
      *
      * @param db the database to which the new Session is initially connected
-     * @param user the initial Session User
-     * @param readonly the initial ReadOnly attribute for the new Session
+     * @param user the Session User
+     * @param readonly the ReadOnly attribute for the new Session
      */
     public synchronized Session newSession(Database db, User user,
-                                           boolean readonly, boolean forlog) {
+                                           boolean readonly, boolean forLog) {
 
-        Session s = new Session(db, user, true, readonly, sessionIdCount);
+        Session s = new Session(db, user, !forLog, readonly, sessionIdCount);
 
-        s.isProcessingLog = forlog;
+        s.isProcessingLog = forLog;
 
         sessionMap.put(sessionIdCount, s);
 
@@ -111,17 +111,15 @@ public class SessionManager {
      *
      * @return the special SYS Session
      */
-    public Session getSysSession(String schema,
-                                 boolean forScript) throws HsqlException {
+    public Session getSysSessionForScript(Database db) throws HsqlException {
 
-        sysSession.currentSchema =
-            sysSession.database.schemaManager.getSchemaHsqlName(schema);
-        sysSession.isProcessingScript = forScript;
-        sysSession.isProcessingLog    = false;
+        Session session = new Session(db, db.getUserManager().getSysUser(),
+                                      false, false, 0);
 
-        sysSession.setUser(sysSession.database.getUserManager().getSysUser());
+        session.currentSchema      = db.schemaManager.getSchemaHsqlName(null);
+        session.isProcessingScript = true;
 
-        return sysSession;
+        return session;
     }
 
     /**
@@ -132,7 +130,7 @@ public class SessionManager {
     public Session getSysSession() {
 
         sysSession.currentSchema =
-            sysSession.database.schemaManager.defaultSchemaHsqlName;
+            sysSession.database.schemaManager.getDefaultSchemaHsqlName();
         sysSession.isProcessingScript = false;
         sysSession.isProcessingLog    = false;
 

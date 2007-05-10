@@ -81,6 +81,10 @@ import org.hsqldb.Trace;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.types.Type;
+import org.hsqldb.SchemaObject;
+import org.hsqldb.HsqlNameManager;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.rights.Grantee;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users - corrections
 // fredt@users 20020225 - patch 1.7.0 - changes to support cascading deletes
@@ -101,7 +105,7 @@ import org.hsqldb.types.Type;
  * @version 1.9.0
  * @since Hypersonic SQL
  */
-public class Index {
+public class Index implements SchemaObject{
 
     // types of index
     public static final int MEMORY_INDEX  = 0;
@@ -109,7 +113,7 @@ public class Index {
     public static final int POINTER_INDEX = 2;
 
     // fields
-    final HsqlName        indexName;
+    final HsqlName        name;
     boolean[]             colCheck;
     private final int[]   colIndex;
     final Type[]          colTypes;
@@ -147,7 +151,7 @@ public class Index {
             boolean[] descending, Type[] colTypes, boolean unique,
             boolean constraint, boolean forward) {
 
-        indexName          = name;
+        this.name          = name;
         colIndex           = columns;
         this.colTypes      = colTypes;
         colDesc            = descending == null ? new boolean[columns.length]
@@ -182,16 +186,22 @@ public class Index {
      * Returns the HsqlName object
      */
     public HsqlName getName() {
-        return indexName;
+        return name;
     }
 
-    /**
-     * Changes index name. Used by 'alter index rename to'. Argument isquoted
-     * is true if the name was quoted in the DDL.
-     */
-    public void setName(String name, boolean isquoted) throws HsqlException {
-        indexName.rename(name, isquoted);
+    public HsqlName getSchemaName() {
+        return name.schema;
     }
+
+    public Grantee getOwner() {
+        return name.schema.owner;
+    }
+
+    public OrderedHashSet getReferences() {
+        return new OrderedHashSet();
+    }
+
+    public void compile(Session session) {}
 
     /**
      * Returns the count of visible columns used
@@ -289,7 +299,7 @@ public class Index {
 
         if (isTemp) {
             return session.sessionData.getIndexRoot(
-                indexName, onCommitPreserve) == null;
+                name, onCommitPreserve) == null;
         } else {
             return root == null;
         }
@@ -319,7 +329,7 @@ public class Index {
     public void setRoot(Session session, Node node) {
 
         if (isTemp) {
-            session.sessionData.setIndexRoot(indexName, onCommitPreserve,
+            session.sessionData.setIndexRoot(name, onCommitPreserve,
                                              node);
         } else {
             root = node;
@@ -334,7 +344,7 @@ public class Index {
     private Node getRoot(Session session) throws HsqlException {
 
         if (isTemp) {
-            return session.sessionData.getIndexRoot(indexName,
+            return session.sessionData.getIndexRoot(name,
                     onCommitPreserve);
         } else {
             return root == null ? root
@@ -369,20 +379,20 @@ public class Index {
 
             if (compare == 0) {
                 int    errorCode = Trace.VIOLATION_OF_UNIQUE_INDEX;
-                String name      = indexName.statementName;
+                HsqlName name      = this.name;
 
                 if (isConstraint) {
                     Constraint c =
                         table.getUniqueOrPKConstraintForIndex(this);
 
                     if (c != null) {
-                        name      = c.getName().name;
+                        name      = c.getName();
                         errorCode = Trace.VIOLATION_OF_UNIQUE_CONSTRAINT;
                     }
                 }
 
                 throw Trace.error(errorCode, new Object[] {
-                    name, getColumnNameList()
+                    name.name, getColumnNameList()
                 });
             }
 

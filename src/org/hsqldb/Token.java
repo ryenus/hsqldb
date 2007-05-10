@@ -1041,6 +1041,7 @@ public class Token {
     static final int        IMMEDIATELY           = 589;
     static final int        IF                    = 590;
     static final int        MILLIS                = 591;
+    static final int        HEADER                = 592;
 
     //
     static final int X_KEYSET     = 700;

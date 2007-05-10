@@ -47,6 +47,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.types.Type;
 import org.hsqldb.navigator.ClientRowSetNavigator;
 import org.hsqldb.navigator.LinkedListRowSetNavigator;
+import org.hsqldb.navigator.DataRowSetNavigator;
 
 // boucherb@users 200404xx - fixed broken CALL statement result set unwrapping;
 //                           fixed broken support for prepared SELECT...INTO
@@ -246,6 +247,9 @@ public final class CompiledStatementExecutor {
             case CompiledStatement.DDL :
                 return executeDDLStatement(cs);
 
+            case CompiledStatement.SET :
+                return executeSetStatement(cs);
+
             default :
                 throw Trace.runtimeError(
                     Trace.UNSUPPORTED_INTERNAL_OPERATION,
@@ -331,36 +335,25 @@ public final class CompiledStatementExecutor {
     private Result executeInsertSelectStatement(CompiledStatement cs)
     throws HsqlException {
 
-        Result          result    = cs.select.getResult(session, 0);
-        RowSetNavigator nav       = result.initialiseNavigator();
-        Table           table     = cs.targetTable;
-        int[]           columnMap = cs.insertColumnMap;
-        boolean[]       colCheck  = cs.insertCheckColumns;
-        boolean         success   = false;
+        Table           table              = cs.targetTable;
+        Type[]          colTypes           = table.getColumnTypes();
+        Result          resultOut          = null;
+        RowSetNavigator generatedNavigator = null;
+        int[]           columnMap          = cs.insertColumnMap;
+        boolean[]       colCheck           = cs.insertCheckColumns;
 
-        session.beginNestedTransaction();
+        //
+        Result          result      = cs.select.getResult(session, 0);
+        RowSetNavigator nav         = result.initialiseNavigator();
+        Type[]          sourceTypes = result.metaData.colTypes;
 
-        try {
-            insertRowSet(table, nav, result.metaData.colTypes, columnMap,
-                         colCheck);
-
-            success = true;
-        } finally {
-            if (!success) {
-                session.failNestedTransaction();
-            }
+        if (cs.generatedIndexes != null) {
+            resultOut = Result.newUpdateCountResult(cs.generatedResultMetaData,
+                    0);
+            generatedNavigator = resultOut.getChainedResult().getNavigator();
         }
 
-        return Result.newUpdateCountResult(nav.getSize());
-    }
-
-    void insertRowSet(Table table, RowSetNavigator nav, Type[] sourceTypes,
-                      int[] columnMap,
-                      boolean[] colCheck) throws HsqlException {
-
-        Type[] colTypes = table.getColumnTypes();    // column types
-        ClientRowSetNavigator newData =
-            new ClientRowSetNavigator(nav.getSize());
+        LinkedListRowSetNavigator newData = new LinkedListRowSetNavigator();
 
         while (nav.hasNext()) {
             Object[] data       = table.getNewRowData(session, colCheck);
@@ -374,11 +367,24 @@ public final class CompiledStatementExecutor {
                                                     sourceType);
             }
 
-            table.insertRow(session, data);
             newData.add(data);
         }
 
-        table.fireAll(session, Trigger.INSERT_AFTER, newData);
+        while (newData.hasNext()) {
+            Object[] data = (Object[]) newData.getNext();
+
+            table.insertRow(session, data);
+
+            if (generatedNavigator != null) {
+                Object[] generatedValues = cs.getGeneratedColumns(data);
+
+                generatedNavigator.add(generatedValues);
+            }
+        }
+
+        table.fireAfterTriggers(session, Trigger.INSERT_AFTER, newData);
+
+        return Result.newUpdateCountResult(newData.getSize());
     }
 
     /**
@@ -396,7 +402,6 @@ public final class CompiledStatementExecutor {
         Type[]          colTypes           = table.getColumnTypes();
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
-        boolean         success            = false;
         int[]           columnMap          = cs.insertColumnMap;
         boolean[]       colCheck           = cs.insertCheckColumns;
 
@@ -406,53 +411,49 @@ public final class CompiledStatementExecutor {
             generatedNavigator = resultOut.getChainedResult().getNavigator();
         }
 
-        session.beginNestedTransaction();
+        Expression[]              list    = cs.insertExpression.argList;
+        LinkedListRowSetNavigator newData = new LinkedListRowSetNavigator();
 
-        Expression[]          list    = cs.insertExpression.argList;
-        ClientRowSetNavigator newData = new ClientRowSetNavigator(list.length);
+        for (int j = 0; j < list.length; j++) {
+            Expression[] rowArgs = list[j].argList;
+            Object[]     data    = table.getNewRowData(session, colCheck);
 
-        try {
-            for (int j = 0; j < list.length; j++) {
-                Expression[] rowArgs = list[j].argList;
-                Object[]     data    = table.getNewRowData(session, colCheck);
+            for (int i = 0; i < rowArgs.length; i++) {
+                Expression e        = rowArgs[i];
+                int        colIndex = columnMap[i];
 
-                for (int i = 0; i < rowArgs.length; i++) {
-                    Expression e        = rowArgs[i];
-                    int        colIndex = columnMap[i];
-
-                    if (e.exprType == Expression.DEFAULT) {
-                        if (table.identityColumn == colIndex) {
-                            continue;
-                        }
-
-                        data[colIndex] =
-                            table.colDefaults[colIndex].getValue(session);
-
+                if (e.exprType == Expression.DEFAULT) {
+                    if (table.identityColumn == colIndex) {
                         continue;
                     }
 
-                    data[colIndex] = colTypes[colIndex].convertToType(session,
-                            e.getValue(session), e.getDataType());
+                    data[colIndex] =
+                        table.colDefaults[colIndex].getValue(session);
+
+                    continue;
                 }
 
-                table.insertRow(session, data);
-                newData.add(data);
-
-                if (generatedNavigator != null) {
-                    Object[] generatedValues = cs.getGeneratedColumns(data);
-
-                    generatedNavigator.add(generatedValues);
-                }
+                data[colIndex] = colTypes[colIndex].convertToType(session,
+                        e.getValue(session), e.getDataType());
             }
 
-            table.fireAll(session, Trigger.INSERT_AFTER, newData);
+            newData.add(data);
+        }
 
-            success = true;
-        } finally {
-            if (!success) {
-                session.failNestedTransaction();
+        while (newData.hasNext()) {
+            Object[] data = (Object[]) newData.getNext();
+
+            table.insertRow(session, data);
+
+            if (generatedNavigator != null) {
+                Object[] generatedValues = cs.getGeneratedColumns(data);
+
+                generatedNavigator.add(generatedValues);
             }
         }
+
+        newData.beforeFirst();
+        table.fireAfterTriggers(session, Trigger.INSERT_AFTER, newData);
 
         if (resultOut == null) {
             return Result.newUpdateCountResult(list.length);
@@ -477,7 +478,8 @@ public final class CompiledStatementExecutor {
         Select select = cs.select;
         Result result;
 
-        // session level user rights
+        session.getUser().checkSchemaUpdateOrGrantRights(
+            select.intoTableName.schema.name);
         session.checkDDLWrite();
 
         boolean exists =
@@ -536,7 +538,7 @@ public final class CompiledStatementExecutor {
 
         logTableDDL(t);
         t.insertIntoTable(session, result);
-        session.database.schemaManager.addTable(t);
+        session.database.schemaManager.addDatabaseObject(t);
 
         return Result.newUpdateCountResult(result.getNavigator().getSize());
     }
@@ -591,30 +593,18 @@ public final class CompiledStatementExecutor {
         Expression[]   colExpressions = cs.updateExpressions;
         HashMappedList rowset         = new HashMappedList();
         Type[]         colTypes       = table.getColumnTypes();
-        boolean        success        = false;
         RangeIterator it = RangeVariable.getIterator(session,
             cs.targetRangeVariables);
 
         while (it.next()) {
             Row row = it.currentRow;
             Object[] data = getUpdatedData(table, colMap, colExpressions,
-                                           colTypes, row);
+                                           colTypes, row.getData());
 
             rowset.add(row, data);
         }
 
-        session.beginNestedTransaction();
-
-        try {
-            count   = update(session, table, rowset, colMap);
-            success = true;
-        } finally {
-
-            // update failed (constraint violation) or succeeded
-            if (!success) {
-                session.failNestedTransaction();
-            }
-        }
+        count = update(session, table, rowset, colMap);
 
         return Result.newUpdateCountResult(count);
     }
@@ -622,11 +612,11 @@ public final class CompiledStatementExecutor {
     private Object[] getUpdatedData(Table table, int[] colMap,
                                     Expression[] colExpressions,
                                     Type[] colTypes,
-                                    Row row) throws HsqlException {
+                                    Object[] oldData) throws HsqlException {
 
         Object[] data = table.getEmptyRowData();
 
-        System.arraycopy(row.getData(), 0, data, 0, data.length);
+        System.arraycopy(oldData, 0, data, 0, data.length);
 
         for (int i = 0, ix = 0; i < colMap.length; ) {
             Expression expr = colExpressions[ix++];
@@ -706,11 +696,12 @@ public final class CompiledStatementExecutor {
         Expression[] colExpressions = cs.updateExpressions;
         Type[]       colTypes       = table.getColumnTypes();
         int          index = cs.targetRangeVariables[TriggerDef.NEW_ROW].index;
-        Row          row            = rangeIterators[index].currentRow;
+        Object[]     oldData        = rangeIterators[index].currentData;
         Object[] data = getUpdatedData(table, colMap, colExpressions,
-                                       colTypes, row);
+                                       colTypes, oldData);
 
-        rangeIterators[index].currentData = data;
+        ArrayUtil.copyArray(data, rangeIterators[index].currentData,
+                            data.length);
 
         return Result.updateOneResult;
     }
@@ -791,53 +782,37 @@ public final class CompiledStatementExecutor {
                                                cs.updateColumnMap,
                                                cs.updateExpressions,
                                                targetTable.getColumnTypes(),
-                                               row);
+                                               row.getData());
 
                 updateRowSet.add(row, data);
             }
         }
 
-        boolean success = false;
-
-        session.beginNestedTransaction();
-
         // run the transaction as a whole, updating and inserting where needed
-        try {
+        // Update any matched rows
+        if (updateRowSet.size() > 0) {
+            count = update(session, targetTable, updateRowSet,
+                           cs.updateColumnMap);
+        }
 
-            // Update any matched rows
-            if (updateRowSet.size() > 0) {
-                count = update(session, targetTable, updateRowSet,
-                               cs.updateColumnMap);
-            }
+        // Insert any non-matched rows
+        newData.beforeFirst();
 
-            success = true;
+        while (newData.hasNext()) {
+            Object[] data = (Object[]) newData.getNext();
 
-            // Insert any non-matched rows
-            success = false;
+            targetTable.insertRow(session, data);
 
-            newData.beforeFirst();
+            if (generatedNavigator != null) {
+                Object[] generatedValues = cs.getGeneratedColumns(data);
 
-            while (newData.hasNext()) {
-                Object[] data = (Object[]) newData.getNext();
-
-                targetTable.insertRow(session, data);
-
-                if (generatedNavigator != null) {
-                    Object[] generatedValues = cs.getGeneratedColumns(data);
-
-                    generatedNavigator.add(generatedValues);
-                }
-            }
-
-            targetTable.fireAll(session, Trigger.INSERT_AFTER, newData);
-
-            success = true;
-            count   += newData.getSize();
-        } finally {
-            if (!success) {
-                session.failNestedTransaction();
+                generatedNavigator.add(generatedValues);
             }
         }
+
+        targetTable.fireAfterTriggers(session, Trigger.INSERT_AFTER, newData);
+
+        count += newData.getSize();
 
         if (resultOut == null) {
             return Result.newUpdateCountResult(count);
@@ -1394,7 +1369,9 @@ public final class CompiledStatementExecutor {
             HashMappedList updateList =
                 (HashMappedList) tableUpdateList.get(i);
 
-            database.txManager.checkDelete(session, updateList);
+            if (updateList.size() > 0) {
+                database.txManager.checkDelete(session, updateList);
+            }
         }
 
         if (database.isReferentialIntegrity()) {
@@ -1424,12 +1401,14 @@ public final class CompiledStatementExecutor {
             HashMappedList updateList =
                 (HashMappedList) tableUpdateList.get(i);
 
-            targetTable.updateRowSet(session, updateList, null, false);
-            updateList.clear();
+            if (updateList.size() > 0) {
+                targetTable.updateRowSet(session, updateList, null, true);
+                updateList.clear();
+            }
         }
 
         if (table.hasTrigger(Trigger.DELETE_AFTER)) {
-            table.fireAll(session, Trigger.DELETE_AFTER, oldRows);
+            table.fireAfterTriggers(session, Trigger.DELETE_AFTER, oldRows);
         }
 
         path.clear();
@@ -1473,11 +1452,18 @@ public final class CompiledStatementExecutor {
 
         // set identity column where null and check columns
         for (int i = 0; i < updateList.size(); i++) {
+            Row      row  = (Row) updateList.getKey(i);
             Object[] data = (Object[]) updateList.get(i);
 
             // this means the identity column can be set to null to force
             // creation of a new identity value
             table.setIdentityColumn(session, data);
+
+            if (table.triggerLists[Trigger.UPDATE_BEFORE] != null) {
+                table.fireBeforeTriggers(session, Trigger.UPDATE_BEFORE,
+                                         row.getData(), data, cols);
+            }
+
             table.enforceFieldValueLimits(data, cols);
             table.enforceNullConstraints(data);
         }
@@ -1522,11 +1508,11 @@ public final class CompiledStatementExecutor {
             Table          targetTable = (Table) tUpdateList.getKey(i);
             HashMappedList updateListT = (HashMappedList) tUpdateList.get(i);
 
-            targetTable.updateRowSet(session, updateListT, null, false);
+            targetTable.updateRowSet(session, updateListT, null, true);
             updateListT.clear();
         }
 
-        table.updateRowSet(session, updateList, cols, true);
+        table.updateRowSet(session, updateList, cols, false);
         path.clear();
 
         return updateList.size();

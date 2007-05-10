@@ -1938,7 +1938,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         // Initialization
         schemas = database.schemaManager.fullSchemaNamesIterator();
 
-        String defschema = database.schemaManager.getDefaultSchemaName();
+        String defschema =
+            database.schemaManager.getDefaultSchemaHsqlName().name;
 
         // Do it.
         while (schemas.hasNext()) {

@@ -366,26 +366,7 @@ public class Select {
     }
 
     void checkColumnsResolved() throws HsqlException {
-        checkColumnsResolved(unresolvedColumns);
-    }
-
-    static void checkColumnsResolved(OrderedHashSet set) throws HsqlException {
-
-        if (set != null && !set.isEmpty()) {
-            Expression   e  = (Expression) set.get(0);
-            StringBuffer sb = new StringBuffer();
-
-            if (e.getSchemaName() != null) {
-                sb.append(e.getSchemaName() + '.');
-            }
-
-            if (e.getTableName() != null) {
-                sb.append(e.getTableName() + '.');
-            }
-
-            throw Trace.error(Trace.COLUMN_NOT_FOUND,
-                              sb.toString() + e.getColumnName());
-        }
+        Expression.checkColumnsResolved(unresolvedColumns);
     }
 
     void finishPrepare(Session session) throws HsqlException {

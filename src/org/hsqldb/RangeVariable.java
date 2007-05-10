@@ -58,6 +58,7 @@ final class RangeVariable {
     final boolean[]        columnsInGroupBy;
     boolean                hasKeyedColumnInGroupBy;
     final boolean[]        usedColumns;
+    boolean[]              updatedColumns;
 
     // index conditions
     Expression indexCondition;
@@ -454,7 +455,7 @@ final class RangeVariable {
         return sb.toString();
     }
 
-    public RangeIterator getIterator(Session session) throws HsqlException {
+    public RangeIterator getIterator(Session session) {
 
         RangeIterator it = new RangeIterator(session, this);
 

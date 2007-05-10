@@ -103,7 +103,7 @@ public class DatabaseScript {
     public static Result getScript(Database database, boolean indexRoots) {
 
         Iterator it;
-        Result r = Result.newSingleColumnResult("COMMAND", Type.SQL_VARCHAR);
+        Result   r = Result.newSingleColumnResult("COMMAND", Type.SQL_VARCHAR);
 
         r.metaData.tableNames[0] = "SYSTEM_SCRIPT";
 
@@ -169,6 +169,7 @@ public class DatabaseScript {
 
         // Create schemas and schema objects such as tables, sequences, etc.
         addSchemaStatements(database, r, indexRoots);
+        addCrossSchemaStatements(database, r);
 
         // Set User Session Start Schemas
         users = database.getUserManager().getUsers().values().iterator();
@@ -201,9 +202,8 @@ public class DatabaseScript {
                 delay /= 1000;
             }
 
-            String statement = "SET WRITE_DELAY " + delay
-                               + (millis ? " MILLIS"
-                                         : "");
+            String statement = "SET WRITE_DELAY " + delay + (millis ? " MILLIS"
+                                                                    : "");
 
             addRow(r, statement);
         }
@@ -229,6 +229,10 @@ public class DatabaseScript {
                 String ddl = getSchemaCreateDDL(database, schema);
 
                 addRow(r, ddl);
+
+                ddl = getSetSchemaDDL(database, schema);
+
+                addRow(r, ddl);
             }
 
             // sequences
@@ -238,8 +242,7 @@ public class DatabaseScript {
                      [START WITH <value>]
                      [INCREMENT BY <value>]
              */
-            Iterator it =
-                database.schemaManager.sequenceIterator(schema.name);
+            Iterator it = database.schemaManager.sequenceIterator(schema.name);
 
             while (it.hasNext()) {
                 NumberSequence seq = (NumberSequence) it.next();
@@ -318,23 +321,6 @@ public class DatabaseScript {
                 if (!indexRoots && header != null) {
                     addRow(r, header);
                 }
-
-                // triggers
-                for (int tv = 0; tv < t.triggerLists.length; tv++) {
-                    HsqlArrayList trigVec = t.triggerLists[tv];
-
-                    if (trigVec == null) {
-                        continue;
-                    }
-
-                    int trCount = trigVec.size();
-
-                    for (int k = 0; k < trCount; k++) {
-                        a = ((TriggerDef) trigVec.get(k)).getDDL();
-
-                        addRow(r, a.toString());
-                    }
-                }
             }
 
             // forward referencing foreign keys
@@ -357,7 +343,7 @@ public class DatabaseScript {
                 Table t = (Table) tTable.get(i);
 
                 if (indexRoots && t.isIndexCached()
-                        &&!t.isEmpty(sysSession)) {
+                        && !t.isEmpty(sysSession)) {
                     addRow(r, getIndexRootsDDL((Table) tTable.get(i)));
                 }
             }
@@ -372,6 +358,23 @@ public class DatabaseScript {
                     addRow(r, ddl);
                 }
             }
+        }
+    }
+
+    static void addCrossSchemaStatements(Database database, Result r) {
+
+        Iterator schemas = database.schemaManager.userSchemaNameIterator();
+
+        while (schemas.hasNext()) {
+            String schemaKey = (String) schemas.next();
+            HsqlName schema =
+                database.schemaManager.toSchemaHsqlName(schemaKey);
+            HashMappedList tTable =
+                database.schemaManager.getTables(schema.name);
+            HsqlArrayList forwardFK   = new HsqlArrayList();
+            String setSchemaStatement = getSetSchemaDDL(database, schema);
+
+            addRow(r, setSchemaStatement);
 
             // views
             for (int i = 0, tSize = tTable.size(); i < tSize; i++) {
@@ -399,6 +402,27 @@ public class DatabaseScript {
                     a.append(')').append(' ').append(Token.T_AS).append(' ');
                     a.append(v.getStatement());
                     addRow(r, a.toString());
+                }
+            }
+
+            // triggers
+            for (int i = 0, tSize = tTable.size(); i < tSize; i++) {
+                Table t = (Table) tTable.get(i);
+
+                for (int tv = 0; tv < t.triggerLists.length; tv++) {
+                    HsqlArrayList trigVec = t.triggerLists[tv];
+
+                    if (trigVec == null) {
+                        continue;
+                    }
+
+                    int trCount = trigVec.size();
+
+                    for (int k = 0; k < trCount; k++) {
+                        String a = ((TriggerDef) trigVec.get(k)).getDDL();
+
+                        addRow(r, a);
+                    }
                 }
             }
         }
@@ -513,6 +537,17 @@ public class DatabaseScript {
         return a.toString();
     }
 
+    static String getSetSchemaDDL(Database database, HsqlName schemaName) {
+
+        StringBuffer ab = new StringBuffer(128);
+
+        ab.append(Token.T_SET).append(' ');
+        ab.append(Token.T_SCHEMA).append(' ');
+        ab.append(schemaName.statementName);
+
+        return ab.toString();
+    }
+
     static String getSchemaCreateDDL(Database database, HsqlName schemaName) {
 
         StringBuffer ab = new StringBuffer(128);
@@ -615,7 +650,7 @@ public class DatabaseScript {
                 case Constraint.PRIMARY_KEY :
                     if (pk.length > 1
                             || (pk.length == 1
-                                &&!c.getName().isReservedName())) {
+                                && !c.getName().isReservedName())) {
                         a.append(',');
 
                         if (!c.getName().isReservedName()) {
@@ -868,5 +903,25 @@ public class DatabaseScript {
                 addRow(r, (String) list.get(i));
             }
         }
+    }
+
+    static String getSavepointDDL(String name) {
+
+        StringBuffer sb = new StringBuffer(Token.T_SAVEPOINT);
+
+        sb.append(' ').append('"').append(name).append('"');
+
+        return sb.toString();
+    }
+
+    static String getSavepointRollbackDDL(String name) {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Token.T_ROLLBACK).append(' ').append(Token.T_TO).append(' ');
+        sb.append(Token.T_SAVEPOINT).append(' ');
+        sb.append('"').append(name).append('"');
+
+        return sb.toString();
     }
 }

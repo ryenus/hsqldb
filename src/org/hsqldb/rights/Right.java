@@ -464,7 +464,7 @@ public class Right {
             int    colIndex = t.findColumn(c.getName().name);
 
             if (colIndex == -1) {
-                System.err.println(c.getName().name);
+//                System.err.println(c.getName().name);
 
                 continue;
             }

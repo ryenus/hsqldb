@@ -107,7 +107,7 @@ implements RowInputInterface {
         } else if (s.equals(Token.T_SET)) {
             if (tokenizer.isGetThis(Token.T_SCHEMA)) {
                 schemaName    = tokenizer.getSimpleName();
-                statementType = ScriptReaderBase.SCHEMA_STATEMENT;
+                statementType = ScriptReaderBase.SET_SCHEMA_STATEMENT;
             }
         }
     }
