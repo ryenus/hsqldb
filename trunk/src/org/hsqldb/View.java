@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashSet;
 
 // fredt@users 20020420 - patch523880 by leptipre@users - VIEW support - modified
 // fredt@users 20031227 - remimplementated as compiled query
@@ -44,7 +45,7 @@ import org.hsqldb.lib.Iterator;
  *
  * @author leptipre@users
  * @author fredt@users
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.7.0
  */
 public class View extends Table {
@@ -62,6 +63,11 @@ public class View extends Table {
      * element is the view itself.
      */
     SubQuery[] viewSubqueries;
+
+    /**
+     * Names of SCHEMA objects referenced in VIEW
+     */
+    OrderedHashSet schemaObjectNames;
 
     /**
      * Constructor.
@@ -97,22 +103,35 @@ public class View extends Table {
         }
     }
 
+    public OrderedHashSet getReferences() {
+        return schemaObjectNames;
+    }
+
     /**
      * Compiles the SELECT statement and sets up the columns.
      */
-    void compile(Session session) throws HsqlException {
+    public void compile(Session session) throws HsqlException {
 
-        // create the working table
+        if (!database.schemaManager.schemaExists(compileTimeSchema.name)) {
+            compileTimeSchema = session.getSchemaHsqlName(null);
+        }
+
+        session.setSchema(compileTimeSchema.name);
+
+
         Parser p = new Parser(session, new Tokenizer(statement));
 
         viewSubQuery   = p.parseViewSubquery(this);
         viewSubqueries = p.compileContext.getSortedSubqueries(session);
         viewSelect     = viewSubQuery.select;
 
-        if (super.columnCount == 0) {
+        p.compileContext.getSchemaObjectNames();
 
-            columnList =  viewSubQuery.table.columnList;
-            columnCount = viewSubQuery.table.columnCount;
+        schemaObjectNames = p.compileContext.getSchemaObjectNames();
+
+        if (super.getColumnCount() == 0) {
+            columnList  = viewSubQuery.table.columnList;
+            columnCount = viewSubQuery.table.getColumnCount();
         } else {
             viewSubQuery.table.columnList = columnList;
         }
@@ -181,7 +200,7 @@ public class View extends Table {
                 RangeVariable[] rangeVars = select.rangeVariables;
 
                 for (int j = 0; j < rangeVars.length; j++) {
-                    if (table.equals(rangeVars[j].rangeTable.tableName)) {
+                    if (table.getName() == rangeVars[j].rangeTable.tableName) {
                         return true;
                     }
                 }
@@ -209,8 +228,8 @@ public class View extends Table {
             for (; it.hasNext(); ) {
                 Expression e = (Expression) it.next();
 
-                if (colname.equals(e.getBaseColumnName())
-                        && table.equals(e.getTableHsqlName())) {
+                if (table.getName() == e.getTableHsqlName()
+                        && colname.equals(e.getBaseColumnName())) {
                     return true;
                 }
             }

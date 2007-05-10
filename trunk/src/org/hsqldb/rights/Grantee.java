@@ -344,9 +344,7 @@ public class Grantee {
      *
      * This method removes any existing mapping from the rights map
      */
-    void revokeDbObject(SchemaObject object) {
-
-        HsqlName name = object.getName();
+    void revokeDbObject(HsqlName name) {
 
         directRightsMap.remove(name);
         fullRightsMap.remove(name);
@@ -1002,7 +1000,7 @@ public class Grantee {
                     granteeManager.db.schemaManager.findUserTable(null,
                         hsqlname.name, hsqlname.schema.name);
 
-                if (table != null) {
+                if (table != null && hsqlname == table.getName()) {
                     a.append(Token.T_GRANT).append(' ');
                     a.append(right.getTableRightsDDL(table));
                     a.append(' ').append(Token.T_ON).append(' ');
@@ -1015,7 +1013,7 @@ public class Grantee {
                     granteeManager.db.schemaManager.findUserSequence(
                         hsqlname.name, hsqlname.schema.name);
 
-                if (sequence != null) {
+                if (sequence != null && hsqlname == sequence.getName()) {
                     a.append(Token.T_GRANT).append(' ');
                     a.append(right.getSequenceRightsDDL());
                     a.append(' ').append(Token.T_ON).append(' ');

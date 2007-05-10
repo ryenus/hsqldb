@@ -1435,7 +1435,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     }
 
                     triggerName = def.getName().name;
-                    description = def.getDDL().toString();
+                    description = def.getDDL();
                     status      = def.isValid() ? "ENABLED"
                                                 : "DISABLED";
                     triggerBody = def.getClassName();

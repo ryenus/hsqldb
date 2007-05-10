@@ -151,14 +151,14 @@ public class TableWorks {
         int offset = database.schemaManager.getTableIndex(table);
         boolean isForward =
             offset != -1
-            && offset
-               < database.schemaManager.getTableIndex(c.core.mainTable);
+            && offset < database.schemaManager.getTableIndex(c.core.mainTable);
         HsqlName indexName = database.nameManager.newAutoName("IDX",
-            (HsqlName) null);
+            table.getSchemaName(), table.getName(), SchemaObject.INDEX);
         Index refIndex = table.createIndexStructure(c.core.refCols, null,
             indexName, false, true, isForward);
         HsqlName mainName = database.nameManager.newAutoName("REF",
-            c.getName().name);
+            c.getName().name, table.getSchemaName(), table.getName(),
+            SchemaObject.INDEX);
 
         c.core.uniqueName = uniqueConstraint.getName();
         c.core.mainName   = mainName;
@@ -172,7 +172,7 @@ public class TableWorks {
 
         tn.moveData(session, table, -1, 0);
         c.core.mainTable.addConstraint(new Constraint(mainName, c));
-        database.schemaManager.addConstraint(c, table.getName());
+        database.schemaManager.addDatabaseObject(c);
 
         table = tn;
 
@@ -194,7 +194,7 @@ public class TableWorks {
 
         boolean existingPK = table.hasPrimaryKey();
 
-        if (table.isText() &&!table.isEmpty(session)) {
+        if (table.isText() && !table.isEmpty(session)) {
             throw Trace.error(Trace.OPERATION_NOT_SUPPORTED);
         }
 
@@ -208,7 +208,7 @@ public class TableWorks {
 
         if (!table.isEmpty(session) && col.getDefaultExpression() == null
                 && (!col.isNullable() || col.isPrimaryKey())
-                &&!col.isIdentity()) {
+                && !col.isIdentity()) {
             throw Trace.error(Trace.BAD_ADD_COLUMN_DEFINITION);
         }
     }
@@ -262,7 +262,10 @@ public class TableWorks {
 
                     HsqlName indexName =
                         database.nameManager.newAutoName("IDX",
-                                                         c.getName().name);
+                                                         c.getName().name,
+                                                         table.getSchemaName(),
+                                                         table.getName(),
+                                                         SchemaObject.INDEX);
 
                     // create an autonamed index
                     index =
@@ -305,15 +308,17 @@ public class TableWorks {
                                c.core.mainTable);
                     HsqlName indexName =
                         database.nameManager.newAutoName("IDX",
-                                                         c.getName().name);
+                                                         c.getName().name,
+                                                         table.getSchemaName(),
+                                                         table.getName(),
+                                                         SchemaObject.INDEX);
 
-                    index =
-                        table.createAndAddIndexStructure(c.getRefColumns(),
-                                                         indexName, false,
-                                                         true, isforward);
+                    index = table.createAndAddIndexStructure(c.getRefColumns(),
+                            indexName, false, true, isforward);
                     c.core.uniqueName = uniqueConstraint.getName();
                     c.core.mainName = database.nameManager.newAutoName("REF",
-                            c.core.refName);
+                            c.core.refName.name, table.getSchemaName(),
+                            table.getName(), SchemaObject.INDEX);
                     c.core.mainIndex = uniqueConstraint.getMainIndex();
                     c.core.refIndex  = index;
 
@@ -425,8 +430,7 @@ public class TableWorks {
                       OrderedHashSet dropIndexSet) throws HsqlException {
 
         Table tn = table.moveDefinition(session, null, null, null, -1, 0,
-                                        dropConstraintSet, dropIndexSet,
-                                        null);
+                                        dropConstraintSet, dropIndexSet, null);
 
         if (tn.indexList.length == table.indexList.length) {
             return;
@@ -476,8 +480,8 @@ public class TableWorks {
             newindex = table.createIndexStructure(col, null, name, unique,
                                                   false, false);
 
-            Table tn = table.moveDefinition(session, null, null, newindex,
-                                            -1, 0, emptySet, emptySet, null);
+            Table tn = table.moveDefinition(session, null, null, newindex, -1,
+                                            0, emptySet, emptySet, null);
 
             tn.moveData(session, table, -1, 0);
 
@@ -488,8 +492,8 @@ public class TableWorks {
         }
 
         database.schemaManager.clearTempTables(session, table);
-        database.schemaManager.addIndex(newindex, table.getName());
-        database.schemaManager.recompileViews(table);
+        database.schemaManager.addDatabaseObject(newindex);
+        database.schemaManager.recompileDependentObjects(table);
 
         return newindex;
     }
@@ -511,7 +515,7 @@ public class TableWorks {
 
         table = tn;
 
-        database.schemaManager.addConstraint(constraint, table.getName());
+        database.schemaManager.addDatabaseObject(constraint);
         setNewTableInSchema(table);
         updateConstraints(table, emptySet);
     }
@@ -539,7 +543,8 @@ public class TableWorks {
 
         // create an autonamed index
         HsqlName indexname = database.nameManager.newAutoName("IDX",
-            name.name);
+            name.name, table.getSchemaName(), table.getName(),
+            SchemaObject.INDEX);
         Index index = table.createIndexStructure(cols, null, indexname, true,
             true, false);
         Constraint constraint = new Constraint(name, table, index,
@@ -551,7 +556,7 @@ public class TableWorks {
 
         table = tn;
 
-        database.schemaManager.addConstraint(constraint, table.getName());
+        database.schemaManager.addDatabaseObject(constraint);
         setNewTableInSchema(table);
         updateConstraints(table, emptySet);
     }
@@ -563,17 +568,14 @@ public class TableWorks {
         c.prepareCheckConstraint(session, table);
         table.addConstraint(c);
 
-            if (c.isNotNull) {
-                Column column =
-                    table.getColumn(c.notNullColumnIndex);
+        if (c.isNotNull) {
+            Column column = table.getColumn(c.notNullColumnIndex);
 
-                column.setNullable(false);
-                table.setColumnTypeVars(c.notNullColumnIndex);
-            }
+            column.setNullable(false);
+            table.setColumnTypeVars(c.notNullColumnIndex);
+        }
 
-
-
-        database.schemaManager.addConstraint(c, table.getName());
+        database.schemaManager.addDatabaseObject(c);
     }
 
     /**
@@ -612,11 +614,10 @@ public class TableWorks {
         }
 
         if (!index.isConstraint()) {
-            database.schemaManager.removeIndexName(indexName,
-                                                   table.getName());
+            database.schemaManager.removeDatabaseObject(index.getName());
         }
 
-        database.schemaManager.recompileViews(table);
+        database.schemaManager.recompileDependentObjects(table);
     }
 
     /**
@@ -632,25 +633,31 @@ public class TableWorks {
         OrderedHashSet cascadingConstraints =
             table.getContainingConstraints(colIndex);
         OrderedHashSet indexNameSet = table.getContainingIndexNames(colIndex);
-        String         columnName = table.getColumn(colIndex).getName().name;
-        View[] cascadingViews =
-            database.schemaManager.getViewsWithTable(table, columnName);
+        HsqlName       columnName   = table.getColumn(colIndex).getName();
+        OrderedHashSet referencingObjects =
+            database.schemaManager.getReferencingObjects(table.getName(),
+                columnName);
 
-        if (table.isText() &&!table.isEmpty(session)) {
+        if (table.isText() && !table.isEmpty(session)) {
             throw Trace.error(Trace.OPERATION_NOT_SUPPORTED);
         }
 
         if (!cascade) {
             if (!cascadingConstraints.isEmpty()) {
-                Constraint c = (Constraint) cascadingConstraints.get(0);
+                Constraint c    = (Constraint) cascadingConstraints.get(0);
+                HsqlName   name = c.getName();
 
                 throw Trace.error(Trace.COLUMN_IS_REFERENCED,
-                                  c.getName().name);
+                                  name.schema.name + '.' + name.name);
             }
 
-            if (cascadingViews != null && cascadingViews.length != 0) {
-                throw Trace.error(Trace.COLUMN_IS_REFERENCED,
-                                  cascadingViews[0].getName().name);
+            if (!referencingObjects.isEmpty()) {
+                for (int i = 0; i < referencingObjects.size(); i++) {
+                    HsqlName name = (HsqlName) referencingObjects.get(i);
+
+                    throw Trace.error(Trace.COLUMN_IS_REFERENCED,
+                                      name.schema.name + '.' + name.name);
+                }
             }
         }
 
@@ -693,7 +700,8 @@ public class TableWorks {
 
         table = tn;
 
-        database.schemaManager.recompileViews(table);
+        database.schemaManager.removeDatabaseObjects(referencingObjects);
+        database.schemaManager.recompileDependentObjects(table);
         deRegisterConstraintNames(constraintNameSet);
     }
 
@@ -708,7 +716,7 @@ public class TableWorks {
                 case Constraint.PRIMARY_KEY :
                 case Constraint.UNIQUE :
                 case Constraint.CHECK :
-                    database.schemaManager.addConstraint(c, table.getName());
+                    database.schemaManager.addDatabaseObject(c);
             }
         }
     }
@@ -719,7 +727,7 @@ public class TableWorks {
         for (int i = 0; i < nameSet.size(); i++) {
             HsqlName name = (HsqlName) nameSet.get(i);
 
-            database.schemaManager.removeConstraintName(name);
+            database.schemaManager.removeReferencedObject(name);
         }
     }
 
@@ -750,7 +758,7 @@ public class TableWorks {
                     table.getDependentConstraints(constraint);
 
                 // throw if unique constraint is referenced by foreign key
-                if (!cascade &&!dependentConstraints.isEmpty()) {
+                if (!cascade && !dependentConstraints.isEmpty()) {
                     Constraint c = (Constraint) dependentConstraints.get(0);
 
                     throw Trace.error(Trace.DROP_FK_INDEX, c.getName().name);
@@ -785,8 +793,8 @@ public class TableWorks {
                     indexNameSet.add(constraint.getMainIndex().getName());
                 }
 
-                Table tn = table.moveDefinition(session, null, null, null,
-                                                -1, 0, constraintNameSet,
+                Table tn = table.moveDefinition(session, null, null, null, -1,
+                                                0, constraintNameSet,
                                                 indexNameSet, null);
 
                 tn.moveData(session, table, -1, 0);
@@ -826,9 +834,8 @@ public class TableWorks {
 
                 indexes.add(constraint.getRefIndex().getName());
 
-                Table tn = table.moveDefinition(session, null, null, null,
-                                                -1, 0, constraints, indexes,
-                                                null);
+                Table tn = table.moveDefinition(session, null, null, null, -1,
+                                                0, constraints, indexes, null);
 
                 tn.moveData(session, table, -1, 0);
                 setNewTableInSchema(tn);
@@ -943,7 +950,7 @@ public class TableWorks {
                 break;
         }
 
-        if (notAllowed &&!(newType == oldType || table.isEmpty(session))) {
+        if (notAllowed && !(newType == oldType || table.isEmpty(session))) {
             throw Trace.error(Trace.INVALID_CONVERSION);
         }
 
@@ -999,8 +1006,8 @@ public class TableWorks {
             return;
         }
 
-        database.schemaManager.checkColumnIsInView(table,
-                table.getColumn(colIndex).columnName.name);
+        database.schemaManager.checkColumnIsReferenced(
+            table.getColumn(colIndex).getName());
         table.checkColumnInCheckConstraint(colIndex);
         table.checkColumnInFKConstraint(colIndex);
         checkConvertColDataType(oldCol, newCol);
@@ -1035,13 +1042,12 @@ public class TableWorks {
      */
     void retypeColumn(Column column, int colIndex) throws HsqlException {
 
-        if (table.isText() &&!table.isEmpty(session)) {
+        if (table.isText() && !table.isEmpty(session)) {
             throw Trace.error(Trace.OPERATION_NOT_SUPPORTED);
         }
 
-        Table tn = table.moveDefinition(session, column, null, null,
-                                        colIndex, 0, emptySet, emptySet,
-                                        null);
+        Table tn = table.moveDefinition(session, column, null, null, colIndex,
+                                        0, emptySet, emptySet, null);
 
         tn.moveData(session, table, colIndex, 0);
         updateConstraints(tn, emptySet);
@@ -1087,7 +1093,8 @@ public class TableWorks {
             }
 
             HsqlName constName = database.nameManager.newAutoName("CT",
-                table.getSchemaName());
+                table.getSchemaName(), table.getName(),
+                SchemaObject.CONSTRAINT);
 
             c       = new Constraint(constName, null, Constraint.CHECK);
             c.check = new Expression(column);
@@ -1096,7 +1103,7 @@ public class TableWorks {
             column.setNullable(false);
             table.addConstraint(c);
             table.setColumnTypeVars(colIndex);
-            database.schemaManager.addConstraint(c, table.getName());
+            database.schemaManager.addDatabaseObject(c);
         }
     }
 

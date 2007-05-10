@@ -111,7 +111,7 @@ public class Constraint implements SchemaObject {
                             PRIMARY_KEY    = 4,
                             TEMP           = 5;
     ConstraintCore          core;
-    private HsqlName        constName;
+    private HsqlName        name;
     int                     constType;
 
     //
@@ -126,7 +126,7 @@ public class Constraint implements SchemaObject {
     public Constraint(HsqlName name, Table table, int[] cols, int type) {
 
         core           = new ConstraintCore();
-        constName      = name;
+        this.name      = name;
         constType      = type;
         core.mainTable = table;
         core.mainCols  = cols;
@@ -138,7 +138,7 @@ public class Constraint implements SchemaObject {
     public Constraint(HsqlName name, Table t, Index index, int type) {
 
         core           = new ConstraintCore();
-        constName      = name;
+        this.name      = name;
         constType      = type;
         core.mainTable = t;
         core.mainIndex = index;
@@ -150,7 +150,7 @@ public class Constraint implements SchemaObject {
      */
     public Constraint(HsqlName name, Constraint fkconstraint) {
 
-        constName = name;
+        this.name = name;
         constType = MAIN;
         core      = fkconstraint.core;
     }
@@ -182,7 +182,7 @@ public class Constraint implements SchemaObject {
         core.uniqueName = uniqueName;
         core.mainName   = mainName;
         core.refName    = refName;
-        constName       = refName;
+        this.name       = refName;
         constType       = FOREIGN_KEY;
         core.mainTable  = mainTable;
         core.refTable   = refTable;
@@ -203,7 +203,7 @@ public class Constraint implements SchemaObject {
         Constraint copy = new Constraint();
 
         copy.core               = core.duplicate();
-        copy.constName          = constName;
+        copy.name               = name;
         copy.constType          = constType;
         copy.check              = check;
         copy.isNotNull          = isNotNull;
@@ -225,7 +225,7 @@ public class Constraint implements SchemaObject {
                       int updateAction) {
 
         core              = new ConstraintCore();
-        constName         = name;
+        this.name         = name;
         constType         = type;
         mainColSet        = mainCols;
         core.mainTable    = mainTable;
@@ -237,7 +237,7 @@ public class Constraint implements SchemaObject {
     public Constraint(HsqlName name, OrderedHashSet mainCols, int type) {
 
         core       = new ConstraintCore();
-        constName  = name;
+        this.name  = name;
         constType  = type;
         mainColSet = mainCols;
     }
@@ -269,16 +269,44 @@ public class Constraint implements SchemaObject {
      * Returns the HsqlName.
      */
     public HsqlName getName() {
-        return constName;
+        return name;
     }
 
     public HsqlName getSchemaName() {
-        return constName.schema;
+        return name.schema;
     }
 
     public Grantee getOwner() {
-        return constName.schema.owner;
+        return name.schema.owner;
     }
+
+    public OrderedHashSet getReferences() {
+
+/*
+        if (check == null) {
+            return null;
+        }
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        Expression.collectAllExpressions(set, check,
+                                         Expression.columnExpressionSet,
+                                         Expression.emptyExpressionSet);
+
+        OrderedHashSet nameSet = new OrderedHashSet();
+
+        for (int i = 0; i < set.size(); i++) {
+            HsqlName name = ((Expression) set.get(i)).getColumn().getName();
+
+            nameSet.add(name);
+        }
+
+        return nameSet;
+ */
+        return null;
+    }
+
+    public void compile(Session session) throws HsqlException {}
 
     public HsqlName getMainName() {
         return core.mainName;
@@ -401,8 +429,7 @@ public class Constraint implements SchemaObject {
                        && core.mainTable == core.refTable;
 
             case FOREIGN_KEY :
-                return core.refCols.length == 1
-                       && core.refCols[0] == colIndex
+                return core.refCols.length == 1 && core.refCols[0] == colIndex
                        && core.mainTable == core.refTable;
 
             default :
@@ -545,7 +572,7 @@ public class Constraint implements SchemaObject {
 
         String     ddl       = check.getDDL();
         Tokenizer  tokenizer = new Tokenizer(ddl);
-        Parser     parser = new Parser(session, tokenizer);
+        Parser     parser    = new Parser(session, tokenizer);
         Expression condition = parser.parseExpression();
 
         check = condition;
@@ -644,18 +671,16 @@ public class Constraint implements SchemaObject {
                 rangeVariable.getIterator(session);
         }
 
-        session.compiledStatementExecutor.rangeIterators[0].currentData =
-            data;
+        session.compiledStatementExecutor.rangeIterators[0].currentData = data;
 
         boolean nomatch = Boolean.FALSE.equals(check.getValue(session));
 
-        session.compiledStatementExecutor.rangeIterators[0].currentData =
-            null;
+        session.compiledStatementExecutor.rangeIterators[0].currentData = null;
 
         if (nomatch) {
             throw Trace.error(Trace.CHECK_CONSTRAINT_VIOLATION,
                               Trace.Constraint_violation, new Object[] {
-                constName.name, table.tableName.name
+                name.name, table.tableName.name
             });
         }
     }
@@ -723,9 +748,8 @@ public class Constraint implements SchemaObject {
      * table. Also returns true if any column covered by the foreign key
      * constraint has a null value.
      */
-    private static boolean hasReferencedRow(Session session,
-            Object[] rowdata, int[] rowColArray,
-            Index mainIndex) throws HsqlException {
+    private static boolean hasReferencedRow(Session session, Object[] rowdata,
+            int[] rowColArray, Index mainIndex) throws HsqlException {
 
         if (Index.isNull(rowdata, rowColArray)) {
             return true;

@@ -39,6 +39,7 @@ import org.hsqldb.lib.Set;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
+import org.hsqldb.lib.ArrayUtil;
 
 /**
  * A simple structure class for holding the products of
@@ -211,8 +212,7 @@ public final class CompiledStatement {
     /**
      * Initializes this as a DELETE statement
      */
-    CompiledStatement(Session session,
-                      RangeVariable[] rangeVars,
+    CompiledStatement(Session session, RangeVariable[] rangeVars,
                       CompileContext compileContext) throws HsqlException {
 
         this.schemaHsqlName       = session.currentSchema;
@@ -227,12 +227,11 @@ public final class CompiledStatement {
     /**
      * Instantiate this as an UPDATE statement.
      */
-    CompiledStatement(Session session,
-                      RangeVariable rangeVars[], int[] updateColumnMap,
-                      Expression[] colExpressions,
+    CompiledStatement(Session session, RangeVariable rangeVars[],
+                      int[] updateColumnMap, Expression[] colExpressions,
                       CompileContext compileContext) throws HsqlException {
 
-        this.schemaHsqlName       = session.currentSchema;
+        this.schemaHsqlName    = session.currentSchema;
         this.targetTable       = rangeVars[0].rangeTable;
         this.updateColumnMap   = updateColumnMap;
         this.updateExpressions = colExpressions;
@@ -248,12 +247,11 @@ public final class CompiledStatement {
     /**
      * Instantiate this as an INSERT_VALUES statement.
      */
-    CompiledStatement(Session session, Table targetTable,
-                      int[] columnMap, Expression insertExpression,
-                      boolean[] checkColumns,
+    CompiledStatement(Session session, Table targetTable, int[] columnMap,
+                      Expression insertExpression, boolean[] checkColumns,
                       CompileContext compileContext) throws HsqlException {
 
-        this.schemaHsqlName       = session.currentSchema;
+        this.schemaHsqlName     = session.currentSchema;
         this.targetTable        = targetTable;
         this.insertColumnMap    = columnMap;
         this.insertCheckColumns = checkColumns;
@@ -267,11 +265,11 @@ public final class CompiledStatement {
     /**
      * Instantiate this as an INSERT_SELECT statement.
      */
-    CompiledStatement(Session session, Table targetTable,
-                      int[] columnMap, boolean[] checkColumns, Select select,
+    CompiledStatement(Session session, Table targetTable, int[] columnMap,
+                      boolean[] checkColumns, Select select,
                       CompileContext compileContext) throws HsqlException {
 
-        this.schemaHsqlName       = session.currentSchema;
+        this.schemaHsqlName     = session.currentSchema;
         this.targetTable        = targetTable;
         this.insertColumnMap    = columnMap;
         this.insertCheckColumns = checkColumns;
@@ -288,7 +286,7 @@ public final class CompiledStatement {
     CompiledStatement(Session session, Select select,
                       CompileContext compileContext) throws HsqlException {
 
-        this.schemaHsqlName       = session.currentSchema;
+        this.schemaHsqlName = session.currentSchema;
         this.select         = select;
         type                = (select.intoTableName == null) ? SELECT
                                                              : SELECT_INTO;
@@ -300,11 +298,10 @@ public final class CompiledStatement {
     /**
      * Instantiate this as a CALL statement.
      */
-    CompiledStatement(Session session,
-                      Expression expression,
+    CompiledStatement(Session session, Expression expression,
                       CompileContext compileContext) throws HsqlException {
 
-        this.schemaHsqlName       = session.currentSchema;
+        this.schemaHsqlName = session.currentSchema;
         this.expression     = expression;
         type                = CALL;
 
@@ -315,11 +312,10 @@ public final class CompiledStatement {
     /**
      * Instantiate this as a MERGE statement.
      */
-    CompiledStatement(Session session,
-                      RangeVariable[] targetRangeVars, int[] insertColMap,
-                      int[] updateColMap, boolean[] checkColumns,
-                      Expression mergeCondition, Expression insertExpr,
-                      Expression[] updateExpr,
+    CompiledStatement(Session session, RangeVariable[] targetRangeVars,
+                      int[] insertColMap, int[] updateColMap,
+                      boolean[] checkColumns, Expression mergeCondition,
+                      Expression insertExpr, Expression[] updateExpr,
                       CompileContext compileContext) throws HsqlException {
 
         this.schemaHsqlName       = session.currentSchema;
@@ -341,12 +337,11 @@ public final class CompiledStatement {
     /**
      * Instantiate this as a SET statement.
      */
-    CompiledStatement(Session session, Table table,
-                      RangeVariable rangeVars[], int[] updateColumnMap,
-                      Expression[] colExpressions,
+    CompiledStatement(Session session, Table table, RangeVariable rangeVars[],
+                      int[] updateColumnMap, Expression[] colExpressions,
                       CompileContext compileContext) throws HsqlException {
 
-        this.schemaHsqlName       = session.currentSchema;
+        this.schemaHsqlName    = session.currentSchema;
         this.targetTable       = table;
         this.updateColumnMap   = updateColumnMap;
         this.updateExpressions = colExpressions;
@@ -447,6 +442,29 @@ public final class CompiledStatement {
         return generatedIndexes != null;
     }
 
+    boolean[] getInsertOrUpdateColumnCheckList() {
+
+        switch (type) {
+
+            case INSERT_SELECT :
+            case INSERT_VALUES :
+                return insertCheckColumns;
+
+            case UPDATE :
+                return updateCheckColumns;
+
+            case MERGE :
+                boolean[] check =
+                    (boolean[]) ArrayUtil.duplicateArray(insertCheckColumns);
+
+                ArrayUtil.orBooleanArray(updateCheckColumns, check);
+
+                return check;
+        }
+
+        return null;
+    }
+
     private void setParameters(Expression[] params) {
 
         this.parameters = params;
@@ -517,8 +535,8 @@ public final class CompiledStatement {
         subqueries          = compileContext.getSortedSubqueries(session);
         rangeIteratorCount  = compileContext.getRangeVarCount();
         rangeVariables      = compileContext.rangeVariables;
-        sequenceExpressions = compileContext.sequenceExpressions;
-        routineExpressions  = compileContext.routineExpressions;
+        sequenceExpressions = compileContext.usedSequences;
+        routineExpressions  = compileContext.usedRoutineNames;
     }
 
     /**
@@ -538,8 +556,7 @@ public final class CompiledStatement {
 
         if (sequenceExpressions != null) {
             for (int i = 0; i < sequenceExpressions.size(); i++) {
-                NumberSequence s =
-                    (NumberSequence) sequenceExpressions.get(i);
+                NumberSequence s = (NumberSequence) sequenceExpressions.get(i);
 
                 session.getUser().checkAccess(s);
             }
@@ -574,8 +591,7 @@ public final class CompiledStatement {
             }
             case INSERT_SELECT : {
                 session.checkReadWrite();
-                session.getUser().checkInsert(targetTable,
-                                              insertCheckColumns);
+                session.getUser().checkInsert(targetTable, insertCheckColumns);
                 targetTable.checkDataReadOnly();
 
                 // fall through
@@ -596,26 +612,22 @@ public final class CompiledStatement {
             }
             case INSERT_VALUES : {
                 session.checkReadWrite();
-                session.getUser().checkInsert(targetTable,
-                                              insertCheckColumns);
+                session.getUser().checkInsert(targetTable, insertCheckColumns);
                 targetTable.checkDataReadOnly();
 
                 break;
             }
             case UPDATE : {
                 session.checkReadWrite();
-                session.getUser().checkUpdate(targetTable,
-                                              updateCheckColumns);
+                session.getUser().checkUpdate(targetTable, updateCheckColumns);
                 targetTable.checkDataReadOnly();
 
                 break;
             }
             case MERGE : {
                 session.checkReadWrite();
-                session.getUser().checkInsert(targetTable,
-                                              insertCheckColumns);
-                session.getUser().checkUpdate(targetTable,
-                                              updateCheckColumns);
+                session.getUser().checkInsert(targetTable, insertCheckColumns);
+                session.getUser().checkUpdate(targetTable, updateCheckColumns);
                 targetTable.checkDataReadOnly();
 
                 break;
@@ -929,8 +941,7 @@ public final class CompiledStatement {
         return sb;
     }
 
-    private StringBuffer appendMultiColumns(StringBuffer sb,
-            int[] columnMap) {
+    private StringBuffer appendMultiColumns(StringBuffer sb, int[] columnMap) {
 
         if (columnMap == null || multiColumnValues == null) {
             return sb;

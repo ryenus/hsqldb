@@ -33,12 +33,29 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.lib.OrderedHashSet;
 
 public interface SchemaObject {
+
+    int TABLE      = 1;
+    int VIEW       = 2;
+    int CONSTRAINT = 3;
+    int ASSERTION  = 4;
+    int SEQUENCE   = 5;
+    int TRIGGER    = 6;
+    int COLUMN     = 7;
+    int TRANSITION = 8;
+    int SCHEMA     = 9;
+    int GRANTEE    = 10;
+    int INDEX      = 11;
 
     HsqlName getName();
 
     HsqlName getSchemaName();
 
     Grantee getOwner();
+
+    OrderedHashSet getReferences();
+
+    void compile(Session session) throws HsqlException;
 }

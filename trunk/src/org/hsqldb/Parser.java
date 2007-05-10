@@ -125,7 +125,8 @@ import org.hsqldb.types.TypedData;
  */
 class Parser extends BaseParser {
 
-    protected CompileContext compileContext = new CompileContext();
+    protected CompileContext     compileContext      = new CompileContext();
+    static final RangeVariable[] emptyRangeVariables = new RangeVariable[]{};
 
     //
 
@@ -175,21 +176,21 @@ class Parser extends BaseParser {
         }
     }
 
-    HsqlName[] readColumnNames() throws HsqlException {
-        return (HsqlName[]) readColumnNames(true, false);
+    HsqlName[] readColumnNames(HsqlName tableName) throws HsqlException {
+        return (HsqlName[]) readColumnNames(tableName, false);
     }
 
     OrderedHashSet readColumnNames(boolean readAscDesc) throws HsqlException {
-        return (OrderedHashSet) readColumnNames(false, readAscDesc);
+        return (OrderedHashSet) readColumnNames(null, readAscDesc);
     }
 
-    private Object readColumnNames(boolean fullNames,
+    private Object readColumnNames(HsqlName tableName,
                                    boolean readAscDesc) throws HsqlException {
 
         int    i           = 0;
         BitMap quotedFlags = null;
 
-        if (fullNames) {
+        if (tableName != null) {
             quotedFlags = new BitMap(32);
         }
 
@@ -208,7 +209,7 @@ class Parser extends BaseParser {
                 throw Trace.error(Trace.COLUMN_ALREADY_EXISTS, tokenString);
             }
 
-            if (fullNames && isQuoted) {
+            if (tableName != null && isQuoted) {
                 quotedFlags.set(i);
             }
 
@@ -233,14 +234,15 @@ class Parser extends BaseParser {
             throw unexpectedToken();
         }
 
-        if (fullNames) {
+        if (tableName != null) {
             HsqlName[] colList = new HsqlName[set.size()];
 
             for (i = 0; i < colList.length; i++) {
                 String  name   = (String) set.get(i);
                 boolean quoted = quotedFlags.isSet(i);
 
-                colList[i] = database.nameManager.newHsqlName(name, quoted);
+                colList[i] = database.nameManager.newHsqlName(tableName.schema,
+                        name, quoted, SchemaObject.COLUMN, tableName);
             }
 
             return colList;
@@ -621,10 +623,9 @@ class Parser extends BaseParser {
             checkIsName();
             checkCatalogName();
 
-            select.intoTableName =
-                database.nameManager.newHsqlName(tokenString, isQuoted);
-            select.intoTableName.schema =
-                session.getSchemaHsqlName(namePrefix);
+            select.intoTableName = database.nameManager.newHsqlName(
+                session.getSchemaHsqlName(namePrefix), tokenString, isQuoted,
+                SchemaObject.TABLE);
 
             read();
         }
@@ -2694,7 +2695,7 @@ class Parser extends BaseParser {
         String   javaName = database.aliasManager.getJavaName(name);
         Function f        = new Function(name, javaName);
 
-        compileContext.routineExpressions.add(f.getFullyQualifiedJavaName());
+        compileContext.usedRoutineNames.add(f.getFullyQualifiedJavaName());
 
         int i = 0;
 
@@ -2942,7 +2943,7 @@ class Parser extends BaseParser {
 
         readThis(Token.VALUE);
         readThis(Token.FOR);
-        checkIsNameOrKeyword();
+        checkIsName();
 
         String schema = session.getSchemaName(namePrefix);
         NumberSequence sequence =
@@ -2952,7 +2953,7 @@ class Parser extends BaseParser {
 
         Expression e = new Expression(sequence);
 
-        compileContext.sequenceExpressions.add(sequence);
+        compileContext.usedSequences.add(sequence);
 
         return e;
     }
@@ -2990,22 +2991,22 @@ class Parser extends BaseParser {
                 break;
             }
             case Token.INSERT : {
-                cs = compileInsertStatement();
+                cs = compileInsertStatement(emptyRangeVariables);
 
                 break;
             }
             case Token.UPDATE : {
-                cs = compileUpdateStatement();
+                cs = compileUpdateStatement(emptyRangeVariables);
 
                 break;
             }
             case Token.MERGE : {
-                cs = compileMergeStatement();
+                cs = compileMergeStatement(emptyRangeVariables);
 
                 break;
             }
             case Token.DELETE : {
-                cs = compileDeleteStatement();
+                cs = compileDeleteStatement(emptyRangeVariables);
 
                 break;
             }
@@ -3062,7 +3063,8 @@ class Parser extends BaseParser {
     /**
      * Retrieves a DELETE-type CompiledStatement from this parse context.
      */
-    CompiledStatement compileDeleteStatement() throws HsqlException {
+    CompiledStatement compileDeleteStatement(RangeVariable[] outerRanges)
+    throws HsqlException {
 
         Expression condition = null;
 
@@ -3081,10 +3083,12 @@ class Parser extends BaseParser {
                 throw Trace.error(Trace.NOT_A_CONDITION);
             }
 
-            OrderedHashSet set = condition.resolveColumnReferences(rangeVars,
+            OrderedHashSet set = condition.resolveColumnReferences(outerRanges,
                 null);
 
-            Select.checkColumnsResolved(set);
+            set = condition.resolveColumnReferences(rangeVars, set);
+
+            Expression.checkColumnsResolved(set);
             condition.resolveTypes(session, null);
 
             RangeVariableResolver fr = new RangeVariableResolver(rangeVars,
@@ -3111,21 +3115,6 @@ class Parser extends BaseParser {
         }
     }
 
-    public void checkSchemaUpdateAuthorization(String schemaName)
-    throws HsqlException {
-
-        if (database.schemaManager.isSystemSchema(schemaName)) {
-            throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
-        }
-
-        session.getUser().checkSchemaUpdateOrGrantRights(schemaName);
-    }
-
-    public void checkSchemaGrantAuthorization(String schemaName)
-    throws HsqlException {
-        session.getUser().checkSchemaUpdateOrGrantRights(schemaName);
-    }
-
     HsqlName readNewSchemaName() throws HsqlException {
 
         checkIsName();
@@ -3136,6 +3125,8 @@ class Parser extends BaseParser {
 
         if (namePrefix != null
                 && !namePrePrefix.equals(database.getCatalog())) {
+
+            // todo - error message
             throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,
                               namePrefix);
         }
@@ -3146,65 +3137,48 @@ class Parser extends BaseParser {
         }
 
         HsqlName name = database.nameManager.newHsqlName(tokenString,
-            isQuoted);
+            isQuoted, SchemaObject.SCHEMA);
 
         read();
 
         return name;
     }
 
-    HsqlName readNewSchemaObjectName() throws HsqlException {
+    HsqlName readNewSchemaObjectName(int type) throws HsqlException {
 
         if (namePrePrefix != null) {
             throw Trace.error(Trace.TOO_MANY_IDENTIFIER_PARTS);
         }
 
         checkIsName();
-
-        HsqlName schemaName = session.getSchemaHsqlNameForWrite(namePrefix);
-
-        checkSchemaUpdateAuthorization(schemaName.name);
 
         HsqlName hsqlName = database.nameManager.newHsqlName(tokenString,
-            isQuoted);
-
-        hsqlName.schema = schemaName;
-
-        read();
-
-        return hsqlName;
-    }
-
-    HsqlName readNewDependentSchemaObjectName() throws HsqlException {
-
-        if (namePrePrefix != null) {
-            throw Trace.error(Trace.TOO_MANY_IDENTIFIER_PARTS);
-        }
-
-        checkIsName();
-
-        HsqlName schemaName = null;
+            isQuoted, type);
 
         if (namePrefix != null) {
-            schemaName = session.getSchemaHsqlNameForWrite(namePrefix);
+            HsqlName schemaName = session.getSchemaHsqlName(namePrefix);
+
+            hsqlName.setSchemaIfNull(schemaName);
         }
-
-        HsqlName hsqlName = database.nameManager.newHsqlName(tokenString,
-            isQuoted);
-
-        hsqlName.schema = schemaName;
 
         read();
 
         return hsqlName;
     }
 
-    HsqlName readNewDependentSchemaObjectName(HsqlName schemaName)
-    throws HsqlException {
+    HsqlName readNewDependentSchemaObjectName(HsqlName parentName,
+            int type) throws HsqlException {
 
-        HsqlName name = readNewDependentSchemaObjectName();
+        HsqlName name = readNewSchemaObjectName(type);
 
-        name.setAndCheckSchema(schemaName);
+        name.parent = parentName;
+
+        name.setSchemaIfNull(parentName.schema);
+
+        if (name.schema != parentName.schema) {
+            throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,
+                              name.schema.name);
+        }
 
         return name;
     }
@@ -3304,7 +3278,8 @@ class Parser extends BaseParser {
      *
      * todo: DEFAULT VALUES expression instead of source
      */
-    CompiledStatement compileInsertStatement() throws HsqlException {
+    CompiledStatement compileInsertStatement(RangeVariable[] outerRanges)
+    throws HsqlException {
 
         read();
         readThis(Token.INTO);
@@ -3317,6 +3292,11 @@ class Parser extends BaseParser {
         columnCheckList = null;
         columnMap       = table.getColumnMap();
         colCount        = table.getColumnCount();
+
+        RangeVariable range = new RangeVariable(table, null, null,
+            compileContext);
+
+        range.updatedColumns = table.getNewColumnCheckList();
 
         if (tokenType == Token.DEFAULT) {
             read();
@@ -3348,8 +3328,6 @@ class Parser extends BaseParser {
         int brackets = readOpenBrackets();
 
         if (brackets == 1 && tokenType != Token.SELECT) {
-            RangeVariable range = new RangeVariable(table, null, null,
-                compileContext);
             OrderedHashSet columnNames = new OrderedHashSet();
 
             readColumnNames(columnNames, range);
@@ -3369,7 +3347,11 @@ class Parser extends BaseParser {
 
                 Expression insertExpressions =
                     readFormattedRowOrTable(colCount);
+                OrderedHashSet set =
+                    insertExpressions.resolveColumnReferences(outerRanges,
+                        null);
 
+                Expression.checkColumnsResolved(set);
                 insertExpressions.resolveTypes(session, null);
 
                 Type[] tableColumnTypes = table.getColumnTypes();
@@ -3492,7 +3474,8 @@ class Parser extends BaseParser {
     /**
      * Retrieves an UPDATE-type CompiledStatement from this parse context.
      */
-    CompiledStatement compileUpdateStatement() throws HsqlException {
+    CompiledStatement compileUpdateStatement(RangeVariable[] outerRanges)
+    throws HsqlException {
 
         read();
 
@@ -3527,13 +3510,15 @@ class Parser extends BaseParser {
         }
 
         resolveUpdateExpressions(table, rangeVars, columnMap,
-                                 updateExpressions);
+                                 updateExpressions, outerRanges);
 
         if (condition != null) {
-            OrderedHashSet set = condition.resolveColumnReferences(rangeVars,
+            OrderedHashSet set = condition.resolveColumnReferences(outerRanges,
                 null);
 
-            Select.checkColumnsResolved(set);
+            set = condition.resolveColumnReferences(rangeVars, set);
+
+            Expression.checkColumnsResolved(set);
             condition.resolveTypes(session, null);
 
             RangeVariableResolver resolver =
@@ -3554,7 +3539,8 @@ class Parser extends BaseParser {
     void resolveUpdateExpressions(Table targetTable,
                                   RangeVariable[] rangeVariables,
                                   int[] updateColumnMap,
-                                  Expression[] colExpressions)
+                                  Expression[] colExpressions,
+                                  RangeVariable[] outerRanges)
                                   throws HsqlException {
 
         OrderedHashSet set                  = null;
@@ -3592,12 +3578,14 @@ class Parser extends BaseParser {
                             throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
                         }
                     } else {
+                        set = e.resolveColumnReferences(outerRanges, set);
                         set = e.resolveColumnReferences(rangeVariables, set);
 
                         e.resolveTypes(session, null);
                     }
                 }
             } else if (expr.exprType == Expression.TABLE_SUBQUERY) {
+                set = expr.resolveColumnReferences(outerRanges, set);
                 set = expr.resolveColumnReferences(rangeVariables, set);
 
                 expr.resolveTypes(session, null);
@@ -3626,6 +3614,7 @@ class Parser extends BaseParser {
                         throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
                     }
                 } else {
+                    set = e.resolveColumnReferences(outerRanges, set);
                     set = e.resolveColumnReferences(rangeVariables, set);
 
                     e.resolveTypes(session, null);
@@ -3635,7 +3624,7 @@ class Parser extends BaseParser {
             }
         }
 
-        Select.checkColumnsResolved(set);
+        Expression.checkColumnsResolved(set);
     }
 
     void readSetClauseList(RangeVariable rangeVar, OrderedHashSet colNames,
@@ -3717,7 +3706,8 @@ class Parser extends BaseParser {
     /**
      * Retrieves a MERGE-type CompiledStatement from this parse context.
      */
-    CompiledStatement compileMergeStatement() throws HsqlException {
+    CompiledStatement compileMergeStatement(RangeVariable[] outerRanges)
+    throws HsqlException {
 
         boolean[]     insertColumnCheckList;
         int[]         insertColumnMap = null;
@@ -3794,7 +3784,8 @@ class Parser extends BaseParser {
 
         if (updateExpressions != null) {
             resolveUpdateExpressions(targetTable, sourceRangeVars,
-                                     updateColumnMap, updateExpressions);
+                                     updateColumnMap, updateExpressions,
+                                     outerRanges);
         }
 
         OrderedHashSet set = null;
@@ -3804,7 +3795,7 @@ class Parser extends BaseParser {
             set = mergeCondition.resolveColumnReferences(targetRangeVars,
                     null);
 
-            Select.checkColumnsResolved(set);
+            Expression.checkColumnsResolved(set);
             mergeCondition.resolveTypes(session, null);
 
             RangeVariableResolver fr =
@@ -3820,7 +3811,7 @@ class Parser extends BaseParser {
             set = insertExpression.resolveColumnReferences(sourceRangeVars,
                     set);
 
-            Select.checkColumnsResolved(set);
+            Expression.checkColumnsResolved(set);
             insertExpression.resolveTypes(session, null);
         }
 
@@ -3962,10 +3953,10 @@ class Parser extends BaseParser {
         private HsqlArrayList subQueryList  = new HsqlArrayList();
         private HsqlArrayList aggregateList = new HsqlArrayList();
         private int           aggregateIndex;
-        HsqlArrayList         parameters          = new HsqlArrayList();
-        OrderedHashSet        sequenceExpressions = new OrderedHashSet();
-        OrderedHashSet        routineExpressions  = new OrderedHashSet();
-        HsqlArrayList         rangeVariables      = new HsqlArrayList();
+        HsqlArrayList         parameters       = new HsqlArrayList();
+        OrderedHashSet        usedSequences    = new OrderedHashSet();
+        OrderedHashSet        usedRoutineNames = new OrderedHashSet();
+        HsqlArrayList         rangeVariables   = new HsqlArrayList();
 
         //
         private int rangeVarIndex;
@@ -4043,9 +4034,35 @@ class Parser extends BaseParser {
 
             parameters.clear();
 
-            sequenceExpressions = new OrderedHashSet();
-            routineExpressions  = new OrderedHashSet();
-            rangeVariables      = new HsqlArrayList();
+            usedSequences    = new OrderedHashSet();
+            usedRoutineNames = new OrderedHashSet();
+            rangeVariables   = new HsqlArrayList();
+        }
+
+        public OrderedHashSet getSchemaObjectNames() {
+
+            OrderedHashSet set = new OrderedHashSet();
+
+            for (int i = 0; i < usedSequences.size(); i++) {
+                NumberSequence sequence =
+                    (NumberSequence) usedSequences.get(i);
+
+                set.add(sequence.getName());
+            }
+
+            for (int i = 0; i < rangeVariables.size(); i++) {
+                RangeVariable range = (RangeVariable) rangeVariables.get(i);
+                HsqlName      name  = range.rangeTable.getName();
+
+                if (name.schema != SchemaManager.SYSTEM_SCHEMA_HSQLNAME) {
+                    set.add(range.rangeTable.getName());
+                    range.rangeTable.getColumnNames(range.usedColumns, set);
+                } else if (name.type == SchemaObject.TRANSITION) {
+                    range.rangeTable.getColumnNames(range.usedColumns, set);
+                }
+            }
+
+            return set;
         }
     }
 }

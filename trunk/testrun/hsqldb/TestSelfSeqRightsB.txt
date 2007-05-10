@@ -5,6 +5,7 @@ CONNECT USER blaine PASSWORD "b";
 -- Following is default, but just to eliminate any ambiguity...
 SET SCHEMA public;
 -- By virtue of PUBLIC grants
+/*c1*/SELECT * FROM pt;
 /*e*/SELECT i, next value for ps9 FROM pt;
 /*e*/SELECT i, next value for public.ps9 FROM public.pt;
 /*e*/SELECT i, next value for ps9 FROM public.pt;

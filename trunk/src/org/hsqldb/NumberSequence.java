@@ -37,6 +37,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
+import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Maintains a sequence of numbers.
@@ -140,6 +141,12 @@ public class NumberSequence implements SchemaObject {
     public Grantee getOwner() {
         return name.schema.owner;
     }
+
+    public OrderedHashSet getReferences() {
+        return new OrderedHashSet();
+    }
+
+    public void compile(Session session) {}
 
     public Type getType() {
         return dataType;
@@ -540,17 +547,12 @@ public class NumberSequence implements SchemaObject {
     }
 
     /**
-     * true if one or more values were retreived since the last resetWasUsed
-     */
-    synchronized boolean wasUsed() {
-        return lastValue != currValue;
-    }
-
-    /**
      * reset the wasUsed flag
      */
-    synchronized void resetWasUsed() {
+    synchronized boolean resetWasUsed() {
+        boolean result = lastValue != currValue;
         lastValue = currValue;
+        return result;
     }
 
     /**

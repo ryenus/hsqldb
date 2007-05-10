@@ -411,6 +411,7 @@ public class Trace {
     public static final int SQL_IDENTITY_DEFINITION_NOT_ALLOWED    = 1205;
     public static final int SQL_IDENTITY_DEFINITION_NOT_EXISTS     = 1206;
     public static final int SQL_CONSTRAINT_NOT_ALLOWED             = 1207;
+    public static final int SQL_OBJECT_IS_REFERENCED               = 1208;
 
     //
 
@@ -689,7 +690,7 @@ public class Trace {
                              int code) throws HsqlException {
 
         if (!condition) {
-            throw error(code,(String) null);
+            throw error(code, (String) null);
         }
     }
 
@@ -776,7 +777,7 @@ public class Trace {
      * @param condition
      * @throws HsqlException
      */
-    public static void doAssert(boolean condition) throws HsqlException {
+    public static void doAssert(boolean condition) {
         doAssert(condition, null);
     }
 
@@ -787,8 +788,7 @@ public class Trace {
      * @param error
      * @throws HsqlException
      */
-    static void doAssert(boolean condition,
-                         String error) throws HsqlException {
+    static void doAssert(boolean condition, String error) {
 
         if (!condition) {
             if (error == null) {
@@ -797,7 +797,7 @@ public class Trace {
 
             error += getStackTrace();
 
-            throw error(ASSERT_FAILED, error);
+            throw runtimeError(ASSERT_FAILED, error);
         }
     }
 }

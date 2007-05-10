@@ -62,10 +62,9 @@ public class TableUtil {
 
     static Table newSubqueryTable(Database database) throws HsqlException {
 
-        HsqlName sqtablename =
-            database.nameManager.newHsqlName("SYSTEM_SUBQUERY", false);
-
-        sqtablename.schema = database.schemaManager.SYSTEM_SCHEMA_HSQLNAME;
+        HsqlName sqtablename = database.nameManager.newHsqlName(
+            database.schemaManager.SYSTEM_SCHEMA_HSQLNAME, "SYSTEM_SUBQUERY",
+            false, SchemaObject.TABLE);
 
         try {
             return new Table(database, sqtablename, Table.SYSTEM_SUBQUERY);
@@ -158,9 +157,9 @@ public class TableUtil {
         for (int i = 0; i < count; i++) {
             Column column =
                 new Column(table.database.nameManager
-                    .newHsqlName(metadata.colLabels[i], metadata
-                        .isLabelQuoted[i]), metadata
-                            .colTypes[i], true, false, null);
+                    .newHsqlName(table.getSchemaName(), metadata
+                        .colLabels[i], metadata.isLabelQuoted[i], SchemaObject
+                        .COLUMN), metadata.colTypes[i], true, false, null);
 
             table.addColumn(column);
         }
@@ -184,10 +183,11 @@ public class TableUtil {
 
         for (int i = 0; i < select.visibleColumnCount; i++) {
             Expression e = select.exprColumns[i];
-            Column column = new Column(
-                table.database.nameManager.newHsqlName(
-                    e.getAlias(), e.isAliasQuoted()), e.dataType, true,
-                        false, null);
+            Column column =
+                new Column(table.database.nameManager
+                    .newHsqlName(table.getSchemaName(), e.getAlias(), e
+                        .isAliasQuoted(), SchemaObject.COLUMN), e
+                            .dataType, true, false, null);
 
             table.addColumn(column);
         }

@@ -49,6 +49,8 @@ import org.hsqldb.persist.TempDataFileCache;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.SchemaObject;
+import org.hsqldb.SchemaManager;
 
 /**
  * Implementation or RowSetNavigator using a table as the data store.
@@ -74,7 +76,8 @@ public class DataRowSetNavigator extends RowSetNavigator {
     boolean        isDiskBased;
     boolean        isClosed;
 
-    public DataRowSetNavigator(Session session, Select select) throws HsqlException {
+    public DataRowSetNavigator(Session session,
+                               Select select) throws HsqlException {
 
         this.session      = session;
         this.select       = select;
@@ -91,11 +94,9 @@ public class DataRowSetNavigator extends RowSetNavigator {
     void createTable(Session session, Select select) throws HsqlException {
 
         Database database = session.getDatabase();
-        HsqlName tablename = database.nameManager.newHsqlName("SYSTEM_RESULT",
-            false);
-
-        tablename.schema = database.schemaManager.SYSTEM_SCHEMA_HSQLNAME;
-
+        HsqlName tablename = database.nameManager.newHsqlName(
+            database.schemaManager.SYSTEM_SCHEMA_HSQLNAME, "SYSTEM_RESULT",
+            false, SchemaObject.TABLE);
         int tableType = Table.RESULT;
 
         table = new Table(session, database, tablename, tableType);
@@ -118,7 +119,7 @@ public class DataRowSetNavigator extends RowSetNavigator {
         meta.colLabels     = colLabels;
         meta.isLabelQuoted = colQuoted;
 
-        if (select.orderByColumnCount != 0 &&!select.isAggregateSorted) {
+        if (select.orderByColumnCount != 0 && !select.isAggregateSorted) {
             sortOrder();
 
             hasOrder = true;
@@ -175,21 +176,12 @@ public class DataRowSetNavigator extends RowSetNavigator {
 
         ArrayUtil.fillSequence(fullCols);
 
-        HsqlName indexName = database.nameManager.newAutoName("IDX_T", null);
+        HsqlName indexName = database.nameManager.newAutoName("IDX_T",
+            table.getSchemaName(), table.getName(), SchemaObject.INDEX);
 
         fullIndex = table.createIndex(session, fullCols, null, indexName,
                                       false, false, false);
         mainIndex = fullIndex;
-    }
-
-    public void unsortUnion() throws HsqlException {
-
-        if (fullIndex != null) {
-            table.dropIndex(session, fullIndex.getName().name);
-
-            fullIndex = null;
-            mainIndex = table.getPrimaryIndex();
-        }
     }
 
     public void sortOrder() throws HsqlException {
@@ -207,11 +199,12 @@ public class DataRowSetNavigator extends RowSetNavigator {
                 orderDesc[i] = select.sortDirection[i] == -1;
             }
 
-            HsqlName indexName = database.nameManager.newAutoName("IDX_T", null);
+            HsqlName indexName = database.nameManager.newAutoName("IDX_T",
+                table.getSchemaName() , table.getName(), SchemaObject.INDEX);
 
             orderIndex = table.createIndex(session, select.sortOrder,
-                                           orderDesc, indexName, false,
-                                           false, false);
+                                           orderDesc, indexName, false, false,
+                                           false);
         } else {
             orderIndex = table.getPrimaryIndex();
         }
@@ -219,20 +212,10 @@ public class DataRowSetNavigator extends RowSetNavigator {
         mainIndex = orderIndex;
     }
 
-    public void unsortOrder() throws HsqlException {
-
-        if (orderIndex != null) {
-            table.dropIndex(session, fullIndex.getName().name);
-
-            fullIndex = null;
-            mainIndex = table.getPrimaryIndex();
-        }
-    }
-
     public void add(Object data) {
 
         try {
-            if (size == maxMemoryRowCount &&!select.isAggregated) {
+            if (size == maxMemoryRowCount) {
                 changeToDiskTable();
             }
 
@@ -344,7 +327,8 @@ public class DataRowSetNavigator extends RowSetNavigator {
         while (hasNext()) {
             Object[] data = (Object[]) getNext();
 
-            out.writeData(meta.getColumnCount(), meta.colTypes, data, null, null);
+            out.writeData(meta.getColumnCount(), meta.colTypes, data, null,
+                          null);
         }
 
         reset();
@@ -409,8 +393,10 @@ public class DataRowSetNavigator extends RowSetNavigator {
     }
 
     public boolean hasUniqueNotNullRows() throws HsqlException {
+
         sortUnion();
         reset();
+
         Object[] lastRowData = null;
 
         while (hasNext()) {
@@ -418,7 +404,7 @@ public class DataRowSetNavigator extends RowSetNavigator {
 
             Object[] currentData = currentRow.getData();
 
-            if(hasNull(currentData)) {
+            if (hasNull(currentData)) {
                 continue;
             }
 
@@ -489,7 +475,8 @@ public class DataRowSetNavigator extends RowSetNavigator {
         }
     }
 
-    private boolean hasNull(Object[]data) {
+    private boolean hasNull(Object[] data) {
+
         for (int i = 0; i < select.visibleColumnCount; i++) {
             if (data[i] == null) {
                 return true;

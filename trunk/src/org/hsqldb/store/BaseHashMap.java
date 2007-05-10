@@ -406,7 +406,7 @@ public class BaseHashMap {
     protected Object addOrRemoveMultiVal(long longKey, long longValue,
                                          Object objectKey,
                                          Object objectValue,
-                                         boolean removeKey) {
+                                         boolean removeKey, boolean removeValue) {
 
         int hash = (int) longKey;
 
@@ -440,7 +440,21 @@ public class BaseHashMap {
                         lookup                  = lastLookup;
                     } else {
                         if (objectValueTable[lookup].equals(objectValue)) {
-                            return objectValueTable[lookup];
+
+                            if (removeValue) {
+                                objectKeyTable[lookup]   = null;
+                                returnValue              = objectValueTable[lookup];
+                                objectValueTable[lookup] = null;
+
+                                hashIndex.unlinkNode(index, lastLookup, lookup);
+
+                                multiValueTable[lookup] = false;
+                                lookup                  = lastLookup;
+                                return returnValue;
+
+                            } else {
+                                return objectValueTable[lookup];
+                            }
                         }
                     }
 
@@ -495,7 +509,7 @@ public class BaseHashMap {
             }
         }
 
-        if (removeKey) {
+        if (removeKey || removeValue) {
             return returnValue;
         }
 
@@ -504,7 +518,7 @@ public class BaseHashMap {
             // should throw maybe, if reset returns false?
             if (reset()) {
                 return addOrRemoveMultiVal(longKey, longValue, objectKey,
-                                           objectValue, removeKey);
+                                           objectValue, removeKey, removeValue);
             } else {
                 return null;
             }

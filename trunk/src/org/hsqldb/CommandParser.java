@@ -117,28 +117,31 @@ public class CommandParser extends DDLParser {
                     break;
                 }
                 case Token.INSERT : {
-                    CompiledStatement cs = compileInsertStatement();
+                    CompiledStatement cs =
+                        compileInsertStatement(emptyRangeVariables);
 
                     result = session.executeCompiledStatement(cs, null);
 
                     break;
                 }
                 case Token.UPDATE : {
-                    CompiledStatement cs = compileUpdateStatement();
+                    CompiledStatement cs =
+                        compileUpdateStatement(emptyRangeVariables);
 
                     result = session.executeCompiledStatement(cs, null);
 
                     break;
                 }
                 case Token.MERGE : {
-                    CompiledStatement cs = compileMergeStatement();
+                    CompiledStatement cs =
+                        compileMergeStatement(emptyRangeVariables);
 
                     result = session.executeCompiledStatement(cs, null);
 
                     break;
                 }
                 case Token.DELETE : {
-                    CompiledStatement cs = compileDeleteStatement();
+                    CompiledStatement cs = compileDeleteStatement(emptyRangeVariables);
 
                     result = session.executeCompiledStatement(cs, null);
 
@@ -189,19 +192,19 @@ public class CommandParser extends DDLParser {
                     break;
 
                 case Token.GRANT :
+                    read();
                     processGrantOrRevoke(true);
                     database.setMetaDirty(false);
                     break;
 
                 case Token.REVOKE :
+                    read();
                     processGrantOrRevoke(false);
                     database.setMetaDirty(true);
                     break;
 
                 case Token.CONNECT :
                     processConnect();
-                    database.setMetaDirty(false);
-                    session.setScripting(false);
                     break;
 
                 case Token.DISCONNECT :
@@ -275,7 +278,7 @@ public class CommandParser extends DDLParser {
 
         ScriptWriterText dsw = null;
 
-        session.checkAdmin();
+        session.checkAdmin();    // can script read-only databases
 
         try {
             if (tokenType == Token.X_VALUE) {
@@ -286,6 +289,7 @@ public class CommandParser extends DDLParser {
                 dsw = new ScriptWriterText(database, tokenString, true, true,
                                            true);
 
+                read();
                 dsw.writeAll();
 
                 return Result.updateZeroResult;
@@ -347,17 +351,18 @@ public class CommandParser extends DDLParser {
      */
     private void processSet() throws HsqlException {
 
-        session.setScripting(true);
+        session.setScripting(false);
         read();
 
         switch (tokenType) {
 
             case Token.PROPERTY : {
+                read();
+
                 String                 property;
                 HsqlDatabaseProperties p;
 
-                session.checkAdmin();
-                read();
+                checkDatabaseUpdateAuthorization();
                 checkIsSimpleName();
                 checkIsQuoted();
 
@@ -397,7 +402,6 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.SCHEMA : {
-                session.setScripting(false);
                 read();
                 checkIsSimpleName();
                 session.setSchema(tokenString);
@@ -406,8 +410,9 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.PASSWORD : {
-                session.checkDDLWrite();
                 read();
+                session.setScripting(true);
+                session.checkDDLWrite();
 
                 String password = readPassword();
 
@@ -416,16 +421,15 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.READONLY : {
-                session.commit();
                 read();
+                session.commit();
                 session.setReadOnly(processTrueOrFalse());
 
                 break;
             }
             case Token.LOGSIZE : {
-                session.checkAdmin();
-                session.checkDDLWrite();
                 read();
+                checkDatabaseUpdateAuthorization();
 
                 int i = readInteger();
 
@@ -434,10 +438,8 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.SCRIPTFORMAT : {
-                session.checkAdmin();
-                session.checkDDLWrite();
-                session.setScripting(false);
                 read();
+                checkDatabaseUpdateAuthorization();
                 checkIsSimpleName();
 
                 int i = ArrayUtil.find(ScriptWriterBase.LIST_SCRIPT_FORMATS,
@@ -454,15 +456,14 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.IGNORECASE : {
-                session.checkAdmin();
                 read();
-                session.checkDDLWrite();
+                session.setScripting(true);
+                checkDatabaseUpdateAuthorization();
                 database.setIgnoreCase(processTrueOrFalse());
 
                 break;
             }
             case Token.MAXROWS : {
-                session.setScripting(false);
                 read();
 
                 int i = readInteger();
@@ -478,7 +479,6 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.DEFAULT : {
-                session.setScripting(false);
                 read();
                 readThis(Token.RESULT);
                 readThis(Token.MEMORY);
@@ -493,7 +493,6 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.RESULT : {
-                session.setScripting(false);
                 read();
                 readThis(Token.MEMORY);
                 readThis(Token.SIZE);
@@ -505,13 +504,11 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.TABLE : {
-                session.checkAdmin();
-                session.checkDDLWrite();
                 read();
 
                 Table t = readTableName();
 
-                checkSchemaUpdateAuthorization(t.getSchemaName().name);
+                checkSchemaUpdateAuthorization(t.getSchemaName());
                 session.setScripting(true);
 
                 switch (tokenType) {
@@ -520,8 +517,8 @@ public class CommandParser extends DDLParser {
                         throw unexpectedToken();
                     }
                     case Token.SOURCE : {
-                        session.checkAdmin();
                         read();
+                        session.checkAdmin();
 
                         if (tokenString.equals(Token.T_HEADER)) {
                             read();
@@ -550,15 +547,16 @@ public class CommandParser extends DDLParser {
                         break;
                     }
                     case Token.READONLY : {
-                        session.checkAdmin();
                         read();
+                        session.checkAdmin();
                         t.setDataReadOnly(processTrueOrFalse());
 
                         break;
                     }
                     case Token.INDEX : {
-                        session.checkAdmin();
                         read();
+                        session.setScripting(false);
+                        session.checkAdmin();
                         checkIsValue();
                         t.setIndexRoots(tokenString);
                         read();
@@ -566,11 +564,10 @@ public class CommandParser extends DDLParser {
                         break;
                     }
                     case Token.TYPE : {
+                        read();
                         session.setScripting(false);
 
                         int newType;
-
-                        read();
 
                         if (tokenType == Token.CACHED) {
                             newType = Table.CACHED_TABLE;
@@ -581,8 +578,7 @@ public class CommandParser extends DDLParser {
                         }
 
                         read();
-                        session.checkAdmin();
-                        session.checkDDLWrite();
+                        checkDatabaseUpdateAuthorization();
 
                         TableWorks tw = new TableWorks(session, t);
 
@@ -593,18 +589,16 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.REFERENTIAL_INTEGRITY : {
-                session.checkAdmin();
-                session.checkDDLWrite();
-                session.setScripting(false);
                 read();
+                checkDatabaseUpdateAuthorization();
+                session.setScripting(false);
                 database.setReferentialIntegrity(processTrueOrFalse());
 
                 break;
             }
             case Token.CHECKPOINT : {
-                session.checkAdmin();
-                session.checkDDLWrite();
                 read();
+                checkDatabaseUpdateAuthorization();
                 readThis(Token.DEFRAG);
 
                 int size = readInteger();
@@ -615,12 +609,11 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.WRITE_DELAY : {
-                session.checkAdmin();
-                session.checkDDLWrite();
+                read();
+                session.setScripting(true);
+                checkDatabaseUpdateAuthorization();
 
                 int delay = 0;
-
-                read();
 
                 if (valueType.type == Types.SQL_INTEGER) {
                     delay = ((Integer) value).intValue();
@@ -646,8 +639,9 @@ public class CommandParser extends DDLParser {
                 break;
             }
             case Token.DATABASE : {
-                session.checkAdmin();
-                session.checkDDLWrite();
+                read();
+                session.setScripting(true);
+                checkDatabaseUpdateAuthorization();
                 readThis(Token.COLLATION);
                 checkIsQuoted();
                 database.collation.setCollation(tokenString);
@@ -656,20 +650,19 @@ public class CommandParser extends DDLParser {
             }
             case Token.INITIAL : {
                 read();
-                readThis(Token.SCHEMA);
                 session.setScripting(true);
-                session.checkDDLWrite();
+                readThis(Token.SCHEMA);
 
-                HsqlName schemaName;
+                HsqlName schema;
 
                 if (tokenType == Token.DEFAULT) {
-                    schemaName = null;
+                    schema = null;
                 } else {
-                    schemaName =
+                    schema =
                         database.schemaManager.getSchemaHsqlName(tokenString);
                 }
 
-                session.getUser().setInitialSchema(schemaName);
+                session.getUser().setInitialSchema(schema);
                 database.setMetaDirty(true);
                 read();
 
@@ -774,10 +767,7 @@ public class CommandParser extends DDLParser {
 
         int closemode;
 
-        // HUH?  We should *NEVER* be able to get here if session is closed
-        if (!session.isClosed()) {
-            session.checkAdmin();
-        }
+        session.checkAdmin();
 
         closemode = Database.CLOSEMODE_NORMAL;
 
@@ -827,8 +817,7 @@ public class CommandParser extends DDLParser {
 
         boolean defrag;
 
-        session.checkAdmin();
-        session.checkDDLWrite();
+        checkDatabaseUpdateAuthorization();
 
         defrag = false;
 
@@ -884,19 +873,19 @@ public class CommandParser extends DDLParser {
                 break;
 
             case Token.INSERT :
-                cs = compileInsertStatement();
+                cs = compileInsertStatement(emptyRangeVariables);
                 break;
 
             case Token.UPDATE :
-                cs = compileUpdateStatement();
+                cs = compileUpdateStatement(emptyRangeVariables);
                 break;
 
             case Token.MERGE :
-                cs = compileMergeStatement();
+                cs = compileMergeStatement(emptyRangeVariables);
                 break;
 
             case Token.DELETE :
-                cs = compileDeleteStatement();
+                cs = compileDeleteStatement(emptyRangeVariables);
                 break;
 
             case Token.CALL :

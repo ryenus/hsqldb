@@ -119,7 +119,7 @@ public class TransactionManager {
     }
 
     synchronized void rollback(Session session) {
-        rollbackTransactions(session, 0, false);
+        rollbackTransactions(session, 0, true);
         session.savepoints.clear();
     }
 
@@ -134,7 +134,7 @@ public class TransactionManager {
         Integer oi    = (Integer) session.savepoints.get(index);
         int     limit = oi.intValue();
 
-        rollbackTransactions(session, limit, false);
+        rollbackTransactions(session, limit, true);
 
         while (session.savepoints.size() > index) {
             session.savepoints.remove(session.savepoints.size() - 1);

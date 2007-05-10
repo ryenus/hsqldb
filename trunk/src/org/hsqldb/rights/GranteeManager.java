@@ -44,6 +44,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.Set;
+import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Contains a set of Grantee objects, and supports operations for creating,
@@ -113,8 +114,8 @@ public class GranteeManager {
     static User systemRole;
 
     static {
-        HsqlName name = HsqlNameManager.newHsqlSystemObjectName(
-            SYSTEM_AUTHORIZATION_NAME);
+        HsqlName name =
+            HsqlNameManager.newHsqlSystemObjectName(SYSTEM_AUTHORIZATION_NAME);
 
         systemRole        = new User(name, null);
         systemRole.isRole = true;
@@ -141,13 +142,14 @@ public class GranteeManager {
 
         map.add(systemRole.getName(), systemRole);
         roleMap.add(systemRole.getName(), systemRole);
-        addRole(db.nameManager.newHsqlName(GranteeManager.PUBLIC_ROLE_NAME));
+        addRole(db.nameManager.newHsqlName(GranteeManager.PUBLIC_ROLE_NAME,
+                                           false, SchemaObject.GRANTEE));
 
         publicRole          = getRole(GranteeManager.PUBLIC_ROLE_NAME);
         publicRole.isPublic = true;
 
-        addRole(
-            db.nameManager.newHsqlName(GranteeManager.DBA_ADMIN_ROLE_NAME));
+        addRole(db.nameManager.newHsqlName(GranteeManager.DBA_ADMIN_ROLE_NAME,
+                                           false, SchemaObject.GRANTEE));
 
         dbaRole = getRole(GranteeManager.DBA_ADMIN_ROLE_NAME);
 
@@ -168,8 +170,7 @@ public class GranteeManager {
                                GrantConstants.INSERT);
         rightsStringLookup.put(GrantConstants.S_R_EXECUTE,
                                GrantConstants.EXECUTE);
-        rightsStringLookup.put(GrantConstants.S_R_USAGE,
-                               GrantConstants.USAGE);
+        rightsStringLookup.put(GrantConstants.S_R_USAGE, GrantConstants.USAGE);
         rightsStringLookup.put(GrantConstants.S_R_REFERENCES,
                                GrantConstants.REFERENCES);
         rightsStringLookup.put(GrantConstants.S_R_TRIGGER,
@@ -238,8 +239,7 @@ public class GranteeManager {
     }
 
     public void grant(String name, SchemaObject dbObject, Right rights,
-                      String grantor,
-                      boolean withGrant) throws HsqlException {
+                      String grantor, boolean withGrant) throws HsqlException {
 
         Grantee g = get(name);
 
@@ -409,12 +409,27 @@ public class GranteeManager {
      * Removes all rights mappings for the database object identified by
      * the dbobject argument from all Grantee objects in the set.
      */
-    public void removeDbObject(SchemaObject dbobject) {
+    public void removeDbObject(HsqlName name) {
 
         for (int i = 0; i < map.size(); i++) {
             Grantee g = (Grantee) map.get(i);
 
-            g.revokeDbObject(dbobject);
+            g.revokeDbObject(name);
+        }
+    }
+
+    public void removeDbObjects(OrderedHashSet nameSet) {
+
+        Iterator it = nameSet.iterator();
+
+        while (it.hasNext()) {
+            HsqlName name = (HsqlName) it.next();
+
+            for (int i = 0; i < map.size(); i++) {
+                Grantee g = (Grantee) map.get(i);
+
+                g.revokeDbObject(name);
+            }
         }
     }
 

@@ -135,7 +135,7 @@ public class TestLobs extends TestBase {
             ps.setClob(1, clob);
             ps.executeUpdate();
 
-            data = data.replace("insert", "INSERT");
+            data = data.replaceFirst("insert", "INSERT");
             clob = new jdbcClob(data);
 
             ps.setClob(1, clob);

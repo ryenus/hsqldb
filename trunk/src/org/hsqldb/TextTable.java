@@ -153,14 +153,15 @@ class TextTable extends org.hsqldb.Table {
      * High level command to assign a data source to the table definition.
      * Reassigns only if the data source or direction has changed.
      */
-    protected void setDataSource(Session s, String dataSourceNew,
+    protected void setDataSource(Session session, String dataSourceNew,
                                  boolean isReversedNew,
                                  boolean newFile) throws HsqlException {
 
         if (getTableType() == Table.TEMP_TEXT_TABLE) {
             ;
         } else {
-            s.checkAdmin();
+            session.getUser().checkSchemaUpdateOrGrantRights(
+                getSchemaName().name);
         }
 
         dataSourceNew = dataSourceNew.trim();
@@ -171,7 +172,7 @@ class TextTable extends org.hsqldb.Table {
 
         //-- Open if descending, direction changed, or file changed.
         if (isReversedNew || (isReversedNew != isReversed)
-                ||!dataSource.equals(dataSourceNew)) {
+                || !dataSource.equals(dataSourceNew)) {
             openCache(dataSourceNew, isReversedNew, isReadOnly);
         }
 

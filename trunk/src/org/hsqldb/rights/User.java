@@ -170,7 +170,7 @@ public class User extends Grantee {
         sb.append(Token.T_SET).append(' ');
         sb.append(Token.T_INITIAL).append(' ');
         sb.append(Token.T_SCHEMA).append(' ');
-        sb.append('"').append(initialSchema.name).append('"');
+        sb.append(initialSchema.statementName);
 
         return sb.toString();
     }

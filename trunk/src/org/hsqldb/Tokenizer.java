@@ -168,9 +168,8 @@ public class Tokenizer {
 
     /**
      *
-     * @throws HsqlException
      */
-    void back() throws HsqlException {
+    void back() {
 
         if (bWait) {
             Trace.doAssert(false, "Querying state when in Wait mode");
@@ -235,7 +234,6 @@ public class Tokenizer {
      * Used for commands only
      *
      * @param match String
-     * @throws HsqlException
      * @return boolean
      */
     public boolean isGetThis(String match) throws HsqlException {
@@ -252,7 +250,7 @@ public class Tokenizer {
         return false;
     }
 
-    boolean wasSpecial() throws HsqlException {
+    boolean wasSpecial() {
 
         if (bWait) {
             Trace.doAssert(false, "Querying state when in Wait mode");
@@ -264,10 +262,9 @@ public class Tokenizer {
     /**
      * this methode is called before other wasXXX methods and takes precedence
      *
-     * @throws HsqlException
      * @return boolean
      */
-    boolean wasValue() throws HsqlException {
+    boolean wasValue() {
 
         if (bWait) {
             Trace.doAssert(false, "Querying state when in Wait mode");
@@ -290,7 +287,7 @@ public class Tokenizer {
         }
     }
 
-    boolean wasQuotedIdentifier() throws HsqlException {
+    boolean wasQuotedIdentifier() {
 
         if (bWait) {
             Trace.doAssert(false, "Querying state when in Wait mode");
@@ -303,9 +300,8 @@ public class Tokenizer {
      * Method declaration
      *
      * @return boolean
-     * @throws HsqlException
      */
-    boolean wasLongName() throws HsqlException {
+    boolean wasLongName() {
 
         if (bWait) {
             Trace.doAssert(false, "Querying state when in Wait mode");
@@ -349,9 +345,8 @@ public class Tokenizer {
      * Return first part of long name.
      *
      * @return String prefix
-     * @throws HsqlException
      */
-    String getNamePrefix() throws HsqlException {
+    String getNamePrefix() {
 
         if (bWait) {
             Trace.doAssert(false, "Querying state when in Wait mode");
@@ -364,9 +359,8 @@ public class Tokenizer {
      * Return second part of long name
      *
      * @return String pre-prefix
-     * @throws HsqlException
      */
-    String getNamePrePrefix() throws HsqlException {
+    String getNamePrePrefix() {
 
         if (bWait) {
             Trace.doAssert(false, "Querying state when in Wait mode");
@@ -403,8 +397,8 @@ public class Tokenizer {
 
     public boolean wasThis(String match) {
 
-        if (sToken.equals(match) && iType != QUOTED_NAME
-                && iType != LONG_NAME && iType != Types.SQL_CHAR) {
+        if (sToken.equals(match) && iType != QUOTED_NAME && iType != LONG_NAME
+                && iType != Types.SQL_CHAR) {
             return true;
         }
 
@@ -532,7 +526,7 @@ public class Tokenizer {
      * @return data type
      * @throws HsqlException
      */
-    public int getType() throws HsqlException {
+    public int getType() {
 
         if (bWait) {
             Trace.doAssert(false, "Querying state when in Wait mode");
@@ -696,7 +690,7 @@ public class Tokenizer {
 
         if (iIndex >= iLength) {
             lastTokenQuotedID = false;
-            iType = NO_TYPE;
+            iType             = NO_TYPE;
 
             return;
         }
@@ -897,15 +891,15 @@ public class Tokenizer {
                     }
 
                     // fredt - todo new char[] to back sToken
-                    sToken = sCommand.substring(start, iIndex).toUpperCase(
-                        Locale.ENGLISH);
+                    sToken =
+                        sCommand.substring(start,
+                                           iIndex).toUpperCase(Locale.ENGLISH);
 
                     if (c == '.') {
 
                         // Set another level of qualifiers
                         if (namePrePrefix != null) {
-                            throw Trace.error(
-                                Trace.TOO_MANY_IDENTIFIER_PARTS);
+                            throw Trace.error(Trace.TOO_MANY_IDENTIFIER_PARTS);
                         }
 
                         if (namePrefix != null) {

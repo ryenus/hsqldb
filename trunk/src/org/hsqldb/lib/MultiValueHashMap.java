@@ -69,11 +69,15 @@ public class MultiValueHashMap extends BaseHashMap {
     }
 
     public Object put(Object key, Object value) {
-        return super.addOrRemoveMultiVal(0, 0, key, value, false);
+        return super.addOrRemoveMultiVal(0, 0, key, value, false, false);
     }
 
     public Object remove(Object key) {
-        return super.addOrRemoveMultiVal(0, 0, key, null, true);
+        return super.addOrRemoveMultiVal(0, 0, key, null, true, false);
+    }
+
+    public Object remove(Object key, Object value) {
+        return super.addOrRemoveMultiVal(0,0,key, value, false, true);
     }
 
     public boolean containsKey(Object key) {
