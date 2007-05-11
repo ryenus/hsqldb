@@ -985,7 +985,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[ilast_id] =
                 ValuePool.getLong(((Number) s.getLastIdentity()).longValue());
             row[it_size]   = ValuePool.getInt(s.getTransactionSize());
-            row[it_schema] = s.getCurrentSchemaHsqlName();
+            row[it_schema] = s.getCurrentSchemaHsqlName().name;
 
             t.insertSys(row);
         }
