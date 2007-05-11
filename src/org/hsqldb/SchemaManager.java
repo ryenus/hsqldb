@@ -583,12 +583,15 @@ public class SchemaManager {
 
         if (!cascade) {
             for (int i = 0; i < externalConstraints.size(); i++) {
-                Constraint c = (Constraint) externalConstraints.get(i);
+                Constraint c       = (Constraint) externalConstraints.get(i);
+                HsqlName   name    = c.getName();
+                HsqlName   refname = c.getRef().getName();
 
                 if (c.getType() == Constraint.MAIN) {
                     throw Trace.error(Trace.TABLE_REFERENCED_CONSTRAINT,
                                       Trace.Database_dropTable, new Object[] {
-                        c.getName().name, c.getRef().getName().name
+                        name.schema.name + '.' + name.name,
+                        refname.schema.name + '.' + refname.name
                     });
                 }
             }
@@ -596,7 +599,8 @@ public class SchemaManager {
             if (!externalReferences.isEmpty()) {
                 HsqlName name = (HsqlName) externalReferences.get(0);
 
-                throw Trace.error(Trace.TABLE_REFERENCED_VIEW, name.name);
+                throw Trace.error(Trace.TABLE_REFERENCED_VIEW,
+                                  name.schema.name + '.' + name.name);
             }
         }
 

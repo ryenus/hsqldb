@@ -542,7 +542,7 @@ INSERT INTO blaine.bmt16 VALUES(10);
 INSERT INTO blaine.bmt17 VALUES(10);
 INSERT INTO blaine.bmt18 VALUES(10);
 /*u0*/ALTER TABLE ct15 ADD FOREIGN KEY (i) REFERENCES mt15 (i);
-/*e*/ALTER TABLE ct16 ADD FOREIGN KEY (i) REFERENCES blaine.bct11 (i);
+/*u0*/ALTER TABLE ct16 ADD FOREIGN KEY (i) REFERENCES blaine.bct11 (i);
 /*e*/ALTER TABLE public.ct16 ADD FOREIGN KEY (i) REFERENCES blaine.bct11 (i);
 /*u0*/ALTER TABLE ct16 ADD FOREIGN KEY (i) REFERENCES public.mt16 (i);
 SET SCHEMA blaine;
@@ -550,7 +550,7 @@ SET SCHEMA blaine;
 /*e*/ALTER TABLE public.ct17 ADD FOREIGN KEY (i) REFERENCES public.mt17 (i);
 /*u0*/ALTER TABLE public.ct18 ADD FOREIGN KEY (i) REFERENCES mt18 (i);
 -- fks can't reference tables in other schemas.
-/*e*/ALTER TABLE bct15 ADD FOREIGN KEY (i) REFERENCES public.mt15 (i);
+/*u0*/ALTER TABLE bct15 ADD FOREIGN KEY (i) REFERENCES public.mt15 (i);
 SET SCHEMA public;
 /*u0*/ALTER TABLE blaine.bct17 ADD FOREIGN KEY (i) REFERENCES blaine.bmt17 (i);
 /*u0*/ALTER TABLE blaine.bct18 ADD FOREIGN KEY (i) REFERENCES bmt18 (i);
@@ -591,7 +591,7 @@ SET SCHEMA public;
 SET SCHEMA blaine;
 /*e*/ALTER TABLE bmt24 ADD CONSTRAINT public.bmt24fk
     FOREIGN KEY (i) REFERENCES public.ct11 (i);
-/*e*/ALTER TABLE bmt24 ADD CONSTRAINT blaine.bmt24fk
+/*u0*/ALTER TABLE bmt24 ADD CONSTRAINT blaine.bmt24fk
     FOREIGN KEY (i) REFERENCES public.ct11 (i);
 SET SCHEMA public;
 /*e*/ALTER TABLE blaine.bmt22 ADD CONSTRAINT public.bmt22fk

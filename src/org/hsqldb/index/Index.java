@@ -105,7 +105,7 @@ import org.hsqldb.rights.Grantee;
  * @version 1.9.0
  * @since Hypersonic SQL
  */
-public class Index implements SchemaObject{
+public class Index implements SchemaObject {
 
     // types of index
     public static final int MEMORY_INDEX  = 0;
@@ -123,7 +123,7 @@ public class Index implements SchemaObject{
     private final boolean isUnique;    // DDL uniqueness
     private boolean       useRowId;
     final boolean         isConstraint;
-    public final boolean         isForward;
+    public final boolean  isForward;
     boolean               isTemp;
     private Node          root;
     private int           depth;
@@ -148,21 +148,20 @@ public class Index implements SchemaObject{
      * @param visColumns count of visible columns
      */
     public Index(Database database, HsqlName name, Table table, int[] columns,
-            boolean[] descending, Type[] colTypes, boolean unique,
-            boolean constraint, boolean forward) {
+                 boolean[] descending, Type[] colTypes, boolean unique,
+                 boolean constraint, boolean forward) {
 
-        this.name          = name;
-        colIndex           = columns;
-        this.colTypes      = colTypes;
-        colDesc            = descending == null ? new boolean[columns.length]
-                                                : descending;
-        isUnique           = unique;
-        isConstraint       = constraint;
-        isForward          = forward;
-        updatableIterators = new IndexRowIterator(null, null, null);
-        updatableIterators.next = updatableIterators.last =
-            updatableIterators;
-        collation = database.collation;
+        this.name               = name;
+        colIndex                = columns;
+        this.colTypes           = colTypes;
+        colDesc = descending == null ? new boolean[columns.length]
+                                     : descending;
+        isUnique                = unique;
+        isConstraint            = constraint;
+        isForward               = forward;
+        updatableIterators      = new IndexRowIterator(null, null, null);
+        updatableIterators.next = updatableIterators.last = updatableIterators;
+        collation               = database.collation;
 
         setTable(table);
     }
@@ -172,9 +171,8 @@ public class Index implements SchemaObject{
         this.table   = table;
         this.pkCols  = table.getPrimaryKey();
         this.pkTypes = table.getPrimaryKeyTypes();
-        useRowId = (!isUnique && pkCols.length == 0)
-                   || (colIndex.length == 0);
-        colCheck = table.getNewColumnCheckList();
+        useRowId = (!isUnique && pkCols.length == 0) || (colIndex.length == 0);
+        colCheck     = table.getNewColumnCheckList();
 
         ArrayUtil.intIndexesToBooleanArray(colIndex, colCheck);
 
@@ -264,6 +262,7 @@ public class Index implements SchemaObject{
     public boolean[] getColumnDesc() {
         return colDesc;
     }
+
     /**
      * Returns the node count.
      */
@@ -298,8 +297,8 @@ public class Index implements SchemaObject{
     public synchronized boolean isEmpty(Session session) {
 
         if (isTemp) {
-            return session.sessionData.getIndexRoot(
-                name, onCommitPreserve) == null;
+            return session.sessionData.getIndexRoot(name, onCommitPreserve)
+                   == null;
         } else {
             return root == null;
         }
@@ -322,15 +321,13 @@ public class Index implements SchemaObject{
     }
 
     public void clearIterators() {
-        updatableIterators.next = updatableIterators.last =
-            updatableIterators;
+        updatableIterators.next = updatableIterators.last = updatableIterators;
     }
 
     public void setRoot(Session session, Node node) {
 
         if (isTemp) {
-            session.sessionData.setIndexRoot(name, onCommitPreserve,
-                                             node);
+            session.sessionData.setIndexRoot(name, onCommitPreserve, node);
         } else {
             root = node;
         }
@@ -344,8 +341,7 @@ public class Index implements SchemaObject{
     private Node getRoot(Session session) throws HsqlException {
 
         if (isTemp) {
-            return session.sessionData.getIndexRoot(name,
-                    onCommitPreserve);
+            return session.sessionData.getIndexRoot(name, onCommitPreserve);
         } else {
             return root == null ? root
                                 : root.getUpdatedNode();
@@ -355,7 +351,8 @@ public class Index implements SchemaObject{
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, Row row, int offset) throws HsqlException {
+    public void insert(Session session, Row row,
+                       int offset) throws HsqlException {
 
         Node    n       = getRoot(session);
         Node    x       = n;
@@ -378,12 +375,11 @@ public class Index implements SchemaObject{
             compare = compareRowForInsert(session, row, n.getRow());
 
             if (compare == 0) {
-                int    errorCode = Trace.VIOLATION_OF_UNIQUE_INDEX;
+                int      errorCode = Trace.VIOLATION_OF_UNIQUE_INDEX;
                 HsqlName name      = this.name;
 
                 if (isConstraint) {
-                    Constraint c =
-                        table.getUniqueOrPKConstraintForIndex(this);
+                    Constraint c = table.getUniqueOrPKConstraintForIndex(this);
 
                     if (c != null) {
                         name      = c.getName();
@@ -707,18 +703,18 @@ public class Index implements SchemaObject{
     }
 
     public RowIterator findFirstRow(Session session, Object[] rowdata,
-                             int[] rowColMap) throws HsqlException {
+                                    int[] rowColMap) throws HsqlException {
 
         Node node = findNotNull(session, rowdata, rowColMap, true);
 
         return getIterator(session, node);
     }
 
-    public RowIterator findFirstRowForDelete(Session session, Object[] rowdata,
-                                      int[] rowColMap) throws HsqlException {
+    public RowIterator findFirstRowForDelete(Session session,
+            Object[] rowdata, int[] rowColMap) throws HsqlException {
 
-        Node node           = findNotNull(session, rowdata, rowColMap, true);
-        IndexRowIterator it = getIterator(session, node);
+        Node             node = findNotNull(session, rowdata, rowColMap, true);
+        IndexRowIterator it   = getIterator(session, node);
 
         if (node != null) {
             updatableIterators.link(it);
@@ -746,7 +742,7 @@ public class Index implements SchemaObject{
     }
 
     public boolean exists(Session session, Object[] rowdata,
-                   int[] rowColMap) throws HsqlException {
+                          int[] rowColMap) throws HsqlException {
         return findNotNull(session, rowdata, rowColMap, true) != null;
     }
 
@@ -883,12 +879,12 @@ public class Index implements SchemaObject{
      * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, Object[] coldata,
-                             int match) throws HsqlException {
+                                    int match) throws HsqlException {
 
         Node x     = getRoot(session);
         Node found = null;
         boolean unique = isUnique && match == colIndex.length
-                         &&!hasNull(coldata);
+                         && !hasNull(coldata);
 
         while (x != null) {
             int c = compareRowNonUnique(session, coldata, x.getData(), match);
@@ -925,7 +921,7 @@ public class Index implements SchemaObject{
 
         Node    x      = getRoot(session);
         Node    found  = null;
-        boolean unique = isUnique &&!hasNull(rowdata);
+        boolean unique = isUnique && !hasNull(rowdata);
 
         while (x != null) {
             int c = compareRowNonUnique(session, rowdata, colIndex,
@@ -961,7 +957,7 @@ public class Index implements SchemaObject{
      * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, Object value,
-                             int compare) throws HsqlException {
+                                    int compare) throws HsqlException {
 
         if (compare == Expression.SMALLER
                 || compare == Expression.SMALLER_EQUAL) {
@@ -977,7 +973,7 @@ public class Index implements SchemaObject{
             iTest = 0;
         }
 
-        if (value == null &&!isEqual) {
+        if (value == null && !isEqual) {
             return emptyIterator;
         }
 
@@ -1052,7 +1048,8 @@ public class Index implements SchemaObject{
      *
      * @throws HsqlException
      */
-    public RowIterator findFirstRowNotNull(Session session) throws HsqlException {
+    public RowIterator findFirstRowNotNull(Session session)
+    throws HsqlException {
 
         Node x = getRoot(session);
 
@@ -1303,8 +1300,9 @@ public class Index implements SchemaObject{
      * @return comparison result, -1,0,+1
      * @throws HsqlException
      */
-    public int compareRowNonUnique(Session session, Object[] a, int[] rowColMap,
-                            Object[] b) throws HsqlException {
+    public int compareRowNonUnique(Session session, Object[] a,
+                                   int[] rowColMap,
+                                   Object[] b) throws HsqlException {
 
         int fieldcount = rowColMap.length;
 
@@ -1327,7 +1325,7 @@ public class Index implements SchemaObject{
      * As above but use the index column data
      */
     public int compareRowNonUnique(Session session, Object[] a, Object[] b,
-                            int fieldcount) throws HsqlException {
+                                   int fieldcount) throws HsqlException {
 
         for (int j = 0; j < fieldcount; j++) {
             int i = colTypes[j].compare(a[j], b[colIndex[j]]);
@@ -1352,7 +1350,8 @@ public class Index implements SchemaObject{
      * @throws HsqlException
      */
     public static int compareRows(Session session, Object[] a, Object[] b,
-                           int[] cols, Type[] coltypes) throws HsqlException {
+                                  int[] cols,
+                                  Type[] coltypes) throws HsqlException {
 
         int fieldcount = cols.length;
 
@@ -1391,8 +1390,7 @@ public class Index implements SchemaObject{
             int    i = colTypes[j].compare(currentvalue, othervalue);
 
             if (i != 0) {
-                if (colDesc[j] && currentvalue != null
-                        && othervalue != null) {
+                if (colDesc[j] && currentvalue != null && othervalue != null) {
                     i = -i;
                 }
 
@@ -1404,7 +1402,7 @@ public class Index implements SchemaObject{
             }
         }
 
-        if (isUnique &&!useRowId &&!hasNull) {
+        if (isUnique && !useRowId && !hasNull) {
             return 0;
         }
 

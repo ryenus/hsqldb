@@ -1536,27 +1536,6 @@ public class Table extends BaseTable implements SchemaObject {
     }
 
     /**
-     *  Create new index taking into account removal or addition of a column
-     *  to the table.
-     */
-    private Index createAdjustedIndex(Index index, int colindex,
-                                      int adjust) throws HsqlException {
-
-        int[] colarr = ArrayUtil.toAdjustedColumnArray(index.getColumns(),
-            colindex, adjust);
-
-        // if a column to remove is one of the Index columns
-        if (colarr.length != index.getVisibleColumns()) {
-            return null;
-        }
-
-        return createAndAddIndexStructure(colarr, index.getName(),
-                                          index.isUnique(),
-                                          index.isConstraint(),
-                                          index.isForward);
-    }
-
-    /**
      *  Create new memory-resident index. For MEMORY and TEXT tables.
      */
     public Index createIndex(Session session, int[] columns,

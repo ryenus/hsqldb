@@ -113,24 +113,13 @@ public class Constraint implements SchemaObject {
     ConstraintCore          core;
     private HsqlName        name;
     int                     constType;
+    boolean                 isForward;
 
     //
     Expression    check;
     boolean       isNotNull;
     int           notNullColumnIndex;
     RangeVariable rangeVariable;
-
-    /**
-     *  Constructor declaration for PK and UNIQUE
-     */
-    public Constraint(HsqlName name, Table table, int[] cols, int type) {
-
-        core           = new ConstraintCore();
-        this.name      = name;
-        constType      = type;
-        core.mainTable = table;
-        core.mainCols  = cols;
-    }
 
     /**
      *  Constructor declaration for PK and UNIQUE
@@ -155,49 +144,6 @@ public class Constraint implements SchemaObject {
         core      = fkconstraint.core;
     }
 
-    /**
-     * Constructor for foreign key constraints.
-     *
-     * @param uniqueName name in the main (referenced) table, used internally
-     * @param mainName name in the referencing table, public name of the
-     *   constraint
-     * @param refName HsqlName
-     * @param mainTable referenced table
-     * @param refTable referencing talbe
-     * @param mainCols array of column indexes in main table
-     * @param refCols array of column indexes in referencing table
-     * @param mainIndex index on the main table
-     * @param refIndex index on the referencing table
-     * @param deleteAction triggered action on delete
-     * @param updateAction triggered action on update
-     * @throws HsqlException
-     */
-    public Constraint(HsqlName uniqueName, HsqlName mainName,
-                      HsqlName refName, Table mainTable, Table refTable,
-                      int[] mainCols, int[] refCols, Index mainIndex,
-                      Index refIndex, int deleteAction,
-                      int updateAction) throws HsqlException {
-
-        core            = new ConstraintCore();
-        core.uniqueName = uniqueName;
-        core.mainName   = mainName;
-        core.refName    = refName;
-        this.name       = refName;
-        constType       = FOREIGN_KEY;
-        core.mainTable  = mainTable;
-        core.refTable   = refTable;
-        /* fredt - in FK constraints column lists for iColMain and iColRef have
-           identical sets to visible columns of iMain and iRef respectively
-           but the order of columns can be different and must be preserved
-         */
-        core.mainCols     = mainCols;
-        core.refCols      = refCols;
-        core.mainIndex    = mainIndex;
-        core.refIndex     = refIndex;
-        core.deleteAction = deleteAction;
-        core.updateAction = updateAction;
-    }
-
     Constraint duplicate() {
 
         Constraint copy = new Constraint();
@@ -205,6 +151,9 @@ public class Constraint implements SchemaObject {
         copy.core               = core.duplicate();
         copy.name               = name;
         copy.constType          = constType;
+        copy.isForward          = isForward;
+
+        //
         copy.check              = check;
         copy.isNotNull          = isNotNull;
         copy.notNullColumnIndex = notNullColumnIndex;
@@ -218,7 +167,16 @@ public class Constraint implements SchemaObject {
     OrderedHashSet refColSet;
 
     /**
-     * temp constraint constructors
+     * General constructor for constraints.
+     *
+     * @param name name of constraint
+     * @param refCols list of referencing columns
+     * @param mainTable referenced table
+     * @param mainCols list of referenced columns
+     * @param type constraint type
+     * @param deleteAction triggered action on delete
+     * @param updateAction triggered action on update
+     * @throws HsqlException
      */
     public Constraint(HsqlName name, OrderedHashSet refCols, Table mainTable,
                       OrderedHashSet mainCols, int type, int deleteAction,
