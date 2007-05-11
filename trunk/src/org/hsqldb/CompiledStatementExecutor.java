@@ -41,13 +41,11 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.navigator.LinkedListRowSetNavigator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.types.Type;
-import org.hsqldb.navigator.ClientRowSetNavigator;
-import org.hsqldb.navigator.LinkedListRowSetNavigator;
-import org.hsqldb.navigator.DataRowSetNavigator;
 
 // boucherb@users 200404xx - fixed broken CALL statement result set unwrapping;
 //                           fixed broken support for prepared SELECT...INTO
@@ -559,8 +557,7 @@ public final class CompiledStatementExecutor {
 
         tableDDL = new StringBuffer();
 
-        DatabaseScript.getTableDDL(session.database, t, 0, null, true,
-                                   tableDDL);
+        DatabaseScript.getTableDDL(t, true, tableDDL);
 
         sourceDDL = DatabaseScript.getDataSourceDDL(t);
 

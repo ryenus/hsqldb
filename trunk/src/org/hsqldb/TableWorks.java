@@ -149,9 +149,15 @@ public class TableWorks {
                                        mainIndex);
 
         int offset = database.schemaManager.getTableIndex(table);
-        boolean isForward =
-            offset != -1
-            && offset < database.schemaManager.getTableIndex(c.core.mainTable);
+        boolean isForward = c.core.mainTable.getSchemaName()
+                            != table.getSchemaName();
+
+        if (offset != -1
+                && offset
+                   < database.schemaManager.getTableIndex(c.core.mainTable)) {
+            isForward = true;
+        }
+
         HsqlName indexName = database.nameManager.newAutoName("IDX",
             table.getSchemaName(), table.getName(), SchemaObject.INDEX);
         Index refIndex = table.createIndexStructure(c.core.refCols, null,
@@ -166,6 +172,7 @@ public class TableWorks {
         c.core.refTable   = table;
         c.core.refName    = c.getName();
         c.core.refIndex   = refIndex;
+        c.isForward       = isForward;
 
         Table tn = table.moveDefinition(session, null, c, refIndex, -1, 0,
                                         emptySet, emptySet, null);
@@ -299,13 +306,18 @@ public class TableWorks {
                     Constraint uniqueConstraint =
                         c.core.mainTable.getUniqueConstraintForColumns(
                             c.core.mainCols, c.core.refCols);
+                    boolean isForward = c.core.mainTable.getSchemaName()
+                                        != table.getSchemaName();
                     int offset =
                         database.schemaManager.getTableIndex(originalTable);
-                    boolean isforward =
-                        !isSelf
-                        && offset
-                           < database.schemaManager.getTableIndex(
-                               c.core.mainTable);
+
+                    if (!isSelf
+                            && offset
+                               < database.schemaManager.getTableIndex(
+                                   c.core.mainTable)) {
+                        isForward = true;
+                    }
+
                     HsqlName indexName =
                         database.nameManager.newAutoName("IDX",
                                                          c.getName().name,
@@ -314,13 +326,14 @@ public class TableWorks {
                                                          SchemaObject.INDEX);
 
                     index = table.createAndAddIndexStructure(c.getRefColumns(),
-                            indexName, false, true, isforward);
+                            indexName, false, true, isForward);
                     c.core.uniqueName = uniqueConstraint.getName();
                     c.core.mainName = database.nameManager.newAutoName("REF",
                             c.core.refName.name, table.getSchemaName(),
                             table.getName(), SchemaObject.INDEX);
                     c.core.mainIndex = uniqueConstraint.getMainIndex();
                     c.core.refIndex  = index;
+                    c.isForward      = isForward;
 
                     table.addConstraint(c);
 

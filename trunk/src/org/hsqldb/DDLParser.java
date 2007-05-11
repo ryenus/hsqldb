@@ -657,12 +657,17 @@ public class DDLParser extends Parser {
 
                     tableWorks.checkCreateForeignKey(c);
 
+                    boolean isForward = c.core.mainTable.getSchemaName()
+                                        != table.getSchemaName();
                     int offset = database.schemaManager.getTableIndex(table);
-                    boolean isForward =
-                        offset != -1
-                        && offset
-                           < database.schemaManager.getTableIndex(
-                               c.core.mainTable);
+
+                    if (offset != -1
+                            && offset
+                               < database.schemaManager.getTableIndex(
+                                   c.core.mainTable)) {
+                        isForward = true;
+                    }
+
                     HsqlName refIndexName =
                         database.nameManager.newAutoName("IDX",
                                                          table.getSchemaName(),
@@ -681,6 +686,7 @@ public class DDLParser extends Parser {
                     c.core.refTable   = table;
                     c.core.refName    = c.getName();
                     c.core.refIndex   = index;
+                    c.isForward = isForward;
 
                     table.addConstraint(c);
                     c.core.mainTable.addConstraint(new Constraint(mainName,
@@ -720,18 +726,19 @@ public class DDLParser extends Parser {
 
         readThis(Token.REFERENCES);
 
-        if (refTable.getName().name.equals(tokenString)) {
-            mainTable = refTable;
+        String schema = namePrefix;
 
-            if (namePrefix != null
-                    && !refTable.getName().schema.name.equals(namePrefix)) {
-                throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,
-                                  namePrefix);
-            }
+        if (namePrefix == null) {
+            schema = refTable.getSchemaName().name;
+        }
+
+        if (refTable.getSchemaName().name.equals(schema)
+                && refTable.getName().name.equals(tokenString)) {
+            mainTable = refTable;
 
             read();
         } else {
-            mainTable = readTableName(refTable.getName().schema.name);
+            mainTable = readTableName(schema);
         }
 
         if (tokenType == Token.OPENBRACKET) {
@@ -748,6 +755,7 @@ public class DDLParser extends Parser {
                                   Trace.TABLE_HAS_NO_PRIMARY_KEY);
             }
         }
+
 
         // -- In a while loop we parse a maximium of two
         // -- "ON" statements following the foreign key

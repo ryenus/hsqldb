@@ -675,9 +675,9 @@ SET SCHEMA blaine;
     FOREIGN KEY(i) REFERENCES xconj1(i));
 -- Test prohibit create fk -> another-schema with every thing else ok.
 CREATE TABLE public.badtarget(i int, unique (i));
-/*e*/CREATE TABLE xcont13 (i int, CONSTRAINT xconfk13 FOREIGN KEY(i)
-    REFERENCES public.badtarget(i));
 /*u0*/CREATE TABLE xcont13 (i int, CONSTRAINT xconfk13 FOREIGN KEY(i)
+    REFERENCES public.badtarget(i));
+/*e*/CREATE TABLE xcont13 (i int, CONSTRAINT xconfk13 FOREIGN KEY(i)
     REFERENCES blaine.xconj1(i));
 /*u0*/CREATE TABLE blaine.xcont14 (i int, CONSTRAINT xconfk14
     FOREIGN KEY(i) REFERENCES blaine.xconj1(i));

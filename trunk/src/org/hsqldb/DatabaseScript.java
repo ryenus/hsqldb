@@ -117,14 +117,14 @@ public class DatabaseScript {
         }
 
         // aliases
-        HashMap h       = database.aliasManager.getAliasMap();
+        HashMap map     = database.aliasManager.getAliasMap();
         HashMap builtin = Library.getAliasMap();
 
-        it = h.keySet().iterator();
+        it = map.keySet().iterator();
 
         while (it.hasNext()) {
             String alias  = (String) it.next();
-            String java   = (String) h.get(alias);
+            String java   = (String) map.get(alias);
             String biJava = (String) builtin.get(alias);
 
             if (biJava != null && biJava.equals(java)) {
@@ -169,7 +169,7 @@ public class DatabaseScript {
 
         // Create schemas and schema objects such as tables, sequences, etc.
         addSchemaStatements(database, r, indexRoots);
-        addCrossSchemaStatements(database, r);
+        addCrossSchemaStatements(database, r, indexRoots);
 
         // Set User Session Start Schemas
         users = database.getUserManager().getUsers().values().iterator();
@@ -220,9 +220,8 @@ public class DatabaseScript {
             String schemaKey = (String) schemas.next();
             HsqlName schema =
                 database.schemaManager.toSchemaHsqlName(schemaKey);
-            HashMappedList tTable =
+            HashMappedList tableList =
                 database.schemaManager.getTables(schema.name);
-            HsqlArrayList forwardFK = new HsqlArrayList();
 
             // schema creation
             {
@@ -251,8 +250,8 @@ public class DatabaseScript {
             }
 
             // tables
-            for (int i = 0, tSize = tTable.size(); i < tSize; i++) {
-                Table t = (Table) tTable.get(i);
+            for (int i = 0, tSize = tableList.size(); i < tSize; i++) {
+                Table t = (Table) tableList.get(i);
 
                 if (t.isView()) {
                     continue;
@@ -260,7 +259,7 @@ public class DatabaseScript {
 
                 StringBuffer a = new StringBuffer(128);
 
-                getTableDDL(database, t, i, forwardFK, false, a);
+                getTableDDL(t, false, a);
                 addRow(r, a.toString());
 
                 // indexes for table
@@ -323,34 +322,9 @@ public class DatabaseScript {
                 }
             }
 
-            // forward referencing foreign keys
-            for (int i = 0, tSize = forwardFK.size(); i < tSize; i++) {
-                Constraint   c = (Constraint) forwardFK.get(i);
-                StringBuffer a = new StringBuffer(128);
-
-                a.append(Token.T_ALTER).append(' ').append(
-                    Token.T_TABLE).append(' ');
-                a.append(c.getRef().getName().statementName);
-                a.append(' ').append(Token.T_ADD).append(' ');
-                getFKStatement(c, a);
-                addRow(r, a.toString());
-            }
-
-            // SET <tablename> INDEX statements
-            Session sysSession = database.sessionManager.getSysSession();
-
-            for (int i = 0, tSize = tTable.size(); i < tSize; i++) {
-                Table t = (Table) tTable.get(i);
-
-                if (indexRoots && t.isIndexCached()
-                        && !t.isEmpty(sysSession)) {
-                    addRow(r, getIndexRootsDDL((Table) tTable.get(i)));
-                }
-            }
-
             // RESTART WITH <value> statements
-            for (int i = 0, tSize = tTable.size(); i < tSize; i++) {
-                Table t = (Table) tTable.get(i);
+            for (int i = 0, tSize = tableList.size(); i < tSize; i++) {
+                Table t = (Table) tableList.get(i);
 
                 if (!t.isTemp()) {
                     String ddl = getIdentityUpdateDDL(t);
@@ -361,7 +335,8 @@ public class DatabaseScript {
         }
     }
 
-    static void addCrossSchemaStatements(Database database, Result r) {
+    static void addCrossSchemaStatements(Database database, Result r,
+                                         boolean indexRoots) {
 
         Iterator schemas = database.schemaManager.userSchemaNameIterator();
 
@@ -369,19 +344,40 @@ public class DatabaseScript {
             String schemaKey = (String) schemas.next();
             HsqlName schema =
                 database.schemaManager.toSchemaHsqlName(schemaKey);
-            HashMappedList tTable =
+            HashMappedList tableList =
                 database.schemaManager.getTables(schema.name);
-            HsqlArrayList forwardFK   = new HsqlArrayList();
             String setSchemaStatement = getSetSchemaDDL(database, schema);
 
             addRow(r, setSchemaStatement);
 
+            // forward referencing foreign keys
+            for (int i = 0, tSize = tableList.size(); i < tSize; i++) {
+                Table        t              = (Table) tableList.get(i);
+                Constraint[] constraintList = t.getConstraints();
+
+                for (int j = 0, vSize = constraintList.length; j < vSize;
+                        j++) {
+                    Constraint c = constraintList[j];
+
+                    if (c.isForward) {
+                        StringBuffer a = new StringBuffer(128);
+
+                        a.append(Token.T_ALTER).append(' ').append(
+                            Token.T_TABLE).append(' ');
+                        a.append(c.getRef().getName().statementName);
+                        a.append(' ').append(Token.T_ADD).append(' ');
+                        getFKStatement(c, a);
+                        addRow(r, a.toString());
+                    }
+                }
+            }
+
             // views
-            for (int i = 0, tSize = tTable.size(); i < tSize; i++) {
-                Table t = (Table) tTable.get(i);
+            for (int i = 0, tSize = tableList.size(); i < tSize; i++) {
+                Table t = (Table) tableList.get(i);
 
                 if (t.isView()) {
-                    View         v = (View) tTable.get(i);
+                    View         v = (View) tableList.get(i);
                     StringBuffer a = new StringBuffer(128);
 
                     a.append(Token.T_CREATE).append(' ').append(
@@ -406,8 +402,8 @@ public class DatabaseScript {
             }
 
             // triggers
-            for (int i = 0, tSize = tTable.size(); i < tSize; i++) {
-                Table t = (Table) tTable.get(i);
+            for (int i = 0, tSize = tableList.size(); i < tSize; i++) {
+                Table t = (Table) tableList.get(i);
 
                 for (int tv = 0; tv < t.triggerLists.length; tv++) {
                     HsqlArrayList trigVec = t.triggerLists[tv];
@@ -423,6 +419,18 @@ public class DatabaseScript {
 
                         addRow(r, a);
                     }
+                }
+            }
+
+            // SET <tablename> INDEX statements
+            Session sysSession = database.sessionManager.getSysSession();
+
+            for (int i = 0, tSize = tableList.size(); i < tSize; i++) {
+                Table t = (Table) tableList.get(i);
+
+                if (indexRoots && t.isIndexCached()
+                        && !t.isEmpty(sysSession)) {
+                    addRow(r, getIndexRootsDDL((Table) tableList.get(i)));
                 }
             }
         }
@@ -564,9 +572,7 @@ public class DatabaseScript {
         return ab.toString();
     }
 
-    static void getTableDDL(Database database, Table t, int i,
-                            HsqlArrayList forwardFK, boolean useSchema,
-                            StringBuffer a) {
+    static void getTableDDL(Table t, boolean useSchema, StringBuffer a) {
 
         a.append(Token.T_CREATE).append(' ');
 
@@ -640,10 +646,10 @@ public class DatabaseScript {
             }
         }
 
-        Constraint[] v = t.getConstraints();
+        Constraint[] constraintList = t.getConstraints();
 
-        for (int j = 0, vSize = v.length; j < vSize; j++) {
-            Constraint c = v[j];
+        for (int j = 0, vSize = constraintList.length; j < vSize; j++) {
+            Constraint c = constraintList[j];
 
             switch (c.getType()) {
 
@@ -683,13 +689,7 @@ public class DatabaseScript {
                 case Constraint.FOREIGN_KEY :
 
                     // forward referencing FK
-                    Table maintable = c.getMain();
-                    int maintableindex =
-                        database.schemaManager.getTableIndex(maintable);
-
-                    if (maintableindex > i) {
-                        forwardFK.add(c);
-                    } else {
+                    if (!c.isForward) {
                         a.append(',');
                         getFKStatement(c, a);
                     }
@@ -812,6 +812,7 @@ public class DatabaseScript {
 
         getColumnList(c.getRef(), col, col.length, a);
         a.append(' ').append(Token.T_REFERENCES).append(' ');
+        a.append(c.getMain().getSchemaName().statementName).append('.');
         a.append(c.getMain().getName().statementName);
 
         col = c.getMainColumns();
@@ -882,7 +883,6 @@ public class DatabaseScript {
      */
     private static void addRightsStatements(Database dDatabase, Result r) {
 
-        StringBuffer   a;
         GranteeManager gm       = dDatabase.getGranteeManager();
         Iterator       grantees = gm.getGrantees().iterator();
 
