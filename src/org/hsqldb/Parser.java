@@ -258,8 +258,8 @@ class Parser extends BaseParser {
      * for view column aliases.
      *
      */
-    SubQuery parseSubquery(int brackets, View view, boolean resolveAll,
-                           int predicateType) throws HsqlException {
+    SubQuery readSubquery(int brackets, View view, boolean resolveAll,
+                          int predicateType) throws HsqlException {
 
         compileContext.subQueryLevel++;
 
@@ -1233,7 +1233,7 @@ class Parser extends BaseParser {
         if (tokenType == Token.OPENBRACKET) {
             read();
 
-            sq = parseSubquery(0, null, true, Expression.TABLE_SUBQUERY);
+            sq = readSubquery(0, null, true, Expression.TABLE_SUBQUERY);
 
             readThis(Token.CLOSEBRACKET);
 
@@ -1295,21 +1295,6 @@ class Parser extends BaseParser {
             compileContext);
 
         return range;
-    }
-
-    /**
-     *  Method declaration
-     *
-     * @return the Expression resulting from the parse
-     * @throws  HsqlException
-     */
-    Expression parseExpression() throws HsqlException {
-
-        read();
-
-        Expression e = readOr();
-
-        return e;
     }
 
     private Expression readAggregate() throws HsqlException {
@@ -1430,8 +1415,8 @@ class Parser extends BaseParser {
                     throw unexpectedToken();
                 }
 
-                SubQuery sq = parseSubquery(brackets, null, false,
-                                            Expression.EXISTS);
+                SubQuery sq = readSubquery(brackets, null, false,
+                                           Expression.EXISTS);
                 Expression s = new Expression(Expression.TABLE_SUBQUERY, sq);
 
                 readThis(Token.CLOSEBRACKET);
@@ -1448,8 +1433,8 @@ class Parser extends BaseParser {
                     throw unexpectedToken();
                 }
 
-                SubQuery sq = parseSubquery(brackets, null, false,
-                                            Expression.UNIQUE);
+                SubQuery sq = readSubquery(brackets, null, false,
+                                           Expression.UNIQUE);
                 Expression s = new Expression(Expression.TABLE_SUBQUERY, sq);
 
                 readThis(Token.CLOSEBRACKET);
@@ -1663,7 +1648,7 @@ class Parser extends BaseParser {
             throw unexpectedToken();
         }
 
-        SubQuery   sq = parseSubquery(brackets, null, false, Expression.IN);
+        SubQuery   sq = readSubquery(brackets, null, false, Expression.IN);
         Expression s  = new Expression(Expression.TABLE_SUBQUERY, sq);
 
         readThis(Token.CLOSEBRACKET);
@@ -1767,7 +1752,7 @@ class Parser extends BaseParser {
         brackets = readOpenBrackets();
 
         if (tokenType == Token.SELECT) {
-            SubQuery sq = parseSubquery(brackets, null, false, Expression.IN);
+            SubQuery sq = readSubquery(brackets, null, false, Expression.IN);
 
             e = new Expression(Expression.TABLE_SUBQUERY, sq);
 
@@ -1808,7 +1793,7 @@ class Parser extends BaseParser {
             throw Trace.error(Trace.INVALID_IDENTIFIER);
         }
 
-        SubQuery sq = parseSubquery(brackets, null, false, type);
+        SubQuery sq = readSubquery(brackets, null, false, type);
 
         e = new Expression(Expression.TABLE_SUBQUERY, sq);
 
@@ -1948,8 +1933,8 @@ class Parser extends BaseParser {
                 return e;
 
             case Token.SELECT :
-                SubQuery sq = parseSubquery(0, null, false,
-                                            Expression.SCALAR_SUBQUERY);
+                SubQuery sq = readSubquery(0, null, false,
+                                           Expression.SCALAR_SUBQUERY);
 
                 e = new Expression(Expression.SCALAR_SUBQUERY, sq);
 
@@ -2686,10 +2671,15 @@ class Parser extends BaseParser {
         String  table  = namePrefix;
         String  schema = namePrePrefix;
 
+        recordCurrent();
         read();
 
         if (tokenType != Token.OPENBRACKET) {
-            return new Expression(schema, table, name, quoted);
+            Expression column = new Expression(schema, table, name, quoted);
+
+            recordNamedObject(column);
+
+            return column;
         }
 
         String   javaName = database.aliasManager.getJavaName(name);
@@ -2949,7 +2939,9 @@ class Parser extends BaseParser {
         NumberSequence sequence =
             database.schemaManager.getSequence(tokenString, schema);
 
+        recordCurrent();
         read();
+        recordNamedObject(sequence.getName());
 
         Expression e = new Expression(sequence);
 
@@ -3048,7 +3040,9 @@ class Parser extends BaseParser {
      */
     CompiledStatement compileCallStatement() throws HsqlException {
 
-        Expression expression = parseExpression();
+        read();
+
+        Expression expression = readOr();
 
         expression.resolveTypes(session, null);
 
@@ -3215,7 +3209,9 @@ class Parser extends BaseParser {
         Table table = database.schemaManager.getTable(session, tokenString,
             namePrefix);
 
+        recordCurrent();
         read();
+        recordNamedObject(table.getName());
 
         return table;
     }
@@ -3268,9 +3264,13 @@ class Parser extends BaseParser {
             throw Trace.error(Trace.COLUMN_NOT_FOUND, tokenString);
         }
 
-        read();
+        Column column = rangeVar.getTable().getColumn(i);
 
-        return rangeVar.getTable().getColumn(i);
+        recordCurrent();
+        read();
+        recordNamedObject(column);
+
+        return column;
     }
 
     /**
@@ -3660,8 +3660,8 @@ class Parser extends BaseParser {
 
             if (brackets > 0) {
                 if (tokenType == Token.SELECT) {
-                    SubQuery sq = parseSubquery(brackets - 1, null, false,
-                                                Expression.ROW_SUBQUERY);
+                    SubQuery sq = readSubquery(brackets - 1, null, false,
+                                               Expression.ROW_SUBQUERY);
 
                     readThis(Token.CLOSEBRACKET);
 
@@ -3930,13 +3930,13 @@ class Parser extends BaseParser {
      *
      * @param view View
      */
-    public SubQuery parseViewSubquery(View view) throws HsqlException {
+    public SubQuery readViewSubquery(View view) throws HsqlException {
 
         read();
 
         int brackets = readOpenBrackets();
-        SubQuery subQuery = parseSubquery(brackets, view, true,
-                                          Expression.VIEW);
+        SubQuery subQuery = readSubquery(brackets, view, true,
+                                         Expression.VIEW);
 
         setAsView(view);
 

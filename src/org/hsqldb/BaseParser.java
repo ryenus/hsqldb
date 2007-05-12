@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.types.Type;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.HsqlNameManager.HsqlName;
 
 public class BaseParser {
 
@@ -51,6 +52,7 @@ public class BaseParser {
     protected boolean       isCoreReservedKey;
     protected boolean       isSpecial;
     protected boolean       isRecording;
+    protected int           recordingStart;
     protected HsqlArrayList recordedStatement;
 
     /**
@@ -85,23 +87,96 @@ public class BaseParser {
     }
 
     void startRecording() {
+
         recordedStatement = new HsqlArrayList();
-        isRecording       = false;
+        recordingStart    = getPosition();
+        isRecording       = true;
+    }
+
+    void recordCurrent() {
+
+        if (isRecording) {
+            String s = getLastPart(recordingStart);
+
+            recordedStatement.add(s);
+
+            recordingStart = getPosition();
+        }
+    }
+
+    void recordNamedObject(Object object) throws HsqlException {
+
+        if (isRecording) {
+            recordedStatement.add(object);
+
+            recordingStart = getPosition();
+        }
     }
 
     Object[] getRecordedStatement() {
 
-        isRecording = false;
 
+        recordCurrent();
+        isRecording = false;
         Object[] statements = recordedStatement.toArray();
 
         recordedStatement = null;
 
+        for (int i = 0; i < statements.length; i++) {
+            if (statements[i] instanceof Expression) {
+                Column column = ((Expression) statements[i]).getColumn();
+
+                if (column == null) {
+                    statements[i] = ((Expression) statements[i]).getAlias();
+                } else {
+                    statements[i] = column.getName();
+                }
+            }
+        }
+
         return statements;
     }
 
-    void endRecording() {
-        isRecording = false;
+    static String getSql(Object[] statement) {
+
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < statement.length; i++) {
+            if (statement[i] instanceof HsqlName) {
+                HsqlName name = (HsqlName) statement[i];
+
+                switch (name.type) {
+
+                    case SchemaObject.SEQUENCE :
+                        sb.append(name.schema.statementName).append('.');
+                        break;
+
+                    case SchemaObject.TABLE :
+                        if (name.schema
+                                != SchemaManager.SYSTEM_SCHEMA_HSQLNAME) {
+                            sb.append(name.schema.statementName).append('.');
+                        }
+                        break;
+
+                    case SchemaObject.COLUMN :
+                        if (name.parent != null) {
+                            sb.append(name.schema.statementName).append('.');
+                            sb.append(name.parent.statementName).append('.');
+                        }
+                        break;
+                }
+
+                sb.append(name.statementName);
+                sb.append(' ');
+            } else {
+                String s = (String) statement[i];
+
+                sb.append(s);
+                sb.append(' ');
+            }
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -148,8 +223,6 @@ public class BaseParser {
                 tokenType = Token.X_NAME;
             }
         }
-
-
     }
 
     boolean isName() throws HsqlException {

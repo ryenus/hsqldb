@@ -531,7 +531,8 @@ public class Constraint implements SchemaObject {
         String     ddl       = check.getDDL();
         Tokenizer  tokenizer = new Tokenizer(ddl);
         Parser     parser    = new Parser(session, tokenizer);
-        Expression condition = parser.parseExpression();
+        parser.read();
+        Expression condition = parser.readOr();
 
         check = condition;
 
@@ -543,25 +544,6 @@ public class Constraint implements SchemaObject {
         rangeVariable = s.rangeVariables[0];
 
         rangeVariable.setForCheckConstraint();
-    }
-
-    void renameTable(String oldName, String newName) {
-
-        if (constType != CHECK) {
-            return;
-        }
-
-        OrderedHashSet cols = new OrderedHashSet();
-
-        Expression.collectAllExpressions(cols, check, Expression.COLUMN);
-
-        for (int i = 0; i < cols.size(); i++) {
-            Expression e = (Expression) cols.get(i);
-
-            if (e.getTableName() == oldName) {
-                e.setTableName(newName);
-            }
-        }
     }
 
     /**

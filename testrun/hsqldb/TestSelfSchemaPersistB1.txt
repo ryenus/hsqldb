@@ -413,7 +413,7 @@ SET SCHEMA blaine;
 /*u0*/CREATE VIEW blaine.xvwv26 (v1, v2, v3) AS SELECT * FROM xvwt1, blaine.xvwj1 WHERE xvwt1.i = xvwj1.i;
 -- We do not permit views to reference tables in another schema, except
 -- for information_schema.
-/*e*/CREATE VIEW blaine.xvwv27 AS SELECT * FROM public.pubtbl;
+/*u0*/CREATE VIEW blaine.xvwv27 AS SELECT * FROM public.pubtbl;
 /*u0*/CREATE VIEW xvwv28 AS
     SELECT * FROM xvwt1 WHERE i in (0, 1, 11, 12);
 /*u0*/CREATE VIEW blaine.xvwv29 AS
