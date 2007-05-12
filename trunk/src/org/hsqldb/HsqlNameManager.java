@@ -84,6 +84,28 @@ public class HsqlNameManager {
         return new HsqlName(staticManager, name, 0);
     }
 
+    public static HsqlName newInfoSchemaColumnHsqlName(String name,
+            HsqlName table) {
+
+        HsqlName hsqlName = new HsqlName(staticManager, name, false,
+                                         SchemaObject.COLUMN);
+
+        hsqlName.schema = SchemaManager.INFORMATION_SCHEMA_HSQLNAME;
+        hsqlName.parent = table;
+
+        return hsqlName;
+    }
+
+    public static HsqlName newInfoSchemaTableHsqlName(String name) {
+
+        HsqlName hsqlName = new HsqlName(staticManager, name, false,
+                                         SchemaObject.TABLE);
+
+        hsqlName.schema = SchemaManager.INFORMATION_SCHEMA_HSQLNAME;
+
+        return hsqlName;
+    }
+
     public HsqlName newHsqlName(String name, boolean isquoted, int type) {
         return new HsqlName(this, name, isquoted, type);
     }

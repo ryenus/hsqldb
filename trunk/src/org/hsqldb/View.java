@@ -90,17 +90,6 @@ public class View extends Table {
 
         compile(session);
 
-        HsqlName[] schemas = getSchemas();
-
-        for (int i = 0; i < schemas.length; i++) {
-            if (db.schemaManager.isSystemSchema(schemas[i])) {
-                continue;
-            }
-
-            if (!schemas[i].equals(name.schema)) {
-                throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
-            }
-        }
     }
 
     public OrderedHashSet getReferences() {
@@ -118,15 +107,11 @@ public class View extends Table {
 
         session.setSchema(compileTimeSchema.name);
 
-
         Parser p = new Parser(session, new Tokenizer(statement));
 
-        viewSubQuery   = p.parseViewSubquery(this);
-        viewSubqueries = p.compileContext.getSortedSubqueries(session);
-        viewSelect     = viewSubQuery.select;
-
-        p.compileContext.getSchemaObjectNames();
-
+        viewSubQuery      = p.readViewSubquery(this);
+        viewSubqueries    = p.compileContext.getSortedSubqueries(session);
+        viewSelect        = viewSubQuery.select;
         schemaObjectNames = p.compileContext.getSchemaObjectNames();
 
         if (super.getColumnCount() == 0) {
@@ -149,118 +134,6 @@ public class View extends Table {
      */
     public void setDataReadOnly(boolean value) throws HsqlException {
         throw Trace.error(Trace.NOT_A_TABLE);
-    }
-
-    /**
-     * Returns list of schemas
-     */
-    HsqlName[] getSchemas() {
-
-        HsqlArrayList list = new HsqlArrayList();
-
-        for (int i = 0; i < viewSubqueries.length; i++) {
-            Select select = viewSubqueries[i].select;
-
-            for (; select != null; select = select.unionSelect) {
-                RangeVariable[] rangeVars = select.rangeVariables;
-
-                for (int j = 0; j < rangeVars.length; j++) {
-                    list.add(rangeVars[j].rangeTable.tableName.schema);
-                }
-            }
-        }
-
-        return (HsqlName[]) list.toArray(new HsqlName[list.size()]);
-    }
-
-    boolean hasView(View view) {
-
-        if (view == this) {
-            return false;
-        }
-
-        for (int i = 0; i < viewSubqueries.length; i++) {
-            if (viewSubqueries[i].parentView == view) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if the view references any column of the named table.
-     */
-    boolean hasTable(Table table) {
-
-        for (int i = 0; i < viewSubqueries.length; i++) {
-            Select select = viewSubqueries[i].select;
-
-            for (; select != null; select = select.unionSelect) {
-                RangeVariable[] rangeVars = select.rangeVariables;
-
-                for (int j = 0; j < rangeVars.length; j++) {
-                    if (table.getName() == rangeVars[j].rangeTable.tableName) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if the view references the named column of the named table,
-     * otherwise false.
-     */
-    boolean hasColumn(Table table, String colname) {
-
-        if (hasTable(table)) {
-            HashSet set = new HashSet();
-
-            Expression.collectAllExpressions(
-                set, viewSubqueries[viewSubqueries.length - 1].select,
-                Expression.COLUMN);
-
-            Iterator it = set.iterator();
-
-            for (; it.hasNext(); ) {
-                Expression e = (Expression) it.next();
-
-                if (table.getName() == e.getTableHsqlName()
-                        && colname.equals(e.getBaseColumnName())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if the view references the named SEQUENCE,
-     * otherwise false.
-     */
-    boolean hasSequence(NumberSequence sequence) {
-
-        HashSet set = new HashSet();
-
-        Expression.collectAllExpressions(
-            set, viewSubqueries[viewSubqueries.length - 1].select,
-            Expression.SEQUENCE);
-
-        Iterator it = set.iterator();
-
-        for (; it.hasNext(); ) {
-            Expression e = (Expression) it.next();
-
-            if (e.hasSequence(sequence)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public void collectAllBaseColumnExpressions(HashSet set) {

@@ -187,7 +187,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         for (int i = 0; i < sysTableNames.length; i++) {
             sysTableHsqlNames[i] =
-                HsqlNameManager.newHsqlSystemObjectName(sysTableNames[i]);
+                HsqlNameManager.newInfoSchemaTableHsqlName(sysTableNames[i]);
             sysTableHsqlNames[i].schema =
                 SchemaManager.INFORMATION_SCHEMA_HSQLNAME;
         }
@@ -254,7 +254,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         cn = (HsqlName) columnNameMap.get(name);
 
         if (cn == null) {
-            cn = database.nameManager.newHsqlSystemObjectName(name);
+            cn = database.nameManager.newInfoSchemaColumnHsqlName(name,
+                    t.getName());
 
             columnNameMap.put(name, cn);
         }
