@@ -31,38 +31,38 @@
 
 package org.hsqldb.test;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.sql.Connection;
 
-public class AllTests extends TestCase {
+public class TestTextTables extends TestBase {
 
-    public AllTests(String s) {
-        super(s);
+    static String url =
+        "jdbc:hsqldb:file:testtext/test;sql.enforce_strict_size=true";
+
+    public TestTextTables(String name) {
+        super(name, url, false, false);
     }
 
-    public static Test suite() {
+    /* Implements the TestBug778213_Part3 test */
+    public void test() throws Exception {
 
-        TestSuite suite = new TestSuite();
+        TestSelf.deleteDatabase("testtext/test");
+        TestSelf.delete("testtext/t.txt");
+        TestSelf.delete("testtext/tt.txt");
+        tA();
+        tB();
+    }
 
-        suite.addTestSuite(org.hsqldb.test.TestBatchExecution.class);
-        suite.addTestSuite(org.hsqldb.test.TestBug778213.class);
-        suite.addTestSuite(org.hsqldb.test.TestBug785429.class);
-        suite.addTestSuite(org.hsqldb.test.TestBug808460.class);
-        suite.addTestSuite(org.hsqldb.test.TestDatabaseMetaData.class);
-        suite.addTestSuite(org.hsqldb.test.TestDateTime.class);
-        suite.addTestSuite(org.hsqldb.test
-            .TestINPredicateParameterizationAndCorrelation.class);
-        suite.addTestSuite(org.hsqldb.test.TestSqlPersistent.class);
-        suite.addTestSuite(
-            org.hsqldb.test.TestLikePredicateOptimizations.class);
-        suite.addTestSuite(org.hsqldb.test.TestSql.class);
-        suite.addTestSuite(org.hsqldb.test.TestGroupByHaving.class);
-        suite.addTestSuite(org.hsqldb.test.TestSubselect.class);
-        suite.addTestSuite(org.hsqldb.test.TestTimestamp.class);
-        suite.addTestSuite(org.hsqldb.test.TestTextTable.class);
-        suite.addTestSuite(org.hsqldb.test.TestMultiInsert.class);
-        suite.addTestSuite(org.hsqldb.test.TestMerge.class);
-        return suite;
+    private void tA() throws Exception {
+
+        Connection conn = newConnection();
+
+        TestUtil.testScript(conn, "TestText01.txt");
+    }
+
+    private void tB() throws Exception {
+
+        Connection conn = newConnection();
+
+        TestUtil.testScript(conn, "TestText02.txt");
     }
 }

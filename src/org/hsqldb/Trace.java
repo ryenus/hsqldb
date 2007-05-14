@@ -370,31 +370,28 @@ public class Trace {
     COLUMN_SIZE_REQUIRED             = 253,
     INVALID_SIZE_PRECISION           = 254,
     NOT_AUTHORIZED                   = 255,
+    CANNOT_CONNECT_TABLE             = 256,
+    GENERIC_WARNING                  = 257,
 
     //
-    OLB_JRT_SPECIFIC_ERROR_NO_SUBCLASS         = 256,
-    OLB_JRT_INVALID_URL                        = 257,
-    OLB_JRT_INVALID_JAR_NAME                   = 258,
-    OLB_JRT_INVALID_CLASS_DELETION             = 259,
-    OLB_JRT_INVALID_JAR_REPLACEMENT            = 260,
-    OLB_JRT_ATTEMPT_TO_REPLACE_UNINSTALLED_JAR = 261,
-    OLB_JRT_ATTEMPT_TO_REMOVE_UNINSTALLED_JAR  = 262,
-    OLB_JRT_INVALID_JAR_NAME_IN_PATH           = 263,
-    OLB_JRT_UNRESOLVED_CLASS_NAME              = 264,
-    OLB_UNSUPPORTED_FEATURE                    = 265,
-    OLB_INVALID_CLASS_DECLARATION              = 266,
-    OLB_INVALID_COLUMN_NAME                    = 267,
-    OLB_INVALID_NUMBER_OF_COLUMNS              = 268,
+    OLB_JRT_SPECIFIC_ERROR_NO_SUBCLASS         = 1256,
+    OLB_JRT_INVALID_URL                        = 1257,
+    OLB_JRT_INVALID_JAR_NAME                   = 1258,
+    OLB_JRT_INVALID_CLASS_DELETION             = 1259,
+    OLB_JRT_INVALID_JAR_REPLACEMENT            = 1260,
+    OLB_JRT_ATTEMPT_TO_REPLACE_UNINSTALLED_JAR = 1261,
+    OLB_JRT_ATTEMPT_TO_REMOVE_UNINSTALLED_JAR  = 1262,
+    OLB_JRT_INVALID_JAR_NAME_IN_PATH           = 1263,
+    OLB_JRT_UNRESOLVED_CLASS_NAME              = 1264,
+    OLB_UNSUPPORTED_FEATURE                    = 1265,
+    OLB_INVALID_CLASS_DECLARATION              = 1266,
+    OLB_INVALID_COLUMN_NAME                    = 1267,
+    OLB_INVALID_NUMBER_OF_COLUMNS              = 1268;
 
 //    OLB_INVALID_PROFILE_STATE                  = 269,
     //
-    GENERIC_WARNING = 269,
-
     //
-    LAST_ERROR_HANDLE = 270;
-
     //
-    static String           MESSAGE_TAG                            = "$$";
     public static final int BLOB_IS_NO_LONGER_VALID                = 1000;
     public static final int BLOB_STREAM_IS_CLOSED                  = 1002;
     public static final int BLOB_INCOMPATIBLE_SET_OPERATION        = 1003;
@@ -413,7 +410,9 @@ public class Trace {
     public static final int SQL_CONSTRAINT_NOT_ALLOWED             = 1207;
     public static final int SQL_OBJECT_IS_REFERENCED               = 1208;
 
+    public static final int     LAST_ERROR_HANDLE                = 1269;
     //
+    static String MESSAGE_TAG = "$$";
 
     /** Used during tests. */
     static {

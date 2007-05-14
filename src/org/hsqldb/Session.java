@@ -1392,12 +1392,32 @@ public class Session implements SessionInterface {
     }
 
     // warnings
+    HsqlArrayList sqlWarnings;
 
-    /**
-     * Placeholder for warnings
-     */
-    public void setWarning(int i) {}
+    public void addWarning(HsqlException warning) {
 
+        if (sqlWarnings == null) {
+            sqlWarnings = new HsqlArrayList(true);
+        }
+
+        sqlWarnings.add(warning);
+    }
+
+    public HsqlException[] getAndClearWarnings() {
+
+        if (sqlWarnings == null) {
+            return new HsqlException[0];
+        }
+
+        HsqlException[] array = new HsqlException[sqlWarnings.size()];
+
+        sqlWarnings.toArray(array);
+        sqlWarnings.clear();
+
+        return array;
+    }
+
+    // logs
     public synchronized long getLobId() {
         return database.lobManager.getNewLobId();
     }

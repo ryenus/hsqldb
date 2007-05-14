@@ -40,6 +40,10 @@ import org.hsqldb.server.WebServer;
 
 import junit.framework.TestCase;
 
+import java.lang.reflect.Constructor;
+
+import junit.framework.TestResult;
+
 /**
  * HSQLDB TestBugBase Junit test case. <p>
  *
@@ -84,8 +88,7 @@ public abstract class TestBase extends TestCase {
                             : new Server();
 
             server.setDatabaseName(0, "test");
-            server.setDatabasePath(
-                0, "mem:test;sql.enforce_strict_size=true");
+            server.setDatabasePath(0, "mem:test;sql.enforce_strict_size=true");
             server.setLogWriter(null);
             server.setErrWriter(null);
             server.start();
@@ -114,5 +117,42 @@ public abstract class TestBase extends TestCase {
 
     Connection newConnection() throws SQLException {
         return DriverManager.getConnection(url, user, password);
+    }
+
+    public static void runWithResult(Class testCaseClass, String testName) {
+
+        try {
+            Constructor ctor = testCaseClass.getConstructor(new Class[]{
+                String.class });
+            TestBase theTest = (TestBase) ctor.newInstance(new Object[]{
+                testName });
+
+            theTest.runWithResult();
+        } catch (Exception ex) {
+            System.err.println("couldn't execute test:");
+            ex.printStackTrace(System.err);
+        }
+    }
+
+    public void runWithResult() {
+
+        TestResult result   = run();
+        String     testName = this.getClass().getName();
+
+        if (testName.startsWith("org.hsqldb.test.")) {
+            testName = testName.substring(16);
+        }
+
+        testName += "." + getName();
+
+        int failureCount = result.failureCount();
+
+        System.out.println(testName + " failure count: " + failureCount);
+
+        java.util.Enumeration failures = result.failures();
+
+        while (failures.hasMoreElements()) {
+            System.err.println(failures.nextElement());
+        }
     }
 }

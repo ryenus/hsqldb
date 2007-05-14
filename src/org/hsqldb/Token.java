@@ -428,6 +428,7 @@ public class Token {
     public static final String T_OBJECT             = "OBJECT";
     static final String        T_OCTET_LENGTH       = "OCTET_LENGTH";
     static final String        T_OCTETS             = "OCTETS";
+    static final String        T_OFF                = "OFF";
     static final String        T_OFFSET             = "OFFSET";
     static final String        T_OPTION             = "OPTION";
     public static final String T_OTHER              = "OTHER";
@@ -1042,6 +1043,7 @@ public class Token {
     static final int        IF                    = 590;
     static final int        MILLIS                = 591;
     static final int        HEADER                = 592;
+    static final int        OFF                   = 593;
 
     //
     static final int X_KEYSET     = 700;
@@ -1397,6 +1399,7 @@ public class Token {
         commandSet.put(T_EXPLAIN, EXPLAIN);
         commandSet.put(T_GENERATED, GENERATED);
         commandSet.put(T_GRANTED, GRANTED);
+        commandSet.put(T_HEADER, HEADER);
         commandSet.put(T_IGNORECASE, IGNORECASE);
         commandSet.put(T_IMMEDIATELY, IMMEDIATELY);
         commandSet.put(T_INCREMENT, INCREMENT);
@@ -1413,6 +1416,7 @@ public class Token {
         commandSet.put(T_MINUS_EXCEPT, MINUS_EXCEPT);
         commandSet.put(T_MINVALUE, MINVALUE);
         commandSet.put(T_NEXT, NEXT);
+        commandSet.put(T_OFF, OFF);
         commandSet.put(T_OFFSET, OFFSET);
         commandSet.put(Token.T_OPTION, OPTION);
         commandSet.put(T_PARTIAL, PARTIAL);

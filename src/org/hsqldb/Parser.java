@@ -455,6 +455,10 @@ class Parser extends BaseParser {
 
                     continue;
                 default :
+
+                    if (mainSelect == null) {
+                        throw unexpectedToken();
+                    }
                     end = true;
                     break;
             }

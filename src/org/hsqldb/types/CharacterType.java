@@ -190,25 +190,21 @@ public class CharacterType extends Type {
                         || type == Types.VARCHAR_IGNORECASE) {
                     return precision >= other.precision ? this
                                                         : getCharacterType(
-                                                        type,
-                                                        other.precision);
+                                                        type, other.precision);
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
-                                                        other.type,
-                                                        precision);
+                                                        other.type, precision);
                 }
             case Types.VARCHAR_IGNORECASE :
                 if (type == Types.SQL_CLOB) {
                     return precision >= other.precision ? this
                                                         : getCharacterType(
-                                                        type,
-                                                        other.precision);
+                                                        type, other.precision);
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
-                                                        other.type,
-                                                        precision);
+                                                        other.type, precision);
                 }
             case Types.SQL_CLOB :
                 return other.precision >= precision ? other
@@ -288,8 +284,7 @@ public class CharacterType extends Type {
 
         if (type == Types.VARCHAR_IGNORECASE) {
             result = collation.compareIgnoreCase(as.substring(0, shortLength),
-                                                 bs.substring(0,
-                                                     shortLength));
+                                                 bs.substring(0, shortLength));
         } else {
             result = collation.compare(as.substring(0, shortLength),
                                        bs.substring(0, shortLength));
@@ -381,7 +376,7 @@ public class CharacterType extends Type {
             case Types.VARCHAR_IGNORECASE :
                 if (precision != 0 && ((String) a).length() > precision) {
                     if (Library.rtrim((String) a).length() <= precision) {
-                        session.setWarning(Trace.GENERIC_WARNING);
+                        session.addWarning(Trace.error(Trace.GENERIC_WARNING));
                     }
 
                     return ((String) a).substring(0, (int) precision);
@@ -394,7 +389,7 @@ public class CharacterType extends Type {
                     String s = ((ClobData) a).toString();
 
                     if (Library.rtrim(s).length() <= precision) {
-                        session.setWarning(Trace.GENERIC_WARNING);
+                        session.addWarning(Trace.error(Trace.GENERIC_WARNING));
                     }
 
                     return ((String) a).substring(0, (int) precision);
@@ -737,7 +732,7 @@ public class CharacterType extends Type {
                              overlay);
 
         return concat(null, temp,
-                      substring(session, data, offset + length, 0,  false));
+                      substring(session, data, offset + length, 0, false));
     }
 
     public Object concat(Session session, Object a,

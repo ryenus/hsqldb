@@ -296,7 +296,7 @@ public class DatabaseScript {
                 }
 
                 // readonly for TEXT tables only
-                if (t.isText() && t.isDataReadOnly()) {
+                if (t.isText() && t.isConnected() && t.isDataReadOnly()) {
                     a = new StringBuffer(64);
 
                     a.append(Token.T_SET).append(' ').append(

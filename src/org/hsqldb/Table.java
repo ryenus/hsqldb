@@ -348,7 +348,7 @@ public class Table extends BaseTable implements SchemaObject {
         return tableType;
     }
 
-    public final boolean isDataReadOnly() {
+    public boolean isDataReadOnly() {
         return isReadOnly;
     }
 
@@ -420,6 +420,51 @@ public class Table extends BaseTable implements SchemaObject {
      */
     public String getHeader() {
         return null;
+    }
+
+    /**
+     * determines whether the table is actually connected to the underlying data source.
+     *
+     *  <p>This method is available for text tables only.</p>
+     *
+     *  @see setDataSource
+     *  @see disconnect
+     *  @see isConnected
+     */
+    public boolean isConnected() {
+        return true;
+    }
+
+    /**
+     * connects the table to the underlying data source.
+     *
+     *  <p>This method is available for text tables only.</p>
+     *
+     *  @param session
+     *      denotes the current session. Might be <code>null</code>.
+     *
+     *  @see setDataSource
+     *  @see disconnect
+     *  @see isConnected
+     */
+    public void connect(Session session) throws HsqlException {
+        throw Trace.error(Trace.CANNOT_CONNECT_TABLE);
+    }
+
+    /**
+     * disconnects the table from the underlying data source.
+     *
+     *  <p>This method is available for text tables only.</p>
+     *
+     *  @param session
+     *      denotes the current session. Might be <code>null</code>.
+     *
+     *  @see setDataSource
+     *  @see connect
+     *  @see isConnected
+     */
+    public void disconnect(Session session) throws HsqlException {
+        throw Trace.error(Trace.CANNOT_CONNECT_TABLE);
     }
 
     /**

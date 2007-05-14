@@ -31,9 +31,6 @@
 
 package org.hsqldb.test;
 
-import junit.framework.TestCase;
-import junit.framework.TestResult;
-
 /**
  * Test HSQLDBs collation capabilities
  * @author frank.schoenheit@sun.com
@@ -155,9 +152,8 @@ public class TestCollation extends TestBase {
         }
 
         if (notInstalled.length() > 0) {
-            fail("the following locales are not installed:\n  "
-                 + notInstalled + "\n  (" + failed + " out of " + expected
-                 + ")");
+            fail("the following locales are not installed:\n  " + notInstalled
+                 + "\n  (" + failed + " out of " + expected + ")");
         }
     }
 
@@ -207,7 +203,7 @@ public class TestCollation extends TestBase {
 
         String prepareStmt =
             "DROP TABLE WORDLIST IF EXISTS;"
-            + "CREATE TEXT TABLE WORDLIST ( ID INTEGER, WORD VARCHAR );"
+            + "CREATE TEXT TABLE WORDLIST ( ID INTEGER, WORD VARCHAR(50) );"
             + "SET TABLE WORDLIST SOURCE \"" + collationName
             + ".csv;encoding=UTF-8\"";
         String selectStmt    = "SELECT ID, WORD FROM WORDLIST ORDER BY WORD";
@@ -237,34 +233,14 @@ public class TestCollation extends TestBase {
             }
         } catch (java.sql.SQLException e) {
             return "testing collation '" + collationName
-                   + "' failed\n  exception message: " + e.getMessage()
-                   + "\n";
+                   + "' failed\n  exception message: " + e.getMessage() + "\n";
         }
 
         return "";
     }
 
     public static void main(String[] argv) {
-
-        TestResult result       = new TestResult();
-        TestCase   availability = new TestCollation("verifyAvailability");
-
-        availability.run(result);
-
-        TestCase sorting = new TestCollation("verifyCollation");
-
-        sorting.run(result);
-
-        if (result.failureCount() != 0) {
-            System.err.println("TestCollation encountered errors:");
-
-            java.util.Enumeration failures = result.failures();
-
-            while (failures.hasMoreElements()) {
-                System.err.println(failures.nextElement().toString());
-            }
-        } else {
-            System.out.println("TestCollation: all fine.");
-        }
+        runWithResult(TestCollation.class, "verifyAvailability");
+        runWithResult(TestCollation.class, "verifyCollation");
     }
 }

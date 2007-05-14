@@ -2103,7 +2103,7 @@ public class jdbcResultSet implements ResultSet {
 
         checkClosed();
 
-        return navigator.getRowNumber();
+        return navigator.getRowNumber() + 1;
     }
 
     /**

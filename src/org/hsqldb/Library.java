@@ -1123,8 +1123,8 @@ public class Library {
      *
      * This method was
      * rewritten for HSQLDB by fredt@users to comply with the description at
-     * <a href="http://www.nara.gov/genealogy/coding.html">
-     * http://www.nara.gov/genealogy/coding.html</a>.<p>
+     * <a href="http://www.archives.gov/genealogy/census/soundex.html">
+     * http://www.archives.gov/genealogy/census/soundex.html </a>.<p>
      * @param s the <code>String</code> for which to calculate the 4 character
      *      <code>SOUNDEX</code> value
      * @return the 4 character <code>SOUNDEX</code> value for the given
