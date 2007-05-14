@@ -485,8 +485,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[icache_size] = ValuePool.getInt(cache.getCachedObjectCount());
             row[icache_length] =
                 ValuePool.getLong(cache.getTotalCachedBlockSize());
-            row[ifree_bytes] =
-                ValuePool.getInt(cache.getTotalFreeBlockSize());
+            row[ifree_bytes] = ValuePool.getInt(cache.getTotalFreeBlockSize());
             row[ifree_count] = ValuePool.getInt(cache.getFreeBlockCount());
             row[ifree_pos]   = ValuePool.getLong(cache.getFileFreePos());
 
@@ -1164,7 +1163,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (!table.isText() ||!isAccessibleTable(table)) {
+            if (!table.isText() || !isAccessibleTable(table)) {
                 continue;
             }
 
@@ -1172,10 +1171,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[itable_cat]   = ns.getCatalogName();
             row[itable_schem] = table.getSchemaName().name;
             row[itable_name]  = table.getName().name;
+            row[idsd]         = table.getDataSource();
 
             if (table.getCache() instanceof TextCache) {
-                tc        = (TextCache) table.getCache();
-                row[idsd] = table.getDataSource();
+                tc = (TextCache) table.getCache();
                 row[ifile_path] =
                     FileUtil.canonicalOrAbsolutePath(tc.getFileName());
                 row[ifile_enc] = tc.stringEncoding;
@@ -1762,7 +1761,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (!table.isView() ||!isAccessibleTable(table)) {
+            if (!table.isView() || !isAccessibleTable(table)) {
                 continue;
             }
 
@@ -2257,8 +2256,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Table t = sysTables[SYSTEM_CHECK_COLUMN_USAGE];
 
         if (t == null) {
-            t = createBlankTable(
-                sysTableHsqlNames[SYSTEM_CHECK_COLUMN_USAGE]);
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_CHECK_COLUMN_USAGE]);
 
             addColumn(t, "CONSTRAINT_CATALOG", Types.SQL_VARCHAR);
             addColumn(t, "CONSTRAINT_SCHEMA", Types.SQL_VARCHAR);
@@ -2300,7 +2298,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int itab_col    = 6;
 
         // Initialization
-        tables    = database.schemaManager.allTablesIterator();
+        tables = database.schemaManager.allTablesIterator();
 
         // Do it.
         while (tables.hasNext()) {
@@ -2324,10 +2322,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 }
 
                 constraintName = constraint.getName().name;
-
-                collector = constraint.getCheckColumnExpressions();
-
-                iterator = collector.iterator();
+                collector      = constraint.getCheckColumnExpressions();
+                iterator       = collector.iterator();
 
                 // calculate distinct column references
                 while (iterator.hasNext()) {
@@ -2735,7 +2731,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() ||!isAccessibleTable(table)) {
+            if (table.isView() || !isAccessibleTable(table)) {
                 continue;
             }
 
@@ -2746,7 +2742,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 constraint = constraints[i];
 
                 if (constraint.getType() == Constraint.FOREIGN_KEY
-                        &&!isAccessibleTable(constraint.getRef())) {
+                        && !isAccessibleTable(constraint.getRef())) {
                     continue;
                 }
 
@@ -2980,8 +2976,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             iterator = collector.iterator();
 
             while (iterator.hasNext()) {
-                expression = (Expression) iterator.next();
-
+                expression    = (Expression) iterator.next();
                 row           = t.getEmptyRowData();
                 row[iv_cat]   = viewCatalog;
                 row[iv_schem] = viewSchema;
@@ -3042,8 +3037,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Table t = sysTables[SYSTEM_VIEW_ROUTINE_USAGE];
 
         if (t == null) {
-            t = createBlankTable(
-                sysTableHsqlNames[SYSTEM_VIEW_ROUTINE_USAGE]);
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_VIEW_ROUTINE_USAGE]);
 
             addColumn(t, "TABLE_CATALOG", Types.SQL_VARCHAR);
             addColumn(t, "TABLE_SCHEMA", Types.SQL_VARCHAR);
@@ -3435,8 +3429,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Object[] row;
 
         // initialization
-        grantees =
-            session.getUser().getGrantee().visibleGrantees().iterator();
+        grantees = session.getUser().getGrantee().visibleGrantees().iterator();
 
         // Do it.
         while (grantees.hasNext()) {
@@ -3736,8 +3729,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int igrantable = 3;
 
         // Initialization
-        grantees =
-            session.getUser().getGrantee().visibleGrantees().iterator();
+        grantees = session.getUser().getGrantee().visibleGrantees().iterator();
 
         // Do it.
         while (grantees.hasNext()) {

@@ -141,7 +141,8 @@ public class CommandParser extends DDLParser {
                     break;
                 }
                 case Token.DELETE : {
-                    CompiledStatement cs = compileDeleteStatement(emptyRangeVariables);
+                    CompiledStatement cs =
+                        compileDeleteStatement(emptyRangeVariables);
 
                     result = session.executeCompiledStatement(cs, null);
 
@@ -520,10 +521,52 @@ public class CommandParser extends DDLParser {
                         read();
                         session.checkAdmin();
 
-                        if (tokenString.equals(Token.T_HEADER)) {
+                        // SET TABLE <table> SOURCE ON
+                        if (tokenType == Token.ON) {
+                            read();
+                            t.connect(session);
+                            database.setMetaDirty(false);
+
+                            break;
+                        }
+
+                        // SET TABLE <table> SOURCE OFF
+                        if (tokenType == Token.OFF) {
+                            read();
+                            t.disconnect(session);
+                            database.setMetaDirty(false);
+
+                            break;
+                        }
+
+                        if (tokenType == Token.HEADER) {
                             read();
                             checkIsQuoted();
-                            t.setHeader(tokenString);
+
+                            try {
+                                database.setMetaDirty(false);
+                                t.setHeader(tokenString);
+                            } catch (Throwable e) {
+                                if (session.isProcessingLog()
+                                        || session.isProcessingScript()) {
+                                    HsqlException warning =
+                                        Trace.error(Trace.GENERAL_IO_ERROR,
+                                                    e.getMessage());
+
+                                    session.addWarning(warning);
+
+                                    // add an entry to applog too
+                                } else {
+                                    if (e instanceof HsqlException) {
+                                        throw (HsqlException) e;
+                                    } else {
+                                        throw Trace.error(
+                                            Trace.GENERAL_IO_ERROR,
+                                            e.getMessage());
+                                    }
+                                }
+                            }
+
                             read();
 
                             break;
@@ -542,7 +585,28 @@ public class CommandParser extends DDLParser {
                             read();
                         }
 
-                        t.setDataSource(session, source, isDesc, false);
+                        try {
+                            database.setMetaDirty(false);
+                            t.setDataSource(session, source, isDesc, false);
+                        } catch (Throwable e) {
+                            if (session.isProcessingLog()
+                                    || session.isProcessingScript()) {
+                                HsqlException warning =
+                                    Trace.error(Trace.GENERAL_IO_ERROR,
+                                                e.getMessage());
+
+                                session.addWarning(warning);
+
+                                // add an entry to applog too
+                            } else {
+                                if (e instanceof HsqlException) {
+                                    throw (HsqlException) e;
+                                } else {
+                                    throw Trace.error(Trace.GENERAL_IO_ERROR,
+                                                      e.getMessage());
+                                }
+                            }
+                        }
 
                         break;
                     }
@@ -550,6 +614,7 @@ public class CommandParser extends DDLParser {
                         read();
                         session.checkAdmin();
                         t.setDataReadOnly(processTrueOrFalse());
+                        database.setMetaDirty(false);
 
                         break;
                     }
