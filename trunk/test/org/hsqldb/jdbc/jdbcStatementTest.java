@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2006, The HSQL Development Group
+/* Copyright (c) 2001-2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import junit.framework.TestSuite;
  * @author boucherb@users
  */
 public class jdbcStatementTest extends JdbcTestCase {
-    
+
     public jdbcStatementTest(String testName) {
         super(testName);
     }
@@ -87,30 +87,30 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testExecuteQuery() throws Exception {
         System.out.println("executeQuery");
-        
+
         Statement stmt = newStatement();
-        
+
         ResultSet rs = stmt.executeQuery("select * from customer");
-        
+
         assertEquals(true, rs.next());
-        
+
         stmt.execute("create table t(id int)");
-        
+
         StringBuffer sb = new StringBuffer();
-        
-        try {            
+
+        try { 
             stmt.executeQuery("insert into t values(1)");
             sb.append("Allowed DML.   ");
         } catch (SQLException ex) {
             //ex.printStackTrace();
-        } 
-        
-        try {            
+        }
+
+        try {
             stmt.executeQuery("create table t2(id int)");
             sb.append("Allowed DDL.");
         } catch (SQLException ex) {
             //ex.printStackTrace();
-        }   
+        }
         
         if (sb.length() > 0) {
             fail(sb.toString());
@@ -129,14 +129,14 @@ public class jdbcStatementTest extends JdbcTestCase {
         
         int count = stmt.executeUpdate("insert into t values(1)");
         
-        assertEquals(1, count);                
+        assertEquals(1, count);
         
-        try {            
+        try {
             stmt.executeUpdate("select * from customer");
             fail("Allowed DQL.");
         } catch (SQLException ex) {
             //ex.printStackTrace();
-        } 
+        }
     }
 
     /**
@@ -153,10 +153,10 @@ public class jdbcStatementTest extends JdbcTestCase {
         
         assertEquals(true, stmt.isClosed());
         
-        try {            
+        try {
             stmt.executeQuery("select * from customer");
             fail("Allowed access after close.");
-        } catch (SQLException ex) {            
+        } catch (SQLException ex) {
         }
     }
 
