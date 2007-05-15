@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2006, The HSQL Development Group
+/* Copyright (c) 2001-2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,8 @@ import java.util.NoSuchElementException;
 import org.hsqldb.lib.Iterator;
 
 /**
- * Retrieves line-oriented, semicolon terminated character sequences
- * from a BufferedReader or URL.
+ * Retrieves line-oriented, semicolon terminated character sequence segments
+ * from a BufferedReader or URL. <p>
  *
  * Ignores lines starting with '//' and '--', as well as lines consisting only
  * of whitespace.
@@ -74,8 +74,20 @@ public class ScriptIterator implements Iterator {
     }
 
     /**
+     * Silent cleanup.
+     */
+    private void closeReader() {
+        if (this.reader != null){
+            try{
+                this.reader.close();
+            } catch(Exception e){}
+        }
+
+        this.reader = null;
+    }
+
+    /**
      * Retrieves whether there is an SQL segment available.
-     *
      *
      * @return true if there is an SQL segment available
      * @throws java.lang.RuntimeException if an internal IOException occurs
@@ -94,33 +106,37 @@ public class ScriptIterator implements Iterator {
                 try {
                     line = this.reader.readLine();
                 } catch (IOException ioe) {
-                    this.reader = null;
+                    closeReader();
 
 		    throw new RuntimeException(ioe);
                 }
 
                 if (line == null) {
-		    this.reader = null;
+                    closeReader();
 
 		    break;
-                } else if (line.trim().length() == 0) {
-                    continue;
-                } else if (line.trim().startsWith(SLASH_COMMENT)) {
-                    continue;
-                } else if (line.trim().startsWith(DASH_COMMENT)) {
-                    continue;
-                } else {
-                    if (sb == null) {
-                        sb = new StringBuffer();
-                    }
-
-                    sb.append(line);
                 }
 
-                if (line.trim().endsWith(SEMI)) {
+                String trimmed = line.trim();
+
+                if ( (trimmed.length() == 0)
+                   || trimmed.startsWith(SLASH_COMMENT)
+                   || trimmed.startsWith(DASH_COMMENT)) {
+                    continue;
+                }
+
+                if (sb == null) {
+                    sb = new StringBuffer();
+                }
+
+                sb.append(line);
+
+                if (trimmed.endsWith(SEMI)) {
                     this.segment = sb.toString();
 
                     break;
+                } else {
+                    sb.append('\n');
                 }
             }
         }
@@ -130,7 +146,6 @@ public class ScriptIterator implements Iterator {
 
     /**
      * Retrieves the next available SQL segment as a String.
-     *
      *
      * @return the next available SQL segment
      * @throws java.util.NoSuchElementException if there is
