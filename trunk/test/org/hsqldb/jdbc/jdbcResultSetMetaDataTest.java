@@ -97,7 +97,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getColumnCount method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetColumnCount() throws Exception {
-        System.out.println("getColumnCount");
+        println("getColumnCount");
 
         assertEquals(21, newJdbcResultSetMetaData().getColumnCount());
     }
@@ -106,7 +106,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isAutoIncrement method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsAutoIncrement() throws Exception {
-        System.out.println("isAutoIncrement");
+        println("isAutoIncrement");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -121,7 +121,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isCaseSensitive method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsCaseSensitive() throws Exception {
-        System.out.println("isCaseSensitive");
+        println("isCaseSensitive");
 
         jdbcResultSetMetaData rsmd = newJdbcResultSetMetaData();
 
@@ -149,7 +149,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isSearchable method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsSearchable() throws Exception {
-        System.out.println("isSearchable");
+        println("isSearchable");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -173,7 +173,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isCurrency method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsCurrency() throws Exception {
-        System.out.println("isCurrency");
+        println("isCurrency");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -188,7 +188,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isNullable method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsNullable() throws Exception {
-        System.out.println("isNullable");
+        println("isNullable");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -206,7 +206,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isSigned method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsSigned() throws Exception {
-        System.out.println("isSigned");
+        println("isSigned");
 
         jdbcResultSetMetaData rsmd = newJdbcResultSetMetaData();
 
@@ -244,7 +244,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getColumnDisplaySize method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetColumnDisplaySize() throws Exception {
-        System.out.println("getColumnDisplaySize");
+        println("getColumnDisplaySize");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -263,7 +263,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getColumnLabel method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetColumnLabel() throws Exception {
-        System.out.println("getColumnLabel");
+        println("getColumnLabel");
 
         final String[] labels = new String[] {
                "id_column",                        // 1
@@ -301,7 +301,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getColumnName method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetColumnName() throws Exception {
-        System.out.println("getColumnName");
+        println("getColumnName");
 
         final String[] names = new String[] {
                "id",                          // 1
@@ -342,7 +342,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getSchemaName method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetSchemaName() throws Exception {
-        System.out.println("getSchemaName");
+        println("getSchemaName");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -356,7 +356,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getPrecision method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetPrecision() throws Exception {
-        System.out.println("getPrecision");
+        println("getPrecision");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -375,7 +375,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getScale method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetScale() throws Exception {
-        System.out.println("getScale");
+        println("getScale");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -394,7 +394,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getTableName method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetTableName() throws Exception {
-        System.out.println("getTableName");
+        println("getTableName");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -408,7 +408,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getCatalogName method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetCatalogName() throws Exception {
-        System.out.println("getCatalogName");
+        println("getCatalogName");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -422,7 +422,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getColumnType method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetColumnType() throws Exception {
-        System.out.println("getColumnType");
+        println("getColumnType");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -440,7 +440,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getColumnTypeName method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetColumnTypeName() throws Exception {
-        System.out.println("getColumnTypeName");
+        println("getColumnTypeName");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -458,7 +458,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isReadOnly method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsReadOnly() throws Exception {
-        System.out.println("isReadOnly");
+        println("isReadOnly");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -472,7 +472,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isWritable method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsWritable() throws Exception {
-        System.out.println("isWritable");
+        println("isWritable");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -486,7 +486,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isDefinitelyWritable method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsDefinitelyWritable() throws Exception {
-        System.out.println("isDefinitelyWritable");
+        println("isDefinitelyWritable");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -500,7 +500,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of getColumnClassName method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testGetColumnClassName() throws Exception {
-        System.out.println("getColumnClassName");
+        println("getColumnClassName");
 
         jdbcResultSetMetaData rsmd        = newJdbcResultSetMetaData();
         int                   columnCount = rsmd.getColumnCount();
@@ -518,7 +518,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of unwrap method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testUnwrap() throws Exception {
-        System.out.println("unwrap");
+        println("unwrap");
 
         Class             iface = jdbcResultSetMetaData.class;
         ResultSetMetaData rsmd  = (ResultSetMetaData) newJdbcResultSetMetaData();
@@ -530,7 +530,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
      * Test of isWrapperFor method, of class org.hsqldb.jdbc.jdbcResultSetMetaData.
      */
     public void testIsWrapperFor() throws Exception {
-        System.out.println("isWrapperFor");
+        println("isWrapperFor");
 
         Class             iface = jdbcResultSetMetaData.class;
         ResultSetMetaData rsmd  = (ResultSetMetaData) newJdbcResultSetMetaData();

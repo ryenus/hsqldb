@@ -85,7 +85,7 @@ public class jdbcDriverTest extends JdbcTestCase {
      * Test of connect method, of interface java.sql.Driver.
      */
     public void testConnect() throws Exception {
-        System.out.println("connect");
+        println("connect");
 
         String     url    = getUrl();
         Properties info   = new Properties();
@@ -101,7 +101,7 @@ public class jdbcDriverTest extends JdbcTestCase {
      * Test of acceptsURL method, of interface java.sql.Driver.
      */
     public void testAcceptsURL() throws Exception {
-        System.out.println("acceptsURL");
+        println("acceptsURL");
 
         String url    = getUrl();
         Driver driver = newDriver();
@@ -119,7 +119,7 @@ public class jdbcDriverTest extends JdbcTestCase {
      * Test of getPropertyInfo method, of interface java.sql.Driver.
      */
     public void testGetPropertyInfo() throws Exception {
-        System.out.println("getPropertyInfo");
+        println("getPropertyInfo");
 
         String               url      = getUrl();
         Properties           info     = new Properties();
@@ -139,7 +139,7 @@ public class jdbcDriverTest extends JdbcTestCase {
      * Test of getMajorVersion method, of interface java.sql.Driver.
      */
     public void testGetMajorVersion() throws Exception {
-        System.out.println("getMajorVersion");
+        println("getMajorVersion");
 
         Driver driver = newDriver();
         int expResult = getExpectedMajorVersion();
@@ -152,7 +152,7 @@ public class jdbcDriverTest extends JdbcTestCase {
      * Test of getMinorVersion method, of interface java.sql.Driver.
      */
     public void testGetMinorVersion() throws Exception {
-        System.out.println("getMinorVersion");
+        println("getMinorVersion");
 
         Driver driver = newDriver();
         int expResult = getExpectedMinorVersion();
@@ -165,7 +165,7 @@ public class jdbcDriverTest extends JdbcTestCase {
      * Test of jdbcCompliant method, of interface java.sql.Driver.
      */
     public void testJdbcCompliant() throws Exception {
-        System.out.println("jdbcCompliant");
+        println("jdbcCompliant");
 
         Driver  driver    = newDriver();
         boolean expResult = getExpectedJdbcCompliant();

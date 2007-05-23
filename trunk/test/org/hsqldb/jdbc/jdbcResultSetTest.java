@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2006, The HSQL Development Group
+/* Copyright (c) 2001-2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.Trace;
@@ -48,6 +50,17 @@ import org.hsqldb.Trace;
  */
 public class jdbcResultSetTest extends JdbcTestCase {
 
+    public static final int DEFAULT_RESULT_SET_CLOSED_ERROR_CODE
+            = -Trace.JDBC_RESULTSET_IS_CLOSED;
+
+    public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE
+            = - Trace.NO_DATA_IS_AVAILABLE;
+
+    public static final int DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE
+            = - Trace.NO_DATA_IS_AVAILABLE;
+
+    private List<ResultSet> resultSetList;
+    
     public jdbcResultSetTest(String testName) {
         super(testName);
     }
@@ -55,11 +68,21 @@ public class jdbcResultSetTest extends JdbcTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
+        resultSetList = new ArrayList<ResultSet>();
+        
         executeScript("setup-all_types-table.sql");
         executeScript("populate-all_types-table.sql");
     }
 
     protected void tearDown() throws Exception {
+        for(ResultSet rs : resultSetList) {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (Exception e){}
+            }
+        }
+
         super.tearDown();
     }
 
@@ -68,10 +91,31 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         return suite;
     }
-    
+
     protected boolean isTestUpdates()
-    {        
+    {
         return getBooleanProperty("test.result.set.updates", true);
+    }
+
+    protected int getResultSetClosedErrorCode()
+    {
+        return getIntProperty(
+                "result.set.closed.error.code",
+                DEFAULT_RESULT_SET_CLOSED_ERROR_CODE);
+    }
+
+    protected int getResultSetBeforeFirstErrorCode()
+    {
+        return getIntProperty(
+                "result.set.before.first.error.code",
+                DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE);
+    }
+
+    protected int getResultSetAfterLastErrorCode()
+    {
+        return getIntProperty(
+                "result.set.after.last.error.code",
+                DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE);
     }
 
     private final String select =
@@ -179,7 +223,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
         jdbcConnection conn = (jdbcConnection) newConnection();
         jdbcStatement  stmt = (jdbcStatement) conn.createStatement(type, concur);
 
-        return (ResultSet) stmt.executeQuery(select);
+        ResultSet rs =  stmt.executeQuery(select);
+        
+        resultSetList.add(rs);
+        
+        return rs;
     }
 
     protected void testGetXXX(String methodName) throws Exception {
@@ -198,26 +246,48 @@ public class jdbcResultSetTest extends JdbcTestCase {
             boolean required    = isRequiredGetXXX(methodName, dataType);
 
             try {
-                Method getXXX = rs.getClass().getMethod(methodName, new Class[]{int.class});
+                Method getXXX = rs.getClass().getMethod(
+                        methodName, 
+                        new Class[]{int.class});
 
-                Object value      = getXXX.invoke(rs, new Object[]{ new Integer(i) });
-                Class  valueClass = (value == null) ? Void.class : value.getClass();
+                Object value      = getXXX.invoke(
+                        rs, 
+                        new Object[]{ new Integer(i) });
+
+                Class  valueClass = (value == null) ? Void.class 
+                        : value.getClass();
 
                 if (!required) {
-                    Method getObject   = rs.getClass().getMethod("getObject", new Class[]{int.class});
-                    Object objectValue = getObject.invoke(rs, new Object[]{ new Integer(i) });
+                    Method getObject   = rs.getClass().getMethod(
+                            "getObject", 
+                            new Class[]{int.class});
 
-                    System.out.println(
-                            "Warning - "
-                            + columnName
-                            + "{type=" + typeName
-                            + ", class=" + columnClass
-                            + ", value=\"" + objectValue
-                            + "\"} => "+ valueClass
-                            + "{value=\"" + value
-                            + "\"}"
-                            + " - JDBC 4.0, Table B-6 indicates this getter conversion is not required."
-                            );
+                    Object objectValue = getObject.invoke(
+                            rs, 
+                            new Object[]{ new Integer(i) });
+
+                    println("****************************************");
+                    println(
+                            "Warn - JDBC 4.0, Table B-6 indicates this " +
+                            "getter conversion is not required:");
+                    println("From SQL: " + columnName + "{");
+                    println("    type=" + typeName);
+                    println("   class=" + columnClass);
+                    println("   value=\"" + objectValue + "\"");
+                    println("}");
+                    println("To Java : " + valueClass + "{");
+                    println("    value=\"" + value   + "\"");
+                    println("}");
+                    println("****************************************");
+                }
+                else
+                {
+                    println(
+                             "Info - Pass: "
+                            + columnName 
+                            + "(" 
+                            + typeName 
+                            + ")");
                 }
             } catch (Exception e) {
                 Throwable t = e;
@@ -231,15 +301,40 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
                     if (required) {
                         if (ex.getErrorCode() != -Trace.WRONG_DATA_TYPE) {
-                            fail(columnName + ": " + t + ": [" +  ex.getErrorCode() + "]");
+                            fail(
+                                    columnName 
+                                    + "("
+                                    + typeName
+                                    + ") : " 
+                                    + t 
+                                    + ": [" 
+                                    +  ex.getErrorCode() 
+                                    + "]");
                         } else {
-                            System.out.println("Info - " + columnName + ": " + ex);
+                            println(
+                                    "Warn - Pass: " 
+                                   + columnName 
+                                   + "("
+                                   + typeName
+                                   + ") : " 
+                                   + ex);
                         }
                     } else {
-                        System.out.println("Info - " + columnName + ": " + ex);
+                        println(
+                                "Info - Pass: " 
+                                + columnName 
+                                + "("
+                                + typeName
+                                + ") : " 
+                                + ex);
                     }
                 } else {
-                    fail(columnName + ": " + t);
+                    fail(
+                                columnName 
+                                + "("
+                                + typeName
+                                + ") : " 
+                            + t);
                 }
             }
         }
@@ -249,7 +344,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of next method, of interface java.sql.ResultSet.
      */
     public void testNext() throws Exception {
-        System.out.println("next");
+        println("next");
 
         ResultSet rs = newFOROJdbcResultSet();
 
@@ -258,25 +353,41 @@ public class jdbcResultSetTest extends JdbcTestCase {
         while(rs.next());
 
         assertEquals(false, rs.next());
+
+        rs.close();
+
+        try {
+            rs.next();
+
+            fail("Allowed next() after close().");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of close method, of interface java.sql.ResultSet.
      */
     public void testClose() throws Exception {
-        System.out.println("close");
+        println("close");
 
         ResultSet rs = newFOROJdbcResultSet();
 
-        rs.close();
-        rs.close();
+        try {
+            rs.close();
+        } catch (SQLException ex) {
+            fail("Failed to close result set: " + ex);
+        }
     }
 
     /**
      * Test of wasNull method, of interface java.sql.ResultSet.
      */
     public void testWasNull() throws Exception {
-        System.out.println("wasNull");
+        println("wasNull");
 
         ResultSet rs = newFOROJdbcResultSet();
 
@@ -298,182 +409,541 @@ public class jdbcResultSetTest extends JdbcTestCase {
             rs.getObject(aliases[i]);
             assertEquals(aliases[i], true, rs.wasNull());
         }
+
+        rs.close();
+
+        try {
+            rs.wasNull();
+
+            fail("Allowed wasNull() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getString method, of interface java.sql.ResultSet.
      */
     public void testGetString() throws Exception {
-        System.out.println("getString");
+        println("getString");
 
         testGetXXX("getString");
+
+        ResultSet rs = newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getString("varchar_column");
+
+            fail("Allowed getString() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getBoolean method, of interface java.sql.ResultSet.
      */
     public void testGetBoolean() throws Exception {
-        System.out.println("getBoolean");
+        println("getBoolean");
 
         testGetXXX("getBoolean");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getBoolean(1);
+
+            fail("Allowed getBoolean after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getByte method, of interface java.sql.ResultSet.
      */
     public void testGetByte() throws Exception {
-        System.out.println("getByte");
+        println("getByte");
 
         testGetXXX("getByte");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getByte(1);
+
+            fail("Allowed getByte after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getShort method, of interface java.sql.ResultSet.
      */
     public void testGetShort() throws Exception {
-        System.out.println("getShort");
+        println("getShort");
 
         testGetXXX("getShort");
+        
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getShort(1);
+
+            fail("Allowed getShort after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getInt method, of interface java.sql.ResultSet.
      */
     public void testGetInt() throws Exception {
-        System.out.println("getInt");
+        println("getInt");
 
         testGetXXX("getInt");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getInt(1);
+
+            fail("Allowed getInt after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getLong method, of interface java.sql.ResultSet.
      */
     public void testGetLong() throws Exception {
-        System.out.println("getLong");
+        println("getLong");
 
         testGetXXX("getLong");
+        
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getLong(1);
+
+            fail("Allowed getLong after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getFloat method, of interface java.sql.ResultSet.
      */
     public void testGetFloat() throws Exception {
-        System.out.println("getFloat");
+        println("getFloat");
 
         testGetXXX("getFloat");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getFloat(1);
+
+            fail("Allowed getFloat after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getDouble method, of interface java.sql.ResultSet.
      */
     public void testGetDouble() throws Exception {
-        System.out.println("getDouble");
+        println("getDouble");
 
         testGetXXX("getDouble");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+ 
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getDouble(1);
+            
+            fail("Allowed getDouble after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getBigDecimal method, of interface java.sql.ResultSet.
      */
     public void testGetBigDecimal() throws Exception {
-        System.out.println("getBigDecimal");
+        println("getBigDecimal");
 
         testGetXXX("getBigDecimal");
     }
 
     /**
+     * Test of getBigDecimal method, of interface java.sql.ResultSet.
+     */
+    public void testGetBigDecimal_afterClose() throws Exception {
+        println("getBigDecimal after close");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getBigDecimal(1);
+
+            fail("Allowed getBigDecimal after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    getResultSetClosedErrorCode(),
+                    ex.getErrorCode());
+        }
+    }
+    /**
      * Test of getBytes method, of interface java.sql.ResultSet.
      */
     public void testGetBytes() throws Exception {
-        System.out.println("getBytes");
+        println("getBytes");
 
         testGetXXX("getBytes");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getBytes(1);
+
+            fail("Allowed getBytes after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getDate method, of interface java.sql.ResultSet.
      */
     public void testGetDate() throws Exception {
-        System.out.println("getDate");
+        println("getDate");
 
         testGetXXX("getDate");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getDate(1);
+
+            fail("Allowed getDate after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getTime method, of interface java.sql.ResultSet.
      */
     public void testGetTime() throws Exception {
-        System.out.println("getTime");
+        println("getTime");
 
         testGetXXX("getTime");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getTime(1);
+
+            fail("Allowed getTime after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getTimestamp method, of interface java.sql.ResultSet.
      */
     public void testGetTimestamp() throws Exception {
-        System.out.println("getTimestamp");
+        println("getTimestamp");
 
         testGetXXX("getTimestamp");
+        
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getTimestamp(1);
+
+            fail("Allowed getTimestamp after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getAsciiStream method, of interface java.sql.ResultSet.
      */
     public void testGetAsciiStream() throws Exception {
-        System.out.println("getAsciiStream");
+        println("getAsciiStream");
 
         testGetXXX("getAsciiStream");
+    }
+
+    /**
+     * Test of getAsciiStream method, of interface java.sql.ResultSet.
+     */
+    public void testGetAsciiStream_afterClose() throws Exception {
+       println("getAsciiStream after close");
+
+       ResultSet rs = this.newFOROJdbcResultSet();
+
+       rs.next();
+       rs.close();
+
+       assertEquals("isClosed", true, rs.isClosed());
+
+        try {
+            rs.getAsciiStream(1);
+
+            fail("Allowed getAsciiStream after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    getResultSetClosedErrorCode(),
+                    ex.getErrorCode());
+        }
+    }
+
+    /**
+     * Test of getArray method, of interface java.sql.ResultSet.
+     */
+    public void testGetAsciiStream_afterLast() throws Exception
+    {
+        println("getGetAsciiStream while after last");
+
+        ResultSet rs = newFOROJdbcResultSet();
+
+        while(rs.next());
+
+        try {
+            rs.getArray(1);
+
+            fail("Allowed getArray(int) while after last");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    getResultSetAfterLastErrorCode(),
+                    ex.getErrorCode());
+        }
+    }
+
+    /**
+     * Test of getArray method, of interface java.sql.ResultSet.
+     */
+    public void testGetAsciiStream_beforeFirst() throws Exception
+    {
+        println("getGetAsciiStream while before first");
+
+        ResultSet rs = newFOROJdbcResultSet();
+
+        assertEquals(true, rs.isBeforeFirst());
+
+        try {
+            rs.getAsciiStream(1);
+
+            fail("Allowed getGetAsciiStream(int) while before first");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    getResultSetBeforeFirstErrorCode(),
+                    ex.getErrorCode());
+        }
     }
 
     /**
      * Test of getUnicodeStream method, of interface java.sql.ResultSet.
      */
     public void testGetUnicodeStream() throws Exception {
-        System.out.println("getUnicodeStream");
+        println("getUnicodeStream");
 
         testGetXXX("getUnicodeStream");
+        
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getUnicodeStream(1);
+
+            fail("Allowed getUnicodeStream after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getBinaryStream method, of interface java.sql.ResultSet.
      */
     public void testGetBinaryStream() throws Exception {
-        System.out.println("getBinaryStream");
+        println("getBinaryStream");
 
         testGetXXX("getBinaryStream");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getBinaryStream(1);
+
+            fail("Allowed getBinaryStream after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getWarnings method, of interface java.sql.ResultSet.
      */
     public void testGetWarnings() throws Exception {
-        System.out.println("getWarnings");
+        println("getWarnings");
 
         ResultSet rs = newFOROJdbcResultSet();
 
-        // TODO - cases to test spec'd generation of warnings
-        rs.getWarnings();
+        java.sql.SQLWarning warnings = rs.getWarnings();
+
+        assertNull("warnings", warnings);
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getWarnings();
+
+            fail("Allowed getWarnings() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
+
+        fail("TODO: cases to test spec'd generation of warnings");
     }
 
     /**
      * Test of clearWarnings method, of interface java.sql.ResultSet.
      */
     public void testClearWarnings() throws Exception {
-        System.out.println("clearWarnings");
+        println("clearWarnings");
 
         ResultSet rs = newFOROJdbcResultSet();
 
         rs.clearWarnings();
 
         assertEquals(null, rs.getWarnings());
+
+        rs.close();
+        try {
+            rs.clearWarnings();
+
+            fail("Allowed clearWarnings() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getCursorName method, of interface java.sql.ResultSet.
      */
     public void testGetCursorName() throws Exception {
-        System.out.println("getCursorName");
+        println("getCursorName");
 
         ResultSet rs = newFOROJdbcResultSet();
 
@@ -485,34 +955,108 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception e) {
             fail(e.getMessage());
         }
+
+        rs.close();
+
+        try {
+            rs.getCursorName();
+            
+            fail("Allowed getCursorName() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getMetaData method, of interface java.sql.ResultSet.
      */
     public void testGetMetaData() throws Exception {
-        System.out.println("getMetaData");
+        println("getMetaData");
 
         ResultSet     rs   = newFOROJdbcResultSet();
         ResultSetMetaData rsmd = rs.getMetaData();
 
         assertNotNull(rsmd);
+
+        rs.close();
+
+        try {
+            rs.getMetaData();
+            
+            fail("Allowed getMetaData after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
+
+        try {
+
+            int count = rsmd.getColumnCount();
+
+            for(int i = 1; i <= count; i++)
+            {
+                rsmd.getCatalogName(i);
+                rsmd.getColumnClassName(i);
+                rsmd.getColumnDisplaySize(i);
+                rsmd.getColumnLabel(i);
+                rsmd.getColumnName(i);
+                rsmd.getColumnType(i);
+                rsmd.getColumnTypeName(i);
+                rsmd.getPrecision(i);
+                rsmd.getScale(i);
+                rsmd.getSchemaName(i);
+                rsmd.getTableName(i);
+                rsmd.isAutoIncrement(i);
+                rsmd.isCaseSensitive(i);
+                rsmd.isCurrency(i);
+                rsmd.isDefinitelyWritable(i);
+                rsmd.isNullable(i);
+                rsmd.isReadOnly(i);
+                rsmd.isSearchable(i);
+                rsmd.isSigned(i);
+                rsmd.isWritable(i);
+            }
+        } catch (SQLException ex) {
+            fail("ResultSetMetaData should be valid after ResultSet is closed: " 
+                    + ex.toString());
+        }
     }
 
     /**
      * Test of getObject method, of interface java.sql.ResultSet.
      */
     public void testGetObject() throws Exception {
-        System.out.println("getObject");
+        println("getObject");
 
         testGetXXX("getObject");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getObject(1);
+            
+            fail("Allowed getObject after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of findColumn method, of interface java.sql.ResultSet.
      */
     public void testFindColumn() throws Exception {
-        System.out.println("findColumn");
+        println("findColumn");
 
         ResultSet rs      = newFOROJdbcResultSet();
         String[]  aliases = getColumnAliases();
@@ -520,22 +1064,58 @@ public class jdbcResultSetTest extends JdbcTestCase {
         for (int i = 0; i < aliases.length; i++) {
             rs.findColumn(aliases[i]);
         }
+
+        try {
+            rs.findColumn("not a column label");
+
+            fail("Allowed findColumn(String) for a non-existent column label");
+        } catch (SQLException ex) {
+        }
+
+        rs.close();
+        
+        try {
+            rs.findColumn(aliases[0]);
+
+            fail("Allowed findColumn(String) after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getCharacterStream method, of interface java.sql.ResultSet.
      */
     public void testGetCharacterStream() throws Exception {
-        System.out.println("getCharacterStream");
+        println("getCharacterStream");
 
         testGetXXX("getCharacterStream");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getCharacterStream(1);
+
+            fail("Allowed getCharacterStream after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of isBeforeFirst method, of interface java.sql.ResultSet.
      */
     public void testIsBeforeFirst() throws Exception {
-        System.out.println("isBeforeFirst");
+        println("isBeforeFirst");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
@@ -572,13 +1152,26 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         assertEquals(true, rs.isBeforeFirst());
 
+        rs.close();
+
+        try {
+            rs.isBeforeFirst();
+
+            fail("Allowed isBeforeFirst() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }        
+
     }
 
     /**
      * Test of isAfterLast method, of interface java.sql.ResultSet.
      */
     public void testIsAfterLast() throws Exception {
-        System.out.println("isAfterLast");
+        println("isAfterLast");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
@@ -618,49 +1211,106 @@ public class jdbcResultSetTest extends JdbcTestCase {
         rs.afterLast();
 
         assertEquals(true, rs.isAfterLast());
+
+        rs.previous();
+ 
+        assertEquals(false, rs.isAfterLast());
+
+        rs.close();
+
+        try {
+            rs.afterLast();
+
+            fail("Allowed afterLast() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of isFirst method, of interface java.sql.ResultSet.
      */
     public void testIsFirst() throws Exception {
-        System.out.println("isFirst");
+        println("isFirst");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
-        assertEquals(false, rs.isFirst());
+        assertEquals(
+                "isFirst() while before first call to next()",
+                false,
+                rs.isFirst());
 
         rs.next();
 
-        assertEquals(true, rs.isFirst());
+        assertEquals(
+                "isFirst() after first call to next()",
+                true,
+                rs.isFirst());
 
         rs.next();
 
-        assertEquals(false, rs.isFirst());
+        assertEquals(
+                "isFirst() after next();next();",
+                false,
+                rs.isFirst());
 
         rs.previous();
 
-        assertEquals(true, rs.isFirst());
+        assertEquals(
+                "isFirst() after next();next();previous()",
+                true,
+                rs.isFirst());
 
         while(rs.next());
 
-        assertEquals(false, rs.isFirst());
+        assertEquals(
+                "isFirst() while after all next()",
+                false,
+                rs.isFirst());
 
         while(rs.previous());
 
-        assertEquals(false, rs.isFirst());
+        assertEquals(
+                "isFirst() while before all previous()",
+                false,
+                rs.isFirst());
 
         rs.next();
 
-        assertEquals(true, rs.isFirst());
+        assertEquals(
+                "isFirst() after next() after before all previous()",
+                true, 
+                rs.isFirst());
 
         while(rs.next());
 
-        assertEquals(false, rs.isFirst());
+        assertEquals(
+                "isFirst() after all next() after all previous()",
+                false, 
+                rs.isFirst());
 
         rs.first();
 
-        assertEquals(true, rs.isFirst());
+        assertEquals(
+                "isFirst() after first() after all next() after all previous()",
+                true,
+                rs.isFirst());
+
+        rs.close();
+
+        try {
+            rs.isFirst();
+
+            fail("Allowed isFirst() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
 
     }
 
@@ -668,38 +1318,69 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of isLast method, of interface java.sql.ResultSet.
      */
     public void testIsLast() throws Exception {
-        System.out.println("isLast");
+        println("isLast");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
-        assertEquals(false, rs.isLast());
+        assertEquals(
+                "isLast() before first call to next()",
+                false,
+                rs.isLast());
 
         rs.next();
 
-        assertEquals(false, rs.isLast());
+        assertEquals(
+                "isLast() after first call to next()",
+                false,
+                rs.isLast());
 
         while(rs.next());
 
-        assertEquals(false, rs.isLast());
+        assertEquals(
+                "isLast() after all next()",
+                false,
+                rs.isLast());
 
         rs.previous();
 
-        assertEquals(true, rs.isLast());
+        assertEquals(
+                "isLast() after previous() after all next()",
+                true,
+                rs.isLast());
 
         while(rs.previous());
 
-        assertEquals(false, rs.isLast());
+        assertEquals(
+                "isLast() after all previous() after all next()",
+                false,
+                rs.isLast());
 
         rs.last();
 
-        assertEquals(true, rs.isLast());
+        assertEquals(
+                "isLast() after call to last()",
+                true,
+                rs.isLast());
+
+        rs.close();
+
+        try {
+            rs.isLast();
+
+            fail("Allowed isLast() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of beforeFirst method, of interface java.sql.ResultSet.
      */
     public void testBeforeFirst() throws Exception {
-        System.out.println("beforeFirst");
+        println("beforeFirst");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
@@ -720,13 +1401,27 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception e) {}
 
         assertEquals(true, rs.isBeforeFirst());
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.beforeFirst();
+
+            fail("Allowed beforeFirst() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of afterLast method, of interface java.sql.ResultSet.
      */
     public void testAfterLast() throws Exception {
-        System.out.println("afterLast");
+        println("afterLast");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
@@ -766,19 +1461,49 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         assertEquals(true, rs.isAfterLast());
 
+        rs.previous();
+        rs.close();
+
+        try {
+            rs.afterLast();
+
+            fail("Allowed afterLast() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);            
+        }
     }
 
     /**
      * Test of first method, of interface java.sql.ResultSet.
      */
     public void testFirst() throws Exception {
-        System.out.println("first");
+        println("first");
 
-        ResultSet rs = this.newScrollableROJdbcResultSet();
+        ResultSet rs = newScrollableROJdbcResultSet();
 
         rs.first();
 
-        assertEquals(true, rs.isFirst());
+        assertEquals("isFirst", true, rs.isFirst());
+
+        rs.next();
+
+        assertEquals("isFirst", false, rs.isFirst());
+
+        rs.close();
+
+        try {
+            rs.first();
+
+            fail("Allowed first() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
 
     }
 
@@ -786,20 +1511,33 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of last method, of interface java.sql.ResultSet.
      */
     public void testLast() throws Exception {
-        System.out.println("last");
+        println("last");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         rs.last();
 
         assertEquals(true, rs.isLast());
+
+        rs.close();
+
+        try {
+            rs.last();
+
+            fail("Allowed last() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getRow method, of interface java.sql.ResultSet.
      */
     public void testGetRow() throws Exception {
-        System.out.println("getRow");
+        println("getRow");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
         int row = 0;
@@ -827,13 +1565,26 @@ public class jdbcResultSetTest extends JdbcTestCase {
         rs.last();
 
         assertEquals(last, rs.getRow());
+
+        rs.close();
+
+        try {
+            rs.getRow();
+
+            fail("Allowed getRow() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of absolute method, of interface java.sql.ResultSet.
      */
     public void testAbsolute() throws Exception {
-        System.out.println("absolute");
+        println("absolute");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
         int rows = 0;
@@ -847,13 +1598,26 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
             assertEquals(i, rs.getRow());
         }
+
+        rs.close();
+
+        try {
+            rs.absolute(0);
+
+            fail("Allowed absolute(int) after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    getResultSetClosedErrorCode(),
+                    ex.getErrorCode());
+        }
     }
 
     /**
      * Test of relative method, of interface java.sql.ResultSet.
      */
     public void testRelative() throws Exception {
-        System.out.println("relative");
+        println("relative");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
@@ -878,7 +1642,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of previous method, of interface java.sql.ResultSet.
      */
     public void testPrevious() throws Exception {
-        System.out.println("previous");
+        println("previous");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
@@ -889,13 +1653,26 @@ public class jdbcResultSetTest extends JdbcTestCase {
         }
 
         assertEquals(true, rs.isBeforeFirst());
+
+        rs.close();
+
+        try {
+            rs.previous();
+
+            fail("Allowed previous() after close().");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of setFetchDirection method, of interface java.sql.ResultSet.
      */
     public void testSetFetchDirection() throws Exception {
-        System.out.println("setFetchDirection");
+        println("setFetchDirection");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
@@ -908,18 +1685,34 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of getFetchDirection method, of interface java.sql.ResultSet.
      */
     public void testGetFetchDirection() throws Exception {
-        System.out.println("getFetchDirection");
+        println("getFetchDirection");
 
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
-        assertEquals(jdbcResultSet.FETCH_FORWARD, rs.getFetchDirection());
+        assertEquals(
+                "fetch direction",
+                jdbcResultSet.FETCH_FORWARD,
+                rs.getFetchDirection());
+
+        rs.close();
+
+        try {
+            rs.getFetchDirection();
+            
+            fail("Allowed getFetchDirection() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of setFetchSize method, of interface java.sql.ResultSet.
      */
     public void testSetFetchSize() throws Exception {
-        System.out.println("setFetchSize");
+        println("setFetchSize");
 
         ResultSet rs = newFOROJdbcResultSet();
 
@@ -930,64 +1723,144 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of getFetchSize method, of interface java.sql.ResultSet.
      */
     public void testGetFetchSize() throws Exception {
-        System.out.println("getFetchSize");
+        println("getFetchSize");
 
         ResultSet rs = newFOROJdbcResultSet();
 
         int expResult = 1;
         int result = rs.getFetchSize();
-        assertEquals(expResult, result);
+        assertEquals("fetch size", expResult, result);
+
+        rs.close();
+
+        try {
+            rs.getFetchSize();
+            
+            fail("Allowed getFetchSize() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+       }
     }
 
     /**
      * Test of getType method, of interface java.sql.ResultSet.
      */
     public void testGetType_FORWARD_ONLY() throws Exception {
-        System.out.println("getType_FORWARD_ONLY");
+        println("getType_FORWARD_ONLY");
 
         assertEquals(ResultSet.TYPE_FORWARD_ONLY,
                      newFOROJdbcResultSet().getType());
+        
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getType();
+
+            fail("Allowed getType after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
-    
+
     /**
      * Test of getType method, of interface java.sql.ResultSet.
      */
     public void testGetType_SCROLL_INSENSITIVE() throws Exception {
-        System.out.println("getType_SCROLL_INSENSITIVE");
+        println("getType_SCROLL_INSENSITIVE");
 
-        assertEquals(ResultSet.TYPE_SCROLL_INSENSITIVE,
-                     newJdbcResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE).getType());
-    }   
-    
+        assertEquals(
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                newJdbcResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE).getType());
+        
+        ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE);
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getType();
+
+            fail("Allowed getType after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
+    }
+
     /**
      * Test of getType method, of interface java.sql.ResultSet.
      */
     public void testGetType_SCROLL_SENSITIVE() throws Exception {
-        System.out.println("getType_SCROLL_SENSITIVE");
+        println("getType_SCROLL_SENSITIVE");
 
-        assertEquals(ResultSet.TYPE_SCROLL_SENSITIVE,
-                     newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE).getType());
-    }       
+        assertEquals(
+                ResultSet.TYPE_SCROLL_SENSITIVE,
+                newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE).getType());
+
+        ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getType();
+
+            fail("Allowed getType after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
+    }
 
     /**
      * Test of getConcurrency method, of interface java.sql.ResultSet.
      */
     public void testGetConcurrency() throws Exception {
-        System.out.println("getConcurrency");
+        println("getConcurrency");
 
         assertEquals(ResultSet.CONCUR_READ_ONLY,
                      newFOROJdbcResultSet().getConcurrency());
-        
-        assertEquals(ResultSet.CONCUR_READ_ONLY,
-                     newJdbcResultSet(ResultSet.TYPE_FORWARD_ONLY,
-                                     ResultSet.CONCUR_UPDATABLE).getConcurrency());
+
+        assertEquals(
+                ResultSet.CONCUR_READ_ONLY,
+                newJdbcResultSet(
+                    ResultSet.TYPE_FORWARD_ONLY,
+                    ResultSet.CONCUR_UPDATABLE).getConcurrency());
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.close();
+
+        try {
+            rs.getConcurrency();
+
+            fail("Allowed getConcurrency() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of rowUpdated method, of interface java.sql.ResultSet.
      */
     public void testRowUpdated() throws Exception {
-        System.out.println("rowUpdated");
+        println("rowUpdated");
         
         if (!isTestUpdates())
         {
@@ -1013,7 +1886,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of rowInserted method, of interface java.sql.ResultSet.
      */
     public void testRowInserted() throws Exception {
-        System.out.println("rowInserted");
+        println("rowInserted");
         
         if (!isTestUpdates())
         {
@@ -1028,7 +1901,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of rowDeleted method, of interface java.sql.ResultSet.
      */
     public void testRowDeleted() throws Exception {
-        System.out.println("rowDeleted");
+        println("rowDeleted");
         
         if (!isTestUpdates())
         {
@@ -1042,7 +1915,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateNull method, of interface java.sql.ResultSet.
      */
     public void testUpdateNull() throws Exception {
-        System.out.println("updateNull");
+        println("updateNull");
         
         if (!isTestUpdates())
         {
@@ -1066,7 +1939,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateBoolean method, of interface java.sql.ResultSet.
      */
     public void testUpdateBoolean() throws Exception {
-        System.out.println("testUpdateBoolean");
+        println("testUpdateBoolean");
         
         if (!isTestUpdates())
         {
@@ -1088,7 +1961,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateByte method, of interface java.sql.ResultSet.
      */
     public void testUpdateByte() throws Exception {
-        System.out.println("testUpdateByte");
+        println("testUpdateByte");
         
         if (!isTestUpdates())
         {
@@ -1110,7 +1983,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateShort method, of interface java.sql.ResultSet.
      */
     public void testUpdateShort() throws Exception {
-        System.out.println("updateShort");
+        println("updateShort");
         
         if (!isTestUpdates())
         {
@@ -1132,7 +2005,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateInt method, of interface java.sql.ResultSet.
      */
     public void testUpdateInt() throws Exception {
-        System.out.println("updateInt");
+        println("updateInt");
         
         if (!isTestUpdates())
         {
@@ -1154,7 +2027,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateLong method, of interface java.sql.ResultSet.
      */
     public void testUpdateLong() throws Exception {
-        System.out.println("updateLong");
+        println("updateLong");
         
         if (!isTestUpdates())
         {
@@ -1176,7 +2049,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateFloat method, of interface java.sql.ResultSet.
      */
     public void testUpdateFloat() throws Exception {
-        System.out.println("updateFloat");
+        println("updateFloat");
         
         if (!isTestUpdates())
         {
@@ -1198,7 +2071,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateDouble method, of interface java.sql.ResultSet.
      */
     public void testUpdateDouble() throws Exception {
-        System.out.println("updateDouble");
+        println("updateDouble");
         
         if (!isTestUpdates())
         {
@@ -1221,7 +2094,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateBigDecimal method, of interface java.sql.ResultSet.
      */
     public void testUpdateBigDecimal() throws Exception {
-        System.out.println("updateBigDecimal");
+        println("updateBigDecimal");
         
         if (!isTestUpdates())
         {
@@ -1244,7 +2117,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateString method, of interface java.sql.ResultSet.
      */
     public void testUpdateString() throws Exception {
-        System.out.println("updateString");
+        println("updateString");
         
         if (!isTestUpdates())
         {
@@ -1288,7 +2161,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateBytes method, of interface java.sql.ResultSet.
      */
     public void testUpdateBytes() throws Exception {
-        System.out.println("updateBytes");
+        println("updateBytes");
         
         if (!isTestUpdates())
         {
@@ -1312,7 +2185,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateDate method, of interface java.sql.ResultSet.
      */
     public void testUpdateDate() throws Exception {
-        System.out.println("updateDate");
+        println("updateDate");
         
         if (!isTestUpdates())
         {
@@ -1334,7 +2207,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateTime method, of interface java.sql.ResultSet.
      */
     public void testUpdateTime() throws Exception {
-        System.out.println("updateTime");
+        println("updateTime");
         
         if (!isTestUpdates())
         {
@@ -1356,7 +2229,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateTimestamp method, of interface java.sql.ResultSet.
      */
     public void testUpdateTimestamp() throws Exception {
-        System.out.println("updateTimestamp");
+        println("updateTimestamp");
         
         if (!isTestUpdates())
         {
@@ -1368,7 +2241,9 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
             rs.next();
 
-            rs.updateTimestamp("timestamp_column", java.sql.Timestamp.valueOf("2005-12-14 11:57:02.1234"));
+            rs.updateTimestamp(
+                    "timestamp_column",
+                    java.sql.Timestamp.valueOf("2005-12-14 11:57:02.1234"));
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -1378,19 +2253,22 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateAsciiStream method, of interface java.sql.ResultSet.
      */
     public void testUpdateAsciiStream() throws Exception {
-        System.out.println("updateAsciiStream");
-        
+        println("updateAsciiStream");
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
 
             rs.next();
 
-            rs.updateAsciiStream("char_column", new java.io.ByteArrayInputStream("updateAsciiStream".getBytes()), 10);
+            rs.updateAsciiStream(
+                    "char_column",
+                    new java.io.ByteArrayInputStream(
+                        "updateAsciiStream".getBytes()), 10);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -1400,7 +2278,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateBinaryStream method, of interface java.sql.ResultSet.
      */
     public void testUpdateBinaryStream() throws Exception {
-        System.out.println("updateBinaryStream");
+        println("updateBinaryStream");
         
         if (!isTestUpdates())
         {
@@ -1412,7 +2290,10 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
             rs.next();
 
-            rs.updateBinaryStream("binary_column", new java.io.ByteArrayInputStream("updateBinaryStream".getBytes()), 10);
+            rs.updateBinaryStream(
+                    "binary_column",
+                    new java.io.ByteArrayInputStream(
+                        "updateBinaryStream".getBytes()), 10);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -1422,7 +2303,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateCharacterStream method, of interface java.sql.ResultSet.
      */
     public void testUpdateCharacterStream() throws Exception {
-        System.out.println("updateCharacterStream");
+        println("updateCharacterStream");
         
         if (!isTestUpdates())
         {
@@ -1434,7 +2315,9 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
             rs.next();
 
-            rs.updateCharacterStream("char_column", new java.io.StringReader("updateCharacterStream"), 10);
+            rs.updateCharacterStream(
+                    "char_column",
+                    new java.io.StringReader("updateCharacterStream"), 10);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -1444,7 +2327,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateObject method, of interface java.sql.ResultSet.
      */
     public void testUpdateObject() throws Exception {
-        System.out.println("updateObject");
+        println("updateObject");
         
         if (!isTestUpdates())
         {
@@ -1467,8 +2350,8 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of insertRow method, of interface java.sql.ResultSet.
      */
     public void testInsertRow() throws Exception {
-        System.out.println("insertRow");
-        
+        println("insertRow");
+
         if (!isTestUpdates())
         {
             return;
@@ -1479,9 +2362,12 @@ public class jdbcResultSetTest extends JdbcTestCase {
             ResultSet rs = this.newUpdateableJdbcResultSet();
 
             rs.moveToInsertRow();
+            
             int columnCount = rs.getMetaData().getColumnCount();
 
-            for (int i = 1; i <= columnCount; i++) {
+            rs.updateInt(1, 999999);
+
+            for (int i = 2; i <= columnCount; i++) {
                 rs.updateNull(i);
             }
 
@@ -1489,13 +2375,35 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+
+        ResultSet rs = this.newUpdateableJdbcResultSet();
+
+        rs.moveToInsertRow();
+        
+        int columnCount = rs.getMetaData().getColumnCount();
+        
+        rs.updateInt(1, 1000000);
+
+        for (int i = 2; i <= columnCount; i++) {
+            rs.updateNull(i);
+        }
+
+        rs.close();
+
+        try {
+            rs.insertRow();
+            
+            fail("Allowed insertRow() after close()");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
      * Test of updateRow method, of interface java.sql.ResultSet.
      */
     public void testUpdateRow() throws Exception {
-        System.out.println("updateRow");
+        println("updateRow");
         
         if (!isTestUpdates())
         {
@@ -1526,9 +2434,10 @@ public class jdbcResultSetTest extends JdbcTestCase {
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
+
         try {
-            ResultSet rs = this.newUpdateableJdbcResultSet();
+            ResultSet rs = newUpdateableJdbcResultSet();
 
             rs.next();
 
@@ -1536,21 +2445,37 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+
+        ResultSet rs = newUpdateableJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.deleteRow();
+
+            fail("Allowed deleteRow() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED); 
+        }
     }
 
     /**
      * Test of refreshRow method, of interface java.sql.ResultSet.
      */
     public void testRefreshRow() throws Exception {
-        System.out.println("refreshRow");
-        
+        println("refreshRow");
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         try {
-            ResultSet rs = this.newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
+            ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
 
             rs.next();
 
@@ -1558,21 +2483,38 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+
+        ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
+
+        rs.next();
+
+        rs.close();
+
+        try {
+            rs.refreshRow();
+
+            fail("Allowed refreshRow() after close().");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of cancelRowUpdates method, of interface java.sql.ResultSet.
      */
     public void testCancelRowUpdates() throws Exception {
-        System.out.println("cancelRowUpdates");
-        
+        println("cancelRowUpdates");
+
         if (!isTestUpdates())
         {
             return;
         }
 
         try {
-            ResultSet rs = this.newUpdateableJdbcResultSet();
+            ResultSet rs = newUpdateableJdbcResultSet();
 
             rs.next();
 
@@ -1586,13 +2528,28 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+
+        ResultSet rs = newUpdateableJdbcResultSet();
+
+        rs.updateNull(0);
+        rs.close();
+        try {
+            rs.cancelRowUpdates();
+
+            fail("Allowed cancelRowUpdates() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of moveToInsertRow method, of interface java.sql.ResultSet.
      */
     public void testMoveToInsertRow() throws Exception {
-        System.out.println("moveToInsertRow");
+        println("moveToInsertRow");
         
         if (!isTestUpdates())
         {
@@ -1606,18 +2563,33 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+        
+        ResultSet rs = this.newUpdateableJdbcResultSet();
+
+        rs.close();
+
+        try {
+            rs.moveToInsertRow();
+
+            fail("Allowed moveToInsertRow() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of moveToCurrentRow method, of interface java.sql.ResultSet.
      */
     public void testMoveToCurrentRow() throws Exception {
-        System.out.println("moveToCurrentRow");
-        
+        println("moveToCurrentRow");
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1627,70 +2599,233 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+
+        ResultSet rs = this.newUpdateableJdbcResultSet();
+
+        rs.moveToInsertRow();
+
+        rs.close();
+
+        try {
+            rs.moveToCurrentRow();
+
+            fail("Allowed moveToCurrentRow() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getStatement method, of interface java.sql.ResultSet.
      */
     public void testGetStatement() throws Exception {
-        System.out.println("getStatement");
+        println("getStatement");
 
         ResultSet rs = newFOROJdbcResultSet();
 
         Statement result = rs.getStatement();
         assertNotNull(result);
+
+        rs.close();
+
+        try {
+            rs.getStatement();
+
+            fail("Allowed getStatement() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getRef method, of interface java.sql.ResultSet.
      */
     public void testGetRef() throws Exception {
-        System.out.println("getRef");
+        println("getRef");
 
         testGetXXX("getRef");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getRef(1);
+
+            fail("Allowed getRef after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getBlob method, of interface java.sql.ResultSet.
      */
     public void testGetBlob() throws Exception {
-        System.out.println("getBlob");
+        println("getBlob");
 
         testGetXXX("getBlob");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getBlob(1);
+
+            fail("Allowed getBlob after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getClob method, of interface java.sql.ResultSet.
      */
     public void testGetClob() throws Exception {
-        System.out.println("getClob");
+        println("getClob");
 
         testGetXXX("getClob");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getClob(1);
+
+            fail("Allowed getClob after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getArray method, of interface java.sql.ResultSet.
      */
     public void testGetArray() throws Exception {
-        System.out.println("getArray");
+        println("getArray");
 
         testGetXXX("getArray");
+    }
+
+    /**
+     * Test of getArray method, of interface java.sql.ResultSet.
+     */
+    public void testGetArray_afterClose() throws Exception
+    {
+        println("getArray after close");
+
+        ResultSet rs = newFOROJdbcResultSet();
+
+        rs.close();
+
+        try {
+            rs.getArray(1);
+
+            fail("Allowed getArray(int) after close");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    this.getResultSetClosedErrorCode(),
+                    ex.getErrorCode());
+        }
+    }
+
+    /**
+     * Test of getArray method, of interface java.sql.ResultSet.
+     */
+    public void testGetArray_beforeFirst() throws Exception
+    {
+        println("getArray while before first");
+
+        ResultSet rs = newFOROJdbcResultSet();
+        
+        assertEquals("beforeFirst", true, rs.isBeforeFirst());
+
+        try {
+            rs.getArray(1);
+
+            fail("Allowed getArray(int) while before first");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.NO_DATA_IS_AVAILABLE);
+        }
+    }
+
+    /**
+     * Test of getArray method, of interface java.sql.ResultSet.
+     */
+    public void testGetArray_afterLast() throws Exception
+    {
+        println("getArray while after last");
+
+        ResultSet rs = newFOROJdbcResultSet();
+
+        while(rs.next());
+
+        try {
+            rs.getArray(1);
+
+            fail("Allowed getArray(int) while after last");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.NO_DATA_IS_AVAILABLE);
+        }
     }
 
     /**
      * Test of getURL method, of interface java.sql.ResultSet.
      */
     public void testGetURL() throws Exception {
-        System.out.println("getURL");
+        println("getURL");
 
         testGetXXX("getURL");
+        
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getURL(1);
+
+            fail("Allowed getURL after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of updateRef method, of interface java.sql.ResultSet.
      */
     public void testUpdateRef() throws Exception {
-        System.out.println("updateRef");
+        println("updateRef");
         
         if (!isTestUpdates())
         {
@@ -1705,7 +2840,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateBlob method, of interface java.sql.ResultSet.
      */
     public void testUpdateBlob() throws Exception {
-        System.out.println("updateBlob");
+        println("updateBlob");
         
         if (!isTestUpdates())
         {
@@ -1720,7 +2855,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateClob method, of interface java.sql.ResultSet.
      */
     public void testUpdateClob() throws Exception {
-        System.out.println("updateClob");
+        println("updateClob");
         
         if (!isTestUpdates())
         {
@@ -1735,7 +2870,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateArray method, of interface java.sql.ResultSet.
      */
     public void testUpdateArray() throws Exception {
-        System.out.println("updateArray");
+        println("updateArray");
 
         if (!isTestUpdates())
         {
@@ -1750,21 +2885,37 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of getRowId method, of interface java.sql.ResultSet.
      */
     public void testGetRowId() throws Exception {
-        System.out.println("getRowId");
+        println("getRowId");
 
         testGetXXX("getRowId");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getRowId(1);
+
+            fail("Allowed getRowId after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of updateRowId method, of interface java.sql.ResultSet.
      */
     public void testUpdateRowId() throws Exception {
-        System.out.println("updateRowId");
-        
+        println("updateRowId");
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -1774,19 +2925,33 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of getHoldability method, of interface java.sql.ResultSet.
      */
     public void testGetHoldability() throws Exception {
-        System.out.println("getHoldability");
+        println("getHoldability");
 
         ResultSet rs = newFOROJdbcResultSet();
 
         int result = rs.getHoldability();
         assertEquals(ResultSet.HOLD_CURSORS_OVER_COMMIT, result);
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getHoldability();
+
+            fail("Allowed getHoldability() after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of isClosed method, of interface java.sql.ResultSet.
      */
     public void testIsClosed() throws Exception {
-        System.out.println("isClosed");
+        println("isClosed");
 
         ResultSet rs = newFOROJdbcResultSet();
 
@@ -1801,7 +2966,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateNString method, of interface java.sql.ResultSet.
      */
     public void testUpdateNString() throws Exception {
-        System.out.println("updateNString");
+        println("updateNString");
         
         if (!isTestUpdates())
         {
@@ -1816,7 +2981,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of updateNClob method, of interface java.sql.ResultSet.
      */
     public void testUpdateNClob() throws Exception {
-        System.out.println("updateNClob");
+        println("updateNClob");
         
         if (!isTestUpdates())
         {
@@ -1831,25 +2996,57 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of getNClob method, of interface java.sql.ResultSet.
      */
     public void testGetNClob() throws Exception {
-        System.out.println("getNClob");
+        println("getNClob");
 
         testGetXXX("getNClob");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getNClob(1);
+
+            fail("Allowed getNClob after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getSQLXML method, of interface java.sql.ResultSet.
      */
     public void testGetSQLXML() throws Exception {
-        System.out.println("getSQLXML");
+        println("getSQLXML");
 
         testGetXXX("getSQLXML");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getSQLXML(1);
+
+            fail("Allowed getSQLXML after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of updateSQLXML method, of interface java.sql.ResultSet.
      */
     public void testUpdateSQLXML() throws Exception {
-        System.out.println("updateSQLXML");
+        println("updateSQLXML");
         
         if (!isTestUpdates())
         {
@@ -1864,25 +3061,57 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of getNString method, of interface java.sql.ResultSet.
      */
     public void testGetNString() throws Exception {
-        System.out.println("getNString");
+        println("getNString");
 
         testGetXXX("getNString");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getNString(1);
+
+            fail("Allowed getNString after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of getNCharacterStream method, of interface java.sql.ResultSet.
      */
     public void testGetNCharacterStream() throws Exception {
-        System.out.println("getNCharacterStream");
+        println("getNCharacterStream");
 
         testGetXXX("getNCharacterStream");
+
+        ResultSet rs = this.newFOROJdbcResultSet();
+
+        rs.next();
+        rs.close();
+
+        try {
+            rs.getNCharacterStream(1);
+
+            fail("Allowed getNCharacterStream after close()");
+        } catch (SQLException ex) {
+            assertEquals(
+                    "error code",
+                    ex.getErrorCode(),
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+        }
     }
 
     /**
      * Test of updateNCharacterStream method, of interface java.sql.ResultSet.
      */
     public void testUpdateNCharacterStream() throws Exception {
-        System.out.println("updateNCharacterStream");
+        println("updateNCharacterStream");
         
         if (!isTestUpdates())
         {
@@ -1897,7 +3126,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of unwrap method, of interface java.sql.ResultSet.
      */
     public void testUnwrap() throws Exception {
-        System.out.println("unwrap");
+        println("unwrap");
 
         Class<?> iface = jdbcResultSet.class;
         ResultSet rs = newFOROJdbcResultSet();
@@ -1911,7 +3140,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
      * Test of isWrapperFor method, of interface java.sql.ResultSet.
      */
     public void testIsWrapperFor() throws Exception {
-        System.out.println("isWrapperFor");
+        println("isWrapperFor");
 
         Class<?>  iface = jdbcResultSet.class;
         ResultSet rs = newFOROJdbcResultSet();

@@ -53,7 +53,7 @@ import org.hsqldb.Trace;
  *
  * @author boucherb@users
  */
-public class UtilTest extends TestCase {
+public class UtilTest extends JdbcTestCase {
     
 // SQL 2003 Table 32 - SQLSTATE class and subclass values
 //
@@ -354,7 +354,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATABASE_LOCK_ACQUISITION_FAILURE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATABASE_LOCK_ACQUISITION_FAILURE() throws Exception {
-        System.out.println("testSqlException_DATABASE_LOCK_ACQUISITION_FAILURE");
+        println("testSqlException_DATABASE_LOCK_ACQUISITION_FAILURE");
         
         SQLException ex = Util.sqlException(Trace.DATABASE_LOCK_ACQUISITION_FAILURE,"");
         
@@ -365,7 +365,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CONNECTION_IS_CLOSED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CONNECTION_IS_CLOSED() throws Exception {
-        System.out.println("testSqlException_CONNECTION_IS_CLOSED");
+        println("testSqlException_CONNECTION_IS_CLOSED");
         
         SQLException ex = Util.sqlException(Trace.CONNECTION_IS_CLOSED,"");
         
@@ -376,7 +376,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CONNECTION_IS_BROKEN,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CONNECTION_IS_BROKEN() throws Exception {
-        System.out.println("testSqlException_CONNECTION_IS_BROKEN");
+        println("testSqlException_CONNECTION_IS_BROKEN");
         
         SQLException ex = Util.sqlException(Trace.CONNECTION_IS_BROKEN,"");
         
@@ -387,7 +387,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATABASE_IS_SHUTDOWN,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATABASE_IS_SHUTDOWN() throws Exception {
-        System.out.println("testSqlException_DATABASE_IS_SHUTDOWN");
+        println("testSqlException_DATABASE_IS_SHUTDOWN");
         
         SQLException ex = Util.sqlException(Trace.DATABASE_IS_SHUTDOWN,"");
         
@@ -398,7 +398,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.COLUMN_COUNT_DOES_NOT_MATCH,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_COLUMN_COUNT_DOES_NOT_MATCH() throws Exception {
-        System.out.println("testSqlException_COLUMN_COUNT_DOES_NOT_MATCH");
+        println("testSqlException_COLUMN_COUNT_DOES_NOT_MATCH");
         
         SQLException ex = Util.sqlException(Trace.COLUMN_COUNT_DOES_NOT_MATCH,"");
         
@@ -409,7 +409,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DIVISION_BY_ZERO,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DIVISION_BY_ZERO() throws Exception {
-        System.out.println("testSqlException_DIVISION_BY_ZERO");
+        println("testSqlException_DIVISION_BY_ZERO");
         
         SQLException ex = Util.sqlException(Trace.DIVISION_BY_ZERO,"");
         
@@ -420,7 +420,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_ESCAPE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_ESCAPE() throws Exception {
-        System.out.println("testSqlException_INVALID_ESCAPE");
+        println("testSqlException_INVALID_ESCAPE");
         
         SQLException ex = Util.sqlException(Trace.INVALID_ESCAPE,"");
         
@@ -431,7 +431,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INTEGRITY_CONSTRAINT_VIOLATION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INTEGRITY_CONSTRAINT_VIOLATION() throws Exception {
-        System.out.println("testSqlException_INTEGRITY_CONSTRAINT_VIOLATION");
+        println("testSqlException_INTEGRITY_CONSTRAINT_VIOLATION");
         
         SQLException ex = Util.sqlException(Trace.INTEGRITY_CONSTRAINT_VIOLATION,"");
         
@@ -442,7 +442,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.VIOLATION_OF_UNIQUE_INDEX,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_VIOLATION_OF_UNIQUE_INDEX() throws Exception {
-        System.out.println("testSqlException_VIOLATION_OF_UNIQUE_INDEX");
+        println("testSqlException_VIOLATION_OF_UNIQUE_INDEX");
         
         SQLException ex = Util.sqlException(Trace.VIOLATION_OF_UNIQUE_INDEX,"");
         
@@ -453,7 +453,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TRY_TO_INSERT_NULL,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TRY_TO_INSERT_NULL() throws Exception {
-        System.out.println("testSqlException_TRY_TO_INSERT_NULL");
+        println("testSqlException_TRY_TO_INSERT_NULL");
         
         SQLException ex = Util.sqlException(Trace.TRY_TO_INSERT_NULL,"");
         
@@ -464,7 +464,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNEXPECTED_TOKEN,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNEXPECTED_TOKEN() throws Exception {
-        System.out.println("testSqlException_UNEXPECTED_TOKEN");
+        println("testSqlException_UNEXPECTED_TOKEN");
         
         SQLException ex = Util.sqlException(Trace.UNEXPECTED_TOKEN,"");
         
@@ -475,7 +475,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNEXPECTED_END_OF_COMMAND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNEXPECTED_END_OF_COMMAND() throws Exception {
-        System.out.println("testSqlException_UNEXPECTED_END_OF_COMMAND");
+        println("testSqlException_UNEXPECTED_END_OF_COMMAND");
         
         SQLException ex = Util.sqlException(Trace.UNEXPECTED_END_OF_COMMAND,"");
         
@@ -486,7 +486,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNKNOWN_FUNCTION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNKNOWN_FUNCTION() throws Exception {
-        System.out.println("testSqlException_UNKNOWN_FUNCTION");
+        println("testSqlException_UNKNOWN_FUNCTION");
         
         SQLException ex = Util.sqlException(Trace.UNKNOWN_FUNCTION,"");
         
@@ -497,7 +497,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NEED_AGGREGATE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NEED_AGGREGATE() throws Exception {
-        System.out.println("testSqlException_NEED_AGGREGATE");
+        println("testSqlException_NEED_AGGREGATE");
         
         SQLException ex = Util.sqlException(Trace.NEED_AGGREGATE,"");
         
@@ -508,7 +508,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SUM_OF_NON_NUMERIC,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SUM_OF_NON_NUMERIC() throws Exception {
-        System.out.println("testSqlException_SUM_OF_NON_NUMERIC");
+        println("testSqlException_SUM_OF_NON_NUMERIC");
         
         SQLException ex = Util.sqlException(Trace.SUM_OF_NON_NUMERIC,"");
         
@@ -519,7 +519,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.WRONG_DATA_TYPE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_WRONG_DATA_TYPE() throws Exception {
-        System.out.println("testSqlException_WRONG_DATA_TYPE");
+        println("testSqlException_WRONG_DATA_TYPE");
         
         SQLException ex = Util.sqlException(Trace.WRONG_DATA_TYPE,"");
         
@@ -530,7 +530,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CARDINALITY_VIOLATION_NO_SUBCLASS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CARDINALITY_VIOLATION_NO_SUBCLASS() throws Exception {
-        System.out.println("testSqlException_CARDINALITY_VIOLATION_NO_SUBCLASS");
+        println("testSqlException_CARDINALITY_VIOLATION_NO_SUBCLASS");
         
         SQLException ex = Util.sqlException(Trace.CARDINALITY_VIOLATION_NO_SUBCLASS,"");
         
@@ -541,7 +541,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SERIALIZATION_FAILURE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SERIALIZATION_FAILURE() throws Exception {
-        System.out.println("testSqlException_SERIALIZATION_FAILURE");
+        println("testSqlException_SERIALIZATION_FAILURE");
         
         SQLException ex = Util.sqlException(Trace.SERIALIZATION_FAILURE,"");
         
@@ -552,7 +552,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TRANSFER_CORRUPTED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TRANSFER_CORRUPTED() throws Exception {
-        System.out.println("testSqlException_TRANSFER_CORRUPTED");
+        println("testSqlException_TRANSFER_CORRUPTED");
         
         SQLException ex = Util.sqlException(Trace.TRANSFER_CORRUPTED,"");
         
@@ -563,7 +563,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.FUNCTION_NOT_SUPPORTED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_FUNCTION_NOT_SUPPORTED() throws Exception {
-        System.out.println("testSqlException_FUNCTION_NOT_SUPPORTED");
+        println("testSqlException_FUNCTION_NOT_SUPPORTED");
         
         SQLException ex = Util.sqlException(Trace.FUNCTION_NOT_SUPPORTED,"");
         
@@ -574,7 +574,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TABLE_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TABLE_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_TABLE_ALREADY_EXISTS");
+        println("testSqlException_TABLE_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.TABLE_ALREADY_EXISTS,"");
         
@@ -585,7 +585,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TABLE_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TABLE_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_TABLE_NOT_FOUND");
+        println("testSqlException_TABLE_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.TABLE_NOT_FOUND,"");
         
@@ -596,7 +596,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INDEX_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INDEX_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_INDEX_ALREADY_EXISTS");
+        println("testSqlException_INDEX_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.INDEX_ALREADY_EXISTS,"");
         
@@ -607,7 +607,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SECOND_PRIMARY_KEY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SECOND_PRIMARY_KEY() throws Exception {
-        System.out.println("testSqlException_SECOND_PRIMARY_KEY");
+        println("testSqlException_SECOND_PRIMARY_KEY");
         
         SQLException ex = Util.sqlException(Trace.SECOND_PRIMARY_KEY,"");
         
@@ -618,7 +618,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DROP_PRIMARY_KEY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DROP_PRIMARY_KEY() throws Exception {
-        System.out.println("testSqlException_DROP_PRIMARY_KEY");
+        println("testSqlException_DROP_PRIMARY_KEY");
         
         SQLException ex = Util.sqlException(Trace.DROP_PRIMARY_KEY,"");
         
@@ -629,7 +629,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INDEX_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INDEX_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_INDEX_NOT_FOUND");
+        println("testSqlException_INDEX_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.INDEX_NOT_FOUND,"");
         
@@ -640,7 +640,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.COLUMN_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_COLUMN_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_COLUMN_ALREADY_EXISTS");
+        println("testSqlException_COLUMN_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.COLUMN_ALREADY_EXISTS,"");
         
@@ -651,7 +651,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.COLUMN_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_COLUMN_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_COLUMN_NOT_FOUND");
+        println("testSqlException_COLUMN_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.COLUMN_NOT_FOUND,"");
         
@@ -662,7 +662,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.FILE_IO_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_FILE_IO_ERROR() throws Exception {
-        System.out.println("testSqlException_FILE_IO_ERROR");
+        println("testSqlException_FILE_IO_ERROR");
         
         SQLException ex = Util.sqlException(Trace.FILE_IO_ERROR,"");
         
@@ -673,7 +673,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.WRONG_DATABASE_FILE_VERSION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_WRONG_DATABASE_FILE_VERSION() throws Exception {
-        System.out.println("testSqlException_WRONG_DATABASE_FILE_VERSION");
+        println("testSqlException_WRONG_DATABASE_FILE_VERSION");
         
         SQLException ex = Util.sqlException(Trace.WRONG_DATABASE_FILE_VERSION,"");
         
@@ -684,7 +684,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATABASE_IS_READONLY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATABASE_IS_READONLY() throws Exception {
-        System.out.println("testSqlException_DATABASE_IS_READONLY");
+        println("testSqlException_DATABASE_IS_READONLY");
         
         SQLException ex = Util.sqlException(Trace.DATABASE_IS_READONLY,"");
         
@@ -695,7 +695,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATA_IS_READONLY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATA_IS_READONLY() throws Exception {
-        System.out.println("testSqlException_DATA_IS_READONLY");
+        println("testSqlException_DATA_IS_READONLY");
         
         SQLException ex = Util.sqlException(Trace.DATA_IS_READONLY,"");
         
@@ -706,7 +706,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ACCESS_IS_DENIED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ACCESS_IS_DENIED() throws Exception {
-        System.out.println("testSqlException_ACCESS_IS_DENIED");
+        println("testSqlException_ACCESS_IS_DENIED");
         
         SQLException ex = Util.sqlException(Trace.ACCESS_IS_DENIED,"");
         
@@ -717,7 +717,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INPUTSTREAM_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INPUTSTREAM_ERROR() throws Exception {
-        System.out.println("testSqlException_INPUTSTREAM_ERROR");
+        println("testSqlException_INPUTSTREAM_ERROR");
         
         SQLException ex = Util.sqlException(Trace.INPUTSTREAM_ERROR,"");
         
@@ -728,7 +728,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NO_DATA_IS_AVAILABLE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NO_DATA_IS_AVAILABLE() throws Exception {
-        System.out.println("testSqlException_NO_DATA_IS_AVAILABLE");
+        println("testSqlException_NO_DATA_IS_AVAILABLE");
         
         SQLException ex = Util.sqlException(Trace.NO_DATA_IS_AVAILABLE,"");
         
@@ -739,7 +739,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.USER_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_USER_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_USER_ALREADY_EXISTS");
+        println("testSqlException_USER_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.USER_ALREADY_EXISTS,"");
         
@@ -750,7 +750,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.USER_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_USER_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_USER_NOT_FOUND");
+        println("testSqlException_USER_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.USER_NOT_FOUND,"");
         
@@ -761,7 +761,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ASSERT_FAILED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ASSERT_FAILED() throws Exception {
-        System.out.println("testSqlException_ASSERT_FAILED");
+        println("testSqlException_ASSERT_FAILED");
         
         SQLException ex = Util.sqlException(Trace.ASSERT_FAILED,"");
         
@@ -772,7 +772,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.EXTERNAL_STOP,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_EXTERNAL_STOP() throws Exception {
-        System.out.println("testSqlException_EXTERNAL_STOP");
+        println("testSqlException_EXTERNAL_STOP");
         
         SQLException ex = Util.sqlException(Trace.EXTERNAL_STOP,"");
         
@@ -783,7 +783,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.GENERAL_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_GENERAL_ERROR() throws Exception {
-        System.out.println("testSqlException_GENERAL_ERROR");
+        println("testSqlException_GENERAL_ERROR");
         
         SQLException ex = Util.sqlException(Trace.GENERAL_ERROR,"");
         
@@ -794,7 +794,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.WRONG_OUT_PARAMETER,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_WRONG_OUT_PARAMETER() throws Exception {
-        System.out.println("testSqlException_WRONG_OUT_PARAMETER");
+        println("testSqlException_WRONG_OUT_PARAMETER");
         
         SQLException ex = Util.sqlException(Trace.WRONG_OUT_PARAMETER,"");
         
@@ -805,7 +805,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.FUNCTION_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_FUNCTION_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_FUNCTION_NOT_FOUND");
+        println("testSqlException_FUNCTION_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.FUNCTION_NOT_FOUND,"");
         
@@ -816,7 +816,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TRIGGER_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TRIGGER_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_TRIGGER_NOT_FOUND");
+        println("testSqlException_TRIGGER_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.TRIGGER_NOT_FOUND,"");
         
@@ -827,7 +827,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SAVEPOINT_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SAVEPOINT_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_SAVEPOINT_NOT_FOUND");
+        println("testSqlException_SAVEPOINT_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.SAVEPOINT_NOT_FOUND,"");
         
@@ -838,7 +838,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.LABEL_REQUIRED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_LABEL_REQUIRED() throws Exception {
-        System.out.println("testSqlException_LABEL_REQUIRED");
+        println("testSqlException_LABEL_REQUIRED");
         
         SQLException ex = Util.sqlException(Trace.LABEL_REQUIRED,"");
         
@@ -849,7 +849,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.WRONG_DEFAULT_CLAUSE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_WRONG_DEFAULT_CLAUSE() throws Exception {
-        System.out.println("testSqlException_WRONG_DEFAULT_CLAUSE");
+        println("testSqlException_WRONG_DEFAULT_CLAUSE");
         
         SQLException ex = Util.sqlException(Trace.WRONG_DEFAULT_CLAUSE,"");
         
@@ -860,7 +860,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.FOREIGN_KEY_NOT_ALLOWED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_FOREIGN_KEY_NOT_ALLOWED() throws Exception {
-        System.out.println("testSqlException_FOREIGN_KEY_NOT_ALLOWED");
+        println("testSqlException_FOREIGN_KEY_NOT_ALLOWED");
         
         SQLException ex = Util.sqlException(Trace.FOREIGN_KEY_NOT_ALLOWED,"");
         
@@ -871,7 +871,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNKNOWN_DATA_SOURCE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNKNOWN_DATA_SOURCE() throws Exception {
-        System.out.println("testSqlException_UNKNOWN_DATA_SOURCE");
+        println("testSqlException_UNKNOWN_DATA_SOURCE");
         
         SQLException ex = Util.sqlException(Trace.UNKNOWN_DATA_SOURCE,"");
         
@@ -882,7 +882,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.BAD_INDEX_CONSTRAINT_NAME,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_BAD_INDEX_CONSTRAINT_NAME() throws Exception {
-        System.out.println("testSqlException_BAD_INDEX_CONSTRAINT_NAME");
+        println("testSqlException_BAD_INDEX_CONSTRAINT_NAME");
         
         SQLException ex = Util.sqlException(Trace.BAD_INDEX_CONSTRAINT_NAME,"");
         
@@ -893,7 +893,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DROP_FK_INDEX,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DROP_FK_INDEX() throws Exception {
-        System.out.println("testSqlException_DROP_FK_INDEX");
+        println("testSqlException_DROP_FK_INDEX");
         
         SQLException ex = Util.sqlException(Trace.DROP_FK_INDEX,"");
         
@@ -904,7 +904,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.RESULTSET_FORWARD_ONLY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_RESULTSET_FORWARD_ONLY() throws Exception {
-        System.out.println("testSqlException_RESULTSET_FORWARD_ONLY");
+        println("testSqlException_RESULTSET_FORWARD_ONLY");
         
         SQLException ex = Util.sqlException(Trace.RESULTSET_FORWARD_ONLY,"");
         
@@ -915,7 +915,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.VIEW_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_VIEW_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_VIEW_ALREADY_EXISTS");
+        println("testSqlException_VIEW_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.VIEW_ALREADY_EXISTS,"");
         
@@ -926,7 +926,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.VIEW_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_VIEW_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_VIEW_NOT_FOUND");
+        println("testSqlException_VIEW_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.VIEW_NOT_FOUND,"");
         
@@ -937,7 +937,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NOT_A_TABLE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NOT_A_TABLE() throws Exception {
-        System.out.println("testSqlException_NOT_A_TABLE");
+        println("testSqlException_NOT_A_TABLE");
         
         SQLException ex = Util.sqlException(Trace.NOT_A_TABLE,"");
         
@@ -948,7 +948,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SYSTEM_INDEX,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SYSTEM_INDEX() throws Exception {
-        System.out.println("testSqlException_SYSTEM_INDEX");
+        println("testSqlException_SYSTEM_INDEX");
         
         SQLException ex = Util.sqlException(Trace.SYSTEM_INDEX,"");
         
@@ -959,7 +959,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.COLUMN_TYPE_MISMATCH,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_COLUMN_TYPE_MISMATCH() throws Exception {
-        System.out.println("testSqlException_COLUMN_TYPE_MISMATCH");
+        println("testSqlException_COLUMN_TYPE_MISMATCH");
         
         SQLException ex = Util.sqlException(Trace.COLUMN_TYPE_MISMATCH,"");
         
@@ -970,7 +970,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.BAD_ADD_COLUMN_DEFINITION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_BAD_ADD_COLUMN_DEFINITION() throws Exception {
-        System.out.println("testSqlException_BAD_ADD_COLUMN_DEFINITION");
+        println("testSqlException_BAD_ADD_COLUMN_DEFINITION");
         
         SQLException ex = Util.sqlException(Trace.BAD_ADD_COLUMN_DEFINITION,"");
         
@@ -981,7 +981,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DROP_SYSTEM_CONSTRAINT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DROP_SYSTEM_CONSTRAINT() throws Exception {
-        System.out.println("testSqlException_DROP_SYSTEM_CONSTRAINT");
+        println("testSqlException_DROP_SYSTEM_CONSTRAINT");
         
         SQLException ex = Util.sqlException(Trace.DROP_SYSTEM_CONSTRAINT,"");
         
@@ -992,7 +992,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CONSTRAINT_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CONSTRAINT_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_CONSTRAINT_ALREADY_EXISTS");
+        println("testSqlException_CONSTRAINT_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.CONSTRAINT_ALREADY_EXISTS,"");
         
@@ -1003,7 +1003,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CONSTRAINT_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CONSTRAINT_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_CONSTRAINT_NOT_FOUND");
+        println("testSqlException_CONSTRAINT_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.CONSTRAINT_NOT_FOUND,"");
         
@@ -1014,7 +1014,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_INVALID_ARGUMENT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_INVALID_ARGUMENT() throws Exception {
-        System.out.println("testSqlException_JDBC_INVALID_ARGUMENT");
+        println("testSqlException_JDBC_INVALID_ARGUMENT");
         
         SQLException ex = Util.sqlException(Trace.JDBC_INVALID_ARGUMENT,"");
         
@@ -1025,7 +1025,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATABASE_IS_MEMORY_ONLY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATABASE_IS_MEMORY_ONLY() throws Exception {
-        System.out.println("testSqlException_DATABASE_IS_MEMORY_ONLY");
+        println("testSqlException_DATABASE_IS_MEMORY_ONLY");
         
         SQLException ex = Util.sqlException(Trace.DATABASE_IS_MEMORY_ONLY,"");
         
@@ -1036,7 +1036,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OUTER_JOIN_CONDITION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OUTER_JOIN_CONDITION() throws Exception {
-        System.out.println("testSqlException_OUTER_JOIN_CONDITION");
+        println("testSqlException_OUTER_JOIN_CONDITION");
         
         SQLException ex = Util.sqlException(Trace.OUTER_JOIN_CONDITION,"");
         
@@ -1047,7 +1047,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NUMERIC_VALUE_OUT_OF_RANGE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NUMERIC_VALUE_OUT_OF_RANGE() throws Exception {
-        System.out.println("testSqlException_NUMERIC_VALUE_OUT_OF_RANGE");
+        println("testSqlException_NUMERIC_VALUE_OUT_OF_RANGE");
         
         SQLException ex = Util.sqlException(Trace.NUMERIC_VALUE_OUT_OF_RANGE,"");
         
@@ -1058,7 +1058,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MISSING_SOFTWARE_MODULE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MISSING_SOFTWARE_MODULE() throws Exception {
-        System.out.println("testSqlException_MISSING_SOFTWARE_MODULE");
+        println("testSqlException_MISSING_SOFTWARE_MODULE");
         
         SQLException ex = Util.sqlException(Trace.MISSING_SOFTWARE_MODULE,"");
         
@@ -1069,7 +1069,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NOT_IN_AGGREGATE_OR_GROUP_BY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NOT_IN_AGGREGATE_OR_GROUP_BY() throws Exception {
-        System.out.println("testSqlException_NOT_IN_AGGREGATE_OR_GROUP_BY");
+        println("testSqlException_NOT_IN_AGGREGATE_OR_GROUP_BY");
         
         SQLException ex = Util.sqlException(Trace.NOT_IN_AGGREGATE_OR_GROUP_BY,"");
         
@@ -1080,7 +1080,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_GROUP_BY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_GROUP_BY() throws Exception {
-        System.out.println("testSqlException_INVALID_GROUP_BY");
+        println("testSqlException_INVALID_GROUP_BY");
         
         SQLException ex = Util.sqlException(Trace.INVALID_GROUP_BY,"");
         
@@ -1091,7 +1091,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_HAVING,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_HAVING() throws Exception {
-        System.out.println("testSqlException_INVALID_HAVING");
+        println("testSqlException_INVALID_HAVING");
         
         SQLException ex = Util.sqlException(Trace.INVALID_HAVING,"");
         
@@ -1102,7 +1102,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_ORDER_BY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_ORDER_BY() throws Exception {
-        System.out.println("testSqlException_INVALID_ORDER_BY");
+        println("testSqlException_INVALID_ORDER_BY");
         
         SQLException ex = Util.sqlException(Trace.INVALID_ORDER_BY,"");
         
@@ -1113,7 +1113,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_ORDER_BY_IN_DISTINCT_SELECT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_ORDER_BY_IN_DISTINCT_SELECT() throws Exception {
-        System.out.println("testSqlException_INVALID_ORDER_BY_IN_DISTINCT_SELECT");
+        println("testSqlException_INVALID_ORDER_BY_IN_DISTINCT_SELECT");
         
         SQLException ex = Util.sqlException(Trace.INVALID_ORDER_BY_IN_DISTINCT_SELECT,"");
         
@@ -1124,7 +1124,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OUT_OF_MEMORY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OUT_OF_MEMORY() throws Exception {
-        System.out.println("testSqlException_OUT_OF_MEMORY");
+        println("testSqlException_OUT_OF_MEMORY");
         
         SQLException ex = Util.sqlException(Trace.OUT_OF_MEMORY,"");
         
@@ -1135,7 +1135,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OPERATION_NOT_SUPPORTED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OPERATION_NOT_SUPPORTED() throws Exception {
-        System.out.println("testSqlException_OPERATION_NOT_SUPPORTED");
+        println("testSqlException_OPERATION_NOT_SUPPORTED");
         
         SQLException ex = Util.sqlException(Trace.OPERATION_NOT_SUPPORTED,"");
         
@@ -1146,7 +1146,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_IDENTIFIER,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_IDENTIFIER() throws Exception {
-        System.out.println("testSqlException_INVALID_IDENTIFIER");
+        println("testSqlException_INVALID_IDENTIFIER");
         
         SQLException ex = Util.sqlException(Trace.INVALID_IDENTIFIER,"");
         
@@ -1157,7 +1157,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TEXT_TABLE_SOURCE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TEXT_TABLE_SOURCE() throws Exception {
-        System.out.println("testSqlException_TEXT_TABLE_SOURCE");
+        println("testSqlException_TEXT_TABLE_SOURCE");
         
         SQLException ex = Util.sqlException(Trace.TEXT_TABLE_SOURCE,"");
         
@@ -1168,7 +1168,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TEXT_FILE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TEXT_FILE() throws Exception {
-        System.out.println("testSqlException_TEXT_FILE");
+        println("testSqlException_TEXT_FILE");
         
         SQLException ex = Util.sqlException(Trace.TEXT_FILE,"");
         
@@ -1179,7 +1179,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ERROR_IN_SCRIPT_FILE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ERROR_IN_SCRIPT_FILE() throws Exception {
-        System.out.println("testSqlException_ERROR_IN_SCRIPT_FILE");
+        println("testSqlException_ERROR_IN_SCRIPT_FILE");
         
         SQLException ex = Util.sqlException(Trace.ERROR_IN_SCRIPT_FILE,"");
         
@@ -1190,7 +1190,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NULL_LITERAL_NOT_ALLOWED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NULL_LITERAL_NOT_ALLOWED() throws Exception {
-        System.out.println("testSqlException_NULL_LITERAL_NOT_ALLOWED");
+        println("testSqlException_NULL_LITERAL_NOT_ALLOWED");
         
         SQLException ex = Util.sqlException(Trace.NULL_LITERAL_NOT_ALLOWED,"");
         
@@ -1201,7 +1201,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SOCKET_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SOCKET_ERROR() throws Exception {
-        System.out.println("testSqlException_SOCKET_ERROR");
+        println("testSqlException_SOCKET_ERROR");
         
         SQLException ex = Util.sqlException(Trace.SOCKET_ERROR,"");
         
@@ -1212,7 +1212,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_CHARACTER_ENCODING,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_CHARACTER_ENCODING() throws Exception {
-        System.out.println("testSqlException_INVALID_CHARACTER_ENCODING");
+        println("testSqlException_INVALID_CHARACTER_ENCODING");
         
         SQLException ex = Util.sqlException(Trace.INVALID_CHARACTER_ENCODING,"");
         
@@ -1223,7 +1223,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNEXPECTED_EXCEPTION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNEXPECTED_EXCEPTION() throws Exception {
-        System.out.println("testSqlException_UNEXPECTED_EXCEPTION");
+        println("testSqlException_UNEXPECTED_EXCEPTION");
         
         SQLException ex = Util.sqlException(Trace.UNEXPECTED_EXCEPTION,"");
         
@@ -1234,7 +1234,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATABASE_NOT_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATABASE_NOT_EXISTS() throws Exception {
-        System.out.println("testSqlException_DATABASE_NOT_EXISTS");
+        println("testSqlException_DATABASE_NOT_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.DATABASE_NOT_EXISTS,"");
         
@@ -1245,7 +1245,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_CONVERSION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_CONVERSION() throws Exception {
-        System.out.println("testSqlException_INVALID_CONVERSION");
+        println("testSqlException_INVALID_CONVERSION");
         
         SQLException ex = Util.sqlException(Trace.INVALID_CONVERSION,"");
         
@@ -1256,7 +1256,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ERROR_IN_BINARY_SCRIPT_1,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ERROR_IN_BINARY_SCRIPT_1() throws Exception {
-        System.out.println("testSqlException_ERROR_IN_BINARY_SCRIPT_1");
+        println("testSqlException_ERROR_IN_BINARY_SCRIPT_1");
         
         SQLException ex = Util.sqlException(Trace.ERROR_IN_BINARY_SCRIPT_1,"");
         
@@ -1267,7 +1267,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ERROR_IN_BINARY_SCRIPT_2,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ERROR_IN_BINARY_SCRIPT_2() throws Exception {
-        System.out.println("testSqlException_ERROR_IN_BINARY_SCRIPT_2");
+        println("testSqlException_ERROR_IN_BINARY_SCRIPT_2");
         
         SQLException ex = Util.sqlException(Trace.ERROR_IN_BINARY_SCRIPT_2,"");
         
@@ -1278,7 +1278,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.GENERAL_IO_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_GENERAL_IO_ERROR() throws Exception {
-        System.out.println("testSqlException_GENERAL_IO_ERROR");
+        println("testSqlException_GENERAL_IO_ERROR");
         
         SQLException ex = Util.sqlException(Trace.GENERAL_IO_ERROR,"");
         
@@ -1289,7 +1289,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.EXPRESSION_NOT_SUPPORTED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_EXPRESSION_NOT_SUPPORTED() throws Exception {
-        System.out.println("testSqlException_EXPRESSION_NOT_SUPPORTED");
+        println("testSqlException_EXPRESSION_NOT_SUPPORTED");
         
         SQLException ex = Util.sqlException(Trace.EXPRESSION_NOT_SUPPORTED,"");
         
@@ -1300,7 +1300,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Constraint_violation,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Constraint_violation() throws Exception {
-        System.out.println("testSqlException_Constraint_violation");
+        println("testSqlException_Constraint_violation");
         
         SQLException ex = Util.sqlException(Trace.Constraint_violation,"");
         
@@ -1311,7 +1311,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Database_dropTable,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Database_dropTable() throws Exception {
-        System.out.println("testSqlException_Database_dropTable");
+        println("testSqlException_Database_dropTable");
         
         SQLException ex = Util.sqlException(Trace.Database_dropTable,"");
         
@@ -1322,7 +1322,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ERROR_IN_CONSTRAINT_COLUMN_LIST,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ERROR_IN_CONSTRAINT_COLUMN_LIST() throws Exception {
-        System.out.println("testSqlException_ERROR_IN_CONSTRAINT_COLUMN_LIST");
+        println("testSqlException_ERROR_IN_CONSTRAINT_COLUMN_LIST");
         
         SQLException ex = Util.sqlException(Trace.ERROR_IN_CONSTRAINT_COLUMN_LIST,"");
         
@@ -1333,7 +1333,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TABLE_HAS_NO_PRIMARY_KEY,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TABLE_HAS_NO_PRIMARY_KEY() throws Exception {
-        System.out.println("testSqlException_TABLE_HAS_NO_PRIMARY_KEY");
+        println("testSqlException_TABLE_HAS_NO_PRIMARY_KEY");
         
         SQLException ex = Util.sqlException(Trace.TABLE_HAS_NO_PRIMARY_KEY,"");
         
@@ -1344,7 +1344,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.VIOLATION_OF_UNIQUE_CONSTRAINT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_VIOLATION_OF_UNIQUE_CONSTRAINT() throws Exception {
-        System.out.println("testSqlException_VIOLATION_OF_UNIQUE_CONSTRAINT");
+        println("testSqlException_VIOLATION_OF_UNIQUE_CONSTRAINT");
         
         SQLException ex = Util.sqlException(Trace.VIOLATION_OF_UNIQUE_CONSTRAINT,"");
         
@@ -1355,7 +1355,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NO_DEFAULT_VALUE_FOR_COLUMN,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NO_DEFAULT_VALUE_FOR_COLUMN() throws Exception {
-        System.out.println("testSqlException_NO_DEFAULT_VALUE_FOR_COLUMN");
+        println("testSqlException_NO_DEFAULT_VALUE_FOR_COLUMN");
         
         SQLException ex = Util.sqlException(Trace.NO_DEFAULT_VALUE_FOR_COLUMN,"");
         
@@ -1366,7 +1366,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NOT_A_CONDITION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NOT_A_CONDITION() throws Exception {
-        System.out.println("testSqlException_NOT_A_CONDITION");
+        println("testSqlException_NOT_A_CONDITION");
         
         SQLException ex = Util.sqlException(Trace.NOT_A_CONDITION,"");
         
@@ -1377,7 +1377,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DatabaseManager_getDatabase,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DatabaseManager_getDatabase() throws Exception {
-        System.out.println("testSqlException_DatabaseManager_getDatabase");
+        println("testSqlException_DatabaseManager_getDatabase");
         
         SQLException ex = Util.sqlException(Trace.DatabaseManager_getDatabase,"");
         
@@ -1388,7 +1388,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DatabaseScriptReader_readDDL,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DatabaseScriptReader_readDDL() throws Exception {
-        System.out.println("testSqlException_DatabaseScriptReader_readDDL");
+        println("testSqlException_DatabaseScriptReader_readDDL");
         
         SQLException ex = Util.sqlException(Trace.DatabaseScriptReader_readDDL,"");
         
@@ -1399,7 +1399,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DatabaseScriptReader_readExistingData,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DatabaseScriptReader_readExistingData() throws Exception {
-        System.out.println("testSqlException_DatabaseScriptReader_readExistingData");
+        println("testSqlException_DatabaseScriptReader_readExistingData");
         
         SQLException ex = Util.sqlException(Trace.DatabaseScriptReader_readExistingData,"");
         
@@ -1410,7 +1410,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Message_Pair,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Message_Pair() throws Exception {
-        System.out.println("testSqlException_Message_Pair");
+        println("testSqlException_Message_Pair");
         
         SQLException ex = Util.sqlException(Trace.Message_Pair,"");
         
@@ -1421,7 +1421,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.LOAD_SAVE_PROPERTIES,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_LOAD_SAVE_PROPERTIES() throws Exception {
-        System.out.println("testSqlException_LOAD_SAVE_PROPERTIES");
+        println("testSqlException_LOAD_SAVE_PROPERTIES");
         
         SQLException ex = Util.sqlException(Trace.LOAD_SAVE_PROPERTIES,"");
         
@@ -1432,7 +1432,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_TRANSACTION_STATE_NO_SUBCLASS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_TRANSACTION_STATE_NO_SUBCLASS() throws Exception {
-        System.out.println("testSqlException_INVALID_TRANSACTION_STATE_NO_SUBCLASS");
+        println("testSqlException_INVALID_TRANSACTION_STATE_NO_SUBCLASS");
         
         SQLException ex = Util.sqlException(Trace.INVALID_TRANSACTION_STATE_NO_SUBCLASS,"");
         
@@ -1443,7 +1443,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_ILLEGAL_BRI_SCOPE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_ILLEGAL_BRI_SCOPE() throws Exception {
-        System.out.println("testSqlException_JDBC_ILLEGAL_BRI_SCOPE");
+        println("testSqlException_JDBC_ILLEGAL_BRI_SCOPE");
         
         SQLException ex = Util.sqlException(Trace.JDBC_ILLEGAL_BRI_SCOPE,"");
         
@@ -1454,7 +1454,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_NO_RESULT_SET_METADATA,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_NO_RESULT_SET_METADATA() throws Exception {
-        System.out.println("testSqlException_JDBC_NO_RESULT_SET_METADATA");
+        println("testSqlException_JDBC_NO_RESULT_SET_METADATA");
         
         SQLException ex = Util.sqlException(Trace.JDBC_NO_RESULT_SET_METADATA,"");
         
@@ -1465,7 +1465,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_NO_RESULT_SET,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_NO_RESULT_SET() throws Exception {
-        System.out.println("testSqlException_JDBC_NO_RESULT_SET");
+        println("testSqlException_JDBC_NO_RESULT_SET");
         
         SQLException ex = Util.sqlException(Trace.JDBC_NO_RESULT_SET,"");
         
@@ -1476,7 +1476,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MISSING_CLOSEBRACKET,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MISSING_CLOSEBRACKET() throws Exception {
-        System.out.println("testSqlException_MISSING_CLOSEBRACKET");
+        println("testSqlException_MISSING_CLOSEBRACKET");
         
         SQLException ex = Util.sqlException(Trace.MISSING_CLOSEBRACKET,"");
         
@@ -1487,7 +1487,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ITSNS_OVERWRITE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ITSNS_OVERWRITE() throws Exception {
-        System.out.println("testSqlException_ITSNS_OVERWRITE");
+        println("testSqlException_ITSNS_OVERWRITE");
         
         SQLException ex = Util.sqlException(Trace.ITSNS_OVERWRITE,"");
         
@@ -1498,7 +1498,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.COLUMN_IS_IN_INDEX,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_COLUMN_IS_IN_INDEX() throws Exception {
-        System.out.println("testSqlException_COLUMN_IS_IN_INDEX");
+        println("testSqlException_COLUMN_IS_IN_INDEX");
         
         SQLException ex = Util.sqlException(Trace.COLUMN_IS_IN_INDEX,"");
         
@@ -1509,7 +1509,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.STRING_DATA_TRUNCATION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_STRING_DATA_TRUNCATION() throws Exception {
-        System.out.println("testSqlException_STRING_DATA_TRUNCATION");
+        println("testSqlException_STRING_DATA_TRUNCATION");
         
         SQLException ex = Util.sqlException(Trace.STRING_DATA_TRUNCATION,"");
         
@@ -1520,7 +1520,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.QUOTED_IDENTIFIER_REQUIRED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_QUOTED_IDENTIFIER_REQUIRED() throws Exception {
-        System.out.println("testSqlException_QUOTED_IDENTIFIER_REQUIRED");
+        println("testSqlException_QUOTED_IDENTIFIER_REQUIRED");
         
         SQLException ex = Util.sqlException(Trace.QUOTED_IDENTIFIER_REQUIRED,"");
         
@@ -1531,7 +1531,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.STATEMENT_IS_CLOSED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_STATEMENT_IS_CLOSED() throws Exception {
-        System.out.println("testSqlException_STATEMENT_IS_CLOSED");
+        println("testSqlException_STATEMENT_IS_CLOSED");
         
         SQLException ex = Util.sqlException(Trace.STATEMENT_IS_CLOSED,"");
         
@@ -1542,7 +1542,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATA_FILE_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATA_FILE_ERROR() throws Exception {
-        System.out.println("testSqlException_DATA_FILE_ERROR");
+        println("testSqlException_DATA_FILE_ERROR");
         
         SQLException ex = Util.sqlException(Trace.DATA_FILE_ERROR,"");
         
@@ -1553,7 +1553,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.HsqlDateTime_null_string,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_HsqlDateTime_null_string() throws Exception {
-        System.out.println("testSqlException_HsqlDateTime_null_string");
+        println("testSqlException_HsqlDateTime_null_string");
         
         SQLException ex = Util.sqlException(Trace.HsqlDateTime_null_string,"");
         
@@ -1564,7 +1564,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.HsqlDateTime_null_date,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_HsqlDateTime_null_date() throws Exception {
-        System.out.println("testSqlException_HsqlDateTime_null_date");
+        println("testSqlException_HsqlDateTime_null_date");
         
         SQLException ex = Util.sqlException(Trace.HsqlDateTime_null_date,"");
         
@@ -1575,7 +1575,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.HsqlProperties_load,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_HsqlProperties_load() throws Exception {
-        System.out.println("testSqlException_HsqlProperties_load");
+        println("testSqlException_HsqlProperties_load");
         
         SQLException ex = Util.sqlException(Trace.HsqlProperties_load,"");
         
@@ -1586,7 +1586,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.HsqlSocketFactorySecure_verify,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_HsqlSocketFactorySecure_verify() throws Exception {
-        System.out.println("testSqlException_HsqlSocketFactorySecure_verify");
+        println("testSqlException_HsqlSocketFactorySecure_verify");
         
         SQLException ex = Util.sqlException(Trace.HsqlSocketFactorySecure_verify,"");
         
@@ -1597,7 +1597,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.HsqlSocketFactorySecure_verify2,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_HsqlSocketFactorySecure_verify2() throws Exception {
-        System.out.println("testSqlException_HsqlSocketFactorySecure_verify2");
+        println("testSqlException_HsqlSocketFactorySecure_verify2");
         
         SQLException ex = Util.sqlException(Trace.HsqlSocketFactorySecure_verify2,"");
         
@@ -1608,7 +1608,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_CONNECTION_NATIVE_SQL,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_CONNECTION_NATIVE_SQL() throws Exception {
-        System.out.println("testSqlException_JDBC_CONNECTION_NATIVE_SQL");
+        println("testSqlException_JDBC_CONNECTION_NATIVE_SQL");
         
         SQLException ex = Util.sqlException(Trace.JDBC_CONNECTION_NATIVE_SQL,"");
         
@@ -1619,7 +1619,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.HsqlSocketFactorySecure_verify3,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_HsqlSocketFactorySecure_verify3() throws Exception {
-        System.out.println("testSqlException_HsqlSocketFactorySecure_verify3");
+        println("testSqlException_HsqlSocketFactorySecure_verify3");
         
         SQLException ex = Util.sqlException(Trace.HsqlSocketFactorySecure_verify3,"");
         
@@ -1630,7 +1630,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_STATEMENT_EXECUTE_UPDATE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_STATEMENT_EXECUTE_UPDATE() throws Exception {
-        System.out.println("testSqlException_JDBC_STATEMENT_EXECUTE_UPDATE");
+        println("testSqlException_JDBC_STATEMENT_EXECUTE_UPDATE");
         
         SQLException ex = Util.sqlException(Trace.JDBC_STATEMENT_EXECUTE_UPDATE,"");
         
@@ -1641,7 +1641,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.LockFile_checkHeartbeat,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_LockFile_checkHeartbeat() throws Exception {
-        System.out.println("testSqlException_LockFile_checkHeartbeat");
+        println("testSqlException_LockFile_checkHeartbeat");
         
         SQLException ex = Util.sqlException(Trace.LockFile_checkHeartbeat,"");
         
@@ -1652,7 +1652,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.LockFile_checkHeartbeat2,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_LockFile_checkHeartbeat2() throws Exception {
-        System.out.println("testSqlException_LockFile_checkHeartbeat2");
+        println("testSqlException_LockFile_checkHeartbeat2");
         
         SQLException ex = Util.sqlException(Trace.LockFile_checkHeartbeat2,"");
         
@@ -1663,7 +1663,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TEXT_STRING_HAS_NEWLINE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TEXT_STRING_HAS_NEWLINE() throws Exception {
-        System.out.println("testSqlException_TEXT_STRING_HAS_NEWLINE");
+        println("testSqlException_TEXT_STRING_HAS_NEWLINE");
         
         SQLException ex = Util.sqlException(Trace.TEXT_STRING_HAS_NEWLINE,"");
         
@@ -1674,7 +1674,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Result_Result,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Result_Result() throws Exception {
-        System.out.println("testSqlException_Result_Result");
+        println("testSqlException_Result_Result");
         
         SQLException ex = Util.sqlException(Trace.Result_Result,"");
         
@@ -1685,7 +1685,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SERVER_NO_DATABASE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SERVER_NO_DATABASE() throws Exception {
-        System.out.println("testSqlException_SERVER_NO_DATABASE");
+        println("testSqlException_SERVER_NO_DATABASE");
         
         SQLException ex = Util.sqlException(Trace.SERVER_NO_DATABASE,"");
         
@@ -1696,7 +1696,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Server_openServerSocket,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Server_openServerSocket() throws Exception {
-        System.out.println("testSqlException_Server_openServerSocket");
+        println("testSqlException_Server_openServerSocket");
         
         SQLException ex = Util.sqlException(Trace.Server_openServerSocket,"");
         
@@ -1707,7 +1707,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Server_openServerSocket2,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Server_openServerSocket2() throws Exception {
-        System.out.println("testSqlException_Server_openServerSocket2");
+        println("testSqlException_Server_openServerSocket2");
         
         SQLException ex = Util.sqlException(Trace.Server_openServerSocket2,"");
         
@@ -1718,7 +1718,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TEXT_TABLE_HEADER,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TEXT_TABLE_HEADER() throws Exception {
-        System.out.println("testSqlException_TEXT_TABLE_HEADER");
+        println("testSqlException_TEXT_TABLE_HEADER");
         
         SQLException ex = Util.sqlException(Trace.TEXT_TABLE_HEADER,"");
         
@@ -1729,7 +1729,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_PARAMETER_NOT_SET,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_PARAMETER_NOT_SET() throws Exception {
-        System.out.println("testSqlException_JDBC_PARAMETER_NOT_SET");
+        println("testSqlException_JDBC_PARAMETER_NOT_SET");
         
         SQLException ex = Util.sqlException(Trace.JDBC_PARAMETER_NOT_SET,"");
         
@@ -1740,7 +1740,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_LIMIT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_LIMIT() throws Exception {
-        System.out.println("testSqlException_INVALID_LIMIT");
+        println("testSqlException_INVALID_LIMIT");
         
         SQLException ex = Util.sqlException(Trace.INVALID_LIMIT,"");
         
@@ -1751,7 +1751,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_STATEMENT_NOT_ROW_COUNT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_STATEMENT_NOT_ROW_COUNT() throws Exception {
-        System.out.println("testSqlException_JDBC_STATEMENT_NOT_ROW_COUNT");
+        println("testSqlException_JDBC_STATEMENT_NOT_ROW_COUNT");
         
         SQLException ex = Util.sqlException(Trace.JDBC_STATEMENT_NOT_ROW_COUNT,"");
         
@@ -1762,7 +1762,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_STATEMENT_NOT_RESULTSET,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_STATEMENT_NOT_RESULTSET() throws Exception {
-        System.out.println("testSqlException_JDBC_STATEMENT_NOT_RESULTSET");
+        println("testSqlException_JDBC_STATEMENT_NOT_RESULTSET");
         
         SQLException ex = Util.sqlException(Trace.JDBC_STATEMENT_NOT_RESULTSET,"");
         
@@ -1773,7 +1773,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.AMBIGUOUS_COLUMN_REFERENCE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_AMBIGUOUS_COLUMN_REFERENCE() throws Exception {
-        System.out.println("testSqlException_AMBIGUOUS_COLUMN_REFERENCE");
+        println("testSqlException_AMBIGUOUS_COLUMN_REFERENCE");
         
         SQLException ex = Util.sqlException(Trace.AMBIGUOUS_COLUMN_REFERENCE,"");
         
@@ -1784,7 +1784,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CHECK_CONSTRAINT_VIOLATION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CHECK_CONSTRAINT_VIOLATION() throws Exception {
-        System.out.println("testSqlException_CHECK_CONSTRAINT_VIOLATION");
+        println("testSqlException_CHECK_CONSTRAINT_VIOLATION");
         
         SQLException ex = Util.sqlException(Trace.CHECK_CONSTRAINT_VIOLATION,"");
         
@@ -1795,7 +1795,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_RESULTSET_IS_CLOSED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_RESULTSET_IS_CLOSED() throws Exception {
-        System.out.println("testSqlException_JDBC_RESULTSET_IS_CLOSED");
+        println("testSqlException_JDBC_RESULTSET_IS_CLOSED");
         
         SQLException ex = Util.sqlException(Trace.JDBC_RESULTSET_IS_CLOSED,"");
         
@@ -1806,7 +1806,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SINGLE_COLUMN_EXPECTED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SINGLE_COLUMN_EXPECTED() throws Exception {
-        System.out.println("testSqlException_SINGLE_COLUMN_EXPECTED");
+        println("testSqlException_SINGLE_COLUMN_EXPECTED");
         
         SQLException ex = Util.sqlException(Trace.SINGLE_COLUMN_EXPECTED,"");
         
@@ -1817,7 +1817,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TOKEN_REQUIRED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TOKEN_REQUIRED() throws Exception {
-        System.out.println("testSqlException_TOKEN_REQUIRED");
+        println("testSqlException_TOKEN_REQUIRED");
         
         SQLException ex = Util.sqlException(Trace.TOKEN_REQUIRED,"");
         
@@ -1828,7 +1828,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ORDER_LIMIT_REQUIRED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ORDER_LIMIT_REQUIRED() throws Exception {
-        System.out.println("testSqlException_ORDER_LIMIT_REQUIRED");
+        println("testSqlException_ORDER_LIMIT_REQUIRED");
         
         SQLException ex = Util.sqlException(Trace.ORDER_LIMIT_REQUIRED,"");
         
@@ -1839,7 +1839,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TRIGGER_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TRIGGER_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_TRIGGER_ALREADY_EXISTS");
+        println("testSqlException_TRIGGER_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.TRIGGER_ALREADY_EXISTS,"");
         
@@ -1850,7 +1850,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ASSERT_DIRECT_EXEC_WITH_PARAM,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ASSERT_DIRECT_EXEC_WITH_PARAM() throws Exception {
-        System.out.println("testSqlException_ASSERT_DIRECT_EXEC_WITH_PARAM");
+        println("testSqlException_ASSERT_DIRECT_EXEC_WITH_PARAM");
         
         SQLException ex = Util.sqlException(Trace.ASSERT_DIRECT_EXEC_WITH_PARAM,"");
         
@@ -1861,7 +1861,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Expression_compareValues,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Expression_compareValues() throws Exception {
-        System.out.println("testSqlException_Expression_compareValues");
+        println("testSqlException_Expression_compareValues");
         
         SQLException ex = Util.sqlException(Trace.Expression_compareValues,"");
         
@@ -1872,7 +1872,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_LIMIT_EXPRESSION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_LIMIT_EXPRESSION() throws Exception {
-        System.out.println("testSqlException_INVALID_LIMIT_EXPRESSION");
+        println("testSqlException_INVALID_LIMIT_EXPRESSION");
         
         SQLException ex = Util.sqlException(Trace.INVALID_LIMIT_EXPRESSION,"");
         
@@ -1883,7 +1883,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_TOP_EXPRESSION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_TOP_EXPRESSION() throws Exception {
-        System.out.println("testSqlException_INVALID_TOP_EXPRESSION");
+        println("testSqlException_INVALID_TOP_EXPRESSION");
         
         SQLException ex = Util.sqlException(Trace.INVALID_TOP_EXPRESSION,"");
         
@@ -1894,7 +1894,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_CONSTRAINT_REQUIRED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_CONSTRAINT_REQUIRED() throws Exception {
-        System.out.println("testSqlException_SQL_CONSTRAINT_REQUIRED");
+        println("testSqlException_SQL_CONSTRAINT_REQUIRED");
         
         SQLException ex = Util.sqlException(Trace.SQL_CONSTRAINT_REQUIRED,"");
         
@@ -1905,7 +1905,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TableWorks_dropConstraint,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TableWorks_dropConstraint() throws Exception {
-        System.out.println("testSqlException_TableWorks_dropConstraint");
+        println("testSqlException_TableWorks_dropConstraint");
         
         SQLException ex = Util.sqlException(Trace.TableWorks_dropConstraint,"");
         
@@ -1916,7 +1916,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TEXT_TABLE_SOURCE_FILENAME,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TEXT_TABLE_SOURCE_FILENAME() throws Exception {
-        System.out.println("testSqlException_TEXT_TABLE_SOURCE_FILENAME");
+        println("testSqlException_TEXT_TABLE_SOURCE_FILENAME");
         
         SQLException ex = Util.sqlException(Trace.TEXT_TABLE_SOURCE_FILENAME,"");
         
@@ -1927,7 +1927,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TEXT_TABLE_SOURCE_VALUE_MISSING,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TEXT_TABLE_SOURCE_VALUE_MISSING() throws Exception {
-        System.out.println("testSqlException_TEXT_TABLE_SOURCE_VALUE_MISSING");
+        println("testSqlException_TEXT_TABLE_SOURCE_VALUE_MISSING");
         
         SQLException ex = Util.sqlException(Trace.TEXT_TABLE_SOURCE_VALUE_MISSING,"");
         
@@ -1938,7 +1938,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TEXT_TABLE_SOURCE_SEPARATOR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TEXT_TABLE_SOURCE_SEPARATOR() throws Exception {
-        System.out.println("testSqlException_TEXT_TABLE_SOURCE_SEPARATOR");
+        println("testSqlException_TEXT_TABLE_SOURCE_SEPARATOR");
         
         SQLException ex = Util.sqlException(Trace.TEXT_TABLE_SOURCE_SEPARATOR,"");
         
@@ -1949,7 +1949,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNSUPPORTED_PARAM_CLASS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNSUPPORTED_PARAM_CLASS() throws Exception {
-        System.out.println("testSqlException_UNSUPPORTED_PARAM_CLASS");
+        println("testSqlException_UNSUPPORTED_PARAM_CLASS");
         
         SQLException ex = Util.sqlException(Trace.UNSUPPORTED_PARAM_CLASS,"");
         
@@ -1960,7 +1960,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.JDBC_NULL_STREAM,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_JDBC_NULL_STREAM() throws Exception {
-        System.out.println("testSqlException_JDBC_NULL_STREAM");
+        println("testSqlException_JDBC_NULL_STREAM");
         
         SQLException ex = Util.sqlException(Trace.JDBC_NULL_STREAM,"");
         
@@ -1971,7 +1971,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT() throws Exception {
-        System.out.println("testSqlException_INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT");
+        println("testSqlException_INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT");
         
         SQLException ex = Util.sqlException(Trace.INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT,"");
         
@@ -1982,7 +1982,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.QuotedTextDatabaseRowInput_getField,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_QuotedTextDatabaseRowInput_getField() throws Exception {
-        System.out.println("testSqlException_QuotedTextDatabaseRowInput_getField");
+        println("testSqlException_QuotedTextDatabaseRowInput_getField");
         
         SQLException ex = Util.sqlException(Trace.QuotedTextDatabaseRowInput_getField,"");
         
@@ -1993,7 +1993,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.QuotedTextDatabaseRowInput_getField2,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_QuotedTextDatabaseRowInput_getField2() throws Exception {
-        System.out.println("testSqlException_QuotedTextDatabaseRowInput_getField2");
+        println("testSqlException_QuotedTextDatabaseRowInput_getField2");
         
         SQLException ex = Util.sqlException(Trace.QuotedTextDatabaseRowInput_getField2,"");
         
@@ -2004,7 +2004,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TextDatabaseRowInput_getField,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TextDatabaseRowInput_getField() throws Exception {
-        System.out.println("testSqlException_TextDatabaseRowInput_getField");
+        println("testSqlException_TextDatabaseRowInput_getField");
         
         SQLException ex = Util.sqlException(Trace.TextDatabaseRowInput_getField,"");
         
@@ -2015,7 +2015,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TextDatabaseRowInput_getField2,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TextDatabaseRowInput_getField2() throws Exception {
-        System.out.println("testSqlException_TextDatabaseRowInput_getField2");
+        println("testSqlException_TextDatabaseRowInput_getField2");
         
         SQLException ex = Util.sqlException(Trace.TextDatabaseRowInput_getField2,"");
         
@@ -2026,7 +2026,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TextDatabaseRowInput_getField3,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TextDatabaseRowInput_getField3() throws Exception {
-        System.out.println("testSqlException_TextDatabaseRowInput_getField3");
+        println("testSqlException_TextDatabaseRowInput_getField3");
         
         SQLException ex = Util.sqlException(Trace.TextDatabaseRowInput_getField3,"");
         
@@ -2037,7 +2037,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Parser_ambiguous_between1,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Parser_ambiguous_between1() throws Exception {
-        System.out.println("testSqlException_Parser_ambiguous_between1");
+        println("testSqlException_Parser_ambiguous_between1");
         
         SQLException ex = Util.sqlException(Trace.Parser_ambiguous_between1,"");
         
@@ -2048,7 +2048,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SEQUENCE_REFERENCED_BY_VIEW,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SEQUENCE_REFERENCED_BY_VIEW() throws Exception {
-        System.out.println("testSqlException_SEQUENCE_REFERENCED_BY_VIEW");
+        println("testSqlException_SEQUENCE_REFERENCED_BY_VIEW");
         
         SQLException ex = Util.sqlException(Trace.SEQUENCE_REFERENCED_BY_VIEW,"");
         
@@ -2059,7 +2059,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TextCache_openning_file_error,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TextCache_openning_file_error() throws Exception {
-        System.out.println("testSqlException_TextCache_openning_file_error");
+        println("testSqlException_TextCache_openning_file_error");
         
         SQLException ex = Util.sqlException(Trace.TextCache_openning_file_error,"");
         
@@ -2070,7 +2070,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TextCache_closing_file_error,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TextCache_closing_file_error() throws Exception {
-        System.out.println("testSqlException_TextCache_closing_file_error");
+        println("testSqlException_TextCache_closing_file_error");
         
         SQLException ex = Util.sqlException(Trace.TextCache_closing_file_error,"");
         
@@ -2081,7 +2081,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TextCache_purging_file_error,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TextCache_purging_file_error() throws Exception {
-        System.out.println("testSqlException_TextCache_purging_file_error");
+        println("testSqlException_TextCache_purging_file_error");
         
         SQLException ex = Util.sqlException(Trace.TextCache_purging_file_error,"");
         
@@ -2092,7 +2092,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SEQUENCE_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SEQUENCE_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_SEQUENCE_NOT_FOUND");
+        println("testSqlException_SEQUENCE_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.SEQUENCE_NOT_FOUND,"");
         
@@ -2103,7 +2103,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SEQUENCE_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SEQUENCE_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_SEQUENCE_ALREADY_EXISTS");
+        println("testSqlException_SEQUENCE_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.SEQUENCE_ALREADY_EXISTS,"");
         
@@ -2114,7 +2114,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TABLE_REFERENCED_CONSTRAINT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TABLE_REFERENCED_CONSTRAINT() throws Exception {
-        System.out.println("testSqlException_TABLE_REFERENCED_CONSTRAINT");
+        println("testSqlException_TABLE_REFERENCED_CONSTRAINT");
         
         SQLException ex = Util.sqlException(Trace.TABLE_REFERENCED_CONSTRAINT,"");
         
@@ -2125,7 +2125,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TABLE_REFERENCED_VIEW,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TABLE_REFERENCED_VIEW() throws Exception {
-        System.out.println("testSqlException_TABLE_REFERENCED_VIEW");
+        println("testSqlException_TABLE_REFERENCED_VIEW");
         
         SQLException ex = Util.sqlException(Trace.TABLE_REFERENCED_VIEW,"");
         
@@ -2136,7 +2136,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TEXT_SOURCE_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TEXT_SOURCE_EXISTS() throws Exception {
-        System.out.println("testSqlException_TEXT_SOURCE_EXISTS");
+        println("testSqlException_TEXT_SOURCE_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.TEXT_SOURCE_EXISTS,"");
         
@@ -2147,7 +2147,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.COLUMN_IS_REFERENCED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_COLUMN_IS_REFERENCED() throws Exception {
-        System.out.println("testSqlException_COLUMN_IS_REFERENCED");
+        println("testSqlException_COLUMN_IS_REFERENCED");
         
         SQLException ex = Util.sqlException(Trace.COLUMN_IS_REFERENCED,"");
         
@@ -2158,7 +2158,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.FUNCTION_CALL_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_FUNCTION_CALL_ERROR() throws Exception {
-        System.out.println("testSqlException_FUNCTION_CALL_ERROR");
+        println("testSqlException_FUNCTION_CALL_ERROR");
         
         SQLException ex = Util.sqlException(Trace.FUNCTION_CALL_ERROR,"");
         
@@ -2169,7 +2169,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TRIGGERED_DATA_CHANGE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TRIGGERED_DATA_CHANGE() throws Exception {
-        System.out.println("testSqlException_TRIGGERED_DATA_CHANGE");
+        println("testSqlException_TRIGGERED_DATA_CHANGE");
         
         SQLException ex = Util.sqlException(Trace.TRIGGERED_DATA_CHANGE,"");
         
@@ -2180,7 +2180,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_FUNCTION_ARGUMENT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_FUNCTION_ARGUMENT() throws Exception {
-        System.out.println("testSqlException_INVALID_FUNCTION_ARGUMENT");
+        println("testSqlException_INVALID_FUNCTION_ARGUMENT");
         
         SQLException ex = Util.sqlException(Trace.INVALID_FUNCTION_ARGUMENT,"");
         
@@ -2191,7 +2191,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNSUPPORTED_INTERNAL_OPERATION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNSUPPORTED_INTERNAL_OPERATION() throws Exception {
-        System.out.println("testSqlException_UNSUPPORTED_INTERNAL_OPERATION");
+        println("testSqlException_UNSUPPORTED_INTERNAL_OPERATION");
         
         SQLException ex = Util.sqlException(Trace.UNSUPPORTED_INTERNAL_OPERATION,"");
         
@@ -2202,7 +2202,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_PREPARED_STATEMENT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_PREPARED_STATEMENT() throws Exception {
-        System.out.println("testSqlException_INVALID_PREPARED_STATEMENT");
+        println("testSqlException_INVALID_PREPARED_STATEMENT");
         
         SQLException ex = Util.sqlException(Trace.INVALID_PREPARED_STATEMENT,"");
         
@@ -2213,7 +2213,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CREATE_TRIGGER_COMMAND_1,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CREATE_TRIGGER_COMMAND_1() throws Exception {
-        System.out.println("testSqlException_CREATE_TRIGGER_COMMAND_1");
+        println("testSqlException_CREATE_TRIGGER_COMMAND_1");
         
         SQLException ex = Util.sqlException(Trace.CREATE_TRIGGER_COMMAND_1,"");
         
@@ -2224,7 +2224,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TRIGGER_FUNCTION_CLASS_NOT_FOUND,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TRIGGER_FUNCTION_CLASS_NOT_FOUND() throws Exception {
-        System.out.println("testSqlException_TRIGGER_FUNCTION_CLASS_NOT_FOUND");
+        println("testSqlException_TRIGGER_FUNCTION_CLASS_NOT_FOUND");
         
         SQLException ex = Util.sqlException(Trace.TRIGGER_FUNCTION_CLASS_NOT_FOUND,"");
         
@@ -2235,7 +2235,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_COLLATION_NAME_NO_SUBCLASS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_COLLATION_NAME_NO_SUBCLASS() throws Exception {
-        System.out.println("testSqlException_INVALID_COLLATION_NAME_NO_SUBCLASS");
+        println("testSqlException_INVALID_COLLATION_NAME_NO_SUBCLASS");
         
         SQLException ex = Util.sqlException(Trace.INVALID_COLLATION_NAME_NO_SUBCLASS,"");
         
@@ -2246,7 +2246,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DataFileCache_makeRow,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DataFileCache_makeRow() throws Exception {
-        System.out.println("testSqlException_DataFileCache_makeRow");
+        println("testSqlException_DataFileCache_makeRow");
         
         SQLException ex = Util.sqlException(Trace.DataFileCache_makeRow,"");
         
@@ -2257,7 +2257,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DataFileCache_open,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DataFileCache_open() throws Exception {
-        System.out.println("testSqlException_DataFileCache_open");
+        println("testSqlException_DataFileCache_open");
         
         SQLException ex = Util.sqlException(Trace.DataFileCache_open,"");
         
@@ -2268,7 +2268,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DataFileCache_close,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DataFileCache_close() throws Exception {
-        System.out.println("testSqlException_DataFileCache_close");
+        println("testSqlException_DataFileCache_close");
         
         SQLException ex = Util.sqlException(Trace.DataFileCache_close,"");
         
@@ -2279,7 +2279,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Expression_resolveTypes1,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Expression_resolveTypes1() throws Exception {
-        System.out.println("testSqlException_Expression_resolveTypes1");
+        println("testSqlException_Expression_resolveTypes1");
         
         SQLException ex = Util.sqlException(Trace.Expression_resolveTypes1,"");
         
@@ -2290,7 +2290,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Expression_resolveTypes2,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Expression_resolveTypes2() throws Exception {
-        System.out.println("testSqlException_Expression_resolveTypes2");
+        println("testSqlException_Expression_resolveTypes2");
         
         SQLException ex = Util.sqlException(Trace.Expression_resolveTypes2,"");
         
@@ -2301,7 +2301,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Expression_resolveTypes3,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Expression_resolveTypes3() throws Exception {
-        System.out.println("testSqlException_Expression_resolveTypes3");
+        println("testSqlException_Expression_resolveTypes3");
         
         SQLException ex = Util.sqlException(Trace.Expression_resolveTypes3,"");
         
@@ -2312,7 +2312,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Expression_resolveTypes4,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Expression_resolveTypes4() throws Exception {
-        System.out.println("testSqlException_Expression_resolveTypes4");
+        println("testSqlException_Expression_resolveTypes4");
         
         SQLException ex = Util.sqlException(Trace.Expression_resolveTypes4,"");
         
@@ -2323,7 +2323,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNRESOLVED_PARAMETER_TYPE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNRESOLVED_PARAMETER_TYPE() throws Exception {
-        System.out.println("testSqlException_UNRESOLVED_PARAMETER_TYPE");
+        println("testSqlException_UNRESOLVED_PARAMETER_TYPE");
         
         SQLException ex = Util.sqlException(Trace.UNRESOLVED_PARAMETER_TYPE,"");
         
@@ -2334,7 +2334,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Expression_resolveTypes6,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Expression_resolveTypes6() throws Exception {
-        System.out.println("testSqlException_Expression_resolveTypes6");
+        println("testSqlException_Expression_resolveTypes6");
         
         SQLException ex = Util.sqlException(Trace.Expression_resolveTypes6,"");
         
@@ -2345,7 +2345,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.UNRESOLVED_TYPE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_UNRESOLVED_TYPE() throws Exception {
-        System.out.println("testSqlException_UNRESOLVED_TYPE");
+        println("testSqlException_UNRESOLVED_TYPE");
         
         SQLException ex = Util.sqlException(Trace.UNRESOLVED_TYPE,"");
         
@@ -2356,7 +2356,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Expression_resolveTypeForLike,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Expression_resolveTypeForLike() throws Exception {
-        System.out.println("testSqlException_Expression_resolveTypeForLike");
+        println("testSqlException_Expression_resolveTypeForLike");
         
         SQLException ex = Util.sqlException(Trace.Expression_resolveTypeForLike,"");
         
@@ -2367,7 +2367,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Expression_resolveTypeForIn2,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Expression_resolveTypeForIn2() throws Exception {
-        System.out.println("testSqlException_Expression_resolveTypeForIn2");
+        println("testSqlException_Expression_resolveTypeForIn2");
         
         SQLException ex = Util.sqlException(Trace.Expression_resolveTypeForIn2,"");
         
@@ -2378,7 +2378,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.Session_execute,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_Session_execute() throws Exception {
-        System.out.println("testSqlException_Session_execute");
+        println("testSqlException_Session_execute");
         
         SQLException ex = Util.sqlException(Trace.Session_execute,"");
         
@@ -2389,7 +2389,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATA_FILE_IS_FULL,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATA_FILE_IS_FULL() throws Exception {
-        System.out.println("testSqlException_DATA_FILE_IS_FULL");
+        println("testSqlException_DATA_FILE_IS_FULL");
         
         SQLException ex = Util.sqlException(Trace.DATA_FILE_IS_FULL,"");
         
@@ -2400,7 +2400,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.TOO_MANY_IDENTIFIER_PARTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_TOO_MANY_IDENTIFIER_PARTS() throws Exception {
-        System.out.println("testSqlException_TOO_MANY_IDENTIFIER_PARTS");
+        println("testSqlException_TOO_MANY_IDENTIFIER_PARTS");
         
         SQLException ex = Util.sqlException(Trace.TOO_MANY_IDENTIFIER_PARTS,"");
         
@@ -2411,7 +2411,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_SCHEMA_NAME_NO_SUBCLASS() throws Exception {
-        System.out.println("testSqlException_INVALID_SCHEMA_NAME_NO_SUBCLASS");
+        println("testSqlException_INVALID_SCHEMA_NAME_NO_SUBCLASS");
         
         SQLException ex = Util.sqlException(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS,"");
         
@@ -2422,7 +2422,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DEPENDENT_DATABASE_OBJECT_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DEPENDENT_DATABASE_OBJECT_EXISTS() throws Exception {
-        System.out.println("testSqlException_DEPENDENT_DATABASE_OBJECT_EXISTS");
+        println("testSqlException_DEPENDENT_DATABASE_OBJECT_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.DEPENDENT_DATABASE_OBJECT_EXISTS,"");
         
@@ -2433,7 +2433,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NO_SUCH_ROLE_GRANT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NO_SUCH_ROLE_GRANT() throws Exception {
-        System.out.println("testSqlException_NO_SUCH_ROLE_GRANT");
+        println("testSqlException_NO_SUCH_ROLE_GRANT");
         
         SQLException ex = Util.sqlException(Trace.NO_SUCH_ROLE_GRANT,"");
         
@@ -2444,7 +2444,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NO_SUCH_ROLE_REVOKE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NO_SUCH_ROLE_REVOKE() throws Exception {
-        System.out.println("testSqlException_NO_SUCH_ROLE_REVOKE");
+        println("testSqlException_NO_SUCH_ROLE_REVOKE");
         
         SQLException ex = Util.sqlException(Trace.NO_SUCH_ROLE_REVOKE,"");
         
@@ -2455,7 +2455,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NONMOD_ACCOUNT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NONMOD_ACCOUNT() throws Exception {
-        System.out.println("testSqlException_NONMOD_ACCOUNT");
+        println("testSqlException_NONMOD_ACCOUNT");
         
         SQLException ex = Util.sqlException(Trace.NONMOD_ACCOUNT,"");
         
@@ -2466,7 +2466,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NO_SUCH_GRANTEE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NO_SUCH_GRANTEE() throws Exception {
-        System.out.println("testSqlException_NO_SUCH_GRANTEE");
+        println("testSqlException_NO_SUCH_GRANTEE");
         
         SQLException ex = Util.sqlException(Trace.NO_SUCH_GRANTEE,"");
         
@@ -2477,7 +2477,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MISSING_SYSAUTH,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MISSING_SYSAUTH() throws Exception {
-        System.out.println("testSqlException_MISSING_SYSAUTH");
+        println("testSqlException_MISSING_SYSAUTH");
         
         SQLException ex = Util.sqlException(Trace.MISSING_SYSAUTH,"");
         
@@ -2488,7 +2488,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MISSING_GRANTEE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MISSING_GRANTEE() throws Exception {
-        System.out.println("testSqlException_MISSING_GRANTEE");
+        println("testSqlException_MISSING_GRANTEE");
         
         SQLException ex = Util.sqlException(Trace.MISSING_GRANTEE,"");
         
@@ -2499,7 +2499,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CHANGE_GRANTEE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CHANGE_GRANTEE() throws Exception {
-        System.out.println("testSqlException_CHANGE_GRANTEE");
+        println("testSqlException_CHANGE_GRANTEE");
         
         SQLException ex = Util.sqlException(Trace.CHANGE_GRANTEE,"");
         
@@ -2510,7 +2510,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NULL_NAME,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NULL_NAME() throws Exception {
-        System.out.println("testSqlException_NULL_NAME");
+        println("testSqlException_NULL_NAME");
         
         SQLException ex = Util.sqlException(Trace.NULL_NAME,"");
         
@@ -2521,7 +2521,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ILLEGAL_ROLE_NAME,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ILLEGAL_ROLE_NAME() throws Exception {
-        System.out.println("testSqlException_ILLEGAL_ROLE_NAME");
+        println("testSqlException_ILLEGAL_ROLE_NAME");
         
         SQLException ex = Util.sqlException(Trace.ILLEGAL_ROLE_NAME,"");
         
@@ -2532,7 +2532,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ROLE_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ROLE_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_ROLE_ALREADY_EXISTS");
+        println("testSqlException_ROLE_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.ROLE_ALREADY_EXISTS,"");
         
@@ -2543,7 +2543,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NO_SUCH_ROLE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NO_SUCH_ROLE() throws Exception {
-        System.out.println("testSqlException_NO_SUCH_ROLE");
+        println("testSqlException_NO_SUCH_ROLE");
         
         SQLException ex = Util.sqlException(Trace.NO_SUCH_ROLE,"");
         
@@ -2554,7 +2554,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MISSING_ROLEMANAGER,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MISSING_ROLEMANAGER() throws Exception {
-        System.out.println("testSqlException_MISSING_ROLEMANAGER");
+        println("testSqlException_MISSING_ROLEMANAGER");
         
         SQLException ex = Util.sqlException(Trace.MISSING_ROLEMANAGER,"");
         
@@ -2565,7 +2565,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.GRANTEE_ALREADY_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_GRANTEE_ALREADY_EXISTS() throws Exception {
-        System.out.println("testSqlException_GRANTEE_ALREADY_EXISTS");
+        println("testSqlException_GRANTEE_ALREADY_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.GRANTEE_ALREADY_EXISTS,"");
         
@@ -2576,7 +2576,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MISSING_PUBLIC_GRANTEE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MISSING_PUBLIC_GRANTEE() throws Exception {
-        System.out.println("testSqlException_MISSING_PUBLIC_GRANTEE");
+        println("testSqlException_MISSING_PUBLIC_GRANTEE");
         
         SQLException ex = Util.sqlException(Trace.MISSING_PUBLIC_GRANTEE,"");
         
@@ -2587,7 +2587,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NONMOD_GRANTEE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NONMOD_GRANTEE() throws Exception {
-        System.out.println("testSqlException_NONMOD_GRANTEE");
+        println("testSqlException_NONMOD_GRANTEE");
         
         SQLException ex = Util.sqlException(Trace.NONMOD_GRANTEE,"");
         
@@ -2598,7 +2598,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.CIRCULAR_GRANT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_CIRCULAR_GRANT() throws Exception {
-        System.out.println("testSqlException_CIRCULAR_GRANT");
+        println("testSqlException_CIRCULAR_GRANT");
         
         SQLException ex = Util.sqlException(Trace.CIRCULAR_GRANT,"");
         
@@ -2609,7 +2609,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.ALREADY_HAVE_ROLE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_ALREADY_HAVE_ROLE() throws Exception {
-        System.out.println("testSqlException_ALREADY_HAVE_ROLE");
+        println("testSqlException_ALREADY_HAVE_ROLE");
         
         SQLException ex = Util.sqlException(Trace.ALREADY_HAVE_ROLE,"");
         
@@ -2620,7 +2620,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DONT_HAVE_ROLE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DONT_HAVE_ROLE() throws Exception {
-        System.out.println("testSqlException_DONT_HAVE_ROLE");
+        println("testSqlException_DONT_HAVE_ROLE");
         
         SQLException ex = Util.sqlException(Trace.DONT_HAVE_ROLE,"");
         
@@ -2631,7 +2631,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.RETRIEVE_NEST_ROLE_FAIL,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_RETRIEVE_NEST_ROLE_FAIL() throws Exception {
-        System.out.println("testSqlException_RETRIEVE_NEST_ROLE_FAIL");
+        println("testSqlException_RETRIEVE_NEST_ROLE_FAIL");
         
         SQLException ex = Util.sqlException(Trace.RETRIEVE_NEST_ROLE_FAIL,"");
         
@@ -2642,7 +2642,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NO_SUCH_RIGHT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NO_SUCH_RIGHT() throws Exception {
-        System.out.println("testSqlException_NO_SUCH_RIGHT");
+        println("testSqlException_NO_SUCH_RIGHT");
         
         SQLException ex = Util.sqlException(Trace.NO_SUCH_RIGHT,"");
         
@@ -2653,7 +2653,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.IN_SCHEMA_DEFINITION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_IN_SCHEMA_DEFINITION() throws Exception {
-        System.out.println("testSqlException_IN_SCHEMA_DEFINITION");
+        println("testSqlException_IN_SCHEMA_DEFINITION");
         
         SQLException ex = Util.sqlException(Trace.IN_SCHEMA_DEFINITION,"");
         
@@ -2664,7 +2664,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.PRIMARY_KEY_NOT_ALLOWED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_PRIMARY_KEY_NOT_ALLOWED() throws Exception {
-        System.out.println("testSqlException_PRIMARY_KEY_NOT_ALLOWED");
+        println("testSqlException_PRIMARY_KEY_NOT_ALLOWED");
         
         SQLException ex = Util.sqlException(Trace.PRIMARY_KEY_NOT_ALLOWED,"");
         
@@ -2675,7 +2675,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.COLUMN_IS_IN_CONSTRAINT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_COLUMN_IS_IN_CONSTRAINT() throws Exception {
-        System.out.println("testSqlException_COLUMN_IS_IN_CONSTRAINT");
+        println("testSqlException_COLUMN_IS_IN_CONSTRAINT");
         
         SQLException ex = Util.sqlException(Trace.COLUMN_IS_IN_CONSTRAINT,"");
         
@@ -2686,7 +2686,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.COLUMN_SIZE_REQUIRED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_COLUMN_SIZE_REQUIRED() throws Exception {
-        System.out.println("testSqlException_COLUMN_SIZE_REQUIRED");
+        println("testSqlException_COLUMN_SIZE_REQUIRED");
         
         SQLException ex = Util.sqlException(Trace.COLUMN_SIZE_REQUIRED,"");
         
@@ -2697,7 +2697,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.INVALID_SIZE_PRECISION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_INVALID_SIZE_PRECISION() throws Exception {
-        System.out.println("testSqlException_INVALID_SIZE_PRECISION");
+        println("testSqlException_INVALID_SIZE_PRECISION");
         
         SQLException ex = Util.sqlException(Trace.INVALID_SIZE_PRECISION,"");
         
@@ -2708,7 +2708,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.NOT_AUTHORIZED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_NOT_AUTHORIZED() throws Exception {
-        System.out.println("testSqlException_NOT_AUTHORIZED");
+        println("testSqlException_NOT_AUTHORIZED");
         
         SQLException ex = Util.sqlException(Trace.NOT_AUTHORIZED,"");
         
@@ -2719,7 +2719,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_SPECIFIC_ERROR_NO_SUBCLASS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_SPECIFIC_ERROR_NO_SUBCLASS() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_SPECIFIC_ERROR_NO_SUBCLASS");
+        println("testSqlException_OLB_JRT_SPECIFIC_ERROR_NO_SUBCLASS");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_SPECIFIC_ERROR_NO_SUBCLASS,"");
         
@@ -2730,7 +2730,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_INVALID_URL,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_INVALID_URL() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_INVALID_URL");
+        println("testSqlException_OLB_JRT_INVALID_URL");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_INVALID_URL,"");
         
@@ -2741,7 +2741,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_INVALID_JAR_NAME,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_INVALID_JAR_NAME() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_INVALID_JAR_NAME");
+        println("testSqlException_OLB_JRT_INVALID_JAR_NAME");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_INVALID_JAR_NAME,"");
         
@@ -2752,7 +2752,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_INVALID_CLASS_DELETION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_INVALID_CLASS_DELETION() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_INVALID_CLASS_DELETION");
+        println("testSqlException_OLB_JRT_INVALID_CLASS_DELETION");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_INVALID_CLASS_DELETION,"");
         
@@ -2763,7 +2763,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_INVALID_JAR_REPLACEMENT,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_INVALID_JAR_REPLACEMENT() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_INVALID_JAR_REPLACEMENT");
+        println("testSqlException_OLB_JRT_INVALID_JAR_REPLACEMENT");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_INVALID_JAR_REPLACEMENT,"");
         
@@ -2774,7 +2774,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_ATTEMPT_TO_REPLACE_UNINSTALLED_JAR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_ATTEMPT_TO_REPLACE_UNINSTALLED_JAR() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_ATTEMPT_TO_REPLACE_UNINSTALLED_JAR");
+        println("testSqlException_OLB_JRT_ATTEMPT_TO_REPLACE_UNINSTALLED_JAR");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_ATTEMPT_TO_REPLACE_UNINSTALLED_JAR,"");
         
@@ -2785,7 +2785,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_ATTEMPT_TO_REMOVE_UNINSTALLED_JAR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_ATTEMPT_TO_REMOVE_UNINSTALLED_JAR() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_ATTEMPT_TO_REMOVE_UNINSTALLED_JAR");
+        println("testSqlException_OLB_JRT_ATTEMPT_TO_REMOVE_UNINSTALLED_JAR");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_ATTEMPT_TO_REMOVE_UNINSTALLED_JAR,"");
         
@@ -2796,7 +2796,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_INVALID_JAR_NAME_IN_PATH,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_INVALID_JAR_NAME_IN_PATH() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_INVALID_JAR_NAME_IN_PATH");
+        println("testSqlException_OLB_JRT_INVALID_JAR_NAME_IN_PATH");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_INVALID_JAR_NAME_IN_PATH,"");
         
@@ -2807,7 +2807,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_JRT_UNRESOLVED_CLASS_NAME,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_JRT_UNRESOLVED_CLASS_NAME() throws Exception {
-        System.out.println("testSqlException_OLB_JRT_UNRESOLVED_CLASS_NAME");
+        println("testSqlException_OLB_JRT_UNRESOLVED_CLASS_NAME");
         
         SQLException ex = Util.sqlException(Trace.OLB_JRT_UNRESOLVED_CLASS_NAME,"");
         
@@ -2818,7 +2818,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_UNSUPPORTED_FEATURE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_UNSUPPORTED_FEATURE() throws Exception {
-        System.out.println("testSqlException_OLB_UNSUPPORTED_FEATURE");
+        println("testSqlException_OLB_UNSUPPORTED_FEATURE");
         
         SQLException ex = Util.sqlException(Trace.OLB_UNSUPPORTED_FEATURE,"");
         
@@ -2829,7 +2829,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_INVALID_CLASS_DECLARATION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_INVALID_CLASS_DECLARATION() throws Exception {
-        System.out.println("testSqlException_OLB_INVALID_CLASS_DECLARATION");
+        println("testSqlException_OLB_INVALID_CLASS_DECLARATION");
         
         SQLException ex = Util.sqlException(Trace.OLB_INVALID_CLASS_DECLARATION,"");
         
@@ -2840,7 +2840,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_INVALID_COLUMN_NAME,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_INVALID_COLUMN_NAME() throws Exception {
-        System.out.println("testSqlException_OLB_INVALID_COLUMN_NAME");
+        println("testSqlException_OLB_INVALID_COLUMN_NAME");
         
         SQLException ex = Util.sqlException(Trace.OLB_INVALID_COLUMN_NAME,"");
         
@@ -2851,7 +2851,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.OLB_INVALID_NUMBER_OF_COLUMNS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_OLB_INVALID_NUMBER_OF_COLUMNS() throws Exception {
-        System.out.println("testSqlException_OLB_INVALID_NUMBER_OF_COLUMNS");
+        println("testSqlException_OLB_INVALID_NUMBER_OF_COLUMNS");
         
         SQLException ex = Util.sqlException(Trace.OLB_INVALID_NUMBER_OF_COLUMNS,"");
         
@@ -2862,7 +2862,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.GENERIC_WARNING,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_GENERIC_WARNING() throws Exception {
-        System.out.println("testSqlException_GENERIC_WARNING");
+        println("testSqlException_GENERIC_WARNING");
         
         SQLException ex = Util.sqlException(Trace.GENERIC_WARNING,"");
         
@@ -2873,7 +2873,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.BLOB_IS_NO_LONGER_VALID,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_BLOB_IS_NO_LONGER_VALID() throws Exception {
-        System.out.println("testSqlException_BLOB_IS_NO_LONGER_VALID");
+        println("testSqlException_BLOB_IS_NO_LONGER_VALID");
         
         SQLException ex = Util.sqlException(Trace.BLOB_IS_NO_LONGER_VALID,"");
         
@@ -2884,7 +2884,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.BLOB_STREAM_IS_CLOSED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_BLOB_STREAM_IS_CLOSED() throws Exception {
-        System.out.println("testSqlException_BLOB_STREAM_IS_CLOSED");
+        println("testSqlException_BLOB_STREAM_IS_CLOSED");
         
         SQLException ex = Util.sqlException(Trace.BLOB_STREAM_IS_CLOSED,"");       
            
@@ -2895,7 +2895,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.BLOB_INCOMPATIBLE_SET_OPERATION,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_BLOB_INCOMPATIBLE_SET_OPERATION() throws Exception {
-        System.out.println("testSqlException_BLOB_INCOMPATIBLE_SET_OPERATION");
+        println("testSqlException_BLOB_INCOMPATIBLE_SET_OPERATION");
         
         SQLException ex = Util.sqlException(Trace.BLOB_INCOMPATIBLE_SET_OPERATION,"");
         
@@ -2906,7 +2906,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_DATA_SUBSTRING_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_DATA_SUBSTRING_ERROR() throws Exception {
-        System.out.println("testSqlException_SQL_DATA_SUBSTRING_ERROR");
+        println("testSqlException_SQL_DATA_SUBSTRING_ERROR");
         
         SQLException ex = Util.sqlException(Trace.SQL_DATA_SUBSTRING_ERROR,"");
         
@@ -2917,7 +2917,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_DATA_TRIM_ERROR,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_DATA_TRIM_ERROR() throws Exception {
-        System.out.println("testSqlException_SQL_DATA_TRIM_ERROR");
+        println("testSqlException_SQL_DATA_TRIM_ERROR");
         
         SQLException ex = Util.sqlException(Trace.SQL_DATA_TRIM_ERROR,"");
         
@@ -2928,7 +2928,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.DATA_SEQUENCE_GENERATOR_LIMIT_EXCEEDED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_DATA_SEQUENCE_GENERATOR_LIMIT_EXCEEDED() throws Exception {
-        System.out.println("testSqlException_DATA_SEQUENCE_GENERATOR_LIMIT_EXCEEDED");
+        println("testSqlException_DATA_SEQUENCE_GENERATOR_LIMIT_EXCEEDED");
         
         SQLException ex = Util.sqlException(Trace.DATA_SEQUENCE_GENERATOR_LIMIT_EXCEEDED,"");
         
@@ -2939,7 +2939,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MERGE_ON_CONDITION_REQUIRED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MERGE_ON_CONDITION_REQUIRED() throws Exception {
-        System.out.println("testSqlException_MERGE_ON_CONDITION_REQUIRED");
+        println("testSqlException_MERGE_ON_CONDITION_REQUIRED");
         
         SQLException ex = Util.sqlException(Trace.MERGE_ON_CONDITION_REQUIRED,"");
         
@@ -2950,7 +2950,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MERGE_WHEN_MATCHED_ALREADY_USED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MERGE_WHEN_MATCHED_ALREADY_USED() throws Exception {
-        System.out.println("testSqlException_MERGE_WHEN_MATCHED_ALREADY_USED");
+        println("testSqlException_MERGE_WHEN_MATCHED_ALREADY_USED");
         
         SQLException ex = Util.sqlException(Trace.MERGE_WHEN_MATCHED_ALREADY_USED,"");
         
@@ -2961,7 +2961,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.MERGE_WHEN_NOT_MATCHED_ALREADY_USED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_MERGE_WHEN_NOT_MATCHED_ALREADY_USED() throws Exception {
-        System.out.println("testSqlException_MERGE_WHEN_NOT_MATCHED_ALREADY_USED");
+        println("testSqlException_MERGE_WHEN_NOT_MATCHED_ALREADY_USED");
         
         SQLException ex = Util.sqlException(Trace.MERGE_WHEN_NOT_MATCHED_ALREADY_USED,"");
         
@@ -2972,7 +2972,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_COLUMN_NAMES_NOT_UNIQUE,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_COLUMN_NAMES_NOT_UNIQUE() throws Exception {
-        System.out.println("testSqlException_SQL_COLUMN_NAMES_NOT_UNIQUE");
+        println("testSqlException_SQL_COLUMN_NAMES_NOT_UNIQUE");
         
         SQLException ex = Util.sqlException(Trace.SQL_COLUMN_NAMES_NOT_UNIQUE,"");
         
@@ -2983,7 +2983,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_SECOND_IDENTITY_COLUMN,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_SECOND_IDENTITY_COLUMN() throws Exception {
-        System.out.println("testSqlException_SQL_SECOND_IDENTITY_COLUMN");
+        println("testSqlException_SQL_SECOND_IDENTITY_COLUMN");
         
         SQLException ex = Util.sqlException(Trace.SQL_SECOND_IDENTITY_COLUMN,"");
         
@@ -2994,7 +2994,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_DEFAULT_CLAUSE_REQUITED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_DEFAULT_CLAUSE_REQUITED() throws Exception {
-        System.out.println("testSqlException_SQL_DEFAULT_CLAUSE_REQUITED");
+        println("testSqlException_SQL_DEFAULT_CLAUSE_REQUITED");
         
         SQLException ex = Util.sqlException(Trace.SQL_DEFAULT_CLAUSE_REQUITED,"");
         
@@ -3005,7 +3005,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_INVALID_SEQUENCE_PARAMETER,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_INVALID_SEQUENCE_PARAMETER() throws Exception {
-        System.out.println("testSqlException_SQL_INVALID_SEQUENCE_PARAMETER");
+        println("testSqlException_SQL_INVALID_SEQUENCE_PARAMETER");
         
         SQLException ex = Util.sqlException(Trace.SQL_INVALID_SEQUENCE_PARAMETER,"");
         
@@ -3016,7 +3016,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_IDENTITY_DEFINITION_NOT_ALLOWED,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_IDENTITY_DEFINITION_NOT_ALLOWED() throws Exception {
-        System.out.println("testSqlException_SQL_IDENTITY_DEFINITION_NOT_ALLOWED");
+        println("testSqlException_SQL_IDENTITY_DEFINITION_NOT_ALLOWED");
         
         SQLException ex = Util.sqlException(Trace.SQL_IDENTITY_DEFINITION_NOT_ALLOWED,"");
         
@@ -3027,7 +3027,7 @@ public class UtilTest extends TestCase {
      * Test of sqlException(Trace.SQL_IDENTITY_DEFINITION_NOT_EXISTS,"") method, of class org.hsqldb.jdbc.Util.
      */
     public void testSqlException_SQL_IDENTITY_DEFINITION_NOT_EXISTS() throws Exception {
-        System.out.println("testSqlException_SQL_IDENTITY_DEFINITION_NOT_EXISTS");
+        println("testSqlException_SQL_IDENTITY_DEFINITION_NOT_EXISTS");
         
         SQLException ex = Util.sqlException(Trace.SQL_IDENTITY_DEFINITION_NOT_EXISTS,"");
         
@@ -3056,17 +3056,17 @@ public class UtilTest extends TestCase {
 //            if (fields[i].getName().startsWith("LAST_ERROR_HANDLE")) {
 //                continue;
 //            }
-//            System.out.println("/**");
-//            System.out.println("* Test of sqlException(Trace." + fields[i].getName() + ",\"\") method, of class org.hsqldb.jdbc.Util.");
-//            System.out.println("*/");
-//            System.out.println("public void testSqlException_" + fields[i].getName() + "() throws Exception {");
-//            System.out.println("    System.out.println(\"testSqlException_" + fields[i].getName() + "\");");
-//            System.out.println();
-//            System.out.println("    SQLException ex = Util.sqlException(Trace." + fields[i].getName() + ",\"\");");
-//            System.out.println();
-//            System.out.println("    checkSQLException(ex);");
-//            System.out.println("}");
-//            System.out.println();
+//            println("/**");
+//            println("* Test of sqlException(Trace." + fields[i].getName() + ",\"\") method, of class org.hsqldb.jdbc.Util.");
+//            println("*/");
+//            println("public void testSqlException_" + fields[i].getName() + "() throws Exception {");
+//            println("    println(\"testSqlException_" + fields[i].getName() + "\");");
+//            println();
+//            println("    SQLException ex = Util.sqlException(Trace." + fields[i].getName() + ",\"\");");
+//            println();
+//            println("    checkSQLException(ex);");
+//            println("}");
+//            println();
 //        }
 //    }
 }

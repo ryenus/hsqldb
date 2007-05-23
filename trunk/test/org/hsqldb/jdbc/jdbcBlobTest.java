@@ -76,7 +76,7 @@ public class jdbcBlobTest extends JdbcTestCase {
      * Test of length method, of class org.hsqldb.jdbc.jdbcBlob.
      */
     public void testLength() throws Exception {
-        System.out.println("length");
+        println("length");
 
         Blob blob   = newBlob(new byte[100]);
         long result = blob.length();
@@ -88,7 +88,7 @@ public class jdbcBlobTest extends JdbcTestCase {
      * Test of getBytes method, of class org.hsqldb.jdbc.jdbcBlob.
      */
     public void testGetBytes() throws Exception {
-        System.out.println("getBytes");
+        println("getBytes");
 
         byte[] bytes = "getBytes".getBytes();
         Blob   blob  = newBlob(bytes);
@@ -103,7 +103,7 @@ public class jdbcBlobTest extends JdbcTestCase {
      * Test of getBinaryStream method, of class org.hsqldb.jdbc.jdbcBlob.
      */
     public void testGetBinaryStream() throws Exception {
-        System.out.println("getBinaryStream");
+        println("getBinaryStream");
 
         byte[] bytes = "getBinaryStream".getBytes();
         Blob   blob  = newBlob(bytes);
@@ -118,7 +118,7 @@ public class jdbcBlobTest extends JdbcTestCase {
      * Test of position method, of class org.hsqldb.jdbc.jdbcBlob.
      */
     public void testPosition() throws Exception {
-        System.out.println("position");
+        println("position");
 
         byte[] pattern = new byte[]{(byte) 1, (byte)3};
         byte[] bytes   = new byte[]{(byte) 10, (byte) 1, (byte) 3, (byte) 2};
@@ -132,7 +132,7 @@ public class jdbcBlobTest extends JdbcTestCase {
      * Test of setBytes method, of class org.hsqldb.jdbc.jdbcBlob.
      */
     public void testSetBytes() throws Exception {
-        System.out.println("setBytes");
+        println("setBytes");
 
         byte[] bytes  = new byte[1];
         Blob   blob   = createBlob();
@@ -151,7 +151,7 @@ public class jdbcBlobTest extends JdbcTestCase {
      * Test of setBinaryStream method, of class org.hsqldb.jdbc.jdbcBlob.
      */
     public void testSetBinaryStream() throws Exception {
-        System.out.println("setBinaryStream");
+        println("setBinaryStream");
 
         Blob blob = createBlob();
 
@@ -177,7 +177,7 @@ public class jdbcBlobTest extends JdbcTestCase {
      * Test of truncate method, of class org.hsqldb.jdbc.jdbcBlob.
      */
     public void testTruncate() throws Exception {
-        System.out.println("truncate");
+        println("truncate");
 
         Blob blob = newBlob(new byte[10]);
 
@@ -194,7 +194,7 @@ public class jdbcBlobTest extends JdbcTestCase {
      * Test of free method, of class org.hsqldb.jdbc.jdbcBlob.
      */
     public void testFree() throws Exception {
-        System.out.println("free");
+        println("free");
 
         Blob blob = newBlob(new byte[10]);
 
@@ -208,7 +208,7 @@ public class jdbcBlobTest extends JdbcTestCase {
     // after free contract tests....
 
     public void testGetBinaryStreamAfterFree() throws Exception {
-        System.out.println("getBinaryStreamAfterFree");
+        println("getBinaryStreamAfterFree");
 
         Blob blob = newBlob(new byte[10]);
 
@@ -221,7 +221,7 @@ public class jdbcBlobTest extends JdbcTestCase {
     }
 
     public void testGetBytesAfterFree() throws Exception {
-        System.out.println("getBytesAfterFree");
+        println("getBytesAfterFree");
 
         Blob blob = newBlob(new byte[10]);
 
@@ -234,7 +234,7 @@ public class jdbcBlobTest extends JdbcTestCase {
     }
 
     public void testLengthAfterFree() throws Exception {
-        System.out.println("lengthAfterFree");
+        println("lengthAfterFree");
 
         Blob blob = newBlob(new byte[10]);
 
@@ -247,7 +247,7 @@ public class jdbcBlobTest extends JdbcTestCase {
     }
 
     public void testPositionAfterFree() throws Exception {
-        System.out.println("positionAfterFree");
+        println("positionAfterFree");
 
         Blob blob = newBlob(new byte[10]);
 
@@ -260,7 +260,7 @@ public class jdbcBlobTest extends JdbcTestCase {
     }
 
     public void testSetBinaryStreamAfterFree() throws Exception {
-        System.out.println("binaryStreamAfterFree");
+        println("binaryStreamAfterFree");
 
         Blob blob = newBlob(new byte[10]);
 
@@ -273,7 +273,7 @@ public class jdbcBlobTest extends JdbcTestCase {
     }
 
     public void testSetBytesAfterFree() throws Exception {
-        System.out.println("free");
+        println("free");
 
         Blob blob = newBlob(new byte[10]);
 
@@ -286,7 +286,7 @@ public class jdbcBlobTest extends JdbcTestCase {
     }
 
     public void testTruncateAfterFree() throws Exception {
-        System.out.println("free");
+        println("free");
 
         Blob blob = newBlob(new byte[10]);
 

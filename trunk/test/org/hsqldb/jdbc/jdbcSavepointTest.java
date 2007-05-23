@@ -66,7 +66,7 @@ public class jdbcSavepointTest extends JdbcTestCase {
      * Test of getSavepointId method, of interface java.sql.Savepoint.
      */
     public void testGetSavepointId() throws Exception {
-        System.out.println("getSavepointId");
+        println("getSavepointId");
         
         Connection conn = super.newConnection();        
         Savepoint sp = null;
@@ -88,7 +88,7 @@ public class jdbcSavepointTest extends JdbcTestCase {
             sp = conn.setSavepoint();
             id = sp.getSavepointId();
             
-            System.out.println("savepoint id: " + id);
+            println("savepoint id: " + id);
         } catch (SQLException ex) {
             fail(ex.getMessage());
         }        
@@ -98,7 +98,7 @@ public class jdbcSavepointTest extends JdbcTestCase {
      * Test of getSavepointName method, of interface java.sql.Savepoint.
      */
     public void testGetSavepointName() throws Exception {
-        System.out.println("getSavepointName");
+        println("getSavepointName");
         
         Connection conn = super.newConnection();        
         Savepoint sp = null;

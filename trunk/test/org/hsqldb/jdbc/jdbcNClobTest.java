@@ -68,7 +68,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of length method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testLength() throws Exception {
-        System.out.println("length");
+        println("length");
 
         jdbcNClob nclob = new jdbcNClob("Test");
         long expResult  = "Test".length();
@@ -81,7 +81,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of getSubString method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testGetSubString() throws Exception {
-        System.out.println("getSubString");
+        println("getSubString");
 
         jdbcNClob nclob  = new jdbcNClob("Test");
         String    result = nclob.getSubString(2, 2);
@@ -93,7 +93,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of getCharacterStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testGetCharacterStream() throws Exception {
-        System.out.println("getCharacterStream");
+        println("getCharacterStream");
 
         jdbcNClob nclob     = new jdbcNClob("Test");
         Reader    expResult = new StringReader("Test");
@@ -106,7 +106,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of getAsciiStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testGetAsciiStream() throws Exception {
-        System.out.println("getAsciiStream");
+        println("getAsciiStream");
 
         StringBuffer sb = new StringBuffer();
 
@@ -126,7 +126,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of position method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testPosition() throws Exception {
-        System.out.println("position");
+        println("position");
 
         jdbcNClob nclob  = new jdbcNClob("Test");
         long      result = nclob.position("est", 1);
@@ -138,7 +138,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of setString method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testSetString() throws Exception {
-        System.out.println("setString");
+        println("setString");
 
         jdbcNClob clob = (jdbcNClob) newConnection().createNClob();
 
@@ -158,7 +158,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of setAsciiStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testSetAsciiStream() throws Exception {
-        System.out.println("setAsciiStream");
+        println("setAsciiStream");
 
         jdbcNClob clob = (jdbcNClob) newConnection().createNClob();
 
@@ -189,7 +189,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of setCharacterStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testSetCharacterStream() throws Exception {
-        System.out.println("setCharacterStream");
+        println("setCharacterStream");
 
         jdbcNClob clob = (jdbcNClob) newConnection().createNClob();
 
@@ -219,7 +219,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of truncate method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testTruncate() throws Exception {
-        System.out.println("truncate");
+        println("truncate");
 
         jdbcNClob nclob = new jdbcNClob("Test");
 
@@ -235,7 +235,7 @@ public class jdbcNClobTest extends JdbcTestCase {
      * Test of free method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testFree() throws Exception {
-        System.out.println("free");
+        println("free");
 
         jdbcNClob nclob = new jdbcNClob("Test");
 

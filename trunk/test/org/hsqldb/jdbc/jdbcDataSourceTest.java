@@ -90,7 +90,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of getConnection method, of interface javax.sql.DataSource.
      */
     public void testGetConnection() throws Exception {
-        System.out.println("getConnection");
+        println("getConnection");
 
         DataSource ds   = newDataSource();
         Connection conn = ds.getConnection();
@@ -100,7 +100,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of createQueryObject method, of interface javax.sql.DataSource.
      */
 //    public void testCreateQueryObject() throws Exception {
-//        System.out.println("createQueryObject");
+//        println("createQueryObject");
 //
 //        setUpSampleData();
 //
@@ -129,7 +129,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of getQueryObjectGenerator method, of interface javax.sql.DataSource.
      */
 //    public void testGetQueryObjectGenerator() throws Exception {
-//        System.out.println("getQueryObjectGenerator");
+//        println("getQueryObjectGenerator");
 //
 //        DataSource instance = new jdbcDataSource();
 //
@@ -167,7 +167,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of unwrap method, of interface javax.sql.DataSource.
      */
     public void testUnwrap() throws Exception {
-        System.out.println("unwrap");
+        println("unwrap");
 
         DataSource ds   = newDataSource();
         Class      wcls = getExpectedWrappedClass();
@@ -182,7 +182,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of isWrapperFor method, of interface javax.sql.DataSource.
      */
     public void testIsWrapperFor() throws Exception {
-        System.out.println("isWrapperFor");
+        println("isWrapperFor");
 
         DataSource ds   = newDataSource();
         Class      wcls = getExpectedWrappedClass();
@@ -196,7 +196,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of getLoginTimeout method, of interface javax.sql.DataSource.
      */
     public void testGetLoginTimeout() throws Exception {
-        System.out.println("getLoginTimeout");
+        println("getLoginTimeout");
 
         int result = newDataSource().getLoginTimeout();
     }
@@ -205,7 +205,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of getLogWriter method, of interface javax.sql.DataSource.
      */
     public void testGetLogWriter() throws Exception {
-        System.out.println("getLogWriter");
+        println("getLogWriter");
 
         PrintWriter result = newDataSource().getLogWriter();
     }
@@ -214,7 +214,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of setLoginTimeout method, of interface javax.sql.DataSource.
      */
     public void testSetLoginTimeout() throws Exception {
-        System.out.println("setLoginTimeout");
+        println("setLoginTimeout");
 
         newDataSource().setLoginTimeout(10);
     }
@@ -223,7 +223,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
      * Test of setLogWriter method, of interface javax.sql.DataSource.
      */
     public void testSetLogWriter() throws Exception {
-        System.out.println("setLogWriter");
+        println("setLogWriter");
 
         newDataSource().setLogWriter(new PrintWriter(System.out));
     }
