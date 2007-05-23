@@ -132,6 +132,9 @@
 
          <fileset dir="${test.src.dir}/org/hsqldb/jdbc" 
                   includes="*.ent"/>
+                  
+         <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/sql" 
+                  includes="*.sql"/>
       </copy>
 
       <!-- Build Jar -->
@@ -200,16 +203,23 @@
 
       <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc"/>
       <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources"/>
-      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/xml"/>
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/xml"/>      
 
       <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/xml">
          <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/xml"
                   includes="*.*"/>
       </copy>
-
+      
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/sql"/>
+      
+      <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/sql">
+         <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/sql"
+                  includes="*.sql"/>
+      </copy>      
 
       <!-- User Test Properties -->
       <property file="${basedir}/build/test.properties"/>
+      <property file="${basedir}/build/test.dbmd.convert.properties"/>
 
       <!-- Execute JUNIT Tests -->
       <junit showoutput="true" 
@@ -245,6 +255,22 @@
    </target>
    
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- R U N  T E S T  A L L                                                -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->   
+   <target name="run.test.all"
+           description="Runs the org.hsqldb.test.TestAll set of tests.">
+       
+      <available file="${hsqldbtest.jar}" 
+                 type='file' 
+                 property="hsqldbtest.jar.available"/>
+                 
+       <java classname="org.hsqldb.test.TestAll" 
+             classpathref="test.all.classpath" 
+             dir="${basedir}/testrun/hsqldb" 
+             fork="true"/>
+   </target>   
+   
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <!-- C L E A N  T E S T  S U I T E                                        -->
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <target name="clean.test.suite"
@@ -252,13 +278,6 @@
       <delete dir="${test.classes.dir}" />
       <delete dir="${test.results.dir}" />
       <delete file="${test.suite.jar}" />
-   </target>
-   
-   <target name="run.test.all">
-       <java classname="org.hsqldb.test.TestAll" 
-             classpathref="test.all.classpath" 
-             dir="${basedir}/testrun/hsqldb" 
-             fork="true"/>
    </target>
 
 </project>
