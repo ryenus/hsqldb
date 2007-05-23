@@ -834,8 +834,8 @@ public abstract class JdbcTestCase extends TestCase {
     }
     
     /**
-     *
      * by prepending the test suite property prefix.
+     *
      * @param key to translate.
      * @return the given key, prepending with the test suite property prefix.
      */
@@ -953,6 +953,12 @@ public abstract class JdbcTestCase extends TestCase {
         System.out.println(msg);
     }
     
+    /**
+     * 
+     * @param packageName 
+     * @throws java.io.IOException 
+     * @return fully expe
+     */
     protected static String[] getResoucesInPackage(
             final String packageName) throws IOException {        
         
