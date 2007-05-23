@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2006, The HSQL Development Group
+/* Copyright (c) 2001-2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,19 +66,24 @@ public class JdbcSuite extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite("JdbcSuite");
         suite.addTest(org.hsqldb.jdbc.UtilTest.suite());
-        suite.addTest(org.hsqldb.jdbc.jdbcBlobTest.suite());
+        suite.addTest(org.hsqldb.jdbc.jdbcBlobTest.suite());        
         suite.addTest(org.hsqldb.jdbc.jdbcCallableStatementTest.suite());
+        suite.addTest(org.hsqldb.jdbc.jdbcCallableStatementWhileClosedTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcClobTest.suite());
+        suite.addTest(org.hsqldb.jdbc.jdbcConnectionCreateStatementTest.suite());
+        suite.addTest(org.hsqldb.jdbc.jdbcConnectionPrepareCallTest.suite());
+        suite.addTest(org.hsqldb.jdbc.jdbcConnectionPrepareStatementTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcConnectionTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcDataSourceFactoryTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcDataSourceTest.suite());
+        suite.addTest(org.hsqldb.jdbc.jdbcDatabaseMetaDataSupportsConvertTest.suite());        
         suite.addTest(org.hsqldb.jdbc.jdbcDatabaseMetaDataTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcDriverTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcNClobTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcParameterMetaDataTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcPreparedStatementTest.suite());
+        suite.addTest(org.hsqldb.jdbc.jdbcResultSetMetaDataTest.suite());        
         suite.addTest(org.hsqldb.jdbc.jdbcResultSetTest.suite());
-        suite.addTest(org.hsqldb.jdbc.jdbcResultSetMetaDataTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcRowIdTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcSQLXMLTest.suite());
         suite.addTest(org.hsqldb.jdbc.jdbcSavepointTest.suite());

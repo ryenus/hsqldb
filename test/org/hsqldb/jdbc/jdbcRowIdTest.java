@@ -74,7 +74,7 @@ public class jdbcRowIdTest extends JdbcTestCase {
      * Test of equals method, of interface java.sql.RowId.
      */
     public void testEquals() throws Exception {
-        System.out.println("equals");
+        println("equals");
 
         RowId id1         = newRowId("02b7abfe");
         RowId id2         = newRowId(StringConverter.hexToByteArray("02b7abfe"));
@@ -88,7 +88,7 @@ public class jdbcRowIdTest extends JdbcTestCase {
      * Test of getBytes method, of interface java.sql.RowId.
      */
     public void testGetBytes() throws Exception {
-        System.out.println("getBytes");
+        println("getBytes");
 
         byte[] expResult = StringConverter.hexToByteArray("02b7abfe");
         byte[] result    = newRowId("02b7abfe").getBytes();
@@ -100,7 +100,7 @@ public class jdbcRowIdTest extends JdbcTestCase {
      * Test of toString method, of interface java.sql.RowId.
      */
     public void testToString() throws Exception {
-        System.out.println("toString");
+        println("toString");
 
         RowId  rid       = newRowId("02b7abfe");
         String expResult = "02b7abfe";
@@ -113,7 +113,7 @@ public class jdbcRowIdTest extends JdbcTestCase {
      * Test of hashCode method, of interface java.sql.RowId.
      */
     public void testHashCode() throws Exception {
-        System.out.println("hashCode");
+        println("hashCode");
 
         byte[] bytes  = StringConverter.hexToByteArray("02b7abfe");
         RowId  rid    = newRowId("02b7abfe");

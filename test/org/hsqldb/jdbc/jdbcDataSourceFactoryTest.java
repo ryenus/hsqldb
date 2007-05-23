@@ -80,7 +80,7 @@ public class jdbcDataSourceFactoryTest extends JdbcTestCase {
      * Test of getObjectInstance method, of class org.hsqldb.jdbc.jdbcDataSourceFactory.
      */
     public void testGetObjectInstance() throws Exception {
-        System.out.println("getObjectInstance");
+        println("getObjectInstance");
 
         Object                obj         = newReference();
         Name                  name        = null;

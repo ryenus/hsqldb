@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2006, The HSQL Development Group
+/* Copyright (c) 2001-2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,32 +31,37 @@
 
 package org.hsqldb.jdbc;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
 import java.lang.reflect.Array;
 
 import java.math.BigDecimal;
+import java.net.JarURLConnection;
+import java.net.URI;
+import java.net.URL;
 
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 
 import java.util.Arrays;
-
-import junit.framework.Assert;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
 import junit.framework.TestCase;
 
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
+import org.hsqldb.lib.IntValueHashMap;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
-import org.hsqldb.lib.StringConverter;
 
 /**
  * Abstract JDBC-focused Junit test case. <p>
@@ -66,25 +71,25 @@ import org.hsqldb.lib.StringConverter;
  * @since 1.7.2
  */
 public abstract class JdbcTestCase extends TestCase {
-
+    
+    // static fields
+    
     public static final String DEFAULT_DRIVER   = "org.hsqldb.jdbcDriver";
     public static final String DEFAULT_URL      = "jdbc:hsqldb:mem:testcase";
     public static final String DEFAULT_USER     = "SA";
     public static final String DEFAULT_PASSWORD = "";
-
-    // static fields
-
+    
     // We need a way of confirming compliance with
     // Tables B5 and B6 of JDBC 4.0 spec., outlining
     // the minimum conversions to be supported
     // by JDBC getXXX and setObject methods.
-
+    
     private static final HashMap               jdbcGetXXXMap;
     private static final IntKeyHashMap         jdbcInverseGetXXXMap;
     private static final HashMap               jdbcSetObjectMap;
     private static final IntKeyHashMap         jdbcInverseSetObjectMap;
     private static final IntKeyIntValueHashMap dataTypeMap;
-
+    
     private static final int[] tableB5AndB6ColumnDataTypes = new int[] {
         java.sql.Types.TINYINT, // ........................................... 0
         java.sql.Types.SMALLINT,
@@ -121,7 +126,7 @@ public abstract class JdbcTestCase extends TestCase {
         java.sql.Types.SQLXML,
         java.sql.Types.OTHER
     };
-
+    
     private static final String[] typeNames = new String[] {
         "TINYINT", // ........................................................ 0
         "SMALLINT",
@@ -158,27 +163,27 @@ public abstract class JdbcTestCase extends TestCase {
         "SQLXML",
         "OTHER"
     };
-
+    
     private static final int typeCount = tableB5AndB6ColumnDataTypes.length;
-
+    
     // JDBC 4.0, Table B6, Use of ResultSet getter Methods to Retrieve
     // JDBC Data Types
-
+    
     // NOTE: Spec is missing for Types.OTHER
     //       We store Serializable, so we should support getXXX where XXX is
     //       serializable or the underlying data is a character or octet
     //       sequence (is inherently streamable)
     private static final String[][] requiredGetXXX = new String[][] {
-                              //  S
-                              //  M I
-                              //T A N
-                              //I L T..........................S
-                              //N L G..........................Q O
-                              //Y L E..........................L T
-                              //I I G..........................X H
-                              //N N E..........................M E
-                              //T T R..........................L R
-                              //0123456789012345678901234567890123
+        //  S
+        //  M I
+        //T A N
+        //I L T..........................S
+        //N L G..........................Q O
+        //Y L E..........................L T
+        //I I G..........................X H
+        //N N E..........................M E
+        //T T R..........................L R
+        //0123456789012345678901234567890123
         {"getByte",            "1111111111111100000000000001000001"},
         {"getShort",           "1111111111111100000000000000000001"},
         {"getInt",             "1111111111111100000000000000000001"},
@@ -207,25 +212,25 @@ public abstract class JdbcTestCase extends TestCase {
         {"getRowId",           "0000000000000000000000000001000000"},
         {"getSQLXML",          "0000000000000000000000000000000010"}
     };
-
+    
     // JDBC 4.0, Table B5, Conversions Performed by setObject Between
     // Java Object Types and Target JDBC Types
-
+    
     // NOTE:     Spec is missing for Types.OTHER
     //           We store Serializable, so we should support setObject where
     //           object is serializable or the underlying data is a character
     //           or octet sequence (is inherently streamable)
     private static final Object[][] requiredSetObject = new Object[][] {
-                                  //  S
-                                  //  M I
-                                  //T A N
-                                  //I L T..........................S
-                                  //N L G..........................Q O
-                                  //Y L E..........................L T
-                                  //I I G..........................X H
-                                  //N N E..........................M E
-                                  //T T R..........................L R
-                                  //0123456789012345678901234567890123
+        //  S
+        //  M I
+        //T A N
+        //I L T..........................S
+        //N L G..........................Q O
+        //Y L E..........................L T
+        //I I G..........................X H
+        //N N E..........................M E
+        //T T R..........................L R
+        //0123456789012345678901234567890123
         {String.class,             "1111111111111111111100000000111001"},
         {BigDecimal.class,         "1111111111111100000000000000000001"},
         {Boolean.class,            "1111111111111100000000000000000001"},
@@ -248,199 +253,238 @@ public abstract class JdbcTestCase extends TestCase {
         {java.sql.NClob.class,     "0000000000000000000000000000000101"},
         {java.sql.SQLXML.class,    "0000000000000000000000000000000010"}
     };
-
+    
     static {
         jdbcGetXXXMap           = new HashMap();
         jdbcInverseGetXXXMap    = new IntKeyHashMap();
         jdbcSetObjectMap        = new HashMap();
         jdbcInverseSetObjectMap = new IntKeyHashMap();
         dataTypeMap             = new IntKeyIntValueHashMap();
-
+        
         for (int i = 0; i < typeCount; i++) {
             dataTypeMap.put(tableB5AndB6ColumnDataTypes[i], i);
         }
-
+        
         for (int i = (requiredGetXXX.length - 1); i >= 0; i--) {
-
+            
             Object   key         = requiredGetXXX[i][0];
             String   bits        = requiredGetXXX[i][1];
             String[] requiredGet = new String[typeCount];
-
+            
             jdbcGetXXXMap.put(key, requiredGet);
-
+            
             for (int j = (typeCount - 1); j >= 0; j--) {
-
+                
                 if (bits.charAt(j) == '1') {
-
+                    
                     requiredGet[j] = typeNames[j];
-
+                    
                     int dataType = tableB5AndB6ColumnDataTypes[j];
                     Set set      = (Set) jdbcInverseGetXXXMap.get(dataType);
-
+                    
                     if (set == null) {
                         set = new HashSet();
-
+                        
                         jdbcInverseGetXXXMap.put(dataType, set);
                     }
-
+                    
                     set.add(key);
                 }
             }
         }
-
+        
         for (int i = requiredSetObject.length - 1; i >= 0; i--) {
-
+            
             Object   key         = requiredSetObject[i][0];
             String   bits        = (String) requiredSetObject[i][1];
             String[] requiredSet = new String[typeCount];
-
+            
             jdbcSetObjectMap.put(key, requiredSet);
-
+            
             for (int j = (typeCount - 1); j >= 0; j--) {
                 if (bits.charAt(j) == '1') {
-
+                    
                     requiredSet[j] = typeNames[j];
-
+                    
                     int dataType = tableB5AndB6ColumnDataTypes[j];
                     Set set      = (Set) jdbcInverseSetObjectMap.get(dataType);
-
+                    
                     if (set == null) {
                         set = new HashSet();
-
+                        
                         jdbcInverseSetObjectMap.put(dataType, set);
                     }
-
+                    
                     set.add(key);
                 }
             }
         }
     }
-
+    
+    private JdbcTestCaseConnectionFactory m_connectionFactory;
+    
     /**
-     * Retrieves whether the given JDBC 4 getter method is required to perform
-     * a conversion from the given java.sql.Types SQL data type.
+     * Retrieves whether a JDBC 4 compliant driver implementation is required
+     * to support the given getter method for result columns with the given
+     * underlying <tt>java.sql.Types</tt> SQL data type.
      *
      * @param methodName a jdbc getXXX method name.
      * @param dataType a java.sql.Types data type code
-     * @return true the given JDBC getter method is required to perform
-     * a conversion from the given java.sql.Types data type, else false
+     * @return <tt>true</tt> if a JDBC 4 compliant driver implementation is required
+     * to support the given getter method for result columns with the given
+     * underlying <tt>java.sql.Types</tt> SQL data type, else <tt>false</tt>.
      */
     protected static boolean isRequiredGetXXX(String methodName, int dataType) {
         String[] requiredGet = (String[]) jdbcGetXXXMap.get(methodName);
         int      pos         = dataTypeMap.get(dataType, -1);
-
+        
         return (pos >= 0) && (requiredGet != null) && (requiredGet[pos] != null);
     }
-
+    
     /**
-     * Retrieves a Set containing the names of the JDBC 4 getter methods that
-     * are required to perform a conversion from the given java.sql.Types
-     * data type.
+     * containing the names of the getter methods that a JDBC 4 compliant
+     * driver implementation is required to support for result columns with
+     * the given underlying <tt>java.sql.Types</tt> SQL data type.
      *
      * @param dataType a java.sql.Types data type code
-     * @return a set containing the names of the JDBC 4 getter methods that
-     * are required to perform a conversion from the given java.sql.Types
-     * data type.
+     * @return the Set of names of the getter methods that a JDBC 4 compliant
+     * driver implementation is required to support for result columns with the
+     * given underlying <tt>java.sql.Types</tt>
+     * SQL data type.
      */
     protected static Set getRequiredGetXXX(int dataType) {
         return (Set) jdbcInverseGetXXXMap.get(dataType);
     }
-
+    
     /**
-     * Retrieves whether the JDBC 4 PreparedStatement setObject method is
-     * required to perform a conversion from the given class to the given
-     * java.sql.Types SQL data type.
+     * Retrieves whether a JDBC 4 compliant driver's PreparedStatement setObject
+     * method is required to accept instances of the given class when the target
+     * site has the given java.sql.Types SQL data type.
      *
      * @param clazz a candidate Class object
      * @param dataType a java.sql.Types data type code
-     * @return true if the JDBC 4 PreparedStatement setObject method is
-     * required to perform a conversion from the given class to the given
-     * java.sql.Types SQL data type
+     * @return true if a JDBC 4 compliant driver's PreparedStatement setObject
+     * method is required to accept instances of the given class when the target
+     * site has the given java.sql.Types SQL data type.
      */
     protected static boolean isRequiredSetObject(Class clazz, int dataType) {
         String[] requiredSet = (String[]) jdbcSetObjectMap.get(clazz);
         int      pos         = dataTypeMap.get(dataType);
-
+        
         return (pos >= 0) && (requiredSet != null) && (requiredSet[pos] != null);
     }
-
+    
     /**
-     * Retrieves a Set containing the names of the JDBC 4 getter methods that
-     * are required tp perform a conversion from the given java.sql.Types
+     * containing the fully qualified names of the classes whose instances a
+     * JDBC 4 compliant driver's PreparedStatement setObject method is required
+     * to accept when the target site has the given <tt>java.sql.Types</tt> SQL
      * data type.
-     * @param dataType
-     * @return
+     *
+     * @param dataType for which to retrieve the set
+     * @return corresponding to given data type
      */
     protected static Set getRequiredSetObject(int dataType) {
         return (Set) jdbcInverseSetObjectMap.get(dataType);
     }
-
+    
+    /**
+     * Constructs a new JdbcTestCase.
+     *
+     * @param name test name
+     */
     public JdbcTestCase(String name) {
         super(name);
     }
-
+    
+    /**
+     *
+     * that produces, tracks and closes the JDBC
+     * objects used by this test suite. <p>
+     * @return the factory.
+     */
+    protected JdbcTestCaseConnectionFactory connectionFactory() {
+        if (m_connectionFactory == null) {
+            m_connectionFactory = new JdbcTestCaseConnectionFactory();
+        }
+        
+        return m_connectionFactory;
+    }
+    
+    /**
+     * Performs test setup.
+     *
+     * @throws java.lang.Exception probably never
+     */
     protected void setUp() throws Exception {
         super.setUp();
     }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-
-        org.hsqldb.DatabaseManager.closeDatabases(-1);
-    }
-
+    
     /**
-     * Retrieves a new Connection with the dirver, url, user and password
-     * specifed by the corresponding protected members of this class,
+     * Performs test teardown.
      *
-     * @throws java.lang.Exception
-     * @return
+     * @throws java.lang.Exception probably never
+     */
+    protected void tearDown() throws Exception {
+        
+        connectionFactory().closeRegisteredObjects();
+        
+        super.tearDown();
+    }
+    
+    /**
+     * with the driver, url, user and password
+     * specifed by the corresponding protected
+     * accessors of this class. <p>
+     *
+     * @return a new connection.
+     * @throws java.lang.Exception thrown by any internal operation.
      */
     protected Connection newConnection() throws Exception {
         final String driver = getDriver();
-
+        
         // not actually needed under JDBC4, as long as jar has META-INF service entry
         Class.forName(driver);
-
+        
         final String url      = getUrl();
         final String user     = getUser();
         final String password = getPassword();
-
-        return DriverManager.getConnection(url, user, password);
+        
+        return connectionFactory().newConnection(driver, url, user, password);
     }
-
+    
     /**
+     * using the default connection.
      *
-     * @param script
-     * @throws java.lang.Exception
+     * @param resource on class path.
+     * @throws java.lang.Exception thrown by any internal operation.
      */
-    protected void executeScript(String script) throws Exception {
-        java.net.URL   url  = this.getClass().getResource(script);
+    protected void executeScript(String resource) throws Exception {
+        java.net.URL   url  = this.getClass().getResource(resource);
         ScriptIterator it   = new ScriptIterator(url);
         Connection     conn = newConnection();
         Statement      stmt = conn.createStatement();
-
+        
         while(it.hasNext()) {
             String sql = (String) it.next();
-            //System.out.println("sql: " + sql);
+            //System.out.println("sql:");
+            //System.out.println(sql);
             stmt.execute(sql);
         }
-
+        
         conn.commit();
         stmt.close();
         conn.close();
     }
-
+    
     /**
-     * Retrieves a character code corresponding to the given object's component
-     * type. <p>
+     * indicating the given object's component type. <p>
      *
-     * For null, we return 'X' (unknown). <p>
+     * For null, returns 'X' (unknown). <p>
      *
-     * For 1D arrays, we return: <p>
+     * For 1D arrays, returns: <p>
      *
      * <pre>
-     * BaseType Character 	Type            Interpretation
+     * BaseType Character 	 Type            Interpretation
      *
      * B                        byte            signed byte
      * C                        char            Unicode character
@@ -448,34 +492,34 @@ public abstract class JdbcTestCase extends TestCase {
      * F                        float           single-precision floating-point value
      * I                        int             integer
      * J                        long            long integer
-     * L                        reference 	an instance of class
+     * L                        reference 	  an instance of class
      * S                        short           signed short
-     * Z                        boolean 	true or false
+     * Z                        boolean 	  true or false
      * </pre>
      *
-     * for multi-arrays, we return 'N' (n-dimensional). <p>
+     * for multi-arrays, returns 'N' (n-dimensional). <p>
      *
-     * for (non-null, non-array) object ref, we return 'O' (Object).
-     * @param o for which to retrieve the component type.
-     * @return the component type.
+     * for (non-null, non-array) object ref, returns 'O' (Object).
+     * @return a character code representing the component type.
+     * @param o for which to produce the component descriptor.
      */
     protected static char getComponentDescriptor(Object o) {
-
+        
         if (o == null) {
             return 'X'; // the unknown value
         }
-
+        
         Class cls = o.getClass();
-
+        
         if (cls.isArray()) {
             Class comp = cls.getComponentType();
-
+            
             String className = cls.getName();
-
+            
             int count = 0;
-
+            
             for(;className.charAt(count) == '['; count++);
-
+            
             if (count > 1) {
                 return 'N';
             } else if (comp.isPrimitive()) {
@@ -490,28 +534,24 @@ public abstract class JdbcTestCase extends TestCase {
     }
     
     /**
-     * Computes a shallow string representation of the given array.
-     *
-     * @param array the array
-     * @return a shallow string representation.
+     * by computing a shallow string representation
+     * of the given array. <p>
+     * @param array for which to produce the string representation.
+     * @return the string representation.
      */
-    protected static String arrayToString(Object array)
-    {
-        if (array == null)
-        {
-            return "null";            
+    protected static String arrayToString(Object array) {
+        if (array == null) {
+            return "null";
         }
         
         int length = Array.getLength(array);
         
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer(2 + 3*length);
         
         sb.append('[');
         
-        for(int i = 0; i < length; i++)
-        {
-            if (i > 0)
-            {
+        for(int i = 0; i < length; i++) {
+            if (i > 0) {
                 sb.append(',');
             }
             
@@ -524,32 +564,28 @@ public abstract class JdbcTestCase extends TestCase {
     }
     
     /**
-     * Computes an arrays not equal failure message
-     * for the given arrays.
-     *
+     * for the given array objects.
      * @param expected array
      * @param actual array
-     * @return failure message
+     * @return an "arrays not equal" failure message
+     *    describing the given values.
      */
-    protected static String arraysNotEqualMessage(Object expected, Object actual)
-    {
-         return "expected:<" 
-                 + arrayToString(expected) 
-                 + "> but was:<" 
-                 + arrayToString(actual) 
-                 + ">";    
+    protected static String arraysNotEqualMessage(Object expected, Object actual) {
+        return "expected:<"
+                + arrayToString(expected)
+                + "> but was:<"
+                + arrayToString(actual)
+                + ">";
     }
-
+    
     /**
-     * Assert that the given objects are equal.
-     *
-     * Provides special handling for Java array objects.
-     *
+     * with special handling for Java array objects.
      * @param expected object
      * @param actual object
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception as thrown by any internal operation.
      */
-    protected static void assertJavaArrayEquals(Object expected, Object actual) throws Exception {
+    protected static void assertJavaArrayEquals(
+            Object expected, Object actual) throws Exception {
         
         switch(getComponentDescriptor(expected)) {
             case 'X' : {
@@ -562,7 +598,7 @@ public abstract class JdbcTestCase extends TestCase {
                 if (!Arrays.equals((byte[]) expected, (byte[]) actual)) {
                     fail(arraysNotEqualMessage(expected, actual));
                 }
-               break;
+                break;
             }
             case 'C' : {
                 if (!Arrays.equals((char[]) expected, (char[]) actual)) {
@@ -578,19 +614,19 @@ public abstract class JdbcTestCase extends TestCase {
             }
             case 'F' : {
                 if (!Arrays.equals((float[])expected, (float[])actual)) {
-                     fail(arraysNotEqualMessage(expected, actual));
-                }            
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
                 break;
             }
             case 'I' : {
                 if(!Arrays.equals((int[])expected, (int[])actual)) {
-                     fail(arraysNotEqualMessage(expected, actual));
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
                 break;
             }
             case 'J' : {
                 if (!Arrays.equals((long[])expected, (long[])actual)) {
-                     fail(arraysNotEqualMessage(expected, actual));
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
                 break;
             }
@@ -602,7 +638,7 @@ public abstract class JdbcTestCase extends TestCase {
             }
             case 'S' : {
                 if (!Arrays.equals((short[])expected, (short[])actual)) {
-                     fail(arraysNotEqualMessage(expected, actual));
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
                 break;
             }
@@ -613,25 +649,20 @@ public abstract class JdbcTestCase extends TestCase {
                 break;
             }
             case 'N' : {
-                if (actual == null)
-                {
-                    fail("expected:<" 
-                       + arrayToString(expected) 
-                       + "> but was:<null>");
-                }
-                else if(Object[].class.isAssignableFrom(expected.getClass()) 
-                     && Object[].class.isAssignableFrom(actual.getClass())) 
-                {
+                if (actual == null) {
+                    fail("expected:<"
+                            + arrayToString(expected)
+                            + "> but was:<null>");
+                } else if(Object[].class.isAssignableFrom(expected.getClass())
+                && Object[].class.isAssignableFrom(actual.getClass())) {
                     if (!Arrays.deepEquals(
                             (Object[])expected,
                             (Object[])actual)) {
-                         fail(arraysNotEqualMessage(expected, actual));
+                        fail(arraysNotEqualMessage(expected, actual));
                     }
-                }
-                else
-                {
+                } else {
                     assertEquals(
-                            "Array Class",                                                        
+                            "Array Class",
                             expected.getClass(),
                             actual.getClass());
                     assertEquals(
@@ -641,10 +672,9 @@ public abstract class JdbcTestCase extends TestCase {
                     
                     int len = Array.getLength(expected);
                     
-                    for (int i = 0; i < len; i++)
-                    {
+                    for (int i = 0; i < len; i++) {
                         assertJavaArrayEquals(
-                                Array.get(expected, i), 
+                                Array.get(expected, i),
                                 Array.get(actual, i));
                     }
                 }
@@ -657,143 +687,142 @@ public abstract class JdbcTestCase extends TestCase {
             }
         }
     }
-
+    
     /**
-     * Assert that the given InputStream objects produce the same octet
-     * sequence.
-     *
-     * @param expected the expected octet sequence, as an InputStream
-     * @param actual the actual octet sequence, as an InputStream
+     * in terms of producing the same octet sequence. <p>
+     * @param expected octet sequence, as an InputStream; must not be null
+     * @param actual octet sequence, as an InputStream; must not be null
      * @throws java.lang.Exception if an I/0 error occurs.
      */
     protected void assertStreamEquals(final InputStream expected,
-                                      final InputStream actual) throws Exception {
+            final InputStream actual) throws Exception {
         if (expected == actual) {
             return;
         }
-
+        
         assertTrue("expected != null", expected != null);
         assertTrue("actual != null", actual != null);
-
+        
         int count = 0;
-
+        
         String sexp = expected.getClass().getName()
-                    + Integer.toHexString(System.identityHashCode(expected));
+        + Integer.toHexString(System.identityHashCode(expected));
         String sact = actual.getClass().getName()
-                    + Integer.toHexString(System.identityHashCode(actual));
-
+        + Integer.toHexString(System.identityHashCode(actual));
+        
         while (true) {
-
+            
             int expByte = expected.read();
             int actByte = actual.read();
-
+            
             // More efficient than generating the message for every
             // stream element.
             if (expByte != actByte) {
                 String msg = sexp + "(" + count + ") == " +
-                             sact + "(" + count + ")";
+                        sact + "(" + count + ")";
                 assertEquals(msg, expByte, actByte);
             }
-
+            
             if (expByte == -1) {
                 // Assert that the actual stream is also at the end
                 assertEquals("End of expected stream", -1, actual.read());
                 break;
             }
-
+            
             count++;
         }
     }
-
+    
     /**
-     *
-     * @param expected
-     * @param actual
-     * @throws java.lang.Exception
+     * in terms of producing the same character sequence. <p>
+     * @param expected reader; must not be null.
+     * @param actual reader; must not be null.
+     * @throws java.lang.Exception if an I/0 error occurs.
      */
     protected void assertReaderEquals(Reader expected, Reader actual) throws Exception {
         if (expected == actual) {
             return;
         }
-
+        
         assertTrue("expected != null", expected != null);
         assertTrue("actual != null", actual != null);
-
+        
         int count = 0;
-
+        
         String sexp = expected.getClass().getName()
-                    + Integer.toHexString(System.identityHashCode(expected));
+        + Integer.toHexString(System.identityHashCode(expected));
         String sact = actual.getClass().getName()
-                    + Integer.toHexString(System.identityHashCode(actual));
-
+        + Integer.toHexString(System.identityHashCode(actual));
+        
         while (true) {
-
+            
             int expChar = expected.read();
             int actChar = actual.read();
-
+            
             // More efficient than generating the message for every
             // stream element.
             if (expChar != actChar) {
                 String msg = sexp + "(" + count + ") == " +
-                             sact + "(" + count + ")";
+                        sact + "(" + count + ")";
                 assertEquals(msg, expChar, actChar);
             }
-
+            
             if (expChar == -1) {
                 assertEquals("End of expected sequence", -1, actual.read());
                 break;
             }
-
+            
             count++;
         }
     }
-
+    
     /**
+     * in terms of column count and order-sensitive row content.
      *
-     * @param expected
-     * @param actual
-     * @throws java.lang.Exception
+     * @param expected result
+     * @param actual result
+     * @throws java.lang.Exception thrown by any internal operation.
      */
     protected void assertResultSetEquals(ResultSet expected, ResultSet actual) throws Exception {
         if (expected == actual) {
             return;
         }
-
+        
         assertTrue("expected != null", expected != null);
         assertTrue("actual != null", actual != null);
-
+        
         ResultSetMetaData expRsmd = expected.getMetaData();
         ResultSetMetaData actRsmd = actual.getMetaData();
-
+        
         assertEquals("expRsmd.getColumnCount() == actRsmd.getColumnCount()",
-                     expRsmd.getColumnCount(),
-                     actRsmd.getColumnCount());
-
+                expRsmd.getColumnCount(),
+                actRsmd.getColumnCount());
+        
         int columnCount = actRsmd.getColumnCount();
         int rowCount    = 0;
-
+        
         while(expected.next()) {
             rowCount++;
-
+            
             assertTrue("actual.next() [row: " + rowCount + "]", actual.next());
-
+            
             for (int i = 1; i <= columnCount; i++) {
                 Object expObject = expected.getObject(i);
                 Object actObject = actual.getObject(i);
-
+                
                 if (expObject != null && expObject.getClass().isArray()) {
                     assertJavaArrayEquals(expObject, actObject);
                 } else if (expObject instanceof Blob) {
                     Blob expBlob = (Blob) expObject;
                     Blob actBlob = (Blob) actObject;
-
+                    
                     assertEquals("expBlob.length(), actBlob.length()", expBlob.length(), actBlob.length());
                     assertEquals("expBlob.position(actBlob, 1L), 1L", expBlob.position(actBlob, 1L), 1L);
-
+                    
                 } else if (expObject instanceof Clob) {
                     Clob expClob = (Clob) expObject;
                     Clob actClob = (Clob) actObject;
-
+                    
                     assertEquals("expClob.length(), actClob.length()", expClob.length(), actClob.length());
                     assertEquals("expClob.position(actClob, 1L), 1L", expClob.position(actClob, 1L), 1L);
                 } else {
@@ -803,101 +832,239 @@ public abstract class JdbcTestCase extends TestCase {
             }
         }
     }
-
+    
     /**
-     * 
-     * @param key 
-     * @return 
+     *
+     * by prepending the test suite property prefix.
+     * @param key to translate.
+     * @return the given key, prepending with the test suite property prefix.
      */
     protected String translatePropertyKey(final String key) {
         return "hsqldb.test.suite." + key;
     }
-
+    
     /**
-     * 
-     * @param key 
-     * @param defaultValue 
-     * @return 
+     * for the given key.
+     *
+     * @param key to match.
+     * @param defaultValue when there is no matching property.
+     * @return the matching value.
      */
-    public String getProperty(final String key, final String defaultValue) {        
-        try {                        
-             return System.getProperty(translatePropertyKey(key), defaultValue);
+    public String getProperty(final String key, final String defaultValue) {
+        try {
+            return System.getProperty(translatePropertyKey(key), defaultValue);
         } catch(SecurityException se) {
             return defaultValue;
         }
     }
     
-    public int getIntProperty(final String key, final int defaultValue)
-    {
-        try
-        {
+    /**
+     * for the given key.
+     *
+     * @param key to match.
+     * @param defaultValue when there is no matching property.
+     * @return the matching value.
+     */
+    public int getIntProperty(final String key, final int defaultValue) {
+        try {
             return Integer.getInteger(translatePropertyKey(key), defaultValue);
         } catch(SecurityException se) {
             return defaultValue;
         }
     }
     
-    public boolean getBooleanProperty(final String key, final boolean defaultValue)
-    {
-        try
-        {
-           String value = getProperty(key, String.valueOf(defaultValue));
-           
-           if (
-              value.equalsIgnoreCase("true") 
-           || value.equalsIgnoreCase("on") 
-           || value.equals("1"))
-           {
-               return true;
-           }
-           else if (
-               value.equalsIgnoreCase("false") 
-            || value.equalsIgnoreCase("off")
-            || value.equals("0"))
-           {
-               return false;
-           }
-           else
-           {
-               return defaultValue;
-           }           
+    /**
+     * for the given key.
+     *
+     * @param key to match.
+     * @param defaultValue when there is no matching property.
+     * @return the matching value.
+     */
+    public boolean getBooleanProperty(final String key, final boolean defaultValue) {
+        try {
+            String value = getProperty(key, String.valueOf(defaultValue));
+            
+            if (
+                    value.equalsIgnoreCase("true")
+                    || value.equalsIgnoreCase("on")
+                    || value.equals("1")) {
+                return true;
+            } else if (
+                    value.equalsIgnoreCase("false")
+                    || value.equalsIgnoreCase("off")
+                    || value.equals("0")) {
+                return false;
+            } else {
+                return defaultValue;
+            }
         } catch(SecurityException se) {
             return defaultValue;
-        }        
+        }
     }
-
+    
     /**
-     * 
-     * @return 
+     * as defined in system properties.
+     * @return defined value.
      */
     public String getDriver() {
         return getProperty("driver", DEFAULT_DRIVER);
     }
-
-
+    
+    
     /**
-     * 
-     * @return 
+     * as defined in system properties.
+     * @return defined value.
      */
     public String getUrl() {
         return getProperty("url", DEFAULT_URL);
     }
-
-
+    
+    
     /**
-     * 
-     * @return 
+     * as defined in system properties.
+     * @return defined value.
      */
     public String getUser() {
         return getProperty("user", DEFAULT_USER);
     }
-
-
+    
+    
     /**
-     * 
-     * @return 
+     * as defined in system properties.
+     * @return defined value.
      */
     public String getPassword() {
         return getProperty("password", DEFAULT_PASSWORD);
     }
+    
+    /**
+     * to standard output.
+     * @param msg to print
+     */
+    protected void print(Object msg) {
+        System.out.print(msg);
+    }
+    
+    /**
+     * to standard output.
+     * @param msg to print
+     */
+    protected void println(Object msg) {
+        System.out.println(msg);
+    }
+    
+    protected static String[] getResoucesInPackage(
+            final String packageName) throws IOException {        
+        
+        String packagePath = packageName.replace('.','/');
+        
+        if (!packagePath.endsWith("/")) {            
+            packagePath = packagePath + '/';
+        }
+        
+        //Enumeration resources = ClassLoader.getSystemResources(packagePath);
+        Enumeration resources = JdbcTestCase.class.getClassLoader().getResources(packagePath);
+        OrderedHashSet set = new OrderedHashSet();
+        
+        while (resources.hasMoreElements()) {
+            URL resource = (URL)resources.nextElement();
+            String protocol = resource.getProtocol();
+            
+            if ("file".equals(protocol)) {
+                try {
+                    File[] files = new File(
+                            new URI(resource.toString()).getPath())
+                            .listFiles();
+                    
+                    if (files == null) {
+                        continue;
+                    }
+                    
+                    for (int i = 0; i < files.length; i++) {
+                        File file = files[i];
+                        
+                        if (file.isDirectory()) {
+                            continue;
+                        }
+                        
+                        set.add(packagePath + file.getName());
+                    }
+                    
+                } catch (Exception ex) {}
+            } else  if ("jar".equals(protocol)) {
+                Enumeration entries = ((JarURLConnection)resource
+                        .openConnection()).getJarFile().entries();
+                
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = (JarEntry)entries.nextElement();
+                    String entryName = entry.getName();
+                    
+                    if (entryName.equals(packagePath)) {
+                        continue;
+                    }
+                    
+                    int slashPos = entryName.lastIndexOf('/');
+                    
+                    String directoryPath = entryName.substring(0, slashPos + 1);
+                    
+                    if (!directoryPath.equals(packagePath)) {
+                        continue;
+                    }
+                    
+                    set.add(entryName);
+                }
+            }
+        }
+        
+        String[] names = new String[set.size()];
+        
+        set.toArray(names);
+        
+        return names;
+    }
+    
+    /**
+     * with which named public static int field is initialized.
+     *
+     * @param fieldName fully qualified public static int field name.
+     * @throws java.lang.Exception if no such field or access denied.
+     * @return value with which field is initialized.
+     */
+    protected int getFieldValue(final String fieldName) throws Exception {
+        
+        int typeCode = fieldValueMap.get(fieldName, Integer.MIN_VALUE);
+        
+        if (typeCode > Integer.MIN_VALUE) {
+            return typeCode;
+        }
+        
+        final int    lastIndexofDot = fieldName.lastIndexOf('.');
+        final String className = fieldName.substring(0, lastIndexofDot);
+        final Class  clazz = Class.forName(className);
+        final String bareFieldName = fieldName.substring(lastIndexofDot + 1);
+        
+        typeCode = clazz.getField(bareFieldName).getInt(null);
+        
+        fieldValueMap.put(fieldName, typeCode);
+        
+        return typeCode;
+    }
+
+    protected static final IntValueHashMap fieldValueMap = new IntValueHashMap();
+    
+    protected static final String[][] rsconcurrency = new String[][]    {
+        {"concur_read_only", "java.sql.ResultSet.CONCUR_READ_ONLY"},
+        {"concur_updatable", "java.sql.ResultSet.CONCUR_UPDATABLE"}
+    };
+
+    protected static final String[][] rsholdability = new String[][]{
+        {"close_cursors_at_commit", "java.sql.ResultSet.CLOSE_CURSORS_AT_COMMIT"},
+        {"hold_cursors_over_commit", "java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT"},
+    };
+
+    protected static final String[][] rstype = new String[][] {
+        {"type_forward_only","java.sql.ResultSet.TYPE_FORWARD_ONLY"},
+        {"type_scroll_insensitive", "java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE"},
+        {"type_scroll_sensitive", "java.sql.ResultSet.TYPE_SCROLL_SENSITIVE"}
+    };
 }
