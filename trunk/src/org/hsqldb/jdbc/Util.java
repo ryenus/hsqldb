@@ -135,7 +135,11 @@ public class Util {
     }
 
     static final SQLException notSupported() {
-        return sqlException(Trace.error(Trace.FUNCTION_NOT_SUPPORTED));
+        String msg = "JDBC feature not supported.";
+        String sqlState = "0A000";
+        int errorCode = Trace.FUNCTION_NOT_SUPPORTED;
+
+        return sqlException(msg,sqlState,errorCode, null);
     }
 
     public static SQLException nullArgument() {
