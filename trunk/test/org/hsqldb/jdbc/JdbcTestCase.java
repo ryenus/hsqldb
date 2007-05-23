@@ -1032,10 +1032,10 @@ public abstract class JdbcTestCase extends TestCase {
      */
     protected int getFieldValue(final String fieldName) throws Exception {
         
-        int typeCode = fieldValueMap.get(fieldName, Integer.MIN_VALUE);
+        int fieldValue = fieldValueMap.get(fieldName, Integer.MIN_VALUE);
         
-        if (typeCode > Integer.MIN_VALUE) {
-            return typeCode;
+        if (fieldValue > Integer.MIN_VALUE) {
+            return fieldValue;
         }
         
         final int    lastIndexofDot = fieldName.lastIndexOf('.');
@@ -1043,11 +1043,11 @@ public abstract class JdbcTestCase extends TestCase {
         final Class  clazz = Class.forName(className);
         final String bareFieldName = fieldName.substring(lastIndexofDot + 1);
         
-        typeCode = clazz.getField(bareFieldName).getInt(null);
+        fieldValue = clazz.getField(bareFieldName).getInt(null);
         
-        fieldValueMap.put(fieldName, typeCode);
+        fieldValueMap.put(fieldName, fieldValue);
         
-        return typeCode;
+        return fieldValue;
     }
 
     protected static final IntValueHashMap fieldValueMap = new IntValueHashMap();
