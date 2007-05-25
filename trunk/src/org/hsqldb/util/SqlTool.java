@@ -365,10 +365,6 @@ public class SqlTool {
                     }
 
                     sqlText = arg[i];
-
-                    if (sqlText.charAt(sqlText.length() - 1) != ';') {
-                        sqlText += ";";
-                    }
                 } else if (parameter.equals("debug")) {
                     debug = true;
                 } else if (parameter.equals("noautofile")) {
