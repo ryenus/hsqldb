@@ -112,6 +112,10 @@ import java.util.TreeMap;
  */
 
 public class SqlFile {
+    /*  The LS's in the help text blocks are extremely ugly.  Once we can 
+     *  use Java v. 4, we can
+     *  write the text using "\n"s, then run replaceAll("\n", LS) in a
+     *  static initializer if !equals("\n", "LS)  (or very similar to that). */
     private static final int DEFAULT_HISTORY_SIZE = 20;
     private File             file;
     private boolean          interactive;
