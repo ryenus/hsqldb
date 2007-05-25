@@ -123,7 +123,7 @@ public class SqlTool {
         + "See the SqlTool Manual for the supported sqltool.* System Properties." + LS
         + "SqlTool v. " + revnum + ".";
     /*  These LS's are extremely ugly.  Once we can use Java v. 4, we can
-     *  write the text using "\n"s, then run replaceAll("\n", LS) in a 
+     *  write the text using "\n"s, then run replaceAll("\n", LS) in a
      *  static initializer if !equals("\n", "LS)  (or very similar to that). */
 
     /** Utility nested class for internal use. */
@@ -280,7 +280,7 @@ public class SqlTool {
      * System.exit().
      *
      * @param arg  Run "java... org.hsqldb.util.SqlTool --help" for syntax.
-     * @throws SqlToolException  Upon any fatal error, with useful 
+     * @throws SqlToolException  Upon any fatal error, with useful
      *                          reason as the exception's message.
      */
     public void objectMain(String[] arg) throws SqlToolException {
@@ -468,7 +468,7 @@ public class SqlTool {
 
         RCData conData = null;
 
-        // Use the inline RC file if it was specified        
+        // Use the inline RC file if it was specified
         if (rcParams != null) {
             rcFields = new HashMap();
 
@@ -584,7 +584,7 @@ public class SqlTool {
         }
 
         SqlFile[] sqlFiles = new SqlFile[numFiles];
-        HashMap   userVars = new HashMap();
+        Map   userVars = new HashMap();
 
         if (varSettings != null) try {
             varParser(varSettings, userVars, false);
@@ -636,7 +636,7 @@ public class SqlTool {
             throw new SqlToolException(IOERR_EXITVAL,
                     "Problem with tool input:  " + ioe.getMessage());
 
-            // Following two Exception types are handled properly inside of 
+            // Following two Exception types are handled properly inside of
             // SqlFile.  We just need to return an appropriate error status.
         } catch (SqlToolError ste) {
             throw new SqlToolException(SQLTOOLERR_EXITVAL);
