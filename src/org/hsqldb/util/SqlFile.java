@@ -4084,7 +4084,7 @@ public class SqlFile {
             }
         } catch (SQLException se) {
             throw new BadSpecial("Failed to get metadata for query: "
-                                 + se.getMessage());
+                     + se.getMessage() + "  (Used: " + typeQuerySb + ')');
         }
 
         for (int i = 0; i < autonulls.length; i++) {
