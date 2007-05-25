@@ -51,9 +51,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
@@ -118,7 +120,7 @@ public class SqlFile {
     private String           contPrompt       = "  +> ";
     private Connection       curConn          = null;
     private boolean          htmlMode         = false;
-    private HashMap          userVars         = null;
+    private Map              userVars         = null;
     private String[]         statementHistory = null;
     private boolean          chunking         = false;
     private String           csvNullRep       = null;
@@ -270,7 +272,8 @@ public class SqlFile {
         + "    *CSV_ROW_DELIM     \\m\\x  Row delimiter" + LS
         + "    *CSV_NULL_REP      \\m\\x  String to represent database null" + LS
         + "    *CSV_TARGET_FILE   \\x    File which exports will write to" + LS
-        + "    *CSV_TABLENAME     \\m    Table which imports will write to";
+        + "    *CSV_TABLENAME     \\m    Table which imports will write to" + LS
+        + "    *CSV_CONST_COLS    \\m    Column vals to write to every row";
 
     /**
      * Interpret lines of input file as SQL Statements, Comments,
@@ -283,8 +286,8 @@ public class SqlFile {
      *                       Special commands are enabled, and
      *                       continueOnError defaults to true.
      */
-    public SqlFile(File inFile, boolean inInteractive,
-                   HashMap inVars) throws IOException {
+    public SqlFile(File inFile, boolean inInteractive, Map inVars)
+            throws IOException {
         file        = inFile;
         interactive = inInteractive;
         userVars    = inVars;
@@ -311,7 +314,7 @@ public class SqlFile {
      *
      * @see #SqlFile(File,boolean)
      */
-    public SqlFile(boolean inInteractive, HashMap inVars) throws IOException {
+    public SqlFile(boolean inInteractive, Map inVars) throws IOException {
         this(null, inInteractive, inVars);
     }
 
@@ -2766,7 +2769,7 @@ public class SqlFile {
                                                                : incCols
                                                                    .length;
                 String            val;
-                ArrayList         rows        = new ArrayList();
+                List              rows        = new ArrayList();
                 String[]          headerArray = null;
                 String[]          fieldArray;
                 int[]             maxWidth = new int[incCount];
@@ -3295,7 +3298,7 @@ public class SqlFile {
         String filter = ((inFilter == null) ? null : inFilter.toUpperCase());
          */
         String    filter = inFilter;
-        ArrayList rows        = new ArrayList();
+        List      rows        = new ArrayList();
         String[]  headerArray = {
             "name", "datatype", "width", "no-nulls"
         };
@@ -3903,6 +3906,40 @@ public class SqlFile {
     public void importCsv(String filePath) throws IOException, BadSpecial {
         char[] bfr  = null;
         File   file = new File(filePath);
+        String tmpString = (String) userVars.get("*CSV_CONST_COLS");
+        SortedMap constColMap = null;
+        int constColMapSize = 0;
+        if (tmpString != null) {
+            // Can't use StringTokenizer, since our delimiters are fixed
+            // whereas StringTokenizer delimiters are a list of OR delimiters.
+
+            // We trim col. names, but not values.  Must allow users to
+            // specify values as spaces, empty string, null.
+            constColMap = new TreeMap();
+            int startOffset;
+            int postOffset = -1;
+            int firstEq;
+            String n;
+            do {
+                startOffset = postOffset + 1;
+                postOffset = tmpString.indexOf(csvColDelim, startOffset);
+                if (postOffset < 0) postOffset = tmpString.length();
+                if (postOffset == startOffset)
+                    throw new BadSpecial("*CSV_CONST_COLS has null setting");
+                firstEq = tmpString.indexOf('=', startOffset);
+                if (firstEq < startOffset + 1 || firstEq > postOffset)
+                    throw new BadSpecial("*CSV_CONST_COLS element malformatted");
+                n = tmpString.substring(startOffset, firstEq).trim();
+                if (n.length() < 1)
+                    throw new BadSpecial(
+                            "*CSV_CONST_COLS element has null col. name");
+                constColMap.put(n,
+                        tmpString.substring(firstEq + 1, postOffset));
+            } while (postOffset < tmpString.length());
+            stdprintln("Using Constant Column map:  " + constColMap);
+            constColMapSize = constColMap.size();
+        }
+
 
         if (!file.canRead()) {
             throw new IOException("Can't read file '" + file + "'");
@@ -3944,7 +3981,7 @@ public class SqlFile {
                 + "Please run the program with more RAM (try Java -Xm* switches).");
         }
 
-        ArrayList headerList = new ArrayList();
+        List     headerList = new ArrayList();
         String    tableName = (String) userVars.get("*CSV_TARGET_TABLE");
         if (tableName == null) {
             tableName = (String) userVars.get("*CSV_TABLENAME");
@@ -4045,6 +4082,10 @@ public class SqlFile {
                 : string.substring(colStart, colEnd));
 
             colStart = colEnd + csvColDelim.length();
+        }
+
+        if (constColMap != null) {
+            headerList.addAll(constColMap.keySet());
         }
 
         String[]  headers   = (String[]) headerList.toArray(new String[0]);
@@ -4170,7 +4211,7 @@ public class SqlFile {
                     continue;
                 }
 
-                // Finally we will readlly add a record!
+                // Finally we will really add a record!
                 recCount++;
 
                 colStart = recStart;
@@ -4190,9 +4231,10 @@ public class SqlFile {
                         colEnd = recEnd;
                     }
 
-                    if (readColCount == headers.length) {
+                    if (readColCount == headers.length - constColMapSize) {
                         throw new IOException(
-                            "Header has " + headers.length
+                            "Header has "
+                                    + (headers.length - constColMapSize)
                             + " columns.  CSV input line " + lineCount
                             + " has too many column values ("
                             + (1 + readColCount) + ").");
@@ -4205,19 +4247,28 @@ public class SqlFile {
                     colStart             = colEnd + csvColDelim.length();
                 }
 
+                if (constColMap != null) {
+                    Iterator it = constColMap.values().iterator();
+                    while (it.hasNext()) {
+                        dataVals[storeColCount++] = (String) it.next();
+                    }
+                }
                 /* It's too late for the following two tests, since if
                  * we inserted *ColCount > array.length, we would have
                  * generated a runtime array index exception. */
-                if (readColCount != headers.length) {
-                    throw new IOException("Header has " + headers.length
+                if (readColCount != headers.length - constColMapSize) {
+                    throw new IOException("Header has "
+                            + (headers.length - constColMapSize)
                                           + " columns.  CSV input line "
                                           + lineCount + " has " + readColCount
                                           + " column values.");
                 }
                 if (storeColCount != dataVals.length) {
-                    throw new IOException("Header has " + dataVals.length
+                    throw new IOException("Header has "
+                            + (dataVals.length - constColMapSize)
                                       + " non-skip columns.  CSV input line "
-                                      + lineCount + " has " + storeColCount
+                                      + lineCount + " has "
+                            + (storeColCount - constColMapSize)
                                       + " column insertion values.");
                 }
 
