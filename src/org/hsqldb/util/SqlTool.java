@@ -122,6 +122,9 @@ public class SqlTool {
         + "(Use '-' for non-interactively stdin)." + LS
         + "See the SqlTool Manual for the supported sqltool.* System Properties." + LS
         + "SqlTool v. " + revnum + ".";
+    /*  These LS's are extremely ugly.  Once we can use Java v. 4, we can
+     *  write the text using "\n"s, then run replaceAll("\n", LS) in a 
+     *  static initializer if !equals("\n", "LS)  (or very similar to that). */
 
     /** Utility nested class for internal use. */
     private static class BadCmdline extends Exception {}
