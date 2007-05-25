@@ -222,8 +222,8 @@ public class SqlFile {
         + "    \\s                   * Show previous commands (i.e. SQL command history)" + LS
         + "    \\-[3][;]             * reload a command to buffer (opt. exec. w/ \":;\"))" + LS
         + "    \\=                   commit JDBC session" + LS
-        + "    \\x {TABLE|SELECT...} eXport table or query to CSV text file" + LS
-        + "    \\m file/path.csv [*] iMport CSV text file records into a table" + LS
+        + "    \\x {TABLE|SELECT...} eXport table or query to CSV text file (options \\x?)" + LS
+        + "    \\m file/path.csv [*] iMport CSV text file records into a table (opts \\m?)" + LS
         + "    \\q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)" + LS
     ;
     private static final String PL_HELP_TEXT = "PROCEDURAL LANGUAGE Commands." + LS
@@ -257,6 +257,20 @@ public class SqlFile {
         + "    other:  Return status of the command (for updates this will be" + LS
         + "            the number of rows updated)." + LS
     ;
+
+    private static final String CSV_OPTIONS_TEXT =
+        "All of the CSV PL variables are optional.  To see all PL var. values,"
+        + LS + "run '* listvalue'.  Set the values like:" + LS
+        + "    * *CSV_COL_DELIM = ," + LS
+        + "Don't forget the * indicating a PL command PLUS the leading * in"
+        + LS + "all of these variable names.  \\x or \\m below indicates where" + LS
+        + "the setting is applicable." + LS
+        + "    *CSV_SKIP_PREFIX   \\m    Comment line prefix in CSV files" + LS
+        + "    *CSV_COL_DELIM     \\m\\x  Column delimiter" + LS
+        + "    *CSV_ROW_DELIM     \\m\\x  Row delimiter" + LS
+        + "    *CSV_NULL_REP      \\m\\x  String to represent database null" + LS
+        + "    *CSV_TARGET_FILE   \\x    File which exports will write to" + LS
+        + "    *CSV_TABLENAME     \\m    Table which imports will write to";
 
     /**
      * Interpret lines of input file as SQL Statements, Comments,
@@ -1098,6 +1112,12 @@ public class SqlFile {
                 return;
 
             case 'm' :
+                if (arg1.equals("m?") ||
+                        (arg1.equals("m") && other != null
+                                 && other.equals("?"))) {
+                    stdprintln(CSV_OPTIONS_TEXT + LS + CSV_M_SYNTAX_MSG);
+                    return;
+                }
                 if (arg1.length() != 1 || other == null) {
                     throw new BadSpecial(CSV_M_SYNTAX_MSG);
                 }
@@ -1149,6 +1169,12 @@ public class SqlFile {
                 return;
 
             case 'x' :
+                if (arg1.equals("x?") ||
+                        (arg1.equals("x") && other != null
+                                 && other.equals("?"))) {
+                    stdprintln(CSV_OPTIONS_TEXT + LS + CSV_X_SYNTAX_MSG);
+                    return;
+                }
                 try {
                     if (arg1.length() != 1 || other == null) {
                         throw new BadSpecial();
@@ -1165,13 +1191,13 @@ public class SqlFile {
 
                     String csvFilepath =
                         (String) userVars.get("*CSV_TARGET_FILE");
-					if (csvFilepath == null) {
-						csvFilepath = (String) userVars.get("*CSV_FILEPATH");
-					}
+                    if (csvFilepath == null) {
+                        csvFilepath = (String) userVars.get("*CSV_FILEPATH");
+                    }
 
                     if (csvFilepath == null && tableName == null) {
                         throw new BadSpecial(
-                            "You must set PL variable '*CSV_FILEPATH' in "
+                            "You must set PL variable '*CSV_TARGET_FILE' in "
                             + "order to use the query variant of \\x");
                     }
 
@@ -2709,7 +2735,7 @@ public class SqlFile {
                                   int[] incCols,
                                   String filter) throws SQLException {
         java.sql.Timestamp ts;
-		int dotAt;
+        int dotAt;
         int                updateCount = (statement == null) ? -1
                                                              : statement
                                                                  .getUpdateCount();
@@ -2848,45 +2874,45 @@ public class SqlFile {
 
                         if (!binary) {
                             /*
-							 * The special formatting for all time-related
-							 * fields is because the most popular current 
-							 * databases are extremely inconsistent about 
-							 * what resolution is returned for the same types.
-							 * In my experience so far, Dates MAY have 
-							 * resolution down to second, but only TIMESTAMPs
-							 * support sub-second res. (and always can).
-							 * On top of that there is no consistency across
-							 * getObject().toString().  Oracle doesn't even
-							 * implement it for their custom TIMESTAMP type.
-							 */
-							switch (dataType[insi]) {
-								case java.sql.Types.TIMESTAMP:
-								case java.sql.Types.DATE:
-								case java.sql.Types.TIME:
-									ts  = r.getTimestamp(i);
-									val = ((ts == null) ? null : ts.toString());
-									if (dataType[insi]
-											!= java.sql.Types.TIMESTAMP
-											&& val != null) {
-										dotAt = val.indexOf('.');
-										if (dotAt > 1) {
-											val = val.substring(0, dotAt);
-										}
-									}
-									break;
-								default:
-									val = r.getString(i);
+                             * The special formatting for all time-related
+                             * fields is because the most popular current
+                             * databases are extremely inconsistent about
+                             * what resolution is returned for the same types.
+                             * In my experience so far, Dates MAY have
+                             * resolution down to second, but only TIMESTAMPs
+                             * support sub-second res. (and always can).
+                             * On top of that there is no consistency across
+                             * getObject().toString().  Oracle doesn't even
+                             * implement it for their custom TIMESTAMP type.
+                             */
+                            switch (dataType[insi]) {
+                                case java.sql.Types.TIMESTAMP:
+                                case java.sql.Types.DATE:
+                                case java.sql.Types.TIME:
+                                    ts  = r.getTimestamp(i);
+                                    val = ((ts == null) ? null : ts.toString());
+                                    if (dataType[insi]
+                                            != java.sql.Types.TIMESTAMP
+                                            && val != null) {
+                                        dotAt = val.indexOf('.');
+                                        if (dotAt > 1) {
+                                            val = val.substring(0, dotAt);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    val = r.getString(i);
 
-									// If we tried to get a String but it 
-									// failed, try getting it with a String 
-									// Stream
-									if (val == null) {
-										try {
-											val = streamToString(
-												r.getAsciiStream(i));
-										} catch (Exception e) {}
-									}
-							}
+                                    // If we tried to get a String but it
+                                    // failed, try getting it with a String
+                                    // Stream
+                                    if (val == null) {
+                                        try {
+                                            val = streamToString(
+                                                r.getAsciiStream(i));
+                                        } catch (Exception e) {}
+                                    }
+                            }
                         }
 
                         if (binary || (val == null &&!r.wasNull())) {
@@ -3951,7 +3977,7 @@ public class SqlFile {
             }
             trimmedLine = string.substring(recStart, recEnd).trim();
             if (trimmedLine.length() < 1
-                    || (csvSkipPrefix != null 
+                    || (csvSkipPrefix != null
                             && trimmedLine.startsWith(csvSkipPrefix))) {
                 continue;
             }
