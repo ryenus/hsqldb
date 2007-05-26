@@ -1167,11 +1167,7 @@ public class SqlFile {
                     csvNullRep = DEFAULT_NULL_REP;
                 }
 
-                try {
-                    importCsv(other);
-                } catch (IOException ioe) {
-                    System.err.println("Failed to read in CSV file:  " + ioe);
-                }
+                importCsv(other);
 
                 return;
 
@@ -3907,7 +3903,7 @@ public class SqlFile {
      * features to search through a character array for multi-character
      * substrings.
      */
-    public void importCsv(String filePath) throws IOException, BadSpecial {
+    public void importCsv(String filePath) throws BadSpecial {
         char[] bfr  = null;
         File   file = new File(filePath);
         String tmpString = (String) userVars.get("*CSV_CONST_COLS");
@@ -3945,7 +3941,7 @@ public class SqlFile {
         }
 
         if (!file.canRead()) {
-            throw new IOException("Can't read file '" + file + "'");
+            throw new BadSpecial("Can't read file '" + file + "'");
         }
 
         int fileLength = (int) (file.length());
@@ -3953,21 +3949,27 @@ public class SqlFile {
         try {
             bfr = new char[fileLength];
         } catch (RuntimeException re) {
-            throw new IOException(
+            throw new BadSpecial(
                 "SqlFile can only read in your CSV file in one chunk at this time.\n"
                 + "Please run the program with more RAM (try Java -Xm* switches).");
         }
 
-        InputStreamReader isr =
-            new InputStreamReader(new FileInputStream(file), charset);
-        int retval = isr.read(bfr, 0, bfr.length);
+        int retval = -1;
 
-        isr.close();
+        try {
+            InputStreamReader isr =
+                new InputStreamReader(new FileInputStream(file), charset);
+            retval = isr.read(bfr, 0, bfr.length);
+
+            isr.close();
+        } catch (IOException ioe) {
+            throw new BadSpecial(ioe.getMessage());
+        }
         /*  Per tracker 1547196, File.length is in bytes, but
          *  InputStreamReader.read returns size in characters.
          *  Therefore, this test fails if char size != 1 byte.
         if (retval != bfr.length) {
-            throw new IOException("Didn't read all characters.  Read in "
+            throw new BadSpecial("Didn't read all characters.  Read in "
                                   + retval + " characters");
         }
         */
@@ -3979,7 +3981,7 @@ public class SqlFile {
             string = new String(bfr, 0, retval);
             // Sized explicitly to truncate nulls due to multibye characters.
         } catch (RuntimeException re) {
-            throw new IOException(
+            throw new BadSpecial(
                 "SqlFile converts your entire CSV file to a String at this time.\n"
                 + "Please run the program with more RAM (try Java -Xm* switches).");
         }
@@ -4006,7 +4008,7 @@ public class SqlFile {
         while (true) {
             recStart = (recStart < 0) ? 0 : (recEnd + csvRowDelim.length());
             if (recStart > string.length() - 2) {
-                throw new IOException("No header record");
+                throw new BadSpecial("No header record");
             }
             recEnd = string.indexOf(csvRowDelim, recStart);
             lineCount++; // Increment when we have line start and end
@@ -4030,7 +4032,7 @@ public class SqlFile {
             }
             if (trimmedLine.equals("headerswitch{")) {
                 if (tableName == null) {
-                    throw new IOException("Headerswitch in CSV file, but "
+                    throw new BadSpecial("Headerswitch in CSV file, but "
                             + "no target table specified yet.  Line "
                             + lineCount);
                 }
@@ -4038,7 +4040,7 @@ public class SqlFile {
                 continue;
             }
             if (trimmedLine.equals("}")) {
-                throw new IOException(
+                throw new BadSpecial(
                         "Reached close of headerswitch at line " + lineCount
                         + " without matching a header line");
             }
@@ -4047,7 +4049,7 @@ public class SqlFile {
             }
             int colonAt = trimmedLine.indexOf(':');
             if (colonAt < 1 || colonAt == trimmedLine.length() - 1) {
-                throw new IOException(
+                throw new BadSpecial(
                         "Header line without table matcher at line "
                         + lineCount);
             }
@@ -4075,7 +4077,7 @@ public class SqlFile {
             }
 
             if (colEnd - colStart < 1) {
-                throw new IOException("No column header for column "
+                throw new BadSpecial("No column header for column "
                                       + (headerList.size() + 1));
             }
 
@@ -4207,7 +4209,7 @@ public class SqlFile {
                     }
                     int colonAt = trimmedLine.indexOf(':');
                     if (colonAt < 1 || colonAt == trimmedLine.length() - 1) {
-                        throw new IOException(
+                        throw new BadSpecial(
                                 "Non-Header line within table matcher block "
                                 + "at line " + lineCount);
                     }
@@ -4235,7 +4237,7 @@ public class SqlFile {
                     }
 
                     if (readColCount == headers.length - constColMapSize) {
-                        throw new IOException(
+                        throw new BadSpecial(
                             "Header has "
                                     + (headers.length - constColMapSize)
                             + " columns.  CSV input line " + lineCount
@@ -4260,14 +4262,14 @@ public class SqlFile {
                  * we inserted *ColCount > array.length, we would have
                  * generated a runtime array index exception. */
                 if (readColCount != headers.length - constColMapSize) {
-                    throw new IOException("Header has "
+                    throw new BadSpecial("Header has "
                             + (headers.length - constColMapSize)
                                           + " columns.  CSV input line "
                                           + lineCount + " has " + readColCount
                                           + " column values.");
                 }
                 if (storeColCount != dataVals.length) {
-                    throw new IOException("Header has "
+                    throw new BadSpecial("Header has "
                             + (dataVals.length - constColMapSize)
                                       + " non-skip columns.  CSV input line "
                                       + lineCount + " has "
@@ -4292,7 +4294,7 @@ public class SqlFile {
                                 ps.setTimestamp(i + 1,
                                         java.sql.Timestamp.valueOf(dateString));
                             } catch (IllegalArgumentException iae) {
-                                throw new IOException(iae.getMessage()
+                                throw new BadSpecial(iae.getMessage()
                                         + " for value '"
                                     + dateString + "' at Line " + lineCount);
                             }
