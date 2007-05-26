@@ -637,6 +637,8 @@ public class SqlFile {
 
                     if (trimmedCommand.length() == 0) {
                         throw new SQLException("Empty SQL Statement");
+                        // Why not let the user issue an empty command,
+                        // like to test the health of the DB server?
                     }
 
                     setBuf(curCommand);
@@ -776,7 +778,7 @@ public class SqlFile {
      * recursions of SqlTool.execute(), yet SqlTool.execute() is public
      * and external users should not declare (or expect!) QuitNows to be
      * thrown.
-     * SqlTool.execute() on throws a QuitNow if it is in a recursive call.
+     * SqlTool.execute() throws a QuitNow if it is in a recursive call.
      */
     private class QuitNow extends SqlToolError {
         public QuitNow(String s) {
@@ -834,9 +836,10 @@ public class SqlFile {
      * @param inString Complete command, less the leading ':' character.
      * @throws SQLException Passed through from processSQL()
      * @throws BadSpecial Runtime error()
+     * @throws SqlToolError Local parsing error
      */
     private void processBuffer(String inString)
-    throws BadSpecial, SQLException {
+    throws BadSpecial, SQLException, SqlToolError {
         char   commandChar = 'i';
         String other       = null;
 
@@ -1587,11 +1590,10 @@ public class SqlFile {
     /**
      * Deference PL variables.
      *
-     * @throws SQLException  This is really an inappropriate exception
-     * type.  Only using it because I don't have time to do things properly.
+     * @throws SqlToolError
      */
     private String dereference(String inString,
-                               boolean permitAlias) throws SQLException {
+                               boolean permitAlias) throws SqlToolError {
         String       varName, varValue;
         StringBuffer expandBuffer = new StringBuffer(inString);
         int          b, e;    // begin and end of name.  end really 1 PAST name
@@ -1603,14 +1605,14 @@ public class SqlFile {
 
             // In this case, e is the exact length of the var name.
             if (e < 1) {
-                throw new SQLException("Malformed PL alias use");
+                throw new SqlToolError("Malformed PL alias use");
             }
 
             varName  = inString.substring(slashIndex + 1, slashIndex + 1 + e);
             varValue = (String) userVars.get(varName);
 
             if (varValue == null) {
-                throw new SQLException("Undefined PL variable:  " + varName);
+                throw new SqlToolError("Undefined PL variable:  " + varName);
             }
 
             expandBuffer.replace(slashIndex, slashIndex + 1 + e,
@@ -1618,6 +1620,9 @@ public class SqlFile {
         }
 
         String s;
+        boolean permitUnset;
+        // Permit unset with:     ${:varname}
+        // Prohibit unset with :  ${varnam}
 
         while (true) {
             s = expandBuffer.toString();
@@ -1631,21 +1636,28 @@ public class SqlFile {
             e = s.indexOf('}', b + 2);
 
             if (e == b + 2) {
-                throw new SQLException("Empty PL variable name");
+                throw new SqlToolError("Empty PL variable name");
             }
 
             if (e < 0) {
-                throw new SQLException("Unterminated PL variable name");
+                throw new SqlToolError("Unterminated PL variable name");
             }
 
-            varName = s.substring(b + 2, e);
+            permitUnset = (s.charAt(b + 2) == ':');
 
-            if (!userVars.containsKey(varName)) {
-                throw new SQLException("Use of undefined PL variable: "
-                                       + varName);
+            varName = s.substring(b + (permitUnset ? 3 : 2), e);
+
+            varValue = (String) userVars.get(varName);
+            if (varValue == null) {
+                if (permitUnset) {
+                    varValue = "";
+                } else {
+                    throw new SqlToolError("Use of undefined PL variable: "
+                                           + varName);
+                }
             }
 
-            expandBuffer.replace(b, e + 1, (String) userVars.get(varName));
+            expandBuffer.replace(b, e + 1, varValue);
         }
 
         return expandBuffer.toString();
@@ -1770,9 +1782,9 @@ public class SqlFile {
 
             String varName = toker.nextToken();
 
-			if (varName.charAt(0) == ':') {
+            if (varName.charAt(0) == ':') {
                 throw new BadSpecial("PL variable names may not begin with ':'");
-			}
+            }
             File   file    = new File(toker.nextToken());
 
             try {
@@ -1797,7 +1809,7 @@ public class SqlFile {
             String s = toker.nextToken();
 
             if (userVars.get(s) == null) {
-                throw new SQLException("Use of unset PL variable: " + s);
+                throw new BadSpecial("Use of unset PL variable: " + s);
             }
 
             prepareVar = s;
@@ -1812,7 +1824,7 @@ public class SqlFile {
             }
 
             String varName   = toker.nextToken();
-			if (varName.charAt(0) == ':') {
+            if (varName.charAt(0) == ':') {
                 throw new BadSpecial("PL variable names may not begin with ':'");
             }
             String parenExpr = toker.nextToken("").trim();
@@ -2030,9 +2042,9 @@ public class SqlFile {
         int    inLength = inString.length();
         String varName  = inString.substring(0, index);
 
-		if (varName.charAt(0) == ':') {
-			throw new BadSpecial("PL variable names may not begin with ':'");
-		}
+        if (varName.charAt(0) == ':') {
+            throw new BadSpecial("PL variable names may not begin with ':'");
+        }
 
         while (index + 1 < inLength
                 && (inString.charAt(index) == ' '
@@ -2341,8 +2353,10 @@ public class SqlFile {
      * creating them).
      *
      * @throws BadSpecial
+     * @throws SqlToolError passed through
      */
-    private void listTables(char c, String inFilter) throws BadSpecial {
+    private void listTables(char c, String inFilter) throws BadSpecial,
+            SqlToolError {
         String   schema  = null;
         int[]    listSet = null;
         String[] types   = null;
@@ -2667,8 +2681,11 @@ public class SqlFile {
 
     /**
      * Process the current command as an SQL Statement
+     *
+     * @throws SQLException for the obvious reasons
+     * @throws SqlToolError for local error within this class
      */
-    private void processSQL() throws SQLException {
+    private void processSQL() throws SQLException, SqlToolError {
         // Really don't know whether to take the network latency hit here
         // in order to check autoCommit in order to set
         // possiblyUncommitteds more accurately.
@@ -2694,7 +2711,7 @@ public class SqlFile {
 
             if (prepareVar == null) {
                 if (binBuffer == null) {
-                    throw new SQLException("Binary SqlFile buffer is empty");
+                    throw new SqlToolError("Binary SqlFile buffer is empty");
                 }
 
                 ps.setBytes(1, binBuffer);
@@ -2702,7 +2719,7 @@ public class SqlFile {
                 String val = (String) userVars.get(prepareVar);
 
                 if (val == null) {
-                    throw new SQLException("PL Variable '" + prepareVar
+                    throw new SqlToolError("PL Variable '" + prepareVar
                                            + "' is empty");
                 }
 
@@ -2747,7 +2764,8 @@ public class SqlFile {
      */
     private void displayResultSet(Statement statement, ResultSet r,
                                   int[] incCols,
-                                  String filter) throws SQLException {
+                                  String filter) throws SQLException,
+                                  SqlToolError {
         java.sql.Timestamp ts;
         int dotAt;
         int                updateCount = (statement == null) ? -1
@@ -2931,9 +2949,7 @@ public class SqlFile {
 
                         if (binary || (val == null &&!r.wasNull())) {
                             if (pwCsv != null) {
-                                // TODO:  Should throw something other than
-                                // a SQLException
-                                throw new SQLException(
+                                throw new SqlToolError(
                                     "Table has a binary column.  CSV files "
                                     + "are text, not binary, files");
                             }
@@ -2944,7 +2960,7 @@ public class SqlFile {
                                 binBuffer =
                                     streamToBytes(r.getBinaryStream(i));
                             } catch (IOException ioe) {
-                                throw new SQLException(
+                                throw new SqlToolError(
                                     "Failed to read value using stream");
                             }
 
@@ -3837,10 +3853,9 @@ public class SqlFile {
     /**
      * Validate that String is safe to display in a CSV file.
      *
-     * @throws SQLException (should throw something else, since this is
-     * not an SQL problem.  Fix the caller!)
+     * @throws SqlToolError
      */
-    public void csvSafe(String s) throws SQLException {
+    public void csvSafe(String s) throws SqlToolError {
         if (pwCsv == null || csvColDelim == null || csvRowDelim == null
                 || csvNullRep == null) {
             throw new RuntimeException(
@@ -3853,18 +3868,18 @@ public class SqlFile {
         }
 
         if (s.indexOf(csvColDelim) > 0) {
-            throw new SQLException(
+            throw new SqlToolError(
                 "Table data contains our column delimiter '" + csvColDelim
                 + "'");
         }
 
         if (s.indexOf(csvRowDelim) > 0) {
-            throw new SQLException("Table data contains our row delimiter '"
+            throw new SqlToolError("Table data contains our row delimiter '"
                                    + csvRowDelim + "'");
         }
 
         if (s.indexOf(csvNullRep) > 0) {
-            throw new SQLException(
+            throw new SqlToolError(
                 "Table data contains our null representation '" + csvNullRep
                 + "'");
         }
