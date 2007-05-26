@@ -1769,6 +1769,10 @@ public class SqlFile {
             }
 
             String varName = toker.nextToken();
+
+			if (varName.charAt(0) == ':') {
+                throw new BadSpecial("PL variable names may not begin with ':'");
+			}
             File   file    = new File(toker.nextToken());
 
             try {
@@ -1808,6 +1812,9 @@ public class SqlFile {
             }
 
             String varName   = toker.nextToken();
+			if (varName.charAt(0) == ':') {
+                throw new BadSpecial("PL variable names may not begin with ':'");
+            }
             String parenExpr = toker.nextToken("").trim();
 
             if (parenExpr.length() < 2 || parenExpr.charAt(0) != '('
@@ -2022,6 +2029,10 @@ public class SqlFile {
         int    index    = pastName(inString, 0);
         int    inLength = inString.length();
         String varName  = inString.substring(0, index);
+
+		if (varName.charAt(0) == ':') {
+			throw new BadSpecial("PL variable names may not begin with ':'");
+		}
 
         while (index + 1 < inLength
                 && (inString.charAt(index) == ' '
