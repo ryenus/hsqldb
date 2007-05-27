@@ -37,13 +37,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.net.URL;
 import java.net.MalformedURLException;
-import java.net.URLClassLoader;
 
 /* $Id$ */
 
@@ -271,8 +268,7 @@ public class RCData {
      * @return New JDBC Connection
      */
     public Connection getConnection()
-    throws ClassNotFoundException, InstantiationException,
-           IllegalAccessException, SQLException, MalformedURLException {
+    throws ClassNotFoundException, SQLException, MalformedURLException {
         return getConnection(null, null, null);
     }
 
@@ -282,15 +278,19 @@ public class RCData {
      *
      * @return New JDBC Connection
      */
-    public Connection getConnection(String curDriver, String curCharset,
-                                    String curTrustStore)
+    public Connection getConnection(String pCurDriver, String pCurCharset,
+                                    String pCurTrustStore)
                                     throws ClassNotFoundException,
-                                           InstantiationException,
-                                           IllegalAccessException,
                                            MalformedURLException,
                                            SQLException {
 
         Properties sysProps = System.getProperties();
+
+        String curDriver = pCurDriver;
+        String curCharset = pCurCharset;
+        String curTrustStore = pCurTrustStore;
+        // These are just to quiet compilation warnings about modifying
+        // param pointers.
 
         if (curDriver == null) {
 

@@ -46,6 +46,8 @@ import java.util.ArrayList;
  * if we drop support for Java versions under 1.4..
  */
 public class AppendableException extends Exception {
+    static final long serialVersionUID = -1002629580611098803L;
+
     public static String     LS = System.getProperty("line.separator");
     private Throwable cause = null;
     public List appendages = null;

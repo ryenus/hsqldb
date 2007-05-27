@@ -137,6 +137,7 @@ public class SqlFile {
      * instances.
      */
     private static class BooleanBucket {
+        BooleanBucket() {}
         private boolean bPriv = false;
 
         public void set(boolean bIn) {
@@ -625,7 +626,7 @@ public class SqlFile {
                                + ((file == null) ? "stdin"
                                                  : file.toString()) + "' line "
                                                  + curLinenum + ':');
-                    if (inputLine != null) errprintln("\"" + inputLine + '"');
+                    errprintln("\"" + inputLine + '"');
                     errprintln(bs.getMessage());
                     Throwable cause = bs.getCause();
                     if (cause != null) {
@@ -653,15 +654,13 @@ public class SqlFile {
                         rollbackUncoms = false;
                         // Recursion level will exit by rethrowing the BE.
                         // We set rollbackUncoms to false because only the
-                        // top level should detect break errors and 
+                        // top level should detect break errors and
                         // possibly roll back.
                     } else if (msg == null || msg.equals("file")) {
                         break;
                     } else {
                         errprintln("Unsatisfied break statement"
-                                   + ((msg == null) ? ""
-                                                    : (" (type " + msg
-                                                       + ')')) + '.');
+                                + " (type " + msg + ").");
                     }
 
                     if (recursed ||!continueOnError) {
@@ -689,7 +688,7 @@ public class SqlFile {
                                + ((file == null) ? "stdin"
                                                  : file.toString()) + "' line "
                                                  + curLinenum + ':');
-                    if (inputLine != null) errprintln("\"" + inputLine + '"');
+                    errprintln("\"" + inputLine + '"');
                     errprintln(ste.getMessage());
                     Throwable cause = ste.getCause();
                     if (cause != null) {
@@ -777,11 +776,12 @@ public class SqlFile {
      * Utility nested Exception class for internal use only.
      */
     private class BadSpecial extends AppendableException {
-        // Normal use constructor
-        private BadSpecial(String s) {
+        static final long serialVersionUID = 7162440064026570590L;
+
+        BadSpecial(String s) {
             super(s);
         }
-        private BadSpecial(String s, Throwable t) {
+        BadSpecial(String s, Throwable t) {
             super(s, t);
         }
     }
@@ -794,6 +794,8 @@ public class SqlFile {
      * QuitNow.
      */
     private class QuitNow extends SqlToolError {
+        static final long serialVersionUID = 1811094258670900488L;
+
         public QuitNow(String s) {
             super(s);
         }
@@ -811,6 +813,8 @@ public class SqlFile {
      * BreakException.
      */
     private class BreakException extends SqlToolError {
+        static final long serialVersionUID = 351150072817675994L;
+
         public BreakException() {
             super();
         }
@@ -828,6 +832,8 @@ public class SqlFile {
      * ContinueException.
      */
     private class ContinueException extends SqlToolError {
+        static final long serialVersionUID = 5064604160827106014L;
+
         public ContinueException() {
             super();
         }
@@ -841,7 +847,9 @@ public class SqlFile {
      * Utility nested Exception class for internal use only.
      */
     private class BadSwitch extends Exception {
-        private BadSwitch(int i) {
+        static final long serialVersionUID = 7325933736897253269L;
+
+        BadSwitch(int i) {
             super(Integer.toString(i));
         }
     }
@@ -1103,23 +1111,26 @@ public class SqlFile {
      * @param inString Complete command, less the leading '\' character.
      * @throws SQLException thrown by JDBC driver.
      * @throws BadSpecial special-command-specific errors.
-     * @throws SqlToolError all other errors, plus QuitNow, 
+     * @throws SqlToolError all other errors, plus QuitNow,
      *                      BreakException, ContinueException.
      */
     private void processSpecial(String inString)
     throws BadSpecial, QuitNow, SQLException, SqlToolError {
-        String arg1,
-               other = null;
+        String arg1, other = null;
 
-        if (inString.length() < 1) {
+        String string = inString;
+        // This is just to quiet compiler warning about assigning to
+        // parameter pointer.
+
+        if (string.length() < 1) {
             throw new BadSpecial("Null special command");
         }
 
         if (plMode) {
-            inString = dereference(inString, false);
+            string = dereference(string, false);
         }
 
-        StringTokenizer toker = new StringTokenizer(inString);
+        StringTokenizer toker = new StringTokenizer(string);
 
         arg1 = toker.nextToken();
 
@@ -1704,14 +1715,16 @@ public class SqlFile {
      * Nesting not supported yet.
      *
      * @param inString Complete command, less the leading '\' character.
-     * @throws SQLException thrown by JDBC driver.
      * @throws BadSpecial special-command-specific errors.
      * @throws SqlToolError all other errors, plus BreakException and
      *                      ContinueException.
      */
-    private void processPL(String inString)
-    throws BadSpecial, SqlToolError, SQLException {
-        if (inString.length() < 1) {
+    private void processPL(String inString) throws BadSpecial, SqlToolError {
+        String string = inString;
+        // This is just to quiet compiler warning about assigning to
+        // parameter pointer.
+
+        if (string.length() < 1) {
             plMode = true;
 
             stdprintln("PL variable expansion mode is now on");
@@ -1719,17 +1732,17 @@ public class SqlFile {
             return;
         }
 
-        if (inString.charAt(0) == '?') {
+        if (string.charAt(0) == '?') {
             stdprintln(PL_HELP_TEXT);
 
             return;
         }
 
         if (plMode) {
-            inString = dereference(inString, false);
+            string = dereference(string, false);
         }
 
-        StringTokenizer toker      = new StringTokenizer(inString);
+        StringTokenizer toker      = new StringTokenizer(string);
         String          arg1       = toker.nextToken();
         String[]        tokenArray = null;
 
@@ -2069,20 +2082,20 @@ public class SqlFile {
         /* Since we don't want to permit both "* VARNAME = X" and
          * "* VARNAME=X" (i.e., whitespace is OPTIONAL in both positions),
          * we can't use the Tokenzier.  Therefore, start over again with
-         * the inString. */
+         * the string. */
         toker = null;
 
-        int    index    = SqlFile.pastName(inString, 0);
-        int    inLength = inString.length();
-        String varName  = inString.substring(0, index);
+        int    index    = SqlFile.pastName(string, 0);
+        int    inLength = string.length();
+        String varName  = string.substring(0, index);
 
         if (varName.charAt(0) == ':') {
             throw new BadSpecial("PL variable names may not begin with ':'");
         }
 
         while (index + 1 < inLength
-                && (inString.charAt(index) == ' '
-                    || inString.charAt(index) == '\t')) {
+                && (string.charAt(index) == ' '
+                    || string.charAt(index) == '\t')) {
             index++;
         }
 
@@ -2091,9 +2104,9 @@ public class SqlFile {
             throw new BadSpecial("Unterminated PL variable definition");
         }
 
-        String remainder = inString.substring(index + 1);
+        String remainder = string.substring(index + 1);
 
-        switch (inString.charAt(index)) {
+        switch (string.charAt(index)) {
             case '_' :
                 silentFetch = true;
             case '~' :
@@ -2115,7 +2128,7 @@ public class SqlFile {
 
                 if (remainder.length() > 0) {
                     userVars.put(varName,
-                                 inString.substring(index + 1).trim());
+                                 string.substring(index + 1).trim());
                 } else {
                     userVars.remove(varName);
                 }
@@ -2389,7 +2402,7 @@ public class SqlFile {
      * characters in the object names (which would require "quotes" when
      * creating them).
      *
-     * @throws BadSpecial usually wrap a cause (which cause is a 
+     * @throws BadSpecial usually wrap a cause (which cause is a
      *                    SQLException in some cases).
      * @throws SqlToolError passed through from other methods in this class.
      */
@@ -2603,8 +2616,6 @@ public class SqlFile {
                                 + "table as argument to \\di");
                     }
                      */
-                    schema = null;
-
                     String table = null;
 
                     if (filter != null) {
@@ -2910,7 +2921,6 @@ public class SqlFile {
 
                 boolean filteredOut;
 
-                EACH_ROW:
                 while (r.next()) {
                     fieldArray  = new String[incCount];
                     insi        = -1;
@@ -3015,7 +3025,7 @@ public class SqlFile {
                             return;
                         }
 
-                        if (excludeSysSchemas && i == 2) {
+                        if (excludeSysSchemas && val != null && i == 2) {
                             for (int z = 0; z < oracleSysSchemas.length;
                                     z++) {
                                 if (val.equals(oracleSysSchemas[z])) {
@@ -4198,7 +4208,6 @@ public class SqlFile {
             + " FROM " + tableName + " WHERE 1 = 2");
 
         try {
-            int ctype;
             ResultSetMetaData rsmd = curConn.createStatement().executeQuery(
                 typeQuerySb.toString()).getMetaData();
 
