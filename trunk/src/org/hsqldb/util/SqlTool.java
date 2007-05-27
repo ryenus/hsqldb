@@ -632,10 +632,6 @@ public class SqlTool {
 
                 sqlFiles[j].execute(conn, coeOverride);
             }
-        } catch (IOException ioe) {
-            throw new SqlToolException(IOERR_EXITVAL,
-                    "Problem with tool input:  " + ioe.getMessage());
-
             // Following two Exception types are handled properly inside of
             // SqlFile.  We just need to return an appropriate error status.
         } catch (SqlToolError ste) {
