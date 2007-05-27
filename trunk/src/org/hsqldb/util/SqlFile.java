@@ -273,14 +273,21 @@ public class SqlFile {
         + "    * *CSV_COL_DELIM = ," + LS
         + "Don't forget the * indicating a PL command PLUS the leading * in"
         + LS + "all of these variable names.  \\x or \\m below indicates where" + LS
-        + "the setting is applicable." + LS
+        + "the setting is applicable.  Default value/behavior is in [square brackes]." + LS
         + "    *CSV_SKIP_PREFIX   \\m    Comment line prefix in CSV files" + LS
+        + "                              [\"#\"]" + LS
         + "    *CSV_COL_DELIM     \\m\\x  Column delimiter" + LS
+        + "                              [\"|\"]" + LS
         + "    *CSV_ROW_DELIM     \\m\\x  Row delimiter" + LS
+        + "                              [OS-dependent (Java line.separator)]" + LS
         + "    *CSV_NULL_REP      \\m\\x  String to represent database null" + LS
+        + "                              [\"[null]\"]" + LS
         + "    *CSV_TARGET_FILE   \\x    File which exports will write to" + LS
-        + "    *CSV_TABLENAME     \\m    Table which imports will write to" + LS
-        + "    *CSV_CONST_COLS    \\m    Column vals to write to every row";
+        + "                              [source table name + \".csv\"]" + LS
+        + "    *CSV_TARGET_TABLE  \\m    Table which imports will write to" + LS
+        + "                              [CVS filename without extension]" + LS
+        + "    *CSV_CONST_COLS    \\m    Column values to write to every row" + LS
+        + "                              [none]";
 
     private static final String D_OPTIONS_TEXT =
         "\\dX [parameter...] where X is one of the following."  + LS
@@ -4131,6 +4138,8 @@ public class SqlFile {
                         + lineCount);
             }
             String matcher = trimmedLine.substring(0, colonAt).trim();
+            // Need to be sure here that tableName is not null (in
+            // which case it would be determined later on by the file name).
             if (matcher.equals("*") || matcher.equalsIgnoreCase(tableName)){
                 recStart = 1 + string.indexOf(':', recStart);
                 break;
