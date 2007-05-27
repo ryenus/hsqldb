@@ -37,17 +37,16 @@ package org.hsqldb.util;
  * This class is misnamed, because it is not only errors.
  * When there is time, this file and class should be renamed.
  */
-public class SqlToolError extends Exception {
-
-    public SqlToolError(Exception e) {
-        super(e.getMessage());
+public class SqlToolError extends AppendableException {
+    public SqlToolError(Throwable cause) {
+        super(cause.getMessage(), cause);
     }
-
+    public SqlToolError() {
+    }
     public SqlToolError(String s) {
         super(s);
     }
-
-    public SqlToolError() {
-        super();
+    public SqlToolError(String string, Throwable cause) {
+        super(string, cause);
     }
 }
