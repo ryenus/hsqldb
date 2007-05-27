@@ -38,6 +38,8 @@ package org.hsqldb.util;
  * When there is time, this file and class should be renamed.
  */
 public class SqlToolError extends AppendableException {
+    static final long serialVersionUID = 1792522673702223649L;
+
     public SqlToolError(Throwable cause) {
         super(cause.getMessage(), cause);
     }

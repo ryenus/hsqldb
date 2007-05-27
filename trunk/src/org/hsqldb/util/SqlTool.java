@@ -127,8 +127,10 @@ public class SqlTool {
      *  static initializer if !equals("\n", "LS)  (or very similar to that). */
 
     /** Utility nested class for internal use. */
-    private static class BadCmdline extends Exception {}
-    ;
+    private static class BadCmdline extends Exception {
+        static final long serialVersionUID = -2134764796788108325L;
+        BadCmdline() {}
+    }
 
     /** Utility object for internal use. */
     private static BadCmdline bcl = new BadCmdline();
@@ -137,25 +139,29 @@ public class SqlTool {
      * These are always handled inside this class.
      */
     private static class PrivateException extends Exception {
-        public PrivateException() {
+        static final long serialVersionUID = -7765061479594523462L;
+
+        PrivateException() {
             super();
         }
 
-        public PrivateException(String s) {
+        PrivateException(String s) {
             super(s);
         }
     }
 
     public static class SqlToolException extends Exception {
+        static final long serialVersionUID = 1424909871915188519L;
+
         int exitValue = 1;
-        private SqlToolException(String message, int exitValue) {
+        SqlToolException(String message, int exitValue) {
             super(message);
             this.exitValue = exitValue;
         }
-        private SqlToolException(int exitValue, String message) {
+        SqlToolException(int exitValue, String message) {
             this(message, exitValue);
         }
-        private SqlToolException(int exitValue) {
+        SqlToolException(int exitValue) {
             super();
             this.exitValue = exitValue;
         }
