@@ -872,6 +872,7 @@ public class SqlFile {
      * Utility nested Exception class for internal use only.
      */
     private class RowError extends AppendableException {
+        static final long serialVersionUID = 754346434606022750L;
 
         RowError(String s) {
             super(s);
@@ -4533,7 +4534,7 @@ public class SqlFile {
                     rejectReportWriter.println("<P>Input CSV file: "
                         + "<SPAN style='font-weight:bold; font-style:courier'>"
                             + file.getPath() + "</SPAN></P>");
-                    if (rejectWriter != null) {
+                    if (rejectFile != null) {
                         rejectReportWriter.println("<P>Reject CSV file: "
                             + "<SPAN style='font-weight:bold; font-style:courier;'>"
                                 + rejectFile.getPath() + "</SPAN></P>");
