@@ -37,29 +37,43 @@
 
 # UNIX init script for HSQLDB.
 
+# IMPORTANT!  Users running multiple HSQLDB ***Server processes*** must use a 
+# unique "SERVICE" name for each Server process.  Most users will run just one 
+# server instance, possibly serving lots of database instances.  Multi-server
+# runners must change the value on the following line, and, if your system 
+# uses chkconfig or insserv, you must change the value of "hsqldb" to the 
+# same thing (as SERVICE) in the chkconfig and/or insserv blocks a few
+# lines down from here (incl. in the pidfile and config file paths).  (Sorry 
+# to say, but you need to repeat this procedure after every HSQLDB upgrade).
+SERVICE=hsqldb
+
+#This is the one setting which users will commonly change in this file.
+# It's impossible to determine this script name (in a portable way) at boot-up 
+# time, since ${0} is entirely different for init scripts, depending on UNIX 
+# version.
+
 # See the "UNIX Quick Start" chapter of the Hsqldb User Guide for how to
 # use this file.
-
-# This stuff will be ignored by systems that don't use chkconfig.
+# This block only used by chkconfig systems (incl. SuSE Linux).
 # chkconfig: 345 87 13
 # description: Hsqldb, A High Performance Java Database
 # pidfile: /var/run/hsqldb.pid
 # config: /etc/sysconfig/hsqldb
 
-# This stuff for SuSE Linux.  Contributed by M. Bisping.
+# This block only used by insserv systems (incl. SuSE Linux).
 ### BEGIN INIT INFO
-# Provides:          HSQLDB-Server
+# Provides:          hsqldb
 # Required-Start:    $syslog $remote_fs $network $named
 # Required-Stop:
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 6
-# Short-Description: HSQLDB-Server
+# Short-Description: HSQLDB Database Server
 # Description:       Hsqldb, A High Performance Java Database Server
 ### END INIT INFO
 
 # UNIX System-V and Linux users should copy this script to the common
-# init script directory (/etc/init.d/on most systems) with name "hsqldb"
-# (not "hsqldb.init").
+# init script directory (/etc/init.d/on most systems) with name "hsqldb",
+# or whatever you have SERVICE set to (no ".init" suffix!).
 
 # N.b.  Being a system script, this script does not use inherited variables.
 # If you want to adjust a setting, edit the config file.
@@ -88,6 +102,8 @@
 #              (However, Sunfreeware.com builds use /usr/local/etc).
 #   Linux:  /etc/sysconfig
 #   FreeBSD:  /usr/local/etc/hsqldb.cfg
+# (Replace the base name "hsqldb" with whatever you have SERVICE set to at
+# the top of this file).
 # You can put it at any of these locations and it will be used.  For
 # your sanity, only put a file at one of these locations.
 
@@ -105,7 +121,7 @@ INVOC_PATH=`dirname "$0"` || {
 }
 [ -n "$INVOC_PATH" ] && INVOC_PATH="${INVOC_PATH}/"
 
-SYNTAX_MSG="SYNTAX:  ${INVOC_PATH}hsqldb start|stop|stopcompact|restart|restartcmpacted|status"
+SYNTAX_MSG="SYNTAX:  ${INVOC_PATH}${SERVICE} start|stop|stopcompact|restart|restartcmpacted|status"
 
 # You can override any of these default values in your config file:
 
@@ -138,29 +154,29 @@ SERVER_ADDL_CLASSPATH=
 INVOC_ADDL_ARGS=
 case "`uname`" in
     Darwin)     # I.e. Mac OS X.  I don't know about older Mac OSes.
-        LOGFILE=/var/log/hsqldb.log
-        PIDFILE=/var/run/hsqldb.pid
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/var/run/${SERVICE}.pid
     ;;
     Linux)
-        LOGFILE=/var/log/hsqldb.log
-        PIDFILE=/var/run/hsqldb.pid
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/var/run/${SERVICE}.pid
     ;;
     FreeBSD)
-        LOGFILE=/var/log/hsqldb.log
-        PIDFILE=/var/run/hsqldb.pid
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/var/run/${SERVICE}.pid
     ;;
     SunOS)
-        LOGFILE=/var/log/hsqldb.log
-        PIDFILE=/etc/hsqldb.pid
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/etc/${SERVICE}.pid
     ;;
     *)
-        LOGFILE=/var/log/hsqldb.log
-        PIDFILE=/etc/hsqldb.pid
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/etc/${SERVICE}.pid
     ;;
 esac
 
-for candidate in /etc/sysconfig/hsqldb /etc/hsqldb.conf /etc/hsqldb.cfg  \
-    /usr/local/etc/hsqldb.cfg; do
+for candidate in /etc/sysconfig/${SERVICE} /etc/${SERVICE}.conf /etc/${SERVICE}.cfg  \
+    /usr/local/etc/${SERVICE}.cfg; do
     [ -f $candidate ] && {
         CFGFILE=$candidate
         break
@@ -338,10 +354,10 @@ HSQLDB_PID=
 case "$COMMAND" in
     status)
         [ -n "$HSQLDB_PID" ] || {
-            echo "I don't know of any running hsqldb server."
+            echo "I don't know of any running ${SERVICE} server."
             exit 0
         }
-        echo "There is an hsqldb server loaded from $HSQLDB_JAR_PATH
+        echo "There is an ${SERVICE} server loaded from $HSQLDB_JAR_PATH
 running with pid $HSQLDB_PID."
         # I would give a nice ps command here, were ps not so damned 
         # OS-specific.
@@ -357,11 +373,11 @@ running with pid $HSQLDB_PID."
         exec "$JAVA_EXECUTABLE" $AUTH_FILE_SWITCH $CLIENT_JVMARGS \
             "-Dsqltoolsprayer.propfile=$PROPERTY_FILE" \
             "-Dsqltoolsprayer.monfile=$PIDFILE" \
-            org.hsqldb.util.SqlToolSprayer 'CALL true' > /dev/null
+            org.hsqldb.util.SqlToolSprayer 'CALL true;' > /dev/null
     ;;
     start)
         [ -n "$HSQLDB_PID" ] && {
-        echo "There is already a hsqldb server running with pid $HSQLDB_PID." 1>&2
+        echo "There is already a ${SERVICE} server running with pid $HSQLDB_PID." 1>&2
             exit 1
         }
         TLS_SWITCHES=
@@ -433,7 +449,7 @@ running with pid $HSQLDB_PID."
             "-Dsqltoolsprayer.propfile=$PROPERTY_FILE" \
             "-Dsqltoolsprayer.monfile=$PIDFILE" \
             "-Dsqltoolsprayer.maxtime=${MAX_START_SECS}000" \
-            org.hsqldb.util.SqlToolSprayer 'CALL true' > /dev/null && {
+            org.hsqldb.util.SqlToolSprayer 'CALL true;' > /dev/null && {
             rm -f "$PIDCHECKER_FLAGFILE"
             echo "$ABS_TARGET_CLASS started with pid `cat $PIDFILE`"
             exit 0
@@ -446,7 +462,7 @@ See log file '$LOGFILE'." 1>&2
     stop|stopcompact)
         [ "$COMMAND" = stopcompact ] && SHUTDOWN_OPTION='compact'
         [ -n "$HSQLDB_PID" ] || {
-            echo "I don't know of any running hsqldb server." 1>&2
+            echo "I don't know of any running ${SERVICE} server." 1>&2
             exit 1
         }
         AUTH_FILE_SWITCH=
@@ -460,11 +476,11 @@ See log file '$LOGFILE'." 1>&2
         export PATH   # Required only for some funny init environments.
         "$JAVA_EXECUTABLE" $AUTH_FILE_SWITCH $CLIENT_JVMARGS \
             "-Dsqltoolsprayer.propfile=$PROPERTY_FILE" \
-            org.hsqldb.util.SqlToolSprayer "shutdown ${SHUTDOWN_OPTION}" \
+            org.hsqldb.util.SqlToolSprayer "shutdown ${SHUTDOWN_OPTION};" \
             $SHUTDOWN_URLIDS
         sleep $MAX_TERMINATE_SECS  # Give the JVM a sec. or 2 to fully exit.
         kill -0 "$HSQLDB_PID" > /dev/null 2>&1 && {
-            echo "WARNING:  hsqldb is still running!" 1>&2
+            echo "WARNING:  ${SERVICE} is still running!" 1>&2
             exit 1
         }
         rm -f "$PIDFILE" || {
@@ -477,8 +493,8 @@ See log file '$LOGFILE'." 1>&2
     restart|restartcompacted)
         STOP_COMMAND=stop
         [ "$COMMAND" = restartcompacted ] && STOP_COMMAND=stopcompact
-        "${INVOC_PATH}"hsqldb $STOP_COMMAND || exit $?
-        exec "${INVOC_PATH}"/hsqldb start
+        "${INVOC_PATH}"${SERVICE} $STOP_COMMAND || exit $?
+        exec "${INVOC_PATH}"/${SERVICE} start
     ;;
     *)
         echo "$SYNTAX_MSG" 1>&2
