@@ -3963,38 +3963,96 @@ public class SqlFile {
         }
     }
 
+    /**
+     * Translates user-supplied escapes into the traditionaly corresponding
+     * corresponding binary characters.
+     *
+     * Allowed sequences:
+     * <UL>
+     *  <LI>\0\d+   (an octal digit)
+     *  <LI>\[0-9]\d*  (a decimal digit)
+     *  <LI>\[Xx][0-9]{2}  (a hex digit)
+     *  <LI>\n  Newline  (Ctrl-J)
+     *  <LI>\r  Carriage return  (Ctrl-M)
+     *  <LI>\t  Horizontal tab  (Ctrl-I)
+     *  <LI>\f  Form feed  (Ctrl-L)
+     * </UL>
+     * 
+     * Java 1.4 String methods will make this into a 1 or 2 line task.
+     */
     public static String convertEscapes(String inString) {
         if (inString == null) {
             return null;
         }
+        return convertNumericEscapes(
+                convertEscapes(convertEscapes(convertEscapes(convertEscapes(
+                    convertEscapes(inString, "\\n", "\n"), "\\r", "\r"),
+                "\\t", "\t"), "\\\\", "\\"),
+            "\\f", "\f")
+        );
+    }
 
-        String workString = new String(inString);
-        int    i;
+    /**
+     * @param string  Non-null String to modify.
+     */
+    private static String convertNumericEscapes(String string) {
+        String workString = string;
+        int i = 0;
 
-        i = 0;
-
-        while ((i = workString.indexOf("\\n", i)) > -1
-                && i < workString.length() - 1) {
-            workString = workString.substring(0, i) + '\n'
-                         + workString.substring(i + 2);
+        for (char dig = '0'; dig <= '9'; dig++) {
+            while ((i = workString.indexOf("\\" + dig, i)) > -1
+                    && i < workString.length() - 1) {
+                workString = convertNumericEscape(string, i);
+            }
+            while ((i = workString.indexOf("\\x" + dig, i)) > -1
+                    && i < workString.length() - 1) {
+                workString = convertNumericEscape(string, i);
+            }
+            while ((i = workString.indexOf("\\X" + dig, i)) > -1
+                    && i < workString.length() - 1) {
+                workString = convertNumericEscape(string, i);
+            }
         }
+        return workString;
+    }
 
-        i = 0;
-
-        while ((i = workString.indexOf("\\r", i)) > -1
-                && i < workString.length() - 1) {
-            workString = workString.substring(0, i) + '\r'
-                         + workString.substring(i + 2);
+    /**
+     * @offset  Position of the leading \.
+     */
+    private static String convertNumericEscape(String string, int offset) {
+        int post = -1;
+        int firstDigit = -1;
+        int radix = -1;
+        if (Character.toUpperCase(string.charAt(offset + 1)) == 'X') {
+            firstDigit = offset + 2;
+            radix = 16;
+            post = firstDigit + 2;
+            if (post > string.length()) post = string.length();
+        } else {
+            firstDigit = offset + 1;
+            radix = (Character.toUpperCase(string.charAt(firstDigit)) == '0')
+                    ? 8 : 10;
+            for (post = firstDigit + 1; post < string.length()
+                    && Character.isDigit(string.charAt(post)); post++) ;
         }
+        return string.substring(0, offset) + ((char)
+                Integer.parseInt(string.substring(firstDigit, post), radix))
+                + string.substring(post);
+    }
 
-        i = 0;
+    /**
+     * @param string  Non-null String to modify.
+     */
+    private static String convertEscapes(String string, String from, String to) {
+        String workString = string;
+        int i = 0;
+        int fromLen = from.length();
 
-        while ((i = workString.indexOf("\\t", i)) > -1
+        while ((i = workString.indexOf(from, i)) > -1
                 && i < workString.length() - 1) {
-            workString = workString.substring(0, i) + '\t'
-                         + workString.substring(i + 2);
+            workString = workString.substring(0, i) + to
+                         + workString.substring(i + fromLen);
         }
-
         return workString;
     }
 
