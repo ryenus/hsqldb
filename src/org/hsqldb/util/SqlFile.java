@@ -285,9 +285,16 @@ public class SqlFile {
         + "    *CSV_TARGET_FILE   \\x    File which exports will write to" + LS
         + "                              [source table name + \".csv\"]" + LS
         + "    *CSV_TARGET_TABLE  \\m    Table which imports will write to" + LS
-        + "                              [CVS filename without extension]" + LS
+        + "                              [CSV filename without extension]" + LS
         + "    *CSV_CONST_COLS    \\m    Column values to write to every row" + LS
-        + "                              [none]";
+        + "                              [none]" + LS
+        + "    *CSV_REJECT_FILE   \\m    CSV file to be created with rejected records" + LS
+        + "                              [None*]" + LS
+        + "    *CSV_REJECT_REPORT \\m    HTML report to explain reject records" + LS
+        + "                              [None*]" + LS
+        + "* Imports will abort immediately upon the first import record failure, unless" + LS
+        + "either *CSV_REJECT_FILE or *CSV_REJECT_REPORT (or both) are set.  (Whether" + LS
+        + "SqlTool will roll back and quit depends on your settings for \\c and \\a).";
 
     private static final String D_OPTIONS_TEXT =
         "\\dX [parameter...] where X is one of the following."  + LS
@@ -858,6 +865,24 @@ public class SqlFile {
 
         BadSwitch(int i) {
             super(Integer.toString(i));
+        }
+    }
+
+    /**
+     * Utility nested Exception class for internal use only.
+     */
+    private class RowError extends AppendableException {
+
+        RowError(String s) {
+            super(s);
+        }
+
+        RowError(Throwable t) {
+            super(t.getMessage(), t);
+        }
+
+        RowError(String s, Throwable t) {
+            super(s, t);
         }
     }
 
@@ -2455,10 +2480,10 @@ public class SqlFile {
 
                 case 'S' :
                     if (dbProductName.indexOf("Oracle") > -1) {
-                        System.err.println("*** WARNING:");
-                        System.err.println("*** Listing tables in "
+                        errprintln("*** WARNING:");
+                        errprintln("*** Listing tables in "
                             + "system-supplied schemas since");
-                        System.err.println("*** Oracle"
+                        errprintln("*** Oracle"
                             + "(TM) doesn't return a JDBC system table list.");
 
                         types[0]          = "TABLE";
@@ -4147,6 +4172,7 @@ public class SqlFile {
             // Skip non-matched header line
         }
 
+        String headerLine = string.substring(recStart, recEnd);
         colStart = recStart;
         colEnd   = -1;
 
@@ -4252,19 +4278,69 @@ public class SqlFile {
             sb.append('?');
         }
 
-        //System.out.println("INSERTION: (" + sb + ')');
+        // Initialize REJECT file(s)
+        int rejectCount = 0;
+        File rejectFile = null;
+        File rejectReportFile = null;
+        PrintWriter rejectWriter = null;
+        PrintWriter rejectReportWriter = null;
+        String tmp = (String) userVars.get("*CSV_REJECT_FILE");
+        if (tmp != null) try {
+            rejectFile = new File(tmp);
+            rejectWriter = new PrintWriter(
+                        new OutputStreamWriter(
+                            new FileOutputStream(rejectFile), charset));
+            rejectWriter.print(headerLine + csvRowDelim);
+        } catch (IOException ioe) {
+            throw new SqlToolError("Failed to set up reject file '"
+                    + tmp + "'", ioe);
+        }
+        tmp = (String) userVars.get("*CSV_REJECT_REPORT");
+        if (tmp != null) try {
+            rejectReportFile = new File(tmp);
+            rejectReportWriter = new PrintWriter(
+                        new OutputStreamWriter(
+                            new FileOutputStream(rejectReportFile), charset));
+            rejectReportWriter.println("<HTML>");
+            rejectReportWriter.println("<HEAD><STYLE>");
+            rejectReportWriter.println("    .right { text-align:right; }");
+            rejectReportWriter.println("    .reason { font-family:courier; color:red; }");
+            rejectReportWriter.println("</STYLE></HEAD>");
+            rejectReportWriter.println("<BODY style='background:silver;'>");
+            if (rejectWriter != null) {
+                rejectReportWriter.println(
+                        "<P>The corresponding records in '" + rejectFile
+                        + "' are at line numbers of (reject # + 1), since the "
+                        + "header record occupies the first line.</P>");
+            }
+            rejectReportWriter.println(
+                    "<TABLE border='1px' style='cellpadding:5px;'>");
+            rejectReportWriter.println("    <THEAD><TR><TH>reject #</TH>"
+                    + "<TH>input line #</TH><TH>reason</TH></TR></THEAD>");
+            rejectReportWriter.println("<TBODY>");
+        } catch (IOException ioe) {
+            throw new SqlToolError("Failed to set up reject report file '"
+                    + tmp + "'", ioe);
+        }
+
+        int recCount = 0;
+        int skipCount = 0;
+        PreparedStatement ps = null;
+
         try {
-            PreparedStatement ps = curConn.prepareStatement(sb.toString()
-                + ')');
+            try {
+                ps = curConn.prepareStatement(sb.toString() + ')');
+            } catch (SQLException se) {
+                throw new SqlToolError("Failed to prepare insertion setup "
+                        + "string: " + sb + ')', se);
+            }
             String[] dataVals = new String[autonulls.length];
             // Length is number of cols to insert INTO, not nec. # in CSV file.
-            int recCount = 0;
-            int skipCount = 0;
             int      readColCount;
             int      storeColCount;
 
             // Insert data rows 1-row-at-a-time
-            while (true) {
+            while (true) try { try {
                 recStart = recEnd + csvRowDelim.length();
 
                 if (recStart >= string.length()) {
@@ -4301,8 +4377,9 @@ public class SqlFile {
                     continue;
                 }
 
-                // Finally we will really add a record!
+                // Finally we will attempt to add a record!
                 recCount++;
+                // Remember that recCount counts both inserts + rejects
 
                 colStart = recStart;
                 colEnd   = -1;
@@ -4322,11 +4399,11 @@ public class SqlFile {
                     }
 
                     if (readColCount == headers.length - constColMapSize) {
-                        throw new SqlToolError(
+                        throw new RowError(
                             "Header has "
                                     + (headers.length - constColMapSize)
-                            + " columns.  CSV input line " + lineCount
-                            + " has too many column values ("
+                            + " columns, but input record "
+                            + "has too many column values ("
                             + (1 + readColCount) + ").");
                     }
 
@@ -4347,19 +4424,17 @@ public class SqlFile {
                  * we inserted *ColCount > array.length, we would have
                  * generated a runtime array index exception. */
                 if (readColCount != headers.length - constColMapSize) {
-                    throw new SqlToolError("Header has "
+                    throw new RowError("Header has "
                             + (headers.length - constColMapSize)
-                                          + " columns.  CSV input line "
-                                          + lineCount + " has " + readColCount
-                                          + " column values.");
+                            + " columns, but input record has "
+                            + readColCount + " column values.");
                 }
                 if (storeColCount != dataVals.length) {
-                    throw new SqlToolError("Header has "
+                    throw new RowError("Header has "
                             + (dataVals.length - constColMapSize)
-                                      + " non-skip columns.  CSV input line "
-                                      + lineCount + " has "
+                            + " non-skip columns, but input record has "
                             + (storeColCount - constColMapSize)
-                                      + " column insertion values.");
+                            + " column insertion values.");
                 }
 
                 for (int i = 0; i < dataVals.length; i++) {
@@ -4379,9 +4454,8 @@ public class SqlFile {
                                 ps.setTimestamp(i + 1,
                                         java.sql.Timestamp.valueOf(dateString));
                             } catch (IllegalArgumentException iae) {
-                                throw new SqlToolError("Bad value '"
-                                    + dateString + "' at Line " + lineCount,
-                                    iae);
+                                throw new RowError("Bad value '"
+                                    + dateString + "'", iae);
                             }
                         }
                     } else {
@@ -4397,25 +4471,88 @@ public class SqlFile {
                 retval = ps.executeUpdate();
 
                 if (retval != 1) {
-                    throw new SqlToolError("Insert from input line " + lineCount
-                                         + " failed.  " + retval
-                                         + " rows modified");
+                    throw new RowError(Integer.toString(retval)
+                            + " rows modified");
                 }
 
                 possiblyUncommitteds.set(true);
+            } catch (SQLException se) {
+                throw new RowError(se);
+            } } catch (RowError re) {
+                rejectCount++;
+                Throwable cause = re.getCause();
+                if (rejectWriter != null || rejectReportWriter != null) {
+                    if (rejectWriter != null) {
+                        rejectWriter.print(string.substring(
+                                recStart, recEnd) + csvRowDelim);
+                    }
+                    if (rejectReportWriter != null) {
+                        rejectReportWriter.println("    <TR>"
+                                + "<TD align='right' class='right'>"
+                                + lineCount
+                                + "</TD><TD align='right' class='right'>"
+                                + rejectCount + "</TD><TD><PRE>"
+                                + re.getMessage()
+                                + ((cause == null) ? "" : ("<HR/>" + cause))
+                                + "</PRE></TD></TR>");
+                    }
+                } else {
+                    throw new SqlToolError("Insert from input line "
+                            + lineCount + " failed.  " + re.getMessage(),
+                            cause);
+                }
             }
-
-            stdprintln("Successfully inserted " + recCount
-                       + " rows into table '" + tableName + "'");
-            if (skipCount > 0) {
-                stdprintln("Skipped " + skipCount + " rows with prefix '"
-                        + csvSkipPrefix + "'");
+        } finally {
+            String summaryString = null;
+            if (recCount > 0) {
+                summaryString = "Import summary ("
+                        + ((csvSkipPrefix == null) ? "" : ("'" + csvSkipPrefix
+                        + "'-"))
+                        + "skips / rejects / insertions):  "
+                        + skipCount + " / " + rejectCount + " / "
+                        + (recCount - rejectCount) + '.';
+                stdprintln(summaryString);
             }
-        } catch (SQLException se) {
-            throw new SqlToolError(
-                "SQL error encountered when inserting CSV data"
-                + ((lineCount > 1) ? (" from input line " + lineCount) : ""),
-                se);
+            if (recCount > rejectCount) {
+                stdprintln("(Unless you have Autocommit on, insertions will be "
+                    + "lost if you don't commit).");
+            }
+            if (rejectWriter != null) {
+                rejectWriter.flush();
+                rejectWriter.close();
+            }
+            if (rejectReportWriter != null) {
+                if (rejectCount > 0) {
+                    rejectReportWriter.println(
+                            "    <TR><TD colspan='3' style='background:blue; "
+                            + "font-weight:bold; color:white'>");
+                    rejectReportWriter.println("        " + summaryString);
+                    rejectReportWriter.println("    </TD></TR>");
+                    rejectReportWriter.println("</TBODY>");
+                    rejectReportWriter.println("</TABLE>");
+                    rejectReportWriter.println("<P>Input CSV file: "
+                        + "<SPAN style='font-weight:bold; font-style:courier'>"
+                            + file.getPath() + "</SPAN></P>");
+                    if (rejectWriter != null) {
+                        rejectReportWriter.println("<P>Reject CSV file: "
+                            + "<SPAN style='font-weight:bold; font-style:courier;'>"
+                                + rejectFile.getPath() + "</SPAN></P>");
+                    }
+                    rejectReportWriter.println("</BODY>");
+                    rejectReportWriter.println("</HTML>");
+                    rejectReportWriter.flush();
+                    rejectReportWriter.close();
+                }
+            }
+            if (rejectCount == 0) {
+                if (rejectFile != null && !rejectFile.delete())
+                    errprintln("Failed to purge unnecessary reject file '"
+                            + rejectFile + "'");
+                if (rejectReportFile != null && !rejectReportFile.delete())
+                    errprintln("Failed to purge unnecessary reject file '"
+                            + rejectReportFile + "'");
+                // These are trivial, non-fatal errors.
+            }
         }
     }
 
