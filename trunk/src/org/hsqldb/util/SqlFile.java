@@ -129,7 +129,7 @@ public class SqlFile {
     private Map              userVars         = null;
     private String[]         statementHistory = null;
     private boolean          chunking         = false;
-    private String           csvNullRep       = null;
+    private String           dsvNullRep       = null;
     public static String     LS = System.getProperty("line.separator");
 
     /**
@@ -231,8 +231,8 @@ public class SqlFile {
         + "    \\s                   * Show previous commands (i.e. SQL command history)" + LS
         + "    \\-[3][;]             * reload a command to buffer (opt. exec. w/ \":;\"))" + LS
         + "    \\=                   commit JDBC session" + LS
-        + "    \\x {TABLE|SELECT...} eXport table or query to CSV text file (options \\x?)" + LS
-        + "    \\m file/path.csv [*] iMport CSV text file records into a table (opts \\m?)" + LS
+        + "    \\x {TABLE|SELECT...} eXport table or query to DSV text file (options \\x?)" + LS
+        + "    \\m file/path.dsv [*] iMport DSV text file records into a table (opts \\m?)" + LS
         + "    \\q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)" + LS
     ;
     private static final String PL_HELP_TEXT = "PROCEDURAL LANGUAGE Commands." + LS
@@ -267,33 +267,38 @@ public class SqlFile {
         + "            the number of rows updated)." + LS
     ;
 
-    private static final String CSV_OPTIONS_TEXT =
-        "All of the CSV PL variables are optional.  To see all PL var. values,"
+    private static final String DSV_OPTIONS_TEXT =
+        "DSV stands for Delimiter-Separated-Values, which is just CSV (comma-"
+        + LS
+        + "separated-values) but always using a proper delimiter to prevent the"
+        + LS
+        + "need for quoting and escaping which CSV files have." + LS
+        + "All of the DSV PL variables are optional.  To see all PL var. values,"
         + LS + "run '* listvalue'.  Set the values like:" + LS
-        + "    * *CSV_COL_DELIM = ," + LS
+        + "    * *DSV_COL_DELIM = ," + LS
         + "Don't forget the * indicating a PL command PLUS the leading * in"
         + LS + "all of these variable names.  \\x or \\m below indicates where" + LS
         + "the setting is applicable.  Default value/behavior is in [square brackes]." + LS
-        + "    *CSV_SKIP_PREFIX   \\m    Comment line prefix in CSV files" + LS
-        + "                              [\"#\"]" + LS
-        + "    *CSV_COL_DELIM     \\m\\x  Column delimiter" + LS
-        + "                              [\"|\"]" + LS
-        + "    *CSV_ROW_DELIM     \\m\\x  Row delimiter" + LS
+        + "    *DSV_SKIP_PREFIX   \\m    Comment line prefix in DSV files.  "
+        + "[\"#\"]" + LS
+        + "    *DSV_COL_DELIM     \\m\\x  Column delimiter.  "
+        + "[\"|\"]" + LS
+        + "    *DSV_ROW_DELIM     \\m\\x  Row delimiter" + LS
         + "                              [OS-dependent (Java line.separator)]" + LS
-        + "    *CSV_NULL_REP      \\m\\x  String to represent database null" + LS
-        + "                              [\"[null]\"]" + LS
-        + "    *CSV_TARGET_FILE   \\x    File which exports will write to" + LS
-        + "                              [source table name + \".csv\"]" + LS
-        + "    *CSV_TARGET_TABLE  \\m    Table which imports will write to" + LS
-        + "                              [CSV filename without extension]" + LS
-        + "    *CSV_CONST_COLS    \\m    Column values to write to every row" + LS
-        + "                              [none]" + LS
-        + "    *CSV_REJECT_FILE   \\m    CSV file to be created with rejected records" + LS
+        + "    *DSV_NULL_REP      \\m\\x  String to represent database null.  "
+        + "[\"[null]\"]" + LS
+        + "    *DSV_TARGET_FILE   \\x    File which exports will write to" + LS
+        + "                              [source table name + \".dsv\"]" + LS
+        + "    *DSV_TARGET_TABLE  \\m    Table which imports will write to" + LS
+        + "                              [DSV filename without extension]" + LS
+        + "    *DSV_CONST_COLS    \\m    Column values to write to every row.  "
+        + "[None]" + LS
+        + "    *DSV_REJECT_FILE   \\m    DSV file to be created with rejected records.  " + LS
         + "                              [None*]" + LS
-        + "    *CSV_REJECT_REPORT \\m    HTML report to explain reject records" + LS
-        + "                              [None*]" + LS
+        + "    *DSV_REJECT_REPORT \\m    HTML report to explain reject records"
+        + "[None*]" + LS
         + "* Imports will abort immediately upon the first import record failure, unless" + LS
-        + "either *CSV_REJECT_FILE or *CSV_REJECT_REPORT (or both) are set.  (Whether" + LS
+        + "either *DSV_REJECT_FILE or *DSV_REJECT_REPORT (or both) are set.  (Whether" + LS
         + "SqlTool will roll back and quit depends on your settings for \\c and \\a).";
 
     private static final String D_OPTIONS_TEXT =
@@ -385,7 +390,7 @@ public class SqlFile {
     private PrintStream psStd        = null;
     private PrintStream psErr        = null;
     private PrintWriter pwQuery      = null;
-    private PrintWriter pwCsv        = null;
+    private PrintWriter pwDsv        = null;
     StringBuffer        stringBuffer = new StringBuffer();
     /*
      * This is reset upon each execute() invocation (to true if interactive,
@@ -1128,15 +1133,15 @@ public class SqlFile {
 
     private boolean doPrepare   = false;
     private String  prepareVar  = null;
-    private String  csvColDelim = null;
-    private String  csvSkipPrefix = null;
-    private String  csvRowDelim = null;
-    private static final String CSV_X_SYNTAX_MSG =
+    private String  dsvColDelim = null;
+    private String  dsvSkipPrefix = null;
+    private String  dsvRowDelim = null;
+    private static final String DSV_X_SYNTAX_MSG =
         "Export syntax:  \\x table_or_view_name "
         + "[column_delimiter [record_delimiter]]";
-    private static final String CSV_M_SYNTAX_MSG =
-        "Import syntax:  \\m file/path.csv "
-        + "[*]   (* means no comments in CSV file)";
+    private static final String DSV_M_SYNTAX_MSG =
+        "Import syntax:  \\m file/path.dsv "
+        + "[*]   (* means no comments in DSV file)";
 
     /**
      * Process a Special Command.
@@ -1189,52 +1194,63 @@ public class SqlFile {
                 if (arg1.equals("m?") ||
                         (arg1.equals("m") && other != null
                                  && other.equals("?"))) {
-                    stdprintln(CSV_OPTIONS_TEXT + LS + CSV_M_SYNTAX_MSG);
+                    stdprintln(DSV_OPTIONS_TEXT + LS + DSV_M_SYNTAX_MSG);
                     return;
                 }
                 if (arg1.length() != 1 || other == null) {
-                    throw new BadSpecial(CSV_M_SYNTAX_MSG);
+                    throw new BadSpecial(DSV_M_SYNTAX_MSG);
                 }
                 boolean noComments = other.charAt(other.length() - 1) == '*';
 
                 if (noComments) {
-                    csvSkipPrefix = null;
+                    dsvSkipPrefix = null;
                     other = other.substring(0, other.length()-1).trim();
                     if (other.length() < 1) {
-                        throw new BadSpecial(CSV_M_SYNTAX_MSG);
+                        throw new BadSpecial(DSV_M_SYNTAX_MSG);
                     }
                 } else {
-                    csvSkipPrefix = SqlFile.convertEscapes(
-                            (String) userVars.get("*CSV_SKIP_PREFIX"));
-                    if (csvSkipPrefix == null) {
-                        csvSkipPrefix = DEFAULT_SKIP_PREFIX;
+                    dsvSkipPrefix = SqlFile.convertEscapes(
+                            (String) userVars.get("*DSV_SKIP_PREFIX"));
+                    if (dsvSkipPrefix == null) {
+                        dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
                     }
 
                 }
-                csvColDelim =
-                    SqlFile.convertEscapes((String) userVars.get("*CSV_COL_DELIM"));
-                csvRowDelim =
-                    SqlFile.convertEscapes((String) userVars.get("*CSV_ROW_DELIM"));
-                csvNullRep = (String) userVars.get("*CSV_NULL_REP");
+                dsvColDelim =
+                    SqlFile.convertEscapes((String) userVars.get("*DSV_COL_DELIM"));
+                if (dsvColDelim == null) {
+                    dsvColDelim =
+                        SqlFile.convertEscapes((String) userVars.get("*CSV_COL_DELIM"));
+                }
+                dsvRowDelim =
+                    SqlFile.convertEscapes((String) userVars.get("*DSV_ROW_DELIM"));
+                if (dsvRowDelim == null) {
+                    dsvRowDelim =
+                        SqlFile.convertEscapes((String) userVars.get("*CSV_ROW_DELIM"));
+                }
+                dsvNullRep = (String) userVars.get("*DSV_NULL_REP");
+                if (dsvNullRep == null) {
+                    dsvNullRep = (String) userVars.get("*CSV_NULL_REP");
+                }
                 int colonIndex = other.indexOf(" :");
                 if (colonIndex > -1 && colonIndex < other.length() - 2) {
-                    csvSkipPrefix = other.substring(colonIndex + 2);
+                    dsvSkipPrefix = other.substring(colonIndex + 2);
                     other = other.substring(0, colonIndex).trim();
                 }
 
-                if (csvColDelim == null) {
-                    csvColDelim = DEFAULT_COL_DELIM;
+                if (dsvColDelim == null) {
+                    dsvColDelim = DEFAULT_COL_DELIM;
                 }
 
-                if (csvRowDelim == null) {
-                    csvRowDelim = DEFAULT_ROW_DELIM;
+                if (dsvRowDelim == null) {
+                    dsvRowDelim = DEFAULT_ROW_DELIM;
                 }
 
-                if (csvNullRep == null) {
-                    csvNullRep = DEFAULT_NULL_REP;
+                if (dsvNullRep == null) {
+                    dsvNullRep = DEFAULT_NULL_REP;
                 }
 
-                importCsv(other);
+                importDsv(other);
 
                 return;
 
@@ -1242,54 +1258,65 @@ public class SqlFile {
                 if (arg1.equals("x?") ||
                         (arg1.equals("x") && other != null
                                  && other.equals("?"))) {
-                    stdprintln(CSV_OPTIONS_TEXT + LS + CSV_X_SYNTAX_MSG);
+                    stdprintln(DSV_OPTIONS_TEXT + LS + DSV_X_SYNTAX_MSG);
                     return;
                 }
                 try {
                     if (arg1.length() != 1 || other == null) {
-                        throw new BadSpecial(CSV_X_SYNTAX_MSG);
+                        throw new BadSpecial(DSV_X_SYNTAX_MSG);
                     }
 
                     String tableName = ((other.indexOf(' ') > 0) ? null
                                                                  : other);
 
-                    csvColDelim = SqlFile.convertEscapes(
-                        (String) userVars.get("*CSV_COL_DELIM"));
-                    csvRowDelim = SqlFile.convertEscapes(
-                        (String) userVars.get("*CSV_ROW_DELIM"));
-                    csvNullRep = (String) userVars.get("*CSV_NULL_REP");
-
-                    String csvFilepath =
-                        (String) userVars.get("*CSV_TARGET_FILE");
-                    if (csvFilepath == null) {
-                        csvFilepath = (String) userVars.get("*CSV_FILEPATH");
+                    dsvColDelim = SqlFile.convertEscapes(
+                        (String) userVars.get("*DSV_COL_DELIM"));
+                    if (dsvColDelim == null) {
+                        dsvColDelim = SqlFile.convertEscapes(
+                            (String) userVars.get("*CSV_COL_DELIM"));
+                    }
+                    dsvRowDelim = SqlFile.convertEscapes(
+                        (String) userVars.get("*DSV_ROW_DELIM"));
+                    if (dsvRowDelim == null) {
+                        dsvRowDelim = SqlFile.convertEscapes(
+                            (String) userVars.get("*CSV_ROW_DELIM"));
+                    }
+                    dsvNullRep = (String) userVars.get("*DSV_NULL_REP");
+                    if (dsvNullRep == null) {
+                        dsvNullRep = (String) userVars.get("*CSV_NULL_REP");
                     }
 
-                    if (csvFilepath == null && tableName == null) {
+                    String dsvFilepath =
+                        (String) userVars.get("*DSV_TARGET_FILE");
+                    if (dsvFilepath == null) {
+                        dsvFilepath = (String) userVars.get("*CSV_FILEPATH");
+                    }
+
+                    if (dsvFilepath == null && tableName == null) {
                         throw new BadSpecial(
-                            "You must set PL variable '*CSV_TARGET_FILE' in "
+                            "You must set PL variable '*DSV_TARGET_FILE' in "
                             + "order to use the query variant of \\x");
                     }
 
-                    File csvFile = new File((csvFilepath == null)
-                                            ? (tableName + ".csv")
-                                            : csvFilepath);
+                    File dsvFile = new File((dsvFilepath == null)
+                                            ? (tableName + ".dsv")
+                                            : dsvFilepath);
 
-                    if (csvColDelim == null) {
-                        csvColDelim = DEFAULT_COL_DELIM;
+                    if (dsvColDelim == null) {
+                        dsvColDelim = DEFAULT_COL_DELIM;
                     }
 
-                    if (csvRowDelim == null) {
-                        csvRowDelim = DEFAULT_ROW_DELIM;
+                    if (dsvRowDelim == null) {
+                        dsvRowDelim = DEFAULT_ROW_DELIM;
                     }
 
-                    if (csvNullRep == null) {
-                        csvNullRep = DEFAULT_NULL_REP;
+                    if (dsvNullRep == null) {
+                        dsvNullRep = DEFAULT_NULL_REP;
                     }
 
-                    pwCsv = new PrintWriter(
+                    pwDsv = new PrintWriter(
                         new OutputStreamWriter(
-                            new FileOutputStream(csvFile), charset));
+                            new FileOutputStream(dsvFile), charset));
 
                     displayResultSet(
                         null,
@@ -1297,9 +1324,9 @@ public class SqlFile {
                             (tableName == null) ? other
                                                 : ("SELECT * FROM "
                                                    + tableName)), null, null);
-                    pwCsv.flush();
-                    stdprintln("Wrote " + csvFile.length()
-                               + " characters to file '" + csvFile + "'");
+                    pwDsv.flush();
+                    stdprintln("Wrote " + dsvFile.length()
+                               + " characters to file '" + dsvFile + "'");
                 } catch (FileNotFoundException e) {
                     throw new BadSpecial("Failed to write to file '" + other
                                          + "'", e);
@@ -1308,13 +1335,13 @@ public class SqlFile {
                                          + "'", e);
                 } finally {
                     // Reset all state changes
-                    if (pwCsv != null) {
-                        pwCsv.close();
+                    if (pwDsv != null) {
+                        pwDsv.close();
                     }
 
-                    pwCsv       = null;
-                    csvColDelim = null;
-                    csvRowDelim = null;
+                    pwDsv       = null;
+                    dsvColDelim = null;
+                    dsvRowDelim = null;
                 }
 
                 return;
@@ -2369,8 +2396,8 @@ public class SqlFile {
     }
 
     // Just because users may be used to seeing "[null]" in normal
-    // SqlFile output, we use the same default value for null in CSV
-    // files, but this CSV null representation can be changed to anything.
+    // SqlFile output, we use the same default value for null in DSV
+    // files, but this DSV null representation can be changed to anything.
     private static final String DEFAULT_NULL_REP = "[null]";
     private static final String DEFAULT_ROW_DELIM =
         System.getProperty("line.separator");
@@ -3032,9 +3059,9 @@ public class SqlFile {
                         }
 
                         if (binary || (val == null &&!r.wasNull())) {
-                            if (pwCsv != null) {
+                            if (pwDsv != null) {
                                 throw new SqlToolError(
-                                    "Table has a binary column.  CSV files "
+                                    "Table has a binary column.  DSV files "
                                     + "are text, not binary, files");
                             }
 
@@ -3090,7 +3117,7 @@ public class SqlFile {
 
                         ///////////////////////////////
                         // A little tricky here.  fieldArray[] MUST get set.
-                        if (val == null && pwCsv == null) {
+                        if (val == null && pwDsv == null) {
                             if (dataType[insi] == java.sql.Types.VARCHAR) {
                                 fieldArray[insi] = (htmlMode ? "<I>null</I>"
                                                              : "[null]");
@@ -3102,7 +3129,7 @@ public class SqlFile {
                         }
 
                         ///////////////////////////////
-                        if (htmlMode || pwCsv != null) {
+                        if (htmlMode || pwDsv != null) {
                             continue;
                         }
 
@@ -3117,8 +3144,8 @@ public class SqlFile {
                 }
 
                 // STEP 2: DISPLAY DATA  (= 2a OR 2b)
-                // STEP 2a (Non-CSV)
-                if (pwCsv == null) {
+                // STEP 2a (Non-DSV)
+                if (pwDsv == null) {
                     condlPrintln("<TABLE border='1'>", true);
 
                     if (incCount > 1) {
@@ -3184,36 +3211,36 @@ public class SqlFile {
                     break;
                 }
 
-                // STEP 2b (CSV)
+                // STEP 2b (DSV)
                 if (incCount > 0) {
                     for (int i = 0; i < headerArray.length; i++) {
-                        csvSafe(headerArray[i]);
-                        pwCsv.print(headerArray[i]);
+                        dsvSafe(headerArray[i]);
+                        pwDsv.print(headerArray[i]);
 
                         if (i < headerArray.length - 1) {
-                            pwCsv.print(csvColDelim);
+                            pwDsv.print(dsvColDelim);
                         }
                     }
 
-                    pwCsv.print(csvRowDelim);
+                    pwDsv.print(dsvRowDelim);
                 }
 
                 for (int i = 0; i < rows.size(); i++) {
                     fieldArray = (String[]) rows.get(i);
 
                     for (int j = 0; j < fieldArray.length; j++) {
-                        csvSafe(fieldArray[j]);
-                        pwCsv.print((fieldArray[j] == null)
+                        dsvSafe(fieldArray[j]);
+                        pwDsv.print((fieldArray[j] == null)
                                     ? (autonulls[j] ? ""
-                                                    : csvNullRep)
+                                                    : dsvNullRep)
                                     : fieldArray[j]);
 
                         if (j < fieldArray.length - 1) {
-                            pwCsv.print(csvColDelim);
+                            pwDsv.print(dsvColDelim);
                         }
                     }
 
-                    pwCsv.print(csvRowDelim);
+                    pwDsv.print(dsvRowDelim);
                 }
 
                 stdprintln(Integer.toString(rows.size())
@@ -3929,36 +3956,36 @@ public class SqlFile {
     }
 
     /**
-     * Validate that String is safe to display in a CSV file.
+     * Validate that String is safe to display in a DSV file.
      *
      * @throws SqlToolError if validation fails.
      */
-    public void csvSafe(String s) throws SqlToolError {
-        if (pwCsv == null || csvColDelim == null || csvRowDelim == null
-                || csvNullRep == null) {
+    public void dsvSafe(String s) throws SqlToolError {
+        if (pwDsv == null || dsvColDelim == null || dsvRowDelim == null
+                || dsvNullRep == null) {
             throw new RuntimeException(
                 "Assertion failed.  \n"
-                + "csvSafe called when CSV settings are incomplete");
+                + "dsvSafe called when DSV settings are incomplete");
         }
 
         if (s == null) {
             return;
         }
 
-        if (s.indexOf(csvColDelim) > 0) {
+        if (s.indexOf(dsvColDelim) > 0) {
             throw new SqlToolError(
-                "Table data contains our column delimiter '" + csvColDelim
+                "Table data contains our column delimiter '" + dsvColDelim
                 + "'");
         }
 
-        if (s.indexOf(csvRowDelim) > 0) {
+        if (s.indexOf(dsvRowDelim) > 0) {
             throw new SqlToolError("Table data contains our row delimiter '"
-                                   + csvRowDelim + "'");
+                                   + dsvRowDelim + "'");
         }
 
-        if (s.indexOf(csvNullRep) > 0) {
+        if (s.indexOf(dsvNullRep) > 0) {
             throw new SqlToolError(
-                "Table data contains our null representation '" + csvNullRep
+                "Table data contains our null representation '" + dsvNullRep
                 + "'");
         }
     }
@@ -3977,7 +4004,7 @@ public class SqlFile {
      *  <LI>\t  Horizontal tab  (Ctrl-I)
      *  <LI>\f  Form feed  (Ctrl-L)
      * </UL>
-     * 
+     *
      * Java 1.4 String methods will make this into a 1 or 2 line task.
      */
     public static String convertEscapes(String inString) {
@@ -4069,10 +4096,10 @@ public class SqlFile {
      *                       but we want this method to have external
      *                       visibility.
      */
-    public void importCsv(String filePath) throws SqlToolError {
+    public void importDsv(String filePath) throws SqlToolError {
         char[] bfr  = null;
         File   file = new File(filePath);
-        String tmpString = (String) userVars.get("*CSV_CONST_COLS");
+        String tmpString = (String) userVars.get("*DSV_CONST_COLS");
         SortedMap constColMap = null;
         int constColMapSize = 0;
         if (tmpString != null) {
@@ -4088,17 +4115,17 @@ public class SqlFile {
             String n;
             do {
                 startOffset = postOffset + 1;
-                postOffset = tmpString.indexOf(csvColDelim, startOffset);
+                postOffset = tmpString.indexOf(dsvColDelim, startOffset);
                 if (postOffset < 0) postOffset = tmpString.length();
                 if (postOffset == startOffset)
-                    throw new SqlToolError("*CSV_CONST_COLS has null setting");
+                    throw new SqlToolError("*DSV_CONST_COLS has null setting");
                 firstEq = tmpString.indexOf('=', startOffset);
                 if (firstEq < startOffset + 1 || firstEq > postOffset)
-                    throw new SqlToolError("*CSV_CONST_COLS element malformatted");
+                    throw new SqlToolError("*DSV_CONST_COLS element malformatted");
                 n = tmpString.substring(startOffset, firstEq).trim();
                 if (n.length() < 1)
                     throw new SqlToolError(
-                            "*CSV_CONST_COLS element has null col. name");
+                            "*DSV_CONST_COLS element has null col. name");
                 constColMap.put(n,
                         tmpString.substring(firstEq + 1, postOffset));
             } while (postOffset < tmpString.length());
@@ -4116,7 +4143,7 @@ public class SqlFile {
             bfr = new char[fileLength];
         } catch (RuntimeException re) {
             throw new SqlToolError(
-                "SqlFile can only read in your CSV file in one chunk at this time.\n"
+                "SqlFile can only read in your DSV file in one chunk at this time.\n"
                 + "Please run the program with more RAM (try Java -Xm* switches).",
                 re);
         }
@@ -4149,13 +4176,13 @@ public class SqlFile {
             // Sized explicitly to truncate nulls due to multibye characters.
         } catch (RuntimeException re) {
             throw new SqlToolError(
-                "SqlFile converts your entire CSV file to a String at this time.\n"
+                "SqlFile converts your entire DSV file to a String at this time.\n"
                 + "Please run the program with more RAM (try Java -Xm* switches).",
                 re);
         }
 
         List     headerList = new ArrayList();
-        String    tableName = (String) userVars.get("*CSV_TARGET_TABLE");
+        String    tableName = (String) userVars.get("*DSV_TARGET_TABLE");
         if (tableName == null) {
             tableName = (String) userVars.get("*CSV_TABLENAME");
             // This just for legacy variable name.
@@ -4174,11 +4201,11 @@ public class SqlFile {
         boolean switching = false;
 
         while (true) {
-            recStart = (recStart < 0) ? 0 : (recEnd + csvRowDelim.length());
+            recStart = (recStart < 0) ? 0 : (recEnd + dsvRowDelim.length());
             if (recStart > string.length() - 2) {
                 throw new SqlToolError("No header record");
             }
-            recEnd = string.indexOf(csvRowDelim, recStart);
+            recEnd = string.indexOf(dsvRowDelim, recStart);
             lineCount++; // Increment when we have line start and end
 
             if (recEnd < 0) {
@@ -4187,8 +4214,8 @@ public class SqlFile {
             }
             trimmedLine = string.substring(recStart, recEnd).trim();
             if (trimmedLine.length() < 1
-                    || (csvSkipPrefix != null
-                            && trimmedLine.startsWith(csvSkipPrefix))) {
+                    || (dsvSkipPrefix != null
+                            && trimmedLine.startsWith(dsvSkipPrefix))) {
                 continue;
             }
             if (trimmedLine.startsWith("targettable=")) {
@@ -4200,7 +4227,7 @@ public class SqlFile {
             }
             if (trimmedLine.equals("headerswitch{")) {
                 if (tableName == null) {
-                    throw new SqlToolError("Headerswitch in CSV file, but "
+                    throw new SqlToolError("Headerswitch in DSV file, but "
                             + "no target table specified yet.  Line "
                             + lineCount);
                 }
@@ -4241,7 +4268,7 @@ public class SqlFile {
                 break;
             }
 
-            colEnd = string.indexOf(csvColDelim, colStart);
+            colEnd = string.indexOf(dsvColDelim, colStart);
 
             if (colEnd < 0 || colEnd > recEnd) {
                 colEnd = recEnd;
@@ -4257,7 +4284,7 @@ public class SqlFile {
                 ? ((String) null)
                 : string.substring(colStart, colEnd));
 
-            colStart = colEnd + csvColDelim.length();
+            colStart = colEnd + dsvColDelim.length();
         }
 
         if (constColMap != null) {
@@ -4292,7 +4319,7 @@ public class SqlFile {
         }
         boolean[] autonulls = new boolean[headers.length - skippers];
         boolean[] parseDate = new boolean[autonulls.length];
-        // Remember that the headers array has all columns in CSV file,
+        // Remember that the headers array has all columns in DSV file,
         // even skipped columns.
         // The autonulls array only has columns that we will insert into.
 
@@ -4343,18 +4370,18 @@ public class SqlFile {
         File rejectReportFile = null;
         PrintWriter rejectWriter = null;
         PrintWriter rejectReportWriter = null;
-        String tmp = (String) userVars.get("*CSV_REJECT_FILE");
+        String tmp = (String) userVars.get("*DSV_REJECT_FILE");
         if (tmp != null) try {
             rejectFile = new File(tmp);
             rejectWriter = new PrintWriter(
                         new OutputStreamWriter(
                             new FileOutputStream(rejectFile), charset));
-            rejectWriter.print(headerLine + csvRowDelim);
+            rejectWriter.print(headerLine + dsvRowDelim);
         } catch (IOException ioe) {
             throw new SqlToolError("Failed to set up reject file '"
                     + tmp + "'", ioe);
         }
-        tmp = (String) userVars.get("*CSV_REJECT_REPORT");
+        tmp = (String) userVars.get("*DSV_REJECT_REPORT");
         if (tmp != null) try {
             rejectReportFile = new File(tmp);
             rejectReportWriter = new PrintWriter(
@@ -4394,19 +4421,19 @@ public class SqlFile {
                         + "string: " + sb + ')', se);
             }
             String[] dataVals = new String[autonulls.length];
-            // Length is number of cols to insert INTO, not nec. # in CSV file.
+            // Length is number of cols to insert INTO, not nec. # in DSV file.
             int      readColCount;
             int      storeColCount;
 
             // Insert data rows 1-row-at-a-time
             while (true) try { try {
-                recStart = recEnd + csvRowDelim.length();
+                recStart = recEnd + dsvRowDelim.length();
 
                 if (recStart >= string.length()) {
                     break;
                 }
 
-                recEnd = string.indexOf(csvRowDelim, recStart);
+                recEnd = string.indexOf(dsvRowDelim, recStart);
                 lineCount++; // Increment when we have line start and end
 
                 if (recEnd < 0) {
@@ -4417,8 +4444,8 @@ public class SqlFile {
                 if (trimmedLine.length() < 1) {
                     continue;  // Silently skip blank lines
                 }
-                if (csvSkipPrefix != null
-                        && trimmedLine.startsWith(csvSkipPrefix)) {
+                if (dsvSkipPrefix != null
+                        && trimmedLine.startsWith(dsvSkipPrefix)) {
                     skipCount++;
                     continue;
                 }
@@ -4451,7 +4478,7 @@ public class SqlFile {
                         break;
                     }
 
-                    colEnd = string.indexOf(csvColDelim, colStart);
+                    colEnd = string.indexOf(dsvColDelim, colStart);
 
                     if (colEnd < 0 || colEnd > recEnd) {
                         colEnd = recEnd;
@@ -4470,7 +4497,7 @@ public class SqlFile {
                         dataVals[storeColCount++] =
                                 string.substring(colStart, colEnd);
                     }
-                    colStart             = colEnd + csvColDelim.length();
+                    colStart             = colEnd + dsvColDelim.length();
                 }
 
                 if (constColMap != null) {
@@ -4504,7 +4531,7 @@ public class SqlFile {
                     //      + dataVals[i] + ')');
                     if (parseDate[i]) {
                         if ((dataVals[i].length() < 1 && autonulls[i])
-                              || dataVals[i].equals(csvNullRep)) {
+                              || dataVals[i].equals(dsvNullRep)) {
                             ps.setTimestamp(i + 1, null);
                         } else {
                             dateString = (dataVals[i].indexOf(':') > 0)
@@ -4521,7 +4548,7 @@ public class SqlFile {
                         ps.setString(
                             i + 1,
                             (((dataVals[i].length() < 1 && autonulls[i])
-                              || dataVals[i].equals(csvNullRep))
+                              || dataVals[i].equals(dsvNullRep))
                              ? null
                              : dataVals[i]));
                     }
@@ -4543,7 +4570,7 @@ public class SqlFile {
                 if (rejectWriter != null || rejectReportWriter != null) {
                     if (rejectWriter != null) {
                         rejectWriter.print(string.substring(
-                                recStart, recEnd) + csvRowDelim);
+                                recStart, recEnd) + dsvRowDelim);
                     }
                     if (rejectReportWriter != null) {
                         rejectReportWriter.println("    <TR>"
@@ -4565,7 +4592,7 @@ public class SqlFile {
             String summaryString = null;
             if (recCount > 0) {
                 summaryString = "Import summary ("
-                        + ((csvSkipPrefix == null) ? "" : ("'" + csvSkipPrefix
+                        + ((dsvSkipPrefix == null) ? "" : ("'" + dsvSkipPrefix
                         + "'-"))
                         + "skips / rejects / insertions):  "
                         + skipCount + " / " + rejectCount + " / "
@@ -4589,11 +4616,11 @@ public class SqlFile {
                     rejectReportWriter.println("    </TD></TR>");
                     rejectReportWriter.println("</TBODY>");
                     rejectReportWriter.println("</TABLE>");
-                    rejectReportWriter.println("<P>Input CSV file: "
+                    rejectReportWriter.println("<P>Input DSV file: "
                         + "<SPAN style='font-weight:bold; font-style:courier'>"
                             + file.getPath() + "</SPAN></P>");
                     if (rejectFile != null) {
-                        rejectReportWriter.println("<P>Reject CSV file: "
+                        rejectReportWriter.println("<P>Reject DSV file: "
                             + "<SPAN style='font-weight:bold; font-style:courier;'>"
                                 + rejectFile.getPath() + "</SPAN></P>");
                     }
