@@ -293,14 +293,13 @@ public abstract class Type {
 
     // date time
     public static final DateTimeType SQL_DATE =
-        new DateTimeType(Types.SQL_DATE,
-                         DateTimeType.defaultDatetimeFractionPrecision);
+        new DateTimeType(Types.SQL_DATE, 0);
     public static final DateTimeType SQL_TIME =
         new DateTimeType(Types.SQL_TIME,
-                         DateTimeType.defaultDatetimeFractionPrecision);
+                         DateTimeType.defaultTimeFractionPrecision);
     public static final DateTimeType SQL_TIMESTAMP =
         new DateTimeType(Types.SQL_TIMESTAMP,
-                         DateTimeType.defaultDatetimeFractionPrecision);
+                         DateTimeType.defaultTimestampFractionPrecision);
 
     // interval
     public static final IntervalType SQL_INTERVAL_YEAR =

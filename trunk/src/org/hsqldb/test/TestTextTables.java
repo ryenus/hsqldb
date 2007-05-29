@@ -42,24 +42,30 @@ public class TestTextTables extends TestBase {
         super(name, url, false, false);
     }
 
-    /* Implements the TestBug778213_Part3 test */
-    public void test() throws Exception {
+    protected void setUp() {
+
+        super.setUp();
 
         TestSelf.deleteDatabase("testtext/test");
         TestSelf.delete("testtext/t.txt");
         TestSelf.delete("testtext/tt.txt");
-        tA();
-        tB();
     }
 
-    private void tA() throws Exception {
+    /* Implements the TestBug778213_Part3 test */
+
+    public void test() throws Exception {
+        partA();
+        partB();
+    }
+
+    void partA() throws Exception {
 
         Connection conn = newConnection();
 
         TestUtil.testScript(conn, "TestText01.txt");
     }
 
-    private void tB() throws Exception {
+    void partB() throws Exception {
 
         Connection conn = newConnection();
 

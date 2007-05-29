@@ -86,7 +86,7 @@ create table PROCESSDETAIL (
         ID bigint not null,
         ALERTLEVEL integer not null,
         VALUE varchar(255) not null,
-        TSTAMP timestamp not null,
+        TSTAMP timestamp(0) not null,
         ATTRIBUTEKEY integer not null,
         PROCESSID bigint not null,
         primary key (ID) );

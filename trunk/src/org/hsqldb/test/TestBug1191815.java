@@ -65,10 +65,13 @@ public class TestBug1191815 extends TestBase {
             TimeZone pst = TimeZone.getTimeZone("PST");
             Calendar cal = new GregorianCalendar(pst);
 
+            cal.setTimeInMillis(0L);
             cal.set(2005, 0, 1, 0, 0, 0);
+
 
             // yyyy-mm-dd hh:mm:ss.fffffffff
             Timestamp ts = new Timestamp(cal.getTimeInMillis());
+            ts.setNanos(1000);
             PreparedStatement ps =
                 conn.prepareStatement("insert into testA values(?)");
 

@@ -40,7 +40,7 @@ import org.hsqldb.lib.StringConverter;
 
 public class ClobType extends CharacterType {
 
-    static final int defaultClobSize = 1024 + 1024;
+    static final int defaultClobSize = 1024 * 1024;
 
     public ClobType() {
         super(Types.SQL_CLOB, defaultClobSize);
@@ -76,7 +76,34 @@ public class ClobType extends CharacterType {
     }
 
     public String getDefinition() {
-        return Token.T_CLOB;
+
+        long   factor     = precision;
+        String multiplier = null;
+
+        if (precision % (1024 * 1024 * 1024) == 0) {
+            factor     = precision / (1024 * 1024 * 1024);
+            multiplier = Token.T_G_MULTIPLIER;
+        } else if (precision % (1024 * 1024) == 0) {
+            factor     = precision / (1024 * 1024);
+            multiplier = Token.T_M_MULTIPLIER;
+        } else if (precision % (1024) == 0) {
+            factor     = precision / (1024);
+            multiplier = Token.T_K_MULTIPLIER;
+        }
+
+        StringBuffer sb = new StringBuffer(16);
+
+        sb.append(getName());
+        sb.append('(');
+        sb.append(factor);
+
+        if (multiplier != null) {
+            sb.append(' ').append(multiplier);
+        }
+
+        sb.append(')');
+
+        return sb.toString();
     }
 
     public boolean isLobType() {
@@ -161,8 +188,7 @@ public class ClobType extends CharacterType {
         return StringConverter.toQuotedString(s, '\'', true);
     }
 
-    public long position(Object data, Object otherData,
-                         Type otherType,
+    public long position(Object data, Object otherData, Type otherType,
                          long start) throws HsqlException {
 
         if (otherType.type == Types.SQL_CLOB) {

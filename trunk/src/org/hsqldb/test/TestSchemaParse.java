@@ -37,8 +37,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class TestSchemaParse extends junit.framework.TestCase
-implements org.hsqldb.Trigger {
+public class TestSchemaParse extends junit.framework.TestCase {
 
     Connection                  con = null;
     Statement                   statement;
@@ -89,8 +88,7 @@ implements org.hsqldb.Trigger {
         execSQL("INSERT INTO toindextbl VALUES (10, 'zehn')", 1);
 
         // Do the view last since it can cause dependendies with indexes, etc.
-        execSQL("CREATE VIEW tstview AS SELECT * FROM tsttbl WHERE i < 10",
-                0);
+        execSQL("CREATE VIEW tstview AS SELECT * FROM tsttbl WHERE i < 10", 0);
         execSQL("COMMIT", 0);
     }
 
@@ -168,11 +166,9 @@ implements org.hsqldb.Trigger {
                 + "playtbl", 0);
         execSQL("ALTER TABLE " + prefix
                 + "constrainedtbl ADD CONSTRAINT con1 CHECK (i6 > 4)", 0);
-        execSQL("ALTER TABLE " + prefix + "tsttbl ADD COLUMN vco1 VARCHAR",
-                0);
+        execSQL("ALTER TABLE " + prefix + "tsttbl ADD COLUMN vco1 VARCHAR", 0);
         execSQL("ALTER TABLE " + prefix + "tsttbl DROP COLUMN vco1", 0);
-        execSQL("ALTER TABLE " + prefix + "tsttbl ADD COLUMN vco1 VARCHAR",
-                0);
+        execSQL("ALTER TABLE " + prefix + "tsttbl ADD COLUMN vco1 VARCHAR", 0);
         execSQL("ALTER TABLE " + prefix
                 + "tsttbl ALTER COLUMN vco1 RENAME TO j1", 0);
         execSQL("ALTER TABLE " + prefix
@@ -279,8 +275,7 @@ implements org.hsqldb.Trigger {
         execSQL("ALTER TABLE foreigntbl ADD CONSTRAINT " + prefix
                 + "tstfkm FOREIGN KEY "
                 + "(i7) REFERENCES primarytbl (i18)", 0);
-        execSQL("ALTER TABLE for3tbl DROP CONSTRAINT " + prefix + "tstpk2",
-                0);
+        execSQL("ALTER TABLE for3tbl DROP CONSTRAINT " + prefix + "tstpk2", 0);
     }
 
     public void test2pIndexes() throws Exception {
@@ -406,19 +401,16 @@ implements org.hsqldb.Trigger {
         assertEquals(
             "Over-specified Query 1", 1,
             queryRowCount("SELECT tsttbl.i FROM tsttbl WHERE tsttbl.i = 1"));
-        assertEquals(
-            "Over-specified Query 2", 1,
-            queryRowCount("SELECT tsttbl.i FROM tsttbl WHERE i = 1"));
-        assertEquals(
-            "Over-specified Query 3", 1,
-            queryRowCount("SELECT i FROM tsttbl WHERE tsttbl.i = 1"));
+        assertEquals("Over-specified Query 2", 1,
+                     queryRowCount("SELECT tsttbl.i FROM tsttbl WHERE i = 1"));
+        assertEquals("Over-specified Query 3", 1,
+                     queryRowCount("SELECT i FROM tsttbl WHERE tsttbl.i = 1"));
 
         // HSQLDB labels, Oracle aliases
         assertEquals("Trivial Label/alias 1", 1,
                      queryRowCount("SELECT i FROM tsttbl ali WHERE i = 1"));
-        assertEquals(
-            "Trivial Label/alias 2", 1,
-            queryRowCount("SELECT i FROM tsttbl AS ali WHERE i = 1"));
+        assertEquals("Trivial Label/alias 2", 1,
+                     queryRowCount("SELECT i FROM tsttbl AS ali WHERE i = 1"));
         assertEquals(
             "Trivial Label/alias 3", 1,
             queryRowCount("SELECT ali.i FROM tsttbl ali WHERE i = 1"));
@@ -555,8 +547,8 @@ implements org.hsqldb.Trigger {
                 + "* FROM tsttbl WHERE i < 10", expect);
         execSQL("DROP VIEW tstviewx IF EXISTS", 0);                   // reset
         execSQL("INSERT INTO tsttbl VALUES (1, " + pref + "'one')", expect);
-        execSQL("CREATE UNIQUE INDEX tstinda ON toindextbl (" + pref
-                + "i10)", expect);
+        execSQL("CREATE UNIQUE INDEX tstinda ON toindextbl (" + pref + "i10)",
+                expect);
         execSQL("DROP INDEX tstinda IF EXISTS", 0);                   // reset
         execSQL("CREATE VIEW tstviewx AS SELECT * FROM tsttbl WHERE i < "
                 + pref + "10", expect);
@@ -624,8 +616,8 @@ implements org.hsqldb.Trigger {
         execSQL("CREATE VIEW tstviewx " + pref
                 + "AS SELECT * FROM tsttbl WHERE i < 10", expect);
         execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
-        execSQL("CREATE UNIQUE " + pref
-                + "INDEX tstinda ON toindextbl (i10)", expect);
+        execSQL("CREATE UNIQUE " + pref + "INDEX tstinda ON toindextbl (i10)",
+                expect);
         execSQL("DROP INDEX tstinda IF EXISTS", 0);    // reset
         execSQL("CREATE " + pref + "INDEX tstinda ON toindextbl (i10)",
                 expect);
@@ -637,8 +629,8 @@ implements org.hsqldb.Trigger {
         execSQL("CREATE VIEW tstviewx AS " + pref
                 + "SELECT * FROM tsttbl WHERE i < 10", expect);
         execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
-        execSQL("CREATE UNIQUE INDEX tstinda " + pref
-                + "ON toindextbl (i10)", expect);
+        execSQL("CREATE UNIQUE INDEX tstinda " + pref + "ON toindextbl (i10)",
+                expect);
         execSQL("DROP INDEX tstinda IF EXISTS", 0);    // reset
         execSQL("CREATE TRIGGER tsttrigz AFTER " + pref
                 + "INSERT ON triggedtbl CALL \""
@@ -665,8 +657,8 @@ implements org.hsqldb.Trigger {
         execSQL("DROP VIEW tstviewx IF EXISTS", 0);    // reset
         execSQL("CREATE TRIGGER tsttrigc AFTER INSERT ON triggedtbl CALL "
                 + pref + "\"org.hsqldb.test.BlaineTrig'", expect);
-        execSQL("CREATE " + pref
-                + "UNIQUE INDEX tstindx ON toindextbl (i10)", expect);
+        execSQL("CREATE " + pref + "UNIQUE INDEX tstindx ON toindextbl (i10)",
+                expect);
         execSQL("DROP INDEX tstinda IF EXISTS", 0);    // reset
         execSQL(
             "CREATE " + pref
@@ -758,12 +750,9 @@ implements org.hsqldb.Trigger {
         execSQL("UPDATE tsttbl SET vc = 'eleven' " + pref + "WHERE i = 1",
                 expect);
         execSQL(pref + "ALTER INDEX tstind RENAME TO renamedind", expect);
-        execSQL("ALTER INDEX tstind " + pref + "RENAME TO renamedind",
-                expect);
-        execSQL("ALTER " + pref + "INDEX tstind RENAME TO renamedind",
-                expect);
-        execSQL("ALTER INDEX tstind RENAME " + pref + "TO renamedind",
-                expect);
+        execSQL("ALTER INDEX tstind " + pref + "RENAME TO renamedind", expect);
+        execSQL("ALTER " + pref + "INDEX tstind RENAME TO renamedind", expect);
+        execSQL("ALTER INDEX tstind RENAME " + pref + "TO renamedind", expect);
         execSQL(pref + "ALTER SEQUENCE tstseq RESTART WITH 13", expect);
         execSQL("ALTER " + pref + "SEQUENCE tstseq RESTART WITH 13", expect);
         execSQL("ALTER SEQUENCE tstseq " + pref + "RESTART WITH 13", expect);
@@ -860,12 +849,12 @@ implements org.hsqldb.Trigger {
                 expect);
         execSQL(pref + "ALTER TABLE constrainedtbl DROP CONSTRAINT con1",
                 expect);
-        execSQL("ALTER " + pref
-                + "TABLE constrainedtbl DROP CONSTRAINT con2", expect);
-        execSQL("ALTER TABLE constrainedtbl " + pref
-                + "DROP CONSTRAINT con3", expect);
-        execSQL("ALTER TABLE constrainedtbl DROP " + pref
-                + "CONSTRAINT con4", expect);
+        execSQL("ALTER " + pref + "TABLE constrainedtbl DROP CONSTRAINT con2",
+                expect);
+        execSQL("ALTER TABLE constrainedtbl " + pref + "DROP CONSTRAINT con3",
+                expect);
+        execSQL("ALTER TABLE constrainedtbl DROP " + pref + "CONSTRAINT con4",
+                expect);
         execSQL("ALTER TABLE foreigntbl DROP CONSTRAINT tstfk", true);        // reset
         execSQL(pref
                 + "ALTER TABLE foreigntbl ADD CONSTRAINT tstfk FOREIGN KEY "

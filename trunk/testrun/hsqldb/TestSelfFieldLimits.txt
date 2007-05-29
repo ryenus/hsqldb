@@ -38,5 +38,5 @@ drop table flimit;
 create table flimit (a timestamp(0), b timestamp(6), c timestamp);
 insert into flimit values('2005-05-21 10:10:10.123456','2005-05-21 10:10:10.123456','2005-05-21 10:10:10.123456');
 /*c0*/select * from flimit where a = b;
-/*c1*/select * from flimit where a = c;
-/*c1*/select * from flimit where b = b;
+/*c0*/select * from flimit where a = c;
+/*c1*/select * from flimit where b = c;

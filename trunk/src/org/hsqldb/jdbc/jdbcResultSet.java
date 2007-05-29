@@ -4754,7 +4754,9 @@ public class jdbcResultSet implements ResultSet {
         Timestamp ts = getTimestamp(columnIndex);
 
         if (cal != null && ts != null) {
+            int nanos = ts.getNanos();
             ts.setTime(HsqlDateTime.getTimeInMillis(ts, null, cal));
+            ts.setNanos(nanos);
         }
 
         return ts;

@@ -1054,7 +1054,7 @@ public class IntervalType extends DateTimeIntervalType {
             case Types.SQL_INTERVAL_DAY_TO_SECOND :
                 if (precision == DateTimeType.defaultIntervalPrecision
                         && fractionPrecision
-                           == DateTimeType.defaultDatetimeFractionPrecision) {
+                           == DateTimeType.defaultIntervalFractionPrecision) {
                     return SQL_INTERVAL_DAY_TO_SECOND;
                 }
                 break;
@@ -1080,7 +1080,7 @@ public class IntervalType extends DateTimeIntervalType {
             case Types.SQL_INTERVAL_HOUR_TO_SECOND :
                 if (precision == DateTimeType.defaultIntervalPrecision
                         && fractionPrecision
-                           == DateTimeType.defaultDatetimeFractionPrecision) {
+                           == DateTimeType.defaultIntervalFractionPrecision) {
                     return SQL_INTERVAL_HOUR_TO_SECOND;
                 }
                 break;
@@ -1088,7 +1088,7 @@ public class IntervalType extends DateTimeIntervalType {
             case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
                 if (precision == DateTimeType.defaultIntervalPrecision
                         && fractionPrecision
-                           == DateTimeType.defaultDatetimeFractionPrecision) {
+                           == DateTimeType.defaultIntervalFractionPrecision) {
                     return SQL_INTERVAL_MINUTE_TO_SECOND;
                 }
                 break;
@@ -1096,7 +1096,7 @@ public class IntervalType extends DateTimeIntervalType {
             case Types.SQL_INTERVAL_SECOND :
                 if (precision == DateTimeType.defaultIntervalPrecision
                         && fractionPrecision
-                           == DateTimeType.defaultDatetimeFractionPrecision) {
+                           == DateTimeType.defaultIntervalFractionPrecision) {
                     return SQL_INTERVAL_SECOND;
                 }
                 break;

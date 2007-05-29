@@ -141,9 +141,26 @@ public class DateTimeType extends DateTimeIntervalType {
 
     public String getDefinition() {
 
-        if (type == Types.SQL_DATE
-                || scale == defaultDatetimeFractionPrecision) {
-            return getName();
+        switch (type) {
+
+            case Types.SQL_DATE :
+                return Token.T_DATE;
+
+            case Types.SQL_TIME :
+                if (scale == DateTimeType.defaultTimeFractionPrecision) {
+                    return Token.T_TIME;
+                }
+                break;
+
+            case Types.SQL_TIMESTAMP :
+                if (scale == DateTimeType.defaultTimestampFractionPrecision) {
+                    return Token.T_TIMESTAMP;
+                }
+                break;
+
+            default :
+                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                                         "DateTimeType");
         }
 
         StringBuffer sb = new StringBuffer(16);
@@ -454,8 +471,7 @@ public class DateTimeType extends DateTimeIntervalType {
             return "NULL";
         }
 
-        return StringConverter.toQuotedString(convertToString(a), '\'',
-                                              false);
+        return StringConverter.toQuotedString(convertToString(a), '\'', false);
     }
 
     public Object add(Object a, Object b) throws HsqlException {
@@ -507,8 +523,7 @@ public class DateTimeType extends DateTimeIntervalType {
 
             case Types.SQL_DATE :
                 if (b instanceof IntervalMonthData) {
-                    return addMonths((Date) a,
-                                     -((IntervalMonthData) b).units);
+                    return addMonths((Date) a, -((IntervalMonthData) b).units);
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((Date) a,
                                       -(int) ((IntervalSecondData) b).units);
@@ -605,19 +620,23 @@ public class DateTimeType extends DateTimeIntervalType {
             throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
         }
 
-        if (scale != DateTimeType.defaultDatetimeFractionPrecision) {
-            return new DateTimeType(type, scale);
-        }
-
         switch (type) {
 
             case Types.SQL_DATE :
                 return SQL_DATE;
 
             case Types.SQL_TIME :
+                if (scale != DateTimeType.defaultTimeFractionPrecision) {
+                    return new DateTimeType(type, scale);
+                }
+
                 return SQL_TIME;
 
             case Types.SQL_TIMESTAMP :
+                if (scale != DateTimeType.defaultTimestampFractionPrecision) {
+                    return new DateTimeType(type, scale);
+                }
+
                 return SQL_TIMESTAMP;
 
             default :
