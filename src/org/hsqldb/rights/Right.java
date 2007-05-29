@@ -31,14 +31,13 @@
 
 package org.hsqldb.rights;
 
-import org.hsqldb.Column;
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.Table;
 import org.hsqldb.Token;
 import org.hsqldb.Trace;
-import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.SchemaObject;
 
 /**
  * Represents the set of rights
@@ -233,9 +232,9 @@ public class Right {
     void removeDroppedColumns(OrderedHashSet columnSet, Table table) {
 
         for (int i = 0; i < columnSet.size(); i++) {
-            Column column = (Column) columnSet.get(i);
+            HsqlName name = (HsqlName) columnSet.get(i);
 
-            if (table.findColumn(column.getName().name) >= 0) {
+            if (table.findColumn(name.name) >= 0) {
                 columnSet.remove(i);
 
                 i--;
@@ -251,7 +250,7 @@ public class Right {
 
         for (int i = 0; i < columnCheckList.length; i++) {
             if (columnCheckList[i]) {
-                if (columnSet.contains(table.getColumn(i))) {
+                if (columnSet.contains(table.getColumn(i).getName())) {
                     continue;
                 }
 
@@ -460,12 +459,12 @@ public class Right {
         boolean[] colCheckList = t.getNewColumnCheckList();
 
         for (int i = 0; i < set.size(); i++) {
-            Column c        = (Column) set.get(i);
-            int    colIndex = t.findColumn(c.getName().name);
+            HsqlName name     = (HsqlName) set.get(i);
+            int      colIndex = t.findColumn(name.name);
 
             if (colIndex == -1) {
-//                System.err.println(c.getName().name);
 
+//                System.err.println(c.getName().name);
                 continue;
             }
 
@@ -543,7 +542,7 @@ public class Right {
 
         for (int i = 0; i < colCheckList.length; i++) {
             if (colCheckList[i]) {
-                set.add(t.getColumn(i));
+                set.add(t.getColumn(i).getName());
             }
         }
     }
