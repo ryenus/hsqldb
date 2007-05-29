@@ -84,8 +84,8 @@ public abstract class DateTimeIntervalType extends Type {
         100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
     };
     static int[]       nanoScaleFactors = {
-        1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100,
-        10, 1
+        1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10,
+        1
     };
     static final int[] intervalParts = {
         Types.SQL_INTERVAL_YEAR, Types.SQL_INTERVAL_MONTH,
@@ -94,8 +94,8 @@ public abstract class DateTimeIntervalType extends Type {
     };
     static final int[][] intervalTypes = {
         {
-            Types.SQL_INTERVAL_YEAR, Types.SQL_INTERVAL_YEAR_TO_MONTH, 0, 0,
-            0, 0
+            Types.SQL_INTERVAL_YEAR, Types.SQL_INTERVAL_YEAR_TO_MONTH, 0, 0, 0,
+            0
         }, {
             0, Types.SQL_INTERVAL_MONTH, 0, 0, 0, 0
         }, {
@@ -182,12 +182,13 @@ public abstract class DateTimeIntervalType extends Type {
         }
     }
 
-    public static final int defaultDatetimeFractionPrecision = 0;
-    public static final int defaultIntervalPrecision         = 2;
-    public static final int defaultIntervalFractionPrecision = 6;
-    public static final int maxIntervalPrecision             = 4;
-    public static final int maxFractionPrecision             = 9;
-    public static final int limitNanoseconds                 = 1000000000;
+    public static final int defaultTimeFractionPrecision      = 0;
+    public static final int defaultTimestampFractionPrecision = 6;
+    public static final int defaultIntervalPrecision          = 2;
+    public static final int defaultIntervalFractionPrecision  = 6;
+    public static final int maxIntervalPrecision              = 4;
+    public static final int maxFractionPrecision              = 9;
+    public static final int limitNanoseconds                  = 1000000000;
     public static final NumberType extractSecondType =
         new NumberType(Types.SQL_NUMERIC, 18, maxFractionPrecision);
 

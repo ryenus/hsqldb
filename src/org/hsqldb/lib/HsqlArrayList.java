@@ -75,7 +75,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
     private boolean            minimizeOnClear;
 
     public HsqlArrayList(Object[] data, int count) {
-        elementData = data;
+        elementData  = data;
         elementCount = count;
     }
 
@@ -253,14 +253,16 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 
     private void resize(int baseSize) {
 
-        if (baseSize == elementData.length ) {
+        if (baseSize == elementData.length) {
             return;
         }
 
         Object[] newArray = (Object[]) Array.newInstance(
             elementData.getClass().getComponentType(), baseSize);
+        int count = elementData.length > newArray.length ? newArray.length
+                                                         : elementData.length;
 
-        System.arraycopy(elementData, 0, newArray, 0, elementData.length);
+        System.arraycopy(elementData, 0, newArray, 0, count);
 
         elementData = newArray;
         newArray    = null;
@@ -276,12 +278,10 @@ public class HsqlArrayList extends BaseList implements HsqlList {
     // fredt@users
     public void clear() {
 
-        if (minimizeOnClear
-                && elementData.length > DEFAULT_INITIAL_CAPACITY) {
-
+        if (minimizeOnClear && elementData.length > DEFAULT_INITIAL_CAPACITY) {
             elementData = (Object[]) Array.newInstance(
-                elementData.getClass().getComponentType(), DEFAULT_INITIAL_CAPACITY);
-
+                elementData.getClass().getComponentType(),
+                DEFAULT_INITIAL_CAPACITY);
             elementCount = 0;
 
             return;
@@ -300,6 +300,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
             if (minimizeOnClear && newSize == 0
                     && elementData.length > DEFAULT_INITIAL_CAPACITY) {
                 clear();
+
                 return;
             }
 
@@ -320,7 +321,6 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 
         Object[] newArray = (Object[]) Array.newInstance(
             elementData.getClass().getComponentType(), elementCount);
-
 
         System.arraycopy(elementData, 0, newArray, 0, elementCount);
 

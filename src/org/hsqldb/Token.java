@@ -400,7 +400,7 @@ public class Token {
     public static final String T_DOW                = "DAYOFWEEK";
     static final String        T_EXPLAIN            = "EXPLAIN";
     static final String        T_FOLD               = "FOLD";
-    static final String        T_G_MULTIPILIER      = "G";
+    public static final String T_G_MULTIPLIER       = "G";
     static final String        T_GENERATED          = "GENERATED";
     static final String        T_GRANTED            = "GRANTED";
     static final String        T_IF                 = "IF";
@@ -410,12 +410,12 @@ public class Token {
     static final String        T_INCREMENT          = "INCREMENT";
     static final String        T_INDEX              = "INDEX";
     public static final String T_INITIAL            = "INITIAL";
-    static final String        T_K_MULTIPILIER      = "K";
+    public static final String T_K_MULTIPLIER       = "K";
     static final String        T_KEY                = "KEY";
     static final String        T_LIMIT              = "LIMIT";
     static final String        T_LOGSIZE            = "LOGSIZE";
     static final String        T_MAXVALUE           = "MAXVALUE";
-    static final String        T_M_MULTIPILIER      = "M";
+    public static final String T_M_MULTIPLIER       = "M";
     static final String        T_MATCHED            = "MATCHED";
     static final String        T_MAXROWS            = "MAXROWS";
     static final String        T_MEMORY             = "MEMORY";
@@ -1376,10 +1376,10 @@ public class Token {
     private static IntValueHashMap commandSet = new IntValueHashMap(100);
 
     static {
-        commandSet.put(Token.T_IF, Token.IF);
-        commandSet.put(Token.T_IFNULL, Token.IFNULL);
-        commandSet.put(Token.T_NVL, Token.IFNULL);
-        commandSet.put(Token.T_CASEWHEN, Token.CASEWHEN);
+        commandSet.put(T_IF, Token.IF);
+        commandSet.put(T_IFNULL, Token.IFNULL);
+        commandSet.put(T_NVL, Token.IFNULL);
+        commandSet.put(T_CASEWHEN, Token.CASEWHEN);
         commandSet.put(T_ADD, ADD);
         commandSet.put(T_ADMIN, ADMIN);
         commandSet.put(T_ACTION, ACTION);
@@ -1397,6 +1397,7 @@ public class Token {
         commandSet.put(T_DEFRAG, DEFRAG);
         commandSet.put(T_DESC, DESC);
         commandSet.put(T_EXPLAIN, EXPLAIN);
+        commandSet.put(T_G_MULTIPLIER, G);
         commandSet.put(T_GENERATED, GENERATED);
         commandSet.put(T_GRANTED, GRANTED);
         commandSet.put(T_HEADER, HEADER);
@@ -1405,9 +1406,11 @@ public class Token {
         commandSet.put(T_INCREMENT, INCREMENT);
         commandSet.put(T_INDEX, INDEX);
         commandSet.put(T_INITIAL, INITIAL);
+        commandSet.put(T_K_MULTIPLIER, K);
         commandSet.put(T_KEY, KEY);
         commandSet.put(T_LIMIT, LIMIT);
         commandSet.put(T_LOGSIZE, LOGSIZE);
+        commandSet.put(T_M_MULTIPLIER, M);
         commandSet.put(T_MATCHED, MATCHED);
         commandSet.put(T_MAXROWS, MAXROWS);
         commandSet.put(T_MAXVALUE, MAXVALUE);
@@ -1418,7 +1421,7 @@ public class Token {
         commandSet.put(T_NEXT, NEXT);
         commandSet.put(T_OFF, OFF);
         commandSet.put(T_OFFSET, OFFSET);
-        commandSet.put(Token.T_OPTION, OPTION);
+        commandSet.put(T_OPTION, OPTION);
         commandSet.put(T_PARTIAL, PARTIAL);
         commandSet.put(T_PASSWORD, PASSWORD);
         commandSet.put(T_PLACING, PLACING);
@@ -1507,8 +1510,8 @@ public class Token {
             IN, INTERSECT, JOIN, INNER, LEADING, LIKE, MAX, MIN, NATURAL,
             NULLIF, NOT, ON, ORDER, OR, OUTER, POSITION, PRIMARY, SELECT, SET,
             SOME, STDDEV_POP, STDDEV_SAMP, SUBSTRING, SUM, THEN, TO, TRAILING,
-            TRIM, UNIQUE, UNION, USING, VALUES, VAR_POP, VAR_SAMP, WHEN,
-            WHERE, DATE, TIME, TIMESTAMP, INTERVAL
+            TRIM, UNIQUE, UNION, USING, VALUES, VAR_POP, VAR_SAMP, WHEN, WHERE,
+            DATE, TIME, TIMESTAMP, INTERVAL
         };
 
         for (int i = 0; i < keyword.length; i++) {

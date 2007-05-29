@@ -455,10 +455,10 @@ class Parser extends BaseParser {
 
                     continue;
                 default :
-
                     if (mainSelect == null) {
                         throw unexpectedToken();
                     }
+
                     end = true;
                     break;
             }
@@ -571,8 +571,7 @@ class Parser extends BaseParser {
 
             readIfThis(Token.AS);
 
-            if (tokenType == Token.X_NAME) {
-                checkIsSimpleName();
+            if (isSimpleName()) {
                 e.setAlias(tokenString, isQuoted);
                 read();
             }
@@ -2627,14 +2626,37 @@ class Parser extends BaseParser {
             default :
         }
 
-        int length = 0;
-        int scale  = 0;
+        long length = 0;
+        int scale = typeNumber == Types.SQL_TIMESTAMP
+                    ? DateTimeType.defaultTimestampFractionPrecision
+                    : 0;
 
         if (Types.acceptsPrecisionCreateParam(typeNumber)
                 && tokenType == Token.OPENBRACKET) {
             read();
 
             length = readInteger();
+
+            if (typeNumber == Types.SQL_BLOB || typeNumber == Types.SQL_CLOB) {
+                int multiplier = 1;
+
+                switch (tokenType) {
+
+                    case Token.K :
+                        multiplier = 1024;
+                        break;
+
+                    case Token.M :
+                        multiplier = 1024 * 1024;
+                        break;
+
+                    case Token.G :
+                        multiplier = 1024 * 1024 * 1024;
+                        break;
+                }
+
+                length *= multiplier;
+            }
 
             if (Types.acceptsScaleCreateParam(typeNumber)
                     && tokenType == Token.COMMA) {
@@ -2648,15 +2670,15 @@ class Parser extends BaseParser {
             if (length < 0 || scale < 0) {
                 throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
             }
-        }
 
-        if (typeNumber == Types.SQL_TIMESTAMP
-                || typeNumber == Types.SQL_TIME) {
-            scale  = length;
-            length = 0;
+            if (typeNumber == Types.SQL_TIMESTAMP
+                    || typeNumber == Types.SQL_TIME) {
+                if (length > DateTimeType.maxFractionPrecision) {
+                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                }
 
-            if (scale > DateTimeType.maxFractionPrecision) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                scale  = (int) length;
+                length = 0;
             }
         }
 

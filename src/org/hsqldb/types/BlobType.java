@@ -40,7 +40,7 @@ import org.hsqldb.lib.StringConverter;
 
 public class BlobType extends BinaryType {
 
-    static final int defaultBlobSize = 1024 + 1024;
+    static final int defaultBlobSize = 1024 * 1024;
 
     public BlobType() {
         super(Types.SQL_BLOB, defaultBlobSize);
@@ -76,7 +76,34 @@ public class BlobType extends BinaryType {
     }
 
     public String getDefinition() {
-        return Token.T_BLOB;
+
+        long   factor     = precision;
+        String multiplier = null;
+
+        if (precision % (1024 * 1024 * 1024) == 0) {
+            factor     = precision / (1024 * 1024 * 1024);
+            multiplier = Token.T_G_MULTIPLIER;
+        } else if (precision % (1024 * 1024) == 0) {
+            factor     = precision / (1024 * 1024);
+            multiplier = Token.T_M_MULTIPLIER;
+        } else if (precision % (1024) == 0) {
+            factor     = precision / (1024);
+            multiplier = Token.T_K_MULTIPLIER;
+        }
+
+        StringBuffer sb = new StringBuffer(16);
+
+        sb.append(getName());
+        sb.append('(');
+        sb.append(factor);
+
+        if (multiplier != null) {
+            sb.append(' ').append(multiplier);
+        }
+
+        sb.append(')');
+
+        return sb.toString();
     }
 
     public boolean isBinaryType() {
