@@ -234,7 +234,7 @@ public class SqlTool {
 
             if (equals < 1) {
                 throw new PrivateException(
-                    "Var settings not of format NAME=var[,...]");
+                    "Var settings not of format name=value[,...]");
             }
 
             var = curSetting.substring(0, equals).trim();
@@ -242,7 +242,7 @@ public class SqlTool {
 
             if (var.length() < 1 || val.length() < 1) {
                 throw new PrivateException(
-                    "Var settings not of format NAME=var[,...]");
+                    "Var settings not of format name=value[,...]");
             }
 
             if (lowerCaseKeys) {
