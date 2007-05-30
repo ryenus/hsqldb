@@ -596,15 +596,12 @@ public class SqlFile {
                         }
                     }
 
-                    if (trimmedInput.length() == 0) {
+                    if (trimmedInput.length() == 0 && interactive &&!inComment) {
                         // Blank lines delimit commands ONLY IN INTERACTIVE
                         // MODE!
-                        if (interactive &&!inComment) {
-                            setBuf(stringBuffer.toString());
-                            stringBuffer.setLength(0);
-                            stdprintln("Current input moved into buffer.");
-                        }
-
+                        setBuf(stringBuffer.toString());
+                        stringBuffer.setLength(0);
+                        stdprintln("Current input moved into buffer.");
                         continue;
                     }
 
@@ -774,6 +771,7 @@ public class SqlFile {
      *
      * @param inString Base String, which will not be modified (because
      *                 a "copy" will be returned).
+     * @returns Null if inString contains no terminating semi-colon.
      */
     private static String deTerminated(String inString) {
         int index = inString.lastIndexOf(';');
@@ -4390,9 +4388,20 @@ public class SqlFile {
             rejectReportWriter.println("<HTML>");
             rejectReportWriter.println("<HEAD><STYLE>");
             rejectReportWriter.println("    .right { text-align:right; }");
-            rejectReportWriter.println("    .reason { font-family:courier; color:red; }");
+            rejectReportWriter.println("    .reason { font-size: 75%; font-family:courier; color:red; }");
             rejectReportWriter.println("</STYLE></HEAD>");
             rejectReportWriter.println("<BODY style='background:silver;'>");
+            rejectReportWriter.println("<P>Import performed at "
+                    + "<SPAN style='font-weight:bold;'>" + new java.util.Date()
+                    + "</SPAN></P>");
+            rejectReportWriter.println("<P>Input DSV file: "
+                + "<SPAN style='font-weight:bold; font-style:courier'>"
+                    + file.getPath() + "</SPAN></P>");
+            if (rejectFile != null) {
+                rejectReportWriter.println("<P>Reject DSV file: "
+                    + "<SPAN style='font-weight:bold; font-style:courier;'>"
+                        + rejectFile.getPath() + "</SPAN></P>");
+            }
             if (rejectWriter != null) {
                 rejectReportWriter.println(
                         "<P>The corresponding records in '" + rejectFile
@@ -4400,7 +4409,7 @@ public class SqlFile {
                         + "header record occupies the first line.</P>");
             }
             rejectReportWriter.println(
-                    "<TABLE border='1px' style='cellpadding:5px;'>");
+                    "<TABLE border='1px' cellpadding='5px' style='background-color:white;'>");
             rejectReportWriter.println("    <THEAD><TR><TH>reject #</TH>"
                     + "<TH>input line #</TH><TH>reason</TH></TR></THEAD>");
             rejectReportWriter.println("<TBODY>");
@@ -4412,6 +4421,7 @@ public class SqlFile {
         int recCount = 0;
         int skipCount = 0;
         PreparedStatement ps = null;
+        boolean importAborted = false;
 
         try {
             try {
@@ -4575,15 +4585,16 @@ public class SqlFile {
                     if (rejectReportWriter != null) {
                         rejectReportWriter.println("    <TR>"
                                 + "<TD align='right' class='right'>"
-                                + lineCount
+                                + rejectCount
                                 + "</TD><TD align='right' class='right'>"
-                                + rejectCount + "</TD><TD><PRE>"
+                                + lineCount + "</TD><TD><PRE class='reason'>"
                                 + re.getMessage()
                                 + ((cause == null) ? "" : ("<HR/>" + cause))
                                 + "</PRE></TD></TR>");
                     }
                 } else {
-                    throw new SqlToolError("Insert from input line "
+                    importAborted = true;
+                    throw new SqlToolError("Parse or insert of input line "
                             + lineCount + " failed.  " + re.getMessage(),
                             cause);
                 }
@@ -4594,9 +4605,10 @@ public class SqlFile {
                 summaryString = "Import summary ("
                         + ((dsvSkipPrefix == null) ? "" : ("'" + dsvSkipPrefix
                         + "'-"))
-                        + "skips / rejects / insertions):  "
+                        + "skips / rejects / inserts):  "
                         + skipCount + " / " + rejectCount + " / "
-                        + (recCount - rejectCount) + '.';
+                        + (recCount - rejectCount)
+                        + (importAborted ? " before aborting." : ".");
                 stdprintln(summaryString);
             }
             if (recCount > rejectCount) {
@@ -4616,14 +4628,6 @@ public class SqlFile {
                     rejectReportWriter.println("    </TD></TR>");
                     rejectReportWriter.println("</TBODY>");
                     rejectReportWriter.println("</TABLE>");
-                    rejectReportWriter.println("<P>Input DSV file: "
-                        + "<SPAN style='font-weight:bold; font-style:courier'>"
-                            + file.getPath() + "</SPAN></P>");
-                    if (rejectFile != null) {
-                        rejectReportWriter.println("<P>Reject DSV file: "
-                            + "<SPAN style='font-weight:bold; font-style:courier;'>"
-                                + rejectFile.getPath() + "</SPAN></P>");
-                    }
                     rejectReportWriter.println("</BODY>");
                     rejectReportWriter.println("</HTML>");
                     rejectReportWriter.flush();
