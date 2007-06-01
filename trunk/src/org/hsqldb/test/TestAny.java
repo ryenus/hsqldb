@@ -35,6 +35,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Types;
 
 public class TestAny extends TestBase {
 
@@ -49,12 +50,12 @@ public class TestAny extends TestBase {
         } catch (Exception e) {}
     }
 
-    public void atestQuery() {
+    public void testQuery() {
 
         try {
             Connection c  = newConnection();
             Statement  st = c.createStatement();
-            String     s  = "CREATE TABLE T (I INTEGER, C CHARACTER)";
+            String     s  = "CREATE TABLE T (I INTEGER, C CHARACTER(10))";
 
             st.execute(s);
 
@@ -101,6 +102,27 @@ public class TestAny extends TestBase {
                 System.out.println("" + rs.getInt(1) + "      "
                                    + rs.getString(2));
             }
+
+            ps.close();
+
+            //
+            st.execute(
+                "CREATE CACHED TABLE managerproperties("
+                + "id BIGINT IDENTITY, name VARCHAR(20),"
+                + "key VARCHAR(50) NOT NULL, value VARCHAR(100) NOT NULL, "
+                + "UNIQUE (name, key))");
+
+            ps = c.prepareStatement("SELECT mp.key," + " mp.value"
+                                    + " FROM managerproperties mp"
+                                    + " WHERE mp.name = ?"
+                                    + " OR (mp.name IS NULL"
+//                                    + " -- ignore duplicates "
+                                    + " AND mp.key NOT IN (SELECT mmp.key"
+                                    + " FROM managerproperties mmp"
+                                    + " WHERE mmp.name = ?))");
+
+            ps.setObject(1, "NAME", Types.VARCHAR);
+            ps.setObject(2, "NAME", Types.VARCHAR);
         } catch (Exception e) {
             System.out.print(e);
         }

@@ -686,7 +686,7 @@ public class DDLParser extends Parser {
                     c.core.refTable   = table;
                     c.core.refName    = c.getName();
                     c.core.refIndex   = index;
-                    c.isForward = isForward;
+                    c.isForward       = isForward;
 
                     table.addConstraint(c);
                     c.core.mainTable.addConstraint(new Constraint(mainName,
@@ -755,7 +755,6 @@ public class DDLParser extends Parser {
                                   Trace.TABLE_HAS_NO_PRIMARY_KEY);
             }
         }
-
 
         // -- In a while loop we parse a maximium of two
         // -- "ON" statements following the foreign key
@@ -2012,18 +2011,10 @@ public class DDLParser extends Parser {
      */
     Expression readDefaultClause(Type dataType) throws HsqlException {
 
-        SQLFunction function = LegacyFunction.newLegacyFunction(tokenString);
+        Expression e = readFunction();
 
-        try {
-            if (function != null) {
-                return readSQLFunction(function);
-            }
-        } catch (HsqlException e) {}
-
-        function = SQLFunction.newSQLFunction(tokenString);
-
-        if (function != null) {
-            return readSQLFunction(function);
+        if (e != null) {
+            return e;
         }
 
         switch (tokenType) {
@@ -2033,10 +2024,8 @@ public class DDLParser extends Parser {
 
                 if (tokenType == Token.X_VALUE) {
                     value = dataType.convertToType(session, value, valueType);
-
-                    Expression e = new Expression(Expression.NEGATE,
-                                                  new Expression(value,
-                                                      dataType));
+                    e = new Expression(Expression.NEGATE,
+                                       new Expression(value, dataType));
 
                     read();
 
@@ -2047,8 +2036,7 @@ public class DDLParser extends Parser {
             }
             case Token.X_VALUE : {
                 value = dataType.convertToType(session, value, valueType);
-
-                Expression e = new Expression(value, dataType);
+                e     = new Expression(value, dataType);
 
                 read();
 

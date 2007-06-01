@@ -443,7 +443,9 @@ public class SQLFunction extends Expression {
 
             case FUNC_USER :
                 name            = Token.T_USER;
-                parseList       = noParamList;
+                parseList       = new short[] {
+                    Token.X_OPTION, 2, Token.OPENBRACKET, Token.CLOSEBRACKET
+                };
                 isValueFunction = true;
                 break;
 
@@ -487,7 +489,7 @@ public class SQLFunction extends Expression {
         }
     }
 
-    public void setArguments(Expression[] argList) throws HsqlException {
+    public void setArguments(Expression[] argList) {
 
         this.argList = argList;
 
@@ -518,8 +520,7 @@ public class SQLFunction extends Expression {
         return getValue(session, data);
     }
 
-    private Object getValue(Session session,
-                            Object[] data) throws HsqlException {
+    Object getValue(Session session, Object[] data) throws HsqlException {
 
         switch (id) {
 

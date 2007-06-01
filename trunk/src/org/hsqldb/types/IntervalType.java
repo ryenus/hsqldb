@@ -329,10 +329,9 @@ public class IntervalType extends DateTimeIntervalType {
                         > startIntervalType ? startIntervalType
                                             : ((IntervalType) other)
                                                 .startIntervalType;
-        int endType =
-            ((IntervalType) other).endIntervalType > endIntervalType
-            ? ((IntervalType) other).endIntervalType
-            : endIntervalType;
+        int endType = ((IntervalType) other).endIntervalType > endIntervalType
+                      ? ((IntervalType) other).endIntervalType
+                      : endIntervalType;
         int  newType      = getCombinedIntervalType(startType, endType);
         long newPrecision = precision > other.precision ? precision
                                                         : other.precision;
@@ -351,7 +350,6 @@ public class IntervalType extends DateTimeIntervalType {
                                 int operation) throws HsqlException {
 
         switch (operation) {
-
 
             case Expression.MULTIPLY :
             case Expression.DIVIDE :
@@ -507,12 +505,10 @@ public class IntervalType extends DateTimeIntervalType {
                                 maxFractionPrecision);
                             BigInteger i = JavaSystem.unscaledValue(b);
                             Long l =
-                                (Long) Type.SQL_BIGINT.convertToDefaultType(
-                                    i);
+                                (Long) Type.SQL_BIGINT.convertToDefaultType(i);
 
-                            nanos =
-                                (int) (l.longValue()
-                                       % DateTimeType.nanoScaleFactors[0]);
+                            nanos = (int) (l.longValue()
+                                           % DateTimeType.nanoScaleFactors[0]);
                         }
 
                         return new IntervalSecondData(
@@ -729,8 +725,8 @@ public class IntervalType extends DateTimeIntervalType {
                     return new IntervalSecondData(seconds, nanos, this, true);
                 } else if (a instanceof Timestamp && b instanceof Timestamp) {
                     long seconds =
-                        (((Timestamp) a).getTime() - ((Timestamp) b)
-                            .getTime()) / 1000;
+                        (((Timestamp) a).getTime() - ((Timestamp) b).getTime())
+                        / 1000;
                     long nanos = ((Timestamp) a).getNanos()
                                  - ((Timestamp) b).getNanos();
 
@@ -777,8 +773,8 @@ public class IntervalType extends DateTimeIntervalType {
                 Object result = extractSecondType.multiply(seconds, b);
 
                 return getIntervalType(this, maxIntervalPrecision,
-                                       this.scale).convertToType(null,
-                                           result, extractSecondType);
+                                       this.scale).convertToType(null, result,
+                                           extractSecondType);
             }
             default :
                 throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
@@ -811,8 +807,8 @@ public class IntervalType extends DateTimeIntervalType {
                 Object result = extractSecondType.divide(seconds, b);
 
                 return getIntervalType(this, maxIntervalPrecision,
-                                       this.scale).convertToType(null,
-                                           result, extractSecondType);
+                                       this.scale).convertToType(null, result,
+                                           extractSecondType);
             }
             default :
                 throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
@@ -836,8 +832,7 @@ public class IntervalType extends DateTimeIntervalType {
             long part   = months / factor;
 
             if (i == startPartIndex) {
-                int zeros = (int) precision
-                            - getPrecisionExponent((int) part);
+                int zeros = (int) precision - getPrecisionExponent((int) part);
 
                 for (int j = 0; j < zeros; j++) {
                     buffer.append('0');
@@ -875,8 +870,7 @@ public class IntervalType extends DateTimeIntervalType {
             long part   = seconds / factor;
 
             if (i == startPartIndex) {
-                int zeros = (int) precision
-                            - getPrecisionExponent((int) part);
+                int zeros = (int) precision - getPrecisionExponent((int) part);
 
                 for (int j = 0; j < zeros; j++) {
                     buffer.append('0');
@@ -946,8 +940,7 @@ public class IntervalType extends DateTimeIntervalType {
     public static IntervalType getIntervalType(IntervalType type,
             long precision, int fractionalPrecision) {
 
-        if (type.precision >= precision
-                && type.scale >= fractionalPrecision) {
+        if (type.precision >= precision && type.scale >= fractionalPrecision) {
             return type;
         }
 

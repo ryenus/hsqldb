@@ -140,7 +140,7 @@
           <para>From version 1.7.2 the new source file is scanned and indexes
           are built when it is assigned to the table. At this point any
           violation of NOT NULL, UNIQUE or PRIMARY KEY constrainst are caught
-          and the assignment is aborted. owever, foreign key constraints are
+          and the assignment is aborted. However, foreign key constraints are
           not checked at the time of assignment or reassignment of the source
           file.</para>
         </listitem>
@@ -344,6 +344,31 @@
 
       <programlisting>
     SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_scale=12"</programlisting>
+
+    </section>
+    <section id='disconnecting_text_tables'>
+      <title>Disconnecting Text Tables</title>
+
+      <para>The following describes behaviour present in 1.8.0.8 and later.</para>
+
+      <para>Text tables may be <emphasis>disconnected</emphasis> from their underlying data source, i.e.
+      the text file.</para>
+
+      <para>You can explicitly disconnect a text table from its file by issuing the
+      following statement:
+      <programlisting>  SET TABLE mytable SOURCE OFF</programlisting>
+      </para>
+
+      <para>Subsequently, <literal>mytable</literal> will be empty and read-only. However, the data
+      source description will be preserved, and the table can be re-connected to it with
+      <programlisting>  SET TABLE mytable SOURCE ON</programlisting>
+      </para>
+
+      <para>When a database is opened, if the source file for an existing text table is missing
+      the table remains disconnected from its data source, but the source sescription is preserved.
+      This allows the missing source file to be added to the directory and the table re-connected to it
+      with the above command.
+      </para>
     </section>
   </section>
 
@@ -382,7 +407,7 @@
       </listitem>
 
       <listitem>
-        <para>From version 1.7.2 it is possible to define a primay key or
+        <para>It is possible to define a primay key or
         identity column for text tables.</para>
       </listitem>
 
@@ -410,6 +435,10 @@
         with strings that contains the linefeed or the carriage return
         character. This feature is disabled when both quoted and all_quoted
         properties are false.</para>
+      </listitem>
+      <listitem>
+        <para>ALTER TABLE commands that add or drop columns are not supported 
+        with non-empty text tables.</para>
       </listitem>
     </itemizedlist>
   </section>

@@ -269,10 +269,10 @@
       separate servlet engine (or application server) such as Tomcat or Resin
       provides access to the database. The Servlet Mode cannot be started
       independently from the servlet engine. The
-      <filename>hsqlServlet</filename> class, in the HSQLDB jar, should be
+      <filename>Servlet</filename> class, in the HSQLDB jar, should be
       installed on the application server to provide the connection. The
       database is specified using an application server property. Refer to the
-      source file <filename>hsqlServlet.java</filename> to see the
+      source file <filename>org.hsqldb.server.Servlet.java</filename> to see the
       details.</para>
 
       <para>Both Web Server and Servlet modes can only be accessed using the
