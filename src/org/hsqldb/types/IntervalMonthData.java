@@ -41,6 +41,12 @@ public class IntervalMonthData {
 
     public static IntervalMonthData newIntervalYear(int years,
             IntervalType type) throws HsqlException {
+
+        if (years >= type.getIntervalValueLimit()) {
+            // todo - message precision exceeded
+            // data exception interval field overflow.
+            throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+        }
         return new IntervalMonthData(years * 12, type);
     }
 

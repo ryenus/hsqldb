@@ -34,17 +34,25 @@ package org.hsqldb.lib;
 import java.util.Date;
 
 /**
- * Provides facility for threads to schedule tasks for future execution in a
- * background thread.  Tasks may be scheduled for one-time execution, or for
- * repeated execution at regular intervals.  This class is a JDK 1.1 compatible
- * implementation required by HSQLDB because the java.util.Timer class is
- * available only in JDK 1.3+.
+ * Facility to schedule tasks for future execution in a background thread.  <p>
  *
+ * Tasks may be scheduled for one-time execution or for repeated execution at
+ * regular intervals, using either fixed rate or fixed delay policy. <p>
+ *
+ * This class is a JDK 1.1 compatible implementation required by HSQLDB both
+ * because the java.util.Timer class is available only in JDK 1.3+ and because
+ * java.util.Timer starves least recently added tasks under high load and
+ * fixed rate scheduling, especially when the average actual task duration is
+ * greater than the average requested task periodicity. <p>
+ *
+ * An additional (minor) advantage over java.util.Timer is that this class does
+ * not retain a live background thread during periods when the task queue is
+ * empty.
  * @author boucherb@users
- * @version 1.7.2
+ * @version 1.8.0.3
  * @since 1.7.2
  */
-public class HsqlTimer implements ObjectComparator {
+public final class HsqlTimer implements ObjectComparator, ThreadFactory {
 
     /** The priority queue for the scheduled tasks. */
     protected final TaskQueue taskQueue = new TaskQueue(16,
@@ -57,7 +65,14 @@ public class HsqlTimer implements ObjectComparator {
     protected Thread taskRunnerThread;
 
     /** The factory that procduces the background threads. */
-    protected ThreadFactory threadFactory;
+    protected final ThreadFactory threadFactory;
+
+    /**
+     * Whether this timer should disallow all further processing.
+     *
+     * Once set true, stays true forever.
+     */
+    protected volatile boolean isShutdown;
 
     /**
      * Constructs a new HsqlTimer using the default thread factory
@@ -68,65 +83,85 @@ public class HsqlTimer implements ObjectComparator {
     }
 
     /**
-     * Constructs a new HsqlTimer using the specified thread factory
-     * implementation.
+     * Constructs a new HsqlTimer.
      *
-     * @param tf the ThreadFactory used to produce the background threads.
-     *      If null, the implementation supplied by HsqlThreadFactory will
-     *      be used.
+     * Uses the specified thread factory implementation.
+     *
+     * @param threadFactory the ThreadFactory used to produce this timer's
+     *      background threads.  If null, the default implementation supplied
+     *      by this class will be used.
      */
-    public HsqlTimer(ThreadFactory tf) {
-        threadFactory = new HsqlThreadFactory(tf);
+    public HsqlTimer(final ThreadFactory threadFactory) {
+        this.threadFactory = (threadFactory == null) ? this
+                                                     : threadFactory;
     }
 
     /**
-     * ObjectComparator implemtation required to back priority queue
-     * for scheduled tasks.
+     * Required to back the priority queue for scheduled tasks.
      *
      * @param a the first Task
      * @param b the second Task
      * @return 0 if equal, < 0 if a < b, > 0 if a > b
      */
-    public int compare(Object a, Object b) {
+    public int compare(final Object a, final Object b) {
 
-        long awhen;
-        long bwhen;
+        final long awhen = ((Task) (a)).getNextScheduled();
+        final long bwhen = ((Task) (b)).getNextScheduled();
 
-        awhen = ((Task) (a)).getNextScheduled();
-        bwhen = ((Task) (b)).getNextScheduled();
-
-        // must return an int, so (awhen - bwhen)
-        // might not be that great... (:-(
-        // under realistic use (scheduled times in this era ;-),
-        // awhen - bwhen is fine
-        // return (awhen < bwhen) ? -1 : awhen == bwhen ? 0: 1;
-        return (int) (awhen - bwhen);
+        return (awhen < bwhen) ? -1
+                               : (awhen == bwhen) ? 0
+                                                  : 1;
     }
 
     /**
-     * Retrieves the background thread that is currently being used to
-     * execute submitted tasks.  null is returned if there is no such thread.
+     * Default ThreadFactory implementation. <p>
      *
-     * @return the current background thread or null
+     * Contructs a new Thread from the designated runnable, sets its
+     * name to "HSQLDB Timer @" + Integer.toHexString(hashCode()),
+     * and sets it as a daemon thread. <p>
+     *
+     * @param runnable used to construct the new Thread.
+     * @return a new Thread constructed from the designated runnable.
+     */
+    public Thread newThread(final Runnable runnable) {
+
+        final Thread thread = new Thread(runnable);
+
+        thread.setName("HSQLDB Timer @" + Integer.toHexString(hashCode()));
+        thread.setDaemon(true);
+
+        return thread;
+    }
+
+    /**
+     * Retrieves the background execution thread. <p>
+     *
+     * null is returned if there is no such thread. <p>
+     *
+     * @return the current background thread (may be null)
      */
     public synchronized Thread getThread() {
-        return taskRunnerThread;
+        return this.taskRunnerThread;
     }
 
     /**
      * (Re)starts background processing of the task queue.
+     *
+     * @throws IllegalStateException if this timer is shut down.
+     * @see #shutdown()
+     * @see #shutdownImmediately()
      */
-    public synchronized void restart() {
+    public synchronized void restart() throws IllegalStateException {
 
-        if (taskRunnerThread == null) {
-            taskRunnerThread = threadFactory.newThread(taskRunner);
+        if (this.isShutdown) {
+            throw new IllegalStateException("isShutdown==true");
+        } else if (this.taskRunnerThread == null) {
+            this.taskRunnerThread =
+                this.threadFactory.newThread(this.taskRunner);
 
-            taskRunnerThread.setName("HSQLDB Timer @"
-                                     + Integer.toHexString(this.hashCode()));
-            taskRunnerThread.setDaemon(true);
-            taskRunnerThread.start();
+            this.taskRunnerThread.start();
         } else {
-            notify();
+            this.taskQueue.unpark();
         }
     }
 
@@ -135,11 +170,19 @@ public class HsqlTimer implements ObjectComparator {
      * after the specified delay.
      *
      * @param delay in milliseconds
-     * @param r the Runnable to execute.
+     * @param runnable the Runnable to execute.
      * @return opaque reference to the internal task
+     * @throws IllegalArgumentException if runnable is null
      */
-    public Object scheduleAfter(long delay, Runnable r) {
-        return addTask(now() + delay, r, 0, false);
+    public Object scheduleAfter(final long delay,
+                                final Runnable runnable)
+                                throws IllegalArgumentException {
+
+        if (runnable == null) {
+            throw new IllegalArgumentException("runnable == null");
+        }
+
+        return this.addTask(now() + delay, runnable, 0, false);
     }
 
     /**
@@ -147,11 +190,21 @@ public class HsqlTimer implements ObjectComparator {
      * at the specified time.
      *
      * @param date time at which to execute the specified Runnable
-     * @param r the Runnable to execute.
+     * @param runnable the Runnable to execute.
      * @return opaque reference to the internal task
+     * @throws IllegalArgumentException if date or runnable is null
      */
-    public Object scheduleAt(Date date, Runnable r) {
-        return addTask(date.getTime(), r, -1, false);
+    public Object scheduleAt(final Date date,
+                             final Runnable runnable)
+                             throws IllegalArgumentException {
+
+        if (date == null) {
+            throw new IllegalArgumentException("date == null");
+        } else if (runnable == null) {
+            throw new IllegalArgumentException("runnable == null");
+        }
+
+        return this.addTask(date.getTime(), runnable, 0, false);
     }
 
     /**
@@ -159,19 +212,27 @@ public class HsqlTimer implements ObjectComparator {
      * background, starting at the specified time.
      *
      * @return opaque reference to the internal task
-     * @param p the cycle period
-     * @param relative if true, fixed rate sheduling else fixed period scheduling
+     * @param period the cycle period
+     * @param relative if true, fixed rate sheduling else fixed delay scheduling
      * @param date time at which to execute the specified Runnable
-     * @param r the Runnable to execute
+     * @param runnable the Runnable to execute
+     * @throws IllegalArgumentException if date or runnable is null, or
+     *      period is <= 0
      */
-    public Object schedulePeriodicallyAt(Date date, long p, Runnable r,
-                                         boolean relative) {
+    public Object schedulePeriodicallyAt(final Date date, final long period,
+                                         final Runnable runnable,
+                                         final boolean relative)
+                                         throws IllegalArgumentException {
 
-        if (p <= 0) {
-            throw new IllegalArgumentException();
+        if (date == null) {
+            throw new IllegalArgumentException("date == null");
+        } else if (period <= 0) {
+            throw new IllegalArgumentException("period <= 0");
+        } else if (runnable == null) {
+            throw new IllegalArgumentException("runnable == null");
         }
 
-        return addTask(date.getTime(), r, p, relative);
+        return addTask(date.getTime(), runnable, period, relative);
     }
 
     /**
@@ -179,34 +240,72 @@ public class HsqlTimer implements ObjectComparator {
      * background, starting after the specified delay.
      *
      * @return opaque reference to the internal task
-     * @param p the cycle period
-     * @param relative if true, fixed rate sheduling else fixed period scheduling
+     * @param period the cycle period
+     * @param relative if true, fixed rate sheduling else fixed delay scheduling
      * @param delay in milliseconds
-     * @param r the Runnable to execute.
+     * @param runnable the Runnable to execute.
+     * @throws IllegalArgumentException if runnable is null or period is <= 0
      */
-    public Object schedulePeriodicallyAfter(long delay, long p, Runnable r,
-            boolean relative) {
+    public Object schedulePeriodicallyAfter(final long delay,
+            final long period, final Runnable runnable,
+            final boolean relative) throws IllegalArgumentException {
 
-        if (p <= 0) {
-            throw new IllegalArgumentException();
+        if (period <= 0) {
+            throw new IllegalArgumentException("period <= 0");
+        } else if (runnable == null) {
+            throw new IllegalArgumentException("runnable == null");
         }
 
-        return addTask(now() + delay, r, p, relative);
+        return addTask(now() + delay, runnable, period, relative);
     }
 
     /**
-     * Causes all pending tasks to be cancelled and then stops background
-     * processing.
+     * Shuts down this timer after the current task (if any) completes. <p>
+     *
+     * After this call, the timer has permanently entered the shutdown state;
+     * attempting to schedule any new task or directly restart this timer will
+     * result in an  IllegalStateException. <p>
+     *
      */
-    public synchronized void shutDown() {
+    public synchronized void shutdown() {
 
-        taskQueue.clear();
+        if (!this.isShutdown) {
+            this.isShutdown = true;
 
-        if (taskRunnerThread != null) {
-            taskRunnerThread.interrupt();
+            this.taskQueue.cancelAllTasks();
         }
+    }
 
-        taskRunnerThread = null;
+    /**
+     * Shuts down this timer immediately, interrupting the wait state associated
+     * with the current head of the task queue or the wait state internal to
+     * the currently executing task, if any such state is currently in effect.
+     *
+     * After this call, the timer has permanently entered the shutdown state;
+     * attempting to schedule any new task or directly restart this timer will
+     * result in an IllegalStateException. <p>
+     *
+     * <b>Note:</b> If the integrity of work performed by a scheduled task
+     * may be adversely affected by an unplanned interruption, it is the
+     * responsibility of the task's implementation to deal correctly with the
+     * possibility that this method is called while such work is in progress,
+     * for instance by catching the InterruptedException, completing the work,
+     * and then rethrowing the exception.
+     */
+    public synchronized void shutdownImmediately() {
+
+        if (!this.isShutdown) {
+            final Thread runner = this.taskRunnerThread;
+
+            this.isShutdown = true;
+
+            if (runner != null && runner.isAlive()) {
+                runner.interrupt();
+            }
+            ;
+
+            this.taskQueue.cancelAllTasks();
+        }
     }
 
     /**
@@ -215,16 +314,11 @@ public class HsqlTimer implements ObjectComparator {
      * finished but will not be rescheduled.
      *
      * @param task a task reference
-     * @exception ClassCastException if the task argument cannot be cast
-     *      to the type of reference returned by a scheduleXXX method
-     *      invocation.
      */
-    public static void cancel(Object task) throws ClassCastException {
+    public static void cancel(final Object task) {
 
-        if (task != null) {
+        if (task instanceof Task) {
             ((Task) task).cancel();
-
-//            Trace.printSystemOut("HsqlTimer now() calls: " + nowCount);
         }
     }
 
@@ -233,13 +327,10 @@ public class HsqlTimer implements ObjectComparator {
      *
      * @param task a task reference
      * @return true if referenced task is cancelled
-     * @exception ClassCastException if the task argument cannot be cast
-     *      to the type of reference returned by a scheduleXXX method
-     *      invocation.
      */
-    public static boolean isCancelled(Object task) throws ClassCastException {
-        return task == null ? true
-                            : ((Task) task).isCancelled();
+    public static boolean isCancelled(final Object task) {
+        return (task instanceof Task) ? ((Task) task).isCancelled()
+                                      : true;
     }
 
     /**
@@ -248,15 +339,16 @@ public class HsqlTimer implements ObjectComparator {
      *
      * @param task a task reference
      * @return true if the task is scheduled at a fixed rate
-     * @exception ClassCastException if the task argument cannot be cast
-     *      to the type of reference returned by a scheduleXXX method
-     *      invocation.
      */
-    public static boolean isFixedRate(Object task) throws ClassCastException {
+    public static boolean isFixedRate(final Object task) {
 
-        return task == null ? false
-                            : ((Task) task).relative
-                              && ((Task) task).period > 0;
+        if (task instanceof Task) {
+            final Task ltask = (Task) task;
+
+            return (ltask.relative && ltask.period > 0);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -264,17 +356,17 @@ public class HsqlTimer implements ObjectComparator {
      * periodically using fixed delay scheduling.
      *
      * @param task a task reference
-     * @return if the task is scheduled using a fixed rate
-     * @exception ClassCastException if the task argument cannot be cast
-     *      to the type of reference returned by a scheduleXXX method
-     *      invocation.
+     * @return true if the reference is scheduled using a fixed delay
      */
-    public static boolean isFixedDelay(Object task)
-    throws ClassCastException {
+    public static boolean isFixedDelay(final Object task) {
 
-        return task == null ? false
-                            : !((Task) task).relative
-                              && ((Task) task).period > 0;
+        if (task instanceof Task) {
+            final Task ltask = (Task) task;
+
+            return (!ltask.relative && ltask.period > 0);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -282,14 +374,11 @@ public class HsqlTimer implements ObjectComparator {
      * for periodic execution.
      *
      * @param task a task reference
-     * @return true ifthe task is scheduled for periodic execution
-     * @exception ClassCastException if the task argument cannot be cast
-     *      to the type of reference returned by a scheduleXXX method
-     *      invocation.
+     * @return true if the task is scheduled for periodic execution
      */
-    public static boolean isPeriodic(Object task) throws ClassCastException {
-        return task == null ? false
-                            : ((Task) task).period != 0;
+    public static boolean isPeriodic(final Object task) {
+        return (task instanceof Task) ? (((Task) task).period > 0)
+                                      : false;
     }
 
     /**
@@ -297,79 +386,90 @@ public class HsqlTimer implements ObjectComparator {
      * Date object. If the task has never been executed, null is returned.
      *
      * @param task a task reference
-     * @return the last time the referenced task was executed
-     * @exception ClassCastException if the task argument cannot be cast
-     *      to the type of reference returned by a scheduleXXX method
-     *      invocation.
+     * @return the last time the referenced task was executed; null if never
      */
-    public static Date getLastScheduled(Object task)
-    throws ClassCastException {
+    public static Date getLastScheduled(Object task) {
 
-        long last;
+        if (task instanceof Task) {
+            final Task ltask = (Task) task;
+            final long last  = ltask.getLastScheduled();
 
-        last = task == null ? 0
-                            : ((Task) task).getLastScheduled();
-
-        return last == 0 ? null
-                         : new Date(last);
+            return (last == 0) ? null
+                               : new Date(last);
+        } else {
+            return null;
+        }
     }
 
     /**
-     * Resets the period for a task.
+     * Sets the periodicity of the designated task to a new value. <p>
      *
-     * @param task a task reference
-     * @param period new period
-     * @exception ClassCastException if the task argument cannot be cast
-     *      to the type of reference returned by a scheduleXXX method
-     *      invocation.
+     * If the designated task is cancelled or the new period is identical to the
+     * task's current period, then this invocation has essentially no effect
+     * and the submitted object is returned. <p>
+     *
+     * Otherwise, if the new period is greater than the designated task's
+     * current period, then a simple assignment occurs and the submittted
+     * object is returned. <p>
+     *
+     * If neither case holds, then the designated task is cancelled and a new,
+     * equivalent task with the new period is scheduled for immediate first
+     * execution and returned to the caller. <p>
+     *
+     * @return a task reference, as per the rules stated above.
+     * @param task the task whose periodicity is to be set
+     * @param period the new period
      */
-    public static void setPeriod(Object task,
-                                 long period) throws ClassCastException {
-
-        if (task == null) {
-            return;
-        }
-
-        ((Task) task).setPeriod(period);
+    public static Object setPeriod(final Object task, final long period) {
+        return (task instanceof Task) ? ((Task) task).setPeriod(period)
+                                      : task;
     }
 
     /**
      * Retrieves the next time the referenced task is due to be executed, as a
-     * Date object. If the task has been cancelled, null is returned.
+     * Date object. If the referenced task is cancelled, null is returned.
      *
      * @param task a task reference
      * @return the next time the referenced task is due to be executed
-     * @exception ClassCastException if the task argument cannot be cast
-     *      to the type of reference returned by a scheduleXXX method
-     *      invocation.
      */
-    public static Date getNextScheduled(Object task)
-    throws ClassCastException {
-        return isCancelled(task) ? null
-                                 : new Date(((Task) task).getNextScheduled());
+    public static Date getNextScheduled(Object task) {
+
+        if (task instanceof Task) {
+            final Task ltask = (Task) task;
+            final long next  = ltask.isCancelled() ? 0
+                                                   : ltask.getNextScheduled();
+
+            return next == 0 ? null
+                             : new Date(next);
+        } else {
+            return null;
+        }
     }
 
     /**
      * Adds to the task queue a new Task object encapsulating the supplied
      * Runnable and scheduling arguments.
      *
-     * @param n the time of the first execution
-     * @param r the Runnable to execute
-     * @param p the periodicity
-     * @param b if true, use fixed rate else use fixed period
-     * @return a reference to the scheduled task
+     * @param first the time of the task's first execution
+     * @param runnable the Runnable to execute
+     * @param period the task's periodicity
+     * @param relative if true, use fixed rate else use fixed delay scheduling
+     * @return an opaque reference to the internal task
      */
-    protected Task addTask(long n, Runnable r, long p, boolean b) {
+    protected Task addTask(final long first, final Runnable runnable,
+                           final long period, boolean relative) {
 
-        Task task;
+        if (this.isShutdown) {
+            throw new IllegalStateException("shutdown");
+        }
 
-        task = new Task(n, r, p, b);
+        final Task task = new Task(first, runnable, period, relative);
 
         // sychronized
-        taskQueue.add(task);
+        this.taskQueue.addTask(task);
 
         // sychronized
-        restart();
+        this.restart();
 
         return task;
     }
@@ -380,70 +480,86 @@ public class HsqlTimer implements ObjectComparator {
     }
 
     /**
-     * Retrieves the next task to execute, or null if the background thread
-     * is interrupted.
+     * Retrieves the next task to execute, or null if this timer is shutdown,
+     * the current thread is interrupted, or there are no queued tasks.
      *
      * @return the next task to execute, or null
      */
-    protected synchronized Task nextTask() {
-
-        Task    task;
-        long    now;
-        long    last;
-        long    next;
-        long    late;
-        long    period;
-        boolean relative;
+    protected Task nextTask() {
 
         try {
-            while (!Thread.interrupted()) {
-                task = (Task) (taskQueue.peek());
+            while (!this.isShutdown || Thread.interrupted()) {
+                long now;
+                long next;
+                long wait;
+                Task task;
 
-                if (task == null) {
-                    wait();
-                } else {
-                    now  = now();
-                    next = task.getNextScheduled();
+                // synchronized to ensure removeTask
+                // applies only to the peeked task,
+                // when the computed wait <= 0
+                synchronized (this.taskQueue) {
+                    task = this.taskQueue.peekTask();
 
-                    if (next > now) {
-                        wait(next - now);
+                    if (task == null) {
+
+                        // queue is empty
+                        break;
+                    }
+
+                    now  = System.currentTimeMillis();
+                    next = task.next;
+                    wait = (next - now);
+
+                    if (wait > 0) {
+
+                        // release ownership of taskQueue monitor and await
+                        // notification of task addition or cancellation,
+                        // at most until the time when the peeked task is
+                        // next supposed to execute
+                        this.taskQueue.park(wait);
+
+                        continue;           // to top of loop
                     } else {
-                        task = (Task) taskQueue.remove();
-
-                        if (task != null &&!task.isCancelled()) {
-                            period = task.period;
-
-                            if (period > 0) {
-                                now = now();
-
-                                if (task.relative) {
-                                    late = now - next;
-
-                                    if (late > 0) {
-                                        period -= late;
-                                    }
-                                }
-
-                                next = now + period;
-
-                                task.setNextScheduled(next);
-                                taskQueue.add(task);
-                            }
-
-                            return task;
-                        }
+                        this.taskQueue.removeTask();
                     }
                 }
+
+                long period = task.period;
+
+                if (period > 0) {           // repeated task
+                    if (task.relative) {    // using fixed rate shceduling
+                        final long late = (now - next);
+
+                        if (late > period) {
+
+                            // ensure that really late tasks don't
+                            // completely saturate the head of the
+                            // task queue
+                            period = 0;     // TODO: is -1, -2 ... fairer?
+                        } else if (late > 0) {
+
+                            // compensate for scheduling overruns
+                            period -= late;
+                        }
+                    }
+
+                    task.updateSchedule(now, now + period);
+                    this.taskQueue.addTask(task);
+                }
+
+                return task;
             }
         } catch (InterruptedException e) {
 
-            // e.printStackTrace()
+            //e.printStackTrace();
         }
 
-        // interrupted
         return null;
     }
 
+    /**
+     * stats var
+     */
     static int nowCount = 0;
 
     /**
@@ -469,19 +585,51 @@ public class HsqlTimer implements ObjectComparator {
      */
     protected class TaskRunner implements Runnable {
 
+        /**
+         * Runs the next available task in the background thread. <p>
+         *
+         * When there are no available tasks, the background
+         * thread dies and its instance field is cleared until
+         * tasks once again become available.
+         */
         public void run() {
-
-            Task task;
 
             try {
                 do {
-                    task = HsqlTimer.this.nextTask();
+                    final Task task = HsqlTimer.this.nextTask();
 
                     if (task == null) {
                         break;
                     }
 
-                    task.setLastScheduled(now());
+                    // PROBLEM: If the runnable throws an exception other
+                    //          than InterruptedException (which likely stems
+                    //          naturally from calling shutdownImmediately()
+                    //          or getThread().interrupt()), this will still
+                    //          cause the loop to exit, which is to say that
+                    //          task scheduling will stop until a new task is
+                    //          added or the timer is restarted directly, even
+                    //          though there may still be uncancelled tasks
+                    //          left on the queue.
+                    //
+                    // TODO:    Clarify and establish a contract regarding
+                    //          the difference between InterruptedException,
+                    //          RuntimeException and other things, like
+                    //          UndeclaredThrowableException.
+                    //
+                    // SOL'N:   At present, we simply require each runnable to
+                    //          understand its part of the implicit contract,
+                    //          which is to deal with exceptions internally
+                    //          (not throw them up to the timer), with the
+                    //          possible exception of InterruptedException.
+                    //
+                    //          If the integrity of work performed by the
+                    //          runnable may be adversely affected by an
+                    //          unplanned interruption, the runnable should
+                    //          deal with this directly, for instance by
+                    //          catching the InterruptedException, ensuring
+                    //          that some integrity preserving state is
+                    //          attained, and then rethrowing the exception.
                     task.runnable.run();
                 } while (true);
             } finally {
@@ -491,44 +639,46 @@ public class HsqlTimer implements ObjectComparator {
     }
 
     /**
-     * A wrapper class used to schedule a Runnable object
+     * Encapsulates a Runnable and its scheduling attributes.
+     *
+     * Essentially, a wrapper class used to schedule a Runnable object
      * for execution by the enclosing HsqlTimer's TaskRunner in a
      * background thread.
      */
     protected class Task {
 
-        /** What to run */
-        final Runnable runnable;
+        /** What to run. */
+        Runnable runnable;
 
-        /** The periodic interval, or 0 if one-shot */
+        /** The periodic interval, or 0 if one-shot. */
         long period;
 
-        /** The time this task was last executed, or 0 if never */
-        private long last;
+        /** The time this task was last executed, or 0 if never. */
+        long last;
 
-        /** The next time this task is scheduled to execute */
-        private long next;
+        /** The next time this task is scheduled to execute. */
+        long next;
 
         /**
-         * Whether to remove this task instead of running it
-         * the next time it makes its way to the head of the
+         * Whether to silently remove this task instead of running it,
+         * the next time (if ever) it makes its way to the head of the
          * timer queue.
          */
-        private boolean cancelled = false;
+        boolean cancelled = false;
 
-        /** protect the cancelled field under concurrent access */
+        /** Serializes concurrent access to the cancelled field. */
         private Object cancel_mutex = new Object();
 
         /**
-         * Whether periodic task is sheduled using fixed delay or fixed rate.
+         * Scheduling policy flag. <p>
          *
-         * When true, scheduling is fixed rate as opposed to fixed delay
-         * and nextScheduled is calculated relative to when the task was
-         * was last run rather than a fixed delay starting from
-         * the current wall-clock time provided by
-         * System.currentTimeMillis().  This helps tasks that must attempt
-         * to maintain a fixed rate of execution under Java's approximate
-         * wait() and Thread.sleep(millis).
+         * When true, scheduling is fixed rate (as opposed to fixed delay),
+         * and schedule updates are calculated relative to when the task was
+         * was last run rather than a fixed delay starting from the current
+         * wall-clock time provided by System.currentTimeMillis().  <p>
+         *
+         * This helps normalize scheduling for tasks that must attempt to
+         * maintain a fixed rate of execution.
          */
         final boolean relative;
 
@@ -536,25 +686,29 @@ public class HsqlTimer implements ObjectComparator {
          * Constructs a new Task object encapulating the specified Runnable
          * and scheduling arguments.
          *
-         * @param n the next time to execute
-         * @param r the Runnable to execute
-         * @param p the periodicity of execution
-         * @param b if true, use fixed rate scheduling else fixed period
+         * @param first the first time to execute
+         * @param runnable the Runnable to execute
+         * @param period the periodicity of execution
+         * @param relative if true, use fixed rate scheduling else fixed delay
          */
-        Task(long n, Runnable r, long p, boolean b) {
+        Task(final long first, final Runnable runnable, final long period,
+                final boolean relative) {
 
-            last     = 0;
-            next     = n;
-            runnable = r;
-            period   = p;
-            relative = b;
+            this.next     = first;
+            this.runnable = runnable;
+            this.period   = period;
+            this.relative = relative;
         }
 
-        /** Sets this task's cancelled flag true. */
+        /** Sets this task's cancelled flag true and signals its taskQueue. */
         void cancel() {
 
             synchronized (cancel_mutex) {
-                cancelled = true;
+                if (!cancelled) {
+                    cancelled = true;
+
+                    HsqlTimer.this.taskQueue.signalTaskCancelled(this);
+                }
             }
         }
 
@@ -582,15 +736,6 @@ public class HsqlTimer implements ObjectComparator {
         }
 
         /**
-         * Sets the time at which this task reports it was last executed.
-         *
-         * @param l the new value for the last executed attribute
-         */
-        synchronized void setLastScheduled(long l) {
-            last = l;
-        }
-
-        /**
          * Retrieves the time at which this task is next scheduled for
          * execution.
          *
@@ -602,33 +747,57 @@ public class HsqlTimer implements ObjectComparator {
         }
 
         /**
-         * Sets the new time at which this task is next scheduled for
-         * execution.
+         * Updates the last and next scheduled execution times.
          *
-         * @param n the new time at which this task is next scheduled for
-         *      execution
+         * @param last when this task was last executed
+         * @param next when this task is to be next executed
          */
-        synchronized void setNextScheduled(long n) {
-            next = n;
+        synchronized void updateSchedule(final long last, final long next) {
+            this.last = last;
+            this.next = next;
         }
 
         /**
-         * Sets the period to wait.
+         * Sets the new periodicity of this task in milliseconds. <p>
          *
-         * @param n the new period
+         * If this task is cancelled or the new period is identical to the
+         * current period, then this invocation has essentailly no effect
+         * and this object is returned. <p>
+         *
+         * Otherwise, if the new period is greater than the current period, then
+         * a simple field assignment occurs and this object is returned. <p>
+         *
+         * If none of the previous cases hold, then this task is cancelled and
+         * a new, equivalent task with the new period is scheduled for
+         * immediate first execution and returned to the caller. <p>
+         *
+         * @param period the new period
+         * @return a task reference, as per the rules stated above.
          */
-        synchronized void setPeriod(long n) {
-            period = n;
+        synchronized Object setPeriod(final long newPeriod) {
+
+            if (this.period == newPeriod || this.isCancelled()) {
+                return this;
+            } else if (newPeriod > this.period) {
+                this.period = newPeriod;
+
+                return this;
+            } else {
+                this.cancel();
+
+                return HsqlTimer.this.addTask(now(), this.runnable, newPeriod,
+                                              this.relative);
+            }
         }
     }
 
     /**
-     * Extends HsqlArrayHeap to allow all pending tasks to be cancelled when
-     * the queue is cleared.  Currently, this is done for reporting purposes
-     * only, as there is no public interface to reinsert Task objects after
-     * they have been removed.
+     * Heap-based priority queue.
+     *
+     * Provides extensions to facilitate and simplify implementing
+     * timer functionality.
      */
-    protected class TaskQueue extends HsqlArrayHeap {
+    protected static class TaskQueue extends HsqlArrayHeap {
 
         /**
          * Constructs a new TaskQueue with the specified initial capacity and
@@ -638,127 +807,658 @@ public class HsqlTimer implements ObjectComparator {
          * @param oc The ObjectComparator this queue uses to maintain its
          *      Heap invariant.
          */
-        TaskQueue(int capacity, ObjectComparator oc) {
+        TaskQueue(final int capacity, final ObjectComparator oc) {
             super(capacity, oc);
         }
 
-        /** Cancels all pending tasks and removes them from this queue. */
-        public synchronized void clear() {
+        /**
+         * Type-safe add method. <p>
+         *
+         * Can be used to inject debugging or accounting behaviour. <p>
+         *
+         * @param task the task to add
+         */
+        void addTask(final Task task) {
 
-            for (int i = 0; i < count; i++) {
-                ((Task) heap[i]).cancel();
+            // System.out.println("task added: " + task);
+            super.add(task);
+        }
 
-                heap[i] = null;
+        /**
+         * Atomically removes all tasks in this queue and then and cancels
+         * them.
+         */
+        void cancelAllTasks() {
+
+            Object[] oldHeap;
+            int      oldCount;
+
+            synchronized (this) {
+                oldHeap  = this.heap;
+                oldCount = this.count;
+
+                // 1 instead of 0 to avoid unintended aoob exceptions
+                this.heap  = new Object[1];
+                this.count = 0;
             }
 
-            count = 0;
+            for (int i = 0; i < oldCount; i++) {
+                ((Task) oldHeap[i]).cancelled = true;
+            }
+        }
+
+        /**
+         * Causes the calling thread to wait until another thread invokes
+         * {@link #unpark() unpark} or the specified amount of time has
+         * elapsed.
+         *
+         * Implements the sync & wait(n) half of this queue's availability
+         * condition. <p>
+         *
+         * @param timeout the maximum time to wait in milliseconds.
+         * @throws java.lang.InterruptedException if another thread has
+         *    interrupted the current thread.  The <i>interrupted status</i> of
+         *    the current thread is cleared when this exception is thrown.
+         */
+        synchronized void park(final long timeout)
+        throws InterruptedException {
+            this.wait(timeout);
+        }
+
+        /**
+         * Retrieves the head of this queue, without removing it. <p>
+         *
+         * This method has the side-effect of removing tasks from the
+         * head of this queue until a non-cancelled task is encountered
+         * or this queue is empty. <p>
+         *
+         * If this queue is initially empty or is emptied in the process
+         * of finding the earliest scheduled non-cancelled task,
+         * then null is returned. <p>
+         *
+         * @return the earliest scheduled non-cancelled task, or null if no such
+         *      task exists
+         */
+        synchronized Task peekTask() {
+
+            while (super.heap[0] != null
+                    && ((Task) super.heap[0]).isCancelled()) {
+                super.remove();
+            }
+
+            return (Task) super.heap[0];
+        }
+
+        /**
+         * Informs this queue that the given task is supposedly cancelled. <p>
+         *
+         * If the indicated task is identical to the current head of
+         * this queue, then it is removed and this queue is
+         * {@link #unpark() unparked}. <p>
+         *
+         * The cancelled status of the given task is not verified; it is
+         * assumed that the caller is well-behaved (always passes a
+         * non-null reference to a cancelled task).
+         *
+         * @param task a supposedly cancelled task
+         */
+        synchronized void signalTaskCancelled(Task task) {
+
+            // We only care about the case where HsqlTimer.nextTask
+            // might be parked momentarily on this task.
+            if (task == super.heap[0]) {
+                super.remove();
+                this.notify();
+            }
+        }
+
+        /**
+         * Type-safe remove method. <p>
+         *
+         * Removes the head task from this queue. <p>
+         *
+         * Can be used to inject debugging or accounting behaviour. <p>
+         *
+         * @return this queue's head task or null if no such task exists
+         */
+        Task removeTask() {
+
+            // System.out.println("removing task...");
+            return (Task) super.remove();
+        }
+
+        /**
+         * Wakes up a single thread (if any) that is waiting on this queue's
+         * {@link #park(long) park} method.
+         *
+         * Implements the sync & notify half of this queue's availability
+         * condition.
+         */
+        synchronized void unpark() {
+            this.notify();
         }
     }
 
 // ---------------------------------- tests ------------------------------------
-//    static class TestTask implements Runnable {
-//        String      name;
-//        HsqlTimer   timer;
-//        Object      tid;
-//        int         runs = 0;
-//        long        last;
-//        long        total = 0;
-//        Thread      sleeper;
+//    /**
+//     * Computes the system-specific average {@link java.io.FileDescriptor#sync()
+//     * sync} time. <p>
+//     *
+//     * @param runs iterations to perform when computing the average
+//     * @param buff the data to write before each sync call
+//     * @return the total time to write buff and call sync runs times,
+//     *    divided by runs
+//     */
+//    static double avgSyncTime(int runs, byte[] buff) {
+//        java.io.File             file = null;
+//        java.io.FileOutputStream fos;
+//        java.io.FileDescriptor   fd;
+//        long                     start = System.currentTimeMillis();
 //
-//        TestTask(String name) {
-//            this.name = name;
-//            try {
-//                System.runFinalizersOnExit(true);
-//            } catch (Exception e) {
+//        try {
+//            file = java.io.File.createTempFile("SyncTest", ".tmp");
+//            fos  = new java.io.FileOutputStream(file);
+//            fd   = fos.getFD();
 //
+//            for (int i = 0; i < runs; i++) {
+//                fos.write(buff);
+//                fos.flush();
+//                fd.sync();
 //            }
-//        }
 //
-//        public void run() {
-//            System.out.println(this);
-//            if (timer.getLastScheduled(tid) == null) {
-//                System.out.println("no last sched.");
-//            } else {
-//                runs++;
-//                if (runs == 1) {
-//                    last = now();
-//                } else {
-//                    long now = now();
-//                    total += (now - last);
-//                    last = now;
-//                    System.out.println("runs: " + (runs -1));
-//                    System.out.println("totl: " + total);
-//                    System.out.flush();
-//                }
+//            long elapsed = System.currentTimeMillis() - start;
+//
+//            return (elapsed/(double)runs);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            if (file != null) {
+//                file.delete();
 //            }
-//            System.out.println("------------------");
-//            if (runs == 10) {
-//                timer.shutDown();
-//                sleeper.interrupt();
-//            }
-//        }
-//
-//        public String toString() {
-//            return name;
-//        }
-//
-//        protected void printstats() {
-//            System.out.println(this + " avg. latency: " + (total/(runs-1)));
 //        }
 //    }
 //
+//    /**
+//     * WRITE_DELAY simulation task.
+//     *
+//     * Writes a given buffer to disk, sync's the associated file
+//     * descriptor and maintains an account of the average period
+//     * between executions.
+//     */
+//    static class WriteAndSyncTask extends java.util.TimerTask {
+//        // static
+//        /** Used to make the name of each task unique. */
+//        static int          serial;
+//        /** The data to write. */
+//        static final byte[] buf = new byte[256];
+//
+//        // instance
+//        /** Identifes this task. */
+//        String                   name;
+//        /** The time at which this task was last executed. */
+//        long                     last;
+//        /** A running sum of the periods between executions. */
+//        long                     total;
+//        /** The number of times this task has been executed. */
+//        int                      runs;
+//        /** True until this task is the first time. */
+//        boolean                  firstTime = true;
+//        /** The file to write. */
+//        java.io.File             file;
+//        /** The FileOutputStream to write. */
+//        java.io.FileOutputStream fos;
+//        /** The FileDescriptor to sync. */
+//        java.io.FileDescriptor   fd;
+//
+//        /** Constructs a new WriteAndSyncTask */
+//        WriteAndSyncTask() {
+//            this.name = "Task." + serial++;
+//
+//            try {
+//                this.file = java.io.File.createTempFile(name, ".tmp");
+//                this.fos  = new java.io.FileOutputStream(file);
+//                this.fd   = fos.getFD();
+//            } catch(java.io.IOException ioe) {
+//                throw new RuntimeException(ioe);
+//            }
+//        }
+//
+//        /**
+//         * Runnable implementation. <p>
+//         *
+//         * Does the average period accounting and
+//         * invokes the writeAndSync method.
+//         */
+//        public void run() {
+//            final long now = System.currentTimeMillis();
+//
+//            if (this.firstTime) {
+//                this.firstTime = false;
+//            } else {
+//                this.total += (now - this.last);
+//            }
+//
+//            this.last = now;
+//
+//            writeAndSync();
+//
+//            this.runs++;
+//        }
+//
+//        /**
+//         * Writes a given buffer to disk and syncs the associated file
+//         * descriptor.
+//         */
+//        void writeAndSync() {
+//            try {
+//                this.fos.write(buf);
+//                this.fos.flush();
+//                this.fd.sync();
+//                Thread.sleep(1);
+//            } catch(Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        /**
+//         * Closes the FileOutputStream, deletes the file
+//         * and nullifies Object fields.
+//         */
+//        public void release() {
+//            try {
+//                this.fos.close();
+//            } catch(Exception e) {
+//                e.printStackTrace();
+//            }
+//            try {
+//                this.file.delete();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//            this.fos  = null;
+//            this.file = null;
+//            this.fd   = null;
+//        }
+//
+//        /**
+//         * Retrieves the computed moment of actual average periodicity
+//         * experienced by this task.
+//         */
+//        public float getAveragePeriod() {
+//            return (this.runs < 2) ? Float.NaN
+//                                   : (this.total/(float)(this.runs - 1));
+//        }
+//
+//
+//        /**
+//         * @return the String representation of this task, indicating
+//         *      its name, the number of runs so far and the
+//         *      computed moment of actual average periodicity
+//         *      experienced so far.
+//         */
+//        public String toString()  {
+//            return this.name
+//                    + "["
+//                    + "runs: " + runs + ", "
+//                    + "actual avg. period: " + getAveragePeriod()
+//                    +  "]";
+//        }
+//    }
+//
+//    static class Stats {
+//        double  min;
+//        double  max;
+//        double  pk;
+//        double  sk;
+//        double  vk;
+//        long    n;
+//        boolean initialized;
+//        boolean sample;
+//
+//        void addDataPoint(double x) {
+//
+//            double xi;
+//            double xsi;
+//            long   nm1;
+//
+//            xi = x;
+//
+//            if (!initialized) {
+//                n           = 1;
+//                pk          = xi;
+//                sk          = xi;
+//                min         = xi;
+//                max         = xi;
+//                vk          = 0.0;
+//                initialized = true;
+//
+//                return;
+//            }
+//
+//            n++;
+//
+//            nm1 = (n - 1);
+//            xsi = (sk - (xi * nm1));
+//            vk  += ((xsi * xsi) / n) / nm1;
+//            sk  += xi;
+//
+//            if (xi != 0) {
+//                pk  *= xi;
+//            }
+//
+//            max = Math.max(max, xi);
+//            min = Math.min(min, xi);
+//        }
+//
+//        double getMin() {
+//            return initialized ? min : Double.NaN;
+//        }
+//
+//        double getMax() {
+//            return initialized ? max : Double.NaN;
+//        }
+//
+//        double getGeometricMean() {
+//            return initialized ? Math.pow(pk, 1/(double)n) : Double.NaN;
+//        }
+//
+//        double getVariance() {
+//
+//            if (!initialized) {
+//                return Double.NaN;
+//            }
+//
+//            return sample ? (n == 1) ? Double.NaN
+//                    : (vk / (double) (n - 1))
+//                    : (vk / (double) (n));
+//        }
+//
+//        double getStdDev() {
+//
+//            if (!initialized) {
+//                return Double.NaN;
+//            }
+//
+//            return sample ? (n == 1) ? Double.NaN
+//                    : (Math.sqrt(vk
+//                    / (double) (n - 1)))
+//                    : (Math.sqrt(vk / (double) (n)));
+//        }
+//    }
+//
+//    /**
+//     * Runs the HsqlTimer tests.
+//     * @param args Currently unused
+//     */
 //    public static void main(String[] args) {
-//        HsqlTimer timer;
-//        TestTask tt1;
-//        TestTask tt2;
-//        Thread   sleeper;
+//        // number of tasks to queue
+//        int    taskCount         = 10;
+//        // period, as a multiple of computed system-specific avg. sync time
+//        double periodMultiplier  = 1.4D;
+//        // how long to run the timer, in milliseconds
+//        long   duration          = 2800;
 //
-//        timer = new HsqlTimer();
+//        test(taskCount, periodMultiplier, duration);
+//    }
 //
-//        // need this to run tests now, since
-//        // taskRunnerThread is now daemon.
-//        // Otherwise, timer thread exits
-//        // immediately when this thread exits.
-//        sleeper = new Thread() {
-//            public void run() {
-//                try {
-//                    sleep(Long.MAX_VALUE);
-//                } catch (Exception e) {
-//                    // do nothing
-//                }
-//            }
-//        };
+//    /**
+//     * Runs the HsqlTimer and java.util.Timer tests using the given
+//     * arguments. <p>
+//     *
+//     * @param taskCount the number of WriteAndSync tasks to add
+//     * @param periodMultiplier the period with with to schedule
+//     *      the tasks, as a multiple of the computed, system-specific
+//     *      average sync time.
+//     * @param duration The number of milliseconds that the foreground
+//     *      Thread should sleep while the specified number of WriteAndSync
+//     *      tasks are running in the background thread
+//     */
+//    public static void test(final int taskCount,
+//                            final double periodMultiplier,
+//                            final long duration) {
 //
-//        sleeper.start();
+//        System.out.println();
+//        System.out.println("****************************************");
+//        System.out.println("*    org.hsqldb.lib.HsqlTimer tests    *");
+//        System.out.println("****************************************");
+//        System.out.println();
 //
-//        Runnable r = new Runnable() {
-//            long x;
-//            int runs = 0;
-//            public void run() {
-//                for (int i = 0; i < 1000000; i++) {
-//                    x = (long) ((x + 6) * (double)12) - 100;
-//                }
-//            }
-//        };
+//        System.out.println("Computing system-specific avg. sync time.");
+//        System.out.println("Please wait...");
 //
-//        tt2 = new TestTask("Task 2");
-//        tt2.timer = timer;
-//        tt2.sleeper = sleeper;
-//        tt2.tid = (Task) timer.schedulePeriodicallyAfter(0, 500, tt2, false);
+//        double avgSyncTime   = avgSyncTime(500, new byte[256]);
+//        double minAvgPeriod = (taskCount * avgSyncTime);
+//        long   period        = Math.round(avgSyncTime * periodMultiplier);
 //
-//        tt1 = new TestTask("Task 1");
-//        tt1.timer = timer;
-//        tt1.sleeper = sleeper;
-//        tt1.tid = (Task) timer.schedulePeriodicallyAfter(0, 500, tt1, true);
+//        System.out.println();
+//        System.out.println("System-specific avg. sync time : " + avgSyncTime + " ms.");
+//        System.out.println("Requested task count           : " + taskCount);
+//        System.out.println("Requested task period          : " + period + " ms." );
+//        System.out.println("Min. avg. period (0 starved)   : " + minAvgPeriod + " ms." );
+//        System.out.println("Requested test duration        : " + duration + " ms.");
 //
-//        timer.schedulePeriodicallyAfter(0,1, r, false);
+//        if (period <= minAvgPeriod || minAvgPeriod >= duration) {
+//            double idealAvgRuns = (duration / minAvgPeriod);
+//
+//            System.out.println("Idealized avg. runs / task     : " + (float)idealAvgRuns);
+//        } else {
+//            double remainingDuration = (duration - minAvgPeriod);
+//            double remainingRuns     = (remainingDuration / period);
+//            double idealAvgRuns      = (1D + remainingRuns);
+//
+//            System.out.println("Theoretical first cycle time    : " + minAvgPeriod);
+//            System.out.println("Remaining duration              : " + remainingDuration);
+//            System.out.println("Remaining runs                  : " + remainingRuns);
+//            System.out.println("Idealized avg. runs per task    : " + idealAvgRuns);
+//            System.out.println("(1 + (requested duration");
+//            System.out.println("      - theor. first cycle time");
+//            System.out.println("      ) / requested period)");
+//        }
+//
+//        testJavaUtilTimer(taskCount, period, duration);
+//        testHsqlTimer(taskCount, period, duration);
+//    }
+//
+//
+//    /**
+//     * Runs the java.util.Timer test using the given arguments. <p>
+//     *
+//     * @param taskCount the number of WriteAndSync tasks to add
+//     * @param periodMultiplier the period with with to schedule
+//     *      the tasks, as a multiple of the computed, system-specific
+//     *      average sync time.
+//     * @param duration The number of milliseconds that the foreground
+//     *      Thread should sleep while the specified number of WriteAndSync
+//     *      tasks are running in the background thread
+//     */
+//    public static void testJavaUtilTimer(final int taskCount,
+//                                         final long period,
+//                                         final long duration) {
+//
+//        System.out.println();
+//        System.out.println("****************************************");
+//        System.out.println("*            java.util.Timer           *");
+//        System.out.println("****************************************");
+//        System.out.println();
+//
+//        WriteAndSyncTask.serial = 0;
+//
+//        final java.util.Timer    timer  = new java.util.Timer();
+//        final WriteAndSyncTask[] tasks  = new WriteAndSyncTask[taskCount];
+//
+//        for (int i = 0; i < taskCount; i++) {
+//            tasks[i]  = new WriteAndSyncTask();
+//            timer.scheduleAtFixedRate(tasks[i], 0, period);
+//        }
+//
+//        final long start = now();
 //
 //        try {
-//            sleeper.join();
-//        } catch (Exception e) {}
+//            Thread.sleep(duration);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 //
-//        tt1.printstats();
-//        tt2.printstats();
+//        for (int i = 0; i < tasks.length; i++) {
+//            tasks[i].cancel();
+//        }
 //
+//        timer.cancel();
+//
+//        final long elapsed = now() - start;
+//
+//        System.out.println("Actual test duration: " + elapsed + " ms.");
+//        System.out.println();
+//
+//        printTaskStats(tasks);
+//    }
+//
+//    /**
+//     * Runs the HsqlTimer test using the given arguments. <p>
+//     *
+//     * @param taskCount the number of WriteAndSync tasks to add
+//     * @param periodMultiplier the period with with to schedule
+//     *      the tasks, as a multiple of the computed, system-specific
+//     *      average sync time.
+//     * @param duration The number of milliseconds that the foreground
+//     *      Thread should sleep while the specified number of WriteAndSync
+//     *      tasks are running in the background thread
+//     */
+//    public static void testHsqlTimer(final int taskCount,
+//                                     final long period,
+//                                     final long duration) {
+//
+//        System.out.println();
+//        System.out.println("****************************************");
+//        System.out.println("*       org.hsqldb.lib.HsqlTimer       *");
+//        System.out.println("****************************************");
+//        System.out.println();
+//
+//        WriteAndSyncTask.serial = 0;
+//
+//        final HsqlTimer          timer  = new HsqlTimer();
+//        final WriteAndSyncTask[] tasks  = new WriteAndSyncTask[taskCount];
+//        final Object[]           ttasks = new Object[taskCount];
+//
+//        for (int i = 0; i < taskCount; i++) {
+//            tasks[i]  = new WriteAndSyncTask();
+//            ttasks[i] = timer.schedulePeriodicallyAfter(0, period, tasks[i], true);
+//        }
+//
+//        final long start = now();
+//
+//        try {
+//            Thread.sleep(duration);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        final Thread timerThread = timer.getThread();
+//
+//        for (int i = 0; i < taskCount; i++) {
+//            timer.cancel(ttasks[i]);
+//        }
+//
+//        try {
+//            timerThread.join();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        final long elapsed = now() - start;
+//
+//        System.out.println("Actual test duration: " + elapsed + " ms.");
+//        System.out.println();
+//
+//        printTaskStats(tasks);
+//
+//    }
+//
+//    static void printTaskStats(WriteAndSyncTask[] tasks) {
+//        float avgTotal    = 0;
+//        int   avgCount    = 0;
+//        int   starved     = 0;
+//        int   runs        = 0;
+//        Stats periodStats = new Stats();
+//        Stats runStats    = new Stats();
+//
+//        for (int i = 0; i < tasks.length; i++) {
+//            if (tasks[i].runs > 1) {
+//                double avgPeriod = tasks[i].getAveragePeriod();
+//                periodStats.addDataPoint(avgPeriod);
+//                avgTotal += avgPeriod;
+//                avgCount++;
+//            }
+//            runs  += tasks[i].runs;
+//            if (tasks[i].runs == 0) {
+//                starved++;
+//            }
+//            runStats.addDataPoint(tasks[i].runs);
+//            tasks[i].release();
+//        }
+//
+//        float periodAvg      = (avgTotal / avgCount);
+//        float periodMax      = (float) periodStats.getMax();
+//        int   periodMaxCnt   = 0;
+//        float periodMin      = (float) periodStats.getMin();
+//        int   periodMinCnt   = 0;
+//        float periodRange    = (periodMax - periodMin);
+//        float periodStddev   = (float)periodStats.getStdDev();
+//        float periodGMean    = (float)periodStats.getGeometricMean();
+//        float periodStddevR  = (periodRange / periodStddev);
+//
+//        float runsAvg      = (runs / (float)tasks.length);
+//        int   runsMin      = Math.round((float)runStats.getMin());
+//        int   runsMinCnt   = 0;
+//        int   runsMax      = Math.round((float)runStats.getMax());
+//        int   runsMaxCnt   = 0;
+//        int   runsRange    = (runsMax - runsMin);
+//        float runsStddev   = (float) runStats.getStdDev();
+//        float runsGMean    = (float) runStats.getGeometricMean();
+//        float runsStddevR  = (runsRange / runsStddev);
+//
+//        for (int i = 0; i < tasks.length; i++) {
+//            double avgPeriod = tasks[i].getAveragePeriod();
+//
+//            if (avgPeriod == periodMin) {
+//                periodMinCnt++;
+//            }
+//
+//            if (avgPeriod == periodMax) {
+//                periodMaxCnt++;
+//            }
+//
+//            if (tasks[i].runs == runsMin) {
+//                runsMinCnt++;
+//            }
+//
+//            if (tasks[i].runs == runsMax) {
+//                runsMaxCnt++;
+//            }
+//        }
+//
+//        System.out.println("------------------------");
+//        System.out.println("Starved tasks (runs = 0): " + starved + " (" + ((100*starved)/tasks.length) + "%)");
+//        System.out.println("------------------------");
+//        System.out.println("Period                  :");
+//        System.out.println("------------------------");
+//        System.out.println("Average                 : " + periodAvg);
+//        System.out.println("~Minimum (count/runs)   : " + periodMin + " (" + periodMinCnt + "/" + tasks.length + ")");
+//        System.out.println("~Maximum (count/runs)   : " + periodMax + " (" + periodMaxCnt + "/" + tasks.length + ")");
+//        System.out.println("~Range                  : " + periodRange);
+//        System.out.println("Geometric mean          : " + periodGMean);
+//        System.out.println("Stddev                  : " + periodStddev);
+//        System.out.println("~Range/Stddev           : " + periodStddevR);
+//        System.out.println("------------------------");
+//        System.out.println("Runs                    :");
+//        System.out.println("------------------------");
+//        System.out.println("Average                 : " + runsAvg);
+//        System.out.println("Minimum (count/runs)    : " + runsMin + " (" + runsMinCnt + "/" + tasks.length + ")");
+//        System.out.println("Maximum (count/runs)    : " + runsMax + " (" + runsMaxCnt + "/" + tasks.length + ")");
+//        System.out.println("Range                   : " + runsRange);
+//        System.out.println("Geometric mean          : " + runsGMean);
+//        System.out.println("Stddev                  : " + runsStddev);
+//        System.out.println("Range/Stddev            : " + runsStddevR);
 //    }
 }

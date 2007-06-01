@@ -230,7 +230,6 @@ public final class ServerConfiguration implements ServerConstants {
      * Translates the legacy default database form: database=...
      * to the 1.7.2 form: database.0=...
      *
-     *
      * @param p The properties object upon which to perform the translation
      */
     public static void translateDefaultDatabaseProperty(HsqlProperties p) {

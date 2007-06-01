@@ -369,106 +369,117 @@ public class Token {
     static final String        T_CONCAT         = "||";
 
     // non-reserved and other tokens
-    static final String        T_SIGNAL             = "SIGNAL";
-    static final String        T_SIZE               = "SIZE";
-    static final String        T_REPEAT             = "REPEAT";
-    static final String        T_RESIGNAL           = "RESIGNAL";
-    static final String        T_HEADER             = "HEADER";
-    static final String        T_NEXT               = "NEXT";
-    static final String        T_ADD                = "ADD";
-    static final String        T_ALWAYS             = "ALWAYS";
-    static final String        T_ACTION             = "ACTION";
-    static final String        T_ADMIN              = "ADMIN";
-    static final String        T_AFTER              = "AFTER";
-    static final String        T_ALIAS              = "ALIAS";
-    static final String        T_ASC                = "ASC";
-    static final String        T_AUTOCOMMIT         = "AUTOCOMMIT";
-    static final String        T_BACKUP             = "BACKUP";
-    static final String        T_BEFORE             = "BEFORE";
-    static final String        T_CACHED             = "CACHED";
-    static final String        T_CASCADE            = "CASCADE";
-    static final String        T_CASEWHEN           = "CASEWHEN";
-    static final String        T_CHARACTERS         = "CHARACTERS";
-    static final String        T_CHECKPOINT         = "CHECKPOINT";
-    static final String        T_CLASS              = "CLASS";
-    static final String        T_COLLATION          = "COLLATION";
-    static final String        T_COMPACT            = "COMPACT";
-    public static final String T_COMPRESSED         = "COMPRESSED";
-    static final String        T_DATABASE           = "DATABASE";
-    static final String        T_DEFRAG             = "DEFRAG";
-    static final String        T_DESC               = "DESC";
-    public static final String T_DOW                = "DAYOFWEEK";
-    static final String        T_EXPLAIN            = "EXPLAIN";
-    static final String        T_FOLD               = "FOLD";
-    public static final String T_G_MULTIPLIER       = "G";
-    static final String        T_GENERATED          = "GENERATED";
-    static final String        T_GRANTED            = "GRANTED";
-    static final String        T_IF                 = "IF";
-    static final String        T_IFNULL             = "IFNULL";
-    static final String        T_IGNORECASE         = "IGNORECASE";
-    static final String        T_IMMEDIATELY        = "IMMEDIATELY";
-    static final String        T_INCREMENT          = "INCREMENT";
-    static final String        T_INDEX              = "INDEX";
-    public static final String T_INITIAL            = "INITIAL";
-    public static final String T_K_MULTIPLIER       = "K";
-    static final String        T_KEY                = "KEY";
-    static final String        T_LIMIT              = "LIMIT";
-    static final String        T_LOGSIZE            = "LOGSIZE";
-    static final String        T_MAXVALUE           = "MAXVALUE";
-    public static final String T_M_MULTIPLIER       = "M";
-    static final String        T_MATCHED            = "MATCHED";
-    static final String        T_MAXROWS            = "MAXROWS";
-    static final String        T_MEMORY             = "MEMORY";
-    static final String        T_MILLIS             = "MILLIS";
-    static final String        T_MINUS_EXCEPT       = "MINUS";
-    static final String        T_MINVALUE           = "MINVALUE";
-    static final String        T_NOW                = "NOW";
-    static final String        T_NOWAIT             = "NOWAIT";
-    static final String        T_NVL                = "NVL";
-    public static final String T_OBJECT             = "OBJECT";
-    static final String        T_OCTET_LENGTH       = "OCTET_LENGTH";
-    static final String        T_OCTETS             = "OCTETS";
-    static final String        T_OFF                = "OFF";
-    static final String        T_OFFSET             = "OFFSET";
-    static final String        T_OPTION             = "OPTION";
-    public static final String T_OTHER              = "OTHER";
-    static final String        T_PARTIAL            = "PARTIAL";
-    public static final String T_PASSWORD           = "PASSWORD";
-    static final String        T_PLACING            = "PLACING";
-    static final String        T_PLAN               = "PLAN";
-    static final String        T_PRESERVE           = "PRESERVE";
-    static final String        T_PRIVILEGES         = "PRIVILEGES";
-    static final String        T_PROPERTY           = "PROPERTY";
-    static final String        T_PUBLIC             = "PUBLIC";
-    static final String        T_QUEUE              = "QUEUE";
-    static final String        T_READONLY           = "READONLY";
-    static final String T_REFERENTIAL_INTEGRITY     = "REFERENTIAL_INTEGRITY";
-    static final String        T_RENAME             = "RENAME";
-    static final String        T_RESTART            = "RESTART";
-    static final String        T_RESTRICT           = "RESTRICT";
-    static final String        T_ROLE               = "ROLE";
-    public static final String T_SCHEMA             = "SCHEMA";
-    static final String        T_SCRIPT             = "SCRIPT";
-    static final String        T_SCRIPTFORMAT       = "SCRIPTFORMAT";
-    static final String        T_SEQUENCE           = "SEQUENCE";
-    static final String        T_SESSION            = "SESSION";
-    static final String        T_SHUTDOWN           = "SHUTDOWN";
-    static final String        T_SIMPLE             = "SIMPLE";
-    static final String        T_SOURCE             = "SOURCE";
-    static final String        T_SYSDATE            = "SYSDATE";
-    static final String        T_TEMP               = "TEMP";
-    static final String        T_TEMPORARY          = "TEMPORARY";
-    public static final String T_TEXT               = "TEXT";
-    public static final String T_TINYINT            = "TINYINT";
-    static final String        T_TODAY              = "TODAY";
-    static final String        T_TOP                = "TOP";
-    static final String        T_TYPE               = "TYPE";
-    public static final String T_USAGE              = "USAGE";
-    public static final String T_VARCHAR_IGNORECASE = "VARCHAR_IGNORECASE";
-    static final String        T_VIEW               = "VIEW";
-    static final String        T_WEEK_OF_YEAR       = "WEEK_OF_YEAR";
-    static final String        T_WORK               = "WORK";
-    static final String        T_WRITE_DELAY        = "WRITE_DELAY";
+    static final String        T_SIGNAL              = "SIGNAL";
+    static final String        T_SIZE                = "SIZE";
+    static final String        T_REPEAT              = "REPEAT";
+    static final String        T_RESIGNAL            = "RESIGNAL";
+    static final String        T_HEADER              = "HEADER";
+    static final String        T_NEXT                = "NEXT";
+    static final String        T_ADD                 = "ADD";
+    static final String        T_ALWAYS              = "ALWAYS";
+    static final String        T_ACTION              = "ACTION";
+    static final String        T_ADMIN               = "ADMIN";
+    static final String        T_AFTER               = "AFTER";
+    static final String        T_ALIAS               = "ALIAS";
+    static final String        T_ASC                 = "ASC";
+    static final String        T_AUTOCOMMIT          = "AUTOCOMMIT";
+    static final String        T_BACKUP              = "BACKUP";
+    static final String        T_BEFORE              = "BEFORE";
+    static final String        T_CACHED              = "CACHED";
+    static final String        T_CASCADE             = "CASCADE";
+    static final String        T_CASEWHEN            = "CASEWHEN";
+    static final String        T_CHARACTERS          = "CHARACTERS";
+    static final String        T_CHECKPOINT          = "CHECKPOINT";
+    static final String        T_CLASS               = "CLASS";
+    static final String        T_COLLATION           = "COLLATION";
+    static final String        T_COMPACT             = "COMPACT";
+    public static final String T_COMPRESSED          = "COMPRESSED";
+    static final String        T_DATABASE            = "DATABASE";
+    static final String        T_DEFRAG              = "DEFRAG";
+    static final String        T_DESC                = "DESC";
+    public static final String T_DOW                 = "DAYOFWEEK";
+    static final String        T_EXPLAIN             = "EXPLAIN";
+    static final String        T_FOLD                = "FOLD";
+    public static final String T_G_MULTIPLIER        = "G";
+    static final String        T_GENERATED           = "GENERATED";
+    static final String        T_GRANTED             = "GRANTED";
+    static final String        T_IF                  = "IF";
+    static final String        T_IFNULL              = "IFNULL";
+    static final String        T_IGNORECASE          = "IGNORECASE";
+    static final String        T_IMMEDIATELY         = "IMMEDIATELY";
+    static final String        T_INCREMENT           = "INCREMENT";
+    static final String        T_INDEX               = "INDEX";
+    public static final String T_INITIAL             = "INITIAL";
+    public static final String T_K_MULTIPLIER        = "K";
+    static final String        T_KEY                 = "KEY";
+    static final String        T_LIMIT               = "LIMIT";
+    static final String        T_LOGSIZE             = "LOGSIZE";
+    static final String        T_MAXVALUE            = "MAXVALUE";
+    public static final String T_M_MULTIPLIER        = "M";
+    static final String        T_MATCHED             = "MATCHED";
+    static final String        T_MAXROWS             = "MAXROWS";
+    static final String        T_MEMORY              = "MEMORY";
+    static final String        T_MILLIS              = "MILLIS";
+    static final String        T_MINUS_EXCEPT        = "MINUS";
+    static final String        T_MINVALUE            = "MINVALUE";
+    static final String        T_NOW                 = "NOW";
+    static final String        T_NOWAIT              = "NOWAIT";
+    static final String        T_NVL                 = "NVL";
+    public static final String T_OBJECT              = "OBJECT";
+    static final String        T_OCTET_LENGTH        = "OCTET_LENGTH";
+    static final String        T_OCTETS              = "OCTETS";
+    static final String        T_OFF                 = "OFF";
+    static final String        T_OFFSET              = "OFFSET";
+    static final String        T_OPTION              = "OPTION";
+    public static final String T_OTHER               = "OTHER";
+    static final String        T_PARTIAL             = "PARTIAL";
+    public static final String T_PASSWORD            = "PASSWORD";
+    static final String        T_PLACING             = "PLACING";
+    static final String        T_PLAN                = "PLAN";
+    static final String        T_PRESERVE            = "PRESERVE";
+    static final String        T_PRIVILEGES          = "PRIVILEGES";
+    static final String        T_PROPERTY            = "PROPERTY";
+    static final String        T_PUBLIC              = "PUBLIC";
+    static final String        T_QUEUE               = "QUEUE";
+    static final String        T_READONLY            = "READONLY";
+    static final String T_REFERENTIAL_INTEGRITY      = "REFERENTIAL_INTEGRITY";
+    static final String        T_RENAME              = "RENAME";
+    static final String        T_RESTART             = "RESTART";
+    static final String        T_RESTRICT            = "RESTRICT";
+    static final String        T_ROLE                = "ROLE";
+    public static final String T_SCHEMA              = "SCHEMA";
+    static final String        T_SCRIPT              = "SCRIPT";
+    static final String        T_SCRIPTFORMAT        = "SCRIPTFORMAT";
+    static final String        T_SEQUENCE            = "SEQUENCE";
+    static final String        T_SESSION             = "SESSION";
+    static final String        T_SHUTDOWN            = "SHUTDOWN";
+    static final String        T_SIMPLE              = "SIMPLE";
+    static final String        T_SOURCE              = "SOURCE";
+    static final String        T_SQL_TSI_FRAC_SECOND = "SQL_TSI_FRAC_SECOND";
+    static final String        T_SQL_TSI_SECOND      = "SQL_TSI_SECOND";
+    static final String        T_SQL_TSI_MINUTE      = "SQL_TSI_MINUTE";
+    static final String        T_SQL_TSI_HOUR        = "SQL_TSI_HOUR";
+    static final String        T_SQL_TSI_DAY         = "SQL_TSI_DAY";
+    static final String        T_SQL_TSI_WEEK        = "SQL_TSI_WEEK";
+    static final String        T_SQL_TSI_MONTH       = "SQL_TSI_MONTH";
+    static final String        T_SQL_TSI_QUARTER     = "SQL_TSI_QUARTER";
+    static final String        T_SQL_TSI_YEAR        = "SQL_TSI_YEAR";
+    static final String        T_SYSDATE             = "SYSDATE";
+    static final String        T_TEMP                = "TEMP";
+    static final String        T_TEMPORARY           = "TEMPORARY";
+    public static final String T_TEXT                = "TEXT";
+    public static final String T_TIMESTAMPADD        = "TIMESTAMPADD";
+    public static final String T_TIMESTAMPDIFF       = "TIMESTAMPDIFF";
+    public static final String T_TINYINT             = "TINYINT";
+    static final String        T_TODAY               = "TODAY";
+    static final String        T_TOP                 = "TOP";
+    static final String        T_TYPE                = "TYPE";
+    public static final String T_USAGE               = "USAGE";
+    public static final String T_VARCHAR_IGNORECASE  = "VARCHAR_IGNORECASE";
+    static final String        T_VIEW                = "VIEW";
+    static final String        T_WEEK_OF_YEAR        = "WEEK_OF_YEAR";
+    static final String        T_WORK                = "WORK";
+    static final String        T_WRITE_DELAY         = "WRITE_DELAY";
 
     //
     //
@@ -1046,6 +1057,17 @@ public class Token {
     static final int        OFF                   = 593;
 
     //
+    static final int SQL_TSI_FRAC_SECOND = 601;
+    static final int SQL_TSI_SECOND      = 602;
+    static final int SQL_TSI_MINUTE      = 603;
+    static final int SQL_TSI_HOUR        = 604;
+    static final int SQL_TSI_DAY         = 605;
+    static final int SQL_TSI_WEEK        = 606;
+    static final int SQL_TSI_MONTH       = 607;
+    static final int SQL_TSI_QUARTER     = 608;
+    static final int SQL_TSI_YEAR        = 609;
+
+    //
     static final int X_KEYSET     = 700;
     static final int X_OPTION     = 701;
     static final int X_REPEAT     = 702;
@@ -1426,6 +1448,7 @@ public class Token {
         commandSet.put(T_PASSWORD, PASSWORD);
         commandSet.put(T_PLACING, PLACING);
         commandSet.put(T_PLAN, PLAN);
+        commandSet.put(T_PRESERVE, PRESERVE);
         commandSet.put(T_PROPERTY, PROPERTY);
         commandSet.put(T_READONLY, READONLY);
         commandSet.put(T_REFERENTIAL_INTEGRITY, REFERENTIAL_INTEGRITY);
@@ -1439,6 +1462,15 @@ public class Token {
         commandSet.put(T_SHUTDOWN, SHUTDOWN);
         commandSet.put(T_SIMPLE, SIMPLE);
         commandSet.put(T_SOURCE, SOURCE);
+        commandSet.put(T_SQL_TSI_FRAC_SECOND, SQL_TSI_FRAC_SECOND);
+        commandSet.put(T_SQL_TSI_SECOND, SQL_TSI_SECOND);
+        commandSet.put(T_SQL_TSI_MINUTE, SQL_TSI_MINUTE);
+        commandSet.put(T_SQL_TSI_HOUR, SQL_TSI_HOUR);
+        commandSet.put(T_SQL_TSI_DAY, SQL_TSI_DAY);
+        commandSet.put(T_SQL_TSI_WEEK, SQL_TSI_WEEK);
+        commandSet.put(T_SQL_TSI_MONTH, SQL_TSI_MONTH);
+        commandSet.put(T_SQL_TSI_QUARTER, SQL_TSI_QUARTER);
+        commandSet.put(T_SQL_TSI_YEAR, SQL_TSI_YEAR);
         commandSet.put(T_TEMP, TEMP);
         commandSet.put(T_TEMPORARY, TEMPORARY);
         commandSet.put(T_TEXT, TEXT);
@@ -1504,14 +1536,13 @@ public class Token {
         coreReservedWords = new OrderedIntHashSet(67, 1);
 
         short[] keyword = {
-            ABS, AS, AND, ALL, ANY, AVG, BY, BETWEEN, BOTH, CALL, CASE, CAST,
+            AS, AND, ALL, ANY, AVG, BY, BETWEEN, BOTH, CALL, CASE, CAST,
             CONVERT, COUNT, COALESCE, CROSS, DISTINCT, ELSE, END, EVERY,
-            EXISTS, EXCEPT, EXTRACT, FOR, FROM, FULL, GROUP, HAVING, INTO, IS,
-            IN, INTERSECT, JOIN, INNER, LEADING, LIKE, MAX, MIN, NATURAL,
-            NULLIF, NOT, ON, ORDER, OR, OUTER, POSITION, PRIMARY, SELECT, SET,
-            SOME, STDDEV_POP, STDDEV_SAMP, SUBSTRING, SUM, THEN, TO, TRAILING,
-            TRIM, UNIQUE, UNION, USING, VALUES, VAR_POP, VAR_SAMP, WHEN, WHERE,
-            DATE, TIME, TIMESTAMP, INTERVAL
+            EXISTS, EXCEPT, FOR, FROM, FULL, GROUP, HAVING, INTO, IS, IN,
+            INTERSECT, JOIN, INNER, LEADING, LIKE, MAX, MIN, NATURAL, NULLIF,
+            NOT, ON, ORDER, OR, OUTER, PRIMARY, SELECT, SET, SOME, STDDEV_POP,
+            STDDEV_SAMP, SUM, THEN, TO, TRAILING, UNIQUE, UNION, USING, VALUES,
+            VAR_POP, VAR_SAMP, WHEN, WHERE //, DATE, TIME, TIMESTAMP, INTERVAL
         };
 
         for (int i = 0; i < keyword.length; i++) {

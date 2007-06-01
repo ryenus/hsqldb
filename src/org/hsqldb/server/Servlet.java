@@ -102,7 +102,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  * use the normal JDBC interfaces to connect to the URL of this servlet. An
  * example URL is:
  * <pre>
- * jdbc:hsqldb:http://localhost.com:8080/servlet/org.hsqldb.Servlet
+ * jdbc:hsqldb:http://localhost.com:8080/servlet/org.hsqldb.server.Servlet
  * </pre>
  * The database path/name is taken from the servlet engine property:
  * <pre>
@@ -117,7 +117,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  * should be set "true" in the web.xml file of the servlet container.
  * In this case, the database path should begin with a "/".
  *
- * From version 1.7.2 JDBC connections via the HTTP protocol are persistent
+ * JDBC connections via the HTTP protocol are persistent
  * in the JDBC sense. The JDBC Connection that is established can support
  * transactions spanning several Statement calls and real PreparedStatement
  * calls are supported. This class has been rewritten to support the new
@@ -153,8 +153,8 @@ public class Servlet extends javax.servlet.http.HttpServlet {
 
             rowOut = new RowOutputBinary(BUFFER_SIZE);
             rowIn  = new RowInputBinary(rowOut);
-        } catch (ServletException exp) {
-            log(exp.getMessage());
+        } catch (ServletException e) {
+            log(e.toString());
         }
 
         String dbStr = getInitParameter("hsqldb.server.database");
@@ -168,8 +168,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
             getInitParameter("hsqldb.server.use_web-inf_path");
 
         if (!dbStr.equals(".") && "true".equalsIgnoreCase(useWebInfStr)) {
-            dbStr = getServletContext().getRealPath("/") + "WEB-INF" + "/"
-                    + dbStr;
+            dbStr = getServletContext().getRealPath("/") + "/WEB-INF/" + dbStr;
         }
 
 // end WEB-INF patch

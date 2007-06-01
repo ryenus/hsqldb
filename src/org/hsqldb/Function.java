@@ -523,11 +523,7 @@ public class Function extends Expression {
      */
     void setArgument(int i, Expression e) {
 
-        if (bConnection) {
-            i++;
-        }
-
-        argList[i] = e;
+        argList[iSqlArgStart + i] = e;
 
         if (e != null && e.isAggregate()) {
             aggregateSpec = AGGREGATE_SELF;

@@ -264,22 +264,22 @@ class Parser extends BaseParser {
         compileContext.subQueryLevel++;
 
         boolean canHaveOrder = predicateType == Expression.VIEW;
-        boolean limitWithOrder =
-            predicateType == Expression.VIEW
-            || predicateType == Expression.TABLE_SUBQUERY
-            || predicateType == Expression.IN
-            || predicateType == Expression.ALL
-            || predicateType == Expression.ANY
-            || predicateType == Expression.SCALAR_SUBQUERY
-            || predicateType == Expression.ROW_SUBQUERY
-            || predicateType == Expression.UNIQUE;
+        boolean canHaveLimit = predicateType == Expression.TABLE_SUBQUERY
+                               || predicateType == Expression.SCALAR_SUBQUERY
+                               || predicateType == Expression.VIEW;
+        boolean limitWithOrder = predicateType == Expression.IN
+                                 || predicateType == Expression.ALL
+                                 || predicateType == Expression.ANY
+                                 || predicateType == Expression.ROW_SUBQUERY
+                                 || predicateType == Expression.UNIQUE;
         boolean isExists = predicateType == Expression.EXISTS;
         boolean uniqueValues = predicateType == Expression.EXISTS
                                || predicateType == Expression.IN
                                || predicateType == Expression.ALL
                                || predicateType == Expression.ANY;
-        Select select = readQueryExpression(brackets, canHaveOrder, false,
-                                            limitWithOrder, resolveAll);
+        Select select = readQueryExpression(brackets, canHaveOrder,
+                                            canHaveLimit, limitWithOrder,
+                                            resolveAll);
 
         if (predicateType == Expression.SCALAR_SUBQUERY) {
             if (select.visibleColumnCount != 1) {
@@ -1875,29 +1875,9 @@ class Parser extends BaseParser {
 
     private Expression readTerm() throws HsqlException {
 
-        Expression  e        = null;
-        SQLFunction function = LegacyFunction.newLegacyFunction(tokenString);
-
-        try {
-            if (function != null) {
-                return readSQLFunction(function);
-            }
-        } catch (HsqlException ex) {}
-
-        function = SQLFunction.newSQLFunction(tokenString);
-
-        if (function != null) {
-            return readSQLFunction(function);
-        }
+        Expression e = null;
 
         switch (tokenType) {
-
-            case Token.LEFT :
-            case Token.RIGHT :
-            case Token.LIMIT :
-            case Token.TOP :
-            case Token.X_NAME :
-                return readColumnOrFunctionExpression();
 
             case Token.MINUS :
                 read();
@@ -2005,6 +1985,25 @@ class Parser extends BaseParser {
 
                 return readColumnOrFunctionExpression();
         }
+    }
+
+    Expression readFunction() throws HsqlException {
+
+        SQLFunction function = LegacyFunction.newLegacyFunction(tokenString);
+
+        try {
+            if (function != null) {
+                return readSQLFunction(function);
+            }
+        } catch (HsqlException e) {}
+
+        function = SQLFunction.newSQLFunction(tokenString);
+
+        if (function != null) {
+            return readSQLFunction(function);
+        }
+
+        return null;
     }
 
     Expression readValueExpression() throws HsqlException {
@@ -2698,6 +2697,34 @@ class Parser extends BaseParser {
         String  schema = namePrePrefix;
 
         recordCurrent();
+
+        if (!isQuoted && isSimpleName()) {
+            SQLFunction function =
+                LegacyFunction.newLegacyFunction(tokenString);
+
+            if (function != null) {
+                int pos = getPosition();
+
+                try {
+                    return readSQLFunction(function);
+                } catch (HsqlException e) {
+                    rewind(pos);
+                }
+            }
+
+            function = SQLFunction.newSQLFunction(tokenString);
+
+            if (function != null) {
+                int pos = getPosition();
+
+                try {
+                    return readSQLFunction(function);
+                } catch (HsqlException e) {
+                    rewind(pos);
+                }
+            }
+        }
+
         read();
 
         if (tokenType != Token.OPENBRACKET) {
@@ -2712,20 +2739,17 @@ class Parser extends BaseParser {
         Function f        = new Function(name, javaName);
 
         compileContext.usedRoutineNames.add(f.getFullyQualifiedJavaName());
-
-        int i = 0;
-
         read();
 
-        if (tokenType != Token.CLOSEBRACKET) {
-            while (true) {
-                f.setArgument(i++, readOr());
+        for (int i = 0, count = f.getArgCount(); i < count; i++) {
+            Expression e = readOr();
 
-                if (tokenType != Token.COMMA) {
-                    break;
-                }
+            f.setArgument(i, e);
 
-                read();
+            if (i == count - 1) {
+                break;
+            } else {
+                readThis(Token.COMMA);
             }
         }
 
@@ -2800,13 +2824,6 @@ class Parser extends BaseParser {
         }
 
         return c;
-    }
-
-    Expression readSQLFunction(String token) throws HsqlException {
-
-        SQLFunction function = SQLFunction.newSQLFunction(token);
-
-        return readSQLFunction(function);
     }
 
     Expression readSQLFunction(SQLFunction function) throws HsqlException {

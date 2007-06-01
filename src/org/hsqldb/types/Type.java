@@ -131,8 +131,7 @@ public abstract class Type {
     /**
      * Converts the object to the given type. Used for JDBC conversions.
      */
-    public abstract Object convertToDefaultType(Object o)
-    throws HsqlException;
+    public abstract Object convertToDefaultType(Object o) throws HsqlException;
 
     public abstract String convertToString(Object a);
 
@@ -208,29 +207,24 @@ public abstract class Type {
      * All arithmetic ops are called on the pre-determined Type object of the result
      */
     public Object add(Object a, Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "Type");
+        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
     }
 
     public Object subtract(Object a, Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "Type");
+        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
     }
 
     public Object multiply(Object a, Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "Type");
+        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
     }
 
     public Object divide(Object a, Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "Type");
+        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
     }
 
     public Object concat(Session session, Object a,
                          Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "Type");
+        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
     }
 
     public boolean equals(Object other) {
@@ -249,8 +243,8 @@ public abstract class Type {
 
     // character types
     public static final Type SQL_CHAR = new CharacterType(Types.SQL_CHAR, 0);
-    public static final Type SQL_VARCHAR =
-        new CharacterType(Types.SQL_VARCHAR, 0);
+    public static final Type SQL_VARCHAR = new CharacterType(Types.SQL_VARCHAR,
+        0);
     public static final Type SQL_VARCHAR_MAX_WIDTH =
         new CharacterType(Types.SQL_VARCHAR, 0);    // todo - needs max implementation defined width. used for parameters
     public static final ClobType SQL_CLOB = new ClobType();
@@ -268,8 +262,7 @@ public abstract class Type {
     public static final OtherType OTHER = OtherType.getOtherType();
 
     // boolean type
-    public static final BooleanType SQL_BOOLEAN =
-        BooleanType.getBooleanType();
+    public static final BooleanType SQL_BOOLEAN = BooleanType.getBooleanType();
 
     // number types
     public static final NumberType SQL_NUMERIC =
@@ -300,44 +293,42 @@ public abstract class Type {
     public static final DateTimeType SQL_TIMESTAMP =
         new DateTimeType(Types.SQL_TIMESTAMP,
                          DateTimeType.defaultTimestampFractionPrecision);
+    public static final DateTimeType SQL_TIMESTAMP_NO_FRACTION =
+        new DateTimeType(Types.SQL_TIMESTAMP, 0);
 
     // interval
     public static final IntervalType SQL_INTERVAL_YEAR =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_YEAR,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_MONTH =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_MONTH,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_HOUR =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_HOUR,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_MINUTE =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_MINUTE,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_SECOND =
         IntervalType.newIntervalType(
             Types.SQL_INTERVAL_SECOND, IntervalType.defaultIntervalPrecision,
             IntervalType.defaultIntervalFractionPrecision);
+    public static final IntervalType SQL_INTERVAL_SECOND_MAX_FRACTION =
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
+                                     IntervalType.defaultIntervalPrecision,
+                                     IntervalType.maxFractionPrecision);
     public static final IntervalType SQL_INTERVAL_YEAR_TO_MONTH =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_YEAR_TO_MONTH,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY_TO_HOUR =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY_TO_HOUR,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY_TO_MINUTE =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY_TO_MINUTE,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY_TO_SECOND =
         IntervalType.newIntervalType(
             Types.SQL_INTERVAL_DAY_TO_SECOND,
@@ -345,8 +336,7 @@ public abstract class Type {
             IntervalType.defaultIntervalFractionPrecision);
     public static final IntervalType SQL_INTERVAL_HOUR_TO_MINUTE =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_HOUR_TO_MINUTE,
-                                     IntervalType.defaultIntervalPrecision,
-                                     0);
+                                     IntervalType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_HOUR_TO_SECOND =
         IntervalType.newIntervalType(
             Types.SQL_INTERVAL_HOUR_TO_SECOND,
