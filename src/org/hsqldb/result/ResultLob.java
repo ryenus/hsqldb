@@ -309,6 +309,16 @@ public class ResultLob extends Result {
                 dataInput.readFully(result.byteBlock);
                 break;
 
+            case LobResultTypes.RESPONSE_GET_CHARS :
+                result.blockOffset = dataInput.readLong();
+                result.blockLength = dataInput.readLong();
+                result.charBlock   = new char[(int) result.blockLength];
+
+                for (int i = 0; i < result.charBlock.length; i++) {
+                    result.charBlock[i] = dataInput.readChar();
+                }
+                break;
+
             case LobResultTypes.RESPONSE_SET_BYTES :
             case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_BYTES :

@@ -355,8 +355,8 @@ public class BaseHashMap {
 
             // should throw maybe, if reset returns false?
             if (reset()) {
-                return addOrRemove(longKey, longValue, objectKey,
-                                   objectValue, remove);
+                return addOrRemove(longKey, longValue, objectKey, objectValue,
+                                   remove);
             } else {
                 return null;
             }
@@ -404,9 +404,9 @@ public class BaseHashMap {
      * maps
      */
     protected Object addOrRemoveMultiVal(long longKey, long longValue,
-                                         Object objectKey,
-                                         Object objectValue,
-                                         boolean removeKey, boolean removeValue) {
+                                         Object objectKey, Object objectValue,
+                                         boolean removeKey,
+                                         boolean removeValue) {
 
         int hash = (int) longKey;
 
@@ -440,18 +440,18 @@ public class BaseHashMap {
                         lookup                  = lastLookup;
                     } else {
                         if (objectValueTable[lookup].equals(objectValue)) {
-
                             if (removeValue) {
                                 objectKeyTable[lookup]   = null;
-                                returnValue              = objectValueTable[lookup];
+                                returnValue = objectValueTable[lookup];
                                 objectValueTable[lookup] = null;
 
-                                hashIndex.unlinkNode(index, lastLookup, lookup);
+                                hashIndex.unlinkNode(index, lastLookup,
+                                                     lookup);
 
                                 multiValueTable[lookup] = false;
                                 lookup                  = lastLookup;
-                                return returnValue;
 
+                                return returnValue;
                             } else {
                                 return objectValueTable[lookup];
                             }
@@ -518,7 +518,8 @@ public class BaseHashMap {
             // should throw maybe, if reset returns false?
             if (reset()) {
                 return addOrRemoveMultiVal(longKey, longValue, objectKey,
-                                           objectValue, removeKey, removeValue);
+                                           objectValue, removeKey,
+                                           removeValue);
             } else {
                 return null;
             }
@@ -1030,7 +1031,7 @@ public class BaseHashMap {
 
         if (isObjectKey) {
             return addOrRemove(0, 0, objectKeyTable[lookup], null, true);
-        } else if(isIntKey) {
+        } else if (isIntKey) {
             return addOrRemove(intKeyTable[lookup], 0, null, null, true);
         } else {
             return addOrRemove(longKeyTable[lookup], 0, null, null, true);
@@ -1060,8 +1061,8 @@ public class BaseHashMap {
      * access count. Always return at least accessMin + 1
      */
     protected int getAccessCountCeiling(int count, int margin) {
-        return ArrayCounter.rank(accessTable, hashIndex.newNodePointer,
-                                 count, accessMin + 1, accessCount, margin);
+        return ArrayCounter.rank(accessTable, hashIndex.newNodePointer, count,
+                                 accessMin + 1, accessCount, margin);
     }
 
     /**
@@ -1244,7 +1245,7 @@ public class BaseHashMap {
             while (true) {
                 lookup = nextLookup(lookup);
 
-                if (lookup == -1 ||!multiValueTable[lookup]) {
+                if (lookup == -1 || !multiValueTable[lookup]) {
                     break;
                 }
             }
@@ -1300,7 +1301,7 @@ public class BaseHashMap {
 
         public Object next() throws NoSuchElementException {
 
-            if ((keys &&!isObjectKey) || (!keys &&!isObjectValue)) {
+            if ((keys && !isObjectKey) || (!keys && !isObjectValue)) {
                 throw new NoSuchElementException("Hash Iterator");
             }
 
@@ -1323,7 +1324,7 @@ public class BaseHashMap {
 
         public int nextInt() throws NoSuchElementException {
 
-            if ((keys &&!isIntKey) || (!keys &&!isIntValue)) {
+            if ((keys && !isIntKey) || (!keys && !isIntValue)) {
                 throw new NoSuchElementException("Hash Iterator");
             }
 
@@ -1346,7 +1347,7 @@ public class BaseHashMap {
 
         public long nextLong() throws NoSuchElementException {
 
-            if ((!isLongKey ||!keys)) {
+            if ((!isLongKey || !keys)) {
                 throw new NoSuchElementException("Hash Iterator");
             }
 
@@ -1387,6 +1388,10 @@ public class BaseHashMap {
             }
 
             return accessTable[lookup];
+        }
+
+        public int getLookup() {
+            return lookup;
         }
     }
 }

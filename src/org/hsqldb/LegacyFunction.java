@@ -121,7 +121,7 @@ public class LegacyFunction extends SQLFunction {
 
         super();
 
-        this.id = id;
+        this.funcType = id;
 
         switch (id) {
 
@@ -176,7 +176,7 @@ public class LegacyFunction extends SQLFunction {
 
     public void setArguments(Expression[] argList) {
 
-        switch (id) {
+        switch (funcType) {
 
             case FUNC_EXTRACT :
                 Expression[] newArgList = new Expression[2];
@@ -193,7 +193,7 @@ public class LegacyFunction extends SQLFunction {
 
     Object getValue(Session session, Object[] data) throws HsqlException {
 
-        switch (id) {
+        switch (funcType) {
 
             case FUNC_EXTRACT :
                 return super.getValue(session, data);
@@ -358,7 +358,7 @@ public class LegacyFunction extends SQLFunction {
     public void resolveTypes(Session session,
                              Expression parent) throws HsqlException {
 
-        switch (id) {
+        switch (funcType) {
 
             case FUNC_EXTRACT :
                 super.resolveTypes(session, parent);
@@ -415,7 +415,7 @@ public class LegacyFunction extends SQLFunction {
 
     public String getDDL() {
 
-        switch (id) {
+        switch (funcType) {
 
             case FUNC_EXTRACT :
                 return super.getDDL();

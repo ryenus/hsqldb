@@ -1519,12 +1519,25 @@ public class Token {
         return reservedKeys.containsKey(token);
     }
 
-    public static int getKeyword(String token, int defaultValue) {
+    public static int getKeywordID(String token, int defaultValue) {
         return reservedKeys.get(token, defaultValue);
     }
 
-    public static int getNonKeyword(String token, int defaultValue) {
+    public static int getNonKeywordID(String token, int defaultValue) {
         return commandSet.get(token, defaultValue);
+    }
+
+    public static String getKeyword(int token) {
+
+        String key = (String) reservedKeys.getKey(token);
+
+        if (key != null) {
+            return key;
+        }
+
+        key = (String) commandSet.getKey(token);
+
+        return key;
     }
 
     private static OrderedIntHashSet coreReservedWords;
@@ -1542,7 +1555,8 @@ public class Token {
             INTERSECT, JOIN, INNER, LEADING, LIKE, MAX, MIN, NATURAL, NULLIF,
             NOT, ON, ORDER, OR, OUTER, PRIMARY, SELECT, SET, SOME, STDDEV_POP,
             STDDEV_SAMP, SUM, THEN, TO, TRAILING, UNIQUE, UNION, USING, VALUES,
-            VAR_POP, VAR_SAMP, WHEN, WHERE //, DATE, TIME, TIMESTAMP, INTERVAL
+            VAR_POP, VAR_SAMP, WHEN,
+            WHERE    //, DATE, TIME, TIMESTAMP, INTERVAL
         };
 
         for (int i = 0; i < keyword.length; i++) {
@@ -1562,9 +1576,6 @@ public class Token {
             Token.T_YEAR, Token.T_MONTH, Token.T_DAY, Token.T_HOUR,
             Token.T_MINUTE, Token.T_SECOND, Token.T_TIMEZONE_HOUR,
             Token.T_TIMEZONE_MINUTE, Token.T_DOW
-        });
-        SQL_TRIM_SPECIFICATION.addAll(new Object[] {
-            Token.T_LEADING, Token.T_TRAILING, Token.T_BOTH
         });
     }
 /*

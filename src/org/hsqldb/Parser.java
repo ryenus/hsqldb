@@ -1873,7 +1873,7 @@ class Parser extends BaseParser {
         return e;
     }
 
-    private Expression readTerm() throws HsqlException {
+    Expression readTerm() throws HsqlException {
 
         Expression e = null;
 

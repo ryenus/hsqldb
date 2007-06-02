@@ -593,13 +593,6 @@ public class Expression {
         eArg         = e;
     }
 
-    public boolean isValidColumnDefaultExpression() {
-
-        return exprType == VALUE
-               || (exprType == SQL_FUNCTION
-                   && ((SQLFunction) this).isValueFunction());
-    }
-
     boolean hasSequence(NumberSequence sequence) {
         return exprType == Expression.SEQUENCE && valueData == sequence;
     }

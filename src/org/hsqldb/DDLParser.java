@@ -1477,7 +1477,7 @@ public class DDLParser extends Parser {
         else if (tokenType == Token.DEFAULT) {
             read();
 
-            defaultExpr = readAndCheckDefaultClause(typeObject);
+            defaultExpr = readDefaultClause(typeObject);
         } else if (tokenType == Token.GENERATED && !isIdentity) {
             read();
 
@@ -1965,86 +1965,35 @@ public class DDLParser extends Parser {
     }
 
     /**
-     *
-     * @param type data type of column
-     * @throws HsqlException
-     * @return new Expression
-     */
-    private Expression readAndCheckDefaultClause(Type type)
-    throws HsqlException {
-
-        if (type.type == Types.OTHER) {
-            throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
-        }
-
-        Expression expr = readDefaultClause(type);
-
-        expr.resolveTypes(session, null);
-
-        if (expr.isValidColumnDefaultExpression()) {
-            Object defValTemp;
-
-            try {
-                defValTemp = expr.getValue(session, type);
-            } catch (HsqlException e) {
-                throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
-            }
-
-            if (defValTemp != null && database.sqlEnforceStrictSize) {
-                try {
-                    type.convertToTypeLimits(defValTemp);
-                } catch (HsqlException e) {
-
-                    // default value is too long for fixed size column
-                    throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
-                }
-            }
-
-            return expr;
-        }
-
-        throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE);
-    }
-
-    /**
      *  Reads a DEFAULT clause expression.
      */
     Expression readDefaultClause(Type dataType) throws HsqlException {
 
-        Expression e = readFunction();
+        Expression e = readTerm();
 
-        if (e != null) {
-            return e;
-        }
+        switch (e.getType()) {
 
-        switch (tokenType) {
+            case Expression.VALUE :
+                break;
 
-            case Token.MINUS : {
-                read();
-
-                if (tokenType == Token.X_VALUE) {
-                    value = dataType.convertToType(session, value, valueType);
-                    e = new Expression(Expression.NEGATE,
-                                       new Expression(value, dataType));
-
-                    read();
-
-                    return e;
+            case Expression.NEGATE :
+                if (e.getArg().getType() == Expression.VALUE) {
+                    break;
                 }
 
-                break;
-            }
-            case Token.X_VALUE : {
-                value = dataType.convertToType(session, value, valueType);
-                e     = new Expression(value, dataType);
+                throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE, tokenString);
+            case Expression.SQL_FUNCTION :
+                if (((SQLFunction) e).isValueFunction()) {
+                    break;
+                }
 
-                read();
-
-                return e;
-            }
+                throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE, tokenString);
         }
 
-        throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE, tokenString);
+        e.resolveTypes(session, null);
+        e.getValue(session, dataType);
+
+        return e;
     }
 
     void processCreateIndex(boolean unique) throws HsqlException {
@@ -2402,7 +2351,7 @@ public class DDLParser extends Parser {
                         //ALTER TABLE .. ALTER COLUMN .. SET DEFAULT
                         TableWorks tw   = new TableWorks(session, table);
                         Type       type = column.getType();
-                        Expression expr = this.readAndCheckDefaultClause(type);
+                        Expression expr = this.readDefaultClause(type);
 
                         tw.setColDefaultExpression(columnIndex, expr);
 

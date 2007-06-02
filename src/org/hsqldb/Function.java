@@ -109,7 +109,7 @@ public class Function extends Expression {
     private boolean[]      bArgNullable;
     private boolean        bConnection;
     private static HashMap methodCache = new HashMap();
-    private int            fID;
+    private int            funcType;
     private String         name;    // name used to call function
 
     /**
@@ -148,7 +148,7 @@ public class Function extends Expression {
 
 //        cSession      = session;
         fullyQualifiedName = fqn;
-        fID                = Library.functionID(fqn);
+        funcType           = Library.functionID(fqn);
 
         int i = fqn.lastIndexOf('.');
 
@@ -296,7 +296,7 @@ public class Function extends Expression {
      */
     public Object getValue(Session session) throws HsqlException {
 
-        switch (fID) {
+        switch (funcType) {
 
             case Library.curtime :
                 return session.getCurrentTime();
@@ -343,8 +343,9 @@ public class Function extends Expression {
         }
 
         try {
-            Object value = (fID >= 0) ? Library.invoke(fID, arguments)
-                                      : mMethod.invoke(null, arguments);
+            Object value = (funcType >= 0)
+                           ? Library.invoke(funcType, arguments)
+                           : mMethod.invoke(null, arguments);
 
             return Type.convertJavaToSQLType(value, dataType);
         } catch (InvocationTargetException e) {
@@ -536,7 +537,8 @@ public class Function extends Expression {
             return true;
         }
 
-        if (other instanceof Function && fID == ((Function) other).fID) {
+        if (other instanceof Function
+                && funcType == ((Function) other).funcType) {
             return super.equals(other);
         }
 
