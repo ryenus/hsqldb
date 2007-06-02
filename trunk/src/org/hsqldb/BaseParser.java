@@ -115,9 +115,10 @@ public class BaseParser {
 
     Object[] getRecordedStatement() {
 
-
         recordCurrent();
+
         isRecording = false;
+
         Object[] statements = recordedStatement.toArray();
 
         recordedStatement = null;
@@ -209,10 +210,11 @@ public class BaseParser {
         } else if (tokenString.length() == 0) {
             tokenType = Token.X_ENDPARSE;
         } else {
-            tokenType = Token.getKeyword(tokenString, Token.X_ENDPARSE);
+            tokenType = Token.getKeywordID(tokenString, Token.X_ENDPARSE);
 
             if (tokenType == Token.X_ENDPARSE) {
-                tokenType = Token.getNonKeyword(tokenString, Token.X_ENDPARSE);
+                tokenType = Token.getNonKeywordID(tokenString,
+                                                  Token.X_ENDPARSE);
                 isSpecial = tokenizer.wasSpecial();
             } else {
                 isReservedKey     = true;
@@ -246,7 +248,9 @@ public class BaseParser {
     void readThis(int tokenId) throws HsqlException {
 
         if (tokenType != tokenId) {
-            throw unexpectedToken();
+            String required = Token.getKeyword(tokenId);
+
+            throw unexpectedToken(required);
         }
 
         read();
@@ -425,16 +429,19 @@ public class BaseParser {
         expressionTypeMap.put(Token.VAR_SAMP, Expression.VAR_SAMP);
     }
 
-    HsqlException unexpectedToken() {
+    HsqlException unexpectedToken(String required) {
 
         String token = namePrePrefix != null ? namePrePrefix
                                              : namePrefix != null ? namePrefix
                                                                   : tokenString;
 
-        return Trace.error(Trace.UNEXPECTED_TOKEN, token);
+        return Trace.error(Trace.UNEXPECTED_TOKEN, Trace.TOKEN_REQUIRED,
+                           new Object[] {
+            token, required
+        });
     }
 
-    HsqlException requiredToken(String required) {
+    HsqlException unexpectedToken() {
 
         String token = namePrePrefix != null ? namePrePrefix
                                              : namePrefix != null ? namePrefix

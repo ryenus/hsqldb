@@ -190,7 +190,7 @@ public class SQLFunction extends Expression {
     }
 
     //
-    int     id;
+    int     funcType;
     String  name;
     short[] parseList;
     boolean isValueFunction;
@@ -235,7 +235,7 @@ public class SQLFunction extends Expression {
 
         this();
 
-        this.id = id;
+        this.funcType = id;
 
         switch (id) {
 
@@ -522,7 +522,7 @@ public class SQLFunction extends Expression {
 
     Object getValue(Session session, Object[] data) throws HsqlException {
 
-        switch (id) {
+        switch (funcType) {
 
             case FUNC_POSITION_CHAR : {
                 if (data[0] == null || data[1] == null) {
@@ -979,7 +979,7 @@ public class SQLFunction extends Expression {
             }
         }
 
-        switch (id) {
+        switch (funcType) {
 
             case FUNC_POSITION_CHAR :
             case FUNC_POSITION_BINARY : {
@@ -1007,10 +1007,10 @@ public class SQLFunction extends Expression {
 
                 if (argList[0].dataType.isCharacterType()
                         && argList[1].dataType.isCharacterType()) {
-                    id = FUNC_POSITION_CHAR;
+                    funcType = FUNC_POSITION_CHAR;
                 } else if (argList[0].dataType.isBinaryType()
                            && argList[1].dataType.isBinaryType()) {
-                    id = FUNC_POSITION_BINARY;
+                    funcType = FUNC_POSITION_BINARY;
                 } else {
                     throw Trace.error(Trace.WRONG_DATA_TYPE);
                 }
@@ -1194,7 +1194,7 @@ public class SQLFunction extends Expression {
                 dataType = argList[0].dataType;
 
                 if (dataType.isCharacterType()) {
-                    id = FUNC_SUBSTRING_CHAR;
+                    funcType = FUNC_SUBSTRING_CHAR;
 
                     if (dataType.type == Types.SQL_CHAR) {
                         dataType =
@@ -1202,7 +1202,7 @@ public class SQLFunction extends Expression {
                                                            dataType.size());
                     }
                 } else if (dataType.isBinaryType()) {
-                    id = FUNC_SUBSTRING_BINARY;
+                    funcType = FUNC_SUBSTRING_BINARY;
                 } else {
                     throw Trace.error(Trace.WRONG_DATA_TYPE);
                 }
@@ -1251,7 +1251,7 @@ public class SQLFunction extends Expression {
                 dataType = argList[2].dataType;
 
                 if (dataType.isCharacterType()) {
-                    id = FUNC_TRIM_CHAR;
+                    funcType = FUNC_TRIM_CHAR;
 
                     if (dataType.type == Types.SQL_CHAR) {
                         dataType =
@@ -1263,7 +1263,7 @@ public class SQLFunction extends Expression {
                         argList[1] = new Expression(" ", Type.SQL_CHAR);
                     }
                 } else if (dataType.isBinaryType()) {
-                    id = FUNC_TRIM_BINARY;
+                    funcType = FUNC_TRIM_BINARY;
 
                     if (argList[1] == null) {
                         argList[1] = new Expression(
@@ -1301,7 +1301,7 @@ public class SQLFunction extends Expression {
 
                 if (argList[0].dataType.isCharacterType()
                         && argList[1].dataType.isCharacterType()) {
-                    id = FUNC_OVERLAY_CHAR;
+                    funcType = FUNC_OVERLAY_CHAR;
 
                     if (argList[0].dataType.type == Types.SQL_CLOB
                             || argList[1].dataType.type == Types.SQL_CLOB) {
@@ -1317,7 +1317,7 @@ public class SQLFunction extends Expression {
                     }
                 } else if (argList[0].dataType.isBinaryType()
                            && argList[1].dataType.isBinaryType()) {
-                    id = FUNC_OVERLAY_BINARY;
+                    funcType = FUNC_OVERLAY_BINARY;
 
                     if (argList[0].dataType.type == Types.SQL_BLOB
                             || argList[1].dataType.type == Types.SQL_BLOB) {
@@ -1455,7 +1455,7 @@ public class SQLFunction extends Expression {
 
         StringBuffer buf = new StringBuffer();
 
-        switch (id) {
+        switch (funcType) {
 
             case FUNC_POSITION_CHAR :
             case FUNC_POSITION_BINARY : {
@@ -1694,7 +1694,8 @@ public class SQLFunction extends Expression {
 
     public boolean equals(Object other) {
 
-        if (other instanceof SQLFunction && id == ((SQLFunction) other).id) {
+        if (other instanceof SQLFunction
+                && funcType == ((SQLFunction) other).funcType) {
             return super.equals(other);
         }
 
