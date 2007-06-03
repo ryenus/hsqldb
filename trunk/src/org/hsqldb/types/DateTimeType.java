@@ -120,7 +120,7 @@ public class DateTimeType extends DateTimeIntervalType {
         return type;
     }
 
-    public String getName() {
+    public String getNameString() {
 
         switch (type) {
 
@@ -165,7 +165,7 @@ public class DateTimeType extends DateTimeIntervalType {
 
         StringBuffer sb = new StringBuffer(16);
 
-        sb.append(getName());
+        sb.append(getNameString());
         sb.append('(');
         sb.append(scale);
         sb.append(')');

@@ -71,7 +71,7 @@ public class ClobType extends CharacterType {
         return type;
     }
 
-    public String getName() {
+    public String getNameString() {
         return Token.T_CLOB;
     }
 
@@ -93,7 +93,7 @@ public class ClobType extends CharacterType {
 
         StringBuffer sb = new StringBuffer(16);
 
-        sb.append(getName());
+        sb.append(getNameString());
         sb.append('(');
         sb.append(factor);
 

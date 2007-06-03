@@ -283,7 +283,7 @@ final class DITableInfo {
      * @return the SQL data type name for the specified column
      */
     String getColDataTypeName(int i) {
-        return table.getColumn(i).getType().getName();
+        return table.getColumn(i).getType().getNameString();
     }
 
     /**

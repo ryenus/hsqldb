@@ -1716,7 +1716,7 @@ public class SQLFunction extends Expression {
             sb.append("[").append(argList[i].describe(session)).append("]");
         }
 
-        sb.append(") returns ").append(dataType.getName());
+        sb.append(") returns ").append(dataType.getNameString());
         sb.append("]\n");
 
         return sb.toString();

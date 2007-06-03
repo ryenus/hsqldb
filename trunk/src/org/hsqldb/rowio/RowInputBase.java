@@ -258,7 +258,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                 default :
                     throw Trace.runtimeError(
                         Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                        "RowInputBase " + type.getName());
+                        "RowInputBase " + type.getNameString());
             }
 
             data[i] = o;

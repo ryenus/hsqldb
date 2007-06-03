@@ -98,7 +98,7 @@ public abstract class Type {
     /**
      * Returns the name of the type
      */
-    public abstract String getName();
+    public abstract String getNameString();
 
     /**
      * Returns the full definition of the type, including parameters
@@ -136,6 +136,18 @@ public abstract class Type {
     public abstract String convertToString(Object a);
 
     public abstract String convertToSQLString(Object a);
+
+    public boolean isDistinctType() {
+        return false;
+    }
+
+    public boolean isStructuredType() {
+        return false;
+    }
+
+    public boolean isDomainType() {
+        return false;
+    }
 
     public boolean isCharacterType() {
         return false;

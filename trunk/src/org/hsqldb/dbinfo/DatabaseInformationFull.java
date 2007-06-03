@@ -344,7 +344,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
                 int tn = Type.typeAliases.get(alias, Integer.MIN_VALUE);
 
-                objName = Type.getDefaultType(tn).getName();
+                objName = Type.getDefaultType(tn).getNameString();
 
                 if (alias.equals(objName)) {
                     continue;

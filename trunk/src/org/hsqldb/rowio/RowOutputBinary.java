@@ -337,7 +337,7 @@ public class RowOutputBinary extends RowOutputBase {
                     default :
                         Trace.printSystemOut(
                             Trace.FUNCTION_NOT_SUPPORTED + " "
-                            + types[i].getName());
+                            + types[i].getNameString());
                 }
             }
         }

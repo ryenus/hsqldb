@@ -158,7 +158,7 @@ public class IntervalType extends DateTimeIntervalType {
         return type;
     }
 
-    public String getName() {
+    public String getNameString() {
         return getName(type);
     }
 
@@ -216,7 +216,7 @@ public class IntervalType extends DateTimeIntervalType {
         if (precision == defaultIntervalPrecision
                 && (endIntervalType != Types.SQL_INTERVAL_SECOND
                     || scale == defaultIntervalFractionPrecision)) {
-            return getName();
+            return getNameString();
         }
 
         StringBuffer sb = new StringBuffer(32);

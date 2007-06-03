@@ -485,7 +485,7 @@ public class DatabaseScript {
         a.append(Token.T_SEQUENCE).append(' ');
         a.append(seq.getName().statementName).append(' ');
         a.append(Token.T_AS).append(' ');
-        a.append(seq.getType().getName()).append(' ');
+        a.append(seq.getType().getNameString()).append(' ');
         a.append(Token.T_START).append(' ');
         a.append(Token.T_WITH).append(' ');
         a.append(seq.peek()).append(' ');

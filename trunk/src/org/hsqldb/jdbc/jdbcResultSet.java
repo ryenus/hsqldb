@@ -6880,8 +6880,8 @@ public class jdbcResultSet implements ResultSet {
             try {
                 o = type.convertToType(null, o, t);
             } catch (Exception e) {
-                String s = "type: " + t.getName() + " expected: "
-                           + type.getName() + " value: " + o.toString();
+                String s = "type: " + t.getNameString() + " expected: "
+                           + type.getNameString() + " value: " + o.toString();
 
                 throw Util.sqlException(Trace.WRONG_DATA_TYPE, s);
             }

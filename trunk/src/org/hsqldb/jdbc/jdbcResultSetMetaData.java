@@ -740,7 +740,7 @@ public class jdbcResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        return columnMetaData[--column].columnType.getName();
+        return columnMetaData[--column].columnType.getNameString();
     }
 
     /**

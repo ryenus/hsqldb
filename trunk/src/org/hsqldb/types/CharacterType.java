@@ -118,7 +118,7 @@ public class CharacterType extends Type {
         return type;
     }
 
-    public String getName() {
+    public String getNameString() {
 
         switch (type) {
 
@@ -143,12 +143,12 @@ public class CharacterType extends Type {
     public String getDefinition() {
 
         if (precision == 0) {
-            return getName();
+            return getNameString();
         }
 
         StringBuffer sb = new StringBuffer(16);
 
-        sb.append(getName());
+        sb.append(getNameString());
         sb.append('(');
         sb.append(precision);
         sb.append(')');

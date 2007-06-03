@@ -47,7 +47,10 @@ public interface SchemaObject {
     int TRANSITION = 8;
     int SCHEMA     = 9;
     int GRANTEE    = 10;
-    int INDEX      = 11;
+    int TYPE       = 11;
+    int DOMAIN     = 12;
+    int INDEX      = 13;
+
 
     HsqlName getName();
 
