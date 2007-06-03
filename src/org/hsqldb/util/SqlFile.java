@@ -3034,7 +3034,14 @@ public class SqlFile {
                                     if (dataType[insi]
                                             != java.sql.Types.TIMESTAMP
                                             && val != null) {
-                                        dotAt = val.indexOf('.');
+                                        dotAt = val.lastIndexOf('.');
+                                        for (int z = dotAt + 1;
+                                                z < val.length(); z++) {
+                                            if (val.charAt(z) != '0') {
+                                                dotAt = 0;
+                                                break;
+                                            }
+                                        }
                                         if (dotAt > 1) {
                                             val = val.substring(0, dotAt);
                                         }
