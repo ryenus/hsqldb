@@ -80,7 +80,7 @@ public class OtherType extends Type {
         return type;
     }
 
-    public String getName() {
+    public String getNameString() {
         return Token.T_OTHER;
     }
 

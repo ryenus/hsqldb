@@ -1065,7 +1065,7 @@ public class Expression {
                 }
 
                 buf.append("VALUE = ").append(valueData);
-                buf.append(", TYPE = ").append(dataType.getName());
+                buf.append(", TYPE = ").append(dataType.getNameString());
 
                 return buf.toString();
 
@@ -1095,7 +1095,7 @@ public class Expression {
             //
             case TABLE :
                 buf.append("VALUELIST ");
-                buf.append(" TYPE = ").append(dataType.getName());
+                buf.append(" TYPE = ").append(dataType.getNameString());
 
                 if (argList != null) {
                     for (int i = 0; i < argList.length; i++) {

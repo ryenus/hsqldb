@@ -213,7 +213,7 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-        return types[--param].getName();
+        return types[--param].getNameString();
     }
 
     /**

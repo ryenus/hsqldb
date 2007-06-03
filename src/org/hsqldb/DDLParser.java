@@ -41,6 +41,8 @@ import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.rights.User;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.DomainType;
+import org.hsqldb.types.DistinctType;
 
 public class DDLParser extends Parser {
 
@@ -172,6 +174,18 @@ public class DDLParser extends Parser {
             case Token.VIEW :
                 read();
                 processCreateView();
+                break;
+
+            case Token.DOMAIN :
+                read();
+
+                // processCreateDomain();
+                break;
+
+            case Token.TYPE :
+                read();
+
+                // processCreateType();
                 break;
 
             // index
@@ -521,7 +535,7 @@ public class DDLParser extends Parser {
                 case Token.FOREIGN :
                 case Token.UNIQUE :
                 case Token.CHECK :
-                    readTableConstraint(table, tempConstraints);
+                    readConstraint(table, tempConstraints);
                     break;
 
                 case Token.COMMA :
@@ -895,6 +909,70 @@ public class DDLParser extends Parser {
 
         readSequenceOptions(sequence, true, false);
         database.schemaManager.addDatabaseObject(sequence);
+    }
+
+    void processCreateDomain() throws HsqlException {
+
+        DomainType domain = null;
+        HsqlName   name   = readNewSchemaObjectName(SchemaObject.DOMAIN);
+
+        name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
+        checkSchemaUpdateAuthorization(name.schema);
+        readIfThis(Token.AS);
+
+        Type       predefinedType = readTypeDefinition();
+        Expression defaultClause  = null;
+
+        if (readIfThis(Token.DEFAULT)) {
+            defaultClause = readDefaultClause(predefinedType);
+        }
+
+        HsqlArrayList tempConstraints = new HsqlArrayList();
+
+        while (true) {
+            boolean end = false;
+
+            switch (tokenType) {
+
+                case Token.CONSTRAINT :
+                case Token.CHECK :
+                    readConstraint(domain, tempConstraints);
+                    break;
+
+                default :
+                    end = true;
+                    break;
+            }
+
+            if (end) {
+                break;
+            }
+        }
+
+        // create the domain
+        Constraint[] constraints = new Constraint[tempConstraints.size()];
+
+        tempConstraints.toArray(constraints);
+
+        domain = new DomainType(name, predefinedType, constraints,
+                                defaultClause);
+
+        database.schemaManager.addDatabaseObject(domain);
+    }
+
+    void processCreateType() throws HsqlException {
+
+        HsqlName name = readNewSchemaObjectName(SchemaObject.TYPE);
+
+        name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
+        checkSchemaUpdateAuthorization(name.schema);
+        readThis(Token.AS);
+
+        Type  predefinedType = readTypeDefinition();
+        DistinctType userType       = new DistinctType(name, predefinedType);
+
+        // create the type
+        database.schemaManager.addDatabaseObject(userType);
     }
 
     /**
@@ -1686,17 +1764,18 @@ public class DDLParser extends Parser {
      * @param constraintList list of constraints
      * @throws HsqlException
      */
-    private void readTableConstraint(Table table,
-                                     HsqlArrayList constraintList)
-                                     throws HsqlException {
+    private void readConstraint(SchemaObject schemaObject,
+                                HsqlArrayList constraintList)
+                                throws HsqlException {
 
         HsqlName constName = null;
 
         if (tokenType == Token.CONSTRAINT) {
             read();
 
-            constName = readNewDependentSchemaObjectName(table.getName(),
-                    SchemaObject.CONSTRAINT);
+            constName =
+                readNewDependentSchemaObjectName(schemaObject.getName(),
+                                                 SchemaObject.CONSTRAINT);
         }
 
         switch (tokenType) {
@@ -1715,8 +1794,8 @@ public class DDLParser extends Parser {
 
                 if (constName == null) {
                     constName = database.nameManager.newAutoName("PK",
-                            table.getSchemaName(), table.getName(),
-                            SchemaObject.CONSTRAINT);
+                            schemaObject.getSchemaName(),
+                            schemaObject.getName(), SchemaObject.CONSTRAINT);
                 }
 
                 OrderedHashSet set = readColumnNames(false);
@@ -1734,8 +1813,8 @@ public class DDLParser extends Parser {
 
                 if (constName == null) {
                     constName = database.nameManager.newAutoName("CT",
-                            table.getSchemaName(), table.getName(),
-                            SchemaObject.CONSTRAINT);
+                            schemaObject.getSchemaName(),
+                            schemaObject.getName(), SchemaObject.CONSTRAINT);
                 }
 
                 Constraint c = new Constraint(constName, set,
@@ -1750,7 +1829,8 @@ public class DDLParser extends Parser {
                 readThis(Token.KEY);
 
                 OrderedHashSet set = readColumnNames(false);
-                Constraint     c   = readFKReferences(table, constName, set);
+                Constraint c = readFKReferences((Table) schemaObject,
+                                                constName, set);
 
                 constraintList.add(c);
 
@@ -1761,8 +1841,8 @@ public class DDLParser extends Parser {
 
                 if (constName == null) {
                     constName = database.nameManager.newAutoName("CT",
-                            table.getSchemaName(), table.getName(),
-                            SchemaObject.CONSTRAINT);
+                            schemaObject.getSchemaName(),
+                            schemaObject.getName(), SchemaObject.CONSTRAINT);
                 }
 
                 Constraint c = new Constraint(constName, null,

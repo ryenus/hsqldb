@@ -75,7 +75,7 @@ public class BinaryType extends Type {
         return type;
     }
 
-    public String getName() {
+    public String getNameString() {
         return type == Types.SQL_BINARY ? Token.T_BINARY
                                         : Token.T_VARBINARY;
     }

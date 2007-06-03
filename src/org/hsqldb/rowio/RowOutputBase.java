@@ -277,7 +277,7 @@ implements RowOutputInterface {
 
                 default :
                     throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                             t.getName());
+                                             t.getNameString());
             }
         }
     }

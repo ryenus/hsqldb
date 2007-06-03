@@ -189,7 +189,7 @@ public class NumberType extends Type {
         }
     }
 
-    public String getName() {
+    public String getNameString() {
 
         switch (type) {
 
@@ -234,7 +234,7 @@ public class NumberType extends Type {
             case Types.SQL_DECIMAL :
                 StringBuffer sb = new StringBuffer(16);
 
-                sb.append(getName());
+                sb.append(getNameString());
                 sb.append('(');
                 sb.append(precision);
                 sb.append(',');
@@ -244,7 +244,7 @@ public class NumberType extends Type {
                 return sb.toString();
 
             default :
-                return getName();
+                return getNameString();
         }
     }
 

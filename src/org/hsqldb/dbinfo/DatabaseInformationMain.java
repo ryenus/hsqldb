@@ -3027,7 +3027,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[iseq_cat]    = ns.getCatalogName();
             row[iseq_schem]  = sequence.getSchemaName().name;
             row[iseq_name]   = sequenceName;
-            row[iseq_dtdid]  = sequence.getType().getName();
+            row[iseq_dtdid]  = sequence.getType().getNameString();
             row[iseq_min]    = min;
             row[iseq_incr]   = String.valueOf(sequence.getIncrement());
             row[iseq_cycopt] = cycleOption;
