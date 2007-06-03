@@ -3031,6 +3031,9 @@ public class SqlFile {
                                 case java.sql.Types.TIME:
                                     ts  = r.getTimestamp(i);
                                     val = ((ts == null) ? null : ts.toString());
+                                    // Following block truncates non-zero
+                                    // sub-seconds from time types OTHER than 
+                                    // TIMESTAMP.
                                     if (dataType[insi]
                                             != java.sql.Types.TIMESTAMP
                                             && val != null) {
