@@ -58,6 +58,7 @@ public class SchemaManager {
     public static final String   INFORMATION_SCHEMA = "INFORMATION_SCHEMA";
     public static final String   PUBLIC_SCHEMA      = "PUBLIC";
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
+//    public static final HsqlName DEFINITION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
     Database                     database;
     HsqlName                     defaultSchemaHsqlName;
@@ -67,9 +68,12 @@ public class SchemaManager {
     static {
         INFORMATION_SCHEMA_HSQLNAME =
             HsqlNameManager.newHsqlSystemObjectName(INFORMATION_SCHEMA);
+//        DEFINITION_SCHEMA_HSQLNAME =
+//            HsqlNameManager.newHsqlSystemObjectName(DEFINITION_SCHEMA);   
         SYSTEM_SCHEMA_HSQLNAME =
             HsqlNameManager.newHsqlSystemObjectName(SYSTEM_SCHEMA);
         INFORMATION_SCHEMA_HSQLNAME.owner = GranteeManager.getSystemRole();
+//        DEFINITION_SCHEMA_HSQLNAME.owner = GranteeManager.getSystemRole();
         SYSTEM_SCHEMA_HSQLNAME.owner      = GranteeManager.getSystemRole();
     }
 
@@ -198,12 +202,15 @@ public class SchemaManager {
 
     public Grantee toSchemaOwner(String name) {
 
-        // Note that INFORMATION_SCHEMA isn't in the backing map.
+        // Note that INFORMATION_SCHEMA and DEFINITION_SCHEMA aren't in the
+        // backing map.
         // This may not be the most elegant solution, but it is the safest
-        // (without doing a code review for implicatins of adding
-        // INFORMATION_SCHEMA to the map).
-        if (INFORMATION_SCHEMA.equals(name)) {
-            return database.getGranteeManager().getSystemRole();
+        // (without doing a code review for implications of adding
+        // them to the map).
+        if (INFORMATION_SCHEMA_HSQLNAME.name.equals(name)) {
+            return INFORMATION_SCHEMA_HSQLNAME.owner;
+//        } else if (DEFINITION_SCHEMA_HSQLNAME.name.equals(name)) {
+//            return DEFINITION_SCHEMA_HSQLNAME.owner;
         }
 
         Schema schema = (Schema) schemaMap.get(name);
@@ -218,11 +225,9 @@ public class SchemaManager {
 
     boolean schemaExists(String name) {
 
-        if (INFORMATION_SCHEMA.equals(name)) {
-            return true;
-        }
-
-        return schemaMap.containsKey(name);
+        return (INFORMATION_SCHEMA.equals(name) 
+//         || DEFINITION_SCHEMA.equals(name)
+         || schemaMap.containsKey(name));
     }
 
     /**
@@ -238,6 +243,8 @@ public class SchemaManager {
 
         if (INFORMATION_SCHEMA.equals(name)) {
             return INFORMATION_SCHEMA_HSQLNAME;
+//        } else if (DEFINITION_SCHEMA.equals(name)) {
+//            return DEFINITION_SCHEMA_HSQLNAME;  
         }
 
         Schema schema = ((Schema) schemaMap.get(name));
@@ -257,10 +264,14 @@ public class SchemaManager {
     }
 
     /**
-     * Iterator includes INFORMATION_SCHEMA
+     * Iterator includes INFORMATION_SCHEMA and DEFINITION_SCHEMA
      */
     public Iterator fullSchemaNamesIterator() {
-        return new WrapperIterator(new WrapperIterator(INFORMATION_SCHEMA),
+        Object[] sysSchem = new Object[] {
+        	INFORMATION_SCHEMA
+//           ,DEFINITION_SCHEMA
+           };
+        return new WrapperIterator(new WrapperIterator(sysSchem),
                                    schemaMap.keySet().iterator());
     }
 
@@ -269,14 +280,18 @@ public class SchemaManager {
      */
     public boolean isSystemSchema(HsqlName schema) {
 
-        return (INFORMATION_SCHEMA_HSQLNAME.equals(schema) || SYSTEM_SCHEMA_HSQLNAME.equals(schema))
+        return (INFORMATION_SCHEMA_HSQLNAME.equals(schema) 
+//             || DEFINITION_SCHEMA_HSQLNAME.equals(schema) 
+             || SYSTEM_SCHEMA_HSQLNAME.equals(schema))
                ? true
                : false;
     }
 
     public boolean isSystemSchema(String schema) {
 
-        return (INFORMATION_SCHEMA.equals(schema) || SYSTEM_SCHEMA.equals(schema))
+        return (INFORMATION_SCHEMA.equals(schema) 
+//             || DEFINITION_SCHEMA.equals(schema) 
+             || SYSTEM_SCHEMA.equals(schema))
                ? true
                : false;
     }
