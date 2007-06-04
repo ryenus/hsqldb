@@ -960,11 +960,11 @@ public abstract class JdbcTestCase extends TestCase {
      * @return fully expe
      */
     protected static String[] getResoucesInPackage(
-            final String packageName) throws IOException {        
+            final String packageName) throws IOException {
         
         String packagePath = packageName.replace('.','/');
         
-        if (!packagePath.endsWith("/")) {            
+        if (!packagePath.endsWith("/")) { 
             packagePath = packagePath + '/';
         }
         
@@ -993,7 +993,7 @@ public abstract class JdbcTestCase extends TestCase {
                             continue;
                         }
                         
-                        set.add(packagePath + file.getName());
+                        set.add('/' + packagePath + file.getName());
                     }
                     
                 } catch (Exception ex) {}
