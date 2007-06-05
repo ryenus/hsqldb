@@ -41,10 +41,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.hsqldb.lib.HsqlArrayList;
+import junit.framework.TestCase;
 import org.hsqldb.lib.StringUtil;
 
 /**
@@ -183,8 +180,9 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
             println(section.getResultString());
         } else if (!section.execute(stmt)) {
             println("section starting at line " + line);
-            println("returned an unexpected result:");
-            println(section.toString());
+            println("returned an unexpected result.");
+            //println(section.toString());
+            ((TestCase)this).fail(section.toString());
         }
     }
     
@@ -376,6 +374,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
             do {
                 if ((endIndex = m_lines[k].indexOf("*/")) != -1) {
                     
+                    sb.insert(0," ");
                     sb.insert(0, m_lines[k].substring(endIndex + 2));
                     
                     m_lines[k] = m_lines[k].substring(0, endIndex);
@@ -388,6 +387,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
                     
                     break;
                 } else {
+                    sb.insert(0," ");
                     sb.insert(0, m_lines[k]);
                 }
                 
@@ -402,34 +402,35 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
          * @return
          */
         public String toString() {
+            String className = getClass().getName();
+            int lastDot = className.lastIndexOf('.');
+            String simpleName = (lastDot >= 0) 
+                ? className.substring(lastDot+1) 
+                : className;
+            char type = getType();
+            String  sectionType = (type == ' ') ? simpleName 
+                    : type + ": " + simpleName;
+            StringBuffer sb = new StringBuffer();
             
-            StringBuffer b = new StringBuffer();
-            
-            b.append("\n******\n");
-            b.append("contents of lines array:\n");
-            
+            if (getMessage() != null) {
+                sb.append(getMessage());
+            }            
+            sb.append("\n******\n")
+              .append("Section Type    : ").append(sectionType).append('\n')
+              .append("Section Result  :").append(getResultString())
+              .append("Section Content :\n");
+              
             for (int i = 0; i < m_lines.length; i++) {
                 if (m_lines[i].trim().length() > 0) {
-                    b.append("line ").append(i).append(": ").append(
+                    sb.append("line ").append(i).append(": ").append(
                             m_lines[i]).append("\n");
                 }
-            }
+            }            
             
-            b.append("Type: ");
-            b.append(getType()).append('\n');
-            b.append("SQL: ").append(getSql()).append('\n');
-            b.append("results:").append('\n');
-            b.append(getResultString());
+            sb.append("Submitted SQL   : \n").append(getSql()).append('\n');
+            sb.append("\n******\n");
             
-            //check to see if the message field has been populated
-            if (getMessage() != null) {
-                b.append('\n').append("message:").append('\n');
-                b.append(getMessage());
-            }
-            
-            b.append("\n******\n");
-            
-            return b.toString();
+            return sb.toString();
         }
         
         /**
@@ -530,6 +531,10 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
             }
             
             return sb.toString();
+        }
+        
+        protected String getTypeName() {
+            return "Result Set Section";
         }
         
         /**
@@ -756,11 +761,11 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
          *
          * @param lines
          */
-        protected RowCountSection(String[] lines) {            
+        protected RowCountSection(String[] lines) {
             super(lines);
             
             m_type             = 'c';
-            m_expectedRowCount = Integer.parseInt(lines[0]);            
+            m_expectedRowCount = Integer.parseInt(lines[0]);
         }
         
         /**
