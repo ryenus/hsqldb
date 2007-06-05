@@ -6676,17 +6676,6 @@ public class jdbcResultSet implements ResultSet {
 
 //#endif JDBC4
 //------------------------ Internal Implementation -----------------------------
-// fredt@users 20020320 - patch 497714 by lakuhns@users - scrollable ResultSet
-// variable values in different states
-// Condition definitions
-//                  bInit  iCurrentRow  nCurrent  nCurrent.next
-//                  -----  -----------  --------  -------------
-// beforeFirst      false       0         N/A          N/A
-// first            true        1        !null    next or null
-// last             true    last row #   !null        null
-// afterLast        true   last row + 1   N/A         N/A
-    //-------------------------- Private Attributes ----------------------------
-
     /** The internal representation. */
     private RowSetNavigator navigator;
 

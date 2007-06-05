@@ -3215,7 +3215,7 @@ implements PreparedStatement {
      * Up to 1.8.0.x, HSQLDB always returned FETCH_FORWARD.
      *
      * Starting with 1.9.0, HSQLDB returns FETCH_FORWARD by default, or
-     * whatever value has been explicitly  assigned by invoking
+     * whatever value has been explicitly assigned by invoking
      * <code>setFetchDirection</code>.
      * .
      * </div>

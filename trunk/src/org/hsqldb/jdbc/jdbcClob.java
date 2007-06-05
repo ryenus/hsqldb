@@ -92,7 +92,7 @@ import org.hsqldb.lib.AsciiStringInputStream;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Previous to 1.9.0, the HSQLDB driver does not implement Clob using an SQL
+ * Previous to 1.9.0, the HSQLDB driver did not implement Clob using an SQL
  * locator(CLOB).  That is, an HSQLDB Clob object did not contain a logical
  * pointer to SQL CLOB data; rather it directly contained a representation of
  * the data (a String). As a result, an HSQLDB Clob object was itself
@@ -379,9 +379,6 @@ public class jdbcClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB does not support this feature at all; Calling this
-     * method always throws an <code>SQLException</code>. <p>
-     *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
      * 
      * When built under JDK 1.6+ and the Clob instance is constructed as a
@@ -451,9 +448,6 @@ public class jdbcClob implements Clob {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
-     *
-     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
-     * method always throws an <code>SQLException</code>. <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
      * 
@@ -589,9 +583,6 @@ public class jdbcClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
-     * method always throws an <code>SQLException</code>. <p>
-     *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
      * 
      * When built under JDK 1.6+ and the Clob instance is constructed as a
@@ -693,9 +684,6 @@ public class jdbcClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
-     * method always throws an <code>SQLException</code>. <p>
-     *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
      * 
      * When built under JDK 1.6+ and the Clob instance is constructed as a
@@ -790,12 +778,6 @@ public class jdbcClob implements Clob {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
-     *
-     * Up to 1.7.x, HSQLDB does not support this feature at all; Calling this
-     * method always throws an <code>SQLException</code>. <p>
-     *
-     * Starting with 1.8.0.x, this operation is supported, but 
-     * affects only the client-side value.
      *
      * Starting with HSQLDB 1.9.0 this feature is fully supported. <p>
      * 
