@@ -86,7 +86,7 @@ import org.hsqldb.lib.StringConverter;
  * JDBC driver supports the data type.
  *
  * @see java.sql.DatabaseMetaData
- * @since JDK 1.6, HSQLDB 1.8.x
+ * @since JDK 1.6, HSQLDB 1.9.0
  * @author boucherb@users
  */
 
@@ -110,7 +110,7 @@ public final class jdbcRowId implements RowId {
      * @param obj the <code>Object</code> to compare this <code>RowId</code> object
      *     against.
      * @return true if the <code>RowId</code>s are equal; false otherwise
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public boolean equals(Object obj) {
         return (obj instanceof jdbcRowId)
