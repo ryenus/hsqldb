@@ -113,8 +113,8 @@ import javax.sql.CommonDataSource;
  * @since JDK 1.4
  * @author deforest@users
  * @author boucherb@users
- * @version 1.8.x
- * @revised JDK 1.6, HSQLDB 1.8.x
+ * @version 1.9.0
+ * @revised JDK 1.6, HSQLDB 1.9.0
  */
 public class jdbcDataSource implements Serializable, Referenceable, DataSource
 
@@ -203,7 +203,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * @param ifc The Query interface that will be created
      * @return A concrete implementation of a Query interface
      * @exception SQLException if a database access error occurs.
-     *  @since JDK 1.6, HSQLDB 1.8.x
+     *  @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4BETA
 /*
@@ -211,7 +211,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
         return QueryObjectFactory.createDefaultQueryObject(ifc, this);
    }
 */
-//#endif JDBC4
+//#endif JDBC4BETA
 
     /**
      * Creates a concrete implementation of a Query interface using the JDBC drivers <code>QueryObjectGenerator</code>
@@ -239,7 +239,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
         return QueryObjectFactory.createQueryObject(ifc, ds);
     }
 */
-//#endif JDBC4
+//#endif JDBC4BETA
 
     /**
      * Retrieves the QueryObjectGenerator for the given JDBC driver.  If the
@@ -248,7 +248,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * @return The QueryObjectGenerator for this JDBC Driver or NULL if the driver does not provide its own
      * implementation
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4BETA
 /*
@@ -256,7 +256,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
         return null;
     }
 */
-//#endif JDBC4
+//#endif JDBC4BETA
     // ------------------- java.sql.Wrapper implementation ---------------------
 
     /**
@@ -274,7 +274,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
@@ -300,7 +300,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
