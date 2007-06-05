@@ -571,8 +571,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      */
     public String getDatabaseProductVersion() throws SQLException {
 
-        ResultSet rs = execute(
-            "call \"org.hsqldb.Library.getDatabaseProductVersion\"()");
+        ResultSet rs =
+            execute("call \"org.hsqldb.Library.getDatabaseProductVersion\"()");
 
         rs.next();
 
@@ -1129,10 +1129,11 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @see java.sql.Types
      */
-    
-    public  boolean supportsConvert(int fromType,
-            int toType) throws SQLException {
-        
+    public boolean supportsConvert(int fromType,
+                                   int toType) throws SQLException {
+
+//#ifdef JDBC4
+
         switch(fromType) {
             case java.sql.Types.NCHAR:
             {
@@ -1160,7 +1161,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
                 break;
             }
         }
-        
+
         switch(toType) {
             case java.sql.Types.NCHAR:
             {
@@ -1188,32 +1189,31 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
                 break;
             }
         }
-        
-        int fromHsqlTypeCode = Integer.MIN_VALUE;
-        int toHsqlTypeCode = Integer.MIN_VALUE;
-        org.hsqldb.HsqlException he = null;
-        boolean fromSupported = false;
-        boolean toSupported = false;
-        
+
+//#endif JDBC4
+        int                      fromHsqlTypeCode = Integer.MIN_VALUE;
+        int                      toHsqlTypeCode   = Integer.MIN_VALUE;
+        org.hsqldb.HsqlException he               = null;
+        boolean                  fromSupported    = false;
+        boolean                  toSupported      = false;
+
         try {
             fromHsqlTypeCode = Type.getHSQLDBTypeCode(fromType);
-            toHsqlTypeCode = Type.getHSQLDBTypeCode(toType);
+            toHsqlTypeCode   = Type.getHSQLDBTypeCode(toType);
         } catch (org.hsqldb.HsqlException ex) {
             he = ex;
         }
-        
+
         fromSupported = Type.isSupportedSQLType(fromHsqlTypeCode);
-        toSupported = Type.isSupportedSQLType(toHsqlTypeCode);
-        
-        if (toType == java.sql.Types.NULL
-                || toType == java.sql.Types.OTHER) {
+        toSupported   = Type.isSupportedSQLType(toHsqlTypeCode);
+
+        if (toType == java.sql.Types.NULL || toType == java.sql.Types.OTHER) {
             if (fromType == java.sql.Types.NULL
-                    || toType == java.sql.Types.OTHER
-                    || fromSupported) {
+                    || toType == java.sql.Types.OTHER || fromSupported) {
                 return true;
             }
         }
-        
+
         if (!(fromSupported && toSupported)) {
             if (he != null) {
                 Util.throwError(he);
@@ -1221,14 +1221,14 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
                 return false;
             }
         }
-        
+
         Type fromHsqlType = Type.getDefaultType(fromHsqlTypeCode);
-        Type toHsqlType = Type.getDefaultType(toHsqlTypeCode);
-        
+        Type toHsqlType   = Type.getDefaultType(toHsqlTypeCode);
+
         if (fromHsqlType == null || toHsqlType == null) {
             return false;
         }
-        
+
         if (toHsqlType.isBinaryType()) {
             return (fromHsqlType.isBinaryType());
         } else if (toHsqlType.isBooleanType()) {
@@ -1239,36 +1239,31 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
                 return fromHsqlType.isCharacterType();
             } else {
                 return !(fromHsqlType.isBinaryType()
-                        && fromHsqlType.isLobType());
+                         && fromHsqlType.isLobType());
             }
         } else if (toHsqlType.isDateTimeType()) {
             if (fromHsqlType.isCharacterType()) {
                 return true;
             } else if (fromHsqlType.isDateTimeType()) {
-                switch(toHsqlTypeCode) {
-                    case org.hsqldb.Types.SQL_TIME:
-                    {
-                        return (fromHsqlTypeCode 
-                                != org.hsqldb.Types.SQL_DATE);
+                switch (toHsqlTypeCode) {
+
+                    case org.hsqldb.Types.SQL_TIME : {
+                        return (fromHsqlTypeCode != org.hsqldb.Types.SQL_DATE);
                     }
-                    case org.hsqldb.Types.SQL_DATE:
-                    {
-                        return (fromHsqlTypeCode 
-                                != org.hsqldb.Types.SQL_TIME);
+                    case org.hsqldb.Types.SQL_DATE : {
+                        return (fromHsqlTypeCode != org.hsqldb.Types.SQL_TIME);
                     }
-                    default:
-                    {
+                    default : {
                         return true;
                     }
                 }
             }
-        } else if (toHsqlType.isIntervalType()
-                || toHsqlType.isNumberType()) {
+        } else if (toHsqlType.isIntervalType() || toHsqlType.isNumberType()) {
             return (fromHsqlType.isIntervalType()
                     || (fromHsqlType.isCharacterType())
                     || fromHsqlType.isNumberType());
         }
-        
+
         return false;
     }
 
@@ -1647,8 +1642,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      */
-    public boolean supportsIntegrityEnhancementFacility()
-    throws SQLException {
+    public boolean supportsIntegrityEnhancementFacility() throws SQLException {
         return true;
     }
 
@@ -2307,8 +2301,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *       <code>false</code> if they might not remain open
      * @exception SQLException if a database access error occurs
      */
-    public boolean supportsOpenStatementsAcrossRollback()
-    throws SQLException {
+    public boolean supportsOpenStatementsAcrossRollback() throws SQLException {
         return true;
     }
 
@@ -3223,8 +3216,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @see #getSearchStringEscape
      */
-    public ResultSet getProcedureColumns(String catalog,
-                                         String schemaPattern,
+    public ResultSet getProcedureColumns(String catalog, String schemaPattern,
                                          String procedureNamePattern,
                                          String columnNamePattern)
                                          throws SQLException {
@@ -3595,8 +3587,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      */
     public ResultSet getColumns(String catalog, String schemaPattern,
                                 String tableNamePattern,
-                                String columnNamePattern)
-                                throws SQLException {
+                                String columnNamePattern) throws SQLException {
 
         if (wantsIsNull(tableNamePattern) || wantsIsNull(columnNamePattern)) {
             return executeSelect("SYSTEM_COLUMNS", "0=1");
@@ -3686,11 +3677,13 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
 
         schema = translateSchema(schema);
 
-        StringBuffer select = toQueryPrefix("SYSTEM_COLUMNPRIVILEGES").append(
-            and("TABLE_CAT", "=", catalog)).append(
-            and("TABLE_SCHEM", "=", schema)).append(
-            and("TABLE_NAME", "=", table)).append(
-            and("COLUMN_NAME", "LIKE", columnNamePattern));
+        StringBuffer select =
+            toQueryPrefix("SYSTEM_COLUMNPRIVILEGES").append(and("TABLE_CAT",
+                "=", catalog)).append(and("TABLE_SCHEM", "=",
+                                          schema)).append(and("TABLE_NAME",
+                                              "=",
+                                              table)).append(and("COLUMN_NAME",
+                                                  "LIKE", columnNamePattern));
 
         // By default, the query already returns the result
         // ordered by column name, privilege...
@@ -3885,13 +3878,11 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
 
         Integer Nullable = (nullable) ? null
                                       : INT_COLUMNS_NO_NULLS;
-        StringBuffer select = toQueryPrefix(
-            "SYSTEM_BESTROWIDENTIFIER").append(
+        StringBuffer select = toQueryPrefix("SYSTEM_BESTROWIDENTIFIER").append(
             and("TABLE_CAT", "=", catalog)).append(
             and("TABLE_SCHEM", "=", schema)).append(
             and("TABLE_NAME", "=", table)).append(
-            and("NULLABLE", "=", Nullable)).append(
-            " AND SCOPE IN " + scopeIn);
+            and("NULLABLE", "=", Nullable)).append(" AND SCOPE IN " + scopeIn);
 
         // By default, query already returns rows in contract order.
         // However, the way things are set up, there should never be
@@ -4591,8 +4582,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @see #supportsMixedCaseQuotedIdentifiers
      * @see #storesUpperCaseIdentifiers
      */
-    public ResultSet getIndexInfo(String catalog, String schema,
-                                  String table, boolean unique,
+    public ResultSet getIndexInfo(String catalog, String schema, String table,
+                                  boolean unique,
                                   boolean approximate) throws SQLException {
 
         if (table == null) {
@@ -4607,8 +4598,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
             toQueryPrefix("SYSTEM_INDEXINFO").append(and("TABLE_CAT", "=",
                 catalog)).append(and("TABLE_SCHEM", "=",
                                      schema)).append(and("TABLE_NAME", "=",
-                                         table)).append(and("NON_UNIQUE",
-                                             "=", nu));
+                                         table)).append(and("NON_UNIQUE", "=",
+                                             nu));
 
         // By default, this query already returns the table ordered by
         // NON_UNIQUE, TYPE, INDEX_NAME, and ORDINAL_POSITION...
@@ -5857,16 +5848,16 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * Only system and user function descriptions matching the schema and
      * function name criteria are returned.  They are ordered by
      * <code>FUNCTION_CAT</code>, <code>FUNCTION_SCHEM</code>,
-     * <code>FUNCTION_NAME</code> and 
+     * <code>FUNCTION_NAME</code> and
      * <code>SPECIFIC_ NAME</code>.
      *
      * <P>Each function description has the the following columns:
      *  <OL>
-     *	<LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
-     *	<LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
-     *	<LI><B>FUNCTION_NAME</B> String => function name.  This is the name
+     *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
+     *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
+     *  <LI><B>FUNCTION_NAME</B> String => function name.  This is the name
      * used to invoke the function
-     *	<LI><B>REMARKS</B> String => explanatory comment on the function
+     *  <LI><B>REMARKS</B> String => explanatory comment on the function
      * <LI><B>FUNCTION_TYPE</B> short => kind of function:
      *      <UL>
      *      <LI>functionResultUnknown - Cannot determine if a return value
@@ -5874,9 +5865,9 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *      <LI> functionNoTable- Does not return a table
      *      <LI> functionReturnsTable - Returns a table
      *      </UL>
-     *	<LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies 
+     *  <LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies
      *  this function within its schema.  This is a user specified, or DBMS
-     * generated, name that may be different then the <code>FUNCTION_NAME</code> 
+     * generated, name that may be different then the <code>FUNCTION_NAME</code>
      * for example with overload functions
      *  </OL>
      * <p>
@@ -5942,21 +5933,21 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <P>Only descriptions matching the schema,  function and
      * parameter name criteria are returned. They are ordered by
      * <code>FUNCTION_CAT</code>, <code>FUNCTION_SCHEM</code>,
-     * <code>FUNCTION_NAME</code> and 
+     * <code>FUNCTION_NAME</code> and
      * <code>SPECIFIC_ NAME</code>. Within this, the return value,
      * if any, is first. Next are the parameter descriptions in call
      * order. The column descriptions follow in column number order.
      *
-     * <P>Each row in the <code>ResultSet</code> 
+     * <P>Each row in the <code>ResultSet</code>
      * is a parameter description, column description or
      * return type description with the following fields:
      *  <OL>
      *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
-     *	<LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
-     *	<LI><B>FUNCTION_NAME</B> String => function name.  This is the name
+     *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
+     *  <LI><B>FUNCTION_NAME</B> String => function name.  This is the name
      * used to invoke the function
-     *	<LI><B>COLUMN_NAME</B> String => column/parameter name
-     *	<LI><B>COLUMN_TYPE</B> Short => kind of column/parameter:
+     *  <LI><B>COLUMN_NAME</B> String => column/parameter name
+     *  <LI><B>COLUMN_TYPE</B> Short => kind of column/parameter:
      *      <UL>
      *      <LI> functionColumnUnknown - nobody knows
      *      <LI> functionColumnIn - IN parameter
@@ -5967,14 +5958,14 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      *  is a column in the <code>ResultSet</code>
      *      </UL>
      *  <LI><B>DATA_TYPE</B> int => SQL type from java.sql.Types
-     *	<LI><B>TYPE_NAME</B> String => SQL type name, for a UDT type the
+     *  <LI><B>TYPE_NAME</B> String => SQL type name, for a UDT type the
      *  type name is fully qualified
-     *	<LI><B>PRECISION</B> int => precision
-     *	<LI><B>LENGTH</B> int => length in bytes of data
-     *	<LI><B>SCALE</B> short => scale -  null is returned for data types where
+     *  <LI><B>PRECISION</B> int => precision
+     *  <LI><B>LENGTH</B> int => length in bytes of data
+     *  <LI><B>SCALE</B> short => scale -  null is returned for data types where
      * SCALE is not applicable.
-     *	<LI><B>RADIX</B> short => radix
-     *	<LI><B>NULLABLE</B> short => can it contain NULL.
+     *  <LI><B>RADIX</B> short => radix
+     *  <LI><B>NULLABLE</B> short => can it contain NULL.
      *      <UL>
      *      <LI> functionNoNulls - does not allow NULL values
      *      <LI> functionNullable - allows NULL values
@@ -6250,7 +6241,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
                                         : c.connProperties.isPropertyTrue(
                                             HsqlDatabaseProperties
                                                 .url_default_schema);
-        supportsSchemasIn = c.isInternal ||!useSchemaDefault;
+        supportsSchemasIn = c.isInternal || !useSchemaDefault;
     }
 
     /**
@@ -6328,8 +6319,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
         boolean      isStr = (val instanceof String);
 
         if (isStr && ((String) val).length() == 0) {
-            return sb.append(" AND ").append(id).append(
-                " IS NULL").toString();
+            return sb.append(" AND ").append(id).append(" IS NULL").toString();
         }
 
         String v = isStr ? Type.SQL_VARCHAR.convertToSQLString(val)

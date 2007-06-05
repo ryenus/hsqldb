@@ -43,6 +43,8 @@ import org.hsqldb.persist.Logger;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.lib.MultiValueHashMap;
+import org.hsqldb.types.DomainType;
+import org.hsqldb.types.DistinctType;
 
 /**
  * Manages all SCHEMA related database objects
@@ -58,7 +60,7 @@ public class SchemaManager {
     public static final String   INFORMATION_SCHEMA = "INFORMATION_SCHEMA";
     public static final String   PUBLIC_SCHEMA      = "PUBLIC";
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
-//    public static final HsqlName DEFINITION_SCHEMA_HSQLNAME;
+    public static final HsqlName DEFINITION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
     Database                     database;
     HsqlName                     defaultSchemaHsqlName;
@@ -68,12 +70,12 @@ public class SchemaManager {
     static {
         INFORMATION_SCHEMA_HSQLNAME =
             HsqlNameManager.newHsqlSystemObjectName(INFORMATION_SCHEMA);
-//        DEFINITION_SCHEMA_HSQLNAME =
-//            HsqlNameManager.newHsqlSystemObjectName(DEFINITION_SCHEMA);   
+        DEFINITION_SCHEMA_HSQLNAME =
+            HsqlNameManager.newHsqlSystemObjectName(DEFINITION_SCHEMA);
         SYSTEM_SCHEMA_HSQLNAME =
             HsqlNameManager.newHsqlSystemObjectName(SYSTEM_SCHEMA);
         INFORMATION_SCHEMA_HSQLNAME.owner = GranteeManager.getSystemRole();
-//        DEFINITION_SCHEMA_HSQLNAME.owner = GranteeManager.getSystemRole();
+        DEFINITION_SCHEMA_HSQLNAME.owner  = GranteeManager.getSystemRole();
         SYSTEM_SCHEMA_HSQLNAME.owner      = GranteeManager.getSystemRole();
     }
 
@@ -209,8 +211,8 @@ public class SchemaManager {
         // them to the map).
         if (INFORMATION_SCHEMA_HSQLNAME.name.equals(name)) {
             return INFORMATION_SCHEMA_HSQLNAME.owner;
-//        } else if (DEFINITION_SCHEMA_HSQLNAME.name.equals(name)) {
-//            return DEFINITION_SCHEMA_HSQLNAME.owner;
+        } else if (DEFINITION_SCHEMA_HSQLNAME.name.equals(name)) {
+            return DEFINITION_SCHEMA_HSQLNAME.owner;
         }
 
         Schema schema = (Schema) schemaMap.get(name);
@@ -225,9 +227,9 @@ public class SchemaManager {
 
     boolean schemaExists(String name) {
 
-        return (INFORMATION_SCHEMA.equals(name) 
-//         || DEFINITION_SCHEMA.equals(name)
-         || schemaMap.containsKey(name));
+        return INFORMATION_SCHEMA.equals(name)
+               || DEFINITION_SCHEMA.equals(name)
+               || schemaMap.containsKey(name);
     }
 
     /**
@@ -243,8 +245,8 @@ public class SchemaManager {
 
         if (INFORMATION_SCHEMA.equals(name)) {
             return INFORMATION_SCHEMA_HSQLNAME;
-//        } else if (DEFINITION_SCHEMA.equals(name)) {
-//            return DEFINITION_SCHEMA_HSQLNAME;  
+        } else if (DEFINITION_SCHEMA.equals(name)) {
+            return DEFINITION_SCHEMA_HSQLNAME;
         }
 
         Schema schema = ((Schema) schemaMap.get(name));
@@ -267,10 +269,11 @@ public class SchemaManager {
      * Iterator includes INFORMATION_SCHEMA and DEFINITION_SCHEMA
      */
     public Iterator fullSchemaNamesIterator() {
+
         Object[] sysSchem = new Object[] {
-        	INFORMATION_SCHEMA
-//           ,DEFINITION_SCHEMA
-           };
+            INFORMATION_SCHEMA, DEFINITION_SCHEMA
+        };
+
         return new WrapperIterator(new WrapperIterator(sysSchem),
                                    schemaMap.keySet().iterator());
     }
@@ -280,20 +283,16 @@ public class SchemaManager {
      */
     public boolean isSystemSchema(HsqlName schema) {
 
-        return (INFORMATION_SCHEMA_HSQLNAME.equals(schema) 
-//             || DEFINITION_SCHEMA_HSQLNAME.equals(schema) 
-             || SYSTEM_SCHEMA_HSQLNAME.equals(schema))
-               ? true
-               : false;
+        return INFORMATION_SCHEMA_HSQLNAME == schema
+               || DEFINITION_SCHEMA_HSQLNAME == schema
+               || SYSTEM_SCHEMA_HSQLNAME == schema;
     }
 
     public boolean isSystemSchema(String schema) {
 
-        return (INFORMATION_SCHEMA.equals(schema) 
-//             || DEFINITION_SCHEMA.equals(schema) 
-             || SYSTEM_SCHEMA.equals(schema))
-               ? true
-               : false;
+        return INFORMATION_SCHEMA.equals(schema)
+               || DEFINITION_SCHEMA.equals(schema)
+               || SYSTEM_SCHEMA.equals(schema);
     }
 
     /**
@@ -410,32 +409,42 @@ public class SchemaManager {
         return temp.tableList;
     }
 
-    /**
-     * @throws HsqlException if exists.
-     */
-    void checkUserViewNotExists(Session session, String viewName,
-                                String schema) throws HsqlException {
+    void checkUserObjectNotExists(Session session,
+                                  HsqlName name) throws HsqlException {
 
-        boolean exists =
-            database.schemaManager.findUserTable(session, viewName, schema)
-            != null;
+        Schema          schema = (Schema) schemaMap.get(name.schema.name);
+        SchemaObjectSet set    = null;
 
-        if (exists) {
-            throw Trace.error(Trace.VIEW_ALREADY_EXISTS, viewName);
+        switch (name.type) {
+
+            case SchemaObject.SEQUENCE :
+                set = schema.sequenceLookup;
+                break;
+
+            case SchemaObject.TABLE :
+            case SchemaObject.VIEW :
+                set = schema.tableLookup;
+                break;
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                set = schema.typeLookup;
+                break;
+
+            case SchemaObject.INDEX :
+                set = schema.indexLookup;
+                break;
+
+            case SchemaObject.CONSTRAINT :
+                set = schema.constraintLookup;
+                break;
+
+            case SchemaObject.TRIGGER :
+                set = schema.triggerLookup;
+                break;
         }
-    }
 
-    /**
-     * @throws HsqlException if exists
-     */
-    void checkUserTableNotExists(Session session, String tableName,
-                                 String schema) throws HsqlException {
-
-        boolean exists = findUserTable(session, tableName, schema) != null;
-
-        if (exists) {
-            throw Trace.error(Trace.TABLE_ALREADY_EXISTS, tableName);
-        }
+        set.checkAdd(name);
     }
 
     /**
@@ -651,9 +660,9 @@ public class SchemaManager {
         removeReferencedObject(table.getName());
         schema.tableList.remove(dropIndex);
         database.getGranteeManager().removeDbObject(table.getName());
-        schema.triggerNameList.removeParent(table.tableName);
-        schema.indexNameList.removeParent(table.tableName);
-        schema.constraintNameList.removeParent(table.tableName);
+        schema.triggerLookup.removeParent(table.tableName);
+        schema.indexLookup.removeParent(table.tableName);
+        schema.constraintLookup.removeParent(table.tableName);
         table.dropTriggers();
         table.drop();
     }
@@ -663,6 +672,26 @@ public class SchemaManager {
         Schema schema = (Schema) schemaMap.get(table.getSchemaName().name);
 
         schema.tableList.set(index, table.getName().name, table);
+    }
+
+    /**
+     *  Returns index of a table or view in the HashMappedList that
+     *  contains the table objects for this Database.
+     *
+     * @param  table the Table object
+     * @return  the index of the specified table or view, or -1 if not found
+     */
+    int getTableIndex(Table table) {
+
+        Schema schema = (Schema) schemaMap.get(table.getSchemaName().name);
+
+        if (schema == null) {
+            return -1;
+        }
+
+        HsqlName name = table.getName();
+
+        return schema.tableList.getIndex(name.name);
     }
 
     /**
@@ -713,33 +742,6 @@ public class SchemaManager {
         return sequences;
     }
 
-    /**
-     *  Returns the specified user-defined sequence visible within the
-     *  context of the specified schema.
-     *  Returns null if the sequence does not exist in the context.
-     */
-    public NumberSequence findUserSequence(String name, String schemaName) {
-
-        NumberSequence sequence = null;
-        Schema         schema   = (Schema) schemaMap.get(schemaName);
-
-        if (schema == null) {
-            return null;
-        }
-
-        Iterator it = schema.sequencesIterator();
-
-        while (it.hasNext()) {
-            sequence = (NumberSequence) it.next();
-
-            if (sequence.name.name.equals(name)) {
-                return sequence;
-            }
-        }
-
-        return null;
-    }
-
     NumberSequence getSequence(String name,
                                String schemaName) throws HsqlException {
 
@@ -757,9 +759,7 @@ public class SchemaManager {
      *  context of the specified Session.
      *  Returns null if the sequence does not exist in the context.
      */
-    public NumberSequence findSequence(String name,
-                                       String schemaName)
-                                       throws HsqlException {
+    public NumberSequence findSequence(String name, String schemaName) {
 
         Schema schema = (Schema) schemaMap.get(schemaName);
 
@@ -771,6 +771,73 @@ public class SchemaManager {
             (NumberSequence) schema.sequenceList.get(name);
 
         return sequence;
+    }
+
+    DomainType getDomain(String name, String schemaName) throws HsqlException {
+
+        DomainType domain = findDomain(name, schemaName);
+
+        if (domain == null) {
+            throw Trace.error(Trace.SEQUENCE_NOT_FOUND, name);
+        }
+
+        return domain;
+    }
+
+    /**
+     *  Returns the specified Sequence visible within the
+     *  context of the specified Session.
+     *  Returns null if the sequence does not exist in the context.
+     */
+    public DomainType findDomain(String name, String schemaName) {
+
+        Schema schema = (Schema) schemaMap.get(schemaName);
+
+        if (schema == null) {
+            return null;
+        }
+
+        SchemaObject domain = schema.typeLookup.getObject(name);
+
+        if (domain instanceof DomainType) {
+            return (DomainType) domain;
+        } else {
+            return null;
+        }
+    }
+
+    DistinctType getDistinctType(String name,
+                                 String schemaName) throws HsqlException {
+
+        DistinctType distinctType = findDistinctType(name, schemaName);
+
+        if (distinctType == null) {
+            throw Trace.error(Trace.SEQUENCE_NOT_FOUND, name);
+        }
+
+        return distinctType;
+    }
+
+    /**
+     *  Returns the specified Sequence visible within the
+     *  context of the specified Session.
+     *  Returns null if the sequence does not exist in the context.
+     */
+    public DistinctType findDistinctType(String name, String schemaName) {
+
+        Schema schema = (Schema) schemaMap.get(schemaName);
+
+        if (schema == null) {
+            return null;
+        }
+
+        SchemaObject distinctType = schema.typeLookup.getObject(name);
+
+        if (distinctType instanceof DistinctType) {
+            return (DistinctType) distinctType;
+        } else {
+            return null;
+        }
     }
 
     void logSequences(Session session, Logger logger) throws HsqlException {
@@ -798,41 +865,13 @@ public class SchemaManager {
                                 String schemaName) {
 
         Schema   schema    = (Schema) schemaMap.get(schemaName);
-        HsqlName tablename = schema.indexNameList.getParent(name);
+        HsqlName indexName = schema.indexLookup.getName(name);
 
-        if (tablename == null) {
+        if (indexName == null) {
             return null;
         }
 
-        return findUserTable(session, tablename.name, schemaName);
-    }
-
-    /**
-     *  Returns index of a table or view in the HsqlArrayList that
-     *  contains the table objects for this Database.
-     *
-     * @param  table the Table object
-     * @return  the index of the specified table or view, or -1 if not found
-     */
-    int getTableIndex(Table table) {
-
-        Schema schema = (Schema) schemaMap.get(table.getSchemaName().name);
-
-        if (schema == null) {
-            return -1;
-        }
-
-        HsqlName name = table.getName();
-
-        for (int i = 0, tsize = schema.tableList.size(); i < tsize; i++) {
-            Table t = (Table) schema.tableList.get(i);
-
-            if (t.getName() == name) {
-                return i;
-            }
-        }
-
-        return -1;
+        return findUserTable(session, indexName.parent.name, schemaName);
     }
 
     /**
@@ -864,90 +903,12 @@ public class SchemaManager {
         tw.dropIndex(indexname);
     }
 
-    void checkIndexExists(String name, String schemaName,
-                          boolean yes) throws HsqlException {
-
-        Schema  schema = (Schema) schemaMap.get(schemaName);
-        boolean exists = schema.indexNameList.containsName(name);
-
-        if (exists != yes) {
-            int code = yes ? Trace.INDEX_NOT_FOUND
-                           : Trace.INDEX_ALREADY_EXISTS;
-
-            throw Trace.error(code, name);
-        }
-    }
-
-    void removeIndexNames(HsqlName tableName) {
+    void removeDependentNames(HsqlName tableName) {
 
         Schema schema = (Schema) schemaMap.get(tableName.schema.name);
 
-        schema.indexNameList.removeParent(tableName);
-    }
-
-    // TRIGGER management
-
-    /**
-     * Checks if a Trigger with given name either exists or does not, based on
-     * the value of the argument, yes.
-     */
-    void checkTriggerExists(String name, String schemaName,
-                            boolean yes) throws HsqlException {
-
-        Schema  schema = (Schema) schemaMap.get(schemaName);
-        boolean exists = schema.triggerNameList.containsName(name);
-
-        if (exists != yes) {
-            int code = yes ? Trace.TRIGGER_NOT_FOUND
-                           : Trace.TRIGGER_ALREADY_EXISTS;
-
-            throw Trace.error(code, name);
-        }
-    }
-
-    TriggerDef getTrigger(String name,
-                          String schemaName) throws HsqlException {
-
-        Schema  schema = (Schema) schemaMap.get(schemaName);
-        boolean found  = schema.triggerNameList.containsName(name);
-
-        if (!found) {
-            throw Trace.error(Trace.TRIGGER_NOT_FOUND, name);
-        }
-
-        HsqlName tableName = (HsqlName) schema.triggerNameList.getParent(name);
-        Table    t         = findUserTable(null, tableName.name, schemaName);
-
-        return t.getTrigger(name);
-    }
-
-    // CONSTRAINT managemnt
-    void checkConstraintExists(String name, String schemaName,
-                               boolean yes) throws HsqlException {
-
-        Schema  schema = (Schema) schemaMap.get(schemaName);
-        boolean exists = schema.constraintNameList.containsName(name);
-
-        if (exists != yes) {
-            int code = yes ? Trace.CONSTRAINT_NOT_FOUND
-                           : Trace.CONSTRAINT_ALREADY_EXISTS;
-
-            throw Trace.error(code, name);
-        }
-    }
-
-    void removeConstraintName(HsqlName name) throws HsqlException {
-
-        Schema schema = (Schema) schemaMap.get(name.schema.name);
-
-        schema.constraintNameList.removeName(name.name);
-    }
-
-    void removeConstraintNames(HsqlName tableName) {
-
-        Schema schema = (Schema) schemaMap.get(tableName.schema.name);
-
-        schema.constraintNameList.removeParent(tableName);
+        schema.indexLookup.removeParent(tableName);
+        schema.constraintLookup.removeParent(tableName);
     }
 
     /**
@@ -1107,15 +1068,62 @@ public class SchemaManager {
     }
 
     //
+    HsqlName getDatabaseObjectName(HsqlName schemaName, String name,
+                                   int type) throws HsqlException {
+
+        Schema          schema = (Schema) schemaMap.get(schemaName.name);
+        SchemaObjectSet set    = null;
+
+        switch (type) {
+
+            case SchemaObject.SEQUENCE :
+                set = schema.sequenceLookup;
+                break;
+
+            case SchemaObject.TABLE :
+            case SchemaObject.VIEW :
+                set = schema.tableLookup;
+                break;
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                set = schema.typeLookup;
+                break;
+
+            case SchemaObject.INDEX :
+                set = schema.indexLookup;
+                break;
+
+            case SchemaObject.CONSTRAINT :
+                set = schema.constraintLookup;
+                break;
+
+            case SchemaObject.TRIGGER :
+                set = schema.triggerLookup;
+                break;
+        }
+
+        set.checkExists(name);
+
+        return set.getName(name);
+    }
+
     SchemaObject getSchemaObject(HsqlName name) throws HsqlException {
 
         Schema schema = (Schema) schemaMap.get(name.schema.name);
 
         switch (name.type) {
 
+            case SchemaObject.SEQUENCE :
+                return (SchemaObject) schema.sequenceList.get(name.name);
+
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
                 return (SchemaObject) schema.tableList.get(name.name);
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                return schema.typeLookup.getObject(name.name);
 
             case SchemaObject.TRIGGER : {
                 HsqlName tableName = name.parent;
@@ -1129,9 +1137,6 @@ public class SchemaManager {
 
                 return table.getConstraint(name.name);
             }
-            case SchemaObject.SEQUENCE :
-                return (SchemaObject) schema.sequenceList.get(name.name);
-
             case SchemaObject.ASSERTION :
                 return null;
 
@@ -1189,45 +1194,40 @@ public class SchemaManager {
 
     void addDatabaseObject(SchemaObject object) throws HsqlException {
 
-        HsqlName name   = object.getName();
-        Schema   schema = (Schema) schemaMap.get(name.schema.name);
+        HsqlName        name   = object.getName();
+        Schema          schema = (Schema) schemaMap.get(name.schema.name);
+        SchemaObjectSet set    = null;
 
         switch (name.type) {
 
             case SchemaObject.SEQUENCE :
-                if (schema.sequenceList.containsKey(name.name)) {
-                    throw Trace.error(Trace.SEQUENCE_ALREADY_EXISTS);
-                }
-
-                schema.sequenceList.put(name.name, object);
+                set = schema.sequenceLookup;
                 break;
 
             case SchemaObject.TABLE :
-            case SchemaObject.VIEW : {
-                if (schema.tableList.containsKey(name.name)) {
-                    throw Trace.error(Trace.TABLE_ALREADY_EXISTS);
-                }
-
-                schema.tableList.put(name.name, object);
-
+            case SchemaObject.VIEW :
+                set = schema.tableLookup;
                 break;
-            }
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                set = schema.typeLookup;
+                break;
+
             case SchemaObject.INDEX :
-                schema.indexNameList.addName(name.name, name.parent,
-                                             Trace.INDEX_ALREADY_EXISTS);
+                set = schema.indexLookup;
                 break;
 
             case SchemaObject.CONSTRAINT :
-                schema.constraintNameList.addName(
-                    name.name, name.parent, Trace.CONSTRAINT_ALREADY_EXISTS);
+                set = schema.constraintLookup;
                 break;
 
             case SchemaObject.TRIGGER :
-                schema.triggerNameList.addName(name.name, name.parent,
-                                               Trace.TRIGGER_ALREADY_EXISTS);
+                set = schema.triggerLookup;
                 break;
         }
 
+        set.add(object);
         addReferences(object);
     }
 
@@ -1240,11 +1240,11 @@ public class SchemaManager {
 
             case SchemaObject.SEQUENCE :
             case SchemaObject.TABLE :
-            case SchemaObject.VIEW : {
+            case SchemaObject.VIEW :
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
                 getCascadingReferences(name, objectSet);
-
                 break;
-            }
         }
 
         if (objectSet.isEmpty()) {
@@ -1258,12 +1258,7 @@ public class SchemaManager {
         }
 
         objectSet.add(name);
-
-        for (int i = 0; i < objectSet.size(); i++) {
-            name = (HsqlName) objectSet.get(i);
-
-            removeDatabaseObject(name);
-        }
+        removeDatabaseObjects(objectSet);
     }
 
     void removeDatabaseObjects(OrderedHashSet set) throws HsqlException {
@@ -1277,49 +1272,76 @@ public class SchemaManager {
 
     void removeDatabaseObject(HsqlName name) throws HsqlException {
 
-        Schema       schema = (Schema) schemaMap.get(name.schema.name);
-        SchemaObject object;
-        Table        table;
+        Schema          schema = (Schema) schemaMap.get(name.schema.name);
+        SchemaObject    object;
+        Table           table;
+        SchemaObjectSet set = null;
 
         switch (name.type) {
 
             case SchemaObject.SEQUENCE :
-                object = (SchemaObject) schema.sequenceList.remove(name.name);
+                set    = schema.sequenceLookup;
+                object = set.getObject(name.name);
 
+                set.remove(name.name);
                 database.getGranteeManager().removeDbObject(object.getName());
                 break;
 
             case SchemaObject.TABLE :
             case SchemaObject.VIEW : {
-                object = (SchemaObject) schema.tableList.remove(name.name);
+                set    = schema.tableLookup;
+                object = set.getObject(name.name);
 
+                set.remove(name.name);
                 removeReferencingObject(object);
                 database.getGranteeManager().removeDbObject(object.getName());
 
                 break;
             }
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                set    = schema.typeLookup;
+                object = set.getObject(name.name);
+
+                set.remove(name.name);
+                removeReferencingObject(object);
+                database.getGranteeManager().removeDbObject(object.getName());
+                break;
+
             case SchemaObject.INDEX :
-                schema.indexNameList.removeName(name.name);
+                set = schema.indexLookup;
+
+                set.remove(name.name);
                 break;
 
             case SchemaObject.CONSTRAINT :
-                schema.constraintNameList.removeName(name.name);
+                set = schema.constraintLookup;
+
+                set.remove(name.name);
 
                 table  = (Table) schema.tableList.get(name.parent.name);
                 object = table.getConstraint(name.name);
 
                 table.removeConstraint(name.name);
-                removeReferencingObject(object);
+
+                if (object != null) {
+                    removeReferencingObject(object);
+                }
                 break;
 
             case SchemaObject.TRIGGER :
-                schema.triggerNameList.removeName(name.name);
+                set = schema.triggerLookup;
+
+                set.remove(name.name);
 
                 table  = (Table) schema.tableList.get(name.parent.name);
                 object = table.getTrigger(name.name);
 
-                table.dropTrigger(name.name);
-                removeReferencingObject(object);
+                table.removeTrigger(name.name);
+
+                if (object != null) {
+                    removeReferencingObject(object);
+                }
                 break;
         }
 
@@ -1335,59 +1357,53 @@ public class SchemaManager {
 
         checkObjectIsReferenced(name);
 
-        Schema schema = (Schema) schemaMap.get(name.schema.name);
+        Schema          schema = (Schema) schemaMap.get(name.schema.name);
+        SchemaObjectSet set    = null;
 
         switch (name.type) {
 
-            case SchemaObject.SEQUENCE : {
-                if (schema.sequenceList.containsKey(newName.name)) {
-                    throw Trace.error(Trace.TABLE_ALREADY_EXISTS);
-                }
-
-                int i = schema.sequenceList.getIndex(name.name);
-                NumberSequence sequence =
-                    (NumberSequence) schema.sequenceList.get(i);
-
-                sequence.getName().rename(newName);
-                schema.sequenceList.setKey(i, newName.name);
-
+            case SchemaObject.SEQUENCE :
+                set = schema.sequenceLookup;
                 break;
-            }
+
             case SchemaObject.TABLE :
-            case SchemaObject.VIEW : {
-                if (schema.tableList.containsKey(newName.name)) {
-                    throw Trace.error(Trace.TABLE_ALREADY_EXISTS);
-                }
-
-                int   i     = schema.tableList.getIndex(name.name);
-                Table table = (Table) schema.tableList.get(i);
-
-                table.getName().rename(newName);
-                schema.tableList.setKey(i, newName.name);
-
+            case SchemaObject.VIEW :
+                set = schema.tableLookup;
                 break;
-            }
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                set = schema.typeLookup;
+                break;
+
             case SchemaObject.INDEX :
-                schema.indexNameList.rename(name, newName,
-                                            Trace.INDEX_ALREADY_EXISTS);
+                set = schema.indexLookup;
+                break;
 
-                Table table = (Table) schema.tableList.get(name.parent.name);
-                Index index = table.getIndex(name.name);
+            case SchemaObject.CONSTRAINT :
+                set = schema.constraintLookup;
+                break;
 
-                index.getName().rename(newName);
+            case SchemaObject.TRIGGER :
+                set = schema.triggerLookup;
                 break;
         }
+
+        set.rename(name, newName);
     }
 
     public class Schema {
 
-        HsqlName            name;
-        DatabaseObjectNames triggerNameList;
-        DatabaseObjectNames constraintNameList;
-        DatabaseObjectNames indexNameList;
-        HashMappedList      tableList;
-        HashMappedList      sequenceList;
-        Grantee             owner;
+        HsqlName        name;
+        SchemaObjectSet triggerLookup;
+        SchemaObjectSet constraintLookup;
+        SchemaObjectSet indexLookup;
+        SchemaObjectSet tableLookup;
+        SchemaObjectSet sequenceLookup;
+        SchemaObjectSet typeLookup;
+        HashMappedList  tableList;
+        HashMappedList  sequenceList;
+        Grantee         owner;
 
         Schema() {
 
@@ -1403,14 +1419,17 @@ public class SchemaManager {
 
         Schema(HsqlName name, Grantee owner) {
 
-            this.name          = name;
-            triggerNameList    = new DatabaseObjectNames();
-            indexNameList      = new DatabaseObjectNames();
-            constraintNameList = new DatabaseObjectNames();
-            tableList          = new HashMappedList();
-            sequenceList       = new HashMappedList();
-            this.owner         = owner;
-            name.owner         = owner;
+            this.name        = name;
+            triggerLookup    = new SchemaObjectSet(SchemaObject.TRIGGER);
+            indexLookup      = new SchemaObjectSet(SchemaObject.INDEX);
+            constraintLookup = new SchemaObjectSet(SchemaObject.CONSTRAINT);
+            tableLookup      = new SchemaObjectSet(SchemaObject.TABLE);
+            sequenceLookup   = new SchemaObjectSet(SchemaObject.SEQUENCE);
+            typeLookup       = new SchemaObjectSet(SchemaObject.TYPE);
+            tableList        = (HashMappedList) tableLookup.map;
+            sequenceList     = (HashMappedList) sequenceLookup.map;
+            this.owner       = owner;
+            name.owner       = owner;
         }
 
         boolean isEmpty() {
@@ -1436,11 +1455,12 @@ public class SchemaManager {
             tableList.clear();
             sequenceList.clear();
 
-            triggerNameList    = null;
-            indexNameList      = null;
-            constraintNameList = null;
-            sequenceList       = null;
-            tableList          = null;
+            triggerLookup    = null;
+            indexLookup      = null;
+            constraintLookup = null;
+            sequenceLookup   = null;
+            tableLookup      = null;
+            typeLookup       = null;
         }
 
         public HsqlName getName() {

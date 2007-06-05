@@ -178,14 +178,12 @@ public class DDLParser extends Parser {
 
             case Token.DOMAIN :
                 read();
-
-                // processCreateDomain();
+                processCreateDomain();
                 break;
 
             case Token.TYPE :
                 read();
-
-                // processCreateType();
+                processCreateType();
                 break;
 
             // index
@@ -240,6 +238,12 @@ public class DDLParser extends Parser {
             case Token.USER : {
                 read();
                 processAlterUser();
+
+                break;
+            }
+            case Token.DOMAIN : {
+                read();
+                processAlterDomain();
 
                 break;
             }
@@ -301,6 +305,16 @@ public class DDLParser extends Parser {
 
                 break;
             }
+            case Token.DOMAIN :
+                read();
+                processDropDomain();
+                break;
+
+            case Token.TYPE :
+                read();
+                processDropType();
+                break;
+
             case Token.VIEW : {
                 isview = true;
             }    //fall thru
@@ -510,8 +524,7 @@ public class DDLParser extends Parser {
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
         checkSchemaUpdateAuthorization(name.schema);
-        database.schemaManager.checkUserTableNotExists(session, name.name,
-                name.schema.name);
+        database.schemaManager.checkUserObjectNotExists(session, name);
 
         Table table = TableUtil.newTable(database, type, name);
 
@@ -597,8 +610,7 @@ public class DDLParser extends Parser {
             database.schemaManager.addDatabaseObject(table);
         } catch (HsqlException e) {
             database.schemaManager.removeExportedKeys(table);
-            database.schemaManager.removeIndexNames(table.tableName);
-            database.schemaManager.removeConstraintNames(table.tableName);
+            database.schemaManager.removeDependentNames(table.getName());
 
             throw e;
         }
@@ -884,8 +896,7 @@ public class DDLParser extends Parser {
         String sql = getLastPart(position);
 
         checkSchemaUpdateAuthorization(name.schema);
-        database.schemaManager.checkUserViewNotExists(session, name.name,
-                name.schema.name);
+        database.schemaManager.checkUserObjectNotExists(session, name);
 
         View view = new View(session, database, name, sql, colList);
 
@@ -918,6 +929,7 @@ public class DDLParser extends Parser {
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
         checkSchemaUpdateAuthorization(name.schema);
+        database.schemaManager.checkUserObjectNotExists(session, name);
         readIfThis(Token.AS);
 
         Type       predefinedType = readTypeDefinition();
@@ -926,6 +938,8 @@ public class DDLParser extends Parser {
         if (readIfThis(Token.DEFAULT)) {
             defaultClause = readDefaultClause(predefinedType);
         }
+
+        domain = new DomainType(name, predefinedType, null, defaultClause);
 
         HsqlArrayList tempConstraints = new HsqlArrayList();
 
@@ -949,13 +963,12 @@ public class DDLParser extends Parser {
             }
         }
 
-        // create the domain
-        Constraint[] constraints = new Constraint[tempConstraints.size()];
+        for (int i = 0; i < tempConstraints.size(); i++) {
+            Constraint c = (Constraint) tempConstraints.get(i);
 
-        tempConstraints.toArray(constraints);
-
-        domain = new DomainType(name, predefinedType, constraints,
-                                defaultClause);
+            domain.addConstraint(c);
+            database.schemaManager.addDatabaseObject(c);
+        }
 
         database.schemaManager.addDatabaseObject(domain);
     }
@@ -966,9 +979,10 @@ public class DDLParser extends Parser {
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
         checkSchemaUpdateAuthorization(name.schema);
+        database.schemaManager.checkUserObjectNotExists(session, name);
         readThis(Token.AS);
 
-        Type  predefinedType = readTypeDefinition();
+        Type         predefinedType = readTypeDefinition();
         DistinctType userType       = new DistinctType(name, predefinedType);
 
         // create the type
@@ -1094,8 +1108,7 @@ public class DDLParser extends Parser {
 
         name.parent = table.getName();
 
-        database.schemaManager.checkTriggerExists(name.name, name.schema.name,
-                false);
+        database.schemaManager.checkUserObjectNotExists(session, name);
 
         if (columns != null) {
             int[] cols = table.getColumnIndexes(columns);
@@ -1352,6 +1365,7 @@ public class DDLParser extends Parser {
             }
 
             database.schemaManager.addDatabaseObject(td);
+            session.setScripting(true);
 
             return;
         }
@@ -1853,6 +1867,11 @@ public class DDLParser extends Parser {
 
                 break;
             }
+            default : {
+                if (constName != null) {
+                    throw Trace.error(Trace.UNEXPECTED_TOKEN);
+                }
+            }
         }
     }
 
@@ -2099,8 +2118,8 @@ public class DDLParser extends Parser {
 
         indexHsqlName.schema = table.getSchemaName();
 
-        database.schemaManager.checkIndexExists(indexHsqlName.name,
-                indexHsqlName.schema.name, false);
+        database.schemaManager.checkUserObjectNotExists(session,
+                indexHsqlName);
 
         int[] indexColumns = readColumnList(table, true);
 
@@ -2230,6 +2249,11 @@ public class DDLParser extends Parser {
         HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE);
 
         name.setSchemaIfNull(table.getSchemaName());
+
+        if (table.getSchemaName() != name.schema) {
+            throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
+        }
+
         database.schemaManager.renameDatabaseObject(table.getName(), name);
     }
 
@@ -2516,11 +2540,6 @@ public class DDLParser extends Parser {
                 throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
             }
 
-            if (database.schemaManager.findSequence(
-                    name.name, name.schema.name) != null) {
-                throw Trace.error(Trace.SEQUENCE_ALREADY_EXISTS, name.name);
-            }
-
             session.commit();
             database.schemaManager.renameDatabaseObject(sequence.getName(),
                     name);
@@ -2735,29 +2754,23 @@ public class DDLParser extends Parser {
         checkIsName();
 
         HsqlName schema = session.getSchemaHsqlName(namePrefix);
-        Table table = database.schemaManager.findUserTableForIndex(session,
-            tokenString, schema.name);
-
-        if (table == null) {
-            throw Trace.error(Trace.INDEX_NOT_FOUND, tokenString);
-        }
-
-        Index index = table.getIndex(tokenString);
+        HsqlName name = database.schemaManager.getDatabaseObjectName(schema,
+            tokenString, SchemaObject.INDEX);
 
         read();
         readThis(Token.RENAME);
         readThis(Token.TO);
 
-        HsqlName name = readNewSchemaObjectName(SchemaObject.INDEX);
+        HsqlName newName = readNewSchemaObjectName(SchemaObject.INDEX);
 
-        name.setSchemaIfNull(schema);
+        newName.setSchemaIfNull(schema);
 
-        if (table.getSchemaName() != name.schema) {
+        if (name.schema != newName.schema) {
             throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
         }
 
         checkSchemaUpdateAuthorization(schema);
-        database.schemaManager.renameDatabaseObject(index.getName(), name);
+        database.schemaManager.renameDatabaseObject(name, newName);
     }
 
     /**
@@ -2803,6 +2816,88 @@ public class DDLParser extends Parser {
             read();
         } else {
             throw unexpectedToken();
+        }
+    }
+
+    void processAlterDomain() throws HsqlException {
+
+        HsqlName schema = session.getSchemaHsqlName(namePrefix);
+
+        checkSchemaUpdateAuthorization(schema);
+
+        DomainType domain = database.schemaManager.getDomain(tokenString,
+            schema.name);
+
+        read();
+
+        switch (tokenType) {
+
+            case Token.RENAME : {
+                read();
+                readThis(Token.TO);
+
+                HsqlName newName =
+                    readNewSchemaObjectName(SchemaObject.DOMAIN);
+
+                newName.setSchemaIfNull(schema);
+
+                if (domain.getSchemaName() != newName.schema) {
+                    throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
+                }
+
+                checkSchemaUpdateAuthorization(schema);
+                database.schemaManager.renameDatabaseObject(domain.getName(),
+                        newName);
+
+                return;
+            }
+            case Token.DROP : {
+                read();
+
+                if (tokenType == Token.DEFAULT) {
+                    read();
+                    domain.removeDefaultClause();
+
+                    return;
+                } else if (tokenType == Token.CONSTRAINT) {
+                    read();
+                    checkIsName();
+
+                    HsqlName name =
+                        database.schemaManager.getDatabaseObjectName(
+                            domain.getSchemaName(), tokenString,
+                            SchemaObject.CONSTRAINT);
+
+                    read();
+
+//                    domain.removeConstraint(tokenString);
+                    database.schemaManager.removeDatabaseObject(name);
+
+                    return;
+                }
+            }
+            case Token.SET : {
+                readThis(Token.DEFAULT);
+
+                Expression e = readDefaultClause(domain);
+
+                domain.setDefaultClause(e);
+
+                return;
+            }
+            case Token.ADD : {
+                read();
+
+                if (tokenType == Token.CONSTRAINT
+                        || tokenType == Token.CHECK) {
+                    HsqlArrayList tempConstraints = new HsqlArrayList();
+
+                    readConstraint(domain, tempConstraints);
+                    domain.addConstraint((Constraint) tempConstraints.get(0));
+                }
+
+                return;
+            }
         }
     }
 
@@ -2978,9 +3073,6 @@ public class DDLParser extends Parser {
         }
 
         checkSchemaUpdateAuthorization(schemaHsqlName);
-
-//        database.schemaManager.checkCascadeDropViews(sequence, cascade);
-//        database.schemaManager.dropSequence(sequence);
         database.schemaManager.removeDatabaseObject(sequence.getName(),
                 cascade);
     }
@@ -2995,10 +3087,11 @@ public class DDLParser extends Parser {
         read();
         checkSchemaUpdateAuthorization(schema);
 
-        TriggerDef trigger = database.schemaManager.getTrigger(name,
-            schema.name);
+        HsqlName triggerName =
+            database.schemaManager.getDatabaseObjectName(schema, name,
+                SchemaObject.TRIGGER);
 
-        database.schemaManager.removeDatabaseObject(trigger.getName());
+        database.schemaManager.removeDatabaseObject(triggerName);
     }
 
     void processDropIndex() throws HsqlException {
@@ -3061,6 +3154,54 @@ public class DDLParser extends Parser {
 
         checkDatabaseUpdateAuthorization();
         database.schemaManager.dropSchema(name.name, cascade);
+    }
+
+    void processDropDomain() throws HsqlException {
+
+        boolean cascade = false;
+
+        checkIsNameOrKeyword();
+
+        HsqlName schema = session.getSchemaHsqlName(namePrefix);
+        HsqlName name = database.schemaManager.getDatabaseObjectName(schema,
+            tokenString, SchemaObject.DOMAIN);
+
+        read();
+
+        if (tokenType == Token.CASCADE) {
+            cascade = true;
+
+            read();
+        } else if (tokenType == Token.RESTRICT) {
+            read();
+        }
+
+        checkSchemaUpdateAuthorization(schema);
+        database.schemaManager.removeDatabaseObject(name, cascade);
+    }
+
+    void processDropType() throws HsqlException {
+
+        boolean cascade = false;
+
+        checkIsNameOrKeyword();
+
+        HsqlName schema = session.getSchemaHsqlName(namePrefix);
+        HsqlName name = database.schemaManager.getDatabaseObjectName(schema,
+            tokenString, SchemaObject.TYPE);
+
+        read();
+
+        if (tokenType == Token.CASCADE) {
+            cascade = true;
+
+            read();
+        } else if (tokenType == Token.RESTRICT) {
+            read();
+        }
+
+        checkSchemaUpdateAuthorization(schema);
+        database.schemaManager.removeDatabaseObject(name, cascade);
     }
 
     boolean isGrantToken() {

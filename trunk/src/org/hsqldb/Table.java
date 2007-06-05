@@ -2480,7 +2480,7 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      * Drops a trigger.
      */
-    void dropTrigger(String name) {
+    void removeTrigger(String name) {
 
         // look in each trigger list of each type of trigger
         int numTrigs = TriggerDef.NUM_TRIGS;
@@ -2831,7 +2831,9 @@ public class Table extends BaseTable implements SchemaObject {
 
         int index = getConstraintIndex(name);
 
-        removeConstraint(index);
+        if (index != -1) {
+            removeConstraint(index);
+        }
     }
 
     void removeConstraint(int index) {

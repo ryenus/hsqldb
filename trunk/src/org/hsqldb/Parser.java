@@ -1987,25 +1987,6 @@ class Parser extends BaseParser {
         }
     }
 
-    Expression readFunction() throws HsqlException {
-
-        SQLFunction function = LegacyFunction.newLegacyFunction(tokenString);
-
-        try {
-            if (function != null) {
-                return readSQLFunction(function);
-            }
-        } catch (HsqlException e) {}
-
-        function = SQLFunction.newSQLFunction(tokenString);
-
-        if (function != null) {
-            return readSQLFunction(function);
-        }
-
-        return null;
-    }
-
     Expression readValueExpression() throws HsqlException {
 
         Expression e = new Expression(value, valueType);
@@ -2717,11 +2698,7 @@ class Parser extends BaseParser {
             if (function != null) {
                 int pos = getPosition();
 
-                try {
-                    return readSQLFunction(function);
-                } catch (HsqlException e) {
-                    rewind(pos);
-                }
+                return readSQLFunction(function);
             }
         }
 
@@ -2859,13 +2836,22 @@ class Parser extends BaseParser {
                 case Token.QUESTION : {
                     Expression e = null;
 
-                    try {
-                        e = readOr();
-                    } catch (HsqlException ex) {
-                        if (!isOption) {
-                            throw ex;
-                        }
+                    e = readOr();
+
+                    exprList.add(e);
+
+                    continue;
+                }
+                case Token.X_POS_INTEGER : {
+                    Expression e       = null;
+                    int        integer = readInteger();
+
+                    if (integer < 0) {
+                        throw Trace.error(Trace.UNEXPECTED_TOKEN);
                     }
+
+                    e = new Expression(ValuePool.getInt(integer),
+                                       Type.SQL_INTEGER);
 
                     exprList.add(e);
 
@@ -2888,7 +2874,8 @@ class Parser extends BaseParser {
 
                         for (int j = i; j < i + elementCount; j++) {
                             if (parseList[j] == Token.QUESTION
-                                    || parseList[j] == Token.X_KEYSET) {
+                                    || parseList[j] == Token.X_KEYSET
+                                    || parseList[j] == Token.X_POS_INTEGER) {
                                 exprList.add(null);
                             }
                         }

@@ -40,6 +40,7 @@ import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeIntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.DateTimeType;
 
 /**
  * Implementation of SQL standard functions.<p>
@@ -99,15 +100,22 @@ public class SQLFunction extends Expression {
     private final static int   FUNC_VALUE                            = 60;
 
     //
-    static final Expression[] emptyArgList    = new Expression[0];
-    static final short[]      noParamList     = new short[]{};
-    static final short[]      emptyParamList  = new short[] {
+    static final Expression[] emptyArgList             = new Expression[0];
+    static final short[]      noParamList              = new short[]{};
+    static final short[]      emptyParamList           = new short[] {
         Token.OPENBRACKET, Token.CLOSEBRACKET
     };
-    static final short[]      singleParamList = new short[] {
+    static final short[]      optionalNoParamList      = new short[] {
+        Token.X_OPTION, 2, Token.OPENBRACKET, Token.CLOSEBRACKET
+    };
+    static final short[]      singleParamList          = new short[] {
         Token.OPENBRACKET, Token.QUESTION, Token.CLOSEBRACKET
     };
-    static final short[]      doubleParamList = new short[] {
+    static final short[]      optionalIntegerParamList = new short[] {
+        Token.X_OPTION, 3, Token.OPENBRACKET, Token.X_POS_INTEGER,
+        Token.CLOSEBRACKET
+    };
+    static final short[] doubleParamList = new short[] {
         Token.OPENBRACKET, Token.QUESTION, Token.COMMA, Token.QUESTION,
         Token.CLOSEBRACKET
     };
@@ -443,9 +451,7 @@ public class SQLFunction extends Expression {
 
             case FUNC_USER :
                 name            = Token.T_USER;
-                parseList       = new short[] {
-                    Token.X_OPTION, 2, Token.OPENBRACKET, Token.CLOSEBRACKET
-                };
+                parseList       = optionalNoParamList;
                 isValueFunction = true;
                 break;
 
@@ -461,13 +467,13 @@ public class SQLFunction extends Expression {
 
             case FUNC_CURRENT_TIME :
                 name            = Token.T_CURRENT_TIME;
-                parseList       = noParamList;
+                parseList       = optionalIntegerParamList;
                 isValueFunction = true;
                 break;
 
             case FUNC_CURRENT_TIMESTAMP :
                 name            = Token.T_CURRENT_TIMESTAMP;
-                parseList       = noParamList;
+                parseList       = optionalIntegerParamList;
                 isValueFunction = true;
                 break;
 
@@ -1384,14 +1390,30 @@ public class SQLFunction extends Expression {
                 dataType = CharacterType.SQL_DATE;
                 break;
 
-            case FUNC_CURRENT_TIME :
-                dataType = CharacterType.SQL_TIME;
-                break;
+            case FUNC_CURRENT_TIME : {
+                int precision = DateTimeType.defaultTimeFractionPrecision;
 
-            case FUNC_CURRENT_TIMESTAMP :
-                dataType = CharacterType.SQL_TIMESTAMP;
-                break;
+                if (argList[0] != null) {
+                    precision = ((Integer) argList[0].valueData).intValue();
+                }
 
+                dataType = DateTimeType.getDateTimeType(Types.SQL_TIME,
+                        precision);
+
+                break;
+            }
+            case FUNC_CURRENT_TIMESTAMP : {
+                int precision = DateTimeType.defaultTimestampFractionPrecision;
+
+                if (argList[0] != null) {
+                    precision = ((Integer) argList[0].valueData).intValue();
+                }
+
+                dataType = DateTimeType.getDateTimeType(Types.SQL_TIMESTAMP,
+                        precision);
+
+                break;
+            }
             case FUNC_LOCALTIME :
                 dataType = CharacterType.SQL_TIME;
                 break;
