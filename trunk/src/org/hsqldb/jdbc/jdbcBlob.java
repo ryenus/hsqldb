@@ -101,9 +101,10 @@ import java.sql.SQLException;
  * in that it could be used to truncate the local value. <p>
  *
  * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
- * Blob implementations, meaning that an HSQLDB Blob object <em>may</em>
- * contain a logical pointer to remote SQL BLOB data or it may directly contain
- * a local representation of the data.  In particular, when the product is built
+ * SQL BLOB data implementations, meaning that an HSQLDB Blob object <em>may</em>
+ * contain a logical pointer to remote SQL BLOB data (see {@link jdbcBlobClient 
+ * jdbcBlobClient}) or it may directly contain a local representation of the
+ * data (as implemented in this class).  In particular, when the product is built
  * under JDK 1.6+ and the Blob instance is constructed as a result of calling
  * jdbcConnection.createBlob(), then the resulting Blob instance is initially
  * disconnected (is not bound to the tranaction scope of the vending Connection
@@ -112,7 +113,8 @@ import java.sql.SQLException;
  * invocation of free(); otherwise, an HSQLDB Blob's implementation is
  * determined at runtime by the driver, it is typically not valid beyond the 
  * duration of the transaction in which is was created, and there no
- * standard way to query whether it represents a local or remote value.<p>
+ * standard way to query whether it represents a local or remote
+ * value.<p>
  *
  * </div>
  * <!-- end Release-specific documentation -->
@@ -400,7 +402,7 @@ public class jdbcBlob implements Blob {
      * supply the Blob instance to an updateXXX method of an updateable
      * ResultSet. <p>
      *
-     * <b>Note:</b><p>
+     * <b>Implementation Notes:</b><p>
      *
      * No attempt is made to ensure precise thread safety. Instead, volatile
      * member field and local variable snapshot isolation semantics are
@@ -475,7 +477,7 @@ public class jdbcBlob implements Blob {
      * supply the Blob instance to an updateXXX method of an updateable
      * ResultSet. <p>
      *
-     * <b>Notes:</b><p>
+     * <b>Implementation Notes:</b><p>
      *
      * If the value specified for <code>pos</code>
      * is greater than the length of the <code>BLOB</code> value, then
@@ -601,7 +603,7 @@ public class jdbcBlob implements Blob {
      * supply the Blob instance to an updateXXX method of an updateable
      * ResultSet. <p>
      *
-     * <b>Notes:</b><p>
+     * <b>Implementation Notes:</b><p>
      *
      * The data written to the stream does not appear in this
      * Blob until the stream is closed <p>
