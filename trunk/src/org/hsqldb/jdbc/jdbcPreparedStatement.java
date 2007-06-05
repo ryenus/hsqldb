@@ -256,8 +256,8 @@ import org.hsqldb.types.ClobDataID;
  *
  * @author boucherb@users
  * @author fredt@user
- * @version 1.8.x
- * @revised JDK 1.6, HSQLDB 1.8.x
+ * @version 1.9.0
+ * @revised JDK 1.6, HSQLDB 1.9.0
  * @see jdbcConnection#prepareStatement
  * @see jdbcResultSet
  */
@@ -523,9 +523,9 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB represents all XXXCHAR values internally as java.lang.String
-     * objects; there is no appreciable difference between CHAR, VARCHAR and
-     * LONGVARCHAR.
+     * Including 1.9.0, HSQLDB represents all XXXCHAR values internally as
+     * java.lang.String objects; there is no appreciable difference between
+     * CHAR, VARCHAR and LONGVARCHAR.
      * </div>
      * <!-- start release-specific documentation -->
      *
@@ -550,9 +550,9 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB represents all XXXBINARY values the same way internally; there
-     * is no appreciable difference between BINARY, VARBINARY and
-     * LONGVARBINARY.
+     * Including 1.9.0, HSQLDB represents all XXXBINARY values the same way
+     * internally; there is no appreciable difference between BINARY, 
+     * VARBINARY and LONGVARBINARY.
      * </div>
      * <!-- start release-specific documentation -->
      *
@@ -1037,11 +1037,13 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, prepared statements do not generate
+     * Up to 1.8.0.x, prepared statements do not generate
      * multiple fetchable results. <p>
      *
      * In future versions, it will be possible that statements
      * generate multiple fetchable results under certain conditions.
+     *
+     * TODO: resolve for 1.9.0
      * </div>
      *
      * @return <code>true</code> if the first result is a <code>ResultSet</code>
@@ -1197,7 +1199,7 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support the SQL REF type. Calling this method
+     * Including 1.9.0 HSQLDB does not support the SQL REF type. Calling this method
      * throws an exception.
      *
      * </div>
@@ -1453,7 +1455,7 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Incuding 1.8.0.x, HSQLDB does not support the SQL ARRAY type. Calling this method
+     * Incuding 1.9.0, HSQLDB does not support the SQL ARRAY type. Calling this method
      * throws an exception.
      *
      * </div>
@@ -2005,7 +2007,7 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support the DATALINK SQL type for which this
+     * Including 1.9.0, HSQLDB does not support the DATALINK SQL type for which this
      * method is intended. Calling this method throws an exception.
      *
      * </div>
@@ -2121,6 +2123,8 @@ implements PreparedStatement {
      *
      * Calling this method always throws an <code>SQLException</code>,
      * stating that the function is not supported.
+     *
+     * TODO: resolve for 1.9.0.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2223,7 +2227,7 @@ implements PreparedStatement {
      * method close has been called on it, or if it is automatically closed.
      * @return true if this <code>Statement</code> object is closed; false if it is still open
      * @throws SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public synchronized boolean isClosed() {
         return isClosed;
@@ -2240,7 +2244,7 @@ implements PreparedStatement {
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 
 //#ifdef JDBC4
@@ -2265,7 +2269,7 @@ implements PreparedStatement {
      *  error could occur ; if a database access error occurs; or
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void setNString(int parameterIndex,
                            String value) throws SQLException {
@@ -2285,7 +2289,7 @@ implements PreparedStatement {
      *  error could occur ; if a database access error occurs; or
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void setNCharacterStream(int parameterIndex, Reader value,
                                     long length) throws SQLException {
@@ -2313,7 +2317,7 @@ implements PreparedStatement {
      *  error could occur ; if a database access error occurs; or
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 
 //#ifdef JDBC4
@@ -2341,7 +2345,7 @@ implements PreparedStatement {
      * marker in the SQL statement, or if the length specified is less than zero.
      *
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void setClob(int parameterIndex, Reader reader,
                         long length) throws SQLException {
@@ -2381,7 +2385,7 @@ implements PreparedStatement {
      * the specfied length.
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void setBlob(int parameterIndex, InputStream inputStream,
                         long length) throws SQLException {
@@ -2419,7 +2423,7 @@ implements PreparedStatement {
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void setNClob(int parameterIndex, Reader reader,
                          long length) throws SQLException {
@@ -2441,7 +2445,7 @@ implements PreparedStatement {
      * the <code>SQLXML</code> object
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 
 //#ifdef JDBC4
@@ -2471,7 +2475,7 @@ implements PreparedStatement {
      * @param length the number of bytes in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
     public void setAsciiStream(int parameterIndex, java.io.InputStream x,
                                long length) throws SQLException {
@@ -2495,7 +2499,7 @@ implements PreparedStatement {
      * @param length the number of bytes in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
     public void setBinaryStream(int parameterIndex, java.io.InputStream x,
                                 long length) throws SQLException {
@@ -2521,7 +2525,7 @@ implements PreparedStatement {
      * @param length the number of characters in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
     public void setCharacterStream(int parameterIndex, java.io.Reader reader,
                                    long length) throws SQLException {
@@ -2905,7 +2909,7 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, calls to this method are ignored; HSQLDB waits an
+     * Including 1.9.0, calls to this method are ignored; HSQLDB waits an
      * unlimited amount of time for statement execution
      * requests to return.
      * </div>
@@ -2939,7 +2943,7 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does <i>not</i> support aborting an SQL
+     * Including 1.9.0, HSQLDB does <i>not</i> support aborting an SQL
      * statement; calls to this method are ignored.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2974,7 +2978,7 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB never produces Statement warnings;
+     * Including 1.9.0, HSQLDB never produces Statement warnings;
      * this method always returns null.
      * </div>
      * <!-- end release-specific documentation -->
@@ -3041,8 +3045,7 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support named cursors,
-     * updateable results or table locking via <code>SELECT FOR UPDATE</code>;
+     * Including 1.9.0, HSQLDB does not support named cursors;
      * calls to this method are ignored.
      * </div>
      * <!-- end release-specific documentation -->
@@ -3164,10 +3167,11 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB supports only <code>FETCH_FORWARD</code>. <p>
+     * Up to 1.8.0.x, HSQLDB supports only <code>FETCH_FORWARD</code>;
+     * Setting any other value would throw an <code>SQLException</code>
+     * stating that the operation is not supported. <p>
      *
-     * Setting any other value will throw an <code>SQLException</code>
-     * stating that the operation is not supported.
+     * Starting with 1.9.0, HSQLDB accepts any valid value.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3208,7 +3212,12 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB always returns FETCH_FORWARD.
+     * Up to 1.8.0.x, HSQLDB always returned FETCH_FORWARD.
+     *
+     * Starting with 1.9.0, HSQLDB returns FETCH_FORWARD by default, or
+     * whatever value has been explicitly  assigned by invoking
+     * <code>setFetchDirection</code>.
+     * .
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3309,8 +3318,10 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB supports only
+     * Up to 1.8.0.x, HSQLDB supports only
      * <code>CONCUR_READ_ONLY</code> concurrency.
+     *
+     * TODO: resolve for 1.9.0.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3419,7 +3430,7 @@ implements PreparedStatement {
     /**
      * Requests that a <code>Statement</code> be pooled or not pooled.  The value
      * specified is a hint to the statement pool implementation indicating
-     * whether the applicaiton wants the statement to be pooled.  It is up to
+     * whether the application wants the statement to be pooled.  It is up to
      * the statement pool manager as to whether the hint is used.
      * <p>
      * The poolable value of a statement is applicable to both internal
@@ -3436,7 +3447,7 @@ implements PreparedStatement {
      * @throws SQLException if this method is called on a closed
      * <code>Statement</code>
      * <p>
-     * @since JDK 1.6 Build 81, HSQLDB 1.8.x
+     * @since JDK 1.6 Build 81, HSQLDB 1.9.0
      */
     public void setPoolable(boolean poolable) throws SQLException {
 
@@ -3454,7 +3465,7 @@ implements PreparedStatement {
      * @throws SQLException if this method is called on a closed
      * <code>Statement</code>
      * <p>
-     * @since JDK 1.6 Build 81, HSQLDB 1.8.x
+     * @since JDK 1.6 Build 81, HSQLDB 1.9.0
      * <p>
      * @see #setPoolable(boolean) setPoolable(boolean)
      */
@@ -3482,7 +3493,7 @@ implements PreparedStatement {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
 
@@ -3509,7 +3520,7 @@ implements PreparedStatement {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
