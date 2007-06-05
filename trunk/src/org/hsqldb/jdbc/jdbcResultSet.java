@@ -292,9 +292,9 @@ import org.hsqldb.result.Result;
  * @see java.sql.ResultSetMetaData
  *
  * @author fredt@users, boucherb@users
- * @version 1.8.x
+ * @version 1.9.0
  * @since Hypersonic SQL
- * @revised JDK 1.6, HSQLDB 1.8.x
+ * @revised JDK 1.6, HSQLDB 1.9.0
  */
 public class jdbcResultSet implements ResultSet {
 
@@ -1284,7 +1284,7 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not produce <code>SQLWarning</code>
+     * Including 1.9.0, HSQLDB does not produce <code>SQLWarning</code>
      * objects on any ResultSet object warning chain; this
      * method always returns <code>null</code>.
      * </div>
@@ -1311,7 +1311,7 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not produce <code>SQLWarning</code>
+     * Including 1.9.0, HSQLDB does not produce <code>SQLWarning</code>
      * objects on any ResultSet object warning chain; calls to this method
      * are ignored.
      * </div>
@@ -1592,8 +1592,8 @@ public class jdbcResultSet implements ResultSet {
      *
      * Upon careful investigation of the JDBC specification and the behaviour
      * of existing JDBC drivers, there is actually nothing preventing the
-     * findColumn method from doing an exhaustive search, as long as it follows
-     * the following rules (which describe the new implementation): <p>
+     * findColumn method from doing an exhaustive search, as long as it conforms
+     * to the following rules (which describe the new implementation): <p>
      *
      * <ol>
      * <li> the entire search is case insensitive
@@ -1967,9 +1967,12 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, this method is not terribly expensive;
+     * Up to 1.8.0.x, this method is not terribly expensive;
      * the entire result is fetched internally before this object
-     * is returned to a caller.
+     * is returned to a caller. <p>
+     *
+     * Starting with 1.9.0, the generic documentation of the expense 
+     * to call this method may apply.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2253,10 +2256,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB builds and returns result sets as a whole;
+     * Up to 1.8.0.x, HSQLDB builds and returns result sets as a whole;
      * this method does nothing. However, as mandated by the JDBC standard,
      * an SQLException is thrown if the result set type is TYPE_FORWARD_ONLY
-     * and a fetch direction other than FETCH_FORWARD is requested.
+     * and a fetch direction other than FETCH_FORWARD is requested. <p>
+     *
+     * Starting with 1.9.0, HSQLDB may not return a result set as a whole.
+     * However, as described in the generic documentation, the supplied
+     * direction value is treated only as a hint.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2284,14 +2291,10 @@ public class jdbcResultSet implements ResultSet {
             }
             case FETCH_REVERSE : {
                 checkNotForwardOnly();
-
-                //throw Util.fetchDirectionNotSupportedException(direction);
                 break;
             }
             case FETCH_UNKNOWN : {
                 checkNotForwardOnly();
-
-                //throw Util.fetchDirectionNotSupportedException(direction);
                 break;
             }
             default : {
@@ -2310,9 +2313,12 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB builds and returns result sets as a whole;
+     * Up to 1.8.0.x, HSQLDB builds and returns result sets as a whole;
      * this method always returns <code>FETCH_FORWARD</code>, but the value
-     * has no real meaning.
+     * has no real meaning. <p>
+     *
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; the acutal fetch direction for this result set is returned.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2346,8 +2352,12 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB builds and returns result sets
-     * as a whole; this method does nothing.
+     * Up to 1.8.0.x, HSQLDB builds and returns result sets as a whole;
+     * this method does nothing. <p>
+     *
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole.  However, as described in the generic documentation, the supplied
+     * fetch size value is treated only as a hint.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2380,8 +2390,11 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB builds and returns result sets
-     * as a whole; the value returned (always 1) has no significance.
+     * Up to 1.8.0.x, HSQLDB builds and returns result sets as a whole; the
+     * value returned (always 1) has no significance. <p>
+     *
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole. The acutal fetch size for this result set is returned.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2412,8 +2425,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support and thus
-     * never returns <code>ResultSet.TYPE_SCROLL_SENSITIVE</code>.
+     * Up to 1.8.0.x, HSQLDB does not support and thus never returns
+     * <code>ResultSet.TYPE_SCROLL_SENSITIVE</code>. <p>
+     *
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; the range of supported result set types is determined by support
+     * for the corresponding engine-side cursor type rather than by support
+     * implemented in the JDBC driver.  Regardless, this method accurately 
+     * reports the actual runtime scrollability of this result set instance.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2443,8 +2462,15 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB supports only <code>CONCUR_READ_ONLY</code>;
-     * this method always returns <code>CONCUR_READ_ONLY</code>.
+     * Up to 1.8.0.x, HSQLDB supports only <code>CONCUR_READ_ONLY</code>;
+     * this method always returns <code>CONCUR_READ_ONLY</code>. <p>
+     *
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; the range of supported result set concurrencies is determined by
+     * support for the corresponding engine-side cursor concurrency rather than
+     * by support implemented in the JDBC driver.  Regardless, this method
+     * accurately reports the actual runtime concurrency of this result set
+     * instance.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2477,9 +2503,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method
+     * always returns false. <p>
      *
-     * This method always returns false.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.  Regardless, this method accurately reports the actual
+     * value.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2512,9 +2543,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method
+     * always returns false. <p>
      *
-     * This method always returns false.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.  Regardless, this method accurately reports the actual
+     * value.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2552,9 +2588,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this 
+     * method always returns false. <p>
      *
-     * This method always returns false.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.  Regardless, this method accurately reports the actual
+     * value.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if the current row is detected to
@@ -2589,10 +2630,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method
+     * always throws an SQLException stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2622,10 +2667,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2657,10 +2706,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2691,10 +2744,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2725,10 +2782,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2759,10 +2820,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2793,10 +2858,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2827,10 +2896,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2862,10 +2935,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2897,10 +2974,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable results. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2931,10 +3012,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2965,10 +3050,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2999,10 +3088,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3034,10 +3127,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3071,10 +3168,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      *
      * @param columnIndex the first column is 1, the second is 2, ...
@@ -3108,10 +3209,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3146,10 +3251,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3189,10 +3298,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3230,10 +3343,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3264,10 +3381,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3297,10 +3418,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3332,10 +3457,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3366,10 +3495,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3400,10 +3533,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3434,10 +3571,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3468,10 +3609,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3502,10 +3647,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3538,10 +3687,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3573,10 +3726,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3609,10 +3766,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3644,10 +3805,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3678,10 +3843,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3713,10 +3882,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3750,10 +3923,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3788,10 +3965,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3826,10 +4007,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3871,10 +4056,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3912,10 +4101,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3945,10 +4138,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3978,10 +4175,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4009,10 +4210,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4056,10 +4261,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4093,10 +4302,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4137,10 +4350,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4167,9 +4384,13 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * is ignored when the result set is open and throws when it is closed. <p>
      *
-     * This method is ignored.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      * @exception SQLException if a database access error occurs, this
@@ -4224,7 +4445,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support this feature.  <p>
+     * Up to 1.8.0.x, HSQLDB does not support this feature.  <p>
+     *
+     * TODO: resolve for 1.9.0
      *
      * This method always throws an <code>SQLException</code>,
      * stating that the operation is not supported.
@@ -4258,10 +4481,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support this feature.  <p>
-     *
-     * This method always throws an <code>SQLException</code>
-     * stating that the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support this feature; this method always
+     * throws an <code>SQLException</code> stating that the operation is not
+     * supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4290,7 +4512,11 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.8.0.x, this feature is supported.
+     * Starting with 1.8.0.x, this feature is supported. <p>
+     *
+     * Starting with 1.9.0, Blob features and implementation details
+     * have changed, Please see {@link jdbcBlob jdbcBlob} and {@link
+     * jdbcBlobClient jdbcBlobClient}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4350,6 +4576,10 @@ public class jdbcResultSet implements ResultSet {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with 1.8.0.x, this feature is supported. <p>
+     *
+     * Starting with 1.9.0, Clob features and implementation details
+     * have changed, Please see {@link jdbcBlob jdbcBlob} and {@link
+     * jdbcBlobClient jdbcBlobClient}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4405,10 +4635,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support this feature.  <p>
-     *
-     * This method always throws an <code>SQLException</code>
-     * stating that the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support array types; this method always
+     * throws an <code>SQLException</code> stating that the operation is not
+     * supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4441,10 +4670,8 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support this feature.  <p>
-     *
-     * This method always throws an <code>SQLException</code>
-     * stating that the operation is not supported.
+     * TODO: resolve for 1.9.0, re: distinct and domain typed values.
+     *       -structured types?
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4461,11 +4688,6 @@ public class jdbcResultSet implements ResultSet {
      *  jdbcResultSet)
      */
     public Object getObject(String columnLabel, Map map) throws SQLException {
-
-        // MODIFIED:
-        // made this consistent with all other
-        // column name oriented methods
-        // boucherb@users 2002013
         return getObject(findColumn(columnLabel), map);
     }
 
@@ -4480,10 +4702,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support this feature.  <p>
-     *
-     * This method always throws an <code>SQLException</code>,
-     * stating that the operartion is not supported.
+     * Including 1.9.0, HSQLDB does not support reference types; this method
+     * always throws an <code>SQLException</code> stating that the operation
+     * is not supported.
      * </div>
      * <!-- end release-specific documentation -->
      * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
@@ -4574,10 +4795,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support this feature.  <p>
-     *
-     * This method always throws an <code>SQLException</code>
-     * stating that the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support array types; this method always
+     * throws an <code>SQLException</code> stating that the operation is not
+     * supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4804,10 +5024,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support this feature. <p>
-     *
-     * This method always throws an <code>SQLException</code>
-     * stating that the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support the datalink type; this method
+     * always throws an <code>SQLException</code> stating that the operation is
+     * not supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4839,10 +5058,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support this feature.  <p>
-     *
-     * This method always throws an <code>SQLException</code>
-     * stating that the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support the datalink type; this method
+     * always throws an <code>SQLException</code> stating that the operation is
+     * not supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4878,10 +5096,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
-     *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support reference types; this method
+     * always throws an <code>SQLException</code> stating that the operation is
+     * not supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4915,10 +5132,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
-     *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support reference types; this method
+     * always throws an <code>SQLException</code> stating that the operation is
+     * not supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4952,10 +5168,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4989,10 +5209,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5026,10 +5250,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5063,10 +5291,14 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0, HSQLDB does not support updateable result sets. <p>
+     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method 
+     * always throws an SQLException, stating that the operation is not
+     * supported. <p>
      *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
+     * whole; support for result set update is determined by support for
+     * engine-side cursor update rather than by support implemented directly in
+     * the JDBC driver.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5102,10 +5334,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
-     *
-     * This method always throws an SQLException stating that
-     * the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support array types; this method always
+     * throws an <code>SQLException</code> stating that the operation is not
+     * supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5139,10 +5370,9 @@ public class jdbcResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable result sets. <p>
-     *
-     * This method always throws an SQLException, stating that
-     * the operation is not supported.
+     * Including 1.9.0, HSQLDB does not support array types; this method always
+     * throws an <code>SQLException</code> stating that the operation is not
+     * supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5178,7 +5408,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public RowId getRowId(int columnIndex) throws SQLException {
@@ -5201,7 +5431,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public RowId getRowId(String columnLabel) throws SQLException {
@@ -5224,7 +5454,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateRowId(int columnIndex, RowId x) throws SQLException {
@@ -5249,7 +5479,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateRowId(String columnLabel, RowId x) throws SQLException {
@@ -5263,7 +5493,7 @@ public class jdbcResultSet implements ResultSet {
      * @return  either <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
      * @throws SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public int getHoldability() throws SQLException {
         return jdbcResultSet.HOLD_CURSORS_OVER_COMMIT;
@@ -5275,7 +5505,7 @@ public class jdbcResultSet implements ResultSet {
      *
      * @return true if this <code>ResultSet</code> object is closed; false if it is still open
      * @throws SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public boolean isClosed() throws SQLException {
         return navigator == null;
@@ -5299,7 +5529,7 @@ public class jdbcResultSet implements ResultSet {
      * or if a database access error occurs
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 
 //#ifdef JDBC4
@@ -5329,7 +5559,7 @@ public class jdbcResultSet implements ResultSet {
      *  or if a database access error occurs
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateNString(String columnLabel, String nString) throws SQLException {
@@ -5354,7 +5584,7 @@ public class jdbcResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException {
@@ -5381,7 +5611,7 @@ public class jdbcResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateNClob(String columnLabel, NClob nClob) throws SQLException {
@@ -5404,7 +5634,7 @@ public class jdbcResultSet implements ResultSet {
      * or if a database access error occurs
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public NClob getNClob(int columnIndex) throws SQLException {
@@ -5432,7 +5662,7 @@ public class jdbcResultSet implements ResultSet {
      * or if a database access error occurs
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     *   @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public NClob getNClob(String columnLabel) throws SQLException {
@@ -5452,7 +5682,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public SQLXML getSQLXML(int columnIndex) throws SQLException {
@@ -5595,7 +5825,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public SQLXML getSQLXML(String columnLabel) throws SQLException {
@@ -5626,7 +5856,7 @@ public class jdbcResultSet implements ResultSet {
      *  stream does not contain valid XML.
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateSQLXML(int columnIndex,
@@ -5660,7 +5890,7 @@ public class jdbcResultSet implements ResultSet {
      *  stream does not contain valid XML.
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateSQLXML(String columnLabel,
@@ -5685,7 +5915,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public String getNString(int columnIndex) throws SQLException {
@@ -5711,7 +5941,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public String getNString(String columnLabel) throws SQLException {
@@ -5736,7 +5966,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public java.io.Reader getNCharacterStream(int columnIndex) throws SQLException {
@@ -5763,7 +5993,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public java.io.Reader getNCharacterStream(String columnLabel) throws SQLException {
@@ -5793,7 +6023,7 @@ public class jdbcResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      * @revised JDK 1.6 b87 - length parameter changed from int to long
      */
 //#ifdef JDBC4
@@ -5830,7 +6060,7 @@ public class jdbcResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      *  @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      * @revised JDK 1.6 b87 - length parameter changed from int to long
      */
 //#ifdef JDBC4
@@ -5860,7 +6090,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateAsciiStream(int columnIndex,
@@ -5887,7 +6117,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateBinaryStream(int columnIndex,
@@ -5914,7 +6144,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateCharacterStream(int columnIndex,
@@ -5943,7 +6173,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateAsciiStream(String columnLabel,
@@ -5972,7 +6202,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateBinaryStream(String columnLabel,
@@ -6002,7 +6232,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateCharacterStream(String columnLabel,
@@ -6040,7 +6270,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateBlob(int columnIndex, InputStream inputStream, long length) throws SQLException {
@@ -6078,7 +6308,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateBlob(String columnLabel, InputStream inputStream, long length) throws SQLException {
@@ -6113,7 +6343,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateClob(int columnIndex,  Reader reader, long length) throws SQLException {
@@ -6150,7 +6380,7 @@ public class jdbcResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6 b86, HSQLDB 1.8.x
+     * @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateClob(String columnLabel,  Reader reader, long length) throws SQLException {
@@ -6187,7 +6417,7 @@ public class jdbcResultSet implements ResultSet {
      *  the result set concurrency is <code>CONCUR_READ_ONLY</code>
      *  @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      *  this method
-     *  @since JDK 1.6 b86, HSQLDB 1.8.x
+     *  @since JDK 1.6 b86, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateNClob(int columnIndex,  Reader reader, long length) throws SQLException {
@@ -6226,7 +6456,7 @@ public class jdbcResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void updateNClob(String columnLabel,  Reader reader, long length) throws SQLException {
@@ -6641,7 +6871,7 @@ public class jdbcResultSet implements ResultSet {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
@@ -6667,7 +6897,7 @@ public class jdbcResultSet implements ResultSet {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
