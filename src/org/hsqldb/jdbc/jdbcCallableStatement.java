@@ -312,7 +312,7 @@ import org.hsqldb.result.ResultConstants;
  * @author boucherb@users
  * @version 1.9.0
  * @since 1.7.2
- * @revised JDK 1.6, HSQLDB 1.8.x
+ * @revised JDK 1.6, HSQLDB 1.9.0
  * @see jdbcConnection#prepareCall
  * @see jdbcResultSet
  */
