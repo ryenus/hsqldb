@@ -162,11 +162,6 @@ import org.hsqldb.lib.StringUtil;
  *      con.setTypeMap(map);
  * </pre>
  *
- * @see java.sql.DriverManager#getConnection
- * @see java.sql.Statement
- * @see java.sql.ResultSet
- * @see java.sql.DatabaseMetaData
- *
  * <!-- end generic documentation -->
  *
  * <!-- start release-specific documentation -->
@@ -412,7 +407,7 @@ import org.hsqldb.lib.StringUtil;
  * This restriction is enforced to avoid the unfortunate situation in which,
  * because <b>res:</b> database instances do not create a <b>&lt;path&gt;</b>.lck
  * file (they are strictly files-read-only) and because the <b>&lt;path&gt;</b>
- * components of <b>res:</b> and <b>file:</b> database <tt>URI<tt>s are not
+ * components of <b>res:</b> and <b>file:</b> database <tt>URI</tt>s are not
  * checked for file system equivalence, it is possible for the same database
  * files to be accessed concurrently by both <b>file:</b> and <b>res:</b>
  * database instances. That is, without this restriction, it is possible that
@@ -523,6 +518,10 @@ import org.hsqldb.lib.StringUtil;
  * @see jdbcCallableStatement
  * @see jdbcResultSet
  * @see jdbcDatabaseMetaData
+ * @see java.sql.DriverManager#getConnection
+ * @see java.sql.Statement
+ * @see java.sql.ResultSet
+ * @see java.sql.DatabaseMetaData
  */
 public class jdbcConnection implements Connection {
 
