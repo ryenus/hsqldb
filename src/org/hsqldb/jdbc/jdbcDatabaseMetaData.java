@@ -1578,10 +1578,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.8.0.x, HSQLDB does not support the ANSI92 entry
-     * level SQL grammar; this method always returns <code>false</code>. <p>
-     *
-     * TODO: resolve for 1.9.0.
+     * From 1.9.0, HSQLDB supports the ANSI92 entry
+     * level SQL grammar; this method always returns <code>true</code>. <p>
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1598,11 +1596,9 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.8.0.x, HSQLDB does not support the ANSI92
-     * intermediate SQL grammar; this method always returns <code>false</code>.
+     * From 1.9.0, HSQLDB supports the ANSI92
+     * intermediate SQL grammar; this method always returns <code>true</code>.
      * <p>
-     *
-     * TODO: resolve for 1.9.0.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1619,17 +1615,16 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.8.0.x, HSQLDB does not support the ANSI92 full SQL
-     * grammar; this method always returns <code>false</code>. <p>
-     *
-     * TODO: resolve for 1.9.0.
+     * From 1.9.0, HSQLDB supports the ANSI92
+     * full SQL grammar; this method always returns <code>true</code>.
+     * <p>
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsANSI92FullSQL() throws SQLException {
-        return false;
+        return true;
     }
 
 // fredt@users 20030413 - return value change to support OpenOffice.org
@@ -1680,12 +1675,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.8.0.x, HSQLDB  does not support full nested outer
-     * joins; this method always returns <code>false</code>. <p>
-     *
-     * This behaviour may change in a future release. <p>
-     *
-     * TODO: resolve for 1.9.0.    
+     * From 1.9.0, HSQLDB supports full nested outer
+     * joins; this method always returns <code>true</code>. <p>
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1739,13 +1730,11 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.8.0.x, HSQLDB does not support declaration of
+     * Up to and including 1.9.0, HSQLDB does not support declaration of
      * functions or procedures directly in SQL but instead relies on the
      * HSQLDB-specific CLASS grant mechanism to make public static
      * Java methods available as SQL routines; this method always returns
      * an empty <code>String</code>. <p>
-     *
-     * TODO: resolve for 1.9.0.
      * </div>
      * <!-- end release-specific documentation -->
      * @return the vendor term for "procedure"
@@ -1762,8 +1751,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, HSQLDB does not support catalogs in DDL or DML;
-     * this method <ewm>always</em> returns the empty String.
+     * HSQLDB uses the standard name CATALOG.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1771,7 +1759,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public String getCatalogTerm() throws SQLException {
-        return "";
+        return "CATALOG";
     }
 
     /**
@@ -1782,8 +1770,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support catalogs in DDL or DML;
-     * this method always returns <code>false</code>.
+     * When allowed, a catalog appears at the start of a fully qualified 
+     * table name; this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if the catalog name appears at the beginning
@@ -1791,7 +1779,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean isCatalogAtStart() throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -1802,8 +1790,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support catalogs in DDL or DML;
-     * this method <em>always</em> returns an empty <code>String</code>.
+     * When used, a catalog name is separated with period;
+     * this method <em>always</em> returns a period
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1811,7 +1799,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public String getCatalogSeparator() throws SQLException {
-        return "";
+        return ".";
     }
 
     /**
@@ -1821,10 +1809,9 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * In 1.8.0, HSQLDB supports schemas in table names but not in column names;
-     * this method always returns <code>false</code>.
+     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * this method always returns <code>true</code>.
      *
-     * TODO: resolve for 1.9.0.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1834,7 +1821,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
 
         // false for OOo client server compatibility
         // otherwise schema name is used by OOo in column references
-        return false;
+        return true;
     }
 
     /**
@@ -1844,10 +1831,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.8.0.x, HSQLDB does not support schema-qualified
+     * Up to and including 1.9.0, HSQLDB does not support schema-qualified
      * procedure identifiers; this method always returns <code>false</code>.
-     *
-     * TODO: resolve for 1.9.0.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1922,15 +1907,15 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support catalog-qualified;
-     * data manipulation; this method always returns <code>false</code>.
+     * Starting with 1.9.0, HSQLDB supports catalog-qualified
+     * data manipulation; this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsCatalogsInDataManipulation() throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -1958,8 +1943,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support catalog-qualified
-     * table definitions; this method always returns <code>false</code>.
+     * Starting with 1.9.0, HSQLDB supports catalog-qualified
+     * table definitions; this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1976,15 +1961,15 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support catalog-qualified
-     * index definitions; this method always returns <code>false</code>.
+     * Starting with 1.9.0, HSQLDB supports catalog-qualified
+     * index definitions; this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsCatalogsInIndexDefinitions() throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -1994,8 +1979,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support catalog-qualified
-     * privilege definitions; this method always returns <code>false</code>.
+     * Starting with 1.9.0, HSQLDB supports catalog-qualified
+     * privilege definitions; this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -2003,7 +1988,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      */
     public boolean supportsCatalogsInPrivilegeDefinitions()
     throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -2398,7 +2383,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * was the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
      * this method always returned <code>0</code>. <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128.
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2571,7 +2557,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * was the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
      * this method always returned <code>0</code>.
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128.
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2618,7 +2605,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * 1.8.0 supports schema names with no known limit imposed,
      * so this method always returns <code>0</code>. <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128.
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
      * @return the maximum number of characters allowed in a schema name;
@@ -2642,7 +2630,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * is the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
      * this method always returns <code>0</code>. <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128.
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2652,7 +2641,6 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public int getMaxProcedureNameLength() throws SQLException {
-        // TODO: what about class grants?  throw for method FQN.length() > 128?
         return 128;
     }
 
@@ -2664,8 +2652,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support catalogs in
-     * DDL or DML; this method always returns <code>0</code>.
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2780,7 +2768,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
      * this method always returned <code>0</code>.
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128.
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2833,7 +2822,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
      * this method always returned <code>0</code>.
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128.
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
      *

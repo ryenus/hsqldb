@@ -90,7 +90,7 @@ import java.sql.SQLException;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Previous to 1.9.0, the HSQLDB driver does not implement Blob using an SQL
+ * Previous to 1.9.0, the HSQLDB driver did not implement Blob using an SQL
  * locator(BLOB).  That is, an HSQLDB Blob object did not contain a logical
  * pointer to SQL BLOB data; rather it directly contained a representation of
  * the data (a byte array). As a result, an HSQLDB Blob object was itself
@@ -387,9 +387,6 @@ public class jdbcBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
-     * method always throws an <code>SQLException</code>. <p>
-     *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
      * 
      * When built under JDK 1.6+ and the Blob instance is constructed as a
@@ -461,9 +458,6 @@ public class jdbcBlob implements Blob {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
-     *
-     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
-     * method always throws an <code>SQLException</code>. <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
      * 
@@ -588,9 +582,6 @@ public class jdbcBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB does not support this feature at all; Calling this
-     * method always throws an <code>SQLException</code>. <p>
-     *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
      * 
      * When built under JDK 1.6+ and the Blob instance is constructed as a
@@ -682,12 +673,6 @@ public class jdbcBlob implements Blob {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
-     *
-     * Up to 1.7.x, HSQLDB does not support this feature at all; Calling this
-     * method always throws an <code>SQLException</code>. <p>
-     *
-     * Starting with 1.8.0.x, this operation is supported, but 
-     * affects only the client-side value.
      *
      * Starting with HSQLDB 1.9.0 this feature is fully supported. <p>
      * 
