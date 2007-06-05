@@ -93,8 +93,7 @@ public class TableWorks {
             }
         }
 
-        database.schemaManager.checkConstraintExists(c.getName().name,
-                table.getSchemaName().name, false);
+        database.schemaManager.checkUserObjectNotExists(session, c.getName());
 
         // duplicate name check for a new table
         if (table.getConstraint(c.getName().name) != null) {
@@ -236,8 +235,7 @@ public class TableWorks {
         if (c.getType() == Constraint.PRIMARY_KEY) {
             c.core.mainCols = new int[]{ colIndex };
 
-            database.schemaManager.checkConstraintExists(c.getName().name,
-                    table.getSchemaName().name, false);
+            database.schemaManager.checkUserObjectNotExists(session, c.getName());
 
             if (table.hasPrimaryKey()) {
                 throw Trace.error(Trace.CONSTRAINT_ALREADY_EXISTS);
@@ -264,8 +262,7 @@ public class TableWorks {
                     addUnique       = true;
                     c.core.mainCols = new int[]{ colIndex };
 
-                    database.schemaManager.checkConstraintExists(
-                        c.getName().name, table.getSchemaName().name, false);
+                    database.schemaManager.checkUserObjectNotExists(session, c.getName());
 
                     HsqlName indexName =
                         database.nameManager.newAutoName("IDX",
@@ -518,8 +515,7 @@ public class TableWorks {
             throw Trace.error(Trace.CONSTRAINT_ALREADY_EXISTS);
         }
 
-        database.schemaManager.checkConstraintExists(name.name,
-                table.getSchemaName().name, false);
+        database.schemaManager.checkUserObjectNotExists(session, name);
 
         Table tn = table.moveDefinition(session, null, constraint, null, -1,
                                         0, emptySet, emptySet, null);
@@ -547,8 +543,7 @@ public class TableWorks {
      */
     void addUniqueConstraint(int[] cols, HsqlName name) throws HsqlException {
 
-        database.schemaManager.checkConstraintExists(name.name,
-                table.getSchemaName().name, false);
+        database.schemaManager.checkUserObjectNotExists(session, name);
 
         if (table.getUniqueConstraintForColumns(cols) != null) {
             throw Trace.error(Trace.CONSTRAINT_ALREADY_EXISTS);
@@ -576,8 +571,7 @@ public class TableWorks {
 
     void addCheckConstraint(Constraint c) throws HsqlException {
 
-        database.schemaManager.checkConstraintExists(c.getName().name,
-                table.getSchemaName().name, false);
+        database.schemaManager.checkUserObjectNotExists(session, c.getName());
         c.prepareCheckConstraint(session, table);
         table.addConstraint(c);
 
@@ -859,13 +853,12 @@ public class TableWorks {
 
                 table = tn;
 
-                table.database.schemaManager.removeConstraintName(
-                    constraint.getName());
+                table.database.schemaManager.removeDatabaseObject(constraint.getName());
 
                 break;
             }
             case Constraint.CHECK :
-                table.removeConstraint(name);
+                table.database.schemaManager.removeDatabaseObject(constraint.getName());
 
                 if (constraint.isNotNull) {
                     Column column =
@@ -875,8 +868,6 @@ public class TableWorks {
                     table.setColumnTypeVars(constraint.notNullColumnIndex);
                 }
 
-                table.database.schemaManager.removeConstraintName(
-                    constraint.getName());
                 break;
         }
     }
@@ -1235,10 +1226,8 @@ public class TableWorks {
 
             if (c.isNotNull) {
                 if (c.notNullColumnIndex == colIndex) {
-                    database.schemaManager.removeConstraintName(c.getName());
+                    database.schemaManager.removeDatabaseObject(c.getName());
                 }
-
-                table.removeConstraint(i);
             }
         }
 

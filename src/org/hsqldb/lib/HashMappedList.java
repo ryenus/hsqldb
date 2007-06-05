@@ -55,7 +55,10 @@ public class HashMappedList extends HashMap {
 
     public HashMappedList(int initialCapacity,
                           float loadFactor) throws IllegalArgumentException {
+
         super(initialCapacity, loadFactor);
+
+        isList = true;
     }
 
     public Object get(int index) throws IndexOutOfBoundsException {

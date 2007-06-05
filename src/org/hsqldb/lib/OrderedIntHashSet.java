@@ -47,8 +47,11 @@ public class OrderedIntHashSet extends BaseHashMap {
     public OrderedIntHashSet(int initialCapacity,
                              float loadFactor)
                              throws IllegalArgumentException {
+
         super(initialCapacity, loadFactor, BaseHashMap.intKeyOrValue,
               BaseHashMap.noKeyOrValue, false);
+
+        isList = true;
     }
 
     public boolean contains(int key) {

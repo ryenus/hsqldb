@@ -45,7 +45,10 @@ package org.hsqldb.lib;
 public class OrderedHashSet extends HashSet {
 
     public OrderedHashSet() {
+
         super(16, 0.75f);
+
+        isList = true;
     }
 
     public boolean remove(Object key) {

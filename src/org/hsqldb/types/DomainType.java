@@ -85,23 +85,23 @@ public class DomainType extends Type implements SchemaObject {
     public void compile(Session session) {}
 
     // class-specific methods
-    void addConstraint(Constraint c) {}
+    public void addConstraint(Constraint c) {}
 
-    void dropConstraint(String name) {}
+    public void removeConstraint(String name) {}
 
-    Constraint[] getConstraints() {
+    public Constraint[] getConstraints() {
         return checkConstraints;
     }
 
-    Expression getDefaultClause() {
+    public Expression getDefaultClause() {
         return defaultExpression;
     }
 
-    void setDefaultClause(Expression defaultExpression) {
+    public void setDefaultClause(Expression defaultExpression) {
         this.defaultExpression = defaultExpression;
     }
 
-    void dropDefaultClause() {
+    public void removeDefaultClause() {
         defaultExpression = null;
     }
 

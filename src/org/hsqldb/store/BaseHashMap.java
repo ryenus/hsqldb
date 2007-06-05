@@ -80,13 +80,14 @@ public class BaseHashMap {
 */
 
     //
-    boolean isIntKey;
-    boolean isLongKey;
-    boolean isObjectKey;
-    boolean isNoValue;
-    boolean isIntValue;
-    boolean isLongValue;
-    boolean isObjectValue;
+    boolean           isIntKey;
+    boolean           isLongKey;
+    boolean           isObjectKey;
+    boolean           isNoValue;
+    boolean           isIntValue;
+    boolean           isLongValue;
+    boolean           isObjectValue;
+    protected boolean isList;
 
     //
     private ValuesIterator valuesIterator;
@@ -1379,6 +1380,10 @@ public class BaseHashMap {
             removed = true;
 
             BaseHashMap.this.removeLookup(lookup);
+
+            if (isList) {
+                lookup--;
+            }
         }
 
         public int getAccessCount() {

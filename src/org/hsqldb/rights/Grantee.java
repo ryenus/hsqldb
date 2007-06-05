@@ -1010,7 +1010,7 @@ public class Grantee {
                 }
 
                 NumberSequence sequence =
-                    granteeManager.db.schemaManager.findUserSequence(
+                    granteeManager.db.schemaManager.findSequence(
                         hsqlname.name, hsqlname.schema.name);
 
                 if (sequence != null && hsqlname == sequence.getName()) {

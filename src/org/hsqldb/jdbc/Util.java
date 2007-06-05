@@ -74,9 +74,7 @@ public class Util {
     static final void throwError(HsqlException e) throws SQLException {
 
 //#ifdef JDBC4
-        throw sqlException(e.getMessage(),
-                           e.getSQLState(),
-                           e.getErrorCode(),
+        throw sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
                            e);
 
 //#else
@@ -91,10 +89,8 @@ public class Util {
     static final void throwError(Result r) throws SQLException {
 
 //#ifdef JDBC4
-        throw sqlException(r.getMainString(),
-                           r.getSubString(),
-                           r.getErrorCode(),
-                           r.getException());
+        throw sqlException(r.getMainString(), r.getSubString(),
+                           r.getErrorCode(), r.getException());
 
 //#else
 /*
@@ -108,9 +104,7 @@ public class Util {
     public static final SQLException sqlException(HsqlException e) {
 
 //#ifdef JDBC4
-        return sqlException(e.getMessage(),
-                            e.getSQLState(),
-                            e.getErrorCode(),
+        return sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
                             e);
 
 //#else
@@ -135,11 +129,20 @@ public class Util {
     }
 
     static final SQLException notSupported() {
-        String msg = "JDBC feature not supported.";
-        String sqlState = "0A000";
-        int errorCode = Trace.FUNCTION_NOT_SUPPORTED;
 
-        return sqlException(msg,sqlState,errorCode, null);
+        String msg       = "JDBC feature not supported.";
+        String sqlState  = "0A000";
+        int    errorCode = Trace.FUNCTION_NOT_SUPPORTED;
+
+//#ifdef JDBC4
+        return sqlException(msg, sqlState, errorCode, null);
+
+//#else
+/*
+        return new SQLException(msg, sqlState, errorCode);
+*/
+
+//#endif JDBC4
     }
 
     public static SQLException nullArgument() {
@@ -178,16 +181,15 @@ public class Util {
     public static SQLException sqlException(Result r) {
 
 //#ifdef JDBC4
-        return new SQLException(r.getMainString(),
-                           r.getSubString(),
-                           r.getErrorCode(),
-                           r.getException());
+        return new SQLException(r.getMainString(), r.getSubString(),
+                                r.getErrorCode(), r.getException());
 
 //#else
 /*
         return new SQLException(r.getMainString(), r.getSubString(),
                                 r.getErrorCode());
 */
+
 //#endif JDBC4
     }
 
@@ -225,99 +227,85 @@ public class Util {
 // 003=08003 Connection is broken
 // 004=08003 The database is shutdown
 // 094=08003 Database does not exists                          - better 08001 ?
-
 //#ifdef JDBC4
-    public static final SQLException sqlException(String msg,
-                                            String sqlstate,
-                                            int code,
-                                            Throwable cause) {
+    public static final SQLException sqlException(String msg, String sqlstate,
+            int code, Throwable cause) {
 
         if (sqlstate.startsWith("08")) {
             if (!sqlstate.endsWith("003")) {
+
                 // then, e.g. - the database may spuriously cease to be "in use"
                 //              upon retry
                 //            - the network configuration, server availability
                 //              may change spuriously
                 //            - keystore location/content may change spuriously
-                return new SQLTransientConnectionException(msg,
-                                                           sqlstate,
-                                                           code,
-                                                           cause);
+                return new SQLTransientConnectionException(msg, sqlstate,
+                        code, cause);
             } else {
+
                 // the database is (permanently) shut down or the connection is
                 // (permanently) closed or broken
-                return new SQLNonTransientConnectionException(msg,
-                                                              sqlstate,
-                                                              code,
-                                                              cause);
+                return new SQLNonTransientConnectionException(msg, sqlstate,
+                        code, cause);
             }
         } else if (sqlstate.startsWith("22")) {
-            return new SQLDataException(msg,
-                                        sqlstate,
-                                        code,
-                                        cause);
+            return new SQLDataException(msg, sqlstate, code, cause);
         } else if (sqlstate.startsWith("23")) {
-            return new SQLIntegrityConstraintViolationException(msg,
-                                                                sqlstate,
-                                                                code,
-                                                                cause);
+            return new SQLIntegrityConstraintViolationException(msg, sqlstate,
+                    code, cause);
         } else if (sqlstate.startsWith("28")) {
-            return new SQLInvalidAuthorizationSpecException(msg,
-                                                            sqlstate,
-                                                            code,
-                                                            cause);
-        } else if (sqlstate.startsWith("42")
-                  ||sqlstate.startsWith("37")
-                  ||sqlstate.startsWith("2A")) {
-                // TODO:
-                //
-                // First, the overview section of java.sql.SQLSyntaxErrorException
-                //
-                // "...thrown when the SQLState class value is '<i>42</i>'"
-                //
-                // appears to be inaccurate or not in sync with the
-                // SQL 2003 standard, 02 Foundation, Table 32, which states:
-                //
-                // Condition                               Class SubClass
-                // syntax error or access rule violation -  42   (no subclass) 000
-                //
-                // SQL 2003 describes an Access Rule Violation as refering to
-                // the case where, in the course of preparing or executing
-                // an SQL statement, an Access Rule section pertaining
-                // to one of the elements of the statement is violated.
-                //
-                // Further, section 13.4 Calls to an <externally-invoked-procedure>
-                // lists:
-                //
-                // SYNTAX_ERROR_OR_ACCESS_RULE_VIOLATION_NO_SUBCLASS:
-                // constant SQLSTATE_TYPE :="42000";
-                // SYNTAX_ERROR_OR_ACCESS_RULE_VIOLATION_IN_DIRECT_STATEMENT_NO_SUBCLASS:
-                // constant SQLSTATE_TYPE :="2A000";
-                // SYNTAX_ERROR_OR_ACCESS_RULE_VIOLATION_IN_DYNAMIC_STATEMENT_NO_SUBCLASS:
-                // constant SQLSTATE_TYPE :="37000";
-                //
-                // Strangely, SQLSTATEs "37000" and 2A000" are not mentioned
-                // anywhere else in any of the SQL 2003 parts and are
-                // conspicuously missing from 02 - Foundation, Table 32.
-                //
-                //  -----------------------------------
-                ///
-                // Our only Access Violation SQLSTATE so far is:
-                //
-                // Trace.NOT_AUTHORIZED 255=42000 User not authorized for action '$$'
-                //
-                // Our syntax exceptions are apparently all sqlstate "37000"
-                //
-                // Clearly, we should differentiate between DIRECT and DYNAMIC
-                // SQL forms.  And clearly, our current "37000" is "wrong" in
-                // that we do not actually support dynamic SQL syntax, but
-                // rather implement similar behaviour only through JDBC
-                // Prepared and Callable statements.
-            return new SQLSyntaxErrorException(msg,
-                                               sqlstate,
-                                               code,
-                                               cause);
+            return new SQLInvalidAuthorizationSpecException(msg, sqlstate,
+                    code, cause);
+        } else if (sqlstate.startsWith("42") || sqlstate.startsWith("37")
+                   || sqlstate.startsWith("2A")) {
+
+            // TODO:
+            //
+            // First, the overview section of java.sql.SQLSyntaxErrorException
+            //
+            // "...thrown when the SQLState class value is '<i>42</i>'"
+            //
+            // appears to be inaccurate or not in sync with the
+            // SQL 2003 standard, 02 Foundation, Table 32, which states:
+            //
+            // Condition                               Class SubClass
+            // syntax error or access rule violation -  42   (no subclass) 000
+            //
+            // SQL 2003 describes an Access Rule Violation as refering to
+            // the case where, in the course of preparing or executing
+            // an SQL statement, an Access Rule section pertaining
+            // to one of the elements of the statement is violated.
+            //
+            // Further, section 13.4 Calls to an <externally-invoked-procedure>
+            // lists:
+            //
+            // SYNTAX_ERROR_OR_ACCESS_RULE_VIOLATION_NO_SUBCLASS:
+            // constant SQLSTATE_TYPE :="42000";
+            // SYNTAX_ERROR_OR_ACCESS_RULE_VIOLATION_IN_DIRECT_STATEMENT_NO_SUBCLASS:
+            // constant SQLSTATE_TYPE :="2A000";
+            // SYNTAX_ERROR_OR_ACCESS_RULE_VIOLATION_IN_DYNAMIC_STATEMENT_NO_SUBCLASS:
+            // constant SQLSTATE_TYPE :="37000";
+            //
+            // Strangely, SQLSTATEs "37000" and 2A000" are not mentioned
+            // anywhere else in any of the SQL 2003 parts and are
+            // conspicuously missing from 02 - Foundation, Table 32.
+            //
+            //  -----------------------------------
+            ///
+            // Our only Access Violation SQLSTATE so far is:
+            //
+            // Trace.NOT_AUTHORIZED 255=42000 User not authorized for action '$$'
+            //
+            // Our syntax exceptions are apparently all sqlstate "37000"
+            //
+            // Clearly, we should differentiate between DIRECT and DYNAMIC
+            // SQL forms.  And clearly, our current "37000" is "wrong" in
+            // that we do not actually support dynamic SQL syntax, but
+            // rather implement similar behaviour only through JDBC
+            // Prepared and Callable statements.
+            return new SQLSyntaxErrorException(msg, sqlstate, code, cause);
         } else if (sqlstate.startsWith("40")) {
+
             // TODO: our 40xxx exceptions are not currently used (correctly)
             //       for transaction rollback exceptions:
             //
@@ -342,16 +330,13 @@ public class Util {
             // 40003  transaction rollback  - statement completion unknown
             // 40004  transaction rollback  - triggered action exception
             //
-            return new SQLTransactionRollbackException(msg,
-                                                       sqlstate,
-                                                       code,
-                                                       cause);
-        } else if (sqlstate.startsWith("0A")) { // JSR 221 2005-12-14 prd
-            return new SQLFeatureNotSupportedException(msg,
-                                                       sqlstate,
-                                                       code,
-                                                       cause);
+            return new SQLTransactionRollbackException(msg, sqlstate, code,
+                    cause);
+        } else if (sqlstate.startsWith("0A")) {    // JSR 221 2005-12-14 prd
+            return new SQLFeatureNotSupportedException(msg, sqlstate, code,
+                    cause);
         } else {
+
             // TODO resolved:
             //
             // JSR 221 2005-12-14 prd
@@ -360,12 +345,8 @@ public class Util {
             //    either a SQLNonTransientException or a SQLTransientException
             //    will result in a java.sql.SQLException being thrown."
             //
-            return new SQLException(msg,
-                                    sqlstate,
-                                    code,
-                                    cause);
+            return new SQLException(msg, sqlstate, code, cause);
         }
-
     }
 
 //#endif JDBC4
