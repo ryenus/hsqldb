@@ -92,29 +92,38 @@ import org.hsqldb.lib.AsciiStringInputStream;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Including 1.8.x, the HSQLDB driver does not implement Clob using an SQL
- * locator(CLOB).  That is, an HSQLDB Clob object does not contain a logical
- * pointer to SQL CLOB data; rather it directly contains an immutable
- * representation of the data (a String object). As a result, an HSQLDB
- * Clob object itself is valid beyond the duration of the transaction in which
- * is was created, although it does not necessarily represent a corresponding
- * value on the database. <p>
+ * Previous to 1.9.0, the HSQLDB driver does not implement Clob using an SQL
+ * locator(CLOB).  That is, an HSQLDB Clob object did not contain a logical
+ * pointer to SQL CLOB data; rather it directly contained a representation of
+ * the data (a String). As a result, an HSQLDB Clob object was itself
+ * valid beyond the duration of the transaction in which is was created,
+ * although it did not necessarily represent a corresponding value
+ * on the database. Also, the interface methods for updating a CLOB value
+ * were unsupported, with the exception of the truncate method,
+ * in that it could be used to truncate the local value. <p>
  *
- * Previous to 1.8.x, the interface methods for updating a CLOB value are
- * unsupported. However, the truncate method is supported for local use.
- *
- * Starting with 1.8.x, all interface methods for updating a CLOB value
- * are supported for local use when the product is built under JDK 1.6+ and
- * the Blob instance is constructed as a result of calling
- * jdbcConnection.createClob(). <p>
+ * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
+ * SQL CLOB data implementations, meaning that an HSQLDB Clob object <em>may</em>
+ * contain a logical pointer to remote SQL CLOB data (see {@link jdbcClobClient 
+ * jdbcClobClient}) or it may directly contain a local representation of the
+ * data (as implemented in this class).  In particular, when the product is built
+ * under JDK 1.6+ and the Clob instance is constructed as a result of calling
+ * jdbcConnection.createClob(), then the resulting Clob instance is initially
+ * disconnected (is not bound to the tranaction scope of the vending Connection
+ * object), the data is contained directly and all interface methods for
+ * updating the CLOB value are supported for local use until the first
+ * invocation of free(); otherwise, an HSQLDB Clob's implementation is
+ * determined at runtime by the driver, it is typically not valid beyond
+ * the duration of the transaction in which is was created, and there no
+ * standard way to query whether it represents a local or remote value.<p>
  *
  * </div>
  * <!-- end release-specific documentation -->
  *
  * @author  boucherb@users
- * @version 1.8.x
+ * @version 1.9.0
  * @since JDK 1.2, HSQLDB 1.7.2
- * @revised JDK 1.6, HSQLDB 1.8.x
+ * @revised JDK 1.6, HSQLDB 1.9.0
  */
 public class jdbcClob implements Clob {
 
@@ -370,20 +379,22 @@ public class jdbcClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSLQDB 1.7.x does not support this feature at all; Calling this method
-     * always throws an <code>SQLException</code>. <p>
+     * Up to 1.8.0.x, HSQLDB does not support this feature at all; Calling this
+     * method always throws an <code>SQLException</code>. <p>
      *
-     * Starting with HSQLDB 1.8.x this feature is supported when built under
-     * JDK 1.6+ and the Clob instance is constructed as a result of calling
-     * jdbcConnection.createClob(). As a side-effect of this restriction, this
-     * operation affects only the client-side value; it has no effect upon a
-     * value stored in the database, because jdbcConnection.createClob()
-     * constructs disconnected, initially empty Clob instances. To reflect
-     * an updated value in a database, it is required to use an updating setXXX
-     * method of an updating Prepared or Callable Statement, or to use an
-     * updateXXX method of and updateable ResultSet. <p>
+     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Clob instance is constructed as a
+     * result of calling jdbcConnection.createClob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in the
+     * database because jdbcConnection.createClob() constructs disconnected,
+     * initially empty Clob instances. To propogate the Clob value to a database
+     * in this case, it is required to supply the Clob instance to an updating
+     * or inserting setXXX method of a Prepared or Callable Statement, or to
+     * supply the Clob instance to an updateXXX method of an updateable
+     * ResultSet. <p>
      *
-     * <b>Note:</b><p>
+     * <b>Implementation Notes:</b><p>
      *
      * No attempt is made to ensure precise thread safety. Instead, volatile
      * member field and local variable snapshot isolation semantics are
@@ -411,7 +422,7 @@ public class jdbcClob implements Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public int setString(long pos, String str) throws SQLException {
 
@@ -441,17 +452,22 @@ public class jdbcClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported when built under
-     * JDK 1.6+ and the Clob instance is constructed as a result of calling
-     * jdbcConnection.createClob(). As a side-effect of this restriction, this
-     * operation affects only the client-side value; it has no effect upon a
-     * value stored in the database, because jdbcConnection.createClob()
-     * constructs disconnected, initially empty Clob instances. To reflect
-     * an updated value in a database, it is required to use an updating setXXX
-     * method of an updating Prepared or Callable Statement, or to use an
-     * updateXXX method of and updateable ResultSet. <p>
+     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
+     * method always throws an <code>SQLException</code>. <p>
      *
-     * <b>Notes:</b><p>
+     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Clob instance is constructed as a
+     * result of calling jdbcConnection.createClob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in a
+     * database because jdbcConnection.createClob() constructs disconnected,
+     * initially empty Clob instances. To propogate the Clob value to a database
+     * in this case, it is required to supply the Clob instance to an updating
+     * or inserting setXXX method of a Prepared or Callable Statement, or to
+     * supply the Clob instance to an updateXXX method of an updateable
+     * ResultSet. <p>
+     *
+     * <b>Implementation Notes:</b><p>
      *
      * If the value specified for <code>pos</code>
      * is greater than the length of the <code>CLOB</code> value, then
@@ -487,7 +503,7 @@ public class jdbcClob implements Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public int setString(long pos, String str, int offset,
                          int len) throws SQLException {
@@ -573,17 +589,22 @@ public class jdbcClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported when built under
-     * JDK 1.6+ and the Clob instance is constructed as a result of calling
-     * jdbcConnection.createClob(). As a side-effect of this restriction, this
-     * operation affects only the client-side value; it has no effect upon a
-     * value stored in the database, because jdbcConnection.createClob()
-     * constructs disconnected, initially empty Clob instances. To reflect
-     * an updated value in a database, it is required to use an updating setXXX
-     * method of an updating Prepared or Callable Statement, or to use an
-     * updateXXX method of and updateable ResultSet. <p>
+     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
+     * method always throws an <code>SQLException</code>. <p>
      *
-     * <b>Notes:</b><p>
+     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Clob instance is constructed as a
+     * result of calling jdbcConnection.createClob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in a
+     * database because jdbcConnection.createClob() constructs disconnected,
+     * initially empty Clob instances. To propogate the Clob value to a database
+     * in this case, it is required to supply the Clob instance to an updating
+     * or inserting setXXX method of a Prepared or Callable Statement, or to
+     * supply the Clob instance to an updateXXX method of an updateable
+     * ResultSet. <p>
+     *
+     * <b>Implementation Notes:</b><p>
      *
      * The data written to the stream does not appear in this
      * Clob until the stream is closed. <p>
@@ -618,7 +639,7 @@ public class jdbcClob implements Clob {
      * @see #getAsciiStream
      *
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public java.io.OutputStream setAsciiStream(final long pos)
     throws SQLException {
@@ -672,17 +693,22 @@ public class jdbcClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported when built under
-     * JDK 1.6+ and the Clob instance is constructed as a result of calling
-     * jdbcConnection.createClob(). As a side-effect of this restriction, this
-     * operation affects only the client-side value; it has no effect upon a
-     * value stored in the database, because jdbcConnection.createClob()
-     * constructs disconnected, initially empty Clob instances. To reflect
-     * an updated value in a database, it is required to use an updating setXXX
-     * method of an updating Prepared or Callable Statement, or to use an
-     * updateXXX method of and updateable ResultSet. <p>
+     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
+     * method always throws an <code>SQLException</code>. <p>
      *
-     * <b>Notes:</b><p>
+     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Clob instance is constructed as a
+     * result of calling jdbcConnection.createClob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in a
+     * database because jdbcConnection.createClob() constructs disconnected,
+     * initially empty Clob instances. To propogate the Clob value to a database
+     * in this case, it is required to supply the Clob instance to an updating
+     * or inserting setXXX method of a Prepared or Callable Statement, or to
+     * supply the Clob instance to an updateXXX method of an updateable
+     * ResultSet. <p>
+     *
+     * <b>Implementation Notes:</b><p>
      *
      * The data written to the stream does not appear in this
      * Clob until the stream is closed. <p>
@@ -718,7 +744,7 @@ public class jdbcClob implements Clob {
      * @see #getCharacterStream
      *
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public java.io.Writer setCharacterStream(final long pos)
     throws SQLException {
@@ -765,14 +791,28 @@ public class jdbcClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
+     * Up to 1.7.x, HSQLDB does not support this feature at all; Calling this
+     * method always throws an <code>SQLException</code>. <p>
+     *
+     * Starting with 1.8.0.x, this operation is supported, but 
+     * affects only the client-side value.
+     *
+     * Starting with HSQLDB 1.9.0 this feature is fully supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Clob instance is constructed as a
+     * result of calling jdbcConnection.createClob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in a
+     * database because jdbcConnection.createClob() constructs disconnected,
+     * initially empty Blob instances. To propogate the truncated clob value to
+     * a database in this case, it is required to supply the Clob instance to
+     * an updating or inserting setXXX method of a Prepared or Callable
+     * Statement, or to supply the Blob instance to an updateXXX method of an
+     * updateable ResultSet. <p>
+     *
+     * <b>Implementation Notes:</b> <p>
+     * 
      * HSQLDB throws an SQLException if the specified <tt>len</tt> is greater
      * than the value returned by {@link #length() length}. <p>
-     *
-     * <b>Note:</b> This operation affects only the client-side value; it has no
-     * effect upon a value stored in the database. To reflect an updated value
-     * in a database, it is required to use an updating setXXX method of an
-     * updating Prepared or Callable Statement, or to use an updateXXX method
-     * of and updateable ResultSet. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -785,7 +825,7 @@ public class jdbcClob implements Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public void truncate(final long len) throws SQLException {
 
@@ -825,7 +865,7 @@ public class jdbcClob implements Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void free() throws SQLException {
         this.data = null;
@@ -845,7 +885,7 @@ public class jdbcClob implements Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public Reader getCharacterStream(long pos,
                                      long length) throws SQLException {
