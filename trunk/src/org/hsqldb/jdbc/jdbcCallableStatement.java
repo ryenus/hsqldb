@@ -205,7 +205,7 @@ import org.hsqldb.result.ResultConstants;
  * thin wrap of the HSQLDB SQL function call mechanism, extended to include the
  * more general HSQLDB SQL expression evaluation mechanism.  In addition to
  * stored procedure calls that resolve directly to Java method invocations, the
- * extention provides the ability to evaluate simple SQL expressions, possibly
+ * extension provides the ability to evaluate simple SQL expressions, possibly
  * containing Java method invocations, outside any <code>INSERT</code>,
  * <code>UPDATE</code>, <code>DELETE</code> or <code>SELECT</code> statement
  * context. <p>
