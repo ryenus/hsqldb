@@ -327,6 +327,7 @@ public class jdbcResultSet implements ResultSet {
      *            called on a closed result set
      */
     public boolean next() throws SQLException {
+        checkClosed();
         return navigator.next();
     }
 
@@ -6776,15 +6777,34 @@ public class jdbcResultSet implements ResultSet {
     //-------------------------- Private Methods -------------------------------
 
     /**
-     * Internal row data availability check.
+     * Fetches the current row of the result set.
      *
-     * @throws  SQLException when no row data is available
+     * @throws  SQLException when result set is closed; 
+     * result set is empty; result set is before first;
+     * result set is alfter last; no row data is available.
      */
     private Object[] getCurrent() throws SQLException {
+        final RowSetNavigator lnavigator = this.navigator;
 
-        Object[] data = (Object[]) navigator.getCurrent();
+        if (lnavigator == null) {
+            throw Util.sqlException(Trace.JDBC_RESULTSET_IS_CLOSED);
+        } else if (lnavigator.isEmpty()) {
+            throw Util.sqlException(
+                    Trace.NO_DATA_IS_AVAILABLE,
+                    "ResultSet is empty.");
+        } else if (lnavigator.isBeforeFirst()) {
+            throw Util.sqlException(
+                    Trace.NO_DATA_IS_AVAILABLE,
+                    "ResultSet is positioned before first row.");
+        } else if (lnavigator.isAfterLast()) {
+            throw Util.sqlException(
+                    Trace.NO_DATA_IS_AVAILABLE,
+                    "ResultSet is positioned after last row.");
+        }
 
-        if (data == null) {
+        Object[] data;
+
+        if (null == (data = (Object[]) lnavigator.getCurrent())) {
             throw Util.sqlException(Trace.NO_DATA_IS_AVAILABLE);
         }
 
@@ -6824,81 +6844,89 @@ public class jdbcResultSet implements ResultSet {
      */
     private boolean checkNull(Object o) {
 
-        if (o == null) {
-            wasNullValue = true;
-
-            return true;
-        } else {
-            wasNullValue = false;
-
-            return false;
-        }
+        return (wasNullValue = (o == null));
     }
 
     /**
      * Internal value converter. <p>
-     *
+     * 
      * All trivially successful getXXX methods eventually go through this
      * method, converting if neccessary from the hsqldb-native representation
      * of a column's value to the requested representation.  <p>
-     *
-     * @return an Object of the requested type, representing the value of the
-     *       specified column
+     * 
+     * 
+     * 
      * @param columnIndex of the column value for which to perform the
      *                 conversion
-     * @param type the org.hsqldb.types.Type object for type
-     * @throws SQLException when there is no data, the column index is
+     * @param targetType the org.hsqldb.types.Type object for targetType
+     * @return an Object of the requested targetType, representing the value of the
+     *       specified column
+     * @throws SQLException when there is no rowData, the column index is
      *    invalid, or the conversion cannot be performed
      */
     private Object getColumnInType(int columnIndex,
-                                   Type type) throws SQLException {
+                                   Type targetType) throws SQLException {
 
-        Object[] data = getCurrent();
-        Type     t;
-        Object   o;
+        Object[] rowData = getCurrent();
+        Type     sourceType;
+        Object   value;
 
         checkColumn(columnIndex);
 
         try {
-            t = resultMetaData.colTypes[--columnIndex];
-            o = data[columnIndex];
+            sourceType = resultMetaData.colTypes[--columnIndex];
+            value = rowData[columnIndex];
         } catch (ArrayIndexOutOfBoundsException e) {
             throw Util.sqlException(Trace.COLUMN_NOT_FOUND,
                                     String.valueOf(++columnIndex));
         }
 
-        if (checkNull(o)) {
+        if (checkNull(value)) {
             return null;
         }
 
-        if (t.type != type.type) {
-            if (o instanceof BinaryData && type.type != Types.SQL_CHAR) {
-                throw Util.sqlException(Trace.WRONG_DATA_TYPE);
+        if (sourceType.type != targetType.type) {
+            if (value instanceof BinaryData 
+                    && targetType.type != Types.SQL_CHAR) {
+                String msg = "to JDBC " 
+                        + targetType.getJDBCClassName() 
+                        + " from SQL "
+                        + sourceType.getNameString();
+                throw Util.sqlException(Trace.INVALID_CONVERSION, msg);
             }
 
             // try to convert
             try {
-                o = type.convertToType(null, o, t);
+                value = targetType.convertToType(null, value, sourceType);
             } catch (Exception e) {
-                String s = "type: " + t.getNameString() + " expected: "
-                           + type.getNameString() + " value: " + o.toString();
+                String stringValue = (value instanceof Number 
+                        || value instanceof String
+                        || value instanceof java.util.Date)
+                        ? value.toString() 
+                        : "instance of " + value.getClass().getName();
 
-                throw Util.sqlException(Trace.WRONG_DATA_TYPE, s);
+                String msg = "to JDBC " 
+                        + targetType.getJDBCClassName() 
+                        + " from SQL "
+                        + sourceType.getNameString()
+                        + ", value: " 
+                        + stringValue;
+                throw Util.sqlException(Trace.INVALID_CONVERSION, msg);
             }
         }
 
         // treat datetime stuff
-        switch (type.type) {
+        switch (targetType.type) {
 
             case Types.SQL_DATE :
-                return new Date(((Date) o).getTime());
+                return new Date(((Date) value).getTime());
 
             case Types.SQL_TIME :
-                return new Time(((Time) o).getTime());
+                return new Time(((Time) value).getTime());
 
             case Types.SQL_TIMESTAMP :
-                long      m  = ((Timestamp) o).getTime();
-                int       n  = ((Timestamp) o).getNanos();
+                long      m  = ((Timestamp) value).getTime();
+                int       n  = ((Timestamp) value).getNanos();
                 Timestamp ts = new Timestamp(m);
 
                 ts.setNanos(n);
@@ -6906,7 +6934,7 @@ public class jdbcResultSet implements ResultSet {
                 return ts;
         }
 
-        return o;
+        return value;
     }
 
     private void checkNotForwardOnly() throws SQLException {
