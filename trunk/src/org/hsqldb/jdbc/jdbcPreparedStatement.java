@@ -696,8 +696,16 @@ implements PreparedStatement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Since 1.7.0, this method complies with behavior as defined by the
-     * JDBC3 specification.
+     * From 1.7.0 to 1.8.0.x, this method complies with behavior as defined by
+     * the JDBC3 specification (the stream is treated as though it has UTF16
+     * encoding). <p>
+     *
+     * Starting with 1.9.0, this method behaves according to the JDBC4
+     * specification (the stream is treated as though it has UTF-8
+     * encoding, as defined in the Java Virtual Machine Specification) when
+     * built under JDK 1.6+; otherwise, it behaves as defined by the JDBC3
+     * specification.  Regardless, this method is deprecated: please use
+     * setCharacterStream(...) instead.
      * </div>
      * <!-- end release-specific documentation -->
      *
