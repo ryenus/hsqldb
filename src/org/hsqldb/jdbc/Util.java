@@ -66,7 +66,7 @@ import org.hsqldb.result.Result;
  *
  * @author fredt@users
  * @author boucherb@users
- * @version 1.8.x
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class Util {
