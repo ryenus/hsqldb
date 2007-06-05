@@ -2592,7 +2592,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int inum_prec_radix     = 17;
 
         //------------------------------------------
-        // Extentions
+        // Extensions
         //------------------------------------------
         // not in JDBC, but in SQL CLI SQLDA / ODBC
         //------------------------------------------
