@@ -138,8 +138,8 @@ import org.hsqldb.result.ResultConstants;
  *
  * @author boucherb@users
  * @author fredt@user
- * @version 1.8.x
- * @revised JDK 1.6, HSQLDB 1.8.x
+ * @version 1.9.0
+ * @revised JDK 1.6, HSQLDB 1.9.0
  * @see jdbcConnection#createStatement
  * @see jdbcResultSet
  */
@@ -453,7 +453,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, calls to this method are ignored; HSQLDB waits an
+     * Including 1.9.0, calls to this method are ignored; HSQLDB waits an
      * unlimited amount of time for statement execution
      * requests to return.
      * </div>
@@ -487,7 +487,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does <i>not</i> support aborting an SQL
+     * Including 1.9.0, HSQLDB does <i>not</i> support aborting an SQL
      * statement; calls to this method are ignored.
      * </div>
      * <!-- end release-specific documentation -->
@@ -522,7 +522,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB never produces Statement warnings;
+     * Including 1.9.0, HSQLDB never produces Statement warnings;
      * this method always returns null.
      * </div>
      * <!-- end release-specific documentation -->
@@ -552,7 +552,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including HSQLDB 1.8.0.x, <code>SQLWarning</code> objects are
+     * Including HSQLDB 1.9.0, <code>SQLWarning</code> objects are
      * never produced for Statement Objects; calls to this method are
      * ignored.
      * </div>
@@ -588,8 +588,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support named cursors,
-     * updateable results or table locking via <code>SELECT FOR UPDATE</code>;
+     * Including 1.9.0, HSQLDB does not support named cursors;
      * calls to this method are ignored.
      * </div>
      * <!-- end release-specific documentation -->
@@ -746,7 +745,10 @@ public class jdbcStatement extends StatementBase implements Statement {
      * Including 1.8.0.x, HSQLDB supports only <code>FETCH_FORWARD</code>. <p>
      *
      * Setting any other value will throw an <code>SQLException</code>
-     * stating that the operation is not supported.
+     * stating that the operation is not supported. <p>
+     *
+     * TODO: resolve for 1.9.0 (current implementation is not in agreement
+     * with that for jdbcPreparedStatement).
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -783,7 +785,10 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB always returns FETCH_FORWARD.
+     * Including 1.8.0.x, HSQLDB always returns FETCH_FORWARD. <p>
+     *
+     * TODO: resolve for 1.9.0 (current setFecthDirection implementation is
+     * not in agreement with that for jdbcPreparedStatement).
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -886,6 +891,8 @@ public class jdbcStatement extends StatementBase implements Statement {
      *
      * Including 1.8.0.x, HSQLDB supports only
      * <code>CONCUR_READ_ONLY</code> concurrency.
+     *
+     * TODO: resolve for 1.9.0.
      * </div>
      * <!-- end release-specific documentation -->
      *
