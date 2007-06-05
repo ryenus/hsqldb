@@ -64,27 +64,15 @@ import java.sql.NClob;
  * appreciable difference between the HSQLDB XXXCHAR types and the SQL 2003
  * NXXXCHAR and NCLOB types. <p>
  *
- * Including 1.8.x, the HSQLDB driver does not implement NClob using an SQL
- * locator(NCLOB).  That is, an HSQLDB NClob object does not contain a logical
- * pointer to SQL NCLOB data; rather it directly contains a representation of
- * the data (a java String). As a result, an HSQLDB NClob object is itself
- * valid beyond the duration of the transaction in which is was created,
- * although it does not necessarily represent a corresponding value
- * on the database. <p>
- *
- * All interface methods for updating an NCLOB value are now supported for local
- * use when the product is built under JDK 1.6+ and the NClob instance is
- * constructed as a result of calling jdbcConnection.createBlob(). <p>
- *
- * See {@link org.hsqldb.jdbc.jdbcClob} for further information concerning
- * current Clob update restrictions. <p>
+ * See {@link org.hsqldb.jdbc.jdbcClob} for further information.
  *
  * </div>
  * <!-- end Release-specific documentation -->
  *
- * @since JDK 1.6, HSQLDB 1.8.x
+ * @since JDK 1.6, HSQLDB 1.9.0
  * @author boucherb@users
  * @see jdbcClob
+ * @see jdbcClobClient
  */
 public class jdbcNClob extends jdbcClob implements NClob {
 
