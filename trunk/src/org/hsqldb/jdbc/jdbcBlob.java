@@ -90,29 +90,38 @@ import java.sql.SQLException;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Including 1.8.x, the HSQLDB driver does not implement Blob using an SQL
- * locator(BLOB).  That is, an HSQLDB Blob object does not contain a logical
- * pointer to SQL BLOB data; rather it directly contains a representation of
- * the data (a byte array). As a result, an HSQLDB Blob object is itself
+ * Previous to 1.9.0, the HSQLDB driver does not implement Blob using an SQL
+ * locator(BLOB).  That is, an HSQLDB Blob object did not contain a logical
+ * pointer to SQL BLOB data; rather it directly contained a representation of
+ * the data (a byte array). As a result, an HSQLDB Blob object was itself
  * valid beyond the duration of the transaction in which is was created,
- * although it does not necessarily represent a corresponding value
- * on the database. <p>
+ * although it did not necessarily represent a corresponding value
+ * on the database. Also, the interface methods for updating a BLOB value
+ * were unsupported, with the exception of the truncate method,
+ * in that it could be used to truncate the local value. <p>
  *
- * Previous to 1.8.x, the interface methods for updating a BLOB value are
- * unsupported. However, the truncate method is supported for local use.
+ * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
+ * Blob implementations, meaning that an HSQLDB Blob object <em>may</em>
+ * contain a logical pointer to remote SQL BLOB data or it may directly contain
+ * a local representation of the data.  In particular, when the product is built
+ * under JDK 1.6+ and the Blob instance is constructed as a result of calling
+ * jdbcConnection.createBlob(), then the resulting Blob instance is initially
+ * disconnected (is not bound to the tranaction scope of the vending Connection
+ * object), the data is contained directly and all interface methods for
+ * updating the BLOB value are supported for local use until the first
+ * invocation of free(); otherwise, an HSQLDB Blob's implementation is
+ * determined at runtime by the driver, it is typically not valid beyond the 
+ * duration of the transaction in which is was created, and there no
+ * standard way to query whether it represents a local or remote value.<p>
  *
- * Starting with 1.8.x, all interface methods for updating a BLOB value
- * are supported for local use when the product is built under JDK 1.6+ and
- * the Blob instance is constructed as a result of calling
- * jdbcConnection.createBlob(). <p>
  * </div>
  * <!-- end Release-specific documentation -->
  *
  * @author james house jhouse@part.net
  * @author boucherb@users
- * @version 1.8.x
+ * @version 1.9.0
  * @since JDK 1.2, HSQLDB 1.7.2
- * @revised JDK 1.6, HSQLDB 1.8.x
+ * @revised JDK 1.6, HSQLDB 1.9.0
  */
 public class jdbcBlob implements Blob {
 
@@ -149,7 +158,7 @@ public class jdbcBlob implements Blob {
      * precisely indicate the policy to be observed when
      * pos > this.length() - length.  One policy would be to retrieve the
      * octets from pos to this.length().  Another would be to throw an
-     * exception.  HSQLDB observes the later policy.
+     * exception.  HSQLDB observes the second policy.
      * </div> <!-- end release-specific documentation -->
      *
      * @param pos the ordinal position of the first byte in the
@@ -160,8 +169,9 @@ public class jdbcBlob implements Blob {
      *         consecutive bytes from the <code>BLOB</code> value designated
      *         by this <code>Blob</code> object, starting with the
      *         byte at position <code>pos</code>
-     * @exception SQLException if there is an error accessing the
-     *            <code>BLOB</code> value or if pos is less than 1
+     * @exception SQLException  if there is an error accessing the BLOB value;
+     *            if <code>pos</code> is less than 1 or <code>length</code> is
+     *            less than 0.
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setBytes
@@ -375,18 +385,20 @@ public class jdbcBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSLQDB 1.7.x does not support this feature at all; Calling this method
-     * always throws an <code>SQLException</code>. <p>
+     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
+     * method always throws an <code>SQLException</code>. <p>
      *
-     * Starting with HSQLDB 1.8.x this feature is supported when built under
-     * JDK 1.6+ and the Blob instance is constructed as a result of calling
-     * jdbcConnection.createBlob(). As a side-effect of this restriction, this
-     * operation affects only the client-side value; it has no effect upon a
-     * value stored in the database, because jdbcConnection.createBlob()
-     * constructs disconnected, initially empty Blob instances. To reflect
-     * an updated value in a database, it is required to use an updating setXXX
-     * method of an updating Prepared or Callable Statement, or to use an
-     * updateXXX method of and updateable ResultSet. <p>
+     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Blob instance is constructed as a
+     * result of calling jdbcConnection.createBlob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in a
+     * database because jdbcConnection.createBlob() constructs disconnected,
+     * initially empty Blob instances. To propogate the Blob value to a database
+     * in this case, it is required to supply the Blob instance to an updating
+     * or inserting setXXX method of a Prepared or Callable Statement, or to
+     * supply the Blob instance to an updateXXX method of an updateable
+     * ResultSet. <p>
      *
      * <b>Note:</b><p>
      *
@@ -415,7 +427,7 @@ public class jdbcBlob implements Blob {
      * this method
      * @see #getBytes
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public int setBytes(long pos, byte[] bytes) throws SQLException {
 
@@ -448,18 +460,20 @@ public class jdbcBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSLQDB 1.7.x does not support this feature at all; Calling this method
-     * always throws an <code>SQLException</code>. <p>
+     * Up to 1.8.0.x, HSQLDB does not support this feature at all; calling this
+     * method always throws an <code>SQLException</code>. <p>
      *
-     * Starting with HSQLDB 1.8.x this feature is supported when built under
-     * JDK 1.6+ and the Blob instance is constructed as a result of calling
-     * jdbcConnection.createBlob(). As a side-effect of this restriction, this
-     * operation affects only the client-side value; it has no effect upon a
-     * value stored in the database, because jdbcConnection.createBlob()
-     * constructs disconnected, initially empty Blob instances. To reflect
-     * an updated value in a database, it is required to use an updating setXXX
-     * method of an updating Prepared or Callable Statement, or to use an
-     * updateXXX method of and updateable ResultSet. <p>
+     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Blob instance is constructed as a
+     * result of calling jdbcConnection.createBlob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in a
+     * database because jdbcConnection.createBlob() constructs disconnected,
+     * initially empty Blob instances. To propogate the Blob value to a database
+     * in this case, it is required to supply the Blob instance to an updating
+     * or inserting setXXX method of a Prepared or Callable Statement, or to
+     * supply the Blob instance to an updateXXX method of an updateable
+     * ResultSet. <p>
      *
      * <b>Notes:</b><p>
      *
@@ -498,7 +512,7 @@ public class jdbcBlob implements Blob {
      * this method
      * @see #getBytes
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public int setBytes(long pos, byte[] bytes, int offset,
                         int len) throws SQLException {
@@ -572,18 +586,20 @@ public class jdbcBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSLQDB 1.7.x does not support this feature at all; Calling this method
-     * always throws an <code>SQLException</code>. <p>
+     * Up to 1.8.0.x, HSQLDB does not support this feature at all; Calling this
+     * method always throws an <code>SQLException</code>. <p>
      *
-     * Starting with HSQLDB 1.8.x this feature is supported when built under
-     * JDK 1.6+ and the Blob instance is constructed as a result of calling
-     * jdbcConnection.createBlob(). As a side-effect of this restriction, this
-     * operation affects only the client-side value; it has no effect upon a
-     * value stored in the database, because jdbcConnection.createBlob()
-     * constructs disconnected, initially empty Blob instances. To reflect
-     * an updated value in a database, it is required to use an updating setXXX
-     * method of an updating Prepared or Callable Statement, or to use an
-     * updateXXX method of and updateable ResultSet. <p>
+     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Blob instance is constructed as a
+     * result of calling jdbcConnection.createBlob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in a
+     * database because jdbcConnection.createBlob() constructs disconnected,
+     * initially empty Blob instances. To propogate the Blob value to a database
+     * in this case, it is required to supply the Blob instance to an updating
+     * or inserting setXXX method of a Prepared or Callable Statement, or to
+     * supply the Blob instance to an updateXXX method of an updateable
+     * ResultSet. <p>
      *
      * <b>Notes:</b><p>
      *
@@ -620,7 +636,7 @@ public class jdbcBlob implements Blob {
      * this method
      * @see #getBinaryStream
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public OutputStream setBinaryStream(final long pos) throws SQLException {
 
@@ -665,11 +681,23 @@ public class jdbcBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * This operation affects only the client-side value; it has no effect upon
-     * a value stored in the database. To reflect an updated value in a
-     * database, it is required to use an updating setXXX method of an
-     * updating Prepared or Callable Statement, or to use an updateXXX method
-     * of and updateable ResultSet. <p>
+     * Up to 1.7.x, HSQLDB does not support this feature at all; Calling this
+     * method always throws an <code>SQLException</code>. <p>
+     *
+     * Starting with 1.8.0.x, this operation is supported, but 
+     * affects only the client-side value.
+     *
+     * Starting with HSQLDB 1.9.0 this feature is fully supported. <p>
+     * 
+     * When built under JDK 1.6+ and the Blob instance is constructed as a
+     * result of calling jdbcConnection.createBlob(), this operation affects
+     * only the client-side value; it has no effect upon a value stored in a
+     * database because jdbcConnection.createBlob() constructs disconnected,
+     * initially empty Blob instances. To propogate the truncated Blob value to
+     * a database in this case, it is required to supply the Blob instance to
+     * an updating or inserting setXXX method of a Prepared or Callable
+     * Statement, or to supply the Blob instance to an updateXXX method of an
+     * updateable ResultSet. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -681,7 +709,7 @@ public class jdbcBlob implements Blob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.8.x
+     * @revised JDK 1.6, HSQLDB 1.9.0
      */
     public void truncate(final long len) throws SQLException {
 
@@ -722,7 +750,7 @@ public class jdbcBlob implements Blob {
      * the Blob's resources
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void free() throws SQLException {
         this.data = null;
@@ -742,7 +770,7 @@ public class jdbcBlob implements Blob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public InputStream getBinaryStream(long pos,
                                        long length) throws SQLException {
