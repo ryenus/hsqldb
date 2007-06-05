@@ -246,7 +246,7 @@ public class jdbcClobClient implements Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void free() throws SQLException {
         clob.free();
@@ -266,7 +266,7 @@ public class jdbcClobClient implements Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
     public Reader getCharacterStream(long pos,
                                      long length) throws SQLException {
