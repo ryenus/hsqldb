@@ -2708,7 +2708,7 @@ public class jdbcConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this data type
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA2
     public Clob createClob() throws SQLException {
@@ -2732,7 +2732,7 @@ public class jdbcConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this data type
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA2
     public Blob createBlob() throws SQLException {
@@ -2756,7 +2756,7 @@ public class jdbcConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this data type
      *
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public NClob createNClob() throws SQLException {
@@ -2778,7 +2778,7 @@ public class jdbcConnection implements Connection {
      * called on a closed connection or a database access error occurs.
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this data type
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public SQLXML createSQLXML() throws SQLException {
@@ -2808,7 +2808,7 @@ public class jdbcConnection implements Connection {
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if the value supplied for <code>timeout</code>
      * is less then 0
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      * <p>
      * @see jdbcDatabaseMetaData#getClientInfoProperties
      */
@@ -2909,7 +2909,7 @@ public class jdbcConnection implements Connection {
      *                  setting the client info value on the database server or this method
      * is called on a closed connection
      * <p>
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
@@ -2957,7 +2957,7 @@ public class jdbcConnection implements Connection {
      * @param properties                the list of client info properties to set
      * <p>
      * @see java.sql.Connection#setClientInfo(String, String) setClientInfo(String, String)
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      * <p>
      * @throws SQLClientInfoException if the database server returns an error while
      *                  setting the clientInfo values on the database server or this method
@@ -3003,7 +3003,7 @@ public class jdbcConnection implements Connection {
      *                                                  fetching the client info value from the database
      * or this method is called on a closed connection
      * <p>
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      * <p>
      * @see java.sql.DatabaseMetaData#getClientInfoProperties
      */
@@ -3030,7 +3030,7 @@ public class jdbcConnection implements Connection {
      *                  fetching the client info values from the database
      * or this method is called on a closed connection
      * <p>
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public Properties getClientInfo()
@@ -3053,7 +3053,7 @@ public class jdbcConnection implements Connection {
      * @return A concrete implementation of a Query interface
      * @exception SQLException if a database access error occurs or this method
      * is called on a closed connection
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4BETA
 /*
@@ -3084,7 +3084,7 @@ public class jdbcConnection implements Connection {
      *
      * @return An concrete implementation of a Query interface
      * @exception SQLException if a database access error occurs.
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4BETA
 /*
@@ -3158,7 +3158,7 @@ public class jdbcConnection implements Connection {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
 
@@ -3187,7 +3187,7 @@ public class jdbcConnection implements Connection {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
 
