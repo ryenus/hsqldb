@@ -232,11 +232,13 @@ public class jdbcDriver implements Driver {
      *          web application servers, where the closing of the last
      *          connection conicides with the web app being shut down.</li>
      *
-     *      <li><code>default_schema</code> - the schema qualification used by
-     *          default when a schema qualifier is not included in a database
-     *          object's SQL identifier character sequence. It is considered
-     *          an error condition to request a non-existent default
-     *          schema.</li>
+     *      <li><code>default_schema</code> - backwards compatibility feature.
+     *          To be used for clients written before HSQLDB schema support.
+     *          Denotes whether to use the default schema when a schema
+     *          qualifier is not included in a database object's SQL identifier
+     *          character sequence. Also affects the semantics of
+     *          DatabaseMetaData calls that supply null-valued schemaNamePattern
+     *          parameter values.</li>
      *  </ul>
      *
      *
@@ -425,8 +427,7 @@ public class jdbcDriver implements Driver {
         p.choices  = choices;
         pinfo[3]   = p;
         p          = new DriverPropertyInfo("default_schema", null);
-        p.value = info.getProperty("default_schema",
-                                   SchemaManager.PUBLIC_SCHEMA);
+        p.value = info.getProperty("default_schema", "false");
         p.required = false;
         p.choices  = choices;
         pinfo[4]   = p;
