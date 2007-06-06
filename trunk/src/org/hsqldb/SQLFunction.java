@@ -1700,12 +1700,43 @@ public class SQLFunction extends Expression {
             case FUNC_SYSTEM_USER :
             case FUNC_USER :
             case FUNC_CURRENT_DATE :
-            case FUNC_CURRENT_TIME :
-            case FUNC_CURRENT_TIMESTAMP :
-            case FUNC_LOCALTIME :
-            case FUNC_LOCALTIMESTAMP :
                 return name;
 
+            case FUNC_LOCALTIME :
+            case FUNC_CURRENT_TIME : {
+                int precision = DateTimeType.defaultTimeFractionPrecision;
+
+                if (argList[0] != null) {
+                    precision = ((Number) argList[0].valueData).intValue();
+                }
+
+                if (precision == DateTimeType.defaultTimeFractionPrecision) {
+                    return name;
+                }
+
+                buf.append(name).append(Token.T_OPENBRACKET).append(precision);
+                buf.append(Token.T_CLOSEBRACKET);
+
+                return buf.toString();
+            }
+            case FUNC_LOCALTIMESTAMP :
+            case FUNC_CURRENT_TIMESTAMP : {
+                int precision = DateTimeType.defaultTimestampFractionPrecision;
+
+                if (argList[0] != null) {
+                    precision = ((Number) argList[0].valueData).intValue();
+                }
+
+                if (precision
+                        == DateTimeType.defaultTimestampFractionPrecision) {
+                    return name;
+                }
+
+                buf.append(name).append(Token.T_OPENBRACKET).append(precision);
+                buf.append(Token.T_CLOSEBRACKET);
+
+                return buf.toString();
+            }
             default :
                 throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
                                          "SQLFunction");

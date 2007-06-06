@@ -236,27 +236,27 @@ public class DatabaseScript {
                 addRow(r, ddl);
             }
 
-            // domains and types
+            // types and domains
             Iterator it =
                 database.schemaManager.database.schemaManager
-                    .databaseObjectIterator(schema.name, SchemaObject.DOMAIN);
-
-            while (it.hasNext()) {
-                SchemaObject type = (SchemaObject) it.next();
-
-                if (type.getName().type == SchemaObject.DOMAIN) {
-                    addRow(r, getDomainDDL((DomainType) type));
-                }
-            }
-
-            it = database.schemaManager.database.schemaManager
-                .databaseObjectIterator(schema.name, SchemaObject.TYPE);
+                    .databaseObjectIterator(schema.name, SchemaObject.TYPE);
 
             while (it.hasNext()) {
                 SchemaObject type = (SchemaObject) it.next();
 
                 if (type.getName().type == SchemaObject.TYPE) {
                     addRow(r, getDistinctTypeDDL((DistinctType) type));
+                }
+            }
+
+            it = database.schemaManager.database.schemaManager
+                .databaseObjectIterator(schema.name, SchemaObject.DOMAIN);
+
+            while (it.hasNext()) {
+                SchemaObject type = (SchemaObject) it.next();
+
+                if (type.getName().type == SchemaObject.DOMAIN) {
+                    addRow(r, getDomainDDL((DomainType) type));
                 }
             }
 
@@ -530,9 +530,10 @@ public class DatabaseScript {
         Constraint[] constraints = type.getConstraints();
 
         for (int i = 0; i < constraints.length; i++) {
-            sb.append(' ').append(Token.CONSTRAINT).append(' ');
-            sb.append(Token.CHECK).append(' ').append(
-                constraints[i].getCheckDDL());
+            sb.append(' ').append(Token.T_CONSTRAINT).append(' ');
+            sb.append(constraints[i].getName().statementName).append(' ');
+            sb.append(Token.T_CHECK).append(Token.T_OPENBRACKET).append(
+                constraints[i].getCheckDDL()).append(Token.T_CLOSEBRACKET);
         }
 
         return sb.toString();

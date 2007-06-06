@@ -56,6 +56,7 @@ public class DistinctType extends Type implements SchemaObject {
         super(baseType.type, baseType.precision, baseType.scale);
 
         this.name = name;
+        this.baseType = baseType;
     }
 
     public Type getBaseType() {

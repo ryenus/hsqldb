@@ -2547,7 +2547,7 @@ class Parser extends BaseParser {
             readThis(Token.AS);
         }
 
-        Type typeObject = readTypeDefinition();
+        Type typeObject = readTypeDefinition(false);
 
         if (l.isParam()) {
             l.setDataType(typeObject);
@@ -2560,10 +2560,36 @@ class Parser extends BaseParser {
         return l;
     }
 
-    Type readTypeDefinition() throws HsqlException {
+    Type readTypeDefinition(boolean includeDomains) throws HsqlException {
 
         int typeNumber = Type.getTypeNr(tokenString);
 
+        if (typeNumber == Integer.MIN_VALUE) {
+            String schemaName = session.getSchemaName(namePrefix);
+            Type type = database.schemaManager.getDistinctType(tokenString,
+                schemaName, false);
+
+            if (type != null) {
+                read();
+
+                return type;
+            }
+
+            if (includeDomains) {
+                type = database.schemaManager.getDomain(tokenString,
+                        schemaName, false);
+            }
+
+            if (type != null) {
+                read();
+
+                return type;
+            }
+
+            throw Trace.error(Trace.WRONG_DATA_TYPE);
+        }
+
+        checkIsSimpleName();
         read();
 
         switch (typeNumber) {

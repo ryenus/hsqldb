@@ -63,6 +63,7 @@ public class DomainType extends Type implements SchemaObject {
         super(baseType.type, baseType.precision, baseType.scale);
 
         this.name              = name;
+        this.baseType          = baseType;
         this.constraints       = checkConstraints;
         this.defaultExpression = defaultExpression;
     }
@@ -76,8 +77,8 @@ public class DomainType extends Type implements SchemaObject {
 
         int position = constraints.length;
 
-        ArrayUtil.resizeArray(constraints, position + 1);
-
+        constraints = (Constraint[]) ArrayUtil.resizeArray(constraints,
+                position + 1);
         constraints[position] = c;
     }
 

@@ -622,16 +622,12 @@ public abstract class Type {
         typeAliases.put("OBJECT", Types.OTHER);
     }
 
-    public static int getTypeNr(String name) throws HsqlException {
+    public static int getTypeNr(String name) {
 
         int i = typeNames.get(name, Integer.MIN_VALUE);
 
         if (i == Integer.MIN_VALUE) {
             i = typeAliases.get(name, Integer.MIN_VALUE);
-        }
-
-        if (i == Integer.MIN_VALUE) {
-            throw Trace.error(Trace.WRONG_DATA_TYPE, name);
         }
 
         return i;
