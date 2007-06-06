@@ -36,6 +36,7 @@ import java.lang.reflect.Modifier;
 
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.Trace;
@@ -45,7 +46,6 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.WrapperIterator;
-import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 
 /* $Id$ */
@@ -459,8 +459,10 @@ final class DINameSpace {
         Iterator schemas = database.schemaManager.userSchemaNameIterator();
 
         while (schemas.hasNext()) {
-            String   schema = (String) schemas.next();
-            Iterator tables = database.schemaManager.tablesIterator(schema);
+            String schema = (String) schemas.next();
+            Iterator tables =
+                database.schemaManager.databaseObjectIterator(schema,
+                    SchemaObject.TABLE);
 
             while (tables.hasNext()) {
                 table        = (Table) tables.next();

@@ -2967,7 +2967,7 @@ class Parser extends BaseParser {
 
         String schema = session.getSchemaName(namePrefix);
         NumberSequence sequence =
-            database.schemaManager.getSequence(tokenString, schema);
+            database.schemaManager.getSequence(tokenString, schema, true);
 
         recordCurrent();
         read();

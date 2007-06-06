@@ -39,6 +39,7 @@ import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.SchemaManager;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.Types;
@@ -307,8 +308,10 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return an enumeration over all of the tables in this database
      */
     protected final Iterator allTables() {
-        return new WrapperIterator(database.schemaManager.allTablesIterator(),
-                                   new WrapperIterator(sysTables, true));
+
+        return new WrapperIterator(
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE),
+            new WrapperIterator(sysTables, true));
     }
 
     /**
@@ -819,12 +822,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int iinKey          = 12;
 
         // Initialization
-        ti     = new DITableInfo();
-        p      = database.getProperties();
-        tables = p.isPropertyTrue("hsqldb.system_table_bri") ? allTables()
-                                                             : database
-                                                             .schemaManager
-                                                                 .allTablesIterator();
+        ti = new DITableInfo();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         // Do it.
         while (tables.hasNext()) {
@@ -1297,7 +1297,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int ipk_name        = 12;
         final int ideferrability  = 13;
 
-        tables = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
         pkInfo = new DITableInfo();
         fkInfo = new DITableInfo();
 
@@ -1506,7 +1507,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         p  = database.getProperties();
         tables = p.isPropertyTrue("hsqldb.system_table_indexinfo")
                  ? allTables()
-                 : database.schemaManager.allTablesIterator();
+                 : database.schemaManager.databaseObjectIterator(
+                     SchemaObject.TABLE);
 
         // Do it.
         while (tables.hasNext()) {
@@ -1649,7 +1651,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         p = database.getProperties();
         tables = p.isPropertyTrue("hsqldb.system_table_primarykeys")
                  ? allTables()
-                 : database.schemaManager.allTablesIterator();
+                 : database.schemaManager.databaseObjectIterator(
+                     SchemaObject.TABLE);
 
         while (tables.hasNext()) {
             table = (Table) tables.next();
@@ -2850,7 +2853,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int icons_name   = 2;
         final int icons_clause = 3;
 
-        tables = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         while (tables.hasNext()) {
             table = (Table) tables.next();
@@ -3017,7 +3021,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         NumberSequence sequence;
         int            dataType;
 
-        it = database.schemaManager.allSequencesIterator();
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.SEQUENCE);
 
         while (it.hasNext()) {
             row              = t.getEmptyRowData();

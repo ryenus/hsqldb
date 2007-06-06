@@ -341,7 +341,7 @@ public class Constraint implements SchemaObject {
         return core.refCols;
     }
 
-    public String getCheckDDL() throws HsqlException {
+    public String getCheckDDL() {
         return check.getDDL();
     }
 

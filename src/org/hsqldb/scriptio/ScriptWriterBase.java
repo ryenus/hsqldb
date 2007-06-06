@@ -41,6 +41,7 @@ import org.hsqldb.DatabaseScript;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.Token;
@@ -273,8 +274,10 @@ public abstract class ScriptWriterBase implements Runnable {
         Iterator schemas = database.schemaManager.userSchemaNameIterator();
 
         while (schemas.hasNext()) {
-            String   schema = (String) schemas.next();
-            Iterator tables = database.schemaManager.tablesIterator(schema);
+            String schema = (String) schemas.next();
+            Iterator tables =
+                database.schemaManager.databaseObjectIterator(schema,
+                    SchemaObject.TABLE);
 
             while (tables.hasNext()) {
                 Table t = (Table) tables.next();
@@ -296,7 +299,7 @@ public abstract class ScriptWriterBase implements Runnable {
                         break;
 
                     case Table.TEXT_TABLE :
-                        script = includeCachedData &&!t.isReadOnly();
+                        script = includeCachedData && !t.isReadOnly();
                         break;
                 }
 
@@ -309,7 +312,8 @@ public abstract class ScriptWriterBase implements Runnable {
                         RowIterator it = t.rowIterator(currentSession);
 
                         while (it.hasNext()) {
-                            writeRow(currentSession, t, it.getNext().getData());
+                            writeRow(currentSession, t,
+                                     it.getNext().getData());
                         }
 
                         writeTableTerm(t);
@@ -323,12 +327,11 @@ public abstract class ScriptWriterBase implements Runnable {
         writeDataTerm();
     }
 
-    protected void writeTableInit(Table t)
-    throws HsqlException, IOException {}
+    protected void writeTableInit(Table t) throws HsqlException, IOException {}
 
     protected void writeTableTerm(Table t) throws HsqlException, IOException {
 
-        if (t.isDataReadOnly() &&!t.isTemp() &&!t.isText()) {
+        if (t.isDataReadOnly() && !t.isTemp() && !t.isText()) {
             StringBuffer a = new StringBuffer("SET TABLE ");
 
             a.append(t.getName().statementName);

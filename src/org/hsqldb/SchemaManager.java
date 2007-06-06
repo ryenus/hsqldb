@@ -120,14 +120,15 @@ public class SchemaManager {
             OrderedHashSet externalReferences = new OrderedHashSet();
 
             getCascadingSchemaReferences(schema.getName(), externalReferences);
-            removeDatabaseObjects(externalReferences);
+            removeSchemaObjects(externalReferences);
         } else {
             if (!schema.isEmpty()) {
                 throw Trace.error(Trace.DEPENDENT_DATABASE_OBJECT_EXISTS);
             }
         }
 
-        Iterator tableIterator = schema.tablesIterator();
+        Iterator tableIterator =
+            schema.schemaObjectIterator(SchemaObject.TABLE);
 
         while (tableIterator.hasNext()) {
             Table table = ((Table) tableIterator.next());
@@ -136,7 +137,8 @@ public class SchemaManager {
             table.drop();
         }
 
-        Iterator sequenceIterator = schema.sequencesIterator();
+        Iterator sequenceIterator =
+            schema.schemaObjectIterator(SchemaObject.SEQUENCE);
 
         while (tableIterator.hasNext()) {
             NumberSequence sequence =
@@ -359,29 +361,6 @@ public class SchemaManager {
         return false;
     }
 
-    // TABLE management
-    public Iterator tablesIterator(String schema) {
-
-        Schema temp = (Schema) schemaMap.get(schema);
-
-        return temp.tablesIterator();
-    }
-
-    public Iterator allTablesIterator() {
-
-        Iterator schemas = userSchemaNameIterator();
-        Iterator tables  = new WrapperIterator();
-
-        while (schemas.hasNext()) {
-            String   name = (String) schemas.next();
-            Iterator t    = tablesIterator(name);
-
-            tables = new WrapperIterator(tables, t);
-        }
-
-        return tables;
-    }
-
     /**
      *  Returns an HsqlArrayList containing references to all non-system
      *  tables and views. This includes all tables and views registered with
@@ -409,8 +388,7 @@ public class SchemaManager {
         return temp.tableList;
     }
 
-    void checkUserObjectNotExists(Session session,
-                                  HsqlName name) throws HsqlException {
+    void checkSchemaObjectNotExists(HsqlName name) throws HsqlException {
 
         Schema          schema = (Schema) schemaMap.get(name.schema.name);
         SchemaObjectSet set    = null;
@@ -589,7 +567,7 @@ public class SchemaManager {
         session.commit();
 
         if (table.isView()) {
-            removeDatabaseObject(table.getName(), cascade);
+            removeSchemaObject(table.getName(), cascade);
         } else {
             dropTable(session, table, cascade);
         }
@@ -656,7 +634,7 @@ public class SchemaManager {
         tw.makeNewTables(tableSet, constraintNameSet, indexNameSet);
         tw.setNewTablesInSchema(tableSet);
         tw.updateConstraints(tableSet, constraintNameSet);
-        removeDatabaseObjects(externalReferences);
+        removeSchemaObjects(externalReferences);
         removeReferencedObject(table.getName());
         schema.tableList.remove(dropIndex);
         database.getGranteeManager().removeDbObject(table.getName());
@@ -720,126 +698,6 @@ public class SchemaManager {
     }
 
     // SEQUENCE management
-    Iterator sequenceIterator(String schema) {
-
-        Schema temp = (Schema) schemaMap.get(schema);
-
-        return temp.sequencesIterator();
-    }
-
-    public Iterator allSequencesIterator() {
-
-        Iterator it        = schemaMap.values().iterator();
-        Iterator sequences = new WrapperIterator();
-
-        while (it.hasNext()) {
-            Schema temp = (Schema) it.next();
-
-            sequences = new WrapperIterator(sequences,
-                                            temp.sequencesIterator());
-        }
-
-        return sequences;
-    }
-
-    NumberSequence getSequence(String name,
-                               String schemaName) throws HsqlException {
-
-        NumberSequence sequence = findSequence(name, schemaName);
-
-        if (sequence == null) {
-            throw Trace.error(Trace.SEQUENCE_NOT_FOUND, name);
-        }
-
-        return sequence;
-    }
-
-    /**
-     *  Returns the specified Sequence visible within the
-     *  context of the specified Session.
-     *  Returns null if the sequence does not exist in the context.
-     */
-    public NumberSequence findSequence(String name, String schemaName) {
-
-        Schema schema = (Schema) schemaMap.get(schemaName);
-
-        if (schema == null) {
-            return null;
-        }
-
-        NumberSequence sequence =
-            (NumberSequence) schema.sequenceList.get(name);
-
-        return sequence;
-    }
-
-    DomainType getDomain(String name, String schemaName) throws HsqlException {
-
-        DomainType domain = findDomain(name, schemaName);
-
-        if (domain == null) {
-            throw Trace.error(Trace.SEQUENCE_NOT_FOUND, name);
-        }
-
-        return domain;
-    }
-
-    /**
-     *  Returns the specified Sequence visible within the
-     *  context of the specified Session.
-     *  Returns null if the sequence does not exist in the context.
-     */
-    public DomainType findDomain(String name, String schemaName) {
-
-        Schema schema = (Schema) schemaMap.get(schemaName);
-
-        if (schema == null) {
-            return null;
-        }
-
-        SchemaObject domain = schema.typeLookup.getObject(name);
-
-        if (domain instanceof DomainType) {
-            return (DomainType) domain;
-        } else {
-            return null;
-        }
-    }
-
-    DistinctType getDistinctType(String name,
-                                 String schemaName) throws HsqlException {
-
-        DistinctType distinctType = findDistinctType(name, schemaName);
-
-        if (distinctType == null) {
-            throw Trace.error(Trace.SEQUENCE_NOT_FOUND, name);
-        }
-
-        return distinctType;
-    }
-
-    /**
-     *  Returns the specified Sequence visible within the
-     *  context of the specified Session.
-     *  Returns null if the sequence does not exist in the context.
-     */
-    public DistinctType findDistinctType(String name, String schemaName) {
-
-        Schema schema = (Schema) schemaMap.get(schemaName);
-
-        if (schema == null) {
-            return null;
-        }
-
-        SchemaObject distinctType = schema.typeLookup.getObject(name);
-
-        if (distinctType instanceof DistinctType) {
-            return (DistinctType) distinctType;
-        } else {
-            return null;
-        }
-    }
-
     void logSequences(Session session, Logger logger) throws HsqlException {
 
         for (int i = 0, size = schemaMap.size(); i < size; i++) {
@@ -853,6 +711,135 @@ public class SchemaManager {
                     logger.writeSequenceStatement(session, seq);
                 }
             }
+        }
+    }
+
+    NumberSequence getSequence(String name, String schemaName,
+                               boolean raise) throws HsqlException {
+
+        Schema schema = (Schema) schemaMap.get(schemaName);
+
+        if (schema != null) {
+            NumberSequence object =
+                (NumberSequence) schema.sequenceList.get(name);
+
+            if (object != null) {
+                return object;
+            }
+        }
+
+        if (raise) {
+            throw Trace.error(Trace.SEQUENCE_NOT_FOUND, name);
+        }
+
+        return null;
+    }
+
+    public DomainType getDomain(String name, String schemaName,
+                                boolean raise) throws HsqlException {
+
+        Schema schema = (Schema) schemaMap.get(schemaName);
+
+        if (schema != null) {
+            SchemaObject object = schema.typeLookup.getObject(name);
+
+            if (object instanceof DomainType) {
+                return (DomainType) object;
+            }
+        }
+
+        if (raise) {
+            throw Trace.error(Trace.SEQUENCE_NOT_FOUND, name);
+        }
+
+        return null;
+    }
+
+    public DistinctType getDistinctType(String name, String schemaName,
+                                        boolean raise) throws HsqlException {
+
+        Schema schema = (Schema) schemaMap.get(schemaName);
+
+        if (schema != null) {
+            SchemaObject object = schema.typeLookup.getObject(name);
+
+            if (object instanceof DistinctType) {
+                return (DistinctType) object;
+            }
+        }
+
+        if (raise) {
+            throw Trace.error(Trace.SEQUENCE_NOT_FOUND, name);
+        }
+
+        return null;
+    }
+
+    public SchemaObject findSchemaObject(String name, String schemaName,
+                                         int type) {
+
+        Schema schema = (Schema) schemaMap.get(schemaName);
+
+        if (schema == null) {
+            return null;
+        }
+
+        SchemaObjectSet set = null;
+        HsqlName        tableName;
+        Table           table;
+
+        switch (type) {
+
+            case SchemaObject.SEQUENCE :
+                return schema.sequenceLookup.getObject(name);
+
+            case SchemaObject.TABLE :
+            case SchemaObject.VIEW :
+                return schema.sequenceLookup.getObject(name);
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                return schema.sequenceLookup.getObject(name);
+
+            case SchemaObject.INDEX :
+                set       = schema.indexLookup;
+                tableName = set.getName(name);
+
+                if (tableName == null) {
+                    return null;
+                }
+
+                table = (Table) schema.tableList.get(name);
+
+                return table.getIndex(name);
+
+            case SchemaObject.CONSTRAINT :
+                set       = schema.indexLookup;
+                tableName = set.getName(name);
+
+                if (tableName == null) {
+                    return null;
+                }
+
+                table = (Table) schema.tableList.get(name);
+
+                return table.getConstraint(name);
+
+            case SchemaObject.TRIGGER :
+                set       = schema.indexLookup;
+                tableName = set.getName(name);
+
+                if (tableName == null) {
+                    return null;
+                }
+
+                table = (Table) schema.tableList.get(name);
+
+                return table.getTrigger(name);
+
+            default :
+                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                                         "SchemaManager");
         }
     }
 
@@ -903,12 +890,13 @@ public class SchemaManager {
         tw.dropIndex(indexname);
     }
 
-    void removeDependentNames(HsqlName tableName) {
+    void removeDependentObjects(HsqlName name) {
 
-        Schema schema = (Schema) schemaMap.get(tableName.schema.name);
+        Schema schema = (Schema) schemaMap.get(name.schema.name);
 
-        schema.indexLookup.removeParent(tableName);
-        schema.constraintLookup.removeParent(tableName);
+        schema.indexLookup.removeParent(name);
+        schema.constraintLookup.removeParent(name);
+        schema.triggerLookup.removeParent(name);
     }
 
     /**
@@ -942,8 +930,30 @@ public class SchemaManager {
         }
     }
 
+    public Iterator databaseObjectIterator(String schemaName, int type) {
+
+        Schema schema = (Schema) schemaMap.get(schemaName);
+
+        return schema.schemaObjectIterator(type);
+    }
+
+    public Iterator databaseObjectIterator(int type) {
+
+        Iterator it      = schemaMap.values().iterator();
+        Iterator objects = new WrapperIterator();
+
+        while (it.hasNext()) {
+            Schema temp = (Schema) it.next();
+
+            objects = new WrapperIterator(objects,
+                                          temp.schemaObjectIterator(type));
+        }
+
+        return objects;
+    }
+
     // references
-    void addReferences(SchemaObject object) {
+    private void addReferences(SchemaObject object) {
 
         OrderedHashSet set = object.getReferences();
 
@@ -962,11 +972,11 @@ public class SchemaManager {
         }
     }
 
-    void removeReferencedObject(HsqlName referenced) {
+    private void removeReferencedObject(HsqlName referenced) {
         referenceMap.remove(referenced);
     }
 
-    void removeReferencingObject(SchemaObject object) {
+    private void removeReferencingObject(SchemaObject object) {
 
         OrderedHashSet set = object.getReferences();
 
@@ -981,7 +991,7 @@ public class SchemaManager {
         }
     }
 
-    OrderedHashSet getReferencingObjects(HsqlName object) {
+    private OrderedHashSet getReferencingObjects(HsqlName object) {
 
         OrderedHashSet set = new OrderedHashSet();
         Iterator       it  = referenceMap.get(object);
@@ -1015,12 +1025,12 @@ public class SchemaManager {
         return set;
     }
 
-    boolean isReferenced(HsqlName object) {
+    private boolean isReferenced(HsqlName object) {
         return referenceMap.containsKey(object);
     }
 
     //
-    void getCascadingReferences(HsqlName object, OrderedHashSet set) {
+    private void getCascadingReferences(HsqlName object, OrderedHashSet set) {
 
         OrderedHashSet newSet = new OrderedHashSet();
         Iterator       it     = referenceMap.get(object);
@@ -1042,7 +1052,8 @@ public class SchemaManager {
     }
 
     //
-    void getCascadingSchemaReferences(HsqlName schema, OrderedHashSet set) {
+    private void getCascadingSchemaReferences(HsqlName schema,
+            OrderedHashSet set) {
 
         Iterator mainIterator = referenceMap.keySet().iterator();
 
@@ -1068,8 +1079,8 @@ public class SchemaManager {
     }
 
     //
-    HsqlName getDatabaseObjectName(HsqlName schemaName, String name,
-                                   int type) throws HsqlException {
+    HsqlName getSchemaObjectName(HsqlName schemaName, String name,
+                                 int type) throws HsqlException {
 
         Schema          schema = (Schema) schemaMap.get(schemaName.name);
         SchemaObjectSet set    = null;
@@ -1192,7 +1203,7 @@ public class SchemaManager {
         throw Trace.error(error, name.schema.name + '.' + refName.name);
     }
 
-    void addDatabaseObject(SchemaObject object) throws HsqlException {
+    void addSchemaObject(SchemaObject object) throws HsqlException {
 
         HsqlName        name   = object.getName();
         Schema          schema = (Schema) schemaMap.get(name.schema.name);
@@ -1231,8 +1242,8 @@ public class SchemaManager {
         addReferences(object);
     }
 
-    void removeDatabaseObject(HsqlName name,
-                              boolean cascade) throws HsqlException {
+    void removeSchemaObject(HsqlName name,
+                            boolean cascade) throws HsqlException {
 
         OrderedHashSet objectSet = new OrderedHashSet();
 
@@ -1248,7 +1259,7 @@ public class SchemaManager {
         }
 
         if (objectSet.isEmpty()) {
-            removeDatabaseObject(name);
+            removeSchemaObject(name);
 
             return;
         }
@@ -1258,33 +1269,29 @@ public class SchemaManager {
         }
 
         objectSet.add(name);
-        removeDatabaseObjects(objectSet);
+        removeSchemaObjects(objectSet);
     }
 
-    void removeDatabaseObjects(OrderedHashSet set) throws HsqlException {
+    void removeSchemaObjects(OrderedHashSet set) throws HsqlException {
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName name = (HsqlName) set.get(i);
 
-            removeDatabaseObject(name);
+            removeSchemaObject(name);
         }
     }
 
-    void removeDatabaseObject(HsqlName name) throws HsqlException {
+    void removeSchemaObject(HsqlName name) throws HsqlException {
 
         Schema          schema = (Schema) schemaMap.get(name.schema.name);
-        SchemaObject    object;
-        Table           table;
-        SchemaObjectSet set = null;
+        SchemaObject    object = null;
+        SchemaObjectSet set    = null;
 
         switch (name.type) {
 
             case SchemaObject.SEQUENCE :
                 set    = schema.sequenceLookup;
                 object = set.getObject(name.name);
-
-                set.remove(name.name);
-                database.getGranteeManager().removeDbObject(object.getName());
                 break;
 
             case SchemaObject.TABLE :
@@ -1293,8 +1300,6 @@ public class SchemaManager {
                 object = set.getObject(name.name);
 
                 set.remove(name.name);
-                removeReferencingObject(object);
-                database.getGranteeManager().removeDbObject(object.getName());
 
                 break;
             }
@@ -1302,54 +1307,57 @@ public class SchemaManager {
             case SchemaObject.TYPE :
                 set    = schema.typeLookup;
                 object = set.getObject(name.name);
-
-                set.remove(name.name);
-                removeReferencingObject(object);
-                database.getGranteeManager().removeDbObject(object.getName());
                 break;
 
             case SchemaObject.INDEX :
                 set = schema.indexLookup;
-
-                set.remove(name.name);
                 break;
 
-            case SchemaObject.CONSTRAINT :
+            case SchemaObject.CONSTRAINT : {
                 set = schema.constraintLookup;
 
-                set.remove(name.name);
+                if (name.parent.type == SchemaObject.TABLE) {
+                    Table table =
+                        (Table) schema.tableList.get(name.parent.name);
 
-                table  = (Table) schema.tableList.get(name.parent.name);
-                object = table.getConstraint(name.name);
+                    object = table.getConstraint(name.name);
 
-                table.removeConstraint(name.name);
+                    table.removeConstraint(name.name);
+                } else if (name.parent.type == SchemaObject.DOMAIN) {
+                    DomainType domain =
+                        (DomainType) schema.tableList.get(name.parent.name);
 
-                if (object != null) {
-                    removeReferencingObject(object);
+                    object = domain.getConstraint(name.name);
+
+                    domain.removeConstraint(name.name);
                 }
-                break;
 
-            case SchemaObject.TRIGGER :
+                break;
+            }
+            case SchemaObject.TRIGGER : {
                 set = schema.triggerLookup;
 
-                set.remove(name.name);
+                Table table = (Table) schema.tableList.get(name.parent.name);
 
-                table  = (Table) schema.tableList.get(name.parent.name);
                 object = table.getTrigger(name.name);
 
                 table.removeTrigger(name.name);
 
-                if (object != null) {
-                    removeReferencingObject(object);
-                }
                 break;
+            }
         }
 
+        if (object != null) {
+            database.getGranteeManager().removeDbObject(object.getName());
+            removeReferencingObject(object);
+        }
+
+        set.remove(name.name);
         removeReferencedObject(name);
     }
 
-    void renameDatabaseObject(HsqlName name,
-                              HsqlName newName) throws HsqlException {
+    void renameSchemaObject(HsqlName name,
+                            HsqlName newName) throws HsqlException {
 
         if (name.schema != newName.schema) {
             throw Trace.error(Trace.INVALID_SCHEMA_NAME_NO_SUBCLASS);
@@ -1436,12 +1444,29 @@ public class SchemaManager {
             return sequenceList.isEmpty() && tableList.isEmpty();
         }
 
-        Iterator tablesIterator() {
-            return tableList.values().iterator();
-        }
+        Iterator schemaObjectIterator(int type) {
 
-        Iterator sequencesIterator() {
-            return sequenceList.values().iterator();
+            switch (type) {
+
+                case SchemaObject.SEQUENCE :
+                    return sequenceLookup.map.values().iterator();
+
+                case SchemaObject.TABLE :
+                case SchemaObject.VIEW :
+                    return tableLookup.map.values().iterator();
+
+                case SchemaObject.DOMAIN :
+                case SchemaObject.TYPE :
+                    return typeLookup.map.values().iterator();
+
+                case SchemaObject.INDEX :
+                case SchemaObject.CONSTRAINT :
+                case SchemaObject.TRIGGER :
+                default :
+                    throw Trace.runtimeError(
+                        Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                        "SchemaObjectSet");
+            }
         }
 
         void clearStructures() {

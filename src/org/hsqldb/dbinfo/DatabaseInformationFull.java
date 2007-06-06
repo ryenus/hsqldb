@@ -41,6 +41,7 @@ import org.hsqldb.Function;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaManager;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TriggerDef;
@@ -56,7 +57,6 @@ import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.TextCache;
 import org.hsqldb.result.Result;
-import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.scriptio.ScriptWriterBase;
@@ -458,7 +458,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         cacheSet = new HashSet();
 
         // dynamic system tables are never cached
-        tables = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         while (tables.hasNext()) {
             table = (Table) tables.next();
@@ -1157,7 +1158,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iid          = 12;
 
         // Initialization
-        tables = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         // Do it.
         while (tables.hasNext()) {
@@ -1390,7 +1392,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int itrigger_body      = 15;
 
         // Initialization
-        tables = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         // these are the only values supported, currently
         actionType       = "CALL";
@@ -1756,7 +1759,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iiupd  = 5;
         final int ivalid = 6;
 
-        tables = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         while (tables.hasNext()) {
             table = (Table) tables.next();
@@ -2298,7 +2302,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int itab_col    = 6;
 
         // Initialization
-        tables = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         // Do it.
         while (tables.hasNext()) {
@@ -2441,7 +2446,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int ir_schem    = 4;
         final int ir_name     = 5;
 
-        tables    = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
         collector = new HashSet();
 
         while (tables.hasNext()) {
@@ -2724,8 +2730,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iinit_defr  = 8;
 
         // initialization
-        tables = database.schemaManager.allTablesIterator();
-        table  = null;    // else complier complains
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+        table = null;    // else complier complains
 
         // do it
         while (tables.hasNext()) {
@@ -2950,7 +2957,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int it_cname = 6;
 
         // Initialization
-        tables    = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
         collector = new HashSet();
 
         // Do it.
@@ -3081,7 +3089,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int ir_sig   = 6;
 
         // Initialization
-        tables    = database.schemaManager.allTablesIterator();
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
         collector = new HashSet();
 
         // Do it.

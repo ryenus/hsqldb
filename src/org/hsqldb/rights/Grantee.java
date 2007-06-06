@@ -345,7 +345,6 @@ public class Grantee {
      * This method removes any existing mapping from the rights map
      */
     void revokeDbObject(HsqlName name) {
-
         directRightsMap.remove(name);
         fullRightsMap.remove(name);
     }
@@ -1010,8 +1009,9 @@ public class Grantee {
                 }
 
                 NumberSequence sequence =
-                    granteeManager.db.schemaManager.findSequence(
-                        hsqlname.name, hsqlname.schema.name);
+                    (NumberSequence) granteeManager.db.schemaManager
+                        .findSchemaObject(hsqlname.name, hsqlname.schema.name,
+                                          SchemaObject.SEQUENCE);
 
                 if (sequence != null && hsqlname == sequence.getName()) {
                     a.append(Token.T_GRANT).append(' ');

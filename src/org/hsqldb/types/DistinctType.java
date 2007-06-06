@@ -58,6 +58,10 @@ public class DistinctType extends Type implements SchemaObject {
         this.name = name;
     }
 
+    public Type getBaseType() {
+        return baseType;
+    }
+
     // interface specific methods
     public HsqlName getName() {
         return name;
@@ -68,7 +72,7 @@ public class DistinctType extends Type implements SchemaObject {
     }
 
     public Grantee getOwner() {
-        return null;
+        return name.owner;
     }
 
     public OrderedHashSet getReferences() {
@@ -117,7 +121,7 @@ public class DistinctType extends Type implements SchemaObject {
     }
 
     public String getDefinition() {
-        return baseType.getDefinition();
+        return name.statementName;
     }
 
     public String getJDBCClassName() {

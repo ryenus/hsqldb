@@ -31,13 +31,14 @@
 
 package org.hsqldb.types;
 
-import org.hsqldb.HsqlException;
-import org.hsqldb.Session;
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Constraint;
 import org.hsqldb.Expression;
-import org.hsqldb.SchemaObject;
+import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.SchemaObject;
+import org.hsqldb.Session;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 
@@ -52,45 +53,60 @@ public class DomainType extends Type implements SchemaObject {
 
     Type         baseType;
     HsqlName     name;
-    Constraint[] checkConstraints;
+    Constraint[] constraints;
     Expression   defaultExpression;
 
-    public DomainType(HsqlName name, Type baseType, Constraint[] checkConstraints,
-               Expression defaultExpression) {
+    public DomainType(HsqlName name, Type baseType,
+                      Constraint[] checkConstraints,
+                      Expression defaultExpression) {
 
         super(baseType.type, baseType.precision, baseType.scale);
 
         this.name              = name;
-        this.checkConstraints  = checkConstraints;
+        this.constraints       = checkConstraints;
         this.defaultExpression = defaultExpression;
     }
 
-    // interface specific methods
-    public HsqlName getName() {
-        return name;
-    }
-
-    public HsqlName getSchemaName() {
-        return name.schema;
-    }
-
-    public Grantee getOwner() {
-        return null;
-    }
-
-    public OrderedHashSet getReferences() {
-        return null;
-    }
-
-    public void compile(Session session) {}
-
     // class-specific methods
-    public void addConstraint(Constraint c) {}
+    public Type getBaseType() {
+        return baseType;
+    }
 
-    public void removeConstraint(String name) {}
+    public void addConstraint(Constraint c) {
+
+        int position = constraints.length;
+
+        ArrayUtil.resizeArray(constraints, position + 1);
+
+        constraints[position] = c;
+    }
+
+    public void removeConstraint(String name) {
+
+        for (int i = 0; i < constraints.length; i++) {
+            if (constraints[i].getName().name.equals(name)) {
+                constraints =
+                    (Constraint[]) ArrayUtil.toAdjustedArray(constraints,
+                        null, i, -1);
+
+                break;
+            }
+        }
+    }
+
+    public Constraint getConstraint(String name) {
+
+        for (int i = 0; i < constraints.length; i++) {
+            if (constraints[i].getName().name.equals(name)) {
+                return constraints[i];
+            }
+        }
+
+        return null;
+    }
 
     public Constraint[] getConstraints() {
-        return checkConstraints;
+        return constraints;
     }
 
     public Expression getDefaultClause() {
@@ -103,6 +119,45 @@ public class DomainType extends Type implements SchemaObject {
 
     public void removeDefaultClause() {
         defaultExpression = null;
+    }
+
+    // interface specific methods
+    public HsqlName getName() {
+        return name;
+    }
+
+    public HsqlName getSchemaName() {
+        return name.schema;
+    }
+
+    public Grantee getOwner() {
+        return name.owner;
+    }
+
+    public OrderedHashSet getReferences() {
+
+        if (constraints.length == 0) {
+            return null;
+        }
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        for (int i = 0; i < constraints.length; i++) {
+            OrderedHashSet subSet = constraints[i].getReferences();
+
+            if (subSet != null) {
+                set.addAll(subSet);
+            }
+        }
+
+        return set;
+    }
+
+    public void compile(Session session) throws HsqlException {
+
+        for (int i = 0; i < constraints.length; i++) {
+            constraints[i].compile(session);
+        }
     }
 
     // overridden abstract methods
@@ -145,7 +200,7 @@ public class DomainType extends Type implements SchemaObject {
     }
 
     public String getDefinition() {
-        return baseType.getDefinition();
+        return name.statementName;
     }
 
     public String getJDBCClassName() {
