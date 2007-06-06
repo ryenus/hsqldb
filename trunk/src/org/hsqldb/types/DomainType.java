@@ -259,6 +259,14 @@ public class DomainType extends Type implements SchemaObject {
         return baseType.divide(a, b);
     }
 
+    public Type getParentType() {
+        return baseType;
+    }
+
+    public boolean isDomainType() {
+        return true;
+    }
+
     public boolean isBinaryType() {
         return baseType.isBinaryType();
     }
@@ -273,10 +281,6 @@ public class DomainType extends Type implements SchemaObject {
 
     public boolean isDateTimeType() {
         return baseType.isDateTimeType();
-    }
-
-    public boolean isDomainType() {
-        return true;
     }
 
     public boolean isIntegralType() {

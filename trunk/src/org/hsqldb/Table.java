@@ -689,7 +689,18 @@ public class Table extends BaseTable implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        for (int i = 0; i < colTypes.length; i++) {
+            if (colTypes[i].isDomainType() || colTypes[i].isDistinctType()) {
+                HsqlName name = ((SchemaObject) colTypes[i]).getName();
+
+                set.add(name);
+            }
+        }
+
+        return set;
     }
 
     public void compile(Session session) throws HsqlException {}
@@ -2851,6 +2862,21 @@ public class Table extends BaseTable implements SchemaObject {
 
         columnList.setKey(i, newName);
         column.columnName.rename(newName, isquoted);
+    }
+
+    void removeDomainOrType(HsqlName name) {
+
+        for (int i = 0; i < colTypes.length; i++) {
+            if (colTypes[i].isDomainType() || colTypes[i].isDistinctType()) {
+                if ( name == ((SchemaObject) colTypes[i]).getName()) {
+                    Type baseType = colTypes[i].getParentType();
+                    getColumn(i).setType(baseType);
+                    setColumnTypeVars(i);
+                }
+            }
+        }
+
+
     }
 
     /**

@@ -137,6 +137,10 @@ public abstract class Type {
 
     public abstract String convertToSQLString(Object a);
 
+    public Type getParentType() {
+        return null;
+    }
+
     public boolean isDistinctType() {
         return false;
     }
