@@ -536,7 +536,7 @@ public final class CompiledStatementExecutor {
 
         logTableDDL(t);
         t.insertIntoTable(session, result);
-        session.database.schemaManager.addDatabaseObject(t);
+        session.database.schemaManager.addSchemaObject(t);
 
         return Result.newUpdateCountResult(result.getNavigator().getSize());
     }

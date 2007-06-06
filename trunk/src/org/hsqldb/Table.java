@@ -2453,7 +2453,7 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      * Drops a trigger.
      */
-    TriggerDef getTrigger(String name) throws HsqlException {
+    TriggerDef getTrigger(String name) {
 
         // look in each trigger list of each type of trigger
         int numTrigs = TriggerDef.NUM_TRIGS;
@@ -2474,7 +2474,7 @@ public class Table extends BaseTable implements SchemaObject {
             }
         }
 
-        throw Trace.error(Trace.TRIGGER_NOT_FOUND, name);
+        return null;
     }
 
     /**

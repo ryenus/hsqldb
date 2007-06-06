@@ -93,7 +93,7 @@ public class TableWorks {
             }
         }
 
-        database.schemaManager.checkUserObjectNotExists(session, c.getName());
+        database.schemaManager.checkSchemaObjectNotExists(c.getName());
 
         // duplicate name check for a new table
         if (table.getConstraint(c.getName().name) != null) {
@@ -178,7 +178,7 @@ public class TableWorks {
 
         tn.moveData(session, table, -1, 0);
         c.core.mainTable.addConstraint(new Constraint(mainName, c));
-        database.schemaManager.addDatabaseObject(c);
+        database.schemaManager.addSchemaObject(c);
 
         table = tn;
 
@@ -235,7 +235,7 @@ public class TableWorks {
         if (c.getType() == Constraint.PRIMARY_KEY) {
             c.core.mainCols = new int[]{ colIndex };
 
-            database.schemaManager.checkUserObjectNotExists(session, c.getName());
+            database.schemaManager.checkSchemaObjectNotExists(c.getName());
 
             if (table.hasPrimaryKey()) {
                 throw Trace.error(Trace.CONSTRAINT_ALREADY_EXISTS);
@@ -262,7 +262,8 @@ public class TableWorks {
                     addUnique       = true;
                     c.core.mainCols = new int[]{ colIndex };
 
-                    database.schemaManager.checkUserObjectNotExists(session, c.getName());
+                    database.schemaManager.checkSchemaObjectNotExists(
+                        c.getName());
 
                     HsqlName indexName =
                         database.nameManager.newAutoName("IDX",
@@ -372,23 +373,6 @@ public class TableWorks {
         }
     }
 
-    void removeConstraints(OrderedHashSet tableSet,
-                           OrderedHashSet dropConstraints) {
-
-        for (int i = 0; i < tableSet.size(); i++) {
-            Table t = (Table) tableSet.get(i);
-
-            for (int j = 0; j < dropConstraints.size(); j++) {
-                HsqlName name  = (HsqlName) dropConstraints.get(j);
-                int      index = t.getConstraintIndex(name.name);
-
-                if (index != -1) {
-                    t.removeConstraint(name.name);
-                }
-            }
-        }
-    }
-
     void updateConstraints(Table t,
                            OrderedHashSet dropConstraints)
                            throws HsqlException {
@@ -451,15 +435,6 @@ public class TableWorks {
         table = tn;
     }
 
-    void setNewTablesInSchema(OrderedHashSet tableSet) throws HsqlException {
-
-        for (int i = 0; i < tableSet.size(); i++) {
-            Table t = (Table) tableSet.get(i);
-
-            setNewTableInSchema(t);
-        }
-    }
-
     /**
      * Because of the way indexes and column data are held in memory and on
      * disk, it is necessary to recreate the table when an index is added to a
@@ -502,7 +477,7 @@ public class TableWorks {
         }
 
         database.schemaManager.clearTempTables(session, table);
-        database.schemaManager.addDatabaseObject(newindex);
+        database.schemaManager.addSchemaObject(newindex);
         database.schemaManager.recompileDependentObjects(table);
 
         return newindex;
@@ -515,7 +490,7 @@ public class TableWorks {
             throw Trace.error(Trace.CONSTRAINT_ALREADY_EXISTS);
         }
 
-        database.schemaManager.checkUserObjectNotExists(session, name);
+        database.schemaManager.checkSchemaObjectNotExists(name);
 
         Table tn = table.moveDefinition(session, null, constraint, null, -1,
                                         0, emptySet, emptySet, null);
@@ -524,7 +499,7 @@ public class TableWorks {
 
         table = tn;
 
-        database.schemaManager.addDatabaseObject(constraint);
+        database.schemaManager.addSchemaObject(constraint);
         setNewTableInSchema(table);
         updateConstraints(table, emptySet);
     }
@@ -543,7 +518,7 @@ public class TableWorks {
      */
     void addUniqueConstraint(int[] cols, HsqlName name) throws HsqlException {
 
-        database.schemaManager.checkUserObjectNotExists(session, name);
+        database.schemaManager.checkSchemaObjectNotExists(name);
 
         if (table.getUniqueConstraintForColumns(cols) != null) {
             throw Trace.error(Trace.CONSTRAINT_ALREADY_EXISTS);
@@ -564,14 +539,14 @@ public class TableWorks {
 
         table = tn;
 
-        database.schemaManager.addDatabaseObject(constraint);
+        database.schemaManager.addSchemaObject(constraint);
         setNewTableInSchema(table);
         updateConstraints(table, emptySet);
     }
 
     void addCheckConstraint(Constraint c) throws HsqlException {
 
-        database.schemaManager.checkUserObjectNotExists(session, c.getName());
+        database.schemaManager.checkSchemaObjectNotExists(c.getName());
         c.prepareCheckConstraint(session, table);
         table.addConstraint(c);
 
@@ -582,7 +557,7 @@ public class TableWorks {
             table.setColumnTypeVars(c.notNullColumnIndex);
         }
 
-        database.schemaManager.addDatabaseObject(c);
+        database.schemaManager.addSchemaObject(c);
     }
 
     /**
@@ -621,7 +596,7 @@ public class TableWorks {
         }
 
         if (!index.isConstraint()) {
-            database.schemaManager.removeDatabaseObject(index.getName());
+            database.schemaManager.removeSchemaObject(index.getName());
         }
 
         database.schemaManager.recompileDependentObjects(table);
@@ -700,16 +675,17 @@ public class TableWorks {
                                         null);
 
         tn.moveData(session, table, colIndex, -1);
+
+        //
+        database.schemaManager.removeSchemaObjects(referencingObjects);
+        database.schemaManager.removeSchemaObjects(constraintNameSet);
         setNewTableInSchema(tn);
         setNewTablesInSchema(tableSet);
         updateConstraints(tn, emptySet);
         updateConstraints(tableSet, constraintNameSet);
+        database.schemaManager.recompileDependentObjects(tn);
 
         table = tn;
-
-        database.schemaManager.removeDatabaseObjects(referencingObjects);
-        database.schemaManager.recompileDependentObjects(table);
-        deRegisterConstraintNames(constraintNameSet);
     }
 
     void registerConstraintNames(HsqlArrayList constraints)
@@ -723,18 +699,8 @@ public class TableWorks {
                 case Constraint.PRIMARY_KEY :
                 case Constraint.UNIQUE :
                 case Constraint.CHECK :
-                    database.schemaManager.addDatabaseObject(c);
+                    database.schemaManager.addSchemaObject(c);
             }
-        }
-    }
-
-    void deRegisterConstraintNames(OrderedHashSet nameSet)
-    throws HsqlException {
-
-        for (int i = 0; i < nameSet.size(); i++) {
-            HsqlName name = (HsqlName) nameSet.get(i);
-
-            database.schemaManager.removeReferencedObject(name);
         }
     }
 
@@ -816,14 +782,14 @@ public class TableWorks {
                     }
                 }
 
+                //
+                database.schemaManager.removeSchemaObjects(constraintNameSet);
                 setNewTableInSchema(tn);
                 setNewTablesInSchema(tableSet);
                 updateConstraints(tn, emptySet);
                 updateConstraints(tableSet, constraintNameSet);
 
                 table = tn;
-
-                this.deRegisterConstraintNames(constraintNameSet);
 
                 // handle cascadingConstraints and cascadingTables
                 break;
@@ -845,6 +811,10 @@ public class TableWorks {
                                                 0, constraints, indexes, null);
 
                 tn.moveData(session, table, -1, 0);
+
+                //
+                database.schemaManager.removeSchemaObject(
+                    constraint.getName());
                 setNewTableInSchema(tn);
 
                 if (!isSelf) {
@@ -853,12 +823,11 @@ public class TableWorks {
 
                 table = tn;
 
-                table.database.schemaManager.removeDatabaseObject(constraint.getName());
-
                 break;
             }
             case Constraint.CHECK :
-                table.database.schemaManager.removeDatabaseObject(constraint.getName());
+                database.schemaManager.removeSchemaObject(
+                    constraint.getName());
 
                 if (constraint.isNotNull) {
                     Column column =
@@ -867,7 +836,6 @@ public class TableWorks {
                     column.setNullable(false);
                     table.setColumnTypeVars(constraint.notNullColumnIndex);
                 }
-
                 break;
         }
     }
@@ -1107,7 +1075,7 @@ public class TableWorks {
             column.setNullable(false);
             table.addConstraint(c);
             table.setColumnTypeVars(colIndex);
-            database.schemaManager.addDatabaseObject(c);
+            database.schemaManager.addSchemaObject(c);
         }
     }
 
@@ -1206,10 +1174,15 @@ public class TableWorks {
         return true;
     }
 
-    /**
-     *
-     * @param newTable Table
-     */
+    void setNewTablesInSchema(OrderedHashSet tableSet) throws HsqlException {
+
+        for (int i = 0; i < tableSet.size(); i++) {
+            Table t = (Table) tableSet.get(i);
+
+            setNewTableInSchema(t);
+        }
+    }
+
     void setNewTableInSchema(Table newTable) {
 
         int i = database.schemaManager.getTableIndex(newTable);
@@ -1226,7 +1199,7 @@ public class TableWorks {
 
             if (c.isNotNull) {
                 if (c.notNullColumnIndex == colIndex) {
-                    database.schemaManager.removeDatabaseObject(c.getName());
+                    database.schemaManager.removeSchemaObject(c.getName());
                 }
             }
         }

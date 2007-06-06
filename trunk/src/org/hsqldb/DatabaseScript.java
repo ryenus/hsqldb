@@ -77,6 +77,8 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.User;
+import org.hsqldb.types.DistinctType;
+import org.hsqldb.types.DomainType;
 import org.hsqldb.types.Type;
 
 /**
@@ -234,14 +236,36 @@ public class DatabaseScript {
                 addRow(r, ddl);
             }
 
+            // domains and types
+            Iterator it =
+                database.schemaManager.database.schemaManager
+                    .databaseObjectIterator(schema.name, SchemaObject.DOMAIN);
+
+            while (it.hasNext()) {
+                SchemaObject type = (SchemaObject) it.next();
+
+                if (type.getName().type == SchemaObject.DOMAIN) {
+                    addRow(r, getDomainDDL((DomainType) type));
+                }
+            }
+
+            it = database.schemaManager.database.schemaManager
+                .databaseObjectIterator(schema.name, SchemaObject.TYPE);
+
+            while (it.hasNext()) {
+                SchemaObject type = (SchemaObject) it.next();
+
+                if (type.getName().type == SchemaObject.TYPE) {
+                    addRow(r, getDistinctTypeDDL((DistinctType) type));
+                }
+            }
+
             // sequences
             /*
-                     CREATE SEQUENCE <name>
-                     [AS {INTEGER | BIGINT}]
-                     [START WITH <value>]
-                     [INCREMENT BY <value>]
+                     CREATE SEQUENCE <name> ...
              */
-            Iterator it = database.schemaManager.sequenceIterator(schema.name);
+            it = database.schemaManager.database.schemaManager
+                .databaseObjectIterator(schema.name, SchemaObject.SEQUENCE);
 
             while (it.hasNext()) {
                 NumberSequence seq = (NumberSequence) it.next();
@@ -475,6 +499,43 @@ public class DatabaseScript {
         a.append(Token.T_CLOSEBRACKET);
 
         return a.toString();
+    }
+
+    static String getDistinctTypeDDL(DistinctType type) {
+
+        StringBuffer sb = new StringBuffer(Token.T_CREATE).append(' ');
+
+        sb.append(Token.T_TYPE).append(' ').append(type.getDefinition());
+        sb.append(' ').append(Token.T_AS).append(' ');
+        sb.append(type.getBaseType().getDefinition());
+
+        return sb.toString();
+    }
+
+    static String getDomainDDL(DomainType type) {
+
+        StringBuffer sb = new StringBuffer(Token.T_CREATE).append(' ');
+
+        sb.append(Token.T_DOMAIN).append(' ').append(type.getDefinition());
+        sb.append(' ').append(Token.T_AS).append(' ');
+        sb.append(type.getBaseType().getDefinition());
+
+        Expression defaultClause = type.getDefaultClause();
+
+        if (defaultClause != null) {
+            sb.append(' ').append(Token.T_DEFAULT).append(' ');
+            sb.append(defaultClause.getDDL());
+        }
+
+        Constraint[] constraints = type.getConstraints();
+
+        for (int i = 0; i < constraints.length; i++) {
+            sb.append(' ').append(Token.CONSTRAINT).append(' ');
+            sb.append(Token.CHECK).append(' ').append(
+                constraints[i].getCheckDDL());
+        }
+
+        return sb.toString();
     }
 
     static String getSequenceDDL(NumberSequence seq) {
