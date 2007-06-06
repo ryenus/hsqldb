@@ -932,7 +932,7 @@ public class DDLParser extends Parser {
         database.schemaManager.checkSchemaObjectNotExists(name);
         readIfThis(Token.AS);
 
-        Type       predefinedType = readTypeDefinition();
+        Type       predefinedType = readTypeDefinition(false);
         Expression defaultClause  = null;
 
         if (readIfThis(Token.DEFAULT)) {
@@ -983,7 +983,7 @@ public class DDLParser extends Parser {
         database.schemaManager.checkSchemaObjectNotExists(name);
         readThis(Token.AS);
 
-        Type         predefinedType = readTypeDefinition();
+        Type         predefinedType = readTypeDefinition(false);
         DistinctType userType       = new DistinctType(name, predefinedType);
 
         // create the type
@@ -1563,7 +1563,7 @@ public class DDLParser extends Parser {
             typeObject   = Type.SQL_INTEGER;
             sequence     = new NumberSequence(null, 0, 1, typeObject);
         } else {
-            typeObject = readTypeDefinition();
+            typeObject = readTypeDefinition(true);
         }
 
         if (isIdentity) {}
@@ -1662,7 +1662,7 @@ public class DDLParser extends Parser {
                     if (withType) {
                         read();
 
-                        Type type = readTypeDefinition();
+                        Type type = readTypeDefinition(false);
 
                         sequence.setDefaults(sequence.name, type);
 
@@ -2888,6 +2888,7 @@ public class DDLParser extends Parser {
                 }
             }
             case Token.SET : {
+                read();
                 readThis(Token.DEFAULT);
 
                 Expression e = readDefaultClause(domain);
