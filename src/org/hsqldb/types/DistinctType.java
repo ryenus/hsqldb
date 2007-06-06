@@ -180,6 +180,14 @@ public class DistinctType extends Type implements SchemaObject {
         return baseType.divide(a, b);
     }
 
+    public Type getParentType() {
+        return baseType;
+    }
+
+    public boolean isDistinctType() {
+        return true;
+    }
+
     public boolean isBinaryType() {
         return baseType.isBinaryType();
     }
@@ -194,10 +202,6 @@ public class DistinctType extends Type implements SchemaObject {
 
     public boolean isDateTimeType() {
         return baseType.isDateTimeType();
-    }
-
-    public boolean isDistinctType() {
-        return true;
     }
 
     public boolean isIntegralType() {

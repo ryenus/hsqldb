@@ -3176,6 +3176,9 @@ public class DDLParser extends Parser {
         HsqlName schema = session.getSchemaHsqlName(namePrefix);
         HsqlName name = database.schemaManager.getSchemaObjectName(schema,
             tokenString, SchemaObject.DOMAIN);
+        DomainType domain =
+            (DomainType) database.schemaManager.findSchemaObject(schema.name,
+                tokenString, SchemaObject.DOMAIN);
 
         read();
 
@@ -3188,8 +3191,27 @@ public class DDLParser extends Parser {
         }
 
         checkSchemaUpdateAuthorization(schema);
+
+        if (!cascade) {
+            database.schemaManager.checkObjectIsReferenced(name);
+        }
+
+        OrderedHashSet set =
+            database.schemaManager.getReferencingObjects(name);
+
+        for (int i = 0; i < set.size(); i++) {
+            HsqlName n     = (HsqlName) set.get(i);
+            Table    table = (Table) database.schemaManager.getSchemaObject(n);
+
+            table.removeDomainOrType(name);
+        }
+
+        Constraint[] constraints = domain.getConstraints();
+
+        set.clear();
+        set.addAll(constraints);
+        database.schemaManager.removeSchemaObjects(set);
         database.schemaManager.removeSchemaObject(name, cascade);
-        database.schemaManager.removeDependentObjects(name);
     }
 
     void processDropType() throws HsqlException {
@@ -3213,6 +3235,21 @@ public class DDLParser extends Parser {
         }
 
         checkSchemaUpdateAuthorization(schema);
+
+        if (!cascade) {
+            database.schemaManager.checkObjectIsReferenced(name);
+        }
+
+        OrderedHashSet set =
+            database.schemaManager.getReferencingObjects(name);
+
+        for (int i = 0; i < set.size(); i++) {
+            HsqlName n     = (HsqlName) set.get(i);
+            Table    table = (Table) database.schemaManager.getSchemaObject(n);
+
+            table.removeDomainOrType(name);
+        }
+
         database.schemaManager.removeSchemaObject(name, cascade);
     }
 

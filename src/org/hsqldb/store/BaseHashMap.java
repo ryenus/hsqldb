@@ -431,14 +431,20 @@ public class BaseHashMap {
             if (isObjectKey) {
                 if (objectKeyTable[lookup].equals(objectKey)) {
                     if (removeKey) {
-                        objectKeyTable[lookup]   = null;
-                        returnValue              = objectValueTable[lookup];
-                        objectValueTable[lookup] = null;
 
-                        hashIndex.unlinkNode(index, lastLookup, lookup);
+                        while(true) {
+                            objectKeyTable[lookup] = null;
+                            returnValue = objectValueTable[lookup];
+                            objectValueTable[lookup] = null;
 
-                        multiValueTable[lookup] = false;
-                        lookup                  = lastLookup;
+                            hashIndex.unlinkNode(index, lastLookup, lookup);
+
+                            multiValueTable[lookup] = false;
+                            lookup = hashIndex.hashTable[index];
+                            if (lookup  < 0 || !objectKeyTable[lookup].equals(objectKey)) {
+                                return returnValue;
+                            }
+                        }
                     } else {
                         if (objectValueTable[lookup].equals(objectValue)) {
                             if (removeValue) {
@@ -464,18 +470,23 @@ public class BaseHashMap {
             } else if (isIntKey) {
                 if (longKey == intKeyTable[lookup]) {
                     if (removeKey) {
-                        if (longKey == 0) {
-                            hasZeroKey   = false;
-                            zeroKeyIndex = -1;
+                        while(true) {
+                            if (longKey == 0) {
+                                hasZeroKey = false;
+                                zeroKeyIndex = -1;
+                            }
+
+                            intKeyTable[lookup] = 0;
+                            intValueTable[lookup] = 0;
+
+                            hashIndex.unlinkNode(index, lastLookup, lookup);
+
+                            multiValueTable[lookup] = false;
+                            lookup = hashIndex.hashTable[index];
+                            if (lookup  < 0 || longKey != intKeyTable[lookup]) {
+                                return null;
+                            }
                         }
-
-                        intKeyTable[lookup]   = 0;
-                        intValueTable[lookup] = 0;
-
-                        hashIndex.unlinkNode(index, lastLookup, lookup);
-
-                        multiValueTable[lookup] = false;
-                        lookup                  = lastLookup;
                     } else {
                         if (intValueTable[lookup] == longValue) {
                             return null;
@@ -487,18 +498,23 @@ public class BaseHashMap {
             } else if (isLongKey) {
                 if (longKey == longKeyTable[lookup]) {
                     if (removeKey) {
-                        if (longKey == 0) {
-                            hasZeroKey   = false;
-                            zeroKeyIndex = -1;
+                        while(true) {
+                            if (longKey == 0) {
+                                hasZeroKey = false;
+                                zeroKeyIndex = -1;
+                            }
+
+                            longKeyTable[lookup] = 0;
+                            longValueTable[lookup] = 0;
+
+                            hashIndex.unlinkNode(index, lastLookup, lookup);
+
+                            multiValueTable[lookup] = false;
+                            lookup = hashIndex.hashTable[index];
+                            if (lookup  < 0 || longKey != longKeyTable[lookup]) {
+                                return null;
+                            }
                         }
-
-                        longKeyTable[lookup]   = 0;
-                        longValueTable[lookup] = 0;
-
-                        hashIndex.unlinkNode(index, lastLookup, lookup);
-
-                        multiValueTable[lookup] = false;
-                        lookup                  = lastLookup;
                     } else {
                         if (intValueTable[lookup] == longValue) {
                             return null;

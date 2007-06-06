@@ -154,7 +154,7 @@ public class SchemaManager {
             schema                = new Schema();
             defaultSchemaHsqlName = schema.name;
 
-            schemaMap.put(schema.name, schema);
+            schemaMap.put(schema.name.name, schema);
         }
 
         // these are called last and in this particular order
@@ -991,7 +991,7 @@ public class SchemaManager {
         }
     }
 
-    private OrderedHashSet getReferencingObjects(HsqlName object) {
+    OrderedHashSet getReferencingObjects(HsqlName object) {
 
         OrderedHashSet set = new OrderedHashSet();
         Iterator       it  = referenceMap.get(object);
@@ -1198,6 +1198,11 @@ public class SchemaManager {
             case SchemaObject.SEQUENCE :
                 error = Trace.SEQUENCE_REFERENCED_BY_VIEW;
                 break;
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                error = Trace.SQL_OBJECT_IS_REFERENCED;
+                break;
         }
 
         throw Trace.error(error, name.schema.name + '.' + refName.name);
@@ -1252,9 +1257,11 @@ public class SchemaManager {
             case SchemaObject.SEQUENCE :
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
+                getCascadingReferences(name, objectSet);
+                break;
+
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
-                getCascadingReferences(name, objectSet);
                 break;
         }
 
