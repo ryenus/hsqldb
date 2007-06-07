@@ -642,10 +642,9 @@ public class SqlTool {
             // SqlFile.  We just need to return an appropriate error status.
         } catch (SqlToolError ste) {
             throw new SqlToolException(SQLTOOLERR_EXITVAL);
-
-            // Should not be handling SQLExceptions here!  SqlFile should handle
-            // them.
         } catch (SQLException se) {
+            // SqlTool will only throw an SQLException if it is in
+            // "\c false" mode.
             throw new SqlToolException(SQLERR_EXITVAL);
         } finally {
             try {
