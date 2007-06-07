@@ -351,7 +351,7 @@ public class UtilTest extends JdbcTestCase {
         junit.textui.TestRunner.run(suite());
     }
 
-    public static TestSuite suite() throws Exception {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite("UtilTest Suite");
         
 
@@ -375,12 +375,17 @@ public class UtilTest extends JdbcTestCase {
                 continue;
             }
             
+           
             String testName = "testSqlException_" + fieldName;
+             try {
             int vendorCode = field.getInt(null);
             
             UtilTest test = new UtilTest(testName, vendorCode);
             
             suite.addTest(test);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
         }
         
         return suite;
