@@ -1257,11 +1257,11 @@ public class SchemaManager {
             case SchemaObject.SEQUENCE :
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
+            case SchemaObject.TYPE :
                 getCascadingReferences(name, objectSet);
                 break;
 
             case SchemaObject.DOMAIN :
-            case SchemaObject.TYPE :
                 break;
         }
 

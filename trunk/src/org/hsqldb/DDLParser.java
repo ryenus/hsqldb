@@ -3235,21 +3235,6 @@ public class DDLParser extends Parser {
         }
 
         checkSchemaUpdateAuthorization(schema);
-
-        if (!cascade) {
-            database.schemaManager.checkObjectIsReferenced(name);
-        }
-
-        OrderedHashSet set =
-            database.schemaManager.getReferencingObjects(name);
-
-        for (int i = 0; i < set.size(); i++) {
-            HsqlName n     = (HsqlName) set.get(i);
-            Table    table = (Table) database.schemaManager.getSchemaObject(n);
-
-            table.removeDomainOrType(name);
-        }
-
         database.schemaManager.removeSchemaObject(name, cascade);
     }
 
