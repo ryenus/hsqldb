@@ -37,3 +37,6 @@ SELECT * FROM t ORDER BY i DESC;
 * if (*? != 10)
     \p ? value not retained after special commands
 * end if
+* if (*{?} != 10)
+    \p ? value not dereferenced with {} usage
+* end if
