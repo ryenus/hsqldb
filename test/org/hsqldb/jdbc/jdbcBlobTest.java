@@ -74,6 +74,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of length method, of class org.hsqldb.jdbc.jdbcBlob.
+     * @throws java.lang.Exception
      */
     public void testLength() throws Exception {
         println("length");
@@ -86,6 +87,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of getBytes method, of class org.hsqldb.jdbc.jdbcBlob.
+     * @throws java.lang.Exception
      */
     public void testGetBytes() throws Exception {
         println("getBytes");
@@ -101,6 +103,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of getBinaryStream method, of class org.hsqldb.jdbc.jdbcBlob.
+     * @throws java.lang.Exception 
      */
     public void testGetBinaryStream() throws Exception {
         println("getBinaryStream");
@@ -116,6 +119,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of position method, of class org.hsqldb.jdbc.jdbcBlob.
+     * @throws java.lang.Exception 
      */
     public void testPosition() throws Exception {
         println("position");
@@ -130,6 +134,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of setBytes method, of class org.hsqldb.jdbc.jdbcBlob.
+     * @throws java.lang.Exception 
      */
     public void testSetBytes() throws Exception {
         println("setBytes");
@@ -149,6 +154,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of setBinaryStream method, of class org.hsqldb.jdbc.jdbcBlob.
+     * @throws java.lang.Exception 
      */
     public void testSetBinaryStream() throws Exception {
         println("setBinaryStream");
@@ -175,6 +181,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of truncate method, of class org.hsqldb.jdbc.jdbcBlob.
+     * @throws java.lang.Exception 
      */
     public void testTruncate() throws Exception {
         println("truncate");
@@ -192,6 +199,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of free method, of class org.hsqldb.jdbc.jdbcBlob.
+     * @throws java.lang.Exception 
      */
     public void testFree() throws Exception {
         println("free");
