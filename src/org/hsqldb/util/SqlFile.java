@@ -126,11 +126,75 @@ public class SqlFile {
     private String           contPrompt       = "  +> ";
     private Connection       curConn          = null;
     private boolean          htmlMode         = false;
-    private Map              userVars         = null;
+    private Map              userVars; // Always a non-null map set in cons.
     private String[]         statementHistory = null;
     private boolean          chunking         = false;
-    private String           dsvNullRep       = null;
+    private String           nullRepToken     = null;
+    private String           dsvTargetFile    = null;
+    private String           dsvTargetTable   = null;
+    private String           dsvConstCols     = null;
+    private String           dsvRejectFile    = null;
+    private String           dsvRejectReport  = null;
     public static String     LS = System.getProperty("line.separator");
+
+    /**
+     * Encapsulate updating local variables which depend upon PL variables.
+     *
+     * Right now this is called whenever the user variable map is changed.
+     * It would be more efficient to do it JIT by keeping track of when 
+     * the vars may be "dirty" by a variable map change, and having all
+     * methods that use the settings call a conditional updater, but that
+     * is less reliable since there is no way to guarantee that the vars
+     * are not used without checking.
+     */
+    private void updateUserSettings() {
+        dsvSkipPrefix = SqlFile.convertEscapes(
+                (String) userVars.get("*DSV_SKIP_PREFIX"));
+        if (dsvSkipPrefix == null) {
+            dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
+        }
+        dsvColDelim =
+            SqlFile.convertEscapes((String) userVars.get("*DSV_COL_DELIM"));
+        if (dsvColDelim == null) {
+            dsvColDelim =
+                SqlFile.convertEscapes((String) userVars.get("*CSV_COL_DELIM"));
+        }
+        if (dsvColDelim == null) {
+            dsvColDelim = DEFAULT_COL_DELIM;
+        }
+
+        dsvRowDelim =
+            SqlFile.convertEscapes((String) userVars.get("*DSV_ROW_DELIM"));
+        if (dsvRowDelim == null) {
+            dsvRowDelim =
+                SqlFile.convertEscapes((String) userVars.get("*CSV_ROW_DELIM"));
+        }
+        if (dsvRowDelim == null) {
+            dsvRowDelim = DEFAULT_ROW_DELIM;
+        }
+
+        dsvTargetFile = (String) userVars.get("*DSV_TARGET_FILE");
+        if (dsvTargetFile == null) {
+            dsvTargetFile = (String) userVars.get("*CSV_FILEPATH");
+        }
+        dsvTargetTable = (String) userVars.get("*DSV_TARGET_TABLE");
+        if (dsvTargetTable == null) {
+            dsvTargetTable = (String) userVars.get("*CSV_TABLENAME");
+            // This just for legacy variable name.
+        }
+
+        dsvConstCols = (String) userVars.get("*DSV_CONST_COLS");
+        dsvRejectFile = (String) userVars.get("*DSV_REJECT_FILE");
+        dsvRejectReport = (String) userVars.get("*DSV_REJECT_REPORT");
+
+        nullRepToken = (String) userVars.get("*NULL_REP_TOKEN");
+        if (nullRepToken == null) {
+            nullRepToken = (String) userVars.get("*CSV_NULL_REP");
+        }
+        if (nullRepToken == null) {
+            nullRepToken = DEFAULT_NULL_REP;
+        }
+    }
 
     /**
      * Private class to "share" a variable among a family of SqlFile
@@ -259,7 +323,8 @@ public class SqlFile {
         + "    * continue [foreach|while]    Exits a PL block iteration early" + LS + LS
         + "Use PL variables (which you have set) like: *{VARNAME}." + LS
         + "You may use /VARNAME instead iff /VARNAME is the first word of a SQL command." + LS
-        + "Use PL variables in logical expressions like: *VARNAME." + LS + LS
+        + "Use PL variables in logical expressions, like (*VARNAME == 1)." + LS
+        + "Magic variable ? is set to the very last datum fetched (or update count)." + LS + LS
         + "'* VARNAME ~' or '* VARNAME _' sets the variable value according to the very" + LS
         + "next SQL statement (~ will echo the value, _ will do it silently):" + LS
         + "    Query:  The value of the first field of the first row returned." + LS
@@ -285,7 +350,7 @@ public class SqlFile {
         + "[\"|\"]" + LS
         + "    *DSV_ROW_DELIM     \\m\\x  Row delimiter" + LS
         + "                              [OS-dependent (Java line.separator)]" + LS
-        + "    *DSV_NULL_REP      \\m\\x  String to represent database null.  "
+        + "    *NULL_REP_TOKEN    \\m\\x  String to represent database null.  "
         + "[\"[null]\"]" + LS
         + "    *DSV_TARGET_FILE   \\x    File which exports will write to" + LS
         + "                              [source table name + \".dsv\"]" + LS
@@ -331,6 +396,10 @@ public class SqlFile {
         file        = inFile;
         interactive = inInteractive;
         userVars    = inVars;
+        if (userVars == null) {
+            userVars = new HashMap();
+        }
+        updateUserSettings();
 
         try {
             statementHistory =
@@ -414,6 +483,7 @@ public class SqlFile {
      *
      * @param conn The JDBC connection to use for SQL Commands.
      * @throws SQLExceptions thrown by JDBC driver.
+     *                       Only possible if in "\c false" mode.
      * @throws SqlToolError  all other errors.
      *               This includes including QuitNow, BreakException,
      *               ContinueException for recursive calls only.
@@ -439,7 +509,7 @@ public class SqlFile {
         continueOnError = (coeOverride == null) ? interactive
                                                 : coeOverride.booleanValue();
 
-        if (userVars != null && userVars.size() > 0) {
+        if (userVars.size() > 0) {
             plMode = true;
         }
 
@@ -739,6 +809,7 @@ public class SqlFile {
 
             if (rollbackUncoms) {
                 errprintln("Aborting: " + qn.getMessage());
+                throw new SqlToolError(qn.getMessage());
             }
 
             return;
@@ -1199,56 +1270,23 @@ public class SqlFile {
                     throw new BadSpecial(DSV_M_SYNTAX_MSG);
                 }
                 boolean noComments = other.charAt(other.length() - 1) == '*';
+                String skipPrefix = null;
 
                 if (noComments) {
-                    dsvSkipPrefix = null;
                     other = other.substring(0, other.length()-1).trim();
                     if (other.length() < 1) {
                         throw new BadSpecial(DSV_M_SYNTAX_MSG);
                     }
                 } else {
-                    dsvSkipPrefix = SqlFile.convertEscapes(
-                            (String) userVars.get("*DSV_SKIP_PREFIX"));
-                    if (dsvSkipPrefix == null) {
-                        dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
-                    }
-
-                }
-                dsvColDelim =
-                    SqlFile.convertEscapes((String) userVars.get("*DSV_COL_DELIM"));
-                if (dsvColDelim == null) {
-                    dsvColDelim =
-                        SqlFile.convertEscapes((String) userVars.get("*CSV_COL_DELIM"));
-                }
-                dsvRowDelim =
-                    SqlFile.convertEscapes((String) userVars.get("*DSV_ROW_DELIM"));
-                if (dsvRowDelim == null) {
-                    dsvRowDelim =
-                        SqlFile.convertEscapes((String) userVars.get("*CSV_ROW_DELIM"));
-                }
-                dsvNullRep = (String) userVars.get("*DSV_NULL_REP");
-                if (dsvNullRep == null) {
-                    dsvNullRep = (String) userVars.get("*CSV_NULL_REP");
+                    skipPrefix = dsvSkipPrefix;
                 }
                 int colonIndex = other.indexOf(" :");
                 if (colonIndex > -1 && colonIndex < other.length() - 2) {
-                    dsvSkipPrefix = other.substring(colonIndex + 2);
+                    skipPrefix = other.substring(colonIndex + 2);
                     other = other.substring(0, colonIndex).trim();
                 }
 
-                if (dsvColDelim == null) {
-                    dsvColDelim = DEFAULT_COL_DELIM;
-                }
-
-                if (dsvRowDelim == null) {
-                    dsvRowDelim = DEFAULT_ROW_DELIM;
-                }
-
-                if (dsvNullRep == null) {
-                    dsvNullRep = DEFAULT_NULL_REP;
-                }
-
-                importDsv(other);
+                importDsv(other, skipPrefix);
 
                 return;
 
@@ -1267,50 +1305,14 @@ public class SqlFile {
                     String tableName = ((other.indexOf(' ') > 0) ? null
                                                                  : other);
 
-                    dsvColDelim = SqlFile.convertEscapes(
-                        (String) userVars.get("*DSV_COL_DELIM"));
-                    if (dsvColDelim == null) {
-                        dsvColDelim = SqlFile.convertEscapes(
-                            (String) userVars.get("*CSV_COL_DELIM"));
-                    }
-                    dsvRowDelim = SqlFile.convertEscapes(
-                        (String) userVars.get("*DSV_ROW_DELIM"));
-                    if (dsvRowDelim == null) {
-                        dsvRowDelim = SqlFile.convertEscapes(
-                            (String) userVars.get("*CSV_ROW_DELIM"));
-                    }
-                    dsvNullRep = (String) userVars.get("*DSV_NULL_REP");
-                    if (dsvNullRep == null) {
-                        dsvNullRep = (String) userVars.get("*CSV_NULL_REP");
-                    }
-
-                    String dsvFilepath =
-                        (String) userVars.get("*DSV_TARGET_FILE");
-                    if (dsvFilepath == null) {
-                        dsvFilepath = (String) userVars.get("*CSV_FILEPATH");
-                    }
-
-                    if (dsvFilepath == null && tableName == null) {
+                    if (dsvTargetFile == null && tableName == null) {
                         throw new BadSpecial(
                             "You must set PL variable '*DSV_TARGET_FILE' in "
                             + "order to use the query variant of \\x");
                     }
-
-                    File dsvFile = new File((dsvFilepath == null)
+                    File dsvFile = new File((dsvTargetFile == null)
                                             ? (tableName + ".dsv")
-                                            : dsvFilepath);
-
-                    if (dsvColDelim == null) {
-                        dsvColDelim = DEFAULT_COL_DELIM;
-                    }
-
-                    if (dsvRowDelim == null) {
-                        dsvRowDelim = DEFAULT_ROW_DELIM;
-                    }
-
-                    if (dsvNullRep == null) {
-                        dsvNullRep = DEFAULT_NULL_REP;
-                    }
+                                            : dsvTargetFile);
 
                     pwDsv = new PrintWriter(
                         new OutputStreamWriter(
@@ -1338,8 +1340,6 @@ public class SqlFile {
                     }
 
                     pwDsv       = null;
-                    dsvColDelim = null;
-                    dsvRowDelim = null;
                 }
 
                 return;
@@ -1449,8 +1449,7 @@ public class SqlFile {
                 }
 
                 try {
-                    SqlFile sf = new SqlFile(new File(other), false,
-                                             userVars);
+                    SqlFile sf = new SqlFile(new File(other), false, userVars);
 
                     sf.recursed = true;
 
@@ -1745,7 +1744,8 @@ public class SqlFile {
 
             varName = s.substring(b + (permitUnset ? 3 : 2), e);
 
-            varValue = (String) userVars.get(varName);
+            varValue = (varName.equals("?") ? lastVal
+                        : (String) userVars.get(varName));
             if (varValue == null) {
                 if (permitUnset) {
                     varValue = "";
@@ -1765,6 +1765,7 @@ public class SqlFile {
 
     //  PL variable name currently awaiting query output.
     private String  fetchingVar = null;
+    private String  lastVal = null;
     private boolean silentFetch = false;
     private boolean fetchBinary = false;
 
@@ -1806,10 +1807,6 @@ public class SqlFile {
 
         // If user runs any PL command, we turn PL mode on.
         plMode = true;
-
-        if (userVars == null) {
-            userVars = new HashMap();
-        }
 
         if (arg1.equals("end")) {
             throw new BadSpecial("PL end statements may only occur inside of "
@@ -1960,6 +1957,7 @@ public class SqlFile {
                         varVal = values[i];
 
                         userVars.put(varName, varVal);
+                        updateUserSettings();
 
                         sf          = new SqlFile(tmpFile, false, userVars);
                         sf.plMode   = true;
@@ -1993,6 +1991,7 @@ public class SqlFile {
 
             if (origval == null) {
                 userVars.remove(varName);
+                updateUserSettings();
             } else {
                 userVars.put(varName, origval);
             }
@@ -2174,6 +2173,7 @@ public class SqlFile {
                 }
 
                 userVars.remove(varName);
+                updateUserSettings();
 
                 fetchingVar = varName;
 
@@ -2187,6 +2187,7 @@ public class SqlFile {
                 if (remainder.length() > 0) {
                     userVars.put(varName,
                                  string.substring(index + 1).trim());
+                    updateUserSettings();
                 } else {
                     userVars.remove(varName);
                 }
@@ -2964,6 +2965,13 @@ public class SqlFile {
 
                         case java.sql.Types.VARBINARY :
                         case java.sql.Types.VARCHAR :
+                        case java.sql.Types.ARRAY :
+                            // Guessing at how to handle ARRAY.
+                        case java.sql.Types.BLOB :
+                        case java.sql.Types.CLOB :
+                        case java.sql.Types.LONGVARBINARY :
+                        case java.sql.Types.LONGVARCHAR :
+                            // TODO:  Make sure final 2 available in Java 1.3!
                             autonulls[insi] = false;
                             break;
                     }
@@ -3104,8 +3112,10 @@ public class SqlFile {
                             }
                         }
 
+                        lastVal = (val == null) ? nullRepToken : val;
                         if (fetchingVar != null) {
-                            userVars.put(fetchingVar, val);
+                            userVars.put(fetchingVar, lastVal);
+                            updateUserSettings();
 
                             fetchingVar = null;
                         }
@@ -3128,7 +3138,7 @@ public class SqlFile {
                         if (val == null && pwDsv == null) {
                             if (dataType[insi] == java.sql.Types.VARCHAR) {
                                 fieldArray[insi] = (htmlMode ? "<I>null</I>"
-                                                             : "[null]");
+                                                             : nullRepToken);
                             } else {
                                 fieldArray[insi] = "";
                             }
@@ -3240,7 +3250,7 @@ public class SqlFile {
                         dsvSafe(fieldArray[j]);
                         pwDsv.print((fieldArray[j] == null)
                                     ? (autonulls[j] ? ""
-                                                    : dsvNullRep)
+                                                    : nullRepToken)
                                     : fieldArray[j]);
 
                         if (j < fieldArray.length - 1) {
@@ -3256,9 +3266,10 @@ public class SqlFile {
                 break;
 
             default :
+                lastVal = Integer.toString(updateCount);
                 if (fetchingVar != null) {
-                    userVars.put(fetchingVar, Integer.toString(updateCount));
-
+                    userVars.put(fetchingVar, lastVal);
+                    updateUserSettings();
                     fetchingVar = null;
                 }
 
@@ -3590,19 +3601,21 @@ public class SqlFile {
         boolean  negate = inTokens.length > 0 && inTokens[0].equals("!");
         String[] tokens = new String[negate ? (inTokens.length - 1)
                                             : inTokens.length];
+        String inToken;
+        String varName;
 
         for (int i = 0; i < tokens.length; i++) {
-            tokens[i] = (inTokens[i + (negate ? 1
-                                              : 0)].length() > 1 && inTokens[i + (negate ? 1
-                                                                                         : 0)].charAt(
-                                                                                         0) == '*') ? ((String) userVars.get(
-                                                                                             inTokens[i + (negate ? 1
-                                                                                                                  : 0)]
-                                                                                                                  .substring(
-                                                                                                                      1)))
-                                                                                                    : inTokens[i + (negate ? 1
-                                                                                                                           : 0)];
+            inToken = inTokens[i + (negate ? 1 : 0)];
+            if (inToken.length() > 1 && inToken.charAt(0) == '*') {
+                varName = inToken.substring(1);
+                tokens[i] = varName.equals("?") ? lastVal
+                          : (String) userVars.get(inToken.substring(1));
+            } else {
+                tokens[i] = inTokens[i + (negate ? 1 : 0)];
+            }
 
+            // Unset variables permitted in expressions as long as use
+            // the short *VARNAME form.
             if (tokens[i] == null) {
                 tokens[i] = "";
             }
@@ -3791,6 +3804,7 @@ public class SqlFile {
         String string = SqlFile.streamToString(fis, cs);
         fis.close();
         userVars.put(varName, string);
+        updateUserSettings();
     }
 
     static public byte[] streamToBytes(InputStream is) throws IOException {
@@ -3970,7 +3984,7 @@ public class SqlFile {
      */
     public void dsvSafe(String s) throws SqlToolError {
         if (pwDsv == null || dsvColDelim == null || dsvRowDelim == null
-                || dsvNullRep == null) {
+                || nullRepToken == null) {
             throw new RuntimeException(
                 "Assertion failed.  \n"
                 + "dsvSafe called when DSV settings are incomplete");
@@ -3991,10 +4005,12 @@ public class SqlFile {
                                    + dsvRowDelim + "'");
         }
 
-        if (s.indexOf(dsvNullRep) > 0) {
+        if (s.trim().equals(nullRepToken)) {
+            // The trim() is to avoid the situation where the contents of a 
+            // field "looks like" the null-rep token.
             throw new SqlToolError(
-                "Table data contains our null representation '" + dsvNullRep
-                + "'");
+                "Table data contains just our null representation '"
+                + nullRepToken + "'");
         }
     }
 
@@ -4104,13 +4120,13 @@ public class SqlFile {
      *                       but we want this method to have external
      *                       visibility.
      */
-    public void importDsv(String filePath) throws SqlToolError {
+    public void importDsv(String filePath, String skipPrefix)
+            throws SqlToolError {
         char[] bfr  = null;
         File   file = new File(filePath);
-        String tmpString = (String) userVars.get("*DSV_CONST_COLS");
         SortedMap constColMap = null;
         int constColMapSize = 0;
-        if (tmpString != null) {
+        if (dsvConstCols != null) {
             // Can't use StringTokenizer, since our delimiters are fixed
             // whereas StringTokenizer delimiters are a list of OR delimiters.
 
@@ -4123,20 +4139,20 @@ public class SqlFile {
             String n;
             do {
                 startOffset = postOffset + 1;
-                postOffset = tmpString.indexOf(dsvColDelim, startOffset);
-                if (postOffset < 0) postOffset = tmpString.length();
+                postOffset = dsvConstCols.indexOf(dsvColDelim, startOffset);
+                if (postOffset < 0) postOffset = dsvConstCols.length();
                 if (postOffset == startOffset)
                     throw new SqlToolError("*DSV_CONST_COLS has null setting");
-                firstEq = tmpString.indexOf('=', startOffset);
+                firstEq = dsvConstCols.indexOf('=', startOffset);
                 if (firstEq < startOffset + 1 || firstEq > postOffset)
                     throw new SqlToolError("*DSV_CONST_COLS element malformatted");
-                n = tmpString.substring(startOffset, firstEq).trim();
+                n = dsvConstCols.substring(startOffset, firstEq).trim();
                 if (n.length() < 1)
                     throw new SqlToolError(
                             "*DSV_CONST_COLS element has null col. name");
                 constColMap.put(n,
-                        tmpString.substring(firstEq + 1, postOffset));
-            } while (postOffset < tmpString.length());
+                        dsvConstCols.substring(firstEq + 1, postOffset));
+            } while (postOffset < dsvConstCols.length());
             stdprintln("Using Constant Column map:  " + constColMap);
             constColMapSize = constColMap.size();
         }
@@ -4190,11 +4206,7 @@ public class SqlFile {
         }
 
         List     headerList = new ArrayList();
-        String    tableName = (String) userVars.get("*DSV_TARGET_TABLE");
-        if (tableName == null) {
-            tableName = (String) userVars.get("*CSV_TABLENAME");
-            // This just for legacy variable name.
-        }
+        String    tableName = dsvTargetTable;
 
         // N.b.  ENDs are the index of 1 PAST the current item
         int recEnd = -1000; // Recognizable value incase something goes
@@ -4222,8 +4234,8 @@ public class SqlFile {
             }
             trimmedLine = string.substring(recStart, recEnd).trim();
             if (trimmedLine.length() < 1
-                    || (dsvSkipPrefix != null
-                            && trimmedLine.startsWith(dsvSkipPrefix))) {
+                    || (skipPrefix != null
+                            && trimmedLine.startsWith(skipPrefix))) {
                 continue;
             }
             if (trimmedLine.startsWith("targettable=")) {
@@ -4327,6 +4339,7 @@ public class SqlFile {
         }
         boolean[] autonulls = new boolean[headers.length - skippers];
         boolean[] parseDate = new boolean[autonulls.length];
+        boolean[] parseBool = new boolean[autonulls.length];
         // Remember that the headers array has all columns in DSV file,
         // even skipped columns.
         // The autonulls array only has columns that we will insert into.
@@ -4347,11 +4360,23 @@ public class SqlFile {
             for (int i = 0; i < autonulls.length; i++) {
                 autonulls[i] = true;
                 parseDate[i] = false;
+                parseBool[i] = false;
                 switch(rsmd.getColumnType(i + 1)) {
-                    case java.sql.Types.VARBINARY:
-                    case java.sql.Types.VARCHAR:
-                        // to insert "".  Otherwise, we'll insert null for "".
+                    case java.sql.Types.BOOLEAN:
+                        parseBool[i] = true;
+                        break;
+                    case java.sql.Types.VARBINARY :
+                    case java.sql.Types.VARCHAR :
+                    case java.sql.Types.ARRAY :
+                        // Guessing at how to handle ARRAY.
+                    case java.sql.Types.BLOB :
+                    case java.sql.Types.CLOB :
+                    case java.sql.Types.LONGVARBINARY :
+                    case java.sql.Types.LONGVARCHAR :
                         autonulls[i] = false;
+                        // This means to preserve white space and to insert
+                        // "" for "".  Otherwise we trim white space and
+                        // insert null for \s*.
                         break;
                     case java.sql.Types.DATE:
                     case java.sql.Types.TIME:
@@ -4378,7 +4403,7 @@ public class SqlFile {
         File rejectReportFile = null;
         PrintWriter rejectWriter = null;
         PrintWriter rejectReportWriter = null;
-        String tmp = (String) userVars.get("*DSV_REJECT_FILE");
+        String tmp = dsvRejectFile;
         if (tmp != null) try {
             rejectFile = new File(tmp);
             rejectWriter = new PrintWriter(
@@ -4389,7 +4414,7 @@ public class SqlFile {
             throw new SqlToolError("Failed to set up reject file '"
                     + tmp + "'", ioe);
         }
-        tmp = (String) userVars.get("*DSV_REJECT_REPORT");
+        tmp = dsvRejectReport;
         if (tmp != null) try {
             rejectReportFile = new File(tmp);
             rejectReportWriter = new PrintWriter(
@@ -4464,8 +4489,8 @@ public class SqlFile {
                 if (trimmedLine.length() < 1) {
                     continue;  // Silently skip blank lines
                 }
-                if (dsvSkipPrefix != null
-                        && trimmedLine.startsWith(dsvSkipPrefix)) {
+                if (skipPrefix != null
+                        && trimmedLine.startsWith(skipPrefix)) {
                     skipCount++;
                     continue;
                 }
@@ -4544,33 +4569,59 @@ public class SqlFile {
                 }
 
                 for (int i = 0; i < dataVals.length; i++) {
+                    if (autonulls[i]) dataVals[i] = dataVals[i].trim();
                     // N.b. WE SPECIFICALLY DO NOT HANDLE TIMES WITHOUT
                     // DATES, LIKE "3:14:00", BECAUSE, WHILE THIS MAY BE
                     // USEFUL AND EFFICIENT, IT IS NOT PORTABLE.
                     //System.err.println("ps.setString(" + i + ", "
                     //      + dataVals[i] + ')');
+//      
                     if (parseDate[i]) {
                         if ((dataVals[i].length() < 1 && autonulls[i])
-                              || dataVals[i].equals(dsvNullRep)) {
+                              || dataVals[i].equals(nullRepToken)) {
                             ps.setTimestamp(i + 1, null);
                         } else {
                             dateString = (dataVals[i].indexOf(':') > 0)
-                                ? dataVals[i] : (dataVals[i] + " 0:00:00");
+                                       ? dataVals[i]
+                                       : (dataVals[i] + " 0:00:00");
+                            // BEWARE:  This may not work for some foreign
+                            // date/time formats.
                             try {
                                 ps.setTimestamp(i + 1,
                                         java.sql.Timestamp.valueOf(dateString));
                             } catch (IllegalArgumentException iae) {
-                                throw new RowError("Bad value '"
+                                throw new RowError("Bad date/time value '"
                                     + dateString + "'", iae);
+                            }
+                        }
+                    } else if (parseBool[i]) {
+                        if ((dataVals[i].length() < 1 && autonulls[i])
+                              || dataVals[i].equals(nullRepToken)) {
+                            ps.setNull(i + 1, java.sql.Types.BOOLEAN);
+                        } else {
+                            try {
+                                ps.setBoolean(i + 1, Boolean.valueOf(
+                                        dataVals[i]).booleanValue());
+                                // Boolean... is equivalent to Java 4's
+                                // Boolean.parseBoolean().
+                            } catch (IllegalArgumentException iae) {
+                                throw new RowError("Bad boolean value '"
+                                    + dataVals[i] + "'", iae);
                             }
                         }
                     } else {
                         ps.setString(
                             i + 1,
                             (((dataVals[i].length() < 1 && autonulls[i])
-                              || dataVals[i].equals(dsvNullRep))
+                              || dataVals[i].equals(nullRepToken))
                              ? null
                              : dataVals[i]));
+
+System.err.println("setString to (" +
+                            (((dataVals[i].length() < 1 && autonulls[i])
+                              || dataVals[i].equals(nullRepToken))
+                             ? null
+                             : dataVals[i]) + ')');
                     }
                 }
 
@@ -4613,7 +4664,7 @@ public class SqlFile {
             String summaryString = null;
             if (recCount > 0) {
                 summaryString = "Import summary ("
-                        + ((dsvSkipPrefix == null) ? "" : ("'" + dsvSkipPrefix
+                        + ((skipPrefix == null) ? "" : ("'" + skipPrefix
                         + "'-"))
                         + "skips / rejects / inserts):  "
                         + skipCount + " / " + rejectCount + " / "
