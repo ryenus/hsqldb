@@ -1,0 +1,5 @@
+$Id$
+
+file          items/features tested
+-----------   ----------------------------
+nullrep.sql   Enforcement of null-representation token.
