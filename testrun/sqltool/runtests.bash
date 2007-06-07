@@ -4,10 +4,10 @@ PROGNAME="${0##*/}"
 # $Id$
 
 # HSQLDB is a platform-independent product.
-# This scripts is only here until I have time to write a portable (probably
+# This script is only here until I have time to write a portable (probably
 # Java) version.  Platform-dependent testing is better than no testing!
 # If somebody reading this would like to port this script to Java, please do so!
-#   -- blaine (unsaved@sourceforge.net)
+#   -- blaine (unsaved@users.sourceforge.net)
 
 set +u
 shopt -s xpg_echo   # This will fail for very old implementations of Bash
