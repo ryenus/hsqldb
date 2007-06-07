@@ -104,8 +104,8 @@ for script in "${Scripts[@]}"; do
             fi
         fi
     }
-    [ -n "$VERBOSE" ] || echo  # Line break after the plusses and minuses
 done
+[ -n "$VERBOSE" ] || echo  # Line break after the plusses and minuses
 
 [ ${#FailedScripts[@]} -eq 0 ] && exit 0
 
