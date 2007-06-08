@@ -2971,7 +2971,6 @@ public class SqlFile {
                         case java.sql.Types.CLOB :
                         case java.sql.Types.LONGVARBINARY :
                         case java.sql.Types.LONGVARCHAR :
-                            // TODO:  Make sure final 2 available in Java 1.3!
                             autonulls[insi] = false;
                             break;
                     }
