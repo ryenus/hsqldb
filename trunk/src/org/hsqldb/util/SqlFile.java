@@ -4615,12 +4615,6 @@ public class SqlFile {
                               || dataVals[i].equals(nullRepToken))
                              ? null
                              : dataVals[i]));
-
-System.err.println("setString to (" +
-                            (((dataVals[i].length() < 1 && autonulls[i])
-                              || dataVals[i].equals(nullRepToken))
-                             ? null
-                             : dataVals[i]) + ')');
                     }
                 }
 
