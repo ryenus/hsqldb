@@ -15,23 +15,58 @@ INSERT INTO t VALUES(2, '[null]');
 INSERT INTO t VALUES(3, null);
 
 * COUNT _
-SELECT count(*) FROM t WHERE vc IS NULL;
-
-* if (*COUNT != 1)
+SELECT count(*) FROM t WHERE i = 2 AND vc IS NULL;
+* if (*COUNT != 0)
     \q Seems that non-DSV insertion of '[null]' inserted a real NULL
 * end if
 
-* VAL _
-SELECT vc FROM t WHERE vc = '[null]';
-* if (*VAL != [null])
-    \q Failed to SELECT literal '[null]'
+* COUNT _
+SELECT count(*) FROM t WHERE i = 3 AND vc IS null;
+* if (*COUNT != 1)
+    \q Seems that non-DSV insertion of plain null did not insert a SQL NULL
 * end if
+DROP TABLE t;
 
-SELECT vc FROM t WHERE vc IS null;
-* VAL _
-SELECT vc FROM t WHERE vc IS null;
-* if (*VAL != [null])
-    \p BAD
-    \p *{VAL}
-    \q Database represented by *{VAL} instead of "[null]" in VARCHAR SELECT
-* end if
+
+/* Now test nullrep tokens with DSV imports */
+CREATE TABLE t (
+    id VARCHAR PRIMARY KEY,
+    i INTEGER,
+    r REAL,
+    d DATE,
+    t TIMESTAMP,
+    v VARCHAR,
+    b BOOLEAN
+);
+
+\m nullrep.dsv
+SELECT count(*) FROM t WHERE id = 'wspaces' AND i IS null;
+*if (*? != 1)
+    \q Insertion of INTEGER space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND r IS null;
+*if (*? != 1)
+    \q Insertion of REAL space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND d IS null;
+*if (*? != 1)
+    \q Insertion of DATE space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND t IS null;
+*if (*? != 1)
+    \q Insertion of TIMESTAMP space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND v = '  [null]  ';
+*if (*? != 1)
+    \q Insertion of VARCHAR w/ space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND b IS null;
+*if (*? != 1)
+    \q Insertion of BOOLEAN space-embedded null-rep-token failed
+*end if
+
