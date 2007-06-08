@@ -4301,7 +4301,7 @@ public class SqlFile {
             headerList.add(
                 (colEnd - colStart == 1 && string.charAt(colStart) == '-')
                 ? ((String) null)
-                : string.substring(colStart, colEnd));
+                : string.substring(colStart, colEnd).trim());
 
             colStart = colEnd + dsvColDelim.length();
         }
@@ -4323,6 +4323,7 @@ public class SqlFile {
         }
 
         StringBuffer tmpSb = new StringBuffer();
+        List tmpList = new ArrayList();
 
         int skippers = 0;
         for (int i = 0; i < headers.length; i++) {
@@ -4335,10 +4336,12 @@ public class SqlFile {
             }
 
             tmpSb.append(headers[i]);
+            tmpList.add(headers[i]);
         }
         boolean[] autonulls = new boolean[headers.length - skippers];
         boolean[] parseDate = new boolean[autonulls.length];
         boolean[] parseBool = new boolean[autonulls.length];
+        String[] insertFieldName = (String[]) tmpList.toArray(new String[] {});
         // Remember that the headers array has all columns in DSV file,
         // even skipped columns.
         // The autonulls array only has columns that we will insert into.
@@ -4445,7 +4448,8 @@ public class SqlFile {
             rejectReportWriter.println(
                     "<TABLE border='1px' cellpadding='5px' style='background-color:white;'>");
             rejectReportWriter.println("    <THEAD><TR><TH>reject #</TH>"
-                    + "<TH>input line #</TH><TH>reason</TH></TR></THEAD>");
+                    + "<TH>input line #</TH><TH>bad field</TH>"
+                    + "<TH>reason</TH></TR></THEAD>");
             rejectReportWriter.println("<TBODY>");
         } catch (IOException ioe) {
             throw new SqlToolError("Failed to set up reject report file '"
@@ -4468,6 +4472,7 @@ public class SqlFile {
             // Length is number of cols to insert INTO, not nec. # in DSV file.
             int      readColCount;
             int      storeColCount;
+            String   currentFieldName = null;
 
             // Insert data rows 1-row-at-a-time
             while (true) try { try {
@@ -4568,6 +4573,7 @@ public class SqlFile {
                 }
 
                 for (int i = 0; i < dataVals.length; i++) {
+                    currentFieldName = insertFieldName[i];
                     if (autonulls[i]) dataVals[i] = dataVals[i].trim();
                     // N.b. WE SPECIFICALLY DO NOT HANDLE TIMES WITHOUT
                     // DATES, LIKE "3:14:00", BECAUSE, WHILE THIS MAY BE
@@ -4625,6 +4631,7 @@ public class SqlFile {
                             + " rows modified");
                 }
 
+                currentFieldName = null;
                 possiblyUncommitteds.set(true);
             } catch (SQLException se) {
                 throw new RowError(se);
@@ -4641,7 +4648,10 @@ public class SqlFile {
                                 + "<TD align='right' class='right'>"
                                 + rejectCount
                                 + "</TD><TD align='right' class='right'>"
-                                + lineCount + "</TD><TD><PRE class='reason'>"
+                                + lineCount + "</TD><TD>"
+                                + ((currentFieldName == null) ? "&nbsp;"
+                                        : currentFieldName)
+                                + "</TD><TD><PRE class='reason'>"
                                 + re.getMessage()
                                 + ((cause == null) ? "" : ("<HR/>" + cause))
                                 + "</PRE></TD></TR>");
@@ -4649,7 +4659,10 @@ public class SqlFile {
                 } else {
                     importAborted = true;
                     throw new SqlToolError("Parse or insert of input line "
-                            + lineCount + " failed.  " + re.getMessage(),
+                            + lineCount + " failed"
+                            + ((currentFieldName == null) ? ""
+                                : (", bad field '" + currentFieldName + "'"))
+                            + ".  " + re.getMessage(),
                             cause);
                 }
             }
