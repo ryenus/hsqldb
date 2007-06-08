@@ -33,7 +33,9 @@ SELECT count(*)  FROM t WHERE v = '  a B  ';
     \q Import of space-embedded VARCHAR failed
 *end if
 
-SELECT count(*)  FROM t WHERE b IS true;
+/** I dont' know if "IS true" or "= true" is preferred, but the former
+ * doesn't work with HSQLDB 1.7.0.7 */
+SELECT count(*)  FROM t WHERE b = true;
 *if (*? != 1)
     \q Import of space-embedded BOOLEAN failed
 *end if
