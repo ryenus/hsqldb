@@ -141,7 +141,7 @@ public class SqlFile {
      * Encapsulate updating local variables which depend upon PL variables.
      *
      * Right now this is called whenever the user variable map is changed.
-     * It would be more efficient to do it JIT by keeping track of when 
+     * It would be more efficient to do it JIT by keeping track of when
      * the vars may be "dirty" by a variable map change, and having all
      * methods that use the settings call a conditional updater, but that
      * is less reliable since there is no way to guarantee that the vars
@@ -3039,7 +3039,7 @@ public class SqlFile {
                                     ts  = r.getTimestamp(i);
                                     val = ((ts == null) ? null : ts.toString());
                                     // Following block truncates non-zero
-                                    // sub-seconds from time types OTHER than 
+                                    // sub-seconds from time types OTHER than
                                     // TIMESTAMP.
                                     if (dataType[insi]
                                             != java.sql.Types.TIMESTAMP
@@ -4005,7 +4005,7 @@ public class SqlFile {
         }
 
         if (s.trim().equals(nullRepToken)) {
-            // The trim() is to avoid the situation where the contents of a 
+            // The trim() is to avoid the situation where the contents of a
             // field "looks like" the null-rep token.
             throw new SqlToolError(
                 "Table data contains just our null representation '"
@@ -4424,8 +4424,10 @@ public class SqlFile {
                             new FileOutputStream(rejectReportFile), charset));
             rejectReportWriter.println("<HTML>");
             rejectReportWriter.println("<HEAD><STYLE>");
+            rejectReportWriter.println("    th { background-color:aqua; }");
             rejectReportWriter.println("    .right { text-align:right; }");
-            rejectReportWriter.println("    .reason { font-size: 75%; font-family:courier; color:red; }");
+            rejectReportWriter.println("    .reason { font-size: 95%; "
+                    + "font-weight:bold;}");
             rejectReportWriter.println("</STYLE></HEAD>");
             rejectReportWriter.println("<BODY style='background:silver;'>");
             rejectReportWriter.println("<P>Import performed at "
@@ -4447,9 +4449,10 @@ public class SqlFile {
             }
             rejectReportWriter.println(
                     "<TABLE border='1px' cellpadding='5px' style='background-color:white;'>");
-            rejectReportWriter.println("    <THEAD><TR><TH>reject #</TH>"
-                    + "<TH>input line #</TH><TH>bad field</TH>"
-                    + "<TH>reason</TH></TR></THEAD>");
+            rejectReportWriter.println("    <THEAD><TR><TH>rej.&nbsp;#</TH>"
+                    + "<TH>input<BR/>line&nbsp;#</TH><TH>bad&nbsp;column<BR/>"
+                    + "(if&nbsp;known)</TH>"
+                    + "<TH style='color:red;'>reason</TH></TR></THEAD>");
             rejectReportWriter.println("<TBODY>");
         } catch (IOException ioe) {
             throw new SqlToolError("Failed to set up reject report file '"
@@ -4580,7 +4583,7 @@ public class SqlFile {
                     // USEFUL AND EFFICIENT, IT IS NOT PORTABLE.
                     //System.err.println("ps.setString(" + i + ", "
                     //      + dataVals[i] + ')');
-//      
+
                     if (parseDate[i]) {
                         if ((dataVals[i].length() < 1 && autonulls[i])
                               || dataVals[i].equals(nullRepToken)) {
@@ -4622,6 +4625,7 @@ public class SqlFile {
                              ? null
                              : dataVals[i]));
                     }
+                    currentFieldName = null;
                 }
 
                 retval = ps.executeUpdate();
@@ -4631,7 +4635,6 @@ public class SqlFile {
                             + " rows modified");
                 }
 
-                currentFieldName = null;
                 possiblyUncommitteds.set(true);
             } catch (SQLException se) {
                 throw new RowError(se);
@@ -4661,7 +4664,7 @@ public class SqlFile {
                     throw new SqlToolError("Parse or insert of input line "
                             + lineCount + " failed"
                             + ((currentFieldName == null) ? ""
-                                : (", bad field '" + currentFieldName + "'"))
+                                : (", bad column '" + currentFieldName + "'"))
                             + ".  " + re.getMessage(),
                             cause);
                 }
@@ -4689,8 +4692,9 @@ public class SqlFile {
             if (rejectReportWriter != null) {
                 if (rejectCount > 0) {
                     rejectReportWriter.println(
-                            "    <TR><TD colspan='3' style='background:blue; "
-                            + "font-weight:bold; color:white'>");
+                            "    <TR><TD colspan='4' "
+                            + "style='border:3px solid blue; color:blue; "
+                            + "font-weight:bold;'>");
                     rejectReportWriter.println("        " + summaryString);
                     rejectReportWriter.println("    </TD></TR>");
                     rejectReportWriter.println("</TBODY>");
