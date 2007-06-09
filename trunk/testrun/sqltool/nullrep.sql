@@ -4,6 +4,11 @@
  * Tests enforcement of null-representation token 
  */
 
+/** This is the default on UNIX.
+ *  Our *.dsv test files are stored as binaries, so this is required
+ *  to run tests on Windows: */
+* *DSV_ROW_DELIM = \n
+
 CREATE TABLE t (i INT, vc VARCHAR);
 
 INSERT INTO t VALUES(1, 'one');
@@ -70,3 +75,40 @@ SELECT count(*) FROM t WHERE id = 'wspaces' AND b IS null;
     \q Insertion of BOOLEAN space-embedded null-rep-token failed
 *end if
 
+DELETE FROM t;
+
+/** Repeat test with some non-default DSV settings */
+* *NULL_REP_TOKEN = %%
+* *DSV_COL_DELIM = :
+* *DSV_ROW_DELIM = }\n
+
+\m nullrep-alt.dsv
+SELECT count(*) FROM t WHERE id = 'wspaces' AND i IS null;
+*if (*? != 1)
+    \q Insertion of INTEGER space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND r IS null;
+*if (*? != 1)
+    \q Insertion of REAL space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND d IS null;
+*if (*? != 1)
+    \q Insertion of DATE space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND t IS null;
+*if (*? != 1)
+    \q Insertion of TIMESTAMP space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND v = '  %%  ';
+*if (*? != 1)
+    \q Insertion of VARCHAR w/ space-embedded null-rep-token failed
+*end if
+
+SELECT count(*) FROM t WHERE id = 'wspaces' AND b IS null;
+*if (*? != 1)
+    \q Insertion of BOOLEAN space-embedded null-rep-token failed
+*end if
