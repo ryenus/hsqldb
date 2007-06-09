@@ -143,3 +143,36 @@
 *if (*N7)
     \q Negative deep-nest failure 7
 *end if
+
+/* Nested foreach tests */
+/* Initialize Results  to I */
+* R = I
+*foreach L1 (A B C)
+  *foreach L2 (1 2 3 4)
+      *foreach L3 (a b)
+	      * R = *{R}:*{L1}*{L2}*{L3}
+	  *end foreach
+  *end foreach
+*end foreach
+*if (*R != I:A1a:A1b:A2a:A2b:A3a:A3b:A4a:A4b:B1a:B1b:B2a:B2b:B3a:B3b:B4a:B4b:C1a:C1b:C2a:C2b:C3a:C3b:C4a:C4b)
+    \q nested foreach result unexpected: *{R}
+*end if
+/* Initialize Results  to I */
+* R = I
+*foreach L1 (A B C)
+  *if (*L1 != A)
+	  *foreach L2 (1 2 3 4)
+		  *if (*L2 != 3)
+			  *foreach L3 (a b c)
+				  *if (*L3 != b)
+					  * R = *{R}:*{L1}*{L2}*{L3}
+				  *end if
+			  *end foreach
+		  *end if
+	  *end foreach
+  *end if
+*end foreach
+\p *{R}
+*if (*R != I:B1a:B1c:B2a:B2c:B4a:B4c:C1a:C1c:C2a:C2c:C4a:C4c)
+    \q nested conditional foreach result unexpected: *{R}
+*end if
