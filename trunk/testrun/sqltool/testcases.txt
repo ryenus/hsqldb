@@ -1,5 +1,8 @@
 $Id$
 
-file          items/features tested
------------   ----------------------------
-nullrep.sql   Enforcement of null-representation token.
+file              items/features tested
+-----------       ----------------------------
+nullrep.sql       Enforcement of null-representation token.
+dsv-trimming.sql  DSV import tests, including trimming of whitespace.
+lastval.sql       Test automatic ? variable.
+nullrep.sql       Test the null-representation token (default and custom).
