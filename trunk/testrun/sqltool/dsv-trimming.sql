@@ -47,7 +47,7 @@ SELECT count(*)  FROM t WHERE b = true;
 
 
 /** Repeat test with some non-default DSV settings */
-* *DSV_COL_DELIM = :
+* *DSV_COL_DELIM = \\
 * *DSV_ROW_DELIM = }\n
 
 DELETE FROM t;
