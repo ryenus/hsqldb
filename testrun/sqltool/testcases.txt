@@ -6,3 +6,8 @@ nullrep.sql       Enforcement of null-representation token.
 dsv-trimming.sql  DSV import tests, including trimming of whitespace.
 lastval.sql       Test automatic ? variable.
 nullrep.sql       Test the null-representation token (default and custom).
+q-noarg*.sql      Test for success status \q exits.
+q-arg*.nsql       Tests for failure status "\q arg..." exits.
+noop.sql          Does nothing (exit status should be success).
+goodsqlonly.sql   Executes some successful SQL.
+badsqlonly.nsql   Executes some bad SQL.

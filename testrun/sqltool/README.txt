@@ -114,3 +114,9 @@ NEGATIVE TESTS
     failures for 3.nsql and 4.nsql only if SqlTool succeeds when 
     executing them.  I.e., runtests.bash _expects_ SqlTool to fail 
     when executing *.nsql files.
+
+    Negative test scripts should be small and should fail out as
+    early as possible.  The reason for this is that if there is an
+    accidental error before the point of your test, the script will
+    fail out early providing a false negative SqlTool exit code,
+    thereby silently missing your test completely.

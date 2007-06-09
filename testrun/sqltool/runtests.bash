@@ -2,17 +2,14 @@
 PROGNAME="${0##*/}"
 
 # $Id$
-
-# HSQLDB is a platform-independent product.
-# This script is only here until I have time to write a portable (probably
-# Java) version.  Platform-dependent testing is better than no testing!
-# If somebody reading this would like to port this script to Java, please do so!
-#   -- blaine (unsaved@users.sourceforge.net)
+# author: Blaine Simpson, unsaved@users.sourceforge.net
+# since: HSQLDB 1.8.0.8 / 1.9.x
+# see:  README.txt in this same directory.
 
 set +u
 shopt -s xpg_echo   # This will fail for very old implementations of Bash
 
-# The %% is for when this script is renamed with an extension line .sh or .bash.
+# The %% is for when this script is renamed with an extension like .sh or .bash.
 TMPDIR=/var/tmp/${PROGNAME%%.*}.$$
 # If this is changed, make sure it never contains spaces or other shell
 # metacharacters.
@@ -20,8 +17,8 @@ TMPDIR=/var/tmp/${PROGNAME%%.*}.$$
 SYNTAX_MSG="$PROGNAME [-nvh] [testscript.sql...]
 With -v, output from SqlTool will be shown.  Otherwise, only tests and results
 will be shown.
-If no script names are supplied, *.sql from the current directory will be
-executed.
+If no script names are supplied, *.sql and *.nsql from the current directory 
+will be executed.
 Exit value is number of test failures, or 1 for other errors or if number of
 test failures exceeds 255 (shell scripts can't handle exit values > 255).
 
@@ -60,10 +57,17 @@ declare -a Scripts
 if [ $# -gt 0 ]; then
     Scripts=($@)
 else
-    Scripts=(*.sql)
-    [ "${#Scripts[@]}" -eq 1 ] && [ "${Scripts[0]}" = '*.sql' ] &&
-    Failout "No *.sql script(s) in current directory"
+    declare -a tmpScripts
+    tmpScripts=(*.sql)
+    [ "${#tmpScripts[@]}" -ne 1 ] || [ "${tmpScripts[0]}" != '*.sql' ] &&
+    Scripts=("${Scripts[@]}" "${tmpScripts[@]}")
+    tmpScripts=(*.nsql)
+    [ "${#tmpScripts[@]}" -ne 1 ] || [ "${tmpScripts[0]}" != '*.nsql' ] &&
+    Scripts=("${Scripts[@]}" "${tmpScripts[@]}")
+    [ ${#Scripts[@]} -eq 0 ] &&
+    Failout "No *.sql or *.nsql script(s) in current directory"
 fi
+[ -n "$VERBOSE" ] && echo "Scripts to execute: ${Scripts[@]}"
 
 for script in "${Scripts[@]}"; do
     [ -f "$script" ] || Failout "Script '$script' not present"
@@ -86,18 +90,22 @@ for script in "${Scripts[@]}"; do
         echo -n T
     fi
     [ -n "$NORUN" ] || {
+        succeed=
         echo |  #  This is to give SqlTool a blank password for user 'sa'
         eval java org.hsqldb.util.SqlTool --inlineRc user=sa,url=jdbc:hsqldb:mem:utst "$script" $REDIR
-        result=$?
-        [ $result -eq 0 ] || FailedScripts=("${FailedScripts[@]}" "$script")
+        case "$script" in
+            *.nsql) [ $? -ne 0 ] && succeed=1;;
+            *) [ $? -eq 0 ] && succeed=1;;
+        esac
+        [ -n "$succeed" ] || FailedScripts=("${FailedScripts[@]}" "$script")
         if [ -n "$VERBOSE" ]; then
-            if [ $result -eq 0 ]; then
+            if [ -n "$succeed" ]; then
                 echo SUCCESS
             else
                 echo FAIL
             fi
         else
-            if [ $result -eq 0 ]; then
+            if [ -n "$succeed" ]; then
                 echo -n '\b+'
             else
                 echo -n '\b-'
