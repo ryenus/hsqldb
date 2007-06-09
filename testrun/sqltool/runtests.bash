@@ -112,6 +112,6 @@ done
 echo "${#FailedScripts[@]} tests failed out of ${#Scripts[@]}:"
 IFS='
 '
-echo "${FailedScripts[@]}"
+echo "${FailedScripts[*]}"
 [ ${#FailedScripts[@]} -gt 255 ] && exit 1
 exit ${#FailedScripts[@]}
