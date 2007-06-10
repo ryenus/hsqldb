@@ -76,26 +76,23 @@ import java.util.TreeMap;
  * BufferCommand =  Editing/buffer command like ":s/this/that/"
  *
  * When entering SQL statements, you are always "appending" to the
- * "current" command (not the "buffer", which is a different thing).
- * All you can do to the current command is append new lines to it,
+ * "immediate" command (not the "buffer", which is a different thing).
+ * All you can do to the immediate command is append new lines to it,
  * execute it, or save it to buffer.
+ * When you are entering a buffer edit command like ":s/this/that/",
+ * your immediate command is the buffer-edit-command.  The buffer
+ * is the command string that you are editing.
+ * The buffer usually contains either an exact copy of the last command
+ * executed or sent to buffer by entering a blank line,
+ * but BUFFER commands can change the contents of the buffer.
  *
  * In general, the special commands mirror those of Postgresql's psql,
  * but SqlFile handles command editing much different from Postgresql
  * because of Java's lack of support for raw tty I/O.
  * The \p special command, in particular, is very different from psql's.
- * Also, to keep the code simpler, we're sticking to only single-char
- * special commands until we really need more.
  *
  * Buffer commands are unique to SQLFile.  The ":" commands allow
  * you to edit the buffer and to execute the buffer.
- *
- * The command history consists only of SQL Statements (i.e., special
- * commands and editing commands are not stored for later viewing or
- * editing).
- *
- * Most of the Special Commands and Editing Commands are for
- * interactive use only.
  *
  * \d commands are very poorly supported for Mysql because
  * (a) Mysql lacks most of the most basic JDBC support elements, and
@@ -109,6 +106,16 @@ import java.util.TreeMap;
  * setters would be best) instead of constructor args and System
  * Properties.
  *
+ * The process*() methods, other than processBuffHist() ALWAYS execute
+ * on "buffer", and expect it to contain the method specific prefix
+ * (if any).
+ *
+ * It's really poor design to have the input file given in the 
+ * constructor.  This constains users to only call execute() once and
+ * only one on each SqlFile object.  Unfortunately, fixing this would
+ * have a dramatic effect on the public interface and therefore would
+ * wreak havoc on existing programmatic users.
+ *
  * @version $Revision$
  * @author Blaine Simpson unsaved@users
  */
@@ -118,7 +125,7 @@ public class SqlFile {
      *  use Java v. 4, we can
      *  write the text using "\n"s, then run replaceAll("\n", LS) in a
      *  static initializer if !equals("\n", "LS)  (or very similar to that). */
-    private static final int DEFAULT_HISTORY_SIZE = 20;
+    private static final int DEFAULT_HISTORY_SIZE = 40;
     private File             file;
     private boolean          interactive;
     private String           primaryPrompt    = "sql> ";
@@ -127,7 +134,7 @@ public class SqlFile {
     private Connection       curConn          = null;
     private boolean          htmlMode         = false;
     private Map              userVars; // Always a non-null map set in cons.
-    private String[]         statementHistory = null;
+    private List             history          = null;
     private boolean          chunking         = false;
     private String           nullRepToken     = null;
     private String           dsvTargetFile    = null;
@@ -136,6 +143,7 @@ public class SqlFile {
     private String           dsvRejectFile    = null;
     private String           dsvRejectReport  = null;
     public static String     LS = System.getProperty("line.separator");
+    private int              maxHistoryLength = 1;
 
     /**
      * Encapsulate updating local variables which depend upon PL variables.
@@ -249,11 +257,16 @@ public class SqlFile {
         + "  (which executes the statement)." + LS
         + "  SQL Statements may begin with '/PLVARNAME' and/or contain *{PLVARNAME}s." + LS;
     private static final String BUFFER_HELP_TEXT =
-        "BUFFER Commands (only \":;\" is available for non-interactive use)." + LS
-        + "    :?                Help" + LS
-        + "    :;                Execute current buffer as an SQL Statement" + LS
+        "Edit Buffer and History Commands.  Not available for non-interactive use." + LS
+        + "    :?                edit buffer / history Help" + LS
+        + "    :h                show History of previous commands (plus buffer contents)" + LS
+        + "    :b                list current contents of edit Buffer" + LS
+        + "    :X[;]             reload command #X to buffer (can then edit or \":;\")" + LS
+        + "       (integer X)    where X of 13 means command #13 from history;" + LS
+        + "                            X of -13 means 13th command back;" + LS
+        + "                            ';' suffix means to execute the command too." + LS
+        + "    :;                Execute current buffer (special, PL, or SQL command)" + LS
         + "    :a[text]          Enter append mode with a copy of the buffer" + LS
-        + "    :l                List current contents of buffer" + LS
         + "    :s/from/to        Substitute \"to\" for first occurrence of \"from\"" + LS
         + "    :s/from/to/[i;g2] Substitute \"to\" for occurrence(s) of \"from\"" + LS
         + "                from:  '$'s represent line breaks" + LS
@@ -271,11 +284,8 @@ public class SqlFile {
         + "                           (Use any line number in place of '2')." + LS
     ;
     private static final String HELP_TEXT = "SPECIAL Commands." + LS
-        + "* commands only available for interactive use." + LS
-        + "In place of \"3\" below, you can use nothing for the previous command, or" + LS
-        + "an integer \"X\" to indicate the Xth previous command." + LS
-        + "Filter substrings are cases-sensitive!  Use \"SCHEMANAME.\" to narrow schema." + LS
-        + "    \\?                   Help" + LS
+        + "Filter substrings are cases-sensitive!  Use \"SCHEMANAME.\" to narrow to schema." + LS
+        + "    \\?                   special command Help" + LS
         + "    \\p [line to print]   Print string to stdout" + LS
         + "    \\w file/path.sql     Append current buffer to file" + LS
         + "    \\i file/path.sql     Include/execute commands from external file" + LS
@@ -284,7 +294,7 @@ public class SqlFile {
         + "    \\d OBJECTNAME [subs] Describe table or view columns" + LS
         + "    \\o [file/path.html]  Tee (or stop teeing) query output to specified file" + LS
         + "    \\H                   Toggle HTML output mode" + LS
-        + "    \\! COMMAND ARGS      Execute external program (no support for stdin)" + LS
+        + "    \\! COMMAND [ARGS]    Execute external program (no support for stdin)" + LS
         + "    \\c [true|false]      Continue upon errors (a.o.t. abort upon error)" + LS
         + "    \\a [true|false]      Auto-commit JDBC DML commands" + LS
         + "    \\b                   save next result to Binary buffer (no display)" + LS
@@ -292,21 +302,19 @@ public class SqlFile {
         + "    \\bl file/path.bin    Load file into Binary buffer" + LS
         + "    \\bp                  Use ? in next SQL statement to upload Bin. buffer" + LS
         + "    \\.                   Enter raw SQL.  End with line containing only \".\"" + LS
-        + "    \\s                   * Show previous commands (i.e. SQL command history)" + LS
-        + "    \\-[3][;]             * reload a command to buffer (opt. exec. w/ \":;\"))" + LS
         + "    \\=                   commit JDBC session" + LS
         + "    \\x {TABLE|SELECT...} eXport table or query to DSV text file (options \\x?)" + LS
         + "    \\m file/path.dsv [*] iMport DSV text file records into a table (opts \\m?)" + LS
         + "    \\q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)" + LS
     ;
     private static final String PL_HELP_TEXT = "PROCEDURAL LANGUAGE Commands." + LS
-        + "    *?                            Help" + LS
+        + "    *?                            PL Help" + LS
         + "    *                             Expand PL variables from now on." + LS
         + "                                  (this is also implied by all the following)." + LS
         + "    * VARNAME = Variable value    Set variable value" + LS
         + "    * VARNAME =                   Unset variable" + LS
         + "    * VARNAME ~                   Set variable value to the value of the very" + LS
-        + "                                  next SQL statement executed (see details" + LS
+        + "                                  next SQL value or count fetched (see details" + LS
         + "                                  at the bottom of this listing)." + LS
         + "    * VARNAME _                   Same as * VARNAME _, except the query is" + LS
         + "                                  done silently (i.e, no rows to screen)" + LS
@@ -314,6 +322,7 @@ public class SqlFile {
         + "    * load VARNAME path.txt       Load variable value from text file" + LS
         + "    * dump VARNAME path.txt       Dump variable value to text file" + LS
         + "    * prepare VARNAME             Use ? in next SQL statement to upload val." + LS
+        + "                                  (Just \"?\", \"*{?}\" would mean the auto var.)." + LS
         + "    * foreach VARNAME ([val1...]) Repeat the following PL block with the" + LS
         + "                                  variable set to each value in turn." + LS
         + "    * if (logical expr)           Execute following PL block only if expr true" + LS
@@ -324,12 +333,12 @@ public class SqlFile {
         + "Use PL variables (which you have set) like: *{VARNAME}." + LS
         + "You may use /VARNAME instead iff /VARNAME is the first word of a SQL command." + LS
         + "Use PL variables in logical expressions, like (*VARNAME == 1)." + LS
-        + "Magic variable ? is set to the very last datum fetched (or update count)." + LS + LS
-        + "'* VARNAME ~' or '* VARNAME _' sets the variable value according to the very" + LS
-        + "next SQL statement (~ will echo the value, _ will do it silently):" + LS
+        + "Auto. variable ? is set to the very next SQL datum fetched (or update count)." + LS
         + "    Query:  The value of the first field of the first row returned." + LS
         + "    other:  Return status of the command (for updates this will be" + LS
         + "            the number of rows updated)." + LS
+        + "'* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly" + LS
+        + "like ?.  (~ will echo the value, _ will do it silently)." + LS
     ;
 
     private static final String DSV_OPTIONS_TEXT =
@@ -401,20 +410,18 @@ public class SqlFile {
         }
         updateUserSettings();
 
-        try {
-            statementHistory =
-                new String[interactive ? Integer.parseInt(System.getProperty("sqltool.historyLength"))
-                                       : 1];
-        } catch (Throwable t) {
-            statementHistory = null;
-        }
-
-        if (statementHistory == null) {
-            statementHistory = new String[DEFAULT_HISTORY_SIZE];
-        }
-
         if (file != null &&!file.canRead()) {
             throw new IOException("Can't read SQL file '" + file + "'");
+        }
+        if (interactive) {
+            history = new ArrayList();
+            String histLenString = System.getProperty("sqltool.historyLength");
+            if (histLenString != null) try {
+                maxHistoryLength = Integer.parseInt(histLenString);
+            } catch (Exception e) {
+            } else {
+                maxHistoryLength = DEFAULT_HISTORY_SIZE;
+            }
         }
     }
 
@@ -453,14 +460,14 @@ public class SqlFile {
 
     // So we can tell how to handle quit and break commands.
     public boolean      recursed     = false;
-    private String      curCommand   = null;
+    private String      lastSqlStatement   = null;
     private int         curLinenum   = -1;
     private int         curHist      = -1;
     private PrintStream psStd        = null;
     private PrintStream psErr        = null;
     private PrintWriter pwQuery      = null;
     private PrintWriter pwDsv        = null;
-    StringBuffer        stringBuffer = new StringBuffer();
+    StringBuffer        immCmdSB     = new StringBuffer();
     /*
      * This is reset upon each execute() invocation (to true if interactive,
      * false otherwise).
@@ -469,6 +476,8 @@ public class SqlFile {
     private static final String DEFAULT_CHARSET = "US-ASCII";
     private BufferedReader      br              = null;
     private String              charset         = null;
+    private String              buffer          = null;
+    private boolean             withholdPrompt  = false;
 
     /**
      * Process all the commands in the file (or stdin) associated with
@@ -499,7 +508,6 @@ public class SqlFile {
         curLinenum = -1;
 
         String  inputLine;
-        String  trimmedCommand;
         String  trimmedInput;
         String  deTerminated;
         boolean inComment = false;    // Gobbling up a comment
@@ -529,8 +537,10 @@ public class SqlFile {
             }
 
             while (true) {
-                if (interactive) {
-                    psStd.print((stringBuffer.length() == 0)
+                if (withholdPrompt) {
+                    withholdPrompt = false;
+                } else if (interactive) {
+                    psStd.print((immCmdSB.length() == 0)
                                 ? (chunking ? chunkPrompt
                                             : primaryPrompt)
                                 : contPrompt);
@@ -554,28 +564,6 @@ public class SqlFile {
 
                 curLinenum++;
 
-                if (chunking) {
-                    if (inputLine.equals(".")) {
-                        chunking = false;
-
-                        setBuf(stringBuffer.toString());
-                        stringBuffer.setLength(0);
-
-                        if (interactive) {
-                            stdprintln("Raw SQL chunk moved into buffer.  "
-                                       + "Run \":;\" to execute the chunk.");
-                        }
-                    } else {
-                        if (stringBuffer.length() > 0) {
-                            stringBuffer.append('\n');
-                        }
-
-                        stringBuffer.append(inputLine);
-                    }
-
-                    continue;
-                }
-
                 if (inComment) {
                     postCommentIndex = inputLine.indexOf("*/") + 2;
 
@@ -586,7 +574,7 @@ public class SqlFile {
                         // Empty the buffer.  The non-comment remainder of
                         // this line is either the beginning of a new SQL
                         // or Special command, or an empty line.
-                        stringBuffer.setLength(0);
+                        immCmdSB.setLength(0);
 
                         inComment = false;
                     } else {
@@ -598,7 +586,34 @@ public class SqlFile {
                 trimmedInput = inputLine.trim();
 
                 try {
-                    if (stringBuffer.length() == 0) {
+                    if (chunking) {
+                        boolean rawExecute = inputLine.equals(".;");
+                        if (rawExecute || inputLine.equals(".")) {
+                            chunking = false;
+
+                            setBuf(immCmdSB.toString());
+                            immCmdSB.setLength(0);
+
+                            if (rawExecute) {
+                                historize();
+                                processSQL();
+                            } else if (interactive) {
+                                stdprintln("Raw SQL chunk moved into buffer.  "
+                                       + "Run \":;\" to execute the chunk.");
+                            }
+                        } else {
+                            if (immCmdSB.length() > 0) {
+                                immCmdSB.append('\n');
+                            }
+
+                            immCmdSB.append(inputLine);
+                        }
+
+                        continue;
+                    }
+
+                    if (immCmdSB.length() == 0) {
+                    // NEW Immediate Command (i.e., not appending).
                         if (trimmedInput.startsWith("/*")) {
                             postCommentIndex = trimmedInput.indexOf("*/", 2)
                                                + 2;
@@ -612,7 +627,7 @@ public class SqlFile {
                                 trimmedInput = inputLine.trim();
                             } else {
                                 // Just so we get continuation lines:
-                                stringBuffer.append("COMMENT");
+                                immCmdSB.append("COMMENT");
 
                                 inComment = true;
 
@@ -626,25 +641,17 @@ public class SqlFile {
                             continue;
                         }
 
-                        if (trimmedInput.charAt(0) == '*'
+                        if ((trimmedInput.charAt(0) == '*'
                                 && (trimmedInput.length() < 2
-                                    || trimmedInput.charAt(1) != '{')) {
-                            processPL((trimmedInput.length() == 1) ? ""
-                                                                   : trimmedInput
-                                                                   .substring(1)
-                                                                   .trim());
+                                    || trimmedInput.charAt(1) != '{'))
+                                || trimmedInput.charAt(0) == '\\') {
+                            setBuf(trimmedInput);
+                            processFromBuffer();
                             continue;
                         }
 
-                        if (trimmedInput.charAt(0) == '\\') {
-                            processSpecial(trimmedInput.substring(1));
-                            continue;
-                        }
-
-                        if (trimmedInput.charAt(0) == ':'
-                                && (interactive
-                                    || (trimmedInput.charAt(1) == ';'))) {
-                            processBuffer(trimmedInput.substring(1));
+                        if (trimmedInput.charAt(0) == ':' && interactive) {
+                            processBuffHist(trimmedInput.substring(1));
                             continue;
                         }
 
@@ -654,12 +661,17 @@ public class SqlFile {
                                 || ucased.startsWith("BEGIN")) {
                             chunking = true;
 
-                            stringBuffer.append(inputLine);
+                            immCmdSB.append(inputLine);
 
                             if (interactive) {
                                 stdprintln(
-                                    "Enter RAW SQL.  No \\, :, * commands.  "
-                                    + "End with a line containing only \".\":");
+                                    "Enter RAW SQL.  No \\, :, * commands.");
+                                stdprintln(
+                                    "End with a line containing only \".;\" "
+                                    + "to execute, or \".\" to store to "
+                                    + "buffer for editing or saving.");
+                                stdprintln("--------------------------------"
+                                    + "--------------------------------------");
                             }
 
                             continue;
@@ -669,8 +681,9 @@ public class SqlFile {
                     if (trimmedInput.length() == 0 && interactive &&!inComment) {
                         // Blank lines delimit commands ONLY IN INTERACTIVE
                         // MODE!
-                        setBuf(stringBuffer.toString());
-                        stringBuffer.setLength(0);
+System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
+                        setBuf(immCmdSB.toString());
+                        immCmdSB.setLength(0);
                         stdprintln("Current input moved into buffer.");
                         continue;
                     }
@@ -679,11 +692,11 @@ public class SqlFile {
 
                     // A null terminal line (i.e., /\s*;\s*$/) is never useful.
                     if (!trimmedInput.equals(";")) {
-                        if (stringBuffer.length() > 0) {
-                            stringBuffer.append('\n');
+                        if (immCmdSB.length() > 0) {
+                            immCmdSB.append('\n');
                         }
 
-                        stringBuffer.append((deTerminated == null) ? inputLine
+                        immCmdSB.append((deTerminated == null) ? inputLine
                                                                    : deTerminated);
                     }
 
@@ -691,21 +704,22 @@ public class SqlFile {
                         continue;
                     }
 
-                    // If we reach here, then stringBuffer contains a complete
+                    // If we reach here, then immCmdSB contains a complete
                     // SQL command.
-                    curCommand     = stringBuffer.toString();
-                    trimmedCommand = curCommand.trim();
 
-                    if (trimmedCommand.length() == 0) {
+                    if (immCmdSB.toString().trim().length() == 0) {
+                        immCmdSB.setLength(0);
                         throw new SqlToolError("Empty SQL Statement");
                         // There is nothing inherently wrong with issuing
-                        // an empty command, like to test DB server hearlth.
+                        // an empty command, like to test DB server health.
                         // But, this check effectively catches many syntax
                         // errors early, and the DB check can be done by
                         // sending a comment like "// comment".
                     }
 
-                    setBuf(curCommand);
+                    setBuf(immCmdSB.toString());
+                    immCmdSB.setLength(0);
+                    historize();
                     processSQL();
                 } catch (BadSpecial bs) {
                     errprintln("Error at '"
@@ -727,7 +741,8 @@ public class SqlFile {
                                                                   : file.toString()) + "' line "
                                                                   + curLinenum
                                                                       + ':');
-                    if (curCommand != null) errprintln("\"" + curCommand + '"');
+                    if (lastSqlStatement != null)
+                        errprintln("\"" + lastSqlStatement + '"');
                     errprintln(se.getMessage());
 
                     if (!continueOnError) {
@@ -785,14 +800,14 @@ public class SqlFile {
                     }
                 }
 
-                stringBuffer.setLength(0);
+                immCmdSB.setLength(0);
             }
 
-            if (inComment || stringBuffer.length() != 0) {
-                errprintln("Unterminated input:  [" + stringBuffer + ']');
+            if (inComment || immCmdSB.length() != 0) {
+                errprintln("Unterminated input:  [" + immCmdSB + ']');
 
                 throw new SqlToolError("Unterminated input:  ["
-                                       + stringBuffer + ']');
+                                       + immCmdSB + ']');
             }
 
             rollbackUncoms = false;
@@ -863,7 +878,7 @@ public class SqlFile {
     /**
      * Utility nested Exception class for internal use only.
      */
-    private class BadSpecial extends AppendableException {
+    static private class BadSpecial extends AppendableException {
         static final long serialVersionUID = 7162440064026570590L;
 
         BadSpecial(String s) {
@@ -962,7 +977,28 @@ public class SqlFile {
     }
 
     /**
-     * Process a Buffer/Edit Command.
+     * Execute processSql/processPL/processSpecial from buffer.
+     */
+    public void processFromBuffer()
+            throws BadSpecial, SQLException, SqlToolError {
+        historize();
+        if (buffer.charAt(0) == '*' && (buffer.length() < 2
+                || buffer.charAt(1) != '{')) {
+            // Test above just means commands starting with *, EXCEPT
+            // for commands beginning with *{.
+            processPL(buffer);
+            return;
+        }
+
+        if (buffer.charAt(0) == '\\') {
+            processSpecial(buffer);
+            return;
+        }
+        processSQL();
+    }
+
+    /**
+     * Process a Buffer/History Command.
      *
      * Due to the nature of the goal here, we don't trim() "other" like
      * we do for other kinds of commands.
@@ -972,90 +1008,136 @@ public class SqlFile {
      * @throws BadSpecial    special-command-specific errors.
      * @throws SqlToolError  all other errors.
      */
-    private void processBuffer(String inString)
+    private void processBuffHist(String inString)
     throws BadSpecial, SQLException, SqlToolError {
-        char   commandChar = 'i';
-        String other       = null;
-
-        if (inString.length() > 0) {
-            commandChar = inString.charAt(0);
-            other       = inString.substring(1);
-
-            if (other.trim().length() == 0) {
-                other = null;
-            }
+        if (inString.length() < 1) {
+            throw new BadSpecial("Special command of no specific type?");
         }
+
+        char commandChar = inString.charAt(0);
+        String other       = inString.substring(1);
+        if (other.trim().length() == 0) {
+            other = null;
+        }
+        // other is useful for some, but not all buffer commands.
+        // "-32" and "281" must use inString directly.
 
         switch (commandChar) {
             case ';' :
-                curCommand = commandFromHistory(0);
+                SqlFile.enforce1charBH(other, ';');
+                if (buffer == null) throw new BadSpecial("No buffer");
 
                 stdprintln("Executing command from buffer:");
-                stdprintln(curCommand);
+                stdprintln(buffer);
                 stdprintln();
-                processSQL();
+                processFromBuffer();
 
                 return;
 
             case 'a' :
-            case 'A' :
-                stringBuffer.append(commandFromHistory(0));
+                if (buffer == null) throw new BadSpecial("No buffer");
+                immCmdSB.append(buffer);
 
                 if (other != null) {
                     String deTerminated = SqlFile.deTerminated(other);
 
                     if (!other.equals(";")) {
-                        stringBuffer.append(((deTerminated == null) ? other
-                                                                    : deTerminated));
+                        immCmdSB.append(((deTerminated == null)
+                                ? other : deTerminated));
                     }
 
                     if (deTerminated != null) {
-                        // If we reach here, then stringBuffer contains a
-                        // complete SQL command.
-                        curCommand = stringBuffer.toString();
+                        // If we reach here, then immCmdSB contains a
+                        // complete command.
 
-                        setBuf(curCommand);
+                        setBuf(immCmdSB.toString());
+                        immCmdSB.setLength(0);
                         stdprintln("Executing:");
-                        stdprintln(curCommand);
+                        stdprintln(buffer);
                         stdprintln();
-                        processSQL();
-                        stringBuffer.setLength(0);
+                        processFromBuffer();
 
                         return;
                     }
                 }
 
-                stdprintln("Appending to:");
-                stdprintln(stringBuffer.toString());
+                withholdPrompt = true;
+                stdprint(immCmdSB.toString());
 
                 return;
 
             case 'l' :
-            case 'L' :
-                stdprintln("Current Buffer:");
-                stdprintln(commandFromHistory(0));
+            case 'b' :
+                SqlFile.enforce1charBH(other, 'l');
+                if (buffer == null) {
+                    stdprintln("No buffer yet");
+                } else {
+                    stdprintln("Current Buffer:");
+                    stdprintln(buffer);
+                }
+
+                return;
+
+            case 'h' :
+                SqlFile.enforce1charBH(other, 'h');
+                showHistory();
+
+                return;
+
+            case '-' :
+            case '0' :
+            case '1' :
+            case '2' :
+            case '3' :
+            case '4' :
+            case '5' :
+            case '6' :
+            case '7' :
+            case '8' :
+            case '9' :
+                boolean executeMode =
+                    inString.charAt(inString.length() - 1) == ';';
+
+                String numStr = inString.substring(0,
+                        inString.length() + (executeMode ? -1 : 0));
+                        // Trim off terminating ';'
+
+                try {
+                    setBuf(commandFromHistory(Integer.parseInt(numStr)));
+                } catch (NumberFormatException nfe) {
+                    throw new BadSpecial("Malformatted command number '"
+                            + numStr + "'", nfe);
+                }
+
+                if (executeMode) {
+                    processFromBuffer();
+                } else {
+                    stdprintln(
+                        "RESTORED following command to buffer.  Enter \":?\" "
+                        + "to see buffer commands:");
+                    stdprintln(buffer);
+                }
 
                 return;
 
             case 's' :
-            case 'S' :
 
-                // Sat Apr 23 14:14:57 EDT 2005.  Changing history behavior.
-                // It's very inconvenient to lose all modified SQL
-                // commands from history just because _some_ may be modified
-                // because they are bad or obsolete.
                 boolean modeIC      = false;
                 boolean modeGlobal  = false;
                 boolean modeExecute = false;
                 int     modeLine    = 0;
 
                 try {
-                    String       fromHist = commandFromHistory(0);
-                    StringBuffer sb       = new StringBuffer(fromHist);
-
-                    if (other == null) {
+                    if (other == null || other.length() < 4) {
                         throw new BadSwitch(0);
                     }
+                    if (buffer == null) {
+                        stdprintln("No buffer yet");
+                        return;
+                    }
+
+                    String       bufCopy = new String(buffer);
+                    StringBuffer sb       = new StringBuffer(bufCopy);
 
                     String delim = other.substring(0, 1);
                     StringTokenizer toker = new StringTokenizer(other, delim,
@@ -1122,7 +1204,7 @@ public class SqlFile {
                     }
 
                     if (modeIC) {
-                        fromHist = fromHist.toUpperCase();
+                        bufCopy = bufCopy.toUpperCase();
                         from     = from.toUpperCase();
                     }
 
@@ -1134,7 +1216,7 @@ public class SqlFile {
 
                     if (modeLine > 0) {
                         for (int j = 1; j < modeLine; j++) {
-                            lineStart = fromHist.indexOf('\n', lineStart) + 1;
+                            lineStart = bufCopy.indexOf('\n', lineStart) + 1;
 
                             if (lineStart < 1) {
                                 throw new BadSpecial(
@@ -1143,36 +1225,35 @@ public class SqlFile {
                             }
                         }
 
-                        lineStop = fromHist.indexOf('\n', lineStart);
+                        lineStop = bufCopy.indexOf('\n', lineStart);
                     }
 
                     if (lineStop < 0) {
-                        lineStop = fromHist.length();
+                        lineStop = bufCopy.length();
                     }
 
                     // System.err.println("["
-                    // + fromHist.substring(lineStart, lineStop) + ']');
+                    // + bufCopy.substring(lineStart, lineStop) + ']');
                     int i;
 
                     if (modeGlobal) {
                         i = lineStop;
 
-                        while ((i = fromHist.lastIndexOf(from, i - 1))
+                        while ((i = bufCopy.lastIndexOf(from, i - 1))
                                 >= lineStart) {
                             sb.replace(i, i + from.length(), to);
                         }
-                    } else if ((i = fromHist.indexOf(from, lineStart)) > -1
+                    } else if ((i = bufCopy.indexOf(from, lineStart)) > -1
                                && i < lineStop) {
                         sb.replace(i, i + from.length(), to);
                     }
 
                     //statementHistory[curHist] = sb.toString();
-                    curCommand = sb.toString();
 
-                    setBuf(curCommand);
+                    setBuf(sb.toString());
                     stdprintln((modeExecute ? "Executing"
                                             : "Current Buffer") + ':');
-                    stdprintln(curCommand);
+                    stdprintln(buffer);
 
                     if (modeExecute) {
                         stdprintln();
@@ -1185,8 +1266,8 @@ public class SqlFile {
                 }
 
                 if (modeExecute) {
-                    processSQL();
-                    stringBuffer.setLength(0);
+                    immCmdSB.setLength(0);
+                    processFromBuffer();
                 }
 
                 return;
@@ -1197,7 +1278,7 @@ public class SqlFile {
                 return;
         }
 
-        throw new BadSpecial("Unknown Buffer Command");
+        throw new BadSpecial("Unknown Buffer Command: " + commandChar);
     }
 
     private boolean doPrepare   = false;
@@ -1212,10 +1293,25 @@ public class SqlFile {
         "Import syntax:  \\m file/path.dsv "
         + "[*]   (* means no comments in DSV file)";
 
+    private static void enforce1charSpecial(String token, char command)
+            throws BadSpecial {
+        if (token.length() != 1) {
+            throw new BadSpecial("Extra characters after \\" + command
+                    + ":  " + token.substring(1));
+        }
+    }
+    private static void enforce1charBH(String token, char command)
+            throws BadSpecial {
+        if (token != null) {
+            throw new BadSpecial("Extra characters after :" + command
+                    + ":  " + token);
+        }
+    }
+
     /**
      * Process a Special Command.
      *
-     * @param inString Complete command, less the leading '\' character.
+     * @param inString Complete command, including the leading '\' character.
      * @throws SQLException thrown by JDBC driver.
      * @throws BadSpecial special-command-specific errors.
      * @throws SqlToolError all other errors, plus QuitNow,
@@ -1225,9 +1321,7 @@ public class SqlFile {
     throws BadSpecial, QuitNow, SQLException, SqlToolError {
         String arg1, other = null;
 
-        String string = inString;
-        // This is just to quiet compiler warning about assigning to
-        // parameter pointer.
+        String string = inString.substring(1);
 
         if (string.length() < 1) {
             throw new BadSpecial("Null special command");
@@ -1247,12 +1341,14 @@ public class SqlFile {
 
         switch (arg1.charAt(0)) {
             case 'q' :
+                SqlFile.enforce1charSpecial(arg1, 'q');
                 if (other != null) {
                     throw new QuitNow(other);
                 }
 
                 throw new QuitNow();
             case 'H' :
+                SqlFile.enforce1charSpecial(arg1, 'H');
                 htmlMode = !htmlMode;
 
                 stdprintln("HTML Mode is now set to: " + htmlMode);
@@ -1375,6 +1471,7 @@ public class SqlFile {
                 throw new BadSpecial("Describe commands must be like "
                                      + "'\\dX' or like '\\d OBJECTNAME'.");
             case 'o' :
+                SqlFile.enforce1charSpecial(arg1, 'o');
                 if (other == null) {
                     if (pwQuery == null) {
                         throw new BadSpecial(
@@ -1419,13 +1516,14 @@ public class SqlFile {
                 return;
 
             case 'w' :
+                SqlFile.enforce1charSpecial(arg1, 'w');
                 if (other == null) {
                     throw new BadSpecial(
                         "You must supply a destination file name");
                 }
 
-                if (commandFromHistory(0).length() == 0) {
-                    throw new BadSpecial("Empty command in buffer");
+                if (buffer == null || buffer.length() == 0) {
+                    throw new BadSpecial("No command in buffer");
                 }
 
                 try {
@@ -1433,7 +1531,7 @@ public class SqlFile {
                         new OutputStreamWriter(
                             new FileOutputStream(other, true), charset));
 
-                    pw.println(commandFromHistory(0) + ';');
+                    pw.println(buffer + ';');
                     pw.flush();
                     pw.close();
                 } catch (Exception e) {
@@ -1444,6 +1542,7 @@ public class SqlFile {
                 return;
 
             case 'i' :
+                SqlFile.enforce1charSpecial(arg1, 'i');
                 if (other == null) {
                     throw new BadSpecial("You must supply an SQL file name");
                 }
@@ -1477,6 +1576,7 @@ public class SqlFile {
                 return;
 
             case 'p' :
+                SqlFile.enforce1charSpecial(arg1, 'p');
                 if (other == null) {
                     stdprintln(true);
                 } else {
@@ -1486,6 +1586,7 @@ public class SqlFile {
                 return;
 
             case 'a' :
+                SqlFile.enforce1charSpecial(arg1, 'a');
                 if (other != null) {
                     curConn.setAutoCommit(
                         Boolean.valueOf(other).booleanValue());
@@ -1496,6 +1597,7 @@ public class SqlFile {
 
                 return;
             case '=' :
+                SqlFile.enforce1charSpecial(arg1, '=');
                 curConn.commit();
                 possiblyUncommitteds.set(false);
                 stdprintln("Session committed");
@@ -1542,55 +1644,13 @@ public class SqlFile {
 
             case '*' :
             case 'c' :
+                SqlFile.enforce1charSpecial(arg1, '=');
                 if (other != null) {
                     // But remember that we have to abort on some I/O errors.
                     continueOnError = Boolean.valueOf(other).booleanValue();
                 }
 
                 stdprintln("Continue-on-error is set to: " + continueOnError);
-
-                return;
-
-            case 's' :
-                showHistory();
-
-                return;
-
-            case '-' :
-                int     commandsAgo = 0;
-                String  numStr;
-                boolean executeMode = arg1.charAt(arg1.length() - 1) == ';';
-
-                if (executeMode) {
-                    // Trim off terminating ';'
-                    arg1 = arg1.substring(0, arg1.length() - 1);
-                }
-
-                numStr = (arg1.length() == 1) ? null
-                                              : arg1.substring(1,
-                                              arg1.length());
-
-                if (numStr == null) {
-                    commandsAgo = 0;
-                } else {
-                    try {
-                        commandsAgo = Integer.parseInt(numStr);
-                    } catch (NumberFormatException nfe) {
-                        throw new BadSpecial("Malformatted command number",
-                                nfe);
-                    }
-                }
-
-                setBuf(commandFromHistory(commandsAgo));
-
-                if (executeMode) {
-                    processBuffer(";");
-                } else {
-                    stdprintln(
-                        "RESTORED following command to buffer.  Enter \":?\" "
-                        + "to see buffer commands:");
-                    stdprintln(commandFromHistory(0));
-                }
 
                 return;
 
@@ -1644,6 +1704,7 @@ public class SqlFile {
                 return;
 
             case '.' :
+                SqlFile.enforce1charSpecial(arg1, '.');
                 chunking = true;
 
                 if (interactive) {
@@ -1773,15 +1834,13 @@ public class SqlFile {
      * Process a Process Language Command.
      * Nesting not supported yet.
      *
-     * @param inString Complete command, less the leading '\' character.
+     * @param inString Complete command, including the leading '\' character.
      * @throws BadSpecial special-command-specific errors.
      * @throws SqlToolError all other errors, plus BreakException and
      *                      ContinueException.
      */
     private void processPL(String inString) throws BadSpecial, SqlToolError {
-        String string = inString;
-        // This is just to quiet compiler warning about assigning to
-        // parameter pointer.
+        String string = inString.substring(1).trim();
 
         if (string.length() < 1) {
             plMode = true;
@@ -2788,7 +2847,7 @@ public class SqlFile {
     private boolean excludeSysSchemas = false;
 
     /**
-     * Process the current command as an SQL Statement
+     * Process the immediate command as an SQL Statement
      *
      * @throws SQLException thrown by JDBC driver.
      * @throws SqlToolError all other errors.
@@ -2803,22 +2862,24 @@ public class SqlFile {
         // be able to have uncommitted DML, turn autocommit on, then run
         // other DDL with autocommit on.  As a result, I could be running
         // SQL commands with autotommit on but still have uncommitted mods.
-        String    sql       = (plMode ? dereference(curCommand, true)
-                                      : curCommand);
+        lastSqlStatement    = (plMode ? dereference(buffer, true)
+                                      : buffer);
         Statement statement = null;
 
         if (doPrepare) {
-            if (sql.indexOf('?') < 1) {
+            if (lastSqlStatement.indexOf('?') < 1) {
+                lastSqlStatement = null;
                 throw new SqlToolError(
                     "Prepared statements must contain one '?'");
             }
 
             doPrepare = false;
 
-            PreparedStatement ps = curConn.prepareStatement(sql);
+            PreparedStatement ps = curConn.prepareStatement(lastSqlStatement);
 
             if (prepareVar == null) {
                 if (binBuffer == null) {
+                    lastSqlStatement = null;
                     throw new SqlToolError("Binary SqlFile buffer is empty");
                 }
 
@@ -2827,6 +2888,7 @@ public class SqlFile {
                 String val = (String) userVars.get(prepareVar);
 
                 if (val == null) {
+                    lastSqlStatement = null;
                     throw new SqlToolError("PL Variable '" + prepareVar
                                            + "' is empty");
                 }
@@ -2842,7 +2904,7 @@ public class SqlFile {
         } else {
             statement = curConn.createStatement();
 
-            statement.execute(sql);
+            statement.execute(lastSqlStatement);
         }
 
         possiblyUncommitteds.set(true);
@@ -2854,6 +2916,7 @@ public class SqlFile {
                 statement.close();
             } catch (Exception e) {}
         }
+        lastSqlStatement = null;
     }
 
     /**
@@ -3361,85 +3424,85 @@ public class SqlFile {
     }
 
     /**
-     * Display command history, which consists of complete or incomplete SQL
-     * commands.
+     * Display command history.
      */
-    private void showHistory() {
-        int      ctr = -1;
-        String   s;
-        String[] reversedList = new String[statementHistory.length];
-
-        try {
-            for (int i = curHist; i >= 0; i--) {
-                s = statementHistory[i];
-
-                if (s == null) {
-                    return;
-                }
-
-                reversedList[++ctr] = s;
-            }
-
-            for (int i = statementHistory.length - 1; i > curHist; i--) {
-                s = statementHistory[i];
-
-                if (s == null) {
-                    return;
-                }
-
-                reversedList[++ctr] = s;
-            }
-        } finally {
-            if (ctr < 0) {
-                stdprintln("<<<    No history yet    >>>");
-
-                return;
-            }
-
-            for (int i = ctr; i >= 0; i--) {
-                psStd.println(((i == 0) ? "BUFR"
-                                        : ("-" + i + "  ")) + " **********************************************"
-                                        + LS + reversedList[i]);
-            }
-
-            psStd.println();
-            psStd.println(
-                "<<<  Copy a command to buffer like \"\\-3\"       "
-                + "Re-execute buffer like \":;\"  >>>");
+    private void showHistory() throws BadSpecial {
+        if (history == null) {
+            throw new BadSpecial("Command history not available");
         }
+        if (history.size() < 1) {
+            stdprintln("<<    No history yet    >>");
+        } else {
+            String s;
+            for (int i = 0; i < history.size(); i++) {
+                psStd.println("#" + (i + oldestHist) + " or "
+                        + (i - history.size()) + ':');
+                psStd.println((String) history.get(i));
+            }
+        }
+        if (buffer != null) {
+            psStd.println("EDIT BUFFER:");
+            psStd.println(buffer);
+        }
+
+        psStd.println();
+        psStd.println(
+                "<< Copy a command to buffer like \":27\" or \":-3\".  "
+                + "Re-execute buffer like \":;\" >>");
     }
 
     /**
-     * Return a SQL Command from command history.
+     * Return a Command from command history.
      */
-    private String commandFromHistory(int commandsAgo) throws BadSpecial {
-        if (commandsAgo >= statementHistory.length) {
-            throw new BadSpecial("History can only hold up to "
-                                 + statementHistory.length + " commands");
+    private String commandFromHistory(int index) throws BadSpecial {
+        if (history == null) {
+            throw new BadSpecial("Command history not available");
         }
-
-        String s =
-            statementHistory[(statementHistory.length + curHist - commandsAgo) % statementHistory.length];
-
-        if (s == null) {
-            throw new BadSpecial("History doesn't go back that far");
+        if (index == 0) {
+            throw new BadSpecial(
+                    "You must specify a positive absolute command number, "
+                    + "or a negative number meaning X commands 'back'");
         }
-
-        return s;
+        if (index > 0) {
+            index -= oldestHist;
+            if (history.size() <= index) {
+                throw new BadSpecial("History only goes back to command #"
+                        + oldestHist);
+            }
+            return (String) history.get(index);
+        }
+        if (-index >= history.size()) {
+            throw new BadSpecial("History only goes back " + history.size()
+                                 + " commands");
+        }
+        return (String) history.get(history.size() + index);
     }
 
+    private void setBuf(String newContent) {
+        buffer = new String(newContent);
+        // System.err.println("Buffer is now (" + buffer + ')');
+    }
+
+    int oldestHist = 1;
+
     /**
-     * Push a command onto the history array (the first element of which
-     * is the "Buffer").
+     * Add a command onto the history list.
      */
-    private void setBuf(String inString) {
-        curHist++;
-
-        if (curHist == statementHistory.length) {
-            curHist = 0;
+    private void historize() {
+        if (history == null || buffer == null) {
+            return;
         }
-
-        statementHistory[curHist] = inString;
+        if (history.size() > 0 &&
+                history.get(history.size() - 1).equals(buffer)) {
+            // Don't store two consecutive commands that are exactly the same.
+            return;
+        }
+        history.add(buffer);
+        if (history.size() < maxHistoryLength) {
+            return;
+        }
+        history.remove(0);
+        oldestHist++;
     }
 
     /**
