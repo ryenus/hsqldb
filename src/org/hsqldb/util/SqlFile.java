@@ -60,6 +60,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /* $Id$ */
 
@@ -110,7 +113,7 @@ import java.util.TreeMap;
  * on "buffer", and expect it to contain the method specific prefix
  * (if any).
  *
- * It's really poor design to have the input file given in the 
+ * It's really poor design to have the input file given in the
  * constructor.  This constains users to only call execute() once and
  * only one on each SqlFile object.  Unfortunately, fixing this would
  * have a dramatic effect on the public interface and therefore would
@@ -121,10 +124,6 @@ import java.util.TreeMap;
  */
 
 public class SqlFile {
-    /*  The LS's in the help text blocks are extremely ugly.  Once we can
-     *  use Java v. 4, we can
-     *  write the text using "\n"s, then run replaceAll("\n", LS) in a
-     *  static initializer if !equals("\n", "LS)  (or very similar to that). */
     private static final int DEFAULT_HISTORY_SIZE = 40;
     private File             file;
     private boolean          interactive;
@@ -144,6 +143,23 @@ public class SqlFile {
     private String           dsvRejectReport  = null;
     public static String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
+
+    private static Pattern   specialPattern   =
+            Pattern.compile("\\s*\\\\(\\S+)(?:\\s+(.*\\S))?\\s*");
+    private static Pattern   plPattern   =
+            Pattern.compile("\\s*\\*\\s*(.*\\S)?\\s*");
+    private static Pattern   foreachPattern   =
+            Pattern.compile("\\s*\\*\\s*foreach\\s+(\\S+)\\s*\\(([^)]*)\\)\\s*");
+    private static Pattern   ifwhilePattern   =
+            Pattern.compile("\\s*\\*\\s*\\S+\\s*\\(([^)]*)\\)\\s*");
+    private static Pattern   varsetPattern   =
+            Pattern.compile("\\s*\\*\\s*(\\S+)\\s*([=_~])\\s*(?:(.*\\S)\\s*)?");
+    private static Pattern   switchPattern   =
+            Pattern.compile("\\s*s(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
+            // Note that this pattern does not include the leading :.
+    // This can throw a runtime exception, but since the pattern
+    // Strings are constant, one test run of the program will tell 
+    // if the patterns are good.
 
     /**
      * Encapsulate updating local variables which depend upon PL variables.
@@ -241,152 +257,159 @@ public class SqlFile {
     }
 
     private static String BANNER =
-        "(SqlFile processor v. " + revnum + ")" + LS
-        + "Distribution is permitted under the terms of the HSQLDB license." + LS
-        + "(c) 2004-2007 Blaine Simpson and the HSQLDB Development Group." + LS + LS
-        + "    \\q    to Quit." + LS + "    \\?    lists Special Commands." + LS
-        + "    :?    lists Buffer/Editing commands." + LS
-        + "    *?    lists PL commands (including alias commands)." + LS + LS
-        + "SPECIAL Commands begin with '\\' and execute when you hit ENTER." + LS
-        + "BUFFER Commands begin with ':' and execute when you hit ENTER." + LS
-        + "COMMENTS begin with '/*' and end with the very next '*/'." + LS
-        + "PROCEDURAL LANGUAGE commands begin with '*' and end when you hit ENTER." + LS
-        + "All other lines comprise SQL Statements." + LS
-        + "  SQL Statements are terminated by either a blank line (which moves the" + LS
-        + "  statement into the buffer without executing) or a line ending with ';'" + LS
-        + "  (which executes the statement)." + LS
-        + "  SQL Statements may begin with '/PLVARNAME' and/or contain *{PLVARNAME}s." + LS;
-    private static final String BUFFER_HELP_TEXT =
-        "Edit Buffer and History Commands.  Not available for non-interactive use." + LS
-        + "    :?                edit buffer / history Help" + LS
-        + "    :h                show History of previous commands (plus buffer contents)" + LS
-        + "    :b                list current contents of edit Buffer" + LS
-        + "    :X[;]             reload command #X to buffer (can then edit or \":;\")" + LS
-        + "       (integer X)    where X of 13 means command #13 from history;" + LS
-        + "                            X of -13 means 13th command back;" + LS
-        + "                            ';' suffix means to execute the command too." + LS
-        + "    :;                Execute current buffer (special, PL, or SQL command)" + LS
-        + "    :a[text]          Enter append mode with a copy of the buffer" + LS
-        + "    :s/from/to        Substitute \"to\" for first occurrence of \"from\"" + LS
-        + "    :s/from/to/[i;g2] Substitute \"to\" for occurrence(s) of \"from\"" + LS
-        + "                from:  '$'s represent line breaks" + LS
-        + "                to:    If empty, from's will be deleted (e.g. \":s/x//\")." + LS
-        + "                       '$'s represent line breaks" + LS
-        + "                       You can't use ';' in order to execute the SQL (use" + LS
-        + "                       the ';' switch for this purpose, as explained below)." + LS
-        + "                /:     Can actually be any character which occurs in" + LS
-        + "                       neither \"to\" string nor \"from\" string." + LS
-        + "                SUBSTITUTION MODE SWITCHES:" + LS
-        + "                       i:  case Insensitive" + LS
-        + "                       ;:  execute immediately after substitution" + LS
-        + "                       g:  Global (substitute ALL occurrences of \"from\" string)" + LS
-        + "                       2:  Narrows substitution to specified buffer line number" + LS
-        + "                           (Use any line number in place of '2')." + LS
+        "(SqlFile processor v. " + revnum + ")\n"
+        + "Distribution is permitted under the terms of the HSQLDB license.\n"
+        + "(c) 2004-2007 Blaine Simpson and the HSQLDB Development Group.\n\n"
+        + "    \\q    to Quit.\n    \\?    lists Special Commands.\n"
+        + "    :?    lists Buffer/Editing commands.\n"
+        + "    *?    lists PL commands (including alias commands).\n\n"
+        + "SPECIAL Commands begin with '\\' and execute when you hit ENTER.\n"
+        + "BUFFER Commands begin with ':' and execute when you hit ENTER.\n"
+        + "COMMENTS begin with '/*' and end with the very next '*/'.\n"
+        + "PROCEDURAL LANGUAGE commands begin with '*' and end when you hit ENTER.\n"
+        + "All other lines comprise SQL Statements.\n"
+        + "  SQL Statements are terminated by either a blank line (which moves the\n"
+        + "  statement into the buffer without executing) or a line ending with ';'\n"
+        + "  (which executes the statement).\n"
+        + "  SQL Statements may begin with '/PLVARNAME' and/or contain *{PLVARNAME}s.\n";
+    private static String BUFFER_HELP_TEXT =
+        "Edit Buffer and History Commands.  Not available for non-interactive use.\n"
+        + "    :?                edit buffer / history Help\n"
+        + "    :h                show History of previous commands (plus buffer contents)\n"
+        + "    :b                list current contents of edit Buffer\n"
+        + "    :X[;]             reload command #X to buffer (can then edit or \":;\")\n"
+        + "       (integer X)    where X of 13 means command #13 from history;\n"
+        + "                            X of -13 means 13th command back;\n"
+        + "                            ';' suffix means to execute the command too.\n"
+        + "    :;                Execute current buffer (special, PL, or SQL command)\n"
+        + "    :a[text]          Enter append mode with a copy of the buffer\n"
+        + "    :s/from/to/       Substitute \"to\" for first occurrence of \"from\"\n"
+        + "    :s/from/to/[i;g2] Substitute \"to\" for occurrence(s) of \"from\"\n"
+        + "                from:  '$'s represent line breaks\n"
+        + "                to:    If empty, from's will be deleted (e.g. \":s/x//\").\n"
+        + "                       '$'s represent line breaks\n"
+        + "                       You can't use ';' in order to execute the SQL (use\n"
+        + "                       the ';' switch for this purpose, as explained below).\n"
+        + "                /:     Can actually be any character which occurs in\n"
+        + "                       neither \"to\" string nor \"from\" string.\n"
+        + "                SUBSTITUTION MODE SWITCHES:\n"
+        + "                       i:  case Insensitive\n"
+        + "                       ;:  execute immediately after substitution\n"
+        + "                       g:  Global (substitute ALL occurrences of \"from\" string)\n"
     ;
-    private static final String HELP_TEXT = "SPECIAL Commands." + LS
-        + "Filter substrings are cases-sensitive!  Use \"SCHEMANAME.\" to narrow to schema." + LS
-        + "    \\?                   special command Help" + LS
-        + "    \\p [line to print]   Print string to stdout" + LS
-        + "    \\w file/path.sql     Append current buffer to file" + LS
-        + "    \\i file/path.sql     Include/execute commands from external file" + LS
-        + "    \\d{tvsiSanur*?} [substr]  List objects of specified type:" + LS
-        + "  (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)" + LS
-        + "    \\d OBJECTNAME [subs] Describe table or view columns" + LS
-        + "    \\o [file/path.html]  Tee (or stop teeing) query output to specified file" + LS
-        + "    \\H                   Toggle HTML output mode" + LS
-        + "    \\! COMMAND [ARGS]    Execute external program (no support for stdin)" + LS
-        + "    \\c [true|false]      Continue upon errors (a.o.t. abort upon error)" + LS
-        + "    \\a [true|false]      Auto-commit JDBC DML commands" + LS
-        + "    \\b                   save next result to Binary buffer (no display)" + LS
-        + "    \\bd file/path.bin    Dump Binary buffer to file" + LS
-        + "    \\bl file/path.bin    Load file into Binary buffer" + LS
-        + "    \\bp                  Use ? in next SQL statement to upload Bin. buffer" + LS
-        + "    \\.                   Enter raw SQL.  End with line containing only \".\"" + LS
-        + "    \\=                   commit JDBC session" + LS
-        + "    \\x {TABLE|SELECT...} eXport table or query to DSV text file (options \\x?)" + LS
-        + "    \\m file/path.dsv [*] iMport DSV text file records into a table (opts \\m?)" + LS
-        + "    \\q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)" + LS
+    private static String HELP_TEXT = "SPECIAL Commands.\n"
+        + "Filter substrings are cases-sensitive!  Use \"SCHEMANAME.\" to narrow to schema.\n"
+        + "    \\?                   special command Help\n"
+        + "    \\p [line to print]   Print string to stdout\n"
+        + "    \\w file/path.sql     Append current buffer to file\n"
+        + "    \\i file/path.sql     Include/execute commands from external file\n"
+        + "    \\d{tvsiSanur*?} [substr]  List objects of specified type:\n"
+        + "  (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)\n"
+        + "    \\d OBJECTNAME [subs] Describe table or view columns\n"
+        + "    \\o [file/path.html]  Tee (or stop teeing) query output to specified file\n"
+        + "    \\H                   Toggle HTML output mode\n"
+        + "    \\! COMMAND [ARGS]    Execute external program (no support for stdin)\n"
+        + "    \\c [true|false]      Continue upon errors (a.o.t. abort upon error)\n"
+        + "    \\a [true|false]      Auto-commit JDBC DML commands\n"
+        + "    \\b                   save next result to Binary buffer (no display)\n"
+        + "    \\bd file/path.bin    Dump Binary buffer to file\n"
+        + "    \\bl file/path.bin    Load file into Binary buffer\n"
+        + "    \\bp                  Use ? in next SQL statement to upload Bin. buffer\n"
+        + "    \\.                   Enter raw SQL.  End with line containing only \".\"\n"
+        + "    \\=                   commit JDBC session\n"
+        + "    \\x {TABLE|SELECT...} eXport table or query to DSV text file (options \\x?)\n"
+        + "    \\m file/path.dsv [*] iMport DSV text file records into a table (opts \\m?)\n"
+        + "    \\q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)\n"
     ;
-    private static final String PL_HELP_TEXT = "PROCEDURAL LANGUAGE Commands." + LS
-        + "    *?                            PL Help" + LS
-        + "    *                             Expand PL variables from now on." + LS
-        + "                                  (this is also implied by all the following)." + LS
-        + "    * VARNAME = Variable value    Set variable value" + LS
-        + "    * VARNAME =                   Unset variable" + LS
-        + "    * VARNAME ~                   Set variable value to the value of the very" + LS
-        + "                                  next SQL value or count fetched (see details" + LS
-        + "                                  at the bottom of this listing)." + LS
-        + "    * VARNAME _                   Same as * VARNAME _, except the query is" + LS
-        + "                                  done silently (i.e, no rows to screen)" + LS
-        + "    * list[value] [VARNAME1...]   List variable(s) (defaults to all)" + LS
-        + "    * load VARNAME path.txt       Load variable value from text file" + LS
-        + "    * dump VARNAME path.txt       Dump variable value to text file" + LS
-        + "    * prepare VARNAME             Use ? in next SQL statement to upload val." + LS
-        + "                                  (Just \"?\", \"*{?}\" would mean the auto var.)." + LS
-        + "    * foreach VARNAME ([val1...]) Repeat the following PL block with the" + LS
-        + "                                  variable set to each value in turn." + LS
-        + "    * if (logical expr)           Execute following PL block only if expr true" + LS
-        + "    * while (logical expr)        Repeat following PL block while expr true" + LS
-        + "    * end foreach|if|while        Ends a PL block" + LS
-        + "    * break [foreach|if|while|file] Exits a PL block or file early" + LS
-        + "    * continue [foreach|while]    Exits a PL block iteration early" + LS + LS
-        + "Use PL variables (which you have set) like: *{VARNAME}." + LS
-        + "You may use /VARNAME instead iff /VARNAME is the first word of a SQL command." + LS
-        + "Use PL variables in logical expressions, like (*VARNAME == 1)." + LS
-        + "Auto. variable ? is set to the very next SQL datum fetched (or update count)." + LS
-        + "    Query:  The value of the first field of the first row returned." + LS
-        + "    other:  Return status of the command (for updates this will be" + LS
-        + "            the number of rows updated)." + LS
-        + "'* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly" + LS
-        + "like ?.  (~ will echo the value, _ will do it silently)." + LS
+    private static String PL_HELP_TEXT = "PROCEDURAL LANGUAGE Commands.\n"
+        + "    *?                            PL Help\n"
+        + "    *                             Expand PL variables from now on.\n"
+        + "                                  (this is also implied by all the following).\n"
+        + "    * VARNAME = Variable value    Set variable value\n"
+        + "    * VARNAME =                   Unset variable\n"
+        + "    * VARNAME ~                   Set variable value to the value of the very\n"
+        + "                                  next SQL value or count fetched (see details\n"
+        + "                                  at the bottom of this listing).\n"
+        + "    * VARNAME _                   Same as * VARNAME _, except the query is\n"
+        + "                                  done silently (i.e, no rows to screen)\n"
+        + "    * list[values] [VARNAME1...]  List variable(s) (defaults to all)\n"
+        + "    * load VARNAME path.txt       Load variable value from text file\n"
+        + "    * dump VARNAME path.txt       Dump variable value to text file\n"
+        + "    * prepare VARNAME             Use ? in next SQL statement to upload val.\n"
+        + "                                  (Just \"?\", \"*{?}\" would mean the auto var.).\n"
+        + "    * foreach VARNAME ([val1...]) Repeat the following PL block with the\n"
+        + "                                  variable set to each value in turn.\n"
+        + "    * if (logical expr)           Execute following PL block only if expr true\n"
+        + "    * while (logical expr)        Repeat following PL block while expr true\n"
+        + "    * end foreach|if|while        Ends a PL block\n"
+        + "    * break [foreach|if|while|file] Exits a PL block or file early\n"
+        + "    * continue [foreach|while]    Exits a PL block iteration early\n\n"
+        + "Use PL variables (which you have set) like: *{VARNAME}.\n"
+        + "You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.\n"
+        + "Use PL variables in logical expressions, like (*VARNAME == 1).\n"
+        + "Auto. variable ? is set to the very next SQL datum fetched (or update count).\n"
+        + "    Query:  The value of the first field of the first row returned.\n"
+        + "    other:  Return status of the command (for updates this will be\n"
+        + "            the number of rows updated).\n"
+        + "'* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly\n"
+        + "like ?.  (~ will echo the value, _ will do it silently).\n"
     ;
 
-    private static final String DSV_OPTIONS_TEXT =
-        "DSV stands for Delimiter-Separated-Values, which is just CSV (comma-"
-        + LS
-        + "separated-values) but always using a proper delimiter to prevent the"
-        + LS
-        + "need for quoting and escaping which CSV files have." + LS
+    private static String DSV_OPTIONS_TEXT =
+        "DSV stands for Delimiter-Separated-Values, which is just CSV (comma-\n"
+        + "separated-values) but always using a proper delimiter to prevent the\n"
+        + "need for quoting and escaping which CSV files have.\n"
         + "All of the DSV PL variables are optional.  To see all PL var. values,"
-        + LS + "run '* listvalue'.  Set the values like:" + LS
-        + "    * *DSV_COL_DELIM = ," + LS
+        + "\nrun '* listvalues'.  Set the values like:\n"
+        + "    * *DSV_COL_DELIM = ,\n"
         + "Don't forget the * indicating a PL command PLUS the leading * in"
-        + LS + "all of these variable names.  \\x or \\m below indicates where" + LS
-        + "the setting is applicable.  Default value/behavior is in [square brackes]." + LS
+        + "\nall of these variable names.  \\x or \\m below indicates where\n"
+        + "the setting is applicable.  Default value/behavior is in [square brackes].\n"
         + "    *DSV_SKIP_PREFIX   \\m    Comment line prefix in DSV files.  "
-        + "[\"#\"]" + LS
+        + "[\"#\"]\n"
         + "    *DSV_COL_DELIM     \\m\\x  Column delimiter.  "
-        + "[\"|\"]" + LS
-        + "    *DSV_ROW_DELIM     \\m\\x  Row delimiter" + LS
-        + "                              [OS-dependent (Java line.separator)]" + LS
+        + "[\"|\"]\n"
+        + "    *DSV_ROW_DELIM     \\m\\x  Row delimiter\n"
+        + "                              [OS-dependent (Java line.separator)]\n"
         + "    *NULL_REP_TOKEN    \\m\\x  String to represent database null.  "
-        + "[\"[null]\"]" + LS
-        + "    *DSV_TARGET_FILE   \\x    File which exports will write to" + LS
-        + "                              [source table name + \".dsv\"]" + LS
-        + "    *DSV_TARGET_TABLE  \\m    Table which imports will write to" + LS
-        + "                              [DSV filename without extension]" + LS
+        + "[\"[null]\"]\n"
+        + "    *DSV_TARGET_FILE   \\x    File which exports will write to\n"
+        + "                              [source table name + \".dsv\"]\n"
+        + "    *DSV_TARGET_TABLE  \\m    Table which imports will write to\n"
+        + "                              [DSV filename without extension]\n"
         + "    *DSV_CONST_COLS    \\m    Column values to write to every row.  "
-        + "[None]" + LS
-        + "    *DSV_REJECT_FILE   \\m    DSV file to be created with rejected records.  " + LS
-        + "                              [None*]" + LS
+        + "[None]\n"
+        + "    *DSV_REJECT_FILE   \\m    DSV file to be created with rejected records.\n"
+        + "                              [None*]\n"
         + "    *DSV_REJECT_REPORT \\m    HTML report to explain reject records"
-        + "[None*]" + LS
-        + "* Imports will abort immediately upon the first import record failure, unless" + LS
-        + "either *DSV_REJECT_FILE or *DSV_REJECT_REPORT (or both) are set.  (Whether" + LS
+        + "[None*]\n"
+        + "* Imports will abort immediately upon the first import record failure, unless\n"
+        + "either *DSV_REJECT_FILE or *DSV_REJECT_REPORT (or both) are set.  (Whether\n"
         + "SqlTool will roll back and quit depends on your settings for \\c and \\a).";
 
-    private static final String D_OPTIONS_TEXT =
-        "\\dX [parameter...] where X is one of the following."  + LS
-        + "    t:  list Tables" + LS
-        + "    v:  list Views" + LS
-        + "    s:  list Sequences" + LS
-        + "    i:  list Indexes" + LS
-        + "    S:  list System tables" + LS
-        + "    a:  list Aliases" + LS
-        + "    n:  list schema Names" + LS
-        + "    u:  list Users" + LS
-        + "    r:  list Roles" + LS
-        + "    *:  list table-like objects" + LS;
+    private static String D_OPTIONS_TEXT =
+        "\\dX [parameter...] where X is one of the following.\n"
+        + "    t:  list Tables\n"
+        + "    v:  list Views\n"
+        + "    s:  list Sequences\n"
+        + "    i:  list Indexes\n"
+        + "    S:  list System tables\n"
+        + "    a:  list Aliases\n"
+        + "    n:  list schema Names\n"
+        + "    u:  list Users\n"
+        + "    r:  list Roles\n"
+        + "    *:  list table-like objects\n";
+
+    static {
+        if (!LS.equals("\n")) {
+            BANNER = BANNER.replaceAll("\n", LS);
+            BUFFER_HELP_TEXT = BUFFER_HELP_TEXT.replaceAll("\n", LS);
+            HELP_TEXT = HELP_TEXT.replaceAll("\n", LS);
+            PL_HELP_TEXT = PL_HELP_TEXT.replaceAll("\n", LS);
+            DSV_OPTIONS_TEXT = DSV_OPTIONS_TEXT.replaceAll("\n", LS);
+            D_OPTIONS_TEXT = D_OPTIONS_TEXT.replaceAll("\n", LS);
+        }
+    }
 
     /**
      * Interpret lines of input file as SQL Statements, Comments,
@@ -681,7 +704,6 @@ public class SqlFile {
                     if (trimmedInput.length() == 0 && interactive &&!inComment) {
                         // Blank lines delimit commands ONLY IN INTERACTIVE
                         // MODE!
-System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
                         setBuf(immCmdSB.toString());
                         immCmdSB.setLength(0);
                         stdprintln("Current input moved into buffer.");
@@ -952,8 +974,8 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
     private class BadSwitch extends Exception {
         static final long serialVersionUID = 7325933736897253269L;
 
-        BadSwitch(int i) {
-            super(Integer.toString(i));
+        BadSwitch(String s) {
+            super(s);
         }
     }
 
@@ -1121,136 +1143,53 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
                 return;
 
             case 's' :
-
-                boolean modeIC      = false;
-                boolean modeGlobal  = false;
                 boolean modeExecute = false;
-                int     modeLine    = 0;
+                boolean modeGlobal = false;
 
                 try {
-                    if (other == null || other.length() < 4) {
-                        throw new BadSwitch(0);
+                    if (other.length() < 3) {
+                        throw new BadSwitch("Malformatted switch command");
                     }
+                    char delim = other.charAt(0);
+                Matcher m = switchPattern.matcher(inString);
                     if (buffer == null) {
                         stdprintln("No buffer yet");
                         return;
                     }
-
-                    String       bufCopy = new String(buffer);
-                    StringBuffer sb       = new StringBuffer(bufCopy);
-
-                    String delim = other.substring(0, 1);
-                    StringTokenizer toker = new StringTokenizer(other, delim,
-                        true);
-
-                    if (toker.countTokens() < 4
-                            ||!toker.nextToken().equals(delim)) {
-                        throw new BadSwitch(1);
+                    if (!m.matches()) {
+                        throw new BadSwitch("Malformatted switch command");
                     }
 
-                    String from = toker.nextToken().replace('$', '\n');
+                    // Note that this pattern does not include the leading :.
+                    if (m.groupCount() < 3 || m.groupCount() > 4) {
+                        // Assertion failed
+                        throw new RuntimeException("Matched switch pattern, "
+                            + "but captured " + m.groupCount() + " groups");
+                    }
+                    String optionGroup = ((m.groupCount() > 3)
+                            ? (new String(m.group(4))) : null);
 
-                    if (!toker.nextToken().equals(delim)) {
-                        throw new BadSwitch(2);
+                    if (optionGroup.indexOf(';') > -1) {
+                        modeExecute = true;
+                        optionGroup = optionGroup.replaceFirst(";", "");
+                    }
+                    if (optionGroup.indexOf('g') > -1) {
+                        modeGlobal = true;
+                        optionGroup = optionGroup.replaceFirst("g", "");
                     }
 
-                    String to = toker.nextToken().replace('$', '\n');
-
-                    if (to.equals(delim)) {
-                        to = "";
-                    } else {
-                        if (toker.countTokens() > 0
-                                &&!toker.nextToken().equals(delim)) {
-                            throw new BadSwitch(3);
-                        }
+                    Matcher bufferMatcher = Pattern.compile("(?sm"
+                            + ((optionGroup == null) ? "" : optionGroup)
+                            + ')' + m.group(2)).matcher(buffer);
+                    String newBuffer = (modeGlobal
+                            ? bufferMatcher.replaceAll(m.group(3))
+                            : bufferMatcher.replaceFirst(m.group(3)));
+                    if (newBuffer.equals(buffer)) {
+                        stdprintln("Buffer unchanged due to no pattern match");
+                        return;
                     }
 
-                    if (toker.countTokens() > 0) {
-                        String opts = toker.nextToken("");
-
-                        for (int j = 0; j < opts.length(); j++) {
-                            switch (opts.charAt(j)) {
-                                case 'i' :
-                                    modeIC = true;
-                                    break;
-
-                                case ';' :
-                                    modeExecute = true;
-                                    break;
-
-                                case 'g' :
-                                    modeGlobal = true;
-                                    break;
-
-                                case '1' :
-                                case '2' :
-                                case '3' :
-                                case '4' :
-                                case '5' :
-                                case '6' :
-                                case '7' :
-                                case '8' :
-                                case '9' :
-                                    modeLine = Character.digit(opts.charAt(j),
-                                                               10);
-                                    break;
-
-                                default :
-                                    throw new BadSpecial(
-                                        "Unknown Substitution option: "
-                                        + opts.charAt(j));
-                            }
-                        }
-                    }
-
-                    if (modeIC) {
-                        bufCopy = bufCopy.toUpperCase();
-                        from     = from.toUpperCase();
-                    }
-
-                    // lineStart will be either 0 or char FOLLOWING a \n.
-                    int lineStart = 0;
-
-                    // lineStop is the \n AFTER what we consider.
-                    int lineStop = -1;
-
-                    if (modeLine > 0) {
-                        for (int j = 1; j < modeLine; j++) {
-                            lineStart = bufCopy.indexOf('\n', lineStart) + 1;
-
-                            if (lineStart < 1) {
-                                throw new BadSpecial(
-                                    "There are not " + modeLine
-                                    + " lines in the buffer.");
-                            }
-                        }
-
-                        lineStop = bufCopy.indexOf('\n', lineStart);
-                    }
-
-                    if (lineStop < 0) {
-                        lineStop = bufCopy.length();
-                    }
-
-                    // System.err.println("["
-                    // + bufCopy.substring(lineStart, lineStop) + ']');
-                    int i;
-
-                    if (modeGlobal) {
-                        i = lineStop;
-
-                        while ((i = bufCopy.lastIndexOf(from, i - 1))
-                                >= lineStart) {
-                            sb.replace(i, i + from.length(), to);
-                        }
-                    } else if ((i = bufCopy.indexOf(from, lineStart)) > -1
-                               && i < lineStop) {
-                        sb.replace(i, i + from.length(), to);
-                    }
-
-                    //statementHistory[curHist] = sb.toString();
-
-                    setBuf(sb.toString());
+                    setBuf(newBuffer);
                     stdprintln((modeExecute ? "Executing"
                                             : "Current Buffer") + ':');
                     stdprintln(buffer);
@@ -1258,9 +1197,13 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
                     if (modeExecute) {
                         stdprintln();
                     }
+                } catch (PatternSyntaxException pse) {
+                    throw new BadSpecial(
+                        "Substitution syntax:  \":s/from this/to that/i;g\".  "
+                        + "Use '$' for line separations.", pse);
                 } catch (BadSwitch badswitch) {
                     throw new BadSpecial(
-                        "Substitution syntax:  \":s/from this/to that/i;g2\".  "
+                        "Substitution syntax:  \":s/from this/to that/i;g\".  "
                         + "Use '$' for line separations.  ["
                         + badswitch.getMessage() + ']');
                 }
@@ -1319,25 +1262,21 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
      */
     private void processSpecial(String inString)
     throws BadSpecial, QuitNow, SQLException, SqlToolError {
-        String arg1, other = null;
-
-        String string = inString.substring(1);
-
-        if (string.length() < 1) {
-            throw new BadSpecial("Null special command");
+        Matcher m = specialPattern.matcher(
+                plMode ? dereference(inString, false) : inString);
+        if (!m.matches()) {
+            throw new BadSpecial("Malformatted special command:  "
+                    + inString);
+        }
+        if (m.groupCount() != 2) {
+            // Failed assertion
+            throw new RuntimeException(
+                    "Pattern matched, yet captured " + m.groupCount()
+                    + " groups");
         }
 
-        if (plMode) {
-            string = dereference(string, false);
-        }
-
-        StringTokenizer toker = new StringTokenizer(string);
-
-        arg1 = toker.nextToken();
-
-        if (toker.hasMoreTokens()) {
-            other = toker.nextToken("").trim();
-        }
+        String arg1 = m.group(1);
+        String other = m.group(2);
 
         switch (arg1.charAt(0)) {
             case 'q' :
@@ -1840,44 +1779,38 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
      *                      ContinueException.
      */
     private void processPL(String inString) throws BadSpecial, SqlToolError {
-        String string = inString.substring(1).trim();
-
-        if (string.length() < 1) {
+        Matcher m = plPattern.matcher(dereference(inString, false));
+        if (!m.matches()) {
+            throw new BadSpecial("Malformatted PL command:  " + inString);
+        }
+        if (m.groupCount() < 1) {
             plMode = true;
-
             stdprintln("PL variable expansion mode is now on");
-
             return;
         }
 
-        if (string.charAt(0) == '?') {
+        String[] tokens = m.group(1).split("\\s+");
+
+        if (tokens[0].charAt(0) == '?') {
             stdprintln(PL_HELP_TEXT);
 
             return;
         }
 
-        if (plMode) {
-            string = dereference(string, false);
-        }
-
-        StringTokenizer toker      = new StringTokenizer(string);
-        String          arg1       = toker.nextToken();
-        String[]        tokenArray = null;
-
         // If user runs any PL command, we turn PL mode on.
         plMode = true;
 
-        if (arg1.equals("end")) {
+        if (tokens[0].equals("end")) {
             throw new BadSpecial("PL end statements may only occur inside of "
                                  + "a PL block");
         }
 
-        if (arg1.equals("continue")) {
-            if (toker.hasMoreTokens()) {
-                String s = toker.nextToken("").trim();
-
-                if (s.equals("foreach") || s.equals("while")) {
-                    throw new ContinueException(s);
+        if (tokens[0].equals("continue")) {
+            if (tokens.length > 1) {
+                if (tokens.length == 2 &&
+                        (tokens[1].equals("foreach") ||
+                         tokens[1].equals("while"))) {
+                    throw new ContinueException(tokens[1]);
                 }
                 throw new BadSpecial(
                     "Bad continue statement."
@@ -1888,13 +1821,14 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
             throw new ContinueException();
         }
 
-        if (arg1.equals("break")) {
-            if (toker.hasMoreTokens()) {
-                String s = toker.nextToken("").trim();
-
-                if (s.equals("foreach") || s.equals("if")
-                        || s.equals("while") || s.equals("file")) {
-                    throw new BreakException(s);
+        if (tokens[0].equals("break")) {
+            if (tokens.length > 1) {
+                if (tokens.length == 2 &&
+                        (tokens[1].equals("foreach") ||
+                         tokens[1].equals("if") ||
+                         tokens[1].equals("while") ||
+                         tokens[1].equals("file"))) {
+                    throw new BreakException(tokens[1]);
                 }
                 throw new BadSpecial(
                     "Bad break statement."
@@ -1905,27 +1839,25 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
             throw new BreakException();
         }
 
-        if (arg1.equals("list") || arg1.equals("listvalue")) {
+        if (tokens[0].equals("list") || tokens[0].equals("listvalues")) {
             String  s;
-            boolean doValues = (arg1.equals("listvalue"));
+            boolean doValues = (tokens[0].equals("listvalues"));
 
-            if (toker.countTokens() == 0) {
+            if (tokens.length == 1) {
                 stdprint(SqlFile.formatNicely(userVars, doValues));
             } else {
-                tokenArray = SqlFile.getTokenArray(toker.nextToken(""));
-
                 if (doValues) {
                     stdprintln("The outermost parentheses are not part of "
                                + "the values.");
                 } else {
                     stdprintln("Showing variable names and length of values "
-                               + "(use 'listvalue' to see values).");
+                               + "(use 'listvalues' to see values).");
                 }
 
-                for (int i = 0; i < tokenArray.length; i++) {
-                    s = (String) userVars.get(tokenArray[i]);
+                for (int i = 1; i < tokens.length; i++) {
+                    s = (String) userVars.get(tokens[i]);
 
-                    stdprintln("    " + tokenArray[i] + ": "
+                    stdprintln("    " + tokens[i] + ": "
                                + (doValues ? ("(" + s + ')')
                                            : Integer.toString(s.length())));
                 }
@@ -1934,20 +1866,20 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
             return;
         }
 
-        if (arg1.equals("dump") || arg1.equals("load")) {
-            if (toker.countTokens() != 2) {
+        if (tokens[0].equals("dump") || tokens[0].equals("load")) {
+            if (tokens.length != 3) {
                 throw new BadSpecial("Malformatted PL dump/load command");
             }
 
-            String varName = toker.nextToken();
+            String varName = tokens[1];
 
             if (varName.charAt(0) == ':') {
                 throw new BadSpecial("PL variable names may not begin with ':'");
             }
-            File   file    = new File(toker.nextToken());
+            File   file    = new File(tokens[2]);
 
             try {
-                if (arg1.equals("dump")) {
+                if (tokens[0].equals("dump")) {
                     dump(varName, file);
                 } else {
                     load(varName, file, charset);
@@ -1961,41 +1893,39 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
             return;
         }
 
-        if (arg1.equals("prepare")) {
-            if (toker.countTokens() != 1) {
+        if (tokens[0].equals("prepare")) {
+            if (tokens.length != 2) {
                 throw new BadSpecial("Malformatted prepare command");
             }
 
-            String s = toker.nextToken();
-
-            if (userVars.get(s) == null) {
-                throw new BadSpecial("Use of unset PL variable: " + s);
+            if (userVars.get(tokens[1]) == null) {
+                throw new BadSpecial("Use of unset PL variable: " + tokens[1]);
             }
 
-            prepareVar = s;
+            prepareVar = tokens[1];
             doPrepare  = true;
 
             return;
         }
 
-        if (arg1.equals("foreach")) {
-            if (toker.countTokens() < 2) {
-                throw new BadSpecial("Malformatted PL foreach command (1)");
+        if (tokens[0].equals("foreach")) {
+            Matcher foreachM= foreachPattern.matcher(
+                    dereference(inString, false));
+            if (!foreachM.matches()) {
+                throw new BadSpecial("Malformatted PL foreach command: "
+                        + inString);
+            }
+            if (foreachM.groupCount() != 2) {
+                throw new RuntimeException(
+                        "foreach pattern matched, but captured "
+                        + foreachM.groupCount() + " groups");
             }
 
-            String varName   = toker.nextToken();
+            String varName   = foreachM.group(1);
             if (varName.charAt(0) == ':') {
                 throw new BadSpecial("PL variable names may not begin with ':'");
             }
-            String parenExpr = toker.nextToken("").trim();
-
-            if (parenExpr.length() < 2 || parenExpr.charAt(0) != '('
-                    || parenExpr.charAt(parenExpr.length() - 1) != ')') {
-                throw new BadSpecial("Malformatted PL foreach command (2)");
-            }
-
-            String[] values = SqlFile.getTokenArray(parenExpr.substring(1,
-                parenExpr.length() - 1));
+            String[] values = foreachM.group(2).split("\\s+");
             File   tmpFile = null;
             String varVal;
 
@@ -2007,6 +1937,7 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
             }
 
             String origval = (String) userVars.get(varName);
+
 
             try {
                 SqlFile sf;
@@ -2064,126 +1995,109 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
             return;
         }
 
-        if (arg1.equals("if")) {
-            if (toker.countTokens() < 1) {
-                throw new BadSpecial("Malformatted PL if command (1)");
+        if (tokens[0].equals("if") || tokens[0].equals("while")) {
+            Matcher ifwhileM= ifwhilePattern.matcher(
+                    dereference(inString, false));
+            if (!ifwhileM.matches()) {
+                throw new BadSpecial("Malformatted PL if/while command: "
+                        + inString);
+            }
+            if (ifwhileM.groupCount() != 1) {
+                throw new RuntimeException(
+                        "if/while pattern matched, but captured "
+                        + ifwhileM.groupCount() + " groups");
             }
 
-            String parenExpr = toker.nextToken("").trim();
-
-            if (parenExpr.length() < 2 || parenExpr.charAt(0) != '('
-                    || parenExpr.charAt(parenExpr.length() - 1) != ')') {
-                throw new BadSpecial("Malformatted PL if command (2)");
-            }
-
-            String[] values = SqlFile.getTokenArray(parenExpr.substring(1,
-                parenExpr.length() - 1));
+            String[] values =
+                    ifwhileM.group(1).replaceAll("!([a-zA-Z0-9*])", "! $1").
+                            replaceAll("([a-zA-Z0-9*])!", "$1 !").split("\\s+");
             File tmpFile = null;
 
-            try {
-                tmpFile = plBlockFile("if");
-            } catch (IOException ioe) {
-                throw new BadSpecial(
-                    "Failed to write given PL block temp file", ioe);
-            }
-
-            try {
-                if (eval(values)) {
-                    SqlFile sf = new SqlFile(tmpFile, false, userVars);
-
-                    sf.plMode   = true;
-                    sf.recursed = true;
-
-                    // Share the possiblyUncommitted state
-                    sf.possiblyUncommitteds = possiblyUncommitteds;
-
-                    sf.execute(curConn, continueOnError);
+            if (tokens[0].equals("if")) {
+                try {
+                    tmpFile = plBlockFile("if");
+                } catch (IOException ioe) {
+                    throw new BadSpecial(
+                        "Failed to write given PL block temp file", ioe);
                 }
-            } catch (BreakException be) {
-                String beMessage = be.getMessage();
 
-                // Handle "if" and plain breaks (by doing nothing)
-                if (beMessage == null ||!beMessage.equals("if")) {
-                    throw be;
-                }
-            } catch (ContinueException ce) {
-                throw ce;
-            } catch (QuitNow qn) {
-                throw qn;
-            } catch (BadSpecial bs) {
-                bs.appendMessage("Malformatted PL if command (3)");
-                throw bs;
-            } catch (Exception e) {
-                throw new BadSpecial("Failed to execute SQL from PL block", e);
-            }
+                try {
+                    if (eval(values)) {
+                        SqlFile sf = new SqlFile(tmpFile, false, userVars);
 
-            if (tmpFile != null &&!tmpFile.delete()) {
-                throw new BadSpecial(
-                    "Error occurred while trying to remove temp file '"
-                    + tmpFile + "'");
-            }
-
-            return;
-        }
-
-        if (arg1.equals("while")) {
-            if (toker.countTokens() < 1) {
-                throw new BadSpecial("Malformatted PL while command (1)");
-            }
-
-            String parenExpr = toker.nextToken("").trim();
-
-            if (parenExpr.length() < 2 || parenExpr.charAt(0) != '('
-                    || parenExpr.charAt(parenExpr.length() - 1) != ')') {
-                throw new BadSpecial("Malformatted PL while command (2)");
-            }
-
-            String[] values = SqlFile.getTokenArray(parenExpr.substring(1,
-                parenExpr.length() - 1));
-            File tmpFile = null;
-
-            try {
-                tmpFile = plBlockFile("while");
-            } catch (IOException ioe) {
-                throw new BadSpecial(
-                    "Failed to write given PL block temp file", ioe);
-            }
-
-            try {
-                SqlFile sf;
-
-                while (eval(values)) {
-                    try {
-                        sf          = new SqlFile(tmpFile, false, userVars);
+                        sf.plMode   = true;
                         sf.recursed = true;
 
                         // Share the possiblyUncommitted state
                         sf.possiblyUncommitteds = possiblyUncommitteds;
-                        sf.plMode               = true;
 
                         sf.execute(curConn, continueOnError);
-                    } catch (ContinueException ce) {
-                        String ceMessage = ce.getMessage();
+                    }
+                } catch (BreakException be) {
+                    String beMessage = be.getMessage();
 
-                        if (ceMessage != null &&!ceMessage.equals("while")) {
-                            throw ce;
+                    // Handle "if" and plain breaks (by doing nothing)
+                    if (beMessage == null ||!beMessage.equals("if")) {
+                        throw be;
+                    }
+                } catch (ContinueException ce) {
+                    throw ce;
+                } catch (QuitNow qn) {
+                    throw qn;
+                } catch (BadSpecial bs) {
+                    bs.appendMessage("Malformatted PL if command (3)");
+                    throw bs;
+                } catch (Exception e) {
+                    throw new BadSpecial("Failed to execute SQL from PL block", e);
+                }
+            } else if (tokens[0].equals("while")) {
+                try {
+                    tmpFile = plBlockFile("while");
+                } catch (IOException ioe) {
+                    throw new BadSpecial(
+                        "Failed to write given PL block temp file", ioe);
+                }
+
+                try {
+                    SqlFile sf;
+
+                    while (eval(values)) {
+                        try {
+                            sf          = new SqlFile(tmpFile, false, userVars);
+                            sf.recursed = true;
+
+                            // Share the possiblyUncommitted state
+                            sf.possiblyUncommitteds = possiblyUncommitteds;
+                            sf.plMode               = true;
+
+                            sf.execute(curConn, continueOnError);
+                        } catch (ContinueException ce) {
+                            String ceMessage = ce.getMessage();
+
+                            if (ceMessage != null &&!ceMessage.equals("while")) {
+                                throw ce;
+                            }
                         }
                     }
-                }
-            } catch (BreakException be) {
-                String beMessage = be.getMessage();
+                } catch (BreakException be) {
+                    String beMessage = be.getMessage();
 
-                // Handle "while" and plain breaks (by doing nothing)
-                if (beMessage != null &&!beMessage.equals("while")) {
-                    throw be;
+                    // Handle "while" and plain breaks (by doing nothing)
+                    if (beMessage != null &&!beMessage.equals("while")) {
+                        throw be;
+                    }
+                } catch (QuitNow qn) {
+                    throw qn;
+                } catch (BadSpecial bs) {
+                    bs.appendMessage("Malformatted PL while command (3)");
+                    throw bs;
+                } catch (Exception e) {
+                    throw new BadSpecial("Failed to execute SQL from PL block", e);
                 }
-            } catch (QuitNow qn) {
-                throw qn;
-            } catch (BadSpecial bs) {
-                bs.appendMessage("Malformatted PL while command (3)");
-                throw bs;
-            } catch (Exception e) {
-                throw new BadSpecial("Failed to execute SQL from PL block", e);
+            } else {
+                // Assertion
+                throw new RuntimeException("Unexpected PL command: "
+                        + tokens[0]);
             }
 
             if (tmpFile != null &&!tmpFile.delete()) {
@@ -2195,40 +2109,35 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
             return;
         }
 
-        /* Since we don't want to permit both "* VARNAME = X" and
+        /* Since we want to permit both "* VARNAME = X" and
          * "* VARNAME=X" (i.e., whitespace is OPTIONAL in both positions),
          * we can't use the Tokenzier.  Therefore, start over again with
          * the string. */
-        toker = null;
+        m = varsetPattern.matcher(dereference(inString, false));
+        if (!m.matches()) {
+            throw new BadSpecial("Malformatted PL var set command:  "
+                    + inString);
+        }
+        if (m.groupCount() != 3) {
+            // Assertion
+            throw new RuntimeException("varset patter matched but captured "
+                    + m.groupCount() + " groups");
+        }
 
-        int    index    = SqlFile.pastName(string, 0);
-        int    inLength = string.length();
-        String varName  = string.substring(0, index);
+        String varName  = m.group(1);
 
         if (varName.charAt(0) == ':') {
             throw new BadSpecial("PL variable names may not begin with ':'");
         }
 
-        while (index + 1 < inLength
-                && (string.charAt(index) == ' '
-                    || string.charAt(index) == '\t')) {
-            index++;
-        }
-
-        // index now set to the next non-whitespace AFTER the var name.
-        if (index + 1 > inLength) {
-            throw new BadSpecial("Unterminated PL variable definition");
-        }
-
-        String remainder = string.substring(index + 1);
-
-        switch (string.charAt(index)) {
+        switch (m.group(2).charAt(0)) {
             case '_' :
                 silentFetch = true;
             case '~' :
-                if (remainder.length() > 0) {
+                if (m.group(3) != null) {
                     throw new BadSpecial(
-                        "PL ~/_ set commands take no other args");
+                        "PL ~/_ set commands take no other args ("
+                        + m.group(3) + ')');
                 }
 
                 userVars.remove(varName);
@@ -2243,9 +2152,8 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
                     fetchingVar = null;
                 }
 
-                if (remainder.length() > 0) {
-                    userVars.put(varName,
-                                 string.substring(index + 1).trim());
+                if (m.group(3) != null) {
+                    userVars.put(varName, m.group(3));
                     updateUserSettings();
                 } else {
                     userVars.remove(varName);
@@ -2274,9 +2182,8 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
      * @throws IOException
      * @throws SqlToolError
      */
-    private File plBlockFile(String type) throws IOException, SqlToolError {
+    private File plBlockFile(String seeking) throws IOException, SqlToolError {
         String          s;
-        StringTokenizer toker;
 
         // Have already read the if/while/foreach statement, so we are already
         // at nest level 1.  When we reach nestlevel 1 (read 1 net "end"
@@ -2284,11 +2191,11 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
         int    nestlevel = 1;
         String curPlCommand;
 
-        if (type == null
-                || ((!type.equals("foreach")) && (!type.equals("if"))
-                    && (!type.equals("while")))) {
+        if (seeking == null
+                || ((!seeking.equals("foreach")) && (!seeking.equals("if"))
+                    && (!seeking.equals("while")))) {
             throw new RuntimeException(
-                "Assertion failed.  Unsupported PL block type:  " + type);
+                "Assertion failed.  Unsupported PL block type:  " + seeking);
         }
 
         File tmpFile = File.createTempFile("sqltool-", ".sql");
@@ -2298,28 +2205,30 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
         pw.println("/* " + (new java.util.Date()) + ". "
                    + getClass().getName() + " PL block. */");
         pw.println();
+        Matcher m;
 
         while (true) {
             s = br.readLine();
 
             if (s == null) {
-                errprintln("Unterminated '" + type + "' PL block");
+                errprintln("Unterminated '" + seeking + "' PL block");
 
-                throw new SqlToolError("Unterminated '" + type
+                throw new SqlToolError("Unterminated '" + seeking
                                        + "' PL block");
             }
 
             curLinenum++;
 
-            if (s.trim().length() > 1 && s.trim().charAt(0) == '*') {
-                toker        = new StringTokenizer(s.trim().substring(1));
-                curPlCommand = toker.nextToken();
+            m = plPattern.matcher(s);
+            if (m.matches() && m.groupCount() > 0) {
+                String[] tokens = m.group(1).split("\\s+");
+                curPlCommand = tokens[0];
 
                 // PL COMMAND of some sort.
-                if (curPlCommand.equals(type)) {
+                if (curPlCommand.equals(seeking)) {
                     nestlevel++;
                 } else if (curPlCommand.equals("end")) {
-                    if (toker.countTokens() < 1) {
+                    if (tokens.length < 2) {
                         errprintln("PL end statement requires arg of "
                                    + "'foreach' or 'if' or 'while' (1)");
 
@@ -2328,9 +2237,9 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
                             + " of 'foreach' or 'if' or 'while' (1)");
                     }
 
-                    String inType = toker.nextToken();
+                    String inType = tokens[1];
 
-                    if (inType.equals(type)) {
+                    if (inType.equals(seeking)) {
                         nestlevel--;
 
                         if (nestlevel < 1) {
@@ -3638,25 +3547,6 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
         }
     }
 
-    public static String[] getTokenArray(String inString) {
-        // I forget how to code a String array literal outside of a
-        // definition.
-        String[] mtString = {};
-
-        if (inString == null) {
-            return mtString;
-        }
-
-        StringTokenizer toker = new StringTokenizer(inString);
-        String[]        sa    = new String[toker.countTokens()];
-
-        for (int i = 0; i < sa.length; i++) {
-            sa[i] = toker.nextToken();
-        }
-
-        return sa;
-    }
-
     private boolean eval(String[] inTokens) throws BadSpecial {
         // dereference *VARNAME variables.
         // N.b. we work with a "copy" of the tokens.
@@ -3770,7 +3660,7 @@ System.err.println("Setting buffer to (" + immCmdSB.toString() + ')');
                       + "the values.");
         } else {
             SqlFile.appendLine(sb, "Showing variable names and length of values "
-                      + "(use 'listvalue' to see values).");
+                      + "(use 'listvalues' to see values).");
         }
 
         while (it.hasNext()) {
