@@ -176,3 +176,23 @@
 *if (*R != I:B1a:B1c:B2a:B2c:B4a:B4c:C1a:C1c:C2a:C2c:C4a:C4c)
     \q nested conditional foreach result unexpected: *{R}
 *end if
+
+/* Test break and continue */
+/* Initialize Results  to I */
+* R = I
+*foreach L1 (A B C)
+  *foreach L2 (1 2 3 4)
+      *foreach L3 (a b)
+          *if (*L3 == a)
+            *continue
+          *end if
+	      * R = *{R}:*{L1}*{L2}*{L3}
+	  *end foreach
+      *if (*L2 == 3)
+        *break foreach
+      *end if
+  *end foreach
+*end foreach
+*if (*R != I:A1b:A2b:A3b:B1b:B2b:B3b:C1b:C2b:C3b)
+    \q nested foreach result unexpected: *{R}
+*end if
