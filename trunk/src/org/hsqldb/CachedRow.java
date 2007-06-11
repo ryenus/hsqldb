@@ -280,7 +280,7 @@ public class CachedRow extends Row {
      * @return the current Row in Cache for this Object
      * @throws HsqlException
      */
-    public Row getUpdatedRow() throws HsqlException {
+    public Row getUpdatedRow() {
         return tTable == null ? null
                               : (CachedRow) tTable.rowStore.get(iPos);
     }

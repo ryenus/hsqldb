@@ -31,10 +31,15 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.StringConverter;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
 
+/**
+ * Implementation of SQL TRIGGER objects.<p>
+ *
+ * @author fredt@users
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class TriggerDefSQL extends TriggerDef {
 
     Table[]             transitions;

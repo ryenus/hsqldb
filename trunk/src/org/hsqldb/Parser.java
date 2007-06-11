@@ -1072,8 +1072,8 @@ class Parser extends BaseParser {
             e1 = new Expression(ValuePool.getInt(0), Type.SQL_INTEGER);
         }
 
-        e1.resolveTypes(session, null);
-        e2.resolveTypes(session, null);
+        e1.resolveTypes(null);
+        e2.resolveTypes(null);
 
         boolean valid = true;
 
@@ -2159,11 +2159,10 @@ class Parser extends BaseParser {
             throw Trace.error(Trace.UNRESOLVED_TYPE);
         }
 
-        e.resolveTypes(session, null);
-        e.prepareTable(session, null, e.argList[0].argList.length);
+        e.resolveTypes(null);
+        e.prepareTable(null, e.argList[0].argList.length);
 
-        SubQuery sq = new SubQuery(database, compileContext.subQueryLevel,
-                                   false, e);
+        SubQuery sq = new SubQuery(database, compileContext.subQueryLevel, e);
 
         compileContext.subQueryList.add(sq);
 
@@ -3006,20 +3005,6 @@ class Parser extends BaseParser {
         return e;
     }
 
-    /**
-     * Sets the subqueries as belonging to the View being constructed
-     */
-    void setAsView(View view) {
-
-        for (int i = 0; i < compileContext.subQueryList.size(); i++) {
-            SubQuery sq = (SubQuery) compileContext.subQueryList.get(i);
-
-            if (sq.parentView == null) {
-                sq.parentView = view;
-            }
-        }
-    }
-
     CompiledStatement compileStatement(HsqlName currentSchema)
     throws HsqlException {
 
@@ -3100,7 +3085,7 @@ class Parser extends BaseParser {
 
         Expression expression = readOr();
 
-        expression.resolveTypes(session, null);
+        expression.resolveTypes(null);
 
         expression.paramMode = Expression.PARAM_OUT;
 
@@ -3139,14 +3124,15 @@ class Parser extends BaseParser {
             set = condition.resolveColumnReferences(rangeVars, set);
 
             Expression.checkColumnsResolved(set);
-            condition.resolveTypes(session, null);
+            condition.resolveTypes(null);
 
-            RangeVariableResolver fr = new RangeVariableResolver(rangeVars,
-                condition, compileContext);
+            RangeVariableResolver resolver =
+                new RangeVariableResolver(rangeVars, condition,
+                                          compileContext);
 
-            fr.processConditions(session);
+            resolver.processConditions();
 
-            rangeVars = fr.rangeVariables;
+            rangeVars = resolver.rangeVariables;
         }
 
         CompiledStatement cs = new CompiledStatement(session, rangeVars,
@@ -3408,7 +3394,7 @@ class Parser extends BaseParser {
                         null);
 
                 Expression.checkColumnsResolved(set);
-                insertExpressions.resolveTypes(session, null);
+                insertExpressions.resolveTypes(null);
 
                 Type[] tableColumnTypes = table.getColumnTypes();
 
@@ -3575,13 +3561,13 @@ class Parser extends BaseParser {
             set = condition.resolveColumnReferences(rangeVars, set);
 
             Expression.checkColumnsResolved(set);
-            condition.resolveTypes(session, null);
+            condition.resolveTypes(null);
 
             RangeVariableResolver resolver =
                 new RangeVariableResolver(rangeVars, condition,
                                           compileContext);
 
-            resolver.processConditions(session);
+            resolver.processConditions();
 
             rangeVars = resolver.rangeVariables;
         }
@@ -3637,14 +3623,14 @@ class Parser extends BaseParser {
                         set = e.resolveColumnReferences(outerRanges, set);
                         set = e.resolveColumnReferences(rangeVariables, set);
 
-                        e.resolveTypes(session, null);
+                        e.resolveTypes(null);
                     }
                 }
             } else if (expr.exprType == Expression.TABLE_SUBQUERY) {
                 set = expr.resolveColumnReferences(outerRanges, set);
                 set = expr.resolveColumnReferences(rangeVariables, set);
 
-                expr.resolveTypes(session, null);
+                expr.resolveTypes(null);
 
                 for (int j = 0; j < expr.subQuery.select.visibleColumnCount;
                         j++, i++) {
@@ -3673,7 +3659,7 @@ class Parser extends BaseParser {
                     set = e.resolveColumnReferences(outerRanges, set);
                     set = e.resolveColumnReferences(rangeVariables, set);
 
-                    e.resolveTypes(session, null);
+                    e.resolveTypes(null);
                 }
 
                 i++;
@@ -3852,15 +3838,15 @@ class Parser extends BaseParser {
                     null);
 
             Expression.checkColumnsResolved(set);
-            mergeCondition.resolveTypes(session, null);
+            mergeCondition.resolveTypes(null);
 
-            RangeVariableResolver fr =
+            RangeVariableResolver resolver =
                 new RangeVariableResolver(targetRangeVars, mergeCondition,
                                           compileContext);
 
-            fr.processConditions(session);
+            resolver.processConditions();
 
-            targetRangeVars = fr.rangeVariables;
+            targetRangeVars = resolver.rangeVariables;
         }
 
         if (insertExpression != null) {
@@ -3868,7 +3854,7 @@ class Parser extends BaseParser {
                     set);
 
             Expression.checkColumnsResolved(set);
-            insertExpression.resolveTypes(session, null);
+            insertExpression.resolveTypes(null);
         }
 
         CompiledStatement cs = new CompiledStatement(session, targetRangeVars,
@@ -3981,24 +3967,6 @@ class Parser extends BaseParser {
         return count;
     }
 
-    /**
-     * parseViewSubquery
-     *
-     * @param view View
-     */
-    public SubQuery readViewSubquery(View view) throws HsqlException {
-
-        read();
-
-        int brackets = readOpenBrackets();
-        SubQuery subQuery = readSubquery(brackets, view, true,
-                                         Expression.VIEW);
-
-        setAsView(view);
-
-        return subQuery;
-    }
-
     public static class CompileContext {
 
         private static final Expression[] noParameters = new Expression[0];
@@ -4036,7 +4004,7 @@ class Parser extends BaseParser {
          * Return the list of subqueries as an array sorted according to the order
          * of materialization, then clear the internal subquery list
          */
-        SubQuery[] getSortedSubqueries(Session session) throws HsqlException {
+        SubQuery[] getSubqueries() throws HsqlException {
 
             if (subQueryList.size() == 0) {
                 return noSubqueries;
@@ -4050,11 +4018,7 @@ class Parser extends BaseParser {
             subQueryList.clear();
 
             for (int i = 0; i < subqueries.length; i++) {
-                Select select = subqueries[i].select;
-
-                if (select != null) {
-                    select.resolveTypesAndPrepare(session);
-                }
+                subqueries[i].resolveAndPrepare();
             }
 
             return subqueries;

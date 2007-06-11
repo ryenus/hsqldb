@@ -355,13 +355,12 @@ public class LegacyFunction extends SQLFunction {
         }
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Expression parent) throws HsqlException {
 
         switch (funcType) {
 
             case FUNC_EXTRACT :
-                super.resolveTypes(session, parent);
+                super.resolveTypes(parent);
 
                 return;
 

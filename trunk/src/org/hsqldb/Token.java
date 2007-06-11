@@ -1592,6 +1592,7 @@ public class Token {
         commandSet.put(T_DESC, DESC);
         commandSet.put(T_DOMAIN, DOMAIN);
         commandSet.put(T_EXPLAIN, EXPLAIN);
+        commandSet.put(T_FINAL, FINAL);
         commandSet.put(T_G_MULTIPLIER, G);
         commandSet.put(T_GENERATED, GENERATED);
         commandSet.put(T_GRANTED, GRANTED);

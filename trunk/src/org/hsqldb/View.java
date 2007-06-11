@@ -33,8 +33,6 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HashSet;
-import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 
 // fredt@users 20020420 - patch523880 by leptipre@users - VIEW support - modified
@@ -89,7 +87,6 @@ public class View extends Table {
         compileTimeSchema = session.getSchemaHsqlName(null);
 
         compile(session);
-
     }
 
     public OrderedHashSet getReferences() {
@@ -109,8 +106,19 @@ public class View extends Table {
 
         Parser p = new Parser(session, new Tokenizer(statement));
 
-        viewSubQuery      = p.readViewSubquery(this);
-        viewSubqueries    = p.compileContext.getSortedSubqueries(session);
+        p.read();
+
+        viewSubQuery = p.readSubquery(0, this, true, Expression.VIEW);
+
+        viewSubqueries = p.compileContext.getSubqueries();
+
+        for (int i = 0; i < viewSubqueries.length; i++) {
+            if (viewSubqueries[i].parentView == null) {
+                viewSubqueries[i].parentView = this;
+            }
+        }
+
+
         viewSelect        = viewSubQuery.select;
         schemaObjectNames = p.compileContext.getSchemaObjectNames();
 

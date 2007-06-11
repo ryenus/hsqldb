@@ -67,7 +67,6 @@
 package org.hsqldb.index;
 
 import org.hsqldb.CachedRow;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.Table;
 import org.hsqldb.Trace;
@@ -116,7 +115,7 @@ public class PointerNode extends BaseMemoryNode {
         return iData;
     }
 
-    Row getRow() throws HsqlException {
+    Row getRow() {
 
         if (iData == NO_POS) {
             return null;
@@ -127,7 +126,7 @@ public class PointerNode extends BaseMemoryNode {
         return r;
     }
 
-    Object[] getData() throws HsqlException {
+    Object[] getData() {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);

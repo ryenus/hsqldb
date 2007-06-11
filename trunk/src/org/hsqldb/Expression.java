@@ -2063,7 +2063,7 @@ public class Expression {
      * For CASE WHEN and its special cases section 9.3 of the SQL standard
      * on type aggregation is implemented.
      */
-    void resolveCaseWhenTypes(Session session) throws HsqlException {
+    void resolveCaseWhenTypes() throws HsqlException {
 
         if (dataType != null) {
             return;
@@ -2072,14 +2072,14 @@ public class Expression {
         Expression expr = this;
 
         while (expr.exprType == Expression.CASEWHEN) {
-            expr.eArg.resolveTypes(session, expr);
+            expr.eArg.resolveTypes(expr);
 
             if (expr.eArg.isParam) {
                 expr.eArg.dataType = Type.SQL_BOOLEAN;
             }
 
-            expr.eArg2.eArg.resolveTypes(session, eArg2);
-            expr.eArg2.eArg2.resolveTypes(session, eArg2);
+            expr.eArg2.eArg.resolveTypes(eArg2);
+            expr.eArg2.eArg2.resolveTypes(eArg2);
 
             expr = expr.eArg2.eArg2;
         }
@@ -2113,8 +2113,7 @@ public class Expression {
         }
     }
 
-    private void resolveTypesForLogicalOp(Session session)
-    throws HsqlException {
+    private void resolveTypesForLogicalOp() throws HsqlException {
 
         if (eArg.isParam) {
             eArg.dataType = Type.SQL_BOOLEAN;
@@ -2138,9 +2137,8 @@ public class Expression {
         }
     }
 
-    private void resolveTypesForComparison(Session session,
-                                           Expression parent)
-                                           throws HsqlException {
+    private void resolveTypesForComparison(Expression parent)
+    throws HsqlException {
 
         if (eArg.isParam && eArg2.isParam) {
             throw Trace.error(Trace.UNRESOLVED_PARAMETER_TYPE,
@@ -2149,7 +2147,7 @@ public class Expression {
 
         if (eArg2.exprType == Expression.ALL
                 || eArg2.exprType == Expression.ANY) {
-            resolveTypesForAllAny(session);
+            resolveTypesForAllAny();
 
             return;
         }
@@ -2166,7 +2164,7 @@ public class Expression {
         }
 
         if (isFixedConditional()) {
-            valueData = getValue(session);
+            valueData = getConstantValue();
             exprType  = VALUE;
             eArg      = null;
             eArg2     = null;
@@ -2218,19 +2216,18 @@ public class Expression {
         return null;
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Expression parent) throws HsqlException {
 
         if (isParam) {
             return;
         }
 
         if (eArg != null) {
-            eArg.resolveTypes(session, this);
+            eArg.resolveTypes(this);
         }
 
         if (eArg2 != null) {
-            eArg2.resolveTypes(session, this);
+            eArg2.resolveTypes(this);
         }
 
         switch (exprType) {
@@ -2244,7 +2241,7 @@ public class Expression {
             case TABLE :
                 for (int i = 0; i < argList.length; i++) {
                     if (argList[i] != null) {
-                        argList[i].resolveTypes(session, this);
+                        argList[i].resolveTypes(this);
                     }
                 }
                 break;
@@ -2254,7 +2251,7 @@ public class Expression {
 
                 for (int i = 0; i < argList.length; i++) {
                     if (argList[i] != null) {
-                        argList[i].resolveTypes(session, this);
+                        argList[i].resolveTypes(this);
 
                         argListDataType[i] = argList[i].dataType;
                     }
@@ -2266,7 +2263,7 @@ public class Expression {
                 throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
                                          "resolveTypes()");
             case TABLE_SUBQUERY : {
-                subQuery.select.resolveTypes(session);
+                subQuery.select.resolveTypes();
 
                 argListDataType = new Type[subQuery.select.visibleColumnCount];
 
@@ -2302,7 +2299,7 @@ public class Expression {
                 }
 
                 if (isFixedConstant()) {
-                    valueData = getValue(session, dataType);
+                    valueData = getConstantValue(dataType);
                     eArg      = null;
                     exprType  = VALUE;
                 }
@@ -2316,18 +2313,18 @@ public class Expression {
                             && eArg2.dataType.isCharacterType())) {
                     exprType = Expression.CONCAT;
 
-                    resolveTypesForConcat(session);
+                    resolveTypesForConcat();
 
                     break;
                 }
             case SUBTRACT :
             case MULTIPLY :
             case DIVIDE :
-                resolveTypesForArithmetic(session);
+                resolveTypesForArithmetic();
                 break;
 
             case CONCAT :
-                resolveTypesForConcat(session);
+                resolveTypesForConcat();
                 break;
 
             case NOT_DISTINCT :
@@ -2337,24 +2334,24 @@ public class Expression {
             case SMALLER :
             case SMALLER_EQUAL :
             case NOT_EQUAL :
-                resolveTypesForComparison(session, parent);
+                resolveTypesForComparison(parent);
                 break;
 
             case LIKE :
-                resolveTypesForLike(session);
+                resolveTypesForLike();
                 break;
 
             case AND : {
-                resolveTypesForLogicalOp(session);
+                resolveTypesForLogicalOp();
 
                 if (eArg.isFixedConditional()) {
                     if (eArg2.isFixedConditional()) {
-                        valueData = getValue(session);
+                        valueData = getConstantValue();
                         exprType  = VALUE;
                         eArg      = null;
                         eArg2     = null;
                     } else {
-                        if (Boolean.FALSE.equals(eArg.getValue(session))) {
+                        if (Boolean.FALSE.equals(eArg.getConstantValue())) {
                             valueData = Boolean.FALSE;
                             exprType  = VALUE;
                             eArg      = null;
@@ -2362,7 +2359,7 @@ public class Expression {
                         }
                     }
                 } else if (eArg2.isFixedConditional()) {
-                    if (Boolean.FALSE.equals(eArg2.getValue(session))) {
+                    if (Boolean.FALSE.equals(eArg2.getConstantValue())) {
                         valueData = Boolean.FALSE;
                         exprType  = VALUE;
                         eArg      = null;
@@ -2373,23 +2370,23 @@ public class Expression {
                 break;
             }
             case OR : {
-                resolveTypesForLogicalOp(session);
+                resolveTypesForLogicalOp();
 
                 // optimisation
                 if (eArg.isFixedConditional()) {
                     if (eArg2.isFixedConditional()) {
-                        valueData = getValue(session);
+                        valueData = getConstantValue();
                         exprType  = VALUE;
                         eArg      = null;
                         eArg2     = null;
-                    } else if (Boolean.TRUE.equals(eArg.getValue(session))) {
+                    } else if (Boolean.TRUE.equals(eArg.getConstantValue())) {
                         valueData = Boolean.TRUE;
                         exprType  = VALUE;
                         eArg      = null;
                         eArg2     = null;
                     }
                 } else if (eArg2.isFixedConditional()) {
-                    if (Boolean.TRUE.equals(eArg2.getValue(session))) {
+                    if (Boolean.TRUE.equals(eArg2.getConstantValue())) {
                         valueData = Boolean.TRUE;
                         exprType  = VALUE;
                         eArg      = null;
@@ -2401,7 +2398,7 @@ public class Expression {
             }
             case IS_NULL :
                 if (isFixedConditional()) {
-                    valueData = getValue(session);
+                    valueData = getConstantValue();
                     exprType  = VALUE;
                     eArg      = null;
                 } else if (eArg.dataType == null) {
@@ -2421,7 +2418,7 @@ public class Expression {
                 }
 
                 if (isFixedConditional()) {
-                    valueData = (Boolean) eArg.getValue(session);
+                    valueData = (Boolean) eArg.getConstantValue();
                     exprType  = VALUE;
                     eArg      = null;
                     eArg2     = null;
@@ -2443,7 +2440,7 @@ public class Expression {
             case MATCH_UNIQUE_SIMPLE :
             case MATCH_UNIQUE_PARTIAL :
             case MATCH_UNIQUE_FULL :
-                resolveTypesForIn(session);
+                resolveTypesForIn();
                 break;
 
             case UNIQUE :
@@ -2482,7 +2479,7 @@ public class Expression {
                 // NOTE: both iDataType for this expr and for eArg (if isParm)
                 // are already set in Parser during read
                 if (eArg.isFixedConstant() || eArg.isFixedConditional()) {
-                    valueData = getValue(session);
+                    valueData = getConstantValue();
                     exprType  = VALUE;
                     eArg      = null;
                 }
@@ -2497,7 +2494,7 @@ public class Expression {
                 // the parent evaluates to true), while its eArg2 is case 2
                 // (how to get the value when the condition in
                 // the parent evaluates to false).
-                resolveCaseWhenTypes(session);
+                resolveCaseWhenTypes();
 
                 if (dataType == null) {
                     throw Trace.error(Trace.UNRESOLVED_PARAMETER_TYPE,
@@ -2511,7 +2508,7 @@ public class Expression {
         }
     }
 
-    void resolveTypesForArithmetic(Session session) throws HsqlException {
+    void resolveTypesForArithmetic() throws HsqlException {
 
         if (eArg.isParam && eArg2.isParam) {
             throw Trace.error(Trace.UNRESOLVED_PARAMETER_TYPE,
@@ -2542,14 +2539,14 @@ public class Expression {
         }
 
         if (isFixedConstant()) {
-            valueData = getValue(session, dataType);
+            valueData = getConstantValue(dataType);
             eArg      = null;
             eArg2     = null;
             exprType  = VALUE;
         }
     }
 
-    void resolveTypesForConcat(Session session) throws HsqlException {
+    void resolveTypesForConcat() throws HsqlException {
 
         if (dataType != null) {
             return;
@@ -2588,14 +2585,14 @@ public class Expression {
                 Expression.CONCAT);
 
         if (isFixedConstant()) {
-            valueData = getValue(session, dataType);
+            valueData = getConstantValue(dataType);
             eArg      = null;
             eArg2     = null;
             exprType  = VALUE;
         }
     }
 
-    void resolveTypesForLike(Session session) throws HsqlException {
+    void resolveTypesForLike() throws HsqlException {
 
         if (eArg.isParam && eArg2.isParam) {
             throw Trace.error(Trace.UNRESOLVED_PARAMETER_TYPE,
@@ -2603,7 +2600,7 @@ public class Expression {
         }
 
         if (isFixedConditional()) {
-            valueData = (Boolean) eArg.getValue(session);
+            valueData = (Boolean) eArg.getConstantValue();
             exprType  = VALUE;
             eArg      = null;
             eArg2     = null;
@@ -2642,13 +2639,13 @@ public class Expression {
 
         boolean isRightArgFixedConstant = eArg2.isFixedConstant();
         String likeStr = isRightArgFixedConstant
-                         ? (String) eArg2.getValue(session, Type.SQL_VARCHAR)
+                         ? (String) eArg2.getConstantValue(Type.SQL_VARCHAR)
                          : null;
         boolean ignoreCase = eArg.dataType.type == Types.VARCHAR_IGNORECASE
                              || eArg2.dataType.type
                                 == Types.VARCHAR_IGNORECASE;
 
-        likeObject.setParams(session, likeStr, ignoreCase);
+        likeObject.setParams(likeStr, ignoreCase);
 
         if (!isRightArgFixedConstant) {
 
@@ -2803,7 +2800,7 @@ public class Expression {
         return false;
     }
 
-    void resolveTypesForAllAny(Session session) throws HsqlException {
+    void resolveTypesForAllAny() throws HsqlException {
 
         eArg2.argListDataType = eArg2.eArg.argListDataType;
 
@@ -2840,7 +2837,7 @@ public class Expression {
      *
      * Parametric predicand is resolved against the value list and vice versa.
      */
-    void resolveTypesForIn(Session session) throws HsqlException {
+    void resolveTypesForIn() throws HsqlException {
 
         int degree = eArg.exprType == ROW ? eArg.argList.length
                                           : 1;
@@ -2864,7 +2861,7 @@ public class Expression {
 
             eArg2.isCorrelated = eArg2.subQuery.isCorrelated;
         } else {
-            eArg2.prepareTable(session, eArg, degree);
+            eArg2.prepareTable(eArg, degree);
 
             if (degree != eArg2.argListDataType.length) {
 
@@ -2897,8 +2894,7 @@ public class Expression {
         }
     }
 
-    void prepareTable(Session session, Expression row,
-                      int degree) throws HsqlException {
+    void prepareTable(Expression row, int degree) throws HsqlException {
 
         if (argListDataType != null) {
             return;
@@ -2930,7 +2926,7 @@ public class Expression {
                                     : row.argList[j].dataType;
 
             for (int i = 0; i < argList.length; i++) {
-                argList[i].argList[j].resolveTypes(session, this);
+                argList[i].argList[j].resolveTypes(this);
 
                 type = Type.getAggregatedType(argList[i].argList[j].dataType,
                                               type);
@@ -3171,6 +3167,20 @@ public class Expression {
     /**
      * Get the value in the given type in the given session context
      */
+    Object getConstantValue(Type type) throws HsqlException {
+
+        Object o = getConstantValue();
+
+        if (o == null || dataType == type) {
+            return o;
+        }
+
+        return type.convertToType(null, o, dataType);
+    }
+
+    /**
+     * Get the value in the given type in the given session context
+     */
     Object getValue(Session session, Type type) throws HsqlException {
 
         Object o = getValue(session);
@@ -3327,7 +3337,7 @@ public class Expression {
                     rightValue, eArg2.dataType);
 
                 if (eArg2.isParam || eArg2.exprType != VALUE) {
-                    likeObject.resetPattern(session, s);
+                    likeObject.resetPattern(s);
                 }
 
                 String c = (String) Type.SQL_VARCHAR.convertToType(session,
@@ -3528,6 +3538,10 @@ public class Expression {
         }
     }
 
+    public Object getConstantValue() throws HsqlException {
+        return getValue(null);
+    }
+
     public Object getValue(Session session) throws HsqlException {
 
         switch (exprType) {
@@ -3589,7 +3603,7 @@ public class Expression {
                 String s = (String) eArg2.getValue(session, Type.SQL_VARCHAR);
 
                 if (eArg2.isParam || eArg2.exprType != VALUE) {
-                    likeObject.resetPattern(session, s);
+                    likeObject.resetPattern(s);
                 }
 
                 String c = (String) eArg.getValue(session, Type.SQL_VARCHAR);
@@ -4319,7 +4333,7 @@ public class Expression {
         OrderedHashSet set = e.resolveColumnReferences(s.rangeVariables, null);
 
         Expression.checkColumnsResolved(set);
-        e.resolveTypes(session, null);
+        e.resolveTypes(null);
 
         if (Types.SQL_BOOLEAN != e.getDataType().type) {
             throw Trace.error(Trace.NOT_A_CONDITION);
@@ -4329,7 +4343,7 @@ public class Expression {
 
         s.queryCondition = condition;
 
-        s.resolveTypesAndPrepare(session);
+        s.resolveTypesAndPrepare();
 
         return s;
     }
@@ -4715,9 +4729,8 @@ public class Expression {
     /**
      *
      */
-    Expression getIndexableExpression(Session session,
-                                      RangeVariable rangeVar)
-                                      throws HsqlException {
+    Expression getIndexableExpression(RangeVariable rangeVar)
+    throws HsqlException {
 
         switch (exprType) {
 
@@ -4740,7 +4753,7 @@ public class Expression {
             case Expression.GREATER_EQUAL :
             case Expression.SMALLER :
             case Expression.SMALLER_EQUAL :
-                reorderComparison(session);
+                reorderComparison();
 
                 if (eArg.exprType == COLUMN
                         && eArg.rangeVariable == rangeVar) {
@@ -4836,7 +4849,7 @@ public class Expression {
         eArg2 = e;
     }
 
-    boolean reorderComparison(Session session) throws HsqlException {
+    boolean reorderComparison() throws HsqlException {
 
         Expression colExpression    = null;
         Expression nonColExpression = null;
@@ -4892,7 +4905,7 @@ public class Expression {
             newArg = new Expression(operation, otherExpression,
                                     nonColExpression);
 
-            newArg.resolveTypesForArithmetic(session);
+            newArg.resolveTypesForArithmetic();
         }
 
         if (left) {
@@ -4900,7 +4913,7 @@ public class Expression {
                 eArg2      = colExpression;
                 eArg.eArg2 = otherExpression;
 
-                eArg.resolveTypesForArithmetic(session);
+                eArg.resolveTypesForArithmetic();
             } else {
                 eArg  = colExpression;
                 eArg2 = newArg;
@@ -4910,7 +4923,7 @@ public class Expression {
                 eArg        = colExpression;
                 eArg2.eArg2 = otherExpression;
 
-                eArg2.resolveTypesForArithmetic(session);
+                eArg2.resolveTypesForArithmetic();
             } else {
                 eArg2 = colExpression;
                 eArg  = newArg;

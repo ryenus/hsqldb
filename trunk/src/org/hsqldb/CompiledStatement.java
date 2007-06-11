@@ -220,7 +220,7 @@ public final class CompiledStatement {
         this.targetRangeVariables = rangeVars;
         type                      = DELETE;
 
-        setDatabseObjects(session, compileContext);
+        setDatabseObjects(compileContext);
         checkAccessRights(session);
     }
 
@@ -240,7 +240,7 @@ public final class CompiledStatement {
         this.targetRangeVariables = rangeVars;
         type                      = UPDATE;
 
-        setDatabseObjects(session, compileContext);
+        setDatabseObjects(compileContext);
         checkAccessRights(session);
     }
 
@@ -258,7 +258,7 @@ public final class CompiledStatement {
         this.insertExpression   = insertExpression;
         type                    = INSERT_VALUES;
 
-        setDatabseObjects(session, compileContext);
+        setDatabseObjects(compileContext);
         checkAccessRights(session);
     }
 
@@ -276,7 +276,7 @@ public final class CompiledStatement {
         this.select             = select;
         type                    = INSERT_SELECT;
 
-        setDatabseObjects(session, compileContext);
+        setDatabseObjects(compileContext);
         checkAccessRights(session);
     }
 
@@ -291,7 +291,7 @@ public final class CompiledStatement {
         type                = (select.intoTableName == null) ? SELECT
                                                              : SELECT_INTO;
 
-        setDatabseObjects(session, compileContext);
+        setDatabseObjects(compileContext);
         checkAccessRights(session);
     }
 
@@ -305,7 +305,7 @@ public final class CompiledStatement {
         this.expression     = expression;
         type                = CALL;
 
-        setDatabseObjects(session, compileContext);
+        setDatabseObjects(compileContext);
         checkAccessRights(session);
     }
 
@@ -330,7 +330,7 @@ public final class CompiledStatement {
         this.condition            = mergeCondition;
         type                      = MERGE;
 
-        setDatabseObjects(session, compileContext);
+        setDatabseObjects(compileContext);
         checkAccessRights(session);
     }
 
@@ -350,7 +350,7 @@ public final class CompiledStatement {
         this.targetRangeVariables = rangeVars;
         type                      = SET;
 
-        setDatabseObjects(session, compileContext);
+        setDatabseObjects(compileContext);
         checkAccessRights(session);
     }
 
@@ -524,15 +524,14 @@ public final class CompiledStatement {
         subqueries         = null;
     }
 
-    void setDatabseObjects(Session session,
-                           CompileContext compileContext)
-                           throws HsqlException {
+    void setDatabseObjects(CompileContext compileContext)
+    throws HsqlException {
 
         Expression[] params = compileContext.getParameters();
 
         setParameters(params);
 
-        subqueries          = compileContext.getSortedSubqueries(session);
+        subqueries          = compileContext.getSubqueries();
         rangeIteratorCount  = compileContext.getRangeVarCount();
         rangeVariables      = compileContext.rangeVariables;
         sequenceExpressions = compileContext.usedSequences;

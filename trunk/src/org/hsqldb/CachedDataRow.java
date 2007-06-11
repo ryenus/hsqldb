@@ -77,7 +77,7 @@ class CachedDataRow extends CachedRow {
      *  As the indexes are in-memory, this passes the existing primary node
      *  for the construction of the new Row
      */
-    public Row getUpdatedRow() throws HsqlException {
+    public Row getUpdatedRow() {
         return tTable.getRow(iPos, nPrimaryNode);
     }
 

@@ -53,18 +53,17 @@ public class DomainType extends Type implements SchemaObject {
 
     Type         baseType;
     HsqlName     name;
-    Constraint[] constraints;
+    Constraint[] constraints = new Constraint[0];
     Expression   defaultExpression;
+    boolean      isNullable = true;
 
     public DomainType(HsqlName name, Type baseType,
-                      Constraint[] checkConstraints,
                       Expression defaultExpression) {
 
         super(baseType.type, baseType.precision, baseType.scale);
 
         this.name              = name;
         this.baseType          = baseType;
-        this.constraints       = checkConstraints;
         this.defaultExpression = defaultExpression;
     }
 
@@ -80,6 +79,8 @@ public class DomainType extends Type implements SchemaObject {
         constraints = (Constraint[]) ArrayUtil.resizeArray(constraints,
                 position + 1);
         constraints[position] = c;
+
+        setNotNull();
     }
 
     public void removeConstraint(String name) {
@@ -93,6 +94,8 @@ public class DomainType extends Type implements SchemaObject {
                 break;
             }
         }
+
+        setNotNull();
     }
 
     public Constraint getConstraint(String name) {
@@ -110,6 +113,10 @@ public class DomainType extends Type implements SchemaObject {
         return constraints;
     }
 
+    public boolean isNullable() {
+        return isNullable;
+    }
+
     public Expression getDefaultClause() {
         return defaultExpression;
     }
@@ -120,6 +127,17 @@ public class DomainType extends Type implements SchemaObject {
 
     public void removeDefaultClause() {
         defaultExpression = null;
+    }
+
+    private void setNotNull() {
+
+        isNullable = true;
+
+        for (int i = 0; i < constraints.length; i++) {
+            if (constraints[i].isNotNull()) {
+                isNullable = false;
+            }
+        }
     }
 
     // interface specific methods

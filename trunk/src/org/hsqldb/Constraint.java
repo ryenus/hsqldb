@@ -116,10 +116,10 @@ public class Constraint implements SchemaObject {
     boolean                 isForward;
 
     //
-    Expression    check;
-    boolean       isNotNull;
-    int           notNullColumnIndex;
-    RangeVariable rangeVariable;
+    Expression      check;
+    private boolean isNotNull;
+    int             notNullColumnIndex;
+    RangeVariable   rangeVariable;
 
     /**
      *  Constructor declaration for PK and UNIQUE
@@ -148,10 +148,10 @@ public class Constraint implements SchemaObject {
 
         Constraint copy = new Constraint();
 
-        copy.core               = core.duplicate();
-        copy.name               = name;
-        copy.constType          = constType;
-        copy.isForward          = isForward;
+        copy.core      = core.duplicate();
+        copy.name      = name;
+        copy.constType = constType;
+        copy.isForward = isForward;
 
         //
         copy.check              = check;
@@ -341,8 +341,18 @@ public class Constraint implements SchemaObject {
         return core.refCols;
     }
 
+    /**
+     * Returns the DDL for the expression in CHECK clause
+     */
     public String getCheckDDL() {
         return check.getDDL();
+    }
+
+    /**
+     * Returns true if the expression in CHECK is a simple IS NOT NULL
+     */
+    public boolean isNotNull() {
+        return isNotNull;
     }
 
     /**
@@ -520,30 +530,6 @@ public class Constraint implements SchemaObject {
         if (constType == CHECK) {
             recompile(session, newTable);
         }
-    }
-
-    void recompile(Session session, Table newTable) throws HsqlException {
-
-        if (constType != CHECK) {
-            return;
-        }
-
-        String     ddl       = check.getDDL();
-        Tokenizer  tokenizer = new Tokenizer(ddl);
-        Parser     parser    = new Parser(session, tokenizer);
-        parser.read();
-        Expression condition = parser.readOr();
-
-        check = condition;
-
-        // this workaround is here to stop LIKE optimisation (for proper scripting)
-        check.setLikeOptimised();
-
-        Select s = Expression.getCheckSelect(session, newTable, check);
-
-        rangeVariable = s.rangeVariables[0];
-
-        rangeVariable.setForCheckConstraint();
     }
 
     /**
@@ -751,9 +737,31 @@ public class Constraint implements SchemaObject {
 
         return set;
     }
+    void recompile(Session session, Table newTable) throws HsqlException {
+
+        String    ddl       = check.getDDL();
+        Tokenizer tokenizer = new Tokenizer(ddl);
+        Parser    parser    = new Parser(session, tokenizer);
+
+        parser.read();
+
+        Expression condition = parser.readOr();
+
+        check = condition;
+
+        // this workaround is here to stop LIKE optimisation (for proper scripting)
+        check.setLikeOptimised();
+
+        Select s = Expression.getCheckSelect(session, newTable, check);
+
+        rangeVariable = s.rangeVariables[0];
+
+        rangeVariable.setForCheckConstraint();
+    }
+
 
     void prepareCheckConstraint(Session session,
-                                Table table) throws HsqlException {
+                                Table table, boolean checkValues) throws HsqlException {
 
         // to ensure no subselects etc. are in condition
         check.checkValidCheckConstraint();

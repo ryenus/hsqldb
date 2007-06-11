@@ -69,6 +69,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.DomainType;
 
 /**
  *  Implementation of SQL table columns as defined in DDL statements with
@@ -102,8 +103,7 @@ public class Column {
      * @param  defExpression
      */
     public Column(HsqlName name, Type type, boolean nullable,
-                  boolean isPrimaryKey,
-                  Expression defaultExpression) {
+                  boolean isPrimaryKey, Expression defaultExpression) {
 
         columnName             = name;
         isNullable             = nullable;
@@ -171,6 +171,13 @@ public class Column {
      * @return boolean
      */
     public boolean isNullable() {
+
+        if (isNullable) {
+            if (type.isDomainType()) {
+                return ((DomainType) type).isNullable();
+            }
+        }
+
         return isNullable;
     }
 
@@ -249,7 +256,16 @@ public class Column {
      *  Returns default expression for the column.
      */
     Expression getDefaultExpression() {
-        return defaultExpression;
+
+        if (defaultExpression == null) {
+            if (type.isDomainType()) {
+                return ((DomainType) type).getDefaultClause();
+            }
+
+            return null;
+        } else {
+            return defaultExpression;
+        }
     }
 
     void setDefaultExpression(Expression expr) {
@@ -283,9 +299,9 @@ public class Column {
         meta.colNames[index]     = column.getName().name;
         meta.colTypes[index]     = column.getType();
         meta.colNullable[index] =
-            column.isNullable()&& !column.isPrimaryKey() ? Expression.NULLABLE
-                                                         : Expression
-                                                         .NO_NULLS;
+            column.isNullable() && !column.isPrimaryKey() ? Expression.NULLABLE
+                                                          : Expression
+                                                          .NO_NULLS;
         meta.isIdentity[index] = column.isIdentity();
         meta.isWritable[index] = column.isWriteable();
     }

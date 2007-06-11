@@ -67,6 +67,8 @@
 package org.hsqldb;
 
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.types.Type;
+import org.hsqldb.types.CharacterType;
 
 /**
  * Reusable object for processing LIKE queries.
@@ -105,11 +107,11 @@ class Like {
      * @param s
      * @param ignorecase
      */
-    void setParams(Session session, String s, boolean ignorecase) {
+    void setParams(String s, boolean ignorecase) throws HsqlException {
 
         isIgnoreCase = ignorecase;
 
-        normalize(session, s);
+        normalize(s);
 
         optimised = true;
     }
@@ -117,8 +119,8 @@ class Like {
     /**
      * Resets the search pattern;
      */
-    void resetPattern(Session session, String s) {
-        normalize(session, s);
+    void resetPattern(String s) throws HsqlException {
+        normalize(s);
     }
 
     private String getStartsWith() {
@@ -223,12 +225,13 @@ class Like {
      * @param pattern
      * @param b
      */
-    private void normalize(Session session, String pattern) {
+    private void normalize(String pattern) throws HsqlException {
 
         isNull = pattern == null;
 
         if (!isNull && isIgnoreCase) {
-            pattern = session.database.collation.toUpperCase(pattern);
+            CharacterType type = (CharacterType) Type.SQL_VARCHAR;
+            pattern = (String) type.upper(null, pattern);
         }
 
         iLen           = 0;
