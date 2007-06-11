@@ -144,6 +144,11 @@ public class SqlFile {
     public static String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
 
+    /**
+     * N.b. javax.util.regex Optional capture groups (...)? are completely
+     * unpredictable wrt whether you get a null capture group vs. no capture.
+     * Must always check count!
+     */
     private static Pattern   specialPattern   =
             Pattern.compile("\\s*\\\\(\\S+)(?:\\s+(.*\\S))?\\s*");
     private static Pattern   plPattern   =
@@ -284,18 +289,19 @@ public class SqlFile {
         + "    :;                Execute current buffer (special, PL, or SQL command)\n"
         + "    :a[text]          Enter append mode with a copy of the buffer\n"
         + "    :s/from/to/       Substitute \"to\" for first occurrence of \"from\"\n"
-        + "    :s/from/to/[i;g2] Substitute \"to\" for occurrence(s) of \"from\"\n"
-        + "                from:  '$'s represent line breaks\n"
+        + "    :s/from/to/[igm;] Substitute \"to\" for occurrence(s) of \"from\"\n"
+        + "                from:  Meaning of ^ and $ depend on the m option (see below)\n"
         + "                to:    If empty, from's will be deleted (e.g. \":s/x//\").\n"
-        + "                       '$'s represent line breaks\n"
-        + "                       You can't use ';' in order to execute the SQL (use\n"
-        + "                       the ';' switch for this purpose, as explained below).\n"
+        + "                [igm;] Options work exactly as in Perl or java.util.regex,\n"
+        + "                       Except ; means to execute after substitution,\n"
+        + "                       and g means Global (multiple) substitutions.\n"
         + "                /:     Can actually be any character which occurs in\n"
         + "                       neither \"to\" string nor \"from\" string.\n"
         + "                SUBSTITUTION MODE SWITCHES:\n"
         + "                       i:  case Insensitive\n"
-        + "                       ;:  execute immediately after substitution\n"
         + "                       g:  Global (substitute ALL occurrences of \"from\" string)\n"
+        + "                       m:  ^ and $ match line breaks (like Perl m option)\n"
+        + "                       ;:  execute immediately after substitution\n"
     ;
     private static String HELP_TEXT = "SPECIAL Commands.\n"
         + "Filter substrings are cases-sensitive!  Use \"SCHEMANAME.\" to narrow to schema.\n"
@@ -1147,11 +1153,11 @@ public class SqlFile {
                 boolean modeGlobal = false;
 
                 try {
-                    if (other.length() < 3) {
+                    if (other == null || other.length() < 3) {
                         throw new BadSwitch("Malformatted switch command");
                     }
                     char delim = other.charAt(0);
-                Matcher m = switchPattern.matcher(inString);
+                    Matcher m = switchPattern.matcher(inString);
                     if (buffer == null) {
                         stdprintln("No buffer yet");
                         return;
@@ -1166,19 +1172,22 @@ public class SqlFile {
                         throw new RuntimeException("Matched switch pattern, "
                             + "but captured " + m.groupCount() + " groups");
                     }
-                    String optionGroup = ((m.groupCount() > 3)
+                    String optionGroup = (
+                            (m.groupCount() > 3 && m.group(4) != null)
                             ? (new String(m.group(4))) : null);
 
-                    if (optionGroup.indexOf(';') > -1) {
-                        modeExecute = true;
-                        optionGroup = optionGroup.replaceFirst(";", "");
-                    }
-                    if (optionGroup.indexOf('g') > -1) {
-                        modeGlobal = true;
-                        optionGroup = optionGroup.replaceFirst("g", "");
+                    if (optionGroup != null) {
+                        if (optionGroup.indexOf(';') > -1) {
+                            modeExecute = true;
+                            optionGroup = optionGroup.replaceFirst(";", "");
+                        }
+                        if (optionGroup.indexOf('g') > -1) {
+                            modeGlobal = true;
+                            optionGroup = optionGroup.replaceFirst("g", "");
+                        }
                     }
 
-                    Matcher bufferMatcher = Pattern.compile("(?sm"
+                    Matcher bufferMatcher = Pattern.compile("(?s"
                             + ((optionGroup == null) ? "" : optionGroup)
                             + ')' + m.group(2)).matcher(buffer);
                     String newBuffer = (modeGlobal
@@ -1268,7 +1277,7 @@ public class SqlFile {
             throw new BadSpecial("Malformatted special command:  "
                     + inString);
         }
-        if (m.groupCount() != 2) {
+        if (m.groupCount() < 1 || m.groupCount() > 2) {
             // Failed assertion
             throw new RuntimeException(
                     "Pattern matched, yet captured " + m.groupCount()
@@ -1276,7 +1285,7 @@ public class SqlFile {
         }
 
         String arg1 = m.group(1);
-        String other = m.group(2);
+        String other = ((m.groupCount() > 1) ? m.group(2) : null);
 
         switch (arg1.charAt(0)) {
             case 'q' :
@@ -1783,7 +1792,7 @@ public class SqlFile {
         if (!m.matches()) {
             throw new BadSpecial("Malformatted PL command:  " + inString);
         }
-        if (m.groupCount() < 1) {
+        if (m.groupCount() < 1 || m.group(1) == null) {
             plMode = true;
             stdprintln("PL variable expansion mode is now on");
             return;
@@ -2118,7 +2127,7 @@ public class SqlFile {
             throw new BadSpecial("Malformatted PL var set command:  "
                     + inString);
         }
-        if (m.groupCount() != 3) {
+        if (m.groupCount() < 2 || m.groupCount() > 3) {
             // Assertion
             throw new RuntimeException("varset patter matched but captured "
                     + m.groupCount() + " groups");
@@ -2134,7 +2143,7 @@ public class SqlFile {
             case '_' :
                 silentFetch = true;
             case '~' :
-                if (m.group(3) != null) {
+                if (m.groupCount() > 2 && m.group(3) != null) {
                     throw new BadSpecial(
                         "PL ~/_ set commands take no other args ("
                         + m.group(3) + ')');
@@ -2152,7 +2161,7 @@ public class SqlFile {
                     fetchingVar = null;
                 }
 
-                if (m.group(3) != null) {
+                if (m.groupCount() > 2 && m.group(3) != null) {
                     userVars.put(varName, m.group(3));
                     updateUserSettings();
                 } else {
@@ -2220,7 +2229,7 @@ public class SqlFile {
             curLinenum++;
 
             m = plPattern.matcher(s);
-            if (m.matches() && m.groupCount() > 0) {
+            if (m.matches() && m.groupCount() > 0 && m.group(1) != null) {
                 String[] tokens = m.group(1).split("\\s+");
                 curPlCommand = tokens[0];
 
