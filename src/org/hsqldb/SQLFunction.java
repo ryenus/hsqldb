@@ -976,12 +976,11 @@ public class SQLFunction extends Expression {
         }
     }
 
-    public void resolveTypes(Session session,
-                             Expression expression) throws HsqlException {
+    public void resolveTypes(Expression parent) throws HsqlException {
 
         for (int i = 0; i < argList.length; i++) {
             if (argList[i] != null) {
-                argList[i].resolveTypes(session, this);
+                argList[i].resolveTypes(this);
             }
         }
 

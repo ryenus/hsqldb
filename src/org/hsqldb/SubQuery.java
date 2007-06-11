@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.navigator.DataRowSetNavigator;
 import org.hsqldb.result.Result;
+import org.hsqldb.HsqlNameManager.HsqlName;
 
 /**
  * Represents an SQL view or anonymous subquery (inline virtual table
@@ -47,16 +48,18 @@ import org.hsqldb.result.Result;
  */
 class SubQuery implements ObjectComparator {
 
-    int     level;
-    boolean isCorrelated;
-    boolean isExistsPredicate;
-    boolean uniqueRows;
-    Select  select;
-    Table   table;
-    View    parentView;
+    int      level;
+    boolean  isCorrelated;
+    boolean  isExistsPredicate;
+    boolean  uniqueRows;
+    Select   select;
+    Database database;
+    Table    table;
+    View     view;
+    View     parentView;
 
     // IN condition optimisation
-    Expression owner;
+    Expression dataExpression;
 
     SubQuery() {}
 
@@ -69,35 +72,60 @@ class SubQuery implements ObjectComparator {
         this.isExistsPredicate = isExists;
         this.uniqueRows        = uniqueRows;
         this.select            = select;
+        this.database          = database;
+        this.view              = view;
+
+        HsqlName name;
 
         if (view == null) {
-            this.table = TableUtil.newSubqueryTable(database);
+            name = database.nameManager.newSubqueryTableName();
         } else {
-            this.table = new Table(database, view.getName(),
-                                   Table.SYSTEM_SUBQUERY);
+            name = view.getName();
         }
 
-        TableUtil.setTableColumns(this.table, select, uniqueRows);
+        table = new Table(database, name, Table.SYSTEM_SUBQUERY);
+
+        if (!isCorrelated) {
+            resolveAndPrepare();
+        }
     }
 
     SubQuery(Database database, int level,
-             boolean isCorrelated, Expression owner) throws HsqlException {
+             Expression dataExpression) throws HsqlException {
 
-        this.level = level;
-        this.isCorrelated      = isCorrelated;
-        this.owner = owner;
-        owner.subQuery = this;
+        this.level              = level;
+        this.isCorrelated       = false;
+        this.dataExpression     = dataExpression;
+        dataExpression.subQuery = this;
+        table                   = TableUtil.newSubqueryTable(database);
 
-        this.table = TableUtil.newSubqueryTable(database);
+        TableUtil.setTableColumnsAsExpression(table, dataExpression,
+                                              uniqueRows);
+    }
 
-        TableUtil.setTableColumnsAsExpression(this.table, owner, uniqueRows);
+    public void resolveAndPrepare() throws HsqlException {
+
+        if (table == null) {
+            return;
+        }
+
+        if (select != null) {
+            select.resolveTypesAndPrepare();
+        }
+
+        if (table.columnCount == 0) {
+            TableUtil.setTableColumns(table, select, uniqueRows);
+        }
     }
 
     void setAsInSubquery(Expression e) throws HsqlException {
 
-        TableUtil.setTableColumnsAsExpression(table, e, false);
+        dataExpression = e;
+        table          = TableUtil.newSubqueryTable(database);
 
-        owner        = e;
+        TableUtil.setTableColumnsAsExpression(table, dataExpression,
+                                              uniqueRows);
+
         isCorrelated = false;
     }
 
@@ -107,12 +135,10 @@ class SubQuery implements ObjectComparator {
     void materialise(Session session) throws HsqlException {
 
         //IN condition optimisation and table constructors
-        if (select == null) {
-            if (table != null) {
-                owner.insertValuesIntoSubqueryTable(session);
+        if (dataExpression != null) {
+            dataExpression.insertValuesIntoSubqueryTable(session);
 
-                return;
-            }
+            return;
         }
 
         Result r = select.getResult(session, isExistsPredicate ? 1
@@ -185,11 +211,13 @@ class SubQuery implements ObjectComparator {
             int      ib = db.schemaManager.getTableIndex(sqb.parentView);
 
             if (ia == -1) {
-                ia = db.schemaManager.getTables(sqa.parentView.getSchemaName().name).size();
+                ia = db.schemaManager.getTables(
+                    sqa.parentView.getSchemaName().name).size();
             }
 
             if (ib == -1) {
-                ib = db.schemaManager.getTables(sqb.parentView.getSchemaName().name).size();
+                ib = db.schemaManager.getTables(
+                    sqb.parentView.getSchemaName().name).size();
             }
 
             int diff = ia - ib;

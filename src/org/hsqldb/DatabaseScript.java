@@ -758,7 +758,7 @@ public class DatabaseScript {
                     break;
 
                 case Constraint.CHECK :
-                    if (c.isNotNull) {
+                    if (c.isNotNull()) {
                         break;
                     }
 

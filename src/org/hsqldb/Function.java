@@ -491,7 +491,7 @@ public class Function extends Expression {
      * Resolves the type of this expression and performs certain
      * transformations and optimisations of the expression tree.
      */
-    public void resolveTypes(Session session,
+    public void resolveTypes(
                              Expression parent) throws HsqlException {
 
         for (int i = iSqlArgStart; i < iArgCount; i++) {
@@ -504,7 +504,7 @@ public class Function extends Expression {
                     e.nullability    = getArgNullability(i);
                     e.valueClassName = getArgClass(i).getName();
                 } else {
-                    e.resolveTypes(session, this);
+                    e.resolveTypes(this);
                 }
             }
         }

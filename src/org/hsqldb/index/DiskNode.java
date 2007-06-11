@@ -69,7 +69,6 @@ package org.hsqldb.index;
 import java.io.IOException;
 
 import org.hsqldb.CachedRow;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.Trace;
 import org.hsqldb.lib.IntLookup;
@@ -97,15 +96,14 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public class DiskNode extends Node {
 
-    protected Row    rData;
-    private int      iLeft   = NO_POS;
-    private int      iRight  = NO_POS;
-    private int      iParent = NO_POS;
-    private int      iId;    // id of Index object for this Node
+    protected Row           rData;
+    private int             iLeft   = NO_POS;
+    private int             iRight  = NO_POS;
+    private int             iParent = NO_POS;
+    private int             iId;    // id of Index object for this Node
     public static final int SIZE_IN_BYTE = 4 * 4;
 
-    DiskNode(CachedRow r, RowInputInterface in,
-             int id) throws IOException, HsqlException {
+    DiskNode(CachedRow r, RowInputInterface in, int id) throws IOException {
 
         iId      = id;
         rData    = r;
@@ -126,15 +124,6 @@ public class DiskNode extends Node {
 
         if (iParent <= 0) {
             iParent = NO_POS;
-        }
-
-        if (Trace.DOASSERT) {
-
-            // fredt - assert not correct - row can be deleted from one index but
-            // not yet deleted from other indexes while the process of finding
-            // the node is in progress which may require saving the row
-            // to make way for new rows in the cache and loading it back
-            // Trace.doAssert(iBalance != -2);
         }
     }
 
@@ -157,7 +146,7 @@ public class DiskNode extends Node {
         return NO_POS;
     }
 
-    Row getRow() throws HsqlException {
+    Row getRow() {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(rData != null);
@@ -166,7 +155,7 @@ public class DiskNode extends Node {
         return rData;
     }
 
-    private Node findNode(int pos) throws HsqlException {
+    private Node findNode(int pos) {
 
         Node ret = null;
         Row  r   = ((CachedRow) rData).getTable().getRow(pos);
@@ -178,7 +167,7 @@ public class DiskNode extends Node {
         return ret;
     }
 
-    boolean isLeft(Node node) throws HsqlException {
+    boolean isLeft(Node node) {
 
         if (node == null) {
             return iLeft == NO_POS;
@@ -187,7 +176,7 @@ public class DiskNode extends Node {
         return iLeft == ((DiskNode) node).getKey();
     }
 
-    boolean isRight(Node node) throws HsqlException {
+    boolean isRight(Node node) {
 
         if (node == null) {
             return iRight == NO_POS;
@@ -196,7 +185,7 @@ public class DiskNode extends Node {
         return iRight == ((DiskNode) node).getKey();
     }
 
-    Node getLeft() throws HsqlException {
+    Node getLeft() {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);
@@ -209,7 +198,7 @@ public class DiskNode extends Node {
         return findNode(iLeft);
     }
 
-    Node getRight() throws HsqlException {
+    Node getRight() {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);
@@ -222,7 +211,7 @@ public class DiskNode extends Node {
         return findNode(iRight);
     }
 
-    Node getParent() throws HsqlException {
+    Node getParent() {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);
@@ -239,7 +228,7 @@ public class DiskNode extends Node {
         return iParent == Node.NO_POS;
     }
 
-    boolean isFromLeft() throws HsqlException {
+    boolean isFromLeft() {
 
         if (this.isRoot()) {
             return true;
@@ -254,7 +243,7 @@ public class DiskNode extends Node {
         return getKey() == parent.iLeft;
     }
 
-    Object[] getData() throws HsqlException {
+    Object[] getData() {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);
@@ -263,7 +252,7 @@ public class DiskNode extends Node {
         return rData.getData();
     }
 
-    void setParent(Node n) throws HsqlException {
+    void setParent(Node n) {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);
@@ -275,7 +264,7 @@ public class DiskNode extends Node {
                             : n.getKey();
     }
 
-    void setBalance(int b) throws HsqlException {
+    void setBalance(int b) {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);
@@ -288,7 +277,7 @@ public class DiskNode extends Node {
         }
     }
 
-    void setLeft(Node n) throws HsqlException {
+    void setLeft(Node n) {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);
@@ -300,7 +289,7 @@ public class DiskNode extends Node {
                           : n.getKey();
     }
 
-    void setRight(Node n) throws HsqlException {
+    void setRight(Node n) {
 
         if (Trace.DOASSERT) {
             Trace.doAssert(iBalance != -2);
@@ -342,8 +331,7 @@ public class DiskNode extends Node {
             }
         }
 */
-        return this == n
-               || (n != null && getKey() == ((DiskNode) n).getKey());
+        return this == n || (n != null && getKey() == ((DiskNode) n).getKey());
     }
 
     public void write(RowOutputInterface out) throws IOException {
@@ -366,7 +354,7 @@ public class DiskNode extends Node {
                                          : iParent);
     }
 
-    Node getUpdatedNode() throws HsqlException {
+    Node getUpdatedNode() {
 
         Row row = rData.getUpdatedRow();
 

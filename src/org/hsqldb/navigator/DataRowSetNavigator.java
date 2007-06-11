@@ -179,7 +179,7 @@ public class DataRowSetNavigator extends RowSetNavigator {
         HsqlName indexName = database.nameManager.newAutoName("IDX_T",
             table.getSchemaName(), table.getName(), SchemaObject.INDEX);
 
-        fullIndex = table.createIndex(session, fullCols, null, indexName,
+        fullIndex = table.createIndex(fullCols, null, indexName,
                                       false, false, false);
         mainIndex = fullIndex;
     }
@@ -200,9 +200,9 @@ public class DataRowSetNavigator extends RowSetNavigator {
             }
 
             HsqlName indexName = database.nameManager.newAutoName("IDX_T",
-                table.getSchemaName() , table.getName(), SchemaObject.INDEX);
+                table.getSchemaName(), table.getName(), SchemaObject.INDEX);
 
-            orderIndex = table.createIndex(session, select.sortOrder,
+            orderIndex = table.createIndex(select.sortOrder,
                                            orderDesc, indexName, false, false,
                                            false);
         } else {
@@ -279,12 +279,7 @@ public class DataRowSetNavigator extends RowSetNavigator {
 
         super.reset();
 
-        try {
-            iterator = mainIndex.firstRow(session);
-        } catch (HsqlException e) {
-
-            // todo
-        }
+        iterator = mainIndex.firstRow(session);
     }
 
     public void close() {

@@ -376,7 +376,7 @@ public class Select {
         }
 
         if (areColumnsResolved()) {
-            resolveTypesAndPrepare(session);
+            resolveTypesAndPrepare();
         }
     }
 
@@ -515,12 +515,12 @@ public class Select {
      *
      * @throws HsqlException
      */
-    void resolveTypes(Session session) throws HsqlException {
+    void resolveTypes() throws HsqlException {
 
         for (int i = 0; i < orderByLimitIndex; i++) {
             Expression e = exprColumns[i];
 
-            e.resolveTypes(session, null);
+            e.resolveTypes(null);
 
             if (e.exprType == Expression.ROW) {
                 throw Trace.error(Trace.WRONG_DATA_TYPE);
@@ -531,14 +531,14 @@ public class Select {
             Expression e = rangeVariables[i].nonIndexJoinCondition;
 
             if (e != null) {
-                e.resolveTypes(session, null);
+                e.resolveTypes(null);
             }
         }
 
         if (queryCondition != null) {
             Expression e = queryCondition;
 
-            e.resolveTypes(session, null);
+            e.resolveTypes(null);
         }
     }
 
@@ -576,14 +576,14 @@ public class Select {
         return unresolvedSet;
     }
 
-    private void setRangeVariableConditions(Session session)
+    private void setRangeVariableConditions()
     throws HsqlException {
 
         RangeVariableResolver rangeResolver =
             new RangeVariableResolver(rangeVariables, queryCondition,
                                       compileContext);
 
-        rangeResolver.processConditions(session);
+        rangeResolver.processConditions();
 
         rangeVariables = rangeResolver.rangeVariables;
         queryCondition = null;
@@ -593,21 +593,21 @@ public class Select {
      * Resolves expressions and pepares the metadata for the result.
      * Called externally.
      */
-    void resolveTypesAndPrepare(Session session) throws HsqlException {
+    void resolveTypesAndPrepare() throws HsqlException {
 
         if (isResolved) {
             return;
         }
 
         if (unionArray == null) {
-            resolveTypes(session);
-            setRangeVariableConditions(session);
+            resolveTypes();
+            setRangeVariableConditions();
             checkConflicts();
             setResultMetaData();
         } else {
             for (int i = 0; i < unionArray.length; i++) {
-                unionArray[i].resolveTypes(session);
-                unionArray[i].setRangeVariableConditions(session);
+                unionArray[i].resolveTypes();
+                unionArray[i].setRangeVariableConditions();
             }
 
             resolveUnionColumnTypes();

@@ -106,6 +106,7 @@ public class HsqlNameManager {
         return hsqlName;
     }
 
+    //
     public HsqlName newHsqlName(String name, boolean isquoted, int type) {
         return new HsqlName(this, name, isquoted, type);
     }
@@ -127,6 +128,19 @@ public class HsqlNameManager {
 
         hsqlName.schema = schema;
         hsqlName.parent = parent;
+
+        return hsqlName;
+    }
+
+    /**
+     * Same name string but different objects and serial number
+     */
+    public HsqlName newSubqueryTableName() {
+
+        HsqlName hsqlName = new HsqlName(this, "SYSTEM_SUBQUERY", false,
+                                         SchemaObject.TABLE);
+
+        hsqlName.schema = SchemaManager.SYSTEM_SCHEMA_HSQLNAME;
 
         return hsqlName;
     }

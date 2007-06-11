@@ -661,8 +661,8 @@ public class DDLParser extends Parser {
                             c.getName().name, table.getSchemaName(),
                             table.getName(), SchemaObject.INDEX);
 
-                    Index index = table.createIndex(session, c.core.mainCols,
-                                                    null, indexName, true,
+                    Index index = table.createAndAddIndexStructure(c.core.mainCols,
+                                                    indexName, true,
                                                     true, false);
                     Constraint newconstraint = new Constraint(c.getName(),
                         table, index, Constraint.UNIQUE);
@@ -699,8 +699,8 @@ public class DDLParser extends Parser {
                                                          table.getSchemaName(),
                                                          table.getName(),
                                                          SchemaObject.INDEX);
-                    Index index = table.createIndex(session, c.core.refCols,
-                                                    null, refIndexName, false,
+                    Index index = table.createAndAddIndexStructure(c.core.refCols,
+                                                    refIndexName, false,
                                                     true, isForward);
                     HsqlName mainName = database.nameManager.newAutoName("REF",
                         c.getName().name, table.getSchemaName(),
@@ -722,10 +722,10 @@ public class DDLParser extends Parser {
                     break;
                 }
                 case Constraint.CHECK : {
-                    c.prepareCheckConstraint(session, table);
+                    c.prepareCheckConstraint(session, table, false);
                     table.addConstraint(c);
 
-                    if (c.isNotNull) {
+                    if (c.isNotNull()) {
                         Column column = table.getColumn(c.notNullColumnIndex);
 
                         column.setNullable(false);
@@ -939,8 +939,7 @@ public class DDLParser extends Parser {
             defaultClause = readDefaultClause(predefinedType);
         }
 
-        domain = new DomainType(name, predefinedType, new Constraint[0],
-                                defaultClause);
+        domain = new DomainType(name, predefinedType, defaultClause);
 
         HsqlArrayList tempConstraints = new HsqlArrayList();
 
@@ -984,6 +983,8 @@ public class DDLParser extends Parser {
         readThis(Token.AS);
 
         Type         predefinedType = readTypeDefinition(false);
+
+        readIfThis(Token.FINAL);
         DistinctType userType       = new DistinctType(name, predefinedType);
 
         // create the type
@@ -2102,7 +2103,7 @@ public class DDLParser extends Parser {
                 throw Trace.error(Trace.WRONG_DEFAULT_CLAUSE, tokenString);
         }
 
-        e.resolveTypes(session, null);
+        e.resolveTypes(null);
         e.getValue(session, dataType);
 
         return e;

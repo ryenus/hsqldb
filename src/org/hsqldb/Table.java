@@ -501,7 +501,7 @@ public class Table extends BaseTable implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.isNotNull && c.notNullColumnIndex == colIndex) {
+            if (c.isNotNull() && c.notNullColumnIndex == colIndex) {
                 return c;
             }
         }
@@ -927,7 +927,7 @@ public class Table extends BaseTable implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.constType == Constraint.CHECK && !c.isNotNull
+            if (c.constType == Constraint.CHECK && !c.isNotNull()
                     && c.hasColumn(colIndex)) {
                 HsqlName name = c.getName();
 
@@ -1275,10 +1275,7 @@ public class Table extends BaseTable implements SchemaObject {
         Column column = getColumn(columnIndex);
 
         column.setDefaultExpression(def);
-
-        colDefaults[columnIndex] = column.getDefaultExpression();
-
-        resetDefaultsFlag();
+        setColumnTypeVars(columnIndex);
     }
 
     /**
@@ -1300,14 +1297,13 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      *  Used to create an index automatically for system tables or subqueries.
      */
-    Index createIndexForColumns(Session session, int[] columns) {
+    Index createIndexForColumns(int[] columns) {
 
         try {
             HsqlName indexName = database.nameManager.newAutoName("IDX_T",
                 getSchemaName(), getName(), SchemaObject.INDEX);
 
-            return createIndex(session, columns, null, indexName, false,
-                               false, false);
+            return createIndex(columns, null, indexName, false, false, false);
         } catch (Exception e) {}
 
         return null;
@@ -1316,13 +1312,13 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      *  Finds an existing index for a column group
      */
-    Index getIndexForColumn(Session session, int col) {
+    Index getIndexForColumn(int col) {
 
         int i = bestIndexForColumn[col];
 
         if (i == 1 && (tableType == Table.SYSTEM_SUBQUERY
                        || tableType == Table.SYSTEM_TABLE)) {
-            return createIndexForColumns(session, new int[]{ col });
+            return createIndexForColumns(new int[]{ col });
         }
 
         return i == -1 ? null
@@ -1332,13 +1328,13 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      *  Finds an existing index for a column group
      */
-    Index getIndexForColumns(Session session, int[] cols) {
+    Index getIndexForColumns(int[] cols) {
 
         int i = bestIndexForColumn[cols[0]];
 
         if (i == 1 && (tableType == Table.SYSTEM_SUBQUERY
                        || tableType == Table.SYSTEM_TABLE)) {
-            return createIndexForColumns(session, cols);
+            return createIndexForColumns(cols);
         }
 
         return i == -1 ? null
@@ -1353,7 +1349,7 @@ public class Table extends BaseTable implements SchemaObject {
      * Finds an existing index for a column set or create one for temporary
      * tables
      */
-    Index getIndexForColumns(Session session, OrderedIntHashSet set) {
+    Index getIndexForColumns(OrderedIntHashSet set) {
 
         int   maxMatchCount = 0;
         Index selected      = null;
@@ -1384,7 +1380,7 @@ public class Table extends BaseTable implements SchemaObject {
         if (selected == null
                 && (tableType == Table.SYSTEM_SUBQUERY
                     || tableType == Table.SYSTEM_TABLE)) {
-            return createIndexForColumns(session, set.toArray());
+            return createIndexForColumns(set.toArray());
         }
 
         return selected;
@@ -1583,6 +1579,8 @@ public class Table extends BaseTable implements SchemaObject {
         }
 
         colDefaults[i] = column.getDefaultExpression();
+
+        resetDefaultsFlag();
     }
 
     void createPrimaryIndex(int[] pkcols, HsqlName name) {
@@ -1596,14 +1594,24 @@ public class Table extends BaseTable implements SchemaObject {
     /**
      *  Create new memory-resident index. For MEMORY and TEXT tables.
      */
-    public Index createIndex(Session session, int[] columns,
-                             boolean[] descending, HsqlName name,
-                             boolean unique, boolean constraint,
+    public Index createIndex(int[] columns, boolean[] descending,
+                             HsqlName name, boolean unique,
+                             boolean constraint,
                              boolean forward) throws HsqlException {
 
         int newindexNo = createIndexStructureGetNo(columns, descending, name,
             unique, constraint, forward);
-        Index         newindex     = indexList[newindexNo];
+        Index newIndex = indexList[newindexNo];
+
+        insertIndexNodes(newIndex, newindexNo);
+
+        return newIndex;
+    }
+
+    private void insertIndexNodes(Index newIndex,
+                                  int newindexNo) throws HsqlException {
+
+        Session       session      = null;
         Index         primaryindex = getPrimaryIndex();
         RowIterator   it           = primaryindex.firstRow(session);
         int           rowCount     = 0;
@@ -1621,10 +1629,10 @@ public class Table extends BaseTable implements SchemaObject {
                 // count before inserting
                 rowCount++;
 
-                newindex.insert(session, row, newindexNo);
+                newIndex.insert(session, row, newindexNo);
             }
 
-            return newindex;
+            return;
         } catch (java.lang.OutOfMemoryError e) {
             error = Trace.error(Trace.OUT_OF_MEMORY);
         } catch (HsqlException e) {
@@ -1660,7 +1668,7 @@ public class Table extends BaseTable implements SchemaObject {
      */
     Index createAndAddIndexStructure(int[] columns, HsqlName name,
                                      boolean unique, boolean constraint,
-                                     boolean forward) throws HsqlException {
+                                     boolean forward) {
 
         int i = createIndexStructureGetNo(columns, null, name, unique,
                                           constraint, forward);
@@ -1670,8 +1678,7 @@ public class Table extends BaseTable implements SchemaObject {
 
     int createIndexStructureGetNo(int[] columns, boolean[] descending,
                                   HsqlName name, boolean unique,
-                                  boolean constraint,
-                                  boolean forward) throws HsqlException {
+                                  boolean constraint, boolean forward) {
 
         Index newindex = createIndexStructure(columns, descending, name,
                                               unique, constraint, forward);
@@ -2768,7 +2775,7 @@ public class Table extends BaseTable implements SchemaObject {
         for (int j = 0; j < constraintList.length; j++) {
             Constraint c = constraintList[j];
 
-            if (c.getType() == Constraint.CHECK && !c.isNotNull) {
+            if (c.getType() == Constraint.CHECK && !c.isNotNull()) {
                 c.checkCheckConstraint(session, this, data);
             }
         }
@@ -2868,15 +2875,14 @@ public class Table extends BaseTable implements SchemaObject {
 
         for (int i = 0; i < colTypes.length; i++) {
             if (colTypes[i].isDomainType() || colTypes[i].isDistinctType()) {
-                if ( name == ((SchemaObject) colTypes[i]).getName()) {
+                if (name == ((SchemaObject) colTypes[i]).getName()) {
                     Type baseType = colTypes[i].getParentType();
+
                     getColumn(i).setType(baseType);
                     setColumnTypeVars(i);
                 }
             }
         }
-
-
     }
 
     /**
@@ -2908,7 +2914,7 @@ public class Table extends BaseTable implements SchemaObject {
      *  TEXT tables pass the memory resident Node parameter so that the Row
      *  and its index Nodes can be relinked.
      */
-    public CachedRow getRow(int pos, Node primarynode) throws HsqlException {
+    public CachedRow getRow(int pos, Node primarynode) {
 
         if (isText) {
             CachedDataRow row = (CachedDataRow) rowStore.get(pos);

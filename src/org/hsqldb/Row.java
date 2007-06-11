@@ -158,7 +158,7 @@ public class Row implements CachedObject {
      * rows need to be loaded into the Cache. getUpdatedRow() returns a
      * currently valid Row object that is in the Cache.
      */
-    public Row getUpdatedRow() throws HsqlException {
+    public Row getUpdatedRow() {
         return this;
     }
 

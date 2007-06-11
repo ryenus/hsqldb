@@ -338,9 +338,13 @@ public class Index implements SchemaObject {
                               : root.getKey();
     }
 
-    private Node getRoot(Session session) throws HsqlException {
+    private Node getRoot(Session session) {
 
         if (isTemp) {
+            if (session == null) {
+                return null;
+            }
+
             return session.sessionData.getIndexRoot(name, onCommitPreserve);
         } else {
             return root == null ? root
@@ -1096,7 +1100,7 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    public RowIterator firstRow(Session session) throws HsqlException {
+    public RowIterator firstRow(Session session) {
 
         depth = 0;
 

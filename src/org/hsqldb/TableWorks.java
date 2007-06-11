@@ -340,10 +340,10 @@ public class TableWorks {
                     break;
                 }
                 case Constraint.CHECK :
-                    c.prepareCheckConstraint(session, table);
+                    c.prepareCheckConstraint(session, table, false);
                     table.addConstraint(c);
 
-                    if (c.isNotNull) {
+                    if (c.isNotNull()) {
                         column.setNullable(false);
                         table.setColumnTypeVars(colIndex);
                     }
@@ -457,7 +457,7 @@ public class TableWorks {
         Index newindex;
 
         if (table.isEmpty(session) || table.isIndexingMutable()) {
-            newindex = table.createIndex(session, col, null, name, unique,
+            newindex = table.createIndex(col, null, name, unique,
                                          false, false);
 
             database.schemaManager.clearTempTables(session, table);
@@ -547,10 +547,10 @@ public class TableWorks {
     void addCheckConstraint(Constraint c) throws HsqlException {
 
         database.schemaManager.checkSchemaObjectNotExists(c.getName());
-        c.prepareCheckConstraint(session, table);
+        c.prepareCheckConstraint(session, table, true);
         table.addConstraint(c);
 
-        if (c.isNotNull) {
+        if (c.isNotNull()) {
             Column column = table.getColumn(c.notNullColumnIndex);
 
             column.setNullable(false);
@@ -829,7 +829,7 @@ public class TableWorks {
                 database.schemaManager.removeSchemaObject(
                     constraint.getName());
 
-                if (constraint.isNotNull) {
+                if (constraint.isNotNull()) {
                     Column column =
                         table.getColumn(constraint.notNullColumnIndex);
 
@@ -1053,17 +1053,6 @@ public class TableWorks {
             table.checkColumnInFKConstraint(colIndex, Constraint.SET_NULL);
             removeColumnNotNullConstraints(colIndex);
         } else {
-            RowIterator it = table.getPrimaryIndex().firstRow(session);
-
-            while (it.hasNext()) {
-                Row    row = it.getNext();
-                Object o   = row.getData()[colIndex];
-
-                if (o == null) {
-                    throw Trace.error(Trace.TRY_TO_INSERT_NULL);
-                }
-            }
-
             HsqlName constName = database.nameManager.newAutoName("CT",
                 table.getSchemaName(), table.getName(),
                 SchemaObject.CONSTRAINT);
@@ -1071,7 +1060,7 @@ public class TableWorks {
             c       = new Constraint(constName, null, Constraint.CHECK);
             c.check = new Expression(column);
 
-            c.prepareCheckConstraint(session, table);
+            c.prepareCheckConstraint(session, table, true);
             column.setNullable(false);
             table.addConstraint(c);
             table.setColumnTypeVars(colIndex);
@@ -1197,7 +1186,7 @@ public class TableWorks {
         for (int i = table.constraintList.length - 1; i >= 0; i--) {
             Constraint c = table.constraintList[i];
 
-            if (c.isNotNull) {
+            if (c.isNotNull()) {
                 if (c.notNullColumnIndex == colIndex) {
                     database.schemaManager.removeSchemaObject(c.getName());
                 }
