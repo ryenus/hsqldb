@@ -60,14 +60,19 @@ import java.util.Properties;
 public class SqlToolSprayer {
 
     public static String LS = System.getProperty("line.separator");
-    private static final String SYNTAX_MSG =
-        "SYNTAX:  java [-D...] SqlToolSprayer 'SQL;' [urlid1 urlid2...]" + LS
-        + "System properties you may use [default values]:" + LS
-        + "    sqltoolsprayer.period (in ms.) [500]" + LS
-        + "    sqltoolsprayer.maxtime (in ms.) [0]" + LS
-        + "    sqltoolsprayer.monfile (filepath) [none]" + LS
+    private static String SYNTAX_MSG =
+        "SYNTAX:  java [-D...] SqlToolSprayer 'SQL;' [urlid1 urlid2...]\n"
+        + "System properties you may use [default values]:\n"
+        + "    sqltoolsprayer.period (in ms.) [500]\n"
+        + "    sqltoolsprayer.maxtime (in ms.) [0]\n"
+        + "    sqltoolsprayer.monfile (filepath) [none]\n"
         + "    sqltoolsprayer.rcfile (filepath) [none.  SqlTool default used.]"
-        + LS + "    sqltoolsprayer.propfile (filepath) [none]";
+        + "\n    sqltoolsprayer.propfile (filepath) [none]";
+    static {
+        if (!LS.equals("\n")) {
+            SYNTAX_MSG = SYNTAX_MSG.replaceAll("\n", LS);
+        }
+    }
 
     public static void main(String[] sa) {
 
