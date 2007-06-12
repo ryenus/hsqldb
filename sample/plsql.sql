@@ -5,11 +5,12 @@
  * example by Yu-May Chang, Jeff Ullman, Prof. Jennifer Widom at
  * the Standord University Database Group's page
  * http://www-db.stanford.edu/~ullman/fcdb/oracle/or-plsql.html .
- * I have only removed some blank lines (because you can't use blank
+ * I have only removed some blank lines (in case somebody wants to
+ * copy this code interactively-- because you can't use blank
  * lines inside of SQL commands in non-raw mode SqlTool when running
  * it interactively); and, at the bottom I have  replaced the
  * client-specific, non-standard command "run;" with SqlTool's
- * corresponding command ":;" and added a plain SQL SELECT command
+ * corresponding command ".;" and added a plain SQL SELECT command
  * to show whether the PL/SQL code worked.  - Blaine
  */
 
@@ -39,14 +40,12 @@ BEGIN
 
 END;
 
-.
-
-/**************************************************************************/
-/* Remaining SqlTool-specific code added by Blaine Simpson of the 
- * HSQLDB Development Group.
+.;
+/** The statement on the previous line, ".;" is SqlTool specific.
+ *  This command says to save the input up to this point to the
+ *  edit buffer and send it to the database server for execution.
+ *  I added the SELECT statement below to give imm
  */
-
-:;
 
 /* This should show 3 rows, one containing values 4 and 2 (in this order)...*/
 SELECT * FROM t1;
