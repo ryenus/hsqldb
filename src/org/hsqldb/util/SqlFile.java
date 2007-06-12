@@ -159,7 +159,7 @@ public class SqlFile {
             Pattern.compile("\\s*\\*\\s*\\S+\\s*\\(([^)]*)\\)\\s*");
     private static Pattern   varsetPattern   =
             Pattern.compile("\\s*\\*\\s*(\\S+)\\s*([=_~])\\s*(?:(.*\\S)\\s*)?");
-    private static Pattern   switchPattern   =
+    private static Pattern   substitutionPattern   =
             Pattern.compile("\\s*s(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
             // Note that this pattern does not include the leading :.
     private static Pattern wincmdPattern = null;
@@ -295,13 +295,15 @@ public class SqlFile {
         + "                            ';' suffix means to execute the command too.\n"
         + "    :;                Execute current buffer (special, PL, or SQL command)\n"
         + "    :a[text]          Enter append mode with a copy of the buffer\n"
-        + "    :s/from/to/       Substitute \"to\" for first occurrence of \"from\"\n"
-        + "    :s/from/to/[igm;] Substitute \"to\" for occurrence(s) of \"from\"\n"
-        + "                from:  Meaning of ^ and $ depend on the m option (see below)\n"
+        + "    :s/from regex/to/ Substitute match of \"from regex\" with \"to\"\n"
+        + "    :s/from/to/[igm;] One or multiple Substitutions with specified options\n"
+        + "                from:  Standard regexp.  See 'perlre' man page or\n"
+        + "                       Java API spec for java.util.regex.Pattern.\n"
         + "                to:    If empty, from's will be deleted (e.g. \":s/x//\").\n"
         + "                [igm;] Options work exactly as in Perl or java.util.regex,\n"
-        + "                       Except ; means to execute after substitution,\n"
-        + "                       and g means Global (multiple) substitutions.\n"
+        + "                       except ; means to execute after substitution,\n"
+        + "                       g means Global (multiple) substitutions,\n"
+        + "                       and option 's' is always on.\n"
         + "                /:     Can actually be any character which occurs in\n"
         + "                       neither \"to\" string nor \"from\" string.\n"
         + "                SUBSTITUTION MODE SWITCHES:\n"
@@ -984,10 +986,10 @@ public class SqlFile {
     /**
      * Utility nested Exception class for internal use only.
      */
-    private class BadSwitch extends Exception {
+    private class BadSubst extends Exception {
         static final long serialVersionUID = 7325933736897253269L;
 
-        BadSwitch(String s) {
+        BadSubst(String s) {
             super(s);
         }
     }
@@ -1161,22 +1163,22 @@ public class SqlFile {
 
                 try {
                     if (other == null || other.length() < 3) {
-                        throw new BadSwitch("Malformatted switch command");
+                        throw new BadSubst("Malformatted substitution command");
                     }
                     char delim = other.charAt(0);
-                    Matcher m = switchPattern.matcher(inString);
+                    Matcher m = substitutionPattern.matcher(inString);
                     if (buffer == null) {
                         stdprintln("No buffer yet");
                         return;
                     }
                     if (!m.matches()) {
-                        throw new BadSwitch("Malformatted switch command");
+                        throw new BadSubst("Malformatted substitution command");
                     }
 
                     // Note that this pattern does not include the leading :.
                     if (m.groupCount() < 3 || m.groupCount() > 4) {
                         // Assertion failed
-                        throw new RuntimeException("Matched switch pattern, "
+                        throw new RuntimeException("Matched substitution pattern, "
                             + "but captured " + m.groupCount() + " groups");
                     }
                     String optionGroup = (
@@ -1215,13 +1217,12 @@ public class SqlFile {
                     }
                 } catch (PatternSyntaxException pse) {
                     throw new BadSpecial(
-                        "Substitution syntax:  \":s/from this/to that/i;g\".  "
-                        + "Use '$' for line separations.", pse);
-                } catch (BadSwitch badswitch) {
-                    throw new BadSpecial(
-                        "Substitution syntax:  \":s/from this/to that/i;g\".  "
-                        + "Use '$' for line separations.  ["
-                        + badswitch.getMessage() + ']');
+                        "Substitution syntax:  \":s/from regex/to string/igm;\".  ",
+                        pse);
+                } catch (BadSubst badswitch) {
+                    throw new BadSpecial(badswitch.getMessage()
+                            + LS + "Substitution syntax:  \":s/from "
+                            + "regex/to string/igm;\".");
                 }
 
                 if (modeExecute) {
