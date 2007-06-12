@@ -11,3 +11,8 @@ q-arg*.nsql       Tests for failure status "\q arg..." exits.
 noop.sql          Does nothing (exit status should be success).
 goodsqlonly.sql   Executes some successful SQL.
 badsqlonly.nsql   Executes some bad SQL.
+logic.sql         Conditional expression tests.
+nq-noarg*.sql     Test for success status \q exits, in nested script.
+nq-arg*.nsql      Tests for failure status "\q arg..." exits, in nested script.
+plcontrolflow.sql Test of PL control flow commands like if, foreach, etc.
+rawmode.sql       Test of raw input mode.
