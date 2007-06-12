@@ -162,6 +162,13 @@ public class SqlFile {
     private static Pattern   switchPattern   =
             Pattern.compile("\\s*s(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
             // Note that this pattern does not include the leading :.
+    private static Pattern wincmdPattern = null;
+
+    static {
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            wincmdPattern = Pattern.compile("([^\"]+)?(\"[^\"]*\")?");
+        }
+    }
     // This can throw a runtime exception, but since the pattern
     // Strings are constant, one test run of the program will tell 
     // if the patterns are good.
@@ -1608,17 +1615,35 @@ public class SqlFile {
                 return;
 
             case '!' :
+                // N.b. This DOES NOT HANDLE UNIX shell wildcards, since there
+                // is no UNIX shell involved.
+                // Doesn't make sense to incur overhead of a shell without
+                // stdin capability.
+                // Can't provide stdin to the executed program because
+                // the forked program could gobble up program input,
+                // depending on how SqlTool was invoked, nested scripts,
+                // etc.
+                
+                // I'd like to execute the user's default shell if they
+                // ran "\!" with no argument, but (a) there is no portable
+                // way to determine the user's default or login shell; and
+                // (b) shell is useless without stdin ability.
                 InputStream stream;
                 byte[]      ba         = new byte[1024];
-                String      extCommand = ((arg1.length() == 1) ? ""
-                                                               : arg1.substring(1)) + ((arg1.length() > 1 && other != null)
-                                                                   ? " "
-                                                                   : "") + ((other == null)
-                                                                       ? ""
-                                                                       : other);
+                String      extCommand = ((arg1.length() == 1)
+                        ? "" : arg1.substring(1))
+                    + ((arg1.length() > 1 && other != null)
+                       ? " " : "") + ((other == null) ? "" : other);
+                if (extCommand.trim().length() < 1)
+                    throw new BadSpecial(
+                        "You must follow ! with the external command to run");
 
                 try {
-                    Process proc = Runtime.getRuntime().exec(extCommand);
+                    Runtime runtime = Runtime.getRuntime();
+                    Process proc = ((wincmdPattern == null)
+                            ? runtime.exec(extCommand)
+                            : runtime.exec(genWinArgs(extCommand))
+                    );
 
                     proc.getOutputStream().close();
 
@@ -1644,6 +1669,8 @@ public class SqlFile {
                         throw new BadSpecial("External command failed: '"
                                              + extCommand + "'");
                     }
+                } catch (BadSpecial bs) {
+                    throw bs;
                 } catch (Exception e) {
                     throw new BadSpecial("Failed to execute external command '"
                                          + extCommand + "'", e);
@@ -4681,5 +4708,31 @@ public class SqlFile {
 
     public static void appendLine(StringBuffer sb, String s) {
         sb.append(s + LS);
+    }
+
+    /**
+     * Does a poor-man's parse of a MSDOS command line and parses it
+     * into a WIndows cmd.exe invocation to approximate.
+     */
+    static private String[] genWinArgs(String monolithic) {
+        List list = new ArrayList();
+        list.add("cmd.exe");
+        list.add("/y");
+        list.add("/c");
+        Matcher m = wincmdPattern.matcher(monolithic);
+        String[] internalTokens;
+        while (m.find()) {
+            for (int i = 1; i <= m.groupCount(); i++) {
+                if (m.group(i) == null) continue;
+                if (m.group(i).length() > 1 && m.group(i).charAt(0) == '"') {
+                    list.add(m.group(i).substring(1, m.group(i).length() - 1));
+                    continue;
+                }
+                internalTokens = m.group(i).split("\\s+");
+                for (int j = 0; j < internalTokens.length; j++)
+                    list.add(internalTokens[j]);
+            }
+        }
+        return (String[]) list.toArray(new String[] {});
     }
 }
