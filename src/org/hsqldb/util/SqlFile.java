@@ -3410,18 +3410,25 @@ public class SqlFile {
                     + "or a negative number meaning X commands 'back'");
         }
         if (index > 0) {
+            // Positive command# given
             index -= oldestHist;
-            if (history.size() <= index) {
-                throw new BadSpecial("History only goes back to command #"
+            if (index < 0) {
+                throw new BadSpecial("History only goes back to #"
                         + oldestHist);
             }
-            return (String) history.get(index);
+            if (index >= history.size()) {
+                throw new BadSpecial("History only goes up to #"
+                        + (history.size() + oldestHist - 1));
+            }
+        } else {
+            // Negative command# given
+            index += history.size();
+            if (index < 0) {
+                throw new BadSpecial("History only goes back "
+                        + history.size() + " commands");
+            }
         }
-        if (-index >= history.size()) {
-            throw new BadSpecial("History only goes back " + history.size()
-                                 + " commands");
-        }
-        return (String) history.get(history.size() + index);
+        return (String) history.get(index);
     }
 
     private void setBuf(String newContent) {
@@ -3444,7 +3451,7 @@ public class SqlFile {
             return;
         }
         history.add(buffer);
-        if (history.size() < maxHistoryLength) {
+        if (history.size() <= maxHistoryLength) {
             return;
         }
         history.remove(0);
