@@ -71,8 +71,8 @@ final class RangeVariable {
     Expression nonIndexWhereCondition;
 
     //
-    boolean              isOuterJoin;             // table joined with OUTER JOIN
-    boolean              isFullJoin;              // table joined with FULL OUTER JOIN
+    boolean              isLeftJoin;              // table joined with LEFT / FULL OUTER JOIN
+    boolean              isRightJoin;             // table joined with RIGHT / FULL OUTER JOIN
     boolean              isMultiFindFirst;        // findFirst() uses multi-column index
     private Expression[] findFirstExpressions;    // expressions for column values
     private int          multiColumnCount;
@@ -103,8 +103,8 @@ final class RangeVariable {
     }
 
     void setJoinType(boolean outer, boolean full) throws HsqlException {
-        isOuterJoin = outer;
-        isFullJoin  = full;
+        isLeftJoin  = outer;
+        isRightJoin = full;
     }
 
     public void addNamedJoinColumns(OrderedHashSet columns) {
@@ -433,7 +433,7 @@ final class RangeVariable {
                                                           .name);
         sb.append(hidden ? "[HIDDEN]]\n"
                          : "]\n");
-        sb.append("isOuterJoin=[").append(isOuterJoin).append("]\n");
+        sb.append("isOuterJoin=[").append(isLeftJoin).append("]\n");
 
         temp = indexCondition == null ? "null"
                                       : indexCondition.describe(session);
@@ -441,8 +441,7 @@ final class RangeVariable {
         sb.append("eStart=[").append(temp).append("]\n");
 
         temp = indexEndCondition == null ? "null"
-                                         : indexEndCondition.describe(
-                                             session);
+                                         : indexEndCondition.describe(session);
 
         sb.append("eEnd=[").append(temp).append("]\n");
 
@@ -507,14 +506,13 @@ final class RangeVariable {
 
         RangeIterator() {}
 
-        public RangeIterator(Session session,
-                             RangeVariable rangeVar) {
+        public RangeIterator(Session session, RangeVariable rangeVar) {
 
             this.session  = session;
             this.rangeVar = rangeVar;
             isBeforeFirst = true;
 
-            if (rangeVar.isFullJoin) {
+            if (rangeVar.isRightJoin) {
                 lookupTable = TableUtil.newLookupTable(session.database);
             }
         }
@@ -559,7 +557,7 @@ final class RangeVariable {
          */
         protected void initialiseIterator() throws HsqlException {
 
-            hasOuterRow = rangeVar.isOuterJoin;
+            hasOuterRow = rangeVar.isLeftJoin;
 
             if (rangeVar.isMultiFindFirst) {
                 getFirstRowMulti();
@@ -588,12 +586,11 @@ final class RangeVariable {
          */
         private void getFirstRow() throws HsqlException {
 
-            Object value =
-                rangeVar.indexCondition.getArg2().getValue(session);
-            Type valueType  = rangeVar.indexCondition.getArg2().getDataType();
-            Type targetType = rangeVar.indexCondition.getArg().getDataType();
-            int  exprType   = rangeVar.indexCondition.getType();
-            int  range      = 0;
+            Object value = rangeVar.indexCondition.getArg2().getValue(session);
+            Type   valueType = rangeVar.indexCondition.getArg2().getDataType();
+            Type   targetType = rangeVar.indexCondition.getArg().getDataType();
+            int    exprType   = rangeVar.indexCondition.getType();
+            int    range      = 0;
 
             if (targetType != valueType) {
                 range = targetType.compareToTypeRange(value);
@@ -691,7 +688,7 @@ final class RangeVariable {
                 currentData = currentRow.getData();
 
                 if (rangeVar.indexEndCondition != null
-                        &&!rangeVar.indexEndCondition.testCondition(
+                        && !rangeVar.indexEndCondition.testCondition(
                             session)) {
                     if (!rangeVar.isJoinIndex) {
                         hasOuterRow = false;
@@ -701,13 +698,13 @@ final class RangeVariable {
                 }
 
                 if (rangeVar.nonIndexJoinCondition != null
-                        &&!rangeVar.nonIndexJoinCondition.testCondition(
+                        && !rangeVar.nonIndexJoinCondition.testCondition(
                             session)) {
                     continue;
                 }
 
                 if (rangeVar.nonIndexWhereCondition != null
-                        &&!rangeVar.nonIndexWhereCondition.testCondition(
+                        && !rangeVar.nonIndexWhereCondition.testCondition(
                             session)) {
                     hasOuterRow = false;
 
@@ -745,12 +742,11 @@ final class RangeVariable {
 
         private void addFoundRow() throws HsqlException {
 
-            if (rangeVar.isFullJoin) {
+            if (rangeVar.isRightJoin) {
                 try {
                     lookupTable.insertRow(
                         session,
-                        new Object[]{
-                            ValuePool.getInt(currentRow.getPos()) });
+                        new Object[]{ ValuePool.getInt(currentRow.getPos()) });
                 } catch (HsqlException e) {}
             }
         }
@@ -794,14 +790,15 @@ final class RangeVariable {
                 lookupIterator.release();
 
                 if (result) {
+                    currentData = currentRow.getData();
+
                     if (rangeVar.nonIndexWhereCondition != null
-                            &&!rangeVar.nonIndexWhereCondition.testCondition(
+                            && !rangeVar.nonIndexWhereCondition.testCondition(
                                 session)) {
                         continue;
                     }
 
                     isBeforeFirst = false;
-                    currentData   = currentRow.getData();
 
                     return true;
                 }

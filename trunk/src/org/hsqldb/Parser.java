@@ -113,8 +113,9 @@ import org.hsqldb.types.TypedData;
 /**
  * Responsible for parsing non-DDL statements.
  *
- * Based on Parser.java in HypersonicSQL.<p>
- * Extensively rewritten and extended in successive versions of HSQLDB.
+ * Fully rewritten for versions 1.8.0 and 1.9.0. With a small portion based on
+ * Parser.java in HypersonicSQL.<p>
+ *
  *
  * Rewrite in version 1.9.0.<p>
  *
@@ -656,7 +657,6 @@ class Parser extends BaseParser {
         boolean       natural = false;
         RangeVariable range   = readTableOrSubquery();
 
-        // parse table list
         select.addRangeVariable(range);
 
         while (true) {
@@ -726,7 +726,7 @@ class Parser extends BaseParser {
                     readIfThis(Token.OUTER);
                     readThis(Token.JOIN);
 
-                    outer = true;
+                    full = true;
                     break;
 
                 case Token.FULL :
@@ -855,29 +855,13 @@ class Parser extends BaseParser {
 
                         range.addNamedJoinColumns(columns);
 
-                        if (type == Token.RIGHT) {
-                            select.addRangeVariable(range, true);
-
-                            range =
-                                (RangeVariable) select.rangeVariableList.get(
-                                    1);
-                        } else {
-                            select.addRangeVariable(range);
-                        }
+                        select.addRangeVariable(range);
                     } else if (tokenType == Token.ON) {
                         read();
 
                         condition = readOr();
 
-                        if (type == Token.RIGHT) {
-                            select.addRangeVariable(range, true);
-
-                            range =
-                                (RangeVariable) select.rangeVariableList.get(
-                                    1);
-                        } else {
-                            select.addRangeVariable(range);
-                        }
+                        select.addRangeVariable(range);
 
                         select.resolveColumnReferences(condition);
                         select.checkColumnsResolved();
@@ -1954,16 +1938,15 @@ class Parser extends BaseParser {
                 return readCastExpression();
 
             case Token.DATE :
-                return readDateExpression();
-
             case Token.TIME :
-                return readTimeExpression();
-
             case Token.TIMESTAMP :
-                return readTimestampExpression();
-
             case Token.INTERVAL :
-                return readIntervalExpression();
+                e = readDateTimeIntervalExpression();
+
+                if (e != null) {
+                    return e;
+                }
+                break;
 
             case Token.COUNT :
             case Token.MAX :
@@ -1982,9 +1965,9 @@ class Parser extends BaseParser {
                 if (isCoreReservedKey || isSpecial) {
                     throw unexpectedToken();
                 }
-
-                return readColumnOrFunctionExpression();
         }
+
+        return readColumnOrFunctionExpression();
     }
 
     Expression readValueExpression() throws HsqlException {
@@ -2266,73 +2249,55 @@ class Parser extends BaseParser {
         return e;
     }
 
-    Expression readDateExpression() throws HsqlException {
+    Expression readDateTimeIntervalExpression() throws HsqlException {
 
-        read();
+        int typeId = tokenType;
+        int pos    = getPosition();
 
-        Expression e = readTerm();
+        try {
+            readQuotedString();
+        } catch (HsqlException e) {
+            rewind(pos);
 
-        if (e.getType() == Expression.VALUE
-                && e.getDataType().type == Types.SQL_CHAR) {
-            String s    = (String) e.getValue(null);
-            Object date = HsqlDateTime.dateValue(s);
-
-            return new Expression(date, DateTimeType.SQL_DATE);
+            return null;
         }
-
-        throw unexpectedToken();
-    }
-
-    Expression readTimeExpression() throws HsqlException {
-
-        read();
-
-        Expression e = readTerm();
-
-        if (e.getType() == Expression.VALUE
-                && e.getDataType().type == Types.SQL_CHAR) {
-            String    s    = (String) e.getValue(null);
-            TypedData data = DateTimeType.newTime(s);
-
-            return new Expression(data.value, data.type);
-        }
-
-        throw unexpectedToken();
-    }
-
-    Expression readTimestampExpression() throws HsqlException {
-
-        read();
-
-        Expression e = readTerm();
-
-        if (e.getType() == Expression.VALUE
-                && e.getDataType().type == Types.SQL_CHAR) {
-            String s     = (String) e.getValue(null);
-            Object date  = HsqlDateTime.timestampValue(s);
-            int    scale = DateTimeType.getScale(s);
-            Type type = DateTimeType.getDateTimeType(Types.SQL_TIMESTAMP,
-                scale);
-
-            return new Expression(date, type);
-        }
-
-        throw unexpectedToken();
-    }
-
-    Expression readIntervalExpression() throws HsqlException {
-
-        readQuotedString();
 
         String s = tokenString;
 
         read();
 
-        IntervalType type = readIntervalType();
-        Object       o    = type.newInterval(s);
+        switch (typeId) {
 
-        return new Expression(o, type);
+            case Token.DATE : {
+                Object date = HsqlDateTime.dateValue(s);
+
+                return new Expression(date, DateTimeType.SQL_DATE);
+            }
+            case Token.TIME : {
+                TypedData data = DateTimeType.newTime(s);
+
+                return new Expression(data.value, data.type);
+            }
+            case Token.TIMESTAMP : {
+                Object date  = HsqlDateTime.timestampValue(s);
+                int    scale = DateTimeType.getScale(s);
+                Type type = DateTimeType.getDateTimeType(Types.SQL_TIMESTAMP,
+                    scale);
+
+                return new Expression(date, type);
+            }
+            case Token.INTERVAL : {
+                IntervalType type     = readIntervalType();
+                Object       interval = type.newInterval(s);
+
+                return new Expression(interval, type);
+            }
+            default :
+                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                                         "Parser");
+        }
     }
+
 
     IntervalType readPossibleIntervalType() throws HsqlException {
 

@@ -336,7 +336,7 @@ public class DateTimeType extends DateTimeIntervalType {
                 switch (this.type) {
 
                     case Types.SQL_DATE :
-                        a = HsqlDateTime.dateValue((String) a);
+                        a = newDate((String) a).value;
 
                         return convertToTypeLimits(a);
 
@@ -346,7 +346,7 @@ public class DateTimeType extends DateTimeIntervalType {
                         return convertToTypeLimits(a);
 
                     case Types.SQL_TIMESTAMP :
-                        a = HsqlDateTime.timestampValue((String) a);
+                        a = newTimestamp((String) a).value;
 
                         return convertToTypeLimits(a);
                 }
@@ -868,6 +868,31 @@ public class DateTimeType extends DateTimeIntervalType {
             ts.setNanos(nanos);
 
             return ts;
+        }
+    }
+
+    public static TypedData newDate(String s) throws HsqlException {
+
+        try {
+            Date date = HsqlDateTime.dateValue(s);
+
+            return new TypedData(date, Type.SQL_DATE);
+        } catch (Throwable e) {
+            throw Trace.error(Trace.INVALID_CONVERSION);
+        }
+    }
+
+    /**
+     * todo - misses nano fractions
+     */
+    public static TypedData newTimestamp(String s) throws HsqlException {
+
+        try {
+            Timestamp timestamp = HsqlDateTime.timestampValue(s);
+
+            return new TypedData(timestamp, Type.SQL_TIMESTAMP);
+        } catch (Throwable e) {
+            throw Trace.error(Trace.INVALID_CONVERSION);
         }
     }
 
