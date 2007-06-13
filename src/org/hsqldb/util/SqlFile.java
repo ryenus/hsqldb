@@ -273,17 +273,20 @@ public class SqlFile {
         + "Distribution is permitted under the terms of the HSQLDB license.\n"
         + "(c) 2004-2007 Blaine Simpson and the HSQLDB Development Group.\n\n"
         + "    \\q    to Quit.\n    \\?    lists Special Commands.\n"
-        + "    :?    lists Buffer/Editing commands.\n"
+        + "    :?    lists Edit-Buffer/History commands.\n"
         + "    *?    lists PL commands (including alias commands).\n\n"
         + "SPECIAL Commands begin with '\\' and execute when you hit ENTER.\n"
-        + "BUFFER Commands begin with ':' and execute when you hit ENTER.\n"
+        + "EDIT BUFFER / HISTORY Commands begin with ':' and execute when you hit ENTER.\n"
         + "COMMENTS begin with '/*' and end with the very next '*/'.\n"
         + "PROCEDURAL LANGUAGE commands begin with '*' and end when you hit ENTER.\n"
         + "All other lines comprise SQL Statements.\n"
         + "  SQL Statements are terminated by either a blank line (which moves the\n"
         + "  statement into the buffer without executing) or a line ending with ';'\n"
         + "  (which executes the statement).\n"
-        + "  SQL Statements may begin with '/PLVARNAME' and/or contain *{PLVARNAME}s.\n";
+        + "  SQL Commands may begin with '/PLVARNAME' for a PL variable command alias.\n"
+        + "After turning on variable expansion with command \"*\" (or any other PL\n"
+        + "command), PL variables may be used in any command (other than : commands)\n"
+        + "like so: *{PLVARNAME}.\n";
     private static String BUFFER_HELP_TEXT =
         "Edit Buffer and History Commands.  Not available for non-interactive use.\n"
         + "    :?                edit buffer / history Help\n"
