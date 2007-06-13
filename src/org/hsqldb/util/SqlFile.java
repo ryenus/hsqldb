@@ -274,7 +274,7 @@ public class SqlFile {
         + "(c) 2004-2007 Blaine Simpson and the HSQLDB Development Group.\n\n"
         + "    \\q    to Quit.\n    \\?    lists Special Commands.\n"
         + "    :?    lists Edit-Buffer/History commands.\n"
-        + "    *?    lists PL commands (including alias commands).\n\n"
+        + "    *?    lists PL commands.\n\n"
         + "SPECIAL Commands begin with '\\' and execute when you hit ENTER.\n"
         + "EDIT BUFFER / HISTORY Commands begin with ':' and execute when you hit ENTER.\n"
         + "COMMENTS begin with '/*' and end with the very next '*/'.\n"
