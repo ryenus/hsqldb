@@ -164,38 +164,6 @@ public class Select {
         rangeVariableList.add(rangeVar);
     }
 
-    void addRangeVariable(RangeVariable rangeVar, boolean right) {
-
-        if (rangeSequence != null) {
-            ArrayUtil.resizeArray(rangeSequence, rangeSequence.length + 1);
-        }
-
-        if (right) {
-            if (rangeSequence == null) {
-                rangeSequence = new int[rangeVariableList.size() + 1];
-
-                ArrayUtil.fillSequence(rangeSequence);
-            }
-
-            for (int i = 0; i < rangeSequence.length; i++) {
-                rangeSequence[i]++;
-            }
-
-            rangeSequence[rangeSequence.length - 1] = 0;
-
-            HsqlArrayList newList = new HsqlArrayList();
-
-            newList.add(rangeVar);
-            newList.addAll(rangeVariableList);
-
-            rangeVariableList = newList;
-        } else {
-            rangeVariableList.add(rangeVar);
-
-            rangeSequence[rangeSequence.length - 1] = rangeSequence.length - 1;
-        }
-    }
-
     void finaliseRangeVariables() {
 
         if (rangeVariables == null
@@ -203,6 +171,11 @@ public class Select {
             rangeVariables = new RangeVariable[rangeVariableList.size()];
 
             rangeVariableList.toArray(rangeVariables);
+/*
+            rangeSequence = new int[rangeVariables.length];
+
+            ArrayUtil.fillSequence(rangeSequence);
+*/
         }
     }
 
@@ -317,16 +290,8 @@ public class Select {
 
         HsqlArrayList currentColumnList = new HsqlArrayList();
 
-        if (rangeSequence == null) {
-            for (int i = 0; i < rangeVariables.length; i++) {
-                rangeVariables[i].addTableColumns(currentColumnList);
-            }
-        } else {
-            for (int i = 0; i < rangeVariables.length; i++) {
-                int j = rangeSequence[i];
-
-                rangeVariables[j].addTableColumns(currentColumnList);
-            }
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVariables[i].addTableColumns(currentColumnList);
         }
 
         for (int i = 0; i < currentColumnList.size(); i++) {
@@ -576,8 +541,7 @@ public class Select {
         return unresolvedSet;
     }
 
-    private void setRangeVariableConditions()
-    throws HsqlException {
+    private void setRangeVariableConditions() throws HsqlException {
 
         RangeVariableResolver rangeResolver =
             new RangeVariableResolver(rangeVariables, queryCondition,
@@ -1184,7 +1148,7 @@ public class Select {
 
                 for (int i = fullJoinIndex + 1; i < rangeVariables.length;
                         i++) {
-                    if (rangeVariables[i].isFullJoin) {
+                    if (rangeVariables[i].isRightJoin) {
                         rangeIterators[i] = rangeVariables[i].getFullIterator(
                             session, rangeIterators[i]);
                         fullJoinIndex = i;
@@ -1339,14 +1303,10 @@ public class Select {
         sb.append(Token.T_FROM);
 
         for (int i = 0; i < rangeVariables.length; i++) {
-
-            // find out if any expression in any of the rangeVar isInJoin then use this form
             RangeVariable rangeVar = rangeVariables[i];
 
-            // if any expression isInJoin
             if (i != 0) {
-                if (rangeVar.isOuterJoin) {
-                    sb.append(Token.T_FROM).append(' ');
+                if (rangeVar.isLeftJoin || rangeVariables[i].isRightJoin) {
                     sb.append(Token.T_OUTER).append(' ');
                     sb.append(Token.T_JOIN).append(' ');
                 }

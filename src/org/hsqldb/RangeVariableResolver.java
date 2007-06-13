@@ -87,7 +87,7 @@ public class RangeVariableResolver {
 
             rangeVarSet.add(range);
 
-            if (range.isOuterJoin) {
+            if (range.isLeftJoin || range.isRightJoin) {
                 hasOuterJoin = true;
             }
         }
@@ -202,7 +202,7 @@ public class RangeVariableResolver {
         int lastOuterIndex = -1;
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            if (rangeVariables[i].isOuterJoin) {
+            if (rangeVariables[i].isLeftJoin || rangeVariables[i].isRightJoin) {
                 lastOuterIndex = i;
             }
 
@@ -327,7 +327,7 @@ public class RangeVariableResolver {
     void assignToRangeVariables() throws HsqlException {
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            if (rangeVariables[i].isOuterJoin) {
+            if (rangeVariables[i].isLeftJoin || rangeVariables[i].isRightJoin) {
                 assignToRangeVariable(rangeVariables[i], i,
                                       joinExpressions[i], true);
                 assignToRangeVariable(rangeVariables[i], i,
@@ -340,7 +340,7 @@ public class RangeVariableResolver {
 
             if (rangeVariables[i].hasIndexCondition
                     && inExpressions[i] != null) {
-                if (!flags[i] && rangeVariables[i].isOuterJoin) {
+                if (!flags[i] && (rangeVariables[i].isLeftJoin || rangeVariables[i].isRightJoin)) {
                     rangeVariables[i].addWhereCondition(inExpressions[i]);
                 } else {
                     rangeVariables[i].addJoinCondition(inExpressions[i]);
@@ -568,7 +568,7 @@ public class RangeVariableResolver {
     void processFullJoins() {
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            if (rangeVariables[i].isFullJoin) {}
+            if (rangeVariables[i].isRightJoin) {}
         }
     }
 }

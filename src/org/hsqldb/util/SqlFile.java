@@ -35,9 +35,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -53,12 +53,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -170,7 +169,7 @@ public class SqlFile {
         }
     }
     // This can throw a runtime exception, but since the pattern
-    // Strings are constant, one test run of the program will tell 
+    // Strings are constant, one test run of the program will tell
     // if the patterns are good.
 
     /**
@@ -1627,7 +1626,7 @@ public class SqlFile {
                 // the forked program could gobble up program input,
                 // depending on how SqlTool was invoked, nested scripts,
                 // etc.
-                
+
                 // I'd like to execute the user's default shell if they
                 // ran "\!" with no argument, but (a) there is no portable
                 // way to determine the user's default or login shell; and
