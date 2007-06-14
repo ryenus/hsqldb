@@ -39,7 +39,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.SchemaManager;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 
@@ -203,7 +202,7 @@ public class jdbcDriver implements Driver {
      *          reasons.</li>
      *  </ul> <p>
      *
-     *  From version 1.8.x, <code>strict_md</code> is deprecated (ignored)
+     *  From version 1.8.0.x, <code>strict_md</code> is deprecated (ignored)
      *  because metadata reporting is always strict (JDBC-compliant), and
      *  three new optional properties are supported: <p>
      *
@@ -267,6 +266,9 @@ public class jdbcDriver implements Driver {
      * @return a <code>Connection</code> object that represents a
      *      connection to the URL
      */
+//#ifdef JDBC4
+    @SuppressWarnings("deprecation")
+//#endif JDBC
     public static Connection getConnection(String url,
                                            Properties info)
                                            throws SQLException {
