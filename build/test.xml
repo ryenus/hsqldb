@@ -225,7 +225,7 @@
       <junit showoutput="true" 
              fork="false"
              failureproperty="tests.failed" 
-             errorproperty="tests.failed">
+             errorproperty="tests.failed" >
           <batchtest todir="${test.results.dir}">
               <fileset dir="${test.src.dir}" 
                        includes="**/*Test.java"/>
@@ -233,6 +233,7 @@
           <classpath>
               <pathelement location="${test.results.dir}/resources"/>
               <path path="${hsqldb.jar}"/>
+              <path path="${junit.jar}"/>
               <path path="${test.suite.jar}"/>
           </classpath>
           <syspropertyset id="test.suite.system.properties">
