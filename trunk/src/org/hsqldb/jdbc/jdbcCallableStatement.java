@@ -1027,7 +1027,6 @@ implements CallableStatement {
      *
      * Retrieves the value of the designated JDBC <code>BLOB</code> parameter as a
      * {@link java.sql.Blob} object in the Java programming language.
-     * @param parameterIndex the first parameter is 1, the second is 2, and so on
      *
      * <!-- end generic documentation -->
      *
@@ -3072,6 +3071,9 @@ implements CallableStatement {
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //TODO: How to use CodeSwitcher and +JDBC4 to specifiy Map<String,Class<?>> ?
+//#ifdef JDBC4
+    @SuppressWarnings("unchecked")
+//#endif JDBC4
 //#ifdef JDBC3
     public Object getObject(String parameterName,
                             Map map) throws SQLException {
@@ -4426,7 +4428,7 @@ implements CallableStatement {
      *
      * @param  c the connection on which this statement will execute
      * @param sql the SQL statement this object represents
-     * @param type the type of result this statement will produce
+     * @param resultSetType the type of result this statement will produce
      * @throws HsqlException if the statement is not accepted by the database
      * @throws SQLException if preprocessing by driver fails
      */
