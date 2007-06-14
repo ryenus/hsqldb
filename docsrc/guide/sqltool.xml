@@ -2601,6 +2601,9 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
     simpleitemdef:itemdef_name|maxvalue|weight|-|-|maxhp
     }</programlisting>
         </example>
+            I'll just note that the prefixes for the header rows must be of
+            format target-table-name + :.
+            You can use * for target-table-name here, for the obvious purpose.
         <example>
             <title>DSV targettable setting</title>
             <programlisting>
