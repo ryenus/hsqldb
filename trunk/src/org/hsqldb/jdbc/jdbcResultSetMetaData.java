@@ -908,6 +908,7 @@ public class jdbcResultSetMetaData implements ResultSetMetaData {
      * @since JDK 1.6, HSQLDB 1.8.x
      */
 //#ifdef JDBC4
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
         if (isWrapperFor(iface)) {
             return (T) this;
