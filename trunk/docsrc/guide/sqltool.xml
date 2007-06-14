@@ -2582,7 +2582,35 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 Run the command "\x?" or "\m?" to see the several system PL 
                 variables which you can set to adjust reject file behavior,
                 commenting behavior, and other DSV features.
-            </simpara>
+            </simpara> <para>
+                You can also define some settings right in the DSV file,
+                and you can even specify multiple header lines in a single
+                DSV file.
+                I use this last feature to import data from one data set
+                into multple tables that are joined.
+                Since I don't have any more time to dedicate to explaining
+                all of these features, I'll give you some examples from 
+                working DSV files and let you take it from there.
+        <example>
+            <title>Sample DSV headerswitch settings</title>
+            <programlisting>
+    # RCS keyword was here.
+
+    headerswitch{
+    itemdef:name|-|-|hardness|breakdc|-
+    simpleitemdef:itemdef_name|maxvalue|weight|-|-|maxhp
+    }</programlisting>
+        </example>
+        <example>
+            <title>DSV targettable setting</title>
+            <programlisting>
+    targettable=t</programlisting>
+        </example>
+                This last example is from the SqlTool unit test file 
+                <filename>dsv-trimming.dsv</filename>.
+                These special commands must be at the top of the file
+                (before any normal data or header lines).
+            </para>
         </section>
     </section>
 
