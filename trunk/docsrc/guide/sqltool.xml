@@ -1096,7 +1096,8 @@ java org.hsqldb.util.SqlTool urlid</screen>
                 Example
                 <informalexample><screen>
     :s@from string@to string@</screen>
-                </informalexample></para><simpara>
+                </informalexample></para>
+                <simpara>
                 The <emphasis>to string </emphasis> is substituted for the first 
                 occurrence of the (case-specific)
                 <emphasis>from string</emphasis>.
@@ -1110,6 +1111,7 @@ java org.hsqldb.util.SqlTool urlid</screen>
                 <ulink url='http://http://java.sun.com/javase/6/docs/api/java/util/regex/Pattern.html'>java.util.regex.Pattern</ulink>
                 API Spec for everything you need to know about extended
                 regular expressions.
+                </simpara>
                 <simpara>
                 Don't end a <emphasis>to</emphasis> string with ";" in attempt
                 to make a command execute.
@@ -1210,7 +1212,6 @@ java org.hsqldb.util.SqlTool urlid</screen>
             <informalexample><programlisting>
     \p  *{?}</programlisting></informalexample>
           </para>
-        </section>
         <simpara>
             Note that PL commands are used to upload and download column
             values to/from local ASCII files, but the corresponding actions 
