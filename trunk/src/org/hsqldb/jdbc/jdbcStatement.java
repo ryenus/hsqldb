@@ -1188,10 +1188,11 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * Up to and including 1.8.0.x, HSQLDB does not support this feature; calling this method
+     * always throws an <code>SQLException</code> stating that the function is
+     * not supported. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>,
-     * stating that the function is not supported.
+     * TODO: resolve for 1.9.0
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1273,7 +1274,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 1.9.0.x
+     * Starting with 1.9.0, HSQLDB supports this feature.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1334,8 +1335,8 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 1.9.0.x <p>
-     * Supported only for single INSERT statements.
+     * Starting with 1.9.0, HSQLDB supports this feature. <p>
+     * CHECKME: Supported only for single-row INSERT statements.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1389,7 +1390,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 1.9.0.x
+     * Starting with 1.9.0, HSQLDB supports this feature.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1455,7 +1456,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 1.9.0.x
+     * Starting with 1.9.0, HSQLDB supports this feature.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1528,10 +1529,8 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * Starting with 1.9.0, HSQLDB supports this feature.
      *
-     * Calling this method always throws an <code>SQLException</code>,
-     * stating that the function is not supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1596,10 +1595,8 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not yet support this feature. <p>
+     * Starting with 1.9.0, HSQLDB supports this feature.
      *
-     * Calling this method always throws an <code>SQLException</code>,
-     * stating that the function is not supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1670,9 +1667,9 @@ public class jdbcStatement extends StatementBase implements Statement {
      * method close has been called on it, or if it is automatically closed.
      * @return true if this <code>Statement</code> object is closed; false if it is still open
      * @throws SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
-    public synchronized boolean isClosed() {
+    public synchronized boolean isClosed() throws SQLException {
         return isClosed;
     }
 
@@ -1699,7 +1696,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * @throws SQLException if this method is called on a closed
      * <code>Statement</code>
      * <p>
-     * @since JDK 1.6 Build 81, HSQLDB 1.8.x
+     * @since JDK 1.6 Build 81, HSQLDB 1.9.0
      */
 
 //#ifdef JDBC4
@@ -1719,7 +1716,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * @throws SQLException if this method is called on a closed
      * <code>Statement</code>
      * <p>
-     * @since JDK 1.6 Build 81, HSQLDB 1.8.x
+     * @since JDK 1.6 Build 81, HSQLDB 1.9.0
      * <p>
      * @see #setPoolable(boolean) setPoolable(boolean)
      */
@@ -1747,10 +1744,11 @@ public class jdbcStatement extends StatementBase implements Statement {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
 
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> iface) throws java.sql.SQLException {
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -1774,7 +1772,7 @@ public class jdbcStatement extends StatementBase implements Statement {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
     public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
