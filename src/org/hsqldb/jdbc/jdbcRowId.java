@@ -114,7 +114,7 @@ public final class jdbcRowId implements RowId {
      */
     public boolean equals(Object obj) {
         return (obj instanceof jdbcRowId)
-            && Arrays.equals((byte[])this.id, (byte[])((jdbcRowId)obj).id);
+            && Arrays.equals(this.id, ((jdbcRowId)obj).id);
     }
 
     /**
@@ -126,7 +126,7 @@ public final class jdbcRowId implements RowId {
      *     java.sql.RowId object.
      */
      public byte[] getBytes() {
-         return (byte[]) id.clone();
+         return id.clone();
      }
 
      /**
@@ -165,7 +165,6 @@ public final class jdbcRowId implements RowId {
 
     private final byte[] id;
     private int          hash;
-    private String       str;
 
     /**
      * Constructs a new jdbcRowid instance wrapping the given octet sequence. <p>
@@ -200,6 +199,14 @@ public final class jdbcRowId implements RowId {
         this(id.getBytes());
     }
 
+    /**
+     * Constructs a new jdbcRowId instance whose internal octet sequence is
+     * is that represented by the given hexidecimal character sequence. <p>
+     * @param hex the hexadecimal character sequence from which to derive 
+     *        the internal octet sequence
+     * @throws java.sql.SQLException if the argument is null or is not a valid
+     *         hexadecimal character sequence
+     */
     public jdbcRowId(final String hex) throws SQLException {
         if (hex == null) {
             throw Util.nullArgument("hex");
@@ -213,6 +220,11 @@ public final class jdbcRowId implements RowId {
         }
     }
 
+     /**
+      * Direct access to id bytes for subclassing.
+      * 
+      * @return direct reference to id bytes.
+      */
      protected Object id() {
          return id;
      }
