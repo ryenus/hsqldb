@@ -372,6 +372,7 @@ public class Trace {
     NOT_AUTHORIZED                   = 255,
     CANNOT_CONNECT_TABLE             = 256,
     GENERIC_WARNING                  = 257,
+    FEATURE_NOT_SUPPORTED            = 258,
 
     //
     OLB_JRT_SPECIFIC_ERROR_NO_SUBCLASS         = 1256,
