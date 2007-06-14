@@ -37,7 +37,6 @@ import java.sql.ResultSet;
 
 //#ifdef JDBC4
 import java.sql.RowIdLifetime;
-import java.sql.Wrapper;
 
 //#endif JDBC4
 import java.sql.SQLException;
@@ -1713,7 +1712,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.8.0, HSQLDB provides support for schemas.
+     * Starting with 1.8.0, HSQLDB supports schemas.
      * </div>
      * <!-- end release-specific documentation -->
      * @return the vendor term for "schema"
@@ -1770,7 +1769,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * When allowed, a catalog appears at the start of a fully qualified 
+     * When allowed, a catalog appears at the start of a fully qualified
      * table name; this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2379,11 +2378,12 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB did not impose a "known" limit.  The hard limit
-     * was the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
-     * this method always returned <code>0</code>. <p>
+     * Up to and including 1.8.0.x, HSQLDB did not impose a "known" limit.  The
+     * hard limit was the maximum length of a java.lang.String
+     * (java.lang.Integer.MAX_VALUE); this method always returned
+     * <code>0</code>. <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for
      * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2553,11 +2553,12 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB did not impose a "known" limit.  The hard limit
-     * was the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
-     * this method always returned <code>0</code>.
+     * Up to and including 1.8.0.x, HSQLDB did not impose a "known" limit.  The
+     * hard limit was the maximum length of a java.lang.String
+     * (java.lang.Integer.MAX_VALUE); this method always returned
+     * <code>0</code>.
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for
      * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2605,7 +2606,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * 1.8.0 supports schema names with no known limit imposed,
      * so this method always returns <code>0</code>. <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for
      * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2626,11 +2627,12 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0, HSQLDB does not impose a "known" limit.  The hard limit
-     * is the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
-     * this method always returns <code>0</code>. <p>
+     * Up to and including 1.8.0, HSQLDB does not impose a "known" limit.  The
+     * hard limit is the maximum length of a java.lang.String
+     * (java.lang.Integer.MAX_VALUE); this method always returns
+     * <code>0</code>. <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for
      * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2652,7 +2654,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for
      * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2764,11 +2766,12 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB did not impose a "known" limit.  The hard limit was
-     * the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
-     * this method always returned <code>0</code>.
+     * Up to and including 1.8.0.x, HSQLDB did not impose a "known" limit.  Th
+     * hard limit was the maximum length of a java.lang.String
+     * (java.lang.Integer.MAX_VALUE); this method always returned
+     * <code>0</code>.
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for
      * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2818,11 +2821,12 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB did not impose a "known" limit.  The hard limit was
-     * the maximum length of a java.lang.String (java.lang.Integer.MAX_VALUE);
-     * this method always returned <code>0</code>.
+     * Up to and including 1.8.0.x, HSQLDB did not impose a "known" limit.  The
+     * hard limit was the maximum length of a java.lang.String
+     * (java.lang.Integer.MAX_VALUE); this method always returned
+     * <code>0</code>.
      *
-     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for 
+     * Starting with 1.9.0, HSQLDB implements the standard, which is 128 for
      * unquoted names. Quoted names can still be longer.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2848,8 +2852,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information</h3>
      *
-     * Including 1.8.0.x, HSQLDB supports only TRANSACTION_READ_UNCOMMITED
-     * and <em>always</em> returns this value here.
+     * up to and including 1.8.0.x, HSQLDB supports only
+     * TRANSACTION_READ_UNCOMMITED and <em>always</em> returns this value here.
      *
      * TODO: resolve for 1.9.0.
      * </div>
@@ -4873,7 +4877,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB does not support updateable
+     * Up to and including 1.8.0.x, HSQLDB does not support updateable
      * result sets; this method <em>always</em> returns <code>false</code>.
      *
      * TODO: resolve for 1.9.0.
@@ -5740,7 +5744,7 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <!-- end release-specific documentation -->
      *
      * @return <code>true</code> if so; <code>false</code> otherwise
-     * @throws SQLExcpetion if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JDBC3
@@ -6155,6 +6159,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * @since JDK 1.6, HSQLDB 1.9
      */
 //#ifdef JDBC4
+
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
         if (isWrapperFor(iface)) {
             return (T) this;
