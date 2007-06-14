@@ -33,8 +33,6 @@ package org.hsqldb.jdbc;
 import java.sql.DatabaseMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.lib.IntValueHashMap;
-import org.hsqldb.types.Type;
 
 /**
  * Exhautively tests the supportsConvert(int,int) method of
@@ -113,165 +111,6 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
         {"interval_minute_to_second", "org.hsqldb.Types.SQL_INTERVAL_MINUTE_TO_SECOND"}
     };
     
-    // TODO: this is "cheating" as it is a verbatim copy of the
-    // current logic in the jdbcDatabaseMetaData.supportsConvert(int,int)
-    // method.  Instead, a standards-based lookup table should be used.
-    /**
-     * for given type codes.
-     *
-     * @param fromType for which to determine the default
-     * @param toType for which to determine the default
-     * @throws java.lang.Exception raised by any internal operation.
-     * @return default expected value.
-     */
-    protected boolean defaultSupportsConvert(
-            int fromType,
-            int toType) throws Exception {
-        
-        switch(fromType) {
-            case java.sql.Types.NCHAR:
-            {
-                fromType = java.sql.Types.CHAR;
-                break;
-            }
-            case java.sql.Types.NCLOB:
-            {
-                fromType = java.sql.Types.CLOB;
-                break;
-            }
-            case java.sql.Types.NVARCHAR:
-            {
-                fromType = java.sql.Types.VARCHAR;
-                break;
-            }
-            case java.sql.Types.LONGNVARCHAR:
-            {
-                fromType = java.sql.Types.LONGVARCHAR;
-                break;
-            }
-            case java.sql.Types.BIT:
-            {
-                fromType = java.sql.Types.BOOLEAN;
-                break;
-            }
-        }
-        
-        switch(toType) {
-            case java.sql.Types.NCHAR:
-            {
-                toType = java.sql.Types.CHAR;
-                break;
-            }
-            case java.sql.Types.NCLOB:
-            {
-                toType = java.sql.Types.CLOB;
-                break;
-            }
-            case java.sql.Types.NVARCHAR:
-            {
-                toType = java.sql.Types.VARCHAR;
-                break;
-            }
-            case java.sql.Types.LONGNVARCHAR:
-            {
-                toType = java.sql.Types.LONGVARCHAR;
-                break;
-            }
-            case java.sql.Types.BIT:
-            {
-                toType = java.sql.Types.BOOLEAN;
-                break;
-            }
-        }
-        
-        int fromHsqlTypeCode = Integer.MIN_VALUE;
-        int toHsqlTypeCode = Integer.MIN_VALUE;
-        org.hsqldb.HsqlException he = null;
-        boolean fromSupported = false;
-        boolean toSupported = false;
-        
-        try {
-            fromHsqlTypeCode = Type.getHSQLDBTypeCode(fromType);
-            toHsqlTypeCode = Type.getHSQLDBTypeCode(toType);
-        } catch (org.hsqldb.HsqlException ex) {
-            he = ex;
-        }
-        
-        fromSupported = Type.isSupportedSQLType(fromHsqlTypeCode);
-        toSupported = Type.isSupportedSQLType(toHsqlTypeCode);
-        
-        if (toType == java.sql.Types.NULL
-                || toType == java.sql.Types.OTHER) {
-            if (fromType == java.sql.Types.NULL
-                    || toType == java.sql.Types.OTHER
-                    || fromSupported) {
-                return true;
-            }
-        }
-        
-        if (!(fromSupported && toSupported)) {
-            if (he != null) {
-                throw he;
-            } else {
-                return false;
-            }
-        }
-        
-        Type fromHsqlType = Type.getDefaultType(fromHsqlTypeCode);
-        Type toHsqlType = Type.getDefaultType(toHsqlTypeCode);
-        
-        if (fromHsqlType == null || toHsqlType == null) {
-            return false;
-        }
-        
-        switch(toHsqlTypeCode) {
-            case org.hsqldb.Types.OTHER:
-            {
-                return true;
-            }
-        }
-        
-        if (toHsqlType.isBinaryType()) {
-            return (fromHsqlType.isBinaryType());
-        } else if (toHsqlType.isBooleanType()) {
-            return (fromHsqlType.isBooleanType()
-            || fromHsqlType.isCharacterType());
-        } else if (toHsqlType.isCharacterType()) {
-            if (toHsqlType.isLobType()) {
-                return fromHsqlType.isCharacterType();
-            } else {
-                return !(fromHsqlType.isBinaryType()
-                && fromHsqlType.isLobType());
-            }
-        } else if (toHsqlType.isDateTimeType()) {
-            if (fromHsqlType.isCharacterType()) {
-                return true;
-            } else if (fromHsqlType.isDateTimeType()) {
-                switch(toHsqlTypeCode) {
-                    case org.hsqldb.Types.SQL_TIME:
-                    {
-                        return (fromHsqlTypeCode != org.hsqldb.Types.SQL_DATE);
-                    }
-                    case org.hsqldb.Types.SQL_DATE:
-                    {
-                        return (fromHsqlTypeCode != org.hsqldb.Types.SQL_TIME);
-                    }
-                    default:
-                    {
-                        return true;
-                    }
-                }
-            }
-        } else if (toHsqlType.isIntervalType()
-        || toHsqlType.isNumberType()) {
-            return (fromHsqlType.isIntervalType()
-            || (fromHsqlType.isCharacterType())
-            || fromHsqlType.isNumberType());
-        }
-        
-        return false;
-    }
-    
     /**
      * Constructs a new test case for the given pair of type index values.
      *
@@ -333,7 +172,7 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
      * @throws java.lang.Throwable if any exception is thrown
      */
     protected void runTest() throws Throwable {
-        println(super.getName());
+        //println(super.getName()); // 2600+ printlns is too slow...
         
         final String toName = TYPE_NAME_AND_FIELD[m_toIndex][0];
         final String toField = TYPE_NAME_AND_FIELD[m_toIndex][1];
@@ -344,15 +183,15 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
         final int    fromCode = getFieldValue(fromField);
         
         final String propertyName =
-                "\"dbmd.supports.convert.to."
+                "dbmd.supports.convert.to."
                 + toName
                 + ".from."
-                + fromName
-                + "\"";
+                + fromName;
         
-        final boolean expectedResult = getBooleanProperty(
+        final boolean expectedResult = 
+                getBooleanProperty(
                 propertyName,
-                defaultSupportsConvert(fromCode, toCode));
+                false);
         final boolean actualResult = getMetaData().supportsConvert(
                 fromCode,
                 toCode);
@@ -387,8 +226,7 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
      *
      * @param argList ignored.
      */
-    public static void main(java.lang.String[] argList) {
-        
+    public static void main(java.lang.String[] argList) {        
         junit.textui.TestRunner.run(suite());
     }
     
