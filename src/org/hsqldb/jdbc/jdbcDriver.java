@@ -268,7 +268,7 @@ public class jdbcDriver implements Driver {
      */
 //#ifdef JDBC4
     @SuppressWarnings("deprecation")
-//#endif JDBC
+//#endif JDBC4
     public static Connection getConnection(String url,
                                            Properties info)
                                            throws SQLException {
