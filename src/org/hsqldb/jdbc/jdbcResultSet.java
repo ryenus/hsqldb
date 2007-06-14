@@ -6065,10 +6065,10 @@ public class jdbcResultSet implements ResultSet {
      */
 //#ifdef JDBC4
     public void updateNCharacterStream(String columnLabel,
-                                       java.io.Reader x,
+                                       java.io.Reader reader,
                                        long length)
                                         throws SQLException {
-        updateCharacterStream(columnLabel, x, length);
+        updateCharacterStream(columnLabel, reader, length);
     }
 
 //#endif JDBC4
@@ -6874,6 +6874,7 @@ public class jdbcResultSet implements ResultSet {
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
         if (isWrapperFor(iface)) {
             return (T) this;
