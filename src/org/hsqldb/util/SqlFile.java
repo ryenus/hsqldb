@@ -112,12 +112,6 @@ import java.util.regex.PatternSyntaxException;
  * on "buffer", and expect it to contain the method specific prefix
  * (if any).
  *
- * It's really poor design to have the input file given in the
- * constructor.  This constains users to only call execute() once and
- * only one on each SqlFile object.  Unfortunately, fixing this would
- * have a dramatic effect on the public interface and therefore would
- * wreak havoc on existing programmatic users.
- *
  * @version $Revision$
  * @author Blaine Simpson unsaved@users
  */
@@ -315,7 +309,7 @@ public class SqlFile {
         + "                       ;:  execute immediately after substitution\n"
     ;
     private static String HELP_TEXT = "SPECIAL Commands.\n"
-        + "Filter substrings are cases-sensitive!  Use \"SCHEMANAME.\" to narrow to schema.\n"
+        + "Filter substrings are case-sensitive!  Use \"SCHEMANAME.\" to narrow to schema.\n"
         + "    \\?                   special command Help\n"
         + "    \\p [line to print]   Print string to stdout\n"
         + "    \\w file/path.sql     Append current buffer to file\n"
@@ -416,6 +410,12 @@ public class SqlFile {
         + "    u:  list Users\n"
         + "    r:  list Roles\n"
         + "    *:  list table-like objects\n";
+    private static String RAW_LEADIN_MSG =
+        RAW_LEADIN_MSG =
+            "Enter RAW SQL.  No \\, :, * commands.\n"
+            + "End with a line containing only \".;\" to send to database,\n"
+            + "or \":.\" to store to edit buffer for editing or saving.\n"
+            + "-----------------------------------------------------------";
 
     static {
         if (!LS.equals("\n")) {
@@ -425,6 +425,7 @@ public class SqlFile {
             PL_HELP_TEXT = PL_HELP_TEXT.replaceAll("\n", LS);
             DSV_OPTIONS_TEXT = DSV_OPTIONS_TEXT.replaceAll("\n", LS);
             D_OPTIONS_TEXT = D_OPTIONS_TEXT.replaceAll("\n", LS);
+            RAW_LEADIN_MSG = RAW_LEADIN_MSG.replaceAll("\n", LS);
         }
     }
 
@@ -628,7 +629,7 @@ public class SqlFile {
                 try {
                     if (chunking) {
                         boolean rawExecute = inputLine.equals(".;");
-                        if (rawExecute || inputLine.equals(".")) {
+                        if (rawExecute || inputLine.equals(":.")) {
                             chunking = false;
 
                             setBuf(immCmdSB.toString());
@@ -704,14 +705,7 @@ public class SqlFile {
                             immCmdSB.append(inputLine);
 
                             if (interactive) {
-                                stdprintln(
-                                    "Enter RAW SQL.  No \\, :, * commands.");
-                                stdprintln(
-                                    "End with a line containing only \".;\" "
-                                    + "to execute, or \".\" to store to "
-                                    + "buffer for editing or saving.");
-                                stdprintln("--------------------------------"
-                                    + "--------------------------------------");
+                                stdprintln(RAW_LEADIN_MSG);
                             }
 
                             continue;
@@ -1686,8 +1680,7 @@ public class SqlFile {
                 chunking = true;
 
                 if (interactive) {
-                    stdprintln("Enter RAW SQL.  No \\, :, * commands.  "
-                               + "End with a line containing only \".\":");
+                    stdprintln(RAW_LEADIN_MSG);
                 }
 
                 return;
