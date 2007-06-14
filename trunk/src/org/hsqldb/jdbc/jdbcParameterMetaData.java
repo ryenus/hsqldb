@@ -37,7 +37,6 @@ import java.sql.ParameterMetaData;
 import java.sql.SQLException;
 
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.Types;
 import org.hsqldb.types.Type;
 
 /* $Id$ */
@@ -276,7 +275,8 @@ public class jdbcParameterMetaData
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
-     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    @SuppressWarnings("unchecked")
+    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
             if (isWrapperFor(iface)) {
                 return (T) this;
             }
