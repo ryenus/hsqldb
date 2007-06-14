@@ -510,8 +510,8 @@ import org.hsqldb.lib.StringUtil;
  * </div> <!-- end release-specific documentation -->
  * @author boucherb@users
  * @author fredt@users
- * @version 1.8.x
- * @revised JDK 1.6, HSQLDB 1.8.x
+ * @version 1.9.0
+ * @revised JDK 1.6, HSQLDB 1.9.0
  * @see org.hsqldb.jdbcDriver
  * @see jdbcStatement
  * @see jdbcPreparedStatement
@@ -921,7 +921,7 @@ public class jdbcConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including HSQLDB 1.8.0.x, <p>
+     * Up to HSQLDB 1.8.0.x, <p>
      *
      * <ol>
      *   <li> All rows of a result set are retrieved internally <em>
@@ -933,6 +933,9 @@ public class jdbcConnection implements Connection {
      *   supported. </li>
      * </ol>
      * <p>
+     * 
+     * Starting with 1.9.0, HSQLDB may not return a result set as a whole; the
+     * generic documentation may apply.
      *
      * (boucherb@users) </div> <!-- end release-specific
      * documentation -->
@@ -3161,6 +3164,7 @@ public class jdbcConnection implements Connection {
      */
 //#ifdef JDBC4
 
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
         checkClosed();
 
