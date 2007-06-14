@@ -44,7 +44,6 @@ import javax.naming.StringRefAddr;
 import javax.sql.DataSource;
 
 import org.hsqldb.jdbcDriver;
-import org.hsqldb.Trace;
 
 //#ifdef JDBC4
 import java.sql.Wrapper;
@@ -116,6 +115,9 @@ import javax.sql.CommonDataSource;
  * @version 1.9.0
  * @revised JDK 1.6, HSQLDB 1.9.0
  */
+//#ifdef JDBC4
+@SuppressWarnings("serial")
+//#endif JDBC4
 public class jdbcDataSource implements Serializable, Referenceable, DataSource
 
 //#ifdef JDBC4
@@ -277,6 +279,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JDBC4
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -424,7 +427,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * initially null; in other words, the default is for logging to be
      * disabled.
      *
-     * @param out the new log writer; to disable logging, set to null
+     * @param logWriter the new log writer; to disable logging, set to null
      * @exception SQLException if a database access error occurs
      * @see #getLogWriter
      */
