@@ -3505,6 +3505,7 @@ implements PreparedStatement {
      */
 //#ifdef JDBC4
 
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> iface) throws java.sql.SQLException {
         if (isWrapperFor(iface)) {
             return (T) this;
