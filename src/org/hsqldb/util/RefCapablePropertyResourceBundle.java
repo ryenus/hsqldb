@@ -79,6 +79,8 @@ import java.io.IOException;
  * files for properties files <CODE>/a/b/c/greentea_en_us.properties</CODE>, 
  * <CODE>/a/b/c/greentea_de.properties</CODE>,
  * <CODE>/a/b/c/greentea.properties</CODE>, etc.
+ * (BTW, according to ResourceBundle rules, this resource should be looked
+ * up with name "a.b.c.greentea", not "/a/b/c..." or "a/b/c").
  * REFERENCED FILES themselves all have the base name of the property key,
  * with locale appendages exactly as the <i>referring</i> properties files
  * has, plus the suffix <CODE>.text</CODE>.
