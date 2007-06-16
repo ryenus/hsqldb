@@ -1,0 +1,27 @@
+Edit Buffer and History Commands.  Not available for non-interactive use.
+    :?                edit buffer / history Help
+    :h                show History of previous commands (plus buffer contents)
+    :b                list current contents of edit Buffer
+    :X[;]             reload command #X to buffer (can then edit or ":;")
+       (integer X)    where X of 13 means command #13 from history;
+                            X of -13 means 13th command back;
+                            ';' suffix means to execute the command too.
+    :;                Execute current buffer (special, PL, or SQL command)
+    :a[text]          Enter append mode with a copy of the buffer
+    :s/from regex/to/ Substitute match of "from regex" with "to"
+    :s/from/to/[igm;] One or multiple Substitutions with specified options
+                from:  Standard regexp.  See 'perlre' man page or
+                       Java API spec for java.util.regex.Pattern.
+                to:    If empty, from's will be deleted (e.g. ":s/x//").
+                [igm;] Options work exactly as in Perl or java.util.regex,
+                       except ; means to execute after substitution,
+                       g means Global (multiple) substitutions,
+                       and option 's' is always on.
+                /:     Can actually be any character which occurs in
+                       neither "to" string nor "from" string.
+                SUBSTITUTION MODE SWITCHES:
+                       i:  case Insensitive
+                       g:  Global (substitute ALL occurrences of "from" string)
+                       m:  ^ and $ match line breaks (like Perl m option)
+                       ;:  execute immediately after substitution
+

@@ -1,0 +1,24 @@
+SPECIAL Commands.
+Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
+    \?                   special command Help
+    \p [line to print]   Print string to stdout
+    \w file/path.sql     Append current buffer to file
+    \i file/path.sql     Include/execute commands from external file
+    \d{tvsiSanur*?} [substr]  List objects of specified type:
+  (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)
+    \d OBJECTNAME [subs] Describe table or view columns
+    \o [file/path.html]  Tee (or stop teeing) query output to specified file
+    \H                   Toggle HTML output mode
+    \! COMMAND [ARGS]    Execute external program (no support for stdin)
+    \c [true|false]      Continue upon errors (a.o.t. abort upon error)
+    \a [true|false]      Auto-commit JDBC DML commands
+    \b                   save next result to Binary buffer (no display)
+    \bd file/path.bin    Dump Binary buffer to file
+    \bl file/path.bin    Load file into Binary buffer
+    \bp                  Use ? in next SQL statement to upload Bin. buffer
+    \.                   Enter raw SQL.  End with line containing only "."
+    \=                   commit JDBC session
+    \x {TABLE|SELECT...} eXport table or query to DSV text file (options \x?)
+    \m file/path.dsv [*] iMport DSV text file records into a table (opts \m?)
+    \q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)
+
