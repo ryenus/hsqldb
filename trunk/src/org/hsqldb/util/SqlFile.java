@@ -261,173 +261,21 @@ public class SqlFile {
                 "$Revision$".length() - 2);
     }
 
-    private static String BANNER =
-        "(SqlFile processor v. " + revnum + ")\n"
-        + "Distribution is permitted under the terms of the HSQLDB license.\n"
-        + "(c) 2004-2007 Blaine Simpson and the HSQLDB Development Group.\n\n"
-        + "    \\q    to Quit.\n    \\?    lists Special Commands.\n"
-        + "    :?    lists Edit-Buffer/History commands.\n"
-        + "    *?    lists PL commands.\n\n"
-        + "SPECIAL Commands begin with '\\' and execute when you hit ENTER.\n"
-        + "EDIT BUFFER / HISTORY Commands begin with ':' and execute when you hit ENTER.\n"
-        + "COMMENTS begin with '/*' and end with the very next '*/'.\n"
-        + "PROCEDURAL LANGUAGE commands begin with '*' and end when you hit ENTER.\n"
-        + "All other lines comprise SQL Statements.\n"
-        + "  SQL Statements are terminated by either a blank line (which moves the\n"
-        + "  statement into the buffer without executing) or a line ending with ';'\n"
-        + "  (which executes the statement).\n"
-        + "  SQL Commands may begin with '/PLVARNAME' for a PL variable command alias.\n"
-        + "After turning on variable expansion with command \"*\" (or any other PL\n"
-        + "command), PL variables may be used in any command (other than : commands)\n"
-        + "like so: *{PLVARNAME}.\n";
-    private static String BUFFER_HELP_TEXT =
-        "Edit Buffer and History Commands.  Not available for non-interactive use.\n"
-        + "    :?                edit buffer / history Help\n"
-        + "    :h                show History of previous commands (plus buffer contents)\n"
-        + "    :b                list current contents of edit Buffer\n"
-        + "    :X[;]             reload command #X to buffer (can then edit or \":;\")\n"
-        + "       (integer X)    where X of 13 means command #13 from history;\n"
-        + "                            X of -13 means 13th command back;\n"
-        + "                            ';' suffix means to execute the command too.\n"
-        + "    :;                Execute current buffer (special, PL, or SQL command)\n"
-        + "    :a[text]          Enter append mode with a copy of the buffer\n"
-        + "    :s/from regex/to/ Substitute match of \"from regex\" with \"to\"\n"
-        + "    :s/from/to/[igm;] One or multiple Substitutions with specified options\n"
-        + "                from:  Standard regexp.  See 'perlre' man page or\n"
-        + "                       Java API spec for java.util.regex.Pattern.\n"
-        + "                to:    If empty, from's will be deleted (e.g. \":s/x//\").\n"
-        + "                [igm;] Options work exactly as in Perl or java.util.regex,\n"
-        + "                       except ; means to execute after substitution,\n"
-        + "                       g means Global (multiple) substitutions,\n"
-        + "                       and option 's' is always on.\n"
-        + "                /:     Can actually be any character which occurs in\n"
-        + "                       neither \"to\" string nor \"from\" string.\n"
-        + "                SUBSTITUTION MODE SWITCHES:\n"
-        + "                       i:  case Insensitive\n"
-        + "                       g:  Global (substitute ALL occurrences of \"from\" string)\n"
-        + "                       m:  ^ and $ match line breaks (like Perl m option)\n"
-        + "                       ;:  execute immediately after substitution\n"
-    ;
-    private static String HELP_TEXT = "SPECIAL Commands.\n"
-        + "Filter substrings are case-sensitive!  Use \"SCHEMANAME.\" to narrow to schema.\n"
-        + "    \\?                   special command Help\n"
-        + "    \\p [line to print]   Print string to stdout\n"
-        + "    \\w file/path.sql     Append current buffer to file\n"
-        + "    \\i file/path.sql     Include/execute commands from external file\n"
-        + "    \\d{tvsiSanur*?} [substr]  List objects of specified type:\n"
-        + "  (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)\n"
-        + "    \\d OBJECTNAME [subs] Describe table or view columns\n"
-        + "    \\o [file/path.html]  Tee (or stop teeing) query output to specified file\n"
-        + "    \\H                   Toggle HTML output mode\n"
-        + "    \\! COMMAND [ARGS]    Execute external program (no support for stdin)\n"
-        + "    \\c [true|false]      Continue upon errors (a.o.t. abort upon error)\n"
-        + "    \\a [true|false]      Auto-commit JDBC DML commands\n"
-        + "    \\b                   save next result to Binary buffer (no display)\n"
-        + "    \\bd file/path.bin    Dump Binary buffer to file\n"
-        + "    \\bl file/path.bin    Load file into Binary buffer\n"
-        + "    \\bp                  Use ? in next SQL statement to upload Bin. buffer\n"
-        + "    \\.                   Enter raw SQL.  End with line containing only \".\"\n"
-        + "    \\=                   commit JDBC session\n"
-        + "    \\x {TABLE|SELECT...} eXport table or query to DSV text file (options \\x?)\n"
-        + "    \\m file/path.dsv [*] iMport DSV text file records into a table (opts \\m?)\n"
-        + "    \\q [abort message]   Quit (or you can end input with Ctrl-Z or Ctrl-D)\n"
-    ;
-    private static String PL_HELP_TEXT = "PROCEDURAL LANGUAGE Commands.\n"
-        + "    *?                            PL Help\n"
-        + "    *                             Expand PL variables from now on.\n"
-        + "                                  (this is also implied by all the following).\n"
-        + "    * VARNAME = Variable value    Set variable value\n"
-        + "    * VARNAME =                   Unset variable\n"
-        + "    * VARNAME ~                   Set variable value to the value of the very\n"
-        + "                                  next SQL value or count fetched (see details\n"
-        + "                                  at the bottom of this listing).\n"
-        + "    * VARNAME _                   Same as * VARNAME _, except the query is\n"
-        + "                                  done silently (i.e, no rows to screen)\n"
-        + "    * list[values] [VARNAME1...]  List variable(s) (defaults to all)\n"
-        + "    * load VARNAME path.txt       Load variable value from text file\n"
-        + "    * dump VARNAME path.txt       Dump variable value to text file\n"
-        + "    * prepare VARNAME             Use ? in next SQL statement to upload val.\n"
-        + "                                  (Just \"?\", \"*{?}\" would mean the auto var.).\n"
-        + "    * foreach VARNAME ([val1...]) Repeat the following PL block with the\n"
-        + "                                  variable set to each value in turn.\n"
-        + "    * if (logical expr)           Execute following PL block only if expr true\n"
-        + "    * while (logical expr)        Repeat following PL block while expr true\n"
-        + "    * end foreach|if|while        Ends a PL block\n"
-        + "    * break [foreach|if|while|file] Exits a PL block or file early\n"
-        + "    * continue [foreach|while]    Exits a PL block iteration early\n\n"
-        + "Use PL variables (which you have set) like: *{VARNAME}.\n"
-        + "You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.\n"
-        + "Use PL variables in logical expressions, like (*VARNAME == 1).\n"
-        + "Auto. variable ? is set to the very next SQL datum fetched (or update count).\n"
-        + "    Query:  The value of the first field of the first row returned.\n"
-        + "    other:  Return status of the command (for updates this will be\n"
-        + "            the number of rows updated).\n"
-        + "'* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly\n"
-        + "like ?.  (~ will echo the value, _ will do it silently).\n"
-    ;
+    private static RefCapablePropertyResourceBundle bundle =
+            RefCapablePropertyResourceBundle.getBundle(
+                    "org.hsqldb.util.sqltool");
 
-    private static String DSV_OPTIONS_TEXT =
-        "DSV stands for Delimiter-Separated-Values, which is just CSV (comma-\n"
-        + "separated-values) but always using a proper delimiter to prevent the\n"
-        + "need for quoting and escaping which CSV files have.\n"
-        + "All of the DSV PL variables are optional.  To see all PL var. values,"
-        + "\nrun '* listvalues'.  Set the values like:\n"
-        + "    * *DSV_COL_DELIM = ,\n"
-        + "Don't forget the * indicating a PL command PLUS the leading * in"
-        + "\nall of these variable names.  \\x or \\m below indicates where\n"
-        + "the setting is applicable.  Default value/behavior is in [square brackes].\n"
-        + "    *DSV_SKIP_PREFIX   \\m    Comment line prefix in DSV files.  "
-        + "[\"#\"]\n"
-        + "    *DSV_COL_DELIM     \\m\\x  Column delimiter.  "
-        + "[\"|\"]\n"
-        + "    *DSV_ROW_DELIM     \\m\\x  Row delimiter\n"
-        + "                              [OS-dependent (Java line.separator)]\n"
-        + "    *NULL_REP_TOKEN    \\m\\x  String to represent database null.  "
-        + "[\"[null]\"]\n"
-        + "    *DSV_TARGET_FILE   \\x    File which exports will write to\n"
-        + "                              [source table name + \".dsv\"]\n"
-        + "    *DSV_TARGET_TABLE  \\m    Table which imports will write to\n"
-        + "                              [DSV filename without extension]\n"
-        + "    *DSV_CONST_COLS    \\m    Column values to write to every row.  "
-        + "[None]\n"
-        + "    *DSV_REJECT_FILE   \\m    DSV file to be created with rejected records.\n"
-        + "                              [None*]\n"
-        + "    *DSV_REJECT_REPORT \\m    HTML report to explain reject records"
-        + "[None*]\n"
-        + "* Imports will abort immediately upon the first import record failure, unless\n"
-        + "either *DSV_REJECT_FILE or *DSV_REJECT_REPORT (or both) are set.  (Whether\n"
-        + "SqlTool will roll back and quit depends on your settings for \\c and \\a).";
-
-    private static String D_OPTIONS_TEXT =
-        "\\dX [parameter...] where X is one of the following.\n"
-        + "    t:  list Tables\n"
-        + "    v:  list Views\n"
-        + "    s:  list Sequences\n"
-        + "    i:  list Indexes\n"
-        + "    S:  list System tables\n"
-        + "    a:  list Aliases\n"
-        + "    n:  list schema Names\n"
-        + "    u:  list Users\n"
-        + "    r:  list Roles\n"
-        + "    *:  list table-like objects\n";
-    private static String RAW_LEADIN_MSG =
-        RAW_LEADIN_MSG =
-            "Enter RAW SQL.  No \\, :, * commands.\n"
-            + "End with a line containing only \".;\" to send to database,\n"
-            + "or \":.\" to store to edit buffer for editing or saving.\n"
-            + "-----------------------------------------------------------";
-
-    static {
-        if (!LS.equals("\n")) {
-            BANNER = BANNER.replaceAll("\n", LS);
-            BUFFER_HELP_TEXT = BUFFER_HELP_TEXT.replaceAll("\n", LS);
-            HELP_TEXT = HELP_TEXT.replaceAll("\n", LS);
-            PL_HELP_TEXT = PL_HELP_TEXT.replaceAll("\n", LS);
-            DSV_OPTIONS_TEXT = DSV_OPTIONS_TEXT.replaceAll("\n", LS);
-            D_OPTIONS_TEXT = D_OPTIONS_TEXT.replaceAll("\n", LS);
-            RAW_LEADIN_MSG = RAW_LEADIN_MSG.replaceAll("\n", LS);
-        }
-    }
+    private static final String BANNER = "(SqlFile processor v. " + revnum + ")"
+            + LS + bundle.getString("banner");
+    private static final String BUFFER_HELP_TEXT =
+            bundle.getString("buffer.help");
+    private static final String SPECIAL_HELP_TEXT =
+            bundle.getString("special.help");
+    private static final String PL_HELP_TEXT = bundle.getString("pl.help");
+    private static final String DSV_OPTIONS_TEXT =
+            bundle.getString("dsv.options");
+    private static final String D_OPTIONS_TEXT = bundle.getString("d.options");
+    private static final String RAW_LEADIN_MSG = bundle.getString("raw.leadin");
 
     /**
      * Interpret lines of input file as SQL Statements, Comments,
@@ -1607,7 +1455,7 @@ public class SqlFile {
                 return;
 
             case '?' :
-                stdprintln(HELP_TEXT);
+                stdprintln(SPECIAL_HELP_TEXT);
 
                 return;
 

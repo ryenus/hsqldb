@@ -97,7 +97,8 @@ import java.io.IOException;
  * sequences of "\r", "\n" and "\r\n" are all translated to the line
  * delimiter for your platform (System property <CODE>line.separator</CODE>).
  * If one of those sequences exists at the very end of the file, it will be
- * eliminated.
+ * eliminated (so, if you really want getString() to end with a line delimiter,
+ * end your file with two of them).
  * (The file itself is never modified-- I'm talking about the value returned
  * by <CODE>getString(String)</CODE>.
  *
@@ -124,6 +125,14 @@ public class RefCapablePropertyResourceBundle {
         if (country.length() < 1) country = null;
         if (variant.length() < 1) variant = null;
     }
+
+    /* TODO:  Add optional ability to substitute ${sysproperty} variables.
+    private boolean sysPropertyMode = false;
+    public boolean setSysPropertyMode(boolean sysPropertyMode) {
+        this.sysPropertyMode = sysPropertyMode;
+    }
+    Then put conditional replaceAll loops in getString().
+    */
 
     /**
      * Just identifies this RefCapablePropertyResourceBundle instance.
