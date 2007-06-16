@@ -389,8 +389,8 @@ examples:
          <exclude name="org/hsqldb/persist/NIOLockFile.java"/>
          <exclude name="org/hsqldb/persist/NIOScaledRAFile.java"/>
       </javac>
-      <copy todir="classes/org/hsqldb/resources">
-         <fileset dir="src/org/hsqldb/resources" includes="*.properties"/>
+      <copy todir="classes">
+        <fileset dir="src" includes="**/*.properties, **/*.text"/>
       </copy>
     </target>
 
