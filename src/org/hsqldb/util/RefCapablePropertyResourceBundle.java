@@ -212,24 +212,39 @@ public class RefCapablePropertyResourceBundle {
         return newPRAFP;
     }
 
-    private String getStringFromFile(String key) {
+    /**
+     * Recursive
+     */
+    private InputStream getMostSpecificStream(
+            String key, String l, String c, String v) {
         String filePath = "/" + baseName.replace('.', '/') + '/' + key
-                + ((language == null) ? "" : ("_" + language))
-                + ((country == null) ? "" : ("_" + country))
-                + ((variant == null) ? "" : ("_" + variant))
+                + ((l == null) ? "" : ("_" + l))
+                + ((c == null) ? "" : ("_" + c))
+                + ((v == null) ? "" : ("_" + v))
                 + ".text";
-        InputStream  inputStream = getClass().getResourceAsStream(filePath);
+        // System.err.println("Seeking " + filePath);
+        InputStream is = getClass().getResourceAsStream(filePath);
+        return (is == null && l != null)
+            ? getMostSpecificStream(key, ((c == null) ? null : l),
+                    ((v == null) ? null : c), null)
+            : is;
+    }
+
+    private String getStringFromFile(String key) {
+        InputStream  inputStream =
+                getMostSpecificStream(key, language, country, variant);
         if (inputStream == null)
             throw new MissingResourceException(
-                    "Key is present in .properties file with no value, yet "
-                    + "resource '" + filePath + "' is missing",
+                    "Key '" + key
+                    + "' is present in .properties file with no value, yet "
+                    + "text file resource is missing",
                     RefCapablePropertyResourceBundle.class.getName(), key);
         byte[] ba = null;
         try {
             ba = new byte[inputStream.available()];
             if (inputStream.read(ba) != ba.length)
                 throw new MissingResourceException(
-                        "Resource '" + filePath + "' changed while reading",
+                        "Text file resource changed while reading",
                         RefCapablePropertyResourceBundle.class.getName(), key);
         } catch (IOException ioe) {
             throw new MissingResourceException(

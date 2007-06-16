@@ -121,13 +121,14 @@ public class SqlFile {
     private File             file;
     private boolean          interactive;
     private String           primaryPrompt    = "sql> ";
-    private String           chunkPrompt      = "raw> ";
+    private String           chunkPrompt      =
+            bundle.getString("rawmode.prompt") + "> ";
     private String           contPrompt       = "  +> ";
     private Connection       curConn          = null;
     private boolean          htmlMode         = false;
     private Map              userVars; // Always a non-null map set in cons.
     private List             history          = null;
-    private boolean          chunking         = false;
+    private boolean          rawMode          = false;
     private String           nullRepToken     = null;
     private String           dsvTargetFile    = null;
     private String           dsvTargetTable   = null;
@@ -430,7 +431,7 @@ public class SqlFile {
                     withholdPrompt = false;
                 } else if (interactive) {
                     psStd.print((immCmdSB.length() == 0)
-                                ? (chunking ? chunkPrompt
+                                ? (rawMode ? chunkPrompt
                                             : primaryPrompt)
                                 : contPrompt);
                 }
@@ -475,10 +476,10 @@ public class SqlFile {
                 trimmedInput = inputLine.trim();
 
                 try {
-                    if (chunking) {
+                    if (rawMode) {
                         boolean rawExecute = inputLine.equals(".;");
                         if (rawExecute || inputLine.equals(":.")) {
-                            chunking = false;
+                            rawMode = false;
 
                             setBuf(immCmdSB.toString());
                             immCmdSB.setLength(0);
@@ -548,7 +549,7 @@ public class SqlFile {
 
                         if (ucased.startsWith("DECLARE")
                                 || ucased.startsWith("BEGIN")) {
-                            chunking = true;
+                            rawMode = true;
 
                             immCmdSB.append(inputLine);
 
@@ -1525,7 +1526,7 @@ public class SqlFile {
 
             case '.' :
                 SqlFile.enforce1charSpecial(arg1, '.');
-                chunking = true;
+                rawMode = true;
 
                 if (interactive) {
                     stdprintln(RAW_LEADIN_MSG);
