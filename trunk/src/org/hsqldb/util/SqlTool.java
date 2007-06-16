@@ -92,42 +92,12 @@ public class SqlTool {
                                                - 2);
     }
     public static String LS = System.getProperty("line.separator");
+    private static RefCapablePropertyResourceBundle bundle =
+            RefCapablePropertyResourceBundle.getBundle(
+                    "org.hsqldb.util.sqltool");
 
-    private static String SYNTAX_MESSAGE =
-        "Usage: java [-Dsqlfile.X=Y...] org.hsqldb.util.SqlTool \\\n"
-        + "    [--optname [optval...]] urlid [file1.sql...]\n"
-        + "where arguments are:\n"
-        + "    --help                   Displays this message\n"
-        + "    --list                   List urlids in the rc file\n"
-        + "    --noInput                Do not read stdin (default if sql file given\n"
-        + "                             or --sql switch used).\n"
-        + "    --stdInput               Read stdin IN ADDITION to sql files/--sql input\n"
-        + "    --inlineRc URL=val1,USER=val2[,DRIVER=val3][,CHARSET=val4][,TRUST=val5]\n"
-        + "                             Inline RC file variables\n"
-        + "    --debug                  Print Debug info to stderr\n"
-        + "    --noAutoFile             Do not execute auto.sql from home dir\n"
-        + "    --autoCommit             Auto-commit JDBC DML commands\n"
-        + "    --sql \"SQL; Statements\"  Execute given SQL instead of stdin (before\n"
-        + "                             SQL files if any are specified) where \"SQL\"\n"
-        + "                             consists of SQL command(s).  See the Guide.\n"
-        + "    --rcFile /file/path.rc   Connect Info File [$HOME/sqltool.rc]\n"
-        + "    --abortOnErr             Abort on Error (overrides defaults)\n"
-        + "    --continueOnErr          Continue on Error (overrides defaults)\n"
-        + "    --setVar NAME1=val1[,NAME2=val2...]   PL variables\n"
-        + "    --driver a.b.c.Driver    JDBC driver class ["
-        + RCData.DEFAULT_JDBC_DRIVER + "]\n"
-        + "    urlid                    ID of url/userame/password in rcfile\n"
-        + "    file1.sql...             SQL files to be executed [stdin]\n"
-        + "                             "
-        + "(Use '-' for non-interactively stdin).\n"
-        + "See the SqlTool Manual for the supported sqltool.* System Properties.\n"
-        + "SqlTool v. " + revnum + ".";
-
-    static {
-        if (!LS.equals("\n")) {
-            SYNTAX_MESSAGE = SYNTAX_MESSAGE.replaceAll("\n", LS);
-        }
-    }
+    private static final String SYNTAX_MESSAGE =
+            bundle.getString("SqlTool.syntax") + revnum + '.';
 
     /** Utility nested class for internal use. */
     private static class BadCmdline extends Exception {
