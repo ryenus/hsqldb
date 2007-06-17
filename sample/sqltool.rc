@@ -8,6 +8,8 @@
 #    java -jar /path/to/hsqldb.jar mem
 # This will access the first urlid definition below in order to use a 
 # personal Memory-Only database.
+# "url" values may, of course, contain JDBC connection properties, delimited
+# with commas.
 
 # If you have the least concerns about security, then secure access to
 # your RC file.
