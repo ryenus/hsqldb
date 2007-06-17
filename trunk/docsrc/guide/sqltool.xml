@@ -116,8 +116,7 @@
           Finally, you have a procedural language with if, foreach, while,
           continue, and break statements.
         </simpara>
-    </section>
-    <section>
+        <section>
         <title>Platforms and SqlTool versions covered</title>
           <simpara>
             SqlTool runs on any Java 1.4 or later platform.
@@ -156,6 +155,7 @@
             (Dotted version numbers of SqlTool and SqlFile are older than 
             222 and 233).
         </simpara>
+        </section>
         <section><title>Functional Changes</title>
             <simpara>This section lists changes to SqlTool since the last
               major release of HSQLDB which may effect the portability
@@ -1451,6 +1451,17 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar sql... > /tmp/log.sql 2>&amp;1</screen>
             </para><simpara>
                 (The <literal>--sql "create...;"</literal> arguments create an
                 account which the script uses).
+                You should see error messages betwen the
+                <literal>Continue-on-error...true</literal> and
+                <literal>Continue-on-error...false</literal>.  The script
+                purposefully runs commands that might fail there.
+                The reason the script does this is to perform
+                database-independent conditional table removals.
+                (The SQL clause <literal>IF EXISTS</literal> is more graceful
+                and succinct, and should be used if you don't need to support
+                databases which don't support <literal>IF EXISTS</literal>).
+                If an error occurs when continue-on-error is false, the
+                script would abort immedately.
             </simpara>
         </section>
         <section id='scripting-section'>
@@ -1833,6 +1844,15 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
             Most importantly, run <filename>SqlTool</filename> interactively 
             and give the "*?" command to see what PL commands are available to 
             you.
+            I've tried to design the language features to be intuitive.
+            Readers experience with significant shell scripting in any
+            language can probably learn everything they need to know by
+            looking at (and running!) the sample script
+            <filename>sample/pl.sql</filename> in your HSQLDB distribution and
+            using the <literal>*?</literal> command from within an interactive
+            SqlTool session as a reference.  (By
+            <emphasis>significant</emphasis> shell scripting, I mean to the 
+            extent of using variables, for loops, etc.).
         </simpara> <simpara>
             PL variables will only be expanded after you run a PL command (or 
             set variable(s) from the command-line).

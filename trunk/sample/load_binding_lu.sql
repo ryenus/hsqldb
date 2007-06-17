@@ -1,6 +1,6 @@
 /*
     $Id$
-    Load BINDING Lookup table
+    Load BINDING Lookup Text Table
 */
 
 \p Creating table BINDING_TMPTXT
