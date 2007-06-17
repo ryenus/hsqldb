@@ -102,6 +102,14 @@ public class BlobDataMemory implements BlobData {
         return data.length;
     }
 
+    public long bitLength() {
+        return data.length * 8;
+    }
+
+    public boolean isBits() {
+        return false;
+    }
+
     public byte[] getBytes(long pos, int length) {
 
         if (!isInLimits(data.length, pos, length)) {

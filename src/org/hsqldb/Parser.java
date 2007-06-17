@@ -854,7 +854,6 @@ class Parser extends BaseParser {
                         condition = new Expression(a, b);
 
                         range.addNamedJoinColumns(columns);
-
                         select.addRangeVariable(range);
                     } else if (tokenType == Token.ON) {
                         read();
@@ -862,7 +861,6 @@ class Parser extends BaseParser {
                         condition = readOr();
 
                         select.addRangeVariable(range);
-
                         select.resolveColumnReferences(condition);
                         select.checkColumnsResolved();
 
@@ -1941,7 +1939,7 @@ class Parser extends BaseParser {
             case Token.TIME :
             case Token.TIMESTAMP :
             case Token.INTERVAL :
-                e = readDateTimeIntervalExpression();
+                e = readDateTimeIntervalLiteral();
 
                 if (e != null) {
                     return e;
@@ -2249,7 +2247,7 @@ class Parser extends BaseParser {
         return e;
     }
 
-    Expression readDateTimeIntervalExpression() throws HsqlException {
+    Expression readDateTimeIntervalLiteral() throws HsqlException {
 
         int typeId = tokenType;
         int pos    = getPosition();
@@ -2298,7 +2296,6 @@ class Parser extends BaseParser {
         }
     }
 
-
     IntervalType readPossibleIntervalType() throws HsqlException {
 
         if (ArrayUtil.find(Token.SQL_INTERVAL_FIELD_NAMES, tokenType) == -1) {
@@ -2328,7 +2325,7 @@ class Parser extends BaseParser {
             precision = readInteger();
 
             if (precision <= 0) {
-                throw Trace.error(Trace.INVALID_IDENTIFIER);
+                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
             }
 
             if (tokenType == Token.COMMA) {
@@ -2590,6 +2587,14 @@ class Parser extends BaseParser {
                 }
                 break;
 
+            case Types.SQL_BIT :
+                if (tokenType == Token.VARYING) {
+                    read();
+
+                    typeNumber = Types.SQL_BIT_VARYING;
+                }
+                break;
+
             case Types.SQL_INTERVAL :
                 return readIntervalType();
 
@@ -2601,11 +2606,24 @@ class Parser extends BaseParser {
                     ? DateTimeType.defaultTimestampFractionPrecision
                     : 0;
 
-        if (Types.acceptsPrecisionCreateParam(typeNumber)
+/*
+        if (Types.requiresPrecisionCreateParam(typeNumber)
+                && tokenType != Token.OPENBRACKET
+                && database.sqlEnforceStrictSize) {
+            throw unexpectedToken(Token.T_OPENBRACKET);
+        }
+*/
+        if (Types.acceptsPrecision(typeNumber)
                 && tokenType == Token.OPENBRACKET) {
             read();
 
-            length = readInteger();
+            length = readBigint();
+
+            if (length < 0
+                    || (length == 0
+                        && !Types.acceptsZeroPrecision(typeNumber))) {
+                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+            }
 
             if (typeNumber == Types.SQL_BLOB || typeNumber == Types.SQL_CLOB) {
                 int multiplier = 1;
@@ -2613,19 +2631,37 @@ class Parser extends BaseParser {
                 switch (tokenType) {
 
                     case Token.K :
+                        read();
+
                         multiplier = 1024;
                         break;
 
                     case Token.M :
+                        read();
+
                         multiplier = 1024 * 1024;
                         break;
 
                     case Token.G :
+                        read();
+
                         multiplier = 1024 * 1024 * 1024;
                         break;
                 }
 
                 length *= multiplier;
+            }
+
+            if (typeNumber == Types.SQL_CHAR
+                    || typeNumber == Types.SQL_VARCHAR
+                    || typeNumber == Types.SQL_CLOB) {
+                if (tokenType == Token.CHARACTERS) {
+                    read();
+                } else if (tokenType == Token.OCTETS) {
+                    read();
+
+                    length /= 2;
+                }
             }
 
             if (Types.acceptsScaleCreateParam(typeNumber)
@@ -2649,6 +2685,16 @@ class Parser extends BaseParser {
 
                 scale  = (int) length;
                 length = 0;
+
+                if (tokenType == Token.WITH) {
+                    read();
+                    readThis(Token.TIME);
+                    readThis(Token.ZONE);
+                } else if (tokenType == Token.WITHOUT) {
+                    read();
+                    readThis(Token.TIME);
+                    readThis(Token.ZONE);
+                }
             }
         }
 

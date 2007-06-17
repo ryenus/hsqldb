@@ -59,6 +59,10 @@ public interface BlobData {
 
     public long length();
 
+    public long bitLength();
+
+    public boolean isBits();
+
     public int setBytes(long pos, byte[] bytes, int offset,
                         int len) throws HsqlException;
 

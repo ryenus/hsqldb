@@ -39,6 +39,7 @@ import org.hsqldb.Trace;
 import org.hsqldb.Types;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.store.BitMap;
 
 /**
  * Base class for type objects.<p>
@@ -365,7 +366,7 @@ public abstract class Type {
             IntervalType.defaultIntervalFractionPrecision);
 
     /**
-     * For literals
+     * For literals, supports only the types returned by Tokenizer
      */
     public static Type getValueType(int type, Object value) {
 
@@ -388,6 +389,10 @@ public abstract class Type {
 
                 case Types.SQL_BINARY :
                     precision = ((BinaryData) value).length();
+                    break;
+
+                case Types.SQL_BIT :
+                    precision = ((BinaryData) value).bitLength();
                     break;
 
                 case Types.SQL_NUMERIC :
@@ -538,6 +543,10 @@ public abstract class Type {
             case Types.SQL_BLOB :
                 return BinaryType.getBinaryType(type, precision);
 
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
+                return BitType.getBitType(type, precision);
+
             case Types.SQL_DATE :
             case Types.SQL_TIME :
             case Types.SQL_TIMESTAMP :
@@ -608,6 +617,7 @@ public abstract class Type {
         typeNames.put("VARBINARY", Types.SQL_VARBINARY);
         typeNames.put("CLOB", Types.SQL_CLOB);
         typeNames.put("BLOB", Types.SQL_BLOB);
+        typeNames.put("BIT", Types.SQL_BIT);
         typeNames.put("OTHER", Types.OTHER);
 
         //
@@ -621,7 +631,6 @@ public abstract class Type {
         typeAliases.put("DEC", Types.SQL_DECIMAL);
         typeAliases.put("LONGVARCHAR", Types.SQL_VARCHAR);
         typeAliases.put("DATETIME", Types.SQL_TIMESTAMP);
-        typeAliases.put("BIT", Types.SQL_BOOLEAN);
         typeAliases.put("LONGVARBINARY", Types.SQL_VARBINARY);
         typeAliases.put("OBJECT", Types.OTHER);
     }

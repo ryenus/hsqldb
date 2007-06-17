@@ -1113,9 +1113,8 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB supports conversion though String intermediates, so everything
-     * should be possible, short of number format errors (all Java objects
-     * have a toString method); this method always returns <code>true</code>.
+     * HSQLDB 1.9.0 supports conversion according to SQL standards. In addition,
+     * it supports conversion between values of BOOLEAN and BIT types.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1149,16 +1148,6 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
                 fromType = java.sql.Types.VARCHAR;
                 break;
             }
-            case java.sql.Types.LONGNVARCHAR:
-            {
-                fromType = java.sql.Types.LONGVARCHAR;
-                break;
-            }
-            case java.sql.Types.BIT:
-            {
-                fromType = java.sql.Types.BOOLEAN;
-                break;
-            }
         }
 
         switch(toType) {
@@ -1175,16 +1164,6 @@ public class jdbcDatabaseMetaData implements DatabaseMetaData {
             case java.sql.Types.NVARCHAR:
             {
                 toType = java.sql.Types.VARCHAR;
-                break;
-            }
-            case java.sql.Types.LONGNVARCHAR:
-            {
-                toType = java.sql.Types.LONGVARCHAR;
-                break;
-            }
-            case java.sql.Types.BIT:
-            {
-                toType = java.sql.Types.BOOLEAN;
                 break;
             }
         }

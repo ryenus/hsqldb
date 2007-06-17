@@ -551,8 +551,8 @@ implements PreparedStatement {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Including 1.9.0, HSQLDB represents all XXXBINARY values the same way
-     * internally; there is no appreciable difference between BINARY, 
-     * VARBINARY and LONGVARBINARY.
+     * internally; there is no appreciable difference between BINARY,
+     * VARBINARY and LONGVARBINARY as far as JDBC is concerned.
      * </div>
      * <!-- start release-specific documentation -->
      *

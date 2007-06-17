@@ -921,7 +921,7 @@ public class jdbcConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to HSQLDB 1.8.0.x, <p>
+     * Up to and including HSQLDB 1.8.0.x, <p>
      *
      * <ol>
      *   <li> All rows of a result set are retrieved internally <em>

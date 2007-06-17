@@ -375,7 +375,7 @@ implements HandshakeCompletedListener {
             Trace.printSystemOut("cipher suite : "
                                  + session.getCipherSuite());
 
-            sessionId = StringConverter.byteArrayToHex(session.getId());
+            sessionId = StringConverter.byteArrayToHexString(session.getId());
 
             Trace.printSystemOut("session id   : " + sessionId);
             Trace.printSystemOut(

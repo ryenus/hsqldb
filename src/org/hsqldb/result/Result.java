@@ -644,8 +644,7 @@ public class Result {
         return result;
     }
 
-    public static Result newUpdateCountResult(ResultMetaData meta,
-            int count) {
+    public static Result newUpdateCountResult(ResultMetaData meta, int count) {
 
         Result result     = newResult(ResultConstants.UPDATECOUNT);
         Result dataResult = newDataResult(meta);
@@ -762,8 +761,7 @@ public class Result {
         return result;
     }
 
-    public static Result newErrorResult(String error, String state,
-                                        int code) {
+    public static Result newErrorResult(String error, String state, int code) {
 
         Result result = newResult(ResultConstants.ERROR);
 
@@ -774,8 +772,7 @@ public class Result {
         return result;
     }
 
-    public static Result newRequestDataResult(long id, int offset,
-            int count) {
+    public static Result newRequestDataResult(long id, int offset, int count) {
 
         Result result = newResult(ResultConstants.REQUESTDATA);
 
@@ -824,8 +821,8 @@ public class Result {
 
         result.significantColumns = source.significantColumns;
         result.metaData           = source.metaData;
-        result.navigator = new ClientRowSetNavigator(source.navigator,
-                offset, count);
+        result.navigator = new ClientRowSetNavigator(source.navigator, offset,
+                count);
 
         result.navigator.setId(source.navigator.getId());
         result.setSession(session);
@@ -845,8 +842,8 @@ public class Result {
         result.id                 = source.id;
         result.significantColumns = source.significantColumns;
         result.metaData           = source.metaData;
-        result.navigator = new ClientRowSetNavigator(source.navigator,
-                offset, count);
+        result.navigator = new ClientRowSetNavigator(source.navigator, offset,
+                count);
 
         return result;
     }
