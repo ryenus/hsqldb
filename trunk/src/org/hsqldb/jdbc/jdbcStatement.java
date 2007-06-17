@@ -1335,8 +1335,9 @@ public class jdbcStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports this feature. <p>
-     * CHECKME: Supported only for single-row INSERT statements.
+     * Starting with 1.9.0, HSQLDB supports this feature with single-row and
+     * multi-row inserts. <p>
+     * CHECKME: possibly change method depending to final GENERATED column support.
      *
      * </div>
      * <!-- end release-specific documentation -->

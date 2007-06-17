@@ -1461,8 +1461,7 @@ public final class CompiledStatementExecutor {
                                          row.getData(), data, cols);
             }
 
-            table.enforceFieldValueLimits(data, cols);
-            table.enforceNullConstraints(data);
+            table.enforceRowConstraints(data);
         }
 
         // perform check/cascade operations

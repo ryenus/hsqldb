@@ -132,7 +132,7 @@ public class Util {
 
         String msg       = "JDBC feature not supported.";
         String sqlState  = "0A000";
-        int    errorCode = Trace.FEATURE_NOT_SUPPORTED;
+        int    errorCode = Trace.FUNCTION_NOT_SUPPORTED;
 
 //#ifdef JDBC4
         return sqlException(msg, sqlState, errorCode, null);

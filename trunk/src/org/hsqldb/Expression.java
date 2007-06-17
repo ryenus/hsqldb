@@ -3431,8 +3431,7 @@ public class Expression {
                 return dataType.divide(leftValue, rightValue);
 
             case CONCAT :
-                return ((CharacterType) dataType).concat(null, leftValue,
-                        rightValue);
+                return dataType.concat(null, leftValue, rightValue);
 
             default :
                 throw Trace.error(Trace.NEED_AGGREGATE,

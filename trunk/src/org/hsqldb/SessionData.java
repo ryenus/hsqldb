@@ -86,6 +86,12 @@ public class SessionData {
     // lobs
     LongKeyLongValueHashMap lobs = new LongKeyLongValueHashMap();
 
+    // VALUE
+    Object currentValue;
+
+    public Object getCurrentValue() {
+        return currentValue;
+    }
     /**
      * get the root for a temp table index
      */

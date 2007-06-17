@@ -473,7 +473,7 @@ final class DITableInfo {
         column = table.getColumn(i);
         type   = column.getType().getJDBCTypeNumber();
 
-        if (!Types.acceptsPrecisionCreateParam(type)) {
+        if (!Types.acceptsPrecision(type)) {
             return null;
         }
 

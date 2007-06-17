@@ -72,6 +72,8 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.UTFDataFormatException;
 
+import org.hsqldb.store.BitMap;
+
 /**
  * Collection of static methods for converting strings between different
  * formats and to and from byte arrays.<p>
@@ -88,9 +90,9 @@ import java.io.UTFDataFormatException;
 public class StringConverter {
 
     private static final byte[] HEXBYTES = {
-        (byte) '0', (byte) '1', (byte) '2', (byte) '3', (byte) '4',
-        (byte) '5', (byte) '6', (byte) '7', (byte) '8', (byte) '9',
-        (byte) 'a', (byte) 'b', (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f'
+        (byte) '0', (byte) '1', (byte) '2', (byte) '3', (byte) '4', (byte) '5',
+        (byte) '6', (byte) '7', (byte) '8', (byte) '9', (byte) 'a', (byte) 'b',
+        (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f'
     };
     private static final String HEXINDEX = "0123456789abcdef0123456789ABCDEF";
 
@@ -168,6 +170,48 @@ public class StringConverter {
     }
 
     /**
+     * Compacts a bit string into a BitMap
+     *
+     *
+     * @param s bit string
+     *
+     * @return byte array for the hex string
+     * @throws IOException
+     */
+    public static BitMap bitToBitMap(String s) throws IOException {
+
+        int    l = s.length();
+        int    n;
+        int    bitIndex = 0;
+        BitMap map      = new BitMap(l);
+
+        for (int j = 0; j < l; j++) {
+            char c = s.charAt(j);
+
+            if (c == ' ') {
+                continue;
+            }
+
+            n = HEXINDEX.indexOf(c);
+
+            if (n != 0 && n != 1) {
+                throw new IOException(
+                    "hexadecimal string contains non hex character");    //NOI18N
+            }
+
+            if (n == 1) {
+                map.set(bitIndex);
+            }
+
+            bitIndex++;
+        }
+
+        map.setSize(bitIndex);
+
+        return map;
+    }
+
+    /**
      * Converts a byte array into a hexadecimal string
      *
      *
@@ -175,7 +219,7 @@ public class StringConverter {
      *
      * @return hex string
      */
-    public static String byteArrayToHex(byte[] b) {
+    public static String byteArrayToHexString(byte[] b) {
 
         int    len = b.length;
         char[] s   = new char[len * 2];
@@ -186,35 +230,6 @@ public class StringConverter {
             s[j++] = (char) HEXBYTES[c >> 4 & 0xf];
             s[j++] = (char) HEXBYTES[c & 0xf];
         }
-
-        return new String(s);
-    }
-
-    /**
-     * Converts a byte array into an SQL hexadecimal string
-     *
-     *
-     * @param b byte array
-     *
-     * @return hex string
-     */
-    public static String byteArrayToHexString(byte[] b) {
-
-        int    len = b.length;
-        char[] s   = new char[len * 2 + 2];
-
-        s[0] = '\'';
-
-        int j = 1;
-
-        for (int i = 0; i < len; i++) {
-            int c = ((int) b[i]) & 0xff;
-
-            s[j++] = (char) HEXBYTES[c >> 4 & 0xf];
-            s[j++] = (char) HEXBYTES[c & 0xf];
-        }
-
-        s[j] = '\'';
 
         return new String(s);
     }
@@ -245,6 +260,57 @@ public class StringConverter {
         }
 
         s[j] = '\'';
+
+        return new String(s);
+    }
+
+    /**
+     * Converts a byte array into a bit string
+     *
+     *
+     * @param bytes byte array
+     * @param bitCount number of bits
+     * @return hex string
+     */
+    public static String byteArrayToBitString(byte[] bytes, int bitCount) {
+
+        char[] s = new char[bitCount];
+
+        for (int j = 0; j < bitCount; j++) {
+            byte b = bytes[j / 8];
+
+            s[j] = BitMap.isSet(b, j % 8) ? '1'
+                                          : '0';
+        }
+
+        return new String(s);
+    }
+
+    /**
+     * Converts a byte array into an SQL binary string
+     *
+     *
+     * @param bytes byte array
+     * @param bitCount number of bits
+     * @return hex string
+     */
+    public static String byteArrayToSQLBitString(byte[] bytes, int bitCount) {
+
+        char[] s = new char[bitCount + 3];
+
+        s[0] = 'X';
+        s[1] = '\'';
+
+        int pos = 2;
+
+        for (int j = 0; j < bitCount; j++) {
+            byte b = bytes[j / 8];
+
+            s[pos++] = BitMap.isSet(b, j % 8) ? '1'
+                                              : '0';
+        }
+
+        s[pos] = '\'';
 
         return new String(s);
     }
@@ -292,7 +358,7 @@ public class StringConverter {
 
         writeUTF(s, bout);
 
-        return byteArrayToHex(bout.toByteArray());
+        return byteArrayToHexString(bout.toByteArray());
     }
 
 // fredt@users 20011120 - patch 450455 by kibu@users - modified
@@ -535,8 +601,7 @@ public class StringConverter {
                     char2 = (int) bytearr[offset + count - 2];
                     char3 = (int) bytearr[offset + count - 1];
 
-                    if (((char2 & 0xC0) != 0x80)
-                            || ((char3 & 0xC0) != 0x80)) {
+                    if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
                         throw new UTFDataFormatException();
                     }
 

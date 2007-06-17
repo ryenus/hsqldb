@@ -299,7 +299,7 @@ class TestSelf extends TestUtil {
 
             // prepared statements
             s = "create table TabProfile(id int primary key,"
-                + "car varchar(20),won bit,licence varbinary,"
+                + "car varchar(20),won boolean,licence varbinary,"
                 + "name varchar(40),sex char,chance double,birthday date,filler varchar(10))";
 
             sStatement.execute(s);
@@ -361,7 +361,7 @@ class TestSelf extends TestUtil {
             int integer2 = r.getInt(1);
 
             s = "select \"org.hsqldb.lib.StringConverter.hexToByteArray\""
-                + "(\"org.hsqldb.lib.StringConverter.byteArrayToHex\"(x'abcd')) "
+                + "(\"org.hsqldb.lib.StringConverter.byteArrayToHexString\"(x'abcd')) "
                 + "from TabProfile";
             r = sStatement.executeQuery(s);
 
@@ -373,7 +373,7 @@ class TestSelf extends TestUtil {
 
             b1n = r.getBytes(1);
 
-            s = "select \"org.hsqldb.lib.StringConverter.byteArrayToHex\"(licence) filler, "
+            s = "select \"org.hsqldb.lib.StringConverter.byteArrayToHexString\"(licence) filler, "
                 + "\"org.hsqldb.lib.StringConverter.hexToByteArray\"(filler) "
                 + "from TabProfile";
             r = sStatement.executeQuery(s);
@@ -385,7 +385,7 @@ class TestSelf extends TestUtil {
             r.next();
 
             b1n = r.getBytes(2);
-            s = "update tabprofile set filler = \"org.hsqldb.lib.StringConverter.byteArrayToHex\"(licence)";
+            s = "update tabprofile set filler = \"org.hsqldb.lib.StringConverter.byteArrayToHexString\"(licence)";
 
             sStatement.executeUpdate(s);
 

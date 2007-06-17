@@ -50,6 +50,8 @@ public class BinaryData extends BlobDataMemory {
 
     private int     hash;
     private boolean hashed;
+    private boolean isBits;
+    private long    bitLength;
 
     /**
      * This constructor is used inside the engine when an already serialized
@@ -65,6 +67,20 @@ public class BinaryData extends BlobDataMemory {
 
     public BinaryData(BlobData b1, BlobData b2) throws HsqlException {
         super(b1, b2);
+    }
+
+    public BinaryData(byte[] data, long bitLength) {
+        super(data, false);
+        this.bitLength = bitLength;
+        this.isBits = true;
+    }
+
+    public long bitLength() {
+        return bitLength;
+    }
+
+    public boolean isBits() {
+        return isBits;
     }
 
     public boolean equals(Object other) {

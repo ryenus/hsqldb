@@ -121,6 +121,7 @@ public class Types {
     // such as:
     // SQL 2003 Part 9: Management of External Data (SQL/MED) : DATALINK
     // SQL 2003 Part 14: XML-Related Specifications (SQL/XML) : XML
+    public static final int SQL_BIT         = 14;                   // is in SQL99 but removed from 2003
     public static final int SQL_BIT_VARYING = 15;                   // is in SQL99 but removed from 2003
     public static final int SQL_DATALINK         = 70;
     public static final int SQL_UDT              = 17;
@@ -175,6 +176,13 @@ public class Types {
      * <code>BINARY</code>.
      */
     public static final int BINARY = -2;
+
+    /**
+     * <P>The constant in the Java programming language, sometimes referred
+     * to as a type code, that identifies the generic SQL type
+     * <code>BIT</code>.
+     */
+    public static final int BIT = -7;
 
     /**
      * The constant in the Java programming language, sometimes referred to
@@ -839,19 +847,53 @@ public class Types {
         }
     }
 */
+    public static boolean acceptsZeroPrecision(int type) {
+
+        switch (type) {
+
+            case Types.SQL_DECIMAL :
+            case Types.SQL_NUMERIC :
+            case Types.SQL_TIME :
+            case Types.SQL_TIMESTAMP :
+                return true;
+
+            default :
+                return false;
+        }
+    }
+
+    public static boolean requiresPrecision(int type) {
+
+        switch (type) {
+
+            case Types.SQL_BIT_VARYING :
+            case Types.SQL_BLOB :
+            case Types.SQL_CLOB :
+            case Types.NCLOB :
+            case Types.SQL_VARBINARY :
+            case Types.SQL_VARCHAR :
+            case Types.SQL_NVARCHAR :
+            case Types.VARCHAR_IGNORECASE :
+                return true;
+
+            default :
+                return false;
+        }
+    }
 
     /**
-     * Types that accept precition params in column definition or casts.
-     * We ignore the parameter in many cases but accept it for compatibility
-     * with other engines. CHAR, VARCHAR and VARCHAR_IGNORECASE params
-     * are used when the sql.enforce_strict_types is true.
+     * Types that accept precision params in column definition or casts.
+     * CHAR, VARCHAR and VARCHAR_IGNORECASE params
+     * are ignored when the sql.enforce_strict_types is false.
      *
      */
-    public static boolean acceptsPrecisionCreateParam(int type) {
+    public static boolean acceptsPrecision(int type) {
 
         switch (type) {
 
             case Types.SQL_BINARY :
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
             case Types.SQL_BLOB :
             case Types.SQL_CHAR :
             case Types.SQL_NCHAR :

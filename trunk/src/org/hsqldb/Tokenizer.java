@@ -73,6 +73,7 @@ import java.util.Locale;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 
@@ -273,6 +274,7 @@ public class Tokenizer {
         switch (iType) {
 
             case Types.SQL_BINARY :
+            case Types.SQL_BIT :
             case Types.SQL_CHAR :
             case Types.SQL_INTEGER :
             case Types.SQL_BIGINT :
@@ -542,6 +544,7 @@ public class Tokenizer {
             case Types.SQL_DOUBLE :
             case Types.SQL_NUMERIC :
             case Types.SQL_BINARY :
+            case Types.SQL_BIT :
             case Types.SQL_BOOLEAN :
                 return iType;
 
@@ -572,18 +575,28 @@ public class Tokenizer {
                 //fredt - no longer returning string with a singlequote as last char
                 return sToken;
 
-            case Types.SQL_BINARY :
-                byte[] array;
-
+            case Types.SQL_BIT : {
                 try {
-                    array = StringConverter.hexToByteArray(sToken);
+                    BitMap map = StringConverter.bitToBitMap(sToken);
+
+                    return new BinaryData(map.getBytes(), map.size());
                 } catch (IOException e) {
                     throw Trace.error(Trace.INVALID_CHARACTER_ENCODING,
                                       e.toString());
                 }
+            }
+            case Types.SQL_BINARY : {
+                byte[] array;
 
-                return new BinaryData(array, false);
+                try {
+                    array = StringConverter.hexToByteArray(sToken);
 
+                    return new BinaryData(array, false);
+                } catch (IOException e) {
+                    throw Trace.error(Trace.INVALID_CHARACTER_ENCODING,
+                                      e.toString());
+                }
+            }
             case Types.SQL_BIGINT :
                 return ValuePool.getLong(Long.parseLong(sToken));
 
@@ -705,7 +718,10 @@ public class Tokenizer {
 
         lastTokenQuotedID = false;
 
-        if (c == 'X' || c == 'x') {
+        if (c == 'B' || c == 'b') {
+            cfirst = c;
+            iType  = Types.SQL_BIT;
+        } else if (c == 'X' || c == 'x') {
             cfirst = c;
             iType  = Types.SQL_BINARY;
         } else if (Character.isJavaIdentifierStart(c)) {
@@ -875,6 +891,7 @@ public class Tokenizer {
 
             switch (iType) {
 
+                case Types.SQL_BIT :
                 case Types.SQL_BINARY :
                     if (c == '\'') {
                         iIndex++;

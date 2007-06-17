@@ -578,11 +578,13 @@ public class Token {
     static final String T_WRITE = "WRITE";
     static final String T_ZONE  = "ZONE";
 
-    // used non-reserved and other tokens
+    // other tokens
     static final String        T_ADD                 = "ADD";
     static final String        T_ALIAS               = "ALIAS";
     static final String        T_AUTOCOMMIT          = "AUTOCOMMIT";
     static final String        T_BACKUP              = "BACKUP";
+    public static final String T_BIT                 = "BIT";
+    static final String        T_BIT_LENGTH          = "BIT_LENGTH";
     static final String        T_CACHED              = "CACHED";
     static final String        T_CASEWHEN            = "CASEWHEN";
     static final String        T_CHECKPOINT          = "CHECKPOINT";
@@ -1184,48 +1186,49 @@ public class Token {
     static final int CLOSEBRACKET     = 538;
 
     // other token values used as switch cases
-    public static final int UNKNOWNTOKEN          = -1;
     static final int        ALIAS                 = 551;
     static final int        AUTOCOMMIT            = 552;
-    static final int        CACHED                = 553;
-    static final int        CHECKPOINT            = 554;
-    static final int        EXPLAIN               = 555;
-    static final int        IGNORECASE            = 556;
-    static final int        INDEX                 = 557;
-    static final int        LOGSIZE               = 558;
-    static final int        MAXROWS               = 559;
-    static final int        MEMORY                = 560;
-    static final int        MINUS_EXCEPT          = 561;
-    static final int        PASSWORD              = 563;
-    static final int        PLAN                  = 564;
-    static final int        PROPERTY              = 565;
-    static final int        READONLY              = 566;
-    static final int        REFERENTIAL_INTEGRITY = 567;
-    static final int        SCRIPT                = 568;
-    static final int        SCRIPTFORMAT          = 569;
-    static final int        SEMICOLON             = 570;
-    static final int        SHUTDOWN              = 571;
-    static final int        TEMP                  = 572;
-    static final int        TEXT                  = 573;
-    static final int        WRITE_DELAY           = 574;
-    static final int        DEFRAG                = 575;
-    static final int        TOCHAR                = 576;
-    static final int        DATABASE              = 577;
-    public static final int DAY_OF_WEEK           = 578;
-    static final int        INITIAL               = 579;
-    static final int        CASEWHEN              = 580;
-    static final int        RENAME                = 581;
-    static final int        IFNULL                = 583;
-    public static final int WEEK_OF_YEAR          = 584;
-    static final int        LIMIT                 = 585;
-    static final int        OFFSET                = 586;
-    static final int        TOP                   = 587;
-    static final int        COMPACT               = 588;
-    static final int        IMMEDIATELY           = 589;
-    static final int        IF                    = 590;
-    static final int        MILLIS                = 591;
-    static final int        HEADER                = 592;
-    static final int        OFF                   = 593;
+    static final int        BIT                   = 553;
+    static final int        BIT_LENGTH            = 554;
+    static final int        CACHED                = 555;
+    static final int        CASEWHEN              = 556;
+    static final int        CHECKPOINT            = 557;
+    static final int        COMPACT               = 558;
+    static final int        DATABASE              = 559;
+    public static final int DAY_OF_WEEK           = 560;
+    static final int        DEFRAG                = 561;
+    static final int        EXPLAIN               = 562;
+    static final int        HEADER                = 563;
+    static final int        IGNORECASE            = 564;
+    static final int        IF                    = 565;
+    static final int        IFNULL                = 566;
+    static final int        INDEX                 = 567;
+    static final int        IMMEDIATELY           = 568;
+    static final int        INITIAL               = 569;
+    static final int        LIMIT                 = 570;
+    static final int        LOGSIZE               = 571;
+    static final int        MAXROWS               = 572;
+    static final int        MEMORY                = 573;
+    static final int        MILLIS                = 574;
+    static final int        MINUS_EXCEPT          = 575;
+    static final int        OFF                   = 576;
+    static final int        OFFSET                = 577;
+    static final int        PASSWORD              = 578;
+    static final int        PLAN                  = 579;
+    static final int        PROPERTY              = 580;
+    static final int        READONLY              = 581;
+    static final int        REFERENTIAL_INTEGRITY = 582;
+    static final int        RENAME                = 583;
+    static final int        SCRIPT                = 584;
+    static final int        SCRIPTFORMAT          = 585;
+    static final int        SEMICOLON             = 586;
+    static final int        SHUTDOWN              = 587;
+    static final int        TEMP                  = 588;
+    static final int        TEXT                  = 589;
+    static final int        TOCHAR                = 590;
+    static final int        TOP                   = 591;
+    public static final int WEEK_OF_YEAR          = 592;
+    static final int        WRITE_DELAY           = 593;
 
     //
     static final int SQL_TSI_FRAC_SECOND = 601;
@@ -1239,14 +1242,15 @@ public class Token {
     static final int SQL_TSI_YEAR        = 609;
 
     //
-    static final int X_KEYSET      = 700;
-    static final int X_OPTION      = 701;
-    static final int X_REPEAT      = 702;
-    static final int X_POS_INTEGER = 703;
-    static final int X_VALUE       = 704;
-    static final int X_NAME        = 705;
-    static final int X_ENDPARSE    = 706;
-    static final int X_STARTPARSE  = 707;
+    static final int        X_KEYSET       = 700;
+    static final int        X_OPTION       = 701;
+    static final int        X_REPEAT       = 702;
+    static final int        X_POS_INTEGER  = 703;
+    static final int        X_VALUE        = 704;
+    static final int        X_NAME         = 705;
+    static final int        X_ENDPARSE     = 706;
+    static final int        X_STARTPARSE   = 707;
+    public static final int X_UNKNOWNTOKEN = -1;
 
     // other
     /*
@@ -1583,6 +1587,8 @@ public class Token {
         commandSet.put(T_ASC, ASC);
         commandSet.put(T_AUTOCOMMIT, AUTOCOMMIT);
         commandSet.put(T_BEFORE, BEFORE);
+        commandSet.put(Token.T_BIT, BIT);
+        commandSet.put(Token.T_BIT_LENGTH, BIT_LENGTH);
         commandSet.put(T_CACHED, CACHED);
         commandSet.put(T_CASCADE, CASCADE);
         commandSet.put(T_CHECKPOINT, CHECKPOINT);

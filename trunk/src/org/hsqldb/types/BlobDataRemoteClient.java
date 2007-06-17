@@ -56,13 +56,13 @@ import org.hsqldb.rowio.RowOutputInterface;
 public class BlobDataRemoteClient implements BlobData {
 
     long       id;
-    final long       blobLength;
+    final long       length;
     SessionInterface session;
     boolean          hasWriter;
 
     public BlobDataRemoteClient(long id, long length) {
         this.id         = id;
-        this.blobLength = length;
+        this.length = length;
     }
 
     public byte[] getBytes() {
@@ -74,12 +74,20 @@ public class BlobDataRemoteClient implements BlobData {
     }
 
     public long length() {
-        return blobLength;
+        return length;
+    }
+
+    public long bitLength() {
+        return length * 8;
+    }
+
+    public boolean isBits() {
+        return false;
     }
 
     public byte[] getBytes(long pos, int length) throws HsqlException {
 
-        if (!isInLimits(blobLength, pos, length)) {
+        if (!isInLimits(this.length, pos, length)) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -170,7 +178,7 @@ public class BlobDataRemoteClient implements BlobData {
 
     public void write(RowOutputInterface out) throws IOException, HsqlException {
         out.writeLong(id);
-        out.writeLong(blobLength);
+        out.writeLong(length);
     }
 
     public boolean isClosed() {

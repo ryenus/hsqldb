@@ -138,20 +138,22 @@ public class OtherType extends Type {
     }
 
     public String convertToString(Object a) {
+
         if (a == null) {
             return null;
         }
 
-        return StringConverter.byteArrayToHex(
+        return StringConverter.byteArrayToHexString(
             ((JavaObjectData) a).getBytes());
     }
 
     public String convertToSQLString(Object a) {
+
         if (a == null) {
             return "NULL";
         }
 
-        return StringConverter.byteArrayToHexString(
+        return StringConverter.byteArrayToSQLHexString(
             ((JavaObjectData) a).getBytes());
     }
 

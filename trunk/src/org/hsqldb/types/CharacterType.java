@@ -57,8 +57,8 @@ public class CharacterType extends Type {
 
     Collation                     collation;
     boolean                       isEqualIdentical;
-    final static int              defaultCharPrecision = 1;
-    public static final Collation defaultCollation     = new Collation();
+    final static int              sqlDefaultCharPrecision = 1;
+    public static final Collation defaultCollation        = new Collation();
     public final static CharacterType sqlIdentifierType =
         new CharacterType(Types.SQL_VARCHAR, 128L);
 

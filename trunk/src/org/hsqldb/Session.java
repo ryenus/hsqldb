@@ -136,7 +136,6 @@ public class Session implements SessionInterface {
     int             actionIndex;
     long            actionTimestamp;
     long            transactionTimestamp;
-    private boolean isNestedTransaction;
     HsqlArrayList   rowActionList;
     boolean         rollbackNestedTransaction;
     HashMappedList  savepoints;

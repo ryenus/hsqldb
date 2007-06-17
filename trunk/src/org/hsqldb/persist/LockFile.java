@@ -850,8 +850,8 @@ public class LockFile {
         // in the past and it is possible that timing jitters make it uncertain
         // whether the lock really is still held.
         if (Math.abs(now - lastHeartbeat) <= (HEARTBEAT_INTERVAL_PADDED)) {
-            throw new LockHeldExternallyException(this, "checkHeartbeat",
-                                                  now, lastHeartbeat);
+            throw new LockHeldExternallyException(this, "checkHeartbeat", now,
+                                                  lastHeartbeat);
         }
     }
 
@@ -1175,8 +1175,8 @@ public class LockFile {
         if (timerTask == null || HsqlTimer.isCancelled(timerTask)) {
             Runnable runner = new HeartbeatRunner();
 
-            timerTask = timer.schedulePeriodicallyAfter(0,
-                    HEARTBEAT_INTERVAL, runner, true);
+            timerTask = timer.schedulePeriodicallyAfter(0, HEARTBEAT_INTERVAL,
+                    runner, true);
         }
     }
 
@@ -1185,7 +1185,7 @@ public class LockFile {
      */
     private final void stopHeartbeat() {
 
-        if (timerTask != null &&!HsqlTimer.isCancelled(timerTask)) {
+        if (timerTask != null && !HsqlTimer.isCancelled(timerTask)) {
             HsqlTimer.cancel(timerTask);
 
             timerTask = null;
@@ -1263,8 +1263,7 @@ public class LockFile {
         } catch (SecurityException ex) {
             throw new FileSecurityException(this, "writeHeartbeat", ex);
         } catch (EOFException ex) {
-            throw new UnexpectedEndOfFileException(this, "writeHeartbeat",
-                                                   ex);
+            throw new UnexpectedEndOfFileException(this, "writeHeartbeat", ex);
         } catch (IOException ex) {
             throw new UnexpectedFileIOException(this, "writeHeartbeat", ex);
         }
@@ -1798,8 +1797,7 @@ public class LockFile {
      *      process of releasing the lock condition
      */
     public final boolean tryRelease()
-    throws LockFile.FileSecurityException,
-           LockFile.UnexpectedFileIOException {
+    throws LockFile.FileSecurityException, LockFile.UnexpectedFileIOException {
 
         boolean released = !locked;
 
@@ -1850,8 +1848,8 @@ public class LockFile {
                 // deleted above (if it it deleted successfully, that is)
                 // released = !file.exists();
             } catch (SecurityException ex) {
-                securityReason = new FileSecurityException(this,
-                        "tryRelease", ex);
+                securityReason = new FileSecurityException(this, "tryRelease",
+                        ex);
             }
         } finally {
 
@@ -2193,8 +2191,7 @@ public class LockFile {
      * Thrown when access to a <tt>LockFile</tt> object's target file raises an
      * unexpected <tt>IOException</tt> other than <tt>EOFException</tt>.
      */
-    public static final class UnexpectedFileIOException
-    extends BaseException {
+    public static final class UnexpectedFileIOException extends BaseException {
 
         private final IOException reason;
 
@@ -2298,8 +2295,7 @@ public class LockFile {
          * @param length the actual length reported by the file system
          */
         public WrongLengthException(final LockFile lockFile,
-                                    final String inMethod,
-                                    final long length) {
+                                    final String inMethod, final long length) {
 
             super(lockFile, inMethod);
 
@@ -2343,8 +2339,7 @@ public class LockFile {
          * @param magic the actual magic value read from the file
          */
         public WrongMagicException(final LockFile lockFile,
-                                   final String inMethod,
-                                   final byte[] magic) {
+                                   final String inMethod, final byte[] magic) {
 
             super(lockFile, inMethod);
 
@@ -2363,7 +2358,7 @@ public class LockFile {
 
             message = message + ((magic == null) ? "null"
                                                  : "'"
-                                                   + StringConverter.byteArrayToHex(magic)
+                                                   + StringConverter.byteArrayToHexString(magic)
                                                    + "'");
 
             return message;

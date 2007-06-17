@@ -181,7 +181,7 @@ public class BlobType extends BinaryType {
 
         byte[] bytes = ((BlobData) a).getBytes();
 
-        return StringConverter.byteArrayToHex(bytes);
+        return StringConverter.byteArrayToHexString(bytes);
     }
 
     public String convertToSQLString(Object a) {
@@ -192,6 +192,6 @@ public class BlobType extends BinaryType {
 
         byte[] bytes = ((BlobData) a).getBytes();
 
-        return StringConverter.byteArrayToHexString(bytes);
+        return StringConverter.byteArrayToSQLHexString(bytes);
     }
 }

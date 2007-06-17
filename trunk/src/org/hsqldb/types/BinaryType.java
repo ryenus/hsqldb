@@ -109,6 +109,13 @@ public class BinaryType extends Type {
             case Types.SQL_ALL_TYPES :
                 return this;
 
+            case Types.SQL_BIT_VARYING : {
+                long otherPrecision = (other.precision + 7) / 8;
+
+                return precision >= otherPrecision ? this
+                                                   : getBinaryType(type,
+                                                   otherPrecision);
+            }
             case Types.SQL_BINARY :
                 return precision >= other.precision ? this
                                                     : getBinaryType(type,
@@ -122,13 +129,12 @@ public class BinaryType extends Type {
                 } else {
                     return other.precision >= precision ? other
                                                         : getBinaryType(
-                                                        other.type,
-                                                        precision);
+                                                        other.type, precision);
                 }
             case Types.SQL_BLOB :
                 return other.precision >= precision ? other
-                                                    : getBinaryType(
-                                                    other.type, precision);
+                                                    : getBinaryType(other.type,
+                                                    precision);
 
             default :
                 throw Trace.error(Trace.INVALID_CONVERSION);
@@ -146,11 +152,20 @@ public class BinaryType extends Type {
         }
 
         Type newType;
+        long otherPrecision = other.precision;
 
         switch (other.type) {
 
             case Types.SQL_ALL_TYPES :
                 return this;
+
+            case Types.SQL_BIT_VARYING :
+                newType = this;
+
+                if (type != Types.SQL_BIT_VARYING) {
+                    otherPrecision = (other.precision + 7) / 8;
+                }
+                break;
 
             case Types.SQL_BINARY :
                 newType = this;
@@ -169,7 +184,7 @@ public class BinaryType extends Type {
                 throw Trace.error(Trace.INVALID_CONVERSION);
         }
 
-        return getBinaryType(newType.type, precision + other.precision);
+        return getBinaryType(newType.type, precision + otherPrecision);
     }
 
     public int compare(Object a, Object b) {
@@ -245,12 +260,12 @@ public class BinaryType extends Type {
             return a;
         }
 
-        long len = ((BlobData) a).length();
+        long length = ((BlobData) a).length();
 
-        if (len == precision) {
+        if (length == precision) {
             return a;
-        } else if (len > precision) {
-            if (getRightTrimSize((BlobData) a, 0) > precision) {
+        } else if (length > precision) {
+            if (getRightTrimSize((BlobData) a) > precision) {
                 throw Trace.error(Trace.STRING_DATA_TRUNCATION);
             }
 
@@ -273,7 +288,7 @@ public class BinaryType extends Type {
                 byte[] data = new byte[(int) precision];
 
                 System.arraycopy(((BlobData) a).getBytes(), 0, data, 0,
-                                 (int) len);
+                                 (int) length);
 
                 return new BinaryData(data, false);
             }
@@ -360,7 +375,7 @@ public class BinaryType extends Type {
             return null;
         }
 
-        return StringConverter.byteArrayToHex(((BlobData) a).getBytes());
+        return StringConverter.byteArrayToHexString(((BlobData) a).getBytes());
     }
 
     public String convertToSQLString(Object a) {
@@ -433,13 +448,12 @@ public class BinaryType extends Type {
         }
     }
 
-    private int getRightTrimSize(BlobData data, int trim) {
+    int getRightTrimSize(BlobData data) {
 
         byte[] bytes    = data.getBytes();
         int    endindex = bytes.length;
 
-        for (--endindex; endindex >= 0 && bytes[endindex] == trim;
-                endindex--) {}
+        for (--endindex; endindex >= 0 && bytes[endindex] == 0; endindex--) {}
 
         return ++endindex;
     }

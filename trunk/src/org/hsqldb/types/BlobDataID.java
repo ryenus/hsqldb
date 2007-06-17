@@ -90,6 +90,14 @@ public class BlobDataID implements BlobData {
         return length;
     }
 
+    public long bitLength() {
+        return length * 8;
+    }
+
+    public boolean isBits() {
+        return false;
+    }
+
     public long position(BlobData pattern, long start) throws HsqlException {
         return 0L;
     }

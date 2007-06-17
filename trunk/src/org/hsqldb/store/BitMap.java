@@ -31,12 +31,14 @@
 
 package org.hsqldb.store;
 
+import java.util.Arrays;
+
 /**
  * Implementation of a bit map of any size, together with static methods to
  * manipulate int values as bit maps.
  *
 * @author fredt@users
-* @version 1.8.0
+* @version 1.9.0
 * @since 1.8.0
 */
 public class BitMap {
@@ -44,6 +46,7 @@ public class BitMap {
     int   defaultCapacity;
     int   capacity;
     int[] map;
+    int   limitPos;
 
     public BitMap(int initialCapacity) {
 
@@ -55,14 +58,25 @@ public class BitMap {
 
         defaultCapacity = capacity = words * 32;
         map             = new int[words];
+        limitPos        = initialCapacity;
+    }
+
+    public int size() {
+        return limitPos;
+    }
+
+    public void setSize(int size) {
+        limitPos = size;
     }
 
     /**
      * Resets to blank with original capacity
      */
     public void reset() {
+
         map      = new int[defaultCapacity / 32];
         capacity = defaultCapacity;
+        limitPos = capacity;
     }
 
     /**
@@ -124,11 +138,53 @@ public class BitMap {
         return get(pos) == 1;
     }
 
+    public byte[] getBytes() {
+
+        byte[] buf = new byte[(limitPos + 7) / 8];
+
+        for (int i = 0; ; ) {
+            int v = map[i / 4];
+
+            buf[i++] = (byte) (v >>> 24);
+
+            if (i == buf.length) {
+                break;
+            }
+
+            buf[i++] = (byte) (v >>> 16);
+
+            if (i == buf.length) {
+                break;
+            }
+
+            buf[i++] = (byte) (v >>> 8);
+
+            if (i == buf.length) {
+                break;
+            }
+
+            buf[i++] = (byte) v;
+
+            if (i == buf.length) {
+                break;
+            }
+        }
+
+        return buf;
+    }
+
     public static int set(int map, int pos) {
 
         int mask = 0x80000000 >>> pos;
 
         return (map | mask);
+    }
+
+    public static byte set(byte map, int pos) {
+
+        int mask = 0x00000080 >>> pos;
+
+        return (byte) (map | mask);
     }
 
     public static int unset(int map, int pos) {
@@ -143,6 +199,14 @@ public class BitMap {
     public static boolean isSet(int map, int pos) {
 
         int mask = 0x80000000 >>> pos;
+
+        return (map & mask) == 0 ? false
+                                 : true;
+    }
+
+    public static boolean isSet(byte map, int pos) {
+
+        int mask = 0x00000080 >>> pos;
 
         return (map & mask) == 0 ? false
                                  : true;

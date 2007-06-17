@@ -162,7 +162,6 @@ public class Table extends BaseTable implements SchemaObject {
     Expression[]    colDefaults;                      // fredt - expressions of DEFAULT values
     private int[]   defaultColumnMap;                 // fred - holding 0,1,2,3,...
     private boolean hasDefaultValues;                 //fredt - shortcut for above
-    boolean         sqlEnforceSize;                   // inherited from the database -
 
     // properties for subclasses
     protected int        columnCount;                 // inclusive the hidden primary key
@@ -194,7 +193,6 @@ public class Table extends BaseTable implements SchemaObject {
     public Table(Database db, HsqlName name, int type) throws HsqlException {
 
         database       = db;
-        sqlEnforceSize = db.sqlEnforceStrictSize;
         rowIdSequence  = new NumberSequence(null, 0, 1, Type.SQL_BIGINT);
 
         switch (type) {
@@ -2001,7 +1999,7 @@ public class Table extends BaseTable implements SchemaObject {
 
             ArrayUtil.copyAdjustArray(o, data, colvalue, colindex, adjust);
             systemSetIdentityColumn(session, data);
-            enforceNullConstraints(data);
+            enforceRowConstraints(data);
 
             Row newrow = newRow(data);
 
@@ -2187,8 +2185,7 @@ public class Table extends BaseTable implements SchemaObject {
         Object[] data = row.getData();
 
         systemUpdateIdentityValue(data);
-        enforceFieldValueLimits(data, defaultColumnMap);
-        enforceNullConstraints(data);
+        enforceRowConstraints(data);
 
         int i = 0;
 
@@ -2206,20 +2203,6 @@ public class Table extends BaseTable implements SchemaObject {
             }
 
             throw e;
-        }
-    }
-
-    /**
-     * Checks a row against NOT NULL constraints on columns.
-     */
-    protected void enforceNullConstraints(Object[] data) throws HsqlException {
-
-        for (int i = 0; i < colNotNull.length; i++) {
-            if (data[i] == null && colNotNull[i]) {
-                Trace.throwerror(Trace.TRY_TO_INSERT_NULL,
-                                 "column: " + getColumn(i).columnName.name
-                                 + " table: " + tableName.name);
-            }
         }
     }
 
@@ -2278,6 +2261,10 @@ public class Table extends BaseTable implements SchemaObject {
         }
     }
 
+    void enforceRowConstraints(Object data[]) throws HsqlException {
+        enforceFieldValueLimits(data, null);
+        enforceNullConstraints(data);
+    }
     /**
      *  Enforce max field sizes according to SQL column definition.
      *  SQL92 13.8
@@ -2285,7 +2272,7 @@ public class Table extends BaseTable implements SchemaObject {
     void enforceFieldValueLimits(Object[] data,
                                  int[] cols) throws HsqlException {
 
-        if (sqlEnforceSize) {
+        if (database.sqlEnforceStrictSize) {
             if (cols == null) {
                 cols = defaultColumnMap;
             }
@@ -2303,6 +2290,21 @@ public class Table extends BaseTable implements SchemaObject {
             }
         }
     }
+
+    /**
+     * Checks a row against NOT NULL constraints on columns.
+     */
+    void enforceNullConstraints(Object[] data) throws HsqlException {
+
+        for (int i = 0; i < colNotNull.length; i++) {
+            if (data[i] == null && colNotNull[i]) {
+                Trace.throwerror(Trace.TRY_TO_INSERT_NULL,
+                                 "column: " + getColumn(i).columnName.name
+                                 + " table: " + tableName.name);
+            }
+        }
+    }
+
 
     boolean hasTrigger(int trigVecIndex) {
         return triggerLists[trigVecIndex] != null
@@ -2756,8 +2758,7 @@ public class Table extends BaseTable implements SchemaObject {
     void checkRowDataInsert(Session session,
                             Object[] data) throws HsqlException {
 
-        enforceFieldValueLimits(data, null);
-        enforceNullConstraints(data);
+        enforceRowConstraints(data);
 
         if (database.isReferentialIntegrity()) {
             for (int i = 0, size = constraintList.length; i < size; i++) {
@@ -2769,8 +2770,7 @@ public class Table extends BaseTable implements SchemaObject {
     void checkRowDataUpdate(Session session, Object[] data,
                             int[] cols) throws HsqlException {
 
-        enforceFieldValueLimits(data, cols);
-        enforceNullConstraints(data);
+        enforceRowConstraints(data);
 
         for (int j = 0; j < constraintList.length; j++) {
             Constraint c = constraintList[j];

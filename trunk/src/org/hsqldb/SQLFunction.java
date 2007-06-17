@@ -41,6 +41,7 @@ import org.hsqldb.types.DateTimeIntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.BitType;
 
 /**
  * Implementation of SQL standard functions.<p>
@@ -56,48 +57,49 @@ public class SQLFunction extends Expression {
     private final static int   FUNC_OCCURENCES_REGEX                 = 3;
     private final static int   FUNC_POSITION_REGEX                   = 4;
     protected final static int FUNC_EXTRACT                          = 5;
-    private final static int   FUNC_CHAR_LENGTH                      = 6;
-    private final static int   FUNC_OCTET_LENGTH                     = 7;
-    private final static int   FUNC_CARDINALITY                      = 8;
-    private final static int   FUNC_ABS                              = 9;
-    private final static int   FUNC_MOD                              = 10;
-    private final static int   FUNC_LN                               = 11;
-    private final static int   FUNC_EXP                              = 12;
-    private final static int   FUNC_POWER                            = 13;
-    private final static int   FUNC_SQRT                             = 14;
-    private final static int   FUNC_FLOOR                            = 15;
-    private final static int   FUNC_CEILING                          = 16;
-    private final static int   FUNC_WIDTH_BUCKET                     = 17;
-    private final static int   FUNC_SUBSTRING_CHAR                   = 20;    // string
-    private final static int   FUNC_SUBSTRING_REG_EXPR               = 21;
-    private final static int   FUNC_SUBSTRING_REGEX                  = 22;
-    private final static int   FUNC_FOLD_LOWER                       = 23;
-    private final static int   FUNC_FOLD_UPPER                       = 24;
-    private final static int   FUNC_TRANSCODING                      = 25;
-    private final static int   FUNC_TRANSLITERATION                  = 26;
-    private final static int   FUNC_REGEX_TRANSLITERATION            = 27;
-    private final static int   FUNC_TRIM_CHAR                        = 28;
-    private final static int   FUNC_OVERLAY_CHAR                     = 29;
-    private final static int   FUNC_CHAR_NORMALIZE                   = 30;
-    private final static int   FUNC_SUBSTRING_BINARY                 = 31;
-    private final static int   FUNC_TRIM_BINARY                      = 32;
-    private final static int   FUNC_OVERLAY_BINARY                   = 33;
-    protected final static int FUNC_CURRENT_DATE                     = 40;    // datetime
-    private final static int   FUNC_CURRENT_TIME                     = 41;
-    protected final static int FUNC_CURRENT_TIMESTAMP                = 42;
-    private final static int   FUNC_LOCALTIME                        = 43;
-    private final static int   FUNC_LOCALTIMESTAMP                   = 44;
-    private final static int   FUNC_CURRENT_CATALOG                  = 50;    // general
-    private final static int   FUNC_CURRENT_DEFAULT_TRANSFORM_GROUP  = 51;
-    private final static int   FUNC_CURRENT_PATH                     = 52;
-    private final static int   FUNC_CURRENT_ROLE                     = 53;
-    private final static int   FUNC_CURRENT_SCHEMA                   = 54;
-    private final static int   FUNC_CURRENT_TRANSFORM_GROUP_FOR_TYPE = 55;
-    private final static int   FUNC_CURRENT_USER                     = 56;
-    private final static int   FUNC_SESSION_USER                     = 57;
-    private final static int   FUNC_SYSTEM_USER                      = 58;
-    protected final static int FUNC_USER                             = 59;
-    private final static int   FUNC_VALUE                            = 60;
+    private final static int   FUNC_BIT_LENGTH                       = 6;
+    private final static int   FUNC_CHAR_LENGTH                      = 7;
+    private final static int   FUNC_OCTET_LENGTH                     = 8;
+    private final static int   FUNC_CARDINALITY                      = 9;
+    private final static int   FUNC_ABS                              = 10;
+    private final static int   FUNC_MOD                              = 11;
+    private final static int   FUNC_LN                               = 12;
+    private final static int   FUNC_EXP                              = 13;
+    private final static int   FUNC_POWER                            = 14;
+    private final static int   FUNC_SQRT                             = 15;
+    private final static int   FUNC_FLOOR                            = 16;
+    private final static int   FUNC_CEILING                          = 17;
+    private final static int   FUNC_WIDTH_BUCKET                     = 20;
+    private final static int   FUNC_SUBSTRING_CHAR                   = 21;    // string
+    private final static int   FUNC_SUBSTRING_REG_EXPR               = 22;
+    private final static int   FUNC_SUBSTRING_REGEX                  = 23;
+    private final static int   FUNC_FOLD_LOWER                       = 24;
+    private final static int   FUNC_FOLD_UPPER                       = 25;
+    private final static int   FUNC_TRANSCODING                      = 26;
+    private final static int   FUNC_TRANSLITERATION                  = 27;
+    private final static int   FUNC_REGEX_TRANSLITERATION            = 28;
+    private final static int   FUNC_TRIM_CHAR                        = 29;
+    private final static int   FUNC_OVERLAY_CHAR                     = 30;
+    private final static int   FUNC_CHAR_NORMALIZE                   = 31;
+    private final static int   FUNC_SUBSTRING_BINARY                 = 32;
+    private final static int   FUNC_TRIM_BINARY                      = 33;
+    private final static int   FUNC_OVERLAY_BINARY                   = 40;
+    protected final static int FUNC_CURRENT_DATE                     = 41;    // datetime
+    private final static int   FUNC_CURRENT_TIME                     = 42;
+    protected final static int FUNC_CURRENT_TIMESTAMP                = 43;
+    private final static int   FUNC_LOCALTIME                        = 44;
+    private final static int   FUNC_LOCALTIMESTAMP                   = 50;
+    private final static int   FUNC_CURRENT_CATALOG                  = 51;    // general
+    private final static int   FUNC_CURRENT_DEFAULT_TRANSFORM_GROUP  = 52;
+    private final static int   FUNC_CURRENT_PATH                     = 53;
+    private final static int   FUNC_CURRENT_ROLE                     = 54;
+    private final static int   FUNC_CURRENT_SCHEMA                   = 55;
+    private final static int   FUNC_CURRENT_TRANSFORM_GROUP_FOR_TYPE = 56;
+    private final static int   FUNC_CURRENT_USER                     = 57;
+    private final static int   FUNC_SESSION_USER                     = 58;
+    private final static int   FUNC_SYSTEM_USER                      = 59;
+    protected final static int FUNC_USER                             = 60;
+    private final static int   FUNC_VALUE                            = 61;
 
     //
     static final Expression[] emptyArgList             = new Expression[0];
@@ -279,6 +281,11 @@ public class SQLFunction extends Expression {
                     Token.USING, Token.X_KEYSET, 2, Token.CHARACTERS,
                     Token.OCTETS, Token.CLOSEBRACKET
                 };
+                break;
+
+            case FUNC_BIT_LENGTH :
+                name      = Token.T_BIT_LENGTH;
+                parseList = singleParamList;
                 break;
 
             case FUNC_OCTET_LENGTH :
@@ -596,6 +603,17 @@ public class SQLFunction extends Expression {
 
                 long result =
                     ((CharacterType) argList[0].dataType).size(data[0]);
+
+                return ValuePool.getLong(result);
+            }
+            case FUNC_BIT_LENGTH : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                long result;
+
+                result = ((BitType) argList[0].dataType).size(data[0]);
 
                 return ValuePool.getLong(result);
             }
@@ -953,7 +971,7 @@ public class SQLFunction extends Expression {
                 return session.getUser().getName();
 
             case FUNC_VALUE :
-                return null;
+                return session.sessionData.getCurrentValue();
 
             case FUNC_CURRENT_DATE :
                 return session.getCurrentDate();
@@ -1044,6 +1062,20 @@ public class SQLFunction extends Expression {
                 } else {
                     dataType = Type.SQL_INTEGER;
                 }
+
+                break;
+            }
+            case FUNC_BIT_LENGTH : {
+                if (argList[0].dataType == null) {
+                    argList[0].dataType = Type.SQL_VARCHAR_MAX_WIDTH;
+                }
+
+                if (argList[0].dataType.type != Types.SQL_BIT
+                        && argList[0].dataType.type != Types.SQL_BIT_VARYING) {
+                    throw Trace.error(Trace.WRONG_DATA_TYPE);
+                }
+
+                dataType = Type.SQL_BIGINT;
 
                 break;
             }
@@ -1232,6 +1264,10 @@ public class SQLFunction extends Expression {
                 }
 
                 dataType = argList[0].dataType;
+
+                if (!dataType.isCharacterType()) {
+                    throw Trace.error(Trace.WRONG_DATA_TYPE);
+                }
                 break;
 
             /*
@@ -1511,6 +1547,12 @@ public class SQLFunction extends Expression {
             }
             case FUNC_CHAR_LENGTH : {
                 buf.append(Token.T_CHAR_LENGTH).append('(')            //
+                    .append(argList[0].getDDL()).append(')');
+
+                break;
+            }
+            case FUNC_BIT_LENGTH : {
+                buf.append(Token.T_BIT_LENGTH).append('(')           //
                     .append(argList[0].getDDL()).append(')');
 
                 break;

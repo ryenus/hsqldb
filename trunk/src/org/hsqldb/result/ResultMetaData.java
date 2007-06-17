@@ -55,7 +55,7 @@ public class ResultMetaData {
     public static final int GENERATED_NAME_METADATA  = 5;
 
     //
-    private int             type;
+    private int type;
 
     // always resolved for data results
     public String[]  colLabels;
@@ -270,9 +270,9 @@ public class ResultMetaData {
                 prepareData(colCount);
 
                 for (int i = 0; i < colCount; i++) {
-                    int type  = in.readType();
+                    int  type  = in.readType();
                     long size  = in.readLong();
-                    int scale = in.readInt();
+                    int  scale = in.readInt();
 
                     colTypes[i]   = Type.getType(type, 0, size, scale);
                     colLabels[i]  = in.readString();
