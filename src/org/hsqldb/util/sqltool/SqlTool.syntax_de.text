@@ -1,0 +1,26 @@
+Syntax: java org.hsqldb.util.SqlTool [--opt [optval...]] urlid [file1.sql...]
+Optionen:
+    --help                   Zeigt diese Botschaft
+    --list                   Listet Urlids von der RC Feile
+    --noInput                Lehrt stdin nicht (Standardeinstelling wenn
+                             Sql Fieile gegeben order --sql Schalter benutzt).
+    --stdInput               Read stdin IN ADDITION to sql files/--sql input
+    --inlineRc URL=val1,USER=val2[,DRIVER=val3][,CHARSET=val4][,TRUST=val5]
+                             Inline RC Feilie Variable
+    --debug                  Zeigt Debug Info zu stderr
+    --noAutoFile             Ausführt auto.sql vom Home Directory nicht.
+    --autoCommit             Auto-commit JDBC DML Befehle
+    --sql "SQL; Anweisungen" Ausführt gegeben SQL statt der stdin (vor
+                             SQL Feilen wenn angebeben) wo "SQL" wirt
+                             aus SQL Befehl(e) gebildet.  Sieh die
+                             Bedienungsanleitung.
+    --rcFile /file/path.rc   Anschluss Info Feile [$HOME/sqltool.rc]
+    --abortOnErr             Abbruch wenn Fehler (aufhebt Standardeinstellungen)
+    --continueOnErr          Continue wenn Fehler (aufhebt Standardeinstellung)
+    --setVar NAME1=val1[,NAME2=val2...]   PL Variable
+    --driver a.b.c.Driver    JDBC Trieber Class [org.hsqldb.jdbcDriver]
+    urlid                    ID von url/Benutzername/Losungswort in RC Feile
+    file1.sql...             SQL Feilen auszuführen  [stdin]
+                             (Benutz '-' für non-interactively stdin).
+Sieh die Bedienungsanleitung für abgestützte System Properties.
+SqlTool v. 
