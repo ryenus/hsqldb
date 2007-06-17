@@ -1,6 +1,5 @@
-Usage: java [-Dsqlfile.X=Y...] org.hsqldb.util.SqlTool \
-    [--optname [optval...]] urlid [file1.sql...]
-where arguments are:
+Syntax: java org.hsqldb.util.SqlTool [--opt [optval...]] urlid [file1.sql...]
+Options:
     --help                   Displays this message
     --list                   List urlids in the rc file
     --noInput                Do not read stdin (default if sql file given
@@ -19,7 +18,7 @@ where arguments are:
     --continueOnErr          Continue on Error (overrides defaults)
     --setVar NAME1=val1[,NAME2=val2...]   PL variables
     --driver a.b.c.Driver    JDBC driver class [org.hsqldb.jdbcDriver]
-    urlid                    ID of url/userame/password in rcfile
+    urlid                    ID of url/username/password in rcfile
     file1.sql...             SQL files to be executed [stdin]
                              (Use '-' for non-interactively stdin).
 See the SqlTool Manual for the supported sqltool.* System Properties.
