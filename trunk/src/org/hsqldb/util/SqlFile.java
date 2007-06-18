@@ -300,6 +300,30 @@ public class SqlFile {
     private static String executingString = null;
     private static String nobufferYetString = null;
     private static String bufferCurrentString = null;
+    private static String commandnumMalformatString = null;
+    private static String bufferRestoredString = null;
+    private static String substitutionMalformattedString = null;
+    private static String substitutionNomatchString = null;
+    private static String substitutionSyntaxString = null;
+    private static String bufferUnknownString = null;
+    private static String specialExtracharsString = null;
+    private static String bufferExtracharsString = null;
+    private static String specialMalformattedString = null;
+    private static String htmlModeString = null;
+    private static String dsvTargetfileRequiredString = null;
+    private static String wroteString = null;
+    private static String characterstofile = null;
+    private static String fileNowriteString = null;
+    private static String metadataNoobtainString = null;
+    private static String specialDLikeString = null;
+    private static String outputfileNonetocloseString = null;
+    private static String outputfileReopeningString = null;
+	private static String outputfileHeaderString = null;
+    private static String destfileDemandString = null;
+    private static String bufferEmptyString = null;
+    private static String fileNoappendString = null;
+    private static String sqlfileNameDemandString = null;
+    private static String sqlfileExecuteFailString = null;
 
     static {
         try {
@@ -328,6 +352,35 @@ public class SqlFile {
             executingString = bundle.getString("executing");
             nobufferYetString = bundle.getString("nobuffer.yet");
             bufferCurrentString = bundle.getString("buffer.current");
+			commandnumMalformatString = bundle.getString("commandnum.malformat");
+			bufferRestoredString = bundle.getString("buffer.restored");
+			substitutionMalformattedString =
+					bundle.getString("substitution.malformatted");
+			substitutionNomatchString = bundle.getString("substitution.nomatch");
+			substitutionSyntaxString = bundle.getString("substitution.syntax");
+			bufferUnknownString = bundle.getString("buffer.unknown");
+			specialExtracharsString = bundle.getString("special.extrachars");
+			bufferExtracharsString = bundle.getString("buffer.extrachars");
+			specialMalformattedString =
+					bundle.getString("special.malformatted");
+			htmlModeString = bundle.getString("html.mode");
+			dsvTargetfileRequiredString =
+					bundle.getString("dsv.targetfile.required");
+			wroteString = bundle.getString("wrote");
+			characterstofile = bundle.getString("characterstofile");
+			fileNowriteString = bundle.getString("file.nowrite");
+			metadataNoobtainString = bundle.getString("metadata.noobtain");
+			specialDLikeString = bundle.getString("special.d.like");
+			outputfileNonetocloseString =
+					bundle.getString("outputfile.nonetoclose");
+			outputfileReopeningString =
+					bundle.getString("outputfile.reopening");
+			outputfileHeaderString = bundle.getString("outputfile.header");
+			destfileDemandString = bundle.getString("destfile.demand");
+			bufferEmptyString = bundle.getString("buffer.empty");
+			fileNoappendString = bundle.getString("file.noappend");
+			sqlfileNameDemandString = bundle.getString("sqlfile.name.demand");
+			sqlfileExecuteFailString = bundle.getString("sqlfile.execute.fail");
         } catch (RuntimeException re) {
             System.err.println("Early abort due to localized String lookup");
         }
@@ -1041,16 +1094,14 @@ public class SqlFile {
                 try {
                     setBuf(commandFromHistory(Integer.parseInt(numStr)));
                 } catch (NumberFormatException nfe) {
-                    throw new BadSpecial("Malformatted command number '"
+                    throw new BadSpecial(commandnumMalformatString + " "
                             + numStr + "'", nfe);
                 }
 
                 if (executeMode) {
                     processFromBuffer();
                 } else {
-                    stdprintln(
-                        "RESTORED following command to buffer.  Enter \":?\" "
-                        + "to see buffer commands:");
+                    stdprintln(bufferRestoredString + ':');
                     stdprintln(buffer);
                 }
 
@@ -1062,16 +1113,16 @@ public class SqlFile {
 
                 try {
                     if (other == null || other.length() < 3) {
-                        throw new BadSubst("Malformatted substitution command");
+                        throw new BadSubst(substitutionMalformattedString);
                     }
                     char delim = other.charAt(0);
                     Matcher m = substitutionPattern.matcher(inString);
                     if (buffer == null) {
-                        stdprintln("No buffer yet");
+                        stdprintln(nobufferYetString);
                         return;
                     }
                     if (!m.matches()) {
-                        throw new BadSubst("Malformatted substitution command");
+                        throw new BadSubst(substitutionMalformattedString);
                     }
 
                     // Note that this pattern does not include the leading :.
@@ -1102,25 +1153,24 @@ public class SqlFile {
                             ? bufferMatcher.replaceAll(m.group(3))
                             : bufferMatcher.replaceFirst(m.group(3)));
                     if (newBuffer.equals(buffer)) {
-                        stdprintln("Buffer unchanged due to no pattern match");
+                        stdprintln(substitutionNomatchString);
                         return;
                     }
 
                     setBuf(newBuffer);
-                    stdprintln((modeExecute ? "Executing"
-                                            : "Current Buffer") + ':');
+                    stdprintln((modeExecute ? executingString
+                                            : bufferCurrentString) + ':');
                     stdprintln(buffer);
 
                     if (modeExecute) {
                         stdprintln();
                     }
                 } catch (PatternSyntaxException pse) {
-                    throw new BadSpecial(
-                        "Substitution syntax:  \":s/from regex/to string/igm;\".  ",
-                        pse);
+                    throw new BadSpecial(substitutionSyntaxString
+							+ ":  \":s/from regex/to string/igm;\".  ", pse);
                 } catch (BadSubst badswitch) {
                     throw new BadSpecial(badswitch.getMessage()
-                            + LS + "Substitution syntax:  \":s/from "
+                            + LS + substitutionSyntaxString + ":  \":s/from "
                             + "regex/to string/igm;\".");
                 }
 
@@ -1137,7 +1187,7 @@ public class SqlFile {
                 return;
         }
 
-        throw new BadSpecial("Unknown Buffer Command: " + commandChar);
+        throw new BadSpecial(bufferUnknownString + ": " + commandChar);
     }
 
     private boolean doPrepare   = false;
@@ -1146,23 +1196,21 @@ public class SqlFile {
     private String  dsvSkipPrefix = null;
     private String  dsvRowDelim = null;
     private static final String DSV_X_SYNTAX_MSG =
-        "Export syntax:  \\x table_or_view_name "
-        + "[column_delimiter [record_delimiter]]";
+		bundle.getString("dsv.x.syntax");
     private static final String DSV_M_SYNTAX_MSG =
-        "Import syntax:  \\m file/path.dsv "
-        + "[*]   (* means no comments in DSV file)";
+		bundle.getString("dsv.m.syntax");
 
     private static void enforce1charSpecial(String token, char command)
             throws BadSpecial {
         if (token.length() != 1) {
-            throw new BadSpecial("Extra characters after \\" + command
+            throw new BadSpecial(specialExtracharsString + command
                     + ":  " + token.substring(1));
         }
     }
     private static void enforce1charBH(String token, char command)
             throws BadSpecial {
         if (token != null) {
-            throw new BadSpecial("Extra characters after :" + command
+            throw new BadSpecial(bufferExtracharsString + command
                     + ":  " + token);
         }
     }
@@ -1181,7 +1229,7 @@ public class SqlFile {
         Matcher m = specialPattern.matcher(
                 plMode ? dereference(inString, false) : inString);
         if (!m.matches()) {
-            throw new BadSpecial("Malformatted special command:  "
+            throw new BadSpecial(specialMalformattedString + ":  "
                     + inString);
         }
         if (m.groupCount() < 1 || m.groupCount() > 2) {
@@ -1206,7 +1254,7 @@ public class SqlFile {
                 SqlFile.enforce1charSpecial(arg1, 'H');
                 htmlMode = !htmlMode;
 
-                stdprintln("HTML Mode is now set to: " + htmlMode);
+                stdprintln(htmlModeString + ": " + htmlMode);
 
                 return;
 
@@ -1257,9 +1305,7 @@ public class SqlFile {
                                                                  : other);
 
                     if (dsvTargetFile == null && tableName == null) {
-                        throw new BadSpecial(
-                            "You must set PL variable '*DSV_TARGET_FILE' in "
-                            + "order to use the query variant of \\x");
+                        throw new BadSpecial(dsvTargetfileRequiredString);
                     }
                     File dsvFile = new File((dsvTargetFile == null)
                                             ? (tableName + ".dsv")
@@ -1276,13 +1322,13 @@ public class SqlFile {
                                                 : ("SELECT * FROM "
                                                    + tableName)), null, null);
                     pwDsv.flush();
-                    stdprintln("Wrote " + dsvFile.length()
-                               + " characters to file '" + dsvFile + "'");
+                    stdprintln(wroteString + ' ' + dsvFile.length() + ' '
+                               + characterstofile + " '" + dsvFile + "'");
                 } catch (FileNotFoundException e) {
-                    throw new BadSpecial("Failed to write to file '" + other
+                    throw new BadSpecial(fileNowriteString + " '" + other
                                          + "'", e);
                 } catch (UnsupportedEncodingException e) {
-                    throw new BadSpecial("Failed to write to file '" + other
+                    throw new BadSpecial(fileNowriteString + " '" + other
                                          + "'", e);
                 } finally {
                     // Reset all state changes
@@ -1320,17 +1366,15 @@ public class SqlFile {
 
                     return;
                 } catch (SQLException se) {
-                    throw new BadSpecial("Failed to obtain metadata", se);
+                    throw new BadSpecial(metadataNoobtainString, se);
                 }
 
-                throw new BadSpecial("Describe commands must be like "
-                                     + "'\\dX' or like '\\d OBJECTNAME'.");
+                throw new BadSpecial(specialDLikeString);
             case 'o' :
                 SqlFile.enforce1charSpecial(arg1, 'o');
                 if (other == null) {
                     if (pwQuery == null) {
-                        throw new BadSpecial(
-                            "There is no query output file to close");
+                        throw new BadSpecial(outputfileNonetocloseString);
                     }
 
                     closeQueryOutputStream();
@@ -1339,9 +1383,7 @@ public class SqlFile {
                 }
 
                 if (pwQuery != null) {
-                    stdprintln(
-                        "Closing current query output file and opening "
-                        + "new one");
+                    stdprintln(outputfileReopeningString);
                     closeQueryOutputStream();
                 }
 
@@ -1353,19 +1395,17 @@ public class SqlFile {
                     /* Opening in append mode, so it's possible that we will
                      * be adding superfluous <HTML> and <BODY> tags.
                      * I think that browsers can handle that */
-                    pwQuery.println((htmlMode ? ("<HTML>" + LS + "<!--")
-                                              : "#") + " "
-                                                     + (new java.util.Date())
-                                                     + ".  Query output from "
-                                                     + getClass().getName()
-                                                     + (htmlMode
-                                                        ? (". -->" + LS + LS
-                                                            + "<BODY>")
-                                                        : ("." + LS)));
+                    pwQuery.println((htmlMode
+							? ("<HTML>" + LS + "<!--")
+							: "#") + " " + (new java.util.Date()) + ".  "
+									+ outputfileHeaderString + ' '
+									+ getClass().getName()
+									+ (htmlMode ? (". -->" + LS + LS + "<BODY>")
+												: ("." + LS)));
                     pwQuery.flush();
                 } catch (Exception e) {
-                    throw new BadSpecial("Failed to write to file '" + other
-                                         + "':  " + e);
+                    throw new BadSpecial(fileNowriteString + " '" + other
+							+ "':  " + e);
                 }
 
                 return;
@@ -1373,12 +1413,11 @@ public class SqlFile {
             case 'w' :
                 SqlFile.enforce1charSpecial(arg1, 'w');
                 if (other == null) {
-                    throw new BadSpecial(
-                        "You must supply a destination file name");
+                    throw new BadSpecial(destfileDemandString);
                 }
 
                 if (buffer == null || buffer.length() == 0) {
-                    throw new BadSpecial("No command in buffer");
+                    throw new BadSpecial(bufferEmptyString);
                 }
 
                 try {
@@ -1390,7 +1429,7 @@ public class SqlFile {
                     pw.flush();
                     pw.close();
                 } catch (Exception e) {
-                    throw new BadSpecial("Failed to append to file '" + other
+                    throw new BadSpecial(fileNoappendString + " '" + other
                                          + "':  " + e);
                 }
 
@@ -1399,7 +1438,7 @@ public class SqlFile {
             case 'i' :
                 SqlFile.enforce1charSpecial(arg1, 'i');
                 if (other == null) {
-                    throw new BadSpecial("You must supply an SQL file name");
+                    throw new BadSpecial(sqlfileNameDemandString);
                 }
 
                 try {
@@ -1424,8 +1463,8 @@ public class SqlFile {
                 } catch (QuitNow qn) {
                     throw qn;
                 } catch (Exception e) {
-                    throw new BadSpecial("Failed to execute contents of file '"
-                                         + other + "'", e);
+                    throw new BadSpecial(sqlfileExecuteFailString
+							 + " '" + other + "'", e);
                 }
 
                 return;
