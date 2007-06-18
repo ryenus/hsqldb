@@ -324,6 +324,16 @@ public class SqlFile {
     private static String fileNoappendString = null;
     private static String sqlfileNameDemandString = null;
     private static String sqlfileExecuteFailString = null;
+    private static String autocommitSettingString = null;
+    private static String committedString = null;
+    private static String specialBMalformattedString = null;
+    private static String loadedString = null;
+    private static String binaryBytesintoString = null;
+    private static String binaryFilefailString = null;
+    private static String cSettingString = null;
+    private static String bangIncompleteString = null;
+    private static String bangCommandFailString = null;
+    private static String specialUnknownString = null;
 
     static {
         try {
@@ -381,6 +391,17 @@ public class SqlFile {
 			fileNoappendString = bundle.getString("file.noappend");
 			sqlfileNameDemandString = bundle.getString("sqlfile.name.demand");
 			sqlfileExecuteFailString = bundle.getString("sqlfile.execute.fail");
+			autocommitSettingString = bundle.getString("autocommit.setting");
+			committedString = bundle.getString("committed");
+			specialBMalformattedString =
+					bundle.getString("special.b.malformatted");
+			loadedString = bundle.getString("loaded");
+			binaryBytesintoString = bundle.getString("binary.bytesinto");
+			binaryFilefailString = bundle.getString("binary.filefail");
+			cSettingString = bundle.getString("c.setting");
+			bangIncompleteString = bundle.getString("bang.incomplete");
+			bangCommandFailString = bundle.getString("bang.command.fail");
+			specialUnknownString = bundle.getString("special.unknown");
         } catch (RuntimeException re) {
             System.err.println("Early abort due to localized String lookup");
         }
@@ -1486,7 +1507,7 @@ public class SqlFile {
                         Boolean.valueOf(other).booleanValue());
                 }
 
-                stdprintln("Auto-commit is set to: "
+                stdprintln(autocommitSettingString + ": "
                            + curConn.getAutoCommit());
 
                 return;
@@ -1494,7 +1515,7 @@ public class SqlFile {
                 SqlFile.enforce1charSpecial(arg1, '=');
                 curConn.commit();
                 possiblyUncommitteds.set(false);
-                stdprintln("Session committed");
+                stdprintln(committedString);
 
                 return;
 
@@ -1513,7 +1534,7 @@ public class SqlFile {
 
                 if ((arg1.charAt(1) != 'd' && arg1.charAt(1) != 'l')
                         || other == null) {
-                    throw new BadSpecial("Malformatted binary command");
+                    throw new BadSpecial(specialBMalformattedString);
                 }
 
                 File file = new File(other);
@@ -1523,14 +1544,13 @@ public class SqlFile {
                         dump(file);
                     } else {
                         binBuffer = SqlFile.loadBinary(file);
-                        stdprintln("Loaded " + binBuffer.length
-                                   + " bytes into Binary buffer");
+                        stdprintln(loadedString + ' ' + binBuffer.length
+                                   + ' ' + binaryBytesintoString);
                                     }
                 } catch (BadSpecial bs) {
                     throw bs;
                 } catch (IOException ioe) {
-                    throw new BadSpecial(
-                        "Failed to load/dump binary data to file '" + other
+                    throw new BadSpecial(binaryFilefailString + " '" + other
                         + "'", ioe);
                 }
 
@@ -1544,7 +1564,7 @@ public class SqlFile {
                     continueOnError = Boolean.valueOf(other).booleanValue();
                 }
 
-                stdprintln("Continue-on-error is set to: " + continueOnError);
+                stdprintln(cSettingString + ": " + continueOnError);
 
                 return;
 
@@ -1574,8 +1594,7 @@ public class SqlFile {
                     + ((arg1.length() > 1 && other != null)
                        ? " " : "") + ((other == null) ? "" : other);
                 if (extCommand.trim().length() < 1)
-                    throw new BadSpecial(
-                        "You must follow ! with the external command to run");
+                    throw new BadSpecial(bangIncompleteString);
 
                 try {
                     Runtime runtime = Runtime.getRuntime();
@@ -1605,13 +1624,13 @@ public class SqlFile {
                     stream.close();
 
                     if (proc.waitFor() != 0) {
-                        throw new BadSpecial("External command failed: '"
-                                             + extCommand + "'");
+                        throw new BadSpecial(bangCommandFailString + ": '"
+								+ extCommand + "'");
                     }
                 } catch (BadSpecial bs) {
                     throw bs;
                 } catch (Exception e) {
-                    throw new BadSpecial("Failed to execute external command '"
+                    throw new BadSpecial(bangCommandFailString + " '"
                                          + extCommand + "'", e);
                 }
 
@@ -1628,7 +1647,7 @@ public class SqlFile {
                 return;
         }
 
-        throw new BadSpecial("Unknown Special Command");
+        throw new BadSpecial(specialUnknownString);
     }
 
     private static final char[] nonVarChars = {
