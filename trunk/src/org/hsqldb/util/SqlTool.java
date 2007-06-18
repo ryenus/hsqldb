@@ -40,7 +40,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /* $Id$ */
 
@@ -98,6 +97,50 @@ public class SqlTool {
 
     private static final String SYNTAX_MESSAGE =
             bundle.getString("SqlTool.syntax") + revnum + '.';
+
+    private static String passwordForPromptString = null;
+    private static String varsetBadformatString = null;
+    private static String abort_continueMutuallyexclusiveString = null;
+    private static String sqltempfileFailureString = null;
+    private static String rcdataInlineurlMissingString = null;
+    private static String rcdataInlineusernameMissingString = null;
+    private static String passwordBadString = null;
+    private static String connectionFailure1String = null;
+    private static String connectionFailure2String = null;
+    private static String rcdataGenfromvaluesFailureString = null;
+    private static String conndataRetrievalFailureString = null;
+    private static String jdbcEstablished1String = null;
+    private static String jdbcEstablished2String = null;
+    private static String tempfileRemovalFailureString = null;
+    static {
+        try {
+            passwordForPromptString =
+                    bundle.getString("passwordFor.prompt");
+            varsetBadformatString = bundle.getString(
+                    "SqlTool.varset.badformat");
+            abort_continueMutuallyexclusiveString =
+                bundle.getString("SqlTool.abort_continue.mutuallyexclusive");
+            sqltempfileFailureString = bundle.getString("sqltempfile.failure");
+            rcdataInlineurlMissingString =
+                    bundle.getString("rcdata.inlineurl.missing");
+            rcdataInlineusernameMissingString =
+                    bundle.getString("rcdata.inlineusername.missing");
+            passwordBadString = bundle.getString("password.bad");
+            connectionFailure1String = bundle.getString("connection.failure.1");
+            connectionFailure2String = bundle.getString("connection.failure.2");
+            rcdataGenfromvaluesFailureString =
+                    bundle.getString("rcdata.genfromvalues.failure");
+            conndataRetrievalFailureString =
+                    bundle.getString("conndata.retrieval.failure");
+            jdbcEstablished1String = bundle.getString("jdbc.established.1");
+            jdbcEstablished2String = bundle.getString("jdbc.established.2");
+            tempfileRemovalFailureString =
+                    bundle.getString("tempfile.removal.failure");
+        } catch (RuntimeException re) {
+            System.err.println("Early abort due to localized String lookup");
+            throw re;
+        }
+    }
 
     /** Utility nested class for internal use. */
     private static class BadCmdline extends Exception {
@@ -158,8 +201,11 @@ public class SqlTool {
             console = new BufferedReader(new InputStreamReader(System.in));
 
             // Prompt for password
-            System.out.print(RCData.expandSysPropVars(username)
-                    + "'s password: ");
+            System.out.print(passwordForPromptString
+                    + ' ' + RCData.expandSysPropVars(username) + ":  ");
+            // I don't know enough foreign languages to know whether the
+            // space before the user name should be part of the localized
+            // prompt string.
 
             // Read the password from the command line
             password = console.readLine();
@@ -189,33 +235,29 @@ public class SqlTool {
                                   boolean lowerCaseKeys)
                                   throws PrivateException {
 
-        int             equals;
-        String          curSetting;
-        String          var;
-        String          val;
-        StringTokenizer allvars;
+        int       equals;
+        String    var;
+        String    val;
+        String[]  allvars;
 
         if ((varMap == null) || (varString == null)) {
             return;
         }
 
-        allvars = new StringTokenizer(varString, ",");
+        allvars = varString.split("\\s*,\\s*");
 
-        while (allvars.hasMoreTokens()) {
-            curSetting = allvars.nextToken().trim();
-            equals     = curSetting.indexOf('=');
+        for (int i = 0; i < allvars.length; i++) {
+            equals     = allvars[i].indexOf('=');
 
             if (equals < 1) {
-                throw new PrivateException(
-                    "Var settings not of format name=value[,...]");
+                throw new PrivateException(varsetBadformatString);
             }
 
-            var = curSetting.substring(0, equals).trim();
-            val = curSetting.substring(equals + 1).trim();
+            var = allvars[i].substring(0, equals).trim();
+            val = allvars[i].substring(equals + 1).trim();
 
             if (var.length() < 1 || val.length() < 1) {
-                throw new PrivateException(
-                    "Var settings not of format name=value[,...]");
+                throw new PrivateException(varsetBadformatString);
             }
 
             if (lowerCaseKeys) {
@@ -312,16 +354,14 @@ public class SqlTool {
                 if (parameter.equals("abortonerr")) {
                     if (coeOverride != null) {
                         throw new SqlToolException(SYNTAXERR_EXITVAL,
-                            "Switches '--abortOnErr' and "
-                            + "'--continueOnErr' are mutually exclusive");
+                                abort_continueMutuallyexclusiveString);
                     }
 
                     coeOverride = Boolean.FALSE;
                 } else if (parameter.equals("continueonerr")) {
                     if (coeOverride != null) {
                         throw new SqlToolException(SYNTAXERR_EXITVAL,
-                            "Switches '--abortOnErr' and "
-                            + "'--continueOnErr' are mutually exclusive");
+                                abort_continueMutuallyexclusiveString);
                     }
 
                     coeOverride = Boolean.TRUE;
@@ -405,7 +445,8 @@ public class SqlTool {
                     fw.close();
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
-                            "Failed to write given sql to temp file: " + ioe);
+                            sqltempfileFailureString
+                            + ":  " + ioe);
                 }
             }
 
@@ -466,16 +507,17 @@ public class SqlTool {
             // Don't ask for password if what we have already is invalid!
             if (rcUrl == null || rcUrl.length() < 1)
                 throw new SqlToolException(RCERR_EXITVAL,
-                        "URL element is required for inline RC arg");
+                        rcdataInlineurlMissingString);
             if (rcUsername == null || rcUsername.length() < 1)
                 throw new SqlToolException(RCERR_EXITVAL,
-                        "USER element is required for inline RC arg");
+                        rcdataInlineusernameMissingString);
 
             try {
                 rcPassword   = promptForPassword(rcUsername);
             } catch (PrivateException e) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
-                        "Bad password: " + e.getMessage());
+                        passwordBadString
+                        + ": " +  e.getMessage());
             }
             try {
                 conData = new RCData(CMDLINE_ID, rcUrl, rcUsername,
@@ -483,8 +525,8 @@ public class SqlTool {
                                      rcTruststore);
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL,
-                        "Failed to generate RCData from given values: "
-                        + e.getMessage());
+                        rcdataGenfromvaluesFailureString
+                        + ": " + e.getMessage());
             }
         } else {
             try {
@@ -493,8 +535,8 @@ public class SqlTool {
                                               : rcFile), targetDb);
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL,
-                        "Failed to retrieve connection info for database '"
-                        + targetDb + "': " + e.getMessage());
+                        conndataRetrievalFailureString
+                        + " '" + targetDb + "': " + e.getMessage());
             }
         }
 
@@ -516,19 +558,22 @@ public class SqlTool {
             DatabaseMetaData md = null;
 
             if (interactive && (md = conn.getMetaData()) != null) {
-                System.out.println("JDBC Connection established to a "
-                                   + md.getDatabaseProductName() + " v. "
-                                   + md.getDatabaseProductVersion()
-                                   + " database as '" + md.getUserName()
-                                   + "'.");
+                System.out.println(jdbcEstablished1String
+                       + ' ' + md.getDatabaseProductName() + " v. "
+                       + md.getDatabaseProductVersion() + ' '
+                       + jdbcEstablished2String + " '"
+                       + md.getUserName() + "'.");
+                // Probably makes too many assumptions about language, like
+                // that quotes values with ' and sentence ends with period.
             }
         } catch (Exception e) {
             //e.printStackTrace();
 
             // Let's not continue as if nothing is wrong.
             throw new SqlToolException(CONNECTERR_EXITVAL,
-                     "Failed to get a connection to " + conData.url + " as "
-                     + conData.username + ".  " + e.getMessage());
+                   connectionFailure1String + ' '
+                     + conData.url + ' ' + connectionFailure2String
+                     + ' ' + conData.username + ".  " + e.getMessage());
         }
 
         File[] emptyFileArray      = {};
@@ -629,8 +674,8 @@ public class SqlTool {
         // info to keep around if the program aborts.
         if (tmpFile != null && !tmpFile.delete()) {
             System.err.println(
-                "Error occurred while trying to remove temp file '" + tmpFile
-                + "'");
+                     conData.url + tempfileRemovalFailureString
+                     + " '" + tmpFile + "'");
         }
     }
 }
