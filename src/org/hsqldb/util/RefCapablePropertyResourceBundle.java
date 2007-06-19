@@ -37,6 +37,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
+import java.util.Enumeration;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.io.InputStream;
 import java.io.IOException;
 
@@ -102,6 +105,12 @@ import java.io.IOException;
  * (The file itself is never modified-- I'm talking about the value returned
  * by <CODE>getString(String)</CODE>.
  *
+ * To prevent throwing at runtime due to unset variables, use a wrapper class
+ * like SqltoolRB (use SqltoolRB.java as a template).
+ * To prevent throwing at runtime due to unset System Properties, or 
+ * insufficient parameters passed to getString(String, String[]), use the
+ * setMissingPropertyBehavior and setMissingSubstValueBehavior methods
+ *
  * @see java.util.PropertyResourceBundle
  * @see java.util.ResourceBundle
  * @author  blaine.simpson@admc.com
@@ -112,6 +121,57 @@ public class RefCapablePropertyResourceBundle {
     private String language, country, variant;
     static private Map allBundles = new HashMap();
     public static String LS = System.getProperty("line.separator");
+    private Pattern sysPropVarPattern = Pattern.compile("\\Q${\\E([^}]+)\\Q}");
+    private Pattern substPattern = Pattern.compile("%(\\d)");
+
+    public static final int THROW_BEHAVIOR = 0;
+    public static final int EMPTYSTRING_BEHAVIOR = 1;
+    public static final int NOOP_BEHAVIOR = 2;
+
+    private static int missingPropertyBehavior = THROW_BEHAVIOR;
+    private static int missingSubstValueBehavior = THROW_BEHAVIOR;
+
+    /**
+     * Set behavior for get*String*() method when a referred-to
+     * System Property is not set.  Set to one of
+     * <UL>
+     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
+     * </UL>
+     * The first value is the default.
+     */
+    public static void setMissingPropertyBehavior(int missingPropertyBehavior) {
+        RefCapablePropertyResourceBundle.missingPropertyBehavior =
+                missingPropertyBehavior;
+    }
+    /**
+     * Set behavior for get*String(String, String[]) method when a
+     * substitution index (like %4) is used but no subs value was given for 
+     * that index.  Set to one of
+     * <UL>
+     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
+     * </UL>
+     * The first value is the default.
+     */
+    public static void setMissingSubstValueBehavior(
+            int missingSubstValueBehavior) {
+        RefCapablePropertyResourceBundle.missingSubstValueBehavior =
+                missingSubstValueBehavior;
+    }
+
+    public static int getMissingPropertyBehavior() {
+        return missingPropertyBehavior;
+    }
+    public static int getMissingSubstValueBehavior() {
+        return missingSubstValueBehavior;
+    }
+
+    public Enumeration getKeys() {
+        return wrappedBundle.getKeys();
+    }
 
     private RefCapablePropertyResourceBundle(String baseName,
             PropertyResourceBundle wrappedBundle) {
@@ -126,13 +186,91 @@ public class RefCapablePropertyResourceBundle {
         if (variant.length() < 1) variant = null;
     }
 
-    /* TODO:  Add optional ability to substitute ${sysproperty} variables.
-    private boolean sysPropertyMode = false;
-    public boolean setSysPropertyMode(boolean sysPropertyMode) {
-        this.sysPropertyMode = sysPropertyMode;
+    /**
+     * Same as getString(), but expands System Variables specified in
+     * property values like ${sysvarname}.
+     */
+    public String getExpandedString(String key) {
+        String s = getString(key);
+        Matcher matcher = sysPropVarPattern.matcher(s);
+        int previousEnd = 0;
+        StringBuffer sb = new StringBuffer();
+        String varName, varValue;
+        while (matcher.find()) {
+            varName = s.substring(matcher.start(1), matcher.end(1));
+            varValue = System.getProperty(varName);
+            if (varValue == null) switch (missingPropertyBehavior) {
+                case THROW_BEHAVIOR:
+                    throw new RuntimeException(
+                            "No Sys Property set for variable '"
+                            + matcher.group() + "' in propert value ("
+                            + s + ')');
+                case EMPTYSTRING_BEHAVIOR:
+                    varValue = "";
+                case NOOP_BEHAVIOR:
+                    break;
+                default:
+                    throw new RuntimeException(
+                            "Undefined value for missingPropertyBehavior: "
+                            + missingPropertyBehavior);
+            }
+            sb.append(s.substring(previousEnd, matcher.start())
+                    + ((varValue == null) ? matcher.group()
+                    : varValue));
+            previousEnd = matcher.end();
+        }
+        return (previousEnd < 1) ? s
+                                 : (sb.toString() + s.substring(previousEnd));
     }
-    Then put conditional replaceAll loops in getString().
-    */
+
+    /**
+     * Replaces patterns of the form %\d with corresponding element of the 
+     * given subs array.
+     * Note that %\d numbers are 1-based, so we lok for subs[x-1].
+     */
+    public String subst(String s, String[] subs) {
+        Matcher matcher = substPattern.matcher(s);
+        int previousEnd = 0;
+        StringBuffer sb = new StringBuffer();
+        String varValue;
+        int varIndex;
+        while (matcher.find()) {
+            varIndex = Integer.parseInt(
+                    s.substring(matcher.start(1), matcher.end(1))) - 1;
+            varValue = null;
+            if (varIndex >= subs.length) switch (missingSubstValueBehavior) {
+                case THROW_BEHAVIOR:
+                    throw new RuntimeException(
+                            Integer.toString(subs.length)
+                            + " substitution values "
+                            + " given, but property string contains " +
+                            s.substring(matcher.start(), matcher.end()));
+                case EMPTYSTRING_BEHAVIOR:
+                    varValue = "";
+                case NOOP_BEHAVIOR:
+                    break;
+                default:
+                    throw new RuntimeException(
+                            "Undefined value for missingSubstValueBehavior: "
+                            + missingSubstValueBehavior);
+            } else {
+                varValue = subs[varIndex];
+            }
+            sb.append(s.substring(previousEnd, matcher.start())
+                    + ((varValue == null) ? matcher.group()
+                    : varValue));
+            previousEnd = matcher.end();
+        }
+        return (previousEnd < 1) ? s
+                                 : (sb.toString() + s.substring(previousEnd));
+    }
+
+    public String getExpandedString(String key, String[] subs) {
+        return subst(getExpandedString(key), subs);
+    }
+    public String getString(String key, String[] subs) {
+        return subst(getString(key), subs);
+    }
 
     /**
      * Just identifies this RefCapablePropertyResourceBundle instance.
