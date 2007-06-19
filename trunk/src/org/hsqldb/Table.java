@@ -86,6 +86,7 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.types.DomainType;
 import org.hsqldb.types.Type;
 
 // fredt@users 20020130 - patch 491987 by jimbag@users - made optional
@@ -192,8 +193,8 @@ public class Table extends BaseTable implements SchemaObject {
      */
     public Table(Database db, HsqlName name, int type) throws HsqlException {
 
-        database       = db;
-        rowIdSequence  = new NumberSequence(null, 0, 1, Type.SQL_BIGINT);
+        database      = db;
+        rowIdSequence = new NumberSequence(null, 0, 1, Type.SQL_BIGINT);
 
         switch (type) {
 
@@ -1999,7 +2000,7 @@ public class Table extends BaseTable implements SchemaObject {
 
             ArrayUtil.copyAdjustArray(o, data, colvalue, colindex, adjust);
             systemSetIdentityColumn(session, data);
-            enforceRowConstraints(data);
+            enforceRowConstraints(session, data);
 
             Row newrow = newRow(data);
 
@@ -2180,12 +2181,13 @@ public class Table extends BaseTable implements SchemaObject {
      * Used by TextCache to insert a row into the indexes when the source
      * file is first read.
      */
-    protected void insertFromTextSource(CachedRow row) throws HsqlException {
+    protected void insertFromTextSource(Session session,
+                                        CachedRow row) throws HsqlException {
 
         Object[] data = row.getData();
 
         systemUpdateIdentityValue(data);
-        enforceRowConstraints(data);
+        enforceRowConstraints(session, data);
 
         int i = 0;
 
@@ -2261,50 +2263,39 @@ public class Table extends BaseTable implements SchemaObject {
         }
     }
 
-    void enforceRowConstraints(Object data[]) throws HsqlException {
-        enforceFieldValueLimits(data, null);
-        enforceNullConstraints(data);
-    }
     /**
      *  Enforce max field sizes according to SQL column definition.
      *  SQL92 13.8
      */
-    void enforceFieldValueLimits(Object[] data,
-                                 int[] cols) throws HsqlException {
+    void enforceRowConstraints(Session session,
+                               Object[] data) throws HsqlException {
 
-        if (database.sqlEnforceStrictSize) {
-            if (cols == null) {
-                cols = defaultColumnMap;
+        for (int i = 0; i < defaultColumnMap.length; i++) {
+            Type type = colTypes[i];
+
+            if (database.sqlEnforceStrictSize) {
+                data[i] = type.convertToTypeLimits(data[i]);
             }
 
-            for (int i = 0; i < cols.length; i++) {
-                int colindex = cols[i];
+            if (type.isDomainType()) {
+                Constraint constraints[] =
+                    ((DomainType) type).getConstraints();
 
-                if (data[colindex] == null) {
-                    continue;
+                for (int j = 0; j < constraints.length; j++) {
+                    constraints[i].checkCheckConstraint(session, this,
+                                                        (Object) data[i]);
                 }
+            }
 
-                Type type = colTypes[colindex];
-
-                data[colindex] = type.convertToTypeLimits(data[colindex]);
+            if (data[i] == null) {
+                if (colNotNull[i]) {
+                    Trace.throwerror(Trace.TRY_TO_INSERT_NULL,
+                                     "column: " + getColumn(i).columnName.name
+                                     + " table: " + tableName.name);
+                }
             }
         }
     }
-
-    /**
-     * Checks a row against NOT NULL constraints on columns.
-     */
-    void enforceNullConstraints(Object[] data) throws HsqlException {
-
-        for (int i = 0; i < colNotNull.length; i++) {
-            if (data[i] == null && colNotNull[i]) {
-                Trace.throwerror(Trace.TRY_TO_INSERT_NULL,
-                                 "column: " + getColumn(i).columnName.name
-                                 + " table: " + tableName.name);
-            }
-        }
-    }
-
 
     boolean hasTrigger(int trigVecIndex) {
         return triggerLists[trigVecIndex] != null
@@ -2758,7 +2749,7 @@ public class Table extends BaseTable implements SchemaObject {
     void checkRowDataInsert(Session session,
                             Object[] data) throws HsqlException {
 
-        enforceRowConstraints(data);
+        enforceRowConstraints(session, data);
 
         if (database.isReferentialIntegrity()) {
             for (int i = 0, size = constraintList.length; i < size; i++) {
@@ -2770,7 +2761,7 @@ public class Table extends BaseTable implements SchemaObject {
     void checkRowDataUpdate(Session session, Object[] data,
                             int[] cols) throws HsqlException {
 
-        enforceRowConstraints(data);
+        enforceRowConstraints(session, data);
 
         for (int j = 0; j < constraintList.length; j++) {
             Constraint c = constraintList[j];

@@ -1,6 +1,6 @@
 -- $Id$
 -- Test 3-part names like:  schemaname.tablename.columname
-SET PROPERTY "hsqldb.default_table_type" 'cached'
+--SET PROPERTY "hsqldb.default_table_type" 'cached'
 -- Setup
 CREATE USER blaine PASSWORD "blaine";
 GRANT dba TO blaine;

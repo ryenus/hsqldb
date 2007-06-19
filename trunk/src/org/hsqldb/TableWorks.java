@@ -855,6 +855,8 @@ public class TableWorks {
 
         switch (newType) {
 
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
             case Types.SQL_BLOB :
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
@@ -867,6 +869,8 @@ public class TableWorks {
 
         switch (oldType) {
 
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
             case Types.SQL_BLOB :
             case Types.SQL_CLOB :
                 notAllowed = true;

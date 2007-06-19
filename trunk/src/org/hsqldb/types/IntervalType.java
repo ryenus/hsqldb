@@ -423,7 +423,7 @@ public class IntervalType extends DateTimeIntervalType {
     public Object convertToTypeLimits(Object a) throws HsqlException {
 
         if (a == null) {
-            return a;
+            return null;
         }
 
         if (a instanceof IntervalMonthData) {

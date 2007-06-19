@@ -95,7 +95,6 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     }
 
 // fredt@users - comment - methods used for node and type data
-
     public abstract int readType() throws IOException;
 
     public abstract String readString() throws IOException;
@@ -109,8 +108,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     protected abstract Integer readSmallint()
     throws IOException, HsqlException;
 
-    protected abstract Integer readInteger()
-    throws IOException, HsqlException;
+    protected abstract Integer readInteger() throws IOException, HsqlException;
 
     protected abstract Long readBigint() throws IOException, HsqlException;
 
@@ -119,12 +117,13 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     protected abstract BigDecimal readDecimal()
     throws IOException, HsqlException;
 
-    protected abstract Boolean readBit() throws IOException, HsqlException;
+    protected abstract Boolean readBoole() throws IOException, HsqlException;
 
     protected abstract TimeData readTime(Type type)
     throws IOException, HsqlException;
 
-    protected abstract Date readDate(Type type) throws IOException, HsqlException;
+    protected abstract Date readDate(Type type)
+    throws IOException, HsqlException;
 
     protected abstract Timestamp readTimestamp(Type type)
     throws IOException, HsqlException;
@@ -139,6 +138,8 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
 
     protected abstract BinaryData readBinary()
     throws IOException, HsqlException;
+
+    protected abstract BinaryData readBit() throws IOException, HsqlException;
 
     protected abstract ClobData readClob() throws IOException, HsqlException;
 
@@ -235,7 +236,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                     break;
 
                 case Types.SQL_BOOLEAN :
-                    o = readBit();
+                    o = readBoole();
                     break;
 
                 case Types.OTHER :
@@ -253,6 +254,11 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                 case Types.SQL_BINARY :
                 case Types.SQL_VARBINARY :
                     o = readBinary();
+                    break;
+
+                case Types.SQL_BIT :
+                case Types.SQL_BIT_VARYING :
+                    o = readBit();
                     break;
 
                 default :

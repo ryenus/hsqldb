@@ -31,6 +31,7 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.Expression;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.Token;
@@ -80,17 +81,95 @@ public class BitType extends BinaryType {
         return Token.T_BIT;
     }
 
+    public boolean isBitType() {
+        return true;
+    }
+
     public boolean requiresPrecision() {
         return type == Types.SQL_BIT_VARYING;
     }
 
+    public Type getAggregateType(Type other) throws HsqlException {
+
+        if (type == other.type) {
+            return precision >= other.precision ? this
+                                                : other;
+        }
+
+        switch (other.type) {
+
+            case Types.SQL_ALL_TYPES :
+                return this;
+
+            case Types.SQL_BIT :
+                return precision >= other.precision ? this
+                                                    : getBitType(type,
+                                                    other.precision);
+
+            case Types.SQL_BIT_VARYING :
+                return other.precision >= precision ? other
+                                                    : getBitType(other.type,
+                                                    precision);
+
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+            case Types.SQL_BLOB :
+                return other.getAggregateType(this);
+
+            default :
+                throw Trace.error(Trace.INVALID_CONVERSION);
+        }
+    }
+
+    /**
+     * Returns type for concat
+     */
+    public Type getCombinedType(Type other,
+                                int operation) throws HsqlException {
+
+        if (operation != Expression.CONCAT) {
+            return getAggregateType(other);
+        }
+
+        Type newType;
+        long otherPrecision = other.precision;
+
+        switch (other.type) {
+
+            case Types.SQL_ALL_TYPES :
+                return this;
+
+            case Types.SQL_BIT :
+                newType = this;
+                break;
+
+            case Types.SQL_BIT_VARYING :
+                newType = other;
+                break;
+
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+            case Types.SQL_BLOB :
+                return other.getCombinedType(this, operation);
+
+            default :
+                throw Trace.error(Trace.INVALID_CONVERSION);
+        }
+
+        return getBitType(newType.type, precision + otherPrecision);
+    }
+
     public Object convertToTypeLimits(Object a) throws HsqlException {
+
+        if (a == null) {
+            return null;
+        }
 
         if (precision == 0) {
             return a;
         }
 
-        long len = ((BlobData) a).length() * 8;
+        long len = ((BlobData) a).bitLength();
 
         if (len == precision) {
             return a;
@@ -101,26 +180,22 @@ public class BitType extends BinaryType {
 
             switch (type) {
 
-                case Types.SQL_BINARY :
-                case Types.SQL_VARBINARY : {
-                    byte[] data = ((BlobData) a).getBytes(0, (int) precision);
+                case Types.SQL_BIT :
+                case Types.SQL_BIT_VARYING : {
+                    byte[] data =
+                        ((BlobData) a).getBytes(0, (int) (precision + 7) / 8);
 
-                    return new BinaryData(data, false);
-                }
-                case Types.SQL_BLOB : {
-                    byte[] data = ((BlobData) a).getBytes(0, (int) precision);
-
-                    return new BlobDataMemory(data, false);
+                    return new BinaryData(data, precision);
                 }
             }
         } else {
-            if (type == Types.SQL_BINARY) {
-                byte[] data = new byte[(int) precision];
+            if (type == Types.SQL_BIT) {
+                byte[] data = new byte[(int) (precision + 7) / 8];
 
                 System.arraycopy(((BlobData) a).getBytes(), 0, data, 0,
-                                 (int) len);
+                                 ((BlobData) a).getBytes().length);
 
-                return new BinaryData(data, false);
+                return new BinaryData(data, precision);
             }
         }
 
@@ -141,15 +216,19 @@ public class BitType extends BinaryType {
             case Types.SQL_BINARY : {
                 BinaryData b = (BinaryData) a;
 
-                if (b.length() > precision) {
-                    byte[] data = b.getBytes(0, (int) precision);
+                if (b.bitLength() > precision) {
+                    byte[] data = b.getBytes(0, (int) (precision + 7) / 8);
 
-                    b = new BinaryData(data, false);
-                } else if (b.length() < precision) {
+                    for (int i = (int) precision; i < data.length * 8; i++) {
+                        BitMap.unset(data, i);
+                    }
+
+                    b = new BinaryData(data, precision);
+                } else if (b.bitLength() < precision) {
                     byte[] data = (byte[]) ArrayUtil.resizeArray(b.getBytes(),
-                        (int) precision);
+                        (int) (precision + 7) / 8);
 
-                    b = new BinaryData(data, false);
+                    b = new BinaryData(data, precision);
                 }
 
                 return b;
@@ -158,9 +237,13 @@ public class BitType extends BinaryType {
                 BinaryData b = (BinaryData) a;
 
                 if (b.length() > precision) {
-                    byte[] data = b.getBytes(0, (int) precision);
+                    byte[] data = b.getBytes(0, (int) (precision + 7) / 8);
 
-                    b = new BinaryData(data, false);
+                    for (int i = (int) precision; i < data.length * 8; i++) {
+                        BitMap.unset(data, i);
+                    }
+
+                    b = new BinaryData(data, precision);
                 }
 
                 return b;
@@ -177,7 +260,7 @@ public class BitType extends BinaryType {
             return null;
         }
 
-        if (otherType.isBinaryType()) {
+        if (otherType.isBitType()) {
             return convertToTypeLimits(a);
         }
 
@@ -190,12 +273,6 @@ public class BitType extends BinaryType {
             return a;
         }
 
-        if (a instanceof byte[]) {
-            return new BinaryData((byte[]) a, false);
-        } else if (a instanceof BinaryData) {
-            return a;
-        }
-
         throw Trace.error(Trace.INVALID_CONVERSION);
     }
 
@@ -205,8 +282,8 @@ public class BitType extends BinaryType {
             return null;
         }
 
-        return StringConverter.byteArrayToBitString(
-            ((BlobData) a).getBytes(), (int) ((BlobData) a).bitLength());
+        return StringConverter.byteArrayToBitString(((BlobData) a).getBytes(),
+                (int) ((BlobData) a).bitLength());
     }
 
     public String convertToSQLString(Object a) {
@@ -219,6 +296,7 @@ public class BitType extends BinaryType {
             ((BinaryData) a).getBytes());
     }
 
+// todo
     public long position(BlobData data, BlobData otherData, Type otherType,
                          long offset) throws HsqlException {
 
@@ -226,20 +304,21 @@ public class BitType extends BinaryType {
             return -1L;
         }
 
-        long otherLength = ((BlobData) data).length();
+        long otherLength = ((BlobData) data).bitLength();
 
-        if (offset + otherLength > data.length()) {
+        if (offset + otherLength > data.bitLength()) {
             return -1;
         }
 
-        return data.position(otherData, offset);
+//        return data.position(otherData, offset);
+        throw Trace.error(Trace.UNSUPPORTED_INTERNAL_OPERATION);
     }
 
     public BlobData substring(BlobData data, long offset, long length,
                               boolean hasLength) throws HsqlException {
 
         long end;
-        long dataLength = data.length();
+        long dataLength = data.bitLength();
 
         if (hasLength) {
             end = offset + length;
@@ -269,39 +348,30 @@ public class BitType extends BinaryType {
 
         length = end - offset;
 
-        // change method signature to take long
-        byte[] bytes = ((BlobData) data).getBytes(offset, (int) length);
+        byte[] dataBytes = data.getBytes();
+        byte[] bytes     = new byte[(int) (length + 7) / 8];
 
-        if (data instanceof BinaryData) {
-            return new BinaryData(bytes, false);
-        } else {
-            return new BlobDataMemory(bytes, false);
+        for (int i = (int) offset; i < end; i++) {
+            if (BitMap.isSet(dataBytes, i)) {
+                BitMap.set(bytes, i - (int) offset);
+            }
         }
+
+        return new BinaryData(bytes, length);
     }
 
     int getRightTrimSize(BlobData data) {
 
-        int endindex = super.getRightTrimSize(data);
+        int    i     = (int) data.bitLength() - 1;
+        byte[] bytes = data.getBytes();
 
-        if (endindex == 0) {
-            return 0;
-        }
-
-        endindex--;
-
-        byte[] bytes   = data.getBytes();
-        byte   endbyte = bytes[endindex];
-        int    bits    = 0;
-
-        for (int i = 7; i >= 0; i--) {
-            if (BitMap.isSet(endbyte, i)) {
-                bits = i + 1;
-
+        for (; i >= 0; i--) {
+            if (BitMap.isSet(bytes, i)) {
                 break;
             }
         }
 
-        return endindex * 8 + bits;
+        return i + 1;
     }
 
     public Object concat(Session session, Object a,
@@ -311,7 +381,30 @@ public class BitType extends BinaryType {
             return null;
         }
 
-        return new BinaryData((BlobData) a, (BlobData) b);
+        long length = ((BlobData) a).bitLength() + ((BlobData) b).bitLength();
+
+        if (length > Integer.MAX_VALUE) {
+
+            // todo throw
+        }
+
+        byte[] bData = ((BlobData) b).getBytes();
+
+        int aLength = ((BlobData) a).getBytes().length;
+        int bLength = ((BlobData) b).getBytes().length;
+        byte[] bytes = new byte[(int) (length + 7) / 8];
+
+        System.arraycopy(((BlobData) a).getBytes(), 0, bytes, 0,
+                         aLength);
+
+        for (int i = 0; i < bLength; i++) {
+            if (BitMap.isSet(bData, i)) {
+                BitMap.set(bytes, aLength + i);
+            }
+        }
+
+
+        return new BinaryData(bytes, length);
     }
 
     public long size(Object a) {

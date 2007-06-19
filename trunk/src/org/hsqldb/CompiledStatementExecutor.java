@@ -1461,7 +1461,7 @@ public final class CompiledStatementExecutor {
                                          row.getData(), data, cols);
             }
 
-            table.enforceRowConstraints(data);
+            table.enforceRowConstraints(session, data);
         }
 
         // perform check/cascade operations

@@ -108,7 +108,7 @@ insert into bt3( id ) values ( 'bbb' );
    union all
    select id from bt3 as t3 where t3.id = t1.id );
 --- null as column in first select
-create table au (id int, b1 bit);
+create table au (id int, b1 boolean);
 create table bu (id int);
 insert into au values(1,true);
 insert into bu values(2);

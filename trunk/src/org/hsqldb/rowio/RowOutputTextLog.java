@@ -82,7 +82,7 @@ public class RowOutputTextLog extends RowOutputBase {
     }
 
     protected void writeReal(Double o) {
-        writeBytes(Type.SQL_DOUBLE.convertToSQLString( o));
+        writeBytes(Type.SQL_DOUBLE.convertToSQLString(o));
     }
 
     protected void writeSmallint(Number o) {
@@ -90,6 +90,18 @@ public class RowOutputTextLog extends RowOutputBase {
     }
 
     public void writeEnd() {}
+
+    protected void writeBit(BinaryData o) {
+
+        ensureRoom((int) (o.length() * 2 + 2));
+        write('\'');
+
+        String s = StringConverter.byteArrayToBitString(o.getBytes(),
+            (int) o.bitLength());
+
+        writeBytes(s);
+        write('\'');
+    }
 
     protected void writeBinary(BinaryData o) {
 
@@ -104,7 +116,6 @@ public class RowOutputTextLog extends RowOutputBase {
 
     protected void writeClob(ClobData o, Type type) {
         writeString(type.convertToSQLString(o));
-
     }
 
     protected void writeBlob(BlobData o, Type type) {
@@ -183,17 +194,14 @@ public class RowOutputTextLog extends RowOutputBase {
     public void writeIntData(int i, int position) {}
 
     protected void writeTime(TimeData o, Type type) {
-
         writeBytes(type.convertToSQLString(o));
     }
 
     protected void writeDate(Date o, Type type) {
-
         writeBytes(type.convertToSQLString(o));
     }
 
     protected void writeTimestamp(Timestamp o, Type type) {
-
         writeBytes(type.convertToSQLString(o));
     }
 
@@ -204,7 +212,6 @@ public class RowOutputTextLog extends RowOutputBase {
     protected void writeDaySecondInterval(IntervalSecondData o, Type type) {
         writeBytes(type.convertToSQLString(o));
     }
-
 
     public void writeShort(int i) {
         writeBytes(Integer.toString(i));

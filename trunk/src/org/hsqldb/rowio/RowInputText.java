@@ -41,6 +41,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.Trace;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.store.BitMap;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataMemory;
@@ -418,7 +419,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         return (IntervalSecondData) ((IntervalType) type).newInterval(s);
     }
 
-    protected Boolean readBit() throws IOException, HsqlException {
+    protected Boolean readBoole() throws IOException, HsqlException {
 
         String s = readString();
 
@@ -454,6 +455,25 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         data = StringConverter.hexToByteArray(s);
 
         return new JavaObjectData(data);
+    }
+
+    protected BinaryData readBit() throws IOException, HsqlException {
+
+        String s = readString();
+
+        if (s == null) {
+            return null;
+        }
+
+        s = s.trim();
+
+        if (s.length() == 0) {
+            return null;
+        }
+
+        BitMap map = StringConverter.bitToBitMap(s);
+
+        return new BinaryData(map.getBytes(), map.size());
     }
 
     protected BinaryData readBinary() throws IOException, HsqlException {

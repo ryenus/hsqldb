@@ -402,4 +402,24 @@ INSERT INTO params (name, value) VALUES ('name1', 'value1');
  name1,NULL
  name2,NULL
 */SELECT n.name, p.value FROM names n LEFT JOIN params p ON n.name = p.name AND p.value = 'value3';
+---
+CREATE MEMORY TABLE SUPER(PK INTEGER PRIMARY KEY,ASS CHARACTER(3))
+CREATE MEMORY TABLE ASSOCIATED(PK CHARACTER(3),I INTEGER)
+CREATE MEMORY TABLE SUB(PK INTEGER PRIMARY KEY,ASS CHARACTER(3))
 
+insert into sub values(1, 'mee')
+insert into super values(1, 'mee')
+insert into associated values('mee', 10)
+insert into associated values('you', 20)
+/*r
+ 1,mee,mee
+ NULL,NULL,you
+*/select sub.pk, sub.ass, a.pk
+  from Sub sub inner join Super super on sub.pk=super.pk
+  right outer join Associated a on super.ass=a.pk order by 3
+/*r
+ 1,mee,mee
+ NULL,NULL,you
+*/select sub.pk, sub.ass, a.pk
+  from Sub sub inner join Super super on sub.pk=super.pk
+  full outer join Associated a on super.ass=a.pk order by 3

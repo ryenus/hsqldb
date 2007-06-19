@@ -173,6 +173,17 @@ public class BitMap {
         return buf;
     }
 
+    private void doubleCapacity() {
+
+        int[] newmap = new int[map.length * 2];
+
+        capacity *= 2;
+
+        System.arraycopy(map, 0, newmap, 0, map.length);
+
+        map = newmap;
+    }
+
     public static int set(int map, int pos) {
 
         int mask = 0x80000000 >>> pos;
@@ -212,14 +223,50 @@ public class BitMap {
                                  : true;
     }
 
-    private void doubleCapacity() {
+    public static boolean isSet(byte[] map, int pos) {
 
-        int[] newmap = new int[map.length * 2];
+        int mask = 0x00000080 >>> pos;
 
-        capacity *= 2;
+        int index = pos /8;
 
-        System.arraycopy(map, 0, newmap, 0, map.length);
+        if (index >= map.length ) {
+            return false;
+        }
 
-        map = newmap;
+        byte b = map[index];
+
+        return (b & mask) == 0 ? false
+                                 : true;
+    }
+
+    public static void unset(byte[] map, int pos) {
+
+        int mask = 0x00000080 >>> pos;
+        mask = ~mask;
+
+        int index = pos /8;
+
+        if (index >= map.length ) {
+            return;
+        }
+
+        byte b = map[index];
+
+        map[index] = (byte) (b & mask);
+    }
+
+    public static void set(byte[] map, int pos) {
+
+        int mask = 0x00000080 >>> pos;
+
+        int index = pos /8;
+
+        if (index >= map.length ) {
+            return;
+        }
+
+        byte b = map[index];
+
+        map[index] = (byte) (b | mask);
     }
 }

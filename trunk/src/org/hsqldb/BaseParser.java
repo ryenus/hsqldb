@@ -31,12 +31,10 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.types.Type;
-import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.store.BitMap;
-import org.hsqldb.types.BinaryData;
 
 public class BaseParser {
 

@@ -186,6 +186,10 @@ public abstract class Type {
         return false;
     }
 
+    public boolean isBitType() {
+        return false;
+    }
+
     public boolean acceptsPrecision() {
         return false;
     }
@@ -387,7 +391,7 @@ public abstract class Type {
                     precision = value.toString().length();
                     break;
 
-                case Types.SQL_BINARY :
+                case Types.SQL_VARBINARY :
                     precision = ((BinaryData) value).length();
                     break;
 
@@ -445,6 +449,9 @@ public abstract class Type {
             case Types.BINARY :
                 return Types.SQL_BINARY;
 
+            case Types.BIT :
+                return Types.SQL_BIT_VARYING;
+
             case Types.VARBINARY :
             case Types.LONGVARBINARY :
                 return Types.SQL_VARBINARY;
@@ -482,6 +489,10 @@ public abstract class Type {
 
             case Types.SQL_VARBINARY :
                 return Types.VARBINARY;
+
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
+                return Types.BIT;
 
             default :
                 return type;
@@ -624,9 +635,11 @@ public abstract class Type {
         typeAliases = new IntValueHashMap(67, 1);
 
         typeAliases.put("CHAR", Types.SQL_CHAR);
+/*
         typeAliases.put("CHAR VARYING", Types.SQL_VARCHAR);
         typeAliases.put("CHARACTER VARYING", Types.SQL_VARCHAR);
         typeAliases.put("CHARACTER LARGE OBJECT", Types.SQL_CLOB);
+ */
         typeAliases.put("INT", Types.SQL_INTEGER);
         typeAliases.put("DEC", Types.SQL_DECIMAL);
         typeAliases.put("LONGVARCHAR", Types.SQL_VARCHAR);

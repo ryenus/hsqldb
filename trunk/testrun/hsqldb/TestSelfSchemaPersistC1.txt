@@ -555,7 +555,7 @@ SET SCHEMA public;
 /*u0*/ALTER TABLE blaine.bct17 ADD FOREIGN KEY (i) REFERENCES blaine.bmt17 (i);
 /*u0*/ALTER TABLE blaine.bct18 ADD FOREIGN KEY (i) REFERENCES bmt18 (i);
 /*u1*/INSERT INTO public.ct15 values(10);
-/*u1*/INSERT INTO public.ct16 values(10);
+/*e*/INSERT INTO public.ct16 values(10);
 /*u1*/INSERT INTO public.ct17 values(10);
 /*u1*/INSERT INTO blaine.bct18 values(10);
 /*u1*/INSERT INTO blaine.bct17 values(10);

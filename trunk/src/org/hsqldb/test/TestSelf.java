@@ -299,7 +299,7 @@ class TestSelf extends TestUtil {
 
             // prepared statements
             s = "create table TabProfile(id int primary key,"
-                + "car varchar(20),won boolean,licence varbinary,"
+                + "car varchar(20),won boolean,licence varbinary(100),"
                 + "name varchar(40),sex char,chance double,birthday date,filler varchar(10))";
 
             sStatement.execute(s);

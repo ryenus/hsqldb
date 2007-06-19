@@ -44,6 +44,7 @@ import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.scriptio.ScriptReaderBase;
+import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
@@ -362,7 +363,7 @@ implements RowInputInterface {
         return (IntervalSecondData) ((IntervalType) type).newInterval(s);
     }
 
-    protected Boolean readBit() throws IOException, HsqlException {
+    protected Boolean readBoole() throws IOException, HsqlException {
 
         String s = readField();
 
@@ -386,6 +387,19 @@ implements RowInputInterface {
         data = StringConverter.hexToByteArray(s);
 
         return new JavaObjectData(data);
+    }
+
+    protected BinaryData readBit() throws IOException, HsqlException {
+
+        String s = readField();
+
+        if (s == null) {
+            return null;
+        }
+
+        BitMap map = StringConverter.bitToBitMap(s);
+
+        return new BinaryData(map.getBytes(), map.size());
     }
 
     protected BinaryData readBinary() throws IOException, HsqlException {

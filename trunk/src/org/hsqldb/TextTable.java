@@ -129,7 +129,7 @@ class TextTable extends org.hsqldb.Table {
                 nextpos = row.getPos() + row.getStorageSize();
 
                 row.setNewNodes();
-                insertFromTextSource(row);
+                insertFromTextSource(session, row);
             }
         } catch (HsqlException e) {
             int linenumber = cache == null ? 0
