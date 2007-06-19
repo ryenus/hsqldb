@@ -318,7 +318,7 @@ public class SqlFile {
     private static String specialDLikeString = null;
     private static String outputfileNonetocloseString = null;
     private static String outputfileReopeningString = null;
-	private static String outputfileHeaderString = null;
+    private static String outputfileHeaderString = null;
     private static String destfileDemandString = null;
     private static String bufferEmptyString = null;
     private static String fileNoappendString = null;
@@ -362,46 +362,46 @@ public class SqlFile {
             executingString = bundle.getString("executing");
             nobufferYetString = bundle.getString("nobuffer.yet");
             bufferCurrentString = bundle.getString("buffer.current");
-			commandnumMalformatString = bundle.getString("commandnum.malformat");
-			bufferRestoredString = bundle.getString("buffer.restored");
-			substitutionMalformattedString =
-					bundle.getString("substitution.malformatted");
-			substitutionNomatchString = bundle.getString("substitution.nomatch");
-			substitutionSyntaxString = bundle.getString("substitution.syntax");
-			bufferUnknownString = bundle.getString("buffer.unknown");
-			specialExtracharsString = bundle.getString("special.extrachars");
-			bufferExtracharsString = bundle.getString("buffer.extrachars");
-			specialMalformattedString =
-					bundle.getString("special.malformatted");
-			htmlModeString = bundle.getString("html.mode");
-			dsvTargetfileRequiredString =
-					bundle.getString("dsv.targetfile.required");
-			wroteString = bundle.getString("wrote");
-			characterstofile = bundle.getString("characterstofile");
-			fileNowriteString = bundle.getString("file.nowrite");
-			metadataNoobtainString = bundle.getString("metadata.noobtain");
-			specialDLikeString = bundle.getString("special.d.like");
-			outputfileNonetocloseString =
-					bundle.getString("outputfile.nonetoclose");
-			outputfileReopeningString =
-					bundle.getString("outputfile.reopening");
-			outputfileHeaderString = bundle.getString("outputfile.header");
-			destfileDemandString = bundle.getString("destfile.demand");
-			bufferEmptyString = bundle.getString("buffer.empty");
-			fileNoappendString = bundle.getString("file.noappend");
-			sqlfileNameDemandString = bundle.getString("sqlfile.name.demand");
-			sqlfileExecuteFailString = bundle.getString("sqlfile.execute.fail");
-			autocommitSettingString = bundle.getString("autocommit.setting");
-			committedString = bundle.getString("committed");
-			specialBMalformattedString =
-					bundle.getString("special.b.malformatted");
-			loadedString = bundle.getString("loaded");
-			binaryBytesintoString = bundle.getString("binary.bytesinto");
-			binaryFilefailString = bundle.getString("binary.filefail");
-			cSettingString = bundle.getString("c.setting");
-			bangIncompleteString = bundle.getString("bang.incomplete");
-			bangCommandFailString = bundle.getString("bang.command.fail");
-			specialUnknownString = bundle.getString("special.unknown");
+            commandnumMalformatString = bundle.getString("commandnum.malformat");
+            bufferRestoredString = bundle.getString("buffer.restored");
+            substitutionMalformattedString =
+                    bundle.getString("substitution.malformatted");
+            substitutionNomatchString = bundle.getString("substitution.nomatch");
+            substitutionSyntaxString = bundle.getString("substitution.syntax");
+            bufferUnknownString = bundle.getString("buffer.unknown");
+            specialExtracharsString = bundle.getString("special.extrachars");
+            bufferExtracharsString = bundle.getString("buffer.extrachars");
+            specialMalformattedString =
+                    bundle.getString("special.malformatted");
+            htmlModeString = bundle.getString("html.mode");
+            dsvTargetfileRequiredString =
+                    bundle.getString("dsv.targetfile.required");
+            wroteString = bundle.getString("wrote");
+            characterstofile = bundle.getString("characterstofile");
+            fileNowriteString = bundle.getString("file.nowrite");
+            metadataNoobtainString = bundle.getString("metadata.noobtain");
+            specialDLikeString = bundle.getString("special.d.like");
+            outputfileNonetocloseString =
+                    bundle.getString("outputfile.nonetoclose");
+            outputfileReopeningString =
+                    bundle.getString("outputfile.reopening");
+            outputfileHeaderString = bundle.getString("outputfile.header");
+            destfileDemandString = bundle.getString("destfile.demand");
+            bufferEmptyString = bundle.getString("buffer.empty");
+            fileNoappendString = bundle.getString("file.noappend");
+            sqlfileNameDemandString = bundle.getString("sqlfile.name.demand");
+            sqlfileExecuteFailString = bundle.getString("sqlfile.execute.fail");
+            autocommitSettingString = bundle.getString("autocommit.setting");
+            committedString = bundle.getString("committed");
+            specialBMalformattedString =
+                    bundle.getString("special.b.malformatted");
+            loadedString = bundle.getString("loaded");
+            binaryBytesintoString = bundle.getString("binary.bytesinto");
+            binaryFilefailString = bundle.getString("binary.filefail");
+            cSettingString = bundle.getString("c.setting");
+            bangIncompleteString = bundle.getString("bang.incomplete");
+            bangCommandFailString = bundle.getString("bang.command.fail");
+            specialUnknownString = bundle.getString("special.unknown");
         } catch (RuntimeException re) {
             System.err.println("Early abort due to localized String lookup");
         }
@@ -1188,7 +1188,7 @@ public class SqlFile {
                     }
                 } catch (PatternSyntaxException pse) {
                     throw new BadSpecial(substitutionSyntaxString
-							+ ":  \":s/from regex/to string/igm;\".  ", pse);
+                            + ":  \":s/from regex/to string/igm;\".  ", pse);
                 } catch (BadSubst badswitch) {
                     throw new BadSpecial(badswitch.getMessage()
                             + LS + substitutionSyntaxString + ":  \":s/from "
@@ -1217,9 +1217,9 @@ public class SqlFile {
     private String  dsvSkipPrefix = null;
     private String  dsvRowDelim = null;
     private static final String DSV_X_SYNTAX_MSG =
-		bundle.getString("dsv.x.syntax");
+        bundle.getString("dsv.x.syntax");
     private static final String DSV_M_SYNTAX_MSG =
-		bundle.getString("dsv.m.syntax");
+        bundle.getString("dsv.m.syntax");
 
     private static void enforce1charSpecial(String token, char command)
             throws BadSpecial {
@@ -1417,16 +1417,16 @@ public class SqlFile {
                      * be adding superfluous <HTML> and <BODY> tags.
                      * I think that browsers can handle that */
                     pwQuery.println((htmlMode
-							? ("<HTML>" + LS + "<!--")
-							: "#") + " " + (new java.util.Date()) + ".  "
-									+ outputfileHeaderString + ' '
-									+ getClass().getName()
-									+ (htmlMode ? (". -->" + LS + LS + "<BODY>")
-												: ("." + LS)));
+                            ? ("<HTML>" + LS + "<!--")
+                            : "#") + " " + (new java.util.Date()) + ".  "
+                                    + outputfileHeaderString + ' '
+                                    + getClass().getName()
+                                    + (htmlMode ? (". -->" + LS + LS + "<BODY>")
+                                                : ("." + LS)));
                     pwQuery.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(fileNowriteString + " '" + other
-							+ "':  " + e);
+                            + "':  " + e);
                 }
 
                 return;
@@ -1485,7 +1485,7 @@ public class SqlFile {
                     throw qn;
                 } catch (Exception e) {
                     throw new BadSpecial(sqlfileExecuteFailString
-							 + " '" + other + "'", e);
+                             + " '" + other + "'", e);
                 }
 
                 return;
@@ -1625,7 +1625,7 @@ public class SqlFile {
 
                     if (proc.waitFor() != 0) {
                         throw new BadSpecial(bangCommandFailString + ": '"
-								+ extCommand + "'");
+                                + extCommand + "'");
                     }
                 } catch (BadSpecial bs) {
                     throw bs;
