@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,8 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * $Id$
  */
 
 
@@ -69,7 +71,7 @@ import java.io.IOException;
  *      System.out.println("Value for '1' = (" + bundle.getString("1") + ')');
  * </PRE>
  *
- * Just like PropertyResourceBundle, the .properties file and the 
+ * Just like PropertyResourceBundle, the .properties file and the
  * <i>referenced</i> files are read in from the classpath by a class loader,
  * according to the normal ResourceBundle rules.
  * To eliminate the need to prohibit the use of any strings in the .properties
@@ -78,8 +80,8 @@ import java.io.IOException;
  * <P/>
  * REFERENCED FILE DIRECTORY is a directory named with the base name of the
  * properties file, and in the same parent directory.  So, the referenced
- * file directory <CODE>/a/b/c/greentea</CODE> is used to hold all reference 
- * files for properties files <CODE>/a/b/c/greentea_en_us.properties</CODE>, 
+ * file directory <CODE>/a/b/c/greentea</CODE> is used to hold all reference
+ * files for properties files <CODE>/a/b/c/greentea_en_us.properties</CODE>,
  * <CODE>/a/b/c/greentea_de.properties</CODE>,
  * <CODE>/a/b/c/greentea.properties</CODE>, etc.
  * (BTW, according to ResourceBundle rules, this resource should be looked
@@ -88,7 +90,7 @@ import java.io.IOException;
  * with locale appendages exactly as the <i>referring</i> properties files
  * has, plus the suffix <CODE>.text</CODE>.
  * <P/>
- * So, if we have the following line in 
+ * So, if we have the following line in
  * <CODE>/a/b/c/greentea_de.properties</CODE>:
  * <PRE>
  *     1: eins
@@ -107,7 +109,7 @@ import java.io.IOException;
  *
  * To prevent throwing at runtime due to unset variables, use a wrapper class
  * like SqltoolRB (use SqltoolRB.java as a template).
- * To prevent throwing at runtime due to unset System Properties, or 
+ * To prevent throwing at runtime due to unset System Properties, or
  * insufficient parameters passed to getString(String, String[]), use the
  * setMissingPropertyBehavior and setMissingSubstValueBehavior methods
  *
@@ -147,7 +149,7 @@ public class RefCapablePropertyResourceBundle {
     }
     /**
      * Set behavior for get*String(String, String[]) method when a
-     * substitution index (like %4) is used but no subs value was given for 
+     * substitution index (like %4) is used but no subs value was given for
      * that index.  Set to one of
      * <UL>
      *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
@@ -224,7 +226,7 @@ public class RefCapablePropertyResourceBundle {
     }
 
     /**
-     * Replaces patterns of the form %\d with corresponding element of the 
+     * Replaces patterns of the form %\d with corresponding element of the
      * given subs array.
      * Note that %\d numbers are 1-based, so we lok for subs[x-1].
      */
