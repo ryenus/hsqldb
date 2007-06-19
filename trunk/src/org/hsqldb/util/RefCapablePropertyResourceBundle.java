@@ -125,13 +125,14 @@ public class RefCapablePropertyResourceBundle {
     public static String LS = System.getProperty("line.separator");
     private Pattern sysPropVarPattern = Pattern.compile("\\Q${\\E([^}]+)\\Q}");
     private Pattern substPattern = Pattern.compile("\\Q%{\\E(\\d)\\Q}");
+    private ClassLoader loader;  // Needed to load referenced files
 
     public static final int THROW_BEHAVIOR = 0;
     public static final int EMPTYSTRING_BEHAVIOR = 1;
     public static final int NOOP_BEHAVIOR = 2;
 
-    private static int missingPropertyBehavior = THROW_BEHAVIOR;
-    private static int missingSubstValueBehavior = THROW_BEHAVIOR;
+    private int missingPropertyBehavior = THROW_BEHAVIOR;
+    private int missingSubstValueBehavior = THROW_BEHAVIOR;
 
     /**
      * Set behavior for get*String*() method when a referred-to
@@ -143,8 +144,8 @@ public class RefCapablePropertyResourceBundle {
      * </UL>
      * The first value is the default.
      */
-    public static void setMissingPropertyBehavior(int missingPropertyBehavior) {
-        RefCapablePropertyResourceBundle.missingPropertyBehavior =
+    public void setMissingPropertyBehavior(int missingPropertyBehavior) {
+        this.missingPropertyBehavior =
                 missingPropertyBehavior;
     }
     /**
@@ -158,16 +159,16 @@ public class RefCapablePropertyResourceBundle {
      * </UL>
      * The first value is the default.
      */
-    public static void setMissingSubstValueBehavior(
+    public void setMissingSubstValueBehavior(
             int missingSubstValueBehavior) {
-        RefCapablePropertyResourceBundle.missingSubstValueBehavior =
+        this.missingSubstValueBehavior =
                 missingSubstValueBehavior;
     }
 
-    public static int getMissingPropertyBehavior() {
+    public int getMissingPropertyBehavior() {
         return missingPropertyBehavior;
     }
-    public static int getMissingSubstValueBehavior() {
+    public int getMissingSubstValueBehavior() {
         return missingSubstValueBehavior;
     }
 
@@ -176,10 +177,11 @@ public class RefCapablePropertyResourceBundle {
     }
 
     private RefCapablePropertyResourceBundle(String baseName,
-            PropertyResourceBundle wrappedBundle) {
+            PropertyResourceBundle wrappedBundle, ClassLoader loader) {
         this.baseName = baseName;
         this.wrappedBundle = wrappedBundle;
         Locale locale = wrappedBundle.getLocale();
+        this.loader = loader;
         language = locale.getLanguage();
         country = locale.getCountry();
         variant = locale.getVariant();
@@ -305,31 +307,28 @@ public class RefCapablePropertyResourceBundle {
     }
 
     /**
-     * Use exactly like java.util.ResourceBundle.get(String).
+     * Use like java.util.ResourceBundle.getBundle(String).
      *
-     * @see ResourceBundle#get(String)
-     */
-    public static RefCapablePropertyResourceBundle getBundle(String baseName) {
-        return getRef(baseName, ResourceBundle.getBundle(baseName));
-    }
-    /**
-     * Use exactly like java.util.ResourceBundle.get(String, Locale).
+     * ClassLoader is required for our getBundles()s, since it is impossible
+     * to get the "caller's" ClassLoader without using JNI (i.e., with pure
+     * Java).
      *
-     * @see ResourceBundle#get(String, Locale)
+     * @see ResourceBundle#getBundle(String)
      */
-    public static RefCapablePropertyResourceBundle
-            getBundle(String baseName, Locale locale) {
-        return getRef(baseName, ResourceBundle.getBundle(baseName, locale));
+    public static RefCapablePropertyResourceBundle getBundle(String baseName,
+            ClassLoader loader) {
+        return getRef(baseName, ResourceBundle.getBundle(baseName,
+                Locale.getDefault(), loader), loader);
     }
     /**
      * Use exactly like java.util.ResourceBundle.get(String, Locale, ClassLoader).
      *
-     * @see ResourceBundle#get(String, Locale, ClassLoader)
+     * @see ResourceBundle#getBundle(String, Locale, ClassLoader)
      */
     public static RefCapablePropertyResourceBundle
             getBundle(String baseName, Locale locale, ClassLoader loader) {
         return getRef(baseName,
-                ResourceBundle.getBundle(baseName, locale, loader));
+                ResourceBundle.getBundle(baseName, locale, loader), loader);
     }
 
     /**
@@ -337,7 +336,7 @@ public class RefCapablePropertyResourceBundle {
      * or throw a MissingResourceException.
      */
     static private RefCapablePropertyResourceBundle getRef(String baseName,
-            ResourceBundle rb) {
+            ResourceBundle rb, ClassLoader loader) {
         if (!(rb instanceof PropertyResourceBundle))
             throw new MissingResourceException(
                     "Found a Resource Bundle, but it is a "
@@ -347,7 +346,7 @@ public class RefCapablePropertyResourceBundle {
             return (RefCapablePropertyResourceBundle) allBundles.get(rb);
         RefCapablePropertyResourceBundle newPRAFP =
                 new RefCapablePropertyResourceBundle(baseName,
-                        (PropertyResourceBundle) rb);
+                        (PropertyResourceBundle) rb, loader);
         allBundles.put(rb, newPRAFP);
         return newPRAFP;
     }
@@ -363,7 +362,7 @@ public class RefCapablePropertyResourceBundle {
                 + ((v == null) ? "" : ("_" + v))
                 + ".text";
         // System.err.println("Seeking " + filePath);
-        InputStream is = getClass().getResourceAsStream(filePath);
+        InputStream is = loader.getResourceAsStream(filePath);
         return (is == null && l != null)
             ? getMostSpecificStream(key, ((c == null) ? null : l),
                     ((v == null) ? null : c), null)

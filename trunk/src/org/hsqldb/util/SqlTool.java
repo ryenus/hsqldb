@@ -303,7 +303,9 @@ public class SqlTool {
 
                 if (parameter.equals("help")) {
                     System.out.println(SqltoolRB.getString(
-                            SqltoolRB.SQLTOOL_SYNTAX, new String[] {revnum}));
+                            SqltoolRB.SQLTOOL_SYNTAX, new String[] {
+                                revnum, RCData.DEFAULT_JDBC_DRIVER
+                            }));
                     return;
                 }
                 if (parameter.equals("abortonerr")) {
@@ -442,7 +444,9 @@ public class SqlTool {
         } catch (BadCmdline bcl) {
             throw new SqlToolException(SYNTAXERR_EXITVAL,
                     SqltoolRB.getString(SqltoolRB.SQLTOOL_SYNTAX,
-                            new String[] {revnum}));
+                            new String[] {
+                                revnum, RCData.DEFAULT_JDBC_DRIVER
+                            }));
         }
 
         RCData conData = null;
