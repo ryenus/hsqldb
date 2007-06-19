@@ -124,7 +124,7 @@ public class RefCapablePropertyResourceBundle {
     static private Map allBundles = new HashMap();
     public static String LS = System.getProperty("line.separator");
     private Pattern sysPropVarPattern = Pattern.compile("\\Q${\\E([^}]+)\\Q}");
-    private Pattern substPattern = Pattern.compile("%(\\d)");
+    private Pattern substPattern = Pattern.compile("\\Q%{\\E(\\d)\\Q}");
 
     public static final int THROW_BEHAVIOR = 0;
     public static final int EMPTYSTRING_BEHAVIOR = 1;
@@ -149,7 +149,7 @@ public class RefCapablePropertyResourceBundle {
     }
     /**
      * Set behavior for get*String(String, String[]) method when a
-     * substitution index (like %4) is used but no subs value was given for
+     * substitution index (like %{4}) is used but no subs value was given for
      * that index.  Set to one of
      * <UL>
      *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
@@ -226,9 +226,9 @@ public class RefCapablePropertyResourceBundle {
     }
 
     /**
-     * Replaces patterns of the form %\d with corresponding element of the
+     * Replaces patterns of the form %{\d} with corresponding element of the
      * given subs array.
-     * Note that %\d numbers are 1-based, so we lok for subs[x-1].
+     * Note that %{\d} numbers are 1-based, so we lok for subs[x-1].
      */
     public String subst(String s, String[] subs) {
         Matcher matcher = substPattern.matcher(s);
