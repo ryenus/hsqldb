@@ -404,6 +404,7 @@ public class SqlFile {
             specialUnknownString = bundle.getString("special.unknown");
         } catch (RuntimeException re) {
             System.err.println("Early abort due to localized String lookup");
+			throw re;
         }
     }
 

@@ -68,22 +68,54 @@ public class SqltoolRB {
              RefCapablePropertyResourceBundle.NOOP_BEHAVIOR);
         SqltoolRB.setMissingPropertyBehavior(
              RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR);
-        System.err.println("key2 -> ("
-                + SqltoolRB.getExpandedString(SqltoolRB.KEY2,
+        System.err.println("sqltempfile.failure -> ("
+                + SqltoolRB.getExpandedString(SqltoolRB.SQLTEMPFILE_FAILURE,
                         new String[] { "one", "two" }
                 ) + ')');
     }
 
     static private int keyCounter = 0;
-    static public final int KEY0 = keyCounter++;
-    static public final int KEY1 = keyCounter++;
-    static public final int KEY2 = keyCounter++;
+    static public final int SQLTOOL_SYNTAX = keyCounter++;
+    static public final int BANNER = keyCounter++;
+    static public final int PASSWORDFOR_PROMPT = keyCounter++;
+    static public final int SQLTOOL_VARSET_BADFORMAT = keyCounter++;
+    static public final int SQLTOOL_ABORTCONTINUE_MUTUALLYEXCLUSIVE =
+            keyCounter++;
+    static public final int SQLTEMPFILE_FAILURE = keyCounter++;
+    static public final int RCDATA_INLINEURL_MISSING = keyCounter++;
+    static public final int RCDATA_INLINEUSERNAME_MISSING = keyCounter++;
+    static public final int PASSWORD_BAD = keyCounter++;
+    static public final int CONNECTION_FAILURE1 = keyCounter++;
+    static public final int CONNECTION_FAILURE2 = keyCounter++;
+    static public final int RCDATA_GENFROMVALUES_FAILURE = keyCounter++;
+    static public final int CONNDATA_RETRIEVAL_FAILURE = keyCounter++;
+    static public final int JDBC_ESTABLISHED1 = keyCounter++;
+    static public final int JDBC_ESTABLISHED2 = keyCounter++;
+    static public final int TEMPFILE_REMOVAL_FAILURE = keyCounter++;
     static private boolean validated = false;
 
     private static Object[] memberKeyArray = new Object[] {
-        new Integer(KEY0), "key0",
-        new Integer(KEY1), "key1",
-        new Integer(KEY2), "key2",
+        // SqlTool class, file references:
+        new Integer(SQLTOOL_SYNTAX), "SqlTool.syntax",
+        new Integer(BANNER), "banner",
+        // SqlTool inline properties:
+        new Integer(PASSWORDFOR_PROMPT), "passwordFor.prompt",
+        new Integer(SQLTOOL_VARSET_BADFORMAT), "SqlTool.varset.badformat",
+        new Integer(SQLTOOL_ABORTCONTINUE_MUTUALLYEXCLUSIVE),
+                "SqlTool.abort_continue.mutuallyexclusive",
+        new Integer(SQLTEMPFILE_FAILURE), "sqltempfile.failure",
+        new Integer(RCDATA_INLINEURL_MISSING), "rcdata.inlineurl.missing",
+        new Integer(RCDATA_INLINEUSERNAME_MISSING),
+                "rcdata.inlineusername.missing",
+        new Integer(PASSWORD_BAD), "password.bad",
+        new Integer(CONNECTION_FAILURE1), "connection.failure.1",
+        new Integer(CONNECTION_FAILURE2), "connection.failure.2",
+        new Integer(RCDATA_GENFROMVALUES_FAILURE),
+                "rcdata.genfromvalues.failure",
+        new Integer(CONNDATA_RETRIEVAL_FAILURE), "conndata.retrieval.failure",
+        new Integer(JDBC_ESTABLISHED1), "jdbc.established.1",
+        new Integer(JDBC_ESTABLISHED2), "jdbc.established.2",
+        new Integer(TEMPFILE_REMOVAL_FAILURE), "tempfile.removal.failure",
     };
 
 
