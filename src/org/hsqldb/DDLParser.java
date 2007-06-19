@@ -661,9 +661,10 @@ public class DDLParser extends Parser {
                             c.getName().name, table.getSchemaName(),
                             table.getName(), SchemaObject.INDEX);
 
-                    Index index = table.createAndAddIndexStructure(c.core.mainCols,
-                                                    indexName, true,
-                                                    true, false);
+                    Index index =
+                        table.createAndAddIndexStructure(c.core.mainCols,
+                                                         indexName, true,
+                                                         true, false);
                     Constraint newconstraint = new Constraint(c.getName(),
                         table, index, Constraint.UNIQUE);
 
@@ -699,9 +700,10 @@ public class DDLParser extends Parser {
                                                          table.getSchemaName(),
                                                          table.getName(),
                                                          SchemaObject.INDEX);
-                    Index index = table.createAndAddIndexStructure(c.core.refCols,
-                                                    refIndexName, false,
-                                                    true, isForward);
+                    Index index =
+                        table.createAndAddIndexStructure(c.core.refCols,
+                                                         refIndexName, false,
+                                                         true, isForward);
                     HsqlName mainName = database.nameManager.newAutoName("REF",
                         c.getName().name, table.getSchemaName(),
                         table.getName(), SchemaObject.INDEX);
@@ -943,6 +945,8 @@ public class DDLParser extends Parser {
 
         HsqlArrayList tempConstraints = new HsqlArrayList();
 
+        compileContext.currentDomain = domain;
+
         while (true) {
             boolean end = false;
 
@@ -963,9 +967,12 @@ public class DDLParser extends Parser {
             }
         }
 
+        compileContext.currentDomain = null;
+
         for (int i = 0; i < tempConstraints.size(); i++) {
             Constraint c = (Constraint) tempConstraints.get(i);
 
+            c.prepareCheckConstraint(session, null, false);
             domain.addConstraint(c);
             database.schemaManager.addSchemaObject(c);
         }
@@ -982,10 +989,11 @@ public class DDLParser extends Parser {
         database.schemaManager.checkSchemaObjectNotExists(name);
         readThis(Token.AS);
 
-        Type         predefinedType = readTypeDefinition(false);
+        Type predefinedType = readTypeDefinition(false);
 
         readIfThis(Token.FINAL);
-        DistinctType userType       = new DistinctType(name, predefinedType);
+
+        DistinctType userType = new DistinctType(name, predefinedType);
 
         // create the type
         database.schemaManager.addSchemaObject(userType);

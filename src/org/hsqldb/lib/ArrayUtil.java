@@ -568,7 +568,7 @@ public class ArrayUtil {
      */
     public static int find(byte[] arra, int start, int limit, byte[] arrb) {
 
-        int k = 0;
+        int k = start;
 
         limit = limit - arrb.length + 1;
 
@@ -613,16 +613,16 @@ public class ArrayUtil {
 
     /**
      * Returns an index into arra (or -1) where the character is in the
-     * charset byte array.
+     * byteSet byte array.
      */
     public static int findIn(byte[] arra, int start, int limit,
-                             byte[] charset) {
+                             byte[] byteSet) {
 
         int k = 0;
 
         for (; k < limit; k++) {
-            for (int i = 0; i < charset.length; i++) {
-                if (arra[k] == charset[i]) {
+            for (int i = 0; i < byteSet.length; i++) {
+                if (arra[k] == byteSet[i]) {
                     return k;
                 }
             }

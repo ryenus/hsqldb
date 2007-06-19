@@ -74,6 +74,7 @@ import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.DomainType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.TypedData;
@@ -2449,7 +2450,7 @@ class Parser extends BaseParser {
         } else {
             elseExpr = l == null
                        ? new Expression((Object) null, Type.SQL_ALL_TYPES)
-                       : new Expression((Object) "", Type.SQL_CHAR);
+                       : new Expression((Object) "", Type.SQL_VARCHAR);
 
             readThis(Token.END);
             readIfThis(Token.CASE);
@@ -2601,80 +2602,87 @@ class Parser extends BaseParser {
             default :
         }
 
-        long length = 0;
-        int scale = typeNumber == Types.SQL_TIMESTAMP
-                    ? DateTimeType.defaultTimestampFractionPrecision
-                    : 0;
+        long length = typeNumber == Types.SQL_TIMESTAMP
+                      ? DateTimeType.defaultTimestampFractionPrecision
+                      : 0;
+        int scale = 0;
 
-/*
-        if (Types.requiresPrecisionCreateParam(typeNumber)
+        if (Types.requiresPrecision(typeNumber)
                 && tokenType != Token.OPENBRACKET
                 && database.sqlEnforceStrictSize) {
             throw unexpectedToken(Token.T_OPENBRACKET);
         }
-*/
-        if (Types.acceptsPrecision(typeNumber)
-                && tokenType == Token.OPENBRACKET) {
-            read();
 
-            length = readBigint();
-
-            if (length < 0
-                    || (length == 0
-                        && !Types.acceptsZeroPrecision(typeNumber))) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
-            }
-
-            if (typeNumber == Types.SQL_BLOB || typeNumber == Types.SQL_CLOB) {
-                int multiplier = 1;
-
-                switch (tokenType) {
-
-                    case Token.K :
-                        read();
-
-                        multiplier = 1024;
-                        break;
-
-                    case Token.M :
-                        read();
-
-                        multiplier = 1024 * 1024;
-                        break;
-
-                    case Token.G :
-                        read();
-
-                        multiplier = 1024 * 1024 * 1024;
-                        break;
-                }
-
-                length *= multiplier;
-            }
-
-            if (typeNumber == Types.SQL_CHAR
-                    || typeNumber == Types.SQL_VARCHAR
-                    || typeNumber == Types.SQL_CLOB) {
-                if (tokenType == Token.CHARACTERS) {
-                    read();
-                } else if (tokenType == Token.OCTETS) {
-                    read();
-
-                    length /= 2;
-                }
-            }
-
-            if (Types.acceptsScaleCreateParam(typeNumber)
-                    && tokenType == Token.COMMA) {
+        if (Types.acceptsPrecision(typeNumber)) {
+            if (tokenType == Token.OPENBRACKET) {
                 read();
 
-                scale = readInteger();
-            }
+                length = readBigint();
 
-            readThis(Token.CLOSEBRACKET);
+                if (length < 0
+                        || (length == 0
+                            && !Types.acceptsZeroPrecision(typeNumber))) {
+                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                }
 
-            if (length < 0 || scale < 0) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                if (typeNumber == Types.SQL_BLOB
+                        || typeNumber == Types.SQL_CLOB) {
+                    int multiplier = 1;
+
+                    switch (tokenType) {
+
+                        case Token.K :
+                            read();
+
+                            multiplier = 1024;
+                            break;
+
+                        case Token.M :
+                            read();
+
+                            multiplier = 1024 * 1024;
+                            break;
+
+                        case Token.G :
+                            read();
+
+                            multiplier = 1024 * 1024 * 1024;
+                            break;
+                    }
+
+                    length *= multiplier;
+                }
+
+                if (typeNumber == Types.SQL_CHAR
+                        || typeNumber == Types.SQL_VARCHAR
+                        || typeNumber == Types.SQL_CLOB) {
+                    if (tokenType == Token.CHARACTERS) {
+                        read();
+                    } else if (tokenType == Token.OCTETS) {
+                        read();
+
+                        length /= 2;
+                    }
+                }
+
+                if (Types.acceptsScaleCreateParam(typeNumber)
+                        && tokenType == Token.COMMA) {
+                    read();
+
+                    scale = readInteger();
+
+                    if (scale < 0) {
+                        throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                    }
+                }
+
+                readThis(Token.CLOSEBRACKET);
+            } else if (database.sqlEnforceStrictSize) {
+                if (typeNumber == Types.SQL_CHAR
+                        || typeNumber == Types.SQL_BINARY
+                        || typeNumber == Types.SQL_BIT) {
+                    length = 1;
+                }
             }
 
             if (typeNumber == Types.SQL_TIMESTAMP
@@ -2729,7 +2737,7 @@ class Parser extends BaseParser {
                 }
             }
 
-            function = SQLFunction.newSQLFunction(tokenString);
+            function = SQLFunction.newSQLFunction(tokenString, compileContext);
 
             if (function != null) {
                 int pos = getPosition();
@@ -3992,6 +4000,7 @@ class Parser extends BaseParser {
         OrderedHashSet        usedSequences    = new OrderedHashSet();
         OrderedHashSet        usedRoutineNames = new OrderedHashSet();
         HsqlArrayList         rangeVariables   = new HsqlArrayList();
+        DomainType            currentDomain;
 
         //
         private int rangeVarIndex;

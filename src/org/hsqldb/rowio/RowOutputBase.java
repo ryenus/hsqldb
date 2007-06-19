@@ -140,6 +140,8 @@ implements RowOutputInterface {
 
     protected abstract void writeOther(JavaObjectData o);
 
+    protected abstract void writeBit(BinaryData o);
+
     protected abstract void writeBinary(BinaryData o);
 
     protected abstract void writeClob(ClobData o, Type type);
@@ -273,6 +275,11 @@ implements RowOutputInterface {
                 case Types.SQL_BINARY :
                 case Types.SQL_VARBINARY :
                     writeBinary((BinaryData) o);
+                    break;
+
+                case Types.SQL_BIT :
+                case Types.SQL_BIT_VARYING :
+                    writeBit((BinaryData) o);
                     break;
 
                 default :

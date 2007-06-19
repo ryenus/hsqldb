@@ -273,7 +273,7 @@ public class Tokenizer {
 
         switch (iType) {
 
-            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
             case Types.SQL_BIT :
             case Types.SQL_CHAR :
             case Types.SQL_INTEGER :
@@ -543,7 +543,7 @@ public class Tokenizer {
             case Types.SQL_BIGINT :
             case Types.SQL_DOUBLE :
             case Types.SQL_NUMERIC :
-            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
             case Types.SQL_BIT :
             case Types.SQL_BOOLEAN :
                 return iType;
@@ -585,7 +585,7 @@ public class Tokenizer {
                                       e.toString());
                 }
             }
-            case Types.SQL_BINARY : {
+            case Types.SQL_VARBINARY : {
                 byte[] array;
 
                 try {
@@ -723,7 +723,7 @@ public class Tokenizer {
             iType  = Types.SQL_BIT;
         } else if (c == 'X' || c == 'x') {
             cfirst = c;
-            iType  = Types.SQL_BINARY;
+            iType  = Types.SQL_VARBINARY;
         } else if (Character.isJavaIdentifierStart(c)) {
             iType = NAME;
         } else if (Character.isDigit(c)) {
@@ -892,7 +892,7 @@ public class Tokenizer {
             switch (iType) {
 
                 case Types.SQL_BIT :
-                case Types.SQL_BINARY :
+                case Types.SQL_VARBINARY :
                     if (c == '\'') {
                         iIndex++;
 

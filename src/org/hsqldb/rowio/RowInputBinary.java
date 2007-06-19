@@ -140,7 +140,7 @@ implements org.hsqldb.rowio.RowInputInterface {
         return ValuePool.getBigDecimal(new BigDecimal(bigint, scale));
     }
 
-    protected Boolean readBit() throws IOException, HsqlException {
+    protected Boolean readBoole() throws IOException, HsqlException {
         return readBoolean() ? Boolean.TRUE
                              : Boolean.FALSE;
     }
@@ -180,6 +180,16 @@ implements org.hsqldb.rowio.RowInputInterface {
 
     protected Object readOther() throws IOException, HsqlException {
         return new JavaObjectData(readByteArray());
+    }
+
+    protected BinaryData readBit() throws IOException, HsqlException {
+
+        int    length = readInt();
+        byte[] b      = new byte[(length + 7) / 8];
+
+        readFully(b);
+
+        return new BinaryData(b, length);
     }
 
     protected BinaryData readBinary() throws IOException, HsqlException {

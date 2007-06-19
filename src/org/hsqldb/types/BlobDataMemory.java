@@ -78,8 +78,7 @@ public class BlobDataMemory implements BlobData {
                          (int) b2.length());
     }
 
-    public BlobDataMemory(long length,
-                          DataInput stream) throws HsqlException {
+    public BlobDataMemory(long length, DataInput stream) throws HsqlException {
 
         data = new byte[(int) length];
 
@@ -175,11 +174,20 @@ public class BlobDataMemory implements BlobData {
     }
 
     public long position(byte[] pattern, long start) {
-        return 0L;
+
+        if (pattern.length > data.length) {
+            return -1;
+        }
+
+        if (start >= data.length) {
+            return -1;
+        }
+
+        return ArrayUtil.find(data, (int) start, data.length, pattern);
     }
 
     public long position(BlobData pattern, long start) {
-        return 0L;
+        return position(pattern.getBytes(), start);
     }
 
     public long getId() {

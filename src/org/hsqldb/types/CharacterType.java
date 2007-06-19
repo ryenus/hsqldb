@@ -311,11 +311,11 @@ public class CharacterType extends Type {
 
     public Object convertToTypeLimits(Object a) throws HsqlException {
 
-        if (precision == 0) {
+        if (a == null) {
             return a;
         }
 
-        if (a == null) {
+        if (precision == 0) {
             return a;
         }
 
@@ -407,6 +407,10 @@ public class CharacterType extends Type {
             }
             default : {
                 String s = otherType.convertToString(a);
+
+                if (s.length() > precision) {
+                    s = s.substring(0, (int) precision);
+                }
 
                 return convertToTypeLimits(s);
             }

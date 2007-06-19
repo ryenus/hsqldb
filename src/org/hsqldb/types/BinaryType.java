@@ -109,6 +109,7 @@ public class BinaryType extends Type {
             case Types.SQL_ALL_TYPES :
                 return this;
 
+            case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING : {
                 long otherPrecision = (other.precision + 7) / 8;
 
@@ -159,12 +160,10 @@ public class BinaryType extends Type {
             case Types.SQL_ALL_TYPES :
                 return this;
 
+            case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
-                newType = this;
-
-                if (type != Types.SQL_BIT_VARYING) {
-                    otherPrecision = (other.precision + 7) / 8;
-                }
+                newType        = this;
+                otherPrecision = (other.precision + 7) / 8;
                 break;
 
             case Types.SQL_BINARY :
@@ -255,6 +254,10 @@ public class BinaryType extends Type {
     }
 
     public Object convertToTypeLimits(Object a) throws HsqlException {
+
+        if (a == null) {
+            return null;
+        }
 
         if (precision == 0) {
             return a;

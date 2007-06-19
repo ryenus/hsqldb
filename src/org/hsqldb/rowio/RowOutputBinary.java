@@ -218,9 +218,13 @@ public class RowOutputBinary extends RowOutputBase {
         this.writeBytes(type.convertToString(o));
     }
 
-
     protected void writeOther(JavaObjectData o) {
         writeByteArray(o.getBytes());
+    }
+
+    protected void writeBit(BinaryData o) {
+        writeInt((int) o.bitLength());
+        write(o.getBytes(), 0, o.getBytes().length);
     }
 
     protected void writeBinary(BinaryData o) {
@@ -229,13 +233,11 @@ public class RowOutputBinary extends RowOutputBase {
 
     protected void writeClob(ClobData o, Type type) {
         writeString(type.convertToString(o));
-
     }
 
     protected void writeBlob(BlobData o, Type type) {
         writeByteArray(o.getBytes());
     }
-
 
 // fredt@users - comment - helper and conversion methods
     public void writeByteArray(byte[] b) {
@@ -244,10 +246,10 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     // fredt@users - comment - helper and conversion methods
-        public void writeCharArray(char[] c) {
-            writeInt(c.length);
-            write(c, 0, c.length);
-        }
+    public void writeCharArray(char[] c) {
+        writeInt(c.length);
+        write(c, 0, c.length);
+    }
 
     /**
      *  Calculate the size of byte array required to store a row.
@@ -327,6 +329,12 @@ public class RowOutputBinary extends RowOutputBase {
                         s += ((BinaryData) o).length();
                         break;
 
+                    case Types.SQL_BIT :
+                    case Types.SQL_BIT_VARYING :
+                        s += 4;
+                        s += ((BinaryData) o).length();
+                        break;
+
                     case Types.OTHER :
                         JavaObjectData jo = (JavaObjectData) o;
 
@@ -335,9 +343,8 @@ public class RowOutputBinary extends RowOutputBase {
                         break;
 
                     default :
-                        Trace.printSystemOut(
-                            Trace.FUNCTION_NOT_SUPPORTED + " "
-                            + types[i].getNameString());
+                        Trace.printSystemOut(Trace.FUNCTION_NOT_SUPPORTED
+                                             + " " + types[i].getNameString());
                 }
             }
         }

@@ -10,3 +10,7 @@
 /*rXYY*/call overlay( 'YYY' placing 'X' from 1);
 /*rYXY*/call overlay( 'YYY' placing 'X' from 2);
 /*r0109090405*/call overlay( x'0102030405' placing x'0909' from 2);
+call current_timestamp;
+call current_timestamp(1);
+call current_time;
+call current_time(6);

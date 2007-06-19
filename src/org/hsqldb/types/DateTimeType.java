@@ -279,7 +279,7 @@ public class DateTimeType extends DateTimeIntervalType {
     public Object convertToTypeLimits(Object a) throws HsqlException {
 
         if (a == null) {
-            return a;
+            return null;
         }
 
         if (scale == maxFractionPrecision) {

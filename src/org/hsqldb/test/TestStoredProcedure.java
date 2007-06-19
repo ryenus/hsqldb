@@ -91,7 +91,7 @@ public class TestStoredProcedure extends TestBase {
         int                cols;
         java.sql.Statement stmt = conn.createStatement();
 
-        stmt.execute("CREATE temp TABLE MYTABLE(COL1 INTEGER,COL2 VARCHAR);");
+        stmt.execute("CREATE temp TABLE MYTABLE(COL1 INTEGER,COL2 VARCHAR(10));");
         stmt.execute("INSERT INTO MYTABLE VALUES    (1,'test1');");
         stmt.execute("INSERT INTO MYTABLE VALUES(2,'test2');");
 

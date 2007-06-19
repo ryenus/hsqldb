@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.Parser.CompileContext;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
@@ -38,10 +39,9 @@ import org.hsqldb.types.BinaryType;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeIntervalType;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.DateTimeType;
-import org.hsqldb.types.BitType;
 
 /**
  * Implementation of SQL standard functions.<p>
@@ -193,10 +193,7 @@ public class SQLFunction extends Expression {
         valueFuncMap.put(Token.T_SESSION_USER, FUNC_SESSION_USER);
         valueFuncMap.put(Token.T_SYSTEM_USER, FUNC_SYSTEM_USER);
         valueFuncMap.put(Token.T_USER, FUNC_USER);
-        /*
-        only for domain constraints - probably shouldn't be handled here at all
         valueFuncMap.put(Token.T_VALUE, FUNC_VALUE);
-        */
     }
 
     //
@@ -205,7 +202,8 @@ public class SQLFunction extends Expression {
     short[] parseList;
     boolean isValueFunction;
 
-    public static SQLFunction newSQLFunction(String token) {
+    public static SQLFunction newSQLFunction(String token,
+            CompileContext context) {
 
         int id = regularFuncMap.get(token, -1);
 
@@ -218,6 +216,14 @@ public class SQLFunction extends Expression {
         }
 
         SQLFunction function = new SQLFunction(id);
+
+        if (id == FUNC_VALUE) {
+            if (context.currentDomain == null) {
+                return null;
+            }
+
+            function.dataType = context.currentDomain;
+        }
 
         return function;
     }
@@ -462,10 +468,12 @@ public class SQLFunction extends Expression {
                 isValueFunction = true;
                 break;
 
-            /*
             case FUNC_VALUE :
+                name            = Token.T_VALUE;
+                parseList       = noParamList;
+                isValueFunction = false;
                 break;
-            */
+
             case FUNC_CURRENT_DATE :
                 name            = Token.T_CURRENT_DATE;
                 parseList       = noParamList;
@@ -613,7 +621,7 @@ public class SQLFunction extends Expression {
 
                 long result;
 
-                result = ((BitType) argList[0].dataType).size(data[0]);
+                result = ((BlobData) data[0]).bitLength();
 
                 return ValuePool.getLong(result);
             }
@@ -625,7 +633,7 @@ public class SQLFunction extends Expression {
                 long result;
 
                 if (argList[0].dataType.isBinaryType()) {
-                    result = ((BinaryType) argList[0].dataType).size(data[0]);
+                    result = ((BlobData) data[0]).length();
                 } else {
                     result = 2 * ((CharacterType) argList[0].dataType).size(
                         data[0]);
@@ -1417,8 +1425,10 @@ public class SQLFunction extends Expression {
             case FUNC_SESSION_USER :
             case FUNC_SYSTEM_USER :
             case FUNC_USER :
-            case FUNC_VALUE :
                 dataType = CharacterType.sqlIdentifierType;
+                break;
+
+            case FUNC_VALUE :
                 break;
 
             case FUNC_CURRENT_DATE :
@@ -1552,7 +1562,7 @@ public class SQLFunction extends Expression {
                 break;
             }
             case FUNC_BIT_LENGTH : {
-                buf.append(Token.T_BIT_LENGTH).append('(')           //
+                buf.append(Token.T_BIT_LENGTH).append('(')             //
                     .append(argList[0].getDDL()).append(')');
 
                 break;
@@ -1741,6 +1751,7 @@ public class SQLFunction extends Expression {
             case FUNC_SYSTEM_USER :
             case FUNC_USER :
             case FUNC_CURRENT_DATE :
+            case FUNC_VALUE :
                 return name;
 
             case FUNC_LOCALTIME :

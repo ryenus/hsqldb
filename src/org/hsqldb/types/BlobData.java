@@ -50,6 +50,7 @@ public interface BlobData {
 
     public byte[] getBytes();
 
+    // todo - new method to return BlobData with long length arg
     public byte[] getBytes(long pos, int length) throws HsqlException;
 
     public InputStream getBinaryStream() throws HsqlException;

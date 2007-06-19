@@ -58,7 +58,7 @@ public class NumberType extends Type {
     static final int integerPrecision        = 10;
     static final int bigintPrecision         = 19;
     static final int doublePrecision         = 0;
-    static final int defaultNumericPrecision = 400;
+    static final int defaultNumericPrecision = 100;
 
     //
     static final int TINYINT_WIDTH  = 8;
@@ -490,6 +490,10 @@ public class NumberType extends Type {
 
     /** @todo - review if range enforcement / java type conversion is necessary */
     public Object convertToTypeLimits(Object a) throws HsqlException {
+
+        if (a == null) {
+            return null;
+        }
 
         switch (type) {
 

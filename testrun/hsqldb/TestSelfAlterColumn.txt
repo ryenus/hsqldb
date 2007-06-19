@@ -116,7 +116,7 @@ alter table "testac" drop "a";
 */select * from "testac";
 -- tests for changing column size
 alter table "testacc" add column "c" varchar(4) default 'aa' not null;
-update "testacc" set "c" = "c" || cast("a" as varchar);
+update "testacc" set "c" = "c" || cast("a" as varchar(5));
 /*r
  4,4,aa4
  5,5,aa5

@@ -102,7 +102,7 @@ ROLLBACK;
 -- Unique constraints on the PK tables, but not on our FK tables here,
 -- so cam commit duplicate vals.
 /*u1*/INSERT INTO public.ct15 values(10);
-/*u1*/INSERT INTO public.ct16 values(10);
+/*e*/INSERT INTO public.ct16 values(10);
 /*u1*/INSERT INTO public.ct17 values(10);
 /*u1*/INSERT INTO blaine.bct18 values(10);
 /*u1*/INSERT INTO blaine.bct17 values(10);

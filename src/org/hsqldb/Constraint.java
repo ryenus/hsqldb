@@ -611,6 +611,25 @@ public class Constraint implements SchemaObject {
         }
     }
 
+    void checkCheckConstraint(Session session, Table table,
+                              Object data) throws HsqlException {
+
+        session.sessionData.currentValue = data;
+
+        boolean nomatch = Boolean.FALSE.equals(check.getValue(session));
+
+        if (nomatch) {
+            session.sessionData.currentValue = null;
+
+            throw Trace.error(Trace.CHECK_CONSTRAINT_VIOLATION,
+                              Trace.Constraint_violation, new Object[] {
+                name.name, table.tableName.name
+            });
+        }
+
+        session.sessionData.currentValue = null;
+    }
+
 // fredt@users 20020225 - patch 1.7.0 - cascading deletes
 
     /**
@@ -737,6 +756,7 @@ public class Constraint implements SchemaObject {
 
         return set;
     }
+
     void recompile(Session session, Table newTable) throws HsqlException {
 
         String    ddl       = check.getDDL();
@@ -759,9 +779,8 @@ public class Constraint implements SchemaObject {
         rangeVariable.setForCheckConstraint();
     }
 
-
-    void prepareCheckConstraint(Session session,
-                                Table table, boolean checkValues) throws HsqlException {
+    void prepareCheckConstraint(Session session, Table table,
+                                boolean checkValues) throws HsqlException {
 
         // to ensure no subselects etc. are in condition
         check.checkValidCheckConstraint();
@@ -769,18 +788,23 @@ public class Constraint implements SchemaObject {
         // this workaround is here to stop LIKE optimisation
         check.setLikeOptimised();
 
+//        if (table != null) {
         Select s = Expression.getCheckSelect(session, table, check);
+
+//            if (checkValues) {
         Result r = s.getResult(session, 1);
 
         if (r.getNavigator().getSize() != 0) {
             throw Trace.error(Trace.CHECK_CONSTRAINT_VIOLATION);
         }
 
+//            }
         rangeVariable = s.rangeVariables[0];
 
         // removes reference to the Index object in range variable
         rangeVariable.setForCheckConstraint();
 
+//        }
         if (check.exprType == Expression.NOT
                 && check.eArg.exprType == Expression.IS_NULL
                 && check.eArg.eArg.exprType == Expression.COLUMN) {
