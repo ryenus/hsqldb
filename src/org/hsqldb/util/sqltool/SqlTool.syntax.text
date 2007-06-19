@@ -22,4 +22,4 @@ Options:
     file1.sql...             SQL files to be executed [stdin]
                              (Use '-' for non-interactively stdin).
 See the SqlTool Manual for the supported sqltool.* System Properties.
-SqlTool v. 
+SqlTool v. %{1}.
