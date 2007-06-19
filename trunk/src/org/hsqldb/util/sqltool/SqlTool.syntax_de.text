@@ -21,6 +21,6 @@ Optionen:
     --driver a.b.c.Driver    JDBC Trieber Class [org.hsqldb.jdbcDriver]
     urlid                    ID von url/Benutzername/Losungswort in RC Feile
     file1.sql...             SQL Feilen auszuführen  [stdin]
-                             (Benutz '-' für non-interactively stdin).
+                             (Benutz '-' für non-interactively stdin!).
 Sieh die Bedienungsanleitung für abgestützte System Properties.
-SqlTool v. 
+SqlTool v. %{1}.

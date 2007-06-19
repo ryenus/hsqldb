@@ -156,11 +156,8 @@ public class SqlTool {
             console = new BufferedReader(new InputStreamReader(System.in));
 
             // Prompt for password
-            System.out.print(SqltoolRB.getString(SqltoolRB.PASSWORDFOR_PROMPT)
-                    + ' ' + RCData.expandSysPropVars(username) + ":  ");
-            // I don't know enough foreign languages to know whether the
-            // space before the user name should be part of the localized
-            // prompt string.
+            System.out.print(SqltoolRB.getString(SqltoolRB.PASSWORDFOR_PROMPT,
+                    new String[] { RCData.expandSysPropVars(username) }));
 
             // Read the password from the command line
             password = console.readLine();
@@ -306,7 +303,7 @@ public class SqlTool {
 
                 if (parameter.equals("help")) {
                     System.out.println(SqltoolRB.getString(
-                                SqltoolRB.SQLTOOL_SYNTAX));
+                            SqltoolRB.SQLTOOL_SYNTAX, new String[] {revnum}));
                     return;
                 }
                 if (parameter.equals("abortonerr")) {
@@ -444,7 +441,8 @@ public class SqlTool {
             }
         } catch (BadCmdline bcl) {
             throw new SqlToolException(SYNTAXERR_EXITVAL,
-                    SqltoolRB.getString(SqltoolRB.SQLTOOL_SYNTAX));
+                    SqltoolRB.getString(SqltoolRB.SQLTOOL_SYNTAX,
+                            new String[] {revnum}));
         }
 
         RCData conData = null;
@@ -496,8 +494,8 @@ public class SqlTool {
                                               : rcFile), targetDb);
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, SqltoolRB.getString(
-                        SqltoolRB.CONNDATA_RETRIEVAL_FAILURE)
-                        + " '" + targetDb + "': " + e.getMessage());
+                        SqltoolRB.CONNDATA_RETRIEVAL_FAILURE,
+                        new String[] { targetDb }) + ": " + e.getMessage());
             }
         }
 
@@ -520,23 +518,19 @@ public class SqlTool {
 
             if (interactive && (md = conn.getMetaData()) != null) {
                 System.out.println(
-                        SqltoolRB.getString(SqltoolRB.JDBC_ESTABLISHED1)
-                        + ' ' + md.getDatabaseProductName() + " v. "
-                        + md.getDatabaseProductVersion() + ' '
-                        + SqltoolRB.getString(SqltoolRB.JDBC_ESTABLISHED2)
-                        + " '" + md.getUserName() + "'.");
-                // Probably makes too many assumptions about language, like
-                // that quotes values with ' and sentence ends with period.
+                        SqltoolRB.getString(SqltoolRB.JDBC_ESTABLISHED,
+                                new String[] { md.getDatabaseProductName(),
+                                        md.getDatabaseProductVersion(),
+                                        md.getUserName() }));
             }
         } catch (Exception e) {
             //e.printStackTrace();
 
             // Let's not continue as if nothing is wrong.
             throw new SqlToolException(CONNECTERR_EXITVAL,
-                    SqltoolRB.getString(SqltoolRB.CONNECTION_FAILURE1) + ' '
-                    + conData.url + ' '
-                    + SqltoolRB.getString(SqltoolRB.CONNECTION_FAILURE2)
-                    + ' ' + conData.username + ".  " + e.getMessage());
+                    SqltoolRB.getString(SqltoolRB.CONNECTION_FAILURE,
+                            new String[] { conData.url, conData.username })
+                            + ":  " + e.getMessage());
         }
 
         File[] emptyFileArray      = {};
@@ -637,8 +631,8 @@ public class SqlTool {
         // info to keep around if the program aborts.
         if (tmpFile != null && !tmpFile.delete()) {
             System.err.println(conData.url + SqltoolRB.getString(
-                    SqltoolRB.TEMPFILE_REMOVAL_FAILURE)
-                    + " '" + tmpFile + "'");
+                    SqltoolRB.TEMPFILE_REMOVAL_FAILURE,
+                    new String[] {tmpFile.toString()}));
         }
     }
 }

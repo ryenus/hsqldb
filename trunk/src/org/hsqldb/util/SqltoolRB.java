@@ -85,12 +85,10 @@ public class SqltoolRB {
     static public final int RCDATA_INLINEURL_MISSING = keyCounter++;
     static public final int RCDATA_INLINEUSERNAME_MISSING = keyCounter++;
     static public final int PASSWORD_BAD = keyCounter++;
-    static public final int CONNECTION_FAILURE1 = keyCounter++;
-    static public final int CONNECTION_FAILURE2 = keyCounter++;
+    static public final int CONNECTION_FAILURE = keyCounter++;
     static public final int RCDATA_GENFROMVALUES_FAILURE = keyCounter++;
     static public final int CONNDATA_RETRIEVAL_FAILURE = keyCounter++;
-    static public final int JDBC_ESTABLISHED1 = keyCounter++;
-    static public final int JDBC_ESTABLISHED2 = keyCounter++;
+    static public final int JDBC_ESTABLISHED = keyCounter++;
     static public final int TEMPFILE_REMOVAL_FAILURE = keyCounter++;
     static private boolean validated = false;
 
@@ -108,13 +106,11 @@ public class SqltoolRB {
         new Integer(RCDATA_INLINEUSERNAME_MISSING),
                 "rcdata.inlineusername.missing",
         new Integer(PASSWORD_BAD), "password.bad",
-        new Integer(CONNECTION_FAILURE1), "connection.failure.1",
-        new Integer(CONNECTION_FAILURE2), "connection.failure.2",
+        new Integer(CONNECTION_FAILURE), "connection.failure",
         new Integer(RCDATA_GENFROMVALUES_FAILURE),
                 "rcdata.genfromvalues.failure",
         new Integer(CONNDATA_RETRIEVAL_FAILURE), "conndata.retrieval.failure",
-        new Integer(JDBC_ESTABLISHED1), "jdbc.established.1",
-        new Integer(JDBC_ESTABLISHED2), "jdbc.established.2",
+        new Integer(JDBC_ESTABLISHED), "jdbc.established",
         new Integer(TEMPFILE_REMOVAL_FAILURE), "tempfile.removal.failure",
     };
 
