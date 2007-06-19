@@ -42,9 +42,6 @@ import java.util.Enumeration;
 /**
  * Resource Bundle for SqlTool and associated classes.
  *
- * This wraps a static ResourceBundle famaily.  For that reason this class
- * is entirely static.
- *
  * Purpose of this class is to wrap a RefCapablePropertyResourceBundle to
  *  reliably detect any possible use of a missing property key as soon as
  *  this class is clinitted.
@@ -63,13 +60,14 @@ import java.util.Enumeration;
  */
 public class SqltoolRB {
     static public void main(String[] sa) {
-        SqltoolRB.validate();
-        SqltoolRB.setMissingSubstValueBehavior(
+        SqltoolRB rb = new SqltoolRB();
+        rb.validate();
+        rb.setMissingSubstValueBehavior(
              RefCapablePropertyResourceBundle.NOOP_BEHAVIOR);
-        SqltoolRB.setMissingPropertyBehavior(
+        rb.setMissingPropertyBehavior(
              RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR);
         System.err.println("sqltempfile.failure -> ("
-                + SqltoolRB.getExpandedString(SqltoolRB.SQLTEMPFILE_FAILURE,
+                + rb.getExpandedString(SqltoolRB.SQLTEMPFILE_FAILURE,
                         new String[] { "one", "two" }
                 ) + ')');
     }
@@ -90,7 +88,7 @@ public class SqltoolRB {
     static public final int CONNDATA_RETRIEVAL_FAILURE = keyCounter++;
     static public final int JDBC_ESTABLISHED = keyCounter++;
     static public final int TEMPFILE_REMOVAL_FAILURE = keyCounter++;
-    static private boolean validated = false;
+    private boolean validated = false;
 
     private static Object[] memberKeyArray = new Object[] {
         // SqlTool class, file references:
@@ -115,8 +113,9 @@ public class SqltoolRB {
     };
 
 
-    static private RefCapablePropertyResourceBundle wrappedRCPRB =
-        RefCapablePropertyResourceBundle.getBundle("org.hsqldb.util.sqltool");
+    private RefCapablePropertyResourceBundle wrappedRCPRB =
+        RefCapablePropertyResourceBundle.getBundle("org.hsqldb.util.sqltool",
+                getClass().getClassLoader());
 
     static private Map keyIdToString = new HashMap();
     static {
@@ -141,11 +140,13 @@ public class SqltoolRB {
                         + SqltoolRB.class.getName());
             keyIdToString.put(memberKeyArray[i], memberKeyArray[i+1]);
         }
+        /* DEBUG
         System.err.println("Initialized keyIdToString map with "
                 + keyIdToString.size() + " mappings");
+        */
     }
 
-    public static void validate() {
+    public void validate() {
         if (validated) return;
         validated = true;
         Set allIdStrings = new HashSet(keyIdToString.values());
@@ -161,44 +162,44 @@ public class SqltoolRB {
     // The following methods are a passthru wrappers for the wrapped RCPRB.
 
     /** @see RefCapablePropertyResourceBundle#getString(String) */
-    public static String getString(int id) {
+    public String getString(int id) {
         return wrappedRCPRB.getString((String) keyIdToString.get(id));
     }
 
     /** @see RefCapablePropertyResourceBundle#getString(String, String[]) */
-    public static String getString(int id, String[] sa) {
+    public String getString(int id, String[] sa) {
         return wrappedRCPRB.getString((String) keyIdToString.get(id), sa);
     }
 
     /** @see RefCapablePropertyResourceBundle#getExpandedString(String) */
-    public static String getExpandedString(int id) {
+    public String getExpandedString(int id) {
         return wrappedRCPRB.getExpandedString((String) keyIdToString.get(id));
     }
 
     /** @see RefCapablePropertyResourceBundle#getExpandedString(String, String[]) */
-    public static String getExpandedString(int id, String[] sa) {
+    public String getExpandedString(int id, String[] sa) {
         return wrappedRCPRB.getExpandedString(
                 (String) keyIdToString.get(id), sa);
     }
 
     /** @see RefCapablePropertyResourceBundle#setMissingPropertyBehavior(int) */
-    public static void setMissingPropertyBehavior(int missingPropertyBehavior) {
+    public void setMissingPropertyBehavior(int missingPropertyBehavior) {
         wrappedRCPRB.setMissingPropertyBehavior(missingPropertyBehavior);
     }
 
     /** @see RefCapablePropertyResourceBundle#setMissingSubstValueBehavior(int) */
-    public static void setMissingSubstValueBehavior(
+    public void setMissingSubstValueBehavior(
             int missingSubstValueBehavior) {
         wrappedRCPRB.setMissingSubstValueBehavior(missingSubstValueBehavior);
     }
 
     /** @see RefCapablePropertyResourceBundle#getMissingPropertyBehavior() */
-    public static int getMissingPropertyBehavior() {
+    public int getMissingPropertyBehavior() {
         return wrappedRCPRB.getMissingPropertyBehavior();
     }
 
     /** @see RefCapablePropertyResourceBundle#getMissingSubstValueBehavior() */
-    public static int getMissingSubstValueBehavior() {
+    public int getMissingSubstValueBehavior() {
         return wrappedRCPRB.getMissingSubstValueBehavior();
     }
 }
