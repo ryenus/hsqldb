@@ -391,7 +391,7 @@ public class SqlFile {
             fileNoappendString = bundle.getString("file.noappend");
             sqlfileNameDemandString = bundle.getString("sqlfile.name.demand");
             sqlfileExecuteFailString = bundle.getString("sqlfile.execute.fail");
-            autocommitSettingString = bundle.getString("autocommit.setting");
+            autocommitSettingString = bundle.getString("a.setting");
             committedString = bundle.getString("committed");
             specialBMalformattedString =
                     bundle.getString("special.b.malformatted");
