@@ -98,8 +98,10 @@ public class SqlTool {
         try {
             rb = new SqltoolRB();
             rb.validate();
-            rb.setMissingPosValueBehavior(SqltoolRB.NOOP_BEHAVIOR);
-            rb.setMissingPropertyBehavior(SqltoolRB.NOOP_BEHAVIOR);
+            rb.setMissingPosValueBehavior(
+                    ValidatingResourceBundle.NOOP_BEHAVIOR);
+            rb.setMissingPropertyBehavior(
+                    ValidatingResourceBundle.NOOP_BEHAVIOR);
         } catch (RuntimeException re) {
             System.err.println("Failed to initialize resource bundle");
             throw re;
