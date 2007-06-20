@@ -110,8 +110,8 @@ import java.io.IOException;
  * To prevent throwing at runtime due to unset variables, use a wrapper class
  * like SqltoolRB (use SqltoolRB.java as a template).
  * To prevent throwing at runtime due to unset System Properties, or
- * insufficient parameters passed to getString(String, String[]), use the
- * setMissingPropertyBehavior and setMissingSubstValueBehavior methods
+ * insufficient parameters passed to getString(String, String[]), set the
+ * behavior values appropriately.
  *
  * @see java.util.PropertyResourceBundle
  * @see java.util.ResourceBundle
@@ -124,53 +124,12 @@ public class RefCapablePropertyResourceBundle {
     static private Map allBundles = new HashMap();
     public static String LS = System.getProperty("line.separator");
     private Pattern sysPropVarPattern = Pattern.compile("\\Q${\\E([^}]+)\\Q}");
-    private Pattern substPattern = Pattern.compile("\\Q%{\\E(\\d)\\Q}");
+    private Pattern posPattern = Pattern.compile("\\Q%{\\E(\\d)\\Q}");
     private ClassLoader loader;  // Needed to load referenced files
 
     public static final int THROW_BEHAVIOR = 0;
     public static final int EMPTYSTRING_BEHAVIOR = 1;
     public static final int NOOP_BEHAVIOR = 2;
-
-    private int missingPropertyBehavior = THROW_BEHAVIOR;
-    private int missingSubstValueBehavior = THROW_BEHAVIOR;
-
-    /**
-     * Set behavior for get*String*() method when a referred-to
-     * System Property is not set.  Set to one of
-     * <UL>
-     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
-     * </UL>
-     * The first value is the default.
-     */
-    public void setMissingPropertyBehavior(int missingPropertyBehavior) {
-        this.missingPropertyBehavior =
-                missingPropertyBehavior;
-    }
-    /**
-     * Set behavior for get*String(String, String[]) method when a
-     * substitution index (like %{4}) is used but no subs value was given for
-     * that index.  Set to one of
-     * <UL>
-     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
-     * </UL>
-     * The first value is the default.
-     */
-    public void setMissingSubstValueBehavior(
-            int missingSubstValueBehavior) {
-        this.missingSubstValueBehavior =
-                missingSubstValueBehavior;
-    }
-
-    public int getMissingPropertyBehavior() {
-        return missingPropertyBehavior;
-    }
-    public int getMissingSubstValueBehavior() {
-        return missingSubstValueBehavior;
-    }
 
     public Enumeration getKeys() {
         return wrappedBundle.getKeys();
@@ -194,7 +153,7 @@ public class RefCapablePropertyResourceBundle {
      * Same as getString(), but expands System Variables specified in
      * property values like ${sysvarname}.
      */
-    public String getExpandedString(String key) {
+    public String getExpandedString(String key, int behavior) {
         String s = getString(key);
         Matcher matcher = sysPropVarPattern.matcher(s);
         int previousEnd = 0;
@@ -203,7 +162,7 @@ public class RefCapablePropertyResourceBundle {
         while (matcher.find()) {
             varName = s.substring(matcher.start(1), matcher.end(1));
             varValue = System.getProperty(varName);
-            if (varValue == null) switch (missingPropertyBehavior) {
+            if (varValue == null) switch (behavior) {
                 case THROW_BEHAVIOR:
                     throw new RuntimeException(
                             "No Sys Property set for variable '"
@@ -215,8 +174,7 @@ public class RefCapablePropertyResourceBundle {
                     break;
                 default:
                     throw new RuntimeException(
-                            "Undefined value for missingPropertyBehavior: "
-                            + missingPropertyBehavior);
+                            "Undefined value for behavior: " + behavior);
             }
             sb.append(s.substring(previousEnd, matcher.start())
                     + ((varValue == null) ? matcher.group()
@@ -228,12 +186,12 @@ public class RefCapablePropertyResourceBundle {
     }
 
     /**
-     * Replaces patterns of the form %{\d} with corresponding element of the
-     * given subs array.
+     * Replaces positional substitution patterns of the form %{\d} with 
+     * corresponding element of the given subs array.
      * Note that %{\d} numbers are 1-based, so we lok for subs[x-1].
      */
-    public String subst(String s, String[] subs) {
-        Matcher matcher = substPattern.matcher(s);
+    public String posSubst(String s, String[] subs, int behavior) {
+        Matcher matcher = posPattern.matcher(s);
         int previousEnd = 0;
         StringBuffer sb = new StringBuffer();
         String varValue;
@@ -242,12 +200,13 @@ public class RefCapablePropertyResourceBundle {
             varIndex = Integer.parseInt(
                     s.substring(matcher.start(1), matcher.end(1))) - 1;
             varValue = null;
-            if (varIndex >= subs.length) switch (missingSubstValueBehavior) {
+            // System.err.println("Behavior: " + behavior);
+            if (varIndex >= subs.length) switch (behavior) {
                 case THROW_BEHAVIOR:
                     throw new RuntimeException(
                             Integer.toString(subs.length)
-                            + " substitution values "
-                            + " given, but property string contains " +
+                            + " positional values "
+                            + "given, but property string contains " +
                             s.substring(matcher.start(), matcher.end()));
                 case EMPTYSTRING_BEHAVIOR:
                     varValue = "";
@@ -255,8 +214,7 @@ public class RefCapablePropertyResourceBundle {
                     break;
                 default:
                     throw new RuntimeException(
-                            "Undefined value for missingSubstValueBehavior: "
-                            + missingSubstValueBehavior);
+                            "Undefined value for behavior: " + behavior);
             } else {
                 varValue = subs[varIndex];
             }
@@ -269,11 +227,13 @@ public class RefCapablePropertyResourceBundle {
                                  : (sb.toString() + s.substring(previousEnd));
     }
 
-    public String getExpandedString(String key, String[] subs) {
-        return subst(getExpandedString(key), subs);
+    public String getExpandedString(String key, String[] subs,
+            int missingPropertyBehavior, int missingPosValueBehavior) {
+        return posSubst(getExpandedString(key, missingPropertyBehavior), subs,
+                missingPosValueBehavior);
     }
-    public String getString(String key, String[] subs) {
-        return subst(getString(key), subs);
+    public String getString(String key, String[] subs, int behavior) {
+        return posSubst(getString(key), subs, behavior);
     }
 
     /**
@@ -356,13 +316,15 @@ public class RefCapablePropertyResourceBundle {
      */
     private InputStream getMostSpecificStream(
             String key, String l, String c, String v) {
-        String filePath = "/" + baseName.replace('.', '/') + '/' + key
+        String filePath = baseName.replace('.', '/') + '/' + key
                 + ((l == null) ? "" : ("_" + l))
                 + ((c == null) ? "" : ("_" + c))
                 + ((v == null) ? "" : ("_" + v))
                 + ".text";
         // System.err.println("Seeking " + filePath);
         InputStream is = loader.getResourceAsStream(filePath);
+        // N.b.  If were using Class.getRes... instead of ClassLoader.getRes...
+        // we would need to previx the path with "/".
         return (is == null && l != null)
             ? getMostSpecificStream(key, ((c == null) ? null : l),
                     ((v == null) ? null : c), null)

@@ -59,6 +59,16 @@ import java.util.Enumeration;
  * like SqltoolRB.NEWKEYID.
  */
 public class SqltoolRB {
+    public static final int THROW_BEHAVIOR =
+            RefCapablePropertyResourceBundle.THROW_BEHAVIOR;
+    public static final int EMPTYSTRING_BEHAVIOR =
+            RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR;
+    public static final int NOOP_BEHAVIOR =
+            RefCapablePropertyResourceBundle.NOOP_BEHAVIOR;
+    /* Three constants above are only so caller doesn't need to know
+     * details of RefCapablePropertyResourceBundle (and they won't need
+     * to code that God-awfully-long class name). */
+
     /**
      * Does a quick test of this class.
      */
@@ -70,34 +80,37 @@ public class SqltoolRB {
         rb2.validate();
         System.err.println("rb1 size = " + rb1.getSize());
         System.err.println("rb2 size = " + rb2.getSize());
-        rb1.setMissingSubstValueBehavior(
-             RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR);
-        rb2.setMissingSubstValueBehavior(
-             RefCapablePropertyResourceBundle.NOOP_BEHAVIOR);
+        rb1.setMissingPosValueBehavior(SqltoolRB.EMPTYSTRING_BEHAVIOR);
+        rb2.setMissingPosValueBehavior(SqltoolRB.NOOP_BEHAVIOR);
         System.out.println("First, with no positional parameters set...");
         System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED), new String[] {});
+                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED));
         System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
-                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED), new String[] {});
+                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED));
+        System.out.println("Now, with no positional values set...");
+        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
+                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
+        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
+                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
         System.out.println();
         System.out.println("Now, with positional params set to one/two/three");
         System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED), testParams);
+                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
         System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
-                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED), testParams);
-        rb1.setMissingSubstValueBehavior(
+                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
+        rb1.setMissingPosValueBehavior(
              RefCapablePropertyResourceBundle.THROW_BEHAVIOR);
         System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED), testParams);
+                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
         System.out.println();
         System.out.println("Now, with no parameters set");
-        System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED), new String[] {});
+        System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: ");
+        System.out.println(
+                rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
     }
 
     static private int keyCounter = 0;
     static public final int SQLTOOL_SYNTAX = keyCounter++;
-    static public final int BANNER = keyCounter++;
     static public final int PASSWORDFOR_PROMPT = keyCounter++;
     static public final int SQLTOOL_VARSET_BADFORMAT = keyCounter++;
     static public final int SQLTOOL_ABORTCONTINUE_MUTUALLYEXCLUSIVE =
@@ -111,12 +124,90 @@ public class SqltoolRB {
     static public final int CONNDATA_RETRIEVAL_FAILURE = keyCounter++;
     static public final int JDBC_ESTABLISHED = keyCounter++;
     static public final int TEMPFILE_REMOVAL_FAILURE = keyCounter++;
+
+    static public final int SQLFILE_BANNER = keyCounter++;
+    static public final int BUFFER_HELP = keyCounter++;
+    static public final int SPECIAL_HELP = keyCounter++;
+    static public final int PL_HELP = keyCounter++;
+    static public final int DSV_OPTIONS = keyCounter++;
+    static public final int D_OPTIONS = keyCounter++;
+    static public final int RAW_LEADIN = keyCounter++;
+    static public final int ERRORAT = keyCounter++;
+    static public final int ERRORAT_WITHECHO = keyCounter++;
+
+    static public final int SQLFILE_NOREAD = keyCounter++;
+    static public final int RAWMODE_PROMPT = keyCounter++;
+    static public final int RAW_MOVEDTOBUFFER = keyCounter++;
+    static public final int INPUT_MOVEDTOBUFFER = keyCounter++;
+    static public final int SQLSTATEMENT_EMPTY = keyCounter++;
+    static public final int CAUSE = keyCounter++;
+    static public final int BREAK_UNSATISFIED = keyCounter++;
+    static public final int CONTINUE_UNSATISFIED = keyCounter++;
+    static public final int CONTINUE_UNSATISFIED_TYPED = keyCounter++;
+    static public final int PRIMARYINPUT_ACCESSFAILURE = keyCounter++;
+    static public final int INPUT_UNTERMINATED = keyCounter++;
+    static public final int PLVARSET_INCOMPLETE = keyCounter++;
+    static public final int ABORTING = keyCounter++;
+    static public final int INPUTREADER_CLOSEFAILURE = keyCounter++;
+    static public final int ROLLINGBACK = keyCounter++;
+    static public final int SPECIAL_UNSPECIFIED = keyCounter++;
+    static public final int NOBUFFER = keyCounter++;
+    static public final int BUFFER_EXECUTING = keyCounter++;
+    static public final int EXECUTING = keyCounter++;
+    static public final int NOBUFFER_YET = keyCounter++;
+    static public final int BUFFER_CURRENT = keyCounter++;
+    static public final int COMMANDNUM_MALFORMAT = keyCounter++;
+    static public final int BUFFER_RESTORED = keyCounter++;
+    static public final int SUBSTITUTION_MALFORMAT = keyCounter++;
+    static public final int SUBSTITUTION_SAMPLE = keyCounter++;
+    static public final int SUBSTITUTION_NOMATCH = keyCounter++;
+    static public final int SUBSTITUTION_SYNTAX = keyCounter++;
+    static public final int BUFFER_UNKNOWN = keyCounter++;
+    static public final int SPECIAL_EXTRACHARS = keyCounter++;
+    static public final int BUFFER_EXTRACHARS = keyCounter++;
+    static public final int SPECIAL_MALFORMAT = keyCounter++;
+    static public final int HTML_MODE = keyCounter++;
+    static public final int DSV_TARGETFILE_REQUIRED = keyCounter++;
+    static public final int FILE_WROTECHARS = keyCounter++;
+    static public final int FILE_NOWRITE = keyCounter++;
+    static public final int METADATA_NOOBTAIN = keyCounter++;
+    static public final int SPECIAL_D_LIKE = keyCounter++;
+    static public final int OUTPUTFILE_NONETOCLOSE = keyCounter++;
+    static public final int OUTPUTFILE_REOPENING = keyCounter++;
+    static public final int OUTPUTFILE_HEADER = keyCounter++;
+    static public final int DESTFILE_DEMAND = keyCounter++;
+    static public final int BUFFER_EMPTY = keyCounter++;
+    static public final int FILE_NOAPPEND = keyCounter++;
+    static public final int SQLFILE_NAME_DEMAND = keyCounter++;
+    static public final int SQLFILE_EXECUTE_FAIL = keyCounter++;
+    static public final int A_SETTING = keyCounter++;
+    static public final int COMMITTED = keyCounter++;
+    static public final int SPECIAL_B_MALFORMAT = keyCounter++;
+    static public final int BINARY_LOADEDBYTESINTO = keyCounter++;
+    static public final int BINARY_FILEFAIL = keyCounter++;
+    static public final int C_SETTING = keyCounter++;
+    static public final int BANG_INCOMPLETE = keyCounter++;
+    static public final int BANG_COMMAND_FAIL = keyCounter++;
+    static public final int SPECIAL_UNKNOWN = keyCounter++;
+    static public final int DSV_M_SYNTAX = keyCounter++;
+    static public final int DSV_X_SYNTAX = keyCounter++;
+
+    /**
+     * Returns the number of defined (usable) keys.
+     */
+    public int getSize() {
+        if (!validated)
+            throw new RuntimeException(
+                    "Method SqltoolRB.getSize() may only be called after "
+                    + "calling SqltoolRB.validate()");
+        return keyIdToString.size();
+    }
+
     private boolean validated = false;
 
     private static Object[] memberKeyArray = new Object[] {
         // SqlTool class, file references:
         new Integer(SQLTOOL_SYNTAX), "SqlTool.syntax",
-        new Integer(BANNER), "banner",
         // SqlTool inline properties:
         new Integer(PASSWORDFOR_PROMPT), "passwordFor.prompt",
         new Integer(SQLTOOL_VARSET_BADFORMAT), "SqlTool.varset.badformat",
@@ -133,6 +224,75 @@ public class SqltoolRB {
         new Integer(CONNDATA_RETRIEVAL_FAILURE), "conndata.retrieval.failure",
         new Integer(JDBC_ESTABLISHED), "jdbc.established",
         new Integer(TEMPFILE_REMOVAL_FAILURE), "tempfile.removal.failure",
+
+        // SqlFile class, file references:
+        new Integer(SQLFILE_BANNER), "SqlFile.banner",
+        new Integer(BUFFER_HELP), "buffer.help",
+        new Integer(SPECIAL_HELP), "special.help",
+        new Integer(PL_HELP), "pl.help",
+        new Integer(DSV_OPTIONS), "dsv.options",
+        new Integer(D_OPTIONS), "d.options",
+        new Integer(RAW_LEADIN), "raw.leadin",
+        new Integer(ERRORAT), "errorat",
+        new Integer(ERRORAT_WITHECHO), "errorat.withecho",
+
+        // SqlFile inline properties:
+        new Integer(SQLFILE_NOREAD), "sqlfile.noread",
+        new Integer(RAWMODE_PROMPT), "rawmode.prompt",
+        new Integer(RAW_MOVEDTOBUFFER), "raw.movedtobuffer",
+        new Integer(INPUT_MOVEDTOBUFFER), "input.movedtobuffer",
+        new Integer(SQLSTATEMENT_EMPTY), "sqlstatement.empty",
+        new Integer(CAUSE), "cause",
+        new Integer(BREAK_UNSATISFIED), "break.unsatisfied",
+        new Integer(CONTINUE_UNSATISFIED), "continue.unsatisfied",
+        new Integer(CONTINUE_UNSATISFIED_TYPED), "continue.unsatisfied.typed",
+        new Integer(PRIMARYINPUT_ACCESSFAILURE), "primaryinput.accessfailure",
+        new Integer(INPUT_UNTERMINATED), "input.unterminated",
+        new Integer(PLVARSET_INCOMPLETE), "plvarset.incomplete",
+        new Integer(ABORTING), "aborting",
+        new Integer(INPUTREADER_CLOSEFAILURE), "inputreader.closefailure",
+        new Integer(ROLLINGBACK), "rollingback",
+        new Integer(SPECIAL_UNSPECIFIED), "special.unspecified",
+        new Integer(NOBUFFER), "nobuffer",
+        new Integer(BUFFER_EXECUTING), "buffer.executing",
+        new Integer(EXECUTING), "executing",
+        new Integer(NOBUFFER_YET), "nobuffer.yet",
+        new Integer(BUFFER_CURRENT), "buffer.current",
+        new Integer(COMMANDNUM_MALFORMAT), "commandnum.malformat",
+        new Integer(BUFFER_RESTORED), "buffer.restored",
+        new Integer(SUBSTITUTION_MALFORMAT), "substitution.malformat",
+        new Integer(SUBSTITUTION_SAMPLE), "substitution.sample",
+        new Integer(SUBSTITUTION_NOMATCH), "substitution.nomatch",
+        new Integer(SUBSTITUTION_SYNTAX), "substitution.syntax",
+        new Integer(BUFFER_UNKNOWN), "buffer.unknown",
+        new Integer(SPECIAL_EXTRACHARS), "special.extrachars",
+        new Integer(BUFFER_EXTRACHARS), "buffer.extrachars",
+        new Integer(SPECIAL_MALFORMAT), "special.malformat",
+        new Integer(HTML_MODE), "html.mode",
+        new Integer(DSV_TARGETFILE_REQUIRED), "dsv.targetfile.required",
+        new Integer(FILE_WROTECHARS), "file.wrotechars",
+        new Integer(FILE_NOWRITE), "file.nowrite",
+        new Integer(METADATA_NOOBTAIN), "metadata.noobtain",
+        new Integer(SPECIAL_D_LIKE), "special.d.like",
+        new Integer(OUTPUTFILE_NONETOCLOSE), "outputfile.nonetoclose",
+        new Integer(OUTPUTFILE_REOPENING), "outputfile.reopening",
+        new Integer(OUTPUTFILE_HEADER), "outputfile.header",
+        new Integer(DESTFILE_DEMAND), "destfile.demand",
+        new Integer(BUFFER_EMPTY), "buffer.empty",
+        new Integer(FILE_NOAPPEND), "file.noappend",
+        new Integer(SQLFILE_NAME_DEMAND), "sqlfile.name.demand",
+        new Integer(SQLFILE_EXECUTE_FAIL), "sqlfile.execute.fail",
+        new Integer(A_SETTING), "a.setting",
+        new Integer(COMMITTED), "committed",
+        new Integer(SPECIAL_B_MALFORMAT), "special.b.malformat",
+        new Integer(BINARY_LOADEDBYTESINTO), "binary.loadedbytesinto",
+        new Integer(BINARY_FILEFAIL), "binary.filefail",
+        new Integer(C_SETTING), "c.setting",
+        new Integer(BANG_INCOMPLETE), "bang.incomplete",
+        new Integer(BANG_COMMAND_FAIL), "bang.command.fail",
+        new Integer(SPECIAL_UNKNOWN), "special.unknown",
+        new Integer(DSV_M_SYNTAX), "dsv.m.syntax",
+        new Integer(DSV_X_SYNTAX), "dsv.x.syntax",
     };
 
 
@@ -170,12 +330,20 @@ public class SqltoolRB {
     }
 
     public void validate() {
+        String val;
         if (validated) return;
         validated = true;
         Set allIdStrings = new HashSet(keyIdToString.values());
         Enumeration allKeys = wrappedRCPRB.getKeys();
-        while (allKeys.hasMoreElements())
-            allIdStrings.remove(allKeys.nextElement());
+        while (allKeys.hasMoreElements()) {
+            // We can't test positional parameters, but we can verify that
+            // referenced files exist by reading the values.
+            // Pretty inefficient, but this can be optimized when I have time.
+            val = (String) allKeys.nextElement();
+            wrappedRCPRB.getString(val);
+            // Keep no reference to the returned String
+            allIdStrings.remove(val);
+        }
         if (allIdStrings.size() > 0)
             throw new RuntimeException(
                     "Resource Bundle pre-validation failed.  "
@@ -191,38 +359,58 @@ public class SqltoolRB {
 
     /** @see RefCapablePropertyResourceBundle#getString(String, String[]) */
     public String getString(int id, String[] sa) {
-        return wrappedRCPRB.getString((String) keyIdToString.get(id), sa);
+        return wrappedRCPRB.getString((String) keyIdToString.get(id), sa,
+                missingPosValueBehavior);
     }
 
     /** @see RefCapablePropertyResourceBundle#getExpandedString(String) */
     public String getExpandedString(int id) {
-        return wrappedRCPRB.getExpandedString((String) keyIdToString.get(id));
+        return wrappedRCPRB.getExpandedString((String) keyIdToString.get(id),
+                missingPropertyBehavior);
     }
 
     /** @see RefCapablePropertyResourceBundle#getExpandedString(String, String[]) */
     public String getExpandedString(int id, String[] sa) {
         return wrappedRCPRB.getExpandedString(
-                (String) keyIdToString.get(id), sa);
+                (String) keyIdToString.get(id), sa,
+                missingPropertyBehavior, missingPosValueBehavior);
     }
 
-    /** @see RefCapablePropertyResourceBundle#setMissingPropertyBehavior(int) */
+    private int missingPropertyBehavior = THROW_BEHAVIOR;
+    private int missingPosValueBehavior = THROW_BEHAVIOR;
+
+    /**
+     * Set behavior for get*String*() method when a referred-to
+     * System Property is not set.  Set to one of
+     * <UL>
+     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
+     * </UL>
+     * The first value is the default.
+     */
     public void setMissingPropertyBehavior(int missingPropertyBehavior) {
-        wrappedRCPRB.setMissingPropertyBehavior(missingPropertyBehavior);
+        this.missingPropertyBehavior = missingPropertyBehavior;
+    }
+    /**
+     * Set behavior for get*String(String, String[]) method when a
+     * positional index (like %{4}) is used but no subs value was given for
+     * that index.  Set to one of
+     * <UL>
+     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
+     * </UL>
+     * The first value is the default.
+     */
+    public void setMissingPosValueBehavior(int missingPosValueBehavior) {
+        this.missingPosValueBehavior = missingPosValueBehavior;
     }
 
-    /** @see RefCapablePropertyResourceBundle#setMissingSubstValueBehavior(int) */
-    public void setMissingSubstValueBehavior(
-            int missingSubstValueBehavior) {
-        wrappedRCPRB.setMissingSubstValueBehavior(missingSubstValueBehavior);
-    }
-
-    /** @see RefCapablePropertyResourceBundle#getMissingPropertyBehavior() */
     public int getMissingPropertyBehavior() {
-        return wrappedRCPRB.getMissingPropertyBehavior();
+        return missingPropertyBehavior;
     }
-
-    /** @see RefCapablePropertyResourceBundle#getMissingSubstValueBehavior() */
-    public int getMissingSubstValueBehavior() {
-        return wrappedRCPRB.getMissingSubstValueBehavior();
+    public int getMissingPosValueBehavior() {
+        return missingPosValueBehavior;
     }
 }

@@ -121,8 +121,7 @@ public class SqlFile {
     private File             file;
     private boolean          interactive;
     private String           primaryPrompt    = "sql> ";
-    private String           chunkPrompt      =
-            bundle.getString("rawmode.prompt") + "> ";
+    private String           rawPrompt      = null;
     private String           contPrompt       = "  +> ";
     private Connection       curConn          = null;
     private boolean          htmlMode         = false;
@@ -137,6 +136,7 @@ public class SqlFile {
     private String           dsvRejectReport  = null;
     public static String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
+    private SqltoolRB        rb               = null;
 
     /**
      * N.b. javax.util.regex Optional capture groups (...)? are completely
@@ -262,151 +262,9 @@ public class SqlFile {
                 "$Revision$".length() - 2);
     }
 
-    private static RefCapablePropertyResourceBundle bundle =
-            RefCapablePropertyResourceBundle.getBundle(
-                    "org.hsqldb.util.sqltool");
-
-    private static final String BANNER = "(SqlFile processor v. " + revnum + ")"
-            + LS + bundle.getString("banner");
-    private static final String BUFFER_HELP_TEXT =
-            bundle.getString("buffer.help");
-    private static final String SPECIAL_HELP_TEXT =
-            bundle.getString("special.help");
-    private static final String PL_HELP_TEXT = bundle.getString("pl.help");
-    private static final String DSV_OPTIONS_TEXT =
-            bundle.getString("dsv.options");
-    private static final String D_OPTIONS_TEXT = bundle.getString("d.options");
-    private static final String RAW_LEADIN_MSG = bundle.getString("raw.leadin");
-
-    private static String sqlfileNoreadString = null;
-    private static String rawMovedtobufferString = null;
-    private static String inputMovedtobufferString = null;
-    private static String sqlstatementEmptyString = null;
-    private static String causeString = null;
-    private static String erroratString = null;
-    private static String lineString = null;
-    private static String breakUnsatisfiedString = null;
-    private static String continueUnsatisfiedString = null;
-    private static String primaryinputAccessfailureString = null;
-    private static String typeString = null;
-    private static String inputUnterminatedString = null;
-    private static String plvarsetIncompleteString = null;
-    private static String abortingString = null;
-    private static String inputreaderClosefailureString = null;
-    private static String rollingbackString = null;
-    private static String specialUnspecifiedString = null;
-    private static String nobufferString = null;
-    private static String bufferExecutingString = null;
-    private static String executingString = null;
-    private static String nobufferYetString = null;
-    private static String bufferCurrentString = null;
-    private static String commandnumMalformatString = null;
-    private static String bufferRestoredString = null;
-    private static String substitutionMalformattedString = null;
-    private static String substitutionNomatchString = null;
-    private static String substitutionSyntaxString = null;
-    private static String bufferUnknownString = null;
-    private static String specialExtracharsString = null;
-    private static String bufferExtracharsString = null;
-    private static String specialMalformattedString = null;
-    private static String htmlModeString = null;
-    private static String dsvTargetfileRequiredString = null;
-    private static String wroteString = null;
-    private static String characterstofile = null;
-    private static String fileNowriteString = null;
-    private static String metadataNoobtainString = null;
-    private static String specialDLikeString = null;
-    private static String outputfileNonetocloseString = null;
-    private static String outputfileReopeningString = null;
-    private static String outputfileHeaderString = null;
-    private static String destfileDemandString = null;
-    private static String bufferEmptyString = null;
-    private static String fileNoappendString = null;
-    private static String sqlfileNameDemandString = null;
-    private static String sqlfileExecuteFailString = null;
-    private static String autocommitSettingString = null;
-    private static String committedString = null;
-    private static String specialBMalformattedString = null;
-    private static String loadedString = null;
-    private static String binaryBytesintoString = null;
-    private static String binaryFilefailString = null;
-    private static String cSettingString = null;
-    private static String bangIncompleteString = null;
-    private static String bangCommandFailString = null;
-    private static String specialUnknownString = null;
-
-    static {
-        try {
-            sqlfileNoreadString = bundle.getString("sqlfile.noread");
-            rawMovedtobufferString = bundle.getString("raw.movedtobuffer");
-            inputMovedtobufferString = bundle.getString("input.movedtobuffer");
-            sqlstatementEmptyString = bundle.getString("sqlstatement.empty");
-            causeString = bundle.getString("cause");
-            erroratString = bundle.getString("errorat");
-            lineString = bundle.getString("line");
-            breakUnsatisfiedString = bundle.getString("break.unsatisfied");
-            continueUnsatisfiedString =
-                    bundle.getString("continue.unsatisfied");
-            primaryinputAccessfailureString =
-                    bundle.getString("primaryinput.accessfailure");
-            typeString = bundle.getString("type");
-            inputUnterminatedString = bundle.getString("input.unterminated");
-            plvarsetIncompleteString = bundle.getString("plvarset.incomplete");
-            abortingString = bundle.getString("aborting");
-            inputreaderClosefailureString = bundle.getString(
-                    "inputreader.closefailure");
-            rollingbackString = bundle.getString("rollingback");
-            specialUnspecifiedString = bundle.getString("special.unspecified");
-            nobufferString = bundle.getString("nobuffer");
-            bufferExecutingString = bundle.getString("buffer.executing");
-            executingString = bundle.getString("executing");
-            nobufferYetString = bundle.getString("nobuffer.yet");
-            bufferCurrentString = bundle.getString("buffer.current");
-            commandnumMalformatString = bundle.getString("commandnum.malformat");
-            bufferRestoredString = bundle.getString("buffer.restored");
-            substitutionMalformattedString =
-                    bundle.getString("substitution.malformatted");
-            substitutionNomatchString = bundle.getString("substitution.nomatch");
-            substitutionSyntaxString = bundle.getString("substitution.syntax");
-            bufferUnknownString = bundle.getString("buffer.unknown");
-            specialExtracharsString = bundle.getString("special.extrachars");
-            bufferExtracharsString = bundle.getString("buffer.extrachars");
-            specialMalformattedString =
-                    bundle.getString("special.malformatted");
-            htmlModeString = bundle.getString("html.mode");
-            dsvTargetfileRequiredString =
-                    bundle.getString("dsv.targetfile.required");
-            wroteString = bundle.getString("wrote");
-            characterstofile = bundle.getString("characterstofile");
-            fileNowriteString = bundle.getString("file.nowrite");
-            metadataNoobtainString = bundle.getString("metadata.noobtain");
-            specialDLikeString = bundle.getString("special.d.like");
-            outputfileNonetocloseString =
-                    bundle.getString("outputfile.nonetoclose");
-            outputfileReopeningString =
-                    bundle.getString("outputfile.reopening");
-            outputfileHeaderString = bundle.getString("outputfile.header");
-            destfileDemandString = bundle.getString("destfile.demand");
-            bufferEmptyString = bundle.getString("buffer.empty");
-            fileNoappendString = bundle.getString("file.noappend");
-            sqlfileNameDemandString = bundle.getString("sqlfile.name.demand");
-            sqlfileExecuteFailString = bundle.getString("sqlfile.execute.fail");
-            autocommitSettingString = bundle.getString("a.setting");
-            committedString = bundle.getString("committed");
-            specialBMalformattedString =
-                    bundle.getString("special.b.malformatted");
-            loadedString = bundle.getString("loaded");
-            binaryBytesintoString = bundle.getString("binary.bytesinto");
-            binaryFilefailString = bundle.getString("binary.filefail");
-            cSettingString = bundle.getString("c.setting");
-            bangIncompleteString = bundle.getString("bang.incomplete");
-            bangCommandFailString = bundle.getString("bang.command.fail");
-            specialUnknownString = bundle.getString("special.unknown");
-        } catch (RuntimeException re) {
-            System.err.println("Early abort due to localized String lookup");
-			throw re;
-        }
-    }
+    private String DSV_OPTIONS_TEXT = null;
+    private String D_OPTIONS_TEXT = null;
+    private String RAW_LEADIN_MSG = null;
 
     /**
      * Interpret lines of input file as SQL Statements, Comments,
@@ -422,6 +280,28 @@ public class SqlFile {
      */
     public SqlFile(File inFile, boolean inInteractive, Map inVars)
             throws IOException {
+        // Set up ResourceBundle first, so that any other errors may be
+        // reported with localized messages.
+        try {
+            rb = new SqltoolRB();
+            rb.validate();
+            rb.setMissingPosValueBehavior(SqltoolRB.NOOP_BEHAVIOR);
+            rb.setMissingPropertyBehavior(SqltoolRB.NOOP_BEHAVIOR);
+        } catch (RuntimeException re) {
+            System.err.println("Failed to initialize resource bundle");
+            throw re;
+        }
+        rawPrompt = rb.getString(SqltoolRB.RAWMODE_PROMPT);
+        DSV_OPTIONS_TEXT = rb.getString(SqltoolRB.DSV_OPTIONS);
+        D_OPTIONS_TEXT = rb.getString(SqltoolRB.D_OPTIONS);
+        RAW_LEADIN_MSG = rb.getString(SqltoolRB.RAW_LEADIN);
+        DSV_X_SYNTAX_MSG = rb.getString(SqltoolRB.DSV_X_SYNTAX);
+        DSV_M_SYNTAX_MSG = rb.getString(SqltoolRB.DSV_M_SYNTAX);
+        causeString = rb.getString(SqltoolRB.CAUSE);
+        executingString = rb.getString(SqltoolRB.EXECUTING);
+        nobufferYetString = rb.getString(SqltoolRB.NOBUFFER_YET);
+        bufferCurrentString = rb.getString(SqltoolRB.BUFFER_CURRENT);
+
         file        = inFile;
         interactive = inInteractive;
         userVars    = inVars;
@@ -431,7 +311,8 @@ public class SqlFile {
         updateUserSettings();
 
         if (file != null &&!file.canRead()) {
-            throw new IOException(sqlfileNoreadString + " '" + file + "'");
+            throw new IOException(rb.getString(SqltoolRB.SQLFILE_NOREAD,
+                    new String[] {file.toString()} ));
         }
         if (interactive) {
             history = new ArrayList();
@@ -553,7 +434,9 @@ public class SqlFile {
             curLinenum = 0;
 
             if (interactive) {
-                stdprintln(BANNER);
+                stdprintln(
+                        rb.getString(SqltoolRB.SQLFILE_BANNER,
+                        new String[] {revnum}));
             }
 
             while (true) {
@@ -561,7 +444,7 @@ public class SqlFile {
                     withholdPrompt = false;
                 } else if (interactive) {
                     psStd.print((immCmdSB.length() == 0)
-                                ? (rawMode ? chunkPrompt
+                                ? (rawMode ? rawPrompt
                                             : primaryPrompt)
                                 : contPrompt);
                 }
@@ -618,7 +501,8 @@ public class SqlFile {
                                 historize();
                                 processSQL();
                             } else if (interactive) {
-                                stdprintln(rawMovedtobufferString);
+                                stdprintln(rb.getString(
+                                            SqltoolRB.RAW_MOVEDTOBUFFER));
                             }
                         } else {
                             if (immCmdSB.length() > 0) {
@@ -695,7 +579,7 @@ public class SqlFile {
                         // MODE!
                         setBuf(immCmdSB.toString());
                         immCmdSB.setLength(0);
-                        stdprintln(inputMovedtobufferString);
+                        stdprintln(rb.getString(SqltoolRB.INPUT_MOVEDTOBUFFER));
                         continue;
                     }
 
@@ -720,7 +604,8 @@ public class SqlFile {
 
                     if (immCmdSB.toString().trim().length() == 0) {
                         immCmdSB.setLength(0);
-                        throw new SqlToolError(sqlstatementEmptyString);
+                        throw new SqlToolError(rb.getString(
+                                    SqltoolRB.SQLSTATEMENT_EMPTY));
                         // There is nothing inherently wrong with issuing
                         // an empty command, like to test DB server health.
                         // But, this check effectively catches many syntax
@@ -733,13 +618,14 @@ public class SqlFile {
                     historize();
                     processSQL();
                 } catch (BadSpecial bs) {
-                    errprintln(erroratString + " '"
-                               + ((file == null) ? "stdin"
-                                                 : file.toString()) + "' "
-                                                + lineString
-                                                 + ' ' + curLinenum + ':');
-                    errprintln("\"" + inputLine + '"');
-                    errprintln(bs.getMessage());
+                    errprintln(rb.getString(SqltoolRB.ERRORAT_WITHECHO,
+                            new String[] {
+                                ((file == null) ? "stdin" : file.toString()),
+                                Integer.toString(curLinenum),
+                                inputLine,
+                                bs.getMessage(),
+                            }
+                    ));
                     Throwable cause = bs.getCause();
                     if (cause != null) {
                         errprintln(causeString + ": " + cause);
@@ -749,13 +635,27 @@ public class SqlFile {
                         throw new SqlToolError(bs);
                     }
                 } catch (SQLException se) {
-                    errprintln("SQL " + erroratString + " '" + ((file == null)
-                                ? "stdin"
-                                : file.toString()) + "' " + lineString + ' '
-                                        + curLinenum + ':');
                     if (lastSqlStatement != null)
                         errprintln("\"" + lastSqlStatement + '"');
                     errprintln(se.getMessage());
+                    errprintln("SQL " + rb.getString(
+                            ((lastSqlStatement == null) ? SqltoolRB.ERRORAT
+                                    : SqltoolRB.ERRORAT_WITHECHO),
+                            ((lastSqlStatement == null) ? (
+                                new String[] {
+                                    ((file == null) ? "stdin" : file.toString()),
+                                    Integer.toString(curLinenum),
+                                    se.getMessage(),
+                                }
+                            ) : (
+                                new String[] {
+                                    ((file == null) ? "stdin" : file.toString()),
+                                    Integer.toString(curLinenum),
+                                    lastSqlStatement,
+                                    se.getMessage(),
+                                }
+                            ))
+                    ));
 
                     if (!continueOnError) {
                         throw se;
@@ -772,8 +672,8 @@ public class SqlFile {
                     } else if (msg == null || msg.equals("file")) {
                         break;
                     } else {
-                        errprintln(breakUnsatisfiedString + " (" + typeString
-                                + ' ' + msg + ").");
+                        errprintln(rb.getString(SqltoolRB.BREAK_UNSATISFIED,
+                                new String[] { msg }));
                     }
 
                     if (recursed ||!continueOnError) {
@@ -785,10 +685,12 @@ public class SqlFile {
                     if (recursed) {
                         rollbackUncoms = false;
                     } else {
-                        errprintln(continueUnsatisfiedString
-                                   + ((msg == null) ? ""
-                                                    : (" (" + typeString + ' '
-                                                        + msg + ')')) + '.');
+                        errprintln((msg == null)
+                                ?  rb.getString(SqltoolRB.CONTINUE_UNSATISFIED)
+                                : rb.getString(
+                                        SqltoolRB.CONTINUE_UNSATISFIED_TYPED,
+                                                new String[] {msg}
+                                ));
                     }
 
                     if (recursed ||!continueOnError) {
@@ -797,13 +699,14 @@ public class SqlFile {
                 } catch (QuitNow qn) {
                     throw qn;
                 } catch (SqlToolError ste) {
-                    errprintln(erroratString + " '"
-                               + ((file == null) ? "stdin"
-                                                 : file.toString()) + "' "
-                                                        + lineString + ' '
-                                                        + curLinenum + ':');
-                    errprintln("\"" + inputLine + '"');
-                    errprintln(ste.getMessage());
+                    errprintln(rb.getString(SqltoolRB.ERRORAT_WITHECHO,
+                            new String[] {
+                                ((file == null) ? "stdin" : file.toString()),
+                                Integer.toString(curLinenum),
+                                inputLine,
+                                ste.getMessage(),
+                            }
+                    ));
                     Throwable cause = ste.getCause();
                     if (cause != null) {
                         errprintln(causeString + ": " + cause);
@@ -817,15 +720,18 @@ public class SqlFile {
             }
 
             if (inComment || immCmdSB.length() != 0) {
-                errprintln(inputUnterminatedString + ":  [" + immCmdSB + ']');
-                throw new SqlToolError(inputUnterminatedString + ":  ["
-                                       + immCmdSB + ']');
+                errprintln(rb.getString(SqltoolRB.INPUT_UNTERMINATED,
+                        new String[] {immCmdSB.toString()}));
+                throw new SqlToolError(rb.getString(
+                        SqltoolRB.INPUT_UNTERMINATED,
+                        new String[] {immCmdSB.toString()}));
             }
 
             rollbackUncoms = false;
             // Exiting gracefully, so don't roll back.
         } catch (IOException ioe) {
-            throw new SqlToolError(primaryinputAccessfailureString, ioe);
+            throw new SqlToolError(rb.getString(
+                    SqltoolRB.PRIMARYINPUT_ACCESSFAILURE), ioe);
         } catch (QuitNow qn) {
             if (recursed) {
                 throw qn;
@@ -835,7 +741,8 @@ public class SqlFile {
             rollbackUncoms = (qn.getMessage() != null);
 
             if (rollbackUncoms) {
-                errprintln(abortingString + ": " + qn.getMessage());
+                errprintln(rb.getString(SqltoolRB.ABORTING)
+                        + ": " + qn.getMessage());
                 throw new SqlToolError(qn.getMessage());
             }
 
@@ -844,18 +751,20 @@ public class SqlFile {
             closeQueryOutputStream();
 
             if (fetchingVar != null) {
-                errprintln(plvarsetIncompleteString + ":  " + fetchingVar);
+                errprintln(rb.getString(SqltoolRB.PLVARSET_INCOMPLETE)
+                        + ":  " + fetchingVar);
                 rollbackUncoms = true;
             }
 
             if (br != null) try {
                 br.close();
             } catch (IOException ioe) {
-                throw new SqlToolError(inputreaderClosefailureString, ioe);
+                throw new SqlToolError(rb.getString(
+                        SqltoolRB.INPUTREADER_CLOSEFAILURE), ioe);
             }
 
             if (rollbackUncoms && possiblyUncommitteds.get()) {
-                errprintln(rollingbackString);
+                errprintln(rb.getString(SqltoolRB.ROLLINGBACK));
                 curConn.rollback();
                 possiblyUncommitteds.set(false);
             }
@@ -1022,7 +931,7 @@ public class SqlFile {
     private void processBuffHist(String inString)
     throws BadSpecial, SQLException, SqlToolError {
         if (inString.length() < 1) {
-            throw new BadSpecial(specialUnspecifiedString);
+            throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_UNSPECIFIED));
         }
 
         char commandChar = inString.charAt(0);
@@ -1035,10 +944,11 @@ public class SqlFile {
 
         switch (commandChar) {
             case ';' :
-                SqlFile.enforce1charBH(other, ';');
-                if (buffer == null) throw new BadSpecial(nobufferString);
+                enforce1charBH(other, ';');
+                if (buffer == null) throw new BadSpecial(
+                        rb.getString(SqltoolRB.NOBUFFER));
 
-                stdprintln(bufferExecutingString + ':');
+                stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING) + ':');
                 stdprintln(buffer);
                 stdprintln();
                 processFromBuffer();
@@ -1046,7 +956,8 @@ public class SqlFile {
                 return;
 
             case 'a' :
-                if (buffer == null) throw new BadSpecial(nobufferString);
+                if (buffer == null) throw new BadSpecial(
+                        rb.getString(SqltoolRB.NOBUFFER));
                 immCmdSB.append(buffer);
 
                 if (other != null) {
@@ -1079,7 +990,7 @@ public class SqlFile {
 
             case 'l' :
             case 'b' :
-                SqlFile.enforce1charBH(other, 'l');
+                enforce1charBH(other, 'l');
                 if (buffer == null) {
                     stdprintln(nobufferYetString);
                 } else {
@@ -1090,7 +1001,7 @@ public class SqlFile {
                 return;
 
             case 'h' :
-                SqlFile.enforce1charBH(other, 'h');
+                enforce1charBH(other, 'h');
                 showHistory();
 
                 return;
@@ -1116,14 +1027,16 @@ public class SqlFile {
                 try {
                     setBuf(commandFromHistory(Integer.parseInt(numStr)));
                 } catch (NumberFormatException nfe) {
-                    throw new BadSpecial(commandnumMalformatString + " "
-                            + numStr + "'", nfe);
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.COMMANDNUM_MALFORMAT,
+                            new String[] {numStr} ),
+                    nfe);
                 }
 
                 if (executeMode) {
                     processFromBuffer();
                 } else {
-                    stdprintln(bufferRestoredString + ':');
+                    stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED) + ':');
                     stdprintln(buffer);
                 }
 
@@ -1135,7 +1048,8 @@ public class SqlFile {
 
                 try {
                     if (other == null || other.length() < 3) {
-                        throw new BadSubst(substitutionMalformattedString);
+                        throw new BadSubst(rb.getString(
+                                SqltoolRB.SUBSTITUTION_MALFORMAT));
                     }
                     char delim = other.charAt(0);
                     Matcher m = substitutionPattern.matcher(inString);
@@ -1144,7 +1058,8 @@ public class SqlFile {
                         return;
                     }
                     if (!m.matches()) {
-                        throw new BadSubst(substitutionMalformattedString);
+                        throw new BadSubst(rb.getString(
+                                SqltoolRB.SUBSTITUTION_MALFORMAT));
                     }
 
                     // Note that this pattern does not include the leading :.
@@ -1175,7 +1090,8 @@ public class SqlFile {
                             ? bufferMatcher.replaceAll(m.group(3))
                             : bufferMatcher.replaceFirst(m.group(3)));
                     if (newBuffer.equals(buffer)) {
-                        stdprintln(substitutionNomatchString);
+                        stdprintln(rb.getString(
+                                SqltoolRB.SUBSTITUTION_NOMATCH));
                         return;
                     }
 
@@ -1188,12 +1104,16 @@ public class SqlFile {
                         stdprintln();
                     }
                 } catch (PatternSyntaxException pse) {
-                    throw new BadSpecial(substitutionSyntaxString
-                            + ":  \":s/from regex/to string/igm;\".  ", pse);
+                    throw new BadSpecial(
+                            rb.getString(SqltoolRB.SUBSTITUTION_SYNTAX) + ":  "
+                            + rb.getString(SqltoolRB.SUBSTITUTION_SAMPLE)
+                            + ".  ", pse);
                 } catch (BadSubst badswitch) {
-                    throw new BadSpecial(badswitch.getMessage()
-                            + LS + substitutionSyntaxString + ":  \":s/from "
-                            + "regex/to string/igm;\".");
+                    throw new BadSpecial(badswitch.getMessage() + LS
+                            + rb.getString(SqltoolRB.SUBSTITUTION_SYNTAX)
+                            + ":  "
+                            + rb.getString(SqltoolRB.SUBSTITUTION_SAMPLE)
+                            + '.');
                 }
 
                 if (modeExecute) {
@@ -1204,12 +1124,13 @@ public class SqlFile {
                 return;
 
             case '?' :
-                stdprintln(BUFFER_HELP_TEXT);
+                stdprintln(rb.getString(SqltoolRB.BUFFER_HELP));
 
                 return;
         }
 
-        throw new BadSpecial(bufferUnknownString + ": " + commandChar);
+        throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_UNKNOWN)
+                + ": " + commandChar);
     }
 
     private boolean doPrepare   = false;
@@ -1217,23 +1138,26 @@ public class SqlFile {
     private String  dsvColDelim = null;
     private String  dsvSkipPrefix = null;
     private String  dsvRowDelim = null;
-    private static final String DSV_X_SYNTAX_MSG =
-        bundle.getString("dsv.x.syntax");
-    private static final String DSV_M_SYNTAX_MSG =
-        bundle.getString("dsv.m.syntax");
+    private String  DSV_X_SYNTAX_MSG = null;
+    private String  DSV_M_SYNTAX_MSG = null;
+    private String  causeString = null;
+    private String  nobufferYetString = null;
+    private String  executingString = null;
+    private String  bufferCurrentString = null;
 
-    private static void enforce1charSpecial(String token, char command)
+    private void enforce1charSpecial(String token, char command)
             throws BadSpecial {
         if (token.length() != 1) {
-            throw new BadSpecial(specialExtracharsString + command
-                    + ":  " + token.substring(1));
+            throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_EXTRACHARS,
+                    new String[] { Character.toString(command),
+                            token.substring(1) }));
         }
     }
-    private static void enforce1charBH(String token, char command)
+    private void enforce1charBH(String token, char command)
             throws BadSpecial {
         if (token != null) {
-            throw new BadSpecial(bufferExtracharsString + command
-                    + ":  " + token);
+            throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_EXTRACHARS,
+                    new String[] { Character.toString(command), token }));
         }
     }
 
@@ -1251,8 +1175,8 @@ public class SqlFile {
         Matcher m = specialPattern.matcher(
                 plMode ? dereference(inString, false) : inString);
         if (!m.matches()) {
-            throw new BadSpecial(specialMalformattedString + ":  "
-                    + inString);
+            throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_MALFORMAT)
+                    + ":  " + inString);
         }
         if (m.groupCount() < 1 || m.groupCount() > 2) {
             // Failed assertion
@@ -1266,17 +1190,17 @@ public class SqlFile {
 
         switch (arg1.charAt(0)) {
             case 'q' :
-                SqlFile.enforce1charSpecial(arg1, 'q');
+                enforce1charSpecial(arg1, 'q');
                 if (other != null) {
                     throw new QuitNow(other);
                 }
 
                 throw new QuitNow();
             case 'H' :
-                SqlFile.enforce1charSpecial(arg1, 'H');
+                enforce1charSpecial(arg1, 'H');
                 htmlMode = !htmlMode;
 
-                stdprintln(htmlModeString + ": " + htmlMode);
+                stdprintln(rb.getString(SqltoolRB.HTML_MODE) + ": " + htmlMode);
 
                 return;
 
@@ -1327,7 +1251,8 @@ public class SqlFile {
                                                                  : other);
 
                     if (dsvTargetFile == null && tableName == null) {
-                        throw new BadSpecial(dsvTargetfileRequiredString);
+                        throw new BadSpecial(rb.getString(
+                                    SqltoolRB.DSV_TARGETFILE_REQUIRED));
                     }
                     File dsvFile = new File((dsvTargetFile == null)
                                             ? (tableName + ".dsv")
@@ -1344,14 +1269,18 @@ public class SqlFile {
                                                 : ("SELECT * FROM "
                                                    + tableName)), null, null);
                     pwDsv.flush();
-                    stdprintln(wroteString + ' ' + dsvFile.length() + ' '
-                               + characterstofile + " '" + dsvFile + "'");
+                    stdprintln(rb.getString(SqltoolRB.FILE_WROTECHARS,
+                            new String[] {
+                                Long.toString(dsvFile.length()),
+                                dsvFile.toString(),
+                            }
+                    ));
                 } catch (FileNotFoundException e) {
-                    throw new BadSpecial(fileNowriteString + " '" + other
-                                         + "'", e);
+                    throw new BadSpecial(rb.getString(SqltoolRB.FILE_NOWRITE,
+                            new String[] {other}), e);
                 } catch (UnsupportedEncodingException e) {
-                    throw new BadSpecial(fileNowriteString + " '" + other
-                                         + "'", e);
+                    throw new BadSpecial(rb.getString(SqltoolRB.FILE_NOWRITE,
+                            new String[] {other}), e);
                 } finally {
                     // Reset all state changes
                     if (pwDsv != null) {
@@ -1388,15 +1317,17 @@ public class SqlFile {
 
                     return;
                 } catch (SQLException se) {
-                    throw new BadSpecial(metadataNoobtainString, se);
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.METADATA_NOOBTAIN), se);
                 }
 
-                throw new BadSpecial(specialDLikeString);
+                throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_D_LIKE));
             case 'o' :
-                SqlFile.enforce1charSpecial(arg1, 'o');
+                enforce1charSpecial(arg1, 'o');
                 if (other == null) {
                     if (pwQuery == null) {
-                        throw new BadSpecial(outputfileNonetocloseString);
+                        throw new BadSpecial(rb.getString(
+                                SqltoolRB.OUTPUTFILE_NONETOCLOSE));
                     }
 
                     closeQueryOutputStream();
@@ -1405,7 +1336,7 @@ public class SqlFile {
                 }
 
                 if (pwQuery != null) {
-                    stdprintln(outputfileReopeningString);
+                    stdprintln(rb.getString(SqltoolRB.OUTPUTFILE_REOPENING));
                     closeQueryOutputStream();
                 }
 
@@ -1420,26 +1351,27 @@ public class SqlFile {
                     pwQuery.println((htmlMode
                             ? ("<HTML>" + LS + "<!--")
                             : "#") + " " + (new java.util.Date()) + ".  "
-                                    + outputfileHeaderString + ' '
-                                    + getClass().getName()
-                                    + (htmlMode ? (". -->" + LS + LS + "<BODY>")
-                                                : ("." + LS)));
+                                    + rb.getString(SqltoolRB.OUTPUTFILE_HEADER,
+                                            new String[] {getClass().getName()})
+                                    + (htmlMode ? (" -->" + LS + LS + "<BODY>")
+                                                : LS));
                     pwQuery.flush();
                 } catch (Exception e) {
-                    throw new BadSpecial(fileNowriteString + " '" + other
-                            + "':  " + e);
+                    throw new BadSpecial(rb.getString(SqltoolRB.FILE_NOWRITE,
+                            new String[] {other}) + ":  " + e);
                 }
 
                 return;
 
             case 'w' :
-                SqlFile.enforce1charSpecial(arg1, 'w');
+                enforce1charSpecial(arg1, 'w');
                 if (other == null) {
-                    throw new BadSpecial(destfileDemandString);
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.DESTFILE_DEMAND));
                 }
 
                 if (buffer == null || buffer.length() == 0) {
-                    throw new BadSpecial(bufferEmptyString);
+                    throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_EMPTY));
                 }
 
                 try {
@@ -1451,16 +1383,17 @@ public class SqlFile {
                     pw.flush();
                     pw.close();
                 } catch (Exception e) {
-                    throw new BadSpecial(fileNoappendString + " '" + other
-                                         + "':  " + e);
+                    throw new BadSpecial(rb.getString(SqltoolRB.FILE_NOAPPEND,
+                            new String[] {other}) + ":  " + e);
                 }
 
                 return;
 
             case 'i' :
-                SqlFile.enforce1charSpecial(arg1, 'i');
+                enforce1charSpecial(arg1, 'i');
                 if (other == null) {
-                    throw new BadSpecial(sqlfileNameDemandString);
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.SQLFILE_NAME_DEMAND));
                 }
 
                 try {
@@ -1485,14 +1418,15 @@ public class SqlFile {
                 } catch (QuitNow qn) {
                     throw qn;
                 } catch (Exception e) {
-                    throw new BadSpecial(sqlfileExecuteFailString
-                             + " '" + other + "'", e);
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.SQLFILE_EXECUTE_FAIL,
+                            new String[] {other}), e);
                 }
 
                 return;
 
             case 'p' :
-                SqlFile.enforce1charSpecial(arg1, 'p');
+                enforce1charSpecial(arg1, 'p');
                 if (other == null) {
                     stdprintln(true);
                 } else {
@@ -1502,21 +1436,21 @@ public class SqlFile {
                 return;
 
             case 'a' :
-                SqlFile.enforce1charSpecial(arg1, 'a');
+                enforce1charSpecial(arg1, 'a');
                 if (other != null) {
                     curConn.setAutoCommit(
                         Boolean.valueOf(other).booleanValue());
                 }
 
-                stdprintln(autocommitSettingString + ": "
+                stdprintln(rb.getString(SqltoolRB.A_SETTING) + ": "
                            + curConn.getAutoCommit());
 
                 return;
             case '=' :
-                SqlFile.enforce1charSpecial(arg1, '=');
+                enforce1charSpecial(arg1, '=');
                 curConn.commit();
                 possiblyUncommitteds.set(false);
-                stdprintln(committedString);
+                stdprintln(rb.getString(SqltoolRB.COMMITTED));
 
                 return;
 
@@ -1535,7 +1469,8 @@ public class SqlFile {
 
                 if ((arg1.charAt(1) != 'd' && arg1.charAt(1) != 'l')
                         || other == null) {
-                    throw new BadSpecial(specialBMalformattedString);
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.SPECIAL_B_MALFORMAT));
                 }
 
                 File file = new File(other);
@@ -1545,32 +1480,36 @@ public class SqlFile {
                         dump(file);
                     } else {
                         binBuffer = SqlFile.loadBinary(file);
-                        stdprintln(loadedString + ' ' + binBuffer.length
-                                   + ' ' + binaryBytesintoString);
-                                    }
+                        stdprintln(rb.getString(
+                                SqltoolRB.BINARY_LOADEDBYTESINTO,
+                                new String[] {
+                                    Integer.toString(binBuffer.length)
+                                }));
+                    }
                 } catch (BadSpecial bs) {
                     throw bs;
                 } catch (IOException ioe) {
-                    throw new BadSpecial(binaryFilefailString + " '" + other
-                        + "'", ioe);
+                    throw new BadSpecial(rb.getString(SqltoolRB.BINARY_FILEFAIL,
+                            new String[] {other}), ioe);
                 }
 
                 return;
 
             case '*' :
             case 'c' :
-                SqlFile.enforce1charSpecial(arg1, '=');
+                enforce1charSpecial(arg1, '=');
                 if (other != null) {
                     // But remember that we have to abort on some I/O errors.
                     continueOnError = Boolean.valueOf(other).booleanValue();
                 }
 
-                stdprintln(cSettingString + ": " + continueOnError);
+                stdprintln(rb.getString(SqltoolRB.C_SETTING)
+                        + ": " + continueOnError);
 
                 return;
 
             case '?' :
-                stdprintln(SPECIAL_HELP_TEXT);
+                stdprintln(rb.getString(SqltoolRB.SPECIAL_HELP));
 
                 return;
 
@@ -1595,7 +1534,8 @@ public class SqlFile {
                     + ((arg1.length() > 1 && other != null)
                        ? " " : "") + ((other == null) ? "" : other);
                 if (extCommand.trim().length() < 1)
-                    throw new BadSpecial(bangIncompleteString);
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.BANG_INCOMPLETE));
 
                 try {
                     Runtime runtime = Runtime.getRuntime();
@@ -1625,20 +1565,22 @@ public class SqlFile {
                     stream.close();
 
                     if (proc.waitFor() != 0) {
-                        throw new BadSpecial(bangCommandFailString + ": '"
-                                + extCommand + "'");
+                        throw new BadSpecial(rb.getString(
+                                SqltoolRB.BANG_COMMAND_FAIL,
+                                new String[] {extCommand}));
                     }
                 } catch (BadSpecial bs) {
                     throw bs;
                 } catch (Exception e) {
-                    throw new BadSpecial(bangCommandFailString + " '"
-                                         + extCommand + "'", e);
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.BANG_COMMAND_FAIL,
+                            new String[] {extCommand}), e);
                 }
 
                 return;
 
             case '.' :
-                SqlFile.enforce1charSpecial(arg1, '.');
+                enforce1charSpecial(arg1, '.');
                 rawMode = true;
 
                 if (interactive) {
@@ -1648,7 +1590,7 @@ public class SqlFile {
                 return;
         }
 
-        throw new BadSpecial(specialUnknownString);
+        throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_UNKNOWN));
     }
 
     private static final char[] nonVarChars = {
@@ -1786,7 +1728,7 @@ public class SqlFile {
         String[] tokens = m.group(1).split("\\s+");
 
         if (tokens[0].charAt(0) == '?') {
-            stdprintln(PL_HELP_TEXT);
+            stdprintln(rb.getString(SqltoolRB.PL_HELP));
 
             return;
         }
