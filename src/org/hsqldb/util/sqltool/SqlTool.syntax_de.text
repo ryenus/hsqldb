@@ -18,7 +18,7 @@ Optionen:
     --abortOnErr             Abbruch wenn Fehler (aufhebt Standardeinstellungen)
     --continueOnErr          Continue wenn Fehler (aufhebt Standardeinstellung)
     --setVar NAME1=val1[,NAME2=val2...]   PL Variable
-    --driver a.b.c.Driver    JDBC Trieber Class [org.hsqldb.jdbcDriver]
+    --driver a.b.c.Driver    JDBC Trieber Class [%{1}]
     urlid                    ID von url/Benutzername/Losungswort in RC Feile
     file1.sql...             SQL Feilen auszuführen  [stdin]
                              (Benutz '-' für non-interactively stdin!).

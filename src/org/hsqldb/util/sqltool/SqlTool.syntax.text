@@ -17,7 +17,7 @@ Options:
     --abortOnErr             Abort on Error (overrides defaults)
     --continueOnErr          Continue on Error (overrides defaults)
     --setVar NAME1=val1[,NAME2=val2...]   PL variables
-    --driver a.b.c.Driver    JDBC driver class [org.hsqldb.jdbcDriver]
+    --driver a.b.c.Driver    JDBC driver class [%{1}]
     urlid                    ID of url/username/password in rcfile
     file1.sql...             SQL files to be executed [stdin]
                              (Use '-' for non-interactively stdin).
