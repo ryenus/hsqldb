@@ -59,17 +59,40 @@ import java.util.Enumeration;
  * like SqltoolRB.NEWKEYID.
  */
 public class SqltoolRB {
+    /**
+     * Does a quick test of this class.
+     */
     static public void main(String[] sa) {
-        SqltoolRB rb = new SqltoolRB();
-        rb.validate();
-        rb.setMissingSubstValueBehavior(
-             RefCapablePropertyResourceBundle.NOOP_BEHAVIOR);
-        rb.setMissingPropertyBehavior(
+        SqltoolRB rb1 = new SqltoolRB();
+        SqltoolRB rb2 = new SqltoolRB();
+        String[] testParams = { "one", "two", "three" };
+        rb1.validate();
+        rb2.validate();
+        System.err.println("rb1 size = " + rb1.getSize());
+        System.err.println("rb2 size = " + rb2.getSize());
+        rb1.setMissingSubstValueBehavior(
              RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR);
-        System.err.println("sqltempfile.failure -> ("
-                + rb.getExpandedString(SqltoolRB.SQLTEMPFILE_FAILURE,
-                        new String[] { "one", "two" }
-                ) + ')');
+        rb2.setMissingSubstValueBehavior(
+             RefCapablePropertyResourceBundle.NOOP_BEHAVIOR);
+        System.out.println("First, with no positional parameters set...");
+        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
+                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED), new String[] {});
+        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
+                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED), new String[] {});
+        System.out.println();
+        System.out.println("Now, with positional params set to one/two/three");
+        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
+                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED), testParams);
+        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
+                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED), testParams);
+        rb1.setMissingSubstValueBehavior(
+             RefCapablePropertyResourceBundle.THROW_BEHAVIOR);
+        System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: "
+                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED), testParams);
+        System.out.println();
+        System.out.println("Now, with no parameters set");
+        System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: "
+                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED), new String[] {});
     }
 
     static private int keyCounter = 0;
