@@ -35,7 +35,6 @@ package org.hsqldb.util;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Resource Bundle for SqlTool and associated classes.
@@ -68,8 +67,10 @@ public class SqltoolRB extends ValidatingResourceBundle {
         rb2.validate();
         System.err.println("rb1 size = " + rb1.getSize());
         System.err.println("rb2 size = " + rb2.getSize());
-        rb1.setMissingPosValueBehavior(SqltoolRB.EMPTYSTRING_BEHAVIOR);
-        rb2.setMissingPosValueBehavior(SqltoolRB.NOOP_BEHAVIOR);
+        rb1.setMissingPosValueBehavior(
+                ValidatingResourceBundle.EMPTYSTRING_BEHAVIOR);
+        rb2.setMissingPosValueBehavior(
+                ValidatingResourceBundle.NOOP_BEHAVIOR);
         System.out.println("First, with no positional parameters set...");
         System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
                 + rb1.getString(SqltoolRB.JDBC_ESTABLISHED));
@@ -288,8 +289,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static {
         if (memberKeyArray == null)
             throw new RuntimeException("'static memberKeyArray not set");
-        Integer iger;
-        String s;
         for (int i = 0; i < memberKeyArray.length; i += 2) {
             if (!(memberKeyArray[i] instanceof Integer))
                 throw new RuntimeException("Element #" +  i

@@ -285,8 +285,10 @@ public class SqlFile {
         try {
             rb = new SqltoolRB();
             rb.validate();
-            rb.setMissingPosValueBehavior(SqltoolRB.NOOP_BEHAVIOR);
-            rb.setMissingPropertyBehavior(SqltoolRB.NOOP_BEHAVIOR);
+            rb.setMissingPosValueBehavior(
+                    ValidatingResourceBundle.NOOP_BEHAVIOR);
+            rb.setMissingPropertyBehavior(
+                    ValidatingResourceBundle.NOOP_BEHAVIOR);
         } catch (RuntimeException re) {
             System.err.println("Failed to initialize resource bundle");
             throw re;
@@ -363,7 +365,6 @@ public class SqlFile {
     public boolean      recursed     = false;
     private String      lastSqlStatement   = null;
     private int         curLinenum   = -1;
-    private int         curHist      = -1;
     private PrintStream psStd        = null;
     private PrintStream psErr        = null;
     private PrintWriter pwQuery      = null;
@@ -1051,7 +1052,6 @@ public class SqlFile {
                         throw new BadSubst(rb.getString(
                                 SqltoolRB.SUBSTITUTION_MALFORMAT));
                     }
-                    char delim = other.charAt(0);
                     Matcher m = substitutionPattern.matcher(inString);
                     if (buffer == null) {
                         stdprintln(nobufferYetString);
@@ -3278,7 +3278,6 @@ public class SqlFile {
         if (history.size() < 1) {
             stdprintln("<<    No history yet    >>");
         } else {
-            String s;
             for (int i = 0; i < history.size(); i++) {
                 psStd.println("#" + (i + oldestHist) + " or "
                         + (i - history.size()) + ':');
@@ -3299,7 +3298,9 @@ public class SqlFile {
     /**
      * Return a Command from command history.
      */
-    private String commandFromHistory(int index) throws BadSpecial {
+    private String commandFromHistory(int inIndex) throws BadSpecial {
+        int index = inIndex;  // Just to quiet compiler warnings.
+
         if (history == null) {
             throw new BadSpecial("Command history not available");
         }
