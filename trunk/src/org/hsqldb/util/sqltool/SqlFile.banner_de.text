@@ -15,8 +15,8 @@ VERFAHRENSSPRACHE Befehle fingt mit * und ausführt wenn Sie Eingabetaste
  anschlagen.
 Alle anderem Zeilen fassen sich SQL Befehle.
   SQL Befehle werden bei entweder Leerzeile (beim Anweisung im Puffer bewegt
-  ohne auszuführen) oder eina Ziele die bit ; beendet (bei der die Anweisung
-  auszuführt) abgesteuert..
+  ohne auszuführen) oder eina Ziele die bie ; beendet (bei der die Anweisung
+  auszuführt) abgesteuert.
   SQL Befehle dürfen  bei '/PLVARNAME' anfangen für ein PL Variablebefehlalias.
 Nach Variableexpansion bei der "*" Befehl (oder irgendeine andere
  Verfahrensbefehle), PL Variable dürfen in irgendein Befehl (außerhalb

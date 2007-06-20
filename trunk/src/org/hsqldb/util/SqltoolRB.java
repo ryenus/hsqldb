@@ -36,8 +36,6 @@ package org.hsqldb.util;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.Enumeration;
 
 /**
  * Resource Bundle for SqlTool and associated classes.
@@ -58,17 +56,7 @@ import java.util.Enumeration;
  * NEWKEYID is obviously a new constant which you will use in calling code
  * like SqltoolRB.NEWKEYID.
  */
-public class SqltoolRB {
-    public static final int THROW_BEHAVIOR =
-            RefCapablePropertyResourceBundle.THROW_BEHAVIOR;
-    public static final int EMPTYSTRING_BEHAVIOR =
-            RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR;
-    public static final int NOOP_BEHAVIOR =
-            RefCapablePropertyResourceBundle.NOOP_BEHAVIOR;
-    /* Three constants above are only so caller doesn't need to know
-     * details of RefCapablePropertyResourceBundle (and they won't need
-     * to code that God-awfully-long class name). */
-
+public class SqltoolRB extends ValidatingResourceBundle {
     /**
      * Does a quick test of this class.
      */
@@ -192,19 +180,6 @@ public class SqltoolRB {
     static public final int DSV_M_SYNTAX = keyCounter++;
     static public final int DSV_X_SYNTAX = keyCounter++;
 
-    /**
-     * Returns the number of defined (usable) keys.
-     */
-    public int getSize() {
-        if (!validated)
-            throw new RuntimeException(
-                    "Method SqltoolRB.getSize() may only be called after "
-                    + "calling SqltoolRB.validate()");
-        return keyIdToString.size();
-    }
-
-    private boolean validated = false;
-
     private static Object[] memberKeyArray = new Object[] {
         // SqlTool class, file references:
         new Integer(SQLTOOL_SYNTAX), "SqlTool.syntax",
@@ -295,15 +270,24 @@ public class SqltoolRB {
         new Integer(DSV_X_SYNTAX), "dsv.x.syntax",
     };
 
+    private Map keyIdToString = new HashMap();
 
-    private RefCapablePropertyResourceBundle wrappedRCPRB =
-        RefCapablePropertyResourceBundle.getBundle("org.hsqldb.util.sqltool",
-                getClass().getClassLoader());
+    protected Map getKeyIdToString() {
+        return keyIdToString;
+    }
 
-    static private Map keyIdToString = new HashMap();
+    public SqltoolRB() {
+        super("org.hsqldb.util.sqltool");
+        if (memberKeyArray == null)
+            throw new RuntimeException("'static memberKeyArray not set");
+        for (int i = 0; i < memberKeyArray.length; i += 2) {
+            keyIdToString.put(memberKeyArray[i], memberKeyArray[i+1]);
+        }
+    }
+
     static {
         if (memberKeyArray == null)
-            throw new RuntimeException("'memberKeyArray not overridden");
+            throw new RuntimeException("'static memberKeyArray not set");
         Integer iger;
         String s;
         for (int i = 0; i < memberKeyArray.length; i += 2) {
@@ -321,96 +305,10 @@ public class SqltoolRB {
                         + memberKeyArray[i+1] + "\" in array "
                         + "memberKeyArray in class "
                         + SqltoolRB.class.getName());
-            keyIdToString.put(memberKeyArray[i], memberKeyArray[i+1]);
         }
         /* DEBUG
         System.err.println("Initialized keyIdToString map with "
                 + keyIdToString.size() + " mappings");
         */
-    }
-
-    public void validate() {
-        String val;
-        if (validated) return;
-        validated = true;
-        Set allIdStrings = new HashSet(keyIdToString.values());
-        Enumeration allKeys = wrappedRCPRB.getKeys();
-        while (allKeys.hasMoreElements()) {
-            // We can't test positional parameters, but we can verify that
-            // referenced files exist by reading the values.
-            // Pretty inefficient, but this can be optimized when I have time.
-            val = (String) allKeys.nextElement();
-            wrappedRCPRB.getString(val);
-            // Keep no reference to the returned String
-            allIdStrings.remove(val);
-        }
-        if (allIdStrings.size() > 0)
-            throw new RuntimeException(
-                    "Resource Bundle pre-validation failed.  "
-                    + "Following property key(s) not mapped.\n" + allIdStrings);
-    }
-
-    // The following methods are a passthru wrappers for the wrapped RCPRB.
-
-    /** @see RefCapablePropertyResourceBundle#getString(String) */
-    public String getString(int id) {
-        return wrappedRCPRB.getString((String) keyIdToString.get(id));
-    }
-
-    /** @see RefCapablePropertyResourceBundle#getString(String, String[]) */
-    public String getString(int id, String[] sa) {
-        return wrappedRCPRB.getString((String) keyIdToString.get(id), sa,
-                missingPosValueBehavior);
-    }
-
-    /** @see RefCapablePropertyResourceBundle#getExpandedString(String) */
-    public String getExpandedString(int id) {
-        return wrappedRCPRB.getExpandedString((String) keyIdToString.get(id),
-                missingPropertyBehavior);
-    }
-
-    /** @see RefCapablePropertyResourceBundle#getExpandedString(String, String[]) */
-    public String getExpandedString(int id, String[] sa) {
-        return wrappedRCPRB.getExpandedString(
-                (String) keyIdToString.get(id), sa,
-                missingPropertyBehavior, missingPosValueBehavior);
-    }
-
-    private int missingPropertyBehavior = THROW_BEHAVIOR;
-    private int missingPosValueBehavior = THROW_BEHAVIOR;
-
-    /**
-     * Set behavior for get*String*() method when a referred-to
-     * System Property is not set.  Set to one of
-     * <UL>
-     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
-     * </UL>
-     * The first value is the default.
-     */
-    public void setMissingPropertyBehavior(int missingPropertyBehavior) {
-        this.missingPropertyBehavior = missingPropertyBehavior;
-    }
-    /**
-     * Set behavior for get*String(String, String[]) method when a
-     * positional index (like %{4}) is used but no subs value was given for
-     * that index.  Set to one of
-     * <UL>
-     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
-     * </UL>
-     * The first value is the default.
-     */
-    public void setMissingPosValueBehavior(int missingPosValueBehavior) {
-        this.missingPosValueBehavior = missingPosValueBehavior;
-    }
-
-    public int getMissingPropertyBehavior() {
-        return missingPropertyBehavior;
-    }
-    public int getMissingPosValueBehavior() {
-        return missingPosValueBehavior;
     }
 }
