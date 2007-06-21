@@ -145,7 +145,7 @@ public final class jdbcRowId implements RowId {
       *     by this <code>java.sql.RowId</code>  object.
       */
      public String toString() {
-         return StringConverter.byteArrayToHex(id);
+         return StringConverter.byteArrayToHexString(id);
      }
 
      /**
