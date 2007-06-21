@@ -39,17 +39,12 @@ import java.util.List;
  *
  * It often makes for better (and more efficient) design to add context
  * details to an exception at intermediate points in the thread.
- * This class makes it easy and efficient to cath and rethrow for that purpose.
- *
- * It also implements the Java 1.4 cause() methods.
- * This functionality should be removed (or call super...() as appropriate)
- * if we drop support for Java versions under 1.4..
+ * This class makes it easy and efficient to catch and rethrow for that purpose.
  */
 public class AppendableException extends Exception {
 
     static final long    serialVersionUID = -1002629580611098803L;
     public static String LS = System.getProperty("line.separator");
-    private Throwable    cause            = null;
     public List          appendages       = null;
 
     public String getMessage() {
@@ -86,10 +81,6 @@ public class AppendableException extends Exception {
         appendages.add(s);
     }
 
-    public Throwable getCause() {
-        return cause;
-    }
-
     public AppendableException() {}
 
     public AppendableException(String s) {
@@ -97,16 +88,10 @@ public class AppendableException extends Exception {
     }
 
     public AppendableException(Throwable cause) {
-
-        // super(cause);
-        this.cause = cause;
+        super(cause);
     }
 
     public AppendableException(String string, Throwable cause) {
-
-        // super(string, cause);
-        this(string);
-
-        this.cause = cause;
+         super(string, cause);
     }
 }
