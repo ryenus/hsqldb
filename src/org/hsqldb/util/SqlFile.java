@@ -296,7 +296,7 @@ public class SqlFile {
             System.err.println("Failed to initialize resource bundle");
             throw re;
         }
-        rawPrompt = rb.getString(SqltoolRB.RAWMODE_PROMPT);
+        rawPrompt = rb.getString(SqltoolRB.RAWMODE_PROMPT) + "> ";
         DSV_OPTIONS_TEXT = rb.getString(SqltoolRB.DSV_OPTIONS);
         D_OPTIONS_TEXT = rb.getString(SqltoolRB.D_OPTIONS);
         RAW_LEADIN_MSG = rb.getString(SqltoolRB.RAW_LEADIN);
@@ -378,7 +378,8 @@ public class SqlFile {
      * false otherwise).
      */
     private boolean             continueOnError = false;
-    private static final String DEFAULT_CHARSET = "US-ASCII";
+    private static final String DEFAULT_CHARSET = null;
+    // Change to Charset.defaultCharset().name(); once we can use Java 1.5!
     private BufferedReader      br              = null;
     private String              charset         = null;
     private String              buffer          = null;
@@ -432,9 +433,14 @@ public class SqlFile {
                                               : specifiedCharSet);
 
         try {
-            br = new BufferedReader(new InputStreamReader((file == null)
-                    ? System.in
-                    : new FileInputStream(file), charset));
+            br = new BufferedReader((charset == null)
+                    ?  (new InputStreamReader((file == null)
+                            ? System.in : (new FileInputStream(file))))
+                    :  (new InputStreamReader(((file == null)
+                            ? System.in : (new FileInputStream(file))),
+                                    charset)));
+            // Replace with just "(new FileInputStream(file), charset)"
+            // once use defaultCharset from Java 1.5 in charset init. above.
             curLinenum = 0;
 
             if (interactive) {
@@ -1082,8 +1088,9 @@ public class SqlFile {
                     // Note that this pattern does not include the leading :.
                     if (m.groupCount() < 3 || m.groupCount() > 4) {
                         // Assertion failed
-                        throw new RuntimeException("Matched substitution pattern, "
-                            + "but captured " + m.groupCount() + " groups");
+                        throw new RuntimeException(
+                                "Matched substitution pattern, but "
+                                + "captured " + m.groupCount() + " groups");
                     }
                     String optionGroup = (
                             (m.groupCount() > 3 && m.group(4) != null)
@@ -1276,9 +1283,13 @@ public class SqlFile {
                                             ? (tableName + ".dsv")
                                             : dsvTargetFile);
 
-                    pwDsv = new PrintWriter(
-                        new OutputStreamWriter(
-                            new FileOutputStream(dsvFile), charset));
+                    pwDsv = new PrintWriter((charset == null)
+                       ? (new OutputStreamWriter(new FileOutputStream(dsvFile)))
+                       : (new OutputStreamWriter(new FileOutputStream(dsvFile),
+                               charset)));
+                    // Replace with just "(new FileOutputStream(file), charset)"
+                    // once use defaultCharset from Java 1.5 in charset init.
+                    // above.
 
                     ResultSet rs = curConn.createStatement().executeQuery(
                             (tableName == null) ? other
@@ -1387,9 +1398,15 @@ public class SqlFile {
                 }
 
                 try {
-                    pwQuery = new PrintWriter(
-                        new OutputStreamWriter(
-                            new FileOutputStream(other, true), charset));
+                    pwQuery = new PrintWriter((charset == null)
+                            ? (new OutputStreamWriter(
+                                    new FileOutputStream(other, true)))
+                            : (new OutputStreamWriter(
+                                    new FileOutputStream(other, true), charset))
+                    );
+                    // Replace with just "(new FileOutputStream(file), charset)"
+                    // once use defaultCharset from Java 1.5 in charset init.
+                    // above.
 
                     /* Opening in append mode, so it's possible that we will
                      * be adding superfluous <HTML> and <BODY> tags.
@@ -1421,9 +1438,15 @@ public class SqlFile {
                 }
 
                 try {
-                    PrintWriter pw = new PrintWriter(
-                        new OutputStreamWriter(
-                            new FileOutputStream(other, true), charset));
+                    PrintWriter pw = new PrintWriter((charset == null)
+                            ?  (new OutputStreamWriter(
+                                    new FileOutputStream(other, true)))
+                            :  (new OutputStreamWriter(
+                                    new FileOutputStream(other, true), charset))
+                    );
+                    // Replace with just "(new FileOutputStream(file), charset)"
+                    // once use defaultCharset from Java 1.5 in charset init.
+                    // above.
 
                     pw.println(buffer + ';');
                     pw.flush();
@@ -2179,8 +2202,12 @@ public class SqlFile {
         }
 
         File tmpFile = File.createTempFile("sqltool-", ".sql");
-        PrintWriter pw = new PrintWriter(
-            new OutputStreamWriter(new FileOutputStream(tmpFile), charset));
+        PrintWriter pw = new PrintWriter((charset == null)
+                ?  (new OutputStreamWriter(new FileOutputStream(tmpFile)))
+                :  (new OutputStreamWriter(new FileOutputStream(tmpFile),
+                        charset)));
+        // Replace with just "(new FileOutputStream(file), charset)"
+        // once use defaultCharset from Java 1.5 in charset init. above.
 
         pw.println("/* " + (new java.util.Date()) + ". "
                    + getClass().getName() + " PL block. */");
@@ -3676,8 +3703,12 @@ public class SqlFile {
                                  + "' has no value set");
         }
 
-        OutputStreamWriter osw =
-            new OutputStreamWriter(new FileOutputStream(dumpFile), charset);
+        OutputStreamWriter osw = ((charset == null)
+                ? (new OutputStreamWriter(new FileOutputStream(dumpFile)))
+                : (new OutputStreamWriter(new FileOutputStream(dumpFile),
+                            charset)));
+        // Replace with just "(new FileOutputStream(file), charset)"
+        // once use defaultCharset from Java 1.5 in charset init. above.
 
         osw.write(val);
 
@@ -3725,7 +3756,11 @@ public class SqlFile {
             throws IOException {
         char[]            xferBuffer   = new char[10240];
         StringWriter      stringWriter = new StringWriter();
-        InputStreamReader isr          = new InputStreamReader(is, cs);
+        InputStreamReader isr = ((cs == null)
+                ? (new InputStreamReader(is))
+                : (new InputStreamReader(is, cs)));
+        // Replace with just "new InputStreamReader(is, cs);"
+        // once use defaultCharset from Java 1.5 in charset init. above.
         int               i;
 
         while ((i = isr.read(xferBuffer)) > 0) {
@@ -4123,8 +4158,12 @@ public class SqlFile {
         int retval = -1;
 
         try {
-            InputStreamReader isr =
-                new InputStreamReader(new FileInputStream(file), charset);
+            InputStreamReader isr = ((charset == null)
+                    ? (new InputStreamReader(new FileInputStream(file)))
+                    : (new InputStreamReader(new FileInputStream(file),
+                            charset)));
+            // Replace with just "(new FileInputStream(file), charset)"
+            // once use defaultCharset from Java 1.5 in charset init. above.
             retval = isr.read(bfr, 0, bfr.length);
 
             isr.close();
@@ -4375,9 +4414,13 @@ public class SqlFile {
         String tmp = dsvRejectFile;
         if (tmp != null) try {
             rejectFile = new File(tmp);
-            rejectWriter = new PrintWriter(
-                        new OutputStreamWriter(
-                            new FileOutputStream(rejectFile), charset));
+            rejectWriter = new PrintWriter((charset == null)
+                    ? (new OutputStreamWriter(new FileOutputStream(rejectFile)))
+                    : (new OutputStreamWriter(new FileOutputStream(rejectFile),
+                            charset)));
+                    // Replace with just "(new FileOutputStream(file), charset)"
+                    // once use defaultCharset from Java 1.5 in charset init.
+                    // above.
             rejectWriter.print(headerLine + dsvRowDelim);
         } catch (IOException ioe) {
             throw new SqlToolError("Failed to set up reject file '"
@@ -4386,9 +4429,14 @@ public class SqlFile {
         tmp = dsvRejectReport;
         if (tmp != null) try {
             rejectReportFile = new File(tmp);
-            rejectReportWriter = new PrintWriter(
-                        new OutputStreamWriter(
-                            new FileOutputStream(rejectReportFile), charset));
+            rejectReportWriter = new PrintWriter((charset == null)
+                    ? (new OutputStreamWriter(
+                            new FileOutputStream(rejectFile)))
+                    : (new OutputStreamWriter(
+                            new FileOutputStream(rejectFile), charset)));
+                    // Replace with just "(new FileOutputStream(file), charset)"
+                    // once use defaultCharset from Java 1.5 in charset init.
+                    // above.
             rejectReportWriter.println("<HTML>");
             rejectReportWriter.println("<HEAD><STYLE>");
             rejectReportWriter.println("    th { background-color:aqua; }");

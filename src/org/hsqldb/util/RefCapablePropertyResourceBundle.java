@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Just like PropertyResourceBundle, except keys mapped to nothing in the
@@ -112,6 +113,10 @@ import java.io.IOException;
  * To prevent throwing at runtime due to unset System Properties, or
  * insufficient parameters passed to getString(String, String[]), set the
  * behavior values appropriately.
+ *
+ * Just like all Properties files, referenced files must use ISO-8859-1 
+ * encoding, with unicode escapes for characters outside of ISO-8859-1 
+ * character set.
  *
  * @see java.util.PropertyResourceBundle
  * @see java.util.ResourceBundle
@@ -352,6 +357,10 @@ public class RefCapablePropertyResourceBundle {
                     "Failed to allocate a byte buffer: " + ioe,
                     RefCapablePropertyResourceBundle.class.getName(), key);
         }
-        return new String(ba);
+        try {
+            return new String(ba, "ISO-8859-1");
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException(uee);
+        }
     }
 }
