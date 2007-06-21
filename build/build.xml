@@ -663,7 +663,7 @@ examples:
          <exclude name="org/hsqldb/util/*"/>
          <exclude name="org/hsqldb/test/*"/>
          <exclude name="org/hsqldb/sample/*"/>
-         <exclude name="org/hsqldb/resources/*.properties"/>
+         <exclude name="**/*.properties"/>
          <include name="org/hsqldb/resources/sql-error-messages.properties"/>
          <exclude name="hsqlServlet.class"/>
          <exclude name="org/hsqldb/Servlet.class"/>
