@@ -2436,8 +2436,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             table before running the import.
             The import file does not need to have data for all columns of a
             table.
-            The only required columns are those required by non-null and
-            FK constraints.
+            The only required columns are those required by database
+            constraints (non-null, indexes, keys, etc.)
             One specific reason to omit columns is if you want values of
             some columns to be created automatically by column DEFAULT
             settings, triggers, HSQLDB identity sequences, etc.
