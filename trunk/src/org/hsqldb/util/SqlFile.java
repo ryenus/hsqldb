@@ -619,6 +619,7 @@ public class SqlFile {
                     historize();
                     processSQL();
                 } catch (BadSpecial bs) {
+                    // BadSpecials ALWAYS have non-null getMessage().
                     errprintln(rb.getString(SqltoolRB.ERRORAT_WITHECHO,
                             new String[] {
                                 ((file == null) ? "stdin" : file.toString()),
@@ -636,9 +637,6 @@ public class SqlFile {
                         throw new SqlToolError(bs);
                     }
                 } catch (SQLException se) {
-                    if (lastSqlStatement != null)
-                        errprintln("\"" + lastSqlStatement + '"');
-                    errprintln(se.getMessage());
                     errprintln("SQL " + rb.getString(
                             ((lastSqlStatement == null) ? SqltoolRB.ERRORAT
                                     : SqltoolRB.ERRORAT_WITHECHO),
@@ -657,6 +655,9 @@ public class SqlFile {
                                 }
                             ))
                     ));
+                    // It's possible that we could have
+                    // SQLException.getMessage() == null, but if so, I think
+                    // it reasonsable to show "null".  That's a DB inadequacy.
 
                     if (!continueOnError) {
                         throw se;
@@ -700,14 +701,16 @@ public class SqlFile {
                 } catch (QuitNow qn) {
                     throw qn;
                 } catch (SqlToolError ste) {
-                    errprintln(rb.getString(SqltoolRB.ERRORAT_WITHECHO,
+                    errprint(rb.getString(SqltoolRB.ERRORAT_WITHECHO,
                             new String[] {
                                 ((file == null) ? "stdin" : file.toString()),
                                 Integer.toString(curLinenum),
                                 inputLine,
-                                ste.getMessage(),
+                                ((ste.getMessage() == null)
+                                        ? "" : ste.getMessage())
                             }
                     ));
+                    if (ste.getMessage() != null) errprintln("");
                     Throwable cause = ste.getCause();
                     if (cause != null) {
                         errprintln(causeString + ": " + cause);
@@ -798,15 +801,23 @@ public class SqlFile {
 
     /**
      * Utility nested Exception class for internal use only.
+     *
+     * Do not instantiate with null message.
      */
     static private class BadSpecial extends AppendableException {
         static final long serialVersionUID = 7162440064026570590L;
 
         BadSpecial(String s) {
             super(s);
+            if (s == null)
+                throw new RuntimeException(
+                        "Must construct BadSpecials with non-null message");
         }
         BadSpecial(String s, Throwable t) {
             super(s, t);
+            if (s == null)
+                throw new RuntimeException(
+                        "Must construct BadSpecials with non-null message");
         }
     }
 
@@ -889,7 +900,7 @@ public class SqlFile {
         }
 
         RowError(Throwable t) {
-            super(t.getMessage(), t);
+            super(t);
         }
 
         RowError(String s, Throwable t) {
@@ -1358,7 +1369,7 @@ public class SqlFile {
                     pwQuery.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_NOWRITE,
-                            new String[] {other}) + ":  " + e);
+                            new String[] {other}), e);
                 }
 
                 return;
@@ -1384,7 +1395,7 @@ public class SqlFile {
                     pw.close();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_NOAPPEND,
-                            new String[] {other}) + ":  " + e);
+                            new String[] {other}), e);
                 }
 
                 return;
@@ -1984,7 +1995,8 @@ public class SqlFile {
                     bs.appendMessage("Malformatted PL if command (3)");
                     throw bs;
                 } catch (Exception e) {
-                    throw new BadSpecial("Failed to execute SQL from PL block", e);
+                    throw new BadSpecial("Failed to execute SQL from PL block",
+                            e);
                 }
             } else if (tokens[0].equals("while")) {
                 try {
@@ -2028,7 +2040,8 @@ public class SqlFile {
                     bs.appendMessage("Malformatted PL while command (3)");
                     throw bs;
                 } catch (Exception e) {
-                    throw new BadSpecial("Failed to execute SQL from PL block", e);
+                    throw new BadSpecial("Failed to execute SQL from PL block",
+                            e);
                 }
             } else {
                 // Assertion
@@ -4529,7 +4542,7 @@ public class SqlFile {
 
                 if (retval != 1) {
                     throw new RowError(Integer.toString(retval)
-                            + " rows modified");
+                            + " rows modified by this input record");
                 }
 
                 possiblyUncommitteds.set(true);
@@ -4552,8 +4565,15 @@ public class SqlFile {
                                 + ((currentFieldName == null) ? "&nbsp;"
                                         : currentFieldName)
                                 + "</TD><TD><PRE class='reason'>"
-                                + re.getMessage()
-                                + ((cause == null) ? "" : ("<HR/>" + cause))
+                                + ((re.getMessage() == null)
+                                        ? "" : re.getMessage())
+                                + ((re.getMessage() == null || cause == null)
+                                        ? "" : "<HR/>")
+                                + ((cause == null) ? "" : (
+                                        (cause instanceof SQLException
+                                                && cause.getMessage() != null)
+                                        ? cause.getMessage() : cause.toString()
+                                  ))
                                 + "</PRE></TD></TR>");
                     }
                 } else {
@@ -4562,8 +4582,9 @@ public class SqlFile {
                             + lineCount + " failed"
                             + ((currentFieldName == null) ? ""
                                 : (", bad column '" + currentFieldName + "'"))
-                            + ".  " + re.getMessage(),
-                            cause);
+                            + '.'
+                            + ((re.getMessage() == null)
+                                    ? "" : ("  " + re.getMessage())), cause);
                 }
             }
         } finally {
