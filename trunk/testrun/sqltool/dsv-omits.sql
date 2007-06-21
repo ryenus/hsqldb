@@ -1,0 +1,48 @@
+/*
+ * $Id: dsv-omits.sql$
+ *
+ * Tests omitting columns via header line and *DSV_SKIP_COLUMNS
+ */
+
+/** This is the default on UNIX.
+ *  Our *.dsv test files are stored as binaries, so this is required
+ *  to run tests on Windows: */
+* *DSV_ROW_DELIM = \n
+
+CREATE TABLE t (i INT, a INT, b INT, c INT);
+
+\m dsv-omits.dsv
+SELECT COUNT(*) FROM t
+WHERE i IS NOT null AND a IS NOT null AND b IS NOT null AND c IS NOT null;
+
+*if (*? != 2)
+    \q Import using header line - column-skips failed
+*end if
+
+/** Repeat test with some non-default DSV settings */
+* *DSV_SKIP_COLUMNS =   c,   a 
+
+DELETE FROM t;
+\m dsv-omits.dsv
+
+SELECT COUNT(*) FROM t
+WHERE i IS NOT null AND b IS NOT null AND a IS null AND c IS null;
+
+*if (*? != 2)
+    \q Import using header line - AND *DSV_SKIP_COLUMNS column-skips failed
+*end if
+
+/* Now test that behavior reverts when PL variable is cleared */
+* *DSV_SKIP_COLUMNS =
+* listvalues
+
+DELETE FROM t;
+\m dsv-omits.dsv
+SELECT COUNT(*) FROM t
+WHERE i IS NOT null AND a IS NOT null AND b IS NOT null AND c IS NOT null;
+\p Post everything
+
+*if (*? != 2)
+    SELECT * FROM t;
+    \q *DSV_SKIP_COLUMNS behavior failed to revert when variable was cleared
+*end if

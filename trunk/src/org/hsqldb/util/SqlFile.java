@@ -56,6 +56,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -183,6 +185,7 @@ public class SqlFile {
         if (dsvSkipPrefix == null) {
             dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
         }
+        dsvSkipCols = (String) userVars.get("*DSV_SKIP_COLUMNS");
         dsvColDelim =
             SqlFile.convertEscapes((String) userVars.get("*DSV_COL_DELIM"));
         if (dsvColDelim == null) {
@@ -900,7 +903,7 @@ public class SqlFile {
         }
 
         RowError(Throwable t) {
-            super(t);
+            this(null, t);
         }
 
         RowError(String s, Throwable t) {
@@ -1046,6 +1049,9 @@ public class SqlFile {
                 }
 
                 if (executeMode) {
+                    stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING) + ':');
+                    stdprintln(buffer);
+                    stdprintln();
                     processFromBuffer();
                 } else {
                     stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED) + ':');
@@ -1149,6 +1155,7 @@ public class SqlFile {
     private String  dsvColDelim = null;
     private String  dsvSkipPrefix = null;
     private String  dsvRowDelim = null;
+    private String  dsvSkipCols = null;
     private String  DSV_X_SYNTAX_MSG = null;
     private String  DSV_M_SYNTAX_MSG = null;
     private String  causeString = null;
@@ -1273,12 +1280,40 @@ public class SqlFile {
                         new OutputStreamWriter(
                             new FileOutputStream(dsvFile), charset));
 
-                    displayResultSet(
-                        null,
-                        curConn.createStatement().executeQuery(
+                    ResultSet rs = curConn.createStatement().executeQuery(
                             (tableName == null) ? other
                                                 : ("SELECT * FROM "
-                                                   + tableName)), null, null);
+                                                   + tableName));
+                    List colList = new ArrayList();
+                    int[] incCols = null;
+                    if (dsvSkipCols != null) {
+                        Set ucSkipCols = new HashSet();
+                        String[] skipCols = dsvSkipCols.split("[\\s,]+");
+                        for (int i = 0; i < skipCols.length; i++) {
+                            ucSkipCols.add(skipCols[i].toUpperCase());
+                        }
+                        ResultSetMetaData rsmd = rs.getMetaData();
+                        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                            if (!ucSkipCols.remove(rsmd.getColumnName(i))) {
+                                colList.add(new Integer(i));
+                            }
+                        }
+                        if (colList.size() < 1) {
+                            throw new BadSpecial(
+                                    "No remaining rows after omitting "
+                                    + dsvSkipCols);
+                        }
+                        if (ucSkipCols.size() > 0) {
+                            throw new BadSpecial(
+                                    "The following skip column(s) not present:  "
+                                    + ucSkipCols);
+                        }
+                        incCols = new int[colList.size()];
+                        for (int i = 0; i < incCols.length; i++) {
+                            incCols[i] = ((Integer) colList.get(i)).intValue();
+                        }
+                    }
+                    displayResultSet(null, rs, incCols, null);
                     pwDsv.flush();
                     stdprintln(rb.getString(SqltoolRB.FILE_WROTECHARS,
                             new String[] {
@@ -2058,10 +2093,6 @@ public class SqlFile {
             return;
         }
 
-        /* Since we want to permit both "* VARNAME = X" and
-         * "* VARNAME=X" (i.e., whitespace is OPTIONAL in both positions),
-         * we can't use the Tokenzier.  Therefore, start over again with
-         * the string. */
         m = varsetPattern.matcher(dereference(inString, false));
         if (!m.matches()) {
             throw new BadSpecial("Malformatted PL var set command:  "
@@ -2069,7 +2100,7 @@ public class SqlFile {
         }
         if (m.groupCount() < 2 || m.groupCount() > 3) {
             // Assertion
-            throw new RuntimeException("varset patter matched but captured "
+            throw new RuntimeException("varset pattern matched but captured "
                     + m.groupCount() + " groups");
         }
 
@@ -2103,10 +2134,10 @@ public class SqlFile {
 
                 if (m.groupCount() > 2 && m.group(3) != null) {
                     userVars.put(varName, m.group(3));
-                    updateUserSettings();
                 } else {
                     userVars.remove(varName);
                 }
+                updateUserSettings();
 
                 return;
         }
@@ -4065,6 +4096,14 @@ public class SqlFile {
             stdprintln("Using Constant Column map:  " + constColMap);
             constColMapSize = constColMap.size();
         }
+        Set ucSkipCols = null;
+        if (dsvSkipCols != null) {
+            ucSkipCols = new HashSet();
+            String[] skipCols = dsvSkipCols.split("[\\s,]+");
+            for (int i = 0; i < skipCols.length; i++) {
+                ucSkipCols.add(skipCols[i].toUpperCase());
+            }
+        }
 
         if (!file.canRead()) {
             throw new SqlToolError("Can't read file '" + file + "'");
@@ -4190,6 +4229,7 @@ public class SqlFile {
         String headerLine = string.substring(recStart, recEnd);
         colStart = recStart;
         colEnd   = -1;
+        String colName;
 
         while (true) {
             if (colEnd == recEnd) {
@@ -4208,12 +4248,29 @@ public class SqlFile {
                                       + (headerList.size() + 1));
             }
 
+            colName = string.substring(colStart, colEnd).trim();
             headerList.add(
-                (colEnd - colStart == 1 && string.charAt(colStart) == '-')
+                (colName.equals("-")
+                        || (ucSkipCols != null
+                                && ucSkipCols.remove(colName.toUpperCase()))
+                )
                 ? ((String) null)
-                : string.substring(colStart, colEnd).trim());
+                : colName);
 
             colStart = colEnd + dsvColDelim.length();
+        }
+        if (ucSkipCols != null && ucSkipCols.size() > 0) {
+            throw new SqlToolError("The following skip column(s) not present:  "
+                    + ucSkipCols);
+        }
+
+        if (headerList.size() < 1) {
+            // Difficult call, but I think in any real-world situation, the
+            // user will want to know if they are inserting records with no
+            // data from their input file.
+            throw new SqlToolError("No remaining rows after omitting "
+                    + ((dsvSkipCols == null) ? "" : (dsvSkipCols + " and "))
+                    + "- columns");
         }
 
         if (constColMap != null) {
@@ -4547,7 +4604,7 @@ public class SqlFile {
 
                 possiblyUncommitteds.set(true);
             } catch (SQLException se) {
-                throw new RowError(se);
+                throw new RowError(null, se);
             } } catch (RowError re) {
                 rejectCount++;
                 Throwable cause = re.getCause();

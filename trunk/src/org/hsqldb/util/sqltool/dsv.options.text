@@ -20,6 +20,7 @@ the setting is applicable.  Default value/behavior is in [square brackes].
     *DSV_REJECT_FILE   \m    DSV file to be created with rejected records.
                               [None*]
     *DSV_REJECT_REPORT \m    HTML report to explain reject records [None*]
+    *DSV_SKIP_COLUMNS  \m\x  Skip columns from input DSV file or input table.
 * Imports will abort immediately upon the first import record failure, unless
 either *DSV_REJECT_FILE or *DSV_REJECT_REPORT (or both) are set.  (Whether
 SqlTool will roll back and quit depends on your settings for \c and \a).

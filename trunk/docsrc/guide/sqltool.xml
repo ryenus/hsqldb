@@ -2543,9 +2543,13 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 <literal>*DSV_TARGET_TABLE</literal>.
                 The table name may contain a schema name prefix.
             </simpara><simpara>
-                You don't need to import all of the coluns in a data file.
-                Just switch the name for that field in the header line to
-                "-" (hyphen) and that field will be skipped.
+                You don't need to import all of the columns in a data file.
+                To designate the fields to be skipped, iether set the PL
+                PL variable <literal>*DSV_SKIP_COLUMNS</literal>, or replace
+                the column names in the header line to "-" (hyphen).
+                The value of <literal>*DSV_SKIP_COLUMNS</literal> is 
+                case-insensitive, and multiple column names are separated with
+                white space and/or commas.
             </simpara><para>
                 You can specify a query instead of a tablename with the
                 \x command in order to filter or transform data from a table
