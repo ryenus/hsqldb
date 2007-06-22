@@ -128,7 +128,7 @@ public class SqlFile {
     private boolean          htmlMode         = false;
     private Map              userVars; // Always a non-null map set in cons.
     private List             history          = null;
-    private boolean          rawMode          = false;
+    private int              rawMode          = RAW_FALSE;
     private String           nullRepToken     = null;
     private String           dsvTargetFile    = null;
     private String           dsvTargetTable   = null;
@@ -138,6 +138,10 @@ public class SqlFile {
     public static String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
     private SqltoolRB        rb               = null;
+
+    private static final int RAW_FALSE = 0; // Raw mode off
+    private static final int RAW_EMPTY = 1; // Raw mode on, but no raw input yet
+    private static final int RAW_DATA  = 2; // Raw mode on and we have input
 
     /**
      * N.b. javax.util.regex Optional capture groups (...)? are completely
@@ -245,18 +249,19 @@ public class SqlFile {
         }
     }
 
+    BooleanBucket possiblyUncommitteds = new BooleanBucket();
     // This is an imperfect solution since when user runs SQL they could
     // be running DDL or a commit or rollback statement.  All we know is,
     // they MAY run some DML that needs to be committed.
-    BooleanBucket possiblyUncommitteds = new BooleanBucket();
 
-    // Ascii field separator blanks
     private static final String DIVIDER =
         "-----------------------------------------------------------------"
         + "-----------------------------------------------------------------";
+    // Needs to be at least as wide as the widest field or header displayed.
     private static final String SPACES =
         "                                                                 "
         + "                                                                 ";
+    // Needs to be at least as wide as the widest field or header displayed.
     private static String revnum = null;
 
     static {
@@ -372,11 +377,11 @@ public class SqlFile {
     private PrintWriter pwQuery      = null;
     private PrintWriter pwDsv        = null;
     StringBuffer        immCmdSB     = new StringBuffer();
+    private boolean             continueOnError = false;
     /*
      * This is reset upon each execute() invocation (to true if interactive,
      * false otherwise).
      */
-    private boolean             continueOnError = false;
     private static final String DEFAULT_CHARSET = null;
     // Change to Charset.defaultCharset().name(); once we can use Java 1.5!
     private BufferedReader      br              = null;
@@ -452,10 +457,9 @@ public class SqlFile {
                 if (withholdPrompt) {
                     withholdPrompt = false;
                 } else if (interactive) {
-                    psStd.print((immCmdSB.length() == 0)
-                                ? (rawMode ? rawPrompt
-                                            : primaryPrompt)
-                                : contPrompt);
+                    psStd.print((immCmdSB.length() > 0 || rawMode == RAW_DATA)
+                            ? contPrompt : ((rawMode == RAW_FALSE)
+                                    ? primaryPrompt : rawPrompt));
                 }
 
                 inputLine = br.readLine();
@@ -498,10 +502,15 @@ public class SqlFile {
                 trimmedInput = inputLine.trim();
 
                 try {
-                    if (rawMode) {
+                    if (rawMode != RAW_FALSE) {
                         boolean rawExecute = inputLine.equals(".;");
                         if (rawExecute || inputLine.equals(":.")) {
-                            rawMode = false;
+                            if (rawMode == RAW_EMPTY) {
+                                rawMode = RAW_FALSE;
+                                throw new SqlToolError(
+                                    "Raw statement aborted (no input given)");
+                            }
+                            rawMode = RAW_FALSE;
 
                             setBuf(immCmdSB.toString());
                             immCmdSB.setLength(0);
@@ -514,11 +523,14 @@ public class SqlFile {
                                             SqltoolRB.RAW_MOVEDTOBUFFER));
                             }
                         } else {
-                            if (immCmdSB.length() > 0) {
+                            if (rawMode == RAW_DATA) {
                                 immCmdSB.append('\n');
                             }
+                            rawMode = RAW_DATA;
 
-                            immCmdSB.append(inputLine);
+                            if (inputLine.length() > 0) {
+                                immCmdSB.append(inputLine);
+                            }
                         }
 
                         continue;
@@ -547,9 +559,9 @@ public class SqlFile {
                             }
                         }
 
-                        // This is just to filter out useless newlines at
-                        // beginning of commands.
                         if (trimmedInput.length() == 0) {
+                            // This is just to filter out useless newlines at
+                            // beginning of commands.
                             continue;
                         }
 
@@ -571,7 +583,7 @@ public class SqlFile {
 
                         if (ucased.startsWith("DECLARE")
                                 || ucased.startsWith("BEGIN")) {
-                            rawMode = true;
+                            rawMode = RAW_EMPTY;
 
                             immCmdSB.append(inputLine);
 
@@ -1310,7 +1322,7 @@ public class SqlFile {
                         }
                         if (colList.size() < 1) {
                             throw new BadSpecial(
-                                    "No remaining rows after omitting "
+                                    "No remaining columns after omitting "
                                     + dsvSkipCols);
                         }
                         if (ucSkipCols.size() > 0) {
@@ -1651,7 +1663,7 @@ public class SqlFile {
 
             case '.' :
                 enforce1charSpecial(arg1, '.');
-                rawMode = true;
+                rawMode = RAW_EMPTY;
 
                 if (interactive) {
                     stdprintln(RAW_LEADIN_MSG);
