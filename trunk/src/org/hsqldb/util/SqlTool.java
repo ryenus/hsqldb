@@ -407,13 +407,16 @@ public class SqlTool {
 
                     //(new java.io.FileWriter(tmpFile)).write(sqlText);
                     java.io.FileWriter fw = new java.io.FileWriter(tmpFile);
+                    try {
 
-                    fw.write("/* " + (new java.util.Date()) + ".  "
-                             + SqlTool.class.getName()
-                             + " command-line SQL. */" + LS + LS);
-                    fw.write(sqlText + LS);
-                    fw.flush();
-                    fw.close();
+                        fw.write("/* " + (new java.util.Date()) + ".  "
+                                 + SqlTool.class.getName()
+                                 + " command-line SQL. */" + LS + LS);
+                        fw.write(sqlText + LS);
+                        fw.flush();
+                    } finally {
+                        fw.close();
+                    }
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
                             rb.getString(SqltoolRB.SQLTEMPFILE_FAILURE)
