@@ -337,6 +337,9 @@ public class RefCapablePropertyResourceBundle {
     }
 
     private String getStringFromFile(String key) {
+        byte[] ba = null;
+        int bytesread = 0;
+        int retval;
         InputStream  inputStream =
                 getMostSpecificStream(key, language, country, variant);
         if (inputStream == null)
@@ -345,22 +348,55 @@ public class RefCapablePropertyResourceBundle {
                     + "' is present in .properties file with no value, yet "
                     + "text file resource is missing",
                     RefCapablePropertyResourceBundle.class.getName(), key);
-        byte[] ba = null;
         try {
-            ba = new byte[inputStream.available()];
-            if (inputStream.read(ba) != ba.length)
+            try {
+                ba = new byte[inputStream.available()];
+            } catch (RuntimeException re) {
                 throw new MissingResourceException(
-                        "Text file resource changed while reading",
-                        RefCapablePropertyResourceBundle.class.getName(), key);
-        } catch (IOException ioe) {
+                    "Resource is too big to read in '" + key + "' value in one "
+                    + "gulp.\nPlease run the program with more RAM "
+                    + "(try Java -Xm* switches).: " + re,
+                    RefCapablePropertyResourceBundle.class.getName(), key);
+            } catch (IOException ioe) {
+                throw new MissingResourceException(
+                    "Failed to read in value for key '" + key + "': " + ioe,
+                    RefCapablePropertyResourceBundle.class.getName(), key);
+            }
+            try {
+                while (bytesread < ba.length &&
+                        (retval = inputStream.read(
+                                ba, bytesread, ba.length - bytesread)) > 0) {
+                    bytesread += retval;
+                }
+            } catch (IOException ioe) {
+                throw new MissingResourceException(
+                    "Failed to read in value for '" + key + "': " + ioe,
+                    RefCapablePropertyResourceBundle.class.getName(), key);
+            }
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException ioe) {
+                System.err.println("Failed to close input stream: " + ioe);
+            }
+        }
+        if (bytesread != ba.length) {
             throw new MissingResourceException(
-                    "Failed to allocate a byte buffer: " + ioe,
+                    "Didn't read all bytes.  Read in "
+                      + bytesread + " bytes out of " + ba.length
+                      + " bytes for key '" + key + "'",
                     RefCapablePropertyResourceBundle.class.getName(), key);
         }
         try {
             return new String(ba, "ISO-8859-1");
         } catch (UnsupportedEncodingException uee) {
             throw new RuntimeException(uee);
+        } catch (RuntimeException re) {
+            throw new MissingResourceException(
+                "Value for key '" + key + "' too big to convert to String.  "
+                + "Please run the program with more RAM "
+                + "(try Java -Xm* switches).: " + re,
+                RefCapablePropertyResourceBundle.class.getName(), key);
         }
     }
 }
