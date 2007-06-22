@@ -1,26 +1,26 @@
 Syntax: java org.hsqldb.util.SqlTool [--opt [optval...]] urlid [file1.sql...]
 Optionen:
     --help                   Zeigt diese Botschaft
-    --list                   Listet Urlids von der RC Feile
+    --list                   Listet Urlids von der RC Datei
     --noInput                Lehrt stdin nicht (Standardeinstelling wenn
-                             Sql Fieile gegeben order --sql Schalter benutzt).
-    --stdInput               Read stdin IN ADDITION to sql files/--sql input
+                             Sql Datei gegeben order --sql Schalter benutzt).
+    --stdInput               Liest stdin ZUSÄTZLICH zu sql files/--sql input
     --inlineRc URL=val1,USER=val2[,DRIVER=val3][,CHARSET=val4][,TRUST=val5]
-                             Inline RC Feilie Variable
+                             Inline RC Datei Variable
     --debug                  Zeigt Debug Info zu stderr
-    --noAutoFile             AusfÃ¼hrt auto.sql vom Home Directory nicht.
+    --noAutoFile             Ausführt auto.sql vom Home Directory nicht.
     --autoCommit             Auto-commit JDBC DML Befehle
-    --sql "SQL; Anweisungen" AusfÃ¼hrt gegeben SQL statt der stdin (vor
-                             SQL Feilen wenn angebeben) wo "SQL" wirt
+    --sql "SQL; Anweisungen" Ausführt gegeben SQL statt der stdin (vor
+                             SQL Dateien wenn angebeben) wo "SQL" wirt
                              aus SQL Befehl(e) gebildet.  Sieh die
                              Bedienungsanleitung.
-    --rcFile /file/path.rc   Anschluss Info Feile [$HOME/sqltool.rc]
+    --rcFile /file/path.rc   Anschluss Info Datei [$HOME/sqltool.rc]
     --abortOnErr             Abbruch wenn Fehler (aufhebt Standardeinstellungen)
     --continueOnErr          Continue wenn Fehler (aufhebt Standardeinstellung)
     --setVar NAME1=val1[,NAME2=val2...]   PL Variable
     --driver a.b.c.Driver    JDBC Trieber Class [%{1}]
-    urlid                    ID von url/Benutzername/Losungswort in RC Feile
-    file1.sql...             SQL Feilen auszufÃ¼hren  [stdin]
-                             (Benutz '-' fÃ¼r non-interactively stdin!).
-Sieh die Bedienungsanleitung fÃ¼r abgestÃ¼tzte System Properties.
+    urlid                    ID von url/Benutzername/Losungswort in RC Datei
+    file1.sql...             SQL Dateien auszuführen  [stdin]
+                             (Benutz '-' für non-interactively stdin!).
+Sieh die Bedienungsanleitung für abgestützte System Properties.
 SqlTool v. %{1}.
