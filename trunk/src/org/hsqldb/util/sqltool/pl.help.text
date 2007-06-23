@@ -24,6 +24,7 @@ PROCEDURAL LANGUAGE Commands.
     * continue [foreach|while]    Exits a PL block iteration early
 
 Use PL variables (which you have set) like: *{VARNAME}.
+Use System Properties (which you may not set) like: ${property.name}.
 You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.
 Use PL variables in logical expressions, like (*VARNAME == 1).
 Auto. variable ? is set to the very next SQL datum fetched (or update count).
