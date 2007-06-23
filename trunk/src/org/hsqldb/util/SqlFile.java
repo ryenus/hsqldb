@@ -4521,36 +4521,14 @@ public class SqlFile {
                     // Replace with just "(new FileOutputStream(file), charset)"
                     // once use defaultCharset from Java 1.5 in charset init.
                     // above.
-            rejectReportWriter.println("<HTML>");
-            rejectReportWriter.println("<HEAD><STYLE>");
-            rejectReportWriter.println("    th { background-color:aqua; }");
-            rejectReportWriter.println("    .right { text-align:right; }");
-            rejectReportWriter.println("    .reason { font-size: 95%; "
-                    + "font-weight:bold;}");
-            rejectReportWriter.println("</STYLE></HEAD>");
-            rejectReportWriter.println("<BODY style='background:silver;'>");
-            rejectReportWriter.println("<P>Import performed at "
-                    + "<SPAN style='font-weight:bold;'>" + new java.util.Date()
-                    + "</SPAN></P>");
-            rejectReportWriter.println("<P>Input DSV file: "
-                + "<SPAN style='font-weight:bold; font-style:courier'>"
-                    + file.getPath() + "</SPAN></P>");
-            if (rejectFile != null) {
-                rejectReportWriter.println("<P>Reject DSV file: "
-                    + "<SPAN style='font-weight:bold; font-style:courier;'>"
-                        + rejectFile.getPath() + "</SPAN></P>");
-                rejectReportWriter.println(
-                        "<P>The corresponding records in '" + rejectFile
-                        + "' are at line numbers of (reject # + 1), since the "
-                        + "header record occupies the first line.</P>");
-            }
-            rejectReportWriter.println(
-                    "<TABLE border='1px' cellpadding='5px' style='background-color:white;'>");
-            rejectReportWriter.println("    <THEAD><TR><TH>rej.&nbsp;#</TH>"
-                    + "<TH>input<BR/>line&nbsp;#</TH><TH>bad&nbsp;column<BR/>"
-                    + "(if&nbsp;known)</TH>"
-                    + "<TH style='color:red;'>reason</TH></TR></THEAD>");
-            rejectReportWriter.println("<TBODY>");
+            rejectReportWriter.println(rb.getString(
+                    SqltoolRB.REJECTREPORT_TOP, new String[] {
+                        (new java.util.Date()).toString(),
+                        file.getPath(),
+                        ((rejectFile == null) ? "None" : rejectFile.getPath()),
+                        ((rejectFile == null) ? "BLOCK DISABLED" : "-->"),
+                        ((rejectFile == null) ? "BLOCK DISABLED" : "<!--"),
+                    }));
         } catch (IOException ioe) {
             throw new SqlToolError("Failed to set up reject report file '"
                     + dsvRejectReport + "'", ioe);
@@ -4737,31 +4715,16 @@ public class SqlFile {
                 throw new RowError(null, se);
             } } catch (RowError re) {
                 rejectCount++;
-                Throwable cause = re.getCause();
                 if (rejectWriter != null || rejectReportWriter != null) {
                     if (rejectWriter != null) {
                         rejectWriter.print(string.substring(
                                 recStart, recEnd) + dsvRowDelim);
                     }
                     if (rejectReportWriter != null) {
-                        rejectReportWriter.println("    <TR>"
-                                + "<TD align='right' class='right'>"
-                                + rejectCount
-                                + "</TD><TD align='right' class='right'>"
-                                + lineCount + "</TD><TD>"
-                                + ((currentFieldName == null) ? "&nbsp;"
-                                        : currentFieldName)
-                                + "</TD><TD><PRE class='reason'>"
-                                + ((re.getMessage() == null)
-                                        ? "" : re.getMessage())
-                                + ((re.getMessage() == null || cause == null)
-                                        ? "" : "<HR/>")
-                                + ((cause == null) ? "" : (
-                                        (cause instanceof SQLException
-                                                && cause.getMessage() != null)
-                                        ? cause.getMessage() : cause.toString()
-                                  ))
-                                + "</PRE></TD></TR>");
+                        genRejectReportRecord(rejectReportWriter,
+                                rejectCount, lineCount,
+                                currentFieldName, re.getMessage(),
+                                re.getCause());
                     }
                 } else {
                     importAborted = true;
@@ -4771,7 +4734,8 @@ public class SqlFile {
                                 : (", bad column '" + currentFieldName + "'"))
                             + '.'
                             + ((re.getMessage() == null)
-                                    ? "" : ("  " + re.getMessage())), cause);
+                                    ? "" : ("  " + re.getMessage())),
+                                            re.getCause());
                 }
             }
         } finally {
@@ -4800,21 +4764,13 @@ public class SqlFile {
                 rejectWriter.flush();
                 rejectWriter.close();
             }
-            if (rejectReportWriter != null) {
-                if (rejectCount > 0) {
-                    rejectReportWriter.println(
-                            "    <TR><TD colspan='4' "
-                            + "style='border:3px solid blue; color:blue; "
-                            + "font-weight:bold;'>");
-                    rejectReportWriter.println("        " + summaryString);
-                    rejectReportWriter.println("    </TD></TR>");
-                    rejectReportWriter.println("</TBODY>");
-                    rejectReportWriter.println("</TABLE>");
-                    rejectReportWriter.println("</BODY>");
-                    rejectReportWriter.println("</HTML>");
-                    rejectReportWriter.flush();
-                    rejectReportWriter.close();
-                }
+            if (rejectReportWriter != null && rejectCount > 0) {
+                rejectReportWriter.println(rb.getString(
+                        SqltoolRB.REJECTREPORT_BOTTOM, new String[] {
+                            summaryString
+                        }));
+                rejectReportWriter.flush();
+                rejectReportWriter.close();
             }
             if (rejectCount == 0) {
                 if (rejectFile != null && rejectFile.exists()
@@ -4857,5 +4813,26 @@ public class SqlFile {
             }
         }
         return (String[]) list.toArray(new String[] {});
+    }
+
+    private void genRejectReportRecord(PrintWriter pw, int rCount,
+            int lCount, String field, String eMsg, Throwable cause) {
+        pw.println(rb.getString(SqltoolRB.REJECTREPORT_ROW,
+                new String[] {
+                    ((rCount % 2 == 0) ? "even" : "odd") + "row",
+                    Integer.toString(rCount),
+                    Integer.toString(lCount),
+                    ((field == null) ? "&nbsp;" : field),
+                    (((eMsg == null) ? "" : eMsg)
+                            + ((eMsg == null || cause == null) ? "" : "<HR/>")
+                            + ((cause == null) ? "" : (
+                                    (cause instanceof SQLException
+                                            && cause.getMessage() != null)
+                                        ? cause.getMessage()
+                                        : cause.toString()
+                                    )
+                            )
+                    )
+                }));
     }
 }
