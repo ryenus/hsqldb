@@ -19,7 +19,7 @@
 <BODY>
 
 <P>
-    Import performed at <SPAN class='bold'>%{1}</SPAN>
+    Import performed <SPAN class='bold'>%{1}</SPAN> using SqlTool.
 </P>
 <P>
     Input DSV file: <SPAN class='headingval'>%{2}</SPAN>
