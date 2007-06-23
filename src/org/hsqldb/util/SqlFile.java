@@ -188,7 +188,7 @@ public class SqlFile {
         if (dsvSkipPrefix == null) {
             dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
         }
-        dsvSkipCols = (String) userVars.get("*DSV_SKIP_COLUMNS");
+        dsvSkipCols = (String) userVars.get("*DSV_SKIP_COLS");
         dsvColDelim =
             SqlFile.convertEscapes((String) userVars.get("*DSV_COL_DELIM"));
         if (dsvColDelim == null) {
@@ -1310,7 +1310,8 @@ public class SqlFile {
                     int[] incCols = null;
                     if (dsvSkipCols != null) {
                         Set ucSkipCols = new HashSet();
-                        String[] skipCols = dsvSkipCols.split("[\\s,]+");
+                        String[] skipCols = dsvSkipCols.split("\\s*\\Q"
+                                + dsvColDelim + "\\E\\s*");
                         for (int i = 0; i < skipCols.length; i++) {
                             ucSkipCols.add(skipCols[i].toUpperCase());
                         }
@@ -1703,12 +1704,13 @@ public class SqlFile {
     }
 
     /**
-     * Deference PL variables.
+     * Deference *{} PL variables and ${} System Property variables.
      *
      * @throws SqlToolError
      */
     private String dereference(String inString,
                                boolean permitAlias) throws SqlToolError {
+        /* TODO:  Rewrite using java.util.regex. */
         String       varName, varValue;
         StringBuffer expandBuffer = new StringBuffer(inString);
         int          b, e;    // begin and end of name.  end really 1 PAST name
@@ -1738,6 +1740,42 @@ public class SqlFile {
         boolean permitUnset;
         // Permit unset with:     ${:varname}
         // Prohibit unset with :  ${varnam}
+
+        while (true) {
+            s = expandBuffer.toString();
+            b = s.indexOf("${");
+
+            if (b < 0) {
+                // No more unexpanded variable uses
+                break;
+            }
+
+            e = s.indexOf('}', b + 2);
+
+            if (e == b + 2) {
+                throw new SqlToolError("Empty Sys Prop variable name");
+            }
+
+            if (e < 0) {
+                throw new SqlToolError("Unterminated Sys Prop variable name");
+            }
+
+            permitUnset = (s.charAt(b + 2) == ':');
+
+            varName = s.substring(b + (permitUnset ? 3 : 2), e);
+
+            varValue = System.getProperty(varName);
+            if (varValue == null) {
+                if (permitUnset) {
+                    varValue = "";
+                } else {
+                    throw new SqlToolError("Use of undefined Sys Prop variable: "
+                                           + varName);
+                }
+            }
+
+            expandBuffer.replace(b, e + 1, varValue);
+        }
 
         while (true) {
             s = expandBuffer.toString();
@@ -1857,12 +1895,18 @@ public class SqlFile {
             throw new BreakException();
         }
 
-        if (tokens[0].equals("list") || tokens[0].equals("listvalues")) {
+        if (tokens[0].equals("list") || tokens[0].equals("listvalues")
+                || tokens[0].equals("listsysprops")) {
+            boolean sysProps =tokens[0].equals("listsysprops");
             String  s;
-            boolean doValues = (tokens[0].equals("listvalues"));
+            boolean doValues = (tokens[0].equals("listvalues") || sysProps);
+            // Always list System Property values.
+            // They are unlikely to be very long, like PL variables may be.
 
             if (tokens.length == 1) {
-                stdprint(SqlFile.formatNicely(userVars, doValues));
+                stdprint(SqlFile.formatNicely(
+                        (sysProps ? System.getProperties() : userVars),
+                        doValues));
             } else {
                 if (doValues) {
                     stdprintln("The outermost parentheses are not part of "
@@ -1873,7 +1917,8 @@ public class SqlFile {
                 }
 
                 for (int i = 1; i < tokens.length; i++) {
-                    s = (String) userVars.get(tokens[i]);
+                    s = (String) (sysProps ? System.getProperties() : userVars).
+                            get(tokens[i]);
 
                     stdprintln("    " + tokens[i] + ": "
                                + (doValues ? ("(" + s + ')')
@@ -2389,8 +2434,7 @@ public class SqlFile {
     // SqlFile output, we use the same default value for null in DSV
     // files, but this DSV null representation can be changed to anything.
     private static final String DEFAULT_NULL_REP = "[null]";
-    private static final String DEFAULT_ROW_DELIM =
-        System.getProperty("line.separator");
+    private static final String DEFAULT_ROW_DELIM = LS;
     private static final String DEFAULT_COL_DELIM = "|";
     private static final String DEFAULT_SKIP_PREFIX = "#";
     private static final int    DEFAULT_ELEMENT   = 0,
@@ -2794,6 +2838,9 @@ public class SqlFile {
         // be able to have uncommitted DML, turn autocommit on, then run
         // other DDL with autocommit on.  As a result, I could be running
         // SQL commands with autotommit on but still have uncommitted mods.
+        // (For all I know, the database could commit or rollback whenever
+        // the autocommit option is changed, and that behavior could be
+        // DB-specific).
         lastSqlStatement    = (plMode ? dereference(buffer, true)
                                       : buffer);
         Statement statement = null;
@@ -3578,6 +3625,7 @@ public class SqlFile {
     }
 
     private boolean eval(String[] inTokens) throws BadSpecial {
+        /* TODO:  Rewrite using java.util.regex.  */
         // dereference *VARNAME variables.
         // N.b. we work with a "copy" of the tokens.
         boolean  negate = inTokens.length > 0 && inTokens[0].equals("!");
@@ -4151,39 +4199,28 @@ public class SqlFile {
         SortedMap constColMap = null;
         int constColMapSize = 0;
         if (dsvConstCols != null) {
-            // Can't use StringTokenizer, since our delimiters are fixed
-            // whereas StringTokenizer delimiters are a list of OR delimiters.
-
             // We trim col. names, but not values.  Must allow users to
             // specify values as spaces, empty string, null.
             constColMap = new TreeMap();
-            int startOffset;
-            int postOffset = -1;
+            String[] constPairs = dsvConstCols.split("\\Q"
+                    + dsvColDelim + "\\E\\s*");
             int firstEq;
             String n;
-            do {
-                startOffset = postOffset + 1;
-                postOffset = dsvConstCols.indexOf(dsvColDelim, startOffset);
-                if (postOffset < 0) postOffset = dsvConstCols.length();
-                if (postOffset == startOffset)
-                    throw new SqlToolError("*DSV_CONST_COLS has null setting");
-                firstEq = dsvConstCols.indexOf('=', startOffset);
-                if (firstEq < startOffset + 1 || firstEq > postOffset)
-                    throw new SqlToolError("*DSV_CONST_COLS element malformatted");
-                n = dsvConstCols.substring(startOffset, firstEq).trim();
-                if (n.length() < 1)
+            for (int i = 0; i < constPairs.length; i++) {
+                firstEq = constPairs[i].indexOf('=');
+                n = constPairs[i].substring(0, i).trim();
+                if (n.trim().length() < 1) {
                     throw new SqlToolError(
                             "*DSV_CONST_COLS element has null col. name");
-                constColMap.put(n,
-                        dsvConstCols.substring(firstEq + 1, postOffset));
-            } while (postOffset < dsvConstCols.length());
-            stdprintln("Using Constant Column map:  " + constColMap);
-            constColMapSize = constColMap.size();
+                }
+                constColMap.put(n, constPairs[i].substring(firstEq + 1));
+            }
         }
         Set ucSkipCols = null;
         if (dsvSkipCols != null) {
             ucSkipCols = new HashSet();
-            String[] skipCols = dsvSkipCols.split("[\\s,]+");
+            String[] skipCols = dsvSkipCols.split("\\s*\\Q"
+                    + dsvColDelim + "\\E\\s*");
             for (int i = 0; i < skipCols.length; i++) {
                 ucSkipCols.add(skipCols[i].toUpperCase());
             }
@@ -4463,9 +4500,8 @@ public class SqlFile {
         File rejectReportFile = null;
         PrintWriter rejectWriter = null;
         PrintWriter rejectReportWriter = null;
-        String tmp = dsvRejectFile;
-        if (tmp != null) try {
-            rejectFile = new File(tmp);
+        if (dsvRejectFile != null) try {
+            rejectFile = new File(dsvRejectFile);
             rejectWriter = new PrintWriter((charset == null)
                     ? (new OutputStreamWriter(new FileOutputStream(rejectFile)))
                     : (new OutputStreamWriter(new FileOutputStream(rejectFile),
@@ -4476,16 +4512,15 @@ public class SqlFile {
             rejectWriter.print(headerLine + dsvRowDelim);
         } catch (IOException ioe) {
             throw new SqlToolError("Failed to set up reject file '"
-                    + tmp + "'", ioe);
+                    + dsvRejectFile + "'", ioe);
         }
-        tmp = dsvRejectReport;
-        if (tmp != null) try {
-            rejectReportFile = new File(tmp);
+        if (dsvRejectReport != null) try {
+            rejectReportFile = new File(dsvRejectReport);
             rejectReportWriter = new PrintWriter((charset == null)
                     ? (new OutputStreamWriter(
-                            new FileOutputStream(rejectFile)))
+                            new FileOutputStream(rejectReportFile)))
                     : (new OutputStreamWriter(
-                            new FileOutputStream(rejectFile), charset)));
+                            new FileOutputStream(rejectReportFile), charset)));
                     // Replace with just "(new FileOutputStream(file), charset)"
                     // once use defaultCharset from Java 1.5 in charset init.
                     // above.
@@ -4507,8 +4542,6 @@ public class SqlFile {
                 rejectReportWriter.println("<P>Reject DSV file: "
                     + "<SPAN style='font-weight:bold; font-style:courier;'>"
                         + rejectFile.getPath() + "</SPAN></P>");
-            }
-            if (rejectWriter != null) {
                 rejectReportWriter.println(
                         "<P>The corresponding records in '" + rejectFile
                         + "' are at line numbers of (reject # + 1), since the "
@@ -4523,7 +4556,7 @@ public class SqlFile {
             rejectReportWriter.println("<TBODY>");
         } catch (IOException ioe) {
             throw new SqlToolError("Failed to set up reject report file '"
-                    + tmp + "'", ioe);
+                    + dsvRejectReport + "'", ioe);
         }
 
         int recCount = 0;
@@ -4756,9 +4789,15 @@ public class SqlFile {
                         + (importAborted ? " before aborting." : ".");
                 stdprintln(summaryString);
             }
-            if (recCount > rejectCount) {
-                stdprintln("(Unless you have Autocommit on, insertions will be "
-                    + "lost if you don't commit).");
+            try {
+                if (recCount > rejectCount && !curConn.getAutoCommit()) {
+                    stdprintln("Insertions will be lost if you don't commit.");
+                }
+            } catch (SQLException se) {
+                stdprintln("Failed to obtain connection autocommit value.");
+                stdprintln("Insertions will be lost if you don't commit.");
+                // No reason to throw here.  If use attempts to use the
+                // connection for anything significant, we will throw then.
             }
             if (rejectWriter != null) {
                 rejectWriter.flush();
@@ -4781,11 +4820,12 @@ public class SqlFile {
                 }
             }
             if (rejectCount == 0) {
-                if (rejectFile != null && !rejectFile.delete())
+                if (rejectFile != null && rejectFile.exists()
+                        && !rejectFile.delete())
                     errprintln("Failed to purge unnecessary reject file '"
                             + rejectFile + "'");
                 if (rejectReportFile != null && !rejectReportFile.delete())
-                    errprintln("Failed to purge unnecessary reject file '"
+                    errprintln("Failed to purge unnecessary reject report '"
                             + rejectReportFile + "'");
                 // These are trivial, non-fatal errors.
             }
