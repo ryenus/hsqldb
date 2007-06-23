@@ -1800,8 +1800,7 @@ public class SqlFile {
 
             varName = s.substring(b + (permitUnset ? 3 : 2), e);
 
-            varValue = (varName.equals("?") ? lastVal
-                        : (String) userVars.get(varName));
+            varValue = (String) userVars.get(varName);
             if (varValue == null) {
                 if (permitUnset) {
                     varValue = "";
@@ -1821,7 +1820,6 @@ public class SqlFile {
 
     //  PL variable name currently awaiting query output.
     private String  fetchingVar = null;
-    private String  lastVal = null;
     private boolean silentFetch = false;
     private boolean fetchBinary = false;
 
@@ -1919,7 +1917,7 @@ public class SqlFile {
                 for (int i = 1; i < tokens.length; i++) {
                     s = (String) (sysProps ? System.getProperties() : userVars).
                             get(tokens[i]);
-
+                    if (s == null) continue;
                     stdprintln("    " + tokens[i] + ": "
                                + (doValues ? ("(" + s + ')')
                                            : Integer.toString(s.length())));
@@ -3152,9 +3150,9 @@ public class SqlFile {
                             }
                         }
 
-                        lastVal = (val == null) ? nullRepToken : val;
+                        userVars.put("?", ((val == null) ? nullRepToken : val));
                         if (fetchingVar != null) {
-                            userVars.put(fetchingVar, lastVal);
+                            userVars.put(fetchingVar, userVars.get("?"));
                             updateUserSettings();
 
                             fetchingVar = null;
@@ -3306,9 +3304,9 @@ public class SqlFile {
                 break;
 
             default :
-                lastVal = Integer.toString(updateCount);
+                userVars.put("?", Integer.toString(updateCount));
                 if (fetchingVar != null) {
-                    userVars.put(fetchingVar, lastVal);
+                    userVars.put(fetchingVar, userVars.get("?"));
                     updateUserSettings();
                     fetchingVar = null;
                 }
@@ -3638,8 +3636,7 @@ public class SqlFile {
             inToken = inTokens[i + (negate ? 1 : 0)];
             if (inToken.length() > 1 && inToken.charAt(0) == '*') {
                 varName = inToken.substring(1);
-                tokens[i] = varName.equals("?") ? lastVal
-                          : (String) userVars.get(inToken.substring(1));
+                tokens[i] = (String) userVars.get(inToken.substring(1));
             } else {
                 tokens[i] = inTokens[i + (negate ? 1 : 0)];
             }
