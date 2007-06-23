@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+    <TITLE>SqlTool DSV Reject Report</TITLE>
+    <STYLE>
+        th { background-color:aqua; }
+        .right { text-align:right; }
+        .reason { font-size:95%; font-weight:bold;}
+        .bold { font-weight:bold; }
+        .red { color:red; }
+        .center { text-align:center; }
+        body { background:silver; }
+        span.headingval { font-weight:bold; font-style:courier; }
+        table { background-color:white; }
+        tr.oddrow { background-color:#EEEEEE; }
+        tr.evenrow { background-color:#EEFFFF; }
+        tr.sumrow {border:3px solid blue; color:blue; font-weight:bold; }
+    </STYLE>
+</HEAD>
+<BODY>
+
+<P>
+    Import performed at <SPAN class='bold'>%{1}</SPAN>
+</P>
+<P>
+    Input DSV file: <SPAN class='headingval'>%{2}</SPAN>
+</P>
+<P>
+    Reject DSV file: <SPAN class='headingval'>%{3}</SPAN>
+</P>
+<!-- Conditionally commented inside this block.  %{4}
+    <P>
+        The corresponding records in '%{3}'
+        are at line numbers of (reject # + 1), since the
+        header record occupies the first line.
+    </P>
+%{5} -->
+
+<TABLE border='1px' cellpadding='5px'>
+    <THEAD><TR>
+        <TH>rej.&nbsp;#</TH>
+        <TH>input<BR/>line&nbsp;#</TH>
+        <TH>bad&nbsp;column<BR/>(if&nbsp;known)</TH>
+        <TH class='red'>reason</TH>
+    </TR></THEAD>
+    <TBODY>

@@ -123,6 +123,9 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int RAW_LEADIN = keyCounter++;
     static public final int ERRORAT = keyCounter++;
     static public final int ERRORAT_WITHECHO = keyCounter++;
+    static public final int REJECTREPORT_TOP = keyCounter++;
+    static public final int REJECTREPORT_ROW = keyCounter++;
+    static public final int REJECTREPORT_BOTTOM = keyCounter++;
 
     static public final int SQLFILE_NOREAD = keyCounter++;
     static public final int RAWMODE_PROMPT = keyCounter++;
@@ -211,6 +214,9 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(RAW_LEADIN), "raw.leadin",
         new Integer(ERRORAT), "errorat",
         new Integer(ERRORAT_WITHECHO), "errorat.withecho",
+        new Integer(REJECTREPORT_TOP), "rejectreport.top",
+        new Integer(REJECTREPORT_ROW), "rejectreport.row",
+        new Integer(REJECTREPORT_BOTTOM), "rejectreport.bottom",
 
         // SqlFile inline properties:
         new Integer(SQLFILE_NOREAD), "sqlfile.noread",
