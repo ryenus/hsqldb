@@ -1,6 +1,8 @@
-        <TR class='sumrow'><TD colspan='4'>%{1}</TD></TR>
+        <TR><TD class='sumcell' colspan='4'>%{1}</TD></TR>
     </TBODY>
 </TABLE>
+
+<DIV class='footnote'>SqlFile revision %{2}.</DIV>
 
 </BODY>
 </HTML>

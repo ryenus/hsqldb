@@ -6,7 +6,7 @@ targettable=t
 42 | 1.5 |  2007-07-08  |  2006-05-07 10:20  |  a string  | false
 
 # Letter in int field:
-a | 1.5 |  2007-07-08  |  2006-05-07 10:20  |  a string  | false
+5 | a |  2007-07-08  |  2006-05-07 10:20  |  a string  | false
 
 # No seconds in time field
 42 | 1.5 |  2007-07-08  |  2006-05-07 10:20  |  a string  | false
