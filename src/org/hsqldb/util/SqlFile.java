@@ -4767,7 +4767,8 @@ public class SqlFile {
             if (rejectReportWriter != null && rejectCount > 0) {
                 rejectReportWriter.println(rb.getString(
                         SqltoolRB.REJECTREPORT_BOTTOM, new String[] {
-                            summaryString
+                            summaryString,
+                            revnum,
                         }));
                 rejectReportWriter.flush();
                 rejectReportWriter.close();

@@ -2,7 +2,7 @@
 <HEAD>
     <TITLE>SqlTool DSV Reject Report</TITLE>
     <STYLE>
-        th { background-color:aqua; }
+        th { background-color:DDEEEE; }
         .right { text-align:right; }
         .reason { font-size:95%; font-weight:bold;}
         .bold { font-weight:bold; }
@@ -13,13 +13,14 @@
         table { background-color:white; }
         tr.oddrow { background-color:#EEEEEE; }
         tr.evenrow { background-color:#EEFFFF; }
-        tr.sumrow {border:3px solid blue; color:blue; font-weight:bold; }
+        td.sumcell { border:3px solid #006363; font-weight:bold; }
+        div.footnote { margin:10px; font-size:90%;}
     </STYLE>
 </HEAD>
 <BODY>
 
 <P>
-    Import performed <SPAN class='bold'>%{1}</SPAN> using SqlTool.
+    Import performed <SPAN class='bold'>%{1}</SPAN> with SqlTool.
 </P>
 <P>
     Input DSV file: <SPAN class='headingval'>%{2}</SPAN>
