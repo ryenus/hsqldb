@@ -113,6 +113,12 @@ import java.util.regex.PatternSyntaxException;
  * on "buffer", and expect it to contain the method specific prefix
  * (if any).
  *
+ * Reject reports purposefully do not allow for external files (CSS,
+ * JS, etc.), even for customization, nor does a reject report have a
+ * HREF link to the associated DSV reject file.  This is to make the
+ * reject report completely standalone so it may be copied or emailed
+ * without concern about breaking anything.
+ *
  * @version $Revision$
  * @author Blaine Simpson unsaved@users
  */
@@ -306,10 +312,7 @@ public class SqlFile {
         RAW_LEADIN_MSG = rb.getString(SqltoolRB.RAW_LEADIN);
         DSV_X_SYNTAX_MSG = rb.getString(SqltoolRB.DSV_X_SYNTAX);
         DSV_M_SYNTAX_MSG = rb.getString(SqltoolRB.DSV_M_SYNTAX);
-        causeString = rb.getString(SqltoolRB.CAUSE);
-        executingString = rb.getString(SqltoolRB.EXECUTING);
         nobufferYetString = rb.getString(SqltoolRB.NOBUFFER_YET);
-        bufferCurrentString = rb.getString(SqltoolRB.BUFFER_CURRENT);
 
         file        = inFile;
         interactive = inInteractive;
@@ -650,7 +653,9 @@ public class SqlFile {
                     ));
                     Throwable cause = bs.getCause();
                     if (cause != null) {
-                        errprintln(causeString + ": " + cause);
+                        errprintln(rb.getString(SqltoolRB.CAUSEREPORT,
+                                new String[] {cause.toString()}));
+
                     }
 
                     if (!continueOnError) {
@@ -733,7 +738,8 @@ public class SqlFile {
                     if (ste.getMessage() != null) errprintln("");
                     Throwable cause = ste.getCause();
                     if (cause != null) {
-                        errprintln(causeString + ": " + cause);
+                        errprintln(rb.getString(SqltoolRB.CAUSEREPORT,
+                                new String[] {cause.toString()}));
                     }
                     if (!continueOnError) {
                         throw ste;
@@ -765,8 +771,8 @@ public class SqlFile {
             rollbackUncoms = (qn.getMessage() != null);
 
             if (rollbackUncoms) {
-                errprintln(rb.getString(SqltoolRB.ABORTING)
-                        + ": " + qn.getMessage());
+                errprintln(rb.getString(SqltoolRB.ABORTING, new String[] {
+                        qn.getMessage()}));
                 throw new SqlToolError(qn.getMessage());
             }
 
@@ -775,8 +781,8 @@ public class SqlFile {
             closeQueryOutputStream();
 
             if (fetchingVar != null) {
-                errprintln(rb.getString(SqltoolRB.PLVAR_SET_INCOMPLETE)
-                        + ":  " + fetchingVar);
+                errprintln(rb.getString(SqltoolRB.PLVAR_SET_INCOMPLETE,
+                        new String[] {fetchingVar}));
                 rollbackUncoms = true;
             }
 
@@ -978,18 +984,17 @@ public class SqlFile {
             case ';' :
                 enforce1charBH(other, ';');
                 if (buffer == null) throw new BadSpecial(
-                        rb.getString(SqltoolRB.NOBUFFER));
+                        rb.getString(SqltoolRB.NOBUFFER_YET));
 
-                stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING) + ':');
-                stdprintln(buffer);
-                stdprintln();
+                stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
+                        new String[] {buffer}));
                 processFromBuffer();
 
                 return;
 
             case 'a' :
                 if (buffer == null) throw new BadSpecial(
-                        rb.getString(SqltoolRB.NOBUFFER));
+                        rb.getString(SqltoolRB.NOBUFFER_YET));
                 immCmdSB.append(buffer);
 
                 if (other != null) {
@@ -1006,9 +1011,8 @@ public class SqlFile {
 
                         setBuf(immCmdSB.toString());
                         immCmdSB.setLength(0);
-                        stdprintln(executingString + ':');
-                        stdprintln(buffer);
-                        stdprintln();
+                        stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
+                                new String[] {buffer}));
                         processFromBuffer();
 
                         return;
@@ -1026,8 +1030,8 @@ public class SqlFile {
                 if (buffer == null) {
                     stdprintln(nobufferYetString);
                 } else {
-                    stdprintln(bufferCurrentString + ':');
-                    stdprintln(buffer);
+                    stdprintln(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
+                            new String[] {buffer}));
                 }
 
                 return;
@@ -1066,13 +1070,52 @@ public class SqlFile {
                 }
 
                 if (executeMode) {
-                    stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING) + ':');
-                    stdprintln(buffer);
-                    stdprintln();
+                    stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
+                            new String[] {buffer}));
                     processFromBuffer();
                 } else {
-                    stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED) + ':');
-                    stdprintln(buffer);
+                    stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED,
+                            new String[] {buffer}));
+                }
+
+                return;
+
+            case 'w' :
+                if (other == null) {
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.DESTFILE_DEMAND));
+                }
+
+                if (buffer == null || buffer.length() == 0) {
+                    throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_EMPTY));
+                }
+
+                PrintWriter pw = null;
+                try {
+                    pw = new PrintWriter((charset == null)
+                            ?  (new OutputStreamWriter(
+                                    new FileOutputStream(other.trim(), true)))
+                            :  (new OutputStreamWriter(
+                                    new FileOutputStream(other.trim(), true),
+                                            charset))
+                            // Appendmode so can append to an SQL script, but
+                            // due to issue discribed immediately below, this
+                            // doesn't quite work any more.
+                    );
+                    // Replace with just "(new FileOutputStream(file), charset)"
+                    // once use defaultCharset from Java 1.5 in charset init.
+                    // above.
+
+                    pw.println(buffer);
+                    // TODO:  Consider whether to append ";" to SQL commands
+                    // to make them normal SQL scripts.  Difficulty with that is
+                    // determining whether the command in buffer is SQL or not.
+                    pw.flush();
+                } catch (Exception e) {
+                    throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
+                            new String[] {other.trim()}), e);
+                } finally {
+                    if (pw != null) pw.close();
                 }
 
                 return;
@@ -1131,24 +1174,17 @@ public class SqlFile {
                     }
 
                     setBuf(newBuffer);
-                    stdprintln((modeExecute ? executingString
-                                            : bufferCurrentString) + ':');
-                    stdprintln(buffer);
-
-                    if (modeExecute) {
-                        stdprintln();
-                    }
+                    stdprintln(rb.getString((modeExecute
+                            ? SqltoolRB.BUFFER_EXECUTING
+                            : SqltoolRB.EDITBUFFER_CONTENTS),
+                                    new String[] {buffer})
+                    );
                 } catch (PatternSyntaxException pse) {
                     throw new BadSpecial(
-                            rb.getString(SqltoolRB.SUBSTITUTION_SYNTAX) + ":  "
-                            + rb.getString(SqltoolRB.SUBSTITUTION_SAMPLE)
-                            + ".  ", pse);
+                            rb.getString(SqltoolRB.SUBSTITUTION_SYNTAX), pse);
                 } catch (BadSubst badswitch) {
-                    throw new BadSpecial(badswitch.getMessage() + LS
-                            + rb.getString(SqltoolRB.SUBSTITUTION_SYNTAX)
-                            + ":  "
-                            + rb.getString(SqltoolRB.SUBSTITUTION_SAMPLE)
-                            + '.');
+                    throw new BadSpecial(
+                            rb.getString(SqltoolRB.SUBSTITUTION_SYNTAX));
                 }
 
                 if (modeExecute) {
@@ -1164,8 +1200,8 @@ public class SqlFile {
                 return;
         }
 
-        throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_UNKNOWN)
-                + ": " + commandChar);
+        throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_UNKNOWN,
+                new String[] { Character.toString(commandChar) }));
     }
 
     private boolean doPrepare   = false;
@@ -1176,10 +1212,7 @@ public class SqlFile {
     private String  dsvSkipCols = null;
     private String  DSV_X_SYNTAX_MSG = null;
     private String  DSV_M_SYNTAX_MSG = null;
-    private String  causeString = null;
     private String  nobufferYetString = null;
-    private String  executingString = null;
-    private String  bufferCurrentString = null;
 
     private void enforce1charSpecial(String token, char command)
             throws BadSpecial {
@@ -1211,8 +1244,9 @@ public class SqlFile {
         Matcher m = specialPattern.matcher(
                 plMode ? dereference(inString, false) : inString);
         if (!m.matches()) {
-            throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_MALFORMAT)
-                    + ":  " + inString);
+            throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_MALFORMAT));
+            // I think it's impossible to get here, since the pattern is
+            // so liberal.
         }
         if (m.groupCount() < 1 || m.groupCount() > 2) {
             // Failed assertion
@@ -1236,7 +1270,8 @@ public class SqlFile {
                 enforce1charSpecial(arg1, 'H');
                 htmlMode = !htmlMode;
 
-                stdprintln(rb.getString(SqltoolRB.HTML_MODE) + ": " + htmlMode);
+                stdprintln(rb.getString(SqltoolRB.HTML_MODE, new String[] {
+                        Boolean.toString(htmlMode)}));
 
                 return;
 
@@ -1438,40 +1473,6 @@ public class SqlFile {
 
                 return;
 
-            case 'w' :
-                enforce1charSpecial(arg1, 'w');
-                if (other == null) {
-                    throw new BadSpecial(rb.getString(
-                            SqltoolRB.DESTFILE_DEMAND));
-                }
-
-                if (buffer == null || buffer.length() == 0) {
-                    throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_EMPTY));
-                }
-
-                PrintWriter pw = null;
-                try {
-                    pw = new PrintWriter((charset == null)
-                            ?  (new OutputStreamWriter(
-                                    new FileOutputStream(other, true)))
-                            :  (new OutputStreamWriter(
-                                    new FileOutputStream(other, true), charset))
-                    );
-                    // Replace with just "(new FileOutputStream(file), charset)"
-                    // once use defaultCharset from Java 1.5 in charset init.
-                    // above.
-
-                    pw.println(buffer + ';');
-                    pw.flush();
-                } catch (Exception e) {
-                    throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
-                            new String[] {other}), e);
-                } finally {
-                    if (pw != null) pw.close();
-                }
-
-                return;
-
             case 'i' :
                 enforce1charSpecial(arg1, 'i');
                 if (other == null) {
@@ -1525,8 +1526,8 @@ public class SqlFile {
                         Boolean.valueOf(other).booleanValue());
                 }
 
-                stdprintln(rb.getString(SqltoolRB.A_SETTING) + ": "
-                           + curConn.getAutoCommit());
+                stdprintln(rb.getString(SqltoolRB.A_SETTING, new String[] {
+                        Boolean.toString(curConn.getAutoCommit())}));
 
                 return;
             case '=' :
@@ -1539,12 +1540,20 @@ public class SqlFile {
 
             case 'b' :
                 if (arg1.length() == 1) {
+                    if (other != null) {
+                        throw new BadSpecial(rb.getString(
+                                SqltoolRB.SPECIAL_B_MALFORMAT));
+                    }
                     fetchBinary = true;
 
                     return;
                 }
 
                 if (arg1.charAt(1) == 'p') {
+                    if (other != null) {
+                        throw new BadSpecial(rb.getString(
+                                SqltoolRB.SPECIAL_B_MALFORMAT));
+                    }
                     doPrepare = true;
 
                     return;
@@ -1586,8 +1595,8 @@ public class SqlFile {
                     continueOnError = Boolean.valueOf(other).booleanValue();
                 }
 
-                stdprintln(rb.getString(SqltoolRB.C_SETTING)
-                        + ": " + continueOnError);
+                stdprintln(rb.getString(SqltoolRB.C_SETTING, new String[] {
+                        Boolean.toString(continueOnError)}));
 
                 return;
 
@@ -1673,8 +1682,8 @@ public class SqlFile {
                 return;
         }
 
-        throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_UNKNOWN)
-                + ": " + arg1.charAt(0));
+        throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_UNKNOWN,
+                new String[] { Character.toString(arg1.charAt(0)) }));
     }
 
     private static final char[] nonVarChars = {
@@ -1852,8 +1861,9 @@ public class SqlFile {
     private void processPL(String inString) throws BadSpecial, SqlToolError {
         Matcher m = plPattern.matcher(dereference(inString, false));
         if (!m.matches()) {
-            throw new BadSpecial(rb.getString(SqltoolRB.PL_MALFORMAT)
-                    + ":  " + inString);
+            throw new BadSpecial(rb.getString(SqltoolRB.PL_MALFORMAT));
+            // I think it's impossible to get here, since the pattern is
+            // so liberal.
         }
         if (m.groupCount() < 1 || m.group(1) == null) {
             plMode = true;
@@ -1940,7 +1950,7 @@ public class SqlFile {
         if (tokens[0].equals("dump") || tokens[0].equals("load")) {
             if (tokens.length != 3) {
                 throw new BadSpecial(rb.getString(
-                        SqltoolRB.DUMPLOAD_MALFORMAT) + ": " + inString);
+                        SqltoolRB.DUMPLOAD_MALFORMAT));
             }
 
             String varName = tokens[1];
@@ -1966,8 +1976,7 @@ public class SqlFile {
 
         if (tokens[0].equals("prepare")) {
             if (tokens.length != 2) {
-                throw new BadSpecial(rb.getString(
-                        SqltoolRB.PREPARE_MALFORMAT) + ": " + inString);
+                throw new BadSpecial(rb.getString(SqltoolRB.PREPARE_MALFORMAT));
             }
 
             if (userVars.get(tokens[1]) == null) {
@@ -1985,8 +1994,7 @@ public class SqlFile {
             Matcher foreachM= foreachPattern.matcher(
                     dereference(inString, false));
             if (!foreachM.matches()) {
-                throw new BadSpecial(rb.getString(
-                        SqltoolRB.FOREACH_MALFORMAT) + ": " + inString);
+                throw new BadSpecial(rb.getString(SqltoolRB.FOREACH_MALFORMAT));
             }
             if (foreachM.groupCount() != 2) {
                 throw new RuntimeException(
@@ -2072,8 +2080,7 @@ public class SqlFile {
             Matcher ifwhileM= ifwhilePattern.matcher(
                     dereference(inString, false));
             if (!ifwhileM.matches()) {
-                throw new BadSpecial(rb.getString(
-                        SqltoolRB.IFWHILE_MALFORMAT) + ": " + inString);
+                throw new BadSpecial(rb.getString(SqltoolRB.IFWHILE_MALFORMAT));
             }
             if (ifwhileM.groupCount() != 1) {
                 throw new RuntimeException(
@@ -2122,7 +2129,7 @@ public class SqlFile {
                     throw bs;
                 } catch (Exception e) {
                     throw new BadSpecial(
-                        rb.getString(SqltoolRB.PL_BLOCK_INSTRFAIL), e);
+                        rb.getString(SqltoolRB.PL_BLOCK_FAIL), e);
                 }
             } else if (tokens[0].equals("while")) {
                 try {
@@ -2166,19 +2173,19 @@ public class SqlFile {
                     bs.appendMessage(rb.getString(SqltoolRB.WHILE_MALFORMAT));
                     throw bs;
                 } catch (Exception e) {
-                    throw new BadSpecial("Failed to execute SQL from PL block",
+                    throw new BadSpecial(rb.getString(SqltoolRB.PL_BLOCK_FAIL),
                             e);
                 }
             } else {
                 // Assertion
-                throw new RuntimeException("Unexpected PL command: "
-                        + tokens[0]);
+                throw new RuntimeException(rb.getString(SqltoolRB.PL_UNKNOWN,
+                        new String[] {tokens[0]}));
             }
 
             if (tmpFile != null &&!tmpFile.delete()) {
-                throw new BadSpecial(
-                    "Error occurred while trying to remove temp file '"
-                    + tmpFile + "'");
+                throw new BadSpecial(rb.getString(
+                        SqltoolRB.TEMPFILE_REMOVAL_FAIL, new String[] {
+                                tmpFile.toString()}));
             }
 
             return;
@@ -2186,8 +2193,8 @@ public class SqlFile {
 
         m = varsetPattern.matcher(dereference(inString, false));
         if (!m.matches()) {
-            throw new BadSpecial("Malformatted PL var set command:  "
-                    + inString);
+            throw new BadSpecial(rb.getString(SqltoolRB.PL_UNKNOWN,
+                    new String[] {tokens[0]}));
         }
         if (m.groupCount() < 2 || m.groupCount() > 3) {
             // Assertion
@@ -2198,7 +2205,7 @@ public class SqlFile {
         String varName  = m.group(1);
 
         if (varName.charAt(0) == ':') {
-            throw new BadSpecial("PL variable names may not begin with ':'");
+            throw new BadSpecial(rb.getString(SqltoolRB.PLVAR_NOCOLON));
         }
 
         switch (m.group(2).charAt(0)) {
@@ -2206,9 +2213,9 @@ public class SqlFile {
                 silentFetch = true;
             case '~' :
                 if (m.groupCount() > 2 && m.group(3) != null) {
-                    throw new BadSpecial(
-                        "PL ~/_ set commands take no other args ("
-                        + m.group(3) + ')');
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.PLVAR_TILDEDASH_NOMOREARGS, new String[] {
+                                m.group(3)}));
                 }
 
                 userVars.remove(varName);
@@ -2233,8 +2240,9 @@ public class SqlFile {
                 return;
         }
 
-        throw new BadSpecial(rb.getString(SqltoolRB.PL_UNKNOWN)
-                + ": " + tokens[0]);
+        throw new BadSpecial(rb.getString(SqltoolRB.PL_UNKNOWN,
+                new String[] {tokens[0]}));
+        // I think this would already be caught in the setvar block above.
     }
 
     /*
@@ -3266,8 +3274,9 @@ public class SqlFile {
                     condlPrintln("</TABLE>", true);
 
                     if (rows.size() != 1) {
-                        stdprintln(LS + rows.size() + ' '
-                                + rb.getString(SqltoolRB.ROW_PLURAL), true);
+                        stdprintln(LS + rb.getString(SqltoolRB.ROWS_FETCHED,
+                                new String[] { Integer.toString(rows.size()) }),
+                        true);
                     }
 
                     condlPrintln("<HR>", true);
@@ -3307,7 +3316,7 @@ public class SqlFile {
                     pwDsv.print(dsvRowDelim);
                 }
 
-                stdprintln(rb.getString(SqltoolRB.ROWSREAD,
+                stdprintln(rb.getString(SqltoolRB.ROWS_FETCHED_DSV,
                         new String[] { Integer.toString(rows.size()) }));
                 break;
 
@@ -3425,8 +3434,8 @@ public class SqlFile {
             }
         }
         if (buffer != null) {
-            psStd.println(rb.getString(SqltoolRB.EDITBUFFER));
-            psStd.println(buffer);
+            psStd.println(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
+                    new String[] { buffer}));
         }
 
         psStd.println();
@@ -4372,7 +4381,9 @@ public class SqlFile {
             if (colEnd - colStart < 1) {
                 throw new SqlToolError(rb.getString(
                             SqltoolRB.DSV_NOCOLHEADER, new String[] {
-                        Integer.toString(headerList.size() + 1)}));
+                        Integer.toString(headerList.size() + 1),
+                        Integer.toString(lineCount)
+                }));
             }
 
             colName = string.substring(colStart, colEnd).trim();
@@ -4385,21 +4396,28 @@ public class SqlFile {
                 : colName);
 
             colStart = colEnd + dsvColDelim.length();
-        }
-        if (ucSkipCols != null && ucSkipCols.size() > 0) {
+        } if (ucSkipCols != null && ucSkipCols.size() > 0) {
             throw new SqlToolError(rb.getString(
                     SqltoolRB.DSV_SKIPCOLS_MISSING, new String[] {
                             ucSkipCols.toString()}));
         }
 
-        if (headerList.size() < 1) {
+        boolean oneCol = false;  // At least 1 non-null column
+        for (int i = 0; i < headerList.size(); i++) {
+            if (headerList.get(i) != null) {
+                oneCol = true;
+                break;
+            }
+        }
+        if (oneCol == false) {
             // Difficult call, but I think in any real-world situation, the
             // user will want to know if they are inserting records with no
             // data from their input file.
-            throw new SqlToolError(rb.getString(SqltoolRB.DSV_NOCOLSLEFT,
-                    new String[] {
-                        ((dsvSkipCols == null) ? ""
-                                 : (dsvSkipCols + " and ")) + "- columns"}));
+            throw new SqlToolError((dsvSkipCols == null)
+                    ? rb.getString(SqltoolRB.DSV_NOCOLSLEFT)
+                    : (rb.getString(SqltoolRB.DSV_NOCOLSLEFT_WSK,
+                            new String[] {dsvSkipCols}))
+            );
         }
 
         if (constColMap != null) {
@@ -4454,6 +4472,11 @@ public class SqlFile {
             if (rsmd.getColumnCount() != autonulls.length) {
                 throw new SqlToolError(rb.getString(
                         SqltoolRB.DSV_METADATA_MISMATCH));
+                // Don't know if it's possible to get here.
+                // If so, it's probably a SqlTool problem, not a user or
+                // data problem.
+                // Should be researched and either return a user-friendly
+                // message or a RuntimeExceptin.
             }
 
             for (int i = 0; i < autonulls.length; i++) {
@@ -4764,7 +4787,7 @@ public class SqlFile {
                     throw new SqlToolError(((currentFieldName == null)
                             ? rb.getString(SqltoolRB.DSV_RECIN_FAIL,
                                     new String[] {Integer.toString(lineCount)})
-                            : rb.getString(SqltoolRB.DSV_RECIN_FAIL,
+                            : rb.getString(SqltoolRB.DSV_RECIN_FAIL_WCOL,
                                     new String[] {
                                             Integer.toString(lineCount),
                                             currentFieldName,

@@ -1,12 +1,13 @@
 Edit Buffer and History Commands.  Not available for non-interactive use.
-    :?                edit buffer / history Help
-    :h                show History of previous commands (plus buffer contents)
-    :b                list current contents of edit Buffer
-    :X[;]             reload command #X to buffer (can then edit or ":;")
+    :?                Edit buffer / history Help
+    :h                Show History of previous commands (plus buffer contents)
+    :b                List current contents of edit Buffer
+    :X[;]             Reload command #X to buffer (can then edit or ":;")
        (integer X)    where X of 13 means command #13 from history;
                             X of -13 means 13th command back;
                             ';' suffix means to execute the command too.
     :;                Execute current buffer (special, PL, or SQL command)
+    :w file/path.sql  Append current buffer to file
     :a[text]          Enter append mode with a copy of the buffer
     :s/from regex/to/ Substitute match of "from regex" with "to"
     :s/from/to/[igm;] One or multiple Substitutions with specified options

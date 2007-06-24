@@ -5,7 +5,7 @@ Optionen:
     --noInput                Lehrt stdin nicht (Standardeinstelling wenn
                              Sql Datei gegeben order --sql Schalter benutzt).
     --stdInput               Liest stdin ZUSÄTZLICH zu sql files/--sql input
-    --inlineRc URL=val1,USER=val2[,DRIVER=val3][,CHARSET=val4][,TRUST=val5]
+    --inlineRc url=val1,user=val2[,charset=val3][,truststore=val4]
                              Inline RC Datei Variable
     --debug                  Zeigt Debug Info zu stderr
     --noAutoFile             Ausführt auto.sql vom Home Directory nicht.
@@ -18,7 +18,7 @@ Optionen:
     --abortOnErr             Abbruch wenn Fehler (aufhebt Standardeinstellungen)
     --continueOnErr          Continue wenn Fehler (aufhebt Standardeinstellung)
     --setVar NAME1=val1[,NAME2=val2...]   PL Variable
-    --driver a.b.c.Driver    JDBC Trieber Class [%{1}]
+    --driver a.b.c.Driver    JDBC Trieber Class [%{2}]
     urlid                    ID von url/Benutzername/Losungswort in RC Datei
     file1.sql...             SQL Dateien auszuführen  [stdin]
                              (Benutz '-' für non-interactively stdin!).

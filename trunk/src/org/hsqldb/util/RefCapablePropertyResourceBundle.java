@@ -114,9 +114,10 @@ import java.io.UnsupportedEncodingException;
  * insufficient parameters passed to getString(String, String[]), set the
  * behavior values appropriately.
  *
- * Just like all Properties files, referenced files must use ISO-8859-1 
- * encoding, with unicode escapes for characters outside of ISO-8859-1 
- * character set.
+ * Just like all Properties files, referenced files must use ISO-8859-1
+ * encoding, with unicode escapes for characters outside of ISO-8859-1
+ * character set.  But, unlike Properties files, \ does not need to be
+ * escaped for normal usage.
  *
  * @see java.util.PropertyResourceBundle
  * @see java.util.ResourceBundle
@@ -191,7 +192,7 @@ public class RefCapablePropertyResourceBundle {
     }
 
     /**
-     * Replaces positional substitution patterns of the form %{\d} with 
+     * Replaces positional substitution patterns of the form %{\d} with
      * corresponding element of the given subs array.
      * Note that %{\d} numbers are 1-based, so we lok for subs[x-1].
      */
