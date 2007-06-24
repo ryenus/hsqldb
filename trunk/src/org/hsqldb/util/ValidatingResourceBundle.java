@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Collection;
 
 /**
  * Purpose of this class is to wrap a RefCapablePropertyResourceBundle to
@@ -149,6 +151,14 @@ abstract public class ValidatingResourceBundle {
         if (validated) return;
         validated = true;
         Set allIdStrings = new HashSet(getKeyIdToString().values());
+        if (allIdStrings.size() < getKeyIdToString().values().size()) {
+            Collection c = getKeyIdToString().values();
+            Iterator it = allIdStrings.iterator();
+            while (it.hasNext()) c.remove(it.next());
+            throw new RuntimeException(
+                    "Duplicate property key(s) string in keyIdToString map: "
+                            + c);
+        }
         Enumeration allKeys = wrappedRCPRB.getKeys();
         while (allKeys.hasMoreElements()) {
             // We can't test positional parameters, but we can verify that
