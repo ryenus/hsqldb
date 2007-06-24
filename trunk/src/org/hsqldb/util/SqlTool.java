@@ -419,7 +419,7 @@ public class SqlTool {
                     }
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
-                            rb.getString(SqltoolRB.SQLTEMPFILE_FAILURE)
+                            rb.getString(SqltoolRB.SQLTEMPFILE_FAIL)
                             + ":  " + ioe);
                 }
             }
@@ -503,7 +503,7 @@ public class SqlTool {
                                      rcTruststore);
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.RCDATA_GENFROMVALUES_FAILURE) + ": "
+                        SqltoolRB.RCDATA_GENFROMVALUES_FAIL) + ": "
                         + e.getMessage());
             }
         } else {
@@ -513,7 +513,7 @@ public class SqlTool {
                                               : rcFile), targetDb);
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.CONNDATA_RETRIEVAL_FAILURE,
+                        SqltoolRB.CONNDATA_RETRIEVAL_FAIL,
                         new String[] { targetDb }) + ": " + e.getMessage());
             }
         }
@@ -547,7 +547,7 @@ public class SqlTool {
 
             // Let's not continue as if nothing is wrong.
             throw new SqlToolException(CONNECTERR_EXITVAL,
-                    rb.getString(SqltoolRB.CONNECTION_FAILURE,
+                    rb.getString(SqltoolRB.CONNECTION_FAIL,
                             new String[] { conData.url, conData.username })
                             + ":  " + e.getMessage());
         }
@@ -650,7 +650,7 @@ public class SqlTool {
         // info to keep around if the program aborts.
         if (tmpFile != null && !tmpFile.delete()) {
             System.err.println(conData.url + rb.getString(
-                    SqltoolRB.TEMPFILE_REMOVAL_FAILURE,
+                    SqltoolRB.TEMPFILE_REMOVAL_FAIL,
                     new String[] {tmpFile.toString()}));
         }
     }
