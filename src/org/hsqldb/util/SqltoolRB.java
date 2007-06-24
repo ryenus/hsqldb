@@ -106,8 +106,9 @@ public class SqltoolRB extends ValidatingResourceBundle {
             keyCounter++;
     static public final int SQLTEMPFILE_FAIL = keyCounter++;
     static public final int RCDATA_INLINEURL_MISSING = keyCounter++;
+    static public final int RCDATA_INLINE_EXTRAVARS = keyCounter++;
     static public final int RCDATA_INLINEUSERNAME_MISSING = keyCounter++;
-    static public final int PASSWORD_BAD = keyCounter++;
+    static public final int PASSWORD_READFAIL = keyCounter++;
     static public final int CONNECTION_FAIL = keyCounter++;
     static public final int RCDATA_GENFROMVALUES_FAIL = keyCounter++;
     static public final int CONNDATA_RETRIEVAL_FAIL = keyCounter++;
@@ -132,7 +133,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int RAW_MOVEDTOBUFFER = keyCounter++;
     static public final int INPUT_MOVEDTOBUFFER = keyCounter++;
     static public final int SQLSTATEMENT_EMPTY = keyCounter++;
-    static public final int CAUSE = keyCounter++;
+    static public final int CAUSEREPORT = keyCounter++;
     static public final int BREAK_UNSATISFIED = keyCounter++;
     static public final int CONTINUE_UNSATISFIED = keyCounter++;
     static public final int CONTINUE_UNSATISFIED_TYPED = keyCounter++;
@@ -143,15 +144,12 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int INPUTREADER_CLOSEFAIL = keyCounter++;
     static public final int ROLLINGBACK = keyCounter++;
     static public final int SPECIAL_UNSPECIFIED = keyCounter++;
-    static public final int NOBUFFER = keyCounter++;
     static public final int BUFFER_EXECUTING = keyCounter++;
     static public final int EXECUTING = keyCounter++;
     static public final int NOBUFFER_YET = keyCounter++;
-    static public final int BUFFER_CURRENT = keyCounter++;
     static public final int COMMANDNUM_MALFORMAT = keyCounter++;
     static public final int BUFFER_RESTORED = keyCounter++;
     static public final int SUBSTITUTION_MALFORMAT = keyCounter++;
-    static public final int SUBSTITUTION_SAMPLE = keyCounter++;
     static public final int SUBSTITUTION_NOMATCH = keyCounter++;
     static public final int SUBSTITUTION_SYNTAX = keyCounter++;
     static public final int BUFFER_UNKNOWN = keyCounter++;
@@ -184,6 +182,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int DSV_X_SYNTAX = keyCounter++;
     static public final int RAW_EMPTY = keyCounter++;
     static public final int DSV_NOCOLSLEFT = keyCounter++;
+    static public final int DSV_NOCOLSLEFT_WSK = keyCounter++;
     static public final int DSV_SKIPCOLS_MISSING = keyCounter++;
     static public final int PLALIAS_MALFORMAT = keyCounter++;
     static public final int PLVAR_UNDEFINED = keyCounter++;
@@ -202,6 +201,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int PL_LIST_LENGTHS = keyCounter++;
     static public final int DUMPLOAD_MALFORMAT = keyCounter++;
     static public final int PLVAR_NOCOLON = keyCounter++;
+    static public final int PLVAR_TILDEDASH_NOMOREARGS = keyCounter++;
     static public final int DUMPLOAD_FAIL = keyCounter++;
     static public final int PREPARE_MALFORMAT = keyCounter++;
     static public final int FOREACH_MALFORMAT = keyCounter++;
@@ -226,13 +226,13 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int NORESULT = keyCounter++;
     static public final int DSV_BINCOL = keyCounter++;
     static public final int BINBUF_WRITE = keyCounter++;
-    static public final int ROW_PLURAL = keyCounter++;
-    static public final int ROWSREAD = keyCounter++;
+    static public final int ROWS_FETCHED = keyCounter++;
+    static public final int ROWS_FETCHED_DSV = keyCounter++;
     static public final int ROW_UPDATE_SINGULAR = keyCounter++;
     static public final int ROW_UPDATE_MULTIPLE = keyCounter++;
     static public final int HISTORY_UNAVAILABLE = keyCounter++;
     static public final int HISTORY_NONE = keyCounter++;
-    static public final int EDITBUFFER = keyCounter++;
+    static public final int EDITBUFFER_CONTENTS = keyCounter++;
     static public final int BUFFER_INSTRUCTIONS = keyCounter++;
     static public final int HISTORY_NUMBER_REQ = keyCounter++;
     static public final int HISTORY_BACKTO = keyCounter++;
@@ -270,13 +270,13 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int BOOLEAN_BAD = keyCounter++;
     static public final int INPUTREC_MODIFIED = keyCounter++;
     static public final int DSV_RECIN_FAIL = keyCounter++;
+    static public final int DSV_RECIN_FAIL_WCOL = keyCounter++;
     static public final int DSV_IMPORT_SUMMARY = keyCounter++;
     static public final int DSV_IMPORT_SUMMARY_WABORT = keyCounter++;
     static public final int INSERTIONS_NOTCOMMITTED = keyCounter++;
     static public final int AUTOCOMMIT_FETCHFAIL = keyCounter++;
     static public final int DSV_REJECTFILE_PURGEFAIL = keyCounter++;
     static public final int DSV_REJECTREPORT_PURGEFAIL = keyCounter++;
-    static public final int PL_BLOCK_INSTRFAIL = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         // SqlTool class, file references:
@@ -288,9 +288,10 @@ public class SqltoolRB extends ValidatingResourceBundle {
                 "SqlTool.abort_continue.mutuallyexclusive",
         new Integer(SQLTEMPFILE_FAIL), "sqltempfile.fail",
         new Integer(RCDATA_INLINEURL_MISSING), "rcdata.inlineurl.missing",
+        new Integer(RCDATA_INLINE_EXTRAVARS), "rcdata.inline.extravars",
         new Integer(RCDATA_INLINEUSERNAME_MISSING),
                 "rcdata.inlineusername.missing",
-        new Integer(PASSWORD_BAD), "password.bad",
+        new Integer(PASSWORD_READFAIL), "password.readfail",
         new Integer(CONNECTION_FAIL), "connection.fail",
         new Integer(RCDATA_GENFROMVALUES_FAIL),
                 "rcdata.genfromvalues.fail",
@@ -318,7 +319,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(RAW_MOVEDTOBUFFER), "raw.movedtobuffer",
         new Integer(INPUT_MOVEDTOBUFFER), "input.movedtobuffer",
         new Integer(SQLSTATEMENT_EMPTY), "sqlstatement.empty",
-        new Integer(CAUSE), "cause",
+        new Integer(CAUSEREPORT), "causereport",
         new Integer(BREAK_UNSATISFIED), "break.unsatisfied",
         new Integer(CONTINUE_UNSATISFIED), "continue.unsatisfied",
         new Integer(CONTINUE_UNSATISFIED_TYPED), "continue.unsatisfied.typed",
@@ -329,15 +330,12 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(INPUTREADER_CLOSEFAIL), "inputreader.closefail",
         new Integer(ROLLINGBACK), "rollingback",
         new Integer(SPECIAL_UNSPECIFIED), "special.unspecified",
-        new Integer(NOBUFFER), "nobuffer",
         new Integer(BUFFER_EXECUTING), "buffer.executing",
         new Integer(EXECUTING), "executing",
         new Integer(NOBUFFER_YET), "nobuffer.yet",
-        new Integer(BUFFER_CURRENT), "buffer.current",
         new Integer(COMMANDNUM_MALFORMAT), "commandnum.malformat",
         new Integer(BUFFER_RESTORED), "buffer.restored",
         new Integer(SUBSTITUTION_MALFORMAT), "substitution.malformat",
-        new Integer(SUBSTITUTION_SAMPLE), "substitution.sample",
         new Integer(SUBSTITUTION_NOMATCH), "substitution.nomatch",
         new Integer(SUBSTITUTION_SYNTAX), "substitution.syntax",
         new Integer(BUFFER_UNKNOWN), "buffer.unknown",
@@ -370,6 +368,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(DSV_X_SYNTAX), "dsv.x.syntax",
         new Integer(RAW_EMPTY), "raw.empty",
         new Integer(DSV_NOCOLSLEFT), "dsv.nocolsleft",
+        new Integer(DSV_NOCOLSLEFT_WSK), "dsv.nocolsleft.wsk",
         new Integer(DSV_SKIPCOLS_MISSING), "dsv.skipcols.missing",
         new Integer(PLALIAS_MALFORMAT), "plalias.malformat",
         new Integer(PLVAR_UNDEFINED), "plvar.undefined",
@@ -388,6 +387,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(PL_LIST_LENGTHS), "pl.list.lengths",
         new Integer(DUMPLOAD_MALFORMAT), "dumpload.malformat",
         new Integer(PLVAR_NOCOLON), "plvar.nocolon",
+        new Integer(PLVAR_TILDEDASH_NOMOREARGS), "plvar.tildedash.nomoreargs",
         new Integer(DUMPLOAD_FAIL), "dumpload.fail",
         new Integer(PREPARE_MALFORMAT), "prepare.malformat",
         new Integer(FOREACH_MALFORMAT), "foreach.malformat",
@@ -412,13 +412,13 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(NORESULT), "noresult",
         new Integer(DSV_BINCOL), "dsv.bincol",
         new Integer(BINBUF_WRITE), "binbuf.write",
-        new Integer(ROW_PLURAL), "row.plural",
-        new Integer(ROWSREAD), "rowsread",
+        new Integer(ROWS_FETCHED), "rows.fetched",
+        new Integer(ROWS_FETCHED_DSV), "rows.fetched.dsv",
         new Integer(ROW_UPDATE_SINGULAR), "row.update.singular",
         new Integer(ROW_UPDATE_MULTIPLE), "row.update.multiple",
         new Integer(HISTORY_UNAVAILABLE), "history.unavailable",
         new Integer(HISTORY_NONE), "history.none",
-        new Integer(EDITBUFFER), "editbuffer",
+        new Integer(EDITBUFFER_CONTENTS), "editbuffer.contents",
         new Integer(BUFFER_INSTRUCTIONS), "buffer.instructions",
         new Integer(HISTORY_NUMBER_REQ), "history.number.req",
         new Integer(HISTORY_BACKTO), "history.backto",
@@ -456,13 +456,13 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(BOOLEAN_BAD), "boolean.bad",
         new Integer(INPUTREC_MODIFIED), "inputrec.modified",
         new Integer(DSV_RECIN_FAIL), "dsv.recin.fail",
+        new Integer(DSV_RECIN_FAIL_WCOL), "dsv.recin.fail.wcol",
         new Integer(DSV_IMPORT_SUMMARY), "dsv.import.summary",
         new Integer(DSV_IMPORT_SUMMARY_WABORT), "dsv.import.summary.wabort",
         new Integer(INSERTIONS_NOTCOMMITTED), "insertions.notcommitted",
         new Integer(AUTOCOMMIT_FETCHFAIL), "autocommit.fetchfail",
         new Integer(DSV_REJECTFILE_PURGEFAIL), "dsv.rejectfile.purgefail",
         new Integer(DSV_REJECTREPORT_PURGEFAIL), "dsv.rejectreport.purgefail",
-        new Integer(PL_BLOCK_INSTRFAIL), "pl.block.instrfail",
     };
 
     private Map keyIdToString = new HashMap();

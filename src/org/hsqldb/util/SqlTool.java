@@ -191,7 +191,7 @@ public class SqlTool {
      * <code>Map</code> object.
      *
      * @param varString The string to parse
-     * @param varMap The map to save the pared values into
+     * @param varMap The map to save the paired values into
      * @param lowerCaseKeys Set to <code>true</code> if the map keys should be
      *        converted to lower case
      */
@@ -205,7 +205,8 @@ public class SqlTool {
         String[]  allvars;
 
         if ((varMap == null) || (varString == null)) {
-            return;
+            throw new IllegalArgumentException(
+                    "varMap or varString are null in SqlTool.varParser call");
         }
 
         allvars = varString.split("\\s*,\\s*");
@@ -419,8 +420,8 @@ public class SqlTool {
                     }
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
-                            rb.getString(SqltoolRB.SQLTEMPFILE_FAIL)
-                            + ":  " + ioe);
+                            rb.getString(SqltoolRB.SQLTEMPFILE_FAIL,
+                                    new String[] {ioe.toString()}));
                 }
             }
 
@@ -476,11 +477,10 @@ public class SqlTool {
                 throw new SqlToolException(SYNTAXERR_EXITVAL, e.getMessage());
             }
 
-            rcUrl        = (String) rcFields.get("url");
-            rcUsername   = (String) rcFields.get("user");
-            rcDriver     = (String) rcFields.get("driver");
-            rcCharset    = (String) rcFields.get("charset");
-            rcTruststore = (String) rcFields.get("truststore");
+            rcUrl        = (String) rcFields.remove("url");
+            rcUsername   = (String) rcFields.remove("user");
+            rcCharset    = (String) rcFields.remove("charset");
+            rcTruststore = (String) rcFields.remove("truststore");
 
             // Don't ask for password if what we have already is invalid!
             if (rcUrl == null || rcUrl.length() < 1)
@@ -489,22 +489,27 @@ public class SqlTool {
             if (rcUsername == null || rcUsername.length() < 1)
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_INLINEUSERNAME_MISSING));
+            if (rcFields.size() > 0) {
+                throw new SqlToolException(INPUTERR_EXITVAL,
+                        rb.getString(SqltoolRB.RCDATA_INLINE_EXTRAVARS,
+                            new String[] { rcFields.keySet().toString()}));
+            }
 
             try {
                 rcPassword   = promptForPassword(rcUsername);
             } catch (PrivateException e) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
-                        rb.getString(SqltoolRB.PASSWORD_BAD)
-                        + ": " +  e.getMessage());
+                        rb.getString(SqltoolRB.PASSWORD_READFAIL, new String[] {
+                            e.getMessage()}));
             }
             try {
                 conData = new RCData(CMDLINE_ID, rcUrl, rcUsername,
-                                     rcPassword, rcDriver, rcCharset,
+                                     rcPassword, driver, rcCharset,
                                      rcTruststore);
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.RCDATA_GENFROMVALUES_FAIL) + ": "
-                        + e.getMessage());
+                        SqltoolRB.RCDATA_GENFROMVALUES_FAIL, new String[] {
+                            e.getMessage()}));
             }
         } else {
             try {
@@ -514,7 +519,7 @@ public class SqlTool {
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.CONNDATA_RETRIEVAL_FAIL,
-                        new String[] { targetDb }) + ": " + e.getMessage());
+                                new String[] { targetDb, e.getMessage() }));
             }
         }
 
@@ -548,8 +553,9 @@ public class SqlTool {
             // Let's not continue as if nothing is wrong.
             throw new SqlToolException(CONNECTERR_EXITVAL,
                     rb.getString(SqltoolRB.CONNECTION_FAIL,
-                            new String[] { conData.url, conData.username })
-                            + ":  " + e.getMessage());
+                            new String[] {
+                                conData.url, conData.username, e.getMessage()
+                            }));
         }
 
         File[] emptyFileArray      = {};

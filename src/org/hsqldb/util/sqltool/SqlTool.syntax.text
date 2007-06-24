@@ -5,8 +5,8 @@ Options:
     --noInput                Do not read stdin (default if sql file given
                              or --sql switch used).
     --stdInput               Read stdin IN ADDITION to sql files/--sql input
-    --inlineRc URL=val1,USER=val2[,DRIVER=val3][,CHARSET=val4][,TRUST=val5]
-                             Inline RC file variables
+    --inlineRc url=val1,user=val2[,charset=val3][,truststore=val4]
+                             Inline RC file variables (use --driver for driver)
     --debug                  Print Debug info to stderr
     --noAutoFile             Do not execute auto.sql from home dir
     --autoCommit             Auto-commit JDBC DML commands
@@ -17,7 +17,7 @@ Options:
     --abortOnErr             Abort on Error (overrides defaults)
     --continueOnErr          Continue on Error (overrides defaults)
     --setVar NAME1=val1[,NAME2=val2...]   PL variables
-    --driver a.b.c.Driver    JDBC driver class [%{1}]
+    --driver a.b.c.Driver    JDBC driver class [%{2}]
     urlid                    ID of url/username/password in rcfile
     file1.sql...             SQL files to be executed [stdin]
                              (Use '-' for non-interactively stdin).
