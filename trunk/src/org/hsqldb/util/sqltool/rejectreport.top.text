@@ -6,7 +6,7 @@
         .right { text-align:right; }
         .reason { font-size:95%; font-weight:bold;}
         .bold { font-weight:bold; }
-        .red { color:red; }
+        .reasonhead { color:red; }
         .center { text-align:center; }
         body { background:silver; }
         span.headingval { font-weight:bold; font-style:courier; }
@@ -16,11 +16,12 @@
         td.sumcell { border:3px solid #006363; font-weight:bold; }
         div.footnote { margin:10px; font-size:90%;}
     </STYLE>
+    <LINK rel='stylesheet' href='reject_custom.css' type='text/css'>
 </HEAD>
 <BODY>
 
 <P>
-    Import performed <SPAN class='bold'>%{1}</SPAN> with SqlTool.
+    Import performed <SPAN class='headingval'>%{1}</SPAN> with SqlTool.
 </P>
 <P>
     Input DSV file: <SPAN class='headingval'>%{2}</SPAN>
@@ -28,19 +29,19 @@
 <P>
     Reject DSV file: <SPAN class='headingval'>%{3}</SPAN>
 </P>
-<!-- Conditionally commented inside this block.  %{4}
-    <P>
-        The corresponding records in '%{3}'
-        are at line numbers of (reject # + 1), since the
-        header record occupies the first line.
-    </P>
-%{5} -->
+%{4:+
+<P>
+    The corresponding records in '%4'
+    are at line numbers of (reject # + 1), since the
+    header record occupies the first line.
+</P>
+}
 
 <TABLE border='1px' cellpadding='5px'>
     <THEAD><TR>
         <TH>rej.&nbsp;#</TH>
         <TH>input<BR/>line&nbsp;#</TH>
         <TH>bad&nbsp;column<BR/>(if&nbsp;known)</TH>
-        <TH class='red'>reason</TH>
+        <TH class='reasonhead'>reason</TH>
     </TR></THEAD>
     <TBODY>

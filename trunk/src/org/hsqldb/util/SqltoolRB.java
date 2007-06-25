@@ -267,7 +267,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int DSV_REJECTFILE_SETUPFAIL = keyCounter++;
     static public final int DSV_REJECTREPORT_SETUPFAIL = keyCounter++;
     static public final int NONE = keyCounter++;
-    static public final int BLOCK_DISABLED = keyCounter++;
     static public final int INSERTION_PREPAREFAIL = keyCounter++;
     static public final int DSV_HEADER_MATCHERNONHEAD = keyCounter++;
     static public final int DSV_COLCOUNT_MISMATCH = keyCounter++;
@@ -450,7 +449,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(DSV_REJECTFILE_SETUPFAIL), "dsv.rejectfile.setupfail",
         new Integer(DSV_REJECTREPORT_SETUPFAIL), "dsv.rejectreport.setupfail",
         new Integer(NONE), "none",
-        new Integer(BLOCK_DISABLED), "block.disabled",
         new Integer(INSERTION_PREPAREFAIL), "insertion.preparefail",
         new Integer(DSV_HEADER_MATCHERNONHEAD), "dsv.header.matchernonhead",
         new Integer(DSV_COLCOUNT_MISMATCH), "dsv.colcount.mismatch",
