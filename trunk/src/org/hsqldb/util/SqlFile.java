@@ -1955,7 +1955,7 @@ public class SqlFile {
 
             String varName = tokens[1];
 
-            if (varName.charAt(0) == ':') {
+            if (varName.indexOf(':') > -1) {
                 throw new BadSpecial(rb.getString(SqltoolRB.PLVAR_NOCOLON));
             }
             File   file    = new File(tokens[2]);
@@ -2003,7 +2003,7 @@ public class SqlFile {
             }
 
             String varName   = foreachM.group(1);
-            if (varName.charAt(0) == ':') {
+            if (varName.indexOf(':') > -1) {
                 throw new BadSpecial(rb.getString(SqltoolRB.PLVAR_NOCOLON));
             }
             String[] values = foreachM.group(2).split("\\s+");
@@ -2204,7 +2204,7 @@ public class SqlFile {
 
         String varName  = m.group(1);
 
-        if (varName.charAt(0) == ':') {
+        if (varName.indexOf(':') > -1) {
             throw new BadSpecial(rb.getString(SqltoolRB.PLVAR_NOCOLON));
         }
 

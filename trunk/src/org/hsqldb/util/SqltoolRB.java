@@ -71,6 +71,14 @@ public class SqltoolRB extends ValidatingResourceBundle {
                 ValidatingResourceBundle.EMPTYSTRING_BEHAVIOR);
         rb2.setMissingPosValueBehavior(
                 ValidatingResourceBundle.NOOP_BEHAVIOR);
+
+        /*
+        rb1.setMissingPropertyBehavior(
+                ValidatingResourceBundle.THROW_BEHAVIOR);
+        System.out.println("("
+                + rb1.getExpandedString(SqltoolRB.JDBC_ESTABLISHED) + ')');
+        */
+
         System.out.println("First, with no positional parameters set...");
         System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
                 + rb1.getString(SqltoolRB.JDBC_ESTABLISHED));

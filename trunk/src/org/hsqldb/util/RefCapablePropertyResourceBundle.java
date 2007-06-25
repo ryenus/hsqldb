@@ -119,6 +119,32 @@ import java.io.UnsupportedEncodingException;
  * character set.  But, unlike Properties files, \ does not need to be
  * escaped for normal usage.
  *
+ * The getString() methods with more than one parameter substitute for
+ * "positional" parameters of the form "%{1}".
+ * The getExpandedString() methods substitute for System Property names
+ * of the form "${1}".
+ * In both cases, you can interpose :+ and a string between the variable
+ * name and the closing }.  This works just like the Bourne shell
+ * ${x:+y} feature.  If "x" is set, then "y" is returned, and "y" may
+ * contain references to the original variable without the curly braces.
+ * One example of each type:
+ * <PRE>
+ *     Out val = (${condlSysProp:+Prop condlSysProp is set to $condlSysProp.})
+ *     Out val = (%{2:+Pos Var #2 is set to %2.})
+ * OUTPUT if neither are set:
+ *     Out val = ()
+ *     Out val = ()
+ * OUTPUT if condlSysProp=alpha and condlPLvar=beta:
+ *     Out val = (Prop condlSysProp is set to alpha.)
+ *     Out val = (Pos Var #2 is set to beta.)
+ * </PRE>
+ * This feature has the following limitations.
+ * <UL>
+ *   <LI>The conditional string may only contain the primary variable.
+ *   <LI>Inner instances of the primary variable may not use curly braces,
+ *       and therefore the variable name must end at a word boundary.
+ * </UL>
+ *
  * @see java.util.PropertyResourceBundle
  * @see java.util.ResourceBundle
  * @author  blaine.simpson@admc.com
@@ -129,8 +155,10 @@ public class RefCapablePropertyResourceBundle {
     private String language, country, variant;
     static private Map allBundles = new HashMap();
     public static String LS = System.getProperty("line.separator");
-    private Pattern sysPropVarPattern = Pattern.compile("\\Q${\\E([^}]+)\\Q}");
-    private Pattern posPattern = Pattern.compile("\\Q%{\\E(\\d)\\Q}");
+    private Pattern sysPropVarPattern = Pattern.compile(
+            "(?s)\\Q${\\E([^}]+?)(?:\\Q:+\\E([^}]+))?\\Q}");
+    private Pattern posPattern = Pattern.compile(
+            "(?s)\\Q%{\\E(\\d)(?:\\Q:+\\E([^}]+))?\\Q}");
     private ClassLoader loader;  // Needed to load referenced files
 
     public static final int THROW_BEHAVIOR = 0;
@@ -165,15 +193,25 @@ public class RefCapablePropertyResourceBundle {
         int previousEnd = 0;
         StringBuffer sb = new StringBuffer();
         String varName, varValue;
+        String condlVal;  // Conditional : value
         while (matcher.find()) {
-            varName = s.substring(matcher.start(1), matcher.end(1));
+            varName = matcher.group(1);
+            condlVal = ((matcher.groupCount() > 1) ? matcher.group(2) : null);
             varValue = System.getProperty(varName);
+            if (condlVal != null) {
+                // Replace varValue (the value to be substituted), with
+                // the post-:+ portion of the expression.
+                varValue = ((varValue == null)
+                        ? ""
+                        : condlVal.replaceAll("\\Q$" + varName + "\\E\\b",
+                            varValue));
+            }
             if (varValue == null) switch (behavior) {
                 case THROW_BEHAVIOR:
                     throw new RuntimeException(
                             "No Sys Property set for variable '"
-                            + matcher.group() + "' in propert value ("
-                            + s + ')');
+                            + varName + "' in property value ("
+                            + s + ").");
                 case EMPTYSTRING_BEHAVIOR:
                     varValue = "";
                 case NOOP_BEHAVIOR:
@@ -183,8 +221,7 @@ public class RefCapablePropertyResourceBundle {
                             "Undefined value for behavior: " + behavior);
             }
             sb.append(s.substring(previousEnd, matcher.start())
-                    + ((varValue == null) ? matcher.group()
-                    : varValue));
+                        + ((varValue == null) ? matcher.group() : varValue));
             previousEnd = matcher.end();
         }
         return (previousEnd < 1) ? s
@@ -202,18 +239,26 @@ public class RefCapablePropertyResourceBundle {
         StringBuffer sb = new StringBuffer();
         String varValue;
         int varIndex;
+        String condlVal;  // Conditional : value
         while (matcher.find()) {
-            varIndex = Integer.parseInt(
-                    s.substring(matcher.start(1), matcher.end(1))) - 1;
-            varValue = null;
+            varIndex = Integer.parseInt(matcher.group(1)) - 1;
+            condlVal = ((matcher.groupCount() > 1) ? matcher.group(2) : null);
+            varValue = ((varIndex < subs.length) ? subs[varIndex] : null);
+            if (condlVal != null) {
+                // Replace varValue (the value to be substituted), with
+                // the post-:+ portion of the expression.
+                varValue = ((varValue == null)
+                        ? ""
+                        : condlVal.replaceAll("\\Q%" + (varIndex+1) + "\\E\\b",
+                            varValue));
+            }
             // System.err.println("Behavior: " + behavior);
-            if (varIndex >= subs.length) switch (behavior) {
+            if (varValue == null) switch (behavior) {
                 case THROW_BEHAVIOR:
                     throw new RuntimeException(
                             Integer.toString(subs.length)
-                            + " positional values "
-                            + "given, but property string contains " +
-                            s.substring(matcher.start(), matcher.end()));
+                            + " positional values given, but property string "
+                            + "contains (" + matcher.group() + ").");
                 case EMPTYSTRING_BEHAVIOR:
                     varValue = "";
                 case NOOP_BEHAVIOR:
@@ -221,12 +266,9 @@ public class RefCapablePropertyResourceBundle {
                 default:
                     throw new RuntimeException(
                             "Undefined value for behavior: " + behavior);
-            } else {
-                varValue = subs[varIndex];
             }
             sb.append(s.substring(previousEnd, matcher.start())
-                    + ((varValue == null) ? matcher.group()
-                    : varValue));
+                        + ((varValue == null) ? matcher.group() : varValue));
             previousEnd = matcher.end();
         }
         return (previousEnd < 1) ? s
