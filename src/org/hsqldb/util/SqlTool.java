@@ -298,7 +298,6 @@ public class SqlTool {
         String  rcUrl            = null;
         String  rcUsername       = null;
         String  rcPassword       = null;
-        String  rcDriver         = null;
         String  rcCharset        = null;
         String  rcTruststore     = null;
         Map     rcFields         = null;
