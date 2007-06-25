@@ -127,6 +127,7 @@ import java.io.UnsupportedEncodingException;
  * name and the closing }.  This works just like the Bourne shell
  * ${x:+y} feature.  If "x" is set, then "y" is returned, and "y" may
  * contain references to the original variable without the curly braces.
+ * In this file, I refer to the y text as the "conditional string".
  * One example of each type:
  * <PRE>
  *     Out val = (${condlSysProp:+Prop condlSysProp is set to $condlSysProp.})
@@ -144,6 +145,8 @@ import java.io.UnsupportedEncodingException;
  *   <LI>Inner instances of the primary variable may not use curly braces,
  *       and therefore the variable name must end at a word boundary.
  * </UL>
+ * The conditional string may span newlines, and it is often very useful
+ * to do so.
  *
  * @see java.util.PropertyResourceBundle
  * @see java.util.ResourceBundle

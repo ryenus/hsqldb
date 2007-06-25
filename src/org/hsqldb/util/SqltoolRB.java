@@ -131,7 +131,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int D_OPTIONS = keyCounter++;
     static public final int RAW_LEADIN = keyCounter++;
     static public final int ERRORAT = keyCounter++;
-    static public final int ERRORAT_WITHECHO = keyCounter++;
     static public final int REJECTREPORT_TOP = keyCounter++;
     static public final int REJECTREPORT_ROW = keyCounter++;
     static public final int REJECTREPORT_BOTTOM = keyCounter++;
@@ -190,7 +189,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int DSV_X_SYNTAX = keyCounter++;
     static public final int RAW_EMPTY = keyCounter++;
     static public final int DSV_NOCOLSLEFT = keyCounter++;
-    static public final int DSV_NOCOLSLEFT_WSK = keyCounter++;
     static public final int DSV_SKIPCOLS_MISSING = keyCounter++;
     static public final int PLALIAS_MALFORMAT = keyCounter++;
     static public final int PLVAR_UNDEFINED = keyCounter++;
@@ -278,9 +276,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int BOOLEAN_BAD = keyCounter++;
     static public final int INPUTREC_MODIFIED = keyCounter++;
     static public final int DSV_RECIN_FAIL = keyCounter++;
-    static public final int DSV_RECIN_FAIL_WCOL = keyCounter++;
     static public final int DSV_IMPORT_SUMMARY = keyCounter++;
-    static public final int DSV_IMPORT_SUMMARY_WABORT = keyCounter++;
     static public final int INSERTIONS_NOTCOMMITTED = keyCounter++;
     static public final int AUTOCOMMIT_FETCHFAIL = keyCounter++;
     static public final int DSV_REJECTFILE_PURGEFAIL = keyCounter++;
@@ -316,7 +312,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(D_OPTIONS), "d.options",
         new Integer(RAW_LEADIN), "raw.leadin",
         new Integer(ERRORAT), "errorat",
-        new Integer(ERRORAT_WITHECHO), "errorat.withecho",
         new Integer(REJECTREPORT_TOP), "rejectreport.top",
         new Integer(REJECTREPORT_ROW), "rejectreport.row",
         new Integer(REJECTREPORT_BOTTOM), "rejectreport.bottom",
@@ -376,7 +371,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(DSV_X_SYNTAX), "dsv.x.syntax",
         new Integer(RAW_EMPTY), "raw.empty",
         new Integer(DSV_NOCOLSLEFT), "dsv.nocolsleft",
-        new Integer(DSV_NOCOLSLEFT_WSK), "dsv.nocolsleft.wsk",
         new Integer(DSV_SKIPCOLS_MISSING), "dsv.skipcols.missing",
         new Integer(PLALIAS_MALFORMAT), "plalias.malformat",
         new Integer(PLVAR_UNDEFINED), "plvar.undefined",
@@ -464,9 +458,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(BOOLEAN_BAD), "boolean.bad",
         new Integer(INPUTREC_MODIFIED), "inputrec.modified",
         new Integer(DSV_RECIN_FAIL), "dsv.recin.fail",
-        new Integer(DSV_RECIN_FAIL_WCOL), "dsv.recin.fail.wcol",
         new Integer(DSV_IMPORT_SUMMARY), "dsv.import.summary",
-        new Integer(DSV_IMPORT_SUMMARY_WABORT), "dsv.import.summary.wabort",
         new Integer(INSERTIONS_NOTCOMMITTED), "insertions.notcommitted",
         new Integer(AUTOCOMMIT_FETCHFAIL), "autocommit.fetchfail",
         new Integer(DSV_REJECTFILE_PURGEFAIL), "dsv.rejectfile.purgefail",
