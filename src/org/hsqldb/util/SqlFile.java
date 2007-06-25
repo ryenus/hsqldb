@@ -1787,7 +1787,7 @@ public class SqlFile {
             if (iterations++ > 10000)
                 throw new SqlToolError(rb.getString(SqltoolRB.VAR_INFINITE,
                         varName));
-            // TODO:  Use a smarter algorithm to handle (or prohibit) 
+            // TODO:  Use a smarter algorithm to handle (or prohibit)
             // recursion without this clumsy detection tactic.
 
             varValue = (String) userVars.get(varName);
