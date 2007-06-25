@@ -169,7 +169,7 @@ public class SqlTool {
 
             // Prompt for password
             System.out.print(rb.getString(SqltoolRB.PASSWORDFOR_PROMPT,
-                    new String[] { RCData.expandSysPropVars(username) }));
+                    RCData.expandSysPropVars(username)));
 
             // Read the password from the command line
             password = console.readLine();
@@ -315,10 +315,8 @@ public class SqlTool {
                 parameter = arg[i].substring(2).toLowerCase();
 
                 if (parameter.equals("help")) {
-                    System.out.println(rb.getString(
-                            SqltoolRB.SQLTOOL_SYNTAX, new String[] {
-                                revnum, RCData.DEFAULT_JDBC_DRIVER
-                            }));
+                    System.out.println(rb.getString(SqltoolRB.SQLTOOL_SYNTAX,
+                            revnum, RCData.DEFAULT_JDBC_DRIVER));
                     return;
                 }
                 if (parameter.equals("abortonerr")) {
@@ -421,7 +419,7 @@ public class SqlTool {
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
                             rb.getString(SqltoolRB.SQLTEMPFILE_FAIL,
-                                    new String[] {ioe.toString()}));
+                                    ioe.toString()));
                 }
             }
 
@@ -438,9 +436,9 @@ public class SqlTool {
             } else if (arg.length > i + 1) {
 
                 // I.e., if there are any SQL files specified.
-                scriptFiles =
-                    new File[arg.length - i - 1 + ((stdinputOverride == null ||!stdinputOverride.booleanValue()) ? 0
-                                                                                                                 : 1)];
+                scriptFiles = new File[arg.length - i - 1
+                        + ((stdinputOverride == null
+                                ||!stdinputOverride.booleanValue()) ? 0 : 1)];
 
                 if (debug) {
                     System.err.println("scriptFiles has "
@@ -460,9 +458,7 @@ public class SqlTool {
         } catch (BadCmdline bcl) {
             throw new SqlToolException(SYNTAXERR_EXITVAL,
                     rb.getString(SqltoolRB.SQLTOOL_SYNTAX,
-                            new String[] {
-                                revnum, RCData.DEFAULT_JDBC_DRIVER
-                            }));
+                                revnum, RCData.DEFAULT_JDBC_DRIVER));
         }
 
         RCData conData = null;
@@ -492,15 +488,15 @@ public class SqlTool {
             if (rcFields.size() > 0) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
                         rb.getString(SqltoolRB.RCDATA_INLINE_EXTRAVARS,
-                            new String[] { rcFields.keySet().toString()}));
+                                rcFields.keySet().toString()));
             }
 
             try {
                 rcPassword   = promptForPassword(rcUsername);
             } catch (PrivateException e) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
-                        rb.getString(SqltoolRB.PASSWORD_READFAIL, new String[] {
-                            e.getMessage()}));
+                        rb.getString(SqltoolRB.PASSWORD_READFAIL,
+                                e.getMessage()));
             }
             try {
                 conData = new RCData(CMDLINE_ID, rcUrl, rcUsername,
@@ -508,8 +504,7 @@ public class SqlTool {
                                      rcTruststore);
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.RCDATA_GENFROMVALUES_FAIL, new String[] {
-                            e.getMessage()}));
+                        SqltoolRB.RCDATA_GENFROMVALUES_FAIL, e.getMessage()));
             }
         } else {
             try {
@@ -519,7 +514,7 @@ public class SqlTool {
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.CONNDATA_RETRIEVAL_FAIL,
-                                new String[] { targetDb, e.getMessage() }));
+                                targetDb, e.getMessage()));
             }
         }
 
@@ -543,9 +538,9 @@ public class SqlTool {
             if (interactive && (md = conn.getMetaData()) != null) {
                 System.out.println(
                         rb.getString(SqltoolRB.JDBC_ESTABLISHED,
-                                new String[] { md.getDatabaseProductName(),
-                                        md.getDatabaseProductVersion(),
-                                        md.getUserName() }));
+                                md.getDatabaseProductName(),
+                                md.getDatabaseProductVersion(),
+                                md.getUserName()));
             }
         } catch (Exception e) {
             //e.printStackTrace();
@@ -553,9 +548,7 @@ public class SqlTool {
             // Let's not continue as if nothing is wrong.
             throw new SqlToolException(CONNECTERR_EXITVAL,
                     rb.getString(SqltoolRB.CONNECTION_FAIL,
-                            new String[] {
-                                conData.url, conData.username, e.getMessage()
-                            }));
+                            conData.url, conData.username, e.getMessage()));
         }
 
         File[] emptyFileArray      = {};
@@ -656,8 +649,7 @@ public class SqlTool {
         // info to keep around if the program aborts.
         if (tmpFile != null && !tmpFile.delete()) {
             System.err.println(conData.url + rb.getString(
-                    SqltoolRB.TEMPFILE_REMOVAL_FAIL,
-                    new String[] {tmpFile.toString()}));
+                    SqltoolRB.TEMPFILE_REMOVAL_FAIL, tmpFile.toString()));
         }
     }
 }

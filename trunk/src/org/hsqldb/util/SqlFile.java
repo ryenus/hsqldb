@@ -324,7 +324,7 @@ public class SqlFile {
 
         if (file != null &&!file.canRead()) {
             throw new IOException(rb.getString(SqltoolRB.SQLFILE_READFAIL,
-                    new String[] {file.toString()} ));
+                    file.toString()));
         }
         if (interactive) {
             history = new ArrayList();
@@ -451,9 +451,7 @@ public class SqlFile {
             curLinenum = 0;
 
             if (interactive) {
-                stdprintln(
-                        rb.getString(SqltoolRB.SQLFILE_BANNER,
-                        new String[] {revnum}));
+                stdprintln(rb.getString(SqltoolRB.SQLFILE_BANNER, revnum));
             }
 
             while (true) {
@@ -654,7 +652,7 @@ public class SqlFile {
                     Throwable cause = bs.getCause();
                     if (cause != null) {
                         errprintln(rb.getString(SqltoolRB.CAUSEREPORT,
-                                new String[] {cause.toString()}));
+                                cause.toString()));
 
                     }
 
@@ -689,7 +687,7 @@ public class SqlFile {
                         break;
                     } else {
                         errprintln(rb.getString(SqltoolRB.BREAK_UNSATISFIED,
-                                new String[] { msg }));
+                                msg));
                     }
 
                     if (recursed ||!continueOnError) {
@@ -701,12 +699,8 @@ public class SqlFile {
                     if (recursed) {
                         rollbackUncoms = false;
                     } else {
-                        errprintln((msg == null)
-                                ?  rb.getString(SqltoolRB.CONTINUE_UNSATISFIED)
-                                : rb.getString(
-                                        SqltoolRB.CONTINUE_UNSATISFIED_TYPED,
-                                                new String[] {msg}
-                                ));
+                        errprintln(rb.getString(SqltoolRB.CONTINUE_UNSATISFIED,
+                                msg));
                     }
 
                     if (recursed ||!continueOnError) {
@@ -728,7 +722,7 @@ public class SqlFile {
                     Throwable cause = ste.getCause();
                     if (cause != null) {
                         errprintln(rb.getString(SqltoolRB.CAUSEREPORT,
-                                new String[] {cause.toString()}));
+                                cause.toString()));
                     }
                     if (!continueOnError) {
                         throw ste;
@@ -740,10 +734,9 @@ public class SqlFile {
 
             if (inComment || immCmdSB.length() != 0) {
                 errprintln(rb.getString(SqltoolRB.INPUT_UNTERMINATED,
-                        new String[] {immCmdSB.toString()}));
+                        immCmdSB.toString()));
                 throw new SqlToolError(rb.getString(
-                        SqltoolRB.INPUT_UNTERMINATED,
-                        new String[] {immCmdSB.toString()}));
+                        SqltoolRB.INPUT_UNTERMINATED, immCmdSB.toString()));
             }
 
             rollbackUncoms = false;
@@ -760,8 +753,7 @@ public class SqlFile {
             rollbackUncoms = (qn.getMessage() != null);
 
             if (rollbackUncoms) {
-                errprintln(rb.getString(SqltoolRB.ABORTING, new String[] {
-                        qn.getMessage()}));
+                errprintln(rb.getString(SqltoolRB.ABORTING, qn.getMessage()));
                 throw new SqlToolError(qn.getMessage());
             }
 
@@ -771,7 +763,7 @@ public class SqlFile {
 
             if (fetchingVar != null) {
                 errprintln(rb.getString(SqltoolRB.PLVAR_SET_INCOMPLETE,
-                        new String[] {fetchingVar}));
+                        fetchingVar));
                 rollbackUncoms = true;
             }
 
@@ -975,8 +967,7 @@ public class SqlFile {
                 if (buffer == null) throw new BadSpecial(
                         rb.getString(SqltoolRB.NOBUFFER_YET));
 
-                stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
-                        new String[] {buffer}));
+                stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING, buffer));
                 processFromBuffer();
 
                 return;
@@ -1001,7 +992,7 @@ public class SqlFile {
                         setBuf(immCmdSB.toString());
                         immCmdSB.setLength(0);
                         stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
-                                new String[] {buffer}));
+                                buffer));
                         processFromBuffer();
 
                         return;
@@ -1020,7 +1011,7 @@ public class SqlFile {
                     stdprintln(nobufferYetString);
                 } else {
                     stdprintln(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
-                            new String[] {buffer}));
+                            buffer));
                 }
 
                 return;
@@ -1053,18 +1044,15 @@ public class SqlFile {
                     setBuf(commandFromHistory(Integer.parseInt(numStr)));
                 } catch (NumberFormatException nfe) {
                     throw new BadSpecial(rb.getString(
-                            SqltoolRB.COMMANDNUM_MALFORMAT,
-                            new String[] {numStr} ),
-                    nfe);
+                            SqltoolRB.COMMANDNUM_MALFORMAT, numStr), nfe);
                 }
 
                 if (executeMode) {
                     stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
-                            new String[] {buffer}));
+                            buffer));
                     processFromBuffer();
                 } else {
-                    stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED,
-                            new String[] {buffer}));
+                    stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED, buffer));
                 }
 
                 return;
@@ -1102,7 +1090,7 @@ public class SqlFile {
                     pw.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
-                            new String[] {other.trim()}), e);
+                            other.trim()), e);
                 } finally {
                     if (pw != null) pw.close();
                 }
@@ -1165,9 +1153,7 @@ public class SqlFile {
                     setBuf(newBuffer);
                     stdprintln(rb.getString((modeExecute
                             ? SqltoolRB.BUFFER_EXECUTING
-                            : SqltoolRB.EDITBUFFER_CONTENTS),
-                                    new String[] {buffer})
-                    );
+                            : SqltoolRB.EDITBUFFER_CONTENTS), buffer));
                 } catch (PatternSyntaxException pse) {
                     throw new BadSpecial(
                             rb.getString(SqltoolRB.SUBSTITUTION_SYNTAX), pse);
@@ -1190,7 +1176,7 @@ public class SqlFile {
         }
 
         throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_UNKNOWN,
-                new String[] { Character.toString(commandChar) }));
+                Character.toString(commandChar)));
     }
 
     private boolean doPrepare   = false;
@@ -1207,15 +1193,14 @@ public class SqlFile {
             throws BadSpecial {
         if (token.length() != 1) {
             throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_EXTRACHARS,
-                    new String[] { Character.toString(command),
-                            token.substring(1) }));
+                     Character.toString(command), token.substring(1)));
         }
     }
     private void enforce1charBH(String token, char command)
             throws BadSpecial {
         if (token != null) {
             throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_EXTRACHARS,
-                    new String[] { Character.toString(command), token }));
+                    Character.toString(command), token));
         }
     }
 
@@ -1259,8 +1244,8 @@ public class SqlFile {
                 enforce1charSpecial(arg1, 'H');
                 htmlMode = !htmlMode;
 
-                stdprintln(rb.getString(SqltoolRB.HTML_MODE, new String[] {
-                        Boolean.toString(htmlMode)}));
+                stdprintln(rb.getString(SqltoolRB.HTML_MODE,
+                        Boolean.toString(htmlMode)));
 
                 return;
 
@@ -1347,13 +1332,12 @@ public class SqlFile {
                         }
                         if (colList.size() < 1) {
                             throw new BadSpecial(rb.getString(
-                                    SqltoolRB.DSV_NOCOLSLEFT,
-                                    new String[] {dsvSkipCols}));
+                                    SqltoolRB.DSV_NOCOLSLEFT, dsvSkipCols));
                         }
                         if (ucSkipCols.size() > 0) {
                             throw new BadSpecial(rb.getString(
                                     SqltoolRB.DSV_SKIPCOLS_MISSING,
-                                        new String[] {ucSkipCols.toString()}));
+                                        ucSkipCols.toString()));
                         }
                         incCols = new int[colList.size()];
                         for (int i = 0; i < incCols.length; i++) {
@@ -1363,17 +1347,14 @@ public class SqlFile {
                     displayResultSet(null, rs, incCols, null);
                     pwDsv.flush();
                     stdprintln(rb.getString(SqltoolRB.FILE_WROTECHARS,
-                            new String[] {
-                                Long.toString(dsvFile.length()),
-                                dsvFile.toString(),
-                            }
-                    ));
+                            Long.toString(dsvFile.length()),
+                            dsvFile.toString()));
                 } catch (FileNotFoundException e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_WRITEFAIL,
-                            new String[] {other}), e);
+                            other), e);
                 } catch (UnsupportedEncodingException e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_WRITEFAIL,
-                            new String[] {other}), e);
+                            other), e);
                 } finally {
                     // Reset all state changes
                     if (pwDsv != null) {
@@ -1451,13 +1432,13 @@ public class SqlFile {
                             ? ("<HTML>" + LS + "<!--")
                             : "#") + " " + (new java.util.Date()) + ".  "
                                     + rb.getString(SqltoolRB.OUTPUTFILE_HEADER,
-                                            new String[] {getClass().getName()})
+                                            getClass().getName())
                                     + (htmlMode ? (" -->" + LS + LS + "<BODY>")
                                                 : LS));
                     pwQuery.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_WRITEFAIL,
-                            new String[] {other}), e);
+                            other), e);
                 }
 
                 return;
@@ -1492,8 +1473,7 @@ public class SqlFile {
                     throw qn;
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(
-                            SqltoolRB.SQLFILE_EXECUTE_FAIL,
-                            new String[] {other}), e);
+                            SqltoolRB.SQLFILE_EXECUTE_FAIL, other), e);
                 }
 
                 return;
@@ -1515,8 +1495,8 @@ public class SqlFile {
                         Boolean.valueOf(other).booleanValue());
                 }
 
-                stdprintln(rb.getString(SqltoolRB.A_SETTING, new String[] {
-                        Boolean.toString(curConn.getAutoCommit())}));
+                stdprintln(rb.getString(SqltoolRB.A_SETTING,
+                        Boolean.toString(curConn.getAutoCommit())));
 
                 return;
             case '=' :
@@ -1563,15 +1543,13 @@ public class SqlFile {
                         binBuffer = SqlFile.loadBinary(file);
                         stdprintln(rb.getString(
                                 SqltoolRB.BINARY_LOADEDBYTESINTO,
-                                new String[] {
-                                    Integer.toString(binBuffer.length)
-                                }));
+                                        binBuffer.length));
                     }
                 } catch (BadSpecial bs) {
                     throw bs;
                 } catch (IOException ioe) {
                     throw new BadSpecial(rb.getString(SqltoolRB.BINARY_FILEFAIL,
-                            new String[] {other}), ioe);
+                            other), ioe);
                 }
 
                 return;
@@ -1584,8 +1562,8 @@ public class SqlFile {
                     continueOnError = Boolean.valueOf(other).booleanValue();
                 }
 
-                stdprintln(rb.getString(SqltoolRB.C_SETTING, new String[] {
-                        Boolean.toString(continueOnError)}));
+                stdprintln(rb.getString(SqltoolRB.C_SETTING,
+                        Boolean.toString(continueOnError)));
 
                 return;
 
@@ -1647,15 +1625,13 @@ public class SqlFile {
 
                     if (proc.waitFor() != 0) {
                         throw new BadSpecial(rb.getString(
-                                SqltoolRB.BANG_COMMAND_FAIL,
-                                new String[] {extCommand}));
+                                SqltoolRB.BANG_COMMAND_FAIL, extCommand));
                     }
                 } catch (BadSpecial bs) {
                     throw bs;
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(
-                            SqltoolRB.BANG_COMMAND_FAIL,
-                            new String[] {extCommand}), e);
+                            SqltoolRB.BANG_COMMAND_FAIL, extCommand), e);
                 }
 
                 return;
@@ -1672,7 +1648,7 @@ public class SqlFile {
         }
 
         throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_UNKNOWN,
-                new String[] { Character.toString(arg1.charAt(0)) }));
+                Character.toString(arg1.charAt(0))));
     }
 
     private static final char[] nonVarChars = {
@@ -1731,7 +1707,7 @@ public class SqlFile {
 
             if (varValue == null) {
                 throw new SqlToolError(rb.getString(
-                        SqltoolRB.PLVAR_UNDEFINED, new String[] {varName}));
+                        SqltoolRB.PLVAR_UNDEFINED, varName));
             }
 
             expandBuffer.replace(slashIndex, slashIndex + 1 + e,
@@ -1769,7 +1745,7 @@ public class SqlFile {
             varName = s.substring(b + (permitUnset ? 3 : 2), e);
             if (iterations++ > 10000)
                 throw new SqlToolError(rb.getString(SqltoolRB.VAR_INFINITE,
-                        new String[] {varName}));
+                        varName));
 
             varValue = System.getProperty(varName);
             if (varValue == null) {
@@ -1777,8 +1753,7 @@ public class SqlFile {
                     varValue = "";
                 } else {
                     throw new SqlToolError(rb.getString(
-                            SqltoolRB.SYSPROP_UNDEFINED,
-                                    new String[] {varName}));
+                            SqltoolRB.SYSPROP_UNDEFINED, varName));
                 }
             }
 
@@ -1811,7 +1786,7 @@ public class SqlFile {
             varName = s.substring(b + (permitUnset ? 3 : 2), e);
             if (iterations++ > 10000)
                 throw new SqlToolError(rb.getString(SqltoolRB.VAR_INFINITE,
-                        new String[] {varName}));
+                        varName));
             // TODO:  Use a smarter algorithm to handle (or prohibit) 
             // recursion without this clumsy detection tactic.
 
@@ -1821,7 +1796,7 @@ public class SqlFile {
                     varValue = "";
                 } else {
                     throw new SqlToolError(rb.getString(
-                            SqltoolRB.PLVAR_UNDEFINED, new String[] {varName}));
+                            SqltoolRB.PLVAR_UNDEFINED, varName));
                 }
             }
 
@@ -1856,8 +1831,7 @@ public class SqlFile {
         }
         if (m.groupCount() < 1 || m.group(1) == null) {
             plMode = true;
-            stdprintln(rb.getString(SqltoolRB.PL_EXPANSIONMODE,
-                   new String[] {"on"}));
+            stdprintln(rb.getString(SqltoolRB.PL_EXPANSIONMODE, "on"));
             return;
         }
 
@@ -1957,7 +1931,7 @@ public class SqlFile {
                 }
             } catch (IOException ioe) {
                 throw new BadSpecial(rb.getString(SqltoolRB.DUMPLOAD_FAIL,
-                        new String[] { varName, file.toString() }), ioe);
+                        varName, file.toString()), ioe);
             }
 
             return;
@@ -1970,7 +1944,7 @@ public class SqlFile {
 
             if (userVars.get(tokens[1]) == null) {
                 throw new BadSpecial(rb.getString(
-                    SqltoolRB.PLVAR_UNDEFINED, new String[] {tokens[1]}));
+                    SqltoolRB.PLVAR_UNDEFINED, tokens[1]));
             }
 
             prepareVar = tokens[1];
@@ -2058,8 +2032,7 @@ public class SqlFile {
 
             if (tmpFile != null &&!tmpFile.delete()) {
                 throw new BadSpecial(rb.getString(
-                        SqltoolRB.TEMPFILE_REMOVAL_FAIL,
-                                new String[] {tmpFile.toString()} ));
+                        SqltoolRB.TEMPFILE_REMOVAL_FAIL, tmpFile.toString()));
             }
 
             return;
@@ -2168,13 +2141,12 @@ public class SqlFile {
             } else {
                 // Assertion
                 throw new RuntimeException(rb.getString(SqltoolRB.PL_UNKNOWN,
-                        new String[] {tokens[0]}));
+                        tokens[0]));
             }
 
             if (tmpFile != null &&!tmpFile.delete()) {
                 throw new BadSpecial(rb.getString(
-                        SqltoolRB.TEMPFILE_REMOVAL_FAIL, new String[] {
-                                tmpFile.toString()}));
+                        SqltoolRB.TEMPFILE_REMOVAL_FAIL, tmpFile.toString()));
             }
 
             return;
@@ -2182,8 +2154,7 @@ public class SqlFile {
 
         m = varsetPattern.matcher(dereference(inString, false));
         if (!m.matches()) {
-            throw new BadSpecial(rb.getString(SqltoolRB.PL_UNKNOWN,
-                    new String[] {tokens[0]}));
+            throw new BadSpecial(rb.getString(SqltoolRB.PL_UNKNOWN, tokens[0]));
         }
         if (m.groupCount() < 2 || m.groupCount() > 3) {
             // Assertion
@@ -2203,8 +2174,7 @@ public class SqlFile {
             case '~' :
                 if (m.groupCount() > 2 && m.group(3) != null) {
                     throw new BadSpecial(rb.getString(
-                            SqltoolRB.PLVAR_TILDEDASH_NOMOREARGS, new String[] {
-                                m.group(3)}));
+                            SqltoolRB.PLVAR_TILDEDASH_NOMOREARGS, m.group(3)));
                 }
 
                 userVars.remove(varName);
@@ -2229,8 +2199,7 @@ public class SqlFile {
                 return;
         }
 
-        throw new BadSpecial(rb.getString(SqltoolRB.PL_UNKNOWN,
-                new String[] {tokens[0]}));
+        throw new BadSpecial(rb.getString(SqltoolRB.PL_UNKNOWN, tokens[0]));
         // I think this would already be caught in the setvar block above.
     }
 
@@ -2285,8 +2254,7 @@ public class SqlFile {
             s = br.readLine();
 
             if (s == null) {
-                s = rb.getString(SqltoolRB.PL_BLOCK_UNTERMINATED,
-                        new String[] {seeking});
+                s = rb.getString(SqltoolRB.PL_BLOCK_UNTERMINATED, seeking);
                 errprintln(s);
                 throw new SqlToolError(s);
             }
@@ -2303,8 +2271,7 @@ public class SqlFile {
                     nestlevel++;
                 } else if (curPlCommand.equals("end")) {
                     if (tokens.length < 2) {
-                        s = rb.getString(SqltoolRB.END_SYNTAX,
-                                new String[] {"1"});
+                        s = rb.getString(SqltoolRB.END_SYNTAX, "1");
                         errprintln(s);
                         throw new SqlToolError(s);
                     }
@@ -2321,8 +2288,7 @@ public class SqlFile {
 
                     if ((!inType.equals("foreach")) && (!inType.equals("if"))
                             && (!inType.equals("while"))) {
-                        s = rb.getString(SqltoolRB.END_SYNTAX,
-                                new String[] {"2"});
+                        s = rb.getString(SqltoolRB.END_SYNTAX, "2");
                         errprintln(s);
                         throw new SqlToolError(s);
                     }
@@ -2607,8 +2573,7 @@ public class SqlFile {
                             rb.getString(SqltoolRB.VENDOR_DERBY_DR));
                     } else {
                         throw new BadSpecial(
-                            rb.getString(SqltoolRB.VENDOR_NOSUP_D,
-                                    new String[] {"r"}));
+                            rb.getString(SqltoolRB.VENDOR_NOSUP_D, "r"));
                     }
                     break;
 
@@ -2649,8 +2614,7 @@ public class SqlFile {
                             rb.getString(SqltoolRB.VENDOR_DERBY_DU));
                     } else {
                         throw new BadSpecial(
-                            rb.getString(SqltoolRB.VENDOR_NOSUP_D,
-                                    new String[] {"u"}));
+                            rb.getString(SqltoolRB.VENDOR_NOSUP_D, "u"));
                     }
                     break;
 
@@ -2743,8 +2707,8 @@ public class SqlFile {
 
                 default :
                     throw new BadSpecial(rb.getString(
-                            SqltoolRB.SPECIAL_D_UNKNOWN, new String[] {
-                                Character.toString(c)}) + LS + D_OPTIONS_TEXT);
+                            SqltoolRB.SPECIAL_D_UNKNOWN,
+                                Character.toString(c)) + LS + D_OPTIONS_TEXT);
             }
 
             if (statement == null) {
@@ -2786,8 +2750,8 @@ public class SqlFile {
 
                     if (rs == null) {
                         throw new BadSpecial(rb.getString(
-                            SqltoolRB.METADATA_FETCH_FAILFOR,
-                                    new String[] { additionalSchemas[i]}));
+                                SqltoolRB.METADATA_FETCH_FAILFOR,
+                                        additionalSchemas[i]));
                     }
 
                     if (!rs.next()) {
@@ -2874,7 +2838,7 @@ public class SqlFile {
                     lastSqlStatement = null;
                     throw new SqlToolError(
                             rb.getString(SqltoolRB.PLVAR_UNDEFINED,
-                                    new String[] {prepareVar}));
+                                    prepareVar));
                 }
 
                 prepareVar = null;
@@ -3134,11 +3098,10 @@ public class SqlFile {
                             }
 
                             stdprintln(rb.getString(SqltoolRB.BINBUF_WRITE,
-                                    new String[] {
                                        Integer.toString(binBuffer.length),
                                        headerArray[insi],
                                        SqlFile.sqlTypeToString(dataType[insi])
-                                    }));
+                                    ));
 
                             return;
                         }
@@ -3264,8 +3227,7 @@ public class SqlFile {
 
                     if (rows.size() != 1) {
                         stdprintln(LS + rb.getString(SqltoolRB.ROWS_FETCHED,
-                                new String[] { Integer.toString(rows.size()) }),
-                        true);
+                                rows.size()), true);
                     }
 
                     condlPrintln("<HR>", true);
@@ -3306,7 +3268,7 @@ public class SqlFile {
                 }
 
                 stdprintln(rb.getString(SqltoolRB.ROWS_FETCHED_DSV,
-                        new String[] { Integer.toString(rows.size()) }));
+                        rows.size()));
                 break;
 
             default :
@@ -3321,7 +3283,7 @@ public class SqlFile {
                     stdprintln((updateCount == 1)
                         ? rb.getString(SqltoolRB.ROW_UPDATE_SINGULAR)
                         : rb.getString(SqltoolRB.ROW_UPDATE_MULTIPLE,
-                                new String[] {Integer.toString(updateCount)}));
+                                updateCount));
                 }
                 break;
         }
@@ -3423,8 +3385,7 @@ public class SqlFile {
             }
         }
         if (buffer != null) {
-            psStd.println(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
-                    new String[] { buffer}));
+            psStd.println(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS, buffer));
         }
 
         psStd.println();
@@ -3448,20 +3409,18 @@ public class SqlFile {
             index -= oldestHist;
             if (index < 0) {
                 throw new BadSpecial(rb.getString(SqltoolRB.HISTORY_BACKTO,
-                       new String[] { Integer.toString(oldestHist) }));
+                       oldestHist));
             }
             if (index >= history.size()) {
                 throw new BadSpecial(rb.getString(SqltoolRB.HISTORY_UPTO,
-                       new String[] { Integer.toString(
-                               history.size() + oldestHist - 1
-                       )}));
+                       history.size() + oldestHist - 1));
             }
         } else {
             // Negative command# given
             index += history.size();
             if (index < 0) {
                 throw new BadSpecial(rb.getString(SqltoolRB.HISTORY_BACK,
-                       new String[] { Integer.toString(history.size()) }));
+                       history.size()));
             }
         }
         return (String) history.get(index);
@@ -3766,7 +3725,7 @@ public class SqlFile {
 
         if (val == null) {
             throw new BadSpecial(rb.getString(
-                    SqltoolRB.PLVAR_UNDEFINED, new String[] {varName}));
+                    SqltoolRB.PLVAR_UNDEFINED, varName));
         }
 
         OutputStreamWriter osw = ((charset == null)
@@ -3794,8 +3753,8 @@ public class SqlFile {
 
         // Since opened in overwrite mode, since we didn't exception out,
         // we can be confident that we wrote all the bytest in the file.
-        stdprintln(rb.getString(SqltoolRB.FILE_WROTECHARS, new String[] {
-                Long.toString(dumpFile.length()), dumpFile.toString() }));
+        stdprintln(rb.getString(SqltoolRB.FILE_WROTECHARS,
+                Long.toString(dumpFile.length()), dumpFile.toString()));
     }
 
     byte[] binBuffer = null;
@@ -3823,7 +3782,7 @@ public class SqlFile {
             fos.close();
         }
         stdprintln(rb.getString(SqltoolRB.FILE_WROTECHARS,
-                new String[] { Integer.toString(len), dumpFile.toString() }));
+                len, dumpFile.toString()));
     }
 
     /**
@@ -3847,11 +3806,9 @@ public class SqlFile {
                 bytesread += retval;
             }
             if (bytesread != ba.length) {
-                throw new IOException(rb.getString(
-                        SqltoolRB.READ_PARTIAL, new String[] {
-                            Integer.toString(bytesread),
-                            Integer.toString(ba.length)
-                        }));
+                throw new IOException(rb.getString(SqltoolRB.READ_PARTIAL,
+                            bytesread,
+                            ba.length));
             }
             try {
                 return (cs == null) ? (new String(ba))
@@ -4067,19 +4024,19 @@ public class SqlFile {
 
         if (s.indexOf(dsvColDelim) > 0) {
             throw new SqlToolError(rb.getString(SqltoolRB.DSV_COLDELIM_PRESENT,
-                        new String[] {dsvColDelim}));
+                        dsvColDelim));
         }
 
         if (s.indexOf(dsvRowDelim) > 0) {
             throw new SqlToolError(rb.getString(SqltoolRB.DSV_ROWDELIM_PRESENT,
-                        new String[] {dsvRowDelim}));
+                        dsvRowDelim));
         }
 
         if (s.trim().equals(nullRepToken)) {
             // The trim() is to avoid the situation where the contents of a
             // field "looks like" the null-rep token.
             throw new SqlToolError(rb.getString(SqltoolRB.DSV_NULLREP_PRESENT,
-                        new String[] {nullRepToken}));
+                        nullRepToken));
         }
     }
 
@@ -4225,7 +4182,7 @@ public class SqlFile {
 
         if (!file.canRead()) {
             throw new SqlToolError(rb.getString(SqltoolRB.FILE_READFAIL,
-                    new String[] {file.toString()} ));
+                    file.toString()));
         }
 
         try {
@@ -4258,10 +4215,7 @@ public class SqlFile {
         }
         if (bytesread != bfr.length) {
             throw new SqlToolError(rb.getString(SqltoolRB.READ_PARTIAL,
-                    new String[] {
-                        Integer.toString(bytesread),
-                        Integer.toString(bfr.length)
-                    }));
+                    bytesread, bfr.length));
         }
 
         String string = null;
@@ -4320,16 +4274,14 @@ public class SqlFile {
             if (trimmedLine.equals("headerswitch{")) {
                 if (tableName == null) {
                     throw new SqlToolError(rb.getString(
-                            SqltoolRB.DSV_HEADER_NOSWITCHTARG, new String[] {
-                            Integer.toString(lineCount)}));
+                            SqltoolRB.DSV_HEADER_NOSWITCHTARG, lineCount));
                 }
                 switching = true;
                 continue;
             }
             if (trimmedLine.equals("}")) {
                 throw new SqlToolError(rb.getString(
-                        SqltoolRB.DSV_HEADER_NOSWITCHMATCH, new String[] {
-                                Integer.toString(lineCount)}));
+                        SqltoolRB.DSV_HEADER_NOSWITCHMATCH, lineCount));
             }
             if (!switching) {
                 break;
@@ -4337,8 +4289,7 @@ public class SqlFile {
             int colonAt = trimmedLine.indexOf(':');
             if (colonAt < 1 || colonAt == trimmedLine.length() - 1) {
                 throw new SqlToolError(rb.getString(
-                        SqltoolRB.DSV_HEADER_NONSWITCHED, new String[] {
-                                Integer.toString(lineCount)}));
+                        SqltoolRB.DSV_HEADER_NONSWITCHED, lineCount));
             }
             String matcher = trimmedLine.substring(0, colonAt).trim();
             // Need to be sure here that tableName is not null (in
@@ -4369,10 +4320,8 @@ public class SqlFile {
 
             if (colEnd - colStart < 1) {
                 throw new SqlToolError(rb.getString(
-                            SqltoolRB.DSV_NOCOLHEADER, new String[] {
-                        Integer.toString(headerList.size() + 1),
-                        Integer.toString(lineCount)
-                }));
+                        SqltoolRB.DSV_NOCOLHEADER,
+                        headerList.size() + 1, lineCount));
             }
 
             colName = string.substring(colStart, colEnd).trim();
@@ -4387,8 +4336,7 @@ public class SqlFile {
             colStart = colEnd + dsvColDelim.length();
         } if (ucSkipCols != null && ucSkipCols.size() > 0) {
             throw new SqlToolError(rb.getString(
-                    SqltoolRB.DSV_SKIPCOLS_MISSING, new String[] {
-                            ucSkipCols.toString()}));
+                    SqltoolRB.DSV_SKIPCOLS_MISSING, ucSkipCols.toString()));
         }
 
         boolean oneCol = false;  // At least 1 non-null column
@@ -4403,7 +4351,7 @@ public class SqlFile {
             // user will want to know if they are inserting records with no
             // data from their input file.
             throw new SqlToolError(rb.getString(SqltoolRB.DSV_NOCOLSLEFT,
-                    new String[] {dsvSkipCols}));
+                    dsvSkipCols));
         }
 
         if (constColMap != null) {
@@ -4494,8 +4442,8 @@ public class SqlFile {
             }
         } catch (SQLException se) {
             throw new SqlToolError(rb.getString(
-                    SqltoolRB.QUERY_METADATAFAIL, new String[] {
-                            typeQuerySb.toString()}), se);
+                    SqltoolRB.QUERY_METADATAFAIL,
+                            typeQuerySb.toString()), se);
         }
 
         for (int i = 0; i < autonulls.length; i++) {
@@ -4524,9 +4472,7 @@ public class SqlFile {
             rejectWriter.print(headerLine + dsvRowDelim);
         } catch (IOException ioe) {
             throw new SqlToolError(rb.getString(
-                    SqltoolRB.DSV_REJECTFILE_SETUPFAIL, new String[] {
-                            dsvRejectFile
-                    }), ioe);
+                    SqltoolRB.DSV_REJECTFILE_SETUPFAIL, dsvRejectFile), ioe);
         }
         if (dsvRejectReport != null) try {
             rejectReportFile = new File(dsvRejectReport);
@@ -4542,7 +4488,6 @@ public class SqlFile {
                     SqltoolRB.REJECTREPORT_TOP, new String[] {
                         (new java.util.Date()).toString(),
                         file.getPath(),
-                
                         ((rejectFile == null) ? rb.getString(SqltoolRB.NONE)
                                         : rejectFile.getPath()),
                         ((rejectFile == null)
@@ -4554,9 +4499,8 @@ public class SqlFile {
                     }));
         } catch (IOException ioe) {
             throw new SqlToolError(rb.getString(
-                    SqltoolRB.DSV_REJECTREPORT_SETUPFAIL, new String[] {
-                            dsvRejectReport
-                    }), ioe);
+                    SqltoolRB.DSV_REJECTREPORT_SETUPFAIL, dsvRejectReport),
+                            ioe);
         }
 
         int recCount = 0;
@@ -4569,8 +4513,7 @@ public class SqlFile {
                 ps = curConn.prepareStatement(sb.toString() + ')');
             } catch (SQLException se) {
                 throw new SqlToolError(rb.getString(
-                        SqltoolRB.INSERTION_PREPAREFAIL, new String[] {
-                                sb.toString() }), se);
+                        SqltoolRB.INSERTION_PREPAREFAIL, sb.toString()), se);
             }
             String[] dataVals = new String[autonulls.length];
             // Length is number of cols to insert INTO, not nec. # in DSV file.
@@ -4611,8 +4554,7 @@ public class SqlFile {
                     if (colonAt < 1 || colonAt == trimmedLine.length() - 1) {
                         throw new SqlToolError(rb.getString(
                                 SqltoolRB.DSV_HEADER_MATCHERNONHEAD,
-                                        new String[] {
-                                                Integer.toString(lineCount)}));
+                                        lineCount));
                     }
                     continue;
                 }
@@ -4641,12 +4583,8 @@ public class SqlFile {
                     if (readColCount == headers.length - constColMapSize) {
                         throw new RowError(rb.getString(
                                 SqltoolRB.DSV_COLCOUNT_MISMATCH,
-                                        new String[] {
-                                                Integer.toString(headers.length
-                                                        - constColMapSize),
-                                                Integer.toString(1 +
-                                                        readColCount),
-                                        }));
+                                        headers.length - constColMapSize,
+                                        1 + readColCount));
                     }
 
                     if (headers[readColCount++] != null) {
@@ -4668,22 +4606,14 @@ public class SqlFile {
                 if (readColCount != headers.length - constColMapSize) {
                     throw new RowError(rb.getString(
                             SqltoolRB.DSV_COLCOUNT_MISMATCH,
-                                    new String[] {
-                                            Integer.toString(headers.length
-                                                    - constColMapSize),
-                                            Integer.toString(1 +
-                                                    readColCount),
-                                    }));
+                                    headers.length - constColMapSize,
+                                    1 + readColCount));
                 }
                 if (storeColCount != dataVals.length) {
                     throw new RowError(rb.getString(
                             SqltoolRB.DSV_COLCOUNT_MISMATCH,
-                                    new String[] {
-                                            Integer.toString(dataVals.length
-                                                    - constColMapSize),
-                                            Integer.toString(storeColCount
-                                                    - constColMapSize),
-                                    }));
+                                    dataVals.length - constColMapSize,
+                                    storeColCount - constColMapSize));
                 }
 
                 for (int i = 0; i < dataVals.length; i++) {
@@ -4710,9 +4640,7 @@ public class SqlFile {
                                         java.sql.Timestamp.valueOf(dateString));
                             } catch (IllegalArgumentException iae) {
                                 throw new RowError(rb.getString(
-                                        SqltoolRB.TIME_BAD, new String[] {
-                                                dateString
-                                        }), iae);
+                                        SqltoolRB.TIME_BAD, dateString), iae);
                             }
                         }
                     } else if (parseBool[i]) {
@@ -4727,9 +4655,8 @@ public class SqlFile {
                                 // Boolean.parseBoolean().
                             } catch (IllegalArgumentException iae) {
                                 throw new RowError(rb.getString(
-                                        SqltoolRB.BOOLEAN_BAD, new String[] {
-                                                dataVals[i]
-                                        }), iae);
+                                        SqltoolRB.BOOLEAN_BAD, dataVals[i]),
+                                                iae);
                             }
                         }
                     } else {
@@ -4747,9 +4674,7 @@ public class SqlFile {
 
                 if (retval != 1) {
                     throw new RowError(rb.getString(
-                            SqltoolRB.INPUTREC_MODIFIED, new String[] {
-                                    Integer.toString(retval)
-                            }));
+                            SqltoolRB.INPUTREC_MODIFIED, retval));
                 }
 
                 possiblyUncommitteds.set(true);
@@ -4772,11 +4697,8 @@ public class SqlFile {
                     importAborted = true;
                     throw new SqlToolError(
                             rb.getString(SqltoolRB.DSV_RECIN_FAIL,
-                                    new String[] {
-                                            Integer.toString(lineCount),
-                                            currentFieldName,
-                                    }
-                            ) + ((re.getMessage() == null)
+                                    lineCount, currentFieldName)
+                            + ((re.getMessage() == null)
                                     ? "" : ("  " + re.getMessage())),
                             re.getCause());
                 }
@@ -4811,10 +4733,7 @@ public class SqlFile {
             }
             if (rejectReportWriter != null && rejectCount > 0) {
                 rejectReportWriter.println(rb.getString(
-                        SqltoolRB.REJECTREPORT_BOTTOM, new String[] {
-                            summaryString,
-                            revnum,
-                        }));
+                        SqltoolRB.REJECTREPORT_BOTTOM, summaryString, revnum));
                 rejectReportWriter.flush();
                 rejectReportWriter.close();
             }
@@ -4822,11 +4741,11 @@ public class SqlFile {
                 if (rejectFile != null && rejectFile.exists()
                         && !rejectFile.delete())
                     errprintln(rb.getString(SqltoolRB.DSV_REJECTFILE_PURGEFAIL,
-                            new String[] {rejectFile.toString()}));
+                            rejectFile.toString()));
                 if (rejectReportFile != null && !rejectReportFile.delete())
                     errprintln(rb.getString(
                             SqltoolRB.DSV_REJECTREPORT_PURGEFAIL,
-                            new String[] {rejectFile.toString()}));
+                                    rejectFile.toString()));
                 // These are trivial errors.
             }
         }

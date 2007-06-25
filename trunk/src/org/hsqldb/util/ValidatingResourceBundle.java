@@ -174,4 +174,72 @@ abstract public class ValidatingResourceBundle {
                     "Resource Bundle pre-validation failed.  "
                     + "Following property key(s) not mapped.\n" + allIdStrings);
     }
+
+    /* Convenience wrappers follow for getString(int, String[]) for up to
+     * 3 int and/or String positionals.  Java 5 variable-length parameters
+     * can eliminate the repetition here, plus generalize to random 
+     * numbers of parameters. */
+    public String getString(int id, String s1) {
+        return getString(id, new String[] {s1});
+    }
+    public String getString(int id, String s1, String s2) {
+        return getString(id, new String[] {s1, s2});
+    }
+    public String getString(int id, String s1, String s2, String s3) {
+        return getString(id, new String[] {s1, s2, s3});
+    }
+    public String getString(int id, int i1) {
+        return getString(id, new String[] {Integer.toString(i1)});
+    }
+    public String getString(int id, int i1, int i2) {
+        return getString(id, new String[] {
+            Integer.toString(i1), Integer.toString(i2)
+        });
+    }
+    public String getString(int id, int i1, int i2, int i3) {
+        return getString(id, new String[] {
+            Integer.toString(i1), Integer.toString(i2), Integer.toString(i3)
+        });
+    }
+    public String getString(int id, int i1, String s2) {
+        return getString(id, new String[] {
+            Integer.toString(i1), s2
+        });
+    }
+    public String getString(int id, String s1, int i2) {
+        return getString(id, new String[] {
+            s1, Integer.toString(i2)
+        });
+    }
+
+    public String getString(int id, int i1, int i2, String s3) {
+        return getString(id, new String[] {
+            Integer.toString(i1), Integer.toString(i2), s3
+        });
+    }
+    public String getString(int id, int i1, String s2, int i3) {
+        return getString(id, new String[] {
+            Integer.toString(i1), s2, Integer.toString(i3)
+        });
+    }
+    public String getString(int id, String s1, int i2, int i3) {
+        return getString(id, new String[] {
+            s1, Integer.toString(i2), Integer.toString(i3)
+        });
+    }
+    public String getString(int id, int i1, String s2, String s3) {
+        return getString(id, new String[] {
+            Integer.toString(i1), s2, s3
+        });
+    }
+    public String getString(int id, String s1, String s2, int i3) {
+        return getString(id, new String[] {
+            s1, s2, Integer.toString(i3)
+        });
+    }
+    public String getString(int id, String s1, int i2, String s3) {
+        return getString(id, new String[] {
+            s1, Integer.toString(i2), s3
+        });
+    }
 }
