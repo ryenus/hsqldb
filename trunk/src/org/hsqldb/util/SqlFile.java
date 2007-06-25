@@ -2309,9 +2309,11 @@ public class SqlFile {
     /**
      * Wrapper methods so don't need to call x(..., false) in most cases.
      */
+    /* Unused.  Enable when/if need.
     private void stdprintln() {
         stdprintln(false);
     }
+    */
 
     private void stdprint(String s) {
         stdprint(s, false);
@@ -3377,12 +3379,11 @@ public class SqlFile {
         }
         if (history.size() < 1) {
             throw new BadSpecial(rb.getString(SqltoolRB.HISTORY_NONE));
-        } else {
-            for (int i = 0; i < history.size(); i++) {
-                psStd.println("#" + (i + oldestHist) + " or "
-                        + (i - history.size()) + ':');
-                psStd.println((String) history.get(i));
-            }
+        }
+        for (int i = 0; i < history.size(); i++) {
+            psStd.println("#" + (i + oldestHist) + " or "
+                    + (i - history.size()) + ':');
+            psStd.println((String) history.get(i));
         }
         if (buffer != null) {
             psStd.println(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS, buffer));
@@ -3597,12 +3598,10 @@ public class SqlFile {
         String[] tokens = new String[negate ? (inTokens.length - 1)
                                             : inTokens.length];
         String inToken;
-        String varName;
 
         for (int i = 0; i < tokens.length; i++) {
             inToken = inTokens[i + (negate ? 1 : 0)];
             if (inToken.length() > 1 && inToken.charAt(0) == '*') {
-                varName = inToken.substring(1);
                 tokens[i] = (String) userVars.get(inToken.substring(1));
             } else {
                 tokens[i] = inTokens[i + (negate ? 1 : 0)];
@@ -4745,7 +4744,8 @@ public class SqlFile {
                 if (rejectReportFile != null && !rejectReportFile.delete())
                     errprintln(rb.getString(
                             SqltoolRB.DSV_REJECTREPORT_PURGEFAIL,
-                                    rejectFile.toString()));
+                                    (rejectFile == null)
+                                            ? null : rejectFile.toString()));
                 // These are trivial errors.
             }
         }
