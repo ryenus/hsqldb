@@ -643,7 +643,7 @@ public class SqlFile {
                     processSQL();
                 } catch (BadSpecial bs) {
                     // BadSpecials ALWAYS have non-null getMessage().
-                    errprintln(rb.getString(SqltoolRB.ERRORAT_WITHECHO,
+                    errprintln(rb.getString(SqltoolRB.ERRORAT,
                             new String[] {
                                 ((file == null) ? "stdin" : file.toString()),
                                 Integer.toString(curLinenum),
@@ -662,24 +662,13 @@ public class SqlFile {
                         throw new SqlToolError(bs);
                     }
                 } catch (SQLException se) {
-                    errprintln("SQL " + rb.getString(
-                            ((lastSqlStatement == null) ? SqltoolRB.ERRORAT
-                                    : SqltoolRB.ERRORAT_WITHECHO),
-                            ((lastSqlStatement == null) ? (
-                                new String[] {
-                                    ((file == null) ? "stdin" : file.toString()),
-                                    Integer.toString(curLinenum),
-                                    se.getMessage(),
-                                }
-                            ) : (
-                                new String[] {
-                                    ((file == null) ? "stdin" : file.toString()),
-                                    Integer.toString(curLinenum),
-                                    lastSqlStatement,
-                                    se.getMessage(),
-                                }
-                            ))
-                    ));
+                    errprintln("SQL " + rb.getString(SqltoolRB.ERRORAT,
+                            new String[] {
+                                ((file == null) ? "stdin" : file.toString()),
+                                Integer.toString(curLinenum),
+                                lastSqlStatement,
+                                se.getMessage(),
+                            }));
                     // It's possible that we could have
                     // SQLException.getMessage() == null, but if so, I think
                     // it reasonsable to show "null".  That's a DB inadequacy.
@@ -726,7 +715,7 @@ public class SqlFile {
                 } catch (QuitNow qn) {
                     throw qn;
                 } catch (SqlToolError ste) {
-                    errprint(rb.getString(SqltoolRB.ERRORAT_WITHECHO,
+                    errprint(rb.getString(SqltoolRB.ERRORAT,
                             new String[] {
                                 ((file == null) ? "stdin" : file.toString()),
                                 Integer.toString(curLinenum),
@@ -4413,11 +4402,8 @@ public class SqlFile {
             // Difficult call, but I think in any real-world situation, the
             // user will want to know if they are inserting records with no
             // data from their input file.
-            throw new SqlToolError((dsvSkipCols == null)
-                    ? rb.getString(SqltoolRB.DSV_NOCOLSLEFT)
-                    : (rb.getString(SqltoolRB.DSV_NOCOLSLEFT_WSK,
-                            new String[] {dsvSkipCols}))
-            );
+            throw new SqlToolError(rb.getString(SqltoolRB.DSV_NOCOLSLEFT,
+                    new String[] {dsvSkipCols}));
         }
 
         if (constColMap != null) {
@@ -4784,31 +4770,28 @@ public class SqlFile {
                     }
                 } else {
                     importAborted = true;
-                    throw new SqlToolError(((currentFieldName == null)
-                            ? rb.getString(SqltoolRB.DSV_RECIN_FAIL,
-                                    new String[] {Integer.toString(lineCount)})
-                            : rb.getString(SqltoolRB.DSV_RECIN_FAIL_WCOL,
+                    throw new SqlToolError(
+                            rb.getString(SqltoolRB.DSV_RECIN_FAIL,
                                     new String[] {
                                             Integer.toString(lineCount),
                                             currentFieldName,
                                     }
-                            )) + ((re.getMessage() == null)
+                            ) + ((re.getMessage() == null)
                                     ? "" : ("  " + re.getMessage())),
-                                            re.getCause());
+                            re.getCause());
                 }
             }
         } finally {
             String summaryString = null;
             if (recCount > 0) {
-                summaryString = rb.getString((importAborted
-                        ? SqltoolRB.DSV_IMPORT_SUMMARY_WABORT
-                        : SqltoolRB.DSV_IMPORT_SUMMARY),
+                summaryString = rb.getString(SqltoolRB.DSV_IMPORT_SUMMARY,
                         new String[] {
                                 ((skipPrefix == null)
                                           ? "" : ("'" + skipPrefix + "'-")),
                                 Integer.toString(skipCount),
                                 Integer.toString(rejectCount),
                                 Integer.toString(recCount - rejectCount),
+                                (importAborted ? "importAborted" : null)
                         });
                 stdprintln(summaryString);
             }
