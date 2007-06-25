@@ -808,6 +808,7 @@ examples:
                   org/hsqldb/util/SqlToolError*,
                   org/hsqldb/util/SqlFile*
                   org/hsqldb/lib/FileAccess*
+                  org/hsqldb/lib/StringUtil*
                   '/>
     <fileset id='sqltoolres' dir='classes'
         includes='org/hsqldb/util/**/*.text,
