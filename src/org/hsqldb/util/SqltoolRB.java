@@ -143,7 +143,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int CAUSEREPORT = keyCounter++;
     static public final int BREAK_UNSATISFIED = keyCounter++;
     static public final int CONTINUE_UNSATISFIED = keyCounter++;
-    static public final int CONTINUE_UNSATISFIED_TYPED = keyCounter++;
     static public final int PRIMARYINPUT_ACCESSFAIL = keyCounter++;
     static public final int INPUT_UNTERMINATED = keyCounter++;
     static public final int PLVAR_SET_INCOMPLETE = keyCounter++;
@@ -325,7 +324,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(CAUSEREPORT), "causereport",
         new Integer(BREAK_UNSATISFIED), "break.unsatisfied",
         new Integer(CONTINUE_UNSATISFIED), "continue.unsatisfied",
-        new Integer(CONTINUE_UNSATISFIED_TYPED), "continue.unsatisfied.typed",
         new Integer(PRIMARYINPUT_ACCESSFAIL), "primaryinput.accessfail",
         new Integer(INPUT_UNTERMINATED), "input.unterminated",
         new Integer(PLVAR_SET_INCOMPLETE), "plvar.set.incomplete",
