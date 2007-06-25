@@ -178,7 +178,7 @@ abstract public class ValidatingResourceBundle {
 
     /* Convenience wrappers follow for getString(int, String[]) for up to
      * 3 int and/or String positionals.  Java 5 variable-length parameters
-     * can eliminate the repetition here, plus generalize to random 
+     * can eliminate the repetition here, plus generalize to random
      * numbers of parameters. */
     public String getString(int id, String s1) {
         return getString(id, new String[] {s1});

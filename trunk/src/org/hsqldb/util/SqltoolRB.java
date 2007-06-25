@@ -282,7 +282,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int DSV_REJECTREPORT_PURGEFAIL = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
-        /* With Java 5, can use auto-boxing and get rid of all of the 
+        /* With Java 5, can use auto-boxing and get rid of all of the
          * Integer instantiations below.*/
         // SqlTool class, file references:
         new Integer(SQLTOOL_SYNTAX), "SqlTool.syntax",
