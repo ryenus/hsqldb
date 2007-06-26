@@ -4152,7 +4152,6 @@ public class SqlFile {
         byte[] bfr  = null;
         File   file = new File(filePath);
         SortedMap constColMap = null;
-        int constColMapSize = 0;
         if (dsvConstCols != null) {
             // We trim col. names, but not values.  Must allow users to
             // specify values as spaces, empty string, null.
@@ -4170,7 +4169,6 @@ public class SqlFile {
                 }
                 constColMap.put(n, constPairs[i].substring(firstEq + 1));
             }
-            constColMapSize = constColMap.size();
         }
         Set skipCols = null;
         if (dsvSkipCols != null) {
