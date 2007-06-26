@@ -630,6 +630,7 @@ public class SqlFile {
                     }
 
                     setBuf(immCmdSB.toString());
+                    bufContainsSql = true;
                     immCmdSB.setLength(0);
                     historize();
                     processSQL();
@@ -927,6 +928,7 @@ public class SqlFile {
             processSpecial(buffer);
             return;
         }
+        bufContainsSql = true;
         processSQL();
     }
 
@@ -1069,18 +1071,13 @@ public class SqlFile {
                             :  (new OutputStreamWriter(
                                     new FileOutputStream(other.trim(), true),
                                             charset))
-                            // Appendmode so can append to an SQL script, but
-                            // due to issue discribed immediately below, this
-                            // doesn't quite work any more.
+                            // Appendmode so can append to an SQL script.
                     );
                     // Replace with just "(new FileOutputStream(file), charset)"
                     // once use defaultCharset from Java 1.5 in charset init.
                     // above.
 
-                    pw.println(buffer);
-                    // TODO:  Consider whether to append ";" to SQL commands
-                    // to make them normal SQL scripts.  Difficulty with that is
-                    // determining whether the command in buffer is SQL or not.
+                    pw.println(buffer + (bufContainsSql ? ";" : ""));
                     pw.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
@@ -2787,7 +2784,7 @@ public class SqlFile {
     private boolean excludeSysSchemas = false;
 
     /**
-     * Process the immediate command as an SQL Statement
+     * Process the contents of Edit Buffer as an SQL Statement
      *
      * @throws SQLException thrown by JDBC driver.
      * @throws SqlToolError all other errors.
@@ -3425,9 +3422,11 @@ public class SqlFile {
     private void setBuf(String newContent) {
         buffer = new String(newContent);
         // System.err.println("Buffer is now (" + buffer + ')');
+        bufContainsSql = false;
     }
 
     int oldestHist = 1;
+    boolean bufContainsSql = true;
 
     /**
      * Add a command onto the history list.
