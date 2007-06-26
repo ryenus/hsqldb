@@ -1312,15 +1312,16 @@ public class SqlFile {
                     List colList = new ArrayList();
                     int[] incCols = null;
                     if (dsvSkipCols != null) {
-                        Set ucSkipCols = new HashSet();
-                        String[] skipCols = dsvSkipCols.split("\\s*\\Q"
+                        Set skipCols = new HashSet();
+                        String[] skipColsArray = dsvSkipCols.split("\\s*\\Q"
                                 + dsvColDelim + "\\E\\s*");
-                        for (int i = 0; i < skipCols.length; i++) {
-                            ucSkipCols.add(skipCols[i].toUpperCase());
+                        for (int i = 0; i < skipColsArray.length; i++) {
+                            skipCols.add(skipColsArray[i].toLowerCase());
                         }
                         ResultSetMetaData rsmd = rs.getMetaData();
                         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                            if (!ucSkipCols.remove(rsmd.getColumnName(i))) {
+                            if (!skipCols.remove(rsmd.getColumnName(i)
+                                    .toLowerCase())) {
                                 colList.add(new Integer(i));
                             }
                         }
@@ -1328,10 +1329,10 @@ public class SqlFile {
                             throw new BadSpecial(rb.getString(
                                     SqltoolRB.DSV_NOCOLSLEFT, dsvSkipCols));
                         }
-                        if (ucSkipCols.size() > 0) {
+                        if (skipCols.size() > 0) {
                             throw new BadSpecial(rb.getString(
                                     SqltoolRB.DSV_SKIPCOLS_MISSING,
-                                        ucSkipCols.toString()));
+                                        skipCols.toString()));
                         }
                         incCols = new int[colList.size()];
                         for (int i = 0; i < incCols.length; i++) {
@@ -4144,6 +4145,10 @@ public class SqlFile {
      */
     public void importDsv(String filePath, String skipPrefix)
             throws SqlToolError {
+        /* To make string comparisons, contains() methods, etc. a little
+         * simpler and concise, just switch all column names to lower-case.
+         * This is ok since we acknowledge up from that DSV import/export
+         * assume no special characters or escaping in column names. */
         byte[] bfr  = null;
         File   file = new File(filePath);
         SortedMap constColMap = null;
@@ -4158,21 +4163,22 @@ public class SqlFile {
             String n;
             for (int i = 0; i < constPairs.length; i++) {
                 firstEq = constPairs[i].indexOf('=');
-                n = constPairs[i].substring(0, i).trim();
+                n = constPairs[i].substring(0, firstEq).trim().toLowerCase();
                 if (n.trim().length() < 1) {
                     throw new SqlToolError(
                             rb.getString(SqltoolRB.DSV_CONSTCOLS_NULLCOL));
                 }
                 constColMap.put(n, constPairs[i].substring(firstEq + 1));
             }
+            constColMapSize = constColMap.size();
         }
-        Set ucSkipCols = null;
+        Set skipCols = null;
         if (dsvSkipCols != null) {
-            ucSkipCols = new HashSet();
-            String[] skipCols = dsvSkipCols.split("\\s*\\Q"
+            skipCols = new HashSet();
+            String[] skipColsArray = dsvSkipCols.split("\\s*\\Q"
                     + dsvColDelim + "\\E\\s*");
-            for (int i = 0; i < skipCols.length; i++) {
-                ucSkipCols.add(skipCols[i].toUpperCase());
+            for (int i = 0; i < skipColsArray.length; i++) {
+                skipCols.add(skipColsArray[i].toLowerCase());
             }
         }
 
@@ -4320,19 +4326,21 @@ public class SqlFile {
                         headerList.size() + 1, lineCount));
             }
 
-            colName = string.substring(colStart, colEnd).trim();
+            colName = string.substring(colStart, colEnd).trim().toLowerCase();
             headerList.add(
                 (colName.equals("-")
-                        || (ucSkipCols != null
-                                && ucSkipCols.remove(colName.toUpperCase()))
+                        || (skipCols != null
+                                && skipCols.remove(colName))
+                        || (constColMap != null
+                                && constColMap.containsKey(colName))
                 )
                 ? ((String) null)
                 : colName);
 
             colStart = colEnd + dsvColDelim.length();
-        } if (ucSkipCols != null && ucSkipCols.size() > 0) {
+        } if (skipCols != null && skipCols.size() > 0) {
             throw new SqlToolError(rb.getString(
-                    SqltoolRB.DSV_SKIPCOLS_MISSING, ucSkipCols.toString()));
+                    SqltoolRB.DSV_SKIPCOLS_MISSING, skipCols.toString()));
         }
 
         boolean oneCol = false;  // At least 1 non-null column
@@ -4350,11 +4358,15 @@ public class SqlFile {
                     dsvSkipCols));
         }
 
+        int inputColHeadCount = headerList.size();
+
         if (constColMap != null) {
             headerList.addAll(constColMap.keySet());
         }
 
         String[]  headers   = (String[]) headerList.toArray(new String[0]);
+        // headers contains input headers + all constCols, some of these
+        // values may be nulls.
 
         if (tableName == null) {
             tableName = file.getName();
@@ -4571,11 +4583,10 @@ public class SqlFile {
                         colEnd = recEnd;
                     }
 
-                    if (readColCount == headers.length - constColMapSize) {
+                    if (readColCount == inputColHeadCount) {
                         throw new RowError(rb.getString(
                                 SqltoolRB.DSV_COLCOUNT_MISMATCH,
-                                        headers.length - constColMapSize,
-                                        1 + readColCount));
+                                        inputColHeadCount, 1 + readColCount));
                     }
 
                     if (headers[readColCount++] != null) {
@@ -4584,6 +4595,12 @@ public class SqlFile {
                     }
                     colStart             = colEnd + dsvColDelim.length();
                 }
+                if (readColCount < inputColHeadCount) {
+                    throw new RowError(rb.getString(
+                            SqltoolRB.DSV_COLCOUNT_MISMATCH,
+                                    inputColHeadCount, readColCount));
+                }
+                /* Already checked for readColCount too high in prev. block */
 
                 if (constColMap != null) {
                     Iterator it = constColMap.values().iterator();
@@ -4591,20 +4608,10 @@ public class SqlFile {
                         dataVals[storeColCount++] = (String) it.next();
                     }
                 }
-                /* It's too late for the following two tests, since if
-                 * we inserted *ColCount > array.length, we would have
-                 * generated a runtime array index exception. */
-                if (readColCount != headers.length - constColMapSize) {
-                    throw new RowError(rb.getString(
-                            SqltoolRB.DSV_COLCOUNT_MISMATCH,
-                                    headers.length - constColMapSize,
-                                    1 + readColCount));
-                }
                 if (storeColCount != dataVals.length) {
                     throw new RowError(rb.getString(
-                            SqltoolRB.DSV_COLCOUNT_MISMATCH,
-                                    dataVals.length - constColMapSize,
-                                    storeColCount - constColMapSize));
+                            SqltoolRB.DSV_INSERTCOL_MISMATCH,
+                                    dataVals.length, storeColCount));
                 }
 
                 for (int i = 0; i < dataVals.length; i++) {
