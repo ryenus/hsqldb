@@ -172,7 +172,6 @@
 	  *end foreach
   *end if
 *end foreach
-\p *{R}
 *if (*R != I:B1a:B1c:B2a:B2c:B4a:B4c:C1a:C1c:C2a:C2c:C4a:C4c)
     \q nested conditional foreach result unexpected: *{R}
 *end if
@@ -195,4 +194,22 @@
 *end foreach
 *if (*R != I:A1b:A2b:A3b:B1b:B2b:B3b:C1b:C2b:C3b)
     \q nested foreach result unexpected: *{R}
+*end if
+
+/* If something doesn't work right, could get into infinite loop below. */
+* accum=L
+*while (1)
+   * accum = *{accum}P
+   * subcum = M
+   *while (*subcum < MQQ)
+       * subcum = *{subcum}Q
+   *end while
+   * accum = *{accum}*{subcum}
+   *if (*accum == LPMQQPMQQ)
+       *break while
+    *end if
+*end while
+
+*if (*accum != LPMQQPMQQ)
+    \p Wrong value accumulated by nested while loops (*{accum})
 *end if
