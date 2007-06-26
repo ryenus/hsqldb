@@ -1,4 +1,4 @@
-        <TR><TD class='sumcell' colspan='4'>%{1}</TD></TR>
+        <TR><TD class='sum' colspan='4'>%{1}</TD></TR>
     </TBODY>
 </TABLE>
 

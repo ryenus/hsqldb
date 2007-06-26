@@ -1,22 +1,32 @@
 <HTML>
+
+<!--   END USERS:  To customize, write your own CSS file named
+       "rejects_custom.css" and place it in same directory as 
+       this file is read from.
+       Probably makes most sense to start by overriding the styles
+       that are set in the STYLE block below.
+       If you copy this file, email it to somebody, etc., remember
+       to send your rejects_custom.css file too, or it will appear
+       without customization in the new location.  -- blaine
+-->
+
 <HEAD>
     <TITLE>SqlTool DSV Reject Report</TITLE>
     <STYLE>
         th { background-color:DDEEEE; }
         .right { text-align:right; }
-        .reason { font-size:95%; font-weight:bold;}
-        .bold { font-weight:bold; }
-        .reasonhead { color:red; }
+        td.reason { font-size:95%; font-weight:bold;}
+        th.reason { text-decoration:underline; color:red; }
         .center { text-align:center; }
         body { background:silver; }
         span.headingval { font-weight:bold; font-style:courier; }
         table { background-color:white; }
         tr.oddrow { background-color:#EEEEEE; }
         tr.evenrow { background-color:#EEFFFF; }
-        td.sumcell { border:3px solid #006363; font-weight:bold; }
+        td.sum { border:3px solid #006363; font-weight:bold; }
         div.footnote { margin:10px; font-size:90%;}
     </STYLE>
-    <LINK rel='stylesheet' href='reject_custom.css' type='text/css'>
+    <LINK rel='stylesheet' href='rejects_custom.css' type='text/css'>
 </HEAD>
 <BODY>
 
@@ -39,9 +49,11 @@
 
 <TABLE border='1px' cellpadding='5px'>
     <THEAD><TR>
-        <TH>rej.&nbsp;#</TH>
-        <TH>input<BR/>line&nbsp;#</TH>
-        <TH>bad&nbsp;column<BR/>(if&nbsp;known)</TH>
-        <TH class='reasonhead'>reason</TH>
+        <TH title="Number of this error">rej.&nbsp;#</TH>
+        <TH title="Line number in input .dsv file">input<BR/>line&nbsp;#</TH>
+        <TH title="Offending column.  Blank if unknown.">
+            bad&nbsp;column<BR/>(if&nbsp;known)</TH>
+        <TH title="Reason for failure, from DSV parser or database"
+            class='reason'>reason</TH>
     </TR></THEAD>
     <TBODY>
