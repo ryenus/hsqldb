@@ -90,8 +90,9 @@ public class SqlTool {
     // issue).
 
     static {
-        revnum = "$Revision: x$".substring("$Revision: ".length(),
-                                               "$Revision: x$".length() - 2);
+        revnum = "$Revision$".substring("$Revision: ".length(),
+                                               "$Revision$".length()
+                                               - 2);
         try {
             rb = new SqltoolRB();
             rb.validate();
