@@ -116,6 +116,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int RCDATA_INLINEURL_MISSING = keyCounter++;
     static public final int RCDATA_INLINE_EXTRAVARS = keyCounter++;
     static public final int RCDATA_INLINEUSERNAME_MISSING = keyCounter++;
+    static public final int RCDATA_PASSWORD_VISIBLE = keyCounter++;
     static public final int PASSWORD_READFAIL = keyCounter++;
     static public final int CONNECTION_FAIL = keyCounter++;
     static public final int RCDATA_GENFROMVALUES_FAIL = keyCounter++;
@@ -150,6 +151,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int INPUTREADER_CLOSEFAIL = keyCounter++;
     static public final int ROLLINGBACK = keyCounter++;
     static public final int SPECIAL_UNSPECIFIED = keyCounter++;
+    static public final int BUFHIST_UNSPECIFIED = keyCounter++;
     static public final int BUFFER_EXECUTING = keyCounter++;
     static public final int EXECUTING = keyCounter++;
     static public final int NOBUFFER_YET = keyCounter++;
@@ -296,6 +298,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(RCDATA_INLINE_EXTRAVARS), "rcdata.inline.extravars",
         new Integer(RCDATA_INLINEUSERNAME_MISSING),
                 "rcdata.inlineusername.missing",
+        new Integer(RCDATA_PASSWORD_VISIBLE), "rcdata.password.visible",
         new Integer(PASSWORD_READFAIL), "password.readfail",
         new Integer(CONNECTION_FAIL), "connection.fail",
         new Integer(RCDATA_GENFROMVALUES_FAIL),
@@ -333,6 +336,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(INPUTREADER_CLOSEFAIL), "inputreader.closefail",
         new Integer(ROLLINGBACK), "rollingback",
         new Integer(SPECIAL_UNSPECIFIED), "special.unspecified",
+        new Integer(BUFHIST_UNSPECIFIED), "bufhist.unspecified",
         new Integer(BUFFER_EXECUTING), "buffer.executing",
         new Integer(EXECUTING), "executing",
         new Integer(NOBUFFER_YET), "nobuffer.yet",

@@ -81,18 +81,17 @@ done
 trap "rm -rf $TMPDIR" EXIT
 
 declare -a FailedScripts
-echo "${#Scripts[@]} tests to run..."
+echo "${#Scripts[@]} test(s) to run..."
 
 for script in "${Scripts[@]}"; do
     if [ -n "$VERBOSE" ]; then
-        echo java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --setVar testvar=plval --inlineRc user=sa,url=jdbc:hsqldb:mem:utst "$script"
+        echo java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --setVar testvar=plval --inlineRc user=sa,url=jdbc:hsqldb:mem:utst,password= "$script"
     else
         echo -n T
     fi
     [ -n "$NORUN" ] || {
         succeed=
-        echo |  #  This is to give SqlTool a blank password for user 'sa'
-        eval java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --setVar testvar=plval --inlineRc user=sa,url=jdbc:hsqldb:mem:utst "$script" $REDIR
+        eval java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --setVar testvar=plval --inlineRc user=sa,url=jdbc:hsqldb:mem:utst,password= "$script" $REDIR
         case "$script" in
             *.nsql) [ $? -ne 0 ] && succeed=1;;
             *) [ $? -eq 0 ] && succeed=1;;

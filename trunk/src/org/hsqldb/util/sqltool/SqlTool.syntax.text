@@ -5,7 +5,7 @@ Options:
     --noInput                Do not read stdin (default if sql file given
                              or --sql switch used).
     --stdInput               Read stdin IN ADDITION to sql files/--sql input
-    --inlineRc url=val1,user=val2[,charset=val3][,truststore=val4]
+    --inlineRc url=val1,user=val2[,charset=val3][,truststore=val4][,password=]
                              Inline RC file variables (use --driver for driver)
     --debug                  Print Debug info to stderr
     --noAutoFile             Do not execute auto.sql from home dir

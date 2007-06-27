@@ -5,7 +5,7 @@ Optionen:
     --noInput                Lehrt stdin nicht (Standardeinstelling wenn
                              Sql Datei gegeben order --sql Schalter benutzt).
     --stdInput               Liest stdin ZUSÄTZLICH zu sql files/--sql input
-    --inlineRc url=val1,user=val2[,charset=val3][,truststore=val4]
+    --inlineRc url=val1,user=val2[,charset=val3][,truststore=val4][,password=]
                              Inline RC Datei Variable
     --debug                  Zeigt Debug Info zu stderr
     --noAutoFile             Ausführt auto.sql vom Home Directory nicht.

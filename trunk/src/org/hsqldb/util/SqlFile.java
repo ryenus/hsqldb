@@ -148,17 +148,17 @@ public class SqlFile {
      * unpredictable wrt whether you get a null capture group vs. no capture.
      * Must always check count!
      */
-    private static Pattern   specialPattern   =
+    private static Pattern   specialPattern =
             Pattern.compile("\\s*\\\\(\\S+)(?:\\s+(.*\\S))?\\s*");
-    private static Pattern   plPattern   =
+    private static Pattern   plPattern  =
             Pattern.compile("\\s*\\*\\s*(.*\\S)?\\s*");
-    private static Pattern   foreachPattern   =
+    private static Pattern   foreachPattern =
             Pattern.compile("\\s*\\*\\s*foreach\\s+(\\S+)\\s*\\(([^)]*)\\)\\s*");
-    private static Pattern   ifwhilePattern   =
+    private static Pattern   ifwhilePattern =
             Pattern.compile("\\s*\\*\\s*\\S+\\s*\\(([^)]*)\\)\\s*");
-    private static Pattern   varsetPattern   =
+    private static Pattern   varsetPattern =
             Pattern.compile("\\s*\\*\\s*(\\S+)\\s*([=_~])\\s*(?:(.*\\S)\\s*)?");
-    private static Pattern   substitutionPattern   =
+    private static Pattern   substitutionPattern =
             Pattern.compile("\\s*s(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
             // Note that this pattern does not include the leading :.
     private static Pattern wincmdPattern = null;
@@ -946,7 +946,7 @@ public class SqlFile {
     private void processBuffHist(String inString)
     throws BadSpecial, SQLException, SqlToolError {
         if (inString.length() < 1) {
-            throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_UNSPECIFIED));
+            throw new BadSpecial(rb.getString(SqltoolRB.BUFHIST_UNSPECIFIED));
         }
 
         char commandChar = inString.charAt(0);
@@ -1198,7 +1198,8 @@ public class SqlFile {
     /**
      * Process a Special Command.
      *
-     * @param inString Complete command, including the leading '\' character.
+     * @param inString TRIMMED complete command, including the leading
+     *                 '\' character.
      * @throws SQLException thrown by JDBC driver.
      * @throws BadSpecial special-command-specific errors.
      * @throws SqlToolError all other errors, plus QuitNow,
@@ -1206,6 +1207,9 @@ public class SqlFile {
      */
     private void processSpecial(String inString)
     throws BadSpecial, QuitNow, SQLException, SqlToolError {
+        if (inString.equals("\\")) {
+            throw new BadSpecial(rb.getString(SqltoolRB.SPECIAL_UNSPECIFIED));
+        }
         Matcher m = specialPattern.matcher(
                 plMode ? dereference(inString, false) : inString);
         if (!m.matches()) {
