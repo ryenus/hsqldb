@@ -64,8 +64,6 @@ import java.util.Map;
 public class SqlTool {
     private static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
-    private Connection conn;
-
     // N.b. the following is static!
     private static String  revnum = null;
 
@@ -92,8 +90,8 @@ public class SqlTool {
     // issue).
 
     static {
-        revnum = "$Revision$".substring("$Revision: ".length(),
-                                               "$Revision$".length()
+        revnum = "$Revision: x$".substring("$Revision: ".length(),
+                                               "$Revision: x$".length()
                                                - 2);
         try {
             rb = new SqltoolRB();
@@ -222,7 +220,7 @@ public class SqlTool {
             var = allvars[i].substring(0, equals).trim();
             val = allvars[i].substring(equals + 1).trim();
 
-            if (var.length() < 1 || val.length() < 1) {
+            if (var.length() < 1) {
                 throw new PrivateException(
                     rb.getString(SqltoolRB.SQLTOOL_VARSET_BADFORMAT));
             }
@@ -250,7 +248,7 @@ public class SqlTool {
      */
     public static void main(String[] args) {
         try {
-            new SqlTool().objectMain(args);
+            SqlTool.objectMain(args);
         } catch (SqlToolException fr) {
             if (fr.getMessage() != null) {
                 System.err.println(fr.getMessage());
@@ -271,7 +269,7 @@ public class SqlTool {
      * @throws SqlToolException  Upon any fatal error, with useful
      *                          reason as the exception's message.
      */
-    public void objectMain(String[] arg) throws SqlToolException {
+    static public void objectMain(String[] arg) throws SqlToolException {
 
         /*
          * The big picture is, we parse input args; load a RCData;
@@ -476,6 +474,7 @@ public class SqlTool {
             rcUsername   = (String) rcFields.remove("user");
             rcCharset    = (String) rcFields.remove("charset");
             rcTruststore = (String) rcFields.remove("truststore");
+            rcPassword   = (String) rcFields.remove("password");
 
             // Don't ask for password if what we have already is invalid!
             if (rcUrl == null || rcUrl.length() < 1)
@@ -484,13 +483,16 @@ public class SqlTool {
             if (rcUsername == null || rcUsername.length() < 1)
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_INLINEUSERNAME_MISSING));
+            if (rcPassword != null && rcPassword.length() > 0)
+                throw new SqlToolException(RCERR_EXITVAL, rb.getString(
+                        SqltoolRB.RCDATA_PASSWORD_VISIBLE));
             if (rcFields.size() > 0) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
                         rb.getString(SqltoolRB.RCDATA_INLINE_EXTRAVARS,
                                 rcFields.keySet().toString()));
             }
 
-            try {
+            if (rcPassword == null) try {
                 rcPassword   = promptForPassword(rcUsername);
             } catch (PrivateException e) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
@@ -525,6 +527,7 @@ public class SqlTool {
             conData.report();
         }
 
+        Connection conn = null;
         try {
             conn = conData.getConnection(
                 driver, System.getProperty("sqlfile.charset"),
