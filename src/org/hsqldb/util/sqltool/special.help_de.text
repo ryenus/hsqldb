@@ -1,0 +1,26 @@
+Sonderbefehle.
+Filter Teilketten sing case-sensitive (auf Deutsch???)!  Benutzen Sie
+"SCHEMANAME." um zu schema zu begrenzen!
+    \?                   Sonderbefehle Hilf
+    \p [Zeile zu schreiben]   Schreibt String zu stdout
+    \i datei/pfad.sql    Ausführt Befehle von außerlich Datei
+    \d{tvsiSanur*?} [Teilk.]  List Objecte von spezifiziert Typ:
+  (Tbln/sichten/Seqn/Indexe/SysTbln/Aliases/schemaNamen/benUtzer/Roln/tbl-artig)
+    \d OBJEKTNAME [Teilk.] Bescreibt Tabelle oder Sicht Spalten
+    \o [datei/pfad.html] Tee (oder aufhört) Abfrage Ausgabe zu spezif. Datei
+    \H                   Schalt zwischen HTML Ausgabe Modus.
+    \! BEFEHL  [ARGE]    Ausführt äußerlich Programm (stdin nicht unterstützt)
+    \c [true|false]      Währen nach Fehler (i.g.z. Abbruch nach Fehler)
+    \a [true|false]      Automatisch Commit JDBC DML Befehle
+    \b                   Speichert näschst Messwert zu Binärpuffer (kein zeigen)
+    \bd datei/pfad.bin   Gibt Binärpuffer zu Datei
+    \bl datei/pfad.bin   Lädt Date in den Binärpuffer
+    \bp                  Benutzen Sie ? in nächste Anweisung um Binärpuffer
+                         hinaufzuladen.
+    \.                   Einträgt roh SQL.  Beenden Sie mit Zeile mit nur "."
+    \=                   Commit JDBC Transaktion
+    \x {TABELLE|SELECT...} Gibt Tabelle oder Abfrage zu DSVTextdatei aus
+    \m datei/pfas.dsv [*] iMportieren DSV Textdatei Datensätze in eine Tabelle
+                         \x? oder \m? für Optionen.
+    \q [Abbruchbotschaft] Gіbt auf (oder beendet Input mit Ctrl-Z or Ctrl-D)
+

@@ -1,0 +1,28 @@
+Editpuffer und Geschichte Befehle.  Lieferbar nur für interaktive Benutzung.
+    :?                Editpuffer / Geschichte Hilf
+    :h                Darstellt Befehlgeschichte (plus Editpufferinhalt)
+    :b                Darstellt laufend Editpufferinhalt.
+    :X[;]             Wieder aufladed Befehl #X zu Editpuller (für Edit/":;")
+       (Ganzzahl X)    wo X von 13 bedutet Befehl #13 von Geschichte;
+                            X von -13 beduetet 13en Befehl zurück;
+                            ';' Suffix beduetet den Befehl auch auszuführen.
+    :;                Führt den Editpufferinhalt (Spezial, PL, oder SQL-Befehl)
+    :w datei/pfad.sql Laufend Eidtpufferinhalt an Datei zufügen.
+    :a[text]          Betret Hinzufu\:gemodus mit Editpufferinhaltzweitschrift
+    :s/von regex/zo/  Ersetzt Übereinstimmung für "von regex" mit "zu"
+    :s/von/zo/[igm;]  Eins oder mehrfach Ersetzungen mit spezıfizierte Optionen.
+                von:   Gewöhnlich regulärer Ausdruck.  Sehen Sie 'perlre'
+                       man page oder Java API Spec. für java.util.regex.Pattern!
+                zu:    Wenn empty, von's wird zu löschen (z.b. ":s/x//").
+                [igm;] Optionen macht genau wie in Perl oder java.util.regex,
+                       außer ';' bedeutet nach Ersetzungen auszuführen,
+                       'g' bedeutet Global (mehrfach) Ersetzungen,
+                       und Option 's' ist immer aktiv.
+                /:     Kann eigentlich irgenetwas Zeichen sein, das weder in
+                       "von" noch "zu" String wäre.
+                UBEREINSTIMMUNG MODUS SCHALTER:
+                       i:  case Insensitive  (in Deutsch?????)
+                       g:  Global (ersetzt alle Ereignisse)
+                       m:  ^ und $ übereinstimmt Zeilebruch (view Perl m Option)
+                       ;:  ausführt genau nach die Ersetzung
+
