@@ -7,18 +7,19 @@ Weiterverbreitung ist zulässig unter den Bedinungen der HSQLDB Lizenz.
     :?    listet Editpuffer/History commands.
     *?    listet PL Befehle.
 
-SONDER Befehle fingt mit \ vorab und ausführt wenn Sie Eingabetaste anschlagen.
-EDIT-PUFFER / GESCHICHTE fingt mit : vorab und ausführt wenn Sie Eingabetaste
- anschlagen.
-KOMMENTARE fingt mit /* vorab und and beendet bei allernächst */.
-VERFAHRENSSPRACHE Befehle fingt mit * und ausführt wenn Sie Eingabetaste
- anschlagen.
-Alle anderem Zeilen fassen sich SQL Befehle.
-  SQL Befehle werden bei entweder Leerzeile (beim Anweisung im Editpuffer 
-  bewegt ohne auszuführen) oder eina Ziele die bie ; beendet (bei der die 
-  Anweisung auszuführt) abgesteuert.
-  SQL Befehle dürfen  bei '/PLVARNAME' anfangen für ein PL Variablebefehlalias.
+SONDER Befehle fangen mit \ an und führen durch, wann Sie ENTER-Taste schlagen.
+EDIT-PUFFER / GESCHICHTE fangen mit : an und führen durch, wann Sie ENTER-Taste
+schlagen.
+KOMMENTARE fangen mit /* an und and beenden mit allernächst */.
+VERFAHRENSSPRACHE Befehle fangen mit * an und führen durch, wann Sie
+ ENTER-Taste anschlagen.
+Alle weiteren Zeilen enthalten SQL Anweisungen.
+  SQL Anweisungen werden entweder durch eine Leerzeile beendet (die die
+  Anweisung in den Editpuffer verschiebt, onhe auszuführen) oder eina Ziele 
+  Ende mit ';' (das die Anweisung ausführt).
+  SQL Befehle können  mit '/PLVARNAME' für einen PL Variablebefehlalias
+  anfangen.
 Nach Variableexpansion bei der "*" Befehl (oder irgendeine andere
- Verfahrensbefehle), PL Variable dürfen in irgendein Befehl (außerhalb
- : Befehle) wie:  *{PLVARNAME}.
+ Verfahrensbefehle), PL Variable können in irgendein Befehl (außerhalb
+ : Befehle) wie so:  *{PLVARNAME}.
 

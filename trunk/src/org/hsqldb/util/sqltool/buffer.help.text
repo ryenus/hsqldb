@@ -1,4 +1,4 @@
-Edit Buffer and History Commands.  Not available for non-interactive use.
+EDIT BUFFER AND HISTORY COMMANDS.  Not available for non-interactive use.
     :?                Edit buffer / history Help
     :h                Show History of previous commands (plus buffer contents)
     :b                List current contents of edit Buffer

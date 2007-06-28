@@ -1,4 +1,4 @@
-SPECIAL Commands.
+SPECIAL COMMANDS
 Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \?                   Special command Help
     \p [line to print]   Print string to stdout
