@@ -1,26 +1,26 @@
 Sonderbefehle.
-Filter Teilketten sing case-sensitive (auf Deutsch???)!  Benutzen Sie
-"SCHEMANAME." um zu schema zu begrenzen!
+Filterteilketten sind Schachtel-empfindlich.  "SCHEMANAME." benutzen, um zu
+einem Schame zu verengen.
     \?                   Sonderbefehle Hilf
-    \p [Zeile zu schreiben]   Schreibt String zu stdout
-    \i datei/pfad.sql    Ausf√ºhrt Befehle von au√üerlich Datei
-    \d{tvsiSanur*?} [Teilk.]  List Objecte von spezifiziert Typ:
+    \p [Zeile zu schreiben]   Schreibt String zum stdout
+    \i datei/pfad.sql    Ausf¸hrt Befehle von auﬂerlich Datei
+    \d{tvsiSanur*?} [Teilk.]  Verzeichnet Gegenst‰nde der spezifiziert Art:
   (Tbln/sichten/Seqn/Indexe/SysTbln/Aliases/schemaNamen/benUtzer/Roln/tbl-artig)
     \d OBJEKTNAME [Teilk.] Bescreibt Tabelle oder Sicht Spalten
-    \o [datei/pfad.html] Tee (oder aufh√∂rt) Abfrage Ausgabe zu spezif. Datei
+    \o [datei/pfad.html] Tee (oder aufhˆrt) Abfrage Ausgabe zu spezif. Datei
     \H                   Schalt zwischen HTML Ausgabe Modus.
-    \! BEFEHL  [ARGE]    Ausf√ºhrt √§u√üerlich Programm (stdin nicht unterst√ºtzt)
-    \c [true|false]      W√§hren nach Fehler (i.g.z. Abbruch nach Fehler)
+    \! BEFEHL  [ARGE]    Ausf¸hrt ‰uﬂerlich Programm (stdin nicht unterst¸tzt)
+    \c [true|false]      W‰hren nach Fehler (i.g.z. Abbruch nach Fehler)
     \a [true|false]      Automatisch Commit JDBC DML Befehle
-    \b                   Speichert n√§schst Messwert zu Bin√§rpuffer (kein zeigen)
-    \bd datei/pfad.bin   Gibt Bin√§rpuffer zu Datei
-    \bl datei/pfad.bin   L√§dt Date in den Bin√§rpuffer
-    \bp                  Benutzen Sie ? in n√§chste Anweisung um Bin√§rpuffer
+    \b                   Speichert n‰chst Resultat zum Bin‰rpuffer (kein zeigen)
+    \bd datei/pfad.bin   Gibt Bin‰rpuffer zu Datei
+    \bl datei/pfad.bin   L‰dt Date in den Bin‰rpuffer
+    \bp                  Benutzen Sie ? in n‰chste Anweisung um Bin‰rpuffer
                          hinaufzuladen.
-    \.                   Eintr√§gt roh SQL.  Beenden Sie mit Zeile mit nur "."
+    \.                   Eintr‰gt roh SQL.  Beenden Sie mit Zeile mit nur "."
     \=                   Commit JDBC Transaktion
     \x {TABELLE|SELECT...} Gibt Tabelle oder Abfrage zu DSVTextdatei aus
-    \m datei/pfas.dsv [*] iMportieren DSV Textdatei Datens√§tze in eine Tabelle
-                         \x? oder \m? f√ºr Optionen.
-    \q [Abbruchbotschaft] G—ñbt auf (oder beendet Input mit Ctrl-Z or Ctrl-D)
+    \m datei/pfas.dsv [*] iMportieren DSV Textdatei Datens‰tze in eine Tabelle
+                         \x? oder \m? f¸r W‰hlen.
+    \q [Abbruchbotschaft] Gibt auf (oder beendet Input mit Ctrl-Z or Ctrl-D)
 

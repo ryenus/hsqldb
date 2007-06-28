@@ -1,7 +1,7 @@
 Syntax: java org.hsqldb.util.SqlTool [--opt [optval...]] urlid [file1.sql...]
 Optionen:
-    --help                   Zeigt diese Botschaft
-    --list                   Listet Urlids von der RC Datei
+    --help                   Zeigt diese Anzeige an
+    --list                   Verzeichnet Urlids von der RC Datei
     --noInput                Lehrt stdin nicht (Standardeinstelling wenn
                              Sql Datei gegeben order --sql Schalter benutzt).
     --stdInput               Liest stdin ZUSÄTZLICH zu sql files/--sql input
@@ -15,12 +15,12 @@ Optionen:
                              aus SQL Befehl(e) gebildet.  Sieh die
                              Bedienungsanleitung.
     --rcFile /file/path.rc   Anschluss Info Datei [$HOME/sqltool.rc]
-    --abortOnErr             Abbruch wenn Fehler (aufhebt Standardeinstellungen)
-    --continueOnErr          Continue wenn Fehler (aufhebt Standardeinstellung)
+    --abortOnErr             Abbruch nach Fehler (aufhebt Rückstellungen)
+    --continueOnErr          Continue nach Fehler (aufhebt Rückstellungen)
     --setVar NAME1=val1[,NAME2=val2...]   PL Variable
     --driver a.b.c.Driver    JDBC Trieber Class [%{2}]
     urlid                    ID von url/Benutzername/Passwort in RC Datei
     file1.sql...             SQL Dateien auszuführen  [stdin]
                              (Benutzen Sie '-' für non-interactively stdin!).
-Sieh die Bedienungsanleitung für abgestützte System Properties.
+Sehen Sie den Benutzer-Führer für abgestützte System Eigenschaften.
 SqlTool v. %{1}.

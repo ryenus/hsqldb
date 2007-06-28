@@ -1,28 +1,28 @@
-Editpuffer und Geschichte Befehle.  Lieferbar nur fÃ¼r interaktive Benutzung.
+EDITPUFFER UND GESCHICHTE BEFEHLE.  Vorhanden nur für interaktive Benutzung.
     :?                Editpuffer / Geschichte Hilf
-    :h                Darstellt Befehlgeschichte (plus Editpufferinhalt)
-    :b                Darstellt laufend Editpufferinhalt.
-    :X[;]             Wieder aufladed Befehl #X zu Editpuller (fÃ¼r Edit/":;")
+    :h                Zeigt Befehlgeschichte (plus Editpufferinhalt)
+    :b                Zeigt laufend Editpufferinhalt.
+    :X[;]             Wieder aufladed Befehl #X zu Editpuller (für Edit/":;")
        (Ganzzahl X)    wo X von 13 bedutet Befehl #13 von Geschichte;
-                            X von -13 beduetet 13en Befehl zurÃ¼ck;
-                            ';' Suffix beduetet den Befehl auch auszufÃ¼hren.
-    :;                FÃ¼hrt den Editpufferinhalt (Spezial, PL, oder SQL-Befehl)
-    :w datei/pfad.sql Laufend Eidtpufferinhalt an Datei zufÃ¼gen.
-    :a[text]          Betret Hinzufu\:gemodus mit Editpufferinhaltzweitschrift
-    :s/von regex/zo/  Ersetzt Ãœbereinstimmung fÃ¼r "von regex" mit "zu"
-    :s/von/zo/[igm;]  Eins oder mehrfach Ersetzungen mit spezÄ±fizierte Optionen.
-                von:   GewÃ¶hnlich regulÃ¤rer Ausdruck.  Sehen Sie 'perlre'
-                       man page oder Java API Spec. fÃ¼r java.util.regex.Pattern!
-                zu:    Wenn empty, von's wird zu lÃ¶schen (z.b. ":s/x//").
-                [igm;] Optionen macht genau wie in Perl oder java.util.regex,
-                       auÃŸer ';' bedeutet nach Ersetzungen auszufÃ¼hren,
+                            X von -13 beduetet 13. Befehl zurück;
+                            ';' Suffix beduetet den Befehl auch auszuführen.
+    :;                Führt den Editpufferinhalt (Spezial, PL, oder SQL-Befehl)
+    :w datei/pfad.sql Laufend Editpufferinhalt an Datei zufügen.
+    :a[text]          Betret Hinzufügemodus mit Editpufferinhaltzweitschrift
+    :s/von regex/zo/  Ersetzt Übereinstimmung von "von regex" mit "zu"
+    :s/von/zo/[igm;]  Eins oder mehrfach Ersatz mit spezifizierten Wahlen.
+                von:   Regelmäßiger regulärer Ausdruck.  Sehen Sie 'perlre'
+                       Mannseite oder Java API Spez. für java.util.regex.Pattern!
+                zu:    Wenn empty, von's wird zu löschen (z.b. ":s/x//").
+                [igm;] Wahlen arbeiten genau wie in Perl oder java.util.regex,
+                       ausgenommen Wahl ';' bedeutet nach Ersetzungen auszuführen,
                        'g' bedeutet Global (mehrfach) Ersetzungen,
-                       und Option 's' ist immer aktiv.
+                       und Wahl 's' ist immer aktiv.
                 /:     Kann eigentlich irgenetwas Zeichen sein, das weder in
-                       "von" noch "zu" String wÃ¤re.
-                UBEREINSTIMMUNG MODUS SCHALTER:
-                       i:  case Insensitive  (in Deutsch?????)
-                       g:  Global (ersetzt alle Ereignisse)
-                       m:  ^ und $ Ã¼bereinstimmt Zeilebruch (view Perl m Option)
-                       ;:  ausfÃ¼hrt genau nach die Ersetzung
+                       "von" noch "zu" String wäre.
+                ERSETZEN MODUS SCHALTER:
+                       i:  Schachtel-unempfindlich
+                       g:  Global (alles Auftreten ersetzen)
+                       m:  ^ und $ Übereinstimmt Zeilebruch (view Perl m Option)
+                       ;:  ausführt sofort nach die Ersatz
 
