@@ -4,19 +4,19 @@ Weiterverbreitung ist zulässig unter den Bedinungen der HSQLDB Lizenz.
 
     \q    aufzuhören.
     \?    listet Sonderbefehle.
-    :?    listet Edit-Buffer/History commands.
+    :?    listet Editpuffer/History commands.
     *?    listet PL Befehle.
 
 SONDER Befehle fingt mit \ vorab und ausführt wenn Sie Eingabetaste anschlagen.
-EDITPUFFER / GESCHICHTE fingt mit : vorab und ausführt wenn Sie Eingabetaste
+EDIT-PUFFER / GESCHICHTE fingt mit : vorab und ausführt wenn Sie Eingabetaste
  anschlagen.
 KOMMENTARE fingt mit /* vorab und and beendet bei allernächst */.
 VERFAHRENSSPRACHE Befehle fingt mit * und ausführt wenn Sie Eingabetaste
  anschlagen.
 Alle anderem Zeilen fassen sich SQL Befehle.
-  SQL Befehle werden bei entweder Leerzeile (beim Anweisung im Puffer bewegt
-  ohne auszuführen) oder eina Ziele die bie ; beendet (bei der die Anweisung
-  auszuführt) abgesteuert.
+  SQL Befehle werden bei entweder Leerzeile (beim Anweisung im Editpuffer 
+  bewegt ohne auszuführen) oder eina Ziele die bie ; beendet (bei der die 
+  Anweisung auszuführt) abgesteuert.
   SQL Befehle dürfen  bei '/PLVARNAME' anfangen für ein PL Variablebefehlalias.
 Nach Variableexpansion bei der "*" Befehl (oder irgendeine andere
  Verfahrensbefehle), PL Variable dürfen in irgendein Befehl (außerhalb

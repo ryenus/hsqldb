@@ -19,8 +19,8 @@ Optionen:
     --continueOnErr          Continue wenn Fehler (aufhebt Standardeinstellung)
     --setVar NAME1=val1[,NAME2=val2...]   PL Variable
     --driver a.b.c.Driver    JDBC Trieber Class [%{2}]
-    urlid                    ID von url/Benutzername/Losungswort in RC Datei
+    urlid                    ID von url/Benutzername/Passwort in RC Datei
     file1.sql...             SQL Dateien auszuführen  [stdin]
-                             (Benutz '-' für non-interactively stdin!).
+                             (Benutzen Sie '-' für non-interactively stdin!).
 Sieh die Bedienungsanleitung für abgestützte System Properties.
 SqlTool v. %{1}.

@@ -8,12 +8,12 @@ Distribution is permitted under the terms of the HSQLDB license.
     *?    lists PL commands.
 
 SPECIAL Commands begin with '\' and execute when you hit ENTER.
-EDIT BUFFER / HISTORY Commands begin with ':' and execute when you hit ENTER.
+EDIT-BUFFER / HISTORY Commands begin with ':' and execute when you hit ENTER.
 COMMENTS begin with '/*' and end with the very next '*/'.
 PROCEDURAL LANGUAGE commands begin with '*' and end when you hit ENTER.
 All other lines comprise SQL Statements.
   SQL Statements are terminated by either a blank line (which moves the
-  statement into the buffer without executing) or a line ending with ';'
+  statement into the edit buffer without executing) or a line ending with ';'
   (which executes the statement).
   SQL Commands may begin with '/PLVARNAME' for a PL variable command alias.
 After turning on variable expansion with command "*" (or any other PL
