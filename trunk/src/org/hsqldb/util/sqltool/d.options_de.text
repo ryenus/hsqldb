@@ -1,0 +1,12 @@
+\dX [Parameter...] wo X eins vom folgenden ist
+    t:  verzeichnet Tabellen
+    v:  verzeichnet sichten
+    s:  verzeichnet Sequenzen
+    i:  verzeichnet Indizes
+    S:  verzeichnet System Tabellen
+    a:  verzeichnet Aliases
+    n:  verzeichnet Schemanamen
+    u:  verzeichnet Benutzer
+    r:  verzeichnet Rollen
+    *:  verzeichnet Tabelleartig Gegenstände
+

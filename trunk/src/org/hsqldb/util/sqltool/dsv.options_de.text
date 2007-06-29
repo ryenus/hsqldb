@@ -1,0 +1,32 @@
+DSV bedeutet Trennzeichen-getrennte Werte.  Sie sind genau wie CSV (Comma
+ Separated Values), aber DSV benutzen immer eine korrekte Trennzeichen, um
+ die Notwendigkeit an der Veranschlagung und am Entgehen zu verhindern, die
+ CSV Dateien haben.
+Alle Variablen sind wahlweise freigestellt. Alle Variable Werte sehen,
+ durchlaufen Sie "* listvalues".  Die Werte so einstellen:
+    * *DSV_COL_DELIM = ,
+Beim Verwenden, vergessen Sie nicht ein * zeigt PL Befehl an, und ein * is
+ ein Teil des Namens.  \x oder \m folgend zeigt wo an die Einstellung ist
+ anwendbar. Default-Wert/Verhalten ist in den [quadratischen Klammern].
+    *DSV_SKIP_PREFIX   \m    Kommentarzeile Präfix in die Datei.  ["#"]
+    *DSV_COL_DELIM     \m\x  Element Trennzeichen.   ["|"]
+    *DSV_ROW_DELIM     \m\x  Segment Trennzeichen.
+                              [Betriedsystem-spezifisch (Java line.separator)]
+    *NULL_REP_TOKEN    \m\x  Zeichenkette, zum einer Datenbanknull darzustellen.
+                              ["[null]"]
+    *DSV_TARGET_FILE   \x    Die Datei, der zu scheribt.
+                              [Quelltabelle Name + ".dsv"]
+    *DSV_TARGET_TABLE  \m    Die Tabelle, der zu schreibt.
+                              [DSV Dateiname ohne Verlängerung]
+    *DSV_CONST_COLS    \m    Spalte Werte, zum zu jeder Reihe zu schreiben.
+    *DSV_REJECT_FILE   \m    Mit zurückgewiesenen Aufzeichnungen
+                              verursacht zu werden Textfile.  [None*]
+    *DSV_REJECT_REPORT \m    HTML Report, zum der Ausschußaufzeichnungen zu
+                              erklären.  [None*]
+    *DSV_SKIP_COLS     \m\x  Überspringt Spalten von der Eingang Textakte
+                             oder von der Eingang Tabelle.
+* Importe brechen sofort nach dem Rekordausfall des ersten Importes ab, es sei
+denn entweder *DSV_REJECT_FILE oder *DSV_REJECT_REPORT (oder beide)
+eingestellt werden. (Ob SqlTool Willenszurückrollen und beendigt von deinen
+Einstellungen für \c und \z abhängt).
+

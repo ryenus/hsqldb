@@ -1,36 +1,40 @@
 VERFAHRENSSPRACHE BEFEHLE
     *?                            PL Hilf
-    *                             PL Variablen ab sofort erweitern.
-                                  (Dieses wird auch durch alles Folgen angedeutet).
+    *                             PL Variablen ab sofort erweitern.  (Dieses
+                                  wird auch durch alles Folgen angedeutet).
     * VARNAME = Variable Wert     Stellt den Variable Wert ein
     * VARNAME =                   Löscht den Variable Wert.
     * VARNAME ~                   Stellt Variable Wert zu Wert der allernächsten
-                                  SQL Wert oder Zahl geholt ein (Die Details an der 
-                                  Unterseite dieser Auflistung sehen.) 
-    * VARNAME _                   Selben wie * VARNAME _, ausgenommen der Abfrage
-                                  still erfolgt ist (d.h, keine Reihen Anzeige)
-    * list[values] [VARNAME1...]  List PL Variable(n) (alles wenn kein Name gegeben)
-    * listsysprops [VARNAME1...]  List Java System Eigenschaft(en)
-    * load VARNAME path.txt       Load variable value from text file
-    * dump VARNAME path.txt       Dump variable value to text file
-    * prepare VARNAME             Use ? in next SQL statement to upload val.
-                                  (Just "?", "*{?}" would mean the auto var.).
-    * foreach VARNAME ([val1...]) Repeat the following PL block with the
-                                  variable set to each value in turn.
-    * if (logical expr)           Execute following PL block only if expr true
-    * while (logical expr)        Repeat following PL block while expr true
-    * end foreach|if|while        Ends a PL block
-    * break [foreach|if|while|file] Exits a PL block or file early
-    * continue [foreach|while]    Exits a PL block iteration early
+                                  SQL Wert oder Zahl geholt ein (Die Details an
+                                  der Unterseite dieser Auflistung sehen). 
+    * VARNAME _                   Selben wie * VARNAME _ ausgenommen der Abfrage
+                                  still erfolgt ist (d.h, keine Reihen Anzeige)>
+    * list[values] [VARNAME1...]  Verzeichnet PL Variable(n) (Rückstellung alle)
+    * listsysprops [VARNAME1...]  Verzeichnet Java System Eigenschaft(en)
+    * load VARNAME datei.txt      Lädt Variable von einer Textatei
+    * dump VARNAME datei.txt      Entleert Variable zu einer textdatei
+    * prepare VARNAME             Benutzten Sie ? in nächst SQL Anweisung
+                                  hochzuladen.  ("*{?}" bedeutet die Auto Var.).
+    * foreach VARNAME ([val1...]) Wiederholt den folgenden PL Block mit dem
+                                  Variable zu jedem Wert des Ausdruckes nach.
+    * if (logical expr)           Ausführt den folgenden PL Block nur wenn
+                                  ausdruck zutreffend ist.
+    * while (logical expr)        Wiederholt den folgenden PL Block, während
+                                  der Ausdruckes zutreffend ist.
+    * end foreach|if|while        Beendent einen PL Block
+    * break [foreach|if|while|file] Beendent einen PL Block früh
+    * continue [foreach|while]    Beendent einen PL Iteration Block früh
 
-Use PL variables (which you have set) like: *{VARNAME}.
-Use System Properties (which you may not set) like: ${property.name}.
-You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.
-Use PL variables in logical expressions, like (*VARNAME == 1).
-Auto. variable ? is set to the very next SQL datum fetched (or update count).
-    Query:  The value of the first field of the first row returned.
-    other:  Return status of the command (for updates this will be
-            the number of rows updated).
-'* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly
-like ?.  (~ will echo the value, _ will do it silently).
+Verwenden Sie PL Variablen (die Sue eingestellt haben) wie so: *{VARNAME}.
+Verwenden Sie System Eigenschaften (die Sue eingestellt haben) so: ${VARNAME}.
+Sie können /VARNAME anstatt benutzen, wenn /VARNAME das erste Wort ist.
+Verwenden Sie PL Variablen in den logischen Ausdrücken, wie so: (VARNAME == 1).
+Auto. Variablem ? wirf auf den sehr folgenden SQL Bezugspunkt geholt eingestellt
+(oderUpdatezählimpuls).
+    Abfrage:  Der Wert vom ersten fangen von erster zurückgebrachten Reihe auf.
+    jene Andere:  Rückholstatus des Befehls (für Updates ist dieses die Zahl 
+                  den aktualisierten Reihen). 
+
+'* VARNAME ~' or '* VARNAME _' stellt den spezifizierten Wert der Variable 
+genau wie einen Penny ein.  ?.  (~ zeigt den Wert, _ tut ihn still).
 
