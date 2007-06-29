@@ -3,7 +3,7 @@ Filterteilketten sind Schachtel-empfindlich.  "SCHEMANAME." benutzen, um zu
 einem Schame zu verengen.
     \?                   Sonderbefehle Hilf
     \p [Zeile zu schreiben]   Schreibt String zum stdout
-    \i datei/pfad.sql    Ausführt Befehle von außerlich Datei
+    \i datei/pfad.sql    Ausführt Befehle von äußerlich Datei
     \d{tvsiSanur*?} [Teilk.]  Verzeichnet Gegenstände der spezifiziert Art:
   (Tbln/sichten/Seqn/Indexe/SysTbln/Aliases/schemaNamen/benUtzer/Roln/tbl-artig)
     \d OBJEKTNAME [Teilk.] Bescreibt Tabelle oder Sicht Spalten

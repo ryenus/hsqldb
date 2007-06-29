@@ -1,0 +1,5 @@
+Eintragen Sie ROH SQL!  Kein \, :, * Befehle.
+End with a line containing only ".;" to send to database,
+Beenden Sie mit Zeile, die nur "." enthält, oder ":." um in den EditPuffer
+zu schreiben für editieren oder speichern.
+-----------------------------------------------------------

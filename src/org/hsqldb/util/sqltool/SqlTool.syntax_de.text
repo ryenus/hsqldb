@@ -1,5 +1,5 @@
-Syntax: java org.hsqldb.util.SqlTool [--opt [optval...]] urlid [file1.sql...]
-Optionen:
+Syntax: java org.hsqldb.util.SqlTool [--wahl [wahr...]] urlid [datei1.sql...]
+Wahlen:
     --help                   Zeigt diese Anzeige an
     --list                   Verzeichnet Urlids von der RC Datei
     --noInput                Lehrt stdin nicht (Standardeinstelling wenn
