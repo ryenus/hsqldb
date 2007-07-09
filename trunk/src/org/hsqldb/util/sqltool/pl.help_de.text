@@ -6,7 +6,7 @@ VERFAHRENSSPRACHE BEFEHLE
     * VARNAME =                   Löscht den Variable Wert.
     * VARNAME ~                   Stellt Variable Wert zu Wert der allernächsten
                                   SQL Wert oder Zahl geholt ein (Die Details an
-                                  der Unterseite dieser Auflistung sehen). 
+                                  der Unterseite dieser Auflistung sehen).
     * VARNAME _                   Selben wie * VARNAME _ ausgenommen der Abfrage
                                   still erfolgt ist (d.h, keine Reihen Anzeige)>
     * list[values] [VARNAME1...]  Verzeichnet PL Variable(n) (Rückstellung alle)
@@ -32,9 +32,9 @@ Verwenden Sie PL Variablen in den logischen Ausdrücken, wie so: (VARNAME == 1).
 Auto. Variablem ? wirf auf den sehr folgenden SQL Bezugspunkt geholt eingestellt
 (oderUpdatezählimpuls).
     Abfrage:  Der Wert vom ersten fangen von erster zurückgebrachten Reihe auf.
-    jene Andere:  Rückholstatus des Befehls (für Updates ist dieses die Zahl 
-                  den aktualisierten Reihen). 
+    jene Andere:  Rückholstatus des Befehls (für Updates ist dieses die Zahl
+                  den aktualisierten Reihen).
 
-'* VARNAME ~' or '* VARNAME _' stellt den spezifizierten Wert der Variable 
+'* VARNAME ~' or '* VARNAME _' stellt den spezifizierten Wert der Variable
 genau wie einen Penny ein.  ?.  (~ zeigt den Wert, _ tut ihn still).
 

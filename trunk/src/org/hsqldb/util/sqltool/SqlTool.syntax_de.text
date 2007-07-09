@@ -4,7 +4,7 @@ Wahlen:
     --list                   Verzeichnet Urlids von der RC Datei
     --noInput                Lehrt stdin nicht (Standardeinstelling wenn
                              Sql Datei gegeben order --sql Schalter benutzt).
-    --stdInput               Liest stdin ZUSÄTZLICH zu sql files/--sql input
+    --stdInput               Liest stdin ZUSÄTZLICH zu sql Dateien/--sql Eingang
     --inlineRc url=val1,user=val2[,charset=val3][,truststore=val4][,password=]
                              Inline RC Datei Variable
     --debug                  Zeigt Debug Info zu stderr
@@ -14,13 +14,13 @@ Wahlen:
                              SQL Dateien wenn angebeben) wo "SQL" wirt
                              aus SQL Befehl(e) gebildet.  Sieh die
                              Bedienungsanleitung.
-    --rcFile /file/path.rc   Anschluss Info Datei [$HOME/sqltool.rc]
+    --rcFile datei/pfad.rc   Anschluss Info Datei [$HOME/sqltool.rc]
     --abortOnErr             Abbruch nach Fehler (aufhebt Rückstellungen)
     --continueOnErr          Continue nach Fehler (aufhebt Rückstellungen)
     --setVar NAME1=val1[,NAME2=val2...]   PL Variable
     --driver a.b.c.Driver    JDBC Trieber Class [%{2}]
     urlid                    ID von url/Benutzername/Passwort in RC Datei
-    file1.sql...             SQL Dateien auszuführen  [stdin]
+    datei1.sql...            SQL Dateien auszuführen  [stdin]
                              (Benutzen Sie '-' für non-interactively stdin!).
 Sehen Sie den Benutzer-Führer für abgestützte System Eigenschaften.
 SqlTool v. %{1}.

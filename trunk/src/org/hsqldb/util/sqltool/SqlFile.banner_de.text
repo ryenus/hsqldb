@@ -15,7 +15,7 @@ VERFAHRENSSPRACHE Befehle fangen mit * an und führen durch, wann Sie
  ENTER-Taste anschlagen.
 Alle weiteren Zeilen enthalten SQL Anweisungen.
   SQL Anweisungen werden entweder durch eine Leerzeile beendet (die die
-  Anweisung in den Editpuffer verschiebt, onhe auszuführen) oder eina Ziele 
+  Anweisung in den Editpuffer verschiebt, onhe auszuführen) oder eina Ziele
   Ende mit ';' (das die Anweisung ausführt).
   SQL Befehle können  mit '/PLVARNAME' für einen PL Variablebefehlalias
   anfangen.

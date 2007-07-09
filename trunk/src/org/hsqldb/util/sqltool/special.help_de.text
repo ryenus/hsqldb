@@ -19,7 +19,7 @@ einem Schame zu verengen.
                          hinaufzuladen.
     \.                   Einträgt roh SQL.  Beenden Sie mit Zeile mit nur "."
     \=                   Commit JDBC Transaktion
-    \x {TABELLE|SELECT...} Gibt Tabelle oder Abfrage zu DSVTextdatei aus
+    \x {TABELLE|SELECT...} Export Tabelle oder Abfrage zu DSVTextdatei
     \m datei/pfas.dsv [*] iMportieren DSV Textdatei Datensätze in eine Tabelle
                          \x? oder \m? für Wählen.
     \q [Abbruchbotschaft] Gibt auf (oder beendet Input mit Ctrl-Z or Ctrl-D)
