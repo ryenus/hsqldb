@@ -19,10 +19,10 @@ Beim Verwenden, vergessen Sie nicht ein * zeigt PL Befehl an, und ein * is
     *DSV_TARGET_TABLE  \m    Die Tabelle, der zu schreibt.
                               [DSV Dateiname ohne Verlängerung]
     *DSV_CONST_COLS    \m    Spalte Werte, zum zu jeder Reihe zu schreiben.
-    *DSV_REJECT_FILE   \m    Mit zurückgewiesenen Aufzeichnungen
+    *DSV_REJECT_FILE   \m    Ausschußdatei.  Mit zurückgewiesenen Aufzeichnungen
                               verursacht zu werden Textfile.  [None*]
-    *DSV_REJECT_REPORT \m    HTML Report, zum der Ausschußaufzeichnungen zu
-                              erklären.  [None*]
+    *DSV_REJECT_REPORT \m    HTML Ausschußreport, zum der
+                              Ausschußaufzeichnungen zu erklären.  [None*]
     *DSV_SKIP_COLS     \m\x  Überspringt Spalten von der Eingang Textakte
                              oder von der Eingang Tabelle.
 * Importe brechen sofort nach dem Rekordausfall des ersten Importes ab, es sei
