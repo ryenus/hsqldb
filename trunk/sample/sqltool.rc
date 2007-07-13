@@ -93,7 +93,8 @@ password
 # the same purpose as "schemas" with more SQL-compliant databases.
 
 # Template for a Microsoft SQL Server database
-url jdbc:microsoft:sqlserver://hostname;DatabaseName=DbName;SelectMethod=Cursor
+#urlid msprojsvr
+#url jdbc:microsoft:sqlserver://hostname;DatabaseName=DbName;SelectMethod=Cursor
 # The SelectMethod setting is required to do more than one thing on a JDBC
 # session (I guess Microsoft thought nobody would really use Java for 
 # anything other than a "hello world" program).
