@@ -1,11 +1,14 @@
 EDITPUFFER UND GESCHICHTE BEFEHLE.  Vorhanden nur für interaktive Benutzung.
     :?                Editpuffer / Geschichte Hilf
     :h                Zeigt Befehlgeschichte (plus Editpufferinhalt)
-    :b                Zeigt laufend Editpufferinhalt.
-    :X[;]             Wieder aufladed Befehl #X zu Editpuller (für Edit/":;")
-       (Ganzzahl X)    wo X von 13 bedutet Befehl #13 von Geschichte;
-                            X von -13 beduetet 13. Befehl zurück;
-                            ';' Suffix beduetet den Befehl auch auszuführen.
+    :b                Zeigt laufend Editpufferinhalt
+    :X  (Ganzzahl X)  Wieder aufladed Befehl #X zu Editpuller
+    :-Y (Ganzzahl -Y) Selbel wie :X, ausgenommen -Y bedeuted Y Befehle zurück
+Die restlichen Edit/Geschichtebefehle, die alle an den Editpuffer durch
+Rückstellung laufen lassen durch, aber werden auch an jeden möglichen Befehl
+von der Geschichte, wenn du ein Befehl Zahlrecht nach dem Doppelpunkt
+vermittelst, wie für ":13" den 13 Befehl von der Geschcie durchzuführen, oder
+"w -3 /tmp/aus.txt" zum des dritten Befehls "rückseitig" an Datei zufügen.
     :;                Führt den Editpufferinhalt (Spezial, PL, oder SQL-Befehl)
     :w datei/pfad.sql Laufend Editpufferinhalt an Datei zufügen.
     :a[text]          Betret Hinzufügemodus mit Editpufferinhaltzweitschrift
