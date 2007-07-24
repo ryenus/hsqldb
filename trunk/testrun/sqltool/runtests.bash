@@ -37,8 +37,8 @@ Non-verbose Result Key:
     shift
 esac
 
-REDIR=
-[ -n "$VERBOSE" ] || REDIR='>&- 2>&-'
+REDIROUT=
+[ -n "$VERBOSE" ] || REDIROUT='>&- 2>&-'
 
 Failout() {
     echo "Aborting $PROGNAME:  $*" 1>&2
@@ -64,8 +64,11 @@ else
     tmpScripts=(*.nsql)
     [ "${#tmpScripts[@]}" -ne 1 ] || [ "${tmpScripts[0]}" != '*.nsql' ] &&
     Scripts=("${Scripts[@]}" "${tmpScripts[@]}")
+    tmpScripts=(*.inter)
+    [ "${#tmpScripts[@]}" -ne 1 ] || [ "${tmpScripts[0]}" != '*.inter' ] &&
+    Scripts=("${Scripts[@]}" "${tmpScripts[@]}")
     [ ${#Scripts[@]} -eq 0 ] &&
-    Failout "No *.sql or *.nsql script(s) in current directory"
+    Failout "No *.sql, *.ndsql or *.inter script(s) in current directory"
 fi
 [ -n "$VERBOSE" ] && echo "Scripts to execute: ${Scripts[@]}"
 
@@ -84,14 +87,15 @@ declare -a FailedScripts
 echo "${#Scripts[@]} test(s) to run..."
 
 for script in "${Scripts[@]}"; do
+    case "$script" in *.inter) REDIRIN='<';; *) REDIRIN=;; esac
     if [ -n "$VERBOSE" ]; then
-        echo java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --setVar testvar=plval --inlineRc user=sa,url=jdbc:hsqldb:mem:utst,password= "$script"
+        echo java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --setVar testvar=plval --inlineRc user=sa,url=jdbc:hsqldb:mem:utst,password= $REDIRIN "$script"
     else
         echo -n T
     fi
     [ -n "$NORUN" ] || {
         succeed=
-        eval java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --setVar testvar=plval --inlineRc user=sa,url=jdbc:hsqldb:mem:utst,password= "$script" $REDIR
+        eval java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --setVar testvar=plval --inlineRc user=sa,url=jdbc:hsqldb:mem:utst,password= $REDIRIN "$script" $REDIROUT
         case "$script" in
             *.nsql) [ $? -ne 0 ] && succeed=1;;
             *) [ $? -eq 0 ] && succeed=1;;

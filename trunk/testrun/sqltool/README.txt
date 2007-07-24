@@ -13,6 +13,12 @@ PORTABILITY (or lack thereof)
     Java so that the tests will run on any Java platform.
     If you have time and the Java skills to port it now-- please contact 
     me ASAP:  blaine.simpson@admc.com
+    (BTW, it will take considerable effort to just port the existing
+    behavior from Bash to Perl, but the real difficultiy would be to
+    improve the run-time by not invoking a new JVM for each test run.
+    Specifically, Java uses a very closed design for providing stdin,
+    stdout, stderr, and one can't open and close these pipes at will, as
+    we do in the Bash script).
 
 
 HOW TO RUN
@@ -41,19 +47,22 @@ HOW TO RUN
 FILE NAMING AND ASCII/BINARY CONVENTIONS
 
     You can name SQL scripts anything that you want, except that the
-    filename suffix ".nsql" is reserved for negative SQL scripts (see
-    the next section about that).
+    filename suffixes ".nsql"  and ".inter" are reserved for negative
+    and interactive SQL scripts, correspondingly (see the next section
+    about that).
 
     If you plan to run runtests.bash with no filename arguments, it
-    will execute all *.sql and *.nsql scripts in the current directory.
+    will execute all *.sql, *.nsql, an d*.inter scripts in the current
+    directory.
     So, if you plan to run runtests.bash this way, you must take care
     to name only scripts **which you want executed at the top level**
-    with extension sql or nsql.  By "at the top level", I mean that
-    if you are nesting SQL scripts with the \i command, you can't 
-    name the nested script with suffix .sql or .nsql or the script
-    will accidentally be executed directly when you run runtests.bash
-    without script arguments.  It's a simple concept, but, as you can
-    see, it's a little difficult to explain, so here's an example.
+    with extensions sql, nsql, inter.  By "at the top level", I mean
+    that if you are nesting SQL scripts with the \i command, you can't 
+    name the nested script with suffix .sql, .nsql, or .inter or the
+    script will accidentally be executed directly when you run
+    runtests.bash without script arguments.  It's a simple concept, but,
+    as you can see, it's a little difficult to explain, so here's an
+    example.
 
     You have a script name "top.sql" which contains
 
@@ -65,18 +74,20 @@ FILE NAMING AND ASCII/BINARY CONVENTIONS
     runtests.bash will run "top.bash", which will nest "nested.bash"
     just like before, but runtests.bash will also execute
     "nested.bash" directly, since it executes all files with extensions
-    sql and nsql.  Just use any filename suffix other than .sql and
-    .nsql for your nested SQL scripts and everything will work fine.
+    sql and nsql (and inter).  Just use any filename suffix other than
+    .sql, .nsql, and .inter for your nested SQL scripts and everything
+    will work fine.
 
     If you are a HSQLDB developer and will be committing test scripts,
     then please use the following filename and type conventions:
 
-        purpose               suffix  filetype
-        --------------------  ------  ----------------------------
-        top-level SQL script  .sql    ASCII (mime-type text/plain)
-        top-level neg. SQL    .nsql   ASCII (mime-type text/plain)
-        nested \i SQL script  .isql   ASCII (mime-type text/plain)
-        delimiter-sep-values  .dsv    Binary (no mime-type)
+        purpose                 suffix  filetype
+        --------------------    ------  ----------------------------
+        top-level SQL script    .sql    ASCII (mime-type text/plain)
+        top-level neg. SQL      .nsql   ASCII (mime-type text/plain)
+        interactive SQL script  .inter  ASCII (mime-type text/plain)
+        nested \i SQL script    .isql   ASCII (mime-type text/plain)
+        delimiter-sep-values    .dsv    Binary (no mime-type)
 
     If you will be adding new files to HSQLDB, please configure these
     extensions in for CVS or Subversion client accordingly.
@@ -120,3 +131,23 @@ NEGATIVE TESTS
     accidental error before the point of your test, the script will
     fail out early providing a false negative SqlTool exit code,
     thereby silently missing your test completely.
+
+
+INTERACTIVE TESTS
+
+    Interactive test are invoked like
+
+        java... SqlTool... mem < scriptname.inter
+
+    in order to test interactive ":" commands.  The : commands are
+    disabled if an SQL script path(s) is given directly as an SqlTool
+    parameter.  I.e., SqlTool runs non-interactively if an SQL script
+    path is given as a pareter; therefore, to test interactive
+    commands, we invoke SqlTool without a script name, and instead
+    pipe the script into SqlTool as stdin.  (Using script name of
+    "-" would do the reverse, it would run in interactive mode even
+    though getting input from stdin).
+
+    Remember to put "\c false" at the top of your interacive scripts,
+    or errors will be ignored.  Account for this command when counting
+    command numbers in the command history.
