@@ -153,7 +153,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int SPECIAL_UNSPECIFIED = keyCounter++;
     static public final int BUFHIST_UNSPECIFIED = keyCounter++;
     static public final int BUFFER_EXECUTING = keyCounter++;
-    static public final int EXECUTING = keyCounter++;
     static public final int NOBUFFER_YET = keyCounter++;
     static public final int COMMANDNUM_MALFORMAT = keyCounter++;
     static public final int BUFFER_RESTORED = keyCounter++;
@@ -282,6 +281,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int AUTOCOMMIT_FETCHFAIL = keyCounter++;
     static public final int DSV_REJECTFILE_PURGEFAIL = keyCounter++;
     static public final int DSV_REJECTREPORT_PURGEFAIL = keyCounter++;
+    static public final int EDIT_MALFORMAT = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
@@ -338,7 +338,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(SPECIAL_UNSPECIFIED), "special.unspecified",
         new Integer(BUFHIST_UNSPECIFIED), "bufhist.unspecified",
         new Integer(BUFFER_EXECUTING), "buffer.executing",
-        new Integer(EXECUTING), "executing",
         new Integer(NOBUFFER_YET), "nobuffer.yet",
         new Integer(COMMANDNUM_MALFORMAT), "commandnum.malformat",
         new Integer(BUFFER_RESTORED), "buffer.restored",
@@ -467,6 +466,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(AUTOCOMMIT_FETCHFAIL), "autocommit.fetchfail",
         new Integer(DSV_REJECTFILE_PURGEFAIL), "dsv.rejectfile.purgefail",
         new Integer(DSV_REJECTREPORT_PURGEFAIL), "dsv.rejectreport.purgefail",
+        new Integer(EDIT_MALFORMAT), "edit.malformat",
     };
 
     private Map keyIdToString = new HashMap();

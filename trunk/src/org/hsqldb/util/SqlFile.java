@@ -138,6 +138,9 @@ public class SqlFile {
     public static String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
     private SqltoolRB        rb               = null;
+    private String           magicPrefix      = null;
+    // For append editing, this is automatically prefixed to what the
+    // user enters.
 
     private static final int RAW_FALSE = 0; // Raw mode off
     private static final int RAW_EMPTY = 1; // Raw mode on, but no raw input yet
@@ -159,8 +162,11 @@ public class SqlFile {
     private static Pattern   varsetPattern =
             Pattern.compile("\\s*\\*\\s*(\\S+)\\s*([=_~])\\s*(?:(.*\\S)\\s*)?");
     private static Pattern   substitutionPattern =
-            Pattern.compile("\\s*s(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
-            // Note that this pattern does not include the leading :.
+            Pattern.compile("(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
+            // Note that this pattern does not include the leading ":s".
+    private static Pattern   historyPattern =
+            Pattern.compile("\\s*(-?\\d+)?\\s*(\\S.*)?");
+            // Note that this pattern does not include the leading ":".
     private static Pattern wincmdPattern = null;
 
     static {
@@ -384,7 +390,6 @@ public class SqlFile {
     private BufferedReader      br              = null;
     private String              charset         = null;
     private String              buffer          = null;
-    private boolean             withholdPrompt  = false;
 
     /**
      * Process all the commands in the file (or stdin) associated with
@@ -449,15 +454,17 @@ public class SqlFile {
             }
 
             while (true) {
-                if (withholdPrompt) {
-                    withholdPrompt = false;
-                } else if (interactive) {
+                if (magicPrefix == null) {
                     psStd.print((immCmdSB.length() > 0 || rawMode == RAW_DATA)
                             ? contPrompt : ((rawMode == RAW_FALSE)
                                     ? primaryPrompt : rawPrompt));
                 }
 
                 inputLine = br.readLine();
+                if (magicPrefix != null) {
+                    inputLine = magicPrefix + inputLine;
+                    magicPrefix = null;
+                }
 
                 if (inputLine == null) {
                     /*
@@ -630,7 +637,6 @@ public class SqlFile {
                     }
 
                     setBuf(immCmdSB.toString());
-                    bufContainsSql = true;
                     immCmdSB.setLength(0);
                     historize();
                     processSQL();
@@ -928,7 +934,6 @@ public class SqlFile {
             processSpecial(buffer);
             return;
         }
-        bufContainsSql = true;
         processSQL();
     }
 
@@ -949,29 +954,76 @@ public class SqlFile {
             throw new BadSpecial(rb.getString(SqltoolRB.BUFHIST_UNSPECIFIED));
         }
 
+        // First handle the simple cases where user may not specify a
+        // command number.
         char commandChar = inString.charAt(0);
         String other       = inString.substring(1);
         if (other.trim().length() == 0) {
             other = null;
         }
-        // other is useful for some, but not all buffer commands.
-        // "-32" and "281" must use inString directly.
+        switch (commandChar) {
+            case 'l' :
+            case 'b' :
+                enforce1charBH(other, 'l');
+                if (buffer == null) {
+                    stdprintln(nobufferYetString);
+                } else {
+                    stdprintln(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
+                            buffer));
+                }
+
+                return;
+
+            case 'h' :
+                enforce1charBH(other, 'h');
+                showHistory();
+
+                return;
+
+            case '?' :
+                stdprintln(rb.getString(SqltoolRB.BUFFER_HELP));
+
+                return;
+        }
+
+        Matcher hm = historyPattern.matcher(inString);
+        if ((!hm.matches()) || hm.groupCount() != 2) {
+            throw new BadSpecial(rb.getString(SqltoolRB.EDIT_MALFORMAT));
+            // Empirically, I find that his pattern always captures two groups.
+            // Unfortunately, there's no way to guarantee that :( .
+        }
+        Integer histNum = ((hm.group(1) == null || hm.group(1).length() < 1)
+                ? null : Integer.valueOf(hm.group(1)));
+        commandChar = ((hm.group(2) == null || hm.group(2).length() < 1)
+                ? '\0' : hm.group(2).charAt(0));
+        other = ((commandChar == '\0') ? null : hm.group(2).substring(1));
+        if (other != null && other.length() < 1) other = null;
+        String targetCommand = ((histNum == null)
+                ? null : commandFromHistory(histNum.intValue()));
+        // Every command below depends upon buffer content.
 
         switch (commandChar) {
+            case '\0' :  // Special token set above.  Just history recall.
+                setBuf(targetCommand);
+                stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED, buffer));
+                return;
+
             case ';' :
                 enforce1charBH(other, ';');
+
+                if (targetCommand != null) setBuf(targetCommand);
                 if (buffer == null) throw new BadSpecial(
                         rb.getString(SqltoolRB.NOBUFFER_YET));
-
                 stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING, buffer));
                 processFromBuffer();
 
                 return;
 
             case 'a' :
-                if (buffer == null) throw new BadSpecial(
+                if (targetCommand == null) targetCommand = buffer;
+                if (targetCommand == null) throw new BadSpecial(
                         rb.getString(SqltoolRB.NOBUFFER_YET));
-                immCmdSB.append(buffer);
+                immCmdSB.append(targetCommand);
 
                 if (other != null) {
                     String deTerminated = SqlFile.deTerminated(other);
@@ -995,72 +1047,19 @@ public class SqlFile {
                     }
                 }
 
-                withholdPrompt = true;
-                stdprint(immCmdSB.toString());
-
-                return;
-
-            case 'l' :
-            case 'b' :
-                enforce1charBH(other, 'l');
-                if (buffer == null) {
-                    stdprintln(nobufferYetString);
-                } else {
-                    stdprintln(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
-                            buffer));
-                }
-
-                return;
-
-            case 'h' :
-                enforce1charBH(other, 'h');
-                showHistory();
-
-                return;
-
-            case '-' :
-            case '0' :
-            case '1' :
-            case '2' :
-            case '3' :
-            case '4' :
-            case '5' :
-            case '6' :
-            case '7' :
-            case '8' :
-            case '9' :
-                boolean executeMode =
-                    inString.charAt(inString.length() - 1) == ';';
-
-                String numStr = inString.substring(0,
-                        inString.length() + (executeMode ? -1 : 0));
-                        // Trim off terminating ';'
-
-                try {
-                    setBuf(commandFromHistory(Integer.parseInt(numStr)));
-                } catch (NumberFormatException nfe) {
-                    throw new BadSpecial(rb.getString(
-                            SqltoolRB.COMMANDNUM_MALFORMAT, numStr), nfe);
-                }
-
-                if (executeMode) {
-                    stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
-                            buffer));
-                    processFromBuffer();
-                } else {
-                    stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED, buffer));
-                }
+                magicPrefix = immCmdSB.toString();
+                immCmdSB.setLength(0);
+                stdprint(magicPrefix);
 
                 return;
 
             case 'w' :
+                if (targetCommand == null) targetCommand = buffer;
+                if (targetCommand == null) throw new BadSpecial(
+                        rb.getString(SqltoolRB.NOBUFFER_YET));
                 if (other == null) {
                     throw new BadSpecial(rb.getString(
                             SqltoolRB.DESTFILE_DEMAND));
-                }
-
-                if (buffer == null || buffer.length() == 0) {
-                    throw new BadSpecial(rb.getString(SqltoolRB.BUFFER_EMPTY));
                 }
 
                 PrintWriter pw = null;
@@ -1077,7 +1076,9 @@ public class SqlFile {
                     // once use defaultCharset from Java 1.5 in charset init.
                     // above.
 
-                    pw.println(buffer + (bufContainsSql ? ";" : ""));
+                    pw.print(targetCommand);
+                    if (!targetCommand.matches("\\s*[*:\\\\].*")) pw.print(';');
+                    pw.println();
                     pw.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
@@ -1091,17 +1092,16 @@ public class SqlFile {
             case 's' :
                 boolean modeExecute = false;
                 boolean modeGlobal = false;
+                if (targetCommand == null) targetCommand = buffer;
+                if (targetCommand == null) throw new BadSpecial(
+                        rb.getString(SqltoolRB.NOBUFFER_YET));
 
                 try {
                     if (other == null || other.length() < 3) {
                         throw new BadSubst(rb.getString(
                                 SqltoolRB.SUBSTITUTION_MALFORMAT));
                     }
-                    Matcher m = substitutionPattern.matcher(inString);
-                    if (buffer == null) {
-                        stdprintln(nobufferYetString);
-                        return;
-                    }
+                    Matcher m = substitutionPattern.matcher(other);
                     if (!m.matches()) {
                         throw new BadSubst(rb.getString(
                                 SqltoolRB.SUBSTITUTION_MALFORMAT));
@@ -1131,11 +1131,11 @@ public class SqlFile {
 
                     Matcher bufferMatcher = Pattern.compile("(?s"
                             + ((optionGroup == null) ? "" : optionGroup)
-                            + ')' + m.group(2)).matcher(buffer);
+                            + ')' + m.group(2)).matcher(targetCommand);
                     String newBuffer = (modeGlobal
                             ? bufferMatcher.replaceAll(m.group(3))
                             : bufferMatcher.replaceFirst(m.group(3)));
-                    if (newBuffer.equals(buffer)) {
+                    if (newBuffer.equals(targetCommand)) {
                         stdprintln(rb.getString(
                                 SqltoolRB.SUBSTITUTION_NOMATCH));
                         return;
@@ -1157,11 +1157,6 @@ public class SqlFile {
                     immCmdSB.setLength(0);
                     processFromBuffer();
                 }
-
-                return;
-
-            case '?' :
-                stdprintln(rb.getString(SqltoolRB.BUFFER_HELP));
 
                 return;
         }
@@ -3426,11 +3421,9 @@ public class SqlFile {
     private void setBuf(String newContent) {
         buffer = new String(newContent);
         // System.err.println("Buffer is now (" + buffer + ')');
-        bufContainsSql = false;
     }
 
     int oldestHist = 1;
-    boolean bufContainsSql = true;
 
     /**
      * Add a command onto the history list.
