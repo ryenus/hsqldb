@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Tests interactive commands :s*
+ * Tests interactive commands :s*, and simple recalls and executes : and :;.
  */
 
 \c false
