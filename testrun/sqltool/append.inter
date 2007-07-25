@@ -24,9 +24,9 @@ SELECT count(*) FROM t WHERE vc = 'b';
     \q Sanity check failed / 2
 *end if
 
-INSERT INTO t(vc) VALUES 'pref
+INSERT INTO t(vc) VALUES ('pref
 
-:apost';
+:apost');
 
 SELECT count(*) FROM t
 *if (*? != 5)

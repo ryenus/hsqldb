@@ -164,6 +164,8 @@ public class SqlFile {
     private static Pattern   substitutionPattern =
             Pattern.compile("(\\S)(.+?)\\1(.*?)\\1(.+)?\\s*");
             // Note that this pattern does not include the leading ":s".
+    private static Pattern   slashHistoryPattern =
+            Pattern.compile("\\s*/([^/]+)/\\s*(\\S.*)?");
     private static Pattern   historyPattern =
             Pattern.compile("\\s*(-?\\d+)?\\s*(\\S.*)?");
             // Note that this pattern does not include the leading ":".
@@ -271,8 +273,8 @@ public class SqlFile {
     private static String revnum = null;
 
     static {
-        revnum = "$Revision$".substring("$Revision: ".length(),
-                "$Revision$".length() - 2);
+        revnum = "$Revision: 1 2 3$".substring("$Revision: ".length(),
+                "$Revision: 1 2 3$".length() - 2);
     }
 
     private String DSV_OPTIONS_TEXT = null;
@@ -986,14 +988,29 @@ public class SqlFile {
                 return;
         }
 
-        Matcher hm = historyPattern.matcher(inString);
-        if ((!hm.matches()) || hm.groupCount() != 2) {
-            throw new BadSpecial(rb.getString(SqltoolRB.EDIT_MALFORMAT));
-            // Empirically, I find that his pattern always captures two groups.
-            // Unfortunately, there's no way to guarantee that :( .
+        Integer histNum = null;
+        Matcher hm = slashHistoryPattern.matcher(inString);
+        if (hm.matches()) {
+            histNum = historySearch(hm.group(1));
+            if (histNum == null) {
+                stdprintln(rb.getString(SqltoolRB.SUBSTITUTION_NOMATCH));
+                return;
+            }
+        } else {
+            hm = historyPattern.matcher(inString);
+            if (!hm.matches()) {
+                throw new BadSpecial(rb.getString(SqltoolRB.EDIT_MALFORMAT));
+                // Empirically, I find that his pattern always captures two
+                // groups.  Unfortunately, there's no way to guarantee that :( .
+            }
+            histNum = ((hm.group(1) == null || hm.group(1).length() < 1)
+                    ? null : Integer.valueOf(hm.group(1)));
         }
-        Integer histNum = ((hm.group(1) == null || hm.group(1).length() < 1)
-                ? null : Integer.valueOf(hm.group(1)));
+        if (hm.groupCount() != 2) {
+            throw new BadSpecial(rb.getString(SqltoolRB.EDIT_MALFORMAT));
+            // Empirically, I find that his pattern always captures two
+            // groups.  Unfortunately, there's no way to guarantee that :( .
+        }
         commandChar = ((hm.group(2) == null || hm.group(2).length() < 1)
                 ? '\0' : hm.group(2).charAt(0));
         other = ((commandChar == '\0') ? null : hm.group(2).substring(1));
@@ -1061,14 +1078,17 @@ public class SqlFile {
                     throw new BadSpecial(rb.getString(
                             SqltoolRB.DESTFILE_DEMAND));
                 }
+                String targetFile = dereference(other.trim(), false);
+                // Dereference and trim the target file name
+                // This is the only case where we dereference a : command.
 
                 PrintWriter pw = null;
                 try {
                     pw = new PrintWriter((charset == null)
                             ?  (new OutputStreamWriter(
-                                    new FileOutputStream(other.trim(), true)))
+                                    new FileOutputStream(targetFile, true)))
                             :  (new OutputStreamWriter(
-                                    new FileOutputStream(other.trim(), true),
+                                    new FileOutputStream(targetFile, true),
                                             charset))
                             // Appendmode so can append to an SQL script.
                     );
@@ -1082,7 +1102,7 @@ public class SqlFile {
                     pw.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
-                            other.trim()), e);
+                            targetFile), e);
                 } finally {
                     if (pw != null) pw.close();
                 }
@@ -3416,6 +3436,24 @@ public class SqlFile {
             }
         }
         return (String) history.get(index);
+    }
+
+    /**
+     * Search Command History for a regex match.
+     *
+     * @returns Absolute command number, if any match.
+     */
+    private Integer historySearch(String findRegex) throws BadSpecial {
+        if (history == null) {
+            throw new BadSpecial(rb.getString(SqltoolRB.HISTORY_UNAVAILABLE));
+        }
+        Pattern pattern = Pattern.compile("(?ims)" + findRegex);
+        // Make matching more liberal.  Users can customize search behavior
+        // by using "(?-OPTIONS)" or (?OPTIONS) in their regexes.
+        for (int index = history.size() - 1; index >= 0; index--)
+            if (pattern.matcher((String) history.get(index)).find())
+                return Integer.valueOf(index + oldestHist);
+        return null;
     }
 
     private void setBuf(String newContent) {
