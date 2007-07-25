@@ -4,10 +4,13 @@ EDIT BUFFER AND HISTORY COMMANDS.  Not available for non-interactive use.
     :b                List current contents of edit Buffer
     :X  (integer X)   Load command #X from Command history into the Edit buffer
     :-Y  (integer -Y) Same as :X, except -Y means Y commands back
+    :/regex/          Same as :-Y, except it means latest command in history
+                      matching the given regular expression
 The remaining edit/execute commands all operate on the Edit Buffer by default,
 but will also operate on any command from history if you interpose a command
-number right after the colon, like ":13;" to execute command #13 from history,
-or ":w -3 /tmp/output.txt" to append the third command "back" to a file.
+identifier right after the colon, like ":/blue/;" to re-execute the last
+command you ran which contains "blue", or ":w -3 /tmp/output.txt" to append
+the third command 'back' to a file.
     :;                Execute edit buffer content (special, PL, or SQL command)
     :w file/path.sql  Append current buffer contents to the specified file
     :a[text]          Enter append mode with a copy of the buffer contents

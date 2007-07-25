@@ -6,9 +6,10 @@ EDITPUFFER UND GESCHICHTE BEFEHLE.  Vorhanden nur für interaktive Benutzung.
     :-Y (Ganzzahl -Y) Selbel wie :X, ausgenommen -Y bedeuted Y Befehle zurück
 Die restlichen Edit/Geschichtebefehle, die alle an den Editpuffer durch
 Rückstellung laufen lassen durch, aber werden auch an jeden möglichen Befehl
-von der Geschichte, wenn du ein Befehl Zahlrecht nach dem Doppelpunkt
-vermittelst, wie für ":13" den 13 Befehl von der Geschcie durchzuführen, oder
-"w -3 /tmp/aus.txt" zum des dritten Befehls "rückseitig" an Datei zufügen.
+von der Geschichte, wenn du ein Befehl Bezeichner nach dem Doppelpunkt
+vermittelst, wie ":blau;" läßt den letzten Befehl wieder ausführen, den Sie
+laufen ließen, der enthält "blau", oder "w -3 /tmp/aus.txt" zum des dritten
+Befehls 'rückseitig' an Datei zufügen.
     :;                Führt den Editpufferinhalt (Spezial, PL, oder SQL-Befehl)
     :w datei/pfad.sql Laufend Editpufferinhalt an Datei zufügen.
     :a[text]          Betret Hinzufügemodus mit Editpufferinhaltzweitschrift
