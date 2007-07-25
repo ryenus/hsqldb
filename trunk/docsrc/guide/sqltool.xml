@@ -1063,7 +1063,7 @@ java org.hsqldb.util.SqlTool urlid</screen>
                 command; its command number (#); and also how many commands
                 <emphasis>back</emphasis> it is (as a negative number).
                 : commands are never added to the history list.
-                You can then use either forms of the command numbers to
+                You can then use either form of the command identifier to
                 recall a command to the edit buffer (the command described
                 next) or as the target of any of the following : commands.
                 This last is accomplished in a manner very similar to the
@@ -1076,16 +1076,24 @@ java org.hsqldb.util.SqlTool urlid</screen>
                 gave the command <literal>:-3 s/X/Y/</literal>, that would
                 perform the substitution on the command 3 back in the 
                 command history (and copy the output to the edit buffer).
+                Also, just like vi, you can identify the command to recall
+                by using a regular expression inside of slashes, like
+                <literal>:/blue/ s/X/Y/</literal> to operate on the last
+                command you ran which contains "blue".
             </simpara></listitem></varlistentry>
-            <varlistentry><term>:13  OR  :-2</term><listitem><simpara>
+            <varlistentry><term>:13  OR  :-2  OR   :/blue/</term><listitem><simpara>
+                Recalls a command from Command history to the edit buffer.
                 Enter ":" followed by the positive command number from 
-                Command history, like ":32"; or ":" followed by a negative
-                number like ":-3" for three commands back in the Command
-                history.
+                Command history, like ":13"...  or ":" followed by a negative
+                number like ":-2" for two commands back in the Command
+                history... or ":" followed by a regular expression inside
+                slashes, like ":/blue/" to recall the last command which
+                contains "blue".
                 The specified command  will be written to the edit buffer 
                 so that you can execute it or edit it using the commands below.
                 </simpara><simpara>
-                As described, you can follow the command number here with
+                As described under the :h command immediately above,
+                you can follow the command number here with
                 any of the commands below to perform the given operation
                 on the specified command from history instead of on the
                 edit buffer contents.
@@ -1218,6 +1226,45 @@ java org.hsqldb.util.SqlTool urlid</screen>
                 you are effectively creating an SQL script.
             </simpara></listitem></varlistentry>
         </variablelist>
+        <simpara>
+            I find the ":/regex/"  and ":/regex/;" constructs particularly
+            handy for every-day usage.
+            It's great to be able to recall and execute the last "insert"
+            command, for example, without needing to check the history or
+            keep track of how many commands back it was.  To re-execute
+            the last insert command, just run ":/insert/;".
+            If you want to be safe about it, do it in two steps to verify
+            that you didn't accidentally recall some other command which
+            happened to contain the string "insert", like
+            <informalexample><screen>
+    :/insert/
+    :;</screen></informalexample>(Executing the last only if you are
+            satisfied when SqlTool reports what command it restored).
+            Often, of course, you will want to change the command before
+            re-executing, and that's when you combine the :s and :a commands.
+        </simpara> <simpara>
+            We'll finish up with a couple fine points about Edit/Buffer
+            commands.
+            You generally can't use PL variables in Edit/Buffer commands, to
+            eliminate possible ambiguities and complexities when modifying
+            commands.
+            The :w command is an exception to this rule, since it can be
+            useful to use variables to determine the output file, and this
+            command does not do any "editing".
+        </simpara> <simpara>
+            The :? help explains how you can change the default regular 
+            expression matching behavior (case sensitivity, etc.), but
+            you can always use syntax like "(?i)" inside of your regular
+            expression, as described in the Java API spec for class
+            <classname>java.util.regex.Pattern</classname>, found
+            <ulink url='http://http://java.sun.com/javase/6/docs/api/java/util/regex/Pattern.html'>here</ulink>.
+            History-command-matching with the /regex/ construct is 
+            purposefully liberal, matching any portion of the command,
+            case sensitive, etc., but you can still use the method just
+            described to modify this behavior.  In this case, you could
+            use "(?-i)" at the beginning of your regular expression to
+            be case-sensitive.
+        </simpara>
         </section>
 
         <section id='interactive_pl_commands-section'>
