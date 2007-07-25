@@ -20,4 +20,6 @@ dsv-omits.sql     Test omitting of columns in DSV imports.
 dsv-prepare.sql   Test "* prepare" command.
 dsv-rejects.sql   Test import behavior when a reject file/report is in place.
 dsv-roundtrip.sql Exports and re-import data, verifying that is hasn't changed.
-subst.inter       Tests interactive commands :s...
+subst.inter       Tests interactive commands :s... (and trivial test for :h, :b)
+write.inter       Tests interactive command :w
+append.inter      Tests interactive commands :a...
