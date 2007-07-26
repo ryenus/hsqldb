@@ -273,8 +273,8 @@ public class SqlFile {
     private static String revnum = null;
 
     static {
-        revnum = "$Revision: 1 2 3$".substring("$Revision: ".length(),
-                "$Revision: 1 2 3$".length() - 2);
+        revnum = "$Revision$".substring("$Revision: ".length(),
+                "$Revision$".length() - 2);
     }
 
     private String DSV_OPTIONS_TEXT = null;
