@@ -148,7 +148,7 @@
             section about that).
             This document is now updated for the current versions of SqlTool
             and SqlFile at the time I am writing this (versions 333 and
-            339 correspondingly, SqlFile is the class which does most of the
+            350 correspondingly, SqlFile is the class which does most of the
             work for SqlTool).
             Therefore, if you are using a version of SqlTool or SqlFile that
             is more than a couple revisions greater, you should find a newer
@@ -159,7 +159,7 @@
             The startup banner will report both versions when you run SqlTool
             interactively.
             (Dotted version numbers of SqlTool and SqlFile are older than 
-            333 and 339).
+            333 and 350).
         </simpara>
         <note> <simpara>
             This guide covers SqlTool bundled with series 1.8 and 1.9 of
