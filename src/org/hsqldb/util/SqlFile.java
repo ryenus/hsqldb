@@ -1004,7 +1004,7 @@ public class SqlFile {
                 // groups.  Unfortunately, there's no way to guarantee that :( .
             }
             histNum = ((hm.group(1) == null || hm.group(1).length() < 1)
-                    ? null : Integer.valueOf(hm.group(1)));
+                    ? null : new Integer(hm.group(1)));
         }
         if (hm.groupCount() != 2) {
             throw new BadSpecial(rb.getString(SqltoolRB.EDIT_MALFORMAT));
@@ -3452,7 +3452,7 @@ public class SqlFile {
         // by using "(?-OPTIONS)" or (?OPTIONS) in their regexes.
         for (int index = history.size() - 1; index >= 0; index--)
             if (pattern.matcher((String) history.get(index)).find())
-                return Integer.valueOf(index + oldestHist);
+                new Integer(index + oldestHist);
         return null;
     }
 
