@@ -38,7 +38,7 @@ SELECT count(*) FROM t WHERE vc = 'two';
 
 :/ee/;
 
-SELECT count(*) FROM t
+SELECT count(*) FROM t;
 *if (*? != 7)
     \q Regex Recall and execs failed / 1
 *end if
