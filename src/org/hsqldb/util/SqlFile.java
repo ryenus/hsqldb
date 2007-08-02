@@ -456,7 +456,7 @@ public class SqlFile {
             }
 
             while (true) {
-                if (magicPrefix == null) {
+                if (interactive && magicPrefix == null) {
                     psStd.print((immCmdSB.length() > 0 || rawMode == RAW_DATA)
                             ? contPrompt : ((rawMode == RAW_FALSE)
                                     ? primaryPrompt : rawPrompt));
@@ -1066,7 +1066,7 @@ public class SqlFile {
 
                 magicPrefix = immCmdSB.toString();
                 immCmdSB.setLength(0);
-                stdprint(magicPrefix);
+                if (interactive) stdprint(magicPrefix);
 
                 return;
 
@@ -3452,7 +3452,7 @@ public class SqlFile {
         // by using "(?-OPTIONS)" or (?OPTIONS) in their regexes.
         for (int index = history.size() - 1; index >= 0; index--)
             if (pattern.matcher((String) history.get(index)).find())
-                new Integer(index + oldestHist);
+                return new Integer(index + oldestHist);
         return null;
     }
 
