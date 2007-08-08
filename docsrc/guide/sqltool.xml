@@ -2670,9 +2670,20 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             </para>
         </section>
         <section>
-            <title>Specifying queries, delimiters, file names, table names,
-                columns</title>
-            <simpara>
+            <title>Specifying queries and options</title>
+            <para>
+                For a hands on example of a DSM import which generates
+                an import report and uses some other options, change to
+                directory <filename>HSQLDB/sample</filename> and play
+                with the working script <filename>dsv-sample.sql</filename>.
+                You can execute it like
+                <informalexample><screen>
+    java -jar ../lib/hsqldb.jar mem dsv-sample.sql</screen>
+                </informalexample>
+                (assuming that you are using the supplied
+                <filename>sqltool.rc</filename> file or have have urlid
+                <literal>mem</literal> set up.
+            </para><simpara>
                 The header line in the DSV file is required at this time.
                 (If there is user demand, it can be made optional for
                 exporting, but it will remain required for importing).
