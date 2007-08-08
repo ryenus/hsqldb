@@ -28,7 +28,7 @@ CREATE TABLE sampletable(i INT, d DATE NOT NULL, b BOOLEAN);
  * import will continue to completion if at all possible. */
 * *DSV_REJECT_FILE = ${java.io.tmpdir}/sample-reject.dsv
 * *DSV_REJECT_REPORT = ${java.io.tmpdir}/sample-reject.html
-\m sampledata.dsv
+\m sample.dsv
 
 /* Enable this line if you want to display all successfully imported data:
 SELECT * FROM sampletable;
