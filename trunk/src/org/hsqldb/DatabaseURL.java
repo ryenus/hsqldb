@@ -140,7 +140,7 @@ public class DatabaseURL {
         }
 
         String  type = null;
-        String  host;
+        String  host = null;
         int     port = 0;
         String  database;
         String  path;
@@ -203,12 +203,23 @@ public class DatabaseURL {
 
         if (isNetwork) {
             int slashpos = url.indexOf('/', pos);
+            // slashpos is the TRAILING (optional) slash, which separates
+            // either host or port from path.
 
             if (slashpos < pos || slashpos > semicolpos) {
                 slashpos = semicolpos;
             }
 
-            int colonpos = url.indexOf(':', pos);
+            if (urlImage.charAt(pos) == '[') {
+                // Literal IPv6 address
+                int closeIpv6 = urlImage.indexOf(']', pos + 1);
+                if (closeIpv6 <= pos || closeIpv6 >= slashpos)
+                    return null;  // Malformatted Ipv6 addr
+                host = urlImage.substring(pos + 1, closeIpv6);
+            }
+
+            int colonpos = url.indexOf(':',
+                    (host == null) ? pos : pos + 2 + host.length());
 
             if (colonpos < pos || colonpos > slashpos) {
                 colonpos = slashpos;
@@ -221,9 +232,15 @@ public class DatabaseURL {
                 }
             }
 
-            host = urlImage.substring(pos, colonpos);
+            if (host == null) {
+                // Non-IPv6 literal
+                host = urlImage.substring(pos, colonpos);
+            }
 
             int secondslashpos = url.lastIndexOf('/', semicolpos);
+            // Despite the name, this is for the LAST slash, not the
+            // second pos.  (It's the 2nd that we use, but that fact
+            // is of no consequence).
 
             if (noPath) {
                 path     = "";
