@@ -416,4 +416,8 @@ public class HsqlProperties {
             ";", "textdb");
     }
 */
+    public String toString() {
+        return "File (" + fileName + ")"
+                + System.getProperty("line.separator") + stringProps.toString();
+    }
 }
