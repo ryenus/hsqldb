@@ -327,6 +327,8 @@ public class HsqlProperties {
                 props.setProperty(type + "." + p.substring(1), arg[i + 1]);
 
                 i++;
+            } else {
+                props.addError(NO_VALUE_FOR_KEY, p);
             }
         }
 
