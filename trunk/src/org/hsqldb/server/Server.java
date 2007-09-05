@@ -349,8 +349,17 @@ public class Server implements HsqlSocketRequestHandler {
             ServerConfiguration.getPropertiesFromFile(propsPath);
         HsqlProperties props = fileProps == null ? new HsqlProperties()
                                                  : fileProps;
-        HsqlProperties stringProps = HsqlProperties.argArrayToProps(args,
-            ServerConstants.SC_KEY_PREFIX);
+        HsqlProperties stringProps = null;
+        try {
+            stringProps = HsqlProperties.argArrayToProps(args,
+                    ServerConstants.SC_KEY_PREFIX);
+        } catch (ArrayIndexOutOfBoundsException aioob) {
+            // I'd like to exit with 0 here, but it's possible that user
+            // has called main() programmatically and does not want us to
+            // exit.
+            printHelp("server.help");
+            return;
+        }
 
         if (stringProps != null) {
             if (stringProps.getErrorKeys().length != 0) {
@@ -2340,6 +2349,6 @@ public class Server implements HsqlSocketRequestHandler {
      * @param key for message
      */
     protected static void printHelp(String key) {
-        System.out.print(BundleHandler.getString(serverBundleHandle, key));
+        System.out.println(BundleHandler.getString(serverBundleHandle, key));
     }
 }

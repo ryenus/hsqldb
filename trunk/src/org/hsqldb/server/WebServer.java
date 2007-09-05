@@ -145,8 +145,17 @@ public class WebServer extends Server {
             ServerConfiguration.getPropertiesFromFile(propsPath);
         HsqlProperties props = fileProps == null ? new HsqlProperties()
                                                  : fileProps;
-        HsqlProperties stringProps = HsqlProperties.argArrayToProps(args,
-            ServerConstants.SC_KEY_PREFIX);
+        HsqlProperties stringProps = null;
+        try {
+            stringProps = HsqlProperties.argArrayToProps(args,
+                    ServerConstants.SC_KEY_PREFIX);
+        } catch (ArrayIndexOutOfBoundsException aioob) {
+            // I'd like to exit with 0 here, but it's possible that user
+            // has called main() programmatically and does not want us to
+            // exit.
+            printHelp("webserver.help");
+            return;
+        }
 
         if (stringProps != null) {
             if (stringProps.getErrorKeys().length != 0) {

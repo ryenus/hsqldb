@@ -160,17 +160,18 @@
             interactively.
             (Dotted version numbers of SqlTool and SqlFile are older than 
             333 and 354).
-        </simpara>
-        <note> <simpara>
+        </simpara> <simpara>
             This guide covers SqlTool bundled with series 1.8 and 1.9 of
-            HSQLDB.  Because I want to minimize my time maintaining this
-            document, I am only giving paths to files as they are bundled
-            in HSQLDB 1.9.x.
-            Therefore, if I say that a file is located at
-            <filename>HSQLDB/sample</filename>, it will actually be located
-            at <filename>HSQLDB/src/org/hsqldb/sample</filename> in HSQLDB
-            1.8.x distributions.
-        </simpara> </note>
+            HSQLDB.
+            <footnote label='*' id='samplelocFn'><simpara>
+            To reduce the time I will need to spend maintaining this document,
+            in this chapter I am giving the path to the
+            <filename>sample</filename> directory as it is in HSQLDB 1.9.x
+            distributions, namely, <filename>HSQLDB_HOME/sample</filename>.
+            HSQLDB 1.8.x users should translate these sample directory paths
+            to use <filename>HSQLDB_HOME/src/org/hsqldb/sample/...</filename>.
+            </simpara></footnote>
+        </simpara>
         </section>
         <section><title>Functional Changes</title>
             <simpara>This section lists changes to SqlTool since the last
@@ -262,8 +263,9 @@
                 <title>To run SqlTool...</title>
                 <step><simpara>
                     Copy the file <filename>sqltool.rc</filename> from the
-                    directory <filename>sample</filename> of 
-                    your HSQLDB distribution to your home directory and
+                    directory <filename>sample</filename>
+                    <footnoteref linkend='samplelocFn'/>
+                    of your HSQLDB distribution to your home directory and
                     secure access to it if your computer is accessible
                     to anybody else (most likely from the network).
                     This file will work as-is for a Memory Only database
@@ -491,7 +493,7 @@ java org.hsqldb.util.SqlTool --driver oracle.jdbc.OracleDriver urlid</screen>
                 file.
                 <filename>sampledata.sql</filename> resides in the
                 <filename>sample</filename> directory of your
-                HSQLDB distribution.
+                HSQLDB distribution <footnoteref linkend='samplelocFn'/>.
                 To separate the sample data from your regular data, you can
                 put it into its own schema by running this before you import:
             <informalexample><programlisting>
@@ -501,7 +503,8 @@ java org.hsqldb.util.SqlTool --driver oracle.jdbc.OracleDriver urlid</screen>
                 Run it like this from an SqlTool session
     <programlisting>\i HSQLDB_HOME/sample/sampledata.sql</programlisting>
                 where <emphasis role='bold'>HSQLDB_HOME</emphasis> is the
-                base directory of your HSQLDB software installation.
+                base directory of your HSQLDB software installation
+                <footnoteref linkend='samplelocFn'/>.
             </para>
             <simpara>
                 For memory-only databases, you'll need to run this every 
@@ -526,7 +529,8 @@ java org.hsqldb.util.SqlTool --driver oracle.jdbc.OracleDriver urlid</screen>
             You can use it for your own JDBC client programs too.
         </simpara><simpara>
             The following sample RC file resides at 
-            <filename>sample/sqltool.rc</filename> in your HSQLDB distribution.
+            <filename>sample/sqltool.rc</filename> in your HSQLDB distribution
+            <footnoteref linkend='samplelocFn'/>.
         </simpara>
         <example>
             <title>Sample RC File</title>
@@ -1573,7 +1577,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar sql... > /tmp/log.sql 2>&amp;1</screen>
                 You can use the following SQL file,
                 <filename>sample.sql</filename>, which resides in the
                 <filename>sample</filename> directory of your
-                HSQLDB distribution.
+                HSQLDB distribution
+                <footnoteref linkend='samplelocFn'/>.
                 It contains SQL as well as Special Commands making good
                 use of most of the Special Commands documented below.
             </simpara>
@@ -1985,7 +1990,8 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
             Readers experience with significant shell scripting in any
             language can probably learn everything they need to know by
             looking at (and running!) the sample script
-            <filename>sample/pl.sql</filename> in your HSQLDB distribution and
+            <filename>sample/pl.sql</filename> in your HSQLDB distribution
+            <footnoteref linkend='samplelocFn'/> and
             using the <literal>*?</literal> command from within an interactive
             SqlTool session as a reference.  (By
             <emphasis>significant</emphasis> shell scripting, I mean to the 
@@ -2282,7 +2288,8 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
             feature, check this example before asking for help.
             This file resides in the
             <filename>sample</filename> directory with the
-            name <filename>pl.sql</filename>.
+            name <filename>pl.sql</filename>
+            <footnoteref linkend='samplelocFn'/>.
             Definitely give it a run, like <screen>
 java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         </para>
@@ -2448,7 +2455,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         </simpara>
         <para>
             The following sample SQL file resides at 
-            <filename>sample/plsql.sql</filename> in your HSQLDB distribution.
+            <filename>sample/plsql.sql</filename> in your HSQLDB distribution
+            <footnoteref linkend='samplelocFn'/>.
             This script will only work if your database engine supports
             standard PL/SQL, if you have permission to create the table
             "T1" in the default schema, and if that object does not 
@@ -2675,7 +2683,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 For a hands on example of a DSM import which generates
                 an import report and uses some other options, change to
                 directory <filename>HSQLDB/sample</filename> and play
-                with the working script <filename>dsv-sample.sql</filename>.
+                with the working script <filename>dsv-sample.sql</filename>
+                <footnoteref linkend='samplelocFn'/>.
                 You can execute it like
                 <informalexample><screen>
     java -jar ../lib/hsqldb.jar mem dsv-sample.sql</screen>

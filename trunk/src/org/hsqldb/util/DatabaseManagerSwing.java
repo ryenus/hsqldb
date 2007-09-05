@@ -196,6 +196,7 @@ implements ActionListener, WindowListener, KeyListener {
      * "-u -r -l" = "-url".  -blaine
      */
     private static String homedir = null;
+    private boolean isOracle = false; // Need some workarounds for Oracle
 
     static {
         try {
@@ -628,13 +629,13 @@ implements ActionListener, WindowListener, KeyListener {
 
         try {
             dMeta      = cConn.getMetaData();
+            isOracle = (dMeta.getDatabaseProductName().indexOf("Oracle") >= 0);
             sStatement = cConn.createStatement();
 
             updateAutoCommitBox();
 
             // Workaround for EXTREME SLOWNESS getting this info from O.
-            showIndexDetails =
-                (dMeta.getDatabaseProductName().indexOf("Oracle") < 0);
+            showIndexDetails = !isOracle;
 
             Driver driver = DriverManager.getDriver(dMeta.getURL());
             ConnectionSetting newSetting = new ConnectionSetting(
@@ -2141,9 +2142,7 @@ implements ActionListener, WindowListener, KeyListener {
             while (result.next()) {
                 schema = result.getString(2);
 
-                if ((!showSys)
-                        && dMeta.getDatabaseProductName().indexOf("Oracle")
-                           > -1 && oracleSysUsers.contains(schema)) {
+                if ((!showSys) && isOracle && oracleSysUsers.contains(schema)) {
                     continue;
                 }
 
@@ -2184,6 +2183,12 @@ implements ActionListener, WindowListener, KeyListener {
 
                 try {
                     name   = (String) tables.elementAt(i);
+                    if (isOracle && name.startsWith("BIN$")) {
+                        continue;
+                        // Oracle Recyle Bin tables.
+                        // Contains metacharacters which screw up metadata
+                        // queries below.
+                    }
                     schema = (String) schemas.elementAt(i);
 
                     String schemaname = "";
