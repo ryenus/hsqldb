@@ -459,7 +459,7 @@
     ( &lt;columnDefinition&gt; [, ...] [, &lt;constraintDefinition&gt;...] )
     [ON COMMIT {DELETE | PRESERVE} ROWS];</programlisting>
 
-      <para>Creates a tables in memory (default) or on disk and only cached in
+      <para>Creates a table in memory (default) or on disk and only cached in
       memory. If the database is all-in-memory, both MEMORY and CACHED forms
       of CREATE TABLE return a MEMORY table while the TEXT form is not
       allowed.</para>
