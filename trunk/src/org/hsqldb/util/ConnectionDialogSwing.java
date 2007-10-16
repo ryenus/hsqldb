@@ -37,13 +37,13 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
-
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -268,8 +268,7 @@ implements ActionListener, ItemListener {
 
     public static Connection createConnection(JFrame owner, String title) {
 
-        ConnectionDialogSwing dialog = new ConnectionDialogSwing(owner,
-            title);
+        ConnectionDialogSwing dialog = new ConnectionDialogSwing(owner, title);
 
 //      Added: (weconsultants@users) Default LAF of Native
         try {
