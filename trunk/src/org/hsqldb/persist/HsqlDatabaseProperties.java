@@ -42,6 +42,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.SimpleLog;
+import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.ValuePool;
 
@@ -53,6 +54,54 @@ import org.hsqldb.store.ValuePool;
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
+
+    private static String hsqldb_method_class_names =
+        "hsqldb.method_class_names";
+    private static HashSet accessibleJavaMethodNames;
+
+    static {
+        try {
+            String prop = System.getProperty(hsqldb_method_class_names);
+
+            if (prop != null) {
+                accessibleJavaMethodNames = new HashSet();
+
+                String[] names = StringUtil.split(prop, ";");
+
+                for (int i = 0; i < names.length; i++) {
+                    accessibleJavaMethodNames.add(names[i]);
+                }
+            }
+        } catch (Exception e) {}
+    }
+
+    /**
+     * If the system property "hsqldb.method_class_names" is not set, then
+     * static methods of all available Java classes can be accessed as functions
+     * in HSQLDB. If the property is set, then only the list of semicolon
+     * seperated method names becomes accessible. An empty property value means
+     * no class is accessible.<p>
+     *
+     * All methods of org.hsqldb.Library are always accessible.
+     *
+     *
+     */
+    public static boolean supportsJavaMethod(String name) {
+
+        if (name.startsWith("org.hsqldb.Library")) {
+            return true;
+        }
+
+        if (accessibleJavaMethodNames == null) {
+            return true;
+        }
+
+        if (accessibleJavaMethodNames.contains(name)) {
+            return true;
+        }
+
+        return false;
+    }
 
     // column number mappings
     public static final int indexName         = 0;
@@ -106,15 +155,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String db_readonly = "readonly";
     private static final String db_modified = "modified";
 
-
     //
     private static final String runtime_gc_interval = "runtime.gc_interval";
 
     //
-    public static final String url_ifexists = "ifexists";
+    public static final String url_ifexists       = "ifexists";
     public static final String url_default_schema = "default_schema";
+
     //
-    public static final String  hsqldb_applog       = "hsqldb.applog";
+    public static final String hsqldb_applog = "hsqldb.applog";
     public static final String hsqldb_cache_file_scale =
         "hsqldb.cache_file_scale";
     public static final String hsqldb_cache_free_count_scale =
@@ -122,8 +171,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_cache_scale = "hsqldb.cache_scale";
     public static final String hsqldb_cache_size_scale =
         "hsqldb.cache_size_scale";
-    public static final String  hsqldb_cache_version = "hsqldb.cache_version";
-    public static final String hsqldb_catalog      = "hsqldb.catalog";
+    public static final String hsqldb_cache_version = "hsqldb.cache_version";
+    public static final String hsqldb_catalog       = "hsqldb.catalog";
     public static final String hsqldb_compatible_version =
         "hsqldb.compatible_version";
     public static final String hsqldb_default_table_type =
@@ -138,9 +187,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.raf_buffer_scale";
     private static final String hsqldb_original_version =
         "hsqldb.original_version";
-    public static final String hsqldb_script_format = "hsqldb.script_format";
-    public static final String hsqldb_temp_directory =
-        "hsqldb.temp_directory";
+    public static final String hsqldb_script_format  = "hsqldb.script_format";
+    public static final String hsqldb_temp_directory = "hsqldb.temp_directory";
     public static final String hsqldb_result_max_memory_rows =
         "hsqldb.result_max_memory_rows";
 
@@ -179,8 +227,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         meta.put(db_modified, getMeta(db_modified, FILE_PROPERTY, null));
 
         // string defaults for user defined props
-        meta.put(hsqldb_catalog,
-                 getMeta(hsqldb_catalog, SET_PROPERTY, null));
+        meta.put(hsqldb_catalog, getMeta(hsqldb_catalog, SET_PROPERTY, null));
         meta.put(hsqldb_default_table_type,
                  getMeta(hsqldb_default_table_type, SET_PROPERTY, "memory"));
         meta.put(hsqldb_temp_directory,
@@ -217,8 +264,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             0, 1, 2
         }));
         meta.put(hsqldb_cache_file_scale,
-                 getMeta(hsqldb_cache_file_scale, SET_PROPERTY, 1,
-                         new byte[] {
+                 getMeta(hsqldb_cache_file_scale, SET_PROPERTY, 1, new byte[] {
             1, 8
         }));
         meta.put(hsqldb_script_format,
@@ -332,7 +378,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // reduce the default 14 (3*16K rows) if memory is limited and rows
         // are large.
         // values between 8-16 are allowed
-        setProperty(hsqldb_cache_scale, 14);
+        setProperty(hsqldb_cache_scale, 15);
 
         // maximum size of .log file in megabytes
         setProperty(hsqldb_log_size, 200);
@@ -387,8 +433,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         try {
             exists = super.load();
         } catch (Exception e) {
-            throw Trace.error(Trace.FILE_IO_ERROR,
-                              Trace.LOAD_SAVE_PROPERTIES, new Object[] {
+            throw Trace.error(Trace.FILE_IO_ERROR, Trace.LOAD_SAVE_PROPERTIES,
+                              new Object[] {
                 fileName, e
             });
         }
@@ -404,7 +450,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // do not open if the database belongs to a later (future) version
         int check = version.substring(0, 5).compareTo(THIS_VERSION);
 
-        Trace.check(check <= 0, Trace.WRONG_DATABASE_FILE_VERSION);
+        if (check > 0) {
+            throw Trace.error(Trace.WRONG_DATABASE_FILE_VERSION);
+        }
 
         version = getProperty(db_version);
 
@@ -458,8 +506,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         } catch (Exception e) {
             database.logger.appLog.logContext(SimpleLog.LOG_ERROR, "failed");
 
-            throw Trace.error(Trace.FILE_IO_ERROR,
-                              Trace.LOAD_SAVE_PROPERTIES, new Object[] {
+            throw Trace.error(Trace.FILE_IO_ERROR, Trace.LOAD_SAVE_PROPERTIES,
+                              new Object[] {
                 fileName, e
             });
         }
@@ -566,6 +614,22 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                              : 10000;
     }
 
+//---------------------
+// new properties to review / persist
+    public int NO_MESSAGE = 1;
+
+    public int getErrorLevel() {
+
+        return 0;
+
+//        return NO_MESSAGE;
+    }
+
+    public boolean divisionByZero() {
+        return false;
+    }
+
+//------------------------
     public void setDBModified(int mode) throws HsqlException {
 
         String value = MODIFIED_NO;
