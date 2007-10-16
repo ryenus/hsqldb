@@ -305,9 +305,9 @@ implements ActionListener, WindowListener, KeyListener {
                     rcFile = DEFAULT_RCFILE;
                 }
 
-                c = new RCData(new File(rcFile), urlid).getConnection(
-                    null, System.getProperty("sqlfile.charset"),
-                    System.getProperty("javax.net.ssl.trustStore"));
+                c = new RCData(new File(rcFile), urlid).getConnection(null,
+                               System.getProperty("sqlfile.charset"),
+                               System.getProperty("javax.net.ssl.trustStore"));
             } else {
                 c = ConnectionDialog.createConnection(m.fMain, "Connect");
             }
@@ -627,7 +627,7 @@ implements ActionListener, WindowListener, KeyListener {
 
                 if (4096 <= ifHuge.length()) {
                     buf.append(
-                        "This huge file cannot be edited. Please execute\n");
+                        "This huge file cannot be edited.\n Please execute or clear\n");
                     txtCommand.setText(buf.toString());
                 } else {
                     txtCommand.setText(ifHuge);
@@ -832,7 +832,9 @@ implements ActionListener, WindowListener, KeyListener {
     public void windowClosing(WindowEvent ev) {
 
         try {
-            cConn.close();
+            if (cConn != null) {
+                cConn.close();
+            }
         } catch (Exception e) {}
 
         fMain.dispose();
@@ -902,6 +904,10 @@ implements ActionListener, WindowListener, KeyListener {
         lTime = System.currentTimeMillis();
 
         try {
+            if (sStatement == null) {
+                return;
+            }
+
             sStatement.execute(sCmd);
 
             lTime = System.currentTimeMillis() - lTime;

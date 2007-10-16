@@ -41,6 +41,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -266,8 +267,7 @@ public class FontDialogSwing extends JDialog {
 
         fOwner.tTree.setFont(fonttTree);
 
-        Font fontTxtCommand =
-            fOwner.txtCommand.getFont().deriveFont(fontSize);
+        Font fontTxtCommand = fOwner.txtCommand.getFont().deriveFont(fontSize);
 
         fOwner.txtCommand.setFont(fontTxtCommand);
 
@@ -295,8 +295,7 @@ public class FontDialogSwing extends JDialog {
         fOwner.tTree.setFont(fOwner.txtCommand.getFont().deriveFont(style));
         fOwner.txtCommand.setFont(
             fOwner.txtCommand.getFont().deriveFont(style));
-        fOwner.txtResult.setFont(
-            fOwner.txtResult.getFont().deriveFont(style));
+        fOwner.txtResult.setFont(fOwner.txtResult.getFont().deriveFont(style));
     }
 
     public static void setColor(String inTarget) {

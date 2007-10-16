@@ -35,12 +35,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.net.MalformedURLException;
 
 /* $Id$ */
 
@@ -51,17 +51,16 @@ import java.net.MalformedURLException;
  */
 public class RCData {
 
-    public static final String DEFAULT_JDBC_DRIVER = "org.hsqldb.jdbcDriver";
-
-    private String defaultJdbcDriverName = DEFAULT_JDBC_DRIVER;
+    public static final String DEFAULT_JDBC_DRIVER   = "org.hsqldb.jdbcDriver";
+    private String             defaultJdbcDriverName = DEFAULT_JDBC_DRIVER;
 
     public void setDefaultJdbcDriver(String defaultJdbcDriverName) {
         this.defaultJdbcDriverName = defaultJdbcDriverName;
     }
+
     public String getDefaultJdbcDriverName() {
         return defaultJdbcDriverName;
     }
-
 
     /**
      * Just for testing and debugging.
@@ -87,8 +86,8 @@ public class RCData {
         }
 
         if (!file.canRead()) {
-            throw new IOException("Please set up authentication file '"
-                                  + file + "'");
+            throw new IOException("Please set up authentication file '" + file
+                                  + "'");
         }
 
         // System.err.println("Using RC file '" + file + "'");
@@ -125,8 +124,8 @@ public class RCData {
                     br.close();
                 } catch (IOException e) {}
 
-                throw new Exception("Corrupt line " + linenum + " in '"
-                                    + file + "':  " + s);
+                throw new Exception("Corrupt line " + linenum + " in '" + file
+                                    + "':  " + s);
             }
 
             if (dbKey == null) {
@@ -178,8 +177,8 @@ public class RCData {
                         br.close();
                     } catch (IOException e) {}
 
-                    throw new Exception("Bad line " + linenum + " in '"
-                                        + file + "':  " + s);
+                    throw new Exception("Bad line " + linenum + " in '" + file
+                                        + "':  " + s);
                 }
             }
         }
@@ -197,9 +196,11 @@ public class RCData {
                                 + "for '" + dbKey + "' in file '" + file
                                 + "'");
         }
-        if (libpath != null)
+
+        if (libpath != null) {
             throw new IllegalArgumentException(
-                    "Sorry, 'libpath' not supported yet");
+                "Sorry, 'libpath' not supported yet");
+        }
     }
 
     /**
@@ -208,16 +209,16 @@ public class RCData {
      * @see #RCData(String,String,String,String,String,String,String,String)
      */
     public RCData(String id, String url, String username, String password,
-                  String driver, String charset, String truststore)
-            throws Exception {
+                  String driver, String charset,
+                  String truststore) throws Exception {
         this(id, url, username, password, driver, charset, truststore, null);
     }
 
     /**
      * <p>Creates a new <code>RCData</code> object.
      *
-     * <p>The parameters driver, charset, truststore, and libpath are optional. 
-     * Setting these parameters to <code>NULL</code> will set them to their 
+     * <p>The parameters driver, charset, truststore, and libpath are optional.
+     * Setting these parameters to <code>NULL</code> will set them to their
      * default values.
      *
      * @param id The identifier for these connection settings
@@ -231,8 +232,8 @@ public class RCData {
      * @throws Exception if the a non-optional parameter is set to <code>NULL</code>
      */
     public RCData(String id, String url, String username, String password,
-                  String driver, String charset,
-                  String truststore, String libpath) throws Exception {
+                  String driver, String charset, String truststore,
+                  String libpath) throws Exception {
 
         this.id         = id;
         this.url        = url;
@@ -243,9 +244,10 @@ public class RCData {
         this.truststore = truststore;
         this.libpath    = libpath;
 
-        if (libpath != null)
+        if (libpath != null) {
             throw new IllegalArgumentException(
-                    "Sorry, 'libpath' not supported yet");
+                "Sorry, 'libpath' not supported yet");
+        }
 
         if (id == null || url == null || username == null
                 || password == null) {
@@ -268,7 +270,8 @@ public class RCData {
      * @return New JDBC Connection
      */
     public Connection getConnection()
-    throws ClassNotFoundException, SQLException, MalformedURLException {
+    throws ClassNotFoundException, InstantiationException,
+           IllegalAccessException, SQLException, MalformedURLException {
         return getConnection(null, null, null);
     }
 
@@ -278,19 +281,15 @@ public class RCData {
      *
      * @return New JDBC Connection
      */
-    public Connection getConnection(String pCurDriver, String pCurCharset,
-                                    String pCurTrustStore)
+    public Connection getConnection(String curDriver, String curCharset,
+                                    String curTrustStore)
                                     throws ClassNotFoundException,
+                                           InstantiationException,
+                                           IllegalAccessException,
                                            MalformedURLException,
                                            SQLException {
 
         Properties sysProps = System.getProperties();
-
-        String curDriver = pCurDriver;
-        String curCharset = pCurCharset;
-        String curTrustStore = pCurTrustStore;
-        // These are just to quiet compilation warnings about modifying
-        // param pointers.
 
         if (curDriver == null) {
 
@@ -318,26 +317,33 @@ public class RCData {
         } else {
             sysProps.put("javax.net.ssl.trustStore", curTrustStore);
         }
+
         String urlString = null;
+
         try {
             urlString = expandSysPropVars(url);
         } catch (IllegalArgumentException iae) {
-            throw new MalformedURLException(iae.getMessage()
-                    + " for URL '" + url + "'");
+            throw new MalformedURLException(iae.getMessage() + " for URL '"
+                                            + url + "'");
         }
+
         String userString = null;
+
         try {
             userString = expandSysPropVars(username);
         } catch (IllegalArgumentException iae) {
             throw new MalformedURLException(iae.getMessage()
-                    + " for user name '" + username + "'");
+                                            + " for user name '" + username
+                                            + "'");
         }
+
         String passwordString = null;
+
         try {
             passwordString = expandSysPropVars(password);
         } catch (IllegalArgumentException iae) {
             throw new MalformedURLException(iae.getMessage()
-                    + " for password");
+                                            + " for password");
         }
 
         // As described in the JDBC FAQ:
@@ -356,33 +362,49 @@ public class RCData {
                               })).loadClass(curDriver)).newInstance());
         */
         Class.forName(curDriver);
+
         return DriverManager.getConnection(urlString, userString,
-                passwordString);
+                                           passwordString);
     }
 
     static public String expandSysPropVars(String inString) {
+
         String outString = new String(inString);
-        int             varOffset, varEnd;
-        String          varVal, varName;
+        int    varOffset, varEnd;
+        String varVal, varName;
 
         while (true) {
+
             // Recursive substitution for ${x} variables.
             varOffset = outString.indexOf("${");
-            if (varOffset < 0) break;
+
+            if (varOffset < 0) {
+                break;
+            }
+
             varEnd = outString.indexOf('}', varOffset + 2);
-            if (varEnd < 0) break;
+
+            if (varEnd < 0) {
+                break;
+            }
+
             varName = outString.substring(varOffset + 2, varEnd);
+
             if (varName.length() < 1) {
                 throw new IllegalArgumentException("Bad variable setting");
             }
+
             varVal = System.getProperty(varName);
+
             if (varVal == null) {
                 throw new IllegalArgumentException(
-                        "No Java system property with name '" + varName + "'");
+                    "No Java system property with name '" + varName + "'");
             }
+
             outString = outString.substring(0, varOffset) + varVal
-                    + outString.substring(varEnd + 1);
+                        + outString.substring(varEnd + 1);
         }
+
         return outString;
     }
 }
