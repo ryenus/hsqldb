@@ -34,26 +34,22 @@ package org.hsqldb.jdbc;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.sql.CallableStatement;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.sql.SQLException;
-import java.util.Calendar;
-
-//#ifdef JAVA2
 import java.sql.Array;
 import java.sql.Blob;
+import java.sql.CallableStatement;
 import java.sql.Clob;
+import java.sql.Date;
 import java.sql.Ref;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Map;
 
-//#endif JAVA2
 //#ifdef JDBC4
 import java.sql.NClob;
 import java.sql.RowId;
 import java.sql.SQLXML;
-
 //#endif JDBC4
 import org.hsqldb.HsqlException;
 import org.hsqldb.Trace;
@@ -3465,7 +3461,7 @@ implements CallableStatement {
 
     /**
      * <!-- start generic documentation -->
-     *     
+     *
      * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
      * driver converts this to a SQL <code>ROWID</code> when it sends it to the
      * database.
@@ -3799,7 +3795,7 @@ implements CallableStatement {
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
-     *     
+     *
      * @param parameterName the name of the parameter
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs or
@@ -3817,7 +3813,7 @@ implements CallableStatement {
 
     /**
      * <!-- start generic documentation -->
-     * 
+     *
      * Retrieves the value of the designated <code>NCHAR</code>,
      * <code>NVARCHAR</code>
      * or <code>LONGNVARCHAR</code> parameter as
@@ -4226,7 +4222,7 @@ implements CallableStatement {
                                java.io.InputStream x) throws SQLException {
         super.setAsciiStream(findParameterIndex(parameterName), x);
     }
-    
+
 //#endif JDBC4
 
     /**
