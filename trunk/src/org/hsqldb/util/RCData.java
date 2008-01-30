@@ -170,6 +170,8 @@ public class RCData {
                     truststore = value;
                 } else if (keyword.equals("password")) {
                     password = value;
+                } else if (keyword.equals("transiso")) {
+                    ti = value;
                 } else if (keyword.equals("libpath")) {
                     libpath = value;
                 } else {
@@ -215,6 +217,16 @@ public class RCData {
     }
 
     /**
+     * Wrapper for unset Transaction Isolation.
+     */
+    public RCData(String id, String url, String username, String password,
+                  String driver, String charset, String truststore,
+                  String libpath) throws Exception {
+        this(id, url, username, password, driver, charset, truststore,
+                libpath, null);
+    }
+
+    /**
      * <p>Creates a new <code>RCData</code> object.
      *
      * <p>The parameters driver, charset, truststore, and libpath are optional.
@@ -233,12 +245,13 @@ public class RCData {
      */
     public RCData(String id, String url, String username, String password,
                   String driver, String charset, String truststore,
-                  String libpath) throws Exception {
+                  String libpath, String ti) throws Exception {
 
         this.id         = id;
         this.url        = url;
         this.username   = username;
         this.password   = password;
+        this.ti         = ti;
         this.driver     = driver;
         this.charset    = charset;
         this.truststore = truststore;
@@ -259,6 +272,7 @@ public class RCData {
     String url        = null;
     String username   = null;
     String password   = null;
+    String ti         = null;
     String driver     = null;
     String charset    = null;
     String truststore = null;
@@ -363,8 +377,12 @@ public class RCData {
         */
         Class.forName(curDriver);
 
-        return DriverManager.getConnection(urlString, userString,
+        Connection c = DriverManager.getConnection(urlString, userString,
                                            passwordString);
+        if (ti != null) RCData.setTI(c, ti);
+System.err.println("TI set to " + ti + "\nPOST: " + SqlTool.tiToString(c.getTransactionIsolation()));
+        
+        return c;
     }
 
     static public String expandSysPropVars(String inString) {
@@ -406,5 +424,24 @@ public class RCData {
         }
 
         return outString;
+    }
+
+    static public void setTI(Connection c, String tiString)
+            throws SQLException {
+        int i = -1;
+        if (tiString.equals("TRANSACTION_READ_UNCOMMITTED"))
+            i = Connection.TRANSACTION_READ_UNCOMMITTED;
+        if (tiString.equals("TRANSACTION_READ_COMMITTED"))
+            i = Connection.TRANSACTION_READ_COMMITTED;
+        if (tiString.equals("TRANSACTION_REPEATABLE_READ"))
+            i = Connection.TRANSACTION_REPEATABLE_READ;
+        if (tiString.equals("TRANSACTION_SERIALIZABLE"))
+            i = Connection.TRANSACTION_SERIALIZABLE;
+        if (tiString.equals("TRANSACTION_NONE"))
+            i = Connection.TRANSACTION_NONE;
+        if (i < 0)
+                throw new RuntimeException("Invalid trans. isol. value: "
+                        + tiString);
+        c.setTransactionIsolation(i);
     }
 }

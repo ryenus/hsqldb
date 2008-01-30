@@ -119,7 +119,7 @@ public class SqlToolSprayer {
         }
 
         String[] withRcArgs    = {
-            "--sql", sa[0], "--rcfile", rcFile, null
+            "--sql", sa[0], "--rcfile=" + rcFile, null
         };
         String[] withoutRcArgs = {
             "--sql", sa[0], null
