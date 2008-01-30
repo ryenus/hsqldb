@@ -5,20 +5,18 @@ Wahlen:
     --noInput                Lehrt stdin nicht (Standardeinstelling wenn
                              Sql Datei gegeben order --sql Schalter benutzt).
     --stdInput               Liest stdin ZUSÄTZLICH zu sql Dateien/--sql Eingang
-    --inlineRc url=val1,user=val2[,charset=val3][,truststore=val4][,password=]
-                             Inline RC Datei Variable
+    --inlineRc=url=val1,user=val2[,...]  Inline RC Variable
     --debug                  Zeigt Debug Info zu stderr
-    --noAutoFile             Ausführt auto.sql vom Home Directory nicht.
+    --noAutoFile             Ausführt auto.sql vom Home Directory nicht
     --autoCommit             Auto-commit JDBC DML Befehle
-    --sql "SQL; Anweisungen" Ausführt gegeben SQL statt der stdin (vor
+    --sql="SQL; Anweisungen" Ausführt gegeben SQL statt der stdin (vor
                              SQL Dateien wenn angebeben) wo "SQL" wirt
                              aus SQL Befehl(e) gebildet.  Sieh die
                              Bedienungsanleitung.
-    --rcFile datei/pfad.rc   Anschluss Info Datei [$HOME/sqltool.rc]
-    --abortOnErr             Abbruch nach Fehler (aufhebt Rückstellungen)
-    --continueOnErr          Continue nach Fehler (aufhebt Rückstellungen)
-    --setVar NAME1=val1[,NAME2=val2...]   PL Variable
-    --driver a.b.c.Driver    JDBC Trieber Class [%{2}]
+    --rcFile=datei/pfad.rc   Anschluss Info Datei [$HOME/sqltool.rc]
+    --continueOnErr          Continue (wenn true) or Abbruch (false) nach Fehler
+    --setVar=NAME1=val1[,NAME2=val2...]   PL Variable
+    --driver=a.b.c.Driver    JDBC Trieber Class [%{2}]
     urlid                    ID von url/Benutzername/Passwort in RC Datei
     datei1.sql...            SQL Dateien auszuführen  [stdin]
                              (Benutzen Sie '-' für non-interactively stdin!).

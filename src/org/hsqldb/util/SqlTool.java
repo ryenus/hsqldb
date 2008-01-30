@@ -298,6 +298,7 @@ public class SqlTool {
         String  rcPassword       = null;
         String  rcCharset        = null;
         String  rcTruststore     = null;
+        String  rcTransIso     = null;
         Map     rcFields         = null;
         String  parameter;
 
@@ -332,6 +333,15 @@ public class SqlTool {
                     }
 
                     coeOverride = Boolean.TRUE;
+                } else if (parameter.startsWith("continueonerr=")) {
+                    if (coeOverride != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                rb.getString(
+                        SqltoolRB.SQLTOOL_ABORTCONTINUE_MUTUALLYEXCLUSIVE));
+                    }
+
+                    coeOverride = Boolean.valueOf(
+                            arg[i].substring("--continueonerr=".length()));
                 } else if (parameter.equals("list")) {
                     listMode = true;
                 } else if (parameter.equals("rcfile")) {
@@ -340,12 +350,16 @@ public class SqlTool {
                     }
 
                     rcFile = arg[i];
+                } else if (parameter.startsWith("rcfile=")) {
+                    rcFile = arg[i].substring("--rcfile=".length());
                 } else if (parameter.equals("setvar")) {
                     if (++i == arg.length) {
                         throw bcl;
                     }
 
                     varSettings = arg[i];
+                } else if (parameter.startsWith("setvar=")) {
+                    varSettings = arg[i].substring("--setvar=".length());
                 } else if (parameter.equals("sql")) {
                     noinput = true;    // but turn back on if file "-" specd.
 
@@ -354,6 +368,9 @@ public class SqlTool {
                     }
 
                     sqlText = arg[i];
+                } else if (parameter.startsWith("sql=")) {
+                    noinput = true;    // but turn back on if file "-" specd.
+                    sqlText = arg[i].substring("--sql=".length());
                 } else if (parameter.equals("debug")) {
                     debug = true;
                 } else if (parameter.equals("noautofile")) {
@@ -372,12 +389,16 @@ public class SqlTool {
                     }
 
                     driver = arg[i];
+                } else if (parameter.startsWith("driver=")) {
+                    driver = arg[i].substring("--driver=".length());
                 } else if (parameter.equals("inlinerc")) {
                     if (++i == arg.length) {
                         throw bcl;
                     }
 
                     rcParams = arg[i];
+                } else if (parameter.startsWith("inlinerc=")) {
+                    rcParams = arg[i].substring("--inlinerc=".length());
                 } else {
                     throw bcl;
                 }
@@ -475,6 +496,7 @@ public class SqlTool {
             rcCharset    = (String) rcFields.remove("charset");
             rcTruststore = (String) rcFields.remove("truststore");
             rcPassword   = (String) rcFields.remove("password");
+            rcTransIso   = (String) rcFields.remove("transiso");
 
             // Don't ask for password if what we have already is invalid!
             if (rcUrl == null || rcUrl.length() < 1)
@@ -502,7 +524,7 @@ public class SqlTool {
             try {
                 conData = new RCData(CMDLINE_ID, rcUrl, rcUsername,
                                      rcPassword, driver, rcCharset,
-                                     rcTruststore);
+                                     rcTruststore, null, rcTransIso);
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_GENFROMVALUES_FAIL, e.getMessage()));
@@ -542,7 +564,8 @@ public class SqlTool {
                         rb.getString(SqltoolRB.JDBC_ESTABLISHED,
                                 md.getDatabaseProductName(),
                                 md.getDatabaseProductVersion(),
-                                md.getUserName()));
+                                md.getUserName(),
+                                tiToString(conn.getTransactionIsolation())));
             }
         } catch (Exception e) {
             //e.printStackTrace();
@@ -653,5 +676,21 @@ public class SqlTool {
             System.err.println(conData.url + rb.getString(
                     SqltoolRB.TEMPFILE_REMOVAL_FAIL, tmpFile.toString()));
         }
+    }
+
+    static public String tiToString(int ti) throws SQLException {
+        switch (ti) {
+            case Connection.TRANSACTION_READ_UNCOMMITTED:
+                return "TRANSACTION_READ_UNCOMMITTED";
+            case Connection.TRANSACTION_READ_COMMITTED:
+                return "TRANSACTION_READ_COMMITTED";
+            case Connection.TRANSACTION_REPEATABLE_READ:
+                return "TRANSACTION_REPEATABLE_READ";
+            case Connection.TRANSACTION_SERIALIZABLE:
+                return "TRANSACTION_SERIALIZABLE";
+            case Connection.TRANSACTION_NONE:
+                return "TRANSACTION_NONE";
+        }
+        throw new RuntimeException("Unexpected trans. isol. value: " + ti);
     }
 }

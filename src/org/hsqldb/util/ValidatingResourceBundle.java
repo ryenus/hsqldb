@@ -189,6 +189,10 @@ abstract public class ValidatingResourceBundle {
     public String getString(int id, String s1, String s2, String s3) {
         return getString(id, new String[] {s1, s2, s3});
     }
+    public String getString(int id, String s1, String s2, String s3, String s4)
+    {
+        return getString(id, new String[] {s1, s2, s3, s4});
+    }
     public String getString(int id, int i1) {
         return getString(id, new String[] {Integer.toString(i1)});
     }
