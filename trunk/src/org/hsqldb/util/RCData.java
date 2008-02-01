@@ -380,7 +380,13 @@ public class RCData {
         Connection c = DriverManager.getConnection(urlString, userString,
                                            passwordString);
         if (ti != null) RCData.setTI(c, ti);
-System.err.println("TI set to " + ti + "\nPOST: " + SqlTool.tiToString(c.getTransactionIsolation()));
+        // Would like to warn here if the requested TI does not match
+        // c.getTransactionIsolation().  Problem is, we can't "throw" since
+        // this is expected behavior of HSQLDB < v. 1.9; can't log since we
+        // have no logger; can't write to stderr since we should not depend
+        // on stderr.
+        // System.err.println("TI set to " + ti + "\nPOST: "
+        // + SqlTool.tiToString(c.getTransactionIsolation()));
         
         return c;
     }
