@@ -14,6 +14,14 @@
         rephrase the question to yourself as "Can I run 'ant -Dx=...?"
         Do not address questions about property file(s) to the
         hsqldb community. -->
+
+  <!-- TODO:
+        Use multiple class directories (javac dest dirs).
+        Current tactic requires tons of complicated includes and exludes
+        and still often bundles arbitrary extra stuff (determined by what
+        happened to be built previously.
+  -->
+
    <property file='build/build.properties'/>
    <property name="hsqldb.version" value="1.8.0"/>
 
@@ -33,6 +41,7 @@
    <property name="build.debug" value="on"/>
    <property name="servletapi.lib" value="lib/servlet.jar"/>
    <property name="junit38.lib" value="lib/junit.jar"/>
+   <property name='jflex.lib' value='lib/JFlex.jar'/>
 
    <target name="init">
    </target>
@@ -140,14 +149,19 @@ examples:
        </copy>
    </target>
 
-   <target name="clean" depends="clean-docwork"
+   <target name="clean" depends="-clean"
            description="Delete the /classes and work directories created by ant tasks">
-        <delete dir="classes"/>
-        <delete dir="${swsrc}"/>
+        <echo message="Use the 'cleanall' target to also purge generated doc and .jar files"/>
    </target>
 
-   <target name="cleanall" depends="clean,clean-doc"
-           description="Same as clean but delete the jar files as well">
+   <target name="-clean" depends="clean-docwork">
+        <delete dir="classes"/>
+        <delete dir="${swsrc}"/>
+        <delete dir="tmp/jflex"/>
+   </target>
+
+   <target name="cleanall" depends="-clean,clean-doc"
+           description="Same as clean but delete the jar and doc files as well">
       <delete>
          <fileset dir="lib" includes="hsql*.jar"/>
       </delete>
@@ -294,7 +308,7 @@ examples:
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
       <fail unless='_servlet_available'
-            message="Put '${servletapi.lib}' into place"/>
+            message="Place Jar file for Servlet API at '${servletapi.lib}', or set property 'servletapi.lib'"/>
       <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
@@ -413,14 +427,12 @@ examples:
              classpath="${junit38.lib}"
        >
           <include name="org/hsqldb/test/TestJDBCSavepoints.java"/>
-          <include name="org/hsqldb/test/SqlToolHarness.java"/>
-          <include name="org/hsqldb/test/TestSqlTool*.java"/>
       </javac>
    </target>
 
-    <target name="util" depends="lib"
+    <target name="util" depends="lib, jflex"
             description="compiles the /util folder">
-      <javac srcdir="${swsrc}"
+      <javac srcdir="${swsrc}:tmp/jflex"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -429,6 +441,10 @@ examples:
          <exclude name="org/hsqldb/util/*Swing.java"/>
          <exclude name="org/hsqldb/util/TableSorter.java"/>
       </javac>
+      <!--
+      <javac srcdir="tmp/jflex" destdir="classes" debug="${build.debug}"
+             optimize="${build.optimize}" classpath="classes"/>
+           -->
       <copy todir="classes/org/hsqldb/util" preservelastmodified='true'>
           <fileset dir="src/org/hsqldb/util" includes='*.gif, *.png'/>
       </copy>
@@ -450,7 +466,17 @@ examples:
       <available property='_junit_available' classpath='${junit38.lib}'
                  classname='junit.swingui.TestRunner'/>
       <fail unless='_junit_available'
-            message="Put '${junit38.lib}' into place"/>
+            message="Place Jar file for v. 3.8.x of Junit at '${junit38.lib}', or set property 'junit38.lib'"/>
+   </target>
+
+   <target name="scanner-driver" depends="util">
+      <!-- Purposefully no description -->
+      <javac srcdir="${swsrc}"
+             includes="org/hsqldb/test/SqlFileScannerDriver.java"
+             destdir="classes"
+             debug="${build.debug}"
+             optimize="${build.optimize}"
+             />
    </target>
 
    <target name="test" depends="-requireJunit, classes16"
@@ -466,7 +492,7 @@ examples:
          </classpath>
          <include name="org/hsqldb/test/**"/>
          <exclude name="org/hsqldb/test/TestJDBCSavepoints.java"/>
-         <exclude name="org/hsqldb/test/*SqlTool*.java"/>
+         <exclude name="org/hsqldb/test/SqlFileScannerDriver.java"/>
       </javac>
       <antcall inheritall='true' target='-test14'/>
    </target>
@@ -738,19 +764,20 @@ examples:
                   '/>
 
     <fileset id='sqltoolclasses' dir='classes'
-        includes='org/hsqldb/util/SqlTool*,
-                  org/hsqldb/util/RCData*,
-                  org/hsqldb/util/RefCapablePropertyResourceBundle*,
-                  org/hsqldb/util/SqltoolRB*,
-                  org/hsqldb/util/ValidatingResourceBundle*,
-                  org/hsqldb/util/AppendableException*,
-                  org/hsqldb/util/SqlToolError*,
+        includes='org/hsqldb/util/SqlTool*
+                  org/hsqldb/util/RCData*
+                  org/hsqldb/util/RefCapablePropertyResourceBundle*
+                  org/hsqldb/util/SqltoolRB*
+                  org/hsqldb/util/ValidatingResourceBundle*
+                  org/hsqldb/util/AppendableException*
+                  org/hsqldb/util/SqlToolError*
+                  org/hsqldb/util/sqltool/*.class
                   org/hsqldb/util/SqlFile*
                   org/hsqldb/lib/FileAccess*
                   org/hsqldb/lib/StringUtil*
                   '/>
     <fileset id='sqltoolres' dir='classes'
-        includes='org/hsqldb/util/**/*.text,
+        includes='org/hsqldb/util/**/*.text
                   org/hsqldb/util/**/*.properties
                   '/>
 
@@ -1289,5 +1316,21 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
         <delete quiet='true' includeEmptyDirs='true'>
             <fileset dir='doc' includes='**/*.xml'/>
         </delete>
+    </target>
+
+    <target name="-init-jflex">
+      <available property='_jflex_available' classpath='${jflex.lib}'
+                 classname='JFlex.anttask.JFlexTask'/>
+      <fail unless='_jflex_available'
+            message="Place JFlex library at '${jflex.lib}', or set property 'jflex.lib' (available from http://sourceforge.net/projects/jflex/)"/>
+      <taskdef classname="JFlex.anttask.JFlexTask" name="jflex"
+               classpath='${jflex.lib}'/>
+     </target>
+
+    <target name="jflex" depends="-init-jflex">
+        <mkdir dir="tmp/jflex"/>
+        <jflex file="src/org/hsqldb/util/sqltool.flex" destdir="tmp/jflex"/>
+        <!-- A limitation of the jflex task is that you must specify the .flex
+             files individually and explicitly.  No filesets, etc. -->
     </target>
 </project>
