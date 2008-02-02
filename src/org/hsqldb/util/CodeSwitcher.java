@@ -134,7 +134,6 @@ public class CodeSwitcher {
             return;
         }
 
-        boolean path = false;
         File listFile = null;
         File baseDir = null;
 
@@ -151,8 +150,6 @@ public class CodeSwitcher {
                 s.vSwitchOff.addElement(p.substring(1));
             } else {
                 s.addDir(p);
-
-                path = true;
             }
         }
 
@@ -192,8 +189,8 @@ public class CodeSwitcher {
                     + listFile.getAbsolutePath() + "'");
         }
 
-        if (!path) {
-            printError("no path specified");
+        if (s.size() < 1) {
+            printError("No path specified, or no specified paths qualify");
             showUsage();
         }
 
@@ -204,13 +201,18 @@ public class CodeSwitcher {
         }
     }
 
+    public int size() {
+        return (vList == null) ? 0 : vList.size();
+    }
+
     /**
      * Method declaration
      *
      */
     static void showUsage() {
 
-        System.out.print("Usage: java CodeSwitcher [paths] [labels] [+][-]\n"
+        System.out.print("Usage: java CodeSwitcher paths|{--pathlist=listfile}"
+                         + "[{+|-}label...] [+][-]\n"
                          + "If no labels are specified then all used\n"
                          + "labels in the source code are shown.\n"
                          + "Use +MODE to switch on the things labeld MODE\n"
