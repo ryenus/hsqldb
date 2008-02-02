@@ -4931,7 +4931,11 @@ public class SqlFile {
             return new ToolLogger(s);
         }
 
-        public void log(Level level, String message, Throwable t) {
+        private void log(Level level, String message, Throwable t) {
+            privlog(level, message, t);
+        }
+
+        private void privlog(Level level, String message, Throwable t) {
             if (log4jLogger == null) {
                 StackTraceElement elements[] = new Throwable().getStackTrace();
                 String c = elements[2].getClassName();
@@ -4953,31 +4957,43 @@ public class SqlFile {
 
         // Wrappers
         public void log(Level level, String message) {
-            log(level, message, null);
+            privlog(level, message, null);
         }
-        public void finer(String message) { log(Level.FINER, message); }
-        public void warning(String message) { log(Level.WARNING, message); }
-        public void severe(String message) { log(Level.SEVERE, message); }
-        public void info(String message) { log(Level.INFO, message); }
-        public void finest(String message) { log(Level.FINEST, message); }
-        public void error(String message) { log(Level.WARNING, message); }
+        public void finer(String message) {
+            privlog(Level.FINER, message, null);
+        }
+        public void warning(String message) {
+            privlog(Level.WARNING, message, null);
+        }
+        public void severe(String message) {
+            privlog(Level.SEVERE, message, null);
+        }
+        public void info(String message) {
+            privlog(Level.INFO, message, null);
+        }
+        public void finest(String message) {
+            privlog(Level.FINEST, message, null);
+        }
+        public void error(String message) {
+            privlog(Level.WARNING, message, null);
+        }
         public void finer(String message, Throwable t) {
-            log(Level.FINER, message, t);
+            privlog(Level.FINER, message, t);
         }
         public void warning(String message, Throwable t) {
-            log(Level.WARNING, message, t);
+            privlog(Level.WARNING, message, t);
         }
         public void severe(String message, Throwable t) {
-            log(Level.SEVERE, message, t);
+            privlog(Level.SEVERE, message, t);
         }
         public void info(String message, Throwable t) {
-            log(Level.INFO, message, t);
+            privlog(Level.INFO, message, t);
         }
         public void finest(String message, Throwable t) {
-            log(Level.FINEST, message, t);
+            privlog(Level.FINEST, message, t);
         }
         public void error(String message, Throwable t) {
-            log(Level.WARNING, message, t);
+            privlog(Level.WARNING, message, t);
         }
     }
 }
