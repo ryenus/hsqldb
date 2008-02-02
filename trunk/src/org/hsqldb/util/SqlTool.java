@@ -62,6 +62,8 @@ import java.util.Map;
  * @author Blaine Simpson unsaved@users
  */
 public class SqlTool {
+    static private SqlFile.ToolLogger logger =
+            SqlFile.ToolLogger.getLog(SqlTool.class);
     private static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
     // N.b. the following is static!
@@ -270,6 +272,7 @@ public class SqlTool {
      *                          reason as the exception's message.
      */
     static public void objectMain(String[] arg) throws SqlToolException {
+        logger.finer("Invoking SqlTool");
 
         /*
          * The big picture is, we parse input args; load a RCData;
