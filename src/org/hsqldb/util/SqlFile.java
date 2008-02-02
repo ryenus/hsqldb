@@ -63,6 +63,9 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.lang.reflect.Method;
 
 /* $Id$ */
 
@@ -118,6 +121,12 @@ import java.util.regex.PatternSyntaxException;
  */
 
 public class SqlFile {
+    //static private ToolLogger logger = ToolLogger.getLog(SqlFile.class);
+    // Should initialize the logger right here.
+    // Only reason not doing so is because the class is nested inside this
+    // class, so we have to wait for <clinit> to complete before using
+    // ToolLogger.
+    static private ToolLogger logger = null;
     private static final int DEFAULT_HISTORY_SIZE = 40;
     private File             file;
     private boolean          interactive;
@@ -295,6 +304,10 @@ public class SqlFile {
      */
     public SqlFile(File inFile, boolean inInteractive, Map inVars)
             throws IOException {
+        if (logger == null) {
+            ToolLogger logger = ToolLogger.getLog(SqlFile.class);
+            logger.finer("<init>ting first SqlFile instance");
+        }
         // Set up ResourceBundle first, so that any other errors may be
         // reported with localized messages.
         try {
@@ -4831,5 +4844,140 @@ public class SqlFile {
                             )
                     )
                 }));
+    }
+
+    /**
+     * Logger hierarchies are stored at the Class level.
+     *
+     * This is pretty safe because for use cases where multiple hierarchies
+     * are desired, classloader hierarchies will effectively isolate multiple
+     * class-level Logger hierarchies.
+     */
+    static public class ToolLogger {
+        static private Map loggerInstances = new HashMap();
+        static private Map jdkToLog4jLevels = new HashMap();
+        static private Method log4jGetLogger = null;
+        static private Method log4jLogMethod = null;
+        private Object log4jLogger = null;
+        private Logger jdkLogger = null;
+
+        static {
+            Class log4jLoggerClass = null;
+            boolean doLog4j = true;
+            try {
+                log4jLoggerClass = Class.forName("org.apache.log4j.Logger");
+            } catch (Exception e) {
+                doLog4j = false;
+            }
+            if (doLog4j) try {
+                Method log4jToLevel = Class.forName("org.apache.log4j.Level").
+                        getMethod("toLevel", new Class[] { String.class });
+                log4jLogMethod = log4jLoggerClass.getMethod(
+                        "log", new Class[] { String.class,
+                                Class.forName("org.apache.log4j.Priority"),
+                                Object.class, Throwable.class });
+                jdkToLog4jLevels.put(Level.ALL,
+                        log4jToLevel.invoke(null, new Object[] {"ALL"}));
+                jdkToLog4jLevels.put(Level.FINER,
+                        log4jToLevel.invoke(null, new Object[] {"DEBUG"}));
+                jdkToLog4jLevels.put(Level.WARNING,
+                        log4jToLevel.invoke(null, new Object[] {"ERROR"}));
+                jdkToLog4jLevels.put(Level.SEVERE,
+                        log4jToLevel.invoke(null, new Object[] {"FATAL"}));
+                jdkToLog4jLevels.put(Level.INFO,
+                        log4jToLevel.invoke(null, new Object[] {"INFO"}));
+                jdkToLog4jLevels.put(Level.OFF,
+                        log4jToLevel.invoke(null, new Object[] {"OFF"}));
+                jdkToLog4jLevels.put(Level.FINEST,
+                        log4jToLevel.invoke(null, new Object[] {"TRACE"}));
+                jdkToLog4jLevels.put(Level.WARNING,
+                        log4jToLevel.invoke(null, new Object[] {"WARN"}));
+                log4jGetLogger = log4jLoggerClass.getMethod(
+                        "getLogger", new Class[] { String.class });
+                // This last object is what we toggle on to generate either
+                // Log4j or Jdk Logger objects (to wrap).
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "<clinit> failure instantiating present Log4j system",
+                        e);
+            }
+        }
+
+        /**
+         * User may not use the constructor.
+         */
+        private ToolLogger(String s) {
+            if (log4jGetLogger == null) {
+                jdkLogger = Logger.getLogger(s);
+            } else try {
+                log4jLogger = log4jGetLogger.invoke(null, new Object[] {s});
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Failed to instantiate Log4j Logger", e);
+            }
+            loggerInstances.put(s, this);
+        }
+
+        /**
+         * User's entry-point into this logging system.
+         */
+        public static ToolLogger getLog(Class c) {
+            return getLog(c.getName());
+        }
+
+        public static ToolLogger getLog(String s) {
+            if (loggerInstances.containsKey(s))
+                return (ToolLogger) loggerInstances.get(s);
+            return new ToolLogger(s);
+        }
+
+        public void log(Level level, String message, Throwable t) {
+            if (log4jLogger == null) {
+                StackTraceElement elements[] = new Throwable().getStackTrace();
+                String c = elements[2].getClassName();
+                String m = elements[2].getMethodName();
+                if (t == null) {
+                    jdkLogger.logp(level, c, m, message);
+                } else {
+                    jdkLogger.logp(level, c, m, message, t);
+                }
+            } else try {
+                log4jLogMethod.invoke(log4jLogger, new Object[] {
+                        SqlFile.ToolLogger.class.getName(),
+                        jdkToLog4jLevels.get(level), message, t});
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Logging failed when attempting to log: " + message, e);
+            }
+        }
+
+        // Wrappers
+        public void log(Level level, String message) {
+            log(level, message, null);
+        }
+        public void finer(String message) { log(Level.FINER, message); }
+        public void warning(String message) { log(Level.WARNING, message); }
+        public void severe(String message) { log(Level.SEVERE, message); }
+        public void info(String message) { log(Level.INFO, message); }
+        public void finest(String message) { log(Level.FINEST, message); }
+        public void error(String message) { log(Level.WARNING, message); }
+        public void finer(String message, Throwable t) {
+            log(Level.FINER, message, t);
+        }
+        public void warning(String message, Throwable t) {
+            log(Level.WARNING, message, t);
+        }
+        public void severe(String message, Throwable t) {
+            log(Level.SEVERE, message, t);
+        }
+        public void info(String message, Throwable t) {
+            log(Level.INFO, message, t);
+        }
+        public void finest(String message, Throwable t) {
+            log(Level.FINEST, message, t);
+        }
+        public void error(String message, Throwable t) {
+            log(Level.WARNING, message, t);
+        }
     }
 }
