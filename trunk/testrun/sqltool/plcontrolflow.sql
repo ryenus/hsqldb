@@ -211,5 +211,5 @@
 *end while
 
 *if (*accum != LPMQQPMQQ)
-    \p Wrong value accumulated by nested while loops (*{accum})
+    \q Wrong value accumulated by nested while loops (*{accum})
 *end if
