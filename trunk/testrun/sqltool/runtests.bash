@@ -120,7 +120,9 @@ done
 
 [ ${#FailedScripts[@]} -eq 0 ] && exit 0
 
-echo "${#FailedScripts[@]} tests failed out of ${#Scripts[@]}:"
+echo "For details, run $PROGNAME against each failed script individually with -v
+switch, like '$PROGNAME -v failedscript.sql'.
+${#FailedScripts[@]} tests failed out of ${#Scripts[@]}:"
 IFS='
 '
 echo "${FailedScripts[*]}"
