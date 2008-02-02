@@ -28,6 +28,13 @@ CREATE TABLE t(i int);
 
 /* Empty and white space comments: */
 /**/
+/*****/
+/*** Extra stars ***/
+  /*** Extra stars ***/   
+   /**************/
+---- Extra slashes
+  ---- Extra slashes  
+    ----------------------
 /*  */
   /**/  
   /*  */
@@ -37,9 +44,82 @@ CREATE TABLE t(i int);
   --
   --  
 
+/* Comments trailing SQL */
+INSERT INTO t VALUES (9);
+
+/* Simple SQL-embedded traditional comments */
+SELECT * FROM  /* A simple traditional comment */ t;
+* if (*? != 9)
+    \q Hyphen-hyphen trailing SQL failed
+* end if
+SELECT * FROM  /* A simple traditional
+comment */ t;
+* if (*? != 9)
+    \q Hyphen-hyphen trailing SQL failed
+* end if
+SELECT * FROM  -- A simple single-line comment
+t;
+* if (*? != 9)
+    \q Hyphen-hyphen trailing SQL failed
+* end if
+SELECT * FROM  -- Two simple single-line
+-- comments
+t;
+* if (*? != 9)
+    \q Hyphen-hyphen trailing SQL failed
+* end if
+SELECT * FROM  -- Two simple single-line
+  -- comments.  With leading white space
+  t;
+* if (*? != 9)
+    \q Hyphen-hyphen trailing SQL failed
+* end if
+
 /* Nesting different comments inside one another */
 /* -- The traditional comment should still close. */
-INSERT INTO t VALUES (9);
-SELECT * FROM t;  -- SQL-trailing comment #1
+SELECT * FROM  /* Something -- single-line SQL-trailing comment */ t;
+* if (*? != 9)
+    \q Hyphen-hyphen trailing SQL failed
+* end if
 
-DROP table t;
+/* Sanity check */
+* V1 = one
+* if (*V1 != one)
+  \q Failed sanity check for simple variable test
+* end if
+
+/* Test single-line within PL command */
+* V2 = alpha--some crap
+* if (*V2 != alpha)
+  \q Failed single-line within PL command
+* end if
+
+/* Test traditional within PL command */
+* V3 = gamma/*some crap*/
+* if (*V3 != gamma)
+  \q Failed traditional within PL command
+* end if
+
+/* Test multiple traditionals within PL command */
+* V4 = de/*some crap*/l/*more*/ta
+* if (*V4 != delta)
+  \q Failed multiple traditional within PL command
+* end if
+
+/* Test single-line within PL command */
+* V5 = alpha--some crap /* with nested traditional */ there
+* if (*V5 != alpha)
+  \q Failed single-line within PL w/ nesting+trailing failed
+* end if
+
+/* Test single-line within PL command */
+* V6 = alpha--some crap /* with nested traditional */
+* if (*V6 != alpha)
+  \q Failed single-line within PL w/ nesting failed
+* end if
+
+/* Test single-line within PL command */
+* V7 = alpha--some crap /* with nested traditional
+* if (*V6 != alpha)
+  \q Failed single-line within PL w/ unclosed nesting failed
+* end if

@@ -575,8 +575,9 @@ public class SqlFile {
                                 continue;
                             }
                         }
-
-                        if (trimmedInput.length() == 0) {
+                        
+                        if (trimmedInput.length() == 0
+                                || trimmedInput.startsWith("--")) {
                             // This is just to filter out useless newlines at
                             // beginning of commands.
                             continue;
@@ -586,12 +587,21 @@ public class SqlFile {
                                 && (trimmedInput.length() < 2
                                     || trimmedInput.charAt(1) != '{'))
                                 || trimmedInput.charAt(0) == '\\') {
+
+                            trimmedInput = decomment(trimmedInput);
                             setBuf(trimmedInput);
                             processFromBuffer();
                             continue;
                         }
 
                         if (trimmedInput.charAt(0) == ':' && interactive) {
+                            //trimmedInput = decomment(trimmedInput);
+                            // Purposefully not removing comments from
+                            // inside interactive commands.
+                            // Can think of no use case where it would be
+                            // useful, and it could confuse SQL-ignorant
+                            // users to have stuff removed from their
+                            // interactive commands.
                             processBuffHist(trimmedInput.substring(1));
                             continue;
                         }
@@ -4995,5 +5005,31 @@ public class SqlFile {
         public void error(String message, Throwable t) {
             privlog(Level.WARNING, message, t);
         }
+    }
+
+    /**
+     * Remove and trim traditional and single-line comments from input.
+     *
+     * Need a real scanner to handle mixing of traditional and single-line
+     * comments.  Our intention here is to handle one-at-a-time properly. 
+     * This method will normally be invoked only for * /\/: commands, since
+     * we want to pass SQL-embedded comments to the database engine.
+     *
+     * @param s The input String is not modified.
+     * @returns Unmodified s if it contains no comment.  Otherwis, a new
+     * de-commented version of the input String.
+     */
+    private String decomment(String inS) throws BadSpecial {
+        int slashSlashCommentIndex = inS.indexOf("--");
+        if (slashSlashCommentIndex  < 0 && inS.indexOf("/*") < 0) return inS;
+        String s = inS; /* To avoid compiler warnings */
+        if (slashSlashCommentIndex > -1)
+            s = s.substring(0, slashSlashCommentIndex).trim();
+        int traditionalCommentIndex = s.indexOf("/*");
+        if (traditionalCommentIndex < 0) return s.trim();
+        if (s.lastIndexOf("*/") < traditionalCommentIndex)
+            throw new BadSpecial("Sorry.  Traditional /* */ comments in "
+                    + "Special commands must end on the same line (for now)");
+        return s.replaceAll("/\\*.*?\\*/", "").trim();
     }
 }
