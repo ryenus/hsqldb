@@ -1,7 +1,7 @@
 $Id$
 
 SqlTool Unit Tests
-since:  HSQLDB 1.8.0.8, 1.9.x
+since:  HSQLDB 1.8.0.8
 author:  Blaine Simpson (unsaved@users.sourceforge.net)
 
 
