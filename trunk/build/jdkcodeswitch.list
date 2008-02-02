@@ -1,0 +1,27 @@
+# Files listed here will be code-switched
+# This eliminates the need for CodeSwitcher to scan all source files.
+
+org/hsqldb/HsqlDateTime.java
+org/hsqldb/jdbc/jdbcCallableStatement.java
+org/hsqldb/jdbc/jdbcConnection.java
+org/hsqldb/jdbc/jdbcDatabaseMetaData.java
+org/hsqldb/jdbc/jdbcDataSource.java
+org/hsqldb/jdbc/jdbcDriver.java
+org/hsqldb/jdbc/jdbcNClob.java
+org/hsqldb/jdbc/jdbcParameterMetaData.java
+org/hsqldb/jdbc/jdbcPreparedStatement.java
+org/hsqldb/jdbc/jdbcResultSet.java
+org/hsqldb/jdbc/jdbcResultSetMetaData.java
+org/hsqldb/jdbc/jdbcStatement.java
+org/hsqldb/jdbc/jdbcStubs.java
+org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
+org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
+org/hsqldb/jdbc/pool/JDBCPooledConnection.java
+org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
+org/hsqldb/jdbc/Util.java
+org/hsqldb/lib/java/JavaSystem.java
+org/hsqldb/lib/SimpleLog.java
+org/hsqldb/lib/StringConverter.java
+org/hsqldb/test/TestBug778213.java
+org/hsqldb/util/ConnectionDialogCommon.java
+org/hsqldb/util/preprocessor/Preprocessor.java

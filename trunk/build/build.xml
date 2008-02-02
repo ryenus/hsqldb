@@ -171,7 +171,6 @@ examples:
         <arg file="${swsrc}/org/hsqldb/lib/java/JavaSystem.java"/>
         <arg file="${swsrc}/org/hsqldb/util/ConnectionDialogCommon.java"/>
         <arg value="+JAVA1TARGET"/>
-
       </java>
     </target>
 
@@ -213,29 +212,14 @@ examples:
     <target name="switchtojdk11" depends="switches"
             description="self explanatory" unless="ant.java.iscjavamodern">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg file="${swsrc}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcStubs.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcBlob.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcClob.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcConnection.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcDataSource.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcParameterMetaData.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSet.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSetMetaData.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/Util.java"/>
-        <arg file="${swsrc}/org/hsqldb/lib/SimpleLog.java"/>
-        <arg file="${swsrc}/org/hsqldb/rowio/RowInputTextLog.java"/>
-        <arg file="${swsrc}/org/hsqldb/HsqlDateTime.java"/>
-        <arg value="-JAVA2"/>
-        <arg value="-JDBC3"/>
-        <arg value="-JDBC4"/>
+          <arg value="-JAVA2"/>
+          <arg value="-JDBC3"/>
+          <arg value="-JDBC4"/>
+          <arg value="--pathlist=jdkcodeswitch.list"/>
+          <arg value="--basedir=../${swsrc}"/>
+          <!-- Since these paths are interpreted by the JVM, not ant,
+               the path must be relative to run dir (build), not the
+               At basedir -->
       </java>
       <available classname="java.util.Vector" property="noswing"/>
     </target>
@@ -243,87 +227,42 @@ examples:
     <target name="switchtojdk12" depends="switches"
             description="self explanatory" if="ant.java.iscjava12">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcStubs.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcBlob.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcClob.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcConnection.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcParameterMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSet.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSetMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/Util.java"/>
-          <arg file="${swsrc}/org/hsqldb/lib/SimpleLog.java"/>
-          <arg file="${swsrc}/org/hsqldb/rowio/RowInputTextLog.java"/>
-          <arg file="${swsrc}/org/hsqldb/HsqlDateTime.java"/>
           <arg value="+JAVA2"/>
           <arg value="-JDBC3"/>
           <arg value="-JDBC4"/>
+          <arg value="--pathlist=jdkcodeswitch.list"/>
+          <arg value="--basedir=../${swsrc}"/>
+          <!-- Since these paths are interpreted by the JVM, not ant,
+               the path must be relative to run dir (build), not the
+               At basedir -->
       </java>
     </target>
 
     <target name="switchtojdk14" depends="switches"
             description="self explanatory" if="ant.java.iscjava14" unless="ant.java.iscjava16">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcStubs.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcBlob.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcClob.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcConnection.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcParameterMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSet.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSetMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/Util.java"/>
-          <arg file="${swsrc}/org/hsqldb/lib/SimpleLog.java"/>
-          <arg file="${swsrc}/org/hsqldb/rowio/RowInputTextLog.java"/>
-          <arg file="${swsrc}/org/hsqldb/HsqlDateTime.java"/>
           <arg value="+JAVA2"/>
           <arg value="+JDBC3"/>
           <arg value="-JDBC4"/>
+          <arg value="--pathlist=jdkcodeswitch.list"/>
+          <arg value="--basedir=../${swsrc}"/>
+          <!-- Since these paths are interpreted by the JVM, not ant,
+               the path must be relative to run dir (build), not the
+               At basedir -->
        </java>
     </target>
 
     <target name="switchtojdk16" depends="switches"
             description="self explanatory" if="ant.java.iscjava16">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/BaseConnectionWrapper.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/JDBCPooledConnection.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/pool/ManagedPoolDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcStubs.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcBlob.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcClob.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcConnection.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcDataSource.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcDatabaseMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcParameterMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSet.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSetMetaData.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/jdbcStatement.java"/>
-          <arg file="${swsrc}/org/hsqldb/jdbc/Util.java"/>
-          <arg file="${swsrc}/org/hsqldb/lib/SimpleLog.java"/>
-          <arg file="${swsrc}/org/hsqldb/rowio/RowInputTextLog.java"/>
-          <arg file="${swsrc}/org/hsqldb/HsqlDateTime.java"/>
           <arg value="+JAVA2"/>
           <arg value="+JDBC3"/>
           <arg value="+JDBC4"/>
+          <arg value="--pathlist=jdkcodeswitch.list"/>
+          <arg value="--basedir=../${swsrc}"/>
+          <!-- Since these paths are interpreted by the JVM, not ant,
+               the path must be relative to run dir (build), not the
+               At basedir -->
        </java>
     </target>
 
