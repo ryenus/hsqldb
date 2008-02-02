@@ -1,11 +1,11 @@
-Syntax: java org.hsqldb.util.SqlTool [--opt [optval...]] urlid [file1.sql...]
+Syntax: java org.hsqldb.util.SqlTool [--opt[=optval]...] urlid [file1.sql...]
 Options:
     --help                   Displays this message
     --list                   List urlids in the rc file
     --noInput                Do not read stdin (default if sql file given
                              or --sql switch used).
     --stdInput               Read stdin IN ADDITION to sql files/--sql input
-    --inlineRc=url=val1,user=val2[,...]
+    --inlineRc=url=val1,user=val2[,asetting=val3...][,password=]
                              Inline RC variables (use --driver for driver)
     --debug                  Print Debug info to stderr
     --noAutoFile             Do not execute auto.sql from home dir
