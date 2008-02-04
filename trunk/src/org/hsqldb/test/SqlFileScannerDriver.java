@@ -72,10 +72,7 @@ public class SqlFileScannerDriver {
     }
 
     /**
-     * Parses and optionally processes a block command like foreach/if.
-     *
-     * @param command  Any PL command.  Will just return if it is not a
-     *                 block command.
+     * Parses a block command like foreach/if.
      */
     private TokenList parseBlock(String command) throws IOException {
         if (command.trim().startsWith("foreach")) return seekTokenSource("end");

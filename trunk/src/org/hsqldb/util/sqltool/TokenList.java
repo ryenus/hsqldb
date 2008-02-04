@@ -2,6 +2,9 @@ package org.hsqldb.util.sqltool;
 
 import java.util.ArrayList;
 
+/**
+ * A list of SqlFile Tokens
+ */
 public class TokenList extends ArrayList implements TokenSource {
 // public class TokenList extends ArrayList<Token> implements TokenSource {
 // Java 5
