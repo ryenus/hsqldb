@@ -1,5 +1,7 @@
 package org.hsqldb.util.sqltool;
 
+import java.io.PrintStream;
+
 %%
 // Defaults to Yylex
 %class SqlFileScanner
@@ -8,9 +10,18 @@ package org.hsqldb.util.sqltool;
     private StringBuffer sqlCommand = new StringBuffer();
     private StringBuffer specialCommand = new StringBuffer();
     private boolean interactive = false;
+    private PrintStream psStd = System.out;
+    private PrintStream psErr = System.err;
 
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
+    }
+    
+    public void setStdPrintStream(PrintStream psStd) {
+        this.psStd = psStd;
+    }
+    public void setErrPrintStream(PrintStream psErr) {
+        this.psErr = psErr;
     }
 
     //private String sqlPrompt = "+sql> ";
@@ -43,7 +54,7 @@ package org.hsqldb.util.sqltool;
     }
 
     private void debug(String id, String msg) {
-        System.err.println(id + ":  [" + msg + ']');
+        psErr.println(id + ":  [" + msg + ']');
     }
 
     public String strippedYytext() {
@@ -80,15 +91,15 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 %%
 <SQLTOOL_PROMPT> [\r\n] {
     yybegin(YYINITIAL);
-    if (sqlPrompt != null) System.out.print(sqltoolPrompt);
+    if (sqlPrompt != null) psStd.print(sqltoolPrompt);
 }
 <GOBBLE> ~{LINETERM_MAC} {
     yybegin(YYINITIAL);
     debug("Gobbled", yytext());
-    if (sqltoolPrompt != null) System.out.print(sqltoolPrompt);
+    if (sqltoolPrompt != null) psStd.print(sqltoolPrompt);
 }
 <SQL, SQL_SINGLE_QUOTED, SQL_DOUBLE_QUOTED, SPECIAL, PL, EDIT> <<EOF>> {
-    return new Token(Token.UNTERM_SQL_TYPE, sqlCommand, yyline);
+    return new Token(Token.UNTERM_TYPE, sqlCommand, yyline);
 }
 {TRADITIONAL_COMMENT} { /* Ignore top-level traditional comments */
     debug ("/**/ Comment", yytext());
@@ -97,7 +108,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     debug("Whitespace", yytext());
 }
 {LINETERM_MAC} {
-    if (sqltoolPrompt != null) System.out.print(sqltoolPrompt);
+    if (sqltoolPrompt != null) psStd.print(sqltoolPrompt);
 }
 /*
  * TODO:  Comments ignored in SqlTool commands?  Check this!
@@ -107,14 +118,14 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     debug ("-- Comment", yytext());
 }
 ; {
-    return new Token(Token.SQL_TYPE, "", yyline);
+    return new Token(Token.SQL_TYPE, yyline);
 }
 [Bb][Ee][Gg][Ii][Nn] [\f\t ]* {LINETERM_MAC} |
 [Dd][Ee][Cc][Ll][Aa][Rr][Ee] [\f\t ]* {LINETERM_MAC} {
     sqlCommand.setLength(0);
     sqlCommand.append(strippedYytext());
     yybegin(RAW);
-    if (rawPrompt != null) System.out.print(rawPrompt);
+    if (rawPrompt != null) psStd.print(rawPrompt);
 }
 \* {
     specialCommand.setLength(0);
@@ -131,25 +142,25 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 <RAW> {
     [\f\t ]*\.[\f\t ]* ; [\f\t ]* {LINETERM_MAC} {
         yybegin(YYINITIAL);
-        if (sqlPrompt != null) System.out.print(sqltoolPrompt);
+        if (sqlPrompt != null) psStd.print(sqltoolPrompt);
         return new Token(Token.RAWEXEC_TYPE, sqlCommand, yyline);
     }
     [\f\t ]*\.[\f\t ]* {LINETERM_MAC} {
         yybegin(YYINITIAL);
-        if (sqlPrompt != null) System.out.print(sqltoolPrompt);
+        if (sqlPrompt != null) psStd.print(sqltoolPrompt);
         return new Token(Token.RAW_TYPE, sqlCommand, yyline);
     }
     ~{LINETERM_MAC} {
         if (sqlCommand.length() > 0) sqlCommand.append('\n');
         sqlCommand.append(strippedYytext());
-        if (rawPrompt != null) System.out.print(rawPrompt);
+        if (rawPrompt != null) psStd.print(rawPrompt);
     }
 }
 <SPECIAL> {LINETERM_MAC} {
     if (specialCommand.toString().trim().equals(".")) {
         sqlCommand.setLength(0);
         yybegin(RAW);
-        if (rawPrompt != null) System.out.print(rawPrompt);
+        if (rawPrompt != null) psStd.print(rawPrompt);
     } else {
         yybegin(SQLTOOL_PROMPT);
         yypushback(1);
@@ -166,7 +177,8 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     yypushback(1);
     return new Token(Token.EDIT_TYPE, specialCommand, yyline);
 }
-<SPECIAL, EDIT, PL> {
+<SPECIAL, PL> {
+    // Purposefully not allowing comments within :Edit commands
     {TRADITIONAL_COMMENT} {
         /* embedded comment may disable opening closing \n */
         debug("Spl. /**/ Comment", yytext());
@@ -176,6 +188,8 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
         /* embedded comment may disable opening quotes and closing ; */
         debug("Spl. -- Comment", yytext());
     }
+}
+<SPECIAL, EDIT, PL> {
     [^\n\r] {
         specialCommand.append(yytext());
     }
@@ -192,7 +206,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
             return new Token(Token.BUFFER_TYPE, sqlCommand, yyline);
         } else {
             sqlCommand.append(yytext());
-            if (sqlPrompt != null) System.out.print(sqlPrompt);
+            if (sqlPrompt != null) psStd.print(sqlPrompt);
         }
     }
     {TRADITIONAL_COMMENT} {
@@ -207,7 +221,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     }
     {LINETERM_MAC} {
         sqlCommand.append(yytext());
-        if (sqlPrompt != null) System.out.print(sqlPrompt);
+        if (sqlPrompt != null) psStd.print(sqlPrompt);
     }
     [^\"\';] {
         sqlCommand.append(yytext());
