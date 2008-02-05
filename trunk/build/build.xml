@@ -441,10 +441,6 @@ examples:
          <exclude name="org/hsqldb/util/*Swing.java"/>
          <exclude name="org/hsqldb/util/TableSorter.java"/>
       </javac>
-      <!--
-      <javac srcdir="tmp/jflex" destdir="classes" debug="${build.debug}"
-             optimize="${build.optimize}" classpath="classes"/>
-           -->
       <copy todir="classes/org/hsqldb/util" preservelastmodified='true'>
           <fileset dir="src/org/hsqldb/util" includes='*.gif, *.png'/>
       </copy>
