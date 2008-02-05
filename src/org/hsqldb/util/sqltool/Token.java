@@ -10,13 +10,24 @@ public class Token {
     public static final int SYNTAX_ERR_TYPE = 6;
     public static final int UNTERM_TYPE = 7;
     public static final int BUFFER_TYPE = 8;
+    public static final int MACRO_TYPE = 9;
     public int line;
     public TokenList nestedBlock = null;
 
     public String[] typeString = {
         "SQL", "SPECIAL", "PL", "EDIT", "RAW", "RAWEXEC", "SYNTAX",
-        "UNTERM", "BUFFER"
+        "UNTERM", "BUFFER", "MACRO"
     };
+    public char[] typeChar = {
+        'S', '\\', 'P', 'E', 'R', 'X', '!', '<', '>', '/'
+    };
+
+    public String getTypeString() {
+        return typeString[type];
+    }
+    public char getTypeChar() {
+        return typeChar[type];
+    }
 
     public String val;
     public int type;
@@ -26,16 +37,12 @@ public class Token {
             case SPECIAL_TYPE:
             case EDIT_TYPE:
             case PL_TYPE:
+            case MACRO_TYPE:
                 // These types must be not null.  May be just whitespace.
                 // Will be trimmed.
                 if (val == null) throw new IllegalArgumentException(
                         "Null String value for scanner token");
-                if (val.length() > 0 && (val.charAt(val.length() - 1) == ' '
-                    || val.charAt(val.length() - 1) == '\t'
-                    || val.charAt(val.length() - 1) == '\f'
-                    || val.charAt(val.length() - 1) == '\n'
-                    || val.charAt(val.length() - 1) == '\r'))
-                val = val.trim();
+                val = val.trim();  // Worry about efficiency later
                 break;
 
             case SYNTAX_ERR_TYPE:
@@ -68,6 +75,17 @@ public class Token {
     }
 
     public String toString() { return "@" + line
-            + " TYPE=" + typeString[type] + ", VALUE=(" + val + ')';
+            + " TYPE=" + getTypeString() + ", VALUE=(" + val + ')';
+    }
+
+    /**
+     * Equality ignores the line number
+     */
+    public boolean equals(Token otherToken) {
+        if (type != otherToken.type) return false;
+        if (val == null && otherToken.val != null) return false;
+        if (val != null && otherToken.val == null) return false;
+        if (val != null && !val.equals(otherToken.val)) return false;
+        return true;
     }
 }

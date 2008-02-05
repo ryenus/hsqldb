@@ -12,9 +12,14 @@ import java.io.PrintStream;
     private boolean interactive = false;
     private PrintStream psStd = System.out;
     private PrintStream psErr = System.err;
+    private String magicPrefix = null;
 
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
+    }
+
+    public void setMagicPrefix(String magicPrefix) {
+        this.magicPrefix = magicPrefix;
     }
     
     public void setStdPrintStream(PrintStream psStd) {
@@ -59,10 +64,23 @@ import java.io.PrintStream;
 
     public String strippedYytext() {
         String lineString = yytext();
-        int len = lineString.length() - ((lineString.length() > 0
-                && lineString.charAt(lineString.length()-2) == '\r')
-                ? 2 : 1);
+        int len = lineString.length();
+        len = len - ((len > 1 && lineString.charAt(len - 2) == '\r') ? 2 : 1);
         return (lineString.substring(0, len));
+    }
+
+    public void pushbackTrim() {
+        String lineString = yytext();
+        int len = lineString.length();
+        yypushback((len > 1 && lineString.charAt(len - 2) == '\r') ? 2 : 1);
+    }
+
+    private void prompt(String s) {
+        psStd.print(s);
+        if (magicPrefix != null) {
+            psStd.print(magicPrefix);
+            magicPrefix = null;
+        }
     }
 %}
 
@@ -74,7 +92,7 @@ import java.io.PrintStream;
 %unicode
 %type Token
 %xstates SQL RAW SQL_SINGLE_QUOTED SQL_DOUBLE_QUOTED GOBBLE SPECIAL PL EDIT
-%xstates SQLTOOL_PROMPT
+%xstates SQLTOOL_PROMPT MACRO
 /* Single-quotes Escaped with '',
  * In Oracle, at least, no inner double-quotes (i.e. no escaping)
  * SQL-Embedded comments are passed to SQL engine as part of SQL command */
@@ -91,14 +109,14 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 %%
 <SQLTOOL_PROMPT> [\r\n] {
     yybegin(YYINITIAL);
-    if (sqlPrompt != null) psStd.print(sqltoolPrompt);
+    if (sqlPrompt != null) prompt(sqltoolPrompt);
 }
 <GOBBLE> ~{LINETERM_MAC} {
     yybegin(YYINITIAL);
     debug("Gobbled", yytext());
-    if (sqltoolPrompt != null) psStd.print(sqltoolPrompt);
+    if (sqltoolPrompt != null) prompt(sqltoolPrompt);
 }
-<SQL, SQL_SINGLE_QUOTED, SQL_DOUBLE_QUOTED, SPECIAL, PL, EDIT> <<EOF>> {
+<SQL, SQL_SINGLE_QUOTED, SQL_DOUBLE_QUOTED, SPECIAL, PL, EDIT, MACRO> <<EOF>> {
     return new Token(Token.UNTERM_TYPE, sqlCommand, yyline);
 }
 {TRADITIONAL_COMMENT} { /* Ignore top-level traditional comments */
@@ -108,7 +126,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     debug("Whitespace", yytext());
 }
 {LINETERM_MAC} {
-    if (sqltoolPrompt != null) psStd.print(sqltoolPrompt);
+    if (sqltoolPrompt != null) prompt(sqltoolPrompt);
 }
 /*
  * TODO:  Comments ignored in SqlTool commands?  Check this!
@@ -125,7 +143,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     sqlCommand.setLength(0);
     sqlCommand.append(strippedYytext());
     yybegin(RAW);
-    if (rawPrompt != null) psStd.print(rawPrompt);
+    if (rawPrompt != null) prompt(rawPrompt);
 }
 \* {
     specialCommand.setLength(0);
@@ -139,57 +157,66 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     specialCommand.setLength(0);
     yybegin(EDIT);
 }
+\/ {
+    specialCommand.setLength(0);
+    yybegin(MACRO);
+}
 <RAW> {
     [\f\t ]*\.[\f\t ]* ; [\f\t ]* {LINETERM_MAC} {
         yybegin(YYINITIAL);
-        if (sqlPrompt != null) psStd.print(sqltoolPrompt);
+        if (sqlPrompt != null) prompt(sqltoolPrompt);
         return new Token(Token.RAWEXEC_TYPE, sqlCommand, yyline);
     }
     [\f\t ]*\.[\f\t ]* {LINETERM_MAC} {
         yybegin(YYINITIAL);
-        if (sqlPrompt != null) psStd.print(sqltoolPrompt);
+        if (sqlPrompt != null) prompt(sqltoolPrompt);
         return new Token(Token.RAW_TYPE, sqlCommand, yyline);
     }
     ~{LINETERM_MAC} {
         if (sqlCommand.length() > 0) sqlCommand.append('\n');
         sqlCommand.append(strippedYytext());
-        if (rawPrompt != null) psStd.print(rawPrompt);
+        if (rawPrompt != null) prompt(rawPrompt);
     }
 }
 <SPECIAL> {LINETERM_MAC} {
     if (specialCommand.toString().trim().equals(".")) {
         sqlCommand.setLength(0);
         yybegin(RAW);
-        if (rawPrompt != null) psStd.print(rawPrompt);
+        if (rawPrompt != null) prompt(rawPrompt);
     } else {
         yybegin(SQLTOOL_PROMPT);
-        yypushback(1);
+        pushbackTrim();
         return new Token(Token.SPECIAL_TYPE, specialCommand, yyline);
     }
 }
 <PL> {LINETERM_MAC} {
     yybegin(SQLTOOL_PROMPT);
-    yypushback(1);
+    pushbackTrim();
     return new Token(Token.PL_TYPE, specialCommand, yyline);
+}
+<MACRO> {LINETERM_MAC} {
+    yybegin(SQLTOOL_PROMPT);
+    pushbackTrim();
+    return new Token(Token.MACRO_TYPE, specialCommand, yyline);
 }
 <EDIT> {LINETERM_MAC} {
     yybegin(SQLTOOL_PROMPT);
-    yypushback(1);
+    pushbackTrim();
     return new Token(Token.EDIT_TYPE, specialCommand, yyline);
 }
-<SPECIAL, PL> {
+<SPECIAL, PL, MACRO> {
     // Purposefully not allowing comments within :Edit commands
     {TRADITIONAL_COMMENT} {
         /* embedded comment may disable opening closing \n */
         debug("Spl. /**/ Comment", yytext());
     }
     "--" ~{LINETERM_MAC}  {
-        yypushback(1);
+        pushbackTrim();
         /* embedded comment may disable opening quotes and closing ; */
         debug("Spl. -- Comment", yytext());
     }
 }
-<SPECIAL, EDIT, PL> {
+<SPECIAL, EDIT, PL, MACRO> {
     [^\n\r] {
         specialCommand.append(yytext());
     }
@@ -206,7 +233,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
             return new Token(Token.BUFFER_TYPE, sqlCommand, yyline);
         } else {
             sqlCommand.append(yytext());
-            if (sqlPrompt != null) psStd.print(sqlPrompt);
+            if (sqlPrompt != null) prompt(sqlPrompt);
         }
     }
     {TRADITIONAL_COMMENT} {
@@ -221,7 +248,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     }
     {LINETERM_MAC} {
         sqlCommand.append(yytext());
-        if (sqlPrompt != null) psStd.print(sqlPrompt);
+        if (sqlPrompt != null) prompt(sqlPrompt);
     }
     [^\"\';] {
         sqlCommand.append(yytext());
