@@ -475,9 +475,9 @@ examples:
              />
    </target>
 
-   <target name="test" depends="-requireJunit, classes16"
+   <target name="test" depends="-requireJunit, classes16, jflex"
            description="compiles the /test folder">
-      <javac srcdir="${swsrc}"
+         <javac srcdir="${swsrc}:tmp/jflex"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
