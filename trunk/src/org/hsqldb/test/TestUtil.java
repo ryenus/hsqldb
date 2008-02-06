@@ -1,43 +1,16 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the HSQL Development Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 package org.hsqldb.test;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.Reader;
+import java.io.FileNotFoundException;
 import java.io.LineNumberReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StringUtil;
@@ -52,6 +25,47 @@ import org.hsqldb.lib.StringUtil;
  * @author fredt@users
  */
 public class TestUtil {
+    /* This class writes \n's as line delimiters.
+     * It should write System.getProperty("line.separateor").
+     *
+     * The executing scripts do have state.  This class should be
+     * redesigned with OOD.
+     */
+    static private final SimpleDateFormat sdfYMDHMS =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    static final private String TIMESTAMP_VAR_STR = "${timestamp}";
+
+    /**
+     * Expand occurrences of "${timestamp}" in input to time stamps.
+     */
+    static protected void expandStamps(StringBuffer sb) {
+        int i = sb.indexOf(TIMESTAMP_VAR_STR);
+        if (i < 1) {
+            return;
+        }
+        String timestamp = sdfYMDHMS.format(new java.util.Date());
+        while (i > -1) {
+            sb.replace(i, i + TIMESTAMP_VAR_STR.length(), timestamp);
+            i = sb.indexOf(TIMESTAMP_VAR_STR);
+        }
+    }
+
+    static void testScript(Connection aConnection, String aPath) {
+        /*
+         * This is a legacy wrapper method which purposefully inherits the sins
+         * of the original.
+         * No indication is given to the invoker of even RuntimeExceptions.
+         */
+        File file = new File(aPath);
+        try {
+            TestUtil.testScript(aConnection, file.getAbsolutePath(),
+                    new FileReader(file));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("test script file error: " + e.getMessage());
+        }
+    }
 
     /**
      * Runs a preformatted script.<p>
@@ -62,27 +76,27 @@ public class TestUtil {
      * using either comma (the default), or a user defined delimiter
      * which should be specified in the System property TestUtilFieldDelimiter
      * @param aConnection Connection object for the database
-     * @param aPath Path of the script file to be tested
+     * @param sourceName Identifies the script which failed
+     * @param inReader Source of commands to be tested
      */
-    public static void testScript(Connection aConnection, String aPath) {
+    public static void testScript(Connection aConnection, String sourceName,
+            Reader inReader) throws SQLException, IOException {
+        Statement statement = aConnection.createStatement();
+        LineNumberReader reader = new LineNumberReader(inReader);
+        HsqlArrayList section = null;
+
+        System.out.println("Opened test script file: " + sourceName);
+
+        /**
+         * we read the lines from the start of one section of the script "/*"
+         *  until the start of the next section, collecting the lines
+         *  in the Vector lines.
+         *  When a new section starts, we will pass the vector of lines
+         *  to the test method to be processed.
+         */
+        int startLine = 1;
 
         try {
-            Statement statement = aConnection.createStatement();
-            File      testfile  = new File(aPath);
-            LineNumberReader reader =
-                new LineNumberReader(new FileReader(testfile));
-            HsqlArrayList section = null;
-
-            print("Opened test script file: " + testfile.getAbsolutePath());
-
-            /**
-             * we read the lines from the start of one section of the script "/*"
-             *  until the start of the next section, collecting the lines
-             *  in the Vector lines.
-             *  When a new section starts, we will pass the vector of lines
-             *  to the test method to be processed.
-             */
-            int startLine = 1;
 
             while (true) {
                 boolean startSection = false;
@@ -113,7 +127,7 @@ public class TestUtil {
 
                     //...if we are, test the previous section (if it exists)...
                     if (section != null) {
-                        testSection(statement, section, startLine);
+                        testSection(statement, section, sourceName, startLine);
                     }
 
                     //...and then start a new section...
@@ -126,15 +140,33 @@ public class TestUtil {
 
             //send the last section for testing
             if (section != null) {
-                testSection(statement, section, startLine);
+                testSection(statement, section, sourceName, startLine);
             }
 
             statement.close();
-            print("Processed lines: " + reader.getLineNumber());
-        } catch (Exception e) {
-            e.printStackTrace();
-            print("test script file error: " + e.getMessage());
+
+        // The following catch blocks are just to report the source location
+        // of the failure.
+        } catch (IOException ioe) {
+            System.err.println("Error encountered at command beginning at "
+                    + sourceName + ':' + startLine);
+            throw ioe;
+        } catch (SQLException se) {
+            System.err.println("Error encountered at command beginning at "
+                    + sourceName + ':' + startLine);
+            throw se;
+        } catch (RuntimeException re) {
+            System.err.println("Error encountered at command beginning at "
+                    + sourceName + ':' + startLine);
+            throw re;
         }
+        System.out.println("Processed " + reader.getLineNumber()
+                + " lines from " + sourceName);
+    }
+
+    /** Legacy wrapper */
+    static void test(Statement stat, String s, int line) {
+        TestUtil.test(stat, s, null, line);
     }
 
     /**
@@ -142,19 +174,22 @@ public class TestUtil {
      *  if the result does not match the expected one.
      * @param line start line in the script file for this test
      * @param stat Statement object used to access the database
+     * @param sourceName Identifies the script which failed
      * @param s Contains the type, expected result and SQL for the test
      */
-    static void test(Statement stat, String s, int line) {
+    static void test(Statement stat, String s, String sourceName, int line) {
 
         //maintain the interface for this method
         HsqlArrayList section = new HsqlArrayList();
 
         section.add(s);
-        testSection(stat, section, line);
+        testSection(stat, section, sourceName, line);
     }
 
     /**
      * Method to save typing ;-)
+     * This method does not distinguish between normal and error output.
+     *
      * @param s String to be printed
      */
     static void print(String s) {
@@ -175,24 +210,36 @@ public class TestUtil {
      * @param line line of the script file where this section started
      */
     private static void testSection(Statement stat, HsqlArrayList section,
-                                    int line) {
+                                    String scriptName, int line) {
 
         //create an appropriate instance of ParsedSection
         ParsedSection pSection = parsedSectionFactory(section);
 
         if (pSection == null) {    //it was not possible to sucessfully parse the section
-            print("The section starting at line " + line
-                  + " could not be parsed, " + "and so was not processed.\n");
-        } else if (pSection instanceof IgnoreParsedSection) {
-            print("Line " + line + ": " + pSection.getResultString());
-        } else if (pSection instanceof DisplaySection) {
-
-            // May or may not want to report line number for 'd' sections.  ?
-            print(pSection.getResultString());
-        } else if (!pSection.test(stat)) {
-            print("section starting at line " + line);
-            print("returned an unexpected result:");
-            print(pSection.toString());
+            System.err.println("The section starting at " + scriptName + ':'
+                + line + " could not be parsed, and so was not processed.\n");
+            return;
+        }
+        if (pSection instanceof IgnoreParsedSection) {
+            System.out.println("At " + scriptName + ':' + line + ": "
+                    + pSection.getResultString());
+            return;
+        }
+        if (pSection instanceof DisplaySection
+                || pSection instanceof WaitSection
+                || pSection instanceof ProceedSection) {
+            String s = pSection.getResultString();
+            if (s != null) {
+                // May or may not want to report line number for these sections?
+                System.out.println(pSection.getResultString());
+            }
+        }
+        if (pSection instanceof DisplaySection) {
+            return; // Do not run test method for DisplaySections.
+        }
+        if (!pSection.test(stat)) {
+            System.err.println("Section starting at " + scriptName + ':'
+                    + line + " returned an unexpected result: " + pSection);
         }
     }
 
@@ -218,16 +265,16 @@ public class TestUtil {
         if (topLine.startsWith("/*")) {
             type = topLine.charAt(2);
 
-            //if the type code is invalid return null
-            if (!ParsedSection.isValidCode(type)) {
-                return null;
-            }
-
             //if the type code is UPPERCASE and system property IgnoreCodeCase
             //has been set to true, make the type code lowercase
             if ((Character.isUpperCase(type))
                     && (Boolean.getBoolean("IgnoreCodeCase"))) {
                 type = Character.toLowerCase(type);
+            }
+
+            //if the type code is invalid return null
+            if (!ParsedSection.isValidCode(type)) {
+                return null;
             }
 
             //...strip out the type declaration...
@@ -262,6 +309,12 @@ public class TestUtil {
 
             case 's' :
                 return new SilentParsedSection(rows);
+
+            case 'w' :
+                return new WaitSection(rows);
+
+            case 'p' :
+                return new ProceedSection(rows);
 
             case 'r' :
                 return new ResultSetParsedSection(rows);
@@ -447,7 +500,7 @@ abstract class ParsedSection {
 
     /**
      * Checks that the type code letter is valid
-     * @param aCode type code to validate.
+     * @param aCode Lower-cased type code to validate.
      * @return true if the type code is valid, otherwise false.
      */
     protected static boolean isValidCode(char aCode) {
@@ -456,17 +509,18 @@ abstract class ParsedSection {
          * (note that UPPERCASE codes, while valid are only processed if the
          * system property IgnoreCodeCase has been set to true)
          *
-         * 'u' ('U') - update
-         * 'c' ('C') - count
-         * 'e' ('E') - exception
-         * 'r' ('R') - results
-         * 's' ('S') - silent
+         * 'u' - update
+         * 'c' - count
+         * 'e' - exception
+         * 'r' - results
+         * 'w' - wait
+         * 'p' - proceed
+         * 's' - silent
          * 'd'       - display   (No reason to use upper-case).
          * ' ' - not a test
          */
-        char testChar = Character.toLowerCase(aCode);
 
-        switch (testChar) {
+        switch (aCode) {
 
             case ' ' :
             case 'r' :
@@ -475,6 +529,8 @@ abstract class ParsedSection {
             case 'u' :
             case 's' :
             case 'd' :
+            case 'w' :
+            case 'p' :
                 return true;
         }
 
@@ -677,6 +733,135 @@ class UpdateParsedSection extends ParsedSection {
     }
 }
 
+class WaitSection extends ParsedSection {
+    /* Would love to have a setting to say whether multi-thread mode,
+     * but the static design of TestUtil prevents that.
+     * a W command will cause a non-threaded execution to wait forever.
+     */
+static private String W_SYNTAX_MSG =
+    "Syntax of Wait commands:\n"
+ + "    /*w 123*/     To Wait 123 milliseconds\n"
+ + "    /*w false x*/ Wait until /*p*/ command in another script has executed\n"
+ + "    /*w true x*/  Same, but the /*p*/ must not have executed yet"; 
+
+/** Represents a ParsedSection for wait execution */
+    long sleepTime = -1;
+    Waiter waiter = null;
+    boolean enforceSequence = false;
+
+    protected WaitSection(String[] inLines) {
+        /* Can't user the super constructor, since it does funny things when
+         * constructing the SQL Buffer, which we don't need. */
+        lines = inLines;
+        int closeCmd = lines[0].indexOf("*/");
+        String cmd = lines[0].substring(0, closeCmd);
+        lines[0] = lines[0].substring(closeCmd + 2).trim();
+        String trimmed = cmd.trim();
+        if (trimmed.indexOf('e') < 0 && trimmed.indexOf('E') < 0) {
+            // Does not contain "true" or "false"
+            sleepTime = Long.parseLong(trimmed);
+        } else try {
+            // Would like to use String.split(), but don't know if Java 4
+            // is allowed here.
+            // Until we can use Java 4, prohibit tabs as white space.
+            int index = trimmed.indexOf(' ');
+            if (index < 0) throw new IllegalArgumentException();
+            enforceSequence =
+                    Boolean.valueOf(trimmed.substring(0, index)).booleanValue();
+            waiter = Waiter.getWaiter(trimmed.substring(index).trim());
+        } catch (IllegalArgumentException ie) {
+            throw new IllegalArgumentException(W_SYNTAX_MSG);
+        }
+
+        type = 'w';
+    }
+
+    protected String getResultString() {
+        StringBuffer sb = new StringBuffer();
+        if (lines.length == 1 && lines[0].trim().length() < 1) {
+            return null;
+        }
+
+        for (int i = 0; i < lines.length; i++) {
+            if (i > 0) {
+                sb.append('\n');
+            }
+            sb.append("+ " + lines[i]);
+        }
+        TestUtil.expandStamps(sb);
+        return sb.toString().trim();
+    }
+
+    protected boolean test(Statement aStatement) {
+        if (waiter == null) try {
+            //System.err.println("Sleeping for " + sleepTime + " ms.");
+            Thread.sleep(sleepTime);
+        } catch (InterruptedException ie) {
+        } else {
+            waiter.waitFor(enforceSequence);
+        }
+        return true;
+    }
+}
+
+class ProceedSection extends ParsedSection {
+    /* See comment above for WaitSection */
+static private String P_SYNTAX_MSG =
+    "Syntax of Proceed commands:\n"
+ + "    /*p false x*/ /*p*/ command in another script may Proceed\n"
+ + "    /*p true x*/  Same, but the /*w*/ must be waiting when we execute /*p*/"
+;
+
+/** Represents a ParsedSection for wait execution */
+    Waiter waiter = null;
+    boolean enforceSequence = false;
+
+    protected ProceedSection(String[] inLines) {
+        /* Can't user the super constructor, since it does funny things when
+         * constructing the SQL Buffer, which we don't need. */
+        lines = inLines;
+        int closeCmd = lines[0].indexOf("*/");
+        String cmd = lines[0].substring(0, closeCmd);
+        lines[0] = lines[0].substring(closeCmd + 2).trim();
+        String trimmed = cmd.trim();
+        try {
+            // Would like to use String.split(), but don't know if Java 4
+            // is allowed here.
+            // Until we can use Java 4, prohibit tabs as white space.
+            int index = trimmed.indexOf(' ');
+            if (index < 0) throw new IllegalArgumentException();
+            enforceSequence =
+                    Boolean.valueOf(trimmed.substring(0, index)).booleanValue();
+            waiter = Waiter.getWaiter(trimmed.substring(index).trim());
+        } catch (IllegalArgumentException ie) {
+            throw new IllegalArgumentException(P_SYNTAX_MSG);
+        }
+
+        type = 'p';
+    }
+
+    protected String getResultString() {
+        StringBuffer sb = new StringBuffer();
+        if (lines.length == 1 && lines[0].trim().length() < 1) {
+            return null;
+        }
+
+        for (int i = 0; i < lines.length; i++) {
+            if (i > 0) {
+                sb.append('\n');
+            }
+            sb.append("+ " + lines[i]);
+        }
+        TestUtil.expandStamps(sb);
+        return sb.toString().trim();
+    }
+
+    protected boolean test(Statement aStatement) {
+        waiter.resume(enforceSequence);
+        return true;
+    }
+}
+
 /** Represents a ParsedSection for silent execution */
 class SilentParsedSection extends ParsedSection {
 
@@ -773,16 +958,22 @@ class CountParsedSection extends ParsedSection {
 
 /** Represents a ParsedSection for an Exception test */
 class ExceptionParsedSection extends ParsedSection {
+    private String expectedState = null;
+    private Throwable caught = null;
 
     protected ExceptionParsedSection(String[] lines) {
 
         super(lines);
+        expectedState = lines[0].trim();
+        if (expectedState.length() < 1) {
+            expectedState = null;
+        }
 
         type = 'e';
     }
 
     protected String getResultString() {
-        return "SQLException";
+        return (caught == null) ? "Nothing thrown" : caught.toString();
     }
 
     protected boolean test(Statement aStatement) {
@@ -790,11 +981,16 @@ class ExceptionParsedSection extends ParsedSection {
         try {
             aStatement.execute(getSql());
         } catch (SQLException sqlX) {
-            return true;
+            caught = sqlX;
+            if (expectedState == null
+                    || expectedState.equalsIgnoreCase(sqlX.getSQLState())) {
+                return true;
+            }
+            message = "SQLState '" + sqlX.getSQLState() + "' instead of '"
+                + expectedState + "': " + sqlX.getMessage();
         } catch (Exception x) {
+            caught = x;
             message = x.getMessage();
-
-            return false;
         }
 
         return false;
@@ -826,7 +1022,7 @@ class IgnoreParsedSection extends ParsedSection {
          * Therefore, renaming to inLines. */
 
         // Inefficient to parse this into SQL when we aren't going to use
-        // it as SQL.  Should probably just be removed to use the
+        // it as SQL.  Should probably just be removed to use the 
         // super() constructor.
         super(inLines);
 
@@ -849,21 +1045,22 @@ class DisplaySection extends ParsedSection {
 
         int firstSlash = lines[0].indexOf('/');
 
-        lines[0] = lines[0].substring(firstSlash + 1);
+        lines[0] = lines[0].substring(firstSlash + 1).trim();
     }
 
     protected String getResultString() {
-
         StringBuffer sb = new StringBuffer();
+        if (lines.length == 1 && lines[0].trim().length() < 1) {
+            return null;
+        }
 
         for (int i = 0; i < lines.length; i++) {
             if (i > 0) {
                 sb.append('\n');
             }
-
             sb.append("+ " + lines[i]);
         }
-
-        return sb.toString();
+        TestUtil.expandStamps(sb);
+        return sb.toString().trim();
     }
 }
