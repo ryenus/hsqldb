@@ -1,17 +1,18 @@
 package org.hsqldb.util.sqltool;
 
 import java.io.PrintStream;
+import org.hsqldb.util.SqlFile.ToolLogger;
 
 %%
 // Defaults to Yylex
 %class SqlFileScanner
 %implements TokenSource
 %{
+    static private ToolLogger logger = ToolLogger.getLog(SqlFileScanner.class);
     private StringBuffer sqlCommand = new StringBuffer();
     private StringBuffer specialCommand = new StringBuffer();
     private boolean interactive = false;
     private PrintStream psStd = System.out;
-    private PrintStream psErr = System.err;
     private String magicPrefix = null;
 
     public void setInteractive(boolean interactive) {
@@ -24,9 +25,6 @@ import java.io.PrintStream;
     
     public void setStdPrintStream(PrintStream psStd) {
         this.psStd = psStd;
-    }
-    public void setErrPrintStream(PrintStream psErr) {
-        this.psErr = psErr;
     }
 
     //private String sqlPrompt = "+sql> ";
@@ -59,7 +57,7 @@ import java.io.PrintStream;
     }
 
     private void debug(String id, String msg) {
-        psErr.println(id + ":  [" + msg + ']');
+        logger.finest(id + ":  [" + msg + ']');
     }
 
     public String strippedYytext() {

@@ -327,6 +327,7 @@ public class SqlFile {
                     ValidatingResourceBundle.NOOP_BEHAVIOR);
         } catch (RuntimeException re) {
             System.err.println("Failed to initialize resource bundle");
+            // Can't use logger in static context, due to inner class.
             throw re;
         }
         rawPrompt = rb.getString(SqltoolRB.RAWMODE_PROMPT) + "> ";
@@ -459,7 +460,6 @@ public class SqlFile {
                             ? System.in : (new FileInputStream(file))),
                                     charset)));
             scanner.setStdPrintStream(psStd);
-            scanner.setErrPrintStream(psErr);
             if (interactive) {
                 stdprintln(rb.getString(SqltoolRB.SQLFILE_BANNER, revnum));
                 scanner.setRawPrompt(rawPrompt);

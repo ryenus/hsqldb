@@ -162,6 +162,7 @@ examples:
 
    <target name="cleanall" depends="-clean,clean-doc"
            description="Same as clean but delete the jar and doc files as well">
+      <mkdir dir="lib"/>
       <delete>
          <fileset dir="lib" includes="hsql*.jar"/>
       </delete>
@@ -475,9 +476,9 @@ examples:
              />
    </target>
 
-   <target name="test" depends="-requireJunit, classes16, jflex"
+   <target name="test" depends="-requireJunit, classes16"
            description="compiles the /test folder">
-         <javac srcdir="${swsrc}:tmp/jflex"
+         <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
