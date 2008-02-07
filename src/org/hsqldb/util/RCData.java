@@ -450,4 +450,20 @@ public class RCData {
                         + tiString);
         c.setTransactionIsolation(i);
     }
+
+    static public String tiToString(int ti) throws SQLException {
+        switch (ti) {
+            case Connection.TRANSACTION_READ_UNCOMMITTED:
+                return "TRANSACTION_READ_UNCOMMITTED";
+            case Connection.TRANSACTION_READ_COMMITTED:
+                return "TRANSACTION_READ_COMMITTED";
+            case Connection.TRANSACTION_REPEATABLE_READ:
+                return "TRANSACTION_REPEATABLE_READ";
+            case Connection.TRANSACTION_SERIALIZABLE:
+                return "TRANSACTION_SERIALIZABLE";
+            case Connection.TRANSACTION_NONE:
+                return "TRANSACTION_NONE";
+        }
+        throw new RuntimeException("Unexpected trans. isol. value: " + ti);
+    }
 }

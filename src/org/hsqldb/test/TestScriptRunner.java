@@ -3,7 +3,6 @@ package org.hsqldb.test;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.hsqldb.util.RCData;
 import java.io.File;
 import java.io.Reader;
 import java.io.InputStreamReader;
@@ -14,8 +13,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.lang.reflect.Method;
 import org.hsqldb.test.TestUtil;
-import org.hsqldb.util.SqlTool;
+import org.hsqldb.util.RCData;
 
 /**
  * @see #main
@@ -71,6 +71,7 @@ class TestScriptRunner {
         Map scriptFileMap = new HashMap(); // scriptname -> URLID
         String currentUrlid = null;
         String sqlToolUrlid = null;
+        Method sqlToolMainMethod = null;
 
         try {
             for (int i = 0; i < sa.length; i++) {
@@ -91,8 +92,7 @@ class TestScriptRunner {
                     continue;
                 }
                 if (sa[i].startsWith("--urlid=")) {
-                    currentUrlid = sa[i].substring("--urlid=".length());
-                    continue;
+                    currentUrlid = sa[i].substring("--urlid=".length()); continue;
                 }
                 if (sa[i].startsWith("--sqltool=")) {
                     sqlToolUrlid = sa[i].substring("--sqltool=".length());
@@ -119,17 +119,35 @@ class TestScriptRunner {
             System.exit(2);
         }
 
+        if (sqlToolUrlid != null) {
+            Class sqlToolClass = null;
+            try {
+                sqlToolClass = Class.forName("org.hsqldb.util.SqlTool");
+            } catch (Exception e) {
+                System.err.println("SqlTool class not accessible.  "
+                        + "Re-run without '--sqltool' switch.");
+                System.exit(3);
+            }
+            try {
+                sqlToolMainMethod = sqlToolClass.
+                        getMethod("objectMain", new Class[] {sa.getClass()} );
+            } catch (Exception e) {
+                System.err.println("SqlTool integration failure: " + e);
+                System.exit(3);
+            }
+        } 
         TestScriptRunner runner = new TestScriptRunner(rcFile, scriptFileMap);
         runner.setVerbose(verbose);
         runner.setThreaded(threaded);
         TestCacheSize tcs = populate ? populate() : null;
         runner.establishConnections();
         runner.runScripts();
-        if (sqlToolUrlid != null) try {
-            org.hsqldb.util.SqlTool.objectMain(new String[] {
-                "--rcfile=" + rcFile, sqlToolUrlid });
-        } catch (SqlTool.SqlToolException ste) {
-            System.err.println("SqlTool failed: " + ste);
+        if (sqlToolMainMethod != null) try {
+            sqlToolMainMethod.invoke(null, new Object[] { new String[] {
+                "--rcfile=" + rcFile, sqlToolUrlid }});
+        } catch (Exception e) {
+            System.err.println("SqlTool failed: " + e);
+            e.printStackTrace();
         }
         if (tcs != null) tcs.tearDown();
     }
@@ -161,8 +179,7 @@ class TestScriptRunner {
             }
             conn.setAutoCommit(false);
             System.out.println("ScriptRun '" + getName() + "' connected with "
-                    + TestScriptRunner.tiToString(
-                            conn.getTransactionIsolation()) + '.');
+                    + RCData.tiToString(conn.getTransactionIsolation()) + '.');
         }
 
         public void run() {
@@ -306,21 +323,5 @@ class TestScriptRunner {
         //test.checkResults();
         //System.out.println("total test time -- " + sw.elapsedTime() + " ms");
         return test;
-    }
-
-    static public String tiToString(int ti) throws SQLException {
-        switch (ti) {
-            case Connection.TRANSACTION_READ_UNCOMMITTED:
-                return "TRANSACTION_READ_UNCOMMITTED";
-            case Connection.TRANSACTION_READ_COMMITTED:
-                return "TRANSACTION_READ_COMMITTED";
-            case Connection.TRANSACTION_REPEATABLE_READ:
-                return "TRANSACTION_REPEATABLE_READ";
-            case Connection.TRANSACTION_SERIALIZABLE:
-                return "TRANSACTION_SERIALIZABLE";
-            case Connection.TRANSACTION_NONE:
-                return "TRANSACTION_NONE";
-        }
-        throw new RuntimeException("Unexpected trans. isol. value: " + ti);
     }
 }
