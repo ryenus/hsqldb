@@ -244,8 +244,10 @@ class TestScriptRunner {
                 reader = new InputStreamReader(System.in);
             } else {
                 file = new File(scriptPath);
-                if (!file.isFile()) throw new IOException("Not a file");
-                if (!file.canRead()) throw new IOException("File not readable");
+                if (!file.isFile()) throw new IOException("'" + file
+                        + "' is not a file");
+                if (!file.canRead()) throw new IOException("'" + file
+                        + "' is not readable");
                 reader = new FileReader(file);
             }
             scriptRuns.add(new ScriptRun(scriptPath,
