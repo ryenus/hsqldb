@@ -33,6 +33,7 @@ public class TestUtil {
      */
     static private final SimpleDateFormat sdfYMDHMS =
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    static private boolean abortOnErr = false;
 
     static final private String TIMESTAMP_VAR_STR = "${timestamp}";
 
@@ -240,6 +241,10 @@ public class TestUtil {
         if (!pSection.test(stat)) {
             System.err.println("Section starting at " + scriptName + ':'
                     + line + " returned an unexpected result: " + pSection);
+            if (TestUtil.abortOnErr) {
+                throw new TestRuntimeException(scriptName + ": " + line
+                        + "pSection");
+            }
         }
     }
 
@@ -337,6 +342,27 @@ public class TestUtil {
                 //since we validated it earlier, so return an
                 //IgnoreParsedSection object
                 return new IgnoreParsedSection(rows, type);
+        }
+    }
+
+    /**
+     * This method should certainly be an instance method.
+     *
+     * Can't do that until make this entire class OO.
+     */
+    static public void setAbortOnErr(boolean aoe) {
+        abortOnErr = aoe;
+    }
+
+    static class TestRuntimeException extends RuntimeException {
+        public TestRuntimeException(String s) {
+            super(s);
+        }
+        public TestRuntimeException(Throwable t) {
+            super(t);
+        }
+        public TestRuntimeException(String s, Throwable t) {
+            super(s, t);
         }
     }
 }
@@ -797,6 +823,7 @@ static private String W_SYNTAX_MSG =
             //System.err.println("Sleeping for " + sleepTime + " ms.");
             Thread.sleep(sleepTime);
         } catch (InterruptedException ie) {
+            throw new RuntimeException("Test sleep interrupted", ie);
         } else {
             waiter.waitFor(enforceSequence);
         }
