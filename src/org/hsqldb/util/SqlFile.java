@@ -541,6 +541,9 @@ public class SqlFile {
 
                 switch (token.type) {
                     case Token.SYNTAX_ERR_TYPE:
+                        // TODO:  Define new localized error message
+                        throw new SqlToolError("SqlTool syntax error: "
+                                + token.val);
                     case Token.UNTERM_TYPE:
                         throw new SqlToolError(rb.getString(
                                 SqltoolRB.INPUT_UNTERMINATED,
@@ -1748,9 +1751,13 @@ public class SqlFile {
                         userVars.put(varName, values[i]);
                         updateUserSettings();
 
+                        boolean origRecursed = recursed;
                         recursed = true;
-                        scanpass(token.nestedBlock.dup());
-                        recursed = false;
+                        try {
+                            scanpass(token.nestedBlock.dup());
+                        } finally {
+                            recursed = origRecursed;
+                        }
                     } catch (ContinueException ce) {
                         String ceMessage = ce.getMessage();
 
@@ -1805,9 +1812,13 @@ public class SqlFile {
             if (tokens[0].equals("if")) {
                 try {
                     if (eval(values)) {
+                        boolean origRecursed = recursed;
                         recursed = true;
-                        scanpass(token.nestedBlock.dup());
-                        recursed = false;
+                        try {
+                            scanpass(token.nestedBlock.dup());
+                        } finally {
+                            recursed = origRecursed;
+                        }
                     }
                 } catch (BreakException be) {
                     String beMessage = be.getMessage();
@@ -1834,9 +1845,13 @@ public class SqlFile {
 
                     while (eval(values)) {
                         try {
+                            boolean origRecursed = recursed;
                             recursed = true;
-                            scanpass(token.nestedBlock.dup());
-                            recursed = false;
+                            try {
+                                scanpass(token.nestedBlock.dup());
+                            } finally {
+                                recursed = origRecursed;
+                            }
                         } catch (ContinueException ce) {
                             String ceMessage = ce.getMessage();
 
@@ -4783,8 +4798,8 @@ public class SqlFile {
      * (unless you consider parsing blocks of nested commands to be
      * "performing" a command).
      *
-     * Throws only upon Scanner or nesting errors (since we aren't
-     * performing other commands).
+     * Throws only if I/O error or EOF encountered before end of entire file
+     * (encountered at any level of recursion).
      *
      * Exceptions thrown within this method percolate right up to the
      * external call (in scanpass), regardless of ContinueOnErr setting.
