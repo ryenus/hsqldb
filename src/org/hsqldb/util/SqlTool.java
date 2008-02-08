@@ -251,9 +251,6 @@ public class SqlTool {
     public static void main(String[] args) {
         try {
             SqlTool.objectMain(args);
-        } catch (RuntimeException re) {
-            re.printStackTrace();
-            System.exit(111);
         } catch (SqlToolException fr) {
             if (fr.getMessage() != null) {
                 System.err.println(fr.getMessage());
