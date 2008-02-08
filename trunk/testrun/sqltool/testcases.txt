@@ -25,3 +25,5 @@ write.inter       Tests interactive command :w
 append.inter      Tests interactive commands :a...
 history.inter     Tests interactive recall/execute commands (plus :h, :b)
 comments.sql      Tests -- and /*...*/ comments.
+errhandling.sql   Handling errors which occur within blocks and nested scripts
+errhandling.nsql  Handling errors which occur within blocks and nested scripts
