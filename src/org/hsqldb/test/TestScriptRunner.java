@@ -141,7 +141,7 @@ class TestScriptRunner {
         runner.setThreaded(threaded);
         TestCacheSize tcs = populate ? populate() : null;
         runner.establishConnections();
-        runner.runScripts();
+        boolean success = runner.runScripts();
         if (sqlToolMainMethod != null) try {
             sqlToolMainMethod.invoke(null, new Object[] { new String[] {
                 "--rcfile=" + rcFile, sqlToolUrlid }});
@@ -150,19 +150,25 @@ class TestScriptRunner {
             e.printStackTrace();
         }
         if (tcs != null) tcs.tearDown();
+        System.exit(success ? 0 : 1);
     }
 
     List scriptRuns = new ArrayList();
 
-    static private class ScriptRun extends Thread {
+    private class ScriptRun extends Thread {
         private Reader reader;
         private Connection conn = null;
         private RCData rcdata;
+        private boolean success = false;
 
         public ScriptRun(String name, Reader reader, RCData rcdata) {
             super(name);
             this.reader = reader;
             this.rcdata = rcdata;
+        }
+
+        public boolean getSuccess() {
+            return success;
         }
 
         public void connect() throws SQLException {
@@ -185,6 +191,9 @@ class TestScriptRunner {
         public void run() {
             try {
                 TestUtil.testScript(conn, getName(), reader);
+                success = true;
+            } catch (TestUtil.TestRuntimeException tre) {
+                System.err.println("Script '" + getName() + "' failed");
             } catch (IOException ioe) {
                 System.err.println("Aborting thread for script '" + getName()
                         + "' due to: " + ioe);
@@ -211,6 +220,7 @@ class TestScriptRunner {
 
     public TestScriptRunner(String rcFileString, Map scriptFileMap)
             throws IOException {
+        TestUtil.setAbortOnErr(true);
         Map rcdataMap = new HashMap();
         File rcFile = new File(rcFileString);
         if (!rcFile.isFile())
@@ -262,7 +272,7 @@ class TestScriptRunner {
                     + " connection threads connected");
     }
 
-    public void runScripts() {
+    public boolean runScripts() {
         ScriptRun scriptRun;
         for (int i = 0; i < scriptRuns.size(); i++) {
             scriptRun = (ScriptRun) scriptRuns.get(i);
@@ -289,6 +299,10 @@ class TestScriptRunner {
                         "Interrupted while waiting for script to execute", ie);
             }
         }
+        for (int i = 0; i < scriptRuns.size(); i++) {
+            if (!((ScriptRun) scriptRuns.get(i)).getSuccess()) return false;
+        }
+        return true;
     }
 
     /**
