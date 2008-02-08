@@ -24,9 +24,9 @@ SELECT count(*) FROM t WHERE vc = 'b';
     \q Sanity check failed / 2
 *end if
 
-INSERT INTO t(vc) VALUES ('pref
+INSERT INTO t(vc) VALUES
 
-:apost');
+:a ('prefpost');
 
 SELECT count(*) FROM t
 *if (*? != 5)
@@ -49,10 +49,10 @@ SELECT count(*) FROM t;
     \q Recall + Append + exec failed / 1
 *end if
 
-:-2
+:-1
 :a AND
-
-id = 1
+ id
+= 1
 
 :;
 *if (*? != 1)
