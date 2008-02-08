@@ -313,7 +313,7 @@ public class SqlFile {
     public SqlFile(File file, boolean interactive, Map userVars)
             throws IOException {
         if (logger == null) {
-            ToolLogger logger = ToolLogger.getLog(SqlFile.class);
+            logger = ToolLogger.getLog(SqlFile.class);
             logger.finer("<init>ting first SqlFile instance");
         }
         // Set up ResourceBundle first, so that any other errors may be
@@ -518,6 +518,7 @@ public class SqlFile {
                     preempt = false;
                 } else {
                     token = ts.yylex();
+                    logger.finest("SqlFile got new token:  " + token);
                 }
                 if (token == null) break;
 
@@ -604,7 +605,7 @@ public class SqlFile {
                         new String[] {
                             ((file == null) ? "stdin" : file.toString()),
                             Integer.toString(token.line),
-                            token.reconstructed(),
+                            token.reconstitute(),
                             bs.getMessage(),
                         }
                 ));
@@ -672,7 +673,7 @@ public class SqlFile {
                         new String[] {
                                 ((file == null) ? "stdin" : file.toString()),
                             Integer.toString(token.line),
-                            ((token.val == null) ? "" : token.reconstructed()),
+                            ((token.val == null) ? "" : token.reconstitute()),
                             ((ste.getMessage() == null)
                                     ? "" : ste.getMessage())
                         }
@@ -863,7 +864,7 @@ public class SqlFile {
                 } else {
                     // TODO:  Change message to like "Edit buffer contents:  type X\nTxt
                     stdprintln(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
-                            buffer.getTypeChar() + "  " + buffer.val));
+                            buffer.reconstitute()));
                 }
 
                 return;
@@ -915,7 +916,7 @@ public class SqlFile {
             case '\0' :  // Special token set above.  Just history recall.
                 setBuf(targetCommand);
                 stdprintln(rb.getString(SqltoolRB.BUFFER_RESTORED,
-                        buffer.getTypeChar() + "  " + buffer.val));
+                        buffer.reconstitute()));
                 return;
 
             case ';' :
@@ -925,7 +926,7 @@ public class SqlFile {
                 if (buffer == null) throw new BadSpecial(
                         rb.getString(SqltoolRB.NOBUFFER_YET));
                 stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
-                            buffer.getTypeChar() + "  " + buffer.val));
+                            buffer.reconstitute()));
                 preempt = true;
                 return;
 
@@ -937,8 +938,11 @@ public class SqlFile {
 
                 if (other != null) {
                     if (other.trim().charAt(other.trim().length() - 1) == ';') {
-                        other = other.substring(1, other.lastIndexOf(';'));
-                        if (other.trim().length() < 1) other = null;
+                        other = other.substring(0, other.lastIndexOf(';'));
+                        if (other.trim().length() < 1)
+                            throw new BadSpecial(
+                            // TODO: Localize message
+                            "Use ':;' to repeat a command without appending");
                         doExec = true;
                     }
                 }
@@ -948,11 +952,30 @@ public class SqlFile {
                 setBuf(newToken);
                 if (doExec) {
                     stdprintln(rb.getString(SqltoolRB.BUFFER_EXECUTING,
-                            buffer.getTypeChar() + "  " + buffer.val));
+                            buffer.reconstitute()));
                     preempt = true;
+                    return;
                 }
 
-                if (interactive) scanner.setMagicPrefix(newToken.val);
+                if (interactive) scanner.setMagicPrefix(
+                        newToken.reconstitute());
+
+                switch (newToken.type) {
+                    case Token.SQL_TYPE:
+                        scanner.setRequestedState(SqlFileScanner.SQL);
+                        break;
+                    case Token.SPECIAL_TYPE:
+                        scanner.setRequestedState(SqlFileScanner.SPECIAL);
+                        break;
+                    case Token.PL_TYPE:
+                        scanner.setRequestedState(SqlFileScanner.PL);
+                        break;
+                    default:
+                        throw new RuntimeException(
+                            "Internal error.  Appending to unexpected type: "
+                            + newToken.getTypeString());
+                }
+                scanner.setCommandBuffer(newToken.val);
 
                 return;
 
@@ -982,7 +1005,7 @@ public class SqlFile {
                     // once use defaultCharset from Java 1.5 in charset init.
                     // above.
 
-                    pw.println(targetCommand.reconstructed(true));
+                    pw.println(targetCommand.reconstitute(true));
                     pw.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
@@ -1052,7 +1075,7 @@ public class SqlFile {
                     stdprintln(rb.getString((modeExecute
                             ? SqltoolRB.BUFFER_EXECUTING
                             : SqltoolRB.EDITBUFFER_CONTENTS),
-                                buffer.getTypeChar() + "  " + buffer.val));
+                                buffer.reconstitute()));
                     // TODO:  Change message to like "Edit buffer contents:  type X\nTxt
                 } catch (PatternSyntaxException pse) {
                     throw new BadSpecial(
@@ -3180,12 +3203,12 @@ public class SqlFile {
             token = (Token) history.get(i);
             psStd.println("#" + (i + oldestHist) + " or "
                     + (i - history.size()) + ':');
-            psStd.println(token.reconstructed());
+            psStd.println(token.reconstitute());
         }
         if (buffer != null) {
             // TODO:  Change message to like "Edit buffer contents:  type X\nTxt
             psStd.println(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
-                    buffer.getTypeChar() + "  " + buffer.val));
+                    buffer.reconstitute()));
         }
 
         psStd.println();
@@ -4850,7 +4873,7 @@ public class SqlFile {
                 while (it.hasNext()) {
                     key = (String) it.next();
                     Token t = (Token) macros.get(key);
-                    stdprintln(key + " = " + t.getTypeChar() + "  " + t.val);
+                    stdprintln(key + " = " + t.reconstitute());
                 }
                 break;
             case '=':

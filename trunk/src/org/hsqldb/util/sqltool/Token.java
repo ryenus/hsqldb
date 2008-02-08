@@ -92,15 +92,15 @@ public class Token {
     /*
      * Convenience wrapper for brevity.
      */
-    public String reconstructed() {
-        return reconstructed(false);
+    public String reconstitute() {
+        return reconstitute(false);
     }
 
     /*
      * A command string generated from val and type which can hopefully be
      * re-executed.
      */
-    public String reconstructed(boolean semify) {
+    public String reconstitute(boolean semify) {
         if (val == null) return "";
         switch (type) {
             case Token.SPECIAL_TYPE:
