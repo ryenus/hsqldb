@@ -9,11 +9,27 @@ import org.hsqldb.util.SqlFile.ToolLogger;
 %implements TokenSource
 %{
     static private ToolLogger logger = ToolLogger.getLog(SqlFileScanner.class);
-    private StringBuffer sqlCommand = new StringBuffer();
-    private StringBuffer specialCommand = new StringBuffer();
+    private StringBuffer commandBuffer = new StringBuffer();
     private boolean interactive = false;
     private PrintStream psStd = System.out;
     private String magicPrefix = null;
+    private int requestedState = YYINITIAL;
+
+    public void setRequestedState(int requestedState) {
+        this.requestedState = requestedState;
+    }
+
+    // Trims only the end
+    private void trimBuffer() {
+        int len = commandBuffer.length();
+        commandBuffer.setLength(len -
+            ((len > 1 && commandBuffer.charAt(len - 2) == '\r') ? 2 : 1));
+    }
+
+    public void setCommandBuffer(String s) {
+        commandBuffer.setLength(0);
+        commandBuffer.append(s);
+    }
 
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
@@ -67,6 +83,7 @@ import org.hsqldb.util.SqlFile.ToolLogger;
         return (lineString.substring(0, len));
     }
 
+    // Trims only the end
     public void pushbackTrim() {
         String lineString = yytext();
         int len = lineString.length();
@@ -74,8 +91,13 @@ import org.hsqldb.util.SqlFile.ToolLogger;
     }
 
     private void prompt(String s) {
+        if (!interactive) return;
         psStd.print(s);
-        if (magicPrefix != null) {
+    }
+
+    public void prompt() {
+        if (sqltoolPrompt != null) prompt(sqltoolPrompt);
+        if (interactive && magicPrefix != null) {
             psStd.print(magicPrefix);
             magicPrefix = null;
         }
@@ -90,7 +112,7 @@ import org.hsqldb.util.SqlFile.ToolLogger;
 %unicode
 %type Token
 %xstates SQL RAW SQL_SINGLE_QUOTED SQL_DOUBLE_QUOTED GOBBLE SPECIAL PL EDIT
-%xstates SQLTOOL_PROMPT MACRO
+%xstates MACRO PROMPT_CHANGE_STATE
 /* Single-quotes Escaped with '',
  * In Oracle, at least, no inner double-quotes (i.e. no escaping)
  * SQL-Embedded comments are passed to SQL engine as part of SQL command */
@@ -105,18 +127,18 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 /* CURLY_COMMENT = "{" ~"}"   Purposefully not supporting */
 
 %%
-<SQLTOOL_PROMPT> [\r\n] {
-    yybegin(YYINITIAL);
-    if (sqlPrompt != null) prompt(sqltoolPrompt);
+<PROMPT_CHANGE_STATE> {LINETERM_MAC} {
+    yybegin(requestedState);
+    prompt();
 }
 <GOBBLE> ~{LINETERM_MAC} {
     yybegin(YYINITIAL);
     debug("Gobbled", yytext());
-    if (sqltoolPrompt != null) prompt(sqltoolPrompt);
+    prompt();
 }
 <SQL, SQL_SINGLE_QUOTED, SQL_DOUBLE_QUOTED, SPECIAL, PL, EDIT, MACRO> <<EOF>> {
     yybegin(YYINITIAL);
-    return new Token(Token.UNTERM_TYPE, sqlCommand, yyline);
+    return new Token(Token.UNTERM_TYPE, commandBuffer, yyline);
 }
 {TRADITIONAL_COMMENT} { /* Ignore top-level traditional comments */
     debug ("/**/ Comment", yytext());
@@ -125,7 +147,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     debug("Whitespace", yytext());
 }
 {LINETERM_MAC} {
-    if (sqltoolPrompt != null) prompt(sqltoolPrompt);
+    prompt();
 }
 /*
  * TODO:  Comments ignored in SqlTool commands?  Check this!
@@ -139,69 +161,72 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 }
 [Bb][Ee][Gg][Ii][Nn] [\f\t ]* {LINETERM_MAC} |
 [Dd][Ee][Cc][Ll][Aa][Rr][Ee] [\f\t ]* {LINETERM_MAC} {
-    sqlCommand.setLength(0);
-    sqlCommand.append(strippedYytext());
+    setCommandBuffer(strippedYytext());
     yybegin(RAW);
     if (rawPrompt != null) prompt(rawPrompt);
 }
 \* {
-    specialCommand.setLength(0);
+    commandBuffer.setLength(0);
     yybegin(PL);
 }
 \\ {
-    specialCommand.setLength(0);
+    commandBuffer.setLength(0);
     yybegin(SPECIAL);
 }
 \: {
-    specialCommand.setLength(0);
+    commandBuffer.setLength(0);
     yybegin(EDIT);
 }
 \/ {
-    specialCommand.setLength(0);
+    commandBuffer.setLength(0);
     yybegin(MACRO);
 }
 <RAW> {
     [\f\t ]*\.[\f\t ]* ; [\f\t ]* {LINETERM_MAC} {
         yybegin(YYINITIAL);
-        if (sqlPrompt != null) prompt(sqltoolPrompt);
-        return new Token(Token.RAWEXEC_TYPE, sqlCommand, yyline);
+        prompt();
+        return new Token(Token.RAWEXEC_TYPE, commandBuffer, yyline);
     }
     [\f\t ]*\.[\f\t ]* {LINETERM_MAC} {
         yybegin(YYINITIAL);
-        if (sqlPrompt != null) prompt(sqltoolPrompt);
-        return new Token(Token.RAW_TYPE, sqlCommand, yyline);
+        prompt();
+        return new Token(Token.RAW_TYPE, commandBuffer, yyline);
     }
     ~{LINETERM_MAC} {
-        if (sqlCommand.length() > 0) sqlCommand.append('\n');
-        sqlCommand.append(strippedYytext());
+        if (commandBuffer.length() > 0) commandBuffer.append('\n');
+        commandBuffer.append(strippedYytext());
         if (rawPrompt != null) prompt(rawPrompt);
     }
 }
 <SPECIAL> {LINETERM_MAC} {
-    if (specialCommand.toString().trim().equals(".")) {
-        sqlCommand.setLength(0);
+    if (commandBuffer.toString().trim().equals(".")) {
+        commandBuffer.setLength(0);
         yybegin(RAW);
         if (rawPrompt != null) prompt(rawPrompt);
     } else {
-        yybegin(SQLTOOL_PROMPT);
+        requestedState = YYINITIAL;
+        yybegin(PROMPT_CHANGE_STATE);
         pushbackTrim();
-        return new Token(Token.SPECIAL_TYPE, specialCommand, yyline);
+        return new Token(Token.SPECIAL_TYPE, commandBuffer, yyline);
     }
 }
 <PL> {LINETERM_MAC} {
-    yybegin(SQLTOOL_PROMPT);
+    requestedState = YYINITIAL;
+    yybegin(PROMPT_CHANGE_STATE);
     pushbackTrim();
-    return new Token(Token.PL_TYPE, specialCommand, yyline);
+    return new Token(Token.PL_TYPE, commandBuffer, yyline);
 }
 <MACRO> {LINETERM_MAC} {
-    yybegin(SQLTOOL_PROMPT);
+    requestedState = YYINITIAL;
+    yybegin(PROMPT_CHANGE_STATE);
     pushbackTrim();
-    return new Token(Token.MACRO_TYPE, specialCommand, yyline);
+    return new Token(Token.MACRO_TYPE, commandBuffer, yyline);
 }
 <EDIT> {LINETERM_MAC} {
-    yybegin(SQLTOOL_PROMPT);
+    requestedState = YYINITIAL;
+    yybegin(PROMPT_CHANGE_STATE);
     pushbackTrim();
-    return new Token(Token.EDIT_TYPE, specialCommand, yyline);
+    return new Token(Token.EDIT_TYPE, commandBuffer, yyline);
 }
 <SPECIAL, PL, MACRO> {
     // Purposefully not allowing comments within :Edit commands
@@ -217,75 +242,76 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 }
 <SPECIAL, EDIT, PL, MACRO> {
     [^\n\r] {
-        specialCommand.append(yytext());
+        commandBuffer.append(yytext());
     }
 }
 {SQL_STARTER} {
-    sqlCommand.setLength(0);
-    sqlCommand.append(yytext());
+    setCommandBuffer(yytext());
     yybegin(SQL);
 }
 <SQL> {
     ^[\f\t ]* {LINETERM_MAC} {
         if (interactive) {
-            yybegin(YYINITIAL);
-            return new Token(Token.BUFFER_TYPE, sqlCommand, yyline);
+            requestedState = YYINITIAL;
+            yybegin(PROMPT_CHANGE_STATE);
+            pushbackTrim();
+            trimBuffer();
+            return new Token(Token.BUFFER_TYPE, commandBuffer, yyline);
         } else {
-            sqlCommand.append(yytext());
-            if (sqlPrompt != null) prompt(sqlPrompt);
+            commandBuffer.append(yytext());
         }
     }
     {TRADITIONAL_COMMENT} {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
         /* embedded comment may disable opening quotes and closing ; */
         debug("SQL /**/ Comment", yytext());
     }
     "--" ~{LINETERM_MAC} {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
         /* embedded comment may disable opening quotes and closing ; */
         debug("SQL -- Comment", yytext());
     }
     {LINETERM_MAC} {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
         if (sqlPrompt != null) prompt(sqlPrompt);
     }
     [^\"\';] {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
     }
     \' {
         /* TODO:  Find out if can escape " in SQL commands and handle! */
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
         yybegin(SQL_SINGLE_QUOTED);
     }
     \" {
         /* TODO:  Find out if can escape " in SQL commands and handle! */
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
         yybegin(SQL_DOUBLE_QUOTED);
     }
     ; {
         yybegin(YYINITIAL);
-        return new Token(Token.SQL_TYPE, sqlCommand, yyline);
+        return new Token(Token.SQL_TYPE, commandBuffer, yyline);
     }
 }
 <SQL_SINGLE_QUOTED> {
     [^\']+ {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
     }
     \'\' {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
     }
     \' {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
         debug("SQL '", yytext());
         yybegin(SQL);
     }
 }
 <SQL_DOUBLE_QUOTED> {
     [^\"]+ {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
     }
     \" {
-        sqlCommand.append(yytext());
+        commandBuffer.append(yytext());
         yybegin(SQL);
         debug("SQL \"", yytext());
     }
