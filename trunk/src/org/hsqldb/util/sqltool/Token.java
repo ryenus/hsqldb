@@ -19,7 +19,7 @@ public class Token {
         "UNTERM", "BUFFER", "MACRO"
     };
     public char[] typeChar = {
-        'S', '\\', 'P', 'E', 'R', 'X', '!', '<', '>', '/'
+        'S', '\\', '*', 'E', 'R', 'X', '!', '<', '>', '/'
     };
 
     public String getTypeString() {
@@ -87,5 +87,28 @@ public class Token {
         if (val != null && otherToken.val == null) return false;
         if (val != null && !val.equals(otherToken.val)) return false;
         return true;
+    }
+
+    /*
+     * Convenience wrapper for brevity.
+     */
+    public String reconstructed() {
+        return reconstructed(false);
+    }
+
+    /*
+     * A command string generated from val and type which can hopefully be
+     * re-executed.
+     */
+    public String reconstructed(boolean semify) {
+        if (val == null) return "";
+        switch (type) {
+            case Token.SPECIAL_TYPE:
+            case Token.PL_TYPE:
+                return Character.toString(getTypeChar()) + val;
+            case Token.SQL_TYPE:
+                return val + (semify ? ";" : "");
+        }
+        return "? " + val;
     }
 }

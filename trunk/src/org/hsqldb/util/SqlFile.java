@@ -356,6 +356,7 @@ public class SqlFile {
             if (histLenString != null) try {
                 maxHistoryLength = Integer.parseInt(histLenString);
             } catch (Exception e) {
+                // what to do, what to do...
             } else {
                 maxHistoryLength = DEFAULT_HISTORY_SIZE;
             }
@@ -524,16 +525,23 @@ public class SqlFile {
                 if (nestingCommand != null) {
                     if (token.nestedBlock == null) {
                         token.nestedBlock = seekTokenSource(nestingCommand);
+                        // This command (and the same recursive call inside
+                        // of the seekTokenSource() method) ensure that all
+                        // "blocks" are tokenized immediately as block
+                        // commands are encountered, and the blocks are
+                        // tokenized in their entirety all the way to the
+                        // leaves.
                     }
                     processBlock(token);
+                        // processBlock recurses through scanpass(),
+                        // which processes the nested commands which have
+                        // (in all cases) already beeen tokenized.
                     continue;
                 }
 
                 switch (token.type) {
                     case Token.SYNTAX_ERR_TYPE:
                     case Token.UNTERM_TYPE:
-                        errprintln(rb.getString(SqltoolRB.INPUT_UNTERMINATED,
-                                token.val));
                         throw new SqlToolError(rb.getString(
                                 SqltoolRB.INPUT_UNTERMINATED,
                                         token.val));
@@ -593,7 +601,7 @@ public class SqlFile {
                         new String[] {
                             ((file == null) ? "stdin" : file.toString()),
                             Integer.toString(token.line),
-                            token.val,
+                            token.reconstructed(),
                             bs.getMessage(),
                         }
                 ));
@@ -661,7 +669,7 @@ public class SqlFile {
                         new String[] {
                                 ((file == null) ? "stdin" : file.toString()),
                             Integer.toString(token.line),
-                            ((token.val == null) ? "" : token.val),
+                            ((token.val == null) ? "" : token.reconstructed()),
                             ((ste.getMessage() == null)
                                     ? "" : ste.getMessage())
                         }
@@ -971,10 +979,7 @@ public class SqlFile {
                     // once use defaultCharset from Java 1.5 in charset init.
                     // above.
 
-                    pw.print(targetCommand);
-                    if (!targetCommand.val.matches("\\s*[*:\\\\].*"))
-                        pw.print(';');
-                    pw.println();
+                    pw.println(targetCommand.reconstructed(true));
                     pw.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
@@ -1007,8 +1012,9 @@ public class SqlFile {
                     if (m.groupCount() < 3 || m.groupCount() > 4) {
                         // Assertion failed
                         throw new RuntimeException(
-                                "Matched substitution pattern, but "
-                                + "captured " + m.groupCount() + " groups");
+                                "Internal error.  Matched substitution "
+                                + "pattern, but captured "
+                                + m.groupCount() + " groups");
                     }
                     String optionGroup = (
                             (m.groupCount() > 3 && m.group(4) != null)
@@ -1112,8 +1118,8 @@ public class SqlFile {
         if (m.groupCount() < 1 || m.groupCount() > 2) {
             // Failed assertion
             throw new RuntimeException(
-                    "Pattern matched, yet captured " + m.groupCount()
-                    + " groups");
+                    "Internal error.  Pattern matched, yet captured "
+                    + m.groupCount() + " groups");
         }
 
         String arg1 = m.group(1);
@@ -1342,6 +1348,8 @@ public class SqlFile {
                     SqlFile sf = new SqlFile(new File(other), false, userVars);
 
                     sf.recursed = true;
+                    // Don't need to unset "recursed", since "sf" will be
+                    // out-of-scope after recursion completes.
 
                     // Share the possiblyUncommitted state
                     sf.possiblyUncommitteds = possiblyUncommitteds;
@@ -1720,7 +1728,8 @@ public class SqlFile {
             }
             if (foreachM.groupCount() != 2) {
                 throw new RuntimeException(
-                        "foreach pattern matched, but captured "
+                        "Internal error.  "
+                        + "foreach pattern matched, but captured "
                         + foreachM.groupCount() + " groups");
             }
 
@@ -1740,8 +1749,8 @@ public class SqlFile {
                         updateUserSettings();
 
                         recursed = true;
-// TODO:  Figure out if need recursed set
                         scanpass(token.nestedBlock.dup());
+                        recursed = false;
                     } catch (ContinueException ce) {
                         String ceMessage = ce.getMessage();
 
@@ -1760,9 +1769,8 @@ public class SqlFile {
                 }
             } catch (QuitNow qn) {
                 throw qn;
-            } catch (RuntimeException e) {
-                e.printStackTrace(psErr);
-                throw new BadSpecial(rb.getString(SqltoolRB.PL_BLOCK_FAIL), e);
+            } catch (RuntimeException re) {
+                throw re;  // Unrecoverable
             } catch (Exception e) {
                 throw new BadSpecial(rb.getString(SqltoolRB.PL_BLOCK_FAIL), e);
             }
@@ -1785,7 +1793,8 @@ public class SqlFile {
             }
             if (ifwhileM.groupCount() != 1) {
                 throw new RuntimeException(
-                        "if/while pattern matched, but captured "
+                        "Internal error.  "
+                        + "if/while pattern matched, but captured "
                         + ifwhileM.groupCount() + " groups");
             }
 
@@ -1797,8 +1806,8 @@ public class SqlFile {
                 try {
                     if (eval(values)) {
                         recursed = true;
-// TODO:  Figure out if need recursed set
                         scanpass(token.nestedBlock.dup());
+                        recursed = false;
                     }
                 } catch (BreakException be) {
                     String beMessage = be.getMessage();
@@ -1814,9 +1823,8 @@ public class SqlFile {
                 } catch (BadSpecial bs) {
                     bs.appendMessage(rb.getString(SqltoolRB.IF_MALFORMAT));
                     throw bs;
-                } catch (RuntimeException e) {
-                    e.printStackTrace(psErr);
-                    throw new BadSpecial(rb.getString(SqltoolRB.PL_BLOCK_FAIL), e);
+                } catch (RuntimeException re) {
+                    throw re;  // Unrecoverable
                 } catch (Exception e) {
                     throw new BadSpecial(
                         rb.getString(SqltoolRB.PL_BLOCK_FAIL), e);
@@ -1827,8 +1835,8 @@ public class SqlFile {
                     while (eval(values)) {
                         try {
                             recursed = true;
-// TODO:  Figure out if need recursed set
                             scanpass(token.nestedBlock.dup());
+                            recursed = false;
                         } catch (ContinueException ce) {
                             String ceMessage = ce.getMessage();
 
@@ -1849,10 +1857,8 @@ public class SqlFile {
                 } catch (BadSpecial bs) {
                     bs.appendMessage(rb.getString(SqltoolRB.WHILE_MALFORMAT));
                     throw bs;
-                } catch (RuntimeException e) {
-                    e.printStackTrace(psErr);
-                    throw new BadSpecial(rb.getString(SqltoolRB.PL_BLOCK_FAIL),
-                            e);
+                } catch (RuntimeException re) {
+                    throw re;  // Unrecoverable
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(SqltoolRB.PL_BLOCK_FAIL),
                             e);
@@ -1906,6 +1912,7 @@ public class SqlFile {
 
         if (tokens[0].equals("end")) {
             throw new BadSpecial(rb.getString(SqltoolRB.END_NOBLOCK));
+            // TODO:  Change message to say "Unmatched end command"
         }
 
         if (tokens[0].equals("continue")) {
@@ -3158,17 +3165,7 @@ public class SqlFile {
             token = (Token) history.get(i);
             psStd.println("#" + (i + oldestHist) + " or "
                     + (i - history.size()) + ':');
-            switch (token.type) {
-                case Token.PL_TYPE: ltr = '*'; break;
-                case Token.SPECIAL_TYPE: ltr = '\\'; break;
-                case Token.SQL_TYPE: ltr = ' '; break;
-                default:
-                    throw new BadSpecial("Internal error.  Unexpected token "
-                            + "type in history element " + i + ": " + 
-                            token.getTypeString());
-            }
-            psStd.print(ltr);
-            psStd.println("  " + token.val);
+            psStd.println(token.reconstructed());
         }
         if (buffer != null) {
             // TODO:  Change message to like "Edit buffer contents:  type X\nTxt
@@ -3640,6 +3637,7 @@ public class SqlFile {
                 return (cs == null) ? (new String(ba))
                                          : (new String(ba, cs));
             } catch (UnsupportedEncodingException uee) {
+                // Should not abort the program entirely, which this will do.
                 throw new RuntimeException(uee);
             } catch (RuntimeException re) {
                 throw new IOException(rb.getString(SqltoolRB.READ_CONVERTFAIL));
@@ -4054,6 +4052,7 @@ public class SqlFile {
             string = ((charset == null)
                     ? (new String(bfr)) : (new String(bfr, charset)));
         } catch (UnsupportedEncodingException uee) {
+            // Should not abort the program entirely, which this will do.
             throw new RuntimeException(uee);
         } catch (RuntimeException re) {
             throw new SqlToolError(rb.getString(SqltoolRB.READ_CONVERTFAIL),
@@ -4779,6 +4778,22 @@ public class SqlFile {
         }
     }
 
+    /**
+     * Parses input into command tokens, but does not perform the commands
+     * (unless you consider parsing blocks of nested commands to be
+     * "performing" a command).
+     *
+     * Throws only upon Scanner or nesting errors (since we aren't
+     * performing other commands).
+     *
+     * Exceptions thrown within this method percolate right up to the
+     * external call (in scanpass), regardless of ContinueOnErr setting.
+     * This is because it's impossible to know when to terminate blocks
+     * if there is a parsing error.
+     * Only a separate SqlFile invocation (incl. \i command) will cause
+     * a seekTokenSource exception to be handled at a level other than
+     * the very top.
+     */
     private TokenList seekTokenSource(String nestingCommand)
             throws BadSpecial, IOException {
         Token token;
@@ -4796,7 +4811,7 @@ public class SqlFile {
             }
             newTS.add(token);
         }
-        throw new BadSpecial("Unterminated block at line " + token.line);
+        throw new BadSpecial("Unterminated block at end of file");
     }
 
     private void processMacro(String string) throws BadSpecial {

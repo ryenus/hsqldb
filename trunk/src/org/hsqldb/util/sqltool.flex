@@ -115,6 +115,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     if (sqltoolPrompt != null) prompt(sqltoolPrompt);
 }
 <SQL, SQL_SINGLE_QUOTED, SQL_DOUBLE_QUOTED, SPECIAL, PL, EDIT, MACRO> <<EOF>> {
+    yybegin(YYINITIAL);
     return new Token(Token.UNTERM_TYPE, sqlCommand, yyline);
 }
 {TRADITIONAL_COMMENT} { /* Ignore top-level traditional comments */

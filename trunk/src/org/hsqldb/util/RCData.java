@@ -446,11 +446,18 @@ public class RCData {
         if (tiString.equals("TRANSACTION_NONE"))
             i = Connection.TRANSACTION_NONE;
         if (i < 0)
-                throw new RuntimeException("Invalid trans. isol. value: "
-                        + tiString);
+                throw new SQLException(
+                        "Trans. isol. value not supported by "
+                        + RCData.class.getName() + ": " + tiString);
         c.setTransactionIsolation(i);
     }
 
+    /**
+     * Return String for numerical java.sql.Connection Transaction level.
+     *
+     * Returns null, since DB implementations are free to provide
+     * their own transaction isolation levels.
+     */
     static public String tiToString(int ti) throws SQLException {
         switch (ti) {
             case Connection.TRANSACTION_READ_UNCOMMITTED:
@@ -464,6 +471,6 @@ public class RCData {
             case Connection.TRANSACTION_NONE:
                 return "TRANSACTION_NONE";
         }
-        throw new RuntimeException("Unexpected trans. isol. value: " + ti);
+        return null;
     }
 }

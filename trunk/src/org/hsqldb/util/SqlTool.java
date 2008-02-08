@@ -251,6 +251,9 @@ public class SqlTool {
     public static void main(String[] args) {
         try {
             SqlTool.objectMain(args);
+        } catch (RuntimeException re) {
+            re.printStackTrace();
+            System.exit(111);
         } catch (SqlToolException fr) {
             if (fr.getMessage() != null) {
                 System.err.println(fr.getMessage());
@@ -528,6 +531,8 @@ public class SqlTool {
                 conData = new RCData(CMDLINE_ID, rcUrl, rcUsername,
                                      rcPassword, driver, rcCharset,
                                      rcTruststore, null, rcTransIso);
+            } catch (RuntimeException re) {
+                throw re;  // Unrecoverable
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_GENFROMVALUES_FAIL, e.getMessage()));
@@ -537,6 +542,8 @@ public class SqlTool {
                 conData = new RCData(new File((rcFile == null)
                                               ? DEFAULT_RCFILE
                                               : rcFile), targetDb);
+            } catch (RuntimeException re) {
+                throw re;  // Unrecoverable
             } catch (Exception e) {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.CONNDATA_RETRIEVAL_FAIL,
@@ -567,9 +574,11 @@ public class SqlTool {
                         rb.getString(SqltoolRB.JDBC_ESTABLISHED,
                                 md.getDatabaseProductName(),
                                 md.getDatabaseProductVersion(),
-                                md.getUserName(),
-                                tiToString(conn.getTransactionIsolation())));
+                                md.getUserName(), RCData.tiToString(
+                                        conn.getTransactionIsolation())));
             }
+        } catch (RuntimeException re) {
+            throw re;  // Unrecoverable
         } catch (Exception e) {
             //e.printStackTrace();
 
@@ -679,21 +688,5 @@ public class SqlTool {
             System.err.println(conData.url + rb.getString(
                     SqltoolRB.TEMPFILE_REMOVAL_FAIL, tmpFile.toString()));
         }
-    }
-
-    static public String tiToString(int ti) throws SQLException {
-        switch (ti) {
-            case Connection.TRANSACTION_READ_UNCOMMITTED:
-                return "TRANSACTION_READ_UNCOMMITTED";
-            case Connection.TRANSACTION_READ_COMMITTED:
-                return "TRANSACTION_READ_COMMITTED";
-            case Connection.TRANSACTION_REPEATABLE_READ:
-                return "TRANSACTION_REPEATABLE_READ";
-            case Connection.TRANSACTION_SERIALIZABLE:
-                return "TRANSACTION_SERIALIZABLE";
-            case Connection.TRANSACTION_NONE:
-                return "TRANSACTION_NONE";
-        }
-        throw new RuntimeException("Unexpected trans. isol. value: " + ti);
     }
 }
