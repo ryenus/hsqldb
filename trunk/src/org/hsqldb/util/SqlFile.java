@@ -77,6 +77,9 @@ import org.hsqldb.util.sqltool.SqlFileScanner;
  * The ultimate goal is to run the execute() method to feed the SQL
  * commands within the file to a jdbc connection.
  *
+ * The complexities of passing userVars and macros maps are to facilitate
+ * strong scoping (among blocks and nested scripts).
+ *
  * Some implementation comments and variable names use keywords based
  * on the following definitions.  <UL>
  * <LI> COMMAND = Statement || SpecialCommand || BufferCommand
@@ -142,6 +145,7 @@ public class SqlFile {
     private Connection       curConn          = null;
     private boolean          htmlMode         = false;
     private Map              userVars; // Always a non-null map set in cons.
+    private Map              macros; // Always a non-null map set in cons.
     private List             history          = null;
     private String           nullRepToken     = null;
     private String           dsvTargetFile    = null;
@@ -152,6 +156,7 @@ public class SqlFile {
     public static String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
     private SqltoolRB        rb               = null;
+    private boolean          reportTimes      = false;
 
     /**
      * N.b. javax.util.regex Optional capture groups (...)? are completely
@@ -176,10 +181,15 @@ public class SqlFile {
             Pattern.compile("\\s*(-?\\d+)?\\s*(\\S.*)?");
             // Note that this pattern does not include the leading ":".
     private static Pattern wincmdPattern = null;
-    private static Pattern   macroPattern =
-            Pattern.compile("(\\w+)([^;]*)(;?)");
-    private static Pattern   macroDefPattern =
-            Pattern.compile("=\\s*(\\w+)([^;]*)(;?)");
+    private static Pattern useMacroPattern =
+            Pattern.compile("(\\w+)(\\s.*[^;])?(;?)");
+    private static Pattern editMacroPattern =
+            Pattern.compile("(\\w+)\\s*:(.*)");
+    private static Pattern spMacroPattern =
+            Pattern.compile("(\\w+)\\s+([*\\\\])(.*\\S)");
+    private static Pattern sqlMacroPattern =
+            Pattern.compile("(\\w+)\\s+(.*\\S)");
+    private static Pattern integerPattern = Pattern.compile("\\d+");
 
     static private Map nestingPLCommands = new HashMap();
     static {
@@ -299,6 +309,14 @@ public class SqlFile {
     private String RAW_LEADIN_MSG = null;
 
     /**
+     * Legacy wrapper (for before we passed "macros").
+     */
+    public SqlFile(File file, boolean interactive, Map userVars)
+            throws IOException {
+        this(file, interactive, userVars, null);
+    }
+
+    /**
      * Interpret lines of input file as SQL Statements, Comments,
      * Special Commands, and Buffer Commands.
      * Most Special Commands and many Buffer commands are only for
@@ -310,7 +328,7 @@ public class SqlFile {
      *                       continueOnError defaults to true.
      * @throws IOException  If can't open specified SQL file.
      */
-    public SqlFile(File file, boolean interactive, Map userVars)
+    public SqlFile(File file, boolean interactive, Map userVars, Map macros)
             throws IOException {
         if (logger == null) {
             logger = ToolLogger.getLog(SqlFile.class);
@@ -344,6 +362,10 @@ public class SqlFile {
         if (userVars == null) {
             userVars = new HashMap();
         }
+        this.macros    = macros;
+        if (macros == null) {
+            macros = new HashMap();
+        }
         updateUserSettings();
 
         if (file != null &&!file.canRead()) {
@@ -363,13 +385,22 @@ public class SqlFile {
         }
     }
 
+
+    /**
+     * Legacy wrapper (for before we passed "macros").
+     */
+    public SqlFile(boolean interactive, Map userVars) throws IOException {
+        this(null, interactive, userVars, null);
+    }
+
     /**
      * Constructor for reading stdin instead of a file for commands.
      *
      * @see #SqlFile(File,boolean)
      */
-    public SqlFile(boolean interactive, Map userVars) throws IOException {
-        this(null, interactive, userVars);
+    public SqlFile(boolean interactive, Map userVars, Map macros)
+            throws IOException {
+        this(null, interactive, userVars, macros);
     }
 
     /**
@@ -413,7 +444,6 @@ public class SqlFile {
     private Token               buffer          = null;
     private boolean             preempt         = false;
     private String              lastSqlStatement = null;
-    private Map                 macros          = null;
 
     /**
      * Process all the commands in the file (or stdin) associated with
@@ -449,7 +479,6 @@ public class SqlFile {
         charset = ((specifiedCharSet == null) ? DEFAULT_CHARSET
                                               : specifiedCharSet);
         lastSqlStatement = null;
-        macros = new HashMap();
 
         // Replace with just "(new FileInputStream(file), charset)"
         // once use defaultCharset from Java 1.5 in charset init. above.
@@ -565,7 +594,7 @@ public class SqlFile {
                         }
                         continue;
                     case Token.MACRO_TYPE:
-                        processMacro(token.val);
+                        processMacro(token);
                         continue;
                     case Token.PL_TYPE:
                         setBuf(token);
@@ -1371,7 +1400,8 @@ public class SqlFile {
                 }
 
                 try {
-                    SqlFile sf = new SqlFile(new File(other), false, userVars);
+                    SqlFile sf =
+                        new SqlFile(new File(other), false, userVars, macros);
 
                     sf.recursed = true;
                     // Don't need to unset "recursed", since "sf" will be
@@ -1419,6 +1449,24 @@ public class SqlFile {
 
                 stdprintln(rb.getString(SqltoolRB.A_SETTING,
                         Boolean.toString(curConn.getAutoCommit())));
+
+                return;
+            case 'l' :
+                enforce1charSpecial(arg1, 'l');
+                int level;
+                if (other != null) {
+                    if (integerPattern.matcher(other).matches()) {
+                        curConn.setTransactionIsolation(
+                                Integer.parseInt(other));
+                    } else {
+                        RCData.setTI(curConn, other);
+                    }
+                }
+
+                // TODO:  Localize message.
+                stdprintln("Transaction Isolation Level is now "
+                        + (curConn.isReadOnly() ? "R/O " : "R/W ")
+                        + RCData.tiToString(curConn.getTransactionIsolation()));
 
                 return;
             case '=' :
@@ -1473,6 +1521,18 @@ public class SqlFile {
                     throw new BadSpecial(rb.getString(SqltoolRB.BINARY_FILEFAIL,
                             other), ioe);
                 }
+
+                return;
+
+            case 't' :
+                // TODO:  Localize messages
+                enforce1charSpecial(arg1, '='); // What the hell does this do?
+                if (other != null) {
+                    // But remember that we have to abort on some I/O errors.
+                    reportTimes = Boolean.valueOf(other).booleanValue();
+                }
+
+                stdprintln("Report-times is set to " + reportTimes);
 
                 return;
 
@@ -2631,7 +2691,9 @@ public class SqlFile {
         }
         Statement statement = null;
 
-        if (doPrepare) {
+        long startTime = 0;
+        if (reportTimes) startTime = (new java.util.Date()).getTime();
+        try { if (doPrepare) {
             if (lastSqlStatement.indexOf('?') < 1) {
                 lastSqlStatement = null;
                 throw new SqlToolError(rb.getString(
@@ -2672,6 +2734,13 @@ public class SqlFile {
             statement = curConn.createStatement();
 
             statement.execute(lastSqlStatement);
+        } } finally {
+            if (reportTimes) {
+                long elapsed = (new java.util.Date().getTime()) - startTime;
+                // TODO:  Localize messages
+                //condlPrintln("</TABLE>", true);
+                condlPrintln("Took " + elapsed + " ms.", false);
+            }
         }
 
         possiblyUncommitteds.set(true);
@@ -4852,57 +4921,92 @@ public class SqlFile {
         throw new BadSpecial("Unterminated block at end of file");
     }
 
-    private void processMacro(String string) throws BadSpecial {
+    /**
+     * We want leading space to be trimmed.
+     * Leading space should probably not be trimmed, but it is trimmed now
+     * (by the Scanner).
+     */
+    private void processMacro(Token defToken) throws BadSpecial {
         /* TODO:  Localize ALL OF THESE MESSAGES */
         Matcher matcher;
         Token macroToken;
 
-        if (string.length() < 1) throw new BadSpecial("Run '/?' for help");
-        switch (string.charAt(0)) {
+        if (defToken.val.length() < 1) throw new BadSpecial("Run '/?' for help");
+        switch (defToken.val.charAt(0)) {
             case '?':
                 stdprintln("/?                    Display this help");
-                stdprintln("/*                    Display all macros");
-                stdprintln("/= name [appendage]   "
+                stdprintln("/=                    Display all macros");
+                stdprintln("/= name :[appendage]   "
                       + "Define a macro equal to the current buffer contents");
+                stdprintln("/= name command       "
+              + "Define a macro equal specified SQL/*/\\ command (w/out ;)");
                 stdprintln("/name [appendage]     Recall macro to buffer");
                 stdprintln("/name [appendage];    Execute macro");
                 break;
-            case '*':
-                Iterator it = macros.keySet().iterator();
-                String key;
-                while (it.hasNext()) {
-                    key = (String) it.next();
-                    Token t = (Token) macros.get(key);
-                    stdprintln(key + " = " + t.reconstitute());
-                }
-                break;
             case '=':
-                if (buffer == null) {
-                    stdprintln(nobufferYetString);
+                String defString = defToken.val;
+                defString = defString.substring(1).trim();
+                if (defString.length() < 1) {
+                    Iterator it = macros.keySet().iterator();
+                    String key;
+                    while (it.hasNext()) {
+                        key = (String) it.next();
+                        Token t = (Token) macros.get(key);
+                        stdprintln(key + " = " + t.reconstitute());
+                    }
                     break;
                 }
-                matcher = macroDefPattern.matcher(string);
-                if (!matcher.matches())
-                    throw new BadSpecial("Malformatted macro def. command");
-                if (matcher.groupCount() > 2)
+
+                int newType = -1;
+                StringBuffer newVal = new StringBuffer();
+                matcher = editMacroPattern.matcher(defString);
+                if (matcher.matches()) {
+                    if (buffer == null) {
+                        stdprintln(nobufferYetString);
+                        return;
+                    }
+                    newVal.append(buffer.val);
+                    if (matcher.groupCount() > 1 && matcher.group(2) != null
+                            && matcher.group(2).length() > 0)
+                        newVal.append(matcher.group(2));
+                    newType = buffer.type;
+                } else {
+                    matcher = spMacroPattern.matcher(defString);
+                    if (matcher.matches()) {
+                        newVal.append(matcher.group(3));
+                        newType = (matcher.group(2).equals("*")
+                                ?  Token.PL_TYPE : Token.SPECIAL_TYPE);
+                    } else {
+                        matcher = sqlMacroPattern.matcher(defString);
+                        if (!matcher.matches())
+                        throw new BadSpecial("Malformatted macro def. command");
+                        newVal.append(matcher.group(2));
+                        newType = Token.SQL_TYPE;
+                    }
+                }
+                if (matcher == null)
+                    throw new RuntimeException(
+                    "Internal error.  Somehow no Macro def pattern matched.");
+                if (newVal.length() < 1)
+                    throw new BadSpecial("No content specified for macro");
+                if (newVal.charAt(newVal.length() - 1) == ';')
                     throw new BadSpecial("Macro values may not end with ';'");
-                macroToken = new Token(buffer.type, buffer.val, buffer.line);
-                if (matcher.group(2).length() > 0)
-                    buffer.val = buffer.val + ' ' + matcher.group(2);
-                macros.put(matcher.group(1), macroToken);
+                macros.put(matcher.group(1),
+                        new Token(newType, newVal, defToken.line));
                 break;
             default:
-                matcher = macroPattern.matcher(string);
+                matcher = useMacroPattern.matcher(defToken.val);
                 if (!matcher.matches())
                     throw new BadSpecial("Malformatted macro command");
-                boolean doExec = (matcher.groupCount() > 2);
                 macroToken = (Token) macros.get(matcher.group(1));
                 if (macroToken == null)
                     throw new BadSpecial("No such macro: " + matcher.group(1));
                 setBuf(macroToken);
-                if (matcher.group(2).length() > 0)
-                    buffer.val = buffer.val + ' ' + matcher.group(2);
-                if (doExec) preempt = true;
+                buffer.line = defToken.line;
+                if (matcher.groupCount() > 1 && matcher.group(2) != null
+                        && matcher.group(2).length() > 0)
+                    buffer.val += matcher.group(2);
+                preempt = matcher.group(matcher.groupCount()).equals(";");
         }
     }
 }

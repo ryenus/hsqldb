@@ -571,7 +571,9 @@ public class SqlTool {
                         rb.getString(SqltoolRB.JDBC_ESTABLISHED,
                                 md.getDatabaseProductName(),
                                 md.getDatabaseProductVersion(),
-                                md.getUserName(), RCData.tiToString(
+                                md.getUserName(),
+                                        (conn.isReadOnly() ? "R/O " : "R/W ")
+                                        + RCData.tiToString(
                                         conn.getTransactionIsolation())));
             }
         } catch (RuntimeException re) {
@@ -618,6 +620,7 @@ public class SqlTool {
 
         SqlFile[] sqlFiles = new SqlFile[numFiles];
         Map   userVars = new HashMap();
+        Map   macros = new HashMap();
 
         if (varSettings != null) try {
             varParser(varSettings, userVars, false);
@@ -632,12 +635,13 @@ public class SqlTool {
             int fileIndex = 0;
 
             if (autoFile != null) {
-                sqlFiles[fileIndex++] = new SqlFile(autoFile, false,
-                                                    userVars);
+                sqlFiles[fileIndex++] =
+                        new SqlFile(autoFile, false, userVars, macros);
             }
 
             if (tmpFile != null) {
-                sqlFiles[fileIndex++] = new SqlFile(tmpFile, false, userVars);
+                sqlFiles[fileIndex++] =
+                        new SqlFile(tmpFile, false, userVars, macros);
             }
 
             for (int j = 0; j < scriptFiles.length; j++) {
@@ -645,8 +649,8 @@ public class SqlTool {
                     interactiveFileIndex = fileIndex;
                 }
 
-                sqlFiles[fileIndex++] = new SqlFile(scriptFiles[j],
-                                                    interactive, userVars);
+                sqlFiles[fileIndex++] =
+                    new SqlFile(scriptFiles[j], interactive, userVars, macros);
             }
         } catch (IOException ioe) {
             try {
