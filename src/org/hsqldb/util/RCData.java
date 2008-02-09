@@ -445,10 +445,11 @@ public class RCData {
             i = Connection.TRANSACTION_SERIALIZABLE;
         if (tiString.equals("TRANSACTION_NONE"))
             i = Connection.TRANSACTION_NONE;
-        if (i < 0)
-                throw new SQLException(
-                        "Trans. isol. value not supported by "
-                        + RCData.class.getName() + ": " + tiString);
+        if (i < 0) {
+            throw new SQLException(
+                    "Trans. isol. value not supported by "
+                    + RCData.class.getName() + ": " + tiString);
+        }
         c.setTransactionIsolation(i);
     }
 
@@ -471,6 +472,6 @@ public class RCData {
             case Connection.TRANSACTION_NONE:
                 return "TRANSACTION_NONE";
         }
-        return null;
+        return "Custom Transaction Isolation numerical value: " + ti;
     }
 }
