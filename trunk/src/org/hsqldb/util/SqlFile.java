@@ -190,6 +190,10 @@ public class SqlFile {
     private static Pattern sqlMacroPattern =
             Pattern.compile("(\\w+)\\s+(.*\\S)");
     private static Pattern integerPattern = Pattern.compile("\\d+");
+    private static Pattern nameValPairPattern =
+            Pattern.compile("\\s*(\\w+)\\s*=(.*)");
+            // Specifically permits 0-length values, but not names.
+    private static Pattern nameDotPattern = Pattern.compile("(\\w+)\\.");
 
     static private Map nestingPLCommands = new HashMap();
     static {
@@ -1540,7 +1544,7 @@ public class SqlFile {
 
             case 't' :
                 // TODO:  Localize messages
-                enforce1charSpecial(arg1, '='); // What the hell does this do?
+                enforce1charSpecial(arg1, '=');
                 if (other != null) {
                     // But remember that we have to abort on some I/O errors.
                     reportTimes = Boolean.valueOf(other).booleanValue();
@@ -1573,15 +1577,16 @@ public class SqlFile {
                 // is no UNIX shell involved.
                 // Doesn't make sense to incur overhead of a shell without
                 // stdin capability.
-                // Can't provide stdin to the executed program because
-                // the forked program could gobble up program input,
-                // depending on how SqlTool was invoked, nested scripts,
-                // etc.
+                // Could pipe System.in to the forked process, but that's
+                // probably not worth the effort due to Java's terrible
+                // and inescapable System.in buffering.  I.e., the forked
+                // program or shell wouldn't get stdin until user hits Enter.
 
                 // I'd like to execute the user's default shell if they
                 // ran "\!" with no argument, but (a) there is no portable
                 // way to determine the user's default or login shell; and
                 // (b) shell is useless without stdin ability.
+
                 InputStream stream;
                 byte[]      ba         = new byte[1024];
                 String      extCommand = ((arg1.length() == 1)
@@ -1821,7 +1826,7 @@ public class SqlFile {
         plMode = true;
 
         if (tokens[0].equals("foreach")) {
-            Matcher foreachM= foreachPattern.matcher(
+            Matcher foreachM = foreachPattern.matcher(
                     dereference(token.val, false));
             if (!foreachM.matches()) {
                 throw new BadSpecial(rb.getString(SqltoolRB.FOREACH_MALFORMAT));
@@ -2341,9 +2346,18 @@ public class SqlFile {
     /**
      * Lists available database tables.
      *
-     * When a filter is given, we assume that there are no lower-case
-     * characters in the object names (which would require "quotes" when
-     * creating them).
+     * Filter handling is admittedly inconsistent, both wrt pattern
+     * matching (java.util.regex vs. DB-implemented matching) and
+     * which columns the filter is matched against.
+     * The former is because, for performance and because the DB should
+     * know best how to supply the desired results, we need to let the
+     * database do filtering if at all possible.
+     * In many cases, the DB does not have a filter option, so we have
+     * to filter ourselves.
+     * For the latter, we have no control over which columsn the DB
+     * matches agains, plus the displayResultSet() method in this class
+     * can only match against all columns (only reason not to add
+     * column-specific filtering is to keep the complexity manageable).
      *
      * @throws BadSpecial usually wrap a cause (which cause is a
      *                    SQLException in some cases).
@@ -2406,14 +2420,13 @@ public class SqlFile {
                         //  HSQLDB does not consider Sequences as "tables",
                         //  hence we do not list them in
                         //  DatabaseMetaData.getTables().
-                        if (filter != null
-                                && filter.charAt(filter.length() - 1)
-                                   == '.') {
-                            narrower =
-                                "\nWHERE sequence_schema = '"
-                                + filter.substring(0, filter.length() - 1)
-                                + "'";
-                            filter = null;
+                        if (filter != null) {
+                            Matcher matcher = nameDotPattern.matcher(filter);
+                            if (matcher.matches()) {
+                                narrower = "\nWHERE sequence_schema = '"
+                                        + matcher.group(1) + "'";
+                                filter = null;
+                            }
                         }
 
                         statement = curConn.createStatement();
@@ -2501,14 +2514,13 @@ public class SqlFile {
                     if (dbProductName.indexOf("HSQL") > -1) {
                         //  HSQLDB Aliases are not the same things as the
                         //  aliases listed in DatabaseMetaData.getTables().
-                        if (filter != null
-                                && filter.charAt(filter.length() - 1)
-                                   == '.') {
-                            narrower =
-                                "\nWHERE alias_schem = '"
-                                + filter.substring(0, filter.length() - 1)
-                                + "'";
-                            filter = null;
+                        if (filter != null) {
+                            Matcher matcher = nameDotPattern.matcher(filter);
+                            if (matcher.matches()) {
+                                narrower = "\nWHERE alias_schema = '"
+                                    + matcher.group(1) + "'";
+                                filter = null;
+                            }
                         }
 
                         statement = curConn.createStatement();
@@ -2560,7 +2572,7 @@ public class SqlFile {
                         schema = ((dotat > 0) ? filter.substring(0, dotat)
                                               : null);
 
-                        if (dotat < filter.length() - 1) {
+                        if (!nameDotPattern.matcher(filter).matches()) {
                             // Not a schema-only specifier
                             table = ((dotat > 0) ? filter.substring(dotat + 1)
                                                  : filter);
@@ -2599,10 +2611,13 @@ public class SqlFile {
                     listSet = listMDTableCols[DEFAULT_ELEMENT];
                 }
 
-                if (schema == null && filter != null
-                        && filter.charAt(filter.length() - 1) == '.') {
-                    schema = filter.substring(0, filter.length() - 1);
-                    filter = null;
+
+                if (schema == null && filter != null) {
+                    Matcher matcher = nameDotPattern.matcher(filter);
+                    if (matcher.matches()) {
+                        schema = matcher.group(1);
+                        filter = null;
+                    }
                 }
             }
 
@@ -2782,14 +2797,15 @@ public class SqlFile {
      * @param r         The ResultSet to display.
      * @param incCols   Optional list of which columns to include (i.e., if
      *                  given, then other columns will be skipped).
-     * @param incFilter Optional case-insensitive substring.
-     *                  Rows are skipped which to not contain this substring.
+     * @param filterRegex Optional filter.  Rows are skipped which to not
+     *                  contain this substring in ANY COLUMN.
+     *                  (Should add another param to specify targeted columns).
      * @throws SQLException thrown by JDBC driver.
      * @throws SqlToolError all other errors.
      */
     private void displayResultSet(Statement statement, ResultSet r,
                                   int[] incCols,
-                                  String filter) throws SQLException,
+                                  String filterString) throws SQLException,
                                   SqlToolError {
         java.sql.Timestamp ts;
         int dotAt;
@@ -2798,9 +2814,18 @@ public class SqlFile {
                                                                  .getUpdateCount();
         boolean            silent      = silentFetch;
         boolean            binary      = fetchBinary;
+        Pattern            filter = null;
 
         silentFetch = false;
         fetchBinary = false;
+
+        if (filterString != null) try {
+            filter = Pattern.compile(filterString);
+        } catch (PatternSyntaxException pse) {
+            // TODO:  Localize message
+            throw new SqlToolError("Malformed regex pattern: "
+                    + pse.getMessage());
+        }
 
         if (excludeSysSchemas) {
             stdprintln(rb.getString(SqltoolRB.VENDOR_NOSUP_SYSSCHEMAS));
@@ -3037,8 +3062,7 @@ public class SqlFile {
                         // so we can make the decision after all rows are
                         // read in.
                         if (filter != null
-                                && (val == null
-                                    || val.indexOf(filter) > -1)) {
+                            && (val == null || filter.matcher(val).find())) {
                             filteredOut = false;
                         }
 
@@ -3343,7 +3367,14 @@ public class SqlFile {
         if (history == null) {
             throw new BadSpecial(rb.getString(SqltoolRB.HISTORY_UNAVAILABLE));
         }
-        Pattern pattern = Pattern.compile("(?ims)" + findRegex);
+        Pattern pattern = null;
+        try {
+            pattern = Pattern.compile("(?ims)" + findRegex);
+        } catch (PatternSyntaxException pse) {
+            // TODO:  Localize message
+            throw new BadSpecial("Malformed regex pattern: "
+                    + pse.getMessage());
+        }
         // Make matching more liberal.  Users can customize search behavior
         // by using "(?-OPTIONS)" or (?OPTIONS) in their regexes.
         for (int index = history.size() - 1; index >= 0; index--)
@@ -3402,15 +3433,18 @@ public class SqlFile {
      * Describe the columns of specified table.
      *
      * @param tableName  Table that will be described.
-     * @param filter  Substring to filter by
+     * @param filter  Optional regex to filter by.
+     *                By default, will match only against the column name.
+     *                Prefix with "/" to match against the entire output line.
      */
     private void describe(String tableName,
-                          String inFilter) throws SQLException {
+                          String filterString) throws SQLException {
         /*
          * Doing case-sensitive filters now, for greater portability.
         String filter = ((inFilter == null) ? null : inFilter.toUpperCase());
          */
-        String    filter = inFilter;
+        Pattern   filter = null;
+        boolean   filterMatchesAll = false;  // match filter against all cols.
         List      rows        = new ArrayList();
         String[]  headerArray = {
             rb.getString(SqltoolRB.DESCRIBE_TABLE_NAME),
@@ -3426,7 +3460,19 @@ public class SqlFile {
             false, false, true, false
         };
 
-        // STEP 1: GATHER DATA
+        if (filterString != null) try {
+            filterMatchesAll = (filterString.charAt(0) == '/');
+            filter = Pattern.compile(filterMatchesAll
+                    ? filterString.substring(1) : filterString);
+        } catch (PatternSyntaxException pse) {
+            // TODO:  Localize message
+            throw new SQLException("Malformed regex pattern: "
+                    + pse.getMessage());
+            // This is obviously not a SQLException.
+            // Perhaps change input parameter to a Pattern to require
+            // caller to compile the pattern?
+        }
+
         for (int i = 0; i < headerArray.length; i++) {
             if (htmlMode) {
                 continue;
@@ -3440,6 +3486,7 @@ public class SqlFile {
         Statement statement = curConn.createStatement();
         ResultSet r         = null;
 
+        // STEP 1: GATHER DATA
         try {
             statement.execute("SELECT * FROM " + tableName + " WHERE 1 = 2");
 
@@ -3452,7 +3499,8 @@ public class SqlFile {
                 fieldArray    = new String[4];
                 fieldArray[0] = m.getColumnName(i + 1);
 
-                if (filter != null && fieldArray[0].indexOf(filter) < 0) {
+                if (filter != null && (!filterMatchesAll)
+                        && !filter.matcher(fieldArray[0]).find()) {
                     continue;
                 }
 
@@ -3463,6 +3511,13 @@ public class SqlFile {
                      ? (htmlMode ? "&nbsp;"
                                  : "")
                      : "*");
+
+                if (filter != null && filterMatchesAll
+                        && !filter.matcher(fieldArray[0]
+                            + ' ' + fieldArray[1] + ' ' + fieldArray[2] + ' '
+                            + fieldArray[3]).find()) {
+                    continue;
+                }
 
                 rows.add(fieldArray);
 
@@ -4099,6 +4154,7 @@ public class SqlFile {
          * simpler and concise, just switch all column names to lower-case.
          * This is ok since we acknowledge up front that DSV import/export
          * assume no special characters or escaping in column names. */
+        Matcher matcher;
         byte[] bfr  = null;
         File   file = new File(filePath);
         SortedMap constColMap = null;
@@ -4110,13 +4166,16 @@ public class SqlFile {
             int firstEq;
             String n;
             for (int i = 0; i < constPairs.length; i++) {
-                firstEq = constPairs[i].indexOf('=');
-                n = constPairs[i].substring(0, firstEq).trim().toLowerCase();
-                if (n.trim().length() < 1) {
+                matcher = nameValPairPattern.matcher(constPairs[i]);
+                if (!matcher.matches()) {
                     throw new SqlToolError(
                             rb.getString(SqltoolRB.DSV_CONSTCOLS_NULLCOL));
                 }
-                constColMap.put(n, constPairs[i].substring(firstEq + 1));
+                firstEq = constPairs[i].indexOf('=');
+                n = constPairs[i].substring(0, firstEq).trim().toLowerCase();
+                constColMap.put(matcher.group(1).toLowerCase(),
+                        ((matcher.groupCount() < 2 || matcher.group(2) == null)
+                        ? "" : matcher.group(2)));
             }
         }
         Set skipCols = null;
@@ -4228,10 +4287,11 @@ public class SqlFile {
                 throw new SqlToolError(rb.getString(
                         SqltoolRB.DSV_HEADER_NONSWITCHED, lineCount));
             }
-            String matcher = trimmedLine.substring(0, colonAt).trim();
+            String headerName = trimmedLine.substring(0, colonAt).trim();
             // Need to be sure here that tableName is not null (in
             // which case it would be determined later on by the file name).
-            if (matcher.equals("*") || matcher.equalsIgnoreCase(tableName)){
+            if (headerName.equals("*")
+                    || headerName.equalsIgnoreCase(tableName)){
                 headerOffset = 1 + curLine.indexOf(':');
                 break;
             }
