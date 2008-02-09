@@ -4,11 +4,6 @@
  * Tests omitting columns via header line and *DSV_SKIP_COLS
  */
 
-/** This is the default on UNIX.
- *  Our *.dsv test files are stored as binaries, so this is required
- *  to run tests on Windows: */
-* *DSV_ROW_DELIM = \n
-
 CREATE TABLE t (i INT, a INT, b INT, c INT);
 
 \m dsv-omits.dsv
