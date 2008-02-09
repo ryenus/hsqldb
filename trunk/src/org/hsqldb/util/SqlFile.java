@@ -228,6 +228,8 @@ public class SqlFile {
             dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
         }
         dsvSkipCols = (String) userVars.get("*DSV_SKIP_COLS");
+        dsvTrimAll = Boolean.valueOf((String) userVars.get("*DSV_TRIM_ALL")).
+                booleanValue();
         dsvColDelim =
             SqlFile.convertEscapes((String) userVars.get("*DSV_COL_DELIM"));
         if (dsvColDelim == null) {
@@ -1142,6 +1144,7 @@ public class SqlFile {
     private String  dsvRowDelim = null;
     private String  dsvRowSplitter = null;
     private String  dsvSkipCols = null;
+    private boolean dsvTrimAll       = false;
     private String  DSV_X_SYNTAX_MSG = null;
     private String  DSV_M_SYNTAX_MSG = null;
     private String  nobufferYetString = null;
@@ -4532,7 +4535,7 @@ public class SqlFile {
                     continue;
                 }
                 // Finished using "trimmed" line now.  Whitespace is
-                // meaninful hereafter.
+                // meaningful hereafter.
 
                 // Finally we will attempt to add a record!
                 recCount++;
@@ -4550,7 +4553,8 @@ public class SqlFile {
                     }
 
                     if (headers[readColCount++] != null) {
-                        dataVals[storeColCount++] = cols[coli];
+                        dataVals[storeColCount++] =
+                            dsvTrimAll ? cols[coli].trim() : cols[coli];
                     }
                 }
                 if (readColCount < inputColHeadCount) {

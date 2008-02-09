@@ -23,6 +23,8 @@ the setting is applicable.  Default value/behavior is in [square brackes].
                               [None*]
     *DSV_REJECT_REPORT \m    HTML report to explain reject records [None*]
     *DSV_SKIP_COLS     \m\x  Skip columns from input DSV file or input table.
+    *DSV_TRIM_ALL      \m    If set to "true", trim leading and trailing
+                             whitespace from all columns upon import [false]
 * Imports will abort immediately upon the first import record failure, unless
 either *DSV_REJECT_FILE or *DSV_REJECT_REPORT (or both) are set.  (Whether
 SqlTool will roll back and quit depends on your settings for \c and \a).
