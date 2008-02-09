@@ -75,7 +75,7 @@ DELETE FROM t;
 /** Repeat test with some non-default DSV settings */
 * *NULL_REP_TOKEN = %%
 * *DSV_COL_SPLITTER = :
-* *DSV_ROW_SPLITTER = \}\n
+* *DSV_ROW_SPLITTER = \}(?:\r\n|\r|\n)
 
 \m nullrep-alt.dsv
 SELECT count(*) FROM t WHERE id = 'wspaces' AND i IS null;

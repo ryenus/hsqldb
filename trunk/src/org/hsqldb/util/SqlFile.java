@@ -4185,14 +4185,14 @@ public class SqlFile {
         String    tableName = dsvTargetTable;
 
         // First read one until we get one header line
-        int lineCount = 0; // Assume a 1 line header?
+        int lineCount = 0;
         String trimmedLine = null;
         boolean switching = false;
         int headerOffset = 0;  //  Used to offset read-start of header record
         String curLine = null;
 
         while (true) {
-            if (lineCount > lines.length)
+            if (lineCount >= lines.length)
                 throw new SqlToolError(rb.getString(SqltoolRB.DSV_HEADER_NONE));
             curLine = lines[lineCount++];
             trimmedLine = curLine.trim();
@@ -4447,7 +4447,7 @@ public class SqlFile {
             String   currentFieldName = null;
 
             // Insert data rows 1-row-at-a-time
-            while (lineCount + 1 < lines.length) try { try {
+            while (lineCount < lines.length) try { try {
                 curLine = lines[lineCount++];
                 trimmedLine = curLine.trim();
                 if (trimmedLine.length() < 1) {

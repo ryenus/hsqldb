@@ -43,7 +43,7 @@ SELECT count(*)  FROM t WHERE b = true;
 
 /** Repeat test with some non-default DSV settings */
 * *DSV_COL_SPLITTER = \\
-* *DSV_ROW_SPLITTER = }\n
+* *DSV_ROW_SPLITTER = \}(?:\r\n|\r|\n)
 
 DELETE FROM t;
 
