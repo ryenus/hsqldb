@@ -233,6 +233,10 @@ public class SqlFile {
         if (dsvColDelim == null) {
             dsvColDelim = DEFAULT_COL_DELIM;
         }
+        dsvColSplitter = (String) userVars.get("*DSV_COL_SPLITTER");
+        if (dsvColSplitter == null) {
+            dsvColSplitter = DEFAULT_COL_SPLITTER;
+        }
 
         dsvRowDelim =
             SqlFile.convertEscapes((String) userVars.get("*DSV_ROW_DELIM"));
@@ -242,6 +246,10 @@ public class SqlFile {
         }
         if (dsvRowDelim == null) {
             dsvRowDelim = DEFAULT_ROW_DELIM;
+        }
+        dsvRowSplitter = (String) userVars.get("*DSV_ROW_SPLITTER");
+        if (dsvRowSplitter == null) {
+            dsvRowSplitter = DEFAULT_ROW_SPLITTER;
         }
 
         dsvTargetFile = (String) userVars.get("*DSV_TARGET_FILE");
@@ -1125,8 +1133,10 @@ public class SqlFile {
     private boolean doPrepare   = false;
     private String  prepareVar  = null;
     private String  dsvColDelim = null;
+    private String  dsvColSplitter = null;
     private String  dsvSkipPrefix = null;
     private String  dsvRowDelim = null;
+    private String  dsvRowSplitter = null;
     private String  dsvSkipCols = null;
     private String  DSV_X_SYNTAX_MSG = null;
     private String  DSV_M_SYNTAX_MSG = null;
@@ -1267,10 +1277,14 @@ public class SqlFile {
                     int[] incCols = null;
                     if (dsvSkipCols != null) {
                         Set skipCols = new HashSet();
-                        String[] skipColsArray = dsvSkipCols.split("\\s*\\Q"
-                                + dsvColDelim + "\\E\\s*");
+                        String[] skipColsArray =
+                                dsvSkipCols.split(dsvColDelim, -1);
+                        // Don't know if better to use dsvColDelim or
+                        // dsvColSplitter.  Going with former, since the
+                        // latter should not need to set for eXporting
+                        // (only importing).
                         for (int i = 0; i < skipColsArray.length; i++) {
-                            skipCols.add(skipColsArray[i].toLowerCase());
+                            skipCols.add(skipColsArray[i].trim().toLowerCase());
                         }
                         ResultSetMetaData rsmd = rs.getMetaData();
                         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
@@ -1801,7 +1815,7 @@ public class SqlFile {
             return;
         }
 
-        String[] tokens = m.group(1).split("\\s+");
+        String[] tokens = m.group(1).split("\\s+", -1);
 
         // If user runs any PL command, we turn PL mode on.
         plMode = true;
@@ -1823,7 +1837,7 @@ public class SqlFile {
             if (varName.indexOf(':') > -1) {
                 throw new BadSpecial(rb.getString(SqltoolRB.PLVAR_NOCOLON));
             }
-            String[] values = foreachM.group(2).split("\\s+");
+            String[] values = foreachM.group(2).split("\\s+", -1);
 
             String origval = (String) userVars.get(varName);
 
@@ -1890,7 +1904,7 @@ public class SqlFile {
 
             String[] values =
                     ifwhileM.group(1).replaceAll("!([a-zA-Z0-9*])", "! $1").
-                            replaceAll("([a-zA-Z0-9*])!", "$1 !").split("\\s+");
+                        replaceAll("([a-zA-Z0-9*])!", "$1 !").split("\\s+", -1);
 
             if (tokens[0].equals("if")) {
                 try {
@@ -1997,7 +2011,7 @@ public class SqlFile {
             return;
         }
 
-        String[] tokens = m.group(1).split("\\s+");
+        String[] tokens = m.group(1).split("\\s+", -1);
 
         if (tokens[0].charAt(0) == '?') {
             stdprintln(rb.getString(SqltoolRB.PL_HELP));
@@ -2268,7 +2282,9 @@ public class SqlFile {
     // files, but this DSV null representation can be changed to anything.
     private static final String DEFAULT_NULL_REP = "[null]";
     private static final String DEFAULT_ROW_DELIM = LS;
+    private static final String DEFAULT_ROW_SPLITTER = "\\r\\n|\\r|\\n";
     private static final String DEFAULT_COL_DELIM = "|";
+    private static final String DEFAULT_COL_SPLITTER = "\\|";
     private static final String DEFAULT_SKIP_PREFIX = "#";
     private static final int    DEFAULT_ELEMENT   = 0,
                                 HSQLDB_ELEMENT    = 1,
@@ -3937,7 +3953,7 @@ public class SqlFile {
     }
 
     /**
-     * Validate that String is safe to use in a DSV file.
+     * Validate that String is safe to write TO DSV file.
      *
      * @throws SqlToolError if validation fails.
      */
@@ -4081,7 +4097,7 @@ public class SqlFile {
             throws SqlToolError {
         /* To make string comparisons, contains() methods, etc. a little
          * simpler and concise, just switch all column names to lower-case.
-         * This is ok since we acknowledge up from that DSV import/export
+         * This is ok since we acknowledge up front that DSV import/export
          * assume no special characters or escaping in column names. */
         byte[] bfr  = null;
         File   file = new File(filePath);
@@ -4090,8 +4106,7 @@ public class SqlFile {
             // We trim col. names, but not values.  Must allow users to
             // specify values as spaces, empty string, null.
             constColMap = new TreeMap();
-            String[] constPairs = dsvConstCols.split("\\Q"
-                    + dsvColDelim + "\\E\\s*");
+            String[] constPairs = dsvConstCols.split(dsvColSplitter, -1);
             int firstEq;
             String n;
             for (int i = 0; i < constPairs.length; i++) {
@@ -4107,10 +4122,9 @@ public class SqlFile {
         Set skipCols = null;
         if (dsvSkipCols != null) {
             skipCols = new HashSet();
-            String[] skipColsArray = dsvSkipCols.split("\\s*\\Q"
-                    + dsvColDelim + "\\E\\s*");
+            String[] skipColsArray = dsvSkipCols.split(dsvColSplitter, -1);
             for (int i = 0; i < skipColsArray.length; i++) {
-                skipCols.add(skipColsArray[i].toLowerCase());
+                skipCols.add(skipColsArray[i].trim().toLowerCase());
             }
         }
 
@@ -4152,12 +4166,13 @@ public class SqlFile {
                     bytesread, bfr.length));
         }
 
-        String string = null;
         String dateString;
+        String[] lines = null;
 
         try {
-            string = ((charset == null)
+            String string = ((charset == null)
                     ? (new String(bfr)) : (new String(bfr, charset)));
+            lines = string.split(dsvRowSplitter, -1);
         } catch (UnsupportedEncodingException uee) {
             // Should not abort the program entirely, which this will do.
             throw new RuntimeException(uee);
@@ -4169,31 +4184,18 @@ public class SqlFile {
         List     headerList = new ArrayList();
         String    tableName = dsvTargetTable;
 
-        // N.b.  ENDs are the index of 1 PAST the current item
-        int recEnd = -1000; // Recognizable value incase something goes
-                            // horrifically wrong.
-        int colStart;
-        int colEnd;
-
         // First read one until we get one header line
         int lineCount = 0; // Assume a 1 line header?
-        int recStart = -1;
         String trimmedLine = null;
         boolean switching = false;
+        int headerOffset = 0;  //  Used to offset read-start of header record
+        String curLine = null;
 
         while (true) {
-            recStart = (recStart < 0) ? 0 : (recEnd + dsvRowDelim.length());
-            if (recStart > string.length() - 2) {
+            if (lineCount > lines.length)
                 throw new SqlToolError(rb.getString(SqltoolRB.DSV_HEADER_NONE));
-            }
-            recEnd = string.indexOf(dsvRowDelim, recStart);
-            lineCount++; // Increment when we have line start and end
-
-            if (recEnd < 0) {
-                // Last line in file.  No data records.
-                recEnd = string.length();
-            }
-            trimmedLine = string.substring(recStart, recEnd).trim();
+            curLine = lines[lineCount++];
+            trimmedLine = curLine.trim();
             if (trimmedLine.length() < 1
                     || (skipPrefix != null
                             && trimmedLine.startsWith(skipPrefix))) {
@@ -4230,36 +4232,24 @@ public class SqlFile {
             // Need to be sure here that tableName is not null (in
             // which case it would be determined later on by the file name).
             if (matcher.equals("*") || matcher.equalsIgnoreCase(tableName)){
-                recStart = 1 + string.indexOf(':', recStart);
+                headerOffset = 1 + curLine.indexOf(':');
                 break;
             }
             // Skip non-matched header line
         }
 
-        String headerLine = string.substring(recStart, recEnd);
-        colStart = recStart;
-        colEnd   = -1;
+        String headerLine = curLine.substring(headerOffset);
         String colName;
+        String[] cols = headerLine.split(dsvColSplitter, -1);
 
-        while (true) {
-            if (colEnd == recEnd) {
-                // We processed final column last time through loop
-                break;
-            }
-
-            colEnd = string.indexOf(dsvColDelim, colStart);
-
-            if (colEnd < 0 || colEnd > recEnd) {
-                colEnd = recEnd;
-            }
-
-            if (colEnd - colStart < 1) {
+        for (int i = 0; i < cols.length; i++) {
+            if (cols[i].length() < 1) {
                 throw new SqlToolError(rb.getString(
                         SqltoolRB.DSV_NOCOLHEADER,
                         headerList.size() + 1, lineCount));
             }
 
-            colName = string.substring(colStart, colEnd).trim().toLowerCase();
+            colName = cols[i].trim().toLowerCase();
             headerList.add(
                 (colName.equals("-")
                         || (skipCols != null
@@ -4269,9 +4259,8 @@ public class SqlFile {
                 )
                 ? ((String) null)
                 : colName);
-
-            colStart = colEnd + dsvColDelim.length();
-        } if (skipCols != null && skipCols.size() > 0) {
+        }
+        if (skipCols != null && skipCols.size() > 0) {
             throw new SqlToolError(rb.getString(
                     SqltoolRB.DSV_SKIPCOLS_MISSING, skipCols.toString()));
         }
@@ -4458,21 +4447,9 @@ public class SqlFile {
             String   currentFieldName = null;
 
             // Insert data rows 1-row-at-a-time
-            while (true) try { try {
-                recStart = recEnd + dsvRowDelim.length();
-
-                if (recStart >= string.length()) {
-                    break;
-                }
-
-                recEnd = string.indexOf(dsvRowDelim, recStart);
-                lineCount++; // Increment when we have line start and end
-
-                if (recEnd < 0) {
-                    // Last record
-                    recEnd = string.length();
-                }
-                trimmedLine = string.substring(recStart, recEnd).trim();
+            while (lineCount + 1 < lines.length) try { try {
+                curLine = lines[lineCount++];
+                trimmedLine = curLine.trim();
                 if (trimmedLine.length() < 1) {
                     continue;  // Silently skip blank lines
                 }
@@ -4494,28 +4471,18 @@ public class SqlFile {
                     }
                     continue;
                 }
+                // Finished using "trimmed" line now.  Whitespace is
+                // meaninful hereafter.
 
                 // Finally we will attempt to add a record!
                 recCount++;
                 // Remember that recCount counts both inserts + rejects
 
-                colStart = recStart;
-                colEnd   = -1;
                 readColCount = 0;
                 storeColCount = 0;
+                cols = curLine.split(dsvColSplitter, -1);
 
-                while (true) {
-                    if (colEnd == recEnd) {
-                        // We processed final column last time through loop
-                        break;
-                    }
-
-                    colEnd = string.indexOf(dsvColDelim, colStart);
-
-                    if (colEnd < 0 || colEnd > recEnd) {
-                        colEnd = recEnd;
-                    }
-
+                for (int coli = 0; coli < cols.length; coli++) {
                     if (readColCount == inputColHeadCount) {
                         throw new RowError(rb.getString(
                                 SqltoolRB.DSV_COLCOUNT_MISMATCH,
@@ -4523,10 +4490,8 @@ public class SqlFile {
                     }
 
                     if (headers[readColCount++] != null) {
-                        dataVals[storeColCount++] =
-                                string.substring(colStart, colEnd);
+                        dataVals[storeColCount++] = cols[coli];
                     }
-                    colStart             = colEnd + dsvColDelim.length();
                 }
                 if (readColCount < inputColHeadCount) {
                     throw new RowError(rb.getString(
@@ -4615,8 +4580,7 @@ public class SqlFile {
                 rejectCount++;
                 if (rejectWriter != null || rejectReportWriter != null) {
                     if (rejectWriter != null) {
-                        rejectWriter.print(string.substring(
-                                recStart, recEnd) + dsvRowDelim);
+                        rejectWriter.print(curLine + dsvRowDelim);
                     }
                     if (rejectReportWriter != null) {
                         genRejectReportRecord(rejectReportWriter,
@@ -4705,7 +4669,7 @@ public class SqlFile {
                     list.add(m.group(i).substring(1, m.group(i).length() - 1));
                     continue;
                 }
-                internalTokens = m.group(i).split("\\s+");
+                internalTokens = m.group(i).split("\\s+", -1);
                 for (int j = 0; j < internalTokens.length; j++)
                     list.add(internalTokens[j]);
             }

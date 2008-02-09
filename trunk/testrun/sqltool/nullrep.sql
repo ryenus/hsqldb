@@ -4,11 +4,6 @@
  * Tests enforcement of null-representation token 
  */
 
-/** This is the default on UNIX.
- *  Our *.dsv test files are stored as binaries, so this is required
- *  to run tests on Windows: */
-* *DSV_ROW_DELIM = \n
-
 CREATE TABLE t (i INT, vc VARCHAR);
 
 INSERT INTO t VALUES(1, 'one');
@@ -79,8 +74,8 @@ DELETE FROM t;
 
 /** Repeat test with some non-default DSV settings */
 * *NULL_REP_TOKEN = %%
-* *DSV_COL_DELIM = :
-* *DSV_ROW_DELIM = }\n
+* *DSV_COL_SPLITTER = :
+* *DSV_ROW_SPLITTER = \}\n
 
 \m nullrep-alt.dsv
 SELECT count(*) FROM t WHERE id = 'wspaces' AND i IS null;

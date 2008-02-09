@@ -4,11 +4,6 @@
  * Tests trimming in DSV imports
  */
 
-/** This is the default on UNIX.
- *  Our *.dsv test files are stored as binaries, so this is required
- *  to run tests on Windows: */
-* *DSV_ROW_DELIM = \n
-
 CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR, b BOOLEAN);
 
 \m dsv-trimming.dsv
@@ -47,8 +42,8 @@ SELECT count(*)  FROM t WHERE b = true;
 
 
 /** Repeat test with some non-default DSV settings */
-* *DSV_COL_DELIM = \\
-* *DSV_ROW_DELIM = }\n
+* *DSV_COL_SPLITTER = \\
+* *DSV_ROW_SPLITTER = }\n
 
 DELETE FROM t;
 

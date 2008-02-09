@@ -8,8 +8,10 @@ Don't forget the * indicating a PL command PLUS the leading * in
 all of these variable names.  \x or \m below indicates where
 the setting is applicable.  Default value/behavior is in [square brackes].
     *DSV_SKIP_PREFIX   \m    Comment line prefix in DSV files.  ["#"]
-    *DSV_COL_DELIM     \m\x  Column delimiter.   ["|"]
-    *DSV_ROW_DELIM     \m\x  Row delimiter
+    *DSV_COL_SPLITTER  \m    Column input delimiter regexp.   ["\|"]
+    *DSV_COL_DELIM     \x    Column output delimiter.   ["|"]
+    *DSV_ROW_SPLITTER  \m    Row input delimiter regexp.   ["\r\n|\r|\n"]
+    *DSV_ROW_DELIM     \x    Row delimiter
                               [OS-dependent (Java line.separator)]
     *NULL_REP_TOKEN    \m\x  String to represent database null.   ["[null]"]
     *DSV_TARGET_FILE   \x    File which exports will write to

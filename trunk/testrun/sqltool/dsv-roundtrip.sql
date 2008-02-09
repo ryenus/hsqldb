@@ -5,11 +5,6 @@
  * Create a table, export the data, import it back, cf. imported  and original.
  */
 
-/** This is the default on UNIX.
- *  Our *.dsv test files are stored as binaries, so this is required
- *  to run tests on Windows: */
-* *DSV_ROW_DELIM = \n
-
 * *DSV_TARGET_FILE = ${java.io.tmpdir}/test-roundtrip-${user.name}.dsv
 * *DSV_TARGET_TABLE = t
 CREATE TABLE t (i INT, a INT, d DATE);

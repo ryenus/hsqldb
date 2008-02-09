@@ -12,16 +12,15 @@
  * (replace "mem" with your urlid).
  */
 
-/** This is the default on UNIX.
- *  Our *.dsv test files are stored as binaries, so this is required
- *  to run tests on Windows: */
-* *DSV_ROW_DELIM = \n
-
 CREATE TABLE sampletable(i INT, d DATE NOT NULL, b BOOLEAN);
 
 /* If you dont' set *DSV_TARGET_TABLE, it defaults to the base name of the
    .dsv file. */
 * *DSV_TARGET_TABLE = sampletable
+
+\p WARNING:  Some records will be skipped, and some others will be rejected.
+\p This is on purpose, so you can work with a reject report.
+\p
 
 /* By default, no reject files are written, and the import will abort upon
  * the first error encountered.  If you set either of these settings, the
