@@ -21,6 +21,9 @@ import org.hsqldb.lib.StringUtil;
  * the expected results. The test script format is compatible with existing
  * scripts.
  *
+ * Script writers be aware that you can't use stderr to distinguish error
+ * messages.  This class writes error messages to stdout.
+ *
  * @author ewanslater@users
  * @author fredt@users
  */
@@ -64,7 +67,7 @@ public class TestUtil {
                     new FileReader(file));
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("test script file error: " + e.getMessage());
+            System.out.println("test script file error: " + e.getMessage());
         }
     }
 
@@ -149,15 +152,15 @@ public class TestUtil {
         // The following catch blocks are just to report the source location
         // of the failure.
         } catch (IOException ioe) {
-            System.err.println("Error encountered at command beginning at "
+            System.out.println("Error encountered at command beginning at "
                     + sourceName + ':' + startLine);
             throw ioe;
         } catch (SQLException se) {
-            System.err.println("Error encountered at command beginning at "
+            System.out.println("Error encountered at command beginning at "
                     + sourceName + ':' + startLine);
             throw se;
         } catch (RuntimeException re) {
-            System.err.println("Error encountered at command beginning at "
+            System.out.println("Error encountered at command beginning at "
                     + sourceName + ':' + startLine);
             throw re;
         }
@@ -217,7 +220,7 @@ public class TestUtil {
         ParsedSection pSection = parsedSectionFactory(section);
 
         if (pSection == null) {    //it was not possible to sucessfully parse the section
-            System.err.println("The section starting at " + scriptName + ':'
+            System.out.println("The section starting at " + scriptName + ':'
                 + line + " could not be parsed, and so was not processed.\n");
             return;
         }
@@ -239,7 +242,7 @@ public class TestUtil {
             return; // Do not run test method for DisplaySections.
         }
         if (!pSection.test(stat)) {
-            System.err.println("Section starting at " + scriptName + ':'
+            System.out.println("Section starting at " + scriptName + ':'
                     + line + " returned an unexpected result: " + pSection);
             if (TestUtil.abortOnErr) {
                 throw new TestRuntimeException(scriptName + ": " + line
