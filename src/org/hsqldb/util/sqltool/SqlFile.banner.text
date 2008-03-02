@@ -1,6 +1,6 @@
 (SqlFile processor v. %{1})
 Distribution is permitted under the terms of the HSQLDB license.
-(c) 2004-2007 Blaine Simpson and the HSQLDB Development Group.
+(c) 2004-2008 Blaine Simpson and the HSQLDB Development Group.
 
     \q    to Quit.
     \?    lists Special Commands.
@@ -10,14 +10,13 @@ Distribution is permitted under the terms of the HSQLDB license.
 
 SPECIAL Commands begin with '\' and execute when you hit ENTER.
 EDIT-BUFFER / HISTORY Commands begin with ':' and execute when you hit ENTER.
-COMMENTS begin with '/*' and end with the very next '*/'.
 PROCEDURAL LANGUAGE commands begin with '*' and end when you hit ENTER.
-All other lines comprise SQL Statements.
-  SQL Statements are terminated by either a blank line (which moves the
-  statement into the edit buffer without executing) or a line ending with ';'
-  (which executes the statement).
-  SQL Commands may begin with '/PLVARNAME' for a PL variable command alias.
+MACRO executions and definitions begin with '/' and end when you hit ENTER.
+All other lines comprise SQL Statements (or comments).
+  SQL Statements are terminated by either unquoted ';' (which executes the
+  statement), or a blank line (which moves the statement into the edit buffer
+  without executing).
 After turning on variable expansion with command "*" (or any other PL
-command), PL variables may be used in any command (other than : commands)
-like so: *{PLVARNAME}.
-
+command), PL variables may be used in most commands like so:  *{PLVARNAME}.
+Be aware when editing commands from History or Buffer, that command-type
+prefixes (*, \) are fixed.  I.e. you only edit the following command text.

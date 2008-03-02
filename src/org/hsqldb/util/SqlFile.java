@@ -594,9 +594,12 @@ public class SqlFile {
 
                 switch (token.type) {
                     case Token.SYNTAX_ERR_TYPE:
-                        // TODO:  Define new localized error message
-                        throw new SqlToolError("SqlTool syntax error: "
-                                + token.val);
+                        throw new SqlToolError(rb.getString(
+                                SqltoolRB.INPUT_MALFORMAT));
+                        // Will get here if Scanner can't match input to any
+                        // known command type.
+                        // An easy way to get here is to start a command with
+                        // quotes.
                     case Token.UNTERM_TYPE:
                         throw new SqlToolError(rb.getString(
                                 SqltoolRB.INPUT_UNTERMINATED,
@@ -942,7 +945,6 @@ public class SqlFile {
                 if (buffer == null) {
                     stdprintln(nobufferYetString);
                 } else {
-                    // TODO:  Change message to like "Edit buffer contents:  type X\nTxt
                     stdprintln(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
                             buffer.reconstitute()));
                 }
@@ -1021,8 +1023,7 @@ public class SqlFile {
                         other = other.substring(0, other.lastIndexOf(';'));
                         if (other.trim().length() < 1)
                             throw new BadSpecial(
-                            // TODO: Localize message
-                            "Use ':;' to repeat a command without appending");
+                                    rb.getString(SqltoolRB.APPEND_EMPTY));
                         doExec = true;
                     }
                 }
@@ -1157,7 +1158,6 @@ public class SqlFile {
                             ? SqltoolRB.BUFFER_EXECUTING
                             : SqltoolRB.EDITBUFFER_CONTENTS),
                                 buffer.reconstitute()));
-                    // TODO:  Change message to like "Edit buffer contents:  type X\nTxt
                 } catch (PatternSyntaxException pse) {
                     throw new BadSpecial(
                             rb.getString(SqltoolRB.SUBSTITUTION_SYNTAX), pse);
@@ -1523,10 +1523,9 @@ public class SqlFile {
                     }
                 }
 
-                // TODO:  Localize message.
-                stdprintln("Transaction Isolation Level is now "
-                        + (curConn.isReadOnly() ? "R/O " : "R/W ")
-                        + RCData.tiToString(curConn.getTransactionIsolation()));
+                stdprintln(rb.getString(SqltoolRB.TRANSISO_REPORT,
+                        (curConn.isReadOnly() ? "R/O " : "R/W "),
+                        RCData.tiToString(curConn.getTransactionIsolation())));
 
                 return;
             case '=' :
@@ -1585,14 +1584,15 @@ public class SqlFile {
                 return;
 
             case 't' :
-                // TODO:  Localize messages
                 enforce1charSpecial(arg1, '=');
                 if (other != null) {
                     // But remember that we have to abort on some I/O errors.
                     reportTimes = Boolean.valueOf(other).booleanValue();
                 }
 
-                stdprintln("Report-times is set to " + reportTimes);
+                stdprintln(rb.getString(
+                        SqltoolRB.EXECTIME_REPORTING,
+                                Boolean.toString(reportTimes)));
 
                 return;
 
@@ -2072,7 +2072,6 @@ public class SqlFile {
 
         if (tokens[0].equals("end")) {
             throw new BadSpecial(rb.getString(SqltoolRB.END_NOBLOCK));
-            // TODO:  Change message to say "Unmatched end command"
         }
 
         if (tokens[0].equals("continue")) {
@@ -2804,9 +2803,9 @@ public class SqlFile {
         } } finally {
             if (reportTimes) {
                 long elapsed = (new java.util.Date().getTime()) - startTime;
-                // TODO:  Localize messages
                 //condlPrintln("</TABLE>", true);
-                condlPrintln("Took " + elapsed + " ms.", false);
+                condlPrintln(rb.getString(
+                        SqltoolRB.EXECTIME_REPORT, (int) elapsed), false);
             }
         }
 
@@ -2861,9 +2860,8 @@ public class SqlFile {
         if (filterString != null) try {
             filter = Pattern.compile(filterString);
         } catch (PatternSyntaxException pse) {
-            // TODO:  Localize message
-            throw new SqlToolError("Malformed regex pattern: "
-                    + pse.getMessage());
+            throw new SqlToolError(rb.getString(SqltoolRB.REGEX_MALFORMAT,
+                    pse.getMessage()));
         }
 
         if (excludeSysSchemas) {
@@ -3354,7 +3352,6 @@ public class SqlFile {
             psStd.println(token.reconstitute());
         }
         if (buffer != null) {
-            // TODO:  Change message to like "Edit buffer contents:  type X\nTxt
             psStd.println(rb.getString(SqltoolRB.EDITBUFFER_CONTENTS,
                     buffer.reconstitute()));
         }
@@ -3410,9 +3407,8 @@ public class SqlFile {
         try {
             pattern = Pattern.compile("(?ims)" + findRegex);
         } catch (PatternSyntaxException pse) {
-            // TODO:  Localize message
-            throw new BadSpecial("Malformed regex pattern: "
-                    + pse.getMessage());
+            throw new BadSpecial(rb.getString(SqltoolRB.REGEX_MALFORMAT,
+                    pse.getMessage()));
         }
         // Make matching more liberal.  Users can customize search behavior
         // by using "(?-OPTIONS)" or (?OPTIONS) in their regexes.
@@ -3505,9 +3501,8 @@ public class SqlFile {
             filter = Pattern.compile(filterMatchesAll
                     ? filterString.substring(1) : filterString);
         } catch (PatternSyntaxException pse) {
-            // TODO:  Localize message
-            throw new SQLException("Malformed regex pattern: "
-                    + pse.getMessage());
+            throw new SQLException(rb.getString(SqltoolRB.REGEX_MALFORMAT,
+                    pse.getMessage()));
             // This is obviously not a SQLException.
             // Perhaps change input parameter to a Pattern to require
             // caller to compile the pattern?
@@ -3855,10 +3850,8 @@ public class SqlFile {
                 return (cs == null) ? (new String(ba))
                                          : (new String(ba, cs));
             } catch (UnsupportedEncodingException uee) {
-                // Should not abort the program entirely, which this will do.
-                // TODO:  Make a localized message explaining that
-                // Encoding failed, and throw an IOException with that msg.
-                throw new RuntimeException(uee);
+                throw new IOException(rb.getString(SqltoolRB.ENCODE_FAIL,
+                        uee.getMessage()));
             } catch (RuntimeException re) {
                 throw new IOException(rb.getString(SqltoolRB.READ_CONVERTFAIL));
             }
@@ -4996,21 +4989,15 @@ public class SqlFile {
      * (by the Scanner).
      */
     private void processMacro(Token defToken) throws BadSpecial {
-        /* TODO:  Localize ALL OF THESE MESSAGES */
         Matcher matcher;
         Token macroToken;
 
-        if (defToken.val.length() < 1) throw new BadSpecial("Run '/?' for help");
+        if (defToken.val.length() < 1) {
+            throw new BadSpecial(rb.getString(SqltoolRB.MACRO_TIP));
+        }
         switch (defToken.val.charAt(0)) {
             case '?':
-                stdprintln("/?                     Display this help");
-                stdprintln("/=                     Display all macros");
-                stdprintln("/= name :[appendage]   "
-                      + "Define a macro equal to the current buffer contents");
-                stdprintln("/= name command       "
-              + "Define a macro equal specified SQL/*/\\ command (w/out ;)");
-                stdprintln("/name [appendage]      Recall macro to buffer");
-                stdprintln("/name [appendage];     Execute macro");
+                stdprintln(rb.getString(SqltoolRB.MACRO_HELP));
                 break;
             case '=':
                 String defString = defToken.val;
@@ -5048,7 +5035,8 @@ public class SqlFile {
                     } else {
                         matcher = sqlMacroPattern.matcher(defString);
                         if (!matcher.matches())
-                        throw new BadSpecial("Malformatted macro def. command");
+                            throw new BadSpecial(rb.getString(
+                                    SqltoolRB.MACRO_MALFORMAT));
                         newVal.append(matcher.group(2));
                         newType = Token.SQL_TYPE;
                     }
@@ -5058,19 +5046,23 @@ public class SqlFile {
                     "Internal assertin failed.  "
                     + "Somehow no Macro def pattern matched.");
                 if (newVal.length() < 1)
-                    throw new BadSpecial("No content specified for macro");
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.MACRODEF_EMPTY));
                 if (newVal.charAt(newVal.length() - 1) == ';')
-                    throw new BadSpecial("Macro values may not end with ';'");
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.MACRODEF_SEMI));
                 macros.put(matcher.group(1),
                         new Token(newType, newVal, defToken.line));
                 break;
             default:
                 matcher = useMacroPattern.matcher(defToken.val);
                 if (!matcher.matches())
-                    throw new BadSpecial("Malformatted macro command");
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.MACRO_MALFORMAT));
                 macroToken = (Token) macros.get(matcher.group(1));
                 if (macroToken == null)
-                    throw new BadSpecial("No such macro: " + matcher.group(1));
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.MACRO_UNDEFINED, matcher.group(1)));
                 setBuf(macroToken);
                 buffer.line = defToken.line;
                 if (matcher.groupCount() > 1 && matcher.group(2) != null
