@@ -135,6 +135,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int REJECTREPORT_TOP = keyCounter++;
     static public final int REJECTREPORT_ROW = keyCounter++;
     static public final int REJECTREPORT_BOTTOM = keyCounter++;
+    static public final int MACRO_HELP = keyCounter++;
 
     static public final int SQLFILE_READFAIL = keyCounter++;
     static public final int RAWMODE_PROMPT = keyCounter++;
@@ -279,6 +280,19 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int DSV_REJECTFILE_PURGEFAIL = keyCounter++;
     static public final int DSV_REJECTREPORT_PURGEFAIL = keyCounter++;
     static public final int EDIT_MALFORMAT = keyCounter++;
+    static public final int INPUT_MALFORMAT = keyCounter++;
+    static public final int APPEND_EMPTY = keyCounter++;
+    static public final int TRANSISO_REPORT = keyCounter++;
+    static public final int EXECTIME_REPORTING = keyCounter++;
+    static public final int EXECTIME_REPORT = keyCounter++;
+    static public final int REGEX_MALFORMAT = keyCounter++;
+    static public final int ENCODE_FAIL = keyCounter++;
+    static public final int MACRO_TIP = keyCounter++;
+    static public final int MACRODEF_MALFORMAT = keyCounter++;
+    static public final int MACRODEF_EMPTY = keyCounter++;
+    static public final int MACRODEF_SEMI = keyCounter++;
+    static public final int MACRO_MALFORMAT = keyCounter++;
+    static public final int MACRO_UNDEFINED = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
@@ -316,6 +330,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(REJECTREPORT_TOP), "rejectreport.top",
         new Integer(REJECTREPORT_ROW), "rejectreport.row",
         new Integer(REJECTREPORT_BOTTOM), "rejectreport.bottom",
+        new Integer(MACRO_HELP), "macro.help",
 
         // SqlFile inline properties:
         new Integer(SQLFILE_READFAIL), "sqlfile.readfail",
@@ -461,6 +476,19 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(DSV_REJECTFILE_PURGEFAIL), "dsv.rejectfile.purgefail",
         new Integer(DSV_REJECTREPORT_PURGEFAIL), "dsv.rejectreport.purgefail",
         new Integer(EDIT_MALFORMAT), "edit.malformat",
+        new Integer(INPUT_MALFORMAT), "input.malformat",
+        new Integer(APPEND_EMPTY), "append.empty",
+        new Integer(TRANSISO_REPORT), "transiso.report",
+        new Integer(EXECTIME_REPORTING), "exectime.reporting",
+        new Integer(EXECTIME_REPORT), "exectime.report",
+        new Integer(REGEX_MALFORMAT), "regex.malformat",
+        new Integer(ENCODE_FAIL), "encode.fail",
+        new Integer(MACRO_TIP), "macro.tip",
+        new Integer(MACRODEF_MALFORMAT), "macrodef.malformat",
+        new Integer(MACRODEF_EMPTY), "macrodef.empty",
+        new Integer(MACRODEF_SEMI), "macrodef.semi",
+        new Integer(MACRO_MALFORMAT), "macro.malformat",
+        new Integer(MACRO_UNDEFINED), "macro.undefined",
     };
 
     private Map keyIdToString = new HashMap();
