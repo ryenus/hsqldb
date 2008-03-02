@@ -194,6 +194,8 @@ public class SqlFile {
             Pattern.compile("\\s*(\\w+)\\s*=(.*)");
             // Specifically permits 0-length values, but not names.
     private static Pattern nameDotPattern = Pattern.compile("(\\w+)\\.");
+    private static Pattern commitOccursPattern =
+            Pattern.compile("(?is)(?:set\\s+autocommit.*)|(commit\\s*)");
 
     static private Map nestingPLCommands = new HashMap();
     static {
@@ -299,9 +301,14 @@ public class SqlFile {
     }
 
     BooleanBucket possiblyUncommitteds = new BooleanBucket();
-    // This is an imperfect solution since when user runs SQL they could
-    // be running DDL or a commit or rollback statement.  All we know is,
-    // they MAY run some DML that needs to be committed.
+    // Since SqlTool can run against different versions of HSQLDB (plus
+    // against any JDBC database), it can't make assumptions about
+    // commands which may cause implicit commits, or commit state
+    // requirements with specific databases may have for specific SQL
+    // statements.  Therefore, we just assume that any statement other
+    // than COMMIT or SET AUTOCOMMIT causes an implicit COMMIT (the
+    // Java API spec mandates that setting AUTOCOMMIT causes an implicit
+    // COMMIT, regardless of whether turning AUTOCOMMIT on or off).
 
     private static final String DIVIDER =
         "-----------------------------------------------------------------"
@@ -757,7 +764,9 @@ public class SqlFile {
                         fetchingVar));
                 rollbackUncoms = true;
             }
-            if (rollbackUncoms && possiblyUncommitteds.get()) {
+            if (rollbackUncoms && (!curConn.getAutoCommit())
+                    && possiblyUncommitteds.get()) {
+                // Nothing to roll back if autocommit is on.
                 errprintln(rb.getString(SqltoolRB.ROLLINGBACK));
                 curConn.rollback();
                 possiblyUncommitteds.set(false);
@@ -1466,6 +1475,7 @@ public class SqlFile {
                 if (other != null) {
                     curConn.setAutoCommit(
                         Boolean.valueOf(other).booleanValue());
+                    possiblyUncommitteds.set(false);
                 }
 
                 stdprintln(rb.getString(SqltoolRB.A_SETTING,
@@ -2700,20 +2710,12 @@ public class SqlFile {
             throw new RuntimeException(
                     "Internal error.  Token type " + buffer.getTypeString()
                             + " in processSQL().");
-        // Really don't know whether to take the network latency hit here
-        // in order to check autoCommit in order to set
-        // possiblyUncommitteds more accurately.
-        // I'm going with "NO" for now, since autoCommit will usually be off.
-        // If we do ever check autocommit, we have to keep track of the
-        // autocommit state when every SQL statement is run, since I may
-        // be able to have uncommitted DML, turn autocommit on, then run
-        // other DDL with autocommit on.  As a result, I could be running
-        // SQL commands with autotommit on but still have uncommitted mods.
-        // (For all I know, the database could commit or rollback whenever
-        // the autocommit option is changed, and that behavior could be
-        // DB-specific).
+        // No reason to check autoCommit constantly.  If we need to roll
+        // back, we will check the autocommit state at that time.
         lastSqlStatement    = (plMode ? dereference(buffer.val, true)
                                       : buffer.val);
+        // WHY IS THIS VAR "last" SqlStatement?  Isn't it the "current"
+        // SQL statement???
         if ((!permitEmptySqlStatements) && buffer.val == null
                 || buffer.val.trim().length() < 1) {
             throw new SqlToolError(rb.getString(SqltoolRB.SQLSTATEMENT_EMPTY));
@@ -2777,7 +2779,10 @@ public class SqlFile {
             }
         }
 
-        possiblyUncommitteds.set(true);
+        /* This catches about the only very safe way to know a COMMIT
+         * is not needed. */
+        possiblyUncommitteds.set(
+            !commitOccursPattern.matcher(lastSqlStatement).matches());
 
         try {
             displayResultSet(statement, statement.getResultSet(), null, null);
