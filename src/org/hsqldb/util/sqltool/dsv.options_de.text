@@ -9,8 +9,10 @@ Beim Verwenden, vergessen Sie nicht ein * zeigt PL Befehl an, und ein * is
  ein Teil des Namens.  \x oder \m folgend zeigt wo an die Einstellung ist
  anwendbar. Default-Wert/Verhalten ist in den [quadratischen Klammern].
     *DSV_SKIP_PREFIX   \m    Kommentarzeile Präfix in die Datei.  ["#"]
-    *DSV_COL_DELIM     \m\x  Element Trennzeichen.   ["|"]
-    *DSV_ROW_DELIM     \m\x  Segment Trennzeichen.
+    *DSV_COL_SPLITTER  \m    Eingang Element Trennzeichen Regexp.   ["\|"]
+    *DSV_COL_DELIM     \x    Ausgang Element Trennzeichen.   ["|"]
+    *DSV_ROW_SPLITTER  \m    Eingang Segment Trennzeichen Regexp. ["\r\n|\r|\n"]
+    *DSV_ROW_DELIM     \x    Ausgang Segment Trennzeichen.
                               [Betriedsystem-spezifisch (Java line.separator)]
     *NULL_REP_TOKEN    \m\x  Zeichenkette, zum einer Datenbanknull darzustellen.
                               ["[null]"]
@@ -25,6 +27,9 @@ Beim Verwenden, vergessen Sie nicht ein * zeigt PL Befehl an, und ein * is
                               Ausschußaufzeichnungen zu erklären.  [None*]
     *DSV_SKIP_COLS     \m\x  Überspringt Spalten von der Eingang Textakte
                              oder von der Eingang Tabelle.
+    *DSV_TRIM_ALL      \m    Wenn auf "true" gesetzt, trim vorangestellte und
+                             nachfolgende Leerzeichen aus allen Rubriken auf
+                             importieren.  [false]
 * Importe brechen sofort nach dem Rekordausfall des ersten Importes ab, es sei
 denn entweder *DSV_REJECT_FILE oder *DSV_REJECT_REPORT (oder beide)
 eingestellt werden. (Ob SqlTool Willenszurückrollen und beendigt von deinen

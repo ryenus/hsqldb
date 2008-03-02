@@ -380,11 +380,11 @@ public class RCData {
         Connection c = DriverManager.getConnection(urlString, userString,
                                            passwordString);
         if (ti != null) RCData.setTI(c, ti);
-        // Would like to warn here if the requested TI does not match
-        // c.getTransactionIsolation().  Problem is, we can't "throw" since
-        // this is expected behavior of HSQLDB < v. 1.9; can't log since we
-        // have no logger; can't write to stderr since we should not depend
-        // on stderr.
+        // Would like to verify the setting made by checking
+        // c.getTransactionIsolation().  Unfortunately, the spec allows for
+        // databases to substitute levels according to some rules, and it's
+        // impossible to know what to expect since custom levels are permitted.
+        // Debug:
         // System.err.println("TI set to " + ti + "\nPOST: "
         // + SqlTool.tiToString(c.getTransactionIsolation()));
         
