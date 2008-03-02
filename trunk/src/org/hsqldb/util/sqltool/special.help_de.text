@@ -12,6 +12,8 @@ einem Schame zu verengen.
     \! BEFEHL  [ARGE]    Ausführt äußerlich Programm (stdin nicht unterstützt)
     \c [true|false]      Währen nach Fehler (i.g.z. Abbruch nach Fehler)
     \a [true|false]      Automatisch Commit JDBC DML Befehle
+    \t [true|false]      Bericht Ausführungszeiten für alle SQL-Befehle
+    \l TRAN_ISO_LVL      View/Verbindet Transaktion Isolation-Level
     \b                   Speichert nächst Resultat zum Binärpuffer (kein zeigen)
     \bd datei/pfad.bin   Gibt Binärpuffer zu Datei
     \bl datei/pfad.bin   Lädt Date in den Binärpuffer

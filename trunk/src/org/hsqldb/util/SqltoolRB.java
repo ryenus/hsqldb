@@ -148,7 +148,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int INPUT_UNTERMINATED = keyCounter++;
     static public final int PLVAR_SET_INCOMPLETE = keyCounter++;
     static public final int ABORTING = keyCounter++;
-    static public final int INPUTREADER_CLOSEFAIL = keyCounter++;
     static public final int ROLLINGBACK = keyCounter++;
     static public final int SPECIAL_UNSPECIFIED = keyCounter++;
     static public final int BUFHIST_UNSPECIFIED = keyCounter++;
@@ -211,14 +210,12 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int DUMPLOAD_FAIL = keyCounter++;
     static public final int PREPARE_MALFORMAT = keyCounter++;
     static public final int FOREACH_MALFORMAT = keyCounter++;
-    static public final int PL_TEMPFILE_FAIL = keyCounter++;
     static public final int PL_BLOCK_FAIL = keyCounter++;
     static public final int IFWHILE_MALFORMAT = keyCounter++;
     static public final int IF_MALFORMAT = keyCounter++;
     static public final int WHILE_MALFORMAT = keyCounter++;
     static public final int PL_UNKNOWN = keyCounter++;
     static public final int PL_BLOCK_UNTERMINATED = keyCounter++;
-    static public final int END_SYNTAX = keyCounter++;
     static public final int VENDOR_ORACLE_DS = keyCounter++;
     static public final int VENDOR_DERBY_DR = keyCounter++;
     static public final int VENDOR_NOSUP_D = keyCounter++;
@@ -333,7 +330,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(INPUT_UNTERMINATED), "input.unterminated",
         new Integer(PLVAR_SET_INCOMPLETE), "plvar.set.incomplete",
         new Integer(ABORTING), "aborting",
-        new Integer(INPUTREADER_CLOSEFAIL), "inputreader.closefail",
         new Integer(ROLLINGBACK), "rollingback",
         new Integer(SPECIAL_UNSPECIFIED), "special.unspecified",
         new Integer(BUFHIST_UNSPECIFIED), "bufhist.unspecified",
@@ -396,14 +392,12 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(DUMPLOAD_FAIL), "dumpload.fail",
         new Integer(PREPARE_MALFORMAT), "prepare.malformat",
         new Integer(FOREACH_MALFORMAT), "foreach.malformat",
-        new Integer(PL_TEMPFILE_FAIL), "pl.tempfile.fail",
         new Integer(PL_BLOCK_FAIL), "pl.block.fail",
         new Integer(IFWHILE_MALFORMAT), "ifwhile.malformat",
         new Integer(IF_MALFORMAT), "if.malformat",
         new Integer(WHILE_MALFORMAT), "while.malformat",
         new Integer(PL_UNKNOWN), "pl.unknown",
         new Integer(PL_BLOCK_UNTERMINATED), "pl.block.unterminated",
-        new Integer(END_SYNTAX), "end.syntax",
         new Integer(VENDOR_ORACLE_DS), "vendor.oracle.dS",
         new Integer(VENDOR_DERBY_DR), "vendor.derby.dr",
         new Integer(VENDOR_NOSUP_D), "vendor.nosup.d",

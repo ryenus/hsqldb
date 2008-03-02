@@ -6,6 +6,7 @@ Weiterverbreitung ist zulässig unter den Bedinungen der HSQLDB Lizenz.
     \?    listet Sonderbefehle.
     :?    listet Editpuffer/History commands.
     *?    listet PL Befehle.
+    /?    Help zeigt auf, wie die Definition und Verwendung von Befehl Makros.
 
 SONDER Befehle fangen mit \ an und führen durch, wann Sie ENTER-Taste schlagen.
 EDIT-PUFFER / GESCHICHTE fangen mit : an und führen durch, wann Sie ENTER-Taste

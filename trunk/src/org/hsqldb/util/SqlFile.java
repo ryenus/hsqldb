@@ -301,14 +301,15 @@ public class SqlFile {
     }
 
     BooleanBucket possiblyUncommitteds = new BooleanBucket();
-    // Since SqlTool can run against different versions of HSQLDB (plus
-    // against any JDBC database), it can't make assumptions about
-    // commands which may cause implicit commits, or commit state
-    // requirements with specific databases may have for specific SQL
-    // statements.  Therefore, we just assume that any statement other
-    // than COMMIT or SET AUTOCOMMIT causes an implicit COMMIT (the
-    // Java API spec mandates that setting AUTOCOMMIT causes an implicit
-    // COMMIT, regardless of whether turning AUTOCOMMIT on or off).
+    /* Since SqlTool can run against different versions of HSQLDB (plus
+     * against any JDBC database), it can't make assumptions about
+     * commands which may cause implicit commits, or commit state
+     * requirements with specific databases may have for specific SQL
+     * statements.  Therefore, we just assume that any statement other
+     * than COMMIT or SET AUTOCOMMIT causes an implicit COMMIT (the
+     * Java API spec mandates that setting AUTOCOMMIT causes an implicit
+     * COMMIT, regardless of whether turning AUTOCOMMIT on or off).
+     */
 
     private static final String DIVIDER =
         "-----------------------------------------------------------------"
@@ -327,7 +328,6 @@ public class SqlFile {
 
     private String DSV_OPTIONS_TEXT = null;
     private String D_OPTIONS_TEXT = null;
-    private String RAW_LEADIN_MSG = null;
 
     /**
      * Legacy wrapper (for before we passed "macros").
@@ -372,7 +372,6 @@ public class SqlFile {
         rawPrompt = rb.getString(SqltoolRB.RAWMODE_PROMPT) + "> ";
         DSV_OPTIONS_TEXT = rb.getString(SqltoolRB.DSV_OPTIONS);
         D_OPTIONS_TEXT = rb.getString(SqltoolRB.D_OPTIONS);
-        RAW_LEADIN_MSG = rb.getString(SqltoolRB.RAW_LEADIN);
         DSV_X_SYNTAX_MSG = rb.getString(SqltoolRB.DSV_X_SYNTAX);
         DSV_M_SYNTAX_MSG = rb.getString(SqltoolRB.DSV_M_SYNTAX);
         nobufferYetString = rb.getString(SqltoolRB.NOBUFFER_YET);
@@ -511,6 +510,7 @@ public class SqlFile {
                             ? System.in : (new FileInputStream(file))),
                                     charset)));
             scanner.setStdPrintStream(psStd);
+            scanner.setResourceBundle(rb);
             if (interactive) {
                 stdprintln(rb.getString(SqltoolRB.SQLFILE_BANNER, revnum));
                 scanner.setRawPrompt(rawPrompt);
@@ -576,17 +576,19 @@ public class SqlFile {
                 if (nestingCommand != null) {
                     if (token.nestedBlock == null) {
                         token.nestedBlock = seekTokenSource(nestingCommand);
-                        // This command (and the same recursive call inside
-                        // of the seekTokenSource() method) ensure that all
-                        // "blocks" are tokenized immediately as block
-                        // commands are encountered, and the blocks are
-                        // tokenized in their entirety all the way to the
-                        // leaves.
+                        /* This command (and the same recursive call inside
+                         * of the seekTokenSource() method) ensure that all
+                         * "blocks" are tokenized immediately as block
+                         * commands are encountered, and the blocks are
+                         * tokenized in their entirety all the way to the
+                         * leaves.
+                         */
                     }
                     processBlock(token);
-                        // processBlock recurses through scanpass(),
-                        // which processes the nested commands which have
-                        // (in all cases) already beeen tokenized.
+                        /* processBlock recurses through scanpass(),
+                         * which processes the nested commands which have
+                         * (in all cases) already beeen tokenized.
+                         */
                     continue;
                 }
 
@@ -601,13 +603,38 @@ public class SqlFile {
                                         token.val));
                     case Token.RAW_TYPE:
                     case Token.RAWEXEC_TYPE:
+                        /*
+                         * A real problem in this block is that the Scanner
+                         * has already displayed the next prompt at this
+                         * point.  We handle this specially within this
+                         * block, but if we throw, the handler will not
+                         * know that the prompt has to be re-displayed.
+                         * I.e., KNOWN ISSUE:  For some errors caught during
+                         * raw command execution, interactive users will not
+                         * get a prompt to tell them to proceed.
+                         */
                         if (token.val == null) token.val = "";
+                        /*
+                         * Don't have time know to figure out whether it would
+                         * ever be useful to send just (non-zero) whitespace
+                         * to the DB.  Prohibiting for now.
+                         */
+                        if (token.val.trim().length() < 1) {
+                            throw new SqlToolError(
+                                    rb.getString(SqltoolRB.RAW_EMPTY));
+                        }
                         int receivedType = token.type;
                         token.type = Token.SQL_TYPE;
                         if (setBuf(token) && receivedType == Token.RAW_TYPE
                                 && interactive) {
+                            stdprintln("");
                             stdprintln(rb.getString(
                                     SqltoolRB.RAW_MOVEDTOBUFFER));
+                            stdprint(primaryPrompt);
+                            // All of these stdprint*'s are to work around a
+                            // very complicated issue where the Scanner
+                            // has already displayed the next prompt before
+                            // we can display our status message.
                         }
                         if (receivedType == Token.RAWEXEC_TYPE) {
                             historize();
@@ -646,7 +673,8 @@ public class SqlFile {
                         continue;
                     default:
                         throw new RuntimeException(
-                                "Internal error.  Unexpected token type: "
+                                "Internal assertion failed.  "
+                                + "Unexpected token type: "
                                 + token.getTypeString());
                 }
             } catch (BadSpecial bs) {
@@ -679,7 +707,7 @@ public class SqlFile {
                         }));
                 // It's possible that we could have
                 // SQLException.getMessage() == null, but if so, I think
-                // it reasonsable to show "null".  That's a DB inadequacy.
+                // it reasonable to show "null".  That's a DB inadequacy.
 
                 if (!continueOnError) {
                     throw se;
@@ -1024,7 +1052,8 @@ public class SqlFile {
                         break;
                     default:
                         throw new RuntimeException(
-                            "Internal error.  Appending to unexpected type: "
+                            "Internal assertion failed.  "
+                            + "Appending to unexpected type: "
                             + newToken.getTypeString());
                 }
                 scanner.setCommandBuffer(newToken.val);
@@ -1088,9 +1117,9 @@ public class SqlFile {
 
                     // Note that this pattern does not include the leading :.
                     if (m.groupCount() < 3 || m.groupCount() > 4) {
-                        // Assertion failed
                         throw new RuntimeException(
-                                "Internal error.  Matched substitution "
+                                "Internal assertion failed.  "
+                                + "Matched substitution "
                                 + "pattern, but captured "
                                 + m.groupCount() + " groups");
                     }
@@ -1199,7 +1228,7 @@ public class SqlFile {
         if (m.groupCount() < 1 || m.groupCount() > 2) {
             // Failed assertion
             throw new RuntimeException(
-                    "Internal error.  Pattern matched, yet captured "
+                    "Internal assertion failed.  Pattern matched, yet captured "
                     + m.groupCount() + " groups");
         }
 
@@ -1297,7 +1326,7 @@ public class SqlFile {
                                 dsvSkipCols.split(dsvColDelim, -1);
                         // Don't know if better to use dsvColDelim or
                         // dsvColSplitter.  Going with former, since the
-                        // latter should not need to set for eXporting
+                        // latter should not need to be set for eXporting
                         // (only importing).
                         for (int i = 0; i < skipColsArray.length; i++) {
                             skipCols.add(skipColsArray[i].trim().toLowerCase());
@@ -1586,19 +1615,20 @@ public class SqlFile {
                 return;
 
             case '!' :
-                // N.b. This DOES NOT HANDLE UNIX shell wildcards, since there
-                // is no UNIX shell involved.
-                // Doesn't make sense to incur overhead of a shell without
-                // stdin capability.
-                // Could pipe System.in to the forked process, but that's
-                // probably not worth the effort due to Java's terrible
-                // and inescapable System.in buffering.  I.e., the forked
-                // program or shell wouldn't get stdin until user hits Enter.
-
-                // I'd like to execute the user's default shell if they
-                // ran "\!" with no argument, but (a) there is no portable
-                // way to determine the user's default or login shell; and
-                // (b) shell is useless without stdin ability.
+                /* N.b. This DOES NOT HANDLE UNIX shell wildcards, since there
+                 * is no UNIX shell involved.
+                 * Doesn't make sense to incur overhead of a shell without
+                 * stdin capability.
+                 * Could pipe System.in to the forked process, but that's
+                 * probably not worth the effort due to Java's terrible
+                 * and inescapable System.in buffering.  I.e., the forked
+                 * program or shell wouldn't get stdin until user hits Enter.
+                 *
+                 * I'd like to execute the user's default shell if they
+                 * ran "\!" with no argument, but (a) there is no portable
+                 * way to determine the user's default or login shell; and
+                 * (b) shell is useless without stdin ability.
+                 */
 
                 InputStream stream;
                 byte[]      ba         = new byte[1024];
@@ -1846,7 +1876,7 @@ public class SqlFile {
             }
             if (foreachM.groupCount() != 2) {
                 throw new RuntimeException(
-                        "Internal error.  "
+                        "Internal assertion failed.  "
                         + "foreach pattern matched, but captured "
                         + foreachM.groupCount() + " groups");
             }
@@ -1915,7 +1945,7 @@ public class SqlFile {
             }
             if (ifwhileM.groupCount() != 1) {
                 throw new RuntimeException(
-                        "Internal error.  "
+                        "Internal assertion failed.  "
                         + "if/while pattern matched, but captured "
                         + ifwhileM.groupCount() + " groups");
             }
@@ -2705,25 +2735,26 @@ public class SqlFile {
     private void processSQL() throws SQLException, SqlToolError {
         if (buffer == null)
             throw new RuntimeException(
-                    "Internal error.  No buffer in processSQL().");
+                    "Internal assertion failed.  No buffer in processSQL().");
         if (buffer.type != Token.SQL_TYPE)
             throw new RuntimeException(
-                    "Internal error.  Token type " + buffer.getTypeString()
-                            + " in processSQL().");
+                    "Internal assertion failed.  "
+                    + "Token type " + buffer.getTypeString()
+                    + " in processSQL().");
         // No reason to check autoCommit constantly.  If we need to roll
         // back, we will check the autocommit state at that time.
         lastSqlStatement    = (plMode ? dereference(buffer.val, true)
                                       : buffer.val);
-        // WHY IS THIS VAR "last" SqlStatement?  Isn't it the "current"
-        // SQL statement???
+        // N.b. "lastSqlStatement" is a misnomer only inside this method.
+        // Outside of this method, this var references the "last" SQL
+        // statement which we attempted to execute.
         if ((!permitEmptySqlStatements) && buffer.val == null
                 || buffer.val.trim().length() < 1) {
             throw new SqlToolError(rb.getString(SqltoolRB.SQLSTATEMENT_EMPTY));
             // There is nothing inherently wrong with issuing
             // an empty command, like to test DB server health.
             // But, this check effectively catches many syntax
-            // errors early, and the DB check can be done by
-            // sending a comment like "// comment".
+            // errors early.
         }
         Statement statement = null;
 
@@ -3405,7 +3436,8 @@ public class SqlFile {
                 break;
             default:
                 throw new RuntimeException(
-                        "Internal error.  Attempted to add command type "
+                        "Internal assertion failed.  "
+                        + "Attempted to add command type "
                         + newBuffer.getTypeString() + " to buffer");
         }
         buffer = new Token(newBuffer.type, new String(newBuffer.val),
@@ -3824,6 +3856,8 @@ public class SqlFile {
                                          : (new String(ba, cs));
             } catch (UnsupportedEncodingException uee) {
                 // Should not abort the program entirely, which this will do.
+                // TODO:  Make a localized message explaining that
+                // Encoding failed, and throw an IOException with that msg.
                 throw new RuntimeException(uee);
             } catch (RuntimeException re) {
                 throw new IOException(rb.getString(SqltoolRB.READ_CONVERTFAIL));
@@ -4939,19 +4973,21 @@ public class SqlFile {
         Token token;
         TokenList newTS = new TokenList();
         Pattern endPattern = Pattern.compile("end\\s+" + nestingCommand);
+        String subNestingCommand;
 
         while ((token = scanner.yylex()) != null) {
             if (token.type == Token.PL_TYPE
                     && endPattern.matcher(token.val).matches()) {
                 return newTS;
             }
-            nestingCommand = nestingCommand(token);
-            if (nestingCommand != null) {
-                token.nestedBlock = seekTokenSource(nestingCommand);
+            subNestingCommand = nestingCommand(token);
+            if (subNestingCommand != null) {
+                token.nestedBlock = seekTokenSource(subNestingCommand);
             }
             newTS.add(token);
         }
-        throw new BadSpecial("Unterminated block at end of file");
+        throw new BadSpecial(rb.getString(
+                SqltoolRB.PL_BLOCK_UNTERMINATED, nestingCommand));
     }
 
     /**
@@ -4967,14 +5003,14 @@ public class SqlFile {
         if (defToken.val.length() < 1) throw new BadSpecial("Run '/?' for help");
         switch (defToken.val.charAt(0)) {
             case '?':
-                stdprintln("/?                    Display this help");
-                stdprintln("/=                    Display all macros");
+                stdprintln("/?                     Display this help");
+                stdprintln("/=                     Display all macros");
                 stdprintln("/= name :[appendage]   "
                       + "Define a macro equal to the current buffer contents");
                 stdprintln("/= name command       "
               + "Define a macro equal specified SQL/*/\\ command (w/out ;)");
-                stdprintln("/name [appendage]     Recall macro to buffer");
-                stdprintln("/name [appendage];    Execute macro");
+                stdprintln("/name [appendage]      Recall macro to buffer");
+                stdprintln("/name [appendage];     Execute macro");
                 break;
             case '=':
                 String defString = defToken.val;
@@ -5019,7 +5055,8 @@ public class SqlFile {
                 }
                 if (matcher == null)
                     throw new RuntimeException(
-                    "Internal error.  Somehow no Macro def pattern matched.");
+                    "Internal assertin failed.  "
+                    + "Somehow no Macro def pattern matched.");
                 if (newVal.length() < 1)
                     throw new BadSpecial("No content specified for macro");
                 if (newVal.charAt(newVal.length() - 1) == ';')

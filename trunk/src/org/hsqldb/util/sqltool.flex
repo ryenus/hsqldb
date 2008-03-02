@@ -1,7 +1,42 @@
+/*
+ * @(#)$Id$
+ *
+ * Copyright (c) 2001-2008, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 package org.hsqldb.util.sqltool;
 
 import java.io.PrintStream;
 import org.hsqldb.util.SqlFile.ToolLogger;
+import org.hsqldb.util.SqltoolRB;
 
 %%
 // Defaults to Yylex
@@ -14,9 +49,33 @@ import org.hsqldb.util.SqlFile.ToolLogger;
     private PrintStream psStd = System.out;
     private String magicPrefix = null;
     private int requestedState = YYINITIAL;
+    private String RAW_LEADIN_MSG = null;
+    private SqltoolRB        rb               = null;
 
     public void setRequestedState(int requestedState) {
         this.requestedState = requestedState;
+    }
+
+    /**
+     * Set the message ResourceBundle, which should be validated elsewhere.
+     * Really need a way to validate that this is called before using the
+     * scanner, like Spring's init-method property.
+     * For now, will just check explicitly before using.
+     */
+    public void setResourceBundle(SqltoolRB rb) {
+        this.rb = rb;
+        RAW_LEADIN_MSG = rb.getString(SqltoolRB.RAW_LEADIN);
+    }
+
+    private void rawLeadinPrompt() {
+        if (!interactive) {
+            return;
+        }
+        if (RAW_LEADIN_MSG == null) {
+            throw new RuntimeException("Internal assertion failed.  "
+                + "Scanner's message Resource Bundle not initialized properly");
+        }
+        psStd.println(RAW_LEADIN_MSG);
     }
 
     // Trims only the end
@@ -118,8 +177,8 @@ import org.hsqldb.util.SqlFile.ToolLogger;
  * SQL-Embedded comments are passed to SQL engine as part of SQL command */
 
 /* Expressions could be simplified by using "." instead of "[^\r\n]", but
- * the docs say that "." means "[^n]", therefore this would mess up DOS-style
- * line endings. */
+ * the JFlex docs say that "." means "[^n]", therefore this would mess up
+ * DOS-style line endings. */
 
 LINETERM_MAC = \r|\n|\r\n
 SQL_STARTER = [^\n\r\t\f \\*:\"\']
@@ -149,10 +208,6 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 {LINETERM_MAC} {
     prompt();
 }
-/*
- * TODO:  Comments ignored in SqlTool commands?  Check this!
- *        To implement, would need a sqlToolBuffer and IN_SQLTOOL xstate.
- */
 [--][^\n\r]* {
     debug ("-- Comment", yytext());
 }
@@ -163,6 +218,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 [Dd][Ee][Cc][Ll][Aa][Rr][Ee] [\f\t ]* {LINETERM_MAC} {
     setCommandBuffer(strippedYytext());
     yybegin(RAW);
+    rawLeadinPrompt();
     if (rawPrompt != null) prompt(rawPrompt);
 }
 \* {
@@ -202,6 +258,7 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
     if (commandBuffer.toString().trim().equals(".")) {
         commandBuffer.setLength(0);
         yybegin(RAW);
+        rawLeadinPrompt();
         if (rawPrompt != null) prompt(rawPrompt);
     } else {
         requestedState = YYINITIAL;
@@ -279,12 +336,10 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
         commandBuffer.append(yytext());
     }
     \' {
-        /* TODO:  Find out if can escape " in SQL commands and handle! */
         commandBuffer.append(yytext());
         yybegin(SQL_SINGLE_QUOTED);
     }
     \" {
-        /* TODO:  Find out if can escape " in SQL commands and handle! */
         commandBuffer.append(yytext());
         yybegin(SQL_DOUBLE_QUOTED);
     }

@@ -11,7 +11,7 @@ the setting is applicable.  Default value/behavior is in [square brackes].
     *DSV_COL_SPLITTER  \m    Column input delimiter regexp.   ["\|"]
     *DSV_COL_DELIM     \x    Column output delimiter.   ["|"]
     *DSV_ROW_SPLITTER  \m    Row input delimiter regexp.   ["\r\n|\r|\n"]
-    *DSV_ROW_DELIM     \x    Row delimiter
+    *DSV_ROW_DELIM     \x    Row output delimiter
                               [OS-dependent (Java line.separator)]
     *NULL_REP_TOKEN    \m\x  String to represent database null.   ["[null]"]
     *DSV_TARGET_FILE   \x    File which exports will write to
