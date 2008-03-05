@@ -45,6 +45,25 @@
   and prefixes in the form of Java-style comments. The prefixes indicate what
   the expected result should be.</para>
 
+  <para>The class <classname>org.hsqldb.test.TestScriptRunner</classname> is
+    a more general program which you can use to test any script files which
+    you specify (with scripts of the same exact format as described below).
+    For example,
+    <screen>
+          java org.hsqldb.test.TestScriptRunner --urlid=mem script1.tsql script2.sql</screen>
+     You must have the HSQLDB classes, including the util and test classes,
+     in your CLASSPATH.
+     The urlid must be set up in an RC file as explained in the
+     <link linkend='auth-section' endterm='auth-title'/> section.
+     Use the <literal>rcfile=</literal> argument to specify an RC file other
+     than the default of <filename>testscriptrunner.rc</filename> in the
+     current directory.
+     To see all invocation possibilities, just run TestScriptRunner with no
+     arguments at all.
+     TestScriptRunner can run tests sequentially (the default) or in
+     simultaneous asynchronous threads.
+  </para>
+
   <itemizedlist>
     <listitem>
       <para>Comment lines must start with -- and are ignored</para>
@@ -139,6 +158,47 @@
     </listitem>
 
     <listitem>
+      <simpara>The /*d*/ directive just displays the supplied text.</simpara>
+      <informalexample>
+        <programlisting>
+/*d*/ Some message</programlisting>
+      </informalexample>
+    </listitem>
+
+    <listitem>
+        <simpara>The /*w MILLIS*/ directive causes the test to Wait for a
+          specified number of millisedonds.</simpara>
+      <informalexample>
+        <programlisting>
+/*w 1000*/ Optional message</programlisting>
+      </informalexample>
+    </listitem>
+    <listitem>
+        <simpara>The /*w ENFORCE_SEQUENCE WAITER_NAME*/ directive causes the
+          test to Wait for the specified <emphasis>Waiter</emphasis>.
+          A waiter is just name that is used to associate a /*w*/ directive
+          to its corresponding /*p*/  directive.
+          The ENFORCE_SEQUENCE argument must be set to <literal>true</literal>
+          or <literal>false</literal> to specify whether to fail unless the
+          /*p*/ command runs after the /*w*/ command is waiting.
+        </simpara>
+      <informalexample>
+        <programlisting>
+/*w true script4*/ Optional message</programlisting>
+      </informalexample>
+    </listitem>
+
+    <listitem>
+        <simpara>The /*p ENFORCE_SEQUENC WAITER_NAME*/ directive is the
+          peer directive to /*w*/, which causes a waiting thread to Proceed.
+        </simpara>
+      <informalexample>
+        <programlisting>
+/*p true script4*/ Optional message</programlisting>
+      </informalexample>
+    </listitem>
+
+    <listitem>
       <para>All the options are lowercase letters. During development, an
       uppercase can be used for a given test to exclude a test from the test
       run. The utility will just report the test blocks that have been
@@ -147,6 +207,14 @@
     </listitem>
   </itemizedlist>
 
-  <para>See the TestSelf*.txt files in the /testrun/hsqldb/ directory for
-  actual examples.</para>
+  <simpara>See the TestSelf*.txt files in the /testrun/hsqldb/ directory for
+  actual examples.</simpara>
+  <para>The String <literal>${timestamp}</literal> may be used in script
+    messages (like in /*d*/, /*w*/, /*p*/).
+    It expands to the current time, down to the second.  For example,
+      <informalexample>
+      <programlisting>
+/*d*/ It is now ${timestamp}</programlisting>
+      </informalexample>
+  </para>
 </appendix>

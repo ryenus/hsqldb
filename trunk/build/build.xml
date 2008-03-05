@@ -1219,11 +1219,13 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
         </then></if>
         <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop">
             <classpath>
+                <!-- Directory not present in FOP v. 5 distros.
                 <fileset dir='${fop.home}/build' includes='fop*.jar'/>
+                -->
                 <!-- See the FOP docs for why these are needed, and where
                      to get them from -->
                 <fileset dir='${fop.home}/lib'
-                         includes='avalon*.jar, batik*.jar, jimi*.jar'/>
+             includes='avalon*.jar, batik*.jar, jimi*.jar, fop.jar, fop-*.jar'/>
             </classpath>
         </taskdef>
         <property name='_fop_initted' value='true'/>
@@ -1259,7 +1261,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
                    file='docsrc/${book}/${book}.css'/>
         <property name='_css' value='../shared.css'/>
         <property name='_ext' value='.html'/>
-        <style
+        <xslt
                basedir='docsrc/${book}'
                destdir='doc/${book}'
                force='yes'
@@ -1271,7 +1273,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
             <param name='navig.graphics.path' expression='navicons/'/>
             <param name='navig.graphics.extension' expression='.gif'/>
             <param name='chunk.section.depth' expression='0'/>
-        </style>
+        </xslt>
     </target>
 
     <target name='-foXslt' depends='-checkXslt'>
@@ -1281,7 +1283,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
         <if><not><available type='file' file='${style.fo}'/></not><then>
             <fail message="DocBook style sheet '${style.fo}' not found."/>
         </then></if>
-        <style
+        <xslt
                basedir='docsrc/${book}'
                destdir='tmp/docwork/${book}'
                force='yes'
@@ -1293,7 +1295,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
             <param name='tablecolumns.extension' expression='0'/>
             <param name='textinsert.extension' expression='1'/>
             <param name='fop.extensions' expression='1'/>
-         </style>
+         </xslt>
     </target>
 
     <target name='clean-doc' description='Remove derived documentation files'
