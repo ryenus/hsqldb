@@ -5,7 +5,7 @@ Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \i file/path.sql     Include/execute commands from external file
     \d{tvsiSanur*?} [substr]  List objects of specified type:
   (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)
-    \d OBJECTNAME [subs] Describe table or view columns
+    \d OBJECTNAME [regx] Describe table or view columns
     \o [file/path.html]  Tee (or stop teeing) query output to specified file
     \H                   Toggle HTML output mode
     \! COMMAND [ARGS]    Execute external program (no support for stdin)
