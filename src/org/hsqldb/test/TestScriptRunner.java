@@ -35,10 +35,10 @@ class TestScriptRunner {
         + "--urlid=URLID script1.tsql script2.tsql" + LS + LS
         + "OPTIONAL SWITCHES:" + LS
         + "    --verbose        Obviously..." + LS
-        + "    --threads        Each script runs in a parallel thread (dflt. sequential."
+        + "    --threads        Each script runs in a parallel thread (dflt. sequential)."
         + LS
         + "    --rcfile=/path/to/file.rc   (Defaults to '" + DEFAULT_RCFILE
-        + "'" + LS
+        + "')" + LS
         + "    --populate       Use TestCacheSize class to populate one database" + LS
         + "    --sqltool=URLID  Invoke an interactive SqlTool session on given URLID" + LS
         + "(This last is useful for troubleshooting and interactive script dev).";
