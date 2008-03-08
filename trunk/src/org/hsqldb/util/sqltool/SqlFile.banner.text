@@ -18,5 +18,6 @@ All other lines comprise SQL Statements (or comments).
   without executing).
 After turning on variable expansion with command "*" (or any other PL
 command), PL variables may be used in most commands like so:  *{PLVARNAME}.
-Be aware when editing commands from History or Buffer, that command-type
-prefixes (*, \) are fixed.  I.e. you only edit the following command text.
+Be aware when using regular expressions on commands, that the regex.s
+operate only on the command text after the */\ prefix, if any.
+
