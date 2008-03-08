@@ -861,6 +861,50 @@ java org.hsqldb.util.SqlTool urlid</screen>
             bypass SqlTool processing in order to enter a chunk of text for
             direct transmission to the database engine.
         </simpara></important>
+        <section><title>SqlTool Command-Line Editing</title>
+        <para>
+            If you are really comfortable with grep, perl, or vim, you will
+            instantly be an expert with SqlTool command-line editing.
+            Due to limitations of Java I/O, we can't use up-arrow recall,
+            which many people are used to from DosKey and Bash shell.
+            If you don't know how to use regular expressions, and don't want
+            to learn how to use them, then just forget command-recall.
+            <itemizedlist>
+                <title>Basic command entry (i.e., without regexps)</title>
+                <listitem><simpara>
+                    Just type in your command, and use the backspace-key to
+                    fix mistakes on the same line.
+                </simpara></listitem> <listitem><simpara>
+                    If you goof up a multi-line command, just hit the ENTER
+                    key twice to start over.  (The command will be moved to
+                    the buffer where it will do no harm).
+                </simpara></listitem> <listitem><simpara>
+                    Use the ":h" command to view your command history.
+                    You can use your terminal emulator scroll bar and copy
+                    and paste facility to repeat commands.
+                </simpara></listitem> <listitem><simpara>
+                    As long as you don't need to change text that is already
+                    in a command, you can easily repeat commands from the
+                    history like ":14;" to re-run command number 14 from
+                    history.
+                </simpara></listitem> <listitem><simpara>
+                    Expanding just a bit from the previous item, you can
+                    add on to a previous command by running a command like
+                    ":14a" (where the "a" means <emphasis>append</emphasis>).
+                </simpara></listitem> <listitem><simpara>
+                   See the <link linkend='macro-section' endterm='macro-title'/>
+                    section about how to set and use macros.
+                </simpara></listitem>
+            </itemizedlist>
+        </para>
+        <simpara>
+            If you use regular expressions to search through your command
+            history, or to modify commands, be aware that the command type
+            of commands in history are fixed.
+            You can search and modify the text after a \ or * prefix (if any),
+            but you can't search on or change a prefix (or add or remove one).
+        </simpara>
+        </section>
         <section><title>Command Types</title>
         <simpara>
             When you are typing into SqlTool, you are always typing part of
@@ -1220,7 +1264,8 @@ java org.hsqldb.util.SqlTool urlid</screen>
             <varlistentry><term>:a</term><listitem><simpara>
                 Enter append mode with the contents of the edit buffer (by
                 default) as the current command.
-                When you hit ENTER, things will be exactly as if you 
+                When you hit ENTER, things will be nearly exactly the same
+                as if you 
                 physically re-typed the command that is in the edit buffer.
                 Whatever lines you type next will be appended to the immediate
                 command.
@@ -1247,6 +1292,12 @@ java org.hsqldb.util.SqlTool urlid</screen>
                 <literal>SELECT x FROM mytab ORDER BY y</literal>.
                 Notice that in the latter case the append text begins with a
                 space character.
+            </simpara><simpara>
+                You may notice that you can't use the left-arrow or backspace
+                key to back up over the original text.
+                This is due to Java and portability constraints.
+                If you want to edit existing text, then you shouldn't use the
+                Append command.
             </simpara></listitem></varlistentry>
             <varlistentry>
                 <term>:s/from regex/to string/switches</term>
@@ -2152,11 +2203,18 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
         <section id='macro-section'>
             <title id='macro-title'>Macros</title>
             <simpara>
-                Macros are just shortcuts, but whereas PL variables can
-                be used as shortcuts for phrases or words, macros are
-                shortcuts for SQL, Special, or PL commands.
+                Macros are just shortcut commands that you can run in place of
+                the full commands which they stand for.
+                Macros stand for SQL, Special or PL commands, whereas PL
+                variables can only be used for elements within a command.
                 It is very easy to define, list, and use macros.
                 Run the command "/?" to see how.
+                If you often run a particular query, then for the effort of
+                about 5 extra keystrokes, you can define a macro for it so 
+                that you can enter just "/q;" to run it, whether the original
+                query is 1 line or 40 lines.  (You can use any name in place
+                of "q", and the target command can be any kind of SQL,
+                special, or PL command).
             </simpara> <para>
                 When you run/use a macro, you can append to the macro value.
                 So, if you define
