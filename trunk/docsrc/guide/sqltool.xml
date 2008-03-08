@@ -2217,6 +2217,8 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
                 special, or PL command).
             </simpara> <para>
                 When you run/use a macro, you can append to the macro value.
+                <emphasis>appendage</emphasis> in the "/?" listing shows
+                where you can append additional text to the original command.
                 So, if you define
                 <programlisting>
           sql> /= myworkers  SELECT name FROM employees</programlisting>
@@ -2231,10 +2233,23 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
                 <programlisting>
           sql> /= notate  Work completed by 
           sql> /notate Blaine;</programlisting>
-                .  If you don't type the ;, you will just recall the command
-                to the buffer (from which you can execute it, if you wish to).
+                If you don't type the ;, you will just recall the command
+                to the buffer (from which you can execute or edit it, if
+                you wish to).
+            </simpara> <simpara>
+                To make a macro for a mult-line SQL statement, you use the
+                "/= name :" construct.
+                First, get the target command into the command buffer.
+                If you have already run the command, then run ":h" to see the
+                command number and load it to the buffer like ":13".
+                If you haven't run the command yet, then just enter the
+                command, but end it with a blank line (and no semi-colon).
+                You can check the buffer with ":b" to make sure it is what
+                you want.
+                Then just run "/= name :" to define a macro with name "name".
             </simpara>
         </section>
+        <section><title>PL Sample</title>
             <simpara>
                 Here is a short SQL file that gives the specified user write
                 permissions on some application tables.
@@ -2272,6 +2287,7 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
                 other variable, were set, but we don't want to depend upon 
                 that).
             </simpara>
+        </section>
         <section>
             <title>Logical Expressions</title>
             <simpara>
