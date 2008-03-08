@@ -51,6 +51,9 @@ import org.hsqldb.util.SqltoolRB;
     private int requestedState = YYINITIAL;
     private String RAW_LEADIN_MSG = null;
     private SqltoolRB        rb               = null;
+    private boolean specialAppendState = false;
+    // This last is needed for very unique check needed when appending to
+    // a SQL command.  Only applies to interactive mode.
 
     public void setRequestedState(int requestedState) {
         this.requestedState = requestedState;
@@ -156,6 +159,8 @@ import org.hsqldb.util.SqltoolRB;
 
     public void prompt() {
         if (sqltoolPrompt != null) prompt(sqltoolPrompt);
+        specialAppendState = (interactive && magicPrefix != null);
+        // This tells scanner that if SQL input "looks" empty, it isn't.
         if (interactive && magicPrefix != null) {
             psStd.print(magicPrefix);
             magicPrefix = null;
@@ -308,42 +313,50 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
 }
 <SQL> {
     ^[\f\t ]* {LINETERM_MAC} {
-        if (interactive) {
+        if (interactive && !specialAppendState) {
             requestedState = YYINITIAL;
             yybegin(PROMPT_CHANGE_STATE);
             pushbackTrim();
             trimBuffer();
             return new Token(Token.BUFFER_TYPE, commandBuffer, yyline);
         } else {
+            specialAppendState = false;
             commandBuffer.append(yytext());
         }
     }
     {TRADITIONAL_COMMENT} {
+        specialAppendState = false;
         commandBuffer.append(yytext());
         /* embedded comment may disable opening quotes and closing ; */
         debug("SQL /**/ Comment", yytext());
     }
     "--" ~{LINETERM_MAC} {
+        specialAppendState = false;
         commandBuffer.append(yytext());
         /* embedded comment may disable opening quotes and closing ; */
         debug("SQL -- Comment", yytext());
     }
     {LINETERM_MAC} {
+        specialAppendState = false;
         commandBuffer.append(yytext());
         if (sqlPrompt != null) prompt(sqlPrompt);
     }
     [^\"\';] {
+        specialAppendState = false;
         commandBuffer.append(yytext());
     }
     \' {
+        specialAppendState = false;
         commandBuffer.append(yytext());
         yybegin(SQL_SINGLE_QUOTED);
     }
     \" {
+        specialAppendState = false;
         commandBuffer.append(yytext());
         yybegin(SQL_DOUBLE_QUOTED);
     }
     ; {
+        specialAppendState = false;
         yybegin(YYINITIAL);
         return new Token(Token.SQL_TYPE, commandBuffer, yyline);
     }
