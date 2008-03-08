@@ -931,27 +931,27 @@ examples:
     <!-- Note that we do not generate postscript by default -->
     <target name='docbook'
         description='Generate all DocBook docs in HTML and PDF formats'
-            depends='docbooks-html, docbooks-chunk, docbooks-pdf'/>
+            depends='docbook-html, docbook-chunk, docbook-pdf'/>
 
-    <target name='docbooks-html' depends='-initContrib'
+    <target name='docbook-html' depends='-initContrib'
             description='Generate all DocBook non-chunk HTML output'>
         <antcall inheritall='false' target='-ddIterate'>
             <param name='outputType' value='html'/>
         </antcall>
     </target>
-    <target name='docbooks-chunk' depends='-initContrib'
+    <target name='docbook-chunk' depends='-initContrib'
             description='Generate all DocBook Chunk HTML output'>
         <antcall inheritall='false' target='-ddIterate'>
             <param name='outputType' value='chunk'/>
         </antcall>
     </target>
-    <target name='docbooks-pdf' depends='-initContrib'
+    <target name='docbook-pdf' depends='-initContrib'
             description='Generate all DocBook PDF output'>
         <antcall inheritall='false' target='-ddIterate'>
             <param name='outputType' value='pdf'/>
         </antcall>
     </target>
-    <target name='docbooks-ps' depends='-initContrib'
+    <target name='docbook-ps' depends='-initContrib'
             description='Generate all DocBook Postscript output'>
         <antcall inheritall='false' target='-ddIterate'>
             <param name='outputType' value='ps'/>
