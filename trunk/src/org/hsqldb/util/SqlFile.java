@@ -1058,7 +1058,6 @@ public class SqlFile {
                             + newToken.getTypeString());
                 }
                 scanner.setCommandBuffer(newToken.val);
-System.err.println("** Scanner buffer set to (" + newToken.val + ')');
 
                 return;
 
