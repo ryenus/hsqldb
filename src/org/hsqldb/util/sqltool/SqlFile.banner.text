@@ -19,5 +19,5 @@ All other lines comprise SQL Statements (or comments).
 After turning on variable expansion with command "*" (or any other PL
 command), PL variables may be used in most commands like so:  *{PLVARNAME}.
 Be aware when using regular expressions on commands, that the regex.s
-operate only on the command text after the */\ prefix, if any.
+operate only on the command text after the * or \ prefix, if any.
 

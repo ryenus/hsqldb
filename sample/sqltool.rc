@@ -15,6 +15,10 @@
 # your RC file.
 # See the documentation for SqlTool for various ways to use this file.
 
+# The only feature added recently is the optional "transiso" setting,
+# which may be set to an all-caps transaction isolation level as listed
+# in the Java API Spec for java.sql.Connection.
+
 # A personal Memory-Only (non-persistent) database.
 urlid mem
 url jdbc:hsqldb:mem:memdbid
@@ -26,6 +30,7 @@ urlid personal
 url jdbc:hsqldb:file:${user.home}/db/personal;shutdown=true
 username sa
 password
+transiso TRANSACTION_READ_COMMITTED
 # When connecting directly to a file database like this, you should 
 # use the shutdown connection property like this to shut down the DB
 # properly when you exit the JVM.
