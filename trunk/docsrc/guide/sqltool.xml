@@ -143,15 +143,19 @@
             IBM, JRockit, etc.), but I've had no reports of problems with
             them, and SqlTool uses none of the Sun-proprietary classes
             directly.
-            Some of the examples below use quoting which works exactly
-            as-is for any Bourne-compatible UNIX shell.
-            (Only line-continuation would need to be changed for C-compatible
-            UNIX shells).
-            I have not yet tested these commands on Windows, and I doubt
-            whether the quoting will work just like this (though it is
-            possible).
-            SqlTool is still a very useful tool even if you have no quoting
-            capability at all.
+        </simpara> <simpara>
+            The command-line examples in this chapter work as given on all
+            platforms (if you substitute in a normalized path in place of
+            <literal>$HSQLDB_HOME</literal>), except where noted otherwise.
+            When doing any significant command-line work on Windows
+            (especially shell scripting), you're better off to completely
+            avoid paths with spaces or funny characters.
+            If you can't avoid it, use double-quotes and expect problems.
+            As with any Java program, file or directory paths on the command
+            line after "java" can use forward slashes instead of back slashes
+            (this goes for System properties and the CLASSPATH variable too).
+            I use forward slashes because they can be used consistently, and
+            I don't have to contort my fingers to type them :).
         </simpara> <simpara>
             If you are using SqlTool from a HSQLDB distribution of version
             1.8.x or earlier, you should use the documentation with that
@@ -380,8 +384,23 @@
                     understand that you need to use the actual path to your
                     own <filename>hsqldb.jar</filename> file.
                     (Unix users may set a real env. variable if they wish,
-                    in which case the examples may be used verbatim).
-                </simpara></step><step><para>
+                    in which case the examples may be used verbatim;
+                    Window users may do the same, but will need to dereference
+                    the variables like <literal>%THIS%</literal> instead of
+                    like <literal>$THIS</literal>).
+                </simpara><warning><simpara>
+                    My examples assume there are no spaces or funky characters
+                    in your file paths.
+                    This avoids bugs with the Windows cmd shell and makes for
+                    simpler syntax all-around.
+                    If you insist on using directories with spaces or shell
+                    metacharacters (including standard Windows home directories
+                    like <filename>C:\Documents and Settings\blaine</filename>),
+                    you will need to double-quote arguments containing these
+                    paths.
+                    (On UNIX you can alternatively use single-quotes to avoid
+                    variable dereferencing at the same time).
+                </simpara></warning></step><step><para>
                     If you are just starting with SqlTool, you are best off
                     running your SqlTool command from a shell
                     <emphasis>command-line</emphasis> (as opposed to by
@@ -411,7 +430,7 @@
                 </informalexample>
                     for interactive use, or
                 <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql='SQL statement;' mem</screen>
+    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql="SQL statement;" mem</screen>
                     </informalexample>
                     or
                     <informalexample><screen>
@@ -801,15 +820,15 @@ java org.hsqldb.util.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
         <para>
             Here are UNIX and Windows examples where somebody wants to use the
             new SqlTool with their older HSQLDB database, as well as with
-            Postgresql and a local application.  Windows Cmd example:
+            Postgresql and a local application.  Bourne-compatible shell example:
             <informalexample><screen>
 CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/classes:/usr/local/lib/pg.jdbc3.jar
 export CLASSPATH
 java org.hsqldb.util.SqlTool urlid</screen>
             </informalexample>
-            Postgresql and a local application.  Bourne-compatible example:
+            Postgresql and a local application.  Windows Cmd shell example:
             <informalexample><screen>
-set CLASSPATH=/path/to/hsqldbutil.jar;c:/home/bob/classes:/javalibs/pg.jdbc3.jar
+set CLASSPATH=/path/to/hsqldbutil.jar;c:/home/bob/classes;/javalibs/pg.jdbc3.jar
 java org.hsqldb.util.SqlTool urlid</screen>
             </informalexample>
         </para>
@@ -1560,9 +1579,9 @@ java org.hsqldb.util.SqlTool urlid</screen>
             is truncated to 100 entries, since its utility comes from being 
             able to quickly view the history list.
             You can change the history length by setting the system property
-            <literal>sqltool.historyLength</literal> to an integer like
-            <screen>
-java -Dsqltool.historyLength=100 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid</screen>
+            <literal>sqltool.historyLength</literal> to the desire integer
+            value (using any of the System Property mechanisms provided by
+            Java).
             If there is any demand, I'll make the setting of this value more
             convenient.
         </para> <simpara>
@@ -1632,7 +1651,7 @@ java -Dsqltool.historyLength=100 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid</screen>
                 directly from the comand-line or from a shell script without an 
                 SQL file, like this.
             <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql='SQL statement;' urlid</screen>
+    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql="SQL statement;" urlid</screen>
             </informalexample>
             <note><simpara>
                 The <literal>--sql</literal> automatically implies
@@ -1657,6 +1676,13 @@ java -Dsqltool.historyLength=100 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid</screen>
         SQL statement three;
     ' urlid</screen>
             </informalexample>
+            </para><note><simpara>
+                The multi-line examples in this section will only work as-is
+                with a Bourne-compatible shell.
+                With some ugliness they can be converted to C shell.
+                For Windows, you are better off to stick with SQL files for
+                multi-line input.
+            </simpara></note><para>
                 If you don't need feedback, just separate the SQL commands
                 with semicolons and the entire expression will be
                 <link linkend='chunk-section'>chunked</link>.
@@ -1685,8 +1711,6 @@ java -Dsqltool.historyLength=100 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid</screen>
             <informalexample><screen>
 java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&amp;1</screen>
             </informalexample></para><simpara>
-                (Skip the "2>&amp;1" if you're on Windows).
-            </simpara><simpara>
                 You can also execute SQL files from an interactive session with
                 the "\i"' Special Command,
                 but be aware that the default behavior in an interactive 
@@ -1733,10 +1757,16 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&amp;1</scre
         create user tomcat password "x";
     ' mem path/to/hsqldb/sample/sample.sql</programlisting>
             </informalexample>
-            </para><simpara>
+            This shows how you can mix SQL on the command line, and SQL inside
+            an SQL file.
+            </para><note><simpara>
+                The example above uses Bourne shell syntax.
+                C shell syntax would be similar.
+                You would need to use an SQL file to accomplish this on Windows.
+            </simpara></note> <simpara>
                 (The <literal>--sql="create...;"</literal> arguments create an
                 account which the script uses).
-                You should see error messages betwen the
+                You should see error messages between the
                 <literal>Continue-on-error...true</literal> and
                 <literal>Continue-on-error...false</literal>.  The script
                 purposefully runs commands that might fail there.
@@ -1772,7 +1802,11 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&amp;1</scre
             <example><title>Piping input into SqlTool</title><screen>
         echo "Some SQL commands with '$VARIABLES';" |
         java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid -</screen>
-            </example></para>
+            </example>
+            For a shell not as graceful as the Bourne-compatible shells, you
+            would need to type this all on the same line (or use a
+            line-continuation trick).
+            </para>
             <simpara>
                 Make sure that you also read the
                 <link linkend='sqlswitch-section' endterm='sqlswitch-title'/>
@@ -1999,6 +2033,9 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid &lt; filepath1.sql &gt; /tmp/log.htm
 cat filepath1.sql... |
 java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid &gt; /tmp/log.html 2&gt;&amp;1</screen>
             </informalexample>
+            For a shell not as graceful as the Bourne-compatible shells, you
+            would need to type this all on the same line (or use a
+            line-continuation trick).
             </para>
         </section>
         <section id='charencoding-section'><title id='charencoding-title'>
