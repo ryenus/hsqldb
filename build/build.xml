@@ -1294,7 +1294,7 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
             <param name='use.extensions' expression='1'/>
             <param name='tablecolumns.extension' expression='0'/>
             <param name='textinsert.extension' expression='1'/>
-            <param name='fop.extensions' expression='1'/>
+            <param name='fop.extensions' expression='0'/>
          </xslt>
     </target>
 
