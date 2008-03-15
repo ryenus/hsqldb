@@ -293,6 +293,9 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int MACRODEF_SEMI = keyCounter++;
     static public final int MACRO_MALFORMAT = keyCounter++;
     static public final int MACRO_UNDEFINED = keyCounter++;
+    static public final int ERRSTREAM_DEPRECATED = keyCounter++;
+    static public final int LOG_SYNTAX = keyCounter++;
+    static public final int LOG_SYNTAX_ERROR = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
@@ -489,6 +492,9 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(MACRODEF_SEMI), "macrodef.semi",
         new Integer(MACRO_MALFORMAT), "macro.malformat",
         new Integer(MACRO_UNDEFINED), "macro.undefined",
+        new Integer(ERRSTREAM_DEPRECATED), "errstream.deprecated",
+        new Integer(LOG_SYNTAX), "log.syntax",
+        new Integer(LOG_SYNTAX_ERROR), "log.syntax.error",
     };
 
     private Map keyIdToString = new HashMap();
