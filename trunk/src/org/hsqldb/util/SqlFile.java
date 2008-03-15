@@ -355,7 +355,8 @@ public class SqlFile {
             throws IOException {
         if (logger == null) {
             logger = ToolLogger.getLog(SqlFile.class);
-            logger.finer("<init>ting first SqlFile instance");
+            logger.privlog(Level.FINER, "<init>ting first SqlFile instance",
+                    null, 2, SqlFile.ToolLogger.class);
         }
         // Set up ResourceBundle first, so that any other errors may be
         // reported with localized messages.
@@ -366,9 +367,11 @@ public class SqlFile {
                     ValidatingResourceBundle.NOOP_BEHAVIOR);
             rb.setMissingPropertyBehavior(
                     ValidatingResourceBundle.NOOP_BEHAVIOR);
+            //if (true) throw new RuntimeException("Forced");
         } catch (RuntimeException re) {
-            System.err.println("Failed to initialize resource bundle");
-            // Can't use logger in static context, due to inner class.
+            logger.privlog(Level.SEVERE,
+                    "Failed to initialize resource bundle", null, 2,
+                    SqlFile.ToolLogger.class);
             throw re;
         }
         rawPrompt = rb.getString(SqltoolRB.RAWMODE_PROMPT) + "> ";
@@ -434,7 +437,7 @@ public class SqlFile {
     public void execute(Connection conn,
                         Boolean coeOverride)
                         throws SqlToolError, SQLException {
-        execute(conn, System.out, System.err, coeOverride);
+        execute(conn, System.out, coeOverride);
     }
 
     /**
@@ -445,13 +448,21 @@ public class SqlFile {
      */
     public void execute(Connection conn, boolean coeOverride)
                         throws SqlToolError, SQLException {
-        execute(conn, System.out, System.err, new Boolean(coeOverride));
+        execute(conn, System.out, new Boolean(coeOverride));
+    }
+
+    public void execute(Connection curConn, PrintStream psStd,
+                                     PrintStream psErr,
+                                     Boolean coeOverride)
+                                     throws SqlToolError,
+                                         SQLException {
+        psErr.println(rb.getString(SqltoolRB.ERRSTREAM_DEPRECATED));
+        execute(curConn, psStd, coeOverride);
     }
 
     // So we can tell how to handle quit and break commands.
     public boolean      recursed     = false;
     private PrintStream psStd        = null;
-    private PrintStream psErr        = null;
     private PrintWriter pwQuery      = null;
     private PrintWriter pwDsv        = null;
     private boolean     continueOnError = false;
@@ -486,12 +497,10 @@ public class SqlFile {
      *               ContinueException for recursive calls only.
      */
     public void execute(Connection curConn, PrintStream psStd,
-                                     PrintStream psErr,
                                      Boolean coeOverride)
                                      throws SqlToolError,
                                          SQLException {
         this.curConn = curConn;
-        this.psErr = psErr;
         this.psStd = psStd;
         buffer = null;
         continueOnError = (coeOverride == null) ? interactive
@@ -752,7 +761,8 @@ public class SqlFile {
             } catch (QuitNow qn) {
                 throw qn;
             } catch (SqlToolError ste) {
-                errprint(rb.getString(SqltoolRB.ERRORAT,
+                StringBuffer sb = new StringBuffer(rb.getString(
+                    SqltoolRB.ERRORAT,
                         new String[] {
                                 ((file == null) ? "stdin" : file.toString()),
                             Integer.toString(token.line),
@@ -761,12 +771,11 @@ public class SqlFile {
                                     ? "" : ste.getMessage())
                         }
                 ));
-                if (ste.getMessage() != null) errprintln("");
+                if (ste.getMessage() != null) sb.append(LS);
                 Throwable cause = ste.getCause();
-                if (cause != null) {
-                    errprintln(rb.getString(SqltoolRB.CAUSEREPORT,
+                errprintln((cause == null) ? sb.toString()
+                        : rb.getString(SqltoolRB.CAUSEREPORT,
                             cause.toString()));
-                    }
                 if (!continueOnError) {
                     throw ste;
                 }
@@ -1506,21 +1515,14 @@ public class SqlFile {
                         || (arg1.equals("l") && other != null
                                 && other.equals("?"))) {
                     // TODO:  Localize message
-                    stdprintln("SYNTAX:  \\l LEVEL Message");
-                    stdprintln("Where LEVEL is one of:  "
-                            + "FINEST, FINER, INFO, WARNING, SEVERE");
+                    stdprintln(rb.getString(SqltoolRB.LOG_SYNTAX));
                 } else {
                     enforce1charSpecial(arg1, 'l');
                     Matcher logMatcher = ((other == null) ? null
                             : logPattern.matcher(other.trim()));
                     if (logMatcher == null || (!logMatcher.matches()))
-                        /*
-                        throw new BadSpecial(rb.getString(
-                                SqltoolRB.SQLFILE_EXECUTE_FAIL, other), e);
-                        */
-                            // TODO:  Localize message
                         throw new BadSpecial(
-                            "Logging syntax error.  Run '\\l? for help");
+                                rb.getString(SqltoolRB.LOG_SYNTAX_ERROR));
                     String levelString = logMatcher.group(1);
                     Level level = null;
                     if (levelString.equalsIgnoreCase("FINER"))
@@ -1704,8 +1706,16 @@ public class SqlFile {
 
                     stream = proc.getErrorStream();
 
+                    String s;
                     while ((i = stream.read(ba)) > 0) {
-                        errprint(new String(ba, 0, i));
+                        s = new String(ba, 0, i);
+                        if (s.endsWith(LS)) {
+                            // This block just prevents logging of
+                            // double-line-breaks.
+                            if (s.length() == LS.length()) continue;
+                            s = s.substring(0, s.length() - LS.length());
+                        }
+                        logger.severe(s);
                     }
 
                     stream.close();
@@ -2316,23 +2326,17 @@ public class SqlFile {
      *
      * Conditionally HTML-ifies error output.
      */
-    private void errprint(String s) {
-        psErr.print(htmlMode
-                    ? ("<DIV style='color:white; background: red; "
-                       + "font-weight: bold'>" + s + "</DIV>")
-                    : s);
-    }
-
-    /**
-     * Encapsulates error output.
-     *
-     * Conditionally HTML-ifies error output.
-     */
     private void errprintln(String s) {
-        psErr.println(htmlMode
-                      ? ("<DIV style='color:white; background: red; "
-                         + "font-weight: bold'>" + s + "</DIV>")
-                      : s);
+        if (htmlMode) {
+            psStd.println("<DIV style='color:white; background: red; "
+                       + "font-weight: bold'>" + s + "</DIV>");
+        } else {
+            logger.privlog(Level.SEVERE, s, null, 6, SqlFile.class);
+            /* Only consistent way we can log source location is to log
+             * the caller of SqlFile.
+             * This seems acceptable, since the location being reported
+             * here is not the source of the problem anyways.  */
+        }
     }
 
     /**
@@ -4843,6 +4847,12 @@ public class SqlFile {
      * This is pretty safe because for use cases where multiple hierarchies
      * are desired, classloader hierarchies will effectively isolate multiple
      * class-level Logger hierarchies.
+     *
+     * Sad as it is, the java.util.logger facility really sucks.
+     * Besides having a non-scalable disovery system, they didn't comprehend
+     * the need for a level between WARNING and SEVERE!
+     * Since we don't want to require log4j in Classpath, we have to live
+     * with these constraints.
      */
     static public class ToolLogger {
         static private Map loggerInstances = new HashMap();
@@ -4923,14 +4933,15 @@ public class SqlFile {
         }
 
         private void log(Level level, String message, Throwable t) {
-            privlog(level, message, t);
+            privlog(level, message, t, 2, SqlFile.ToolLogger.class);
         }
 
-        private void privlog(Level level, String message, Throwable t) {
+        private void privlog(Level level, String message, Throwable t,
+                int revertMethods, Class skipClass) {
             if (log4jLogger == null) {
                 StackTraceElement elements[] = new Throwable().getStackTrace();
-                String c = elements[2].getClassName();
-                String m = elements[2].getMethodName();
+                String c = elements[revertMethods].getClassName();
+                String m = elements[revertMethods].getMethodName();
                 if (t == null) {
                     jdkLogger.logp(level, c, m, message);
                 } else {
@@ -4938,7 +4949,7 @@ public class SqlFile {
                 }
             } else try {
                 log4jLogMethod.invoke(log4jLogger, new Object[] {
-                        SqlFile.ToolLogger.class.getName(),
+                        skipClass.getName(),
                         jdkToLog4jLevels.get(level), message, t});
             } catch (Exception e) {
                 throw new RuntimeException(
@@ -4950,7 +4961,7 @@ public class SqlFile {
             if (log4jLogger == null) {
                 StackTraceElement elements[] = new Throwable().getStackTrace();
                 String c = SqlFile.class.getName();
-                String m = "execute";
+                String m = "\\l";
                 jdkLogger.logp(level, c, m, message);
             } else try {
                 log4jLogMethod.invoke(log4jLogger, new Object[] {
@@ -4965,43 +4976,43 @@ public class SqlFile {
 
         // Wrappers
         public void log(Level level, String message) {
-            privlog(level, message, null);
+            privlog(level, message, null, 2, SqlFile.ToolLogger.class);
         }
         public void finer(String message) {
-            privlog(Level.FINER, message, null);
+            privlog(Level.FINER, message, null, 2, SqlFile.ToolLogger.class);
         }
         public void warning(String message) {
-            privlog(Level.WARNING, message, null);
+            privlog(Level.WARNING, message, null, 2, SqlFile.ToolLogger.class);
         }
         public void severe(String message) {
-            privlog(Level.SEVERE, message, null);
+            privlog(Level.SEVERE, message, null, 2, SqlFile.ToolLogger.class);
         }
         public void info(String message) {
-            privlog(Level.INFO, message, null);
+            privlog(Level.INFO, message, null, 2, SqlFile.ToolLogger.class);
         }
         public void finest(String message) {
-            privlog(Level.FINEST, message, null);
+            privlog(Level.FINEST, message, null, 2, SqlFile.ToolLogger.class);
         }
         public void error(String message) {
-            privlog(Level.WARNING, message, null);
+            privlog(Level.WARNING, message, null, 2, SqlFile.ToolLogger.class);
         }
         public void finer(String message, Throwable t) {
-            privlog(Level.FINER, message, t);
+            privlog(Level.FINER, message, t, 2, SqlFile.ToolLogger.class);
         }
         public void warning(String message, Throwable t) {
-            privlog(Level.WARNING, message, t);
+            privlog(Level.WARNING, message, t, 2, SqlFile.ToolLogger.class);
         }
         public void severe(String message, Throwable t) {
-            privlog(Level.SEVERE, message, t);
+            privlog(Level.SEVERE, message, t, 2, SqlFile.ToolLogger.class);
         }
         public void info(String message, Throwable t) {
-            privlog(Level.INFO, message, t);
+            privlog(Level.INFO, message, t, 2, SqlFile.ToolLogger.class);
         }
         public void finest(String message, Throwable t) {
-            privlog(Level.FINEST, message, t);
+            privlog(Level.FINEST, message, t, 2, SqlFile.ToolLogger.class);
         }
         public void error(String message, Throwable t) {
-            privlog(Level.WARNING, message, t);
+            privlog(Level.WARNING, message, t, 2, SqlFile.ToolLogger.class);
         }
     }
 

@@ -1,7 +1,8 @@
 SPECIAL COMMANDS
 Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \?                   Special command Help
-    \p [line to print]   Print string to stdout
+    \p [A Message]       Print string to stdout
+    \l LEVEL  A Message  Log message.  (list available levels with \l?)
     \i file/path.sql     Include/execute commands from external file
     \d{tvsiSanur*?} [substr]  List objects of specified type:
   (Tbls/Views/Seqs/Indexes/SysTbls/Aliases/schemaNames/Users/Roles/table-like)
@@ -12,7 +13,7 @@ Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \c [true|false]      Continue upon errors (a.o.t. abort upon error)
     \a [true|false]      Auto-commit JDBC DML commands
     \t [true|false]      report execution Times for all SQL commands
-    \l TRAN_ISO_LVL      view/set the connection transaction isolation Level
+    \v TRAN_ISO_LVL      view/set the connection transaction isolation Level
     \b                   Save next result to Binary buffer (no display)
     \bd file/path.bin    Dump Binary buffer to file
     \bl file/path.bin    Load file into Binary buffer
