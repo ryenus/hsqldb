@@ -13,7 +13,7 @@ Filter substrings are case-sensitive!  Use "SCHEMANAME." to narrow to schema.
     \c [true|false]      Continue upon errors (a.o.t. abort upon error)
     \a [true|false]      Auto-commit JDBC DML commands
     \t [true|false]      report execution Times for all SQL commands
-    \v TRAN_ISO_LVL      view/set the connection transaction isolation Level
+    \v TRAN_ISO_LVL      view/set the connection transaction isolation leVel
     \b                   Save next result to Binary buffer (no display)
     \bd file/path.bin    Dump Binary buffer to file
     \bl file/path.bin    Load file into Binary buffer
