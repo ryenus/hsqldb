@@ -196,6 +196,8 @@ public class SqlFile {
     private static Pattern nameDotPattern = Pattern.compile("(\\w+)\\.");
     private static Pattern commitOccursPattern =
             Pattern.compile("(?is)(?:set\\s+autocommit.*)|(commit\\s*)");
+    private static Pattern logPattern =
+        Pattern.compile("(?i)(FINER|WARNING|SEVERE|INFO|FINEST)\\s+(\\S+)");
 
     static private Map nestingPLCommands = new HashMap();
     static {
@@ -1499,6 +1501,47 @@ public class SqlFile {
 
                 return;
 
+            case 'l' :
+                if ((arg1.equals("l?") && other == null)
+                        || (arg1.equals("l") && other != null
+                                && other.equals("?"))) {
+                    // TODO:  Localize message
+                    stdprintln("SYNTAX:  \\l LEVEL Message");
+                    stdprintln("Where LEVEL is one of:  "
+                            + "FINEST, FINER, INFO, WARNING, SEVERE");
+                } else {
+                    enforce1charSpecial(arg1, 'l');
+                    Matcher logMatcher = ((other == null) ? null
+                            : logPattern.matcher(other.trim()));
+                    if (logMatcher == null || (!logMatcher.matches()))
+                        /*
+                        throw new BadSpecial(rb.getString(
+                                SqltoolRB.SQLFILE_EXECUTE_FAIL, other), e);
+                        */
+                            // TODO:  Localize message
+                        throw new BadSpecial(
+                            "Logging syntax error.  Run '\\l? for help");
+                    String levelString = logMatcher.group(1);
+                    Level level = null;
+                    if (levelString.equalsIgnoreCase("FINER"))
+                        level = Level.FINER;
+                    else if (levelString.equalsIgnoreCase("WARNING"))
+                        level = Level.WARNING;
+                    else if (levelString.equalsIgnoreCase("SEVERE"))
+                        level = Level.SEVERE;
+                    else if (levelString.equalsIgnoreCase("INFO"))
+                        level = Level.INFO;
+                    else if (levelString.equalsIgnoreCase("FINEST"))
+                        level = Level.FINEST;
+                    if (level == null)
+                        throw new RuntimeException(
+                                "Internal assertion failed.  "
+                                + " Unexpected Level string: " + levelString);
+                    logger.enduserlog(level, logMatcher.group(2));
+                }
+
+                return;
+
             case 'a' :
                 enforce1charSpecial(arg1, 'a');
                 if (other != null) {
@@ -1511,8 +1554,8 @@ public class SqlFile {
                         Boolean.toString(curConn.getAutoCommit())));
 
                 return;
-            case 'l' :
-                enforce1charSpecial(arg1, 'l');
+            case 'v' :
+                enforce1charSpecial(arg1, 'v');
                 int level;
                 if (other != null) {
                     if (integerPattern.matcher(other).matches()) {
@@ -4897,6 +4940,23 @@ public class SqlFile {
                 log4jLogMethod.invoke(log4jLogger, new Object[] {
                         SqlFile.ToolLogger.class.getName(),
                         jdkToLog4jLevels.get(level), message, t});
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Logging failed when attempting to log: " + message, e);
+            }
+        }
+
+        private void enduserlog(Level level, String message) {
+            if (log4jLogger == null) {
+                StackTraceElement elements[] = new Throwable().getStackTrace();
+                String c = SqlFile.class.getName();
+                String m = "execute";
+                jdkLogger.logp(level, c, m, message);
+            } else try {
+                log4jLogMethod.invoke(log4jLogger, new Object[] {
+                        SqlFile.class.getName(),
+                        jdkToLog4jLevels.get(level), message, null});
+                        // Test where SqlFile correct here.
             } catch (Exception e) {
                 throw new RuntimeException(
                         "Logging failed when attempting to log: " + message, e);
