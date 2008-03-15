@@ -299,8 +299,8 @@
                 </simpara></listitem><listitem><simpara>
                     New \t command to report database exection duration times.
                 </simpara></listitem><listitem><simpara>
-                    New \l command to set or report the Connection's
-                    Transaction Isolation Level.
+                    New \v command to set or report the Connection's
+                    Transaction Isolation LeVel.
                 </simpara></listitem><listitem><simpara>
                     <literal>\d object filter</literal> commands now use the
                     filter as a regular expression, where possible, and
@@ -313,6 +313,14 @@
                     New <literal>*DSV_TRIM_ALL</literal> to automatically
                     handle import of
                     data which is both positional and character-delimited.
+                </simpara></listitem><listitem><simpara>
+                    New \t command to log user-specified messages with
+                    <classname>java.util.logging</classname> or Log4j
+                    logging facility.
+                </simpara></listitem><listitem><simpara>
+                    All warnings and messages now use logging facility.
+                    This is especially useful when embedding SqlTool into
+                    an application.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -793,6 +801,34 @@ java org.hsqldb.util.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
             For security reasons, you cannot specify a non-empty password as 
             an argument. You
             will be prompted for a password as part of the login process.
+        </simpara>
+    </section>
+
+    <section>
+        <title>Logging</title>
+        <simpara>
+            Both the \l command and all warnings and error messages now use
+            a logging facility.
+            The logging facility hands off to Log4j if Log4j is found in the
+            classpath, and otherwise will hand off to
+            <classname>java.util.logging</classname>.
+            The default behavior of <classname>java.util.logging</classname>
+            should work fine for most users.
+            If you are using log4j and are redirecting with pipes, you may
+            want to configure a Console Appender with target of
+            <literal>"System.err"</literal> so that error output will go to
+            the error stream (all console output for
+            <classname>java.util.logging</classname> goes to stderr by default).
+            See the API specs for Log4j and for J2SE for how to configure
+            either product.
+            If you are embedding SqlTool in a product to process SQL files,
+            I suggest that you use log4j.
+            <classname>java.util.logging</classname> is neither scalable nor
+            well-designed.
+        </simpara> <simpara>
+            Run the command <literal>\l?</literal> to see how to use the
+            logging command <literal>\l</literal> in your SQL files (or
+            interactively), including what logging levels you may specify.
         </simpara>
     </section>
     
