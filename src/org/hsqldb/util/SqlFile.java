@@ -197,7 +197,7 @@ public class SqlFile {
     private static Pattern commitOccursPattern =
             Pattern.compile("(?is)(?:set\\s+autocommit.*)|(commit\\s*)");
     private static Pattern logPattern =
-        Pattern.compile("(?i)(FINER|WARNING|SEVERE|INFO|FINEST)\\s+(\\S+)");
+        Pattern.compile("(?i)(FINER|WARNING|SEVERE|INFO|FINEST)\\s+(.*\\S)");
 
     static private Map nestingPLCommands = new HashMap();
     static {
@@ -1514,7 +1514,6 @@ public class SqlFile {
                 if ((arg1.equals("l?") && other == null)
                         || (arg1.equals("l") && other != null
                                 && other.equals("?"))) {
-                    // TODO:  Localize message
                     stdprintln(rb.getString(SqltoolRB.LOG_SYNTAX));
                 } else {
                     enforce1charSpecial(arg1, 'l');
