@@ -2,18 +2,19 @@ Sonderbefehle.
 Filterteilketten sind Schachtel-empfindlich.  "SCHEMANAME." benutzen, um zu
 einem Schame zu verengen.
     \?                   Sonderbefehle Hilf
-    \p [Zeile zu schreiben]   Schreibt String zum stdout
+    \p [Eine Nachricht]  Schreibt String zum stdout
+    \l EBENE  Nachricht  Schreibt String zum stdout
     \i datei/pfad.sql    Ausführt Befehle von äußerlich Datei
     \d{tvsiSanur*?} [Teilk.]  Verzeichnet Gegenstände der spezifiziert Art:
   (Tbln/sichten/Seqn/Indexe/SysTbln/Aliases/schemaNamen/benUtzer/Roln/tbl-artig)
-    \d OBJEKTNAME [Teilk.] Bescreibt Tabelle oder Sicht Spalten
+    \d OBJEKTNAME [regx] Bescreibt Tabelle oder Sicht Spalten
     \o [datei/pfad.html] Tee (oder aufhört) Abfrage Ausgabe zu spezif. Datei
     \H                   Schalt zwischen HTML Ausgabe Modus.
     \! BEFEHL  [ARGE]    Ausführt äußerlich Programm (stdin nicht unterstützt)
     \c [true|false]      Währen nach Fehler (i.g.z. Abbruch nach Fehler)
     \a [true|false]      Automatisch Commit JDBC DML Befehle
     \t [true|false]      Bericht Ausführungszeiten für alle SQL-Befehle
-    \l TRAN_ISO_LVL      View/Verbindet Transaktion Isolation-Level
+    \v TRAN_ISO_EBENE    View/Verbindet Transaktion Isolation-Ebene
     \b                   Speichert nächst Resultat zum Binärpuffer (kein zeigen)
     \bd datei/pfad.bin   Gibt Binärpuffer zu Datei
     \bl datei/pfad.bin   Lädt Date in den Binärpuffer
