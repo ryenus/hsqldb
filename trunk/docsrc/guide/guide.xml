@@ -120,10 +120,5 @@
     &dbmanager-appendix.xml;
     &transfertool-appendix.xml;
     
-    <!--
-        Indexes are still not working for indexterms in most locations.
-        Since this is a popular feature, it must have to do with the
-        Java DocBook components.
     <index/>
-    -->
 </book>
