@@ -3,6 +3,36 @@ HOW TO CREATE AND WORK WITH DOCBOOK DOCUMENTS FOR HSQLDB
 At some point, this document itself should be converted to DocBook format.
 
 
+BUILDING
+
+To do Docbook builds, you must have
+    The docbook-xsl style sheets installed.  (Available from
+ http://sourceforge.net/project/showfiles.php?group_id=21935&package_id=16608 ).
+    Fop installed (if you want to build PDF docs).
+    An ant-contrib jar file in your Ant classpath*.  (Available from
+ http://sourceforge.net/project/showfiles.php?group_id=36177&package_id=28636 ).
+    Xalan XML libraries:  serializer.jar and xalan.jar (available from
+        http://www.apache.org/dyn/closer.cgi/xml/xalan-j )*.
+
+* These classpath requirements may be satisfied by adding the items to your
+CLASSPATH variable, to your $ANT_HOME/lib directory, or by using the Ant
+-lib switch.
+
+You must have an ant-contrib jar file in your Ant CLASSPATH (via CLASSPATH
+variable, $ANT_HOME/lib, or by using -lib switch).
+
+Before version 1.73.0 of docbook-xsl, the DocBook build would work fine
+with the default JDK 1.4 libraries.  For unknown reason, the entry page
+for chunk gets created empty, regardless of JDK version, for 1.73.0 and
+later of docbook-xsl, unless you have the extra XML libraries in your
+classpath.
+
+The location of the main jar file in the fop distributions changed
+recently, and we've updated the path to this jar in build.xml accordingly.
+If you must use an older fop distribution, you will have to revert that
+path.
+
+
 Our DocBook strategy is still subject to change.  For now...
 
 
