@@ -1274,6 +1274,19 @@ includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
             <param name='navig.graphics.extension' expression='.gif'/>
             <param name='chunk.section.depth' expression='0'/>
         </xslt>
+        <!-- Portable, but liberal (too liberal) test -->
+        <if><contains string='${_stylesheet}' substring="chunk.xml"
+                      casesensitive="false"/><then>
+          <property name="_output.basename" value="index"/>
+        </then></if>
+        <property name="_output.basename" value="${book}"/>
+        <echo>
+Due to limitation of Java Docbook Processors, you will need to 
+run a native command to generate the Hyperlinks in the book index.
+On UNIX, you can run:
+
+xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true --stringparam navig.graphics.path navicons/ --stringparam navig.graphics.extension .gif --stringparam chunk.section.depth 0 -o doc/${book}/${_output.basename}.html ${_stylesheet} docsrc/${book}/${book}.xml
+        </echo>
     </target>
 
     <target name='-foXslt' depends='-checkXslt'>
