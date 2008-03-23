@@ -1053,7 +1053,7 @@ examples:
               ch[0-9]*.html -->
             <targetfileset  dir='doc/${book}'
                 includes='ch0*.html, ch1*.html, ch2*.html, ch3*.html,
-                         ch4*.html, ch5*.htlm, ch6*.html, ch7*.html,
+                         ch4*.html, ch5*.html, ch6*.html, ch7*.html,
                          ch8*.html, ch9*.html, index.html'/>
         </dependset>
         <if><not><available type='file' file='doc/${book}/index.html'/></not>
