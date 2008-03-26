@@ -29,10 +29,12 @@
  */
 
 
-package org.hsqldb.util;
+package org.hsqldb.cmdline;
 
 import java.util.Map;
 import java.util.HashMap;
+import org.hsqldb.util.ValidatingResourceBundle;
+import org.hsqldb.util.RefCapablePropertyResourceBundle;
 
 /* $Id$ */
 
@@ -504,7 +506,7 @@ public class SqltoolRB extends ValidatingResourceBundle {
     }
 
     public SqltoolRB() {
-        super("org.hsqldb.util.sqltool");
+        super("org.hsqldb.cmdline.sqltool");
         if (memberKeyArray == null)
             throw new RuntimeException("'static memberKeyArray not set");
         for (int i = 0; i < memberKeyArray.length; i += 2) {

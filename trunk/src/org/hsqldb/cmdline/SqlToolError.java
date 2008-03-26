@@ -1,7 +1,4 @@
-/*
- * @(#)$Id$
- *
- * Copyright (c) 2001-2008, The HSQL Development Group
+/* Copyright (c) 2001-2007, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +29,31 @@
  */
 
 
-package org.hsqldb.util.sqltool;
+package org.hsqldb.cmdline;
 
-import java.io.IOException;
+import org.hsqldb.util.AppendableException;
 
-public interface TokenSource {
-    public Token yylex() throws IOException;
+/**
+ * Exceptions thrown by the SqlTool system externally to SqlFile.
+ * (As opposed to the nested Exceptions within those classes).
+ * This class is misnamed, because it is not only errors.
+ * When there is time, this file and class should be renamed.
+ */
+public class SqlToolError extends AppendableException {
+
+    static final long serialVersionUID = 1792522673702223649L;
+
+    public SqlToolError(Throwable cause) {
+        super(null, cause);
+    }
+
+    public SqlToolError() {}
+
+    public SqlToolError(String s) {
+        super(s);
+    }
+
+    public SqlToolError(String string, Throwable cause) {
+        super(string, cause);
+    }
 }

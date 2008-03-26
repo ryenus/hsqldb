@@ -268,15 +268,17 @@ public class RCData {
         }
     }
 
-    String id         = null;
-    String url        = null;
-    String username   = null;
-    String password   = null;
-    String ti         = null;
-    String driver     = null;
-    String charset    = null;
-    String truststore = null;
-    String libpath    = null;
+    /* Purposefully not using JavaBean paradigm so that these fields can
+     * be used as a traditional, public DO */
+    public String id         = null;
+    public String url        = null;
+    public String username   = null;
+    public String password   = null;
+    public String ti         = null;
+    public String driver     = null;
+    public String charset    = null;
+    public String truststore = null;
+    public String libpath    = null;
 
     /**
      * Gets a JDBC Connection using the data of this RCData object.

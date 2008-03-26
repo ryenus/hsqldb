@@ -32,7 +32,7 @@
  */
 
 
-package org.hsqldb.util.sqltool;
+package org.hsqldb.cmdline.sqltool;
 
 public class Token {
     public static final int SQL_TYPE = 0;

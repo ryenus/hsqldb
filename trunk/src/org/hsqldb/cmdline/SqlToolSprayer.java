@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.util;
+package org.hsqldb.cmdline;
 
 import java.io.File;
 import java.io.FileInputStream;
