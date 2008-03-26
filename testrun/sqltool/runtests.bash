@@ -50,8 +50,8 @@ Failout 'You must put the version of Java to test (early) in your search path'
 [ -n "$CLASSPATH" ] ||
 Failout "You must put the HSQLDB jar file (or class directory) in your CLASSPATH
 (and export)"
-java org.hsqldb.util.SqlTool --help >&- 2>&- ||
-Failout 'org.hsqldb.util.SqlTool is not in your CLASSPATH.  Add, export, and re-run.'
+java org.hsqldb.cmdline.SqlTool --help >&- 2>&- ||
+Failout 'org.hsqldb.cmdline.SqlTool is not in your CLASSPATH.  Add, export, and re-run.'
 
 declare -a Scripts
 if [ $# -gt 0 ]; then
@@ -89,13 +89,13 @@ echo "${#Scripts[@]} test(s) to run..."
 for script in "${Scripts[@]}"; do
     case "$script" in *.inter) REDIRIN='<';; *) REDIRIN=;; esac
     if [ -n "$VERBOSE" ]; then
-        echo java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_UNCOMMITTED $REDIRIN "$script"
+        echo java -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_UNCOMMITTED $REDIRIN "$script"
     else
         echo -n T
     fi
     [ -n "$NORUN" ] || {
         succeed=
-        eval java -Dsqltool.testsp=spval org.hsqldb.util.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_UNCOMMITTED $REDIRIN "$script" $REDIROUT
+        eval java -Dsqltool.testsp=spval org.hsqldb.cmdline.SqlTool --noAutoFile --setVar=testvar=plval --inlineRc=user=sa,url=jdbc:hsqldb:mem:utst,password=,transiso=TRANSACTION_READ_UNCOMMITTED $REDIRIN "$script" $REDIROUT
         case "$script" in
             *.nsql) [ $? -ne 0 ] && succeed=1;;
             *) [ $? -eq 0 ] && succeed=1;;

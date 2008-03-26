@@ -1,4 +1,7 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/*
+ * @(#)$Id$
+ *
+ * Copyright (c) 2001-2008, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,29 +32,30 @@
  */
 
 
-package org.hsqldb.util;
+package org.hsqldb.cmdline.sqltool;
+
+import java.util.ArrayList;
 
 /**
- * Exceptions thrown by the SqlTool system externally to SqlFile.
- * (As opposed to the nested Exceptions within those classes).
- * This class is misnamed, because it is not only errors.
- * When there is time, this file and class should be renamed.
+ * A list of SqlFile Tokens
  */
-public class SqlToolError extends AppendableException {
-
-    static final long serialVersionUID = 1792522673702223649L;
-
-    public SqlToolError(Throwable cause) {
-        super(null, cause);
+public class TokenList extends ArrayList implements TokenSource {
+// public class TokenList extends ArrayList<Token> implements TokenSource {
+// Java 5
+    public TokenList() {
+        super();
+    }
+    public TokenList(TokenList inList) {
+        super(inList);
+    }
+    public Token yylex() {
+        if (size() < 1) return null;
+        //return remove(0);
+        // Java5
+        return (Token) remove(0);
     }
 
-    public SqlToolError() {}
-
-    public SqlToolError(String s) {
-        super(s);
-    }
-
-    public SqlToolError(String string, Throwable cause) {
-        super(string, cause);
+    public TokenList dup() {
+        return new TokenList(this);
     }
 }

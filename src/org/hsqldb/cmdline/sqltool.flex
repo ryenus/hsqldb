@@ -32,11 +32,11 @@
  */
 
 
-package org.hsqldb.util.sqltool;
+package org.hsqldb.cmdline.sqltool;
 
 import java.io.PrintStream;
-import org.hsqldb.util.SqlFile.ToolLogger;
-import org.hsqldb.util.SqltoolRB;
+import org.hsqldb.cmdline.SqlFile.ToolLogger;
+import org.hsqldb.cmdline.SqltoolRB;
 
 %%
 // Defaults to Yylex

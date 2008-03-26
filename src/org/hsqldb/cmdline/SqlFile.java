@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.util;
+package org.hsqldb.cmdline;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -65,10 +65,13 @@ import java.util.regex.PatternSyntaxException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.lang.reflect.Method;
-import org.hsqldb.util.sqltool.Token;
-import org.hsqldb.util.sqltool.TokenList;
-import org.hsqldb.util.sqltool.TokenSource;
-import org.hsqldb.util.sqltool.SqlFileScanner;
+import org.hsqldb.util.ValidatingResourceBundle;
+import org.hsqldb.util.AppendableException;
+import org.hsqldb.util.RCData;
+import org.hsqldb.cmdline.sqltool.Token;
+import org.hsqldb.cmdline.sqltool.TokenList;
+import org.hsqldb.cmdline.sqltool.TokenSource;
+import org.hsqldb.cmdline.sqltool.SqlFileScanner;
 
 /* $Id$ */
 

@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.util;
+package org.hsqldb.cmdline;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +40,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import org.hsqldb.util.ValidatingResourceBundle;
+import org.hsqldb.util.RCData;
 
 /* $Id$ */
 
@@ -267,7 +269,7 @@ public class SqlTool {
      * This method is changed for HSQLDB 1.8.0.8 and 1.9.0.x to never
      * System.exit().
      *
-     * @param arg  Run "java... org.hsqldb.util.SqlTool --help" for syntax.
+     * @param arg  Run "java... org.hsqldb.cmdline.SqlTool --help" for syntax.
      * @throws SqlToolException  Upon any fatal error, with useful
      *                          reason as the exception's message.
      */

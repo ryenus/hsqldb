@@ -432,13 +432,14 @@ examples:
    </target>
 
     <target name="util" depends="lib, jflex"
-            description="compiles the /util folder">
+            description="compiles the util and cmdline folders">
       <javac srcdir="${swsrc}:tmp/jflex"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
       >
          <include name="org/hsqldb/util/**"/>
+         <include name="org/hsqldb/cmdline/**"/>
          <exclude name="org/hsqldb/util/*Swing.java"/>
          <exclude name="org/hsqldb/util/TableSorter.java"/>
       </javac>
@@ -448,7 +449,7 @@ examples:
     </target>
 
    <target name="swing" depends="util" unless="noswing"
-           description="compiles the swing based classes in the /util folder">
+           description="compiles the swing based classes in the util folder">
       <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
@@ -597,6 +598,7 @@ examples:
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/*"/>
+         <exclude name="org/hsqldb/cmdline/*"/>
          <exclude name="org/hsqldb/test/*"/>
          <exclude name="org/hsqldb/sample/*"/>
          <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
@@ -634,6 +636,7 @@ examples:
          <exclude name="org/hsqldb/jdbc/pool/*"/>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/*"/>
+         <exclude name="org/hsqldb/cmdline/*"/>
          <exclude name="org/hsqldb/test/*"/>
          <exclude name="org/hsqldb/sample/*"/>
          <exclude name="**/*.properties"/>
@@ -678,7 +681,7 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
              <!-- This attribute is completely ignored unless the user
                   uses the jar like "java -jar .../hsqldb.jar" -->
-             <attribute name='Main-Class' value='org.hsqldb.util.SqlTool'/>
+             <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/*Swing.*" if="noswing"/>
@@ -757,25 +760,25 @@ examples:
                   '/>
 
     <fileset id='utilclasses' dir='classes'
-        includes='org/hsqldb/util/**,
+             includes='org/hsqldb/util/**, org/hsqldb/cmdline/**
                   '/>
 
     <fileset id='sqltoolclasses' dir='classes'
-        includes='org/hsqldb/util/SqlTool*
+        includes='org/hsqldb/cmdline/SqlTool*
                   org/hsqldb/util/RCData*
                   org/hsqldb/util/RefCapablePropertyResourceBundle*
-                  org/hsqldb/util/SqltoolRB*
+                  org/hsqldb/cmdline/SqltoolRB*
                   org/hsqldb/util/ValidatingResourceBundle*
                   org/hsqldb/util/AppendableException*
-                  org/hsqldb/util/SqlToolError*
-                  org/hsqldb/util/sqltool/*.class
-                  org/hsqldb/util/SqlFile*
+                  org/hsqldb/cmdline/SqlToolError*
+                  org/hsqldb/cmdline/sqltool/*.class
+                  org/hsqldb/cmdline/SqlFile*
                   org/hsqldb/lib/FileAccess*
                   org/hsqldb/lib/StringUtil*
                   '/>
     <fileset id='sqltoolres' dir='classes'
-        includes='org/hsqldb/util/**/*.text
-                  org/hsqldb/util/**/*.properties
+        includes='org/hsqldb/cmdline/**/*.text
+                  org/hsqldb/cmdline/**/*.properties
                   '/>
 
 <!-- classes referenced by the org.hsqldb.jdbc package classes -->
@@ -810,7 +813,7 @@ examples:
                            value='SqlTool runtime, with JDBC driver'/>
                 <attribute name='Implementation-Version' value='${build.label}'/>
                 <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-                <attribute name='Main-Class' value='org.hsqldb.util.SqlTool'/>
+                <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
             </manifest>
             <!-- including 'org/hsqldb/jdbc*' just to be safe -->
             <fileset refid='jdbcclasses'/>
@@ -877,7 +880,7 @@ examples:
                         src/org/hsqldb/server/WebServer.java,
                         src/org/hsqldb/sample/TriggerSample.java,
                         src/org/hsqldb/util/RCData.java,
-                        src/org/hsqldb/util/SqlTool.java"
+                        src/org/hsqldb/cmdline/SqlTool.java"
            destdir="doc/src"
            classpath="${servletapi.lib};${junit38.lib}"
            author="true"
@@ -898,7 +901,7 @@ examples:
 
     <target name="javadocdev" depends="-preparedoc,-javaversion2,-doclink-1.2"
             description="Create javadoc for developers">
-      <javadoc packagenames="org.hsqldb.*,org.hsqldb.jdbc.*,org.hsqldb.lib.*,org.hsqldb.util.*"
+      <javadoc packagenames="org.hsqldb.*,org.hsqldb.jdbc.*,org.hsqldb.lib.*,org.hsqldb.util.*,org.hsqldb.cmdline.*"
            sourcepath="src"
            destdir="doc/src"
            classpath="${servletapi.lib};${junit38.lib}"
@@ -1341,7 +1344,7 @@ xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true
 
     <target name="jflex" depends="-init-jflex">
         <mkdir dir="tmp/jflex"/>
-        <jflex file="src/org/hsqldb/util/sqltool.flex" destdir="tmp/jflex"/>
+        <jflex file="src/org/hsqldb/cmdline/sqltool.flex" destdir="tmp/jflex"/>
         <!-- A limitation of the jflex task is that you must specify the .flex
              files individually and explicitly.  No filesets, etc. -->
     </target>
