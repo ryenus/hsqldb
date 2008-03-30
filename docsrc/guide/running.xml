@@ -113,13 +113,7 @@
 
       <listitem>
         <para>
-          <classname>org.hsqldb.util.QueryTool</classname>
-        </para>
-      </listitem>
-
-      <listitem>
-        <para>
-          <classname>org.hsqldb.util.SqlTool</classname>
+          <classname>org.hsqldb.cmdline.SqlTool</classname>
         </para>
       </listitem>
     </itemizedlist>

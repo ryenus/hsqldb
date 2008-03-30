@@ -208,6 +208,16 @@
             </simpara>
             <itemizedlist>
                 <listitem><simpara>
+                 The package of SqlTool and support classes has been changed
+                 from <classname>org.hsqldb.util</classname> to
+                 <classname>org.hsqldb.cmdline</classname>.
+                 There is no change to <code>java -jar...</code> command-lines,
+                 but you will need to change the package name in SqlTool
+                 command lines of the form <code>java... org.hsqldb...</code>.
+                 This later usage is necessary if you need to modify the
+                 classpath for any reason, such as for embedding, to use a
+                 logging config file, or to use a non-HSQLDB JDBC driver.
+                </simpara></listitem><listitem><simpara>
                   SqlTool now consistently outputs \r\n line breaks when 
                   on \r\n-linebreak platforms, like Windows.
                   This includes output written to stdout, \w files,
@@ -491,7 +501,7 @@
             explains the second method.  Here's an example of the first method
             (after you have set the classpath appropriately).
         <informalexample><screen>
-java org.hsqldb.util.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
+java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
         </informalexample></para>
         <tip><simpara>
             If the tables of query output on your screen are all messy 
@@ -860,12 +870,12 @@ java org.hsqldb.util.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
             <informalexample><screen>
 CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/classes:/usr/local/lib/pg.jdbc3.jar
 export CLASSPATH
-java org.hsqldb.util.SqlTool urlid</screen>
+java org.hsqldb.cmdline.SqlTool urlid</screen>
             </informalexample>
             Postgresql and a local application.  Windows Cmd shell example:
             <informalexample><screen>
 set CLASSPATH=/path/to/hsqldbutil.jar;c:/home/bob/classes;/javalibs/pg.jdbc3.jar
-java org.hsqldb.util.SqlTool urlid</screen>
+java org.hsqldb.cmdline.SqlTool urlid</screen>
             </informalexample>
         </para>
     </section>
@@ -2703,7 +2713,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             If you are using a non-HSQLDB JDBC driver, you must set your
             CLASSPATH to include this new jar file and your JDBC driver,
             then run SqlTool like <informalexample><screen>
-        java org.hsqldb.util.SqlTool ...</screen>
+        java org.hsqldb.cmdline.SqlTool ...</screen>
             </informalexample>
             You can specify your JDBC driver class either with the
             <literal>--driver</literal> switch to SqlTool, or in your
