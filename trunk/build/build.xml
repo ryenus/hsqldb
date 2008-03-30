@@ -1288,7 +1288,7 @@ Due to limitation of Java Docbook Processors, you will need to
 run a native command to generate the Hyperlinks in the book index.
 On UNIX, you can run:
 
-xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true --stringparam navig.graphics.path navicons/ --stringparam navig.graphics.extension .gif --stringparam chunk.section.depth 0 -o doc/${book}/${_output.basename}.html ${_stylesheet} docsrc/${book}/${book}.xml
+xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true --stringparam navig.graphics.path navicons/ --stringparam navig.graphics.extension .gif --stringparam chunk.section.depth 0 -o ../doc/${book}/${_output.basename}.html ${_stylesheet} ../docsrc/${book}/${book}.xml
         </echo>
     </target>
 
