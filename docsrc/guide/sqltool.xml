@@ -211,9 +211,9 @@
                  The package of SqlTool and support classes has been changed
                  from <classname>org.hsqldb.util</classname> to
                  <classname>org.hsqldb.cmdline</classname>.
-                 There is no change to <code>java -jar...</code> command-lines,
+                 There is no change to <literal>java -jar...</literal> command-lines,
                  but you will need to change the package name in SqlTool
-                 command lines of the form <code>java... org.hsqldb...</code>.
+                 command lines of the form <literal>java... org.hsqldb...</literal>.
                  This later usage is necessary if you need to modify the
                  classpath for any reason, such as for embedding, to use a
                  logging config file, or to use a non-HSQLDB JDBC driver.
@@ -672,7 +672,12 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
             <title>Sample RC File</title>
             <programlisting>&sqltool.rc-cdata;</programlisting>
         </example>
-        <para>
+        <simpara>
+            As noted in the comment (and as used in a couple examples), you
+            can use Java system properties like this: <code>${user.home}</code>.
+            Windows users, please read the suggestion directed to you in the
+            file.
+        </simpara> <para>
             You can put this file anywhere you want to, and specify the 
             location to SqlTool/DatabaseManager/DatabaseManagerSwing by
             using the <literal>--rcfile</literal> argument.

@@ -2,6 +2,10 @@
 
 # This is a sample RC configuration file used by SqlTool, DatabaseManager,
 # and any other program that uses the org.hsqldb.util.RCData class.
+# See the documentation for SqlTool for various ways to use this file.
+
+# If you have the least concerns about security, then secure access to
+# your RC file.
 
 # You can run SqlTool right now by copying this file to your home directory
 # and running
@@ -11,13 +15,14 @@
 # "url" values may, of course, contain JDBC connection properties, delimited
 # with semicolons.
 
-# If you have the least concerns about security, then secure access to
-# your RC file.
-# See the documentation for SqlTool for various ways to use this file.
+# You can use Java system property values in this file like this:  ${user.home}
 
 # The only feature added recently is the optional "transiso" setting,
 # which may be set to an all-caps transaction isolation level as listed
 # in the Java API Spec for java.sql.Connection.
+# Windows users are advised to use forward slashes instead of reverse slashes,
+# and to avoid paths containing spaces or other funny characters.  (This
+# recommendation applies to any Java app, not just SqlTool).
 
 # A personal Memory-Only (non-persistent) database.
 urlid mem
@@ -76,7 +81,7 @@ password
 #url jdbc:hsqldb:hsqls://db.admc.com:9001/lm2
 #username blaine
 #password asecret
-#truststore /home/blaine/ca/db/db-trust.store
+#truststore ${user.home}/ca/db/db-trust.store
 
 
 # Template for a Postgresql database
