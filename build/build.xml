@@ -157,7 +157,6 @@ examples:
    <target name="-clean" depends="clean-docwork">
         <delete dir="classes"/>
         <delete dir="${swsrc}"/>
-        <delete dir="tmp/jflex"/>
    </target>
 
    <target name="cleanall" depends="-clean,clean-doc"
@@ -433,7 +432,7 @@ examples:
 
     <target name="util" depends="lib, jflex"
             description="compiles the util and cmdline folders">
-      <javac srcdir="${swsrc}:tmp/jflex"
+      <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
@@ -1343,9 +1342,10 @@ xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true
      </target>
 
     <target name="jflex" depends="-init-jflex">
-        <mkdir dir="tmp/jflex"/>
-        <jflex file="src/org/hsqldb/cmdline/sqltool.flex" destdir="tmp/jflex"/>
+        <jflex file="src/org/hsqldb/cmdline/sqltool.flex" destdir="src"/>
         <!-- A limitation of the jflex task is that you must specify the .flex
              files individually and explicitly.  No filesets, etc. -->
+        <copy todir="${swsrc}/org/hsqldb/cmdline/sqltool"
+              file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 </project>
