@@ -122,7 +122,7 @@
                 </para><para>
                 Now, you need to add this cert to one of the system trust 
                 keystores or to a keystore of your own.
-                See <ulink url="http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html#CustomizingStores">
+                See <ulink url="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores">
                 the Customizing Stores section in JSSERefGuide.html</ulink> to 
                 see where your system trust keystores are.
                 You can put private keystores anywhere you want to.
@@ -176,7 +176,7 @@ keytool -import -trustcacerts -keystore trust.store -alias new_alias -file serve
                 connect to it.
             </para> <para>
                 If you want more details on anything, see JSSERefGuide.html on
-                <ulink url= "http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html">
+                <ulink url="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html">
                 Sun's site</ulink>, or in the subdirectory 
                 <filename>docs/guide/security/jsse</filename> of your Java SE 
                 docs.
@@ -224,7 +224,7 @@ keytool -import -trustcacerts -keystore trust.store -alias new_alias -file serve
     <section id='jsse-section'>
         <title>JSSE</title>
         <para>
-            If you are running Java 4.x, then you are all set.
+            If you are running Java 4.x or later, then you are all set.
             Java 1.x users, you are on your own (Sun does not provide a JSSE 
             that will work with 1.x).
             Java 2.x and 3.x users continue...
@@ -295,7 +295,7 @@ java DERImport new.keystore NEWALIAS Xpvk.pk8 Xcert.der</screen>
             <title>Non-CA-Signed Cert</title>
             <para>
                 Run <literal>man keytool</literal> or see
-                <ulink url="http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html#CreateKeystore">
+                <ulink url="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CreateKeystore">
                 the Creating a Keystore section of JSSERefGuide.html</ulink>.
             </para>
         </section>
