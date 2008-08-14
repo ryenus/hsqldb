@@ -93,11 +93,11 @@ public class jdbcConnectionTest extends JdbcTestCase {
 
         Connection conn = newConnection();
         Statement stmt = connectionFactory().createStatement(conn);
-        
+
         stmt.close();
         conn.close();
     }
-    
+
     /**
      * Test of createStatement method, of interface java.sql.Connection.
      */
@@ -106,7 +106,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
         Connection conn = newConnection();
 
         conn.setHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT);
- 
+
         if (conn.getWarnings() == null)
         {
             assertEquals(ResultSet.HOLD_CURSORS_OVER_COMMIT,
@@ -114,7 +114,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
 
             Statement stmt = connectionFactory().createStatement(conn);
 
-            assertEquals(ResultSet.HOLD_CURSORS_OVER_COMMIT, 
+            assertEquals(ResultSet.HOLD_CURSORS_OVER_COMMIT,
                     stmt.getResultSetHoldability());
 
             stmt.close();
@@ -137,10 +137,10 @@ public class jdbcConnectionTest extends JdbcTestCase {
         {
             assertEquals(ResultSet.CLOSE_CURSORS_AT_COMMIT,
                     conn.getHoldability());
- 
+
             stmt = connectionFactory().createStatement(conn);
 
-            assertEquals(ResultSet.CLOSE_CURSORS_AT_COMMIT, 
+            assertEquals(ResultSet.CLOSE_CURSORS_AT_COMMIT,
                     stmt.getResultSetHoldability());
         }
     }
@@ -399,21 +399,21 @@ public class jdbcConnectionTest extends JdbcTestCase {
         result = conn.isReadOnly();
 
         assertEquals(expResult, result);
-        
+
         super.executeScript("setup-dual-table.sql");
-        
+
         conn.setReadOnly(true);
-        
+
         Statement stmt = connectionFactory().createStatement(conn);
-        
+
         try {
             stmt.executeUpdate("insert into dual values 'read-only'");
-            
+
             fail("Allowed write while readonly");
         } catch(Exception e) {}
-        
+
         conn.setReadOnly(false);
-        
+
         try {
             stmt.executeUpdate("insert into dual values 'read-write'");
 
@@ -449,41 +449,41 @@ public class jdbcConnectionTest extends JdbcTestCase {
     public void testSetCatalog() throws Exception {
         println("setCatalog");
 
-        String     catalog = null;
+        String     catalog = "PUBLIC";
         Connection conn    = newConnection();
-        
+
         try {
             conn.setCatalog(catalog);
         } catch (SQLException ex) {
-            
+            fail("Failed setCatalog(PUBLIC): " + ex);
         }
 
         catalog = "acatalog";
 
         try {
             conn.setCatalog(catalog);
-        } catch (Exception e) {
-            fail("setCatalog(acatalog): " + e);
+            fail("Allowed setCatalog(acatalog)");
+        } catch (Exception ex) {
         }
-        
+
         conn.close();
-        
-        catalog = null;
-        
+
+        catalog = "CATALOG";
+
         try {
             conn.setCatalog(catalog);
             fail("Allowed setCatalog(null) on closed connection");
-        } catch (SQLException ex) {            
+        } catch (SQLException ex) {
         }
 
         catalog = "acatalog";
 
         try {
             conn.setCatalog(catalog);
-            
+
             fail("Allowed setCatalog(acatalog) on closed connection");
-        } catch (Exception e) {            
-        }        
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -494,7 +494,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
 
         Connection conn = newConnection();
 
-        String expResult = null;
+        String expResult = "PUBLIC";
         String result    = conn.getCatalog();
 
         assertEquals(expResult, result);
@@ -565,7 +565,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
         int        result    = conn.getTransactionIsolation();
 
         assertEquals(expResult, result);
-        
+
         int[] levels = new int[] {
             Connection.TRANSACTION_READ_UNCOMMITTED,
             Connection.TRANSACTION_READ_COMMITTED,
@@ -574,38 +574,38 @@ public class jdbcConnectionTest extends JdbcTestCase {
         };
 
         boolean wasSet;
-        
+
         for (int i = 0; i < levels.length; i++) {
             wasSet = false;
-            
+
             try {
                 conn.setTransactionIsolation(levels[i]);
                 wasSet = true;
             } catch (Exception e) {
             }
-            
+
             if (wasSet)
             {
                 SQLWarning warning = conn.getWarnings();
-                
+
                 if (warning == null)
                 {
                     assertEquals(
                             "Reported Isolation:",
                             levels[i],
-                            conn.getTransactionIsolation());                    
+                            conn.getTransactionIsolation());
                 }
-                else                    
+                else
                 {
                     while(warning != null)
                     {
                         println(warning);
-                        
+
                         warning = warning.getNextWarning();
                     }
                 }
             }
-        }        
+        }
     }
 
     /**
@@ -637,7 +637,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
      */
     public void testGetTypeMap() throws Exception {
         println("getTypeMap");
-        
+
         if(!getBooleanProperty("test.typemap", true)) {
             return;
         }
@@ -657,7 +657,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
      */
     public void testSetTypeMap() throws Exception {
         println("setTypeMap");
-        
+
         if(!getBooleanProperty("test.typemap", true)) {
             return;
         }
@@ -683,24 +683,24 @@ public class jdbcConnectionTest extends JdbcTestCase {
         conn.setHoldability(holdability);
 
         int actualHoldability = conn.getHoldability();
-        
+
         SQLWarning warning = conn.getWarnings();
-        
+
         if (warning == null)
-        {        
+        {
             assertEquals("Holdability:", holdability, actualHoldability);
         }
         else
-        {                        
+        {
             while(warning != null)
             {
-                println(warning);      
-                
+                println(warning);
+
                 warning = warning.getNextWarning();
             }
         }
     }
-    
+
     /**
      * Test of setHoldability method, of interface java.sql.Connection.
      */
@@ -713,11 +713,11 @@ public class jdbcConnectionTest extends JdbcTestCase {
         conn.setHoldability(holdability);
 
         int actualHoldability = conn.getHoldability();
-        
+
         SQLWarning warning = conn.getWarnings();
-        
+
         if (warning == null)
-        {        
+        {
             assertEquals("Holdability:", holdability, actualHoldability);
         }
         else
@@ -729,7 +729,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
                 warning = warning.getNextWarning();
             }
         }
-    }    
+    }
 
     /**
      * Test of getHoldability method, of interface java.sql.Connection.
@@ -751,31 +751,31 @@ public class jdbcConnectionTest extends JdbcTestCase {
         println("setSavepoint");
 
         Connection conn = newConnection();
-        
+
         conn.setAutoCommit(true);
-        
+
         try
         {
              Savepoint result = conn.setSavepoint("s1");
              fail("Allowed setSavepoint(name) in autoCommit mode.");
         } catch (Exception e){}
-        
+
         conn.setAutoCommit(false);
 
         try {
             Savepoint result = conn.setSavepoint("s2");
         } catch (Exception e) {
              fail("setSavepoint(name): " + e.getMessage());
-        }        
-        
+        }
+
         conn.setAutoCommit(true);
-        
+
         try
         {
              Savepoint result = conn.setSavepoint();
              fail("Allowed setSavepoint() [no args] in autoCommit mode.");
         } catch (Exception e){}
-        
+
         conn.setAutoCommit(false);
 
         try {
@@ -793,52 +793,52 @@ public class jdbcConnectionTest extends JdbcTestCase {
 
         Savepoint  savepoint;
         Connection conn      = newConnection();
-        
-        assertEquals(true, conn.getAutoCommit());        
-        
+
+        assertEquals(true, conn.getAutoCommit());
+
         try {
             savepoint = conn.setSavepoint("sp1");
-            
+
             fail("Allowed setSavepoint while autoCommit == true.");
         } catch (SQLException ex) {
             //ex.printStackTrace();
         }
-        
+
         conn.setAutoCommit(false);
-        
+
         savepoint = conn.setSavepoint("sp1");
-        
+
         conn.releaseSavepoint(savepoint);
-        
+
         try {
             conn.releaseSavepoint(savepoint);
-            
+
             fail("Allowed releaseSavepoint on invalid Savepoint object");
         } catch (SQLException ex) {
             //ex.printStackTrace();
-        }  
-        
+        }
+
         savepoint = conn.setSavepoint("sp1");
-        
+
         conn.setAutoCommit(true);
-        
+
         try {
             conn.releaseSavepoint(savepoint);
-            
+
             fail("Allowed releaseSavepoint while autoCommit == true");
         } catch (SQLException ex) {
             //ex.printStackTrace();
-        }  
-        
+        }
+
         conn.setAutoCommit(false);
-        
+
         savepoint = conn.setSavepoint("sp1");
-        
+
         conn.close();
-        
+
         try {
             conn.releaseSavepoint(savepoint);
-            
+
             fail("Allowed releaseSavepoint on closed connection");
         } catch (SQLException ex) {
             //ex.printStackTrace();

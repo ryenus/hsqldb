@@ -154,7 +154,7 @@ public class jdbcParameterMetaDataTest extends JdbcTestCase {
 
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
-        int               expResult = Integer.MAX_VALUE;
+        int               expResult = 128; // max length of schema object name
         int               result    = pmd.getPrecision(param);
 
         assertEquals("pmd.getPrecision(" + param + ")", expResult, result);
@@ -174,6 +174,9 @@ public class jdbcParameterMetaDataTest extends JdbcTestCase {
         assertEquals("pmd.getScale(" + param + ")", expResult, result);
     }
 
+    /** @todo use an insert or update statement here, where nullability is
+     *  returned more precisely.
+     */
     /**
      * Test of isNullable method, of interface java.sql.ParameterMetaData.
      */
@@ -182,7 +185,7 @@ public class jdbcParameterMetaDataTest extends JdbcTestCase {
 
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
-        int               expResult = ParameterMetaData.parameterNullable;
+        int               expResult = ParameterMetaData.parameterNullableUnknown;
         int               result    = pmd.isNullable(param);
 
         assertEquals("pmd.isNullable(" + param + ")", expResult, result);
