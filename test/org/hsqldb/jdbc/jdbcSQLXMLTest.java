@@ -91,8 +91,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     protected String zipEntryToString(String zip, String entry)
     throws Exception {
         InputStream is = getZipEntryInputStream(zip, entry);
-        String      s  = StringConverter.inputStreamToString(is,
-                Integer.MAX_VALUE);
+        String      s  = StringConverter.inputStreamToString(is, "US-ASCII");
 
         return s;
     }
@@ -110,24 +109,24 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     protected String newMyDocString() throws Exception {
         return zipEntryToString("resources/xml/MyDoc.xml.zip", "MyDoc.xml");
     }
-    
+
     protected void assertXmlEquals(Source expectedSource, Source actualSource) throws Exception
     {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        
+
         DOMResult expectedResult = new DOMResult();
         DOMResult actualResult = new DOMResult();
-        
+
         transformer.transform(expectedSource, expectedResult);
         transformer.transform(actualSource, actualResult);
-        
+
         Node expectedRoot = expectedResult.getNode();
         Node actualRoot = actualResult.getNode();
-        
+
         assertNodeEquals(expectedRoot, actualRoot);
     }
-    
-    protected void assertNodeEquals(Node n1, Node n2) {            
+
+    protected void assertNodeEquals(Node n1, Node n2) {
         short nt1 = n1.getNodeType();
         short nt2 = n2.getNodeType();
 
@@ -140,7 +139,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
 
         NamedNodeMap n1Attrs = n1.getAttributes();
         NamedNodeMap n2Attrs = n2.getAttributes();
-        
+
         if (n1Attrs != null && n2Attrs != null) {
 
             int n1AttrsLength = n1Attrs.getLength();
@@ -163,7 +162,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
 
         NodeList n1Children = n1.getChildNodes();
         NodeList n2Children = n2.getChildNodes();
-        
+
         if (n1Children != null && n2Children != null) {
             int n1ChildrenLength = n1Children.getLength();
             int n2ChildrenLength = n2Children.getLength();
@@ -173,7 +172,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
             for(int i = 0; i < n1ChildrenLength; i++)
             {
                 assertNodeEquals(n1Children.item(i), n2Children.item(i));
-            }    
+            }
         }
         else if (n1Children == null)
         {
@@ -183,7 +182,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
         {
             assertNull("n1Children", n1Children);
         }
-    }    
+    }
 
     public static Test suite() {
         TestSuite suite = new TestSuite(jdbcSQLXMLTest.class);
@@ -209,13 +208,13 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
         println("getBinaryStream");
 
         SQLXML instance = newMyDoc();
-        
+
         Source actualSource = new StreamSource(instance.getBinaryStream());
 
         actualSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
-        
+
         Source expectedSource = new StreamSource(new StringReader(newMyDocString()));
-        
+
         expectedSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
 
         assertXmlEquals(expectedSource, actualSource);
@@ -230,12 +229,12 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
         SQLXML       instance = new jdbcSQLXML();
         OutputStream os       = instance.setBinaryStream();
         OutputStreamWriter writer = new OutputStreamWriter(os);
-        
+
         String expected = newMyDocString();
-        
+
         writer.write(expected);
         writer.flush();
-        
+
         try {
             writer.close();
         } catch (IOException ex) {
@@ -250,12 +249,12 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
         Source actualSource = new StreamSource(instance.getBinaryStream());
 
         actualSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
-        
+
         Source expectedSource = new StreamSource(new StringReader(expected));
-        
+
         expectedSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
 
-        assertXmlEquals(expectedSource, actualSource); 
+        assertXmlEquals(expectedSource, actualSource);
     }
 
     /**
@@ -265,16 +264,16 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
         println("getCharacterStream");
 
         SQLXML instance = newMyDoc();
-        
+
         Source actualSource = new StreamSource(instance.getCharacterStream());
-        
+
         actualSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
-        
+
         Source expectedSource = new StreamSource(new StringReader(newMyDocString()));
-        
+
         expectedSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
-        
-        assertXmlEquals(expectedSource, actualSource); 
+
+        assertXmlEquals(expectedSource, actualSource);
     }
 
     /**
@@ -286,22 +285,22 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
         SQLXML instance = new jdbcSQLXML();
         Writer writer   = instance.setCharacterStream();
         String expected = newMyDocString();
-        
+
         writer.write(expected);
         writer.flush();
         writer.close();
-        
+
         String actual = instance.getString();
-        
+
         Source actualSource = new StreamSource(new StringReader(actual));
-        
+
         actualSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
-        
+
         Source expectedSource = new StreamSource(new StringReader(expected));
-        
+
         expectedSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
 
-        assertXmlEquals(expectedSource, actualSource);         
+        assertXmlEquals(expectedSource, actualSource);
     }
 
     /**
@@ -314,16 +313,16 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
 
         String actual = instance.getString();
         String expected = newMyDocString();
-        
-        
+
+
         Source actualSource = new StreamSource(new StringReader(actual));
-        
+
         actualSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
-        
+
         Source expectedSource = new StreamSource(new StringReader(expected));
-        
+
         expectedSource.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
-        
+
         assertXmlEquals(expectedSource, actualSource);
     }
 
@@ -334,15 +333,15 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
         println("setString");
 
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
-        
+
         jdbcSQLXML instance = new jdbcSQLXML();
 
         instance.setString(expected);
-        
-        String actual = instance.getString();        
-        Source actualSource = new StreamSource(new StringReader(actual));        
-        Source expectedSource = new StreamSource(new StringReader(expected));       
-        
+
+        String actual = instance.getString();
+        Source actualSource = new StreamSource(new StringReader(actual));
+        Source expectedSource = new StreamSource(new StringReader(expected));
+
         assertXmlEquals(expectedSource, actualSource);
     }
 
@@ -351,7 +350,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
      */
     public void testGetDOMSource() throws Exception {
         println("getDOMSource");
-        
+
         fail("TODO: testGetDOMSource()");
     }
 
@@ -360,7 +359,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
      */
     public void testGetSAXSource() throws Exception {
         println("getSAXSource");
-        
+
         fail("TODO: testGetSAXSource()");
     }
 
@@ -369,7 +368,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
      */
     public void testGetStAXSource() throws Exception {
         println("getStAXSource");
-        
+
         fail("TODO: testGetStAXSource()");
     }
 
@@ -378,7 +377,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
      */
     public void testGetStreamSource() throws Exception {
         println("getStreamSource");
-        
+
          fail("TODO: testGetStreamSource()");
     }
 
@@ -387,7 +386,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
      */
     public void testSetDOMResult() throws Exception {
         println("setDOMResult");
-        
+
         fail("TODO: testSetDOMResult()");
     }
 
@@ -396,7 +395,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
      */
     public void testSetSAXResult() throws Exception {
         println("setSAXResult");
-        
+
         fail("TODO: testSetSAXResult()");
     }
 
@@ -405,7 +404,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
      */
     public void testSetStAXResult() throws Exception {
         println("setStAXResult");
-        
+
         fail("TODO: testSetStAXResult()");
     }
 
@@ -414,8 +413,8 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
      */
     public void testSetStreamResult() throws Exception {
         println("setStreamResult");
-        
-        fail("TODO: testSetStreamResult()");        
+
+        fail("TODO: testSetStreamResult()");
     }
 
     public static void main(java.lang.String[] argList) {

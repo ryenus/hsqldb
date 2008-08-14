@@ -60,7 +60,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             = - Trace.NO_DATA_IS_AVAILABLE;
 
     private List<ResultSet> resultSetList;
-    
+
     public jdbcResultSetTest(String testName) {
         super(testName);
     }
@@ -69,7 +69,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         super.setUp();
 
         resultSetList = new ArrayList<ResultSet>();
-        
+
         executeScript("setup-all_types-table.sql");
         executeScript("populate-all_types-table.sql");
     }
@@ -224,12 +224,17 @@ public class jdbcResultSetTest extends JdbcTestCase {
         jdbcStatement  stmt = (jdbcStatement) conn.createStatement(type, concur);
 
         ResultSet rs =  stmt.executeQuery(select);
-        
+
         resultSetList.add(rs);
-        
+
         return rs;
     }
 
+    /** @todo  conversion from string to boolean in getBoolean() is supported
+     * only with the values 'true' or 'false"
+     *
+     *
+     */
     protected void testGetXXX(String methodName) throws Exception {
         ResultSet rs = newFOROJdbcResultSet();
 
@@ -247,23 +252,23 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
             try {
                 Method getXXX = rs.getClass().getMethod(
-                        methodName, 
+                        methodName,
                         new Class[]{int.class});
 
                 Object value      = getXXX.invoke(
-                        rs, 
+                        rs,
                         new Object[]{ new Integer(i) });
 
-                Class  valueClass = (value == null) ? Void.class 
+                Class  valueClass = (value == null) ? Void.class
                         : value.getClass();
 
                 if (!required) {
                     Method getObject   = rs.getClass().getMethod(
-                            "getObject", 
+                            "getObject",
                             new Class[]{int.class});
 
                     Object objectValue = getObject.invoke(
-                            rs, 
+                            rs,
                             new Object[]{ new Integer(i) });
 
                     println("****************************************");
@@ -284,9 +289,9 @@ public class jdbcResultSetTest extends JdbcTestCase {
                 {
                     println(
                              "Info - Pass: "
-                            + columnName 
-                            + "(" 
-                            + typeName 
+                            + columnName
+                            + "("
+                            + typeName
                             + ")");
                 }
             } catch (Exception e) {
@@ -302,38 +307,38 @@ public class jdbcResultSetTest extends JdbcTestCase {
                     if (required) {
                         if (ex.getErrorCode() != -Trace.WRONG_DATA_TYPE) {
                             fail(
-                                    columnName 
+                                    columnName
                                     + "("
                                     + typeName
-                                    + ") : " 
-                                    + t 
-                                    + ": [" 
-                                    +  ex.getErrorCode() 
+                                    + ") : "
+                                    + t
+                                    + ": ["
+                                    +  ex.getErrorCode()
                                     + "]");
                         } else {
                             println(
-                                    "Warn - Pass: " 
-                                   + columnName 
+                                    "Warn - Pass: "
+                                   + columnName
                                    + "("
                                    + typeName
-                                   + ") : " 
+                                   + ") : "
                                    + ex);
                         }
                     } else {
                         println(
-                                "Info - Pass: " 
-                                + columnName 
+                                "Info - Pass: "
+                                + columnName
                                 + "("
                                 + typeName
-                                + ") : " 
+                                + ") : "
                                 + ex);
                     }
                 } else {
                     fail(
-                                columnName 
+                                columnName
                                 + "("
                                 + typeName
-                                + ") : " 
+                                + ") : "
                             + t);
                 }
             }
@@ -506,7 +511,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         println("getShort");
 
         testGetXXX("getShort");
-        
+
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -556,7 +561,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         println("getLong");
 
         testGetXXX("getLong");
-        
+
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -608,13 +613,13 @@ public class jdbcResultSetTest extends JdbcTestCase {
         testGetXXX("getDouble");
 
         ResultSet rs = this.newFOROJdbcResultSet();
- 
+
         rs.next();
         rs.close();
 
         try {
             rs.getDouble(1);
-            
+
             fail("Allowed getDouble after close()");
         } catch (SQLException ex) {
             assertEquals(
@@ -737,7 +742,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         println("getTimestamp");
 
         testGetXXX("getTimestamp");
-        
+
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -842,7 +847,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         println("getUnicodeStream");
 
         testGetXXX("getUnicodeStream");
-        
+
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -960,7 +965,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         try {
             rs.getCursorName();
-            
+
             fail("Allowed getCursorName() after close()");
         } catch (SQLException ex) {
             assertEquals(
@@ -985,7 +990,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         try {
             rs.getMetaData();
-            
+
             fail("Allowed getMetaData after close()");
         } catch (SQLException ex) {
             assertEquals(
@@ -1022,7 +1027,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
                 rsmd.isWritable(i);
             }
         } catch (SQLException ex) {
-            fail("ResultSetMetaData should be valid after ResultSet is closed: " 
+            fail("ResultSetMetaData should be valid after ResultSet is closed: "
                     + ex.toString());
         }
     }
@@ -1042,7 +1047,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         try {
             rs.getObject(1);
-            
+
             fail("Allowed getObject after close()");
         } catch (SQLException ex) {
             assertEquals(
@@ -1073,7 +1078,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         }
 
         rs.close();
-        
+
         try {
             rs.findColumn(aliases[0]);
 
@@ -1163,7 +1168,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
                     "error code",
                     ex.getErrorCode(),
                     -Trace.JDBC_RESULTSET_IS_CLOSED);
-        }        
+        }
 
     }
 
@@ -1213,7 +1218,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         assertEquals(true, rs.isAfterLast());
 
         rs.previous();
- 
+
         assertEquals(false, rs.isAfterLast());
 
         rs.close();
@@ -1282,14 +1287,14 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         assertEquals(
                 "isFirst() after next() after before all previous()",
-                true, 
+                true,
                 rs.isFirst());
 
         while(rs.next());
 
         assertEquals(
                 "isFirst() after all next() after all previous()",
-                false, 
+                false,
                 rs.isFirst());
 
         rs.first();
@@ -1472,7 +1477,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);            
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
         }
     }
 
@@ -1698,7 +1703,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         try {
             rs.getFetchDirection();
-            
+
             fail("Allowed getFetchDirection() after close()");
         } catch (SQLException ex) {
             assertEquals(
@@ -1735,7 +1740,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         try {
             rs.getFetchSize();
-            
+
             fail("Allowed getFetchSize() after close()");
         } catch (SQLException ex) {
             assertEquals(
@@ -1753,7 +1758,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         assertEquals(ResultSet.TYPE_FORWARD_ONLY,
                      newFOROJdbcResultSet().getType());
-        
+
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -1780,7 +1785,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         assertEquals(
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 newJdbcResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE).getType());
-        
+
         ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE);
 
         rs.next();
@@ -1861,11 +1866,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testRowUpdated() throws Exception {
         println("rowUpdated");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1887,11 +1892,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testRowInserted() throws Exception {
         println("rowInserted");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -1902,11 +1907,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testRowDeleted() throws Exception {
         println("rowDeleted");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         fail("TODO: The test case is empty.");
     }
@@ -1916,11 +1921,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateNull() throws Exception {
         println("updateNull");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -1940,12 +1945,12 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBoolean() throws Exception {
         println("testUpdateBoolean");
-        
+
         if (!isTestUpdates())
         {
             return;
         }
-        
+
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
 
@@ -1962,12 +1967,12 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateByte() throws Exception {
         println("testUpdateByte");
-        
+
         if (!isTestUpdates())
         {
             return;
         }
-        
+
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
 
@@ -1984,11 +1989,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateShort() throws Exception {
         println("updateShort");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2006,11 +2011,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateInt() throws Exception {
         println("updateInt");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2028,11 +2033,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateLong() throws Exception {
         println("updateLong");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2050,11 +2055,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateFloat() throws Exception {
         println("updateFloat");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2072,11 +2077,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateDouble() throws Exception {
         println("updateDouble");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2095,11 +2100,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBigDecimal() throws Exception {
         println("updateBigDecimal");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2118,11 +2123,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateString() throws Exception {
         println("updateString");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2162,11 +2167,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBytes() throws Exception {
         println("updateBytes");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2186,11 +2191,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateDate() throws Exception {
         println("updateDate");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2208,11 +2213,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateTime() throws Exception {
         println("updateTime");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2230,11 +2235,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateTimestamp() throws Exception {
         println("updateTimestamp");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2279,11 +2284,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBinaryStream() throws Exception {
         println("updateBinaryStream");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2304,11 +2309,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateCharacterStream() throws Exception {
         println("updateCharacterStream");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2328,11 +2333,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateObject() throws Exception {
         println("updateObject");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2362,7 +2367,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             ResultSet rs = this.newUpdateableJdbcResultSet();
 
             rs.moveToInsertRow();
-            
+
             int columnCount = rs.getMetaData().getColumnCount();
 
             rs.updateInt(1, 999999);
@@ -2379,9 +2384,9 @@ public class jdbcResultSetTest extends JdbcTestCase {
         ResultSet rs = this.newUpdateableJdbcResultSet();
 
         rs.moveToInsertRow();
-        
+
         int columnCount = rs.getMetaData().getColumnCount();
-        
+
         rs.updateInt(1, 1000000);
 
         for (int i = 2; i <= columnCount; i++) {
@@ -2392,7 +2397,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         try {
             rs.insertRow();
-            
+
             fail("Allowed insertRow() after close()");
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -2404,11 +2409,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateRow() throws Exception {
         println("updateRow");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2459,7 +2464,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED); 
+                    -Trace.JDBC_RESULTSET_IS_CLOSED);
         }
     }
 
@@ -2550,11 +2555,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testMoveToInsertRow() throws Exception {
         println("moveToInsertRow");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         try {
             ResultSet rs = this.newUpdateableJdbcResultSet();
@@ -2563,7 +2568,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
-        
+
         ResultSet rs = this.newUpdateableJdbcResultSet();
 
         rs.close();
@@ -2758,7 +2763,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         println("getArray while before first");
 
         ResultSet rs = newFOROJdbcResultSet();
-        
+
         assertEquals("beforeFirst", true, rs.isBeforeFirst());
 
         try {
@@ -2803,7 +2808,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         println("getURL");
 
         testGetXXX("getURL");
-        
+
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -2826,11 +2831,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateRef() throws Exception {
         println("updateRef");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -2841,11 +2846,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateBlob() throws Exception {
         println("updateBlob");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }        
+        }
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -2856,11 +2861,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateClob() throws Exception {
         println("updateClob");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         // TODO:
         fail("TODO: The test case is empty.");
@@ -2876,7 +2881,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
         {
             return;
         }
-        
+
         // TODO:
         fail("TODO: The test case is empty.");
     }
@@ -2967,11 +2972,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateNString() throws Exception {
         println("updateNString");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         // TODO
         fail("TODO: The test case is empty.");
@@ -2982,11 +2987,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateNClob() throws Exception {
         println("updateNClob");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         // TODO
         fail("TODO: The test case is empty.");
@@ -3047,11 +3052,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateSQLXML() throws Exception {
         println("updateSQLXML");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         // TODO.
         fail("TODO: The test case is empty.");
@@ -3112,11 +3117,11 @@ public class jdbcResultSetTest extends JdbcTestCase {
      */
     public void testUpdateNCharacterStream() throws Exception {
         println("updateNCharacterStream");
-        
+
         if (!isTestUpdates())
         {
             return;
-        }          
+        }
 
         // TODO
         fail("TODO: The test case is empty.");

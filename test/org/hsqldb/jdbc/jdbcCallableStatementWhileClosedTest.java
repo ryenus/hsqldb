@@ -70,56 +70,56 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public static TestSuite suite() {
         return new TestSuite(jdbcCallableStatementWhileClosedTest.class);
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     protected String getSql() {
         return "{?= call cast(1 as integer)}";
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     protected int getParameterType() {
         return java.sql.Types.INTEGER;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     protected String getParameterTypeName() {
         return "INTEGER";
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     protected int getParameterScale() {
         return 0;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     protected int getParameterIndex() {
         return 1;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     protected String getParameterName() {
         return "@p0";
@@ -130,12 +130,12 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
     }
 
     /**
-     * 
-     * @return 
-     * @throws java.lang.Exception 
+     *
+     * @return
+     * @throws java.lang.Exception
      */
     protected CallableStatement newClosedCall() throws Exception {
-        CallableStatement instance 
+        CallableStatement instance
                 = connectionFactory().prepareCall(getSql(), newConnection());
 
         instance.close();
@@ -1228,7 +1228,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
         try {
             instance.setObject(parameterName, x);
             fail("Allowed set object by parameter name after close");
-        } catch (SQLException ex) {            
+        } catch (SQLException ex) {
             checkException(ex);
         }
 
@@ -1236,7 +1236,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
             instance.setObject(parameterIndex, x);
             fail("Allowed set object by parameter index after close");
         } catch (SQLException ex) {
-            checkException(ex);            
+            checkException(ex);
         }
 
         try {
@@ -1290,28 +1290,28 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
         }
 
         try {
-            instance.setCharacterStream(parameterIndex, reader);  
+            instance.setCharacterStream(parameterIndex, reader);
             fail("Allowed set character stream by parameter index after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setCharacterStream(parameterName, reader, intLength); 
+            instance.setCharacterStream(parameterName, reader, intLength);
             fail("Allowed set character stream by parameter name and int length after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setCharacterStream(parameterName, reader, longLength);  
+            instance.setCharacterStream(parameterName, reader, longLength);
             fail("Allowed set character stream by parameter name and long length after close");
         } catch (SQLException ex) {
             checkException(ex);
         }
 
         try {
-            instance.setCharacterStream(parameterIndex, reader, intLength);  
+            instance.setCharacterStream(parameterIndex, reader, intLength);
             fail("Allowed set character stream by parameter index and int length after close");
         } catch (SQLException ex) {
             checkException(ex);
@@ -1333,7 +1333,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
         println("getRowId");
 
         String parameterName = getParameterName();
-        int parameterIndex = getParameterIndex();        
+        int parameterIndex = getParameterIndex();
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1415,7 +1415,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         CallableStatement instance = newClosedCall();
-        
+
         try {
             instance.setNCharacterStream(parameterName, new StringReader("1"));
             fail("Allowed set ncharacter stream by parameter name after close");
@@ -1455,7 +1455,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
 
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
-        CallableStatement instance = newClosedCall();        
+        CallableStatement instance = newClosedCall();
         NClob nclob = newConnection().createNClob();
         nclob.setString(1, "1");
 
@@ -1512,11 +1512,11 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
 
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
-        
+
         long length = 0L;
         CallableStatement instance = newClosedCall();
         Clob x = instance.getConnection().createClob();
-        
+
         try {
             instance.setClob(parameterName, x);
             fail("Allowed set clob by parameter name after close");
@@ -1684,13 +1684,13 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
      */
     public void testClose() throws Exception {
         println("close");
-
+//in this suite, no test is necessary for this method
         jdbcCallableStatement instance = null;
 
 //        instance.close();
 
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+//        fail("The test case is a prototype.");
     }
 
     public static void main(java.lang.String[] argList) {

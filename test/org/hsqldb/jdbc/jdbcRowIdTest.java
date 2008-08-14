@@ -77,7 +77,7 @@ public class jdbcRowIdTest extends JdbcTestCase {
         println("equals");
 
         RowId id1         = newRowId("02b7abfe");
-        RowId id2         = newRowId(StringConverter.hexToByteArray("02b7abfe"));
+        RowId id2         = newRowId(StringConverter.hexStringToByteArray("02b7abfe"));
         boolean expResult = true;
         boolean result    = id1.equals(id2);
 
@@ -90,7 +90,7 @@ public class jdbcRowIdTest extends JdbcTestCase {
     public void testGetBytes() throws Exception {
         println("getBytes");
 
-        byte[] expResult = StringConverter.hexToByteArray("02b7abfe");
+        byte[] expResult = StringConverter.hexStringToByteArray("02b7abfe");
         byte[] result    = newRowId("02b7abfe").getBytes();
 
         assertJavaArrayEquals(expResult, result);
@@ -115,7 +115,7 @@ public class jdbcRowIdTest extends JdbcTestCase {
     public void testHashCode() throws Exception {
         println("hashCode");
 
-        byte[] bytes  = StringConverter.hexToByteArray("02b7abfe");
+        byte[] bytes  = StringConverter.hexStringToByteArray("02b7abfe");
         RowId  rid    = newRowId("02b7abfe");
         int expResult = Arrays.hashCode(bytes);
         int result    = rid.hashCode();

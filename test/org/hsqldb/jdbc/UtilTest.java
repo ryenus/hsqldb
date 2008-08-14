@@ -52,7 +52,7 @@ import org.hsqldb.Trace;
  * @author boucherb@users
  */
 public class UtilTest extends JdbcTestCase {
-    
+
 // SQL 2003 Table 32 - SQLSTATE class and subclass values
 //
 //  connection exception 08 (no subclass)                     000
@@ -87,8 +87,10 @@ public class UtilTest extends JdbcTestCase {
         {
             SQLTransientConnectionException.class,
                     new int[] {
+/*
                 Trace.SOCKET_ERROR,
                 Trace.DATABASE_LOCK_ACQUISITION_FAILURE,
+*/
                 Trace.DATABASE_NOT_EXISTS
             }
         },
@@ -97,14 +99,17 @@ public class UtilTest extends JdbcTestCase {
                     new int[] {
                 Trace.CONNECTION_IS_CLOSED,
                 Trace.CONNECTION_IS_BROKEN,
+/*
                 Trace.DATABASE_IS_SHUTDOWN,
                 Trace.UNEXPECTED_EXCEPTION // when setting up TLS
-            }
+*/
+          }
         },
         {
             SQLIntegrityConstraintViolationException.class,
                     new int[] {
-                Trace.INTEGRITY_CONSTRAINT_VIOLATION,
+/*                Trace.INTEGRITY_CONSTRAINT_VIOLATION,
+*/
                 Trace.VIOLATION_OF_UNIQUE_INDEX,
                 Trace.TRY_TO_INSERT_NULL,
                 Trace.VIOLATION_OF_UNIQUE_CONSTRAINT,
@@ -179,7 +184,6 @@ public class UtilTest extends JdbcTestCase {
                 Trace.WRONG_DATA_TYPE,
                 Trace.LABEL_REQUIRED,
                 Trace.WRONG_DEFAULT_CLAUSE,
-                Trace.OUTER_JOIN_CONDITION,
                 Trace.MISSING_SOFTWARE_MODULE,
                 Trace.NOT_IN_AGGREGATE_OR_GROUP_BY,
                 Trace.INVALID_GROUP_BY,
@@ -195,7 +199,9 @@ public class UtilTest extends JdbcTestCase {
                 Trace.COLUMN_IS_IN_CONSTRAINT,
                 Trace.COLUMN_SIZE_REQUIRED,
                 Trace.INVALID_SIZE_PRECISION,
+/*
                 Trace.NOT_AUTHORIZED
+*/
             }
         },
         {
@@ -231,62 +237,62 @@ public class UtilTest extends JdbcTestCase {
             SQLException.class,
                     null // calculated below, in static initializer
         }
-        
+
     };
-    
+
     private static final Map classMap = new HashMap();
-    
+
     static {
         List list = new ArrayList();
-        
+
         for (int i = 1; i < Trace.LAST_ERROR_HANDLE; i++) {
             for (int j = 0; j < exceptions.length - 1; j++) {
                 int[]   codes = (int[]) exceptions[j][1];
                 boolean found = false;
-                
+
                 for (int k = 0; k < codes.length; k++) {
                     if (i == codes[k]) {
                         found = true;
                         break;
                     }
                 }
-                
+
                 if (!found) {
                     list.add(new Integer(i));
                 }
             }
         }
-        
+
         int[] nontransientcodes = new int[list.size()];
-        
+
         for (int i = 0; i < list.size(); i++) {
             nontransientcodes[i] = ((Integer)list.get(i)).intValue();
         }
-        
+
         exceptions[exceptions.length-1][1] = nontransientcodes;
-        
+
         for (int i = 0; i < exceptions.length; i++) {
             classMap.put(exceptions[i][0], exceptions[i][1]);
         }
     }
-    
+
     public UtilTest(String testName, int vendorCode) {
         super(testName);
 
         m_vendorCode = vendorCode;
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
     }
-    
+
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     protected void checkSQLException(SQLException se) throws Exception {
         String  sqlState  = se.getSQLState();
-        
+
         if (sqlState.startsWith("08")) {
             if (sqlState.endsWith("003")) {
                 assertTrue("se instanceof SQLNonTransientConnectionException",
@@ -317,21 +323,21 @@ public class UtilTest extends JdbcTestCase {
             checkErrorCode(se, SQLException.class);
         }
     }
-    
+
     protected void checkErrorCode(SQLException se, Class clazz) throws Exception {
         int     errorCode    = Math.abs(se.getErrorCode());
         String  errorMessage = se.getMessage();
         String  sqlState     = se.getSQLState();
         int[]   codes        = (int[])classMap.get(clazz);
         boolean found        = false;
-        
+
         for (int i = 0; i < codes.length; i++) {
             if (errorCode == codes[i]) {
                 found = true;
                 break;
             }
         }
-        
+
         if (!found) {
             assertEquals("Allowable error code "
                     + errorCode
@@ -347,24 +353,24 @@ public class UtilTest extends JdbcTestCase {
     }
 
     public static void main(java.lang.String[] argList) throws Exception {
-        
+
         junit.textui.TestRunner.run(suite());
     }
 
     public static TestSuite suite() {
         TestSuite suite = new TestSuite("UtilTest Suite");
-        
+
 
         Field[] fields = Trace.class.getFields();
-        
+
         for (int i = 0; i < fields.length-1; i++) {
             if (int.class != fields[i].getType()) {
                 continue;
             }
-            
+
             Field field =  fields[i];
             String fieldName = field.getName();
-            
+
             if ("bundleHandle".equals(fieldName)) {
                 continue;
             }
@@ -374,30 +380,30 @@ public class UtilTest extends JdbcTestCase {
             if (fieldName.startsWith("LAST_ERROR_HANDLE")) {
                 continue;
             }
-            
-           
+
+
             String testName = "testSqlException_" + fieldName;
              try {
             int vendorCode = field.getInt(null);
-            
+
             UtilTest test = new UtilTest(testName, vendorCode);
-            
+
             suite.addTest(test);
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
-        
+
         return suite;
     }
 
     private int m_vendorCode;
-    
+
     protected void runTest() throws Throwable {
         println(getName());
-        
+
         SQLException ex = Util.sqlException(m_vendorCode,"");
-        
+
         checkSQLException(ex);
     }
 }
