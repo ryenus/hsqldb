@@ -581,7 +581,7 @@ public class SqlTool {
         } catch (RuntimeException re) {
             throw re;  // Unrecoverable
         } catch (Exception e) {
-            //e.printStackTrace();
+            if (debug) logger.error(e.getClass().getName(), e);
 
             // Let's not continue as if nothing is wrong.
             throw new SqlToolException(CONNECTERR_EXITVAL,

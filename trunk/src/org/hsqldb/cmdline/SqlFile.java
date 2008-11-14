@@ -156,6 +156,7 @@ public class SqlFile {
     private String           dsvConstCols     = null;
     private String           dsvRejectFile    = null;
     private String           dsvRejectReport  = null;
+    private int              dsvRecordsPerCommit = 0;
     public static String     LS = System.getProperty("line.separator");
     private int              maxHistoryLength = 1;
     private SqltoolRB        rb               = null;
@@ -278,6 +279,16 @@ public class SqlFile {
         dsvConstCols = (String) userVars.get("*DSV_CONST_COLS");
         dsvRejectFile = (String) userVars.get("*DSV_REJECT_FILE");
         dsvRejectReport = (String) userVars.get("*DSV_REJECT_REPORT");
+        if (userVars.get("*DSV_RECORDS_PER_COMMIT") != null) try {
+            dsvRecordsPerCommit = Integer.parseInt(
+                    (String) userVars.get("*DSV_RECORDS_PER_COMMIT"));
+        } catch (NumberFormatException nfe) {
+            logger.error("Clearing *DSV_RECORDS_PER_COMMIT, since non-integer "
+                    + "specified: " + userVars.get("*DSV_RECORDS_PER_COMMIT"));
+            // TODO:  Localize message
+            userVars.remove("*DSV_REJECT_REPORT");
+            dsvRecordsPerCommit = 0;
+        }
 
         nullRepToken = (String) userVars.get("*NULL_REP_TOKEN");
         if (nullRepToken == null) {
@@ -4576,6 +4587,19 @@ public class SqlFile {
         int skipCount = 0;
         PreparedStatement ps = null;
         boolean importAborted = false;
+        boolean doResetAutocommit = false;
+        try {
+            doResetAutocommit = dsvRecordsPerCommit > 0
+                && curConn.getAutoCommit();
+            if (doResetAutocommit) curConn.setAutoCommit(false);
+        } catch (SQLException se) {
+            throw new SqlToolError(
+                    "Failed to set up autocommit for *DSV_RECORDS_PER_COMMIT "
+                    + "option", se);
+            // TODO:  Localize error message
+        }
+        // We're now assured that if dsvRecordsPerCommit is > 0, then
+        // autocommit is off.
 
         try {
             try {
@@ -4718,7 +4742,13 @@ public class SqlFile {
                             SqltoolRB.INPUTREC_MODIFIED, retval));
                 }
 
-                possiblyUncommitteds.set(true);
+                if (dsvRecordsPerCommit > 0
+                    && (recCount - rejectCount) % dsvRecordsPerCommit == 0) {
+                    curConn.commit();
+                    possiblyUncommitteds.set(false);
+                } else {
+                    possiblyUncommitteds.set(true);
+                }
             } catch (SQLException se) {
                 throw new RowError(null, se);
             } } catch (RowError re) {
@@ -4744,6 +4774,23 @@ public class SqlFile {
                 }
             }
         } finally {
+            try {
+                if (dsvRecordsPerCommit > 0
+                    && (recCount - rejectCount) % dsvRecordsPerCommit != 0) {
+                    // To be consistent, if *DSV_RECORDS_PER_COMMIT is set, we
+                    // always commit all inserted records.
+                    // This little block commits any straggler commits since the
+                    // last commit.
+                    curConn.commit();
+                    possiblyUncommitteds.set(false);
+                }
+                if (doResetAutocommit) curConn.setAutoCommit(true);
+            } catch (SQLException se) {
+                throw new SqlToolError(
+                        "Failed to set up finalize commit status "
+                        + "for *DSV_RECORDS_PER_COMMIT option", se);
+                // TODO:  Localize error message
+            }
             String summaryString = null;
             if (recCount > 0) {
                 summaryString = rb.getString(SqltoolRB.DSV_IMPORT_SUMMARY,
