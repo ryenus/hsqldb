@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Properties;
 
 /* $Id$ */
 
@@ -66,8 +65,7 @@ public class SqlToolSprayer {
         + "    sqltoolsprayer.period (in ms.) [500]\n"
         + "    sqltoolsprayer.maxtime (in ms.) [0]\n"
         + "    sqltoolsprayer.monfile (filepath) [none]\n"
-        + "    sqltoolsprayer.rcfile (filepath) [none.  SqlTool default used.]"
-        + "\n    sqltoolsprayer.propfile (filepath) [none]";
+        + "    sqltoolsprayer.rcfile (filepath) [none.  SqlTool default used.]";
     static {
         if (!LS.equals("\n")) {
             SYNTAX_MSG = SYNTAX_MSG.replaceAll("\n", LS);
@@ -90,7 +88,6 @@ public class SqlToolSprayer {
                         : Integer.parseInt(
                             System.getProperty("sqltoolsprayer.maxtime")));
         String rcFile   = System.getProperty("sqltoolsprayer.rcfile");
-        String propfile = System.getProperty("sqltoolsprayer.propfile");
         File monitorFile =
             (System.getProperty("sqltoolsprayer.monfile") == null) ? null
                                                                    : new File(
@@ -98,18 +95,13 @@ public class SqlToolSprayer {
                                                                            "sqltoolsprayer.monfile"));
         ArrayList urlids = new ArrayList();
 
-        if (propfile != null) {
-            try {
-                getUrlsFromPropFile(propfile, urlids);
-            } catch (Exception e) {
-                System.err.println("Failed to load property file '" + propfile
-                                   + "':  " + e);
-                System.exit(3);
-            }
-        }
-
         for (int i = 1; i < sa.length; i++) {
             urlids.add(sa[i]);
+        }
+
+        if (urlids.size() < 1) {
+            System.err.println("No urlids specified.  Nothing to spray.");
+            System.exit(5);
         }
 
         boolean[] status = new boolean[urlids.size()];
@@ -184,28 +176,5 @@ public class SqlToolSprayer {
         }
 
         System.exit(0);
-    }
-
-    private static void getUrlsFromPropFile(String fileName,
-            ArrayList al) throws Exception {
-
-        Properties p = new Properties();
-
-        p.load(new FileInputStream(fileName));
-
-        int    i = -1;
-        String val;
-
-        while (true) {
-            i++;
-
-            val = p.getProperty("server.urlid." + i);
-
-            if (val == null) {
-                return;
-            }
-
-            al.add(val);
-        }
     }
 }
