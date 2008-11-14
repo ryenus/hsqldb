@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2008, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -683,13 +683,14 @@ public class SqlTool {
             try {
                 conn.close();
             } catch (Exception e) {}
-        }
-
-        // Taking file removal out of final block because this is good debug
-        // info to keep around if the program aborts.
-        if (tmpFile != null && !tmpFile.delete()) {
-            System.err.println(conData.url + rb.getString(
-                    SqltoolRB.TEMPFILE_REMOVAL_FAIL, tmpFile.toString()));
+            if ((!debug) && tmpFile != null && !tmpFile.delete()) {
+                // Leave this in final block.
+                // There are plenty of valid use-cases where SqlTool is
+                // expected to fail out, and we usually do not want files
+                // left around.
+                System.err.println(conData.url + rb.getString(
+                        SqltoolRB.TEMPFILE_REMOVAL_FAIL, tmpFile.toString()));
+            }
         }
     }
 }
