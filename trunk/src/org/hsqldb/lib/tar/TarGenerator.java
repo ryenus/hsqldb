@@ -78,11 +78,14 @@ public class TarGenerator {
 
     public TarGenerator(String archivePath) {
         archiveFile = new File(archivePath);
-        if (archiveFile.exists() && !overWrite) {
-            throw new IllegalStateException(
-                    "Destination file already exists: "
-                    + archiveFile.getAbsolutePath());
-        }
+    }
+
+    public void setBlocksPerRecord(int blocksPerRecord) {
+        this.blocksPerRecord = blocksPerRecord;
+    }
+    
+    public void setOverwrite(boolean overWrite) {
+        this.overWrite = overWrite;
     }
     
     public void queueEntry(File file) throws FileNotFoundException {
@@ -93,6 +96,11 @@ public class TarGenerator {
     }
 
     public void write() throws IOException {
+        if (archiveFile.exists() && !overWrite) {
+            throw new IOException(
+                    "Destination file already exists: "
+                    + archiveFile.getAbsolutePath());
+        }
         System.err.println(Integer.toString(entryQueue.size())
                     + " supplicants queued for writing...");
         RandomAccessFile archive = new RandomAccessFile(archiveFile, "rw");
