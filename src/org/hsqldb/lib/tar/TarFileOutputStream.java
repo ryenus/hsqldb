@@ -49,6 +49,11 @@ import java.util.zip.GZIPOutputStream;
  * FileOutputStream internally.  Can't accomplish these goals in Java if we
  * subclass.
  * <P>
+ * This class is ignorant about Tar header fields, attributes and such.
+ * It is concerned with reading and writing blocks of data in conformance with
+ * Tar formatting, in a way convenient to those who want to write the header
+ * and data blocks.
+ * <P>
  * Users write file data by means of populating the provided, public byte array,
  * then calling the single write(int) method to write a portion of that array.
  * This design purposefully goes with efficiency, simplicity, and performance
@@ -122,7 +127,7 @@ public class TarFileOutputStream implements Closeable, Flushable{
                 break;
             case TarFileOutputStream.GZIP_COMPRESSION:
                 writeStream = new GZIPOutputStream(
-                        new FileOutputStream(targetFile));
+                        new FileOutputStream(targetFile), writeBuffer.length);
                 break;
             default:
                 throw new IllegalArgumentException(
