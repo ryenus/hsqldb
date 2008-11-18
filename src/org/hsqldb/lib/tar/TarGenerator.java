@@ -38,10 +38,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.FileInputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 /**
  * Generates a tar archive from specified Files and InputStreams.
@@ -49,102 +50,138 @@ import java.io.FileInputStream;
  * @author Blaine Simpson
  */
 public class TarGenerator {
-    final protected static byte[] ZERO_BLOCK = new byte[512];
-
+    /**
+     * Creates specified tar file to contain specified files, or stdin,
+     * using default blocks-per-record and replacing tar file if it already
+     * exists.
+     */
     static public void main(String[] sa) throws IOException {
-        if (sa.length < 1)
+        if (sa.length < 1) {
             throw new IllegalArgumentException(
                     "SYNTAX: java " + TarGenerator.class.getName()
-                    + " new.tar [entryFile1...]");
-        TarGenerator generator = new TarGenerator(sa[0]);
+                    + " new.tar [entryFile1...]\n"
+                    + "If no entryFiles are specified, stdin will be read to "
+                    + "write an entry with name 'stdin'.\n"
+                    + " In this latter case, input is limited to 10240 bytes");
+        }
+        TarGenerator generator = new TarGenerator(sa[0], true, null);
         if (sa.length == 1) {
-            generator.queueEntry("stdin", System.in);
+            generator.queueEntry("stdin", System.in, 10240);
         } else {
-            for (int i = 1; i < sa.length; i++)
+            for (int i = 1; i < sa.length; i++) {
                 generator.queueEntry(new File(sa[i]));
+            }
         }
         generator.write();
     }
 
-    protected int blocksPerRecord = 20;
-    // N.b. the blocksPerRecord is primarily a Tar-file-level concept, not a
-    // Tar-Entry-level concept.
-    // The only influence on the latter is, we use this as a clue to estimate
-    // an efficient read-write buffer size for copying file data.
-    // Other htan that, TarEntrySupplicant works only with 512 byte blocks.
-    protected File archiveFile;
-    protected boolean overWrite = false;
+    protected TarFileOutputStream archive;
     protected List entryQueue = new ArrayList();
 
-    public TarGenerator(String archivePath) {
-        archiveFile = new File(archivePath);
-    }
-
-    public void setBlocksPerRecord(int blocksPerRecord) {
-        this.blocksPerRecord = blocksPerRecord;
-    }
-    
-    public void setOverwrite(boolean overWrite) {
-        this.overWrite = overWrite;
+    /**
+     * Compression is determined directly by the suffix of the file name in
+     * the specified path.
+     *
+     * @param archivePath  Absolute or relative (from user.dir) path to
+     *                     tar file to be created.  Suffix must indicate
+     *                     tar file and may indicate a compression method.
+     * @param overWrite    True to replace an existing file of same path.
+     * @param blocksPerRecord  Null will use default tar value.
+     */
+    public TarGenerator(
+            String archivePath, boolean overWrite, Integer blocksPerRecord)
+            throws IOException {
+        File archiveFile = new File(archivePath).getAbsoluteFile();
+        int compression = TarFileOutputStream.NO_COMPRESSION;
+        if (archiveFile.getName().endsWith(".tgz")
+                || archiveFile.getName().endsWith(".tar.gz")) {
+                compression = TarFileOutputStream.GZIP_COMPRESSION;
+        } else if (archiveFile.getName().endsWith(".tar")) {
+        } else {
+            throw new IllegalArgumentException(
+                getClass().getName() + " only generates files with extensions "
+                + "'.tar', '.tgz.', or '.tar.gz'");
+        }
+        if (archiveFile.exists()) {
+            if (!overWrite) {
+                throw new IOException(
+                        "Destination file already exists: "
+                        + archiveFile.getAbsolutePath());
+            }
+        } else {
+            File parentDir = archiveFile.getParentFile();
+            if (parentDir.exists()) {
+                if (!parentDir.isDirectory()) {
+                    throw new IOException(
+                        "Parent node of specified file is not a directory: "
+                        + parentDir.getAbsolutePath());
+                }
+                if (!parentDir.canWrite()) {
+                    throw new IOException(
+                        "Parent directory of specified file is not writeable: "
+                        + parentDir.getAbsolutePath());
+                }
+            } else {
+                if (!parentDir.mkdirs()) {
+                    throw new IOException(
+                        "Failed to create parent directory for tar file: "
+                        + parentDir.getAbsolutePath());
+                }
+            }
+        }
+        archive = (blocksPerRecord == null)
+                  ? new TarFileOutputStream(archiveFile, compression)
+                  : new TarFileOutputStream(archiveFile, compression,
+                          blocksPerRecord.intValue());
     }
     
     public void queueEntry(File file) throws FileNotFoundException {
-        entryQueue.add(new TarEntrySupplicant(null, file));
+        entryQueue.add(new TarEntrySupplicant(null, file, archive));
     }
-    public void queueEntry(String entryPath, InputStream inStream) {
-        entryQueue.add(new TarEntrySupplicant(entryPath, inStream));
+    public void queueEntry(
+            String entryPath, InputStream inStream, int maxBytes)
+            throws IOException {
+        entryQueue.add(
+                new TarEntrySupplicant(entryPath, inStream, maxBytes, archive));
     }
 
     public void write() throws IOException {
-        if (archiveFile.exists() && !overWrite) {
-            throw new IOException(
-                    "Destination file already exists: "
-                    + archiveFile.getAbsolutePath());
-        }
         System.err.println(Integer.toString(entryQueue.size())
                     + " supplicants queued for writing...");
-        RandomAccessFile archive = new RandomAccessFile(archiveFile, "rw");
+        TarEntrySupplicant entry;
         try {
             for (int i = 0; i < entryQueue.size(); i++) {
-                ((TarEntrySupplicant) entryQueue.get(i))
-                        .write(archive,blocksPerRecord);
-                if (archive.getFilePointer() != archive.length()) {
-                    throw new IllegalStateException("Entry method did not exit "
-                            + "with file pointer at end.  Expected end offset "
-                            + archive.length() + ", got "
-                            + archive.getFilePointer());
-                }
-                if (archive.getFilePointer() % 512 != 0) {
-                    throw new IllegalStateException(
-                            "Entry method did not write even blocks");
-                }
-                System.err.println(Integer.toString(i + 1)
-                        + " / " + entryQueue.size() + " done");
+                System.err.print(Integer.toString(i + 1)
+                        + " / " + entryQueue.size() + ' ');
+                entry = (TarEntrySupplicant) entryQueue.get(i);
+                System.err.print(entry.getPath() + "... ");
+                entry.write();
+                archive.assertAtBlockBoundary();
+                System.err.println("Done");
             }
-            long finalBlock = archive.length() / 512 + 2;
-            if (finalBlock % blocksPerRecord != 0) {
-                // Round up total archive size to a blocksPerRecord multiple
-                finalBlock =
-                        (finalBlock / blocksPerRecord + 1) * blocksPerRecord;
+            archive.finish();
+        } catch (IOException ioe) {
+            System.err.println("Failed");
+            // Just release resources from any Entry's input, which may be
+            // left open.
+            for (int i = 0; i < entryQueue.size(); i++) {
+                ((TarEntrySupplicant) entryQueue.get(i)).close();
             }
-            System.err.println("Padding archive with "
-                    + (finalBlock - archive.length() / 512) + " zero blocks");
-            for (long block = archive.length() / 512;
-                    block < finalBlock; block++) {
-                archive.write(TarGenerator.ZERO_BLOCK);
-            }
+            throw ioe;
         } finally {
             archive.close();
         }
     }
 
     /**
-     * Slots for supplicant files and input streams to be added to a Tar archive.
+     * Slots for supplicant files and input streams to be added to a Tar
+     * archive.
      *
      * @author Blaine Simpson
      */
     static protected class TarEntrySupplicant {
-        static protected byte[] HEADER_TEMPLATE = new byte[512];
+        static protected byte[] HEADER_TEMPLATE =
+                TarFileOutputStream.ZERO_BLOCK.clone();
         final protected static byte[] ustarBytes = { 'u', 's', 't', 'a', 'r' };
         static {
             for (int i = 108; i < 115; i++) {
@@ -178,33 +215,29 @@ public class TarGenerator {
                         "Input too long for field " + fieldId + ": "
                         + newValue);
             }
-            for (int i = 0; i < ba.length; i++) target[start + i] = ba[i];
+            for (int i = 0; i < ba.length; i++) {
+                target[start + i] = ba[i];
+            }
         }
         protected byte[] rawHeader = (byte[]) HEADER_TEMPLATE.clone();
-        protected File file = null;
-        protected InputStream inputStream = null;
-        protected String path;
+        protected String fileMode = DEFAULT_FILE_MODES;
 
-        public TarEntrySupplicant(String path, File file)
-                throws FileNotFoundException {
-            this(((path == null) ? file.getPath() : path),
-                    new FileInputStream(file));
-            // Purposefully do not buffer.
-            // We set up our own read-write buffer tuned to caller's
-            // specification.
-            this.file = file;
-            if (!file.isFile()) {
-                throw new IllegalArgumentException("This method intentionally "
-                       + "creates TarEntries only for files");
-            }
-            if (!file.isFile()) {
-                throw new IllegalArgumentException(
-                        "Can't read file '" + file + "'");
-            }
+        // Following fields are always initialized by constructors.
+        protected InputStream inputStream;
+        protected String path;
+        protected long modTime;
+        protected TarFileOutputStream tarStream;
+        protected long dataSize;  // In bytes
+
+        public String getPath() {
+            return path;
         }
 
-        public TarEntrySupplicant(String path, InputStream inputStream) {
-            this.inputStream = inputStream;
+        /*
+         * Internal constructor that validates the entry's path.
+         */
+        protected TarEntrySupplicant(String path,
+                TarFileOutputStream tarStream) {
             if (path == null) {
                 throw new IllegalArgumentException("Path required if "
                     + "existing component file not specified");
@@ -214,6 +247,78 @@ public class TarGenerator {
             // can't change) != '/'.  Of so , we should iterate throug all
             // of the elements of path to replace with '/', since tar
             // should only work with /-separated directories.
+            this.tarStream = tarStream;
+        }
+
+        /**
+         * After instantiating a TarEntrySupplicant, the user must either invoke
+         * write() or close(), to release system resources on the input
+         * File/Stream.
+         */
+        public TarEntrySupplicant(
+                String path, File file, TarFileOutputStream tarStream)
+                throws FileNotFoundException {
+            this(((path == null) ? file.getPath() : path), tarStream);
+            if (!file.isFile()) {
+                throw new IllegalArgumentException("This method intentionally "
+                       + "creates TarEntries only for files");
+            }
+            if (!file.canRead()) {
+                throw new IllegalArgumentException(
+                        "Can't read file '" + file + "'");
+            }
+            modTime = file.lastModified() / 1000L;
+            fileMode = TarEntrySupplicant.getLameMode(file);
+            dataSize = file.length();
+            inputStream = new FileInputStream(file);
+        }
+
+        /**
+         * After instantiating a TarEntrySupplicant, the user must either invoke
+         * write() or close(), to release system resources on the input
+         * File/Stream.
+         * <P/>
+         * <B>WARNING:</B>
+         * Do not use this method unless the quantity of available RAM is
+         * sufficient to accommodate the specified maxBytes all at one time.
+         * This constructor loads all input from the specified InputStream into
+         * RAM before anything is written to disk.
+         *
+         * @param maxBytes This method will fail if more than maxBytes bytes
+         *                 are supplied on the specified InputStream.
+         */
+        public TarEntrySupplicant(String path, InputStream origStream,
+                int maxBytes, TarFileOutputStream tarStream)
+                throws IOException {
+            /**
+             * If you modify this, make sure to not intermix reading/writing of
+             * the PipedInputStream and the PipedOutputStream, or you could
+             * cause dead-lock.  Everything is safe if you close the
+             * PipedOutputStream before reading the PipedInputStream.
+             */
+            this(path, tarStream);
+            int i;
+            PipedOutputStream outPipe = new PipedOutputStream();
+            inputStream = new PipedInputStream(outPipe, maxBytes);
+            try {
+                while ((i = origStream.read(tarStream.writeBuffer, 0,
+                        tarStream.writeBuffer.length)) > 0) {
+                    outPipe.write(tarStream.writeBuffer, 0, i);
+                }
+                dataSize = inputStream.available();
+                System.err.println("Buffered " + dataSize
+                    + " bytes from given InputStream into RAM");
+            } catch (IOException ioe) {
+                inputStream.close();
+                throw ioe;
+            } finally {
+                outPipe.close();
+            }
+            modTime = new java.util.Date().getTime() / 1000L;
+        }
+
+        public void close() throws IOException {
+            inputStream.close();
         }
 
         protected long headerChecksum() {
@@ -236,7 +341,9 @@ public class TarGenerator {
         protected String prePaddedOctalString(long val, int width) {
             StringBuffer sb = new StringBuffer(Long.toOctalString(val));
             int needZeros = width - sb.length();
-            while (needZeros-- > 0) sb.insert(0, '0');
+            while (needZeros-- > 0) {
+                sb.insert(0, '0');
+            }
             return sb.toString();
         }
 
@@ -247,57 +354,44 @@ public class TarGenerator {
         }
 
         /**
-         * If exits successfully, always leaves pointer at very end of file.
+         * Writes entire entry to this object's tarStream.
          *
-         * @param raf RandomAccessFile with pointer positioned exactly where
-         *            the new TarEntrySupplicant should be inserted.
-         * @recSize This method will write an integer multiple of recSize
-         *          512-byte blocks.  I.e. recSize is in units of 512 bytes.
-         *          (We will also buffer read/write pipes to this size).
+         * This method is guaranteed to close the supplicant's input stream.
          */
-        public void write(RandomAccessFile raf, int recSize)
-                throws IOException {
-            int bytesCopied = 0;
+        public void write() throws IOException {
             int i;
-            byte[] buffer = new byte[recSize * 512];
-            long startPointer = raf.getFilePointer();
 
-            raf.write(TarGenerator.ZERO_BLOCK);
-            // forwards pointer to where we write file data
+            try {
+                writeField(TarHeaderFields.FILEPATH, path);
+                // TODO:  If path.length() > 99, then attempt to split into
+                // PATHPREFIX and FILEPATH fields.
+                writeField(TarHeaderFields.FILEMODE, fileMode);
+                writeField(TarHeaderFields.SIZE, dataSize);
+                writeField(TarHeaderFields.MODTIME, modTime);
+                writeField(TarHeaderFields.CHECKSUM, prePaddedOctalString(
+                        headerChecksum(), 6) + "\0 ");
+                // Silly, but that's what the base header spec calls for.
+                tarStream.writeBlock(rawHeader);
 
-            while ((i = inputStream.read(buffer)) > 0) {
-                raf.write(buffer, 0, i);
-                bytesCopied += i;
+                long dataStart = tarStream.getBytesWritten();
+                while ((i = inputStream.read(tarStream.writeBuffer)) > 0) {
+                    tarStream.write(i);
+                }
+                if (dataStart + dataSize != tarStream.getBytesWritten()) {
+                    throw new IOException(
+                            "Seems that the input data changed.  "
+                            + "Input data was " + dataSize
+                            + " bytes, but we wrote "
+                            + (tarStream.getBytesWritten() - dataStart)
+                            + " bytes of data");
+                }
+                tarStream.padCurrentBlock();
+            } finally {
+                close();
             }
-            inputStream.close();
-            int modulusBytes = bytesCopied % 512;
-            if (modulusBytes > 0) {
-                raf.write(TarGenerator.ZERO_BLOCK, 0, 512 - modulusBytes);
-                System.err.println("Padded with " + (512 - modulusBytes)
-                        + " bytes to make total tar file size now "
-                        + raf.length());  // TODO: Remove this debug statement
-            }
-            raf.seek(startPointer);
-
-            // We have the file size, so we will now assemble header in memory
-            writeField(TarHeaderFields.FILEPATH, path);
-            // TODO:  If path.length() > 99, then attempt to split into
-            // PATHPREFIX and FILEPATH fields.
-            writeField(TarHeaderFields.FILEMODE, getLameMode());
-            writeField(TarHeaderFields.SIZE, bytesCopied);
-            writeField(TarHeaderFields.MODTIME, ((file == null)
-                    ? new java.util.Date().getTime()
-                    : file.lastModified()) / 1000);
-            writeField(TarHeaderFields.CHECKSUM, prePaddedOctalString(
-                    headerChecksum(), 6) + "\0 ");
-            // Silly, but that's what the base header spec calls for.
-
-            raf.write(rawHeader);
-            raf.seek(raf.length());
         }
 
-        protected String getLameMode() {
-            if (file == null) return DEFAULT_FILE_MODES;
+        static protected String getLameMode(File file) {
             int umod = file.canExecute() ? 1 : 0;
             if (file.canWrite()) umod += 2;
             if (file.canRead()) umod += 4;

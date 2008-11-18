@@ -59,7 +59,9 @@ import java.util.HashMap;
  * Our application has no use for these, or Java has no ability to
  * work with them.
  * <P>
- * This class will be very elegant when refactored as an enum with enumMap(s).
+ * This class will be very elegant when refactored as an enum with enumMap(s)
+ * and using generics with auto-boxing instead of the ugly and non-validating
+ * casts.
  *
  * @author Blaine Simpson
  */
