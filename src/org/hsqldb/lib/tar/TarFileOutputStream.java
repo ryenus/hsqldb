@@ -67,7 +67,6 @@ import java.util.zip.GZIPOutputStream;
  */
 public class TarFileOutputStream implements Closeable, Flushable{
     protected int blocksPerRecord;
-    protected File targetFile;
     protected long bytesWritten = 0;
     private OutputStream writeStream;
     /* This is not a "Writer", but the byte "Stream" that we write() to. */
@@ -115,7 +114,6 @@ public class TarFileOutputStream implements Closeable, Flushable{
     public TarFileOutputStream(
             File targetFile, int compressionType, int blocksPerRecord)
             throws IOException {
-        this.targetFile = targetFile;
         this.blocksPerRecord = blocksPerRecord;
         writeBuffer = new byte[blocksPerRecord * 512];
         switch (compressionType) {
