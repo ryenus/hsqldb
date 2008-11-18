@@ -49,13 +49,8 @@ import java.util.zip.GZIPOutputStream;
  * FileOutputStream internally.  Can't accomplish these goals in Java if we
  * subclass.
  * <P>
- * To make this class as generally useful and intuitive (for Java programmers)
- * as possible, we subclass java.io.FileOutputStream, purposefully disabling
- * some FileOutputStream methods, for example, to force the user to use the
- * specific write methods.
- * <P>
- * Users write by means of populating the provided, public byte array, then
- * calling the single write() methods to write a portion of that array.
+ * Users write file data by means of populating the provided, public byte array,
+ * then calling the single write(int) method to write a portion of that array.
  * This design purposefully goes with efficiency, simplicity, and performance
  * over Java convention, which would not use public fields.
  * <P>
