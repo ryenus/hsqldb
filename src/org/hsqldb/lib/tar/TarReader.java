@@ -249,11 +249,11 @@ if (readBlocks != 0) throw new IllegalStateException(
                 outStream.write(archive.readBuffer, 0, modulus);
             }
             outStream.flush();
-            newFile.setLastModified(header.getModTime() * 1000);
             // Can't set these last two attributes until after file is flushed.
         } finally {
             outStream.close();
         }
+        newFile.setLastModified(header.getModTime() * 1000);
         if (newFile.length() != header.getDataSize()) {
             throw new IOException("Attempted to write " + header.getDataSize()
                     + " bytes to '" + newFile.getAbsolutePath()
