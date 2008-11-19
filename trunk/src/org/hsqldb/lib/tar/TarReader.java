@@ -386,7 +386,7 @@ if (skipBlocks != 0) throw new IllegalStateException(
             StringBuffer sb = new StringBuffer(
                     (entryType == '\0') ? ' ' : entryType);
             sb.append(ustar ? '*' : ' ');
-            sb.append(' ' + sdf.format(modTime) + ' '
+            sb.append(' ' + sdf.format(modTime * 1000) + ' '
                     + Integer.toOctalString(fileMode) + "  "
                     + dataSize + "  ");
             sb.append((ownerName == null) ? '-' : ownerName);
