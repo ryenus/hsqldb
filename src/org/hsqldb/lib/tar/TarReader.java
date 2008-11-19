@@ -227,6 +227,12 @@ public class TarReader {
             newFile.setReadable(false, false);
             newFile.setWritable(false, false);
             newFile.setExecutable(((fileMode & 0100) != 0), true);
+            newFile.setReadable((fileMode & 0400) != 0, true);
+            newFile.setWritable((fileMode & 0200) != 0, true);
+            // Don't know exactly why I am still able to write to the file
+            // after removing read and write privs from myself, but it does
+            // work.
+
             while (readBlocks > 0) {
                 readNow = (readBlocks > archive.getReadBufferBlocks())
                          ? archive.getReadBufferBlocks()
@@ -243,8 +249,6 @@ if (readBlocks != 0) throw new IllegalStateException(
                 outStream.write(archive.readBuffer, 0, modulus);
             }
             outStream.flush();
-            newFile.setReadable((fileMode & 0400) != 0, true);
-            newFile.setWritable((fileMode & 0200) != 0, true);
             newFile.setLastModified(header.getModTime() * 1000);
             // Can't set these last two attributes until after file is flushed.
         } finally {
