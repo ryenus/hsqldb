@@ -37,6 +37,7 @@ package org.hsqldb.lib.tar;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.Closeable;
@@ -83,6 +84,7 @@ public class TarFileInputStream implements Closeable {
     /* This is not a "Reader", but the byte "Stream" that we read() from. */
     protected byte[] readBuffer;
     protected int readBufferBlocks;
+    protected int compressionType;
 
     final static public int NO_COMPRESSION = 0;
     final static public int GZIP_COMPRESSION = 1;
@@ -138,6 +140,7 @@ public class TarFileInputStream implements Closeable {
                     + sourceFile.getAbsolutePath());
         }
         this.readBufferBlocks = readBufferBlocks;
+        this.compressionType = compressionType;
         readBuffer = new byte[readBufferBlocks * 512];
         switch (compressionType) {
             case TarFileInputStream.NO_COMPRESSION:
@@ -178,6 +181,10 @@ public class TarFileInputStream implements Closeable {
             throws IOException, TarMalformatException {
         /* int for blocks should support sizes up to about 1T, according to
          * my off-the-cuff calculations */
+        if (compressionType != NO_COMPRESSION) {
+            readCompressedBlocks(blocks);
+            return;
+        }
         int i = readStream.read(readBuffer, 0, blocks * 512);
         bytesRead += i;
         if (i != blocks * 512) {
@@ -185,6 +192,35 @@ public class TarFileInputStream implements Closeable {
                     "Expected to read " + (blocks * 512)
                     + " bytes, but could only read " + i);
         }
+    }
+
+    /**
+     * Work-around for the problem that compressed InputReaders don't fill
+     * the read buffer before returning.
+     *
+     * Has visibility 'protected' so that subclasses may override with
+     * different algorithms, or use different algorithms for different
+     * compression stream.
+     */
+    protected void readCompressedBlocks(int blocks)
+            throws IOException, TarMalformatException {
+        int bytesSoFar = 0;
+        int requiredBytes = 512 * blocks;
+        // This method works with individual bytes!
+        int i;
+        while (bytesSoFar < requiredBytes) {
+            i = readStream.read(
+                    readBuffer, bytesSoFar, requiredBytes - bytesSoFar);
+            if (i < 0)
+                throw new EOFException("Ran out of decompressed bytes after "
+                        + "reading " + bytesSoFar + " out of " + requiredBytes);
+            bytesRead += i;
+            bytesSoFar += i;
+        }
+if (bytesSoFar != requiredBytes)
+throw new RuntimeException("Assertion failed.  Read only " + bytesSoFar
++ " when user requested " + blocks + " blocks");
+// TODO: Remove this Dev assertion
     }
 
     /**
@@ -219,11 +255,21 @@ public class TarFileInputStream implements Closeable {
             throws IOException, TarMalformatException {
         // We read a-byte-at-a-time because there should only be 2 empty blocks
         // between each Tar Entry.
-        while (readStream.available() > 0) {
-            readBlock();
-            if (readBuffer[0] != 0) {
-                return true;
+        try {
+            while (readStream.available() > 0) {
+                readBlock();
+                if (readBuffer[0] != 0) {
+                    return true;
+                }
             }
+        } catch (EOFException ee) {
+            /* This is a work-around.
+             * Sun Java's inputStream.available() works like crap.
+             * Reach this point when performing a read of a GZip stream when
+             * .available == 1, which according to API Spec, should not happen.
+             * We treat this condition exactly as if readStream.available is 0,
+             * which it should be.
+             */
         }
         close();
         return false;
