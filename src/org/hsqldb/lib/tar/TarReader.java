@@ -202,7 +202,6 @@ public class TarReader {
             // Better to let FileOutputStream creation zero it than to
             // to newFile.delete().
         }
-        FileOutputStream outStream = new FileOutputStream(newFile);
         if (parentDir.exists()) {
             if (!parentDir.isDirectory()) {
                 throw new IOException(
@@ -221,7 +220,13 @@ public class TarReader {
                     + parentDir.getAbsolutePath());
             }
         }
+        int fileMode = header.getFileMode();
+        FileOutputStream outStream = new FileOutputStream(newFile);
         try {
+            newFile.setExecutable(false, false);
+            newFile.setReadable(false, false);
+            newFile.setWritable(false, false);
+            newFile.setExecutable(((fileMode & 0100) != 0), true);
             while (readBlocks > 0) {
                 readNow = (readBlocks > archive.getReadBufferBlocks())
                          ? archive.getReadBufferBlocks()
@@ -238,6 +243,10 @@ if (readBlocks != 0) throw new IllegalStateException(
                 outStream.write(archive.readBuffer, 0, modulus);
             }
             outStream.flush();
+            newFile.setReadable((fileMode & 0400) != 0, true);
+            newFile.setWritable((fileMode & 0200) != 0, true);
+            newFile.setLastModified(header.getModTime() * 1000);
+            // Can't set these last two attributes until after file is flushed.
         } finally {
             outStream.close();
         }
@@ -350,15 +359,11 @@ if (skipBlocks != 0) throw new IllegalStateException(
                         "At this time, we only support creation of normal "
                         + "files from Tar entries");
             }
-            File newFile = new File(path).getAbsoluteFile();
-            newFile.setLastModified(modTime * 1000);
-            newFile.setExecutable(false, false);
-            newFile.setReadable(false, false);
-            newFile.setWritable(false, false);
-            newFile.setExecutable(((fileMode & 0100) != 0), true);
-            newFile.setReadable((fileMode & 0400) != 0, true);
-            newFile.setWritable((fileMode & 0200) != 0, true);
-            return newFile;
+            return new File(path).getAbsoluteFile();
+            // Unfortunately, it does no good to set modification times or
+            // privileges here, since those settings have no effect on our
+            // new file until after is created by the FileOutputStream
+            // constructor.
         }
 
         public String getPath() {
@@ -366,6 +371,12 @@ if (skipBlocks != 0) throw new IllegalStateException(
         }
         public long getDataSize() {
             return dataSize;
+        }
+        public long getModTime() {
+            return modTime;
+        }
+        public int getFileMode() {
+            return fileMode;
         }
         public String toString() {
             StringBuffer sb = new StringBuffer(
