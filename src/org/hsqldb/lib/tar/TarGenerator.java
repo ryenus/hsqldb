@@ -118,7 +118,7 @@ public class TarGenerator {
                 }
                 if (!parentDir.canWrite()) {
                     throw new IOException(
-                        "Parent directory of specified file is not writeable: "
+                        "Parent directory of specified file is not writable: "
                         + parentDir.getAbsolutePath());
                 }
             } else {
@@ -195,9 +195,16 @@ public class TarGenerator {
             writeField(TarHeaderFields.OWNERNAME,
                     System.getProperty("user.name"), HEADER_TEMPLATE);
             // UStar owner name field
+            writeField(TarHeaderFields.TYPE, "0", HEADER_TEMPLATE);
+            // Difficult call here.  binary 0 and character '0' both mean
+            // regular file.  Binary 0 pre-UStar and probably more portable,
+            // but we are writing a valid UStar header, and I doubt anybody's
+            // tar implementation would choke on this since there is no
+            // outcry of UStar archives failing to work with older tars.
+            int magicStart = TarHeaderFields.getStart(TarHeaderFields.MAGIC);
             for (int i = 0; i < ustarBytes.length; i++) {
                 // UStar magic field
-                HEADER_TEMPLATE[257 + i] = ustarBytes[i];
+                HEADER_TEMPLATE[magicStart + i] = ustarBytes[i];
             }
             HEADER_TEMPLATE[263] = '0';
             HEADER_TEMPLATE[264] = '0';
@@ -212,8 +219,8 @@ public class TarGenerator {
             byte[] ba = newValue.getBytes();
             if (ba.length > stop - start) {
                 throw new IllegalArgumentException(
-                        "Input too long for field " + fieldId + ": "
-                        + newValue);
+                        "Input too long for field "
+                        + TarHeaderFields.toString(fieldId) + ": " + newValue);
             }
             for (int i = 0; i < ba.length; i++) {
                 target[start + i] = ba[i];
