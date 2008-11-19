@@ -67,6 +67,10 @@ import java.util.zip.GZIPInputStream;
  * As alluded to above, headers are read in separate reads, regardless of the
  * readBufferBlocks setting.  readBufferBlocks is used for reading
  * <I>file data</I>.
+ * <P/>
+ * I have purposefully not implemented skip(), because, though I haven't tested
+ * it, I believe our readBlock() and readBlocks() methods are at least as fast,
+ * since we use the larges read buffer within limits the user has set.
  */
 public class TarFileInputStream implements Closeable {
     /* Would love to use a RandomAccessFile, but RandomAccessFiles do not play
@@ -78,6 +82,7 @@ public class TarFileInputStream implements Closeable {
     private InputStream readStream;
     /* This is not a "Reader", but the byte "Stream" that we read() from. */
     protected byte[] readBuffer;
+    protected int readBufferBlocks;
 
     final static public int NO_COMPRESSION = 0;
     final static public int GZIP_COMPRESSION = 1;
@@ -105,6 +110,10 @@ public class TarFileInputStream implements Closeable {
                 TarFileInputStream.DEFAULT_BLOCKS_PER_RECORD);
     }
 
+    public int getReadBufferBlocks() {
+        return readBufferBlocks;
+    }
+
     /**
      * This class does no validation or enforcement of file naming conventions.
      * If desired, the caller should enforce extensions like "tar" and
@@ -128,6 +137,7 @@ public class TarFileInputStream implements Closeable {
             throw new IOException("User does not have privileges to read file "
                     + sourceFile.getAbsolutePath());
         }
+        this.readBufferBlocks = readBufferBlocks;
         readBuffer = new byte[readBufferBlocks * 512];
         switch (compressionType) {
             case TarFileInputStream.NO_COMPRESSION:
@@ -166,11 +176,13 @@ public class TarFileInputStream implements Closeable {
      */
     public void readBlocks(int blocks)
             throws IOException, TarMalformatException {
+        /* int for blocks should support sizes up to about 1T, according to
+         * my off-the-cuff calculations */
         int i = readStream.read(readBuffer, 0, blocks * 512);
         bytesRead += i;
         if (i != blocks * 512) {
             throw new TarMalformatException(
-                    "Expected to read " + (blocks + 512)
+                    "Expected to read " + (blocks * 512)
                     + " bytes, but could only read " + i);
         }
     }

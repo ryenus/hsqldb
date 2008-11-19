@@ -73,10 +73,13 @@ public class TarHeaderFields {
     final static int CHECKSUM = 5;
     final static int TYPE = 6;
     // The remaining are from UStar format:
-    final static int OWNERNAME = 7;
-    final static int PATHPREFIX = 8;
+    final static int MAGIC = 7;
+    final static int OWNERNAME = 8;
+    final static int PATHPREFIX = 9;
     // Replace these contants with proper enum once we require Java 1.5.
 
+    static Map labels = new HashMap(); // String identifier
+                                       // (this supplied automatically by enums)
     static Map starts = new HashMap(); // Starting positions
     static Map stops = new HashMap();  // 1 PAST last position.
            /* Note that (with one exception), there is always 1 byte
@@ -96,29 +99,44 @@ public class TarHeaderFields {
     static {
         starts.put(new Integer(FILEPATH), new Integer(0));
         stops.put(new Integer(FILEPATH), new Integer(100));
+        labels.put(new Integer(FILEPATH), "FILEPATH");
         starts.put(new Integer(FILEMODE), new Integer(100));
         stops.put(new Integer(FILEMODE), new Integer(107));
+        labels.put(new Integer(FILEMODE), "FILEMODE");
         starts.put(new Integer(SIZE), new Integer(124));
         stops.put(new Integer(SIZE), new Integer(135));
+        labels.put(new Integer(SIZE), "SIZE");
         starts.put(new Integer(MODTIME), new Integer(136));
         stops.put(new Integer(MODTIME), new Integer(147));
+        labels.put(new Integer(MODTIME), "MODTIME");
         starts.put(new Integer(CHECKSUM), new Integer(148)); // Special fmt.
         stops.put(new Integer(CHECKSUM), new Integer(156));  // Queer terminator.
+        labels.put(new Integer(CHECKSUM), "CHECKSUM");  // Queer terminator.
             // Pax UStore does not follow spec and delimits this field like
             // any other numeric, skipping the space byte.
         starts.put(new Integer(TYPE), new Integer(156)); // 1-byte CODE
           // With current version, we are never doing anything with this
           // field.  In future, we will support x and/or g type here.
         stops.put(new Integer(TYPE), new Integer(157));
+        labels.put(new Integer(TYPE), "TYPE");
+        starts.put(new Integer(MAGIC), new Integer(257));
+        stops.put(new Integer(MAGIC), new Integer(263));
+        labels.put(new Integer(MAGIC), "MAGIC");
+          // N.b. Gnu Tar does not honor this Stop.
         starts.put(new Integer(OWNERNAME), new Integer(265));
         stops.put(new Integer(OWNERNAME), new Integer(296));
+        labels.put(new Integer(OWNERNAME), "OWNERNAME");
         starts.put(new Integer(PATHPREFIX), new Integer(345));
         stops.put(new Integer(PATHPREFIX), new Integer(399));
+        labels.put(new Integer(PATHPREFIX), "PATHPREFIX");
     }
     static public int getStart(int field) {
         return ((Integer) starts.get(new Integer(field))).intValue();
     }
     static public int getStop(int field) {
         return ((Integer) stops.get(new Integer(field))).intValue();
+    }
+    static public String toString(int field) {
+        return (String) labels.get(new Integer(field));
     }
 }
