@@ -67,7 +67,7 @@ public class DbBackup {
             + "    java -cp path/to/" + JARHOUSE
             + " --list tar/path.tar [pattern1...]\nOR\n"
             + "    java -cp path/to/" + JARHOUSE
-            + " --extract [--overwrite] tar/path db/dir [pattern1...]\n"
+            + " --extract [--overwrite] file/path.tar[.gz] db/dir [pattern1...]\n"
             + "    (extracts entry files to the specified db/dir).\n"
             + "N.b. the db/base/path includes file base name, like in URLs, "
             + "whereas db/dir is a proper 'directory'.";
@@ -126,7 +126,7 @@ public class DbBackup {
             } else if (sa[0].equals("--extract")) {
                 boolean overWrite = sa.length > 1
                         && sa[1].equals("--overwrite");
-                int firstPatInd = overWrite ? 3 : 4;
+                int firstPatInd = overWrite ? 4 : 3;
                 if (sa.length < firstPatInd) {
                     throw new IllegalArgumentException();
                 }
@@ -143,7 +143,7 @@ public class DbBackup {
                                      : TarReader.EXTRACT_MODE),
                         patternStrings, new Integer(
                         DbBackup.generateBufferBlockValue(tarFile)),
-                        new File(sa[firstPatInd = 1])).read();
+                        new File(sa[firstPatInd - 1])).read();
             } else {
                 throw new IllegalArgumentException();
             }
@@ -244,13 +244,12 @@ public class DbBackup {
             }
         }
 
-        int bpr = DbBackup.generateBufferBlockValue(componentFiles);
         // Blocks Per Record
         TarGenerator generator =
-                new TarGenerator(archiveFile, overWrite, new Integer(bpr));
+                new TarGenerator(archiveFile, overWrite, new Integer(
+                DbBackup.generateBufferBlockValue(componentFiles)));
 
-
-        for (int i = 1; i < componentFiles.length; i++) {
+        for (int i = 0; i < componentFiles.length; i++) {
             if (!componentFiles[i].exists()) {
                 continue;
                 // We've already verified that required files exist, therefore
