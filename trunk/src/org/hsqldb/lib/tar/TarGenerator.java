@@ -57,12 +57,13 @@ public class TarGenerator {
      */
     static public void main(String[] sa) throws IOException {
         if (sa.length < 1) {
-            throw new IllegalArgumentException(
+            System.err.println(
                     "SYNTAX: java " + TarGenerator.class.getName()
                     + " new.tar [entryFile1...]\n"
                     + "If no entryFiles are specified, stdin will be read to "
                     + "write an entry with name 'stdin'.\n"
                     + " In this latter case, input is limited to 10240 bytes");
+            System.exit(0);
         }
         TarGenerator generator = new TarGenerator(new File(sa[0]), true, null);
         if (sa.length == 1) {
@@ -198,8 +199,13 @@ public class TarGenerator {
     static protected class TarEntrySupplicant {
         static protected byte[] HEADER_TEMPLATE =
                 TarFileOutputStream.ZERO_BLOCK.clone();
+        static Character swapOutDelim = null;
         final protected static byte[] ustarBytes = { 'u', 's', 't', 'a', 'r' };
         static {
+            char c = System.getProperty("file.separator").charAt(0);
+            if (c != '/') {
+                swapOutDelim = new Character(c);
+            }
             for (int i = 108; i < 115; i++) {
                 // uid field
                 HEADER_TEMPLATE[i] = '0';
@@ -265,11 +271,9 @@ public class TarGenerator {
                 throw new IllegalArgumentException("Path required if "
                     + "existing component file not specified");
             }
-            this.path = path;
-            // TODO:  Check if this.file.separator (a final field which we
-            // can't change) != '/'.  Of so , we should iterate throug all
-            // of the elements of path to replace with '/', since tar
-            // should only work with /-separated directories.
+            this.path = (swapOutDelim == null
+                      ? path
+                      : path.replace(swapOutDelim.charValue(), '/'));
             this.tarStream = tarStream;
         }
 

@@ -63,12 +63,14 @@ public class DbBackup {
             "SYNTAX:\n    java -cp path/to/" + JARHOUSE
             + "    (to display this message)\nOR\n"
             + "    java -cp " + JARHOUSE
-            + " --save [--overwrite] tar/path.tar db/path\nOR\n"
+            + " --save [--overwrite] tar/path.tar db/base/path\nOR\n"
             + "    java -cp path/to/" + JARHOUSE
             + " --list tar/path.tar [pattern1...]\nOR\n"
             + "    java -cp path/to/" + JARHOUSE
-            + " --extract [--overwrite] tar/path [pattern1...]\n"
-            + "    (extracts entry files to your current directory).";
+            + " --extract [--overwrite] tar/path db/dir [pattern1...]\n"
+            + "    (extracts entry files to the specified db/dir).\n"
+            + "N.b. the db/base/path includes file base name, like in URLs, "
+            + "whereas db/dir is a proper 'directory'.";
      
     /**
      * Command line invocation to create, examine, or extract HSQLDB database
@@ -86,7 +88,7 @@ public class DbBackup {
      * file (for "save" mode) or tar file size (for other modes).
      * <P/>
      * Run<CODE><PRE>
-     *     java -cp path/to/hback.jar --help
+     *     java -cp path/to/hback.jar
      * </PRE></CODE> for syntax help.
      */
     static public void main(String[] sa)
@@ -120,31 +122,34 @@ public class DbBackup {
                 new TarReader(new File(sa[1]), TarReader.LIST_MODE,
                         patternStrings, new Integer(
                         DbBackup.generateBufferBlockValue(
-                            new File(sa[1])))).read();
+                            new File(sa[1]))), null).read();
             } else if (sa[0].equals("--extract")) {
                 boolean overWrite = sa.length > 1
                         && sa[1].equals("--overwrite");
-                if (sa.length < (overWrite ? 3 : 2)) {
+                int firstPatInd = overWrite ? 3 : 4;
+                if (sa.length < firstPatInd) {
                     throw new IllegalArgumentException();
                 }
                 String[] patternStrings = null;
-                if (sa.length > 2) {
-                    patternStrings = new String[sa.length - 2];
-                    for (int i = 2; i < sa.length; i++) {
-                        patternStrings[i - 2] = sa[i];
+                if (sa.length > firstPatInd) {
+                    patternStrings = new String[sa.length - firstPatInd];
+                    for (int i = firstPatInd; i < sa.length; i++) {
+                        patternStrings[i - firstPatInd] = sa[i];
                     }
                 }
-                new TarReader(new File(sa[1]), (overWrite
+                File tarFile = new File(sa[overWrite ? 2 : 1]);
+                new TarReader(tarFile, (overWrite
                                      ? TarReader.OVERWRITE_MODE
                                      : TarReader.EXTRACT_MODE),
                         patternStrings, new Integer(
-                        DbBackup.generateBufferBlockValue(
-                            new File(sa[1])))).read();
+                        DbBackup.generateBufferBlockValue(tarFile)),
+                        new File(sa[firstPatInd = 1])).read();
             } else {
                 throw new IllegalArgumentException();
             }
         } catch (IllegalArgumentException iae) {
-            System.err.println(SYNTAX_MSG);
+            System.err.println("Syntax error.  Run the following for help:");
+            System.err.println("    java -cp path/to/" + JARHOUSE);
             System.exit(2);
         }
     }
