@@ -64,7 +64,7 @@ public class TarReader {
 
     final static private String SYNTAX_MSG =
             "SYNTAX: java " + TarReader.class.getName()
-            + " {t|x} [--directory=path] tar/file/path [pattern1...]";
+            + " {t|x} [--directory=path] file/path/tar[.gz] [pattern1...]";
 
     /**
      * Reads a specified tar file or stdin in order to either list or extract
@@ -104,9 +104,9 @@ public class TarReader {
     protected TarFileInputStream archive;
     protected Pattern[] patterns = null;
     protected int mode;
-    protected File extractBaseDir = null; // null means current directory
-                                          // Not used for Absolute path entries
-                                          // This path is always absolutized
+    protected File extractBaseDir; // null means current directory
+                                   // Not used for Absolute path entries
+                                   // This path is always absolutized
 
     /**
      * Compression is determined directly by the suffix of the file name in
