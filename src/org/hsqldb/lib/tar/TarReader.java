@@ -62,6 +62,10 @@ public class TarReader {
      */
     final static public int OVERWRITE_MODE = 2;
 
+    final static private String SYNTAX_MSG =
+            "SYNTAX: java " + TarReader.class.getName()
+            + " {t|x} [--directory=path] tar/file/path [pattern1...]";
+
     /**
      * Reads a specified tar file or stdin in order to either list or extract
      * the file tar entries, depending on the first argument being "t" or "x",
@@ -69,35 +73,48 @@ public class TarReader {
      */
     static public void main(String[] sa)
             throws IOException, TarMalformatException {
-        if (sa.length < 2
+        if (sa.length < 1) {
+            System.err.println(SYNTAX_MSG);
+            System.exit(0);
+        }
+        File exDir = (sa.length > 1 && sa[1].startsWith("--directory="))
+                   ? (new File(sa[1].substring("--directory=".length())))
+                   : null;
+        int firstPatInd = (exDir == null) ? 2 : 3;
+        if (sa.length < firstPatInd
                 || ((!sa[0].equals("t")) && !sa[0].equals("x"))) {
             throw new IllegalArgumentException(
-                    "SYNTAX: java " + TarReader.class.getName()
-                    + " {t|x} tar/file/path [pattern1...]");
+                    "Run 'java " + TarReader.class.getName() + " for help");
         }
         String[] patternStrings = null;
-        if (sa.length > 2) {
-            patternStrings = new String[sa.length - 2];
-            for (int i = 2; i < sa.length; i++) {
-                patternStrings[i - 2] = sa[i];
+        if (sa.length > firstPatInd) {
+            patternStrings = new String[sa.length - firstPatInd];
+            for (int i = firstPatInd; i < sa.length; i++) {
+                patternStrings[i - firstPatInd] = sa[i];
             }
         }
-        new TarReader(new File(sa[1]),
+        if (sa[0].equals("t") && exDir != null)
+            throw new IllegalArgumentException(
+                    "The '--directory=' switch only makes sense with 'x' mode");
+        new TarReader(new File(sa[(exDir == null) ? 1 : 2]),
                 (sa[0].equals("t") ? LIST_MODE : EXTRACT_MODE),
-                patternStrings, null).read();
+                patternStrings, null, exDir).read();
     }
 
     protected TarFileInputStream archive;
     protected Pattern[] patterns = null;
     protected int mode;
+    protected File extractBaseDir = null; // null means current directory
+                                          // Not used for Absolute path entries
+                                          // This path is always absolutized
 
     /**
      * Compression is determined directly by the suffix of the file name in
      * the specified path.
      *
-     * @param archivePath  Absolute or relative (from user.dir) path to
-     *                     tar file to be read.  Suffix may indicate
-     *                     a compression method.
+     * @param inFile  Absolute or relative (from user.dir) path to
+     *                tar file to be read.  Suffix may indicate
+     *                a compression method.
      * @param mode    Whether to list, extract-without-overwrite, or
      *                extract-with-overwrite.
      * @param patterns  List of regular expressions to match against tar entry
@@ -105,16 +122,19 @@ public class TarReader {
      *                  extracted.  If non-null, then only entries with names
      *                  which match will be extracted or listed.
      * @param readBufferBlocks  Null will use default tar value.
+     * @param inDir   Directory that RELATIVE entries will be extracted
+     *                relative to.  Defaults to current directory (user.dir).
+     *                Only used for extract modes and relative file entries.
      * @throws IllegalArgumentException if any given pattern is an invalid
      *                  regular expression.  Don't have to worry about this if
      *                  you call with null 'patterns' param.
-     *
      * @see java.util.regex.Pattern
      */
     public TarReader(File inFile, int mode, String[] patternStrings,
-            Integer readBufferBlocks) throws IOException {
+            Integer readBufferBlocks, File inDir) throws IOException {
         this.mode = mode;
         File archiveFile = inFile.getAbsoluteFile();
+        extractBaseDir = (inDir == null) ? null : inDir.getAbsoluteFile();
         int compression = TarFileOutputStream.NO_COMPRESSION;
         if (archiveFile.getName().endsWith(".tgz")
                 || archiveFile.getName().endsWith(".gz")) {
@@ -188,6 +208,12 @@ public class TarReader {
         int readBlocks = (int) (header.getDataSize() / 512L);
         int modulus = (int) (header.getDataSize() % 512L);
         File newFile = header.generateFile();
+        if (!newFile.isAbsolute()) {
+            newFile = (extractBaseDir == null)
+                     ? newFile.getAbsoluteFile()
+                     : new File(extractBaseDir, newFile.getPath());
+        }
+        // newFile is definitively Absolutized at this point
         File parentDir = newFile.getParentFile();
         if (newFile.exists()) {
             if (mode != TarReader.OVERWRITE_MODE) {
@@ -363,7 +389,7 @@ if (skipBlocks != 0) throw new IllegalStateException(
                         "At this time, we only support creation of normal "
                         + "files from Tar entries");
             }
-            return new File(path).getAbsoluteFile();
+            return new File(path);
             // Unfortunately, it does no good to set modification times or
             // privileges here, since those settings have no effect on our
             // new file until after is created by the FileOutputStream
