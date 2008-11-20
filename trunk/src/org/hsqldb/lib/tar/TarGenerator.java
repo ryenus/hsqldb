@@ -64,7 +64,7 @@ public class TarGenerator {
                     + "write an entry with name 'stdin'.\n"
                     + " In this latter case, input is limited to 10240 bytes");
         }
-        TarGenerator generator = new TarGenerator(sa[0], true, null);
+        TarGenerator generator = new TarGenerator(new File(sa[0]), true, null);
         if (sa.length == 1) {
             generator.queueEntry("stdin", System.in, 10240);
         } else {
@@ -82,16 +82,21 @@ public class TarGenerator {
      * Compression is determined directly by the suffix of the file name in
      * the specified path.
      *
-     * @param archivePath  Absolute or relative (from user.dir) path to
-     *                     tar file to be created.  Suffix must indicate
-     *                     tar file and may indicate a compression method.
+     * @param archiveFile  Absolute or relative (from user.dir) File for
+     *                     tar file to be created.  getName() Suffix must
+     *                     indicate tar file and may indicate a compression
+     *                     method.
      * @param overWrite    True to replace an existing file of same path.
      * @param blocksPerRecord  Null will use default tar value.
      */
     public TarGenerator(
-            String archivePath, boolean overWrite, Integer blocksPerRecord)
+            File inFile, boolean overWrite, Integer blocksPerRecord)
             throws IOException {
-        File archiveFile = new File(archivePath).getAbsoluteFile();
+        File archiveFile = inFile.getAbsoluteFile();
+        // Do this so we can be sure .getParent*() is non-null.  (Also allows
+        // us to use .getPath() instead of very long .getAbsolutePath() for
+        // error messages.
+
         int compression = TarFileOutputStream.NO_COMPRESSION;
         if (archiveFile.getName().endsWith(".tgz")
                 || archiveFile.getName().endsWith(".tar.gz")) {
@@ -100,32 +105,32 @@ public class TarGenerator {
         } else {
             throw new IllegalArgumentException(
                 getClass().getName() + " only generates files with extensions "
-                + "'.tar', '.tgz.', or '.tar.gz'");
+                + "'.tar', '.tgz.', or '.tar.gz':  " + archiveFile.getPath());
         }
         if (archiveFile.exists()) {
             if (!overWrite) {
-                throw new IOException(
-                        "Destination file already exists: "
-                        + archiveFile.getAbsolutePath());
+                throw new IOException("Destination file already exists: "
+                        + archiveFile.getPath());
             }
         } else {
             File parentDir = archiveFile.getParentFile();
+            // parentDir will be absolute, since archiveFile is absolute.
             if (parentDir.exists()) {
                 if (!parentDir.isDirectory()) {
                     throw new IOException(
                         "Parent node of specified file is not a directory: "
-                        + parentDir.getAbsolutePath());
+                        + parentDir.getPath());
                 }
                 if (!parentDir.canWrite()) {
                     throw new IOException(
                         "Parent directory of specified file is not writable: "
-                        + parentDir.getAbsolutePath());
+                        + parentDir.getPath());
                 }
             } else {
                 if (!parentDir.mkdirs()) {
                     throw new IOException(
                         "Failed to create parent directory for tar file: "
-                        + parentDir.getAbsolutePath());
+                        + parentDir.getPath());
                 }
             }
         }
@@ -133,10 +138,18 @@ public class TarGenerator {
                   ? new TarFileOutputStream(archiveFile, compression)
                   : new TarFileOutputStream(archiveFile, compression,
                           blocksPerRecord.intValue());
+        if (blocksPerRecord != null) {
+            System.out.println("Will write at " + blocksPerRecord
+                    + " blocks-per-record");
+        }
     }
     
     public void queueEntry(File file) throws FileNotFoundException {
-        entryQueue.add(new TarEntrySupplicant(null, file, archive));
+        queueEntry(null, file);
+    }
+    public void queueEntry(String entryPath, File file)
+            throws FileNotFoundException {
+        entryQueue.add(new TarEntrySupplicant(entryPath, file, archive));
     }
     public void queueEntry(
             String entryPath, InputStream inStream, int maxBytes)
@@ -145,6 +158,9 @@ public class TarGenerator {
                 new TarEntrySupplicant(entryPath, inStream, maxBytes, archive));
     }
 
+    /**
+     * This method does release all of the streams, even if there is a failure.
+     */
     public void write() throws IOException {
         System.err.println(Integer.toString(entryQueue.size())
                     + " supplicants queued for writing...");
