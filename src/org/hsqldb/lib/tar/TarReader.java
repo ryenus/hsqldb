@@ -82,7 +82,7 @@ public class TarReader {
                 patternStrings[i - 2] = sa[i];
             }
         }
-        new TarReader(sa[1],
+        new TarReader(new File(sa[1]),
                 (sa[0].equals("t") ? LIST_MODE : EXTRACT_MODE),
                 patternStrings, null).read();
     }
@@ -111,10 +111,10 @@ public class TarReader {
      *
      * @see java.util.regex.Pattern
      */
-    public TarReader(String archivePath, int mode, String[] patternStrings,
+    public TarReader(File inFile, int mode, String[] patternStrings,
             Integer readBufferBlocks) throws IOException {
         this.mode = mode;
-        File archiveFile = new File(archivePath).getAbsoluteFile();
+        File archiveFile = inFile.getAbsoluteFile();
         int compression = TarFileOutputStream.NO_COMPRESSION;
         if (archiveFile.getName().endsWith(".tgz")
                 || archiveFile.getName().endsWith(".gz")) {
