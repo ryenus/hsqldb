@@ -55,7 +55,7 @@ import java.io.FileInputStream;
  * @author Blaine Simpson
  */
 public class DbBackup {
-    final static public String JARHOUSE = "hback.jar";
+    final static public String JARHOUSE = "hbackup.jar";
     final static public String SYNTAX_MSG =
             "SYNTAX:\n    java -cp path/to/" + JARHOUSE
             + "    (to display this message)\nOR\n"
@@ -85,7 +85,7 @@ public class DbBackup {
      * file (for "save" mode) or tar file size (for other modes).
      * <P/>
      * Run<CODE><PRE>
-     *     java -cp path/to/hback.jar
+     *     java -cp path/to/hbackup.jar
      * </PRE></CODE> for syntax help.
      */
     static public void main(String[] sa)
@@ -135,9 +135,10 @@ public class DbBackup {
                     }
                 }
                 File tarFile = new File(sa[overWrite ? 2 : 1]);
-                new TarReader(tarFile, (overWrite
-                                     ? TarReader.OVERWRITE_MODE
-                                     : TarReader.EXTRACT_MODE),
+                int tarReaderMode = overWrite
+                                    ? TarReader.OVERWRITE_MODE
+                                    : TarReader.EXTRACT_MODE;
+                new TarReader(tarFile, tarReaderMode,
                         patternStrings, new Integer(
                         DbBackup.generateBufferBlockValue(tarFile)),
                         new File(sa[firstPatInd - 1])).read();

@@ -93,8 +93,9 @@ public class TarReader {
         if (sa[0].equals("t") && exDir != null)
             throw new IllegalArgumentException(
                     "The '--directory=' switch only makes sense with 'x' mode");
-        new TarReader(new File(sa[(exDir == null) ? 1 : 2]),
-                (sa[0].equals("t") ? LIST_MODE : EXTRACT_MODE),
+        int dirIndex = (exDir == null) ? 1 : 2;
+        int tarReaderMode = sa[0].equals("t") ? LIST_MODE : EXTRACT_MODE;
+        new TarReader(new File(sa[dirIndex]), tarReaderMode,
                 patternStrings, null, exDir).read();
     }
 
@@ -289,8 +290,8 @@ if (readBlocks != 0) throw new IllegalStateException(
     protected void skipFileData(TarEntryHeader header)
             throws IOException, TarMalformatException {
         int skipNow;
-        int skipBlocks = (int) (header.getDataSize() / 512L)
-                + ((header.getDataSize() % 512L == 0L) ? 0 : 1);
+        int oddBlocks = (header.getDataSize() % 512L == 0L) ? 0 : 1;
+        int skipBlocks = (int) (header.getDataSize() / 512L) + oddBlocks;
         while (skipBlocks > 0) {
             skipNow = (skipBlocks > archive.getReadBufferBlocks())
                      ? archive.getReadBufferBlocks()
@@ -481,10 +482,15 @@ if (skipBlocks != 0) throw new IllegalStateException(
 
         protected long headerChecksum() {
             long sum = 0;
+            long addition;
             for (int i = 0; i < 512; i++) {
-                sum += (i >= TarHeaderFields.getStart(TarHeaderFields.CHECKSUM)
+                addition = (i >= TarHeaderFields.getStart(
+                        TarHeaderFields.CHECKSUM)
                         && i < TarHeaderFields.getStop(
                         TarHeaderFields.CHECKSUM)) ? 32 : (255 & rawHeader[i]);
+                sum += addition;
+                // 2-part silliness here due to HSQLDB prohibition on embedded
+                //  ternaries.
                 // We ignore current contents of the checksum field so that
                 // this method will continue to work right, even if we later
                 // recycle the header or RE-calculate a header.
