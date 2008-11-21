@@ -211,10 +211,10 @@ public class TarGenerator {
                 // uid field
                 HEADER_TEMPLATE[i] = '0';
             }
-            writeField(TarHeaderFields.OWNERNAME,
+            writeField(TarHeaderFields.UNAME,
                     System.getProperty("user.name"), HEADER_TEMPLATE);
             // UStar owner name field
-            writeField(TarHeaderFields.TYPE, "0", HEADER_TEMPLATE);
+            writeField(TarHeaderFields.TYPEFLAG, "0", HEADER_TEMPLATE);
             // Difficult call here.  binary 0 and character '0' both mean
             // regular file.  Binary 0 pre-UStar and probably more portable,
             // but we are writing a valid UStar header, and I doubt anybody's
@@ -393,12 +393,12 @@ public class TarGenerator {
             int i;
 
             try {
-                writeField(TarHeaderFields.FILEPATH, path);
+                writeField(TarHeaderFields.NAME, path);
                 // TODO:  If path.length() > 99, then attempt to split into
-                // PATHPREFIX and FILEPATH fields.
-                writeField(TarHeaderFields.FILEMODE, fileMode);
+                // PREFIX and NAME fields.
+                writeField(TarHeaderFields.MODE, fileMode);
                 writeField(TarHeaderFields.SIZE, dataSize);
-                writeField(TarHeaderFields.MODTIME, modTime);
+                writeField(TarHeaderFields.MTIME, modTime);
                 writeField(TarHeaderFields.CHECKSUM, prePaddedOctalString(
                         headerChecksum(), 6) + "\0 ");
                 // Silly, but that's what the base header spec calls for.
