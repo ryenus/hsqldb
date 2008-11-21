@@ -1,4 +1,4 @@
-/* 
+/*
  * @(#)$Id$
  *
  * Copyright (c) 2001-2008, The HSQL Development Group

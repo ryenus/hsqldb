@@ -1,4 +1,4 @@
-/* 
+/*
  * @(#)$Id$
  *
  * Copyright (c) 2001-2008, The HSQL Development Group
@@ -71,7 +71,7 @@ public class DbBackup {
             + "    (extracts entry files to the specified db/dir).\n"
             + "N.b. the db/base/path includes file base name, like in URLs, "
             + "whereas db/dir is a proper 'directory'.";
-     
+
     /**
      * Command line invocation to create, examine, or extract HSQLDB database
      * backup tar archives.
@@ -180,7 +180,7 @@ public class DbBackup {
      * abort.
      */
     public void setOverWrite(boolean overWrite) {
-        this.overWrite = overWrite; 
+        this.overWrite = overWrite;
     }
     /**
      * Defaults to true.
@@ -190,7 +190,7 @@ public class DbBackup {
      * start writing the tar, and when we finish.
      */
     public void setAbortUponModify(boolean abortUponModify) {
-        this.abortUponModify = abortUponModify; 
+        this.abortUponModify = abortUponModify;
     }
 
     public boolean getOverWrite() {

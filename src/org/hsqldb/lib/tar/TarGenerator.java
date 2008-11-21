@@ -1,4 +1,4 @@
-/* 
+/*
  * @(#)$Id$
  *
  * Copyright (c) 2001-2008, The HSQL Development Group
@@ -144,7 +144,7 @@ public class TarGenerator {
                     + " blocks-per-record");
         }
     }
-    
+
     public void queueEntry(File file) throws FileNotFoundException {
         queueEntry(null, file);
     }
