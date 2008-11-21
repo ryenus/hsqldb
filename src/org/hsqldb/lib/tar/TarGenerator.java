@@ -268,9 +268,9 @@ public class TarGenerator {
                 throw new IllegalArgumentException("Path required if "
                     + "existing component file not specified");
             }
-            this.path = (swapOutDelim == null
+            this.path = (swapOutDelim == null)
                       ? path
-                      : path.replace(swapOutDelim.charValue(), '/'));
+                      : path.replace(swapOutDelim.charValue(), '/');
             this.tarStream = tarStream;
         }
 
@@ -283,6 +283,8 @@ public class TarGenerator {
                 String path, File file, TarFileOutputStream tarStream)
                 throws FileNotFoundException {
             this(((path == null) ? file.getPath() : path), tarStream);
+            // Must use an expression-embedded ternary here to satisfy compiler
+            // that this() call be first statement in constructor.
             if (!file.isFile()) {
                 throw new IllegalArgumentException("This method intentionally "
                        + "creates TarEntries only for files");
@@ -347,10 +349,15 @@ public class TarGenerator {
 
         protected long headerChecksum() {
             long sum = 0;
+            long addition;
             for (int i = 0; i < rawHeader.length; i++) {
-                sum += (i >= TarHeaderFields.getStart(TarHeaderFields.CHECKSUM)
+                addition =
+                        (i >= TarHeaderFields.getStart(TarHeaderFields.CHECKSUM)
                         && i < TarHeaderFields.getStop(
                         TarHeaderFields.CHECKSUM)) ? 32 : (255 & rawHeader[i]);
+                sum += addition;
+                // 2-part silliness here due to HSQLDB prohibition on embedded
+                //  ternaries.
                 // We ignore current contents of the checksum field so that
                 // this method will continue to work right, even if we later
                 // recycle the header or RE-calculate a header.

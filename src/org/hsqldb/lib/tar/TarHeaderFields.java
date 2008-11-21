@@ -82,7 +82,8 @@ public class TarHeaderFields {
            /* Note that (with one exception), there is always 1 byte
             * between a numeric field stop and the next start.  This is
             * because null byte must occupy the intervening position.
-            * This is not true for non-numeric fields (which includes the * link-indicator/type-flag field, which is used as a code,
+            * This is not true for non-numeric fields (which includes the
+            * link-indicator/type-flag field, which is used as a code,
             * and is not necessarily numeric with UStar format).
             *
             * As a consequence, there may be NO DELIMITER after
