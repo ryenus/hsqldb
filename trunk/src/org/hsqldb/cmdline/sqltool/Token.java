@@ -31,6 +31,8 @@
 
 package org.hsqldb.cmdline.sqltool;
 
+/* @(#)$Id$ */
+
 public class Token {
     public static final int SQL_TYPE = 0;
     public static final int SPECIAL_TYPE = 1;
