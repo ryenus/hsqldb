@@ -65,9 +65,9 @@ public class DbBackup {
             + "    java -cp " + JARHOUSE
             + " --save [--overwrite] tar/path.tar db/base/path\nOR\n"
             + "    java -cp path/to/" + JARHOUSE
-            + " --list tar/path.tar [pattern1...]\nOR\n"
+            + " --list tar/path.tar [regex1...]\nOR\n"
             + "    java -cp path/to/" + JARHOUSE
-            + " --extract [--overwrite] file/path.tar[.gz] db/dir [pattern1...]\n"
+            + " --extract [--overwrite] file/path.tar[.gz] db/dir [regex1...]\n"
             + "    (extracts entry files to the specified db/dir).\n"
             + "N.b. the db/base/path includes file base name, like in URLs, "
             + "whereas db/dir is a proper 'directory'.";
