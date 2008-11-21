@@ -1,42 +1,11 @@
-/* Copyright (c) 2001-2008, The HSQL Development Group
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the HSQL Development Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 package org.hsqldb.lib.tar;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.IOException;
-import java.io.File;
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.Flushable;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -67,10 +36,12 @@ import java.util.zip.GZIPOutputStream;
  * @see #finish
  * @see #close
  */
-public class TarFileOutputStream implements Closeable, Flushable{
-    protected int blocksPerRecord;
-    protected long bytesWritten = 0;
+public class TarFileOutputStream implements Closeable, Flushable {
+
+    protected int        blocksPerRecord;
+    protected long       bytesWritten = 0;
     private OutputStream writeStream;
+
     /* This is not a "Writer", but the byte "Stream" that we write() to. */
     public byte[] writeBuffer;
     /* We purposefully provide no public getter or setter for writeBuffer.
@@ -78,12 +49,12 @@ public class TarFileOutputStream implements Closeable, Flushable{
      * array is a direct, optimally efficient byte array.  No setter because
      * the inside implementation of this class is intimately dependent upon
      * the nature of the write buffer. */
-    final public static byte[] ZERO_BLOCK = new byte[512];
+    final public static byte[] ZERO_BLOCK       = new byte[512];
+    final static public int    NO_COMPRESSION   = 0;
+    final static public int    GZIP_COMPRESSION = 1;
 
-    final static public int NO_COMPRESSION = 0;
-    final static public int GZIP_COMPRESSION = 1;
     //TODO:  Use an email once Java 1.5 is required.
-    final static public int DEFAULT_COMPRESSION = NO_COMPRESSION;
+    final static public int DEFAULT_COMPRESSION       = NO_COMPRESSION;
     final static public int DEFAULT_BLOCKS_PER_RECORD = 20;
 
     /**
@@ -100,10 +71,10 @@ public class TarFileOutputStream implements Closeable, Flushable{
      *
      * @see TarFileOutputStream(File, int, int)
      */
-    public TarFileOutputStream(File targetFile, int compressionType)
-            throws IOException {
+    public TarFileOutputStream(File targetFile,
+                               int compressionType) throws IOException {
         this(targetFile, compressionType,
-                TarFileOutputStream.DEFAULT_BLOCKS_PER_RECORD);
+             TarFileOutputStream.DEFAULT_BLOCKS_PER_RECORD);
     }
 
     /**
@@ -113,22 +84,27 @@ public class TarFileOutputStream implements Closeable, Flushable{
      * <P/>
      * It also overwrites files without warning (just like FileOutputStream).
      */
-    public TarFileOutputStream(
-            File targetFile, int compressionType, int blocksPerRecord)
-            throws IOException {
+    public TarFileOutputStream(File targetFile, int compressionType,
+                               int blocksPerRecord) throws IOException {
+
         this.blocksPerRecord = blocksPerRecord;
-        writeBuffer = new byte[blocksPerRecord * 512];
+        writeBuffer          = new byte[blocksPerRecord * 512];
+
         switch (compressionType) {
-            case TarFileOutputStream.NO_COMPRESSION:
+
+            case TarFileOutputStream.NO_COMPRESSION :
                 writeStream = new FileOutputStream(targetFile);
                 break;
-            case TarFileOutputStream.GZIP_COMPRESSION:
-                writeStream = new GZIPOutputStream(
-                        new FileOutputStream(targetFile), writeBuffer.length);
+
+            case TarFileOutputStream.GZIP_COMPRESSION :
+                writeStream =
+                    new GZIPOutputStream(new FileOutputStream(targetFile),
+                                         writeBuffer.length);
                 break;
-            default:
+
+            default :
                 throw new IllegalArgumentException(
-                        "Unexpected compression type: " + compressionType);
+                    "Unexpected compression type: " + compressionType);
         }
 
         targetFile.setExecutable(false, true);
@@ -137,6 +113,7 @@ public class TarFileOutputStream implements Closeable, Flushable{
         targetFile.setReadable(true, true);
         targetFile.setWritable(false, false);
         targetFile.setWritable(true, true);
+
         // We restrict permissions to the file owner before writing anything,
         // in case we will be writing anything private into this file.
     }
@@ -147,7 +124,9 @@ public class TarFileOutputStream implements Closeable, Flushable{
      * That way we can be confident that bytesWritten will always be accurate.
      */
     public void write(byte[] byteArray, int byteCount) throws IOException {
+
         writeStream.write(byteArray, 0, byteCount);
+
         bytesWritten += byteCount;
     }
 
@@ -167,11 +146,13 @@ public class TarFileOutputStream implements Closeable, Flushable{
      * @see #write(int)
      */
     public void writeBlock(byte[] block) throws IOException {
+
         if (block.length != 512) {
-            throw new IllegalArgumentException(
-                    "Specified block is" + block.length
-                    + " bytes long instead of 512");
+            throw new IllegalArgumentException("Specified block is"
+                                               + block.length
+                                               + " bytes long instead of 512");
         }
+
         write(block, block.length);
     }
 
@@ -179,6 +160,7 @@ public class TarFileOutputStream implements Closeable, Flushable{
      * Writes the specified quantity of zero'd blocks.
      */
     public void writePadBlocks(int blockCount) throws IOException {
+
         for (int i = 0; i < blockCount; i++) {
             write(ZERO_BLOCK, ZERO_BLOCK.length);
         }
@@ -192,8 +174,13 @@ public class TarFileOutputStream implements Closeable, Flushable{
     }
 
     public int bytesLeftInBlock() {
+
         int modulus = (int) (bytesWritten % 512L);
-        if (modulus == 0) return 0;
+
+        if (modulus == 0) {
+            return 0;
+        }
+
         return 512 - modulus;
     }
 
@@ -201,9 +188,11 @@ public class TarFileOutputStream implements Closeable, Flushable{
      * @throws IllegalStateException if end of file not on a block boundary.
      */
     public void assertAtBlockBoundary() {
+
         if (bytesLeftInBlock() != 0) {
-            throw new IllegalStateException("Current file length "
-                    + bytesWritten + " is not an even 512-byte-block multiple");
+            throw new IllegalStateException(
+                "Current file length " + bytesWritten
+                + " is not an even 512-byte-block multiple");
         }
     }
 
@@ -212,11 +201,17 @@ public class TarFileOutputStream implements Closeable, Flushable{
      * If we are currently at a block boundary, nothing is done.
      */
     public void padCurrentBlock() throws IOException {
+
         int padBytes = bytesLeftInBlock();
-        if (padBytes == 0) return;
+
+        if (padBytes == 0) {
+            return;
+        }
+
         write(ZERO_BLOCK, padBytes);
+
 // REMOVE THIS DEV-ASSERTION:
-assertAtBlockBoundary();
+        assertAtBlockBoundary();
     }
 
     /**
@@ -253,16 +248,21 @@ assertAtBlockBoundary();
      * @see #close
      */
     public void finish() throws IOException {
+
         try {
             long finalBlock = bytesWritten / 512 + 2;
+
             if (finalBlock % blocksPerRecord != 0) {
+
                 // Round up total archive size to a blocksPerRecord multiple
-                finalBlock =
-                        (finalBlock / blocksPerRecord + 1) * blocksPerRecord;
+                finalBlock = (finalBlock / blocksPerRecord + 1)
+                             * blocksPerRecord;
             }
-            int finalPadBlocks = (int) (finalBlock - bytesWritten/512L);
-            System.err.println(
-                    "Padding archive with " + finalPadBlocks + " zero blocks");
+
+            int finalPadBlocks = (int) (finalBlock - bytesWritten / 512L);
+
+            System.err.println("Padding archive with " + finalPadBlocks
+                               + " zero blocks");
             writePadBlocks(finalPadBlocks);
         } finally {
             close();

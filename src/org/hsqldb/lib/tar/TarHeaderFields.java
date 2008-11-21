@@ -1,34 +1,3 @@
-/* Copyright (c) 2001-2008, The HSQL Development Group
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the HSQL Development Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 package org.hsqldb.lib.tar;
 
 import java.util.Map;
@@ -70,25 +39,29 @@ import java.util.HashMap;
  * @author Blaine Simpson
  */
 public class TarHeaderFields {
-    final static int NAME = 1;
-    final static int MODE = 2;
-    final static int UID = 3;
-    final static int GID = 4;
-    final static int SIZE = 5;
-    final static int MTIME = 6;  // (File.lastModified()|*.getTime())/1000
+
+    final static int NAME     = 1;
+    final static int MODE     = 2;
+    final static int UID      = 3;
+    final static int GID      = 4;
+    final static int SIZE     = 5;
+    final static int MTIME    = 6;        // (File.lastModified()|*.getTime())/1000
     final static int CHECKSUM = 7;
     final static int TYPEFLAG = 8;
-    // The remaining are from UStar format:
-    final static int MAGIC = 9;
-    final static int UNAME = 10;
-    final static int GNAME = 11;
-    final static int PREFIX = 12;
-    // Replace these contants with proper enum once we require Java 1.5.
 
-    static Map labels = new HashMap(); // String identifier
-                                       // (this supplied automatically by enums)
-    static Map starts = new HashMap(); // Starting positions
-    static Map stops = new HashMap();
+    // The remaining are from UStar format:
+    final static int MAGIC  = 9;
+    final static int UNAME  = 10;
+    final static int GNAME  = 11;
+    final static int PREFIX = 12;
+
+    // Replace these contants with proper enum once we require Java 1.5.
+    static Map labels = new HashMap();    // String identifier
+
+    // (this supplied automatically by enums)
+    static Map starts = new HashMap();    // Starting positions
+    static Map stops  = new HashMap();
+
     // 1 PAST last position (in normal Java substring fashion).
     /* Note that (with one exception), there is always 1 byte
      * between a numeric field stop and the next start.  This is
@@ -104,7 +77,6 @@ public class TarHeaderFields {
      * headers must be <= 100 chars. INCLUDING the trailing \0
      * character.  ???  GNU tar certainly does not honor this.
      */
-
     static {
         labels.put(new Integer(NAME), "name");
         starts.put(new Integer(NAME), new Integer(0));
@@ -124,18 +96,21 @@ public class TarHeaderFields {
         labels.put(new Integer(MTIME), "mtime");
         starts.put(new Integer(MTIME), new Integer(136));
         stops.put(new Integer(MTIME), new Integer(147));
-        labels.put(new Integer(CHECKSUM), "checksum");  // Queer terminator.
-            // Pax UStore does not follow spec and delimits this field like
-            // any other numeric, skipping the space byte.
-        starts.put(new Integer(CHECKSUM), new Integer(148)); // Special fmt.
-        stops.put(new Integer(CHECKSUM), new Integer(156));  // Queer terminator.
+        labels.put(new Integer(CHECKSUM), "checksum");          // Queer terminator.
+
+        // Pax UStore does not follow spec and delimits this field like
+        // any other numeric, skipping the space byte.
+        starts.put(new Integer(CHECKSUM), new Integer(148));    // Special fmt.
+        stops.put(new Integer(CHECKSUM), new Integer(156));     // Queer terminator.
         labels.put(new Integer(TYPEFLAG), "typeflag");
-        starts.put(new Integer(TYPEFLAG), new Integer(156)); // 1-byte CODE
-          // With current version, we are never doing anything with this
-          // field.  In future, we will support x and/or g type here.
+        starts.put(new Integer(TYPEFLAG), new Integer(156));    // 1-byte CODE
+
+        // With current version, we are never doing anything with this
+        // field.  In future, we will support x and/or g type here.
         stops.put(new Integer(TYPEFLAG), new Integer(157));
         labels.put(new Integer(MAGIC), "magic");
-          // N.b. Gnu Tar does not honor this Stop.
+
+        // N.b. Gnu Tar does not honor this Stop.
         starts.put(new Integer(MAGIC), new Integer(257));
         stops.put(new Integer(MAGIC), new Integer(263));
         labels.put(new Integer(UNAME), "uname");
@@ -153,27 +128,38 @@ public class TarHeaderFields {
     // TarMalformatExceptions because these errors indicate a dev problem,
     // not some problem with a Header, or generating or reading a Header.
     static public int getStart(int field) {
+
         Integer iObject = (Integer) starts.get(new Integer(field));
+
         if (iObject == null) {
-            throw new IllegalArgumentException(
-                    "Unexpected Header key: " + field);
+            throw new IllegalArgumentException("Unexpected Header key: "
+                                               + field);
         }
+
         return iObject.intValue();
     }
+
     static public int getStop(int field) {
+
         Integer iObject = (Integer) stops.get(new Integer(field));
+
         if (iObject == null) {
-            throw new IllegalArgumentException(
-                    "Unexpected Header key: " + field);
+            throw new IllegalArgumentException("Unexpected Header key: "
+                                               + field);
         }
+
         return iObject.intValue();
     }
+
     static public String toString(int field) {
+
         String s = (String) labels.get(new Integer(field));
+
         if (s == null) {
-            throw new IllegalArgumentException(
-                    "Unexpected Header key: " + field);
+            throw new IllegalArgumentException("Unexpected Header key: "
+                                               + field);
         }
+
         return s;
     }
 }
