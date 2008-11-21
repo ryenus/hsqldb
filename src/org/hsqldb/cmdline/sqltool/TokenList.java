@@ -33,6 +33,8 @@ package org.hsqldb.cmdline.sqltool;
 
 import java.util.ArrayList;
 
+/* @(#)$Id$ */
+
 /**
  * A list of SqlFile Tokens
  */
