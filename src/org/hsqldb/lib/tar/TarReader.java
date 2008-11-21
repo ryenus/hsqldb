@@ -64,7 +64,7 @@ public class TarReader {
 
     final static private String SYNTAX_MSG =
             "SYNTAX: java " + TarReader.class.getName()
-            + " {t|x} [--directory=path] file/path/tar[.gz] [pattern1...]";
+            + " {t|x} [--directory=path] file/path/tar[.gz] [regex1...]";
 
     /**
      * Reads a specified tar file or stdin in order to either list or extract
@@ -186,6 +186,8 @@ public class TarReader {
                         // behavior inside of extractFile().
                         //System.out.println(header.toString());
                         extractFile(header);
+                        System.out.println(header.toString());
+                        // Display entry summary after successful extraction
                         break;
                     default:
                         throw new RuntimeException(
