@@ -331,15 +331,15 @@ if (skipBlocks != 0) throw new IllegalStateException(
                     + expectedCheckSum + ", but calculated "
                     + calculatedCheckSum);
             }
-            path = readString(TarHeaderFields.FILEPATH);
+            path = readString(TarHeaderFields.NAME);
             if (path == null) {
                 throw new TarMalformatException(
-                    "Required field 'FILEPATH' missing in tar entry header");
+                    "Required field 'NAME' missing in tar entry header");
             }
-            Long longObject = readInteger(TarHeaderFields.FILEMODE);
+            Long longObject = readInteger(TarHeaderFields.MODE);
             if (longObject == null) {
                 throw new TarMalformatException(
-                    "Required field 'FILEMODE' missing in tar entry header");
+                    "Required field 'MODE' missing in tar entry header");
             }
             fileMode = (int) longObject.longValue();
             longObject = readInteger(TarHeaderFields.SIZE);
@@ -350,18 +350,18 @@ if (skipBlocks != 0) throw new IllegalStateException(
                     + "We haven't implemented that yet");
             }
             dataSize = longObject.longValue();
-            longObject = readInteger(TarHeaderFields.MODTIME);
+            longObject = readInteger(TarHeaderFields.MTIME);
             if (longObject == null) {
                 throw new TarMalformatException(
-                    "Required field 'MODTIME' missing in tar entry header.");
+                    "Required field 'MTIME' missing in tar entry header.");
             }
             modTime = longObject.longValue();
-            String typeString = readString(TarHeaderFields.TYPE);
+            String typeString = readString(TarHeaderFields.TYPEFLAG);
             if (typeString != null) {
                 entryType = typeString.charAt(0);
             }
-            ownerName = readString(TarHeaderFields.OWNERNAME);
-            String pathPrefix = readString(TarHeaderFields.PATHPREFIX);
+            ownerName = readString(TarHeaderFields.UNAME);
+            String pathPrefix = readString(TarHeaderFields.PREFIX);
             if (pathPrefix != null) {
                 path = pathPrefix + '/' + path;
             }

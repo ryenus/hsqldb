@@ -41,6 +41,13 @@ import java.util.HashMap;
  * in an archive.  There is no such thing as a Header Field at the top archive
  * level.
  * <P>
+ * We use header field names as they are specified in the FreeBSD man page for
+ * tar in section 5 (Solaris and Linux have no such page in section 5).
+ * Where we use a constant, the constant name is just the FreeBSD field name
+ * capitalized.
+ * Since a single field is known as either "linkflag" or "typeflag", we are
+ * going with the UStar name typeflag for this field.
+ * <P>
  * We purposefully define no variable for this list of fields, since
  * we DO NOT WANT TO access or change these values, due to application
  * goals or JVM limitations:<UL>
@@ -63,16 +70,16 @@ import java.util.HashMap;
  * @author Blaine Simpson
  */
 public class TarHeaderFields {
-    final static int FILEPATH = 1;
-    final static int FILEMODE = 2;
+    final static int NAME = 1;
+    final static int MODE = 2;
     final static int SIZE = 3;
-    final static int MODTIME = 4;  // (File.lastModified()|*.getTime())/1000
+    final static int MTIME = 4;  // (File.lastModified()|*.getTime())/1000
     final static int CHECKSUM = 5;
-    final static int TYPE = 6;
+    final static int TYPEFLAG = 6;
     // The remaining are from UStar format:
     final static int MAGIC = 7;
-    final static int OWNERNAME = 8;
-    final static int PATHPREFIX = 9;
+    final static int UNAME = 8;
+    final static int PREFIX = 9;
     // Replace these contants with proper enum once we require Java 1.5.
 
     static Map labels = new HashMap(); // String identifier
@@ -95,38 +102,38 @@ public class TarHeaderFields {
             */
 
     static {
-        starts.put(new Integer(FILEPATH), new Integer(0));
-        stops.put(new Integer(FILEPATH), new Integer(100));
-        labels.put(new Integer(FILEPATH), "FILEPATH");
-        starts.put(new Integer(FILEMODE), new Integer(100));
-        stops.put(new Integer(FILEMODE), new Integer(107));
-        labels.put(new Integer(FILEMODE), "FILEMODE");
+        starts.put(new Integer(NAME), new Integer(0));
+        stops.put(new Integer(NAME), new Integer(100));
+        labels.put(new Integer(NAME), "name");
+        starts.put(new Integer(MODE), new Integer(100));
+        stops.put(new Integer(MODE), new Integer(107));
+        labels.put(new Integer(MODE), "mode");
         starts.put(new Integer(SIZE), new Integer(124));
         stops.put(new Integer(SIZE), new Integer(135));
-        labels.put(new Integer(SIZE), "SIZE");
-        starts.put(new Integer(MODTIME), new Integer(136));
-        stops.put(new Integer(MODTIME), new Integer(147));
-        labels.put(new Integer(MODTIME), "MODTIME");
+        labels.put(new Integer(SIZE), "size");
+        starts.put(new Integer(MTIME), new Integer(136));
+        stops.put(new Integer(MTIME), new Integer(147));
+        labels.put(new Integer(MTIME), "mtime");
         starts.put(new Integer(CHECKSUM), new Integer(148)); // Special fmt.
         stops.put(new Integer(CHECKSUM), new Integer(156));  // Queer terminator.
-        labels.put(new Integer(CHECKSUM), "CHECKSUM");  // Queer terminator.
+        labels.put(new Integer(CHECKSUM), "checksum");  // Queer terminator.
             // Pax UStore does not follow spec and delimits this field like
             // any other numeric, skipping the space byte.
-        starts.put(new Integer(TYPE), new Integer(156)); // 1-byte CODE
+        starts.put(new Integer(TYPEFLAG), new Integer(156)); // 1-byte CODE
           // With current version, we are never doing anything with this
           // field.  In future, we will support x and/or g type here.
-        stops.put(new Integer(TYPE), new Integer(157));
-        labels.put(new Integer(TYPE), "TYPE");
+        stops.put(new Integer(TYPEFLAG), new Integer(157));
+        labels.put(new Integer(TYPEFLAG), "typeflag");
         starts.put(new Integer(MAGIC), new Integer(257));
         stops.put(new Integer(MAGIC), new Integer(263));
-        labels.put(new Integer(MAGIC), "MAGIC");
+        labels.put(new Integer(MAGIC), "magic");
           // N.b. Gnu Tar does not honor this Stop.
-        starts.put(new Integer(OWNERNAME), new Integer(265));
-        stops.put(new Integer(OWNERNAME), new Integer(296));
-        labels.put(new Integer(OWNERNAME), "OWNERNAME");
-        starts.put(new Integer(PATHPREFIX), new Integer(345));
-        stops.put(new Integer(PATHPREFIX), new Integer(399));
-        labels.put(new Integer(PATHPREFIX), "PATHPREFIX");
+        starts.put(new Integer(UNAME), new Integer(265));
+        stops.put(new Integer(UNAME), new Integer(296));
+        labels.put(new Integer(UNAME), "uname");
+        starts.put(new Integer(PREFIX), new Integer(345));
+        stops.put(new Integer(PREFIX), new Integer(399));
+        labels.put(new Integer(PREFIX), "prefix");
     }
     static public int getStart(int field) {
         return ((Integer) starts.get(new Integer(field))).intValue();
