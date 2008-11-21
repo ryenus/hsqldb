@@ -72,76 +72,104 @@ import java.util.HashMap;
 public class TarHeaderFields {
     final static int NAME = 1;
     final static int MODE = 2;
-    final static int SIZE = 3;
-    final static int MTIME = 4;  // (File.lastModified()|*.getTime())/1000
-    final static int CHECKSUM = 5;
-    final static int TYPEFLAG = 6;
+    final static int UID = 3;
+    final static int GID = 4;
+    final static int SIZE = 5;
+    final static int MTIME = 6;  // (File.lastModified()|*.getTime())/1000
+    final static int CHECKSUM = 7;
+    final static int TYPEFLAG = 8;
     // The remaining are from UStar format:
-    final static int MAGIC = 7;
-    final static int UNAME = 8;
-    final static int PREFIX = 9;
+    final static int MAGIC = 9;
+    final static int UNAME = 10;
+    final static int GNAME = 11;
+    final static int PREFIX = 12;
     // Replace these contants with proper enum once we require Java 1.5.
 
     static Map labels = new HashMap(); // String identifier
                                        // (this supplied automatically by enums)
     static Map starts = new HashMap(); // Starting positions
-    static Map stops = new HashMap();  // 1 PAST last position.
-           /* Note that (with one exception), there is always 1 byte
-            * between a numeric field stop and the next start.  This is
-            * because null byte must occupy the intervening position.
-            * This is not true for non-numeric fields (which includes the
-            * link-indicator/type-flag field, which is used as a code,
-            * and is not necessarily numeric with UStar format).
-            *
-            * As a consequence, there may be NO DELIMITER after
-            * non-numerics, which may occupy the entire field segment.
-            *
-            * Arg.  man page for "pax" says that both original and ustar
-            * headers must be <= 100 chars. INCLUDING the trailing \0
-            * character.  ???
-            */
+    static Map stops = new HashMap();
+    // 1 PAST last position (in normal Java substring fashion).
+    /* Note that (with one exception), there is always 1 byte
+     * between a numeric field stop and the next start.  This is
+     * because null byte must occupy the intervening position.
+     * This is not true for non-numeric fields (which includes the
+     * link-indicator/type-flag field, which is used as a code,
+     * and is not necessarily numeric with UStar format).
+     *
+     * As a consequence, there may be NO DELIMITER after
+     * non-numerics, which may occupy the entire field segment.
+     *
+     * Arg.  man page for "pax" says that both original and ustar
+     * headers must be <= 100 chars. INCLUDING the trailing \0
+     * character.  ???  GNU tar certainly does not honor this.
+     */
 
     static {
+        labels.put(new Integer(NAME), "name");
         starts.put(new Integer(NAME), new Integer(0));
         stops.put(new Integer(NAME), new Integer(100));
-        labels.put(new Integer(NAME), "name");
+        labels.put(new Integer(MODE), "mode");
         starts.put(new Integer(MODE), new Integer(100));
         stops.put(new Integer(MODE), new Integer(107));
-        labels.put(new Integer(MODE), "mode");
+        labels.put(new Integer(UID), "uid");
+        starts.put(new Integer(UID), new Integer(108));
+        stops.put(new Integer(UID), new Integer(115));
+        labels.put(new Integer(GID), "gid");
+        starts.put(new Integer(GID), new Integer(116));
+        stops.put(new Integer(GID), new Integer(123));
+        labels.put(new Integer(SIZE), "size");
         starts.put(new Integer(SIZE), new Integer(124));
         stops.put(new Integer(SIZE), new Integer(135));
-        labels.put(new Integer(SIZE), "size");
+        labels.put(new Integer(MTIME), "mtime");
         starts.put(new Integer(MTIME), new Integer(136));
         stops.put(new Integer(MTIME), new Integer(147));
-        labels.put(new Integer(MTIME), "mtime");
-        starts.put(new Integer(CHECKSUM), new Integer(148)); // Special fmt.
-        stops.put(new Integer(CHECKSUM), new Integer(156));  // Queer terminator.
         labels.put(new Integer(CHECKSUM), "checksum");  // Queer terminator.
             // Pax UStore does not follow spec and delimits this field like
             // any other numeric, skipping the space byte.
+        starts.put(new Integer(CHECKSUM), new Integer(148)); // Special fmt.
+        stops.put(new Integer(CHECKSUM), new Integer(156));  // Queer terminator.
+        labels.put(new Integer(TYPEFLAG), "typeflag");
         starts.put(new Integer(TYPEFLAG), new Integer(156)); // 1-byte CODE
           // With current version, we are never doing anything with this
           // field.  In future, we will support x and/or g type here.
         stops.put(new Integer(TYPEFLAG), new Integer(157));
-        labels.put(new Integer(TYPEFLAG), "typeflag");
-        starts.put(new Integer(MAGIC), new Integer(257));
-        stops.put(new Integer(MAGIC), new Integer(263));
         labels.put(new Integer(MAGIC), "magic");
           // N.b. Gnu Tar does not honor this Stop.
+        starts.put(new Integer(MAGIC), new Integer(257));
+        stops.put(new Integer(MAGIC), new Integer(263));
+        labels.put(new Integer(UNAME), "uname");
         starts.put(new Integer(UNAME), new Integer(265));
         stops.put(new Integer(UNAME), new Integer(296));
-        labels.put(new Integer(UNAME), "uname");
+        labels.put(new Integer(GNAME), "gname");
+        starts.put(new Integer(GNAME), new Integer(297));
+        stops.put(new Integer(GNAME), new Integer(328));
+        labels.put(new Integer(PREFIX), "prefix");
         starts.put(new Integer(PREFIX), new Integer(345));
         stops.put(new Integer(PREFIX), new Integer(399));
-        labels.put(new Integer(PREFIX), "prefix");
     }
     static public int getStart(int field) {
-        return ((Integer) starts.get(new Integer(field))).intValue();
+        Integer iObject = (Integer) starts.get(new Integer(field));
+        if (iObject == null) {
+            throw new IllegalArgumentException(
+                    "Unexpected Header key: " + field);
+        }
+        return iObject.intValue();
     }
     static public int getStop(int field) {
-        return ((Integer) stops.get(new Integer(field))).intValue();
+        Integer iObject = (Integer) stops.get(new Integer(field));
+        if (iObject == null) {
+            throw new IllegalArgumentException(
+                    "Unexpected Header key: " + field);
+        }
+        return iObject.intValue();
     }
     static public String toString(int field) {
-        return (String) labels.get(new Integer(field));
+        String s = (String) labels.get(new Integer(field));
+        if (s == null) {
+            throw new IllegalArgumentException(
+                    "Unexpected Header key: " + field);
+        }
+        return s;
     }
 }

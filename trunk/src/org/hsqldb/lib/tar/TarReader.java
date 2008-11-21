@@ -365,6 +365,8 @@ if (skipBlocks != 0) throw new IllegalStateException(
             if (pathPrefix != null) {
                 path = pathPrefix + '/' + path;
             }
+            // We're not loading the "gname" field, since there is nothing at
+            // all that Java can do with it.
             ustar = isUstar();
         }
         protected byte[] rawHeader;
@@ -408,6 +410,16 @@ if (skipBlocks != 0) throw new IllegalStateException(
         public int getFileMode() {
             return fileMode;
         }
+
+        /**
+         * Choosing not to report fields that we don't write (e.g. "gname"),
+         * but which would certainly be useful for a general Java tar client
+         * implementation.
+         * This design decision is subject to change.
+         *
+         * TODO:  Format output into colums.  Looks terrible when the fields
+         *        don't line up in columns.
+         */
         public String toString() {
             StringBuffer sb = new StringBuffer(
                     (entryType == '\0') ? ' ' : entryType);
