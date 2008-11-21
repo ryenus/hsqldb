@@ -203,20 +203,22 @@ public class TarGenerator {
             if (c != '/') {
                 swapOutDelim = new Character(c);
             }
-            for (int i = 108; i < 115; i++) {
-                // uid field
-                HEADER_TEMPLATE[i] = '0';
-            }
-            for (int i = 116; i < 123; i++) {
-                // uid field
-                HEADER_TEMPLATE[i] = '0';
-            }
+            writeField(TarHeaderFields.UID, 0L, HEADER_TEMPLATE);
+            writeField(TarHeaderFields.GID, 0L, HEADER_TEMPLATE);
+            // Setting uid and gid to 0 = root.
+            // Misleading, yes.  Anything better we can do?  No.
             writeField(TarHeaderFields.UNAME,
                     System.getProperty("user.name"), HEADER_TEMPLATE);
-            // UStar owner name field
+            writeField(TarHeaderFields.GNAME, "root", HEADER_TEMPLATE);
+            // POSIX UStar compliance requires that we set "gname" field.
+            // It's impossible for use to determine the correct value from
+            // Java.  We punt with "root" because (a) it's the only group name
+            // we know should exist on every UNIX system, and (b) every tar
+            // client gracefully handles it when extractor user does not have
+            // privs for the specified group.
             writeField(TarHeaderFields.TYPEFLAG, "0", HEADER_TEMPLATE);
             // Difficult call here.  binary 0 and character '0' both mean
-            // regular file.  Binary 0 pre-UStar and probably more portable,
+            // regular file.  Binary 0 pre-UStar is probably more portable,
             // but we are writing a valid UStar header, and I doubt anybody's
             // tar implementation would choke on this since there is no
             // outcry of UStar archives failing to work with older tars.
@@ -245,6 +247,24 @@ public class TarGenerator {
                 target[start + i] = ba[i];
             }
         }
+
+        static protected void writeField(
+                int fieldId, long newValue, byte[] target) {
+            TarEntrySupplicant.writeField(fieldId,
+                    TarEntrySupplicant.prePaddedOctalString(newValue,
+                    TarHeaderFields.getStop(fieldId)
+                    - TarHeaderFields.getStart(fieldId)), target);
+        }
+
+        static protected String prePaddedOctalString(long val, int width) {
+            StringBuffer sb = new StringBuffer(Long.toOctalString(val));
+            int needZeros = width - sb.length();
+            while (needZeros-- > 0) {
+                sb.insert(0, '0');
+            }
+            return sb.toString();
+        }
+
         protected byte[] rawHeader = (byte[]) HEADER_TEMPLATE.clone();
         protected String fileMode = DEFAULT_FILE_MODES;
 
@@ -369,19 +389,8 @@ public class TarGenerator {
             TarEntrySupplicant.writeField(fieldId, newValue, rawHeader);
         }
 
-        protected String prePaddedOctalString(long val, int width) {
-            StringBuffer sb = new StringBuffer(Long.toOctalString(val));
-            int needZeros = width - sb.length();
-            while (needZeros-- > 0) {
-                sb.insert(0, '0');
-            }
-            return sb.toString();
-        }
-
         protected void writeField(int fieldId, long newValue) {
-            writeField(fieldId, prePaddedOctalString(newValue,
-                    TarHeaderFields.getStop(fieldId)
-                    - TarHeaderFields.getStart(fieldId)));
+            TarEntrySupplicant.writeField(fieldId, newValue, rawHeader);
         }
 
         /**
@@ -399,7 +408,8 @@ public class TarGenerator {
                 writeField(TarHeaderFields.MODE, fileMode);
                 writeField(TarHeaderFields.SIZE, dataSize);
                 writeField(TarHeaderFields.MTIME, modTime);
-                writeField(TarHeaderFields.CHECKSUM, prePaddedOctalString(
+                writeField(TarHeaderFields.CHECKSUM,
+                        TarEntrySupplicant.prePaddedOctalString(
                         headerChecksum(), 6) + "\0 ");
                 // Silly, but that's what the base header spec calls for.
                 tarStream.writeBlock(rawHeader);
