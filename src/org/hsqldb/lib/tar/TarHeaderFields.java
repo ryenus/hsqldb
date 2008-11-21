@@ -148,6 +148,10 @@ public class TarHeaderFields {
         starts.put(new Integer(PREFIX), new Integer(345));
         stops.put(new Integer(PREFIX), new Integer(399));
     }
+
+    // The getters below throw RuntimExceptions instead of
+    // TarMalformatExceptions because these errors indicate a dev problem,
+    // not some problem with a Header, or generating or reading a Header.
     static public int getStart(int field) {
         Integer iObject = (Integer) starts.get(new Integer(field));
         if (iObject == null) {

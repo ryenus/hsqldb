@@ -176,10 +176,17 @@ public class TarReader {
                 switch (mode) {
                     case LIST_MODE:
                         System.out.println(header.toString());
+                        char entryType = header.getEntryType();
+                        if (entryType != '\0' && entryType != '0') {
+                            anyUnsupporteds = true;
+                        }
                         skipFileData(header);
                         break;
                     case EXTRACT_MODE:
                     case OVERWRITE_MODE:
+                        // Don't need to check type here, since we will throw
+                        // if typeflag is unsupported.
+                        //
                         // Instance variable mode will be used to differentiate
                         // behavior inside of extractFile().
                         //System.out.println(header.toString());
@@ -356,10 +363,7 @@ if (skipBlocks != 0) throw new IllegalStateException(
                     "Required field 'MTIME' missing in tar entry header.");
             }
             modTime = longObject.longValue();
-            String typeString = readString(TarHeaderFields.TYPEFLAG);
-            if (typeString != null) {
-                entryType = typeString.charAt(0);
-            }
+            entryType = readChar(TarHeaderFields.TYPEFLAG);
             ownerName = readString(TarHeaderFields.UNAME);
             String pathPrefix = readString(TarHeaderFields.PREFIX);
             if (pathPrefix != null) {
@@ -377,7 +381,7 @@ if (skipBlocks != 0) throw new IllegalStateException(
         protected int fileMode;
         protected long dataSize;  // In bytes
         protected long modTime;
-        protected char entryType = '\0';
+        protected char entryType;
         protected String ownerName;
         protected boolean ustar;
 
@@ -398,6 +402,9 @@ if (skipBlocks != 0) throw new IllegalStateException(
             // constructor.
         }
 
+        public char getEntryType() {
+            return entryType;
+        }
         public String getPath() {
             return path;
         }
@@ -421,8 +428,8 @@ if (skipBlocks != 0) throw new IllegalStateException(
          *        don't line up in columns.
          */
         public String toString() {
-            StringBuffer sb = new StringBuffer(
-                    (entryType == '\0') ? ' ' : entryType);
+            StringBuffer sb = new StringBuffer();
+            sb.append((entryType == '\0') ? ' ' : entryType);
             sb.append(ustar ? '*' : ' ');
             sb.append(' ' + sdf.format(modTime * 1000) + ' '
                     + Integer.toOctalString(fileMode) + "  "
@@ -437,7 +444,7 @@ if (skipBlocks != 0) throw new IllegalStateException(
          */
         public boolean isUstar() throws TarMalformatException {
             String magicString = readString(TarHeaderFields.MAGIC);
-            return magicString != null && magicString.startsWith("ustart");
+            return magicString != null && magicString.startsWith("ustar");
         }
 
         /**
@@ -452,8 +459,15 @@ if (skipBlocks != 0) throw new IllegalStateException(
             return -1;
         }
 
+        protected char readChar(int fieldId) throws TarMalformatException {
+            /* Depends on readString(int) contract that it will never return 
+             * a 0-length String */
+            String s = readString(fieldId);
+            return (s == null) ? '\0' : s.charAt(0);
+        }
+
         /**
-         * Returns null instead of 0-length Strings.
+         * @returns null or String with length() > 0.
          */
         protected String readString(int fieldId) throws TarMalformatException {
             int start = TarHeaderFields.getStart(fieldId);
