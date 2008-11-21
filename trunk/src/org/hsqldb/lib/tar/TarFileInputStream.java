@@ -1,43 +1,12 @@
-/* Copyright (c) 2001-2008, The HSQL Development Group
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the HSQL Development Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
 package org.hsqldb.lib.tar;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.EOFException;
-import java.io.FileNotFoundException;
-import java.io.File;
 import java.io.Closeable;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -71,22 +40,25 @@ import java.util.zip.GZIPInputStream;
  * since we use the larges read buffer within limits the user has set.
  */
 public class TarFileInputStream implements Closeable {
+
     /* Would love to use a RandomAccessFile, but RandomAccessFiles do not play
      * nicely with InputStreams or filters, and it just would not work with
      * compressed input. */
     protected long bytesRead = 0;
+
     // Pronounced as past tense of "to read", not the other forms of "read".
     // I.e., the homonym of "red".
     private InputStream readStream;
-    /* This is not a "Reader", but the byte "Stream" that we read() from. */
-    protected byte[] readBuffer;
-    protected int readBufferBlocks;
-    protected int compressionType;
 
-    final static public int NO_COMPRESSION = 0;
+    /* This is not a "Reader", but the byte "Stream" that we read() from. */
+    protected byte[]        readBuffer;
+    protected int           readBufferBlocks;
+    protected int           compressionType;
+    final static public int NO_COMPRESSION   = 0;
     final static public int GZIP_COMPRESSION = 1;
+
     //TODO:  Use an email once Java 1.5 is required.
-    final static public int DEFAULT_COMPRESSION = NO_COMPRESSION;
+    final static public int DEFAULT_COMPRESSION       = NO_COMPRESSION;
     final static public int DEFAULT_BLOCKS_PER_RECORD = 20;
 
     /**
@@ -103,10 +75,10 @@ public class TarFileInputStream implements Closeable {
      *
      * @see TarFileInputStream(File, int, int)
      */
-    public TarFileInputStream(File sourceFile, int compressionType)
-            throws IOException {
+    public TarFileInputStream(File sourceFile,
+                              int compressionType) throws IOException {
         this(sourceFile, compressionType,
-                TarFileInputStream.DEFAULT_BLOCKS_PER_RECORD);
+             TarFileInputStream.DEFAULT_BLOCKS_PER_RECORD);
     }
 
     public int getReadBufferBlocks() {
@@ -126,30 +98,37 @@ public class TarFileInputStream implements Closeable {
      * @see #close
      * @see readNextHeaderBlock
      */
-    public TarFileInputStream(
-            File sourceFile, int compressionType, int readBufferBlocks)
-            throws IOException {
+    public TarFileInputStream(File sourceFile, int compressionType,
+                              int readBufferBlocks) throws IOException {
+
         if (!sourceFile.isFile()) {
             throw new FileNotFoundException(sourceFile.getAbsolutePath());
         }
+
         if (!sourceFile.canRead()) {
             throw new IOException("User does not have privileges to read file "
-                    + sourceFile.getAbsolutePath());
+                                  + sourceFile.getAbsolutePath());
         }
+
         this.readBufferBlocks = readBufferBlocks;
-        this.compressionType = compressionType;
-        readBuffer = new byte[readBufferBlocks * 512];
+        this.compressionType  = compressionType;
+        readBuffer            = new byte[readBufferBlocks * 512];
+
         switch (compressionType) {
-            case TarFileInputStream.NO_COMPRESSION:
+
+            case TarFileInputStream.NO_COMPRESSION :
                 readStream = new FileInputStream(sourceFile);
                 break;
-            case TarFileInputStream.GZIP_COMPRESSION:
-                readStream = new GZIPInputStream(
-                        new FileInputStream(sourceFile), readBuffer.length);
+
+            case TarFileInputStream.GZIP_COMPRESSION :
+                readStream =
+                    new GZIPInputStream(new FileInputStream(sourceFile),
+                                        readBuffer.length);
                 break;
-            default:
+
+            default :
                 throw new IllegalArgumentException(
-                        "Unexpected compression type: " + compressionType);
+                    "Unexpected compression type: " + compressionType);
         }
     }
 
@@ -175,19 +154,25 @@ public class TarFileInputStream implements Closeable {
      * @see #readBlocks(byte[])
      */
     public void readBlocks(int blocks)
-            throws IOException, TarMalformatException {
+    throws IOException, TarMalformatException {
+
         /* int for blocks should support sizes up to about 1T, according to
          * my off-the-cuff calculations */
         if (compressionType != NO_COMPRESSION) {
             readCompressedBlocks(blocks);
+
             return;
         }
+
         int i = readStream.read(readBuffer, 0, blocks * 512);
+
         bytesRead += i;
+
         if (i != blocks * 512) {
-            throw new TarMalformatException(
-                    "Expected to read " + (blocks * 512)
-                    + " bytes, but could only read " + i);
+            throw new TarMalformatException("Expected to read "
+                                            + (blocks * 512)
+                                            + " bytes, but could only read "
+                                            + i);
         }
     }
 
@@ -200,23 +185,34 @@ public class TarFileInputStream implements Closeable {
      * compression stream.
      */
     protected void readCompressedBlocks(int blocks)
-            throws IOException, TarMalformatException {
-        int bytesSoFar = 0;
+    throws IOException, TarMalformatException {
+
+        int bytesSoFar    = 0;
         int requiredBytes = 512 * blocks;
+
         // This method works with individual bytes!
         int i;
+
         while (bytesSoFar < requiredBytes) {
-            i = readStream.read(
-                    readBuffer, bytesSoFar, requiredBytes - bytesSoFar);
-            if (i < 0)
+            i = readStream.read(readBuffer, bytesSoFar,
+                                requiredBytes - bytesSoFar);
+
+            if (i < 0) {
                 throw new EOFException("Ran out of decompressed bytes after "
-                        + "reading " + bytesSoFar + " out of " + requiredBytes);
-            bytesRead += i;
+                                       + "reading " + bytesSoFar + " out of "
+                                       + requiredBytes);
+            }
+
+            bytesRead  += i;
             bytesSoFar += i;
         }
-if (bytesSoFar != requiredBytes)
-throw new RuntimeException("Assertion failed.  Read only " + bytesSoFar
-+ " when user requested " + blocks + " blocks");
+
+        if (bytesSoFar != requiredBytes) {
+            throw new RuntimeException("Assertion failed.  Read only "
+                                       + bytesSoFar + " when user requested "
+                                       + blocks + " blocks");
+        }
+
 // TODO: Remove this Dev assertion
     }
 
@@ -249,12 +245,14 @@ throw new RuntimeException("Assertion failed.  Read only " + bytesSoFar
      * @see #readBlock
      */
     public boolean readNextHeaderBlock()
-            throws IOException, TarMalformatException {
+    throws IOException, TarMalformatException {
+
         // We read a-byte-at-a-time because there should only be 2 empty blocks
         // between each Tar Entry.
         try {
             while (readStream.available() > 0) {
                 readBlock();
+
                 if (readBuffer[0] != 0) {
                     return true;
                 }
@@ -268,7 +266,9 @@ throw new RuntimeException("Assertion failed.  Read only " + bytesSoFar
              * which it should be.
              */
         }
+
         close();
+
         return false;
     }
 
