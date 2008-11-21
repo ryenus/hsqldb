@@ -1,4 +1,4 @@
-/* 
+/*
  * @(#)$Id$
  *
  * Copyright (c) 2001-2008, The HSQL Development Group
@@ -153,7 +153,7 @@ public class TarReader {
                   : new TarFileInputStream(archiveFile, compression,
                           readBufferBlocks.intValue());
     }
-    
+
     public void read() throws IOException, TarMalformatException {
         TarEntryHeader header;
         boolean anyUnsupporteds = false;
