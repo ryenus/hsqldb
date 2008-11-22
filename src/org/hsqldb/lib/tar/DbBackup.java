@@ -199,7 +199,7 @@ public class DbBackup {
      * @throws IllegalStateException only if abortUponModify is set, and
      *                               database is open or is modified.
      */
-    public void write() throws IOException {
+    public void write() throws IOException, TarMalformatException {
 
         File   propertiesFile = new File(dbDir, instanceName + ".properties");
         File   scriptFile     = new File(dbDir, instanceName + ".script");
