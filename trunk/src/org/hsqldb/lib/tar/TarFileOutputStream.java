@@ -41,6 +41,8 @@ public class TarFileOutputStream implements Closeable, Flushable {
     protected int        blocksPerRecord;
     protected long       bytesWritten = 0;
     private OutputStream writeStream;
+    private File         targetFile;
+    private File         writeFile;
 
     /* This is not a "Writer", but the byte "Stream" that we write() to. */
     public byte[] writeBuffer;
@@ -88,17 +90,42 @@ public class TarFileOutputStream implements Closeable, Flushable {
                                int blocksPerRecord) throws IOException {
 
         this.blocksPerRecord = blocksPerRecord;
+        this.targetFile = targetFile;
+        writeFile = new File(targetFile.getParentFile(),
+                targetFile.getName() + "-partial");
+        if (this.writeFile.exists()) {
+            throw new IOException(
+                    "Is somebody else writing to the same file?  "
+                    + "If not, remove aborted work file:  "
+                    + writeFile.getAbsolutePath());
+        }
+        if (targetFile.exists() && !targetFile.canWrite()) {
+            throw new IOException(
+                    "You do not have privileges to overwrite '"
+                    + targetFile.getAbsolutePath() + "'");
+        }
+        File parentDir = targetFile.getAbsoluteFile().getParentFile();
+        if (parentDir.exists() && parentDir.isDirectory()) {
+            if (!parentDir.canWrite()) {
+                throw new IOException(
+                        "You do not have privileges to write in directory '"
+                        + parentDir.getAbsolutePath() + "'");
+            }
+        } else {
+            throw new IOException("No parent directory '"
+                    + parentDir.getAbsolutePath() + "'");
+        }
         writeBuffer          = new byte[blocksPerRecord * 512];
 
         switch (compressionType) {
 
             case TarFileOutputStream.NO_COMPRESSION :
-                writeStream = new FileOutputStream(targetFile);
+                writeStream = new FileOutputStream(writeFile);
                 break;
 
             case TarFileOutputStream.GZIP_COMPRESSION :
                 writeStream =
-                    new GZIPOutputStream(new FileOutputStream(targetFile),
+                    new GZIPOutputStream(new FileOutputStream(writeFile),
                                          writeBuffer.length);
                 break;
 
@@ -107,15 +134,15 @@ public class TarFileOutputStream implements Closeable, Flushable {
                     "Unexpected compression type: " + compressionType);
         }
 
-        targetFile.setExecutable(false, true);
-        targetFile.setExecutable(false, false);
-        targetFile.setReadable(false, false);
-        targetFile.setReadable(true, true);
-        targetFile.setWritable(false, false);
-        targetFile.setWritable(true, true);
-
-        // We restrict permissions to the file owner before writing anything,
-        // in case we will be writing anything private into this file.
+        writeFile.setExecutable(false, true);
+        writeFile.setExecutable(false, false);
+        writeFile.setReadable(false, false);
+        writeFile.setReadable(true, true);
+        writeFile.setWritable(false, false);
+        writeFile.setWritable(true, true);
+        // We restrict permissions to the file owner before writing
+        // anything, in case we will be writing anything private into this
+        // file.
     }
 
     /**
@@ -225,11 +252,18 @@ public class TarFileOutputStream implements Closeable, Flushable {
 
     /**
      * Implements java.io.Closeable.
+     * <P/>
+     * <B>IMPORTANT:<B/>  This method <B>deletes</B> the work file after
+     * closing it!
      *
      * @see java.io.Closeable
      */
     public void close() throws IOException {
         writeStream.close();
+        if (!writeFile.delete()) {
+            throw new IOException("Failed to delete work file '"
+                    + writeFile.getAbsolutePath() + "'");
+        }
     }
 
     public long getBytesWritten() {
@@ -264,8 +298,15 @@ public class TarFileOutputStream implements Closeable, Flushable {
             System.err.println("Padding archive with " + finalPadBlocks
                                + " zero blocks");
             writePadBlocks(finalPadBlocks);
-        } finally {
-            close();
+        } catch (IOException ioe) {
+            try {
+                close();
+            } catch (IOException ne) {
+                // Too much work to report ever single detail to user.
+            }
+            throw ioe;
         }
+        writeStream.close();
+        writeFile.renameTo(targetFile);
     }
 }
