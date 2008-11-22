@@ -58,6 +58,36 @@ public class PIFGenerator extends ByteArrayOutputStream {
     }
 
     /**
+     * Convenience wrapper for addRecord(String, String).
+     * N.b. this writes values exactly as either "true" or "false".
+     *
+     * @see #addRecord(String, String)
+     * @see Boolean.toString(boolean)
+     */
+    public void addRecord(String key, boolean b)
+            throws TarMalformatException, IOException {
+        addRecord(key, Boolean.toString(b));
+    }
+    /**
+     * Convenience wrapper for addRecord(String, String).
+     *
+     * @see #addRecord(String, String)
+     */
+    public void addRecord(String key, int i)
+            throws TarMalformatException, IOException {
+        addRecord(key, Integer.toString(i));
+    }
+    /**
+     * Convenience wrapper for addRecord(String, String).
+     *
+     * @see #addRecord(String, String)
+     */
+    public void addRecord(String key, long l)
+            throws TarMalformatException, IOException {
+        addRecord(key, Long.toString(l));
+    }
+
+    /**
      * I guess the "initial length" field is supposed to be in units of
      * characters, not bytes?
      */
@@ -121,6 +151,10 @@ public class PIFGenerator extends ByteArrayOutputStream {
         // Impossible to get total of 99.
         pif.addRecord("k5", "2345678901234567890123456789012345678901234567890"
                 + "1234567890123456789012345678901234567890123");//total 100
+        pif.addRecord("int1234", 1234);
+        pif.addRecord("long1234", 1234);
+        pif.addRecord("boolTrue", true);
+        pif.addRecord("boolFalse", false);
         System.out.write(pif.toByteArray());
     }
 }
