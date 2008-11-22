@@ -141,7 +141,7 @@ public class TarGenerator {
                   : new TarFileOutputStream(archiveFile, compression,
                                             blocksPerRecord.intValue());
 
-        if (blocksPerRecord != null) {
+        if (blocksPerRecord != null && TarFileOutputStream.debug) {
             System.out.println("Will write at " + blocksPerRecord
                                + " blocks-per-record");
         }
@@ -173,8 +173,10 @@ public class TarGenerator {
      */
     public void write() throws IOException, TarMalformatException {
 
-        System.err.println(Integer.toString(entryQueue.size())
-                           + " supplicants queued for writing...");
+        if (TarFileOutputStream.debug) {
+            System.err.println(Integer.toString(entryQueue.size())
+                               + " supplicants queued for writing...");
+        }
 
         TarEntrySupplicant entry;
 
@@ -478,8 +480,10 @@ public class TarGenerator {
                 outPipe.flush();  // Do any good on a pipe?
                 dataSize = inputStream.available();
 
-                System.err.println("Buffered " + dataSize
+                if (TarFileOutputStream.debug) {
+                    System.err.println("Buffered " + dataSize
                                    + " bytes from given InputStream into RAM");
+                }
             } catch (IOException ioe) {
                 inputStream.close();
 

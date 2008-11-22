@@ -239,7 +239,6 @@ public class DbBackup {
             }
         }
 
-        // Blocks Per Record
         TarGenerator generator = new TarGenerator(archiveFile, overWrite,
             new Integer(DbBackup.generateBufferBlockValue(componentFiles)));
 
