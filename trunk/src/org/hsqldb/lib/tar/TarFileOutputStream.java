@@ -302,7 +302,8 @@ public class TarFileOutputStream implements Closeable, Flushable {
             try {
                 close();
             } catch (IOException ne) {
-                // Too much work to report ever single detail to user.
+                // Too difficult to report every single error.
+                // More important that the user know about the original Exc.
             }
             throw ioe;
         }

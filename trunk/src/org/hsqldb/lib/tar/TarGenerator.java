@@ -199,15 +199,19 @@ public class TarGenerator {
         } catch (IOException ioe) {
             System.err.println("Failed");
 
-            // Just release resources from any Entry's input, which may be
-            // left open.
-            for (int i = 0; i < entryQueue.size(); i++) {
-                ((TarEntrySupplicant) entryQueue.get(i)).close();
+            try {
+                // Just release resources from any Entry's input, which may be
+                // left open.
+                for (int i = 0; i < entryQueue.size(); i++) {
+                    ((TarEntrySupplicant) entryQueue.get(i)).close();
+                }
+                archive.close();
+            } catch (IOException ne) {
+                // Too difficult to report every single error.
+                // More important that the user know about the original Exc.
             }
 
             throw ioe;
-        } finally {
-            archive.close();
         }
     }
 
