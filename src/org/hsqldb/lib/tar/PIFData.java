@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
  */
 public class PIFData extends HashMap {
     private static Pattern pifRecordPattern =
-            Pattern.compile("\\d+ +(.+)=(.+)");
+            Pattern.compile("\\d+ +(.+)=(.*)");
 
     /**
      * n.b. this is nothing to do with HashMap.size() or Map.size().
@@ -32,25 +32,30 @@ public class PIFData extends HashMap {
         try {
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-            String s;
+            String s, k, v;
             Matcher m;
             int eqAt;
             int lineNum = 0;
+
+            /*
+             * Pax spec does not allow for blank lines, ignored white space,
+             * nor comments of any type, in the file.
+             */
             while ((s = br.readLine() ) != null) {
                 lineNum++;
-                s = s.trim();
-                if (s.length() < 1 || s.charAt(0) == '#' ) {
-                    // I don't know if Pax data format allows these comments,
-                    // and white space, but it should.
-                    continue;
-                }
                 m = pifRecordPattern.matcher(s);
                 if (!m.matches()) {
                     throw new TarMalformatException(
                             "Line " + lineNum
                             + " of PIF Data is malformatted:\n" + s);
                 } 
-                put(m.group(1), m.group(2));
+                k = m.group(1);
+                v = m.group(2);
+                if (v == null || v.length() < 1) {
+                    remove(k);
+                } else {
+                    put(k, v);
+                }
             }
         } finally {
             stream.close();
