@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 /**
  * Reads a Tar file for reporting or extraction.
@@ -55,7 +57,7 @@ public class TarReader {
                 || ((!sa[0].equals("t")) && !sa[0].equals("x"))) {
             throw new IllegalArgumentException("Run 'java "
                                                + TarReader.class.getName()
-                                               + " for help");
+                                               + "' for help");
         }
 
         String[] patternStrings = null;
@@ -150,11 +152,33 @@ public class TarReader {
         TarEntryHeader header;
         boolean        anyUnsupporteds = false;
         boolean        matched;
+        Long           paxSize = null;
+        String         paxString = null;
 
         try {
             EACH_HEADER:
             while (archive.readNextHeaderBlock()) {
                 header = new TarEntryHeader(archive.readBuffer);
+                char entryType = header.getEntryType();
+
+                if (entryType == 'x') {
+                    /* Since we don't know the name of the target file yet,
+                     * we must load the size from all pax headers.
+                     * If the target file is not thereafter excluded via
+                     * patterns, we will need this size for the listing or to
+                     * extract the data.
+                     */
+                    paxSize = getPifData(header).getSize();
+                    paxString = header.toString();
+                    continue;
+                }
+
+                if (paxSize != null) {
+                    // Ignore "size" field in the entry header because PIF
+                    // setting overrides.
+                    header.setDataSize(paxSize.longValue());
+                    paxSize = null;
+                }
 
                 if (patterns != null) {
                     matched = false;
@@ -168,6 +192,7 @@ public class TarReader {
                     }
 
                     if (!matched) {
+                        paxString = null;
                         skipFileData(header);
 
                         continue EACH_HEADER;
@@ -177,11 +202,13 @@ public class TarReader {
                 switch (mode) {
 
                     case LIST_MODE :
+                        if (paxString != null) {
+                            System.out.println(paxString);
+                        }
                         System.out.println(header.toString());
 
-                        char entryType = header.getEntryType();
-
-                        if (entryType != '\0' && entryType != '0') {
+                        if (entryType != '\0' && entryType != '0'
+                                && entryType != 'x') {
                             anyUnsupporteds = true;
                         }
 
@@ -198,15 +225,19 @@ public class TarReader {
                         // behavior inside of extractFile().
                         //System.out.println(header.toString());
                         extractFile(header);
+                        if (paxString != null) {
+                            System.out.println(paxString);
+                        }
+                        // Display entry summary after successful extraction
                         System.out.println(header.toString());
 
-                        // Display entry summary after successful extraction
                         break;
 
                     default :
                         throw new RuntimeException(
                             "Sorry, mode not supported yet: " + mode);
                 }
+                paxString = null;
             }
 
             if (anyUnsupporteds) {
@@ -221,8 +252,78 @@ public class TarReader {
         }
     }
 
+    protected PIFData getPifData(TarEntryHeader header)
+    throws IOException, TarMalformatException {
+        /*
+         * If you modify this, make sure to not intermix reading/writing of
+         * the PipedInputStream and the PipedOutputStream, or you could
+         * cause dead-lock.  Everything is safe if you close the
+         * PipedOutputStream before reading the PipedInputStream.
+         */
+
+        long dataSize = header.getDataSize();
+        if (dataSize < 1) {
+            throw new TarMalformatException("PIF Data size unknown");
+        }
+
+        if (dataSize > Integer.MAX_VALUE) {
+            throw new TarMalformatException(
+                    "PIF Data exceeds max supported size.  "
+                    + dataSize + " > " + Integer.MAX_VALUE);
+        }
+
+        int  readNow;
+        int  readBlocks = (int) (dataSize / 512L);
+        int  modulus    = (int) (dataSize % 512L);
+
+        // Couldn't care less about the entry "name".
+
+        PipedOutputStream outPipe = new PipedOutputStream();
+        PipedInputStream inPipe =
+                new PipedInputStream(outPipe, (int) dataSize);
+        try {
+            while (readBlocks > 0) {
+                readNow = (readBlocks > archive.getReadBufferBlocks())
+                          ? archive.getReadBufferBlocks()
+                          : readBlocks;
+
+                archive.readBlocks(readNow);
+
+                readBlocks -= readNow;
+
+                outPipe.write(archive.readBuffer, 0, readNow * 512);
+            }
+
+// TODO:  Remove this Dev debug assertion
+            if (readBlocks != 0) {
+                throw new IllegalStateException(
+                    "Finished skipping but skip blocks to go = " + readBlocks
+                    + "?");
+            }
+
+            if (modulus != 0) {
+                archive.readBlock();
+                outPipe.write(archive.readBuffer, 0, modulus);
+            }
+
+            outPipe.flush();  // Do any good on a pipe?
+
+        } catch (IOException ioe) {
+            inPipe.close();
+            throw ioe;
+        } finally {
+            outPipe.close();
+        }
+        return new PIFData(inPipe);
+
+    }
+
     protected void extractFile(TarEntryHeader header)
     throws IOException, TarMalformatException {
+        
+        if (header.getDataSize() < 1) {
+            throw new TarMalformatException("Data size unknown");
+        }
 
         int  readNow;
         int  readBlocks = (int) (header.getDataSize() / 512L);
@@ -299,13 +400,13 @@ public class TarReader {
                 outStream.write(archive.readBuffer, 0, readNow * 512);
             }
 
+// TODO:  Remove this Dev debug assertion
             if (readBlocks != 0) {
                 throw new IllegalStateException(
                     "Finished skipping but skip blocks to go = " + readBlocks
                     + "?");
             }
 
-// TODO:  Remove this Dev debug assertion
             if (modulus != 0) {
                 archive.readBlock();
                 outStream.write(archive.readBuffer, 0, modulus);
@@ -313,7 +414,6 @@ public class TarReader {
 
             outStream.flush();
 
-            // Can't set these last two attributes until after file is flushed.
         } finally {
             outStream.close();
         }
@@ -329,6 +429,9 @@ public class TarReader {
 
     protected void skipFileData(TarEntryHeader header)
     throws IOException, TarMalformatException {
+        if (header.getDataSize() < 1) {
+            throw new TarMalformatException("Data size unknown");
+        }
 
         int skipNow;
         int oddBlocks  = (header.getDataSize() % 512L == 0L) ? 0
@@ -345,13 +448,13 @@ public class TarReader {
             skipBlocks -= skipNow;
         }
 
+// TODO:  Remove this Dev debug assertion
         if (skipBlocks != 0) {
             throw new IllegalStateException(
                 "Finished skipping but skip blocks to go = " + skipBlocks
                 + "?");
         }
 
-// TODO:  Remove this Dev debug assertion
     }
 
     /**
@@ -405,14 +508,10 @@ public class TarReader {
             fileMode   = (int) longObject.longValue();
             longObject = readInteger(TarHeaderFields.SIZE);
 
-            if (longObject == null) {
-                throw new TarMalformatException(
-                    "Required field 'SIZE' missing in tar entry header.  "
-                    + "Sorry if it is set via Pax Interchange Format.  "
-                    + "We haven't implemented that yet");
+            if (longObject != null) {
+                dataSize   = longObject.longValue();
             }
 
-            dataSize   = longObject.longValue();
             longObject = readInteger(TarHeaderFields.MTIME);
 
             if (longObject == null) {
@@ -441,7 +540,7 @@ public class TarReader {
          */
         protected String  path;
         protected int     fileMode;
-        protected long    dataSize;    // In bytes
+        protected long    dataSize = -1;    // In bytes
         protected long    modTime;
         protected char    entryType;
         protected String  ownerName;
@@ -459,12 +558,11 @@ public class TarReader {
                     + "files from Tar entries");
             }
 
-            return new File(path);
-
             // Unfortunately, it does no good to set modification times or
             // privileges here, since those settings have no effect on our
             // new file until after is created by the FileOutputStream
             // constructor.
+            return new File(path);
         }
 
         public char getEntryType() {
@@ -473,6 +571,13 @@ public class TarReader {
 
         public String getPath() {
             return path;
+        }
+
+        /**
+         * Setter is needed in order to override header size setting for Pax.
+         */
+        public void setDataSize(long dataSize) {
+            this.dataSize = dataSize;
         }
 
         public long getDataSize() {
@@ -584,9 +689,13 @@ public class TarReader {
          * types of <CODE>int</CODE> or <CODE>Integer</CODE>.
          */
         protected Long readInteger(int fieldId) throws TarMalformatException {
+            String s = readString(fieldId);
+            if (s == null) {
+                return null;
+            }
 
             try {
-                return Long.valueOf(readString(fieldId), 8);
+                return Long.valueOf(s, 8);
             } catch (NumberFormatException nfe) {
                 throw new TarMalformatException(
                     "Bad value in header for field "
@@ -604,12 +713,12 @@ public class TarReader {
                     (i >= TarHeaderFields.getStart(TarHeaderFields.CHECKSUM)
                      && i < TarHeaderFields.getStop(TarHeaderFields.CHECKSUM));
 
-                sum += isInRange ? 32
-                                 : (255 & rawHeader[i]);
-
                 // We ignore current contents of the checksum field so that
                 // this method will continue to work right, even if we later
                 // recycle the header or RE-calculate a header.
+
+                sum += isInRange ? 32
+                                 : (255 & rawHeader[i]);
             }
 
             return sum;
