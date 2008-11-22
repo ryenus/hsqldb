@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
@@ -22,7 +23,8 @@ public class TarGenerator {
      * using default blocks-per-record and replacing tar file if it already
      * exists.
      */
-    static public void main(String[] sa) throws IOException {
+    static public void main(String[] sa)
+            throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
             System.err.println(
@@ -49,6 +51,29 @@ public class TarGenerator {
 
     protected TarFileOutputStream archive;
     protected List                entryQueue = new ArrayList();
+    //protected long                paxThreshold = 2 * 1024 * 1024 * 1024;
+                                  // in bytes
+protected long paxThreshold = 2048;  // Just for initial testing
+
+    /**
+     * Sets file size threshold, in bytes, for when generated Tar entry
+     * switches from traditional single-entry to Pax Interface Format
+     * 'x' record + data file record.
+     * <P/>
+     * <B>Limitation</B>
+     * At this time, PAX is only implemented for entries added a Files,
+     * not entries added as Stream.
+     */
+     public void setPaxThreshold(long paxThreshold) {
+         this.paxThreshold = paxThreshold;
+     }
+
+     /**
+      * @see #setPatThreshold()
+      */
+     public long getPaxThreshold() {
+         return paxThreshold;
+     }
 
     /**
      * Compression is determined directly by the suffix of the file name in
@@ -132,16 +157,22 @@ public class TarGenerator {
         entryQueue.add(new TarEntrySupplicant(entryPath, file, archive));
     }
 
+    /**
+     * This method does not support Pax Interchange Format, nor data sizes
+     * greater than 2G.
+     * <P/>
+     * This limitation may or may not be eliminated in the future.
+     */
     public void queueEntry(String entryPath, InputStream inStream,
                            int maxBytes) throws IOException {
         entryQueue.add(new TarEntrySupplicant(entryPath, inStream, maxBytes,
-                                              archive));
+                    '0', archive));
     }
 
     /**
      * This method does release all of the streams, even if there is a failure.
      */
-    public void write() throws IOException {
+    public void write() throws IOException, TarMalformatException {
 
         System.err.println(Integer.toString(entryQueue.size())
                            + " supplicants queued for writing...");
@@ -154,8 +185,12 @@ public class TarGenerator {
                                  + entryQueue.size() + ' ');
 
                 entry = (TarEntrySupplicant) entryQueue.get(i);
-
                 System.err.print(entry.getPath() + "... ");
+                if (entry.getDataSize() > paxThreshold) {
+                    entry.makeXentry().write();
+                    System.err.print("x... ");
+                }
+
                 entry.write();
                 archive.assertAtBlockBoundary();
                 System.err.println("Done");
@@ -204,23 +239,6 @@ public class TarGenerator {
 
             // Setting uid and gid to 0 = root.
             // Misleading, yes.  Anything better we can do?  No.
-            writeField(TarHeaderFields.UNAME, System.getProperty("user.name"),
-                       HEADER_TEMPLATE);
-            writeField(TarHeaderFields.GNAME, "root", HEADER_TEMPLATE);
-
-            // POSIX UStar compliance requires that we set "gname" field.
-            // It's impossible for use to determine the correct value from
-            // Java.  We punt with "root" because (a) it's the only group name
-            // we know should exist on every UNIX system, and (b) every tar
-            // client gracefully handles it when extractor user does not have
-            // privs for the specified group.
-            writeField(TarHeaderFields.TYPEFLAG, "0", HEADER_TEMPLATE);
-
-            // Difficult call here.  binary 0 and character '0' both mean
-            // regular file.  Binary 0 pre-UStar is probably more portable,
-            // but we are writing a valid UStar header, and I doubt anybody's
-            // tar implementation would choke on this since there is no
-            // outcry of UStar archives failing to work with older tars.
             int magicStart = TarHeaderFields.getStart(TarHeaderFields.MAGIC);
 
             for (int i = 0; i < ustarBytes.length; i++) {
@@ -251,6 +269,16 @@ public class TarGenerator {
 
             for (int i = 0; i < ba.length; i++) {
                 target[start + i] = ba[i];
+            }
+        }
+
+        static protected void clearField(int fieldId, byte[] target) {
+
+            int    start = TarHeaderFields.getStart(fieldId);
+            int    stop  = TarHeaderFields.getStop(fieldId);
+
+            for (int i = start; i < stop; i++) {
+                target[i] = 0;
             }
         }
 
@@ -290,11 +318,14 @@ public class TarGenerator {
         public String getPath() {
             return path;
         }
+        public long getDataSize() {
+            return dataSize;
+        }
 
         /*
          * Internal constructor that validates the entry's path.
          */
-        protected TarEntrySupplicant(String path,
+        protected TarEntrySupplicant(String path, char typeFlag,
                                      TarFileOutputStream tarStream) {
 
             if (path == null) {
@@ -307,8 +338,53 @@ public class TarGenerator {
                                                : path.replace(
                                                    swapOutDelim.charValue(),
                                                    '/');
+
             this.tarStream = tarStream;
+            writeField(TarHeaderFields.TYPEFLAG, typeFlag);
+
+            if (typeFlag == '\0' || typeFlag == ' ') {
+                writeField(TarHeaderFields.UNAME,
+                        System.getProperty("user.name"), HEADER_TEMPLATE);
+                writeField(TarHeaderFields.GNAME, "root", HEADER_TEMPLATE);
+
+                // Setting UNAME and GNAME at the instance level instead of the
+                // static template, because record types 'x' and 'g' do not set
+                // these fields.
+                // POSIX UStar compliance requires that we set "gname" field.
+                // It's impossible for use to determine the correct value from
+                // Java.  We punt with "root" because (a) it's the only group
+                // name
+                // we know should exist on every UNIX system, and (b) every tar
+                // client gracefully handles it when extractor user does not
+                // have privs for the specified group.
+            }
         }
+
+        /**
+         * This creates a 'x' entry for a 0/\0 entry.
+         */
+        public TarEntrySupplicant makeXentry()
+                throws IOException, TarMalformatException {
+            PIFGenerator pif = new PIFGenerator(new File(path));
+            pif.addRecord("size", dataSize);
+
+            clearField(TarHeaderFields.SIZE);
+            // This is to ensure that no tar client accidentally extracts only
+            // a portion of the file data.
+            // If the client can't read the correct size from the PIF data,
+            // we want the client to report that so the user can get a better
+            // tar client!
+
+            /* Really bad to make pseudo-stream just to get a byte array out
+             * of it, but it would be a very poor use of development time to
+             * re-design this class because the comparative time wasted at
+             * runtime will be negligable compared to storing the data entries.
+             */
+            return new TarEntrySupplicant(pif.getName(),
+                    new ByteArrayInputStream(pif.toByteArray()), pif.size(),
+                        'x', tarStream);
+        }
+
 
         /**
          * After instantiating a TarEntrySupplicant, the user must either invoke
@@ -320,7 +396,12 @@ public class TarGenerator {
                                   throws FileNotFoundException {
 
             this(((path == null) ? file.getPath()
-                                 : path), tarStream);
+                                 : path), '0', tarStream);
+            // Difficult call for '0'.  binary 0 and character '0' both mean
+            // regular file.  Binary 0 pre-UStar is probably more portable,
+            // but we are writing a valid UStar header, and I doubt anybody's
+            // tar implementation would choke on this since there is no
+            // outcry of UStar archives failing to work with older tars.
 
             // Must use an expression-embedded ternary here to satisfy compiler
             // that this() call be first statement in constructor.
@@ -354,9 +435,11 @@ public class TarGenerator {
          *
          * @param maxBytes This method will fail if more than maxBytes bytes
          *                 are supplied on the specified InputStream.
+         *                 As the type of this parameter enforces, the max
+         *                 size you can request is 2GB.
          */
         public TarEntrySupplicant(String path, InputStream origStream,
-                                  int maxBytes,
+                                  int maxBytes, char typeFlag,
                                   TarFileOutputStream tarStream)
                                   throws IOException {
 
@@ -366,7 +449,12 @@ public class TarGenerator {
              * cause dead-lock.  Everything is safe if you close the
              * PipedOutputStream before reading the PipedInputStream.
              */
-            this(path, tarStream);
+            this(path, typeFlag, tarStream);
+
+            if (maxBytes < 1) {
+                throw new IllegalArgumentException(
+                        "Does not make sense to make an entry for < 1 byte");
+            }
 
             int               i;
             PipedOutputStream outPipe = new PipedOutputStream();
@@ -420,12 +508,21 @@ public class TarGenerator {
             return sum;
         }
 
+        protected void clearField(int fieldId) {
+            TarEntrySupplicant.clearField(fieldId, rawHeader);
+        }
+
         protected void writeField(int fieldId, String newValue) {
             TarEntrySupplicant.writeField(fieldId, newValue, rawHeader);
         }
 
         protected void writeField(int fieldId, long newValue) {
             TarEntrySupplicant.writeField(fieldId, newValue, rawHeader);
+        }
+
+        protected void writeField(int fieldId, char c) {
+            TarEntrySupplicant.writeField(fieldId, Character.toString(c),
+                    rawHeader);
         }
 
         /**

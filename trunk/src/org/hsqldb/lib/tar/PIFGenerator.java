@@ -26,7 +26,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
             throw new RuntimeException(
                     "Serious problem.  JVM can't encode UTF-8", uee);
         }
-        fakePid = (int) new java.util.Date().getTime() % 100000;
+        fakePid = (int) (new java.util.Date().getTime() % 100000L);
         // Java doesn't have access to PIDs, as PIF wants in the "name" field,
         // so we emulate one in a way that is easy for us.
     }
@@ -38,6 +38,10 @@ public class PIFGenerator extends ByteArrayOutputStream {
      */
     public PIFGenerator(int sequenceNum) {
         this();
+        if (sequenceNum < 1) {
+            throw new IllegalArgumentException(
+                    "Sequence numbers start at 1");
+        }
         typeFlag = 'g';
         name = System.getProperty("java.io.tmpdir") + "/GlobalHead." + fakePid
                      + '.' + sequenceNum;
@@ -54,7 +58,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
         String parentPath = (file.getParentFile() == null)
                           ? "."
                           : file.getParentFile().getPath();
-        name = parentPath + "PaxHeaders." + fakePid + '/' + file.getName();
+        name = parentPath + "/PaxHeaders." + fakePid + '/' + file.getName();
     }
 
     /**
@@ -155,6 +159,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
         pif.addRecord("long1234", 1234);
         pif.addRecord("boolTrue", true);
         pif.addRecord("boolFalse", false);
+        System.out.println("Name (" + pif.getName() + ')');
         System.out.write(pif.toByteArray());
     }
 }
