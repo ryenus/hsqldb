@@ -314,6 +314,8 @@ protected long paxThreshold = 2048;  // Just for initial testing
         protected long                modTime;
         protected TarFileOutputStream tarStream;
         protected long                dataSize;    // In bytes
+        protected boolean             paxSized = false;
+        // Size will only be written to entry's header if paxSized is false.
 
         public String getPath() {
             return path;
@@ -368,8 +370,9 @@ protected long paxThreshold = 2048;  // Just for initial testing
             PIFGenerator pif = new PIFGenerator(new File(path));
             pif.addRecord("size", dataSize);
 
-            clearField(TarHeaderFields.SIZE);
-            // This is to ensure that no tar client accidentally extracts only
+            paxSized = true;
+            // This tells the target entry to NOT set the size header field,
+            // to ensure that no tar client accidentally extracts only
             // a portion of the file data.
             // If the client can't read the correct size from the PIF data,
             // we want the client to report that so the user can get a better
@@ -540,7 +543,9 @@ protected long paxThreshold = 2048;  // Just for initial testing
                 // TODO:  If path.length() > 99, then attempt to split into
                 // PREFIX and NAME fields.
                 writeField(TarHeaderFields.MODE, fileMode);
-                writeField(TarHeaderFields.SIZE, dataSize);
+                if (!paxSized) {
+                    writeField(TarHeaderFields.SIZE, dataSize);
+                }
                 writeField(TarHeaderFields.MTIME, modTime);
                 writeField(
                     TarHeaderFields.CHECKSUM,
