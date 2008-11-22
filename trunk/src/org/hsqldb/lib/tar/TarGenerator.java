@@ -57,7 +57,7 @@ protected long paxThreshold = 2048;  // Just for initial testing
 
     /**
      * Sets file size threshold, in bytes, for when generated Tar entry
-     * switches from traditional single-entry to Pax Interface Format
+     * switches from traditional single-entry to Pax Interchange Format
      * 'x' record + data file record.
      * <P/>
      * <B>Limitation</B>
@@ -446,7 +446,7 @@ protected long paxThreshold = 2048;  // Just for initial testing
                                   TarFileOutputStream tarStream)
                                   throws IOException {
 
-            /**
+            /*
              * If you modify this, make sure to not intermix reading/writing of
              * the PipedInputStream and the PipedOutputStream, or you could
              * cause dead-lock.  Everything is safe if you close the
@@ -472,6 +472,7 @@ protected long paxThreshold = 2048;  // Just for initial testing
                     outPipe.write(tarStream.writeBuffer, 0, i);
                 }
 
+                outPipe.flush();  // Do any good on a pipe?
                 dataSize = inputStream.available();
 
                 System.err.println("Buffered " + dataSize
