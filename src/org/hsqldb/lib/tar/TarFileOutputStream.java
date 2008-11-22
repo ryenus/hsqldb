@@ -38,6 +38,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class TarFileOutputStream implements Closeable, Flushable {
 
+    static public boolean debug = Boolean.getBoolean("DEBUG");
     protected int        blocksPerRecord;
     protected long       bytesWritten = 0;
     private OutputStream writeStream;
@@ -295,8 +296,10 @@ public class TarFileOutputStream implements Closeable, Flushable {
 
             int finalPadBlocks = (int) (finalBlock - bytesWritten / 512L);
 
-            System.err.println("Padding archive with " + finalPadBlocks
-                               + " zero blocks");
+            if (TarFileOutputStream.debug) {
+                System.err.println("Padding archive with " + finalPadBlocks
+                                   + " zero blocks");
+            }
             writePadBlocks(finalPadBlocks);
         } catch (IOException ioe) {
             try {
