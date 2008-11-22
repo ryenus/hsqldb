@@ -51,9 +51,8 @@ public class TarGenerator {
 
     protected TarFileOutputStream archive;
     protected List                entryQueue = new ArrayList();
-    //protected long                paxThreshold = 2 * 1024 * 1024 * 1024;
+    protected long                paxThreshold = 2 * 1024 * 1024 * 1024;
                                   // in bytes
-protected long paxThreshold = 2048;  // Just for initial testing
 
     /**
      * Sets file size threshold, in bytes, for when generated Tar entry
