@@ -3013,7 +3013,8 @@ public class SqlFile {
                         continue;
                     }
 
-                    if (headerArray[insi].length() > maxWidth[insi]) {
+                    if (headerArray[insi] != null
+                            && headerArray[insi].length() > maxWidth[insi]) {
                         maxWidth[insi] = headerArray[insi].length();
                     }
                 }
