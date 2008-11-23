@@ -32,7 +32,7 @@ public class TarGenerator {
                 + " new.tar [entryFile1...]\n"
                 + "If no entryFiles are specified, stdin will be read to "
                 + "write an entry with name 'stdin'.\n"
-                + " In this latter case, input is limited to 10240 bytes");
+                + "In this latter case, input is limited to 10240 bytes");
             System.exit(0);
         }
 
