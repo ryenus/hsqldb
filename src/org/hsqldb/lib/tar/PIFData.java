@@ -15,10 +15,10 @@ import java.util.regex.Matcher;
  */
 public class PIFData extends HashMap {
     private static Pattern pifRecordPattern =
-            Pattern.compile("\\d+ +(.+)=(.*)");
+            Pattern.compile("\\d+ +([^=]+)=(.*)");
 
     /**
-     * n.b. this is nothing to do with HashMap.size() or Map.size().
+     * N.b. this is nothing to do with HashMap.size() or Map.size().
      * This returns the value of the Pax "size" property.
      */
     public Long getSize() {
