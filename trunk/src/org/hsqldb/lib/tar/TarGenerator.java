@@ -51,13 +51,13 @@ public class TarGenerator {
 
     protected TarFileOutputStream archive;
     protected List                entryQueue = new ArrayList();
-    protected long                paxThreshold = 2 * 1024 * 1024 * 1024;
-                                  // in bytes
+    protected long                paxThreshold = 0100000000000L;
+                                  // in bytes.  Value here exactly = 8GB.
 
     /**
-     * Sets file size threshold, in bytes, for when generated Tar entry
-     * switches from traditional single-entry to Pax Interchange Format
-     * 'x' record + data file record.
+     * When data file is this size or greater, in bytes, a
+     * Pix Interchange Format 'x' record will be created and used for the file
+     * entry.
      * <P/>
      * <B>Limitation</B>
      * At this time, PAX is only implemented for entries added a Files,
@@ -187,7 +187,7 @@ public class TarGenerator {
 
                 entry = (TarEntrySupplicant) entryQueue.get(i);
                 System.err.print(entry.getPath() + "... ");
-                if (entry.getDataSize() > paxThreshold) {
+                if (entry.getDataSize() >= paxThreshold) {
                     entry.makeXentry().write();
                     System.err.print("x... ");
                 }
