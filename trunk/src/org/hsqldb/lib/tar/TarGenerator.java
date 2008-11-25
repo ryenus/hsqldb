@@ -10,6 +10,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.hsqldb.util.ValidatingResourceBundle;
 
 /**
  * Generates a tar archive from specified Files and InputStreams.
@@ -17,18 +18,9 @@ import java.util.List;
  * @author Blaine Simpson
  */
 public class TarGenerator {
-    static public String SYNTAX_MSG =
-            "SYNTAX: java " + TarGenerator.class.getName()
-            + " new.tar [entryFile1...]\n"
-            + "If no entryFiles are specified, stdin will be read to "
-            + "write an entry with \nname 'stdin'.  "
-            + "In this latter case, input is limited to 10240 bytes.";
+    static private TarGeneratorRB rb = new TarGeneratorRB();
     static {
-        String ls = System.getProperty("line.separator");
-        if (!ls.equals("\n")) {
-            System.err.println("DIFFERS");
-            SYNTAX_MSG = SYNTAX_MSG.replaceAll("\\Q\n", ls);
-        }
+        rb.validate();
     }
 
     /**
@@ -40,7 +32,9 @@ public class TarGenerator {
             throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
-            System.err.println(SYNTAX_MSG);
+            System.out.println(rb.getString(
+                    TarGeneratorRB.TARGENERATOR_SYNTAX,
+                    DbBackup.class.getName()));
             System.exit(0);
         }
 
