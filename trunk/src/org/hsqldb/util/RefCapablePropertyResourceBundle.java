@@ -107,19 +107,19 @@ import java.io.UnsupportedEncodingException;
  * eliminated (so, if you really want getString() to end with a line delimiter,
  * end your file with two of them).
  * (The file itself is never modified-- I'm talking about the value returned
- * by <CODE>getString(String)</CODE>.
- *
+ * by <CODE>getString(String)</CODE>).
+ * <P/>
  * To prevent throwing at runtime due to unset variables, use a wrapper class
  * like SqltoolRB (use SqltoolRB.java as a template).
  * To prevent throwing at runtime due to unset System Properties, or
  * insufficient parameters passed to getString(String, String[]), set the
  * behavior values appropriately.
- *
+ * <P/>
  * Just like all Properties files, referenced files must use ISO-8859-1
  * encoding, with unicode escapes for characters outside of ISO-8859-1
  * character set.  But, unlike Properties files, \ does not need to be
  * escaped for normal usage.
- *
+ * <P/>
  * The getString() methods with more than one parameter substitute for
  * "positional" parameters of the form "%{1}".
  * The getExpandedString() methods substitute for System Property names
@@ -308,16 +308,28 @@ public class RefCapablePropertyResourceBundle {
      */
     public String getString(String key) {
         String value = wrappedBundle.getString(key);
-        if (value.length() > 0) return value;
-        value = getStringFromFile(key);
-        // For conciseness and sanity, get rid of all \r's so that \n
-        // will definitively be our line breaks.
-        if (value.indexOf('\r') > -1)
-            value = value.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
-        if (value.length() > 0 && value.charAt(value.length() - 1) == '\n')
-            value = value.substring(0, value.length() - 1);
-        if (!LS.equals("\n")) value = value.replaceAll("\\n", LS);
-        return value;
+        if (value.length() < 1) {
+            value = getStringFromFile(key);
+            // For conciseness and sanity, get rid of all \r's so that \n
+            // will definitively be our line breaks.
+            if (value.indexOf('\r') > -1)
+                value = value.replaceAll("\\Q\r\n", "\n")
+                        .replaceAll("\\Q\r", "\n");
+            if (value.length() > 0 && value.charAt(value.length() - 1) == '\n')
+                value = value.substring(0, value.length() - 1);
+        }
+        return RefCapablePropertyResourceBundle.toNativeLs(value);
+    }
+
+    /**
+     * @param inString  Input string with \n definitively indicating desired
+     *                  position for line separators.
+     * @returns  If platform's line-separator is \n, then just returns inString.
+     *           Otherwise returns a copy of inString, with all \n's
+     *           transformed to the platform's line separators.
+     */
+    static public String toNativeLs(String inString) {
+        return LS.equals("\n") ? inString : inString.replaceAll("\\Q\n", LS);
     }
 
     /**
