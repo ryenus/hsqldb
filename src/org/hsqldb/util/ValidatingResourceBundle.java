@@ -105,9 +105,9 @@ abstract public class ValidatingResourceBundle {
      * Set behavior for get*String*() method when a referred-to
      * System Property is not set.  Set to one of
      * <UL>
-     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
      * </UL>
      * The first value is the default.
      */
@@ -119,9 +119,9 @@ abstract public class ValidatingResourceBundle {
      * positional index (like %{4}) is used but no subs value was given for
      * that index.  Set to one of
      * <UL>
-     *  <LI>RefCapablePropertyResourceBunele.THROW_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.EMPTYSTRING_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBunele.NOOP_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
      * </UL>
      * The first value is the default.
      */
