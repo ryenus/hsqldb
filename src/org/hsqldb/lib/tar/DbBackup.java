@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import org.hsqldb.util.ValidatingResourceBundle;
 
 /**
  * Works with tar archives containing HSQLDB database instance backups.
@@ -25,23 +26,9 @@ import java.util.Properties;
  */
 public class DbBackup {
 
-    final static public String BASE_COMMAND =
-            "java -cp path/to/hsqldb.jar " + DbBackup.class.getName();
-    static public String SYNTAX_MSG = "SYNTAX:\n    " + BASE_COMMAND
-        + "\n    (to display this message)\nOR\n    " + BASE_COMMAND
-        + " --save  \\\n    [--overwrite] tar/path.tar db/base/path\nOR\n    "
-        + BASE_COMMAND + " --list  \\\n    tar/path.tar [regex1...]\nOR\n    "
-        + BASE_COMMAND + " --extract  \\\n"
-        + "    [--overwrite] file/path.tar[.gz] db/dir [regex1...]\n"
-        + "    (extracts entry files to the specified db/dir).\n"
-        + "\nN.b. the db/base/path includes file base name, like in URLs, "
-        + "whereas db/dir is\na proper 'directory'.";
+    static private DbBackupRB rb = new DbBackupRB();
     static {
-        String ls = System.getProperty("line.separator");
-        if (!ls.equals("\n")) {
-            System.err.println("DIFFERS");
-            SYNTAX_MSG = SYNTAX_MSG.replaceAll("\\Q\n", ls);
-        }
+        rb.validate();
     }
 
     /**
@@ -68,7 +55,8 @@ public class DbBackup {
 
         try {
             if (sa.length < 1) {
-                System.out.println(SYNTAX_MSG);
+                System.out.println(rb.getString(
+                        DbBackupRB.DBBACKUP_SYNTAX, DbBackup.class.getName()));
                 System.exit(0);
             }
 
@@ -138,8 +126,8 @@ public class DbBackup {
                 throw new IllegalArgumentException();
             }
         } catch (IllegalArgumentException iae) {
-            System.err.println("Syntax error.  Run the following for help:");
-            System.err.println("    " + BASE_COMMAND);
+            System.out.println(rb.getString(
+                    DbBackupRB.DBBACKUP_SYNTAXERR, DbBackup.class.getName()));
             System.exit(2);
         }
     }
