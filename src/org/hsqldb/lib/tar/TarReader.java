@@ -30,9 +30,6 @@ public class TarReader {
      * existing files upon extraction.
      */
     final static public int OVERWRITE_MODE = 2;
-    final static private String SYNTAX_MSG = "SYNTAX: java "
-        + TarReader.class.getName()
-        + " {t|x} [--directory=path] file/path/tar[.gz] [regex1...]";
 
     /**
      * Reads a specified tar file or stdin in order to either list or extract
@@ -43,7 +40,8 @@ public class TarReader {
     throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
-            System.err.println(SYNTAX_MSG);
+            System.out.println(RB.singleton.getString(
+                    RB.TARREADER_SYNTAX, TarReader.class.getName()));
             System.exit(0);
         }
 
@@ -55,9 +53,9 @@ public class TarReader {
 
         if (sa.length < firstPatInd
                 || ((!sa[0].equals("t")) && !sa[0].equals("x"))) {
-            throw new IllegalArgumentException("Run 'java "
-                                               + TarReader.class.getName()
-                                               + "' for help");
+            throw new IllegalArgumentException(
+                    "Run 'java -cp path/to/hsqldb.jar "
+                    + TarReader.class.getName() + "' for help");
         }
 
         String[] patternStrings = null;
@@ -241,9 +239,8 @@ public class TarReader {
             }
 
             if (anyUnsupporteds) {
-                System.out.println(
-                    "Archive contains unsupported entry type(s)."
-                    + "  We only support default type (1st column).");
+                System.out.println(RB.singleton.getString(
+                        RB.UNSUPPORTED_ENTRY_PRESENT));
             }
         } catch (IOException ioe) {
             archive.close();

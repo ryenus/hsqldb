@@ -63,6 +63,13 @@ public class RB extends ValidatingResourceBundle {
     static public final int DBBACKUP_SYNTAX = keyCounter++;
     static public final int DBBACKUP_SYNTAXERR = keyCounter++;
     static public final int TARGENERATOR_SYNTAX = keyCounter++;
+    static public final int PAD_BLOCK_WRITE = keyCounter++;
+    static public final int CLEANUP_RMFAIL = keyCounter++;
+    static public final int TARREADER_SYNTAX = keyCounter++;
+    static public final int UNSUPPORTED_ENTRY_PRESENT = keyCounter++;
+    static public final int BPR_WRITE = keyCounter++;
+    static public final int STREAM_BUFFER_REPORT = keyCounter++;
+    static public final int WRITE_QUEUE_REPORT = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
@@ -70,6 +77,13 @@ public class RB extends ValidatingResourceBundle {
         new Integer(DBBACKUP_SYNTAX), "DbBackup.syntax",
         new Integer(DBBACKUP_SYNTAXERR), "DbBackup.syntaxerr",
         new Integer(TARGENERATOR_SYNTAX), "TarGenerator.syntax",
+        new Integer(PAD_BLOCK_WRITE), "pad.block.write",
+        new Integer(CLEANUP_RMFAIL), "cleanup.rmfail",
+        new Integer(TARREADER_SYNTAX), "TarReader.syntax",
+        new Integer(UNSUPPORTED_ENTRY_PRESENT), "unsupported.entry.present",
+        new Integer(BPR_WRITE), "bpr.write",
+        new Integer(STREAM_BUFFER_REPORT), "stream.buffer.report",
+        new Integer(WRITE_QUEUE_REPORT), "write.queue.report",
     };
 
     private Map keyIdToString = new HashMap();

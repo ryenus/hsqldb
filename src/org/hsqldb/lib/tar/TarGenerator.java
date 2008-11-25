@@ -137,8 +137,8 @@ public class TarGenerator {
                                             blocksPerRecord.intValue());
 
         if (blocksPerRecord != null && TarFileOutputStream.debug) {
-            System.out.println("Will write at " + blocksPerRecord
-                               + " blocks-per-record");
+            System.out.println(RB.singleton.getString(
+                    RB.BPR_WRITE, blocksPerRecord));
         }
     }
 
@@ -169,8 +169,8 @@ public class TarGenerator {
     public void write() throws IOException, TarMalformatException {
 
         if (TarFileOutputStream.debug) {
-            System.err.println(Integer.toString(entryQueue.size())
-                               + " supplicants queued for writing...");
+            System.out.println(RB.singleton.getString(
+                    RB.WRITE_QUEUE_REPORT, entryQueue.size()));
         }
 
         TarEntrySupplicant entry;
@@ -189,12 +189,12 @@ public class TarGenerator {
 
                 entry.write();
                 archive.assertAtBlockBoundary();
-                System.err.println("Done");
+                System.err.println();
             }
 
             archive.finish();
         } catch (IOException ioe) {
-            System.err.println("Failed");
+            System.err.println(); // Exception should cause a report
 
             try {
                 // Just release resources from any Entry's input, which may be
@@ -476,8 +476,8 @@ public class TarGenerator {
                 dataSize = inputStream.available();
 
                 if (TarFileOutputStream.debug) {
-                    System.err.println("Buffered " + dataSize
-                                   + " bytes from given InputStream into RAM");
+                    System.out.println(RB.singleton.getString(
+                            RB.STREAM_BUFFER_REPORT, Long.toString(dataSize)));
                 }
             } catch (IOException ioe) {
                 inputStream.close();

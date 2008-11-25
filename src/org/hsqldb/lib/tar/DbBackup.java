@@ -268,9 +268,9 @@ public class DbBackup {
                 }
             } catch (IllegalStateException ise) {
                 if (!archiveFile.delete()) {
-                    System.err.println(
-                        "Failed to remove possibly corrupt archive: "
-                        + archiveFile.getAbsolutePath());
+                    System.out.println(RB.singleton.getString(
+                            RB.CLEANUP_RMFAIL, 
+                            archiveFile.getAbsolutePath()));
 
                     // Be-it-known.  This method can write to stderr if
                     // abortUponModify is true.

@@ -297,8 +297,8 @@ public class TarFileOutputStream implements Closeable, Flushable {
             int finalPadBlocks = (int) (finalBlock - bytesWritten / 512L);
 
             if (TarFileOutputStream.debug) {
-                System.err.println("Padding archive with " + finalPadBlocks
-                                   + " zero blocks");
+                System.out.println(RB.singleton.getString(
+                        RB.PAD_BLOCK_WRITE, finalPadBlocks));
             }
             writePadBlocks(finalPadBlocks);
         } catch (IOException ioe) {
