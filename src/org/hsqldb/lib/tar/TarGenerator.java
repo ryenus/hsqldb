@@ -10,7 +10,6 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.hsqldb.util.ValidatingResourceBundle;
 
 /**
  * Generates a tar archive from specified Files and InputStreams.
@@ -18,11 +17,6 @@ import org.hsqldb.util.ValidatingResourceBundle;
  * @author Blaine Simpson
  */
 public class TarGenerator {
-    static private TarGeneratorRB rb = new TarGeneratorRB();
-    static {
-        rb.validate();
-    }
-
     /**
      * Creates specified tar file to contain specified files, or stdin,
      * using default blocks-per-record and replacing tar file if it already
@@ -32,9 +26,8 @@ public class TarGenerator {
             throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
-            System.out.println(rb.getString(
-                    TarGeneratorRB.TARGENERATOR_SYNTAX,
-                    DbBackup.class.getName()));
+            System.out.println(RB.singleton.getString(
+                    RB.TARGENERATOR_SYNTAX, DbBackup.class.getName()));
             System.exit(0);
         }
 

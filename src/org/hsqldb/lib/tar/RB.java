@@ -35,11 +35,12 @@ import java.util.Map;
 import java.util.HashMap;
 import org.hsqldb.util.ValidatingResourceBundle;
 import org.hsqldb.util.RefCapablePropertyResourceBundle;
+import org.hsqldb.util.ValidatingResourceBundle;
 
 /* $Id$ */
 
 /**
- * Resource Bundle for TarGenerator class.
+ * Resource Bundle for Tar classes
  *
  * Purpose of this class is to wrap a RefCapablePropertyResourceBundle to
  *  reliably detect any possible use of a missing property key as soon as
@@ -55,15 +56,19 @@ import org.hsqldb.util.RefCapablePropertyResourceBundle;
  * </PRE>
  * Both should be inserted right after all of the other lines of the same type.
  * NEWKEYID is obviously a new constant which you will use in calling code
- * like TarGeneratorRB.NEWKEYID.
+ * like RB.NEWKEYID.
  */
-public class TarGeneratorRB extends ValidatingResourceBundle {
+public class RB extends ValidatingResourceBundle {
     static private int keyCounter = 0;
+    static public final int DBBACKUP_SYNTAX = keyCounter++;
+    static public final int DBBACKUP_SYNTAXERR = keyCounter++;
     static public final int TARGENERATOR_SYNTAX = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
          * Integer instantiations below.*/
+        new Integer(DBBACKUP_SYNTAX), "DbBackup.syntax",
+        new Integer(DBBACKUP_SYNTAXERR), "DbBackup.syntaxerr",
         new Integer(TARGENERATOR_SYNTAX), "TarGenerator.syntax",
     };
 
@@ -73,8 +78,8 @@ public class TarGeneratorRB extends ValidatingResourceBundle {
         return keyIdToString;
     }
 
-    public TarGeneratorRB() {
-        super("org.hsqldb.lib.tar.targenerator");
+    public RB() {
+        super("org.hsqldb.lib.tar.rb");
         if (memberKeyArray == null)
             throw new RuntimeException("'static memberKeyArray not set");
         for (int i = 0; i < memberKeyArray.length; i += 2) {
@@ -94,19 +99,25 @@ public class TarGeneratorRB extends ValidatingResourceBundle {
                             : ("after item \"" + memberKeyArray[i-1] + "\""))
                         + ") is a " + memberKeyArray[i].getClass().getName()
                         + ", not an Integer, in memberKeyArray in class "
-                        + TarGeneratorRB.class.getName());
+                        + RB.class.getName());
             if (!(memberKeyArray[i+1] instanceof String))
                 throw new RuntimeException("Element #" + (i+1) + " ("
                         + ((i - 2 < 0) ? "first item"
                             : ("after item \"" + memberKeyArray[i-1] + "\""))
                         + ") is a " + memberKeyArray[i+1].getClass().getName()
                         + ", not a String, in memberKeyArray in class "
-                        + TarGeneratorRB.class.getName());
+                        + RB.class.getName());
             if (((Integer) memberKeyArray[i]).intValue() != i/2)
                 throw new RuntimeException("Element #" +  i
                         + " is wrong constant for item " + memberKeyArray[i+1]
                         + " in memberKeyArray in class "
-                        + TarGeneratorRB.class.getName());
+                        + RB.class.getName());
         }
+    }
+
+    /* IMPORTANT:  Leave the singleton instantiation at the end here! */
+    static public RB singleton = new RB();
+    static {
+        singleton.validate();
     }
 }

@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
-import org.hsqldb.util.ValidatingResourceBundle;
 
 /**
  * Works with tar archives containing HSQLDB database instance backups.
@@ -25,11 +24,6 @@ import org.hsqldb.util.ValidatingResourceBundle;
  * @author Blaine Simpson
  */
 public class DbBackup {
-
-    static private DbBackupRB rb = new DbBackupRB();
-    static {
-        rb.validate();
-    }
 
     /**
      * Command line invocation to create, examine, or extract HSQLDB database
@@ -55,8 +49,8 @@ public class DbBackup {
 
         try {
             if (sa.length < 1) {
-                System.out.println(rb.getString(
-                        DbBackupRB.DBBACKUP_SYNTAX, DbBackup.class.getName()));
+                System.out.println(RB.singleton.getString(
+                        RB.DBBACKUP_SYNTAX, DbBackup.class.getName()));
                 System.exit(0);
             }
 
@@ -126,8 +120,8 @@ public class DbBackup {
                 throw new IllegalArgumentException();
             }
         } catch (IllegalArgumentException iae) {
-            System.out.println(rb.getString(
-                    DbBackupRB.DBBACKUP_SYNTAXERR, DbBackup.class.getName()));
+            System.out.println(RB.singleton.getString(
+                    RB.DBBACKUP_SYNTAXERR, DbBackup.class.getName()));
             System.exit(2);
         }
     }
