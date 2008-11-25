@@ -17,6 +17,19 @@ import java.util.List;
  * @author Blaine Simpson
  */
 public class TarGenerator {
+    static public String SYNTAX_MSG =
+            "SYNTAX: java " + TarGenerator.class.getName()
+            + " new.tar [entryFile1...]\n"
+            + "If no entryFiles are specified, stdin will be read to "
+            + "write an entry with \nname 'stdin'.  "
+            + "In this latter case, input is limited to 10240 bytes.";
+    static {
+        String ls = System.getProperty("line.separator");
+        if (!ls.equals("\n")) {
+            System.err.println("DIFFERS");
+            SYNTAX_MSG = SYNTAX_MSG.replaceAll("\\Q\n", ls);
+        }
+    }
 
     /**
      * Creates specified tar file to contain specified files, or stdin,
@@ -27,12 +40,7 @@ public class TarGenerator {
             throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
-            System.err.println(
-                "SYNTAX: java " + TarGenerator.class.getName()
-                + " new.tar [entryFile1...]\n"
-                + "If no entryFiles are specified, stdin will be read to "
-                + "write an entry with name 'stdin'.\n"
-                + "In this latter case, input is limited to 10240 bytes");
+            System.err.println(SYNTAX_MSG);
             System.exit(0);
         }
 
