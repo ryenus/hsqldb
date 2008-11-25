@@ -115,7 +115,9 @@ public class RB extends ValidatingResourceBundle {
         }
     }
 
-    /* IMPORTANT:  Leave the singleton instantiation at the end here! */
+    /* IMPORTANT:  Leave the singleton instantiation at the end here!
+     * Otherwise there will be a confusing tangle between clinitting and
+     * singleton instantiation.  */
     static public RB singleton = new RB();
     static {
         singleton.validate();
