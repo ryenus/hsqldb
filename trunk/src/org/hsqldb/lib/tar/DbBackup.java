@@ -25,17 +25,24 @@ import java.util.Properties;
  */
 public class DbBackup {
 
-    final static public String JARHOUSE = "hbackup.jar";
-    final static public String SYNTAX_MSG = "SYNTAX:\n    java -cp path/to/"
-        + JARHOUSE + "    (to display this message)\nOR\n" + "    java -cp "
-        + JARHOUSE + " --save [--overwrite] tar/path.tar db/base/path\nOR\n"
-        + "    java -cp path/to/" + JARHOUSE
-        + " --list tar/path.tar [regex1...]\nOR\n" + "    java -cp path/to/"
-        + JARHOUSE
-        + " --extract [--overwrite] file/path.tar[.gz] db/dir [regex1...]\n"
+    final static public String BASE_COMMAND =
+            "java -cp path/to/hsqldb.jar " + DbBackup.class.getName();
+    static public String SYNTAX_MSG = "SYNTAX:\n    " + BASE_COMMAND
+        + "\n    (to display this message)\nOR\n    " + BASE_COMMAND
+        + " --save  \\\n    [--overwrite] tar/path.tar db/base/path\nOR\n    "
+        + BASE_COMMAND + " --list  \\\n    tar/path.tar [regex1...]\nOR\n    "
+        + BASE_COMMAND + " --extract  \\\n"
+        + "    [--overwrite] file/path.tar[.gz] db/dir [regex1...]\n"
         + "    (extracts entry files to the specified db/dir).\n"
-        + "N.b. the db/base/path includes file base name, like in URLs, "
-        + "whereas db/dir is a proper 'directory'.";
+        + "\nN.b. the db/base/path includes file base name, like in URLs, "
+        + "whereas db/dir is\na proper 'directory'.";
+    static {
+        String ls = System.getProperty("line.separator");
+        if (!ls.equals("\n")) {
+            System.err.println("DIFFERS");
+            SYNTAX_MSG = SYNTAX_MSG.replaceAll("\\Q\n", ls);
+        }
+    }
 
     /**
      * Command line invocation to create, examine, or extract HSQLDB database
@@ -53,7 +60,7 @@ public class DbBackup {
      * file (for "save" mode) or tar file size (for other modes).
      * <P/>
      * Run<CODE><PRE>
-     *     java -cp path/to/hbackup.jar
+     *     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup
      * </PRE></CODE> for syntax help.
      */
     static public void main(String[] sa)
@@ -132,7 +139,7 @@ public class DbBackup {
             }
         } catch (IllegalArgumentException iae) {
             System.err.println("Syntax error.  Run the following for help:");
-            System.err.println("    java -cp path/to/" + JARHOUSE);
+            System.err.println("    " + BASE_COMMAND);
             System.exit(2);
         }
     }
