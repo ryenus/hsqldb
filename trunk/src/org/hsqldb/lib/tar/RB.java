@@ -70,6 +70,54 @@ public class RB extends ValidatingResourceBundle {
     static public final int BPR_WRITE = keyCounter++;
     static public final int STREAM_BUFFER_REPORT = keyCounter++;
     static public final int WRITE_QUEUE_REPORT = keyCounter++;
+    static public final int FILE_MISSING = keyCounter++;
+    static public final int MODIFIED_PROPERTY = keyCounter++;
+    static public final int FILE_DISAPPEARED = keyCounter++;
+    static public final int FILE_CHANGED = keyCounter++;
+    static public final int FILE_APPEARED = keyCounter++;
+    static public final int PIF_MALFORMAT = keyCounter++;
+    static public final int PIF_MALFORMAT_SIZE = keyCounter++;
+    static public final int ZERO_WRITE = keyCounter++;
+    static public final int PIF_TOOBIG = keyCounter++;
+    static public final int READ_DENIED = keyCounter++;
+    static public final int COMPRESSION_UNKNOWN = keyCounter++;
+    static public final int INSUFFICIENT_READ = keyCounter++;
+    static public final int DECOMPRESS_RANOUT = keyCounter++;
+    static public final int MOVE_WORK_FILE = keyCounter++;
+    static public final int CANT_OVERWRITE = keyCounter++;
+    static public final int CANT_WRITE_DIR = keyCounter++;
+    static public final int NO_PARENT_DIR = keyCounter++;
+    static public final int BAD_BLOCK_WRITE_LEN = keyCounter++;
+    static public final int ILLEGAL_BLOCK_BOUNDARY = keyCounter++;
+    static public final int WORKFILE_DELETE_FAIL = keyCounter++;
+    static public final int UNSUPPORTED_EXT = keyCounter++;
+    static public final int DEST_EXISTS = keyCounter++;
+    static public final int PARENT_NOT_DIR = keyCounter++;
+    static public final int CANT_WRITE_PARENT = keyCounter++;
+    static public final int PARENT_CREATE_FAIL = keyCounter++;
+    static public final int TAR_FIELD_TOOBIG = keyCounter++;
+    static public final int MISSING_SUPP_PATH = keyCounter++;
+    static public final int NONFILE_ENTRY = keyCounter++;
+    static public final int READ_LT_1 = keyCounter++;
+    static public final int DATA_CHANGED = keyCounter++;
+    static public final int UNEXPECTED_HEADER_KEY = keyCounter++;
+    static public final int TARREADER_SYNTAXERR = keyCounter++;
+    static public final int UNSUPPORTED_MODE = keyCounter++;
+    static public final int DIR_X_CONFLICT = keyCounter++;
+    static public final int PIF_UNKNOWN_DATASIZE = keyCounter++;
+    static public final int PIF_DATA_TOOBIG = keyCounter++;
+    static public final int DATA_SIZE_UNKNOWN = keyCounter++;
+    static public final int EXTRACTION_EXISTS = keyCounter++;
+    static public final int EXTRACTION_EXISTS_NOTFILE = keyCounter++;
+    static public final int EXTRACTION_PARENT_NOT_DIR = keyCounter++;
+    static public final int EXTRACTION_PARENT_NOT_WRITABLE = keyCounter++;
+    static public final int EXTRACTION_PARENT_MKFAIL = keyCounter++;
+    static public final int WRITE_COUNT_MISMATCH = keyCounter++;
+    static public final int HEADER_FIELD_MISSING = keyCounter++;
+    static public final int CHECKSUM_MISMATCH = keyCounter++;
+    static public final int CREATE_ONLY_NORMAL = keyCounter++;
+    static public final int BAD_HEADER_VALUE = keyCounter++;
+    static public final int BAD_NUMERIC_HEADER_VALUE = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
@@ -84,6 +132,54 @@ public class RB extends ValidatingResourceBundle {
         new Integer(BPR_WRITE), "bpr.write",
         new Integer(STREAM_BUFFER_REPORT), "stream.buffer.report",
         new Integer(WRITE_QUEUE_REPORT), "write.queue.report",
+        new Integer(FILE_MISSING), "file.missing",
+        new Integer(MODIFIED_PROPERTY), "modified.property",
+        new Integer(FILE_DISAPPEARED), "file.disappeared",
+        new Integer(FILE_CHANGED), "file.changed",
+        new Integer(FILE_APPEARED), "file.appeared",
+        new Integer(PIF_MALFORMAT), "pif.malformat",
+        new Integer(PIF_MALFORMAT_SIZE), "pif.malformat.size",
+        new Integer(ZERO_WRITE), "zero.write",
+        new Integer(PIF_TOOBIG), "pif.toobig",
+        new Integer(READ_DENIED), "read.denied",
+        new Integer(COMPRESSION_UNKNOWN), "compression.unknown",
+        new Integer(INSUFFICIENT_READ), "insufficient.read",
+        new Integer(DECOMPRESS_RANOUT), "decompression.ranout",
+        new Integer(MOVE_WORK_FILE), "move.work.file",
+        new Integer(CANT_OVERWRITE), "cant.overwrite",
+        new Integer(CANT_WRITE_DIR), "cant.write.dir",
+        new Integer(NO_PARENT_DIR), "no.parent.dir",
+        new Integer(BAD_BLOCK_WRITE_LEN), "bad.block.write.len",
+        new Integer(ILLEGAL_BLOCK_BOUNDARY), "illegal.block.boundary",
+        new Integer(WORKFILE_DELETE_FAIL), "workfile.delete.fail",
+        new Integer(UNSUPPORTED_EXT), "unsupported.ext",
+        new Integer(DEST_EXISTS), "dest.exists",
+        new Integer(PARENT_NOT_DIR), "parent.not.dir",
+        new Integer(CANT_WRITE_PARENT), "cant.write.parent",
+        new Integer(PARENT_CREATE_FAIL), "parent.create.fail",
+        new Integer(TAR_FIELD_TOOBIG), "tar.field.toobig",
+        new Integer(MISSING_SUPP_PATH), "missing.supp.path",
+        new Integer(NONFILE_ENTRY), "nonfile.entry",
+        new Integer(READ_LT_1), "read.lt.1",
+        new Integer(DATA_CHANGED), "data.changed",
+        new Integer(UNEXPECTED_HEADER_KEY), "unexpected.header.key",
+        new Integer(TARREADER_SYNTAXERR), "tarreader.syntaxerr",
+        new Integer(UNSUPPORTED_MODE), "unsupported.mode",
+        new Integer(DIR_X_CONFLICT), "dir.x.conflict",
+        new Integer(PIF_UNKNOWN_DATASIZE), "pif.unknown.datasize",
+        new Integer(PIF_DATA_TOOBIG), "pif.data.toobig",
+        new Integer(DATA_SIZE_UNKNOWN), "data.size.unknown",
+        new Integer(EXTRACTION_EXISTS), "extraction.exists",
+        new Integer(EXTRACTION_EXISTS_NOTFILE), "extraction.exists.notfile",
+        new Integer(EXTRACTION_PARENT_NOT_DIR), "extraction.parent.not.dir",
+        new Integer(EXTRACTION_PARENT_NOT_WRITABLE), "extraction.parent.not.writable",
+        new Integer(EXTRACTION_PARENT_MKFAIL), "extraction.parent.mkfail",
+        new Integer(WRITE_COUNT_MISMATCH), "write.count.mismatch",
+        new Integer(HEADER_FIELD_MISSING), "header.field.missing",
+        new Integer(CHECKSUM_MISMATCH), "checksum.mismatch",
+        new Integer(CREATE_ONLY_NORMAL), "create.only.normal",
+        new Integer(BAD_HEADER_VALUE), "bad.header.value",
+        new Integer(BAD_NUMERIC_HEADER_VALUE), "bad.numeric.header.value",
     };
 
     private Map keyIdToString = new HashMap();

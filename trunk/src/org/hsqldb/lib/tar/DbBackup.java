@@ -207,9 +207,9 @@ public class DbBackup {
             if (i < 2 && !existList[i]) {
 
                 // First 2 files are REQUIRED
-                throw new FileNotFoundException(
-                    "Required file missing: "
-                    + componentFiles[i].getAbsolutePath());
+                throw new FileNotFoundException(RB.singleton.getString(
+                        RB.FILE_MISSING, 
+                        componentFiles[i].getAbsolutePath()));
             }
         }
 
@@ -223,8 +223,8 @@ public class DbBackup {
             if (modifiedString != null
                     && (modifiedString.equalsIgnoreCase("yes")
                         || modifiedString.equalsIgnoreCase("true"))) {
-                throw new IllegalStateException("'modified' DB property is '"
-                                                + modifiedString + "'");
+                throw new IllegalStateException(RB.singleton.getString(
+                        RB.MODIFIED_PROPERTY, modifiedString));
             }
         }
 
@@ -250,20 +250,23 @@ public class DbBackup {
                 for (int i = 0; i < componentFiles.length; i++) {
                     if (componentFiles[i].exists()) {
                         if (!existList[i]) {
-                            throw new IllegalStateException(
-                                "'" + componentFiles[i].getAbsolutePath()
-                                + "' disappeared after backup started");
+                            throw new FileNotFoundException(
+                                    RB.singleton.getString(
+                                    RB.FILE_DISAPPEARED, 
+                                    componentFiles[i].getAbsolutePath()));
                         }
 
                         if (componentFiles[i].lastModified() > startTime) {
-                            throw new IllegalStateException(
-                                "'" + componentFiles[i].getAbsolutePath()
-                                + "' changed after backup started");
+                            throw new FileNotFoundException(
+                                    RB.singleton.getString(
+                                    RB.FILE_CHANGED, 
+                                    componentFiles[i].getAbsolutePath()));
                         }
                     } else if (existList[i]) {
-                        throw new IllegalStateException(
-                            "'" + componentFiles[i].getAbsolutePath()
-                            + "' appeared after backup started");
+                        throw new FileNotFoundException(
+                                RB.singleton.getString(
+                                RB.FILE_APPEARED, 
+                                componentFiles[i].getAbsolutePath()));
                     }
                 }
             } catch (IllegalStateException ise) {

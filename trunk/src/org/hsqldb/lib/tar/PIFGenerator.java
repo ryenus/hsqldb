@@ -39,6 +39,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
     public PIFGenerator(int sequenceNum) {
         this();
         if (sequenceNum < 1) {
+            // No need to localize.  Would be caught at dev-time.
             throw new IllegalArgumentException(
                     "Sequence numbers start at 1");
         }
@@ -69,7 +70,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * @see Boolean.toString(boolean)
      */
     public void addRecord(String key, boolean b)
-            throws TarMalformatException, IOException {
+    throws TarMalformatException, IOException {
         addRecord(key, Boolean.toString(b));
     }
     /**
@@ -78,7 +79,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * @see #addRecord(String, String)
      */
     public void addRecord(String key, int i)
-            throws TarMalformatException, IOException {
+    throws TarMalformatException, IOException {
         addRecord(key, Integer.toString(i));
     }
     /**
@@ -87,7 +88,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * @see #addRecord(String, String)
      */
     public void addRecord(String key, long l)
-            throws TarMalformatException, IOException {
+    throws TarMalformatException, IOException {
         addRecord(key, Long.toString(l));
     }
 
@@ -96,11 +97,11 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * characters, not bytes?
      */
     public void addRecord(String key, String value)
-            throws TarMalformatException, IOException {
+    throws TarMalformatException, IOException {
         if (key == null || value == null
                 || key.length() < 1 || value.length() < 1) {
-            throw new TarMalformatException(
-                    "Refusing to write record with zero-length key or value");
+            throw new TarMalformatException(RB.singleton.getString(
+                    RB.ZERO_WRITE));
         }
         int lenWithoutIlen = key.length() + value.length() + 3;
         // "Ilen" means Initial Length field.  +3 = SPACE + = + \n
@@ -116,12 +117,10 @@ public class PIFGenerator extends ByteArrayOutputStream {
         } else if (lenWithoutIlen < 99994) {
             lenW = lenWithoutIlen + 5;
         } else {
-            throw new TarMalformatException("Total key + vale lengths exceeds "
-                    + "our total supported max of " + 99991);
+            throw new TarMalformatException(RB.singleton.getString(
+                    RB.PIF_TOOBIG, 99991));
         }
-        /*
-         * TODO:  Remove this Dev assertion:
-         */
+        // TODO:  Remove this Dev assertion:
         if (lenW != (Integer.toString(lenW) + ' ' + key + '=' + value + '\n')
                 .length()) throw new RuntimeException("ASSERTION FAILED");
 
@@ -138,7 +137,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * This is a Unit Test.  Move it to a proper, dedicated unit test class.
      */
     static public void main(String[] sa)
-            throws TarMalformatException, IOException {
+    throws TarMalformatException, IOException {
         if (sa.length > 1)  {
             throw new IllegalArgumentException(
                     "java " + PIFGenerator.class.getName() + " [xTargetPath]");

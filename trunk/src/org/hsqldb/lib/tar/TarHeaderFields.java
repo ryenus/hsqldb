@@ -132,8 +132,8 @@ public class TarHeaderFields {
         Integer iObject = (Integer) starts.get(new Integer(field));
 
         if (iObject == null) {
-            throw new IllegalArgumentException("Unexpected Header key: "
-                                               + field);
+            throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.UNEXPECTED_HEADER_KEY, field));
         }
 
         return iObject.intValue();
@@ -144,8 +144,8 @@ public class TarHeaderFields {
         Integer iObject = (Integer) stops.get(new Integer(field));
 
         if (iObject == null) {
-            throw new IllegalArgumentException("Unexpected Header key: "
-                                               + field);
+            throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.UNEXPECTED_HEADER_KEY, field));
         }
 
         return iObject.intValue();
@@ -156,8 +156,8 @@ public class TarHeaderFields {
         String s = (String) labels.get(new Integer(field));
 
         if (s == null) {
-            throw new IllegalArgumentException("Unexpected Header key: "
-                                               + field);
+            throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.UNEXPECTED_HEADER_KEY, field));
         }
 
         return s;

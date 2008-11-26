@@ -95,16 +95,15 @@ public class TarGenerator {
             compression = TarFileOutputStream.GZIP_COMPRESSION;
         } else if (archiveFile.getName().endsWith(".tar")) {}
         else {
-            throw new IllegalArgumentException(
-                getClass().getName()
-                + " only generates files with extensions "
-                + "'.tar', '.tgz.', or '.tar.gz':  " + archiveFile.getPath());
+            throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.UNSUPPORTED_EXT, getClass().getName(),
+                    archiveFile.getPath()));
         }
 
         if (archiveFile.exists()) {
             if (!overWrite) {
-                throw new IOException("Destination file already exists: "
-                                      + archiveFile.getPath());
+                throw new IOException(RB.singleton.getString(
+                        RB.DEST_EXISTS, archiveFile.getPath()));
             }
         } else {
             File parentDir = archiveFile.getParentFile();
@@ -112,21 +111,18 @@ public class TarGenerator {
             // parentDir will be absolute, since archiveFile is absolute.
             if (parentDir.exists()) {
                 if (!parentDir.isDirectory()) {
-                    throw new IOException(
-                        "Parent node of specified file is not a directory: "
-                        + parentDir.getPath());
+                    throw new IOException(RB.singleton.getString(
+                            RB.PARENT_NOT_DIR, parentDir.getPath()));
                 }
 
                 if (!parentDir.canWrite()) {
-                    throw new IOException(
-                        "Parent directory of specified file is not writable: "
-                        + parentDir.getPath());
+                    throw new IOException(RB.singleton.getString(
+                            RB.CANT_WRITE_PARENT, parentDir.getPath()));
                 }
             } else {
                 if (!parentDir.mkdirs()) {
-                    throw new IOException(
-                        "Failed to create parent directory for tar file: "
-                        + parentDir.getPath());
+                    throw new IOException(RB.singleton.getString(
+                            RB.PARENT_CREATE_FAIL, parentDir.getPath()));
                 }
             }
         }
@@ -142,12 +138,13 @@ public class TarGenerator {
         }
     }
 
-    public void queueEntry(File file) throws FileNotFoundException {
+    public void queueEntry(File file)
+    throws FileNotFoundException, TarMalformatException {
         queueEntry(null, file);
     }
 
-    public void queueEntry(String entryPath,
-                           File file) throws FileNotFoundException {
+    public void queueEntry(String entryPath, File file)
+    throws FileNotFoundException, TarMalformatException {
         entryQueue.add(new TarEntrySupplicant(entryPath, file, archive));
     }
 
@@ -158,7 +155,7 @@ public class TarGenerator {
      * This limitation may or may not be eliminated in the future.
      */
     public void queueEntry(String entryPath, InputStream inStream,
-                           int maxBytes) throws IOException {
+            int maxBytes) throws IOException, TarMalformatException {
         entryQueue.add(new TarEntrySupplicant(entryPath, inStream, maxBytes,
                     '0', archive));
     }
@@ -234,8 +231,13 @@ public class TarGenerator {
                 swapOutDelim = new Character(c);
             }
 
-            writeField(TarHeaderFields.UID, 0L, HEADER_TEMPLATE);
-            writeField(TarHeaderFields.GID, 0L, HEADER_TEMPLATE);
+            try {
+                writeField(TarHeaderFields.UID, 0L, HEADER_TEMPLATE);
+                writeField(TarHeaderFields.GID, 0L, HEADER_TEMPLATE);
+            } catch (TarMalformatException tme) {
+                // This would definitely get caught in Dev env.
+                throw new RuntimeException(tme);
+            }
 
             // Setting uid and gid to 0 = root.
             // Misleading, yes.  Anything better we can do?  No.
@@ -254,17 +256,18 @@ public class TarGenerator {
             // This is the field that Gnu Tar desecrates.
         }
 
-        static protected void writeField(int fieldId, String newValue,
-                                         byte[] target) {
+        static protected void writeField(
+                int fieldId, String newValue, byte[] target)
+        throws TarMalformatException {
 
             int    start = TarHeaderFields.getStart(fieldId);
             int    stop  = TarHeaderFields.getStop(fieldId);
             byte[] ba    = newValue.getBytes();
 
             if (ba.length > stop - start) {
-                throw new IllegalArgumentException(
-                    "Input too long for field "
-                    + TarHeaderFields.toString(fieldId) + ": " + newValue);
+                throw new TarMalformatException(RB.singleton.getString(
+                        RB.TAR_FIELD_TOOBIG, TarHeaderFields.toString(fieldId),
+                        newValue));
             }
 
             for (int i = 0; i < ba.length; i++) {
@@ -282,8 +285,9 @@ public class TarGenerator {
             }
         }
 
-        static protected void writeField(int fieldId, long newValue,
-                                         byte[] target) {
+        static protected void writeField(
+                int fieldId, long newValue, byte[] target)
+        throws TarMalformatException{
 
             TarEntrySupplicant.writeField(
                 fieldId,
@@ -328,12 +332,12 @@ public class TarGenerator {
          * Internal constructor that validates the entry's path.
          */
         protected TarEntrySupplicant(String path, char typeFlag,
-                                     TarFileOutputStream tarStream) {
+                                     TarFileOutputStream tarStream)
+        throws TarMalformatException {
 
             if (path == null) {
-                throw new IllegalArgumentException(
-                    "Path required if "
-                    + "existing component file not specified");
+                throw new IllegalArgumentException(RB.singleton.getString(
+                        RB.MISSING_SUPP_PATH));
             }
 
             this.path = (swapOutDelim == null) ? path
@@ -366,7 +370,7 @@ public class TarGenerator {
          * This creates a 'x' entry for a 0/\0 entry.
          */
         public TarEntrySupplicant makeXentry()
-                throws IOException, TarMalformatException {
+        throws IOException, TarMalformatException {
             PIFGenerator pif = new PIFGenerator(new File(path));
             pif.addRecord("size", dataSize);
 
@@ -396,8 +400,10 @@ public class TarGenerator {
          */
         public TarEntrySupplicant(String path, File file,
                                   TarFileOutputStream tarStream)
-                                  throws FileNotFoundException {
+        throws FileNotFoundException, TarMalformatException {
 
+            // Must use an expression-embedded ternary here to satisfy compiler
+            // that this() call be first statement in constructor.
             this(((path == null) ? file.getPath()
                                  : path), '0', tarStream);
             // Difficult call for '0'.  binary 0 and character '0' both mean
@@ -405,18 +411,14 @@ public class TarGenerator {
             // but we are writing a valid UStar header, and I doubt anybody's
             // tar implementation would choke on this since there is no
             // outcry of UStar archives failing to work with older tars.
-
-            // Must use an expression-embedded ternary here to satisfy compiler
-            // that this() call be first statement in constructor.
             if (!file.isFile()) {
-                throw new IllegalArgumentException(
-                    "This method intentionally "
-                    + "creates TarEntries only for files");
+                throw new IllegalArgumentException(RB.singleton.getString(
+                        RB.NONFILE_ENTRY));
             }
 
             if (!file.canRead()) {
-                throw new IllegalArgumentException("Can't read file '" + file
-                                                   + "'");
+                throw new IllegalArgumentException(RB.singleton.getString(
+                        RB.READ_DENIED, file.getAbsolutePath()));
             }
 
             modTime     = file.lastModified() / 1000L;
@@ -444,7 +446,7 @@ public class TarGenerator {
         public TarEntrySupplicant(String path, InputStream origStream,
                                   int maxBytes, char typeFlag,
                                   TarFileOutputStream tarStream)
-                                  throws IOException {
+        throws IOException, TarMalformatException {
 
             /*
              * If you modify this, make sure to not intermix reading/writing of
@@ -455,8 +457,8 @@ public class TarGenerator {
             this(path, typeFlag, tarStream);
 
             if (maxBytes < 1) {
-                throw new IllegalArgumentException(
-                        "Does not make sense to make an entry for < 1 byte");
+                throw new IllegalArgumentException(RB.singleton.getString(
+                        RB.READ_LT_1));
             }
 
             int               i;
@@ -518,15 +520,18 @@ public class TarGenerator {
             TarEntrySupplicant.clearField(fieldId, rawHeader);
         }
 
-        protected void writeField(int fieldId, String newValue) {
+        protected void writeField(int fieldId, String newValue)
+        throws TarMalformatException {
             TarEntrySupplicant.writeField(fieldId, newValue, rawHeader);
         }
 
-        protected void writeField(int fieldId, long newValue) {
+        protected void writeField(int fieldId, long newValue) 
+        throws TarMalformatException {
             TarEntrySupplicant.writeField(fieldId, newValue, rawHeader);
         }
 
-        protected void writeField(int fieldId, char c) {
+        protected void writeField(int fieldId, char c) 
+        throws TarMalformatException {
             TarEntrySupplicant.writeField(fieldId, Character.toString(c),
                     rawHeader);
         }
@@ -536,7 +541,7 @@ public class TarGenerator {
          *
          * This method is guaranteed to close the supplicant's input stream.
          */
-        public void write() throws IOException {
+        public void write() throws IOException, TarMalformatException {
 
             int i;
 
@@ -565,12 +570,10 @@ public class TarGenerator {
                 }
 
                 if (dataStart + dataSize != tarStream.getBytesWritten()) {
-                    throw new IOException(
-                        "Seems that the input data changed.  "
-                        + "Input data was " + dataSize
-                        + " bytes, but we wrote "
-                        + (tarStream.getBytesWritten() - dataStart)
-                        + " bytes of data");
+                    throw new IOException(RB.singleton.getString(
+                            RB.DATA_CHANGED, Long.toString(dataSize),
+                            Long.toString(
+                            (tarStream.getBytesWritten() - dataStart))));
                 }
 
                 tarStream.padCurrentBlock();
