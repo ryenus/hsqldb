@@ -28,7 +28,7 @@ public class PIFData extends HashMap {
     private Long sizeObject = null;
 
     public PIFData(InputStream stream)
-            throws TarMalformatException, IOException {
+    throws TarMalformatException, IOException {
         try {
             BufferedReader br =
                     new BufferedReader(new InputStreamReader(stream, "UTF-8"));
@@ -45,9 +45,8 @@ public class PIFData extends HashMap {
                 lineNum++;
                 m = pifRecordPattern.matcher(s);
                 if (!m.matches()) {
-                    throw new TarMalformatException(
-                            "Line " + lineNum
-                            + " of PIF Data is malformatted:\n" + s);
+                    throw new TarMalformatException(RB.singleton.getString(
+                            RB.PIF_MALFORMAT, lineNum, s));
                 } 
                 k = m.group(1);
                 v = m.group(2);
@@ -66,9 +65,8 @@ public class PIFData extends HashMap {
             try {
                 sizeObject = Long.parseLong(sizeString);
             } catch (NumberFormatException nfe) {
-                throw new TarMalformatException(
-                        "PIF Data contains malformatted 'size' value:  "
-                        + sizeString);
+                throw new TarMalformatException(RB.singleton.getString(
+                        RB.PIF_MALFORMAT_SIZE, sizeString));
             }
         }
     }

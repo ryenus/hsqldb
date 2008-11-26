@@ -53,9 +53,8 @@ public class TarReader {
 
         if (sa.length < firstPatInd
                 || ((!sa[0].equals("t")) && !sa[0].equals("x"))) {
-            throw new IllegalArgumentException(
-                    "Run 'java -cp path/to/hsqldb.jar "
-                    + TarReader.class.getName() + "' for help");
+            throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.TARREADER_SYNTAXERR, TarReader.class.getName()));
         }
 
         String[] patternStrings = null;
@@ -69,8 +68,8 @@ public class TarReader {
         }
 
         if (sa[0].equals("t") && exDir != null) {
-            throw new IllegalArgumentException(
-                "The '--directory=' switch only makes sense with 'x' mode");
+            throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.DIR_X_CONFLICT));
         }
 
         int dirIndex      = (exDir == null) ? 1
@@ -197,6 +196,10 @@ public class TarReader {
                     }
                 }
 
+                if (entryType != '\0' && entryType != '0' && entryType != 'x') {
+                    anyUnsupporteds = true;
+                }
+
                 switch (mode) {
 
                     case LIST_MODE :
@@ -205,24 +208,21 @@ public class TarReader {
                         }
                         System.out.println(header.toString());
 
-                        if (entryType != '\0' && entryType != '0'
-                                && entryType != 'x') {
-                            anyUnsupporteds = true;
-                        }
-
                         skipFileData(header);
                         break;
 
                     case EXTRACT_MODE :
                     case OVERWRITE_MODE :
 
-                        // Don't need to check type here, since we will throw
-                        // if typeflag is unsupported.
-                        //
                         // Instance variable mode will be used to differentiate
                         // behavior inside of extractFile().
                         //System.out.println(header.toString());
-                        extractFile(header);
+                        if (entryType == '\0' || entryType == '0'
+                                || entryType == 'x') {
+                            extractFile(header);
+                        } else {
+                            skipFileData(header);
+                        }
                         if (paxString != null) {
                             System.out.println(paxString);
                         }
@@ -232,8 +232,9 @@ public class TarReader {
                         break;
 
                     default :
-                        throw new RuntimeException(
-                            "Sorry, mode not supported yet: " + mode);
+                        throw new IllegalArgumentException(
+                                RB.singleton.getString(
+                                RB.UNSUPPORTED_MODE, mode));
                 }
                 paxString = null;
             }
@@ -260,20 +261,21 @@ public class TarReader {
 
         long dataSize = header.getDataSize();
         if (dataSize < 1) {
-            throw new TarMalformatException("PIF Data size unknown");
+            throw new TarMalformatException(RB.singleton.getString(
+                    RB.PIF_UNKNOWN_DATASIZE));
         }
 
         if (dataSize > Integer.MAX_VALUE) {
-            throw new TarMalformatException(
-                    "PIF Data exceeds max supported size.  "
-                    + dataSize + " > " + Integer.MAX_VALUE);
+            throw new TarMalformatException(RB.singleton.getString(
+                    RB.PIF_DATA_TOOBIG, Long.toString(dataSize),
+                    Integer.MAX_VALUE));
         }
 
         int  readNow;
         int  readBlocks = (int) (dataSize / 512L);
         int  modulus    = (int) (dataSize % 512L);
 
-        // Couldn't care less about the entry "name".
+        // Couldn't care less about the entry "name" field.
 
         PipedOutputStream outPipe = new PipedOutputStream();
         PipedInputStream inPipe =
@@ -291,7 +293,7 @@ public class TarReader {
                 outPipe.write(archive.readBuffer, 0, readNow * 512);
             }
 
-// TODO:  Remove this Dev debug assertion
+            // TODO:  Remove this Dev debug assertion
             if (readBlocks != 0) {
                 throw new IllegalStateException(
                     "Finished skipping but skip blocks to go = " + readBlocks
@@ -319,7 +321,8 @@ public class TarReader {
     throws IOException, TarMalformatException {
         
         if (header.getDataSize() < 1) {
-            throw new TarMalformatException("Data size unknown");
+            throw new TarMalformatException(RB.singleton.getString(
+                    RB.DATA_SIZE_UNKNOWN));
         }
 
         int  readNow;
@@ -338,13 +341,14 @@ public class TarReader {
 
         if (newFile.exists()) {
             if (mode != TarReader.OVERWRITE_MODE) {
-                throw new IOException("Extracted file already exists: "
-                                      + newFile.getAbsolutePath());
+                throw new IOException(RB.singleton.getString(
+                        RB.EXTRACTION_EXISTS, newFile.getAbsolutePath()));
             }
 
             if (!newFile.isFile()) {
-                throw new IOException("Node already exist but is not a file: "
-                                      + newFile.getAbsolutePath());
+                throw new IOException(RB.singleton.getString(
+                        RB.EXTRACTION_EXISTS_NOTFILE,
+                        newFile.getAbsolutePath()));
             }
 
             // Better to let FileOutputStream creation zero it than to
@@ -353,21 +357,21 @@ public class TarReader {
 
         if (parentDir.exists()) {
             if (!parentDir.isDirectory()) {
-                throw new IOException(
-                    "Parent node of extracted path is not a directory: "
-                    + parentDir.getAbsolutePath());
+                throw new IOException(RB.singleton.getString(
+                        RB.EXTRACTION_PARENT_NOT_DIR,
+                        parentDir.getAbsolutePath()));
             }
 
             if (!parentDir.canWrite()) {
-                throw new IOException(
-                    "Parent directory of extracted path is not writable: "
-                    + parentDir.getAbsolutePath());
+                throw new IOException(RB.singleton.getString(
+                        RB.EXTRACTION_PARENT_NOT_WRITABLE,
+                        parentDir.getAbsolutePath()));
             }
         } else {
             if (!parentDir.mkdirs()) {
-                throw new IOException(
-                    "Failed to create parent directory for extracted file: "
-                    + parentDir.getAbsolutePath());
+                throw new IOException(RB.singleton.getString(
+                        RB.EXTRACTION_PARENT_MKFAIL,
+                        parentDir.getAbsolutePath()));
             }
         }
 
@@ -397,7 +401,7 @@ public class TarReader {
                 outStream.write(archive.readBuffer, 0, readNow * 512);
             }
 
-// TODO:  Remove this Dev debug assertion
+            // TODO:  Remove this Dev debug assertion
             if (readBlocks != 0) {
                 throw new IllegalStateException(
                     "Finished skipping but skip blocks to go = " + readBlocks
@@ -418,16 +422,28 @@ public class TarReader {
         newFile.setLastModified(header.getModTime() * 1000);
 
         if (newFile.length() != header.getDataSize()) {
-            throw new IOException("Attempted to write " + header.getDataSize()
-                                  + " bytes to '" + newFile.getAbsolutePath()
-                                  + "', but only wrote " + newFile.length());
+            throw new IOException(RB.singleton.getString(
+                    RB.WRITE_COUNT_MISMATCH,
+                    Long.toString(header.getDataSize()),
+                    newFile.getAbsolutePath(),
+                    Long.toString(newFile.length())));
         }
     }
 
     protected void skipFileData(TarEntryHeader header)
     throws IOException, TarMalformatException {
-        if (header.getDataSize() < 1) {
-            throw new TarMalformatException("Data size unknown");
+
+        /*
+         * Some entry types which we don't support have 0 data size.
+         * If we just return here, the entry will just be skipped./
+        */
+        if (header.getDataSize() == 0) {
+            return;
+        }
+
+        if (header.getDataSize() < 0) {
+            throw new TarMalformatException(RB.singleton.getString(
+                    RB.DATA_SIZE_UNKNOWN));
         }
 
         int skipNow;
@@ -445,7 +461,7 @@ public class TarReader {
             skipBlocks -= skipNow;
         }
 
-// TODO:  Remove this Dev debug assertion
+        // TODO:  Remove this Dev debug assertion
         if (skipBlocks != 0) {
             throw new IllegalStateException(
                 "Finished skipping but skip blocks to go = " + skipBlocks
@@ -460,6 +476,16 @@ public class TarReader {
      * @author Blaine Simpson
      */
     static protected class TarEntryHeader {
+        static protected class MissingField extends Exception {
+            private int field;
+            public MissingField(int field) {
+                this.field = field;
+            }
+            public String getMessage() {
+                return RB.singleton.getString(
+                    RB.HEADER_FIELD_MISSING, TarHeaderFields.toString(field));
+            }
+        }
 
         protected SimpleDateFormat sdf =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -474,49 +500,48 @@ public class TarReader {
 
             Long expectedCheckSum = readInteger(TarHeaderFields.CHECKSUM);
 
-            if (expectedCheckSum == null) {
-                throw new TarMalformatException(
-                    "Required field 'CHECKSUM' missing in tar entry header");
+            try {
+                if (expectedCheckSum == null) {
+                    throw new MissingField(TarHeaderFields.CHECKSUM);
+                }
+
+                long calculatedCheckSum = headerChecksum();
+
+                if (expectedCheckSum.longValue() != calculatedCheckSum) {
+                    throw new TarMalformatException(RB.singleton.getString(
+                            RB.CHECKSUM_MISMATCH, expectedCheckSum.toString(),
+                            Long.toString(calculatedCheckSum)));
+                }
+
+                path = readString(TarHeaderFields.NAME);
+
+                if (path == null) {
+                    throw new MissingField(TarHeaderFields.NAME);
+                }
+
+                Long longObject = readInteger(TarHeaderFields.MODE);
+
+                if (longObject == null) {
+                    throw new MissingField(TarHeaderFields.MODE);
+                }
+
+                fileMode   = (int) longObject.longValue();
+                longObject = readInteger(TarHeaderFields.SIZE);
+
+                if (longObject != null) {
+                    dataSize   = longObject.longValue();
+                }
+
+                longObject = readInteger(TarHeaderFields.MTIME);
+
+                if (longObject == null) {
+                    throw new MissingField(TarHeaderFields.MTIME);
+                }
+                modTime   = longObject.longValue();
+            } catch (MissingField mf) {
+                throw new TarMalformatException(mf.getMessage());
             }
 
-            long calculatedCheckSum = headerChecksum();
-
-            if (expectedCheckSum.longValue() != calculatedCheckSum) {
-                throw new TarMalformatException(
-                    "Corrupted tar entry header.  Expected checksum "
-                    + expectedCheckSum + ", but calculated "
-                    + calculatedCheckSum);
-            }
-
-            path = readString(TarHeaderFields.NAME);
-
-            if (path == null) {
-                throw new TarMalformatException(
-                    "Required field 'NAME' missing in tar entry header");
-            }
-
-            Long longObject = readInteger(TarHeaderFields.MODE);
-
-            if (longObject == null) {
-                throw new TarMalformatException(
-                    "Required field 'MODE' missing in tar entry header");
-            }
-
-            fileMode   = (int) longObject.longValue();
-            longObject = readInteger(TarHeaderFields.SIZE);
-
-            if (longObject != null) {
-                dataSize   = longObject.longValue();
-            }
-
-            longObject = readInteger(TarHeaderFields.MTIME);
-
-            if (longObject == null) {
-                throw new TarMalformatException(
-                    "Required field 'MTIME' missing in tar entry header.");
-            }
-
-            modTime   = longObject.longValue();
             entryType = readChar(TarHeaderFields.TYPEFLAG);
             ownerName = readString(TarHeaderFields.UNAME);
 
@@ -550,9 +575,8 @@ public class TarReader {
         public File generateFile() {
 
             if (entryType != '\0' && entryType != '0') {
-                throw new IllegalStateException(
-                    "At this time, we only support creation of normal "
-                    + "files from Tar entries");
+                throw new IllegalStateException(RB.singleton.getString(
+                        RB.CREATE_ONLY_NORMAL));
             }
 
             // Unfortunately, it does no good to set modification times or
@@ -675,9 +699,9 @@ public class TarReader {
             } catch (Throwable t) {
 
                 // Java API does not specify behavior if decoding fails.
-                throw new TarMalformatException(
-                    "Bad value in header for field "
-                    + TarHeaderFields.toString(fieldId));
+                throw new TarMalformatException(RB.singleton.getString(
+                        RB.BAD_HEADER_VALUE, 
+                        TarHeaderFields.toString(fieldId)));
             }
         }
 
@@ -694,10 +718,9 @@ public class TarReader {
             try {
                 return Long.valueOf(s, 8);
             } catch (NumberFormatException nfe) {
-                throw new TarMalformatException(
-                    "Bad value in header for field "
-                    + TarHeaderFields.toString(fieldId) + ": "
-                    + nfe.getMessage());
+                throw new TarMalformatException(RB.singleton.getString(
+                        RB.BAD_NUMERIC_HEADER_VALUE, 
+                        TarHeaderFields.toString(fieldId), nfe.getMessage()));
             }
         }
 

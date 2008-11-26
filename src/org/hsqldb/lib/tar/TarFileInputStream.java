@@ -75,8 +75,8 @@ public class TarFileInputStream implements Closeable {
      *
      * @see TarFileInputStream(File, int, int)
      */
-    public TarFileInputStream(File sourceFile,
-                              int compressionType) throws IOException {
+    public TarFileInputStream(File sourceFile, int compressionType)
+    throws IOException {
         this(sourceFile, compressionType,
              TarFileInputStream.DEFAULT_BLOCKS_PER_RECORD);
     }
@@ -106,8 +106,8 @@ public class TarFileInputStream implements Closeable {
         }
 
         if (!sourceFile.canRead()) {
-            throw new IOException("User does not have privileges to read file "
-                                  + sourceFile.getAbsolutePath());
+            throw new IOException(RB.singleton.getString(
+                    RB.READ_DENIED, sourceFile.getAbsolutePath()));
         }
 
         this.readBufferBlocks = readBufferBlocks;
@@ -127,8 +127,8 @@ public class TarFileInputStream implements Closeable {
                 break;
 
             default :
-                throw new IllegalArgumentException(
-                    "Unexpected compression type: " + compressionType);
+                throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.COMPRESSION_UNKNOWN, compressionType));
         }
     }
 
@@ -169,10 +169,8 @@ public class TarFileInputStream implements Closeable {
         bytesRead += i;
 
         if (i != blocks * 512) {
-            throw new TarMalformatException("Expected to read "
-                                            + (blocks * 512)
-                                            + " bytes, but could only read "
-                                            + i);
+            throw new TarMalformatException(RB.singleton.getString(
+                    RB.INSUFFICIENT_READ, blocks * 512, i));
         }
     }
 
@@ -198,22 +196,20 @@ public class TarFileInputStream implements Closeable {
                                 requiredBytes - bytesSoFar);
 
             if (i < 0) {
-                throw new EOFException("Ran out of decompressed bytes after "
-                                       + "reading " + bytesSoFar + " out of "
-                                       + requiredBytes);
+                throw new EOFException(RB.singleton.getString(
+                        RB.DECOMPRESS_RANOUT, bytesSoFar, requiredBytes));
             }
 
             bytesRead  += i;
             bytesSoFar += i;
         }
 
+        // TODO: Remove this Dev assertion
         if (bytesSoFar != requiredBytes) {
             throw new RuntimeException("Assertion failed.  Read only "
                                        + bytesSoFar + " when user requested "
                                        + blocks + " blocks");
         }
-
-// TODO: Remove this Dev assertion
     }
 
     /**

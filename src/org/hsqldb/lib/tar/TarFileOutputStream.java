@@ -95,26 +95,22 @@ public class TarFileOutputStream implements Closeable, Flushable {
         writeFile = new File(targetFile.getParentFile(),
                 targetFile.getName() + "-partial");
         if (this.writeFile.exists()) {
-            throw new IOException(
-                    "Is somebody else writing to the same file?  "
-                    + "If not, remove aborted work file:  "
-                    + writeFile.getAbsolutePath());
+            throw new IOException(RB.singleton.getString(
+                    RB.MOVE_WORK_FILE, writeFile.getAbsolutePath()));
         }
         if (targetFile.exists() && !targetFile.canWrite()) {
-            throw new IOException(
-                    "You do not have privileges to overwrite '"
-                    + targetFile.getAbsolutePath() + "'");
+            throw new IOException(RB.singleton.getString(
+                    RB.CANT_OVERWRITE, targetFile.getAbsolutePath()));
         }
         File parentDir = targetFile.getAbsoluteFile().getParentFile();
         if (parentDir.exists() && parentDir.isDirectory()) {
             if (!parentDir.canWrite()) {
-                throw new IOException(
-                        "You do not have privileges to write in directory '"
-                        + parentDir.getAbsolutePath() + "'");
+                throw new IOException(RB.singleton.getString(
+                        RB.CANT_WRITE_DIR, parentDir.getAbsolutePath()));
             }
         } else {
-            throw new IOException("No parent directory '"
-                    + parentDir.getAbsolutePath() + "'");
+            throw new IOException(RB.singleton.getString(
+                    RB.NO_PARENT_DIR, parentDir.getAbsolutePath()));
         }
         writeBuffer          = new byte[blocksPerRecord * 512];
 
@@ -131,8 +127,8 @@ public class TarFileOutputStream implements Closeable, Flushable {
                 break;
 
             default :
-                throw new IllegalArgumentException(
-                    "Unexpected compression type: " + compressionType);
+                throw new IllegalArgumentException(RB.singleton.getString(
+                        RB.COMPRESSION_UNKNOWN, compressionType));
         }
 
         writeFile.setExecutable(false, true);
@@ -176,9 +172,8 @@ public class TarFileOutputStream implements Closeable, Flushable {
     public void writeBlock(byte[] block) throws IOException {
 
         if (block.length != 512) {
-            throw new IllegalArgumentException("Specified block is"
-                                               + block.length
-                                               + " bytes long instead of 512");
+            throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.BAD_BLOCK_WRITE_LEN, block.length));
         }
 
         write(block, block.length);
@@ -218,9 +213,8 @@ public class TarFileOutputStream implements Closeable, Flushable {
     public void assertAtBlockBoundary() {
 
         if (bytesLeftInBlock() != 0) {
-            throw new IllegalStateException(
-                "Current file length " + bytesWritten
-                + " is not an even 512-byte-block multiple");
+            throw new IllegalArgumentException(RB.singleton.getString(
+                    RB.ILLEGAL_BLOCK_BOUNDARY, Long.toString(bytesWritten)));
         }
     }
 
@@ -238,7 +232,7 @@ public class TarFileOutputStream implements Closeable, Flushable {
 
         write(ZERO_BLOCK, padBytes);
 
-// REMOVE THIS DEV-ASSERTION:
+        // REMOVE THIS DEV-ASSERTION:
         assertAtBlockBoundary();
     }
 
@@ -262,8 +256,8 @@ public class TarFileOutputStream implements Closeable, Flushable {
     public void close() throws IOException {
         writeStream.close();
         if (!writeFile.delete()) {
-            throw new IOException("Failed to delete work file '"
-                    + writeFile.getAbsolutePath() + "'");
+            throw new IOException(RB.singleton.getString(
+                    RB.WORKFILE_DELETE_FAIL, writeFile.getAbsolutePath()));
         }
     }
 
