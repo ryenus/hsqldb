@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,13 +66,13 @@
 
 package org.hsqldb.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.Vector;
-import java.io.BufferedReader;
 
 // fredt@users 20020315 - patch 1.7.0 - minor fixes
 // changed line separator to System based value
@@ -135,7 +135,7 @@ public class CodeSwitcher {
         }
 
         File listFile = null;
-        File baseDir = null;
+        File baseDir  = null;
 
         for (int i = 0; i < a.length; i++) {
             String p = a[i];
@@ -156,37 +156,49 @@ public class CodeSwitcher {
         if (baseDir != null) {
             if (listFile == null) {
                 System.err.println(
-                "--basedir= setting ignored, since only used for list files"); 
+                    "--basedir= setting ignored, since only used for list files");
             } else {
                 if (!baseDir.isDirectory()) {
                     System.err.println("Skipping listfile since basedir '"
-                        + baseDir.getAbsolutePath() + "' is not a directory");
+                                       + baseDir.getAbsolutePath()
+                                       + "' is not a directory");
+
                     listFile = null;
                 }
             }
         }
 
-        if (listFile != null) try {
-            BufferedReader br = new BufferedReader(new FileReader(listFile));
-            String st, p;
-            int hashIndex;
-            File f;
-            while ((st = br.readLine()) != null) {
-                hashIndex = st.indexOf('#');
-                p = ((hashIndex > -1) ? st.substring(0, hashIndex) : st).trim();
-                if (p.length() < 1) {
-                    continue;
+        if (listFile != null) {
+            try {
+                BufferedReader br =
+                    new BufferedReader(new FileReader(listFile));
+                String st, p;
+                int    hashIndex;
+                File   f;
+
+                while ((st = br.readLine()) != null) {
+                    hashIndex = st.indexOf('#');
+                    p         = ((hashIndex > -1) ? st.substring(0, hashIndex)
+                                                  : st).trim();
+
+                    if (p.length() < 1) {
+                        continue;
+                    }
+
+                    f = (baseDir == null) ? (new File(p))
+                                          : (new File(baseDir, p));
+
+                    if (f.isFile()) {
+                        s.addDir(f);
+                    } else {
+                        System.err.println("Skipping non-file '" + p.trim()
+                                           + "'");
+                    }
                 }
-                f = (baseDir == null) ? (new File(p)) : (new File(baseDir, p));
-                if (f.isFile()) {
-                    s.addDir(f);
-                } else {
-                    System.err.println("Skipping non-file '" + p.trim() + "'");
-                }
+            } catch (Exception e) {
+                System.err.println("Failed to read pathlist file '"
+                                   + listFile.getAbsolutePath() + "'");
             }
-        } catch (Exception e) {
-            System.err.println("Failed to read pathlist file '"
-                    + listFile.getAbsolutePath() + "'");
         }
 
         if (s.size() < 1) {
@@ -202,7 +214,8 @@ public class CodeSwitcher {
     }
 
     public int size() {
-        return (vList == null) ? 0 : vList.size();
+        return (vList == null) ? 0
+                               : vList.size();
     }
 
     /**
@@ -278,11 +291,11 @@ public class CodeSwitcher {
      * @param path
      */
     void addDir(String path) {
-
         addDir(new File(path));
     }
 
     void addDir(File f) {
+
         if (f.isFile() && f.getName().endsWith(".java")) {
             vList.addElement(f.getPath());
         } else if (f.isDirectory()) {
@@ -336,8 +349,7 @@ public class CodeSwitcher {
                 if (line.startsWith("//#")) {
                     if (line.startsWith("//#ifdef ")) {
                         if (state != 0) {
-                            printError(
-                                "'#ifdef' not allowed inside '#ifdef'");
+                            printError("'#ifdef' not allowed inside '#ifdef'");
 
                             return false;
                         }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -145,12 +144,13 @@ implements TextListener, ItemListener, ActionListener {
         // build the delete string
         String deleteString = "DELETE FROM " + tableName
                               + this.generatePKWhere();
+        PreparedStatement ps = null;
 
         // System.out.println("delete string "+deleteString);
         try {
 
             // fill the question marks
-            PreparedStatement ps = cConn.prepareStatement(deleteString);
+            ps = cConn.prepareStatement(deleteString);
 
             ps.clearParameters();
 
@@ -165,7 +165,13 @@ implements TextListener, ItemListener, ActionListener {
             ZaurusEditor.printStatus("SQL Exception: " + e.getMessage());
 
             return 0;
-        }        // end of try-catch
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException e) {}
+        }
 
         // delete the corresponding primary key values from resultRowPKs
         numberOfResult--;
@@ -346,11 +352,13 @@ implements TextListener, ItemListener, ActionListener {
             updateString = "UPDATE " + tableName + " SET " + updateString
                            + this.generatePKWhere();
 
+            PreparedStatement ps = null;
+
             // System.out.println("update "+updateString);
             try {
 
                 // fill the question marks
-                PreparedStatement ps = cConn.prepareStatement(updateString);
+                ps = cConn.prepareStatement(updateString);
 
                 ps.clearParameters();
 
@@ -377,7 +385,13 @@ implements TextListener, ItemListener, ActionListener {
                 ZaurusEditor.printStatus("SQL Exception: " + e.getMessage());
 
                 return false;
-            }        // end of try-catch
+            } finally {
+                try {
+                    if (ps != null) {
+                        ps.close();
+                    }
+                } catch (SQLException e) {}
+            }
         } else {
 
             //              System.out.println("no changes");
@@ -390,8 +404,9 @@ implements TextListener, ItemListener, ActionListener {
     public boolean saveNewRow() {
 
         // check the fields of the primary keys whether one is empty
-        boolean onePKempty = false;
-        int     tmp;
+        boolean           onePKempty = false;
+        int               tmp;
+        PreparedStatement ps = null;
 
         for (tmp = 0; tmp < primaryKeys.length; tmp++) {
             if (komponente[pkColIndex[tmp]].getContent().equals("")) {
@@ -426,7 +441,7 @@ implements TextListener, ItemListener, ActionListener {
         try {
 
             // fill the question marks
-            PreparedStatement ps = cConn.prepareStatement(insertString);
+            ps = cConn.prepareStatement(insertString);
 
             ps.clearParameters();
 
@@ -445,7 +460,13 @@ implements TextListener, ItemListener, ActionListener {
             ZaurusEditor.printStatus("SQL Exception: " + e.getMessage());
 
             return false;
-        }    // end of try-catch
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException e) {}
+        }
     }
 
     // read all primary key values into resultRowPKs for the rows which meet the search condition i. e.
@@ -461,10 +482,12 @@ implements TextListener, ItemListener, ActionListener {
         // System.out.println("allWords = "+allWords+", ignoreCase = "+ignoreCase+", noMatchWhole= "+noMatchWhole);
         String where = this.generateWhere(words, allWords, ignoreCase,
                                           noMatchWhole);
-        Vector temp = new Vector(20);
+        Vector    temp = new Vector(20);
+        Statement stmt = null;
 
         try {
-            Statement stmt = cConn.createStatement();
+            stmt = cConn.createStatement();
+
             ResultSet rs = stmt.executeQuery("SELECT "
                                              + this.getPrimaryKeysString()
                                              + " FROM " + tableName + where);
@@ -484,7 +507,13 @@ implements TextListener, ItemListener, ActionListener {
             ZaurusEditor.printStatus("SQL Exception: " + e.getMessage());
 
             return -1;
-        }            // end of try-catch
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {}
+        }
 
         resultRowPKs   = new Object[temp.size()][primaryKeys.length];
         numberOfResult = temp.size();
@@ -558,12 +587,15 @@ implements TextListener, ItemListener, ActionListener {
     // and the column values as values
     private void fillZChoice(ZaurusChoice zc, String tab, String col) {
 
+        Statement stmt = null;
+
         try {
             if (cConn == null) {
                 return;
             }
 
-            Statement stmt = cConn.createStatement();
+            stmt = cConn.createStatement();
+
             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tab
                                              + " ORDER BY " + col);
             ResultSetMetaData rsmd            = rs.getMetaData();
@@ -587,7 +619,13 @@ implements TextListener, ItemListener, ActionListener {
             rs.close();
         } catch (SQLException e) {
             System.out.println("SQL Exception: " + e.getMessage());
-        }            // end of try-catch
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {}
+        }
     }
 
     // fetch all column names

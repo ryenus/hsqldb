@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -570,9 +570,9 @@ class TransferDb extends DataAccessPoint {
             }
 
             if (importedkeys) {
-                alterCreate +=
-                    columnName.substring(0, columnName.length() - 1)
-                    + ") REFERENCES " + Dest.helper.formatName(RefTableName);
+                alterCreate += columnName.substring(0, columnName.length() - 1)
+                               + ") REFERENCES "
+                               + Dest.helper.formatName(RefTableName);
 
                 if (foreignKeyName.length() > 0) {
                     alterCreate +=
@@ -622,8 +622,8 @@ class TransferDb extends DataAccessPoint {
                         PrimaryKeysConstraint += " PRIMARY KEY (";
                     }
 
-                    PrimaryKeysConstraint += Dest.helper.formatIdentifier(
-                        PrimaryKeys.getString(4));
+                    PrimaryKeysConstraint +=
+                        Dest.helper.formatIdentifier(PrimaryKeys.getString(4));
                     primarykeys = true;
                 }
 
@@ -812,8 +812,7 @@ class TransferDb extends DataAccessPoint {
                     if (type == Types.CHAR || type == Types.VARCHAR
                             || type == Types.LONGVARCHAR
                             || type == Types.BINARY || type == Types.DATE
-                            || type == Types.TIME
-                            || type == Types.TIMESTAMP) {
+                            || type == Types.TIME || type == Types.TIMESTAMP) {
                         DefaultVal = "\'" + DefaultVal + "\'";
                     }
 

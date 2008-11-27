@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.util;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -50,7 +51,7 @@ import javax.swing.UIManager;
 /**
  * Common code in the Swing versions of DatabaseManager and Tranfer
  *
- * @author sqlbob@users
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.0
  */
