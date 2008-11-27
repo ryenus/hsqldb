@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -216,7 +216,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             } else if (iSelectionStep == Transfer.SELECT_DEST_CATALOG) {
                 result = targetDb.getCatalog();
             } else {
-                Exit();
+                exit();
             }
 
             if (result.size() > 1) {
@@ -296,7 +296,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             } else if (iSelectionStep == Transfer.SELECT_DEST_SCHEMA) {
                 result = targetDb.getSchemas();
             } else {
-                Exit();
+                exit();
             }
 
             if (result.size() > 1) {
@@ -419,7 +419,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                         fMain, "Source Database"), this);
 
                 if (!sourceDb.isConnected()) {
-                    Exit();
+                    exit();
 
                     return;
                 }
@@ -433,7 +433,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                 String Path      = f.getDirectory();
 
                 if ((sFileName == null) || (sFileName.equals(""))) {
-                    Exit();
+                    exit();
 
                     return;
                 } else {
@@ -448,7 +448,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                         fMain, "Target Database"), this);
 
                 if (!targetDb.isConnected()) {
-                    Exit();
+                    exit();
 
                     return;
                 }
@@ -462,7 +462,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                 String Path      = f.getDirectory();
 
                 if ((sFileName == null) || (sFileName.equals(""))) {
-                    Exit();
+                    exit();
 
                     return;
                 } else {
@@ -470,7 +470,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                 }
             }
         } catch (Exception e) {
-            Exit();
+            exit();
             e.printStackTrace();
 
             return;
@@ -796,7 +796,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
             transfer();
         } else if (s.equals("Quit")) {
-            Exit();
+            exit();
         } else if (s.indexOf("Select Schema") >= 0) {
             String[] selection = lTable.getSelectedItems();
 
@@ -1271,7 +1271,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         System.gc();
     }
 
-    protected void Exit() {
+    protected void exit() {
 
         cleanup();
         fMain.dispose();

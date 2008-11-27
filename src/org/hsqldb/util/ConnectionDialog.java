@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Choice;
@@ -65,8 +64,7 @@ import java.awt.event.ItemListener;
  * @version 1.7.2
  * @since Hypersonic SQL
  */
-class ConnectionDialog extends Dialog
-implements ActionListener, ItemListener {
+class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
 
     protected Connection mConnection;
     protected TextField  mName, mDriver, mURL, mUser, mPassword;
@@ -365,8 +363,7 @@ implements ActionListener, ItemListener {
                     ConnectionSetting newSetting =
                         new ConnectionSetting(mName.getText(),
                                               mDriver.getText(),
-                                              mURL.getText(),
-                                              mUser.getText(),
+                                              mURL.getText(), mUser.getText(),
                                               mPassword.getText());
 
                     ConnectionDialogCommon.addToRecentConnectionSettings(

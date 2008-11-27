@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -268,7 +268,8 @@ implements ActionListener, ItemListener {
 
     public static Connection createConnection(JFrame owner, String title) {
 
-        ConnectionDialogSwing dialog = new ConnectionDialogSwing(owner, title);
+        ConnectionDialogSwing dialog = new ConnectionDialogSwing(owner,
+            title);
 
 //      Added: (weconsultants@users) Default LAF of Native
         try {

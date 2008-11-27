@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,6 +70,12 @@ import org.hsqldb.lib.java.JavaSystem;
 // sqlbob@users 20020401 - patch 537501 by ulrivo - command line arguments
 // sqlbob@users 20020407 - patch 1.7.0 - reengineering
 // nickferguson@users 20021005 - patch 1.7.1 - enhancements
+/*
+ * unsaved@users 20050426 - Switched default switch method from "-switch" to
+ * "--switch" because "-switch" usage is ambiguous as used here.  Single
+ * switches should be reserved for single-letter switches which can be mixed
+ * like * "-u -r -l" = "-url".  -blaine
+*/
 
 /**
  * AWT Tool for manageing a JDBC database.<p>
@@ -85,11 +91,8 @@ import org.hsqldb.lib.java.JavaSystem;
  *              --dir <path>          default directory
  *              --script <file>       reads from script file
  *</pre>
- * Tue Apr 26 16:38:54 EDT 2005
- * Switched default switch method from "-switch" to "--switch" because
- * "-switch" usage is ambiguous as used here.  Single switches should
- * be reserved for single-letter switches which can be mixed like
- * "-u -r -l" = "-url".  -blaine
+ *
+ * Originally in HypersonicSQL. Extended in various versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 1.8.0
@@ -104,15 +107,17 @@ implements ActionListener, WindowListener, KeyListener {
     static final int       iMaxRecent   = 24;
     private static boolean TT_AVAILABLE = false;
 
+//#ifdef JAVA2FULL
     static {
         try {
-            Class.forName(DatabaseManagerSwing.class.getPackage().getName()
+            Class.forName(DatabaseManager.class.getPackage().getName()
                           + ".Transfer");
 
             TT_AVAILABLE = true;
         } catch (Throwable t) {}
     }
 
+//#endif
     private static final String HELP_TEXT =
         "See the forums, mailing lists, and HSQLDB User Guide\n"
         + "at http://hsqldb.org.\n\n"

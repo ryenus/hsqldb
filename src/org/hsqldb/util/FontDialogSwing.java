@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ public class FontDialogSwing extends JDialog {
      * Create and display FontDialogSwing Dialog.
      *
      */
-    public static void CreatFontDialog(DatabaseManagerSwing owner) {
+    public static void creatFontDialog(DatabaseManagerSwing owner) {
 
         if (isRunning) {
             frame.setVisible(true);
@@ -267,7 +267,8 @@ public class FontDialogSwing extends JDialog {
 
         fOwner.tTree.setFont(fonttTree);
 
-        Font fontTxtCommand = fOwner.txtCommand.getFont().deriveFont(fontSize);
+        Font fontTxtCommand =
+            fOwner.txtCommand.getFont().deriveFont(fontSize);
 
         fOwner.txtCommand.setFont(fontTxtCommand);
 
@@ -295,7 +296,8 @@ public class FontDialogSwing extends JDialog {
         fOwner.tTree.setFont(fOwner.txtCommand.getFont().deriveFont(style));
         fOwner.txtCommand.setFont(
             fOwner.txtCommand.getFont().deriveFont(style));
-        fOwner.txtResult.setFont(fOwner.txtResult.getFont().deriveFont(style));
+        fOwner.txtResult.setFont(
+            fOwner.txtResult.getFont().deriveFont(style));
     }
 
     public static void setColor(String inTarget) {

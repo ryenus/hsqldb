@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package org.hsqldb.util;
 
 import java.sql.Connection;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Choice;

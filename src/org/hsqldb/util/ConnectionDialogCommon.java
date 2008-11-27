@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -177,7 +177,7 @@ class ConnectionDialogCommon {
                 recentSettings = new File(homedir, fileName);
 
                 if (!recentSettings.exists()) {
-                    recentSettings.createNewFile();
+                    JavaSystem.createNewFile(recentSettings);
 
                     // Changed back to what I recived from you
 //                  recentSettings.createNewFile();
@@ -314,11 +314,7 @@ class ConnectionDialogCommon {
 
     public static void setHomeDir() {
 
-//#ifdef JAVA1TARGET
-/*
-*/
-
-//#else
+//#ifdef JAVA2FULL
         if (homedir == null) {
             try {
                 Class c =
