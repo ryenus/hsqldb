@@ -1,3 +1,34 @@
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 package org.hsqldb.lib.tar;
 
 import java.io.File;
@@ -46,11 +77,11 @@ import java.util.zip.GZIPOutputStream;
 public class TarFileOutputStream {
 
     static public boolean debug = Boolean.getBoolean("DEBUG");
-    protected int        blocksPerRecord;
-    protected long       bytesWritten = 0;
-    private OutputStream writeStream;
-    private File         targetFile;
-    private File         writeFile;
+    protected int         blocksPerRecord;
+    protected long        bytesWritten = 0;
+    private OutputStream  writeStream;
+    private File          targetFile;
+    private File          writeFile;
 
     /* This is not a "Writer", but the byte "Stream" that we write() to. */
     public byte[] writeBuffer;
@@ -98,28 +129,33 @@ public class TarFileOutputStream {
                                int blocksPerRecord) throws IOException {
 
         this.blocksPerRecord = blocksPerRecord;
-        this.targetFile = targetFile;
+        this.targetFile      = targetFile;
         writeFile = new File(targetFile.getParentFile(),
-                targetFile.getName() + "-partial");
+                             targetFile.getName() + "-partial");
+
         if (this.writeFile.exists()) {
-            throw new IOException(RB.singleton.getString(
-                    RB.MOVE_WORK_FILE, writeFile.getAbsolutePath()));
+            throw new IOException(RB.singleton.getString(RB.MOVE_WORK_FILE,
+                    writeFile.getAbsolutePath()));
         }
+
         if (targetFile.exists() && !targetFile.canWrite()) {
-            throw new IOException(RB.singleton.getString(
-                    RB.CANT_OVERWRITE, targetFile.getAbsolutePath()));
+            throw new IOException(RB.singleton.getString(RB.CANT_OVERWRITE,
+                    targetFile.getAbsolutePath()));
         }
+
         File parentDir = targetFile.getAbsoluteFile().getParentFile();
+
         if (parentDir.exists() && parentDir.isDirectory()) {
             if (!parentDir.canWrite()) {
-                throw new IOException(RB.singleton.getString(
-                        RB.CANT_WRITE_DIR, parentDir.getAbsolutePath()));
+                throw new IOException(RB.singleton.getString(RB.CANT_WRITE_DIR,
+                        parentDir.getAbsolutePath()));
             }
         } else {
-            throw new IOException(RB.singleton.getString(
-                    RB.NO_PARENT_DIR, parentDir.getAbsolutePath()));
+            throw new IOException(RB.singleton.getString(RB.NO_PARENT_DIR,
+                    parentDir.getAbsolutePath()));
         }
-        writeBuffer          = new byte[blocksPerRecord * 512];
+
+        writeBuffer = new byte[blocksPerRecord * 512];
 
         switch (compressionType) {
 
@@ -134,10 +170,10 @@ public class TarFileOutputStream {
                 break;
 
             default :
-                throw new IllegalArgumentException(RB.singleton.getString(
+                throw new IllegalArgumentException(
+                    RB.singleton.getString(
                         RB.COMPRESSION_UNKNOWN, compressionType));
         }
-
         /*
          * ARG!  These operations are only available with Java 1.6!
         writeFile.setExecutable(false, true);
@@ -147,6 +183,7 @@ public class TarFileOutputStream {
         writeFile.setWritable(false, false);
         writeFile.setWritable(true, true);
         */
+
         // We restrict permissions to the file owner before writing
         // anything, in case we will be writing anything private into this
         // file.
@@ -182,8 +219,8 @@ public class TarFileOutputStream {
     public void writeBlock(byte[] block) throws IOException {
 
         if (block.length != 512) {
-            throw new IllegalArgumentException(RB.singleton.getString(
-                    RB.BAD_BLOCK_WRITE_LEN, block.length));
+            throw new IllegalArgumentException(
+                RB.singleton.getString(RB.BAD_BLOCK_WRITE_LEN, block.length));
         }
 
         write(block, block.length);
@@ -223,7 +260,8 @@ public class TarFileOutputStream {
     public void assertAtBlockBoundary() {
 
         if (bytesLeftInBlock() != 0) {
-            throw new IllegalArgumentException(RB.singleton.getString(
+            throw new IllegalArgumentException(
+                RB.singleton.getString(
                     RB.ILLEGAL_BLOCK_BOUNDARY, Long.toString(bytesWritten)));
         }
     }
@@ -264,9 +302,12 @@ public class TarFileOutputStream {
      * @see java.io.Closeable
      */
     public void close() throws IOException {
+
         writeStream.close();
+
         if (!writeFile.delete()) {
-            throw new IOException(RB.singleton.getString(
+            throw new IOException(
+                RB.singleton.getString(
                     RB.WORKFILE_DELETE_FAIL, writeFile.getAbsolutePath()));
         }
     }
@@ -301,19 +342,23 @@ public class TarFileOutputStream {
             int finalPadBlocks = (int) (finalBlock - bytesWritten / 512L);
 
             if (TarFileOutputStream.debug) {
-                System.out.println(RB.singleton.getString(
-                        RB.PAD_BLOCK_WRITE, finalPadBlocks));
+                System.out.println(RB.singleton.getString(RB.PAD_BLOCK_WRITE,
+                        finalPadBlocks));
             }
+
             writePadBlocks(finalPadBlocks);
         } catch (IOException ioe) {
             try {
                 close();
             } catch (IOException ne) {
+
                 // Too difficult to report every single error.
                 // More important that the user know about the original Exc.
             }
+
             throw ioe;
         }
+
         writeStream.close();
         writeFile.renameTo(targetFile);
     }
