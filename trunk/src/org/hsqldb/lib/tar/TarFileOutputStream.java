@@ -1,9 +1,7 @@
 package org.hsqldb.lib.tar;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
@@ -32,11 +30,20 @@ import java.util.zip.GZIPOutputStream;
  * Users must finish tar file creation by using the finish() method.
  * Just like a normal OutputStream, if processing is aborted for any reason,
  * the close() method must be used to free up system resources.
+ * <P>
+ * <B>SECURITY NOTE</B>
+ * Due to pitiful lack of support for file security in Java before version 1.6,
+ * this class does not explicitly set permissions on the generated Tar file.
+ * So, if your tar entries contain private data in files with 0400, be aware
+ * that that file can be pretty much be extracted by anybody with access to
+ * the tar file.
+ * When we depend upon Java 1.6 (probably around 2020), we will turn this
+ * feature back on (if I'm dead, hopefully somebody else will).
  *
  * @see #finish
  * @see #close
  */
-public class TarFileOutputStream implements Closeable, Flushable {
+public class TarFileOutputStream {
 
     static public boolean debug = Boolean.getBoolean("DEBUG");
     protected int        blocksPerRecord;
@@ -131,12 +138,15 @@ public class TarFileOutputStream implements Closeable, Flushable {
                         RB.COMPRESSION_UNKNOWN, compressionType));
         }
 
+        /*
+         * ARG!  These operations are only available with Java 1.6!
         writeFile.setExecutable(false, true);
         writeFile.setExecutable(false, false);
         writeFile.setReadable(false, false);
         writeFile.setReadable(true, true);
         writeFile.setWritable(false, false);
         writeFile.setWritable(true, true);
+        */
         // We restrict permissions to the file owner before writing
         // anything, in case we will be writing anything private into this
         // file.

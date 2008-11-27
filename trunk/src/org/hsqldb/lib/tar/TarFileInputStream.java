@@ -1,6 +1,5 @@
 package org.hsqldb.lib.tar;
 
-import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +38,7 @@ import java.util.zip.GZIPInputStream;
  * it, I believe our readBlock() and readBlocks() methods are at least as fast,
  * since we use the larges read buffer within limits the user has set.
  */
-public class TarFileInputStream implements Closeable {
+public class TarFileInputStream {
 
     /* Would love to use a RandomAccessFile, but RandomAccessFiles do not play
      * nicely with InputStreams or filters, and it just would not work with
