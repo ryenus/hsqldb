@@ -134,7 +134,7 @@ public class TarGenerator {
 
         if (blocksPerRecord != null && TarFileOutputStream.debug) {
             System.out.println(RB.singleton.getString(
-                    RB.BPR_WRITE, blocksPerRecord));
+                    RB.BPR_WRITE, blocksPerRecord.intValue()));
         }
     }
 
@@ -218,7 +218,7 @@ public class TarGenerator {
     static protected class TarEntrySupplicant {
 
         static protected byte[] HEADER_TEMPLATE =
-            TarFileOutputStream.ZERO_BLOCK.clone();
+            (byte[]) TarFileOutputStream.ZERO_BLOCK.clone();
         static Character              swapOutDelim = null;
         final protected static byte[] ustarBytes   = {
             'u', 's', 't', 'a', 'r'
@@ -464,7 +464,10 @@ public class TarGenerator {
             int               i;
             PipedOutputStream outPipe = new PipedOutputStream();
 
+            inputStream = new PipedInputStream(outPipe);
+            /* This constructor not available until Java 1.6:
             inputStream = new PipedInputStream(outPipe, maxBytes);
+            */
 
             try {
                 while ((i =
@@ -584,8 +587,11 @@ public class TarGenerator {
 
         static protected String getLameMode(File file) {
 
+            /* File.canExecute() not available until Java 1.6
             int umod = file.canExecute() ? 1
                                          : 0;
+            */
+            int umod = 0;
 
             if (file.canWrite()) {
                 umod += 2;

@@ -13,6 +13,14 @@ import java.io.PipedOutputStream;
  * N.b. this is not a <I>Reader</I> in the <CODE>java.io.Reader</CODE> sense,
  * but in the sense of differentiating <CODE>tar x</CODE> and
  * <CODE>tar t</CODE> from <CODE>tar c</CODE>.
+ * <P>
+ * <B>SECURITY NOTE</B>
+ * Due to pitiful lack of support for file security in Java before version 1.6,
+ * this class does not set file permissions upon extraction.
+ * If you saved a file as 0400, be aware that this class will extract it with
+ * default permissions!
+ * When we depend upon Java 1.6 (probably around 2020), we will turn this
+ * feature back on (if I'm dead, hopefully somebody else will).
  *
  * @author Blaine Simpson
  */
@@ -213,21 +221,25 @@ public class TarReader {
 
                     case EXTRACT_MODE :
                     case OVERWRITE_MODE :
+                        if (paxString != null) {
+                            System.out.println(paxString);
+                        }
+                        /* Display entry summary before successful extraction.
+                         * Both "tar" and "rsync" display the name of the
+                         * currently extracting file, and we do the same.
+                         * Thefore the currently "shown" name is still being
+                         * extracted.
+                         */
+                        System.out.println(header.toString());
 
                         // Instance variable mode will be used to differentiate
                         // behavior inside of extractFile().
-                        //System.out.println(header.toString());
                         if (entryType == '\0' || entryType == '0'
                                 || entryType == 'x') {
                             extractFile(header);
                         } else {
                             skipFileData(header);
                         }
-                        if (paxString != null) {
-                            System.out.println(paxString);
-                        }
-                        // Display entry summary after successful extraction
-                        System.out.println(header.toString());
 
                         break;
 
@@ -278,8 +290,10 @@ public class TarReader {
         // Couldn't care less about the entry "name" field.
 
         PipedOutputStream outPipe = new PipedOutputStream();
-        PipedInputStream inPipe =
+        PipedInputStream inPipe = new PipedInputStream(outPipe);
+        /* This constructor not available until Java 1.6:
                 new PipedInputStream(outPipe, (int) dataSize);
+        */
         try {
             while (readBlocks > 0) {
                 readNow = (readBlocks > archive.getReadBufferBlocks())
@@ -379,16 +393,18 @@ public class TarReader {
         FileOutputStream outStream = new FileOutputStream(newFile);
 
         try {
+            /*
+             * These methods are not available until Java 1.6:
+            // Don't know exactly why I am still able to write to the file
+            // after removing read and write privs from myself, but it does
+            // work.
             newFile.setExecutable(false, false);
             newFile.setReadable(false, false);
             newFile.setWritable(false, false);
             newFile.setExecutable(((fileMode & 0100) != 0), true);
             newFile.setReadable((fileMode & 0400) != 0, true);
             newFile.setWritable((fileMode & 0200) != 0, true);
-
-            // Don't know exactly why I am still able to write to the file
-            // after removing read and write privs from myself, but it does
-            // work.
+            */
             while (readBlocks > 0) {
                 readNow = (readBlocks > archive.getReadBufferBlocks())
                           ? archive.getReadBufferBlocks()
@@ -630,10 +646,10 @@ public class TarReader {
                                           : entryType);
             sb.append(ustar ? '*'
                             : ' ');
-            sb.append(' ' + sdf.format(modTime * 1000) + ' '
+            sb.append(' ' + sdf.format(new Long(modTime * 1000L)) + ' '
                       + Integer.toOctalString(fileMode) + "  " + dataSize
                       + "  ");
-            sb.append((ownerName == null) ? '-'
+            sb.append((ownerName == null) ? "-"
                                           : ownerName);
             sb.append("  " + path);
 

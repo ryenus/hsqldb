@@ -63,7 +63,7 @@ public class PIFData extends HashMap {
         String sizeString = (String) get("size");
         if (sizeString != null) {
             try {
-                sizeObject = Long.parseLong(sizeString);
+                sizeObject = Long.valueOf(sizeString);
             } catch (NumberFormatException nfe) {
                 throw new TarMalformatException(RB.singleton.getString(
                         RB.PIF_MALFORMAT_SIZE, sizeString));
