@@ -1,3 +1,34 @@
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 package org.hsqldb.lib.tar;
 
 import java.io.EOFException;
@@ -74,8 +105,8 @@ public class TarFileInputStream {
      *
      * @see TarFileInputStream(File, int, int)
      */
-    public TarFileInputStream(File sourceFile, int compressionType)
-    throws IOException {
+    public TarFileInputStream(File sourceFile,
+                              int compressionType) throws IOException {
         this(sourceFile, compressionType,
              TarFileInputStream.DEFAULT_BLOCKS_PER_RECORD);
     }
@@ -105,8 +136,8 @@ public class TarFileInputStream {
         }
 
         if (!sourceFile.canRead()) {
-            throw new IOException(RB.singleton.getString(
-                    RB.READ_DENIED, sourceFile.getAbsolutePath()));
+            throw new IOException(RB.singleton.getString(RB.READ_DENIED,
+                    sourceFile.getAbsolutePath()));
         }
 
         this.readBufferBlocks = readBufferBlocks;
@@ -126,8 +157,9 @@ public class TarFileInputStream {
                 break;
 
             default :
-                throw new IllegalArgumentException(RB.singleton.getString(
-                    RB.COMPRESSION_UNKNOWN, compressionType));
+                throw new IllegalArgumentException(
+                    RB.singleton.getString(
+                        RB.COMPRESSION_UNKNOWN, compressionType));
         }
     }
 
@@ -168,8 +200,8 @@ public class TarFileInputStream {
         bytesRead += i;
 
         if (i != blocks * 512) {
-            throw new TarMalformatException(RB.singleton.getString(
-                    RB.INSUFFICIENT_READ, blocks * 512, i));
+            throw new TarMalformatException(
+                RB.singleton.getString(RB.INSUFFICIENT_READ, blocks * 512, i));
         }
     }
 
@@ -195,7 +227,8 @@ public class TarFileInputStream {
                                 requiredBytes - bytesSoFar);
 
             if (i < 0) {
-                throw new EOFException(RB.singleton.getString(
+                throw new EOFException(
+                    RB.singleton.getString(
                         RB.DECOMPRESS_RANOUT, bytesSoFar, requiredBytes));
             }
 

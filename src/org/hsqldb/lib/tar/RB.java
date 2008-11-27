@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2008, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,9 @@
 
 package org.hsqldb.lib.tar;
 
-import java.util.Map;
 import java.util.HashMap;
-import org.hsqldb.util.ValidatingResourceBundle;
-import org.hsqldb.util.RefCapablePropertyResourceBundle;
+import java.util.Map;
+
 import org.hsqldb.util.ValidatingResourceBundle;
 
 /* $Id$ */

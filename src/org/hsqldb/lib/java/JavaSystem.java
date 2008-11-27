@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,13 +45,10 @@ import java.util.Properties;
 import java.text.Collator;
 import java.io.RandomAccessFile;
 
-// fredt@users 20020320 - patch 1.7.0 - JDBC 2 support and error trapping
-// fredt@users 20021030 - patch 1.7.2 - updates
-
 /**
  * Handles the differences between JDK 1.1.x and 1.2.x and above
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  */
 public class JavaSystem {
@@ -70,68 +67,25 @@ public class JavaSystem {
         }
     }
 
-    /**
-     * Arguments are never null.
-     */
-    public static int CompareIngnoreCase(String a, String b) {
-
-//#ifdef JAVA1TARGET
-/*
-        return a.toUpperCase().compareTo(b.toUpperCase());
-*/
-
-//#else
-        return a.compareToIgnoreCase(b);
-
-//#endif
-    }
-
-    public static double parseDouble(String s) {
-
-//#ifdef JAVA1TARGET
-/*
-        return new Double(s).doubleValue();
-*/
-
-//#else
-        return Double.parseDouble(s);
-
-//#endif JAVA1TARGET
-    }
-
-    public static BigInteger unscaledValue(BigDecimal o) {
-
-//#ifdef JAVA1TARGET
-/*
-        int scale = o.scale();
-        return o.movePointRight(scale).toBigInteger();
-*/
-
-//#else
-        return o.unscaledValue();
-
-//#endif
-    }
-
     public static int precision(BigDecimal o) {
 
         if (o == null) {
             return 0;
         }
 
-//#ifdef JDBC4
-/*
+//#ifdef JAVA6
         return o.precision();
-*/
 
 //#else
-        BigInteger big  = JavaSystem.unscaledValue(o);
+/*
+        BigInteger big  = o.unscaledValue();
         int        sign = big.signum() == -1 ? 1
                                              : 0;
 
         return big.toString().length() - sign;
+*/
 
-//#endif
+//#endif JAVA6
     }
 
     public static String toString(BigDecimal o) {
@@ -140,20 +94,68 @@ public class JavaSystem {
             return null;
         }
 
-//#ifdef JDBC4
-/*
+//#ifdef JAVA6
         return o.toPlainString();
-*/
 
 //#else
+/*
         return o.toString();
+*/
+
+//#endif JAVA6
+    }
+
+    public static int CompareIngnoreCase(String a, String b) {
+
+//#ifdef JAVA2FULL
+        return a.compareToIgnoreCase(b);
+
+//#else
+/*
+        return a.toUpperCase().compareTo(b.toUpperCase());
+*/
+
+//#endif JAVA2
+    }
+
+    public static double parseDouble(String s) {
+
+//#ifdef JAVA2FULL
+        return Double.parseDouble(s);
+
+//#else
+/*
+        return new Double(s).doubleValue();
+*/
+
+//#endif JAVA2
+    }
+
+    public static BigInteger unscaledValue(BigDecimal o) {
+
+//#ifdef JAVA2FULL
+        return o.unscaledValue();
+
+//#else
+/*
+        int scale = o.scale();
+        return o.movePointRight(scale).toBigInteger();
+*/
 
 //#endif
     }
 
     public static void setLogToSystem(boolean value) {
 
-//#ifdef JAVA1TARGET
+//#ifdef JAVA2FULL
+        try {
+            PrintWriter newPrintWriter = (value) ? new PrintWriter(System.out)
+                                                 : null;
+
+            DriverManager.setLogWriter(newPrintWriter);
+        } catch (Exception e) {}
+
+//#else
 /*
         try {
             PrintStream newOutStream = (value) ? System.out
@@ -162,24 +164,12 @@ public class JavaSystem {
         } catch (Exception e){}
 */
 
-//#else
-        try {
-            PrintWriter newPrintWriter = (value) ? new PrintWriter(System.out)
-                                                 : null;
-
-            DriverManager.setLogWriter(newPrintWriter);
-        } catch (Exception e) {}
-
 //#endif
     }
 
     public static void deleteOnExit(File f) {
 
-//#ifdef JAVA1TARGET
-/*
-*/
-
-//#else
+//#ifdef JAVA2FULL
         f.deleteOnExit();
 
 //#endif
@@ -188,39 +178,38 @@ public class JavaSystem {
     public static void saveProperties(Properties props, String name,
                                       OutputStream os) throws IOException {
 
-//#ifdef JAVA1TARGET
-/*
-    props.save(os, name);
-*/
+//#ifdef JAVA2FULL
+        props.store(os, name);
 
 //#else
-        props.store(os, name);
+/*
+        props.save(os, name);
+*/
 
 //#endif
     }
 
     public static void runFinalizers() {
 
-//#ifdef JAVA1TARGET
-/*
+//#ifdef JAVA2FULL
         System.runFinalizersOnExit(true);
-*/
 
 //#endif
     }
 
     public static boolean createNewFile(File file) {
 
-//#ifdef JAVA1TARGET
-/*
-*/
-
-//#else
+//#ifdef JAVA2FULL
         try {
             return file.createNewFile();
         } catch (IOException e) {}
 
         return false;
+
+//#else
+/*
+        return true;
+*/
 
 //#endif
     }
@@ -228,11 +217,7 @@ public class JavaSystem {
     public static void setRAFileLength(RandomAccessFile raFile,
                                        long length) throws IOException {
 
-//#ifdef JAVA1TARGET
-/*
-*/
-
-//#else
+//#ifdef JAVA2FULL
         raFile.setLength(length);
 
 //#endif

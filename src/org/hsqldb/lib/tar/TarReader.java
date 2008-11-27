@@ -1,12 +1,43 @@
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 package org.hsqldb.lib.tar;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.regex.Pattern;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.regex.Pattern;
 
 /**
  * Reads a Tar file for reporting or extraction.
@@ -48,8 +79,8 @@ public class TarReader {
     throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
-            System.out.println(RB.singleton.getString(
-                    RB.TARREADER_SYNTAX, TarReader.class.getName()));
+            System.out.println(RB.singleton.getString(RB.TARREADER_SYNTAX,
+                    TarReader.class.getName()));
             System.exit(0);
         }
 
@@ -61,7 +92,8 @@ public class TarReader {
 
         if (sa.length < firstPatInd
                 || ((!sa[0].equals("t")) && !sa[0].equals("x"))) {
-            throw new IllegalArgumentException(RB.singleton.getString(
+            throw new IllegalArgumentException(
+                RB.singleton.getString(
                     RB.TARREADER_SYNTAXERR, TarReader.class.getName()));
         }
 
@@ -76,8 +108,8 @@ public class TarReader {
         }
 
         if (sa[0].equals("t") && exDir != null) {
-            throw new IllegalArgumentException(RB.singleton.getString(
-                    RB.DIR_X_CONFLICT));
+            throw new IllegalArgumentException(
+                RB.singleton.getString(RB.DIR_X_CONFLICT));
         }
 
         int dirIndex      = (exDir == null) ? 1
@@ -157,13 +189,14 @@ public class TarReader {
         TarEntryHeader header;
         boolean        anyUnsupporteds = false;
         boolean        matched;
-        Long           paxSize = null;
+        Long           paxSize   = null;
         String         paxString = null;
 
         try {
             EACH_HEADER:
             while (archive.readNextHeaderBlock()) {
                 header = new TarEntryHeader(archive.readBuffer);
+
                 char entryType = header.getEntryType();
 
                 if (entryType == 'x') {
@@ -173,15 +206,18 @@ public class TarReader {
                      * patterns, we will need this size for the listing or to
                      * extract the data.
                      */
-                    paxSize = getPifData(header).getSize();
+                    paxSize   = getPifData(header).getSize();
                     paxString = header.toString();
+
                     continue;
                 }
 
                 if (paxSize != null) {
+
                     // Ignore "size" field in the entry header because PIF
                     // setting overrides.
                     header.setDataSize(paxSize.longValue());
+
                     paxSize = null;
                 }
 
@@ -198,13 +234,15 @@ public class TarReader {
 
                     if (!matched) {
                         paxString = null;
+
                         skipFileData(header);
 
                         continue EACH_HEADER;
                     }
                 }
 
-                if (entryType != '\0' && entryType != '0' && entryType != 'x') {
+                if (entryType != '\0' && entryType != '0'
+                        && entryType != 'x') {
                     anyUnsupporteds = true;
                 }
 
@@ -214,8 +252,8 @@ public class TarReader {
                         if (paxString != null) {
                             System.out.println(paxString);
                         }
-                        System.out.println(header.toString());
 
+                        System.out.println(header.toString());
                         skipFileData(header);
                         break;
 
@@ -224,6 +262,7 @@ public class TarReader {
                         if (paxString != null) {
                             System.out.println(paxString);
                         }
+
                         /* Display entry summary before successful extraction.
                          * Both "tar" and "rsync" display the name of the
                          * currently extracting file, and we do the same.
@@ -240,20 +279,19 @@ public class TarReader {
                         } else {
                             skipFileData(header);
                         }
-
                         break;
 
                     default :
                         throw new IllegalArgumentException(
-                                RB.singleton.getString(
-                                RB.UNSUPPORTED_MODE, mode));
+                            RB.singleton.getString(RB.UNSUPPORTED_MODE, mode));
                 }
+
                 paxString = null;
             }
 
             if (anyUnsupporteds) {
-                System.out.println(RB.singleton.getString(
-                        RB.UNSUPPORTED_ENTRY_PRESENT));
+                System.out.println(
+                    RB.singleton.getString(RB.UNSUPPORTED_ENTRY_PRESENT));
             }
         } catch (IOException ioe) {
             archive.close();
@@ -264,33 +302,35 @@ public class TarReader {
 
     protected PIFData getPifData(TarEntryHeader header)
     throws IOException, TarMalformatException {
+
         /*
          * If you modify this, make sure to not intermix reading/writing of
          * the PipedInputStream and the PipedOutputStream, or you could
          * cause dead-lock.  Everything is safe if you close the
          * PipedOutputStream before reading the PipedInputStream.
          */
-
         long dataSize = header.getDataSize();
+
         if (dataSize < 1) {
-            throw new TarMalformatException(RB.singleton.getString(
-                    RB.PIF_UNKNOWN_DATASIZE));
+            throw new TarMalformatException(
+                RB.singleton.getString(RB.PIF_UNKNOWN_DATASIZE));
         }
 
         if (dataSize > Integer.MAX_VALUE) {
-            throw new TarMalformatException(RB.singleton.getString(
+            throw new TarMalformatException(
+                RB.singleton.getString(
                     RB.PIF_DATA_TOOBIG, Long.toString(dataSize),
                     Integer.MAX_VALUE));
         }
 
-        int  readNow;
-        int  readBlocks = (int) (dataSize / 512L);
-        int  modulus    = (int) (dataSize % 512L);
+        int readNow;
+        int readBlocks = (int) (dataSize / 512L);
+        int modulus    = (int) (dataSize % 512L);
 
         // Couldn't care less about the entry "name" field.
-
         PipedOutputStream outPipe = new PipedOutputStream();
-        PipedInputStream inPipe = new PipedInputStream(outPipe);
+        PipedInputStream  inPipe  = new PipedInputStream(outPipe);
+
         /* This constructor not available until Java 1.6:
                 new PipedInputStream(outPipe, (int) dataSize);
         */
@@ -319,24 +359,24 @@ public class TarReader {
                 outPipe.write(archive.readBuffer, 0, modulus);
             }
 
-            outPipe.flush();  // Do any good on a pipe?
-
+            outPipe.flush();    // Do any good on a pipe?
         } catch (IOException ioe) {
             inPipe.close();
+
             throw ioe;
         } finally {
             outPipe.close();
         }
-        return new PIFData(inPipe);
 
+        return new PIFData(inPipe);
     }
 
     protected void extractFile(TarEntryHeader header)
     throws IOException, TarMalformatException {
-        
+
         if (header.getDataSize() < 1) {
-            throw new TarMalformatException(RB.singleton.getString(
-                    RB.DATA_SIZE_UNKNOWN));
+            throw new TarMalformatException(
+                RB.singleton.getString(RB.DATA_SIZE_UNKNOWN));
         }
 
         int  readNow;
@@ -355,12 +395,14 @@ public class TarReader {
 
         if (newFile.exists()) {
             if (mode != TarReader.OVERWRITE_MODE) {
-                throw new IOException(RB.singleton.getString(
+                throw new IOException(
+                    RB.singleton.getString(
                         RB.EXTRACTION_EXISTS, newFile.getAbsolutePath()));
             }
 
             if (!newFile.isFile()) {
-                throw new IOException(RB.singleton.getString(
+                throw new IOException(
+                    RB.singleton.getString(
                         RB.EXTRACTION_EXISTS_NOTFILE,
                         newFile.getAbsolutePath()));
             }
@@ -371,19 +413,22 @@ public class TarReader {
 
         if (parentDir.exists()) {
             if (!parentDir.isDirectory()) {
-                throw new IOException(RB.singleton.getString(
+                throw new IOException(
+                    RB.singleton.getString(
                         RB.EXTRACTION_PARENT_NOT_DIR,
                         parentDir.getAbsolutePath()));
             }
 
             if (!parentDir.canWrite()) {
-                throw new IOException(RB.singleton.getString(
+                throw new IOException(
+                    RB.singleton.getString(
                         RB.EXTRACTION_PARENT_NOT_WRITABLE,
                         parentDir.getAbsolutePath()));
             }
         } else {
             if (!parentDir.mkdirs()) {
-                throw new IOException(RB.singleton.getString(
+                throw new IOException(
+                    RB.singleton.getString(
                         RB.EXTRACTION_PARENT_MKFAIL,
                         parentDir.getAbsolutePath()));
             }
@@ -430,7 +475,6 @@ public class TarReader {
             }
 
             outStream.flush();
-
         } finally {
             outStream.close();
         }
@@ -438,7 +482,8 @@ public class TarReader {
         newFile.setLastModified(header.getModTime() * 1000);
 
         if (newFile.length() != header.getDataSize()) {
-            throw new IOException(RB.singleton.getString(
+            throw new IOException(
+                RB.singleton.getString(
                     RB.WRITE_COUNT_MISMATCH,
                     Long.toString(header.getDataSize()),
                     newFile.getAbsolutePath(),
@@ -458,8 +503,8 @@ public class TarReader {
         }
 
         if (header.getDataSize() < 0) {
-            throw new TarMalformatException(RB.singleton.getString(
-                    RB.DATA_SIZE_UNKNOWN));
+            throw new TarMalformatException(
+                RB.singleton.getString(RB.DATA_SIZE_UNKNOWN));
         }
 
         int skipNow;
@@ -483,7 +528,6 @@ public class TarReader {
                 "Finished skipping but skip blocks to go = " + skipBlocks
                 + "?");
         }
-
     }
 
     /**
@@ -492,14 +536,18 @@ public class TarReader {
      * @author Blaine Simpson
      */
     static protected class TarEntryHeader {
+
         static protected class MissingField extends Exception {
+
             private int field;
+
             public MissingField(int field) {
                 this.field = field;
             }
+
             public String getMessage() {
-                return RB.singleton.getString(
-                    RB.HEADER_FIELD_MISSING, TarHeaderFields.toString(field));
+                return RB.singleton.getString(RB.HEADER_FIELD_MISSING,
+                                              TarHeaderFields.toString(field));
             }
         }
 
@@ -524,7 +572,8 @@ public class TarReader {
                 long calculatedCheckSum = headerChecksum();
 
                 if (expectedCheckSum.longValue() != calculatedCheckSum) {
-                    throw new TarMalformatException(RB.singleton.getString(
+                    throw new TarMalformatException(
+                        RB.singleton.getString(
                             RB.CHECKSUM_MISMATCH, expectedCheckSum.toString(),
                             Long.toString(calculatedCheckSum)));
                 }
@@ -545,7 +594,7 @@ public class TarReader {
                 longObject = readInteger(TarHeaderFields.SIZE);
 
                 if (longObject != null) {
-                    dataSize   = longObject.longValue();
+                    dataSize = longObject.longValue();
                 }
 
                 longObject = readInteger(TarHeaderFields.MTIME);
@@ -553,7 +602,8 @@ public class TarReader {
                 if (longObject == null) {
                     throw new MissingField(TarHeaderFields.MTIME);
                 }
-                modTime   = longObject.longValue();
+
+                modTime = longObject.longValue();
             } catch (MissingField mf) {
                 throw new TarMalformatException(mf.getMessage());
             }
@@ -591,8 +641,8 @@ public class TarReader {
         public File generateFile() {
 
             if (entryType != '\0' && entryType != '0') {
-                throw new IllegalStateException(RB.singleton.getString(
-                        RB.CREATE_ONLY_NORMAL));
+                throw new IllegalStateException(
+                    RB.singleton.getString(RB.CREATE_ONLY_NORMAL));
             }
 
             // Unfortunately, it does no good to set modification times or
@@ -715,8 +765,9 @@ public class TarReader {
             } catch (Throwable t) {
 
                 // Java API does not specify behavior if decoding fails.
-                throw new TarMalformatException(RB.singleton.getString(
-                        RB.BAD_HEADER_VALUE, 
+                throw new TarMalformatException(
+                    RB.singleton.getString(
+                        RB.BAD_HEADER_VALUE,
                         TarHeaderFields.toString(fieldId)));
             }
         }
@@ -726,7 +777,9 @@ public class TarReader {
          * types of <CODE>int</CODE> or <CODE>Integer</CODE>.
          */
         protected Long readInteger(int fieldId) throws TarMalformatException {
+
             String s = readString(fieldId);
+
             if (s == null) {
                 return null;
             }
@@ -734,8 +787,9 @@ public class TarReader {
             try {
                 return Long.valueOf(s, 8);
             } catch (NumberFormatException nfe) {
-                throw new TarMalformatException(RB.singleton.getString(
-                        RB.BAD_NUMERIC_HEADER_VALUE, 
+                throw new TarMalformatException(
+                    RB.singleton.getString(
+                        RB.BAD_NUMERIC_HEADER_VALUE,
                         TarHeaderFields.toString(fieldId), nfe.getMessage()));
             }
         }
@@ -752,7 +806,6 @@ public class TarReader {
                 // We ignore current contents of the checksum field so that
                 // this method will continue to work right, even if we later
                 // recycle the header or RE-calculate a header.
-
                 sum += isInRange ? 32
                                  : (255 & rawHeader[i]);
             }
