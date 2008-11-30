@@ -68,6 +68,7 @@ import java.lang.reflect.Method;
 import org.hsqldb.util.ValidatingResourceBundle;
 import org.hsqldb.util.AppendableException;
 import org.hsqldb.util.RCData;
+import org.hsqldb.lib.StringUtil;
 import org.hsqldb.cmdline.sqltool.Token;
 import org.hsqldb.cmdline.sqltool.TokenList;
 import org.hsqldb.cmdline.sqltool.TokenSource;
@@ -330,10 +331,6 @@ public class SqlFile {
     private static final String DIVIDER =
         "-----------------------------------------------------------------"
         + "-----------------------------------------------------------------";
-    // Needs to be at least as wide as the widest field or header displayed.
-    private static final String SPACES =
-        "                                                                 "
-        + "                                                                 ";
     // Needs to be at least as wide as the widest field or header displayed.
     private static String revnum = null;
 
@@ -3203,13 +3200,24 @@ public class SqlFile {
                         for (int i = 0; i < headerArray.length; i++) {
                             condlPrint("<TD>" + headerArray[i] + "</TD>",
                                        true);
-                            condlPrint(((i > 0) ? SqlFile.spaces(2)
+                            condlPrint(((i > 0) ? "  " : "")
+                                    + ((i < headerArray.length - 1
+                                        || rightJust[i])
+                                       ? StringUtil.toPaddedString(
+                                         headerArray[i], maxWidth[i],
+                                         ' ', !rightJust[i])
+                                       : headerArray[i])
+                                    , false);
+                            /*  TODO:  Wipe out this comment block once
+                             *  previous toPaddedString() has been verified
+                            condlPrint(((i > 0) ? "  "
                                                 : "") + SqlFile.pad(
                                                     headerArray[i],
                                                     maxWidth[i],
                                                     rightJust[i],
                                                     (i < headerArray.length
                                                      - 1 || rightJust[i])), false);
+                             */
                         }
 
                         condlPrintln(LS + PRE_TR + "</TR>", true);
@@ -3217,7 +3225,7 @@ public class SqlFile {
 
                         if (!htmlMode) {
                             for (int i = 0; i < headerArray.length; i++) {
-                                condlPrint(((i > 0) ? SqlFile.spaces(2)
+                                condlPrint(((i > 0) ? "  "
                                                     : "") + SqlFile.divider(
                                                         maxWidth[i]), false);
                             }
@@ -3236,13 +3244,24 @@ public class SqlFile {
                         for (int j = 0; j < fieldArray.length; j++) {
                             condlPrint("<TD>" + fieldArray[j] + "</TD>",
                                        true);
-                            condlPrint(((j > 0) ? SqlFile.spaces(2)
+                            /*  TODO:  Wipe out this comment block once
+                             *  previous toPaddedString() has been verified
+                            condlPrint(((j > 0) ? "  "
                                                 : "") + SqlFile.pad(
                                                     fieldArray[j],
                                                     maxWidth[j],
                                                     rightJust[j],
                                                     (j < fieldArray.length
                                                      - 1 || rightJust[j])), false);
+                            */
+                            condlPrint(((j > 0) ? "  " : "")
+                                    + ((j < fieldArray.length - 1
+                                        || rightJust[j])
+                                       ? StringUtil.toPaddedString(
+                                         fieldArray[j], maxWidth[j],
+                                         ' ', !rightJust[j])
+                                       : fieldArray[j])
+                                    , false);
                         }
 
                         condlPrintln(LS + PRE_TR + "</TR>", true);
@@ -3319,8 +3338,8 @@ public class SqlFile {
                                 COL_ODD  = 1,
                                 COL_EVEN = 2
     ;
-    private static final String PRE_TR   = spaces(4);
-    private static final String PRE_TD   = spaces(8);
+    private static final String PRE_TR   = "    ";
+    private static final String PRE_TD   = "        ";
 
     /**
      * Print a properly formatted HTML &lt;TR&gt; command for the given
@@ -3355,43 +3374,6 @@ public class SqlFile {
     private static String divider(int len) {
         return (len > DIVIDER.length()) ? DIVIDER
                                         : DIVIDER.substring(0, len);
-    }
-
-    /**
-     * Returns a String of spaces of requested length.
-     *
-     * @param len Length of output String.
-     */
-    private static String spaces(int len) {
-        return (len > SPACES.length()) ? SPACES
-                                       : SPACES.substring(0, len);
-    }
-
-    /**
-     * Pads given input string out to requested length with space
-     * characters.
-     *
-     * @param inString Base string.
-     * @param fulllen  Output String length.
-     * @param rightJustify  True to right justify, false to left justify.
-     */
-    private static String pad(String inString, int fulllen,
-                              boolean rightJustify, boolean doPad) {
-        if (!doPad) {
-            return inString;
-        }
-
-        int len = fulllen - inString.length();
-
-        if (len < 1) {
-            return inString;
-        }
-
-        String pad = SqlFile.spaces(len);
-
-        return ((rightJustify ? pad
-                              : "") + inString + (rightJustify ? ""
-                                                               : pad));
     }
 
     /**
@@ -3630,11 +3612,20 @@ public class SqlFile {
 
             for (int i = 0; i < headerArray.length; i++) {
                 condlPrint("<TD>" + headerArray[i] + "</TD>", true);
-                condlPrint(((i > 0) ? SqlFile.spaces(2)
+                /*  TODO:  Wipe out this comment block once
+                 *  previous toPaddedString() has been verified
+                condlPrint(((i > 0) ? "  "
                                     : "") + SqlFile.pad(headerArray[i], maxWidth[i],
                                                 rightJust[i],
                                                 (i < headerArray.length - 1
                                                  || rightJust[i])), false);
+                 */
+                condlPrint(((i > 0) ? "  " : "")
+                        + ((i < headerArray.length - 1 || rightJust[i])
+                           ? StringUtil.toPaddedString(
+                             headerArray[i], maxWidth[i], ' ', !rightJust[i])
+                           : headerArray[i])
+                        , false);
             }
 
             condlPrintln(LS + PRE_TR + "</TR>", true);
@@ -3642,7 +3633,7 @@ public class SqlFile {
 
             if (!htmlMode) {
                 for (int i = 0; i < headerArray.length; i++) {
-                    condlPrint(((i > 0) ? SqlFile.spaces(2)
+                    condlPrint(((i > 0) ? "  "
                                         : "") + SqlFile.divider(maxWidth[i]), false);
                 }
 
@@ -3658,12 +3649,21 @@ public class SqlFile {
 
                 for (int j = 0; j < fieldArray.length; j++) {
                     condlPrint("<TD>" + fieldArray[j] + "</TD>", true);
-                    condlPrint(((j > 0) ? SqlFile.spaces(2)
+                    /*  TODO:  Wipe out this comment block once
+                     *  previous toPaddedString() has been verified
+                    condlPrint(((j > 0) ? "  "
                                         : "") + SqlFile.pad(
                                             fieldArray[j], maxWidth[j],
                                             rightJust[j],
                                             (j < fieldArray.length - 1
                                              || rightJust[j])), false);
+                    */
+                    condlPrint(((j > 0) ? "  " : "")
+                            + ((j < fieldArray.length - 1 || rightJust[j])
+                               ? StringUtil.toPaddedString(
+                                 fieldArray[j], maxWidth[j], ' ', !rightJust[j])
+                               : fieldArray[j])
+                            , false);
                 }
 
                 condlPrintln(LS + PRE_TR + "</TR>", true);
@@ -5191,5 +5191,46 @@ public class SqlFile {
                     buffer.val += matcher.group(2);
                 preempt = matcher.group(matcher.groupCount()).equals(";");
         }
+    }
+
+    /* REMOVE EVERYTHING BELOW HERE */
+    /**
+     * Pads given input string out to requested length with space
+     * characters.
+     *
+     * @param inString Base string.
+     * @param fulllen  Output String length.
+     * @param rightJustify  True to right justify, false to left justify.
+     */
+    static private final String spaces = "                       ";
+    public static String spaces(int i) { return spaces.substring(0, i); }
+    private static String pad(String inString, int fulllen,
+                              boolean rightJustify, boolean doPad) {
+        if (!doPad) {
+            return inString;
+        }
+
+        int len = fulllen - inString.length();
+
+        if (len < 1) {
+            return inString;
+        }
+
+        String pad = SqlFile.spaces(len);
+
+        return ((rightJustify ? pad
+                              : "") + inString + (rightJustify ? ""
+                                                               : pad));
+    }
+
+    static public void main(String[] sa) {
+        System.out.println("(" + pad("one", 8, true, true) + ')');
+        System.out.println("(" + StringUtil.toPaddedString("one", 8, ' ', false) + ')');
+        System.out.println("(" + pad("one", 8, false, true) + ')');
+        System.out.println("(" + StringUtil.toPaddedString("one", 8, ' ', true) + ')');
+        System.out.println("(" + pad("toofreakinglong", 8, true, true) + ')');
+        System.out.println("(" + StringUtil.toPaddedString("toofreakinglong", 8, ' ', false) + ')');
+        System.out.println("(" + pad("toofreakinglong", 8, false, true) + ')');
+        System.out.println("(" + StringUtil.toPaddedString("toofreakinglong", 8, ' ', true) + ')');
     }
 }
