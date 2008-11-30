@@ -171,12 +171,6 @@ public class PIFGenerator extends ByteArrayOutputStream {
                 RB.singleton.getString(RB.PIF_TOOBIG, 99991));
         }
 
-        // TODO:  Remove this Dev assertion:
-        if (lenW != (Integer.toString(lenW) + ' ' + key + '=' + value
-                     + '\n').length()) {
-            throw new RuntimeException("ASSERTION FAILED");
-        }
-
         writer.write(Integer.toString(lenW));
         writer.write(' ');
         writer.write(key);

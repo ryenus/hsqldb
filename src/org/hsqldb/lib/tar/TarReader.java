@@ -349,13 +349,6 @@ public class TarReader {
                 outPipe.write(archive.readBuffer, 0, readNow * 512);
             }
 
-            // TODO:  Remove this Dev debug assertion
-            if (readBlocks != 0) {
-                throw new IllegalStateException(
-                    "Finished skipping but skip blocks to go = " + readBlocks
-                    + "?");
-            }
-
             if (modulus != 0) {
                 archive.readBlock();
                 outPipe.write(archive.readBuffer, 0, modulus);
@@ -464,13 +457,6 @@ public class TarReader {
                 outStream.write(archive.readBuffer, 0, readNow * 512);
             }
 
-            // TODO:  Remove this Dev debug assertion
-            if (readBlocks != 0) {
-                throw new IllegalStateException(
-                    "Finished skipping but skip blocks to go = " + readBlocks
-                    + "?");
-            }
-
             if (modulus != 0) {
                 archive.readBlock();
                 outStream.write(archive.readBuffer, 0, modulus);
@@ -522,13 +508,6 @@ public class TarReader {
             archive.readBlocks(skipNow);
 
             skipBlocks -= skipNow;
-        }
-
-        // TODO:  Remove this Dev debug assertion
-        if (skipBlocks != 0) {
-            throw new IllegalStateException(
-                "Finished skipping but skip blocks to go = " + skipBlocks
-                + "?");
         }
     }
 
@@ -686,9 +665,6 @@ public class TarReader {
          * but which would certainly be useful for a general Java tar client
          * implementation.
          * This design decision is subject to change.
-         *
-         * TODO:  Format output into colums.  Looks terrible when the fields
-         *        don't line up in columns.
          */
         public String toString() {
 
