@@ -3208,16 +3208,6 @@ public class SqlFile {
                                          ' ', !rightJust[i])
                                        : headerArray[i])
                                     , false);
-                            /*  TODO:  Wipe out this comment block once
-                             *  previous toPaddedString() has been verified
-                            condlPrint(((i > 0) ? "  "
-                                                : "") + SqlFile.pad(
-                                                    headerArray[i],
-                                                    maxWidth[i],
-                                                    rightJust[i],
-                                                    (i < headerArray.length
-                                                     - 1 || rightJust[i])), false);
-                             */
                         }
 
                         condlPrintln(LS + PRE_TR + "</TR>", true);
@@ -3244,16 +3234,6 @@ public class SqlFile {
                         for (int j = 0; j < fieldArray.length; j++) {
                             condlPrint("<TD>" + fieldArray[j] + "</TD>",
                                        true);
-                            /*  TODO:  Wipe out this comment block once
-                             *  previous toPaddedString() has been verified
-                            condlPrint(((j > 0) ? "  "
-                                                : "") + SqlFile.pad(
-                                                    fieldArray[j],
-                                                    maxWidth[j],
-                                                    rightJust[j],
-                                                    (j < fieldArray.length
-                                                     - 1 || rightJust[j])), false);
-                            */
                             condlPrint(((j > 0) ? "  " : "")
                                     + ((j < fieldArray.length - 1
                                         || rightJust[j])
@@ -3612,14 +3592,6 @@ public class SqlFile {
 
             for (int i = 0; i < headerArray.length; i++) {
                 condlPrint("<TD>" + headerArray[i] + "</TD>", true);
-                /*  TODO:  Wipe out this comment block once
-                 *  previous toPaddedString() has been verified
-                condlPrint(((i > 0) ? "  "
-                                    : "") + SqlFile.pad(headerArray[i], maxWidth[i],
-                                                rightJust[i],
-                                                (i < headerArray.length - 1
-                                                 || rightJust[i])), false);
-                 */
                 condlPrint(((i > 0) ? "  " : "")
                         + ((i < headerArray.length - 1 || rightJust[i])
                            ? StringUtil.toPaddedString(
@@ -3649,15 +3621,6 @@ public class SqlFile {
 
                 for (int j = 0; j < fieldArray.length; j++) {
                     condlPrint("<TD>" + fieldArray[j] + "</TD>", true);
-                    /*  TODO:  Wipe out this comment block once
-                     *  previous toPaddedString() has been verified
-                    condlPrint(((j > 0) ? "  "
-                                        : "") + SqlFile.pad(
-                                            fieldArray[j], maxWidth[j],
-                                            rightJust[j],
-                                            (j < fieldArray.length - 1
-                                             || rightJust[j])), false);
-                    */
                     condlPrint(((j > 0) ? "  " : "")
                             + ((j < fieldArray.length - 1 || rightJust[j])
                                ? StringUtil.toPaddedString(
