@@ -117,6 +117,7 @@ public class RB extends ValidatingResourceBundle {
     static public final int CREATE_ONLY_NORMAL = keyCounter++;
     static public final int BAD_HEADER_VALUE = keyCounter++;
     static public final int BAD_NUMERIC_HEADER_VALUE = keyCounter++;
+    static public final int LISTING_FORMAT = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
@@ -179,6 +180,7 @@ public class RB extends ValidatingResourceBundle {
         new Integer(CREATE_ONLY_NORMAL), "create.only.normal",
         new Integer(BAD_HEADER_VALUE), "bad.header.value",
         new Integer(BAD_NUMERIC_HEADER_VALUE), "bad.numeric.header.value",
+        new Integer(LISTING_FORMAT), "listing.format",
     };
 
     private Map keyIdToString = new HashMap();

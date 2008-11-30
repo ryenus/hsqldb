@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib.tar;
 
+import org.hsqldb.lib.StringUtil;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -81,6 +82,7 @@ public class TarReader {
         if (sa.length < 1) {
             System.out.println(RB.singleton.getString(RB.TARREADER_SYNTAX,
                     TarReader.class.getName()));
+            System.out.println(RB.singleton.getString(RB.LISTING_FORMAT));
             System.exit(0);
         }
 
@@ -690,17 +692,19 @@ public class TarReader {
          */
         public String toString() {
 
-            StringBuffer sb = new StringBuffer();
+            StringBuffer sb = new StringBuffer(
+                    sdf.format(new Long(modTime * 1000L)) + ' ');
 
             sb.append((entryType == '\0') ? ' '
                                           : entryType);
             sb.append(ustar ? '*'
                             : ' ');
-            sb.append(' ' + sdf.format(new Long(modTime * 1000L)) + ' '
-                      + Integer.toOctalString(fileMode) + "  " + dataSize
-                      + "  ");
-            sb.append((ownerName == null) ? "-"
-                                          : ownerName);
+            sb.append(" " + StringUtil.toPaddedString(
+                    Integer.toOctalString(fileMode), 4, ' ', false) + ' '
+                    + StringUtil.toPaddedString(
+                    Long.toString(dataSize), 11, ' ', false) + "  ");
+            sb.append(StringUtil.toPaddedString(
+                    ((ownerName == null) ? "-" : ownerName), 8, ' ', true));
             sb.append("  " + path);
 
             return sb.toString();
