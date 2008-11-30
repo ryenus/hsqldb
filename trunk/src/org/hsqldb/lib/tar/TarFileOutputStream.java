@@ -94,7 +94,7 @@ public class TarFileOutputStream {
     final static public int    NO_COMPRESSION   = 0;
     final static public int    GZIP_COMPRESSION = 1;
 
-    //TODO:  Use an email once Java 1.5 is required.
+    //TODO:  Use an enum once Java 1.5 is required.
     final static public int DEFAULT_COMPRESSION       = NO_COMPRESSION;
     final static public int DEFAULT_BLOCKS_PER_RECORD = 20;
 

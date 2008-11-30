@@ -600,8 +600,9 @@ public class TarGenerator {
             try {
                 writeField(TarHeaderFields.NAME, path);
 
-                // TODO:  If path.length() > 99, then attempt to split into
-                // PREFIX and NAME fields.
+                // TODO:  If path.length() > 99, then write a PIF entry with
+                // the file path.
+                // Don't waste time using the PREFIX header field.
                 writeField(TarHeaderFields.MODE, fileMode);
 
                 if (!paxSized) {
