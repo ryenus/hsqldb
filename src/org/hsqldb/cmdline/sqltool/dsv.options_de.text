@@ -30,8 +30,14 @@ Beim Verwenden, vergessen Sie nicht ein * zeigt PL Befehl an, und ein * is
     *DSV_TRIM_ALL      \m    Wenn auf "true" gesetzt, trim vorangestellte und
                              nachfolgende Leerzeichen aus allen Rubriken auf
                              importieren.  [false]
+    *DSV_RECORDS_PER_COMMIT \m  Setzen Sie dies auf Integer-Wert.  Dies
+                             überschreibt die aktuella auto-commit Einstellung
+                             und alle X nach der erfolgreichen Insertionen
+                             (und bie der Einfuhr Fertigstellung).
 * Importe brechen sofort nach dem Rekordausfall des ersten Importes ab, es sei
 denn entweder *DSV_REJECT_FILE oder *DSV_REJECT_REPORT (oder beide)
 eingestellt werden. (Ob SqlTool Willenszurückrollen und beendigt von deinen
 Einstellungen für \c und \z abhängt).
-
+Auto-commit und *DSV_RECORDS_PER_COMMIT sicherzustellen, dass alle erfolgreich
+eingefügt Aufzeichnungen commit, so Rollbacks sind unmöglich mit einer dieser
+beiden.
