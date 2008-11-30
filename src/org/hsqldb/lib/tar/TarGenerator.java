@@ -57,12 +57,6 @@ public class TarGenerator {
      */
     static public void main(String[] sa)
     throws IOException, TarMalformatException {
-System.err.println("(" + TarEntrySupplicant.oldPaddedOctalString(12, 5) + ')');
-System.err.println(Long.toOctalString(9));
-System.err.println("(" + TarEntrySupplicant.prePaddedOctalString(12, 5) + ')');
-System.err.println("(" + TarEntrySupplicant.oldPaddedOctalString(10000, 4) + ')');
-System.err.println("(" + TarEntrySupplicant.prePaddedOctalString(10000, 4) + ')');
-if (true) System.exit(0);
 
         if (sa.length < 1) {
             System.out.println(RB.singleton.getString(RB.TARGENERATOR_SYNTAX,
@@ -349,19 +343,6 @@ if (true) System.exit(0);
                     newValue,
                     TarHeaderFields.getStop(fieldId)
                     - TarHeaderFields.getStart(fieldId)), target);
-        }
-
-        /* TODO: Remove this obsolte method: */
-        static public String oldPaddedOctalString(long val, int width) {
-
-            StringBuffer sb        = new StringBuffer(Long.toOctalString(val));
-            int          needZeros = width - sb.length();
-
-            while (needZeros-- > 0) {
-                sb.insert(0, '0');
-            }
-
-            return sb.toString();
         }
 
         static public String prePaddedOctalString(long val, int width) {
