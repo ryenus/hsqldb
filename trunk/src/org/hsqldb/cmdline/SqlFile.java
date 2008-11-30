@@ -5192,45 +5192,4 @@ public class SqlFile {
                 preempt = matcher.group(matcher.groupCount()).equals(";");
         }
     }
-
-    /* REMOVE EVERYTHING BELOW HERE */
-    /**
-     * Pads given input string out to requested length with space
-     * characters.
-     *
-     * @param inString Base string.
-     * @param fulllen  Output String length.
-     * @param rightJustify  True to right justify, false to left justify.
-     */
-    static private final String spaces = "                       ";
-    public static String spaces(int i) { return spaces.substring(0, i); }
-    private static String pad(String inString, int fulllen,
-                              boolean rightJustify, boolean doPad) {
-        if (!doPad) {
-            return inString;
-        }
-
-        int len = fulllen - inString.length();
-
-        if (len < 1) {
-            return inString;
-        }
-
-        String pad = SqlFile.spaces(len);
-
-        return ((rightJustify ? pad
-                              : "") + inString + (rightJustify ? ""
-                                                               : pad));
-    }
-
-    static public void main(String[] sa) {
-        System.out.println("(" + pad("one", 8, true, true) + ')');
-        System.out.println("(" + StringUtil.toPaddedString("one", 8, ' ', false) + ')');
-        System.out.println("(" + pad("one", 8, false, true) + ')');
-        System.out.println("(" + StringUtil.toPaddedString("one", 8, ' ', true) + ')');
-        System.out.println("(" + pad("toofreakinglong", 8, true, true) + ')');
-        System.out.println("(" + StringUtil.toPaddedString("toofreakinglong", 8, ' ', false) + ')');
-        System.out.println("(" + pad("toofreakinglong", 8, false, true) + ')');
-        System.out.println("(" + StringUtil.toPaddedString("toofreakinglong", 8, ' ', true) + ')');
-    }
 }
