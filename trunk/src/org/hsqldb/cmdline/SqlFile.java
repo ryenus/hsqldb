@@ -284,9 +284,8 @@ public class SqlFile {
             dsvRecordsPerCommit = Integer.parseInt(
                     (String) userVars.get("*DSV_RECORDS_PER_COMMIT"));
         } catch (NumberFormatException nfe) {
-            logger.error("Clearing *DSV_RECORDS_PER_COMMIT, since non-integer "
-                    + "specified: " + userVars.get("*DSV_RECORDS_PER_COMMIT"));
-            // TODO:  Localize message
+            logger.error(rb.getString(SqltoolRB.REJECT_RPC,
+                    (String) userVars.get("*DSV_RECORDS_PER_COMMIT")));
             userVars.remove("*DSV_REJECT_REPORT");
             dsvRecordsPerCommit = 0;
         }
@@ -4557,10 +4556,8 @@ public class SqlFile {
                 && curConn.getAutoCommit();
             if (doResetAutocommit) curConn.setAutoCommit(false);
         } catch (SQLException se) {
-            throw new SqlToolError(
-                    "Failed to set up autocommit for *DSV_RECORDS_PER_COMMIT "
-                    + "option", se);
-            // TODO:  Localize error message
+            throw new SqlToolError(rb.getString(
+                    SqltoolRB.RPC_AUTOCOMMIT_FAILURE), se);
         }
         // We're now assured that if dsvRecordsPerCommit is > 0, then
         // autocommit is off.
@@ -4750,10 +4747,8 @@ public class SqlFile {
                 }
                 if (doResetAutocommit) curConn.setAutoCommit(true);
             } catch (SQLException se) {
-                throw new SqlToolError(
-                        "Failed to set up finalize commit status "
-                        + "for *DSV_RECORDS_PER_COMMIT option", se);
-                // TODO:  Localize error message
+                throw new SqlToolError(rb.getString(
+                        SqltoolRB.RPC_COMMIT_FAILURE), se);
             }
             String summaryString = null;
             if (recCount > 0) {
@@ -4769,13 +4764,14 @@ public class SqlFile {
                 stdprintln(summaryString);
             }
             try {
-                if (recCount > rejectCount && !curConn.getAutoCommit()) {
+                if (recCount > rejectCount && dsvRecordsPerCommit < 1
+                        && !curConn.getAutoCommit()) {
                     stdprintln(rb.getString(SqltoolRB.INSERTIONS_NOTCOMMITTED));
                 }
             } catch (SQLException se) {
                 stdprintln(rb.getString(SqltoolRB.AUTOCOMMIT_FETCHFAIL));
                 stdprintln(rb.getString(SqltoolRB.INSERTIONS_NOTCOMMITTED));
-                // No reason to throw here.  If use attempts to use the
+                // No reason to throw here.  If user attempts to use the
                 // connection for anything significant, we will throw then.
             }
             if (rejectWriter != null) {

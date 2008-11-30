@@ -25,6 +25,11 @@ the setting is applicable.  Default value/behavior is in [square brackes].
     *DSV_SKIP_COLS     \m\x  Skip columns from input DSV file or input table.
     *DSV_TRIM_ALL      \m    If set to "true", trim leading and trailing
                              whitespace from all columns upon import [false]
+    *DSV_RECORDS_PER_COMMIT \m  Set to integer value (X).  Overrides current
+                             auto-commit setting and commits after every X
+                             successful inserts (and upon import completion).
 * Imports will abort immediately upon the first import record failure, unless
 either *DSV_REJECT_FILE or *DSV_REJECT_REPORT (or both) are set.  (Whether
 SqlTool will roll back and quit depends on your settings for \c and \a).
+Auto-commit and *DSV_RECORDS_PER_COMMIT ensure that all successfully inserted
+records will commit, so rollbacks are impossible with either of these.

@@ -298,6 +298,9 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int ERRSTREAM_DEPRECATED = keyCounter++;
     static public final int LOG_SYNTAX = keyCounter++;
     static public final int LOG_SYNTAX_ERROR = keyCounter++;
+    static public final int REJECT_RPC = keyCounter++;
+    static public final int RPC_AUTOCOMMIT_FAILURE = keyCounter++;
+    static public final int RPC_COMMIT_FAILURE = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
@@ -497,6 +500,9 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(ERRSTREAM_DEPRECATED), "errstream.deprecated",
         new Integer(LOG_SYNTAX), "log.syntax",
         new Integer(LOG_SYNTAX_ERROR), "log.syntax.error",
+        new Integer(REJECT_RPC), "reject.rpc",
+        new Integer(RPC_AUTOCOMMIT_FAILURE), "rpc.autocommit.failure",
+        new Integer(RPC_COMMIT_FAILURE), "rpc.commit.failure",
     };
 
     private Map keyIdToString = new HashMap();
