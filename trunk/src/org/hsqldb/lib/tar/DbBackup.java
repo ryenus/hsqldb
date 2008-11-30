@@ -82,6 +82,8 @@ public class DbBackup {
             if (sa.length < 1) {
                 System.out.println(RB.singleton.getString(RB.DBBACKUP_SYNTAX,
                         DbBackup.class.getName()));
+                System.out.println();
+                System.out.println(RB.singleton.getString(RB.LISTING_FORMAT));
                 System.exit(0);
             }
 
