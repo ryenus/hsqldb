@@ -48,11 +48,10 @@ import java.util.regex.Pattern;
  * <P>
  * <B>SECURITY NOTE</B>
  * Due to pitiful lack of support for file security in Java before version 1.6,
- * this class does not set file permissions upon extraction.
- * If you saved a file as 0400, be aware that this class will extract it with
- * default permissions!
- * When we depend upon Java 1.6 (probably around 2020), we will turn this
- * feature back on (if I'm dead, hopefully somebody else will).
+ * this class will only explicitly set permissions if it is compiled for Java
+ * 1.6.  If it was not, and if your tar entries contain private data in files
+ * with 0400 or similar, be aware that they will be extracted with privs such
+ * that they can be ready by anybody.
  *
  * @author Blaine Simpson
  */
@@ -433,8 +432,7 @@ public class TarReader {
         FileOutputStream outStream = new FileOutputStream(newFile);
 
         try {
-            /*
-             * These methods are not available until Java 1.6:
+//#ifdef JAVA6
             // Don't know exactly why I am still able to write to the file
             // after removing read and write privs from myself, but it does
             // work.
@@ -444,7 +442,7 @@ public class TarReader {
             newFile.setExecutable(((fileMode & 0100) != 0), true);
             newFile.setReadable((fileMode & 0400) != 0, true);
             newFile.setWritable((fileMode & 0200) != 0, true);
-            */
+//#endif
             while (readBlocks > 0) {
                 readNow = (readBlocks > archive.getReadBufferBlocks())
                           ? archive.getReadBufferBlocks()

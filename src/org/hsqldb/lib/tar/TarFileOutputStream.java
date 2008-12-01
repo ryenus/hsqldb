@@ -64,12 +64,10 @@ import java.util.zip.GZIPOutputStream;
  * <P>
  * <B>SECURITY NOTE</B>
  * Due to pitiful lack of support for file security in Java before version 1.6,
- * this class does not explicitly set permissions on the generated Tar file.
- * So, if your tar entries contain private data in files with 0400, be aware
- * that that file can be pretty much be extracted by anybody with access to
- * the tar file.
- * When we depend upon Java 1.6 (probably around 2020), we will turn this
- * feature back on (if I'm dead, hopefully somebody else will).
+ * this class will only explicitly set permissions if it is compiled for Java
+ * 1.6.  If it was not, and if your tar entries contain private data in files
+ * with 0400 or similar, be aware that that file can be pretty much be
+ * extracted by anybody with access to the tar file.
  *
  * @see #finish
  * @see #close
@@ -174,15 +172,14 @@ public class TarFileOutputStream {
                     RB.singleton.getString(
                         RB.COMPRESSION_UNKNOWN, compressionType));
         }
-        /*
-         * ARG!  These operations are only available with Java 1.6!
+//#ifdef JAVA6
         writeFile.setExecutable(false, true);
         writeFile.setExecutable(false, false);
         writeFile.setReadable(false, false);
         writeFile.setReadable(true, true);
         writeFile.setWritable(false, false);
         writeFile.setWritable(true, true);
-        */
+//#endif
 
         // We restrict permissions to the file owner before writing
         // anything, in case we will be writing anything private into this
