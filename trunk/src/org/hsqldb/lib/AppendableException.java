@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.util;
+package org.hsqldb.lib;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -34,7 +34,7 @@ package org.hsqldb.lib.tar;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hsqldb.util.ValidatingResourceBundle;
+import org.hsqldb.lib.ValidatingResourceBundle;
 
 /* $Id$ */
 

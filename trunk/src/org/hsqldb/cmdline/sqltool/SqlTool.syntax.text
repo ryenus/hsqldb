@@ -1,4 +1,4 @@
-Syntax: java org.hsqldb.util.SqlTool [--opt[=optval]...] urlid [file1.sql...]
+Syntax: java org.hsqldb.cmdline.SqlTool [--opt[=optval]...] urlid [file1.sql...]
 Options:
     --help                   Displays this message
     --list                   List urlids in the rc file

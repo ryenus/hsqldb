@@ -1,4 +1,4 @@
-Syntax: java org.hsqldb.util.SqlTool [--wahl[=wahr]...] urlid [datei1.sql...]
+Syntax: java org.hsqldb.cmdline.SqlTool [--wahl[=wahr]...] urlid [datei1.sql...]
 Wahlen:
     --help                   Zeigt diese Anzeige an
     --list                   Verzeichnet Urlids von der RC Datei
