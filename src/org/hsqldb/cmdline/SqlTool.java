@@ -40,8 +40,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import org.hsqldb.util.ValidatingResourceBundle;
-import org.hsqldb.util.RCData;
+import org.hsqldb.lib.ValidatingResourceBundle;
+import org.hsqldb.lib.RCData;
 
 /* $Id$ */
 

@@ -31,7 +31,7 @@
 
 package org.hsqldb.cmdline;
 
-import org.hsqldb.util.AppendableException;
+import org.hsqldb.lib.AppendableException;
 
 /**
  * Exceptions thrown by the SqlTool system externally to SqlFile.
