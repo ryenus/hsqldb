@@ -20,7 +20,7 @@ SELECT count(*)  FROM t WHERE r = 3.124;
 
 SELECT count(*)  FROM t WHERE d = '2007-06-07';
 *if (*? != 1)
-    \q Import of space-embedded DATE failed
+    \q Import of space-embedded DATE failed (1)
 *end if
 
 SELECT count(*)  FROM t WHERE t = '2006-05-06 12:30:04';
@@ -61,7 +61,7 @@ SELECT count(*)  FROM t WHERE r = 3.124;
 
 SELECT count(*)  FROM t WHERE d = '2007-06-07';
 *if (*? != 1)
-    \q Import of space-embedded DATE failed
+    \q Import of space-embedded DATE failed (2)
 *end if
 
 SELECT count(*)  FROM t WHERE t = '2006-05-06 12:30:04';
