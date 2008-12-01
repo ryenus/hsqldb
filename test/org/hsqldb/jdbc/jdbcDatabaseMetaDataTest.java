@@ -1228,7 +1228,7 @@ public class jdbcDatabaseMetaDataTest extends JdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.supports.catalogs.in.procedure.calls",
-                false);
+                true);
         boolean result = dbmd.supportsCatalogsInProcedureCalls();
         assertEquals("TODO:", expResult, result);
     }
@@ -1453,7 +1453,7 @@ public class jdbcDatabaseMetaDataTest extends JdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.open.cursors.across.commit",
-                false);
+                true);
         boolean result = dbmd.supportsOpenCursorsAcrossCommit();
         assertEquals(expResult, result);
     }

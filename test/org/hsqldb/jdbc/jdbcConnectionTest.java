@@ -47,6 +47,7 @@ import java.sql.SQLXML;
 import java.sql.Savepoint;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import java.util.Map;
 
 /**
  * Test of interface java.sql.Connection.
@@ -642,14 +643,10 @@ public class jdbcConnectionTest extends JdbcTestCase {
             return;
         }
 
-//        Connection conn = newConnection();
-//
-//        Map<String, Class<Object>> expResult = null;
-//        Map<String, Class<Object>> result = conn.getTypeMap();
-//        assertEquals(expResult, result);
+        Connection conn = newConnection();
 
-        // TODO.
-        fail("TODO: The test case is empty.");
+        Map<String, Class<?>> result = conn.getTypeMap();
+        assertTrue(result != null);
     }
 
     /**
@@ -662,13 +659,14 @@ public class jdbcConnectionTest extends JdbcTestCase {
             return;
         }
 
-//        Map<String, Class<Object>> map = null;
-//        Connection conn = newConnection();
-//
-//        conn.setTypeMap(map);
+        Map<String, Class<?>> map = null;
+        Connection conn = newConnection();
 
-        // TODO.
-        fail("TODO: The test case is empty.");
+        try {
+            conn.setTypeMap(map);
+        } catch (Throwable t) {
+            assertTrue(t instanceof java.sql.SQLFeatureNotSupportedException);
+        }
     }
 
     /**

@@ -47,7 +47,7 @@ import java.sql.SQLXML;
 import java.util.Calendar;
 import java.util.HashMap;
 import junit.framework.TestSuite;
-import org.hsqldb.Trace;
+import org.hsqldb.ErrorCode;
 
 // TODO:  See if this can be done reflectively.
 
@@ -126,7 +126,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
     }
 
     protected int getStatementClosedErrorCode() {
-        return -Trace.STATEMENT_IS_CLOSED;
+        return -ErrorCode.X_07501;
     }
 
     /**
@@ -1515,7 +1515,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
 
         long length = 0L;
         CallableStatement instance = newClosedCall();
-        Clob x = instance.getConnection().createClob();
+        Clob x = newConnection().createClob(); // this will never get used
 
         try {
             instance.setClob(parameterName, x);

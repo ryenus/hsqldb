@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.Trace;
+import org.hsqldb.ErrorCode;
 
 /**
  *
@@ -51,13 +51,13 @@ import org.hsqldb.Trace;
 public class jdbcResultSetTest extends JdbcTestCase {
 
     public static final int DEFAULT_RESULT_SET_CLOSED_ERROR_CODE
-            = -Trace.JDBC_RESULTSET_IS_CLOSED;
+            = -ErrorCode.X_24501;
 
     public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE
-            = - Trace.NO_DATA_IS_AVAILABLE;
+            = - ErrorCode.NO_DATA_IS_AVAILABLE;
 
     public static final int DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE
-            = - Trace.NO_DATA_IS_AVAILABLE;
+            = - ErrorCode.NO_DATA_IS_AVAILABLE;
 
     private List<ResultSet> resultSetList;
 
@@ -230,8 +230,10 @@ public class jdbcResultSetTest extends JdbcTestCase {
         return rs;
     }
 
-    /** @todo  conversion from string to boolean in getBoolean() is supported
+    /** @todo  Conversion from string to boolean in getBoolean() is supported
      * only with the values 'true' or 'false"
+     * Similarly, the contents of the character field must be convertible to
+     * the type.
      *
      *
      */
@@ -305,7 +307,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
                     SQLException ex = (SQLException) t;
 
                     if (required) {
-                        if (ex.getErrorCode() != -Trace.WRONG_DATA_TYPE) {
+                        if (ex.getErrorCode() != -ErrorCode.X_42561) {
                             fail(
                                     columnName
                                     + "("
@@ -369,7 +371,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -425,7 +427,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -450,7 +452,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -475,7 +477,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -500,7 +502,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -525,7 +527,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -550,7 +552,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -575,7 +577,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -600,7 +602,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -625,7 +627,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -681,7 +683,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -706,7 +708,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -731,7 +733,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -756,7 +758,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -861,7 +863,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -886,7 +888,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -913,7 +915,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
 
         fail("TODO: cases to test spec'd generation of warnings");
@@ -940,7 +942,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -971,7 +973,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -996,7 +998,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
 
         try {
@@ -1053,7 +1055,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1087,7 +1089,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1112,7 +1114,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1167,7 +1169,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
 
     }
@@ -1231,7 +1233,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1314,7 +1316,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
 
     }
@@ -1377,7 +1379,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1418,7 +1420,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1477,7 +1479,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1507,7 +1509,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
 
     }
@@ -1534,7 +1536,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1581,7 +1583,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1669,7 +1671,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1709,7 +1711,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1746,7 +1748,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
        }
     }
 
@@ -1772,7 +1774,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1799,7 +1801,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1826,7 +1828,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -1857,7 +1859,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2464,7 +2466,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2503,7 +2505,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2546,7 +2548,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2581,7 +2583,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2619,7 +2621,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2644,7 +2646,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2669,7 +2671,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2694,7 +2696,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2719,7 +2721,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2774,7 +2776,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.NO_DATA_IS_AVAILABLE);
+                    -ErrorCode.NO_DATA_IS_AVAILABLE);
         }
     }
 
@@ -2797,7 +2799,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.NO_DATA_IS_AVAILABLE);
+                    -ErrorCode.NO_DATA_IS_AVAILABLE);
         }
     }
 
@@ -2822,7 +2824,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2907,7 +2909,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -2948,7 +2950,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -3018,7 +3020,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -3043,7 +3045,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -3083,7 +3085,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 
@@ -3108,7 +3110,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -Trace.JDBC_RESULTSET_IS_CLOSED);
+                    -ErrorCode.X_24501);
         }
     }
 

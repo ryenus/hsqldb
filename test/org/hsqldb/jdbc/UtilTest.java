@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.jdbc;
 
 import java.lang.reflect.Field;
@@ -43,8 +41,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import junit.framework.TestSuite;
-import org.hsqldb.Trace;
+
+import org.hsqldb.ErrorCode;
 
 /**
  * Test of class org.hsqldb.jdbc.Util.
@@ -70,7 +70,6 @@ public class UtilTest extends JdbcTestCase {
 //                          connection failure                006
 //
 //                          transaction resolution unknown    007
-
 // org.hsqldb.Trace - sql-error-messages
 //
 // 080=08000 socket creation error                             - better 08001 ?
@@ -82,56 +81,37 @@ public class UtilTest extends JdbcTestCase {
 // 003=08003 Connection is broken
 // 004=08003 The database is shutdown
 // 094=08003 Database does not exists                          - better 08001 ?
+    private static final Object[][] exceptions = new Object[][] {
+        {
+            SQLTransientConnectionException.class, new int[] {
+/*
+                ErrorCode.SOCKET_ERROR,
+                ErrorCode.DATABASE_LOCK_ACQUISITION_FAILURE,
+*/
+                ErrorCode.DATABASE_NOT_EXISTS
+            }
+        }, {
+            SQLNonTransientConnectionException.class, new int[] {
+                ErrorCode.X_08003, ErrorCode.X_08006,
+/*
+                ErrorCode.DATABASE_IS_SHUTDOWN,
+                ErrorCode.UNEXPECTED_EXCEPTION // when setting up TLS
+*/
+            }
+        }, {
+            SQLIntegrityConstraintViolationException.class, new int[] {
+                ErrorCode.X_23000, ErrorCode.X_23001, ErrorCode.X_23501,
+                ErrorCode.X_23502, ErrorCode.X_23503, ErrorCode.X_23504,
+                ErrorCode.X_23505,
+            }
+        }, {
+            SQLInvalidAuthorizationSpecException.class, new int[] {
+                ErrorCode.X_28000, ErrorCode.X_28501, ErrorCode.X_28502,
+                ErrorCode.X_28503
+            }
+        }, {
+            SQLSyntaxErrorException.class, new int[] {
 
-    private static final Object[][] exceptions = new Object[][]{
-        {
-            SQLTransientConnectionException.class,
-                    new int[] {
-/*
-                Trace.SOCKET_ERROR,
-                Trace.DATABASE_LOCK_ACQUISITION_FAILURE,
-*/
-                Trace.DATABASE_NOT_EXISTS
-            }
-        },
-        {
-            SQLNonTransientConnectionException.class,
-                    new int[] {
-                Trace.CONNECTION_IS_CLOSED,
-                Trace.CONNECTION_IS_BROKEN,
-/*
-                Trace.DATABASE_IS_SHUTDOWN,
-                Trace.UNEXPECTED_EXCEPTION // when setting up TLS
-*/
-          }
-        },
-        {
-            SQLIntegrityConstraintViolationException.class,
-                    new int[] {
-/*                Trace.INTEGRITY_CONSTRAINT_VIOLATION,
-*/
-                Trace.VIOLATION_OF_UNIQUE_INDEX,
-                Trace.TRY_TO_INSERT_NULL,
-                Trace.VIOLATION_OF_UNIQUE_CONSTRAINT,
-                Trace.CHECK_CONSTRAINT_VIOLATION,
-                Trace.INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT,
-                Trace.SEQUENCE_REFERENCED_BY_VIEW,
-                Trace.TABLE_REFERENCED_CONSTRAINT,
-                Trace.TABLE_REFERENCED_VIEW,
-                Trace.COLUMN_IS_REFERENCED
-            }
-        },
-        {
-            SQLInvalidAuthorizationSpecException.class,
-                    new int[] {
-                Trace.GRANTEE_ALREADY_EXISTS,
-                Trace.CIRCULAR_GRANT,
-                Trace.NO_SUCH_RIGHT
-            }
-        },
-        {
-            SQLSyntaxErrorException.class,
-                    new int[] {
                 // TODO:
                 //
                 // First, the overview section of java.sql.SQLSyntaxErrorException
@@ -167,7 +147,7 @@ public class UtilTest extends JdbcTestCase {
                 ///
                 // Our only Access Violation SQLSTATE so far is:
                 //
-                // Trace.NOT_AUTHORIZED 255=42000 User not authorized for action '$$'
+                // ErrorCode.NOT_AUTHORIZED 255=42000 User not authorized for action '$$'
                 //
                 // our syntax exceptions are apparently all sqlstate "37000"
                 //
@@ -176,37 +156,87 @@ public class UtilTest extends JdbcTestCase {
                 // not correct, in that we do not actually support dynamic
                 // SQL syntax, but rather only implement similar behaviour
                 // through JDBC Prepared and Callable statements.
-                Trace.UNEXPECTED_TOKEN,
-                Trace.UNEXPECTED_END_OF_COMMAND,
-                Trace.UNKNOWN_FUNCTION,
-                Trace.NEED_AGGREGATE,
-                Trace.SUM_OF_NON_NUMERIC,
-                Trace.WRONG_DATA_TYPE,
-                Trace.LABEL_REQUIRED,
-                Trace.WRONG_DEFAULT_CLAUSE,
-                Trace.MISSING_SOFTWARE_MODULE,
-                Trace.NOT_IN_AGGREGATE_OR_GROUP_BY,
-                Trace.INVALID_GROUP_BY,
-                Trace.INVALID_HAVING,
-                Trace.INVALID_ORDER_BY,
-                Trace.INVALID_ORDER_BY_IN_DISTINCT_SELECT,
-                Trace.NULL_LITERAL_NOT_ALLOWED,
-                Trace.INVALID_CHARACTER_ENCODING,
-                Trace.MISSING_CLOSEBRACKET,
-                Trace.COLUMN_IS_IN_INDEX,
-                Trace.SINGLE_COLUMN_EXPECTED,
-                Trace.INVALID_FUNCTION_ARGUMENT,
-                Trace.COLUMN_IS_IN_CONSTRAINT,
-                Trace.COLUMN_SIZE_REQUIRED,
-                Trace.INVALID_SIZE_PRECISION,
-/*
-                Trace.NOT_AUTHORIZED
-*/
+                ErrorCode.X_42000,
+                ErrorCode.X_42501,
+                ErrorCode.X_42502,
+                ErrorCode.X_42503,
+                ErrorCode.X_42504,
+                ErrorCode.X_42505,
+                ErrorCode.X_42506,
+                ErrorCode.X_42507,
+                ErrorCode.X_42508,
+                ErrorCode.X_42509,
+                ErrorCode.X_42511,
+                ErrorCode.X_42512,
+                ErrorCode.X_42513,
+                ErrorCode.X_42520,
+                ErrorCode.X_42521,
+                ErrorCode.X_42522,
+                ErrorCode.X_42523,
+                ErrorCode.X_42524,
+                ErrorCode.X_42525,
+                ErrorCode.X_42526,
+                ErrorCode.X_42527,
+                ErrorCode.X_42528,
+                ErrorCode.X_42529,
+                ErrorCode.X_42530,
+                ErrorCode.X_42531,
+                ErrorCode.X_42532,
+                ErrorCode.X_42533,
+                ErrorCode.X_42535,
+                ErrorCode.X_42536,
+                ErrorCode.X_42537,
+                ErrorCode.X_42541,
+                ErrorCode.X_42542,
+                ErrorCode.X_42543,
+                ErrorCode.X_42544,
+                ErrorCode.X_42545,
+                ErrorCode.X_42546,
+                ErrorCode.X_42547,
+                ErrorCode.X_42548,
+                ErrorCode.X_42551,
+                ErrorCode.X_42561,
+                ErrorCode.X_42562,
+                ErrorCode.X_42563,
+                ErrorCode.X_42564,
+                ErrorCode.X_42565,
+                ErrorCode.X_42566,
+                ErrorCode.X_42567,
+                ErrorCode.X_42568,
+                ErrorCode.X_42569,
+                ErrorCode.X_42571,
+                ErrorCode.X_42572,
+                ErrorCode.X_42573,
+                ErrorCode.X_42574,
+                ErrorCode.X_42575,
+                ErrorCode.X_42576,
+                ErrorCode.X_42577,
+                ErrorCode.X_42578,
+                ErrorCode.X_42579,
+                ErrorCode.X_42581,
+                ErrorCode.X_42582,
+                ErrorCode.X_42583,
+                ErrorCode.X_42584,
+                ErrorCode.X_42585,
+                ErrorCode.X_42586,
+                ErrorCode.X_42587,
+                ErrorCode.X_42588,
+                ErrorCode.X_42589,
+                ErrorCode.X_42591,
+                ErrorCode.X_42592,
+                ErrorCode.X_42593,
+                ErrorCode.X_42594,
+                ErrorCode.X_42595,
+                ErrorCode.X_42596,
+                ErrorCode.X_42597,
+                ErrorCode.X_42598,
+                ErrorCode.X_42601,
+                ErrorCode.X_42602,
+                ErrorCode.X_42603,
             }
-        },
-        {
-            SQLTransactionRollbackException.class,
-                    new int[] {
+        }, {
+            SQLTransactionRollbackException.class, new int[]{
+
                 // TODO: our 40xxx exceptions are not currently used (correctly)
                 //       for transaction rollback exceptions:
                 //
@@ -233,19 +263,18 @@ public class UtilTest extends JdbcTestCase {
                 //
             }
         },
+
         {
             SQLException.class,
-                    null // calculated below, in static initializer
+            null    // calculated below, in static initializer
         }
-
     };
-
     private static final Map classMap = new HashMap();
 
     static {
         List list = new ArrayList();
 
-        for (int i = 1; i < Trace.LAST_ERROR_HANDLE; i++) {
+        for (int i = 1; i < ErrorCode.LAST_ERROR_HANDLE; i++) {
             for (int j = 0; j < exceptions.length - 1; j++) {
                 int[]   codes = (int[]) exceptions[j][1];
                 boolean found = false;
@@ -253,6 +282,7 @@ public class UtilTest extends JdbcTestCase {
                 for (int k = 0; k < codes.length; k++) {
                     if (i == codes[k]) {
                         found = true;
+
                         break;
                     }
                 }
@@ -266,10 +296,10 @@ public class UtilTest extends JdbcTestCase {
         int[] nontransientcodes = new int[list.size()];
 
         for (int i = 0; i < list.size(); i++) {
-            nontransientcodes[i] = ((Integer)list.get(i)).intValue();
+            nontransientcodes[i] = ((Integer) list.get(i)).intValue();
         }
 
-        exceptions[exceptions.length-1][1] = nontransientcodes;
+        exceptions[exceptions.length - 1][1] = nontransientcodes;
 
         for (int i = 0; i < exceptions.length; i++) {
             classMap.put(exceptions[i][0], exceptions[i][1]);
@@ -277,6 +307,7 @@ public class UtilTest extends JdbcTestCase {
     }
 
     public UtilTest(String testName, int vendorCode) {
+
         super(testName);
 
         m_vendorCode = vendorCode;
@@ -291,104 +322,101 @@ public class UtilTest extends JdbcTestCase {
     }
 
     protected void checkSQLException(SQLException se) throws Exception {
-        String  sqlState  = se.getSQLState();
+
+        String sqlState = se.getSQLState();
 
         if (sqlState.startsWith("08")) {
             if (sqlState.endsWith("003")) {
                 assertTrue("se instanceof SQLNonTransientConnectionException",
-                        se instanceof SQLNonTransientConnectionException);
+                           se instanceof SQLNonTransientConnectionException);
                 checkErrorCode(se, SQLNonTransientConnectionException.class);
             } else {
                 assertTrue("se instanceof SQLTransientConnectionException",
-                        se instanceof SQLTransientConnectionException);
+                           se instanceof SQLTransientConnectionException);
                 checkErrorCode(se, SQLTransientConnectionException.class);
             }
         } else if (sqlState.startsWith("23")) {
-            assertTrue("se instanceof SQLIntegrityConstraintViolationException",
-                    se instanceof SQLIntegrityConstraintViolationException);
+            assertTrue(
+                "se instanceof SQLIntegrityConstraintViolationException",
+                se instanceof SQLIntegrityConstraintViolationException);
             checkErrorCode(se, SQLIntegrityConstraintViolationException.class);
         } else if (sqlState.startsWith("28")) {
             assertTrue("se instanceof SQLInvalidAuthorizationSpecException",
-                    se instanceof SQLInvalidAuthorizationSpecException);
+                       se instanceof SQLInvalidAuthorizationSpecException);
             checkErrorCode(se, SQLInvalidAuthorizationSpecException.class);
         } else if (sqlState.startsWith("42")) {
             assertTrue("se instanceof SQLSyntaxErrorException",
-                    se instanceof SQLSyntaxErrorException);
+                       se instanceof SQLSyntaxErrorException);
             checkErrorCode(se, SQLSyntaxErrorException.class);
         } else if (sqlState.startsWith("40")) {
             assertTrue("se instanceof SQLTransactionRollbackException",
-                    se instanceof SQLTransactionRollbackException);
+                       se instanceof SQLTransactionRollbackException);
             checkErrorCode(se, SQLTransactionRollbackException.class);
         } else {
             checkErrorCode(se, SQLException.class);
         }
     }
 
-    protected void checkErrorCode(SQLException se, Class clazz) throws Exception {
+    protected void checkErrorCode(SQLException se,
+                                  Class clazz) throws Exception {
+
         int     errorCode    = Math.abs(se.getErrorCode());
         String  errorMessage = se.getMessage();
         String  sqlState     = se.getSQLState();
-        int[]   codes        = (int[])classMap.get(clazz);
+        int[]   codes        = (int[]) classMap.get(clazz);
         boolean found        = false;
 
         for (int i = 0; i < codes.length; i++) {
             if (errorCode == codes[i]) {
                 found = true;
+
                 break;
             }
         }
 
         if (!found) {
-            assertEquals("Allowable error code "
-                    + errorCode
-                    + " ("
-                    + sqlState
-                    + " "
-                    + errorMessage
-                    + ") for: "
-                    + clazz,
-                    true,
-                    false);
+            assertEquals("Allowable error code " + errorCode + " (" + sqlState
+                         + " " + errorMessage + ") for: " + clazz, true,
+                             false);
         }
     }
 
     public static void main(java.lang.String[] argList) throws Exception {
-
         junit.textui.TestRunner.run(suite());
     }
 
     public static TestSuite suite() {
-        TestSuite suite = new TestSuite("UtilTest Suite");
 
+        TestSuite suite  = new TestSuite("UtilTest Suite");
+        Field[]   fields = ErrorCode.class.getFields();
 
-        Field[] fields = Trace.class.getFields();
-
-        for (int i = 0; i < fields.length-1; i++) {
+        for (int i = 0; i < fields.length - 1; i++) {
             if (int.class != fields[i].getType()) {
                 continue;
             }
 
-            Field field =  fields[i];
+            Field  field     = fields[i];
             String fieldName = field.getName();
 
             if ("bundleHandle".equals(fieldName)) {
                 continue;
             }
+
             if (fieldName.startsWith("NOT_USED_")) {
                 continue;
             }
+
             if (fieldName.startsWith("LAST_ERROR_HANDLE")) {
                 continue;
             }
 
-
             String testName = "testSqlException_" + fieldName;
-             try {
-            int vendorCode = field.getInt(null);
 
-            UtilTest test = new UtilTest(testName, vendorCode);
+            try {
+                int      vendorCode = field.getInt(null);
+                UtilTest test       = new UtilTest(testName, vendorCode);
 
-            suite.addTest(test);
+                suite.addTest(test);
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
@@ -400,9 +428,10 @@ public class UtilTest extends JdbcTestCase {
     private int m_vendorCode;
 
     protected void runTest() throws Throwable {
+
         println(getName());
 
-        SQLException ex = Util.sqlException(m_vendorCode,"");
+        SQLException ex = Util.sqlException(m_vendorCode, "");
 
         checkSQLException(ex);
     }

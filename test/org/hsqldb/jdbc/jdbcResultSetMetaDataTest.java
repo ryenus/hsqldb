@@ -131,7 +131,6 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
             switch(i) {
                 case 5  : // char
                 case 12 : // longvarchar
-                case 13 : // object
                 case 20 : // varchar
                 {
                     assertEquals("column: " + i, true, rsmd.isCaseSensitive(i));
@@ -492,7 +491,7 @@ public class jdbcResultSetMetaDataTest extends JdbcTestCase {
         int                   columnCount = rsmd.getColumnCount();
 
         for (int i = 1; i <= columnCount; i++) {
-           assertEquals("column: " + i, false, rsmd.isDefinitelyWritable(i));
+           assertEquals("column: " + i, true, rsmd.isDefinitelyWritable(i));
         }
     }
 
