@@ -638,13 +638,23 @@ public class TarGenerator {
             }
         }
 
+        /**
+         * This method is so-named because it only sets the owner privileges,
+         * not any "group" or "other" privileges.
+         * <P/>
+         * This is because of Java limitation.
+         * Incredibly, with Java 1.6, the API gives you the power to set
+         * privileges for "other" (last nibble in file Mode), but no ability
+         * to detect the same.
+         */
         static protected String getLameMode(File file) {
 
-            /* File.canExecute() not available until Java 1.6
-            int umod = file.canExecute() ? 1
-                                         : 0;
-            */
             int umod = 0;
+//#ifdef JAVA6
+            if (file.canExecute()) {
+                umod = 1;
+            }
+//#endif
 
             if (file.canWrite()) {
                 umod += 2;
