@@ -14,7 +14,7 @@ Wahlen:
                              aus SQL Befehl(e) gebildet.  Sieh die
                              Bedienungsanleitung.
     --rcFile=datei/pfad.rc   Anschluss Info Datei [$HOME/sqltool.rc]
-    --continueOnErr          Continue (wenn true) or Abbruch (false) nach Fehler
+    --continueOnErr          Continue (true) oder Abbruch (falsch) nach Fehler
     --setVar=NAME1=val1[,NAME2=val2...]   PL Variable
     --driver=a.b.c.Driver    JDBC Trieber Class [%{2}]
     urlid                    ID von url/Benutzername/Passwort in RC Datei
