@@ -1,8 +1,8 @@
 <!-- $Id$ -->
 
 <chapter id='tls-chapter'>
-    <title id='tls-title'>TLS</title>
-    <subtitle>TLS Support (a.k.a. SSL)</subtitle>
+    <title id='tls-title'>TLS Encryption</title>
+    <subtitle>Listener TLS Support (a.k.a. SSL)</subtitle>
     <chapterinfo>
         <authorgroup>
             <author>
@@ -16,7 +16,8 @@
         <edition>$Revision$</edition>
         <pubdate>$Date$</pubdate>
         <keywordset>
-            <keyword>Hsqldb</keyword>
+            <keyword>HyperSQL</keyword>
+            <keyword>HSQLDB</keyword>
             <keyword>TLS</keyword>
             <keyword>SSL</keyword>
             <keyword>JSSE</keyword>
@@ -24,9 +25,10 @@
         </keywordset>
     </chapterinfo>
     <para>
-        The instructions in this document are liable to change at any time.
-        In particular, we will be changing the method to supply the server-side
-        certificate password.
+        This chapter explains how to encrypt the stream between JDBC network
+        clients and HyperSQL Listeners.
+        If you are running an In-Process (non-Listener) setup, this chapter 
+        does not apply to you.
     </para>
     <section>
         <title>Requirements</title>
@@ -49,18 +51,19 @@
                 if there is demand, we could work around this).
             </para></listitem> <listitem><para>
                 A <link linkend='privatekey-section'>JKS keystore containing a 
-                private key</link>, in order to run a server.
+                private key</link>, in order to run a Listener.
             </para></listitem> <listitem><para>
-                If you are running the server side, then you'll need to run a
-                HSQLDB Server or WebServer.
-                It doesn't matter if the underlying database instances are
-                new, and it doesn't matter if you are making a new Server 
-                configuration or encrypting an existing Server configuration.
+                If you are running the listener side, then you'll need to run a
+                HSQLDB Server or WebServer Listener instance.
+                It doesn't matter if the underlying database catalogs are
+                new, and it doesn't matter if you are making a new Listener 
+                configuration or encrypting an existing Listener configuration.
                 (You can turn encryption on and off at will).
             </para></listitem> <listitem><para>
                 You need a HSQLDB jar file that was built with JSSE present.
-                If you got your HSQLDB 1.7.2 distribution from us, you are
-                all set, because we build with Java 1.4 (which contains JSSE).
+                If you obtained your HSQLDB 1.7.2-or-later distribution from us,
+                you are all set, because we build with Java 1.4 or later 
+                (which contains JSSE).
                 If you build your own jar file with Java 1.3, make sure to
                 install JSSE first.
             </para></listitem>
@@ -87,10 +90,10 @@
             </itemizedlist>
             <para>
                 At this time, the latter will only work for clients running 
-                with Java 1.4.
+                with Java 1.4 or later.
             </para> <para>
-                If the server you wish to connect to is using a certificate 
-                approved by your default trust keystores, then there is nothing 
+                If the listener you wish to connect to is using a certificate 
+                approved by your default trust keystore, then there is nothing 
                 else to do.
                 If not, then you need to tell Java to "trust" the server cert.
                 (It's a slight over-simplification to say that if the server
@@ -183,41 +186,41 @@ keytool -import -trustcacerts -keystore trust.store -alias new_alias -file serve
             </para>
         </section>
         <section>
-            <title>Server-Side</title>
-            <para>
-                
+            <title>Server-Side, aka Listener-Side</title>
+            <simpara>
                 Get yourself a <link linkend='privatekey-section'>JKS keystore 
                 containing a private key</link>.
-                Then set the system property javax.net.ssl.keyStore to the path 
-                to that file, and
-                <classname>javax.net.ssl.keyStorePassword</classname> to the 
-                password of the keystore (and to the private key-- they have 
-                to be the same).
-            </para>
-            <example>
-                <title>Running an Hsqldb server with TLS encryption</title>
-                <screen>
-    java -Djavax.net.ssl.keyStorePassword=secret  \
-        -Djavax.net.ssl.keyStore=/usr/hsqldb/db/db3/server.store  \
-        -cp /path/to/hsqldb.jar org.hsqldb.Server</screen>
-            </example>
-            <para>
-                (This is a single command that I have broken into 2 lines using
-                my shell's \ line-continuation feature.
-                In this example, I'm using a server.properties file so that I
-                don't need to give arguments to specify database instances or
-                the server endpoint).
-            </para>
+                Then set properties
+                <literal>system.javax.net.ssl.keyStore</literal> and
+                <literal>system.javax.net.ssl.keyStorePassword</literal> in your
+                <filename>server.properties</filename> or
+                <filename>webserver.properties</filename> file.
+                Set <literal>system.javax.net.ssl.keyStore</literal> to the path
+                of the private key JKD keystore, and
+                <literal>system.javax.net.ssl.keyStorePassword</literal> to the
+                password (of both the keystore and the private key record--
+                they must be the same).
+            </simpara>
             <caution id='tlspassword-caution'><para>
-                Specifying a password on the command-line is definitely
-                <emphasis role='bold'>not secure</emphasis>.
-                It's really only appropriate when untrusted users do not have 
-                any access to your computer.
-            </para></caution>
-            <para>
-                If there is any user demand, we will have a more secure way to 
-                supply the password before long.
-            </para>
+                If you set any password in a .properties (or any other) file,
+                you need to restrict access to the file.
+                On a good operating system, you can do this like so:
+                <informalexample><screen>
+    chmod 600 path/to/server.properties</screen>
+                </informalexample>
+            </para></caution><simpara>
+                The values and behavior of these .properties settings exactly
+                match the usage documented for
+                <literal>javax.net.ssl.keyStorePassword</literal> and
+                <literal>avax.net.ssl.keyStore</literal> in the JSSE docs.
+            </simpara>
+            <note>
+              Before version 1.9, HyperSQL depended on directly setting the
+              corresponding JSSE properties.
+              The new idiom is more secure and easier to manage.
+              If you have an old password in your config file, you should
+              remove it.
+            </note>
         </section>
     </section>
 
@@ -304,23 +307,18 @@ java DERImport new.keystore NEWALIAS Xpvk.pk8 Xcert.der</screen>
         <title>Automatic Server or WebServer startup on UNIX</title>
         <para>
             If you are on UNIX and want to automatically start and stop a
-            Server or WebServer running with encryption, follow the 
-            instructions in the
-            <link linkend='unix-chapter' endterm='unix-title'/> chapter, and
-            remember to make the init script configuration file readable only
-            to root and to set the variables
-            <literal>TLS_PASSWORD</literal> and <literal>TLS_KEYSTORE</literal>.
+            Server or WebServer running with encryption, set the
+            <literal>system.javax.net.ssl.keyStore</literal> and
+            <literal>system.javax.net.ssl.keyStorePassword</literal>
+            properties as instructed above, and follow the instructions in the
+            <link linkend='unix-chapter' endterm='unix-title'/> chapter,
+            paying close attention to the TLS-related comments in the template
+            config file.
         </para>
         <para>
             If you are using a private server certificate, make sure to also
-            set the trust store filepath as shown in the sample init script 
-            configuration file.
-        </para>
-        <para>
-            The <link linkend='tlspassword-caution'>cautionary warning
-            above</link> still applies.
-            The password will be visible to any minimally competent local
-            UNIX user who wants to see it.
+            set the trust store filepath for relevant urlids in your RC file,
+            as explained in the sample config file.
         </para>
     </section>
 </chapter>
