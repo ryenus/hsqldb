@@ -27,13 +27,13 @@
 # A personal Memory-Only (non-persistent) database.
 urlid mem
 url jdbc:hsqldb:mem:memdbid
-username sa
+username SA
 password
 
 # A personal, local, persistent database.
 urlid personal
 url jdbc:hsqldb:file:${user.home}/db/personal;shutdown=true
-username sa
+username SA
 password
 transiso TRANSACTION_READ_COMMITTED
 # When connecting directly to a file database like this, you should 
@@ -41,10 +41,10 @@ transiso TRANSACTION_READ_COMMITTED
 # properly when you exit the JVM.
 
 # This is for a hsqldb Server running with default settings on your local
-# computer (and for which you have not changed the password for "sa").
+# computer (and for which you have not changed the password for "SA").
 urlid localhost-sa
 url jdbc:hsqldb:hsql://localhost
-username sa
+username SA
 password
 
 
@@ -79,7 +79,7 @@ password
 
 #urlid tls
 #url jdbc:hsqldb:hsqls://db.admc.com:9001/lm2
-#username blaine
+#username BLAINE
 #password asecret
 #truststore ${user.home}/ca/db/db-trust.store
 
@@ -95,7 +95,6 @@ password
 #urlid mysql-testdb
 #url jdbc:mysql://hostname:3306/dbname
 #username root
-#username blaine
 #password hiddenpwd
 #driver com.mysql.jdbc.Driver
 
