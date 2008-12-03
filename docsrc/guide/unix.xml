@@ -1,123 +1,158 @@
 <!-- $Id$ -->
 
 <chapter id='unix-chapter'>
-    <title id='unix-title'>Hsqldb on UNIX</title>
-    <subtitle>
-        How to quickly get Hsqldb up and running on UNIX, including Mac OS X
-    </subtitle>
-    <chapterinfo>
-        <author>
-            <firstname>Blaine</firstname><surname>Simpson</surname>
-            <email>&blaineaddr;</email>
-            <affiliation>
-                <orgname>HSQLDB Development Group</orgname>
-            </affiliation>
-        </author>
-        <edition>$Revision$</edition>
-        <pubdate>$Date$</pubdate>
-        <keywordset>
-            <keyword>HSQLDB</keyword>
-            <keyword>UNIX</keyword>
-            <keyword>HOWTO</keyword>
-        </keywordset>
-    </chapterinfo>
+  <title id='unix-title'>HyperSQL on UNIX</title>
+  <subtitle>
+    How to quickly get a HyperSQL (aka HSQLDB) Listener up and running on UNIX,
+    including Mac OS X
+  </subtitle>
+  <chapterinfo>
+      <author>
+          <firstname>Blaine</firstname><surname>Simpson</surname>
+          <email>&blaineaddr;</email>
+          <affiliation>
+              <orgname>HSQLDB Development Group</orgname>
+          </affiliation>
+      </author>
+      <edition>$Revision$</edition>
+      <pubdate>$Date$</pubdate>
+      <keywordset>
+          <keyword>HyperSQL</keyword>
+          <keyword>HSQLDB</keyword>
+          <keyword>UNIX</keyword>
+          <keyword>Linux</keyword>
+          <keyword>HOWTO</keyword>
+      </keywordset>
+  </chapterinfo>
 
-    <section>
-        <title>Purpose</title>
-        <simpara>
-            This chapter explains how to quickly install, run, and
-            use HSQLDB on UNIX.
-        </simpara><simpara>
-            HSQLDB has lots of great optional features.
-            I intend to cover very few of them.
-            I do intend to cover what I think is the most common UNIX setup:
-            To run a multi-user database with permament data persistence.
-            (By the latter I mean that data is stored to disk so that the
-            data will persist across database shutdowns and startups).
-            I also cover how to run HSQLDB as a system daemon.
-        </simpara>
-    </section>
+  <section>
+      <title>Purpose</title>
+      <simpara>
+          This chapter explains how to quickly install, run, and
+          use a HyperSQL Listener (aka Server) on UNIX.
+      </simpara><simpara>
+          Note that, unlike traditional databases, there are many use cases
+          where it makes sense to run HyperSQL without any listener.
+          This type of setup is called <emphasis>In-Process</emphasis>,
+          and is not covered here, since there is no UNIX-specific setup in
+          that case.
+      </simpara><simpara>
+          HyperSQL has lots of great optional features.
+          I intend to cover very few of them.
+          I do intend to cover what I think is the most common UNIX setup:
+          To run a multi-user, externally-accessible catalog with permament
+          data persistence.
+          (By the latter I mean that data is stored to disk so that the
+          catalog data will persist across process shutdowns and startups).
+          I also cover how to run the Listener as a system daemon.
+      </simpara><simpara>
+        When I give sample shell commands below, I use commands which will work
+        in Bourne-compatible shells, including Bash and Korn.
+        Users who insist on using the inferior C-shells will need to convert.
+      </simpara>
+  </section>
 
-    <section>
-        <title>Installation</title>
-        <simpara>
-            Go to <ulink url="http://sourceforge.net/projects/hsqldb"/>
-            and click on the "files" link.
-            You want the current version.  This will be the highest
-            numbered version under the plain black "hsqldb" heading.
-            See if there's a distribution for the current HSQLDB version in
-            the format that you want.
-        </simpara> <simpara>
-            If you want an rpm, you should still find out the current
-            version of HSQLDB as described in the previous paragraph.
-            Then click "hsqldb" in the "free section" of
-            <ulink url='http://www.jpackage.org/'/> and see if they have
-            the current HSQLDB version built yet.
-            Hopefully, the JPackage folk will document what JVM versions their
-            rpm will support (currently they document this neither on their
-            site nor within the package itself).
-            (I really can't document how to download from a site that is
-            totally beyond my control).
-        </simpara> <note><simpara>
-            It could very well happen that some of the file formats which I
-            discuss below are not in fact offered.
-            If so, then we have not gotten around to building them.
-        </simpara></note> <simpara>
-            Binary installation depends on the package format that you 
-            downloaded.
-        </simpara><variablelist>
-        <varlistentry><term>Installing from a .pkg.Z file</term><listitem><para>
-            This package is only for use by a Solaris super-user.
-            It's a System V package.
-            Download then uncompress the package with uncompress or gunzip
-            <informalexample><screen>
-    uncompress filename.pkg.Z</screen>
-            </informalexample>
-                You can read about the package by running
-            <informalexample><screen>
-    pkginfo -l -d filename.pkg</screen>
-            </informalexample>
-                Run pkgadd as root to install.
-            </para><informalexample><screen>
-    pkgadd -d filename.pkg</screen>
-        </informalexample></listitem></varlistentry>
-        <varlistentry><term>Installing from a .rpm file</term><listitem><para>
-            This is a Linux rpm package.
-            After you download the rpm, you can read about it by running
-            <informalexample><screen>
-    rpm -qip /path/to/file.rpm</screen>
-            </informalexample></para><para>
-            Rpms can be installed or upgraded by running
-                <informalexample><screen>
-    rpm -Uvh /path/to/file.rpm</screen>
-                </informalexample>
-                as root.
-                Suse users may want to keep Yast aware of installed packages by
-                running rpm through Yast:
-                <literal>yast2 -i /path/to/file.rpm</literal>.
-            </para>
-        </listitem></varlistentry>
-        <varlistentry><term>Installing from a .zip file</term><listitem><simpara>
-            Extract the zip file to the parent directory of the new HSQLDB
-            home.
-            You don't need to create the
-            <emphasis role='bold'>HSQLDB_HOME</emphasis> directory because
-            the extraction will create it for you with the right name)
-            </simpara><informalexample><screen>
-    cd parent/of/new/hsqldb/home
+  <section>
+      <title>Installation</title>
+      <simpara>
+          Go to <ulink url="http://sourceforge.net/projects/hsqldb"/>
+          and click on the "files" link.
+          You want the current version.  This will be the highest
+          numbered version under the plain black "hsqldb" heading.
+          See if there's a distribution for the current HSQLDB version in
+          the format that you want.
+      </simpara> <simpara>
+          If you want a binary package and we either don't provide it, or you
+          prefer somebody else's build, you should still find out the current
+          version of HSQLDB as described in the previous paragraph.
+          It's very likely that you can find a binary package for your UNIX
+          variant with your OS distributor,
+          <ulink url='http://www.jpackage.org/'/>
+          <ulink url='http://sunfreeware.com/'/>, etc.
+          Nowadays, most UNIXes have software package management
+          systems which check Internet repositories.
+          Just search the repositories for "hsqldb" and "hypersql".
+          The challenge is finding an <emphasis>up-to-date</emphasis> package.
+          You will get better features and support if you work with the current
+          stable release of HyperSQL.
+          Pay attention to what JVM versions your binary package supports.
+      </simpara> <note><simpara>
+          It could very well happen that some of the file formats which I
+          discuss below are not in fact offered.
+          If so, then we have not gotten around to building them.
+      </simpara></note> <simpara>
+          Binary installation depends on the package format that you 
+          downloaded.
+      </simpara><variablelist>
+      <varlistentry><term>Installing from a .pkg.Z file</term><listitem><para>
+          This package is only for use by a Solaris super-user.
+          It's a System V package.
+          Download then uncompress the package with uncompress or gunzip
+          <informalexample><screen>
+  uncompress filename.pkg.Z</screen>
+          </informalexample>
+              You can read about the package by running
+          <informalexample><screen>
+  pkginfo -l -d filename.pkg</screen>
+          </informalexample>
+              Run pkgadd as root to install.
+          </para><informalexample><screen>
+  pkgadd -d filename.pkg</screen>
+      </informalexample></listitem></varlistentry>
+      <varlistentry><term>Installing from a BSD Port or
+          Package</term><listitem><simpara>
+        You're on your own.
+        I find everything much easier when I install software to BSD without
+        their package management systems.
+      </simpara></listitem></varlistentry>
+      <varlistentry><term>Installing from a .rpm file</term><listitem><para>
+          Just skip this section if you know how to install an RPM.
+          If you found the RPM using a software management system, then just
+          have it install it.
+          The remainder of item explains a generic command-line method
+          which should work with any Linux variant.
+          After you download the rpm, you can read about it by running
+          <informalexample><screen>
+  rpm -qip /path/to/file.rpm</screen>
+          </informalexample></para><para>
+          Rpms can be installed or upgraded by running
+              <informalexample><screen>
+  rpm -Uvh /path/to/file.rpm</screen>
+              </informalexample>
+              as root.
+              Suse users may want to keep Yast aware of installed packages by
+              running rpm through Yast:
+              <literal>yast2 -i /path/to/file.rpm</literal>.
+          </para>
+      </listitem></varlistentry>
+      <varlistentry><term>Installing from a .zip file</term><listitem><simpara>
+          Extract the zip file in an ancestor directory of the new HSQLDB
+          home.
+          You don't need to create the
+          <emphasis role='bold'>HSQLDB_HOME</emphasis> directory because
+          the extraction will create a version-labelled directory, and the
+          subdirectory "hsqldb".  This "hsqldb" directory is your
+          <emphasis role='bold'>HSQLDB_HOME</emphasis>, and you can move it
+          to wherever you wish.
+          If you will be upgrading or maintaining multiple versions of HyperSQL,
+          you will want to retain the version number in the directory tree
+          somehow.
+          </simpara><informalexample><screen>
+    cd ancestor/of/new/hsqldb/home
     unzip /path/to/file.zip</screen>
             </informalexample><simpara>
             All the files in the zip archive will be extracted to underneath
-            a new <filename>hsqldb</filename> directory.
-            </simpara>
+            a new subdirectory named like
+            <filename>hsqldb-1.9.2a/hsqldb</filename>.
+          </simpara>
         </listitem></varlistentry>
         </variablelist>
         <simpara>
             Take a look at the files you installed.
             (Under <filename>hsqldb</filename> for zip file installations.
             Otherwise, use the utilities for your packaging system).
-            The most important file of the hsqldb system is
-            <filename>hsqldb.jar</filename>, which resides in the directory
+            The most important file of the HyperSQL system is
+            <filename>hsqldb.jar</filename>, which resides in the subdirectory
             <filename>lib</filename>.
         </simpara> <important><simpara>
             For the purposes of this chapter, I define
@@ -143,7 +178,7 @@
             and see if it works, or build your own.
             </simpara> <simpara>
                 To use the supplied <filename>hsqldb.jar</filename>, just skip to
-                the <link linkend='instance_setup-section'> next section of this 
+                the <link linkend='catalog_setup-section'> next section of this 
             document</link>.
             Otherwise build a new <filename>hsqldb.jar</filename>.
         </simpara><procedure>
@@ -202,15 +237,15 @@
         </simpara>
     </section>
 
-    <section id='instance_setup-section'>
+    <section id='catalog_setup-section'>
         <title>
-            Setting up a Hsqldb Persistent Database Instance and a Hsqldb
-            Server
+          Setting up a HyperSQL Persistent Database Catalog
+          and a HyperSQL Network Listener
         </title>
-        <titleabbrev>Setting up Database Instance and Server</titleabbrev>
+        <titleabbrev>Setting up Database Catalog and Listener</titleabbrev>
         <simpara>
             If you installed from an OS-specific package, you may already
-            have a database instance and server pre-configured.
+            have a catalog and listener pre-configured.
             See if your package includes a file named 
             <filename>server.properties</filename>
             (make use of your packaging utilities).
@@ -225,7 +260,7 @@
                 In my examples, I use the user name <literal>hsqldb</literal>.
                 In this chapter, I refer to this user as the 
                 <emphasis role='bold'>HSQLDB_OWNER</emphasis>, since that user 
-                will own the database instance files and processes.
+                will own the database catalog files and the JVM processes.
                 </simpara> <para>
                 If the account doesn't exist, then create it.
                 On all system-5 UNIXes and most hybrids (including Linux), 
@@ -239,25 +274,23 @@
             </step><step><simpara>
                 Become the <emphasis role='bold'>HSQLDB_OWNER</emphasis>.
                 Copy the sample file 
-                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/sample-server.properties</filename>
+                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/server.properties</filename>
                 to the <emphasis role='bold'>HSQLDB_OWNER</emphasis>'s home
                 directory and rename it to 
                 <filename>server.properties</filename>.
             </simpara>
-            <programlisting>&sample-server.properties-cdata;</programlisting>
+            <programlisting>&server.properties-cdata;</programlisting>
             <simpara>
                 Since the value of the first database
                 (<property>server.database.0</property>) begins with
-                <literal>file:</literal>, the database instance will be
+                <literal>file:</literal>, the catalog will be
                 persisted to a set of files in the specified directory with
                 names beginning with the specified name.
                 Set the path to whatever you want (relative paths will be
                 relative to the directory containing the properties file).
-                You can read about how to specify other database instances
+                You can read about how to specify other catalogs
                 of various types, and how to make settings for the listen
-                port and many other things, in the 
-                <link linkend='advanced-chapter' endterm='advanced-title'/>
-                chapter.
+                port and many other things in other chapters of this guide.
             </simpara></step><step><para>
                 Set and export the environmental variable
                 <literal>CLASSPATH</literal> to the value of
@@ -269,10 +302,10 @@
                 In <emphasis role='bold'>HSQLDB_OWNER</emphasis>'s home
                 directory, run</para>
                 <informalexample><screen>
-    nohup java org.hsqldb.Server &amp;</screen>
+    nohup java org.hsqldb.server.Server &amp;</screen>
                 </informalexample><simpara>
-                    This will start the Server process in the background, and 
-                    will create your new database instance "db0".
+                    This will start the Listener process in the background, and 
+                    will create your new database catalog "db0".
                     Continue on when you see the message containing
                     <literal>HSQLDB server... is online</literal>.
                     <literal>nohup</literal> just makes sure that the command
@@ -299,12 +332,10 @@
             the config file.
             The JDBC URL for this urlid is
             <literal>jdbc:hsqldb:hsql://localhost</literal>.
-            That is the URL for the default database instance of a HSQLDB
-            Server running on the default port of the local host.
-            You can read about URLs to connect to other instances and 
-            other servers in the 
-            <link linkend='advanced-chapter' endterm='advanced-title'/>
-            chapter.
+            That is the URL for the default catalog of a HyperSQL
+            Listener running on the default port of the local host.
+            You can read about URLs to connect to other catalogs with and
+            without listeners in other chapters of this guide.
         </simpara> <para>
             Run <classname>SqlTool</classname>.
         <informalexample><screen>
@@ -317,8 +348,12 @@
             <link linkend='set_password-section'>SET PASSWORD</link>
             command to change SA's password.
             <informalexample><programlisting>
-    set password "newpassword";</programlisting>
+    set password 'newpassword';</programlisting>
             </informalexample></para>
+            Note that with SQL-conformant databases like HyperSQL 1.9,
+            user names and passwords are case sensitive.
+            If you don't quote the name, it will be interpreted as upper-case,
+            like any named SQL object.
         <simpara>
             When you're finished playing, exit with the command
             <literal>\q</literal>.
@@ -343,8 +378,8 @@
             including <classname>SqlTool</classname>, as long as the account 
             has read access to the <filename>hsqldb.jar</filename> file and to 
             an <filename>sqltool.rc</filename> file.
-            See the <link linkend='sqltool-chapter' endterm='sqltool-title'/>
-            chapter about where to put <filename>sqltool.rc</filename>, how to
+            See the Utilities Guide
+            about where to put <filename>sqltool.rc</filename>, how to
             execute sql files, and other <classname>SqlTool</classname> 
             features.
         </simpara>
@@ -355,9 +390,9 @@
         <simpara>
             Connect to the database as SA (or any other Administrative user)
             and run <link linkend='create_user-section'>CREATE USER</link>
-            to create new accounts for your database instance.
-            HSQLDB accounts are database-instance-specific, not 
-            <classname>Server</classname>-specific.
+            to create new accounts for your catalog.
+            HSQLDB accounts are database-catalog-specific, not 
+            <classname>Listener</classname>-specific.
         </simpara> <simpara>
             In SQL-compliant databases, all database objects are created in
             a <emphasis>schema</emphasis>.
@@ -367,7 +402,7 @@
             connected with) must have the role <literal>DBA</literal>, or 
             your account must have authorization for the target schema
             (see the CREATE SCHEMA command about this last).
-            When you first create a hsqldb database, it has only one database 
+            When you first create a HyperSQL catalog, it has only one database 
             user-- SA, a DBA account, with an empty string password.
             You should set a password (as described above).
             You can create as many additional users as you wish.
@@ -399,15 +434,15 @@
         <title>Shutdown</title>
         <para>
             Do a clean database shutdown when you are finished with the
-            database instance.
+            database catalog.
             You need to connect up as SA or some other Admin user, of course.
             With SqlTool, you can run
         <informalexample><screen>
-    java -jar path/to/hsqldb.jar --sql shutdown localhost-sa</screen>
+    java -jar path/to/hsqldb.jar --sql 'shutdown;' localhost-sa</screen>
     </informalexample>
         You don't have to worry about stopping the
-        <classname>Server</classname> because it shuts down automatically when 
-        all served database instances are shut down.
+        <classname>Listener</classname> because it shuts down automatically when 
+        all served database catalogs are shut down.
     </para>
     </section>
 
@@ -419,23 +454,35 @@
             manageable.
             This section explains how to set up and use our UNIX init script.
             Our init script is only for use by root.
-            (That is not to say that the <emphasis>Server</emphasis> will run
+            (That is not to say that the <emphasis>Listener</emphasis> will run
             as root-- it usually should not).
         </simpara> <simpara>
-            The main purpose of the init script is to start up a Server with
-            the database instances specified in your
-            <filename>server.properties</filename> file; and to shut down all
-            of those instances <emphasis>plus</emphasis> additional urlids
-            which you may (optionally) list in your init script config file.
-            These urlids must all have entries in a sqltool.rc file.
+            The main purpose of the init script is to start up a Listener for
+            the database catalogs specified in your
+            <filename>server.properties</filename> file; and to gracefully
+            shut down these same catalogs.
+            For each catalog defined by a <literal>server.database.X</literal>
+            setting in your .properties file, you must define an administrative
+            "urlid" in your <filename>sqltool.rc</filename> (these are used to
+            access the catalogs for validation and shutdown purposes).
+            Finally, you list the urlid names in your init script config file.
             If, due to firewall issues, you want to run a WebServer instead
             of a Server, then make sure you have a healthy WebServer with
             a webserver.properties set up, adjust your URLs in
             <filename>sqltool.rc</filename>, and set TARGET_CLASS in the 
             config file.
-            (By following the commented examples in the config file, you
-            can start up any number of Server and/or WebServer listeners
-            with or without TLS ecryption).
+        </simpara> <simpara>
+            By following the commented examples in the config file, you
+            can start up any number of Server and/or WebServer listener
+            instances with or without TLS ecryption, and each listener
+            instance can serve any number of HyperSQL catalogs
+            (independent data sets), all with
+            optimal efficiency from a single JVM process.
+            There are instructions in the init script itself about how to
+            run multiple, independently-configured JVM processes.
+            Most UNIX installations, however, will run a single JVM with a
+            single Listener instance which serves multiple catalogs,
+            for easier management and more efficient resource usage.
         </simpara> <simpara>
             After you have the init script set up, root can use it anytime
             to start or stop HSQLDB.
@@ -467,7 +514,7 @@
                 The strategy taken here is to get the init script to run your
                 single Server or WebServer first (as specified by TARGET_CLASS).
                 After that's working, you can customize the JVM that is run
-                by running additional Servers in it, running your own
+                by running additional Listener instances in it, running your own
                 application in it (embedding), or even overriding HSQLDB
                 behavior with your own overriding classes.
             </simpara>
@@ -482,61 +529,69 @@
                 UNIXes, <filename>/usr/local/etc/rc.d</filename> on BSD style
                 UNIXes, and <filename>/Library/StartupItems/hsqldb</filename>
                 on OS X (you'll need to create the directory for the last).
-            </simpara></step> <step><simpara>
-                Look at the comment towards the top of the init script which
-                lists recommended locations for the configuration file for
-                various UNIX platforms.
-                Copy the sample config file
-                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/sample-hsqldb.cfg</filename>
-                to one of the listed locations (your choice).
-                Edit the config file according to the instructions in it.
-                </simpara>
-                <programlisting>&sample-hsqldb.cfg-cdata;</programlisting>
-            </step> <step><simpara>
+            </simpara></step> <step><para>
+                View your <filename>server.properties</filename> file.
+                Make a note of every catalog define by a
+                <literal>server.database.X</literal> setting.
+                A couple steps down, you will need to set up administrative
+                access for each of these catalogs.
+                If you are using our sample
+                <filename>server.properties</filename> file, you just need to
+                know that you need to set up access for the catalog specified
+                with <literal>file:db0/dbo</literal>.
+                <note>
+                  Pre-1.9 versions of the hsqldb init script required use of
+                  .properties settings of the form
+                  <literal>server.urlid.X</literal>.
+                  These settings are not obsolete and should be removed.
+                </note>
+            </para></step> <step><simpara>
                 Either copy <emphasis role='bold'>HSQLDB_OWNER</emphasis>'s
                 <filename>sqltool.rc</filename> file into root's home 
                 directory, or set the value of AUTH_FILE to the absolute path
                 of <emphasis role='bold'>HSQLDB_OWNER</emphasis>'s
                 <filename>sqltool.rc</filename> file.
-                This file is read (for stops) directly by root, even if you run 
+                This file is read directly by root, even if you run 
                 hsqldb as non-root (by setting HSQLDB_OWNER in the config file).
                 If you copy the file, make sure to use <literal>chmod</literal>
                 to restrict permissions on the new copy.
                 The init script will abort with an appropriate exhortation
                 if you have the permissions set incorrectly.
-            </simpara></step> <step><simpara>
-                Edit your <filename>server.properties</filename> file.
-                For every <literal>server.database.X</literal> that you have
-                defined, set a property of name 
-                <literal>server.urlid.X</literal> to the urlid for an 
-                Administrative user for that database instance.
-                </simpara>
-                <example><title>server.properties fragment</title>
-                    <programlisting>
-    server.database.0=file://home/hsqldb/data/db1
-    server.urlid.0=localhostdb1</programlisting>
-                </example>
-                <warning><simpara>
-                    Make sure to add a urlid for each and every database
-                    instance.
-                    If you don't then the init script will never know about
-                    databases that become inaccessible and will give false
-                    diagnostics.
-                </simpara></warning>
-                <simpara>
-                For this example, you would need to define the urlid
-                <literal>localhostdb1</literal> in your
-                <filename>sqltool.rc</filename> file.
+              </simpara>
+              <simpara>
+                  You need to set up a urlid stanza in your
+                  <filename>sqltool.rc</filename> file
+                  for network access (i.e.
+                  JDBC URL with hsql:, hsqls:, http:, or https:)
+                  for each catalog in your
+                  <filename>server.properties</filename> file.
+                  For our example, you need to define a stanza for the
+                  <literal>file:db0/db0</literal> catalog.
+                  You must supply for this catalog, a hsql: JDBC URL,
+                  an administrative user name, and the password.
                 </simpara>
                 <example><title>example sqltool.rc stanza</title>
                     <programlisting>
     urlid localhostdb1
     url jdbc:hsqldb:hsql://localhost
-    username sa
+    username SA
     password secret</programlisting>
                 </example>
-            </step> <step>
-            <simpara>
+            </step> <step><simpara>
+                Look at the comment towards the top of the init script which
+                lists recommended locations for the configuration file for
+                various UNIX platforms.
+                Copy the sample config file
+                <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/hsqldb.cfg</filename>
+                to one of the listed locations (your choice).
+                Edit the config file according to the instructions in it.
+                For our example, you will set the valeu of
+                <literal>URLIDS</literal> to <literal>localhostdb1</literal>,
+                since that is the urlid name that we used in the
+                <filename>sqltool.rc</filename> file.
+                </simpara>
+                <programlisting>&hsqldb.cfg-cdata;</programlisting>
+                <simpara>
                 <emphasis role='bold'>Verify that the init script
                 works.</emphasis>
             </simpara> <para>
@@ -550,7 +605,7 @@
     /path/to/hsqldb status</screen>
             </informalexample><para>
                 at any time to see whether your HSQLDB
-                <classname>Server</classname> is running.
+                <classname>Listener</classname> is running.
             </para><simpara>
                 Re-run the script with each of the possible arguments to really
                 test it good.
@@ -610,6 +665,10 @@
                 Troubleshooting the Init Script
             </title>
             <simpara>
+              Definitely look at the init script log file, which is at an
+              OS-sependent location, but is usually at
+              <filename>/var/log/hsqldb.log</filename>.
+            </simpara><simpara>
                 Do a <literal>ps</literal> to look for processes containing
                 the string <literal>hsqldb</literal>, and try to connect to the 
                 database from any client.
@@ -618,12 +677,13 @@
                 specification of urlid(s) or SqlTool setup.
                 If your database really did not start, then skip to the next
                 paragraph.
-                Verify that the urlid(s) listed in the
+                Verify that your config file assigns a urlid for each catalog
+                defined in
                 <filename>server.properties</filename> or
-                <filename>webserver.properties</filename> are correct.
-                and verify that you can run 
+                <filename>webserver.properties</filename>,
+                then verify that you can run 
                 <classname>SqlTool</classname> as root to connect to the 
-                instances.
+                catalogs with these urlids.
                 (For the latter test, use the <literal>--rcfile</literal>
                 switch if you are setting <literal>AUTH_FILE</literal> in the 
                 init script config file).
@@ -674,14 +734,21 @@
             Most users will not have customized the init script itself, and
             your customizations will all be encapsulated in the init script
             configuration file.
-            These users should just overwrite their init script (wherever
-            they installed it to) with the file
-            <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/sample-hsqldb.cfg</filename>.
-            If you installed HSQLDB to a different location than your original
-            installation (a requirement if you want to keep both around), or
-            if you are using a different (probably newer) JRE, you will need
-            to update the relevant settings in your init script configuration
-            file.
+            These users should just overwrite their init script with a new one
+            from the HyperSQL installation, and manually merge config file
+            settings.
+            First, just copy the file
+            <emphasis
+            role='bold'>HSQLDB_HOME</emphasis><filename>/sample/hsqldb.init</filename>.
+            over top of of your init script (wherever it runs from).
+            Then update your old config file according to the instructions in
+            the new config file template at
+            <emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/sample/hsqldb.cfg</filename>.
+            You will have to change very few settings.
+            If you are upgrading from a pre-1.9 installation to a post-1.9
+            installation, you will need to add the setting
+            <literal>URLIDS</literal>, as described above and in the inline
+            comments.
         </simpara> <simpara>
             Users who customized their init script will need to merge their
             customizations into the new init script.
