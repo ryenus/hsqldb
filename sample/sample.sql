@@ -27,7 +27,7 @@ CREATE TABLE pctasklist (
     pctask integer,
     assigndate timestamp default current_timestamp,
     completedate timestamp,
-    show bit default true,
+    show boolean default true,
     FOREIGN KEY (pctask) REFERENCES pctask,
     UNIQUE (host, tasksequence)
 );
@@ -42,6 +42,6 @@ GRANT all ON pctasklist TO tomcat;
 INSERT INTO pctask (name, description, url) VALUES (
     'task one', 'Description for task 1', 'http://cnn.com');
 INSERT INTO pctasklist (host, tasksequence, pctask) VALUES (
-    'admc-masq', 101, SELECT id FROM pctask WHERE name = 'task one');
+    'admc-masq', 101, (SELECT id FROM pctask WHERE name = 'task one'));
 
 commit;
