@@ -395,7 +395,8 @@ implements ActionListener, WindowListener, KeyListener {
 
         MenuBar bar = new MenuBar();
 
-        // used shortcuts: CERGTSIUDOLM String[] fitems = {
+        // used shortcuts: CERGTSIUDOLM
+        String[] fitems = {
             "-Connect...", "--", "-Open Script...", "-Save Script...",
             "-Save Result...", "-Save Result csv...", "--", "-Exit"
         };
