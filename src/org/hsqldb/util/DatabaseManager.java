@@ -218,10 +218,9 @@ implements ActionListener, WindowListener, KeyListener {
     }
 
     /**
-     * Method declaration
+     * Run with --help switch for usage instructions.
      *
-     *
-     * @param arg
+     * @throws IllegalArgumentException for the obvious reason
      */
     public static void main(String[] arg) {
 
@@ -396,8 +395,7 @@ implements ActionListener, WindowListener, KeyListener {
 
         MenuBar bar = new MenuBar();
 
-        // used shortcuts: CERGTSIUDOLM
-        String[] fitems = {
+        // used shortcuts: CERGTSIUDOLM String[] fitems = {
             "-Connect...", "--", "-Open Script...", "-Save Script...",
             "-Save Result...", "-Save Result csv...", "--", "-Exit"
         };

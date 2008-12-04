@@ -489,6 +489,11 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
+    /**
+     * Run with --help switch for usage instructions.
+     *
+     * @throws IllegalArgumentException for the obvious reason
+     */
     public static void main(String[] arg) {
 
         System.getProperties().put("sun.java2d.noddraw", "true");
