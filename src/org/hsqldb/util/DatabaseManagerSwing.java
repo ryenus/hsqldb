@@ -505,7 +505,7 @@ implements ActionListener, WindowListener, KeyListener {
         for (int i = 0; i < arg.length; i++) {
             lowerArg = arg[i].toLowerCase();
 
-            if (lowerArg.length() > 1 && lowerArg.charAt(1) == '-') {
+            if (lowerArg.startsWith("--")) {
                 lowerArg = lowerArg.substring(1);
             }
 
@@ -537,10 +537,21 @@ implements ActionListener, WindowListener, KeyListener {
                 bMustExit = false;
 
                 i--;
-            } else {
+            } else if (lowerArg.equals("-help")) {
                 showUsage();
-
                 return;
+            } else {
+                /* Syntax ERRORS should either throw or exit with non-0 status.
+                 * In our case, it may be unsafe to exit, so we throw.
+                 * (I.e. should provide easy way for caller to programmatically
+                 * determine that there was an invocation problem).
+                 */
+
+                throw new IllegalArgumentException(
+                        "Try:  java... " + DatabaseManagerSwing.class.getName()
+                        + " --help");
+                // No reason to localize, since the main syntax message is
+                // not localized.
             }
         }
 
@@ -678,6 +689,7 @@ implements ActionListener, WindowListener, KeyListener {
         System.out.println(
             "Usage: java DatabaseManagerSwing [--options]\n"
             + "where options include:\n"
+            + "    --help                show this message\n"
             + "    --driver <classname>  jdbc driver class\n"
             + "    --url <name>          jdbc url\n"
             + "    --user <name>         username used for connection\n"
