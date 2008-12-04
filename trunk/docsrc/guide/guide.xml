@@ -4387,20 +4387,82 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     </section>
 
     <section>
-      <title>Backing Up Databases</title>
+      <title>Backing Up Database Catalogs</title>
 
-      <para>The data for each database consists of up to 5 files in the same
+      <para>The data for each catalog consists of up to 5 files in the same
       directory. The endings are *.properties, *.script, *.data, *.backup and
       *.log (a file with the *.lck ending is used for controlling access to
       the database and should not be backed up). These should be backed up
       together. </para>
 
-      <para>HyperSQL 1.9.0 includes commands to bakcup the database files into
-      a single file .tar or .tar.gzip archive. The backup can be performed
-      while the engine is running, or alternatively, when the database has
-      been shutdown.</para>
+      <simpara>HyperSQL 1.9.0 and later
+        includes commands to backup the database files into a single
+        <literal>.tar</literal> or <literal>.tar.gz</literal> file archive.
+        The backup can be performed by a command given in a JDBC session if the
+        target database catalog is running, or on the command-line if the target
+        catalog is shut down.
+      </simpara>
 
-      <para>**todo** backup commands</para>
+      <section><title>Making Online Backups</title>
+        <simpara>
+          To back up a running catalog, obtain a JDBC connection and issue a
+          <literal>BACKUP DATABASE TO</literal> command.
+          See the
+          <link linkend='syntax_backup-section'>SQL Syntax Chapter</link> for
+          details about the command itself.
+          See the section below about restoring a database backup.
+        </simpara>
+      </section>
+
+      <section><title>Making Offline Backups</title>
+        <para>
+          To back up an offline catalog, the catalog must be in shut down state.
+          You will run a Java command like this
+          <example><title>Offline Backup Example</title> <screen>
+    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
+    tar/path.tar db/base/path</screen>
+          </example>
+          where <literal>tar/path.tar</literal> is a file path to the *.tar or
+          *.tar.gz file to be created, and <literal>db/base/path</literal> is
+          the file path to the catalog file base name (in same fashion as in
+          <literal>server.database.*</literal> settings and JDBC URLs with
+          catalog type <literal>file:</literal>.
+        </para>
+      </section>
+
+      <section><title>Examining Backups</title>
+        <para>
+          You can examine backup tar files with <classname>DbBackup</classname>
+          on your operating system command line,
+          or with any Pax-compliant tar or pax client (this includes GNU tar),
+          <example><title>Examining a backup with DbBackup</title> <screen>
+    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
+          </example>
+          You can also give regular experessions at the end of the command line
+          if you are only interested in some of the file entries in the backup.
+          Note that these are real regular expressions, so you would use
+          <literal>.+script</literal> to match files ending in "script", not
+          <literal>*script</literal>.
+        </para>
+      </section>
+
+      <section><title>Restoring a Backup</title>
+        <para>
+          You use <classname>DbBackup</classname> on your operating system
+          command line to restore a catalog from a backup.
+          <example><title>Restoring a backup with DbBackup</title> <screen>
+    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
+    tar/path.tar db/dir</screen>
+          </example>
+          where <literal>tar/path.tar</literal> is a file path to the *.tar or
+          *.tar.gz file to be read, and <literal>db/dir</literal> is the target
+          directory to extract the catalog files into.
+          Note that <literal>db/dir</literal> specifies a directory path,
+          without the catalog file base name.
+          The files will be created with the names stored in the tar file
+          (and which you can see as described in the preceding section).
+        </para>
+      </section>
     </section>
   </chapter>
 
