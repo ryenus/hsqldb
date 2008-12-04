@@ -224,7 +224,7 @@ public class CodeSwitcher {
      */
     static void showUsage() {
 
-        System.out.print("Usage: java CodeSwitcher paths|{--pathlist=listfile}"
+        System.out.print("Usage: java CodeSwitcher paths|{--pathlist=listfile} "
                          + "[{+|-}label...] [+][-]\n"
                          + "If no labels are specified then all used\n"
                          + "labels in the source code are shown.\n"
