@@ -1,12 +1,12 @@
-\dX [Parameter...] wo X eins vom folgenden ist
-    t:  verzeichnet Tabellen
-    v:  verzeichnet sichten
-    s:  verzeichnet Sequenzen
-    i:  verzeichnet Indizes
-    S:  verzeichnet System Tabellen
-    a:  verzeichnet Aliases
-    n:  verzeichnet Schemanamen
-    u:  verzeichnet Benutzer
-    r:  verzeichnet Rollen
-    *:  verzeichnet Tabelleartig Gegenstände
+\dX [Parameter...] wobei X eins der folgenden Möglichkeiten ist:
+    t:  Auflistung von Tabellen
+    v:  Auflistung von Views
+    s:  Auflistung von Sequenzen
+    i:  Auflistung von Indizes
+    S:  Auflistung von Systemtabellen
+    a:  Auflistung von Aliasen
+    n:  Auflistung von Schemanamen
+    u:  Auflistung von Benutzer
+    r:  Auflistung von Rollen
+    *:  Auflistung von tabellenähnlichen Objekten
 
