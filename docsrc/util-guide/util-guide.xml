@@ -21,6 +21,8 @@
     <!ENTITY Testdb.java-cdata SYSTEM "../../tmp/docwork/util-guide/cdata/Testdb.java">
     <!ENTITY sqltool.rc-cdata SYSTEM "../../tmp/docwork/util-guide/cdata/sqltool.rc">
     <!ENTITY plsql.sql-cdata SYSTEM "../../tmp/docwork/util-guide/cdata/plsql.sql">
+    <!ENTITY sqljrt.sql-cdata SYSTEM "../../tmp/docwork/util-guide/cdata/sqljrt.sql">
+    <!ENTITY sqlpsm.sql-cdata SYSTEM "../../tmp/docwork/util-guide/cdata/sqlpsm.sql">
     <!ENTITY sample.sql-cdata
              SYSTEM "../../tmp/docwork/util-guide/cdata/sample.sql">
     <!ENTITY pl.sql-cdata
@@ -399,13 +401,16 @@
                     handle import of
                     data which is both positional and character-delimited.
                 </simpara></listitem><listitem><simpara>
-                    New \t command to log user-specified messages with
+                    New \l command to log user-specified messages with
                     <classname>java.util.logging</classname> or Log4j
                     logging facility.
                 </simpara></listitem><listitem><simpara>
                     All warnings and messages now use logging facility.
                     This is especially useful when embedding SqlTool into
                     an application.
+                </simpara></listitem><listitem><simpara>
+                    New *DSV_RECORDS_PER_COMMIT setting to support
+                    user-specified tuning of large DSV imports.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -445,8 +450,8 @@
                     This file will work as-is for a Memory Only database
                     instance; or if your target is a HSQLDB Server 
                     running on your local computer with default settings
-                    and the password for the "sa" account is blank
-                    (the sa password is blank when new HSQLDB database 
+                    and the password for the "SA" account is blank
+                    (the SA password is blank when new HSQLDB database 
                     instances are created).
                     Edit the file if you need to change the target Server URL, 
                     username, password, character set, JDBC driver, or TLS 
@@ -553,7 +558,7 @@
             SqlTool does not <emphasis>commit</emphasis> SQL changes by default.
             This leaves it to the user's disgression whether to commit or
             rollback their modifications.
-            Remember to either run \= to commit before quitting SqlTool.
+            Remember to run \= to commit before quitting SqlTool.
             (Most databases also support the SQL command
             <literal>commit;</literal>,
             or use the <literal>--autoCommit</literal> command-line switch).
@@ -590,7 +595,6 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
         <simpara>
             If you are using SqlTool to connect to a HSQLDB network server
             or any non-HSQLDB database, you may prefer to use the jar file
-            <filename>hsqltool.jar</filename> or
             <filename>hsqldbutil.jar</filename> instead of
             <filename>hsqldb.jar</filename>.
             These alternative jar files contain all of SqlTool without stuff
@@ -874,7 +878,7 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
                 You may only use this element to set empty password, like
                 <informalexample><screen>
                     password=</screen>
-                </informalexample>.  For any other password value, omit the
+                </informalexample>For any other password value, omit the
                 <literal>password</literal> element and you will be prompted
                 for the value.
             </simpara></listitem></varlistentry>
@@ -1168,7 +1172,7 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 engine.
                 Beginners can safely ignore raw mode.
                 You will never encounter it unless you run the "\."
-                special command, or enter a PL/SQL command.
+                special command, or define a stored procedure or function.
                 See the 
                 <link linkend='raw-section' endterm='raw-title'/> section
                 for the details.
@@ -2598,12 +2602,27 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 bottleneck is network latency.
                 Chunking SQL commands can dramatically reduce network traffic.
             </simpara> <simpara>
-                The second general reason to chunk SQL commands is if your
+              The second reason is that there are a couple SQL commands which
+              require the terminating ";" to be sent to the database engine.
+              For simplicity and efficiency, it's usually better for general
+              JDBC clients like SqlTool to strip off the final delimiter.
+              Raw commands retains everything that the user types.
+            </simpara> <simpara>
+                The third general reason to chunk SQL commands is if your
                 database requires you to send multiple commands in one
                 transmission.
-                This is often the case when you need to tell the database
-                the SQL or PL/SQL commands that comprise a stored procedure,
-                function, trigger, etc.
+                This is usually the case with the following types of commands:
+                <itemizedlist>
+                  <listitem>Nested SQL commands, like the nested CREATE SCHEMA
+                    variant, and most stored procedure, function, and trigger
+                    definitions.
+                  </listitem><listitem>
+                    Commands containing non-quoted programming language to be
+                    interpreted by the database engine.
+                    Definitions of stored procedures, function, and triggers
+                    often contain code like this.
+                  </listitem>
+                </itemizedlist>
             </simpara>
         </section>
         <section>
@@ -2643,6 +2662,16 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             You'll notice that your prompt will be the "raw" prompt 
             between entering "\." and terminating the raw input with ".;" 
             or ":.".
+        </simpara> <simpara>
+            Just by running commands beginning with
+            <literal>BEGIN</literal>, <literal>DECLARE</literal>,
+            <literal>CREATE function</literal>,
+            or <literal>CREATE procedure</literal>, your SqlTool session will
+            automatically be changed to Raw mode, exactly as if you had entered
+            "\.".
+            That's because these commands are universally used to define
+            stored procedures or functions, and these commands require raw mode
+            (as explained in the previous section).
         </simpara>
         <para>
             <example><title>Interactive Raw Mode example</title><screen>
@@ -2680,25 +2709,35 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
     </section>
 
     <section>
-        <title>PL/SQL</title>
+      <title>SQL/PSM, SQL/JRT, and PL/SQL</title>
+        <simpara>
+          This section covers database-engine-embedded languages, which are
+          often used in the definition of stored procedures, stored functions,
+          and triggers.
+          <literal>SQL/PSM</literal>, <literal>SQL/JRT</literal>,
+          and <literal>PL/SQ:</literal> are well known examples.
+          We prefer <literal>SQL/PSM</literal> and <literal>SQL/JRT</literal>
+          because unlike the alternatives, they are based on open SQL
+          specifications.
+        </simpara>
         <note><simpara>
             PL/SQL is <emphasis role='bold'>not</emphasis> the same as
             PL.  PL is the procedural language of SqlFile and is 
             independent of your back-end database.
             PL commands always begin with *.
-            PL/SQL is processed on the server side and you can only use
-            it of your database supports it.
-            You can not intermix PL and PL/SQL (except for setting a
-            PL variable to the output of PL/SQL execution), because when
-            you enter PL/SQL to SqlTool that input is not processed
-            by SqlFile.
+            PL/SQL is an Oracle-specific extension processed on the server side.
+            You can not intermix PL and any server-embedded language
+            (except for setting a PL variable to the output of execution),
+            because when you enter server language to SqlTool, that input is
+            not processed by SqlFile.
         </simpara></note>
         <simpara>
             Use <link linkend='raw-section' endterm='raw-title'/> to send
-            PL/SQL code blocks to the database engine.
+            server-language code blocks to the database engine.
             You do not need to enter the "\." command to enter raw mode.
-            Just begin a new SqlTool command line with "DECLARE" or 
-            "BEGIN", and SqlTool will automatically put you into raw mode.
+            Just begin a new SqlTool command line with "DECLARE",
+            "BEGIN", "CREATE FUNCTION", or "CREATE PROCEDURE",
+            and SqlTool will automatically put you into raw mode.
             See the <link linkend='raw-section' endterm='raw-title'/>
             section for details.
         </simpara>
@@ -2706,8 +2745,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             The following sample SQL file resides at 
             <filename>sample/plsql.sql</filename> in your HSQLDB distribution
             <footnoteref linkend='samplelocFn'/>.
-            This script will only work if your database engine supports
-            standard PL/SQL, if you have permission to create the table
+            This script will only work with Oracle, only if you have
+            permission to create the table
             "T1" in the default schema, and if that object does not 
             already exist.
             <example><title>PL/SQL Example</title>
@@ -2717,42 +2756,43 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             you want:  Whatever you enter--  blank lines, comments,
             everything-- will be transmitted to the database engine.
         </para>
+        <para>
+          <example><title>SQL/JRT Example</title>
+            <programlisting>&sqljrt.sql-cdata;</programlisting>
+          </example>
+          <example><title>SQL/PSM Example</title>
+            <programlisting>&sqlpsm.sql-cdata;</programlisting>
+          </example>
+        </para>
     </section>
 
     <section id='altjar-section'>
-        <title id='altjar-title'>Using hsqltool.jar and hsqldbutil.jar</title>
+        <title id='altjar-title'>Using hsqldbutil.jar</title>
         <simpara>
             This section is for those users who want to use SqlTool but 
             without the overhead of hsqldb.jar (or who want to use a new
             SqlTool build with an older HSQLDB distribution).
         </simpara><simpara>
-            If you do not need to directly use JDBC URLs like
-            <literal>jdbc:hsqldb:mem:</literal> + something,
-            <literal>jdbc:hsqldb:file:</literal> + something, or
-            <literal>jdbc:hsqldb:res:</literal> + something,
-            then you can use <filename>hsqltool.jar</filename> in place of
+            If you are getting your client JDBC driver from somewhere other
+            than hsqldb.jar, then you can use
+            <filename>hsqldbutil.jar</filename> in place of
             the much larger <filename>hsqldb.jar</filename> file.
-            <filename>hsqltool.jar</filename> will work for all JDBC
-            databases other than HSQLDB Memory-only and In-process databases
-            (the latter are fine if you access them via a HSQLB Server or
-            WebServer).
-            You will have to supply the JDBC driver for non-HSQLDB URLs, of
-            course.
+            Just have your JDBC driver class and 
+            <filename>hsqldb.jar</filename> in your classpath and run
+            <filename>SqlTool</filename>.
         </simpara><simpara>
-            <filename>hsqltool.jar</filename> includes the HSQLDB JDBC
-            driver.
-            If you do not need to connect to HSQLDB databases at all, 
-            then <filename>hsqldbutil.jar</filename> is what you want.
-            <filename>hsqldbutil.jar</filename> contains everything you
-            need to run <filename>SqlTool</filename> and
-            <filename>DatabaseManagerSwing</filename> against non-HSQLDB
-            databases... well, besides the JDBC drivers for the target
-            databases.
+            As explained in a different section, by putting a
+            <filename>hsqldbutil.jar</filename> file in your classpath
+            <emphasis>before</emphasis> a <filename>hsqldb.jar</filename>
+            file, the client programs in 
+            <filename>hsqldbutil.jar</filename>
+            (including <classname>org.hsqldb.cmdline.SqlTool</classname>)
+            will override the (perhaps older) classes in the
+            <filename>hsqldbutil.jar</filename> file.
         </simpara><simpara>
-            The HSQLDB distribution doesn't "come with" pre-built 
-            <filename>hsqltool.jar</filename> and
-            <filename>hsqldbutil.jar</filename> files.
-            You need to "build" them, but that is very easy to do.
+            The HSQLDB distribution doesn't "come with" a pre-built 
+            <filename>hsqldbutil.jar</filename> file.
+            You need to "build" it, but that is very easy to do.
         </simpara><simpara>
             These instructions assume that you are capable of running an Ant
             build. 
@@ -2761,26 +2801,21 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             chapter if you need more details than what you see here.
         </simpara>
         <procedure>
-            <step><simpara>
-                Download and extract a current HSQLDB distribution.
-                If you don't want to use the source code, documentation,
-                etc., you can use a temporary directory and remove it
-                afterwards.
-            </simpara></step><step><simpara>
-                Cd to the build directory under the root directory where
-                you extracted the distribution to.
-            </simpara></step><step><simpara>
-                Run <literal>ant hsqldbutil</literal> or
-                <literal>ant hsqltool</literal> according to the criteria
-                above.
-                (If your goal is to use this jar with an older HSQLDB
-                distribution, then you definitely need to build
-                <filename>hsqlbutil.jar</filename>).
-            </simpara></step><step><simpara>
-                If you're going to clean up afterwards, copy the
-                jar that you built out of <filename>lib</filename>
-                to a safe location first.
-            </simpara></step>
+          <step><simpara>
+              Download and extract a current HSQLDB distribution.
+              If you don't want to use the source code, documentation,
+              etc., you can use a temporary directory and remove it
+              afterwards.
+          </simpara></step><step><simpara>
+              Cd to the build directory under the root directory where
+              you extracted the distribution to.
+          </simpara></step><step><simpara>
+              Run <literal>ant hsqldbutil</literal>.
+          </simpara></step><step><simpara>
+              If you're going to clean up afterwards, copy the
+              jar that you built out of <filename>lib</filename>
+              to a safe location first.
+          </simpara></step>
         </procedure>
 
         <simpara>
@@ -3106,6 +3141,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
           HSQLDB source code repository.
           Just run the <filename>runtests.bash</filename> script from
           that directory to execute all of the tests.
+          As you can see, the test runner, unfortunately, requires a Bash
+          shell at this time.
           Read the file <filename>README.txt</filename> to find out all
           about it, including everything you'd need to know to test your
           own scripts or to add more unit test scripts for SqlTool.
