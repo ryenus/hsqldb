@@ -1,7 +1,7 @@
 # $Id$
 
 # This is a sample RC configuration file used by SqlTool, DatabaseManager,
-# and any other program that uses the org.hsqldb.util.RCData class.
+# and any other program that uses the org.hsqldb.lib.RCData class.
 # See the documentation for SqlTool for various ways to use this file.
 
 # If you have the least concerns about security, then secure access to
