@@ -19,6 +19,6 @@ Options:
     --driver=a.b.c.Driver    JDBC driver class [%{2}]
     urlid                    ID of url/username/password in rcfile
     file1.sql...             SQL files to be executed [stdin]
-                             (Use '-' for non-interactively stdin).
+                             (Use '-' for non-interactive stdin).
 See the SqlTool Manual for the supported sqltool.* System Properties.
 SqlTool v. %{1}.
