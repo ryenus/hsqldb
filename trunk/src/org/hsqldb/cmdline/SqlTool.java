@@ -266,7 +266,7 @@ public class SqlTool {
      * Connect to a JDBC Database and execute the commands given on
      * stdin or in SQL file(s).
      *
-     * This method is changed for HSQLDB 1.8.0.8 and 1.9.0.x to never
+     * This method is changed for HSQLDB 1.8.0.8 and later to never
      * System.exit().
      *
      * @param arg  Run "java... org.hsqldb.cmdline.SqlTool --help" for syntax.
