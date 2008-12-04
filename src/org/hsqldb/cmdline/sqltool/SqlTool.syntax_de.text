@@ -19,6 +19,6 @@ Wahlen:
     --driver=a.b.c.Driver    JDBC Trieber Class [%{2}]
     urlid                    ID von url/Benutzername/Passwort in RC Datei
     datei1.sql...            SQL Dateien auszuführen  [stdin]
-                             (Benutzen Sie '-' für non-interactively stdin!).
+                             (Benutzen Sie '-' für non-interactive stdin!).
 Sehen Sie den Benutzer-Führer für abgestützte System Eigenschaften.
 SqlTool v. %{1}.
