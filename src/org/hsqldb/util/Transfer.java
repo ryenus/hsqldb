@@ -167,10 +167,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     */
     public void init() {
 
         Transfer m = new Transfer();
@@ -179,8 +175,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
     }
 
     /**
-     * Method declaration
-     *
+     * @throws IllegalArgumentException for the obvious reason
      */
     public static void work(String[] arg) {
 
@@ -190,10 +185,9 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
     }
 
     /**
-     * Method declaration
+     * Run with --help arg for syntax help.
      *
-     *
-     * @param arg
+     * @throws IllegalArgumentException for the obvious reason
      */
     public static void main(String[] arg) {
 
@@ -201,7 +195,12 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
         bMustExit = true;
 
-        work(arg);
+        try {
+            work(arg);
+        } catch (IllegalArgumentException iae) {
+            throw new IllegalArgumentException(
+                    "Try:  java "+ Transfer.class.getName() + " --help");
+        }
     }
 
     private boolean CatalogToSelect() {
@@ -353,9 +352,11 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         return (lTable.getItemCount() > 0);
     }
 
+    static private final String SYNTAX_MSG =
+        "java " + Transfer.class.getName() + " [--help|--dump|--restore]";
+
     /**
-     * Method declaration
-     *
+     * @throws IllegalArgumentException for the obvious reason
      */
     void _main(String[] arg) {
 
@@ -364,13 +365,21 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
          */
         iTransferMode = TRFM_TRANSFER;
 
-        if ((arg != null) && (arg.length > 0)) {
+        if (arg != null) {
+            if (arg.length != 1) {
+                throw new IllegalArgumentException();
+            }
             if ((arg[0].toLowerCase().equals("-r"))
                     || (arg[0].toLowerCase().equals("--restore"))) {
-                iTransferMode = TRFM_RESTORE;
-            } else if ((arg[0].toLowerCase().equals("-d"))
+                iTransferMode = TRFM_RESTORE; } else if ((arg[0].toLowerCase().equals("-d"))
                        || (arg[0].toLowerCase().equals("--dump"))) {
                 iTransferMode = TRFM_DUMP;
+            } else if ((arg[0].toLowerCase().equals("-h"))
+                       || (arg[0].toLowerCase().equals("--help"))) {
+                System.out.println(Transfer.SYNTAX_MSG);
+                return;
+            } else {
+                throw new IllegalArgumentException();
             }
         }
 
