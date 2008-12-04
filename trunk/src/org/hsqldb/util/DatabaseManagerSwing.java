@@ -703,8 +703,7 @@ implements ActionListener, WindowListener, KeyListener {
             + "    --rcfile <file>       (defaults to 'dbmanager.rc' in home dir)\n"
             + "    --dir <path>          default directory\n"
             + "    --script <file>       reads from script file\n"
-            + "    --noexit              do not call system.exit()\n"
-            + "(Single-hypen switches like '-driver' are also supported)");
+            + "    --noexit              do not call system.exit()");
     }
 
     private void insertTestData() {
