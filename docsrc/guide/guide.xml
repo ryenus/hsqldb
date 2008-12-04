@@ -4432,10 +4432,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
       <section><title>Examining Backups</title>
         <para>
-          You can examine backup tar files with <classname>DbBackup</classname>
+          You can list the contents of backup tar files with
+          <classname>DbBackup</classname>
           on your operating system command line,
           or with any Pax-compliant tar or pax client (this includes GNU tar),
-          <example><title>Examining a backup with DbBackup</title> <screen>
+          <example><title>Listing a backup with DbBackup</title> <screen>
     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
           </example>
           You can also give regular experessions at the end of the command line
@@ -4444,6 +4445,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
           <literal>.+script</literal> to match files ending in "script", not
           <literal>*script</literal>.
         </para>
+        <simpara>
+          You can examine the contents of the backup in their entirety by
+          restoring the backup, as explained in the following section, to a
+          temporary directory.
+        </simpara>
       </section>
 
       <section><title>Restoring a Backup</title>
