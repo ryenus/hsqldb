@@ -1,9 +1,9 @@
-/?                     Zeige diesen Hilfetext an
-/=                     Zeige alle Makros
-/= Name Befehl...      Definieren Sie ein Makro die gleiche wie die angegebene
-                         SQL-Befehl.  (Geben Sie keine der Einstellung ";").
-/= Name :[Anhängsel]   Definieren Sie ein Makro gleich dem aktuellen
-                         Puffer-Inhalten
-/Name [Anhängsel]      Erweitern Sie Makro in den Puffer
-/Name [Anhängsel];     Führen Sie das Makro
+/?                     Zeigt diesen Hilfetext an
+/=                     Zeigt alle Makros
+/= Name Befehl...      Definieren Sie ein Makro zu dem angebenen
+                       SQL-Befehl.  (Kein ";" eingeben!).
+/= Name :[Anhang]      Definieren Sie ein Makro zum aktuellen
+                       Puffer-Inhalt
+/Name [Anhang]         Laden Sie das Makro in den Puffer
+/Name [Anhang];        Führen Sie das Makro aus
 
