@@ -2249,7 +2249,7 @@
       secure to test it as explained here before activating it. You could, of
       course, test an ACL file by editing it in-place, then trying to connect
       to your listener with JDBC clients from various source addresses.
-      Besides being mightily labrious and boring, with this method it is very
+      Besides being mightily laborious and boring, with this method it is very
       easy to accidentally open access to all source addresses or to deny
       access to all users until you fix incorrect ACL entries.</para>
 
@@ -2266,7 +2266,10 @@
       given details about the problem. Otherwise, the validated rules will be
       dispayed (including the implicit, default deny rules). You then type in
       host names and addresses, one-per-line. Each name or address is tested
-      as if it were a HyperSQL network client address.
+      as if it were a HyperSQL network client address, using the same exact
+      method that the HyperSQL listener will use.
+      (HyperSQL listeners use this same <classname>ServerAcl</classname> class
+      to test incoming source addresses).
       <classname>ServerAcl</classname> will report the rule which matches and
       whether access is denied or allowed to that address.</para>
 
@@ -4526,11 +4529,13 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
           </example> You can also give regular experessions at the end of the
         command line if you are only interested in some of the file entries in
-        the backup. Note that these are real regular expressions, so you would
-        use <literal>.+script</literal> to match files ending in "script", not
-        <literal>*script</literal>.</para>
+        the backup. Note that these are real regular expressions, not shell
+        globbing patterns, so you would use <literal>.+script</literal> to
+        match entries ending in "script", not
+        <literal>*script</literal>.
+      </para>
 
-        <simpara>You can examine the contents of the backup in their entirety
+      <simpara>You can examine the contents of the backup in their entirety
         by restoring the backup, as explained in the following section, to a
         temporary directory.</simpara>
       </section>
