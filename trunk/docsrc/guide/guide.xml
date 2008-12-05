@@ -1850,8 +1850,8 @@
 </programlisting>
 
       <para>The Server object has several alternative methods for setting
-      datbases and their public names. The server should be shutdown using the
-      shtudown() method.</para>
+      databases and their public names. The server should be shutdown using
+      the shtudown() method.</para>
 
       <para>**todo** restart on shutdown etc. modes</para>
 
@@ -2267,25 +2267,22 @@
       dispayed (including the implicit, default deny rules). You then type in
       host names and addresses, one-per-line. Each name or address is tested
       as if it were a HyperSQL network client address, using the same exact
-      method that the HyperSQL listener will use.
-      (HyperSQL listeners use this same <classname>ServerAcl</classname> class
-      to test incoming source addresses).
-      <classname>ServerAcl</classname> will report the rule which matches and
-      whether access is denied or allowed to that address.</para>
+      method that the HyperSQL listener will use. (HyperSQL listeners use this
+      same <classname>ServerAcl</classname> class to test incoming source
+      addresses). <classname>ServerAcl</classname> will report the rule which
+      matches and whether access is denied or allowed to that address.</para>
 
       <simpara>If you have edited a copy of an existing ACL file (as suggested
       above), then overwrite your live ACL file with your new, validated ACL
       file. I.e., copy your temp file over top of your live ACL
       file.</simpara>
 
-      <simpara>
-        <classname>ServerAcl</classname> can be run in the same exact way
-        described above, to troubleshoot runtime access issues.
-        If you use an ACL file and a user or application can't get a connection
-        to the database, you can run <classname>ServerAcl</classname> to
-        quickly and definitively find if the client is being prohibited by an
-        ACL rule.
-      </simpara>
+      <simpara><classname>ServerAcl</classname> can be run in the same exact
+      way described above, to troubleshoot runtime access issues. If you use
+      an ACL file and a user or application can't get a connection to the
+      database, you can run <classname>ServerAcl</classname> to quickly and
+      definitively find if the client is being prohibited by an ACL
+      rule.</simpara>
     </section>
   </chapter>
 
@@ -3062,8 +3059,8 @@
       <literal>jdbc:hsqldb:</literal> followed by a protocol identifier
       (<literal>mem: file: res: hsql: http: hsqls: https:</literal>) then
       followed by host and port identifiers in the case of servers, then
-      followed by database identifier. Additional properties can be appended
-      to the end of the URL.</para>
+      followed by database identifier. Additional property / value pairs can
+      be appended to the end of the URL, separated with semicolons.</para>
 
       <table frame="all" pgwide="1" tocentry="1">
         <title>Hsqldb URL Components</title>
@@ -3416,11 +3413,11 @@
     <section>
       <title>Database Properties</title>
 
-      <para>The database engine generates a .properties file for each file
-      catalog. Most of these properties can be changed via SQL commands. Some
-      properties are only changed by the engine. There are, however, a few
-      properties than can be modified by the user while the database is
-      shutdown.</para>
+      <para>The database engine generates a <literal>.properties</literal>
+      file for each file catalog. Most of these properties can be changed via
+      SQL commands. Some properties are only changed by the engine. There are,
+      however, a few properties than can be modified by the user while the
+      database is shutdown.</para>
 
       <section>
         <title>Individual Database Properties</title>
@@ -4484,27 +4481,42 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     <section>
       <title>Backing Up Database Catalogs</title>
 
+      <para>The database engine saves the files containing all the data in a
+      file catalog when a shutdown takes place. It automatically recovers from
+      an abnormal termination and preserves the data when the catalog is
+      openend next time. In an ideal operating environment, where there is no
+      OS crash, disk failure, bugs in code, etc. there would be no need
+      regularly to backup a database. This is meant to say, the engine
+      performs the routine shutdown procedure internally, therefore backing up
+      catalogs is an insurance policy against all sorts of misadventure that
+      are not under the control of the database engine.</para>
+
       <para>The data for each catalog consists of up to 5 files in the same
-      directory. The endings are *.properties, *.script, *.data, *.backup and
-      *.log (a file with the *.lck ending is used for controlling access to
-      the database and should not be backed up). These should be backed up
-      together.</para>
+      directory with the endings such as <literal>*.properties</literal>,
+      <literal>*.script</literal>, etc., as detailed in previous chapters
+      **todo**</para>
 
       <simpara>HyperSQL 1.9.0 and later includes commands to backup the
       database files into a single <literal>.tar</literal> or
       <literal>.tar.gz</literal> file archive. The backup can be performed by
       a command given in a JDBC session if the target database catalog is
-      running, or on the command-line if the target catalog is shut
-      down.</simpara>
+      running, or on the command-line if the target catalog has been
+      shutdown.</simpara>
 
       <section>
         <title>Making Online Backups</title>
 
         <simpara>To back up a running catalog, obtain a JDBC connection and
-        issue a <literal>BACKUP DATABASE TO</literal> command. See the <link
-        linkend="syntax_backup-section">SQL Syntax Chapter</link> for details
-        about the command itself. See the section below about restoring a
-        database backup.</simpara>
+        issue a <literal>BACKUP DATABASE</literal> command in SQL. In its most
+        simple form, the command format below will backup the database as a
+        single <literal>.tar.gz</literal> file to the given
+        directory.</simpara>
+
+        <programlisting>BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
+
+        <simpara>See the <link linkend="syntax_backup-section">SQL Syntax
+        Chapter</link> for details about the command and its options. See the
+        sections below about restoring a backup.</simpara>
       </section>
 
       <section>
@@ -4517,12 +4529,12 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
             <screen>
     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
     tar/path.tar db/base/path</screen>
-          </example> where <literal>tar/path.tar</literal> is a file path to
-        the *.tar or *.tar.gz file to be created, and
-        <literal>db/base/path</literal> is the file path to the catalog file
-        base name (in same fashion as in <literal>server.database.*</literal>
-        settings and JDBC URLs with catalog type
-        <literal>file:</literal>.</para>
+          </example>where <literal>tar/path.tar</literal> is a file path to
+        the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to be
+        created, and <literal>db/base/path</literal> is the file path to the
+        catalog file base name (in same fashion as in
+        <literal>server.database.*</literal> settings and JDBC URLs with
+        catalog type <literal>file:</literal>.</para>
       </section>
 
       <section>
@@ -4536,15 +4548,14 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
             <screen>
     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
-          </example> You can also give regular experessions at the end of the
+          </example>You can also give regular experessions at the end of the
         command line if you are only interested in some of the file entries in
         the backup. Note that these are real regular expressions, not shell
         globbing patterns, so you would use <literal>.+script</literal> to
         match entries ending in "script", not
-        <literal>*script</literal>.
-      </para>
+        <literal>*script</literal>.</para>
 
-      <simpara>You can examine the contents of the backup in their entirety
+        <simpara>You can examine the contents of the backup in their entirety
         by restoring the backup, as explained in the following section, to a
         temporary directory.</simpara>
       </section>
@@ -4559,7 +4570,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
             <screen>
     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
     tar/path.tar db/dir</screen>
-          </example> where <literal>tar/path.tar</literal> is a file path to
+          </example>where <literal>tar/path.tar</literal> is a file path to
         the *.tar or *.tar.gz file to be read, and <literal>db/dir</literal>
         is the target directory to extract the catalog files into. Note that
         <literal>db/dir</literal> specifies a directory path, without the
@@ -4878,7 +4889,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
         <para>Finally, HSQLDB provides the ability to read a text file from
         the bottom up and making them READ ONLY, by placing the keyword "DESC"
-        at the end of the SET TABLE SOURCE statement:</para>
+        at the end of the SET TABLE SOURCE statement: *** not supported now
+        **</para>
 
         <programlisting>
     SET TABLE mytable SOURCE "myfile" DESC</programlisting>
@@ -4946,7 +4958,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </listitem>
 
         <listitem>
-          <para>The file location for a text table created with</para>
+          <para>The file location for a text table created with ** not
+          supported now **</para>
 
           <programlisting>
     SELECT &lt;select list&gt; INTO TEXT &lt;tablename&gt; FROM</programlisting>
