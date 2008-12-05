@@ -2281,9 +2281,9 @@
       <simpara>
         <classname>ServerAcl</classname> can be run in the same exact way
         described above, to troubleshoot runtime access issues.
-        If you user an ACL file and a user or application can't get a connection
+        If you use an ACL file and a user or application can't get a connection
         to the database, you can run <classname>ServerAcl</classname> to
-        quickly and definitively find if the address is being prohibited by an
+        quickly and definitively find if the client is being prohibited by an
         ACL rule.
       </simpara>
     </section>
