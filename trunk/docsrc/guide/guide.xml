@@ -489,7 +489,7 @@
         return;
     }
 
-    Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "sa", "");</programlisting>
+    Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");</programlisting>
         </example>
 
         <para>If the HyperSQL HTTP server is used, the protocol is
@@ -498,7 +498,7 @@
         <example>
           <title>Java code to connect to the local http Server</title>
 
-          <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:http://localhost/xdb", "sa", "");</programlisting>
+          <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:http://localhost/xdb", "SA", "");</programlisting>
         </example>
 
         <para>Note in the above connection URL, there is no mention of the
@@ -533,8 +533,8 @@
             <title>Java code to connect to the local secure SSL hsql and http
             Servers</title>
 
-            <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:hsqls://localhost/xdb", "sa", "");
-    Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "sa", "");
+            <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:hsqls://localhost/xdb", "SA", "");
+    Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "SA", "");
 </programlisting>
           </example>The security features are discussed in detail in
         **todo**.</para>
@@ -584,7 +584,7 @@
             <title>specifying a connection property to shutdown the database
             when the last connection is closed</title>
 
-            <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "sa", "");</programlisting>
+            <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
           </example>This feature is useful for running tests, where it may not
         be practical to shutdown the database after each test. But it is not
         recommended for application programs.</para>
@@ -612,7 +612,7 @@
             <title>specifying a connection property to disallow creating a new
             database</title>
 
-            <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "sa", "");</programlisting>
+            <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
           </example>
         </para>
       </section>
