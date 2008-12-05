@@ -2277,6 +2277,15 @@
       above), then overwrite your live ACL file with your new, validated ACL
       file. I.e., copy your temp file over top of your live ACL
       file.</simpara>
+
+      <simpara>
+        <classname>ServerAcl</classname> can be run in the same exact way
+        described above, to troubleshoot runtime access issues.
+        If you user an ACL file and a user or application can't get a connection
+        to the database, you can run <classname>ServerAcl</classname> to
+        quickly and definitively find if the address is being prohibited by an
+        ACL rule.
+      </simpara>
     </section>
   </chapter>
 
