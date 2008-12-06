@@ -7,11 +7,12 @@
        that are set in the STYLE block below.
        If you copy this file, email it to somebody, etc., remember
        to send your rejects_custom.css file too, or it will appear
-       without customization in the new location.  -- blaine
+       without customization in the new location.  - blaine
 -->
 
 <HEAD>
     <TITLE>SqlTool DSV Reject Report</TITLE>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <STYLE>
         th { background-color:DDEEEE; }
         .right { text-align:right; }
