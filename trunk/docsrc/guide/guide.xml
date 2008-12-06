@@ -1449,7 +1449,7 @@
       <title>Listeners</title>
 
       <para>As described in the **todo** chapter, network listeners or servers
-      provide connectivity to catalogs from differnt JVM processes.</para>
+      provide connectivity to catalogs from different JVM processes.</para>
 
       <section>
         <title>HyperSQL Server</title>
@@ -1848,7 +1848,7 @@
     <section>
       <title id="tls-title">TLS Encryption</title>
 
-      <subtitle>Listener TLS Support (a.k.a. SSL)</subtitle>
+      <subtitle>Listener TLS Support (a. k. a. SSL)</subtitle>
 
       <chapterinfo>
         <authorgroup>
@@ -2035,7 +2035,7 @@
           <literal>truststore</literal> on a per-urlid basis in the SqlTool
           configuration file.</para>
 
-          <para>N.b. The hostname in your database URL must match the
+          <para>Note: The hostname in your database URL must match the
           <emphasis>Common Name</emphasis> of the server's certificate
           exactly. That means that if a site certificate is
           <literal>admc.com</literal>, you can not use
@@ -2324,7 +2324,7 @@
       <simpara>HyperSQL has lots of great optional features. I intend to cover
       very few of them. I do intend to cover what I think is the most common
       UNIX setup: To run a multi-user, externally-accessible catalog with
-      permament data persistence. (By the latter I mean that data is stored to
+      permanent data persistence. (By the latter I mean that data is stored to
       disk so that the catalog data will persist across process shutdowns and
       startups). I also cover how to run the Listener as a system
       daemon.</simpara>
@@ -2559,11 +2559,10 @@
 
       <procedure>
         <step>
-          <simpara>Select a UNIX user to run the database process (JVM) as.
-          If this database
-          is for the use of multiple users, or is a production system (or to
-          emulate a production system), you should dedicate a UNIX user for
-          this purpose. In my examples, I use the user name
+          <simpara>Select a UNIX user to run the database process (JVM) as. If
+          this database is for the use of multiple users, or is a production
+          system (or to emulate a production system), you should dedicate a
+          UNIX user for this purpose. In my examples, I use the user name
           <literal>hsqldb</literal>. In this chapter, I refer to this user as
           the <emphasis role="bold">HSQLDB_OWNER</emphasis>, since that user
           will own the database catalog files and the JVM processes.</simpara>
@@ -2627,7 +2626,7 @@
     <emphasis
     role="bold">HSQLDB_HOME</emphasis><filename>/sample/sqltool.rc</filename>
     to the <emphasis role="bold">HSQLDB_OWNER</emphasis>'s home directory. Use
-    <literal>chmod</literal> to make the file readable and writable only to
+    <literal>chmod</literal> to make the file readable and writeable only to
     <emphasis role="bold">HSQLDB_OWNER</emphasis>. </simpara><programlisting>&sqltool.rc-cdata;</programlisting><simpara>
     We will be using the "localhost-sa" sample urlid definition from the
     config file. The JDBC URL for this urlid is
@@ -3543,7 +3542,7 @@
               <row>
                 <entry nameend="c3" namest="c1">
                   <para>This property is no longer supported. Use
-                  sql.enforce_sctrict_size</para>
+                  sql.enforce_strict_size</para>
                 </entry>
               </row>
 
@@ -3869,8 +3868,8 @@
       be specified as this will slow the engine down to the speed at which the
       file synch operation can be performed by the disk subsystem.</para>
 
-      <para>Values down to 10 millisconds can be specified by adding MILLIS to
-      the command, but in practice a delay of 100 milliseconds provides
+      <para>Values down to 10 milliseconds can be specified by adding MILLIS
+      to the command, but in practice a delay of 100 milliseconds provides
       99.99999% reliability with an average one system crash per 6
       days.</para>
 
@@ -4446,7 +4445,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
               <literal>FOREIGN KEY</literal>
             </para>
 
-            <para>A FOREIGN KEY constraint can allways be removed.</para>
+            <para>A FOREIGN KEY constraint can always be removed.</para>
           </listitem>
 
           <listitem>
@@ -4472,7 +4471,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       <para>The database engine saves the files containing all the data in a
       file catalog when a shutdown takes place. It automatically recovers from
       an abnormal termination and preserves the data when the catalog is
-      openend next time. In an ideal operating environment, where there is no
+      opened next time. In an ideal operating environment, where there is no
       OS crash, disk failure, bugs in code, etc. there would be no need
       regularly to backup a database. This is meant to say, the engine
       performs the routine shutdown procedure internally, therefore backing up
@@ -4773,7 +4772,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
             <term>\quote</term>
 
             <listitem>
-              <para>qoute</para>
+              <para>single-quote</para>
             </listitem>
           </varlistentry>
 
@@ -4960,7 +4959,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </listitem>
 
         <listitem>
-          <para>It is possible to define a primay key or identity column for
+          <para>It is possible to define a primary key or identity column for
           text tables.</para>
         </listitem>
 
