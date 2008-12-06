@@ -1448,7 +1448,7 @@
     <section>
       <title>Listeners</title>
 
-      <para>As described in the **todo** chapter, network liteners or servers
+      <para>As described in the **todo** chapter, network listeners or servers
       provide connectivity to catalogs from differnt JVM processes.</para>
 
       <section>
@@ -1624,19 +1624,6 @@
               </entry>
 
               <entry>lowercase server alias for the n'th database file</entry>
-            </row>
-
-            <row>
-              <entry>
-                <property>server.urlid.n</property>
-              </entry>
-
-              <entry>
-                <literal>NO DEFAULT</literal>
-              </entry>
-
-              <entry>SqlTool urlid used by UNIX init script. for the n'th
-              database file</entry>
             </row>
 
             <row>
@@ -1851,7 +1838,7 @@
 
       <para>The Server object has several alternative methods for setting
       databases and their public names. The server should be shutdown using
-      the shtudown() method.</para>
+      the shutdown() method.</para>
 
       <para>**todo** restart on shutdown etc. modes</para>
 
@@ -1918,7 +1905,7 @@
           </listitem>
 
           <listitem>
-            <para>If Java 2.x or 3.x, then you will need need to <link
+            <para>If Java 2.x or 3.x, then you will need to <link
             linkend="jsse-section">install JSSE</link>. Your server and/or
             client will start up much slower than that of Java 4.x users.
             Client-side users will not be able to use the https: JDBC protocol
@@ -2035,7 +2022,7 @@
           <para>If you added the cert to a system trust store, then you are
           finished. Otherwise you will need to specify your custom trust
           keystore to your client program. The generic way to set the trust
-          keystore is to set the sytem property
+          keystore is to set the system property
           <classname>javax.net.ssl.trustStore</classname> every time that you
           run your client program. For example <example>
               <title>Specifying your own trust store to a JDBC client</title>
@@ -2044,7 +2031,7 @@
     java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</screen>
             </example> This example runs the program <link
           linkend="unix-chapter">SqlTool</link>. SqlTool has built-in TLS
-          support, however, so, for SqlTool you can set
+          support however, so, for SqlTool you can set
           <literal>truststore</literal> on a per-urlid basis in the SqlTool
           configuration file.</para>
 
@@ -2264,7 +2251,7 @@
     java -cp path/to/hsqldb.jar org.hsqldb.server.ServerAcl path/to/acl.txt</screen>
         </example> If the specified ACL file fails validation, you will be
       given details about the problem. Otherwise, the validated rules will be
-      dispayed (including the implicit, default deny rules). You then type in
+      displayed (including the implicit, default deny rules). You then type in
       host names and addresses, one-per-line. Each name or address is tested
       as if it were a HyperSQL network client address, using the same exact
       method that the HyperSQL listener will use. (HyperSQL listeners use this
@@ -2572,7 +2559,8 @@
 
       <procedure>
         <step>
-          <simpara>Select a UNIX user to run the database as. If this database
+          <simpara>Select a UNIX user to run the database process (JVM) as.
+          If this database
           is for the use of multiple users, or is a production system (or to
           emulate a production system), you should dedicate a UNIX user for
           this purpose. In my examples, I use the user name
@@ -2755,7 +2743,7 @@
 
       <simpara>By following the commented examples in the config file, you can
       start up any number of Server and/or WebServer listener instances with
-      or without TLS ecryption, and each listener instance can serve any
+      or without TLS encryption, and each listener instance can serve any
       number of HyperSQL catalogs (independent data sets), all with optimal
       efficiency from a single JVM process. There are instructions in the init
       script itself about how to run multiple, independently-configured JVM
@@ -2861,7 +2849,7 @@
             role="bold">HSQLDB_HOME</emphasis><filename>/sample/hsqldb.cfg</filename>
             to one of the listed locations (your choice). Edit the config file
             according to the instructions in it. For our example, you will set
-            the valeu of <literal>URLIDS</literal> to
+            the value of <literal>URLIDS</literal> to
             <literal>localhostdb1</literal>, since that is the urlid name that
             we used in the <filename>sqltool.rc</filename> file.</simpara>
 
@@ -4548,7 +4536,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
             <screen>
     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
-          </example>You can also give regular experessions at the end of the
+          </example>You can also give regular expressions at the end of the
         command line if you are only interested in some of the file entries in
         the backup. Note that these are real regular expressions, not shell
         globbing patterns, so you would use <literal>.+script</literal> to
@@ -5173,7 +5161,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <programlisting>ALTER INDEX &lt;indexname&gt; RENAME TO &lt;newname&gt;;</programlisting>
 
         <para>Index names can be changed so long as they do not conflict with
-        other user-defined or sytem-defined names.</para>
+        other user-defined or system-defined names.</para>
       </section>
 
       <!-- Template for new items:  (Put new items into alphabetical position)
