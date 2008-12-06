@@ -1,5 +1,6 @@
-Eintragen Sie ROH SQL!  Kein \, :, * Befehle.
-End with a line containing only ".;" to send to database,
-Beenden Sie mit Zeile, die nur "." enthält, oder ":." um in den EditPuffer
-zu schreiben für editieren oder speichern.
+Geben Sie ROW-SQL ein!  Keine '\', ':', '*' Befehle.
+Schließen Sie mit einer Leerzeile ab welche nur ".;" enthält
+um alles an die Datenbank zu senden;
+oder ":." um alles in den Edit-Puffer für die Bearbeitung oder
+Speicherung zu laden. 
 -----------------------------------------------------------
