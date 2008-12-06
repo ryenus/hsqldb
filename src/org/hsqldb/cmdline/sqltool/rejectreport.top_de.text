@@ -1,17 +1,17 @@
 <HTML>
 
-<!--   END USERS:  To customize, write your own CSS file named
-       "rejects_custom.css" and place it in same directory as
-       this file is read from.
-       Probably makes most sense to start by overriding the styles
-       that are set in the STYLE block below.
-       If you copy this file, email it to somebody, etc., remember
-       to send your rejects_custom.css file too, or it will appear
-       without customization in the new location.  -- blaine
+<!--   BENUTZER: Zur Anpassung schreiben Sie bitte ihre eigene CSS-Datei
+	   mit dem Namen "rejects_custom.css" und speichern Sie im selben 
+	   Verzeichniss wie diese Datei.
+	   Es macht wohl den meisten Sinn, zuerst die Style-Elemente im
+	   STYLE-Block zu überschreiben.
+	   Wenn Sie diese Datei kopieren oder an jemanden mailen, so 
+	   vergessen Sie nicht auch ihre eigene CCS-Datei mit zu schicken.
+	   Oder die Seitendarstellung wird ohne ihre Anpassung erfolgen. -- blaine (im engl. Orginaltext)
 -->
 
 <HEAD>
-    <TITLE>SqlTool DSV Reject Report</TITLE>
+    <TITLE>SqlTool DSV Reject-Report</TITLE>
     <STYLE>
         th { background-color:DDEEEE; }
         .right { text-align:right; }
@@ -31,29 +31,29 @@
 <BODY>
 
 <P>
-    Import performed <SPAN class='headingval'>%{1}</SPAN> with SqlTool.
+    Import durchgeführt <SPAN class='headingval'>%{1}</SPAN> mit SqlTool.
 </P>
 <P>
-    Input DSV file: <SPAN class='headingval'>%{2}</SPAN>
+    Eingabe DSV-Datei: <SPAN class='headingval'>%{2}</SPAN>
 </P>
 <P>
-    Reject DSV file: <SPAN class='headingval'>%{3}</SPAN>
+    Zurückweisung (Reject) DSV-Datei: <SPAN class='headingval'>%{3}</SPAN>
 </P>
 %{4:+
 <P>
-    The corresponding records in '%4'
-    are at line numbers of (reject # + 1), since the
-    header record occupies the first line.
+    Die passenden Datensätze in '%4'
+    sind bei Zeilennummer von (Reject # +), seit  der
+    führende Datensatz die erste Zeile eingenommen hat.
 </P>
 }
 
 <TABLE border='1px' cellpadding='5px'>
     <THEAD><TR>
-        <TH title="Number of this error">rej.&nbsp;#</TH>
-        <TH title="Line number in input .dsv file">input<BR/>line&nbsp;#</TH>
-        <TH title="Offending column.  Blank if unknown.">
-            bad&nbsp;column<BR/>(if&nbsp;known)</TH>
-        <TH title="Reason for failure, from DSV parser or database"
-            class='reason'>reason</TH>
+        <TH title="Nummer dieses Fehlers">rej.&nbsp;#</TH>
+        <TH title="Zeilennummer in der Eingabe DSV-Datei">Eingabe<BR/>Zeile&nbsp;#</TH>
+        <TH title="Fehlerhafte Spalte. Leer, wenn unbekannt.">
+            fehlerhafte&nbsp;Spalte<BR/>(wenn&nbsp;bekannt)</TH>
+        <TH title="Ursache für den Fehler, vom DSV-Parser oder der Datenbank"
+            class='reason'>Ursache</TH>
     </TR></THEAD>
     <TBODY>
