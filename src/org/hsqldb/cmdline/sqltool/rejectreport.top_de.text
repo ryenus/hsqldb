@@ -7,11 +7,12 @@
 	   STYLE-Block zu überschreiben.
 	   Wenn Sie diese Datei kopieren oder an jemanden mailen, so 
 	   vergessen Sie nicht auch ihre eigene CCS-Datei mit zu schicken.
-	   Oder die Seitendarstellung wird ohne ihre Anpassung erfolgen. -- blaine (im engl. Orginaltext)
+	   Oder die Seitendarstellung wird ohne ihre Anpassung erfolgen. - blaine (im engl. Orginaltext)
 -->
 
 <HEAD>
     <TITLE>SqlTool DSV Reject-Report</TITLE>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <STYLE>
         th { background-color:DDEEEE; }
         .right { text-align:right; }
