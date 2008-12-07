@@ -1,27 +1,22 @@
-(SqlFile Bearbeiter v. %{1})
-Weiterverbreitung ist zulässig unter den Bedinungen der HSQLDB Lizenz.
-(c) 2004-2008 Blaine Simpson and die HSQLDB Development Group.
+(SqlFile processor v. %{1})
+Die Weitergabe ist zulässig unter den Bedingungen der HSQLDB Lizenz.
+(c) 2004-2008 Blaine Simpson und die HSQLDB Development Group.
 
-    \q    aufzuhören.
-    \?    listet Sonderbefehle.
-    :?    listet Editpuffer/History commands.
-    *?    listet PL Befehle.
-    /?    Help zeigt auf, wie die Definition und Verwendung von Befehl Makros.
+    \q    beenden.
+    \?    Sonderbefehle auflisten.
+    :?    Edit-Puffer/Verlaufsbefehle auflisten.
+    *?    PL Befehle auflisten.
+    /?    Zeigt die Hilfe und wie Makros (Befehlsaliase) definiert und gelöscht werden.
 
-SONDER Befehle fangen mit \ an und führen durch, wann Sie ENTER-Taste schlagen.
-EDIT-PUFFER / GESCHICHTE fangen mit : an und führen durch, wann Sie ENTER-Taste
- schlagen.
-VERFAHRENSSPRACHE Befehle fangen mit * an und führen durch, wann Sie
- ENTER-Taste anschlagen.
-MACRO Hinrichtungen und Definitionen beginnen mit '/' und am Ende, wenn Sie
- drücken Sie die Eingabetaste.
-Alle weiteren Zeilen enthalten SQL Anweisungen (oder Kommentare).
-  SQL-Anweisungen werden endweder durch ";" beendet (das die Anweisung
-  ausführt), oder eine leere Zeile (das bewegt die Anweisung in den Puffer
-  bearbeiten, ohne die Ausführung).
-Nach Variableexpansion bei der "*" Befehl (oder irgendeine andere
-Verfahrensbefehle), PL Variable können in den meisten Befehle wie so:
-*{PLVARNAME}.  Seien Sie sich bewusst, wenn Sie reguläre Ausdrücke auf Befehle,
-die die regexp. funktionieren nur auf der Kommandozeile nach dem Text * oder
-\ Präfix, falls vorhanden.
-
+SONDERBEFEHLE fangen mit \ ab und werden mit ENTER ausgeführt.
+EDIT-PUFFER / VERLAUFSBEFEHLE  fangen mit einem ':' an und werden mit ENTER ausgeführt.
+PROCEDURAL LANGUAGE (PL) Befehle fangen mit einem '*' an  und werden mit ENTER beendet.
+MAKRO Ausführungen und Definitionen beginnen  mit einem '/' und werden mit ENTER beendet.
+Alle anderen Zeilen enthalten SQL-Anweisungen (oder Kommentare).
+	SQL-Anweisungen werden entweder durch ein ';' beendet (und dann ausgeführt)
+	oder mit einer Leerzeile (dadurch wird die Anweisung in den Edit-Puffer verschoben
+	und nicht ausgeführt).
+Nach einer Variablenexpansion mit dem Befehl '*' (oder jedem anderen PL-Befehl),
+können PL-Variablen in den meisten Befehlen wie folgt verwendet werden: *{PLVARNAME}
+Wenn Sie Reguläre Ausdrücke in Kommandos verwenden, beachten Sie bitte, das diese
+im Befehlstext nur nach dem '*' oder '\' Präfix (falls vorhanden) wirken,
