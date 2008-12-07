@@ -32,13 +32,13 @@
 <BODY>
 
 <P>
-    Import durchgeführt <SPAN class='headingval'>%{1}</SPAN> mit SqlTool.
+    Import durchgeführt am <SPAN class='headingval'>%{1}</SPAN> mit SqlTool.
 </P>
 <P>
-    Eingabe DSV-Datei: <SPAN class='headingval'>%{2}</SPAN>
+    Import-DSV-Datei: <SPAN class='headingval'>%{2}</SPAN>
 </P>
 <P>
-    Zurückweisung (Reject) DSV-Datei: <SPAN class='headingval'>%{3}</SPAN>
+    Reject-DSV-Datei: <SPAN class='headingval'>%{3}</SPAN>
 </P>
 %{4:+
 <P>
@@ -51,7 +51,7 @@
 <TABLE border='1px' cellpadding='5px'>
     <THEAD><TR>
         <TH title="Nummer dieses Fehlers">rej.&nbsp;#</TH>
-        <TH title="Zeilennummer in der Eingabe DSV-Datei">Eingabe<BR/>Zeile&nbsp;#</TH>
+        <TH title="Zeilennummer in der Import-DSV-Datei">Eingabe<BR/>Zeile&nbsp;#</TH>
         <TH title="Fehlerhafte Spalte. Leer, wenn unbekannt.">
             fehlerhafte&nbsp;Spalte<BR/>(wenn&nbsp;bekannt)</TH>
         <TH title="Ursache für den Fehler, vom DSV-Parser oder der Datenbank"
