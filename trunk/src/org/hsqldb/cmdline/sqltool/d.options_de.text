@@ -1,4 +1,4 @@
-\dX [Parameter...] wobei X eins der folgenden Möglichkeiten ist:
+\dX [Parameter...] wobei X eine der folgenden Möglichkeiten ist:
     t:  Auflistung von Tabellen
     v:  Auflistung von Views
     s:  Auflistung von Sequenzen
@@ -6,7 +6,7 @@
     S:  Auflistung von Systemtabellen
     a:  Auflistung von Aliasen
     n:  Auflistung von Schemanamen
-    u:  Auflistung von Benutzer
+    u:  Auflistung von Benutzern
     r:  Auflistung von Rollen
     *:  Auflistung von tabellenähnlichen Objekten
 
