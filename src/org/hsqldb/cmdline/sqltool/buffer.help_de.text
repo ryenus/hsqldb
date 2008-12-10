@@ -1,7 +1,7 @@
 EDIT-PUFFER UND VERLAUFSBEFEHLE.  Nur während der interaktiven Benutzung vorhanden.
     :?                Edit-Puffer/Verlauf - Hilfe
     :h                Zeigt Befehlsverlauf (sowie Edit-Pufferinhalt) an
-    :b                Zeigt den aktuellen Inhalt des Edit-Puffers an
+    :b                Zeigt den aktuellen Inhalt des Edit-Puffer an
     :X  (Ganzzahl X)  Lädt Befehl Nr. X aus dem Verlauf in den Edit-Puffer
     :-Y (Ganzzahl -Y) Wie :X, nur geht -Y entsprechend Y Befehle zurück
 Die restlichen Edit/Verlaufsbefehle arbeiten standardmäßig alle im Edit-Puffer,
@@ -13,7 +13,7 @@ Oder "w -3 /tmp/befehl.txt" um den drittletzten Befehl an die Datei befehl.txt a
     :w datei/pfad.sql  Aktuellen Edit-Pufferinhalt an Datei anhängen.
     :a[text]           In den Anhängemodus wechseln mit einer Kopie des Pufferinhaltes.
     :s/von regex/zu/   Ersetzt alle Übereinstimmungen "von regex" mit  "zu".
-    :s/von/zu/[igm;]   Ein oder mehrfach Ersetzung mit mehreren Optionen.
+    :s/von/zu/[igm;]   Ein oder Mehrfachersetzung mit mehreren Optionen.
                 von:   Regulärer Ausdruck.  
                 	   Siehe auch 'perlre'-Manpage oder Java API Spezifikation für java.util.regex.Pattern!
                 zu:    Wenn leer - dann werden alle "von"`s gelöscht (z.b. ":s/x//").
