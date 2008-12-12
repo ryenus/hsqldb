@@ -2,15 +2,15 @@ PROZEDUALE SPRACHE (PROCEDURAL LANGUAGE) BEFEHLE
     *?                             PL Hilfe
     *                              PL-Variablen ab sofort erweitern.  (Dies
                                    ist auch bei alle folgenden Befehlen inbegriffen ).
-    * VARNAME = Variable Wert      Weiﬂt der Variable einen Wert zu.
+    * VARNAME = Variable Wert      Weist der Variable einen Wert zu.
     * VARNAME =                    Lˆscht die Variable.
     * VARNAME ~                    Weist der Variable als Wert den Inhalt der direkt
                                    folgenden SQL-Anweiung oder eines Z‰hlers zu (Bitte beachten
                                    Sie auch die Hinweise am Ende der Auflistung ).
-    * VARNAME _                    Das Selbe wie * VARNAME _, nur das die Abfrage
+    * VARNAME _                    Dasselbe wie * VARNAME _, nur das die Abfrage
                                    keine Ausgabe erzeugt (d.h, es werden keine Zeilen angezeigt).
     * list[values] [VARNAME1...]   Listet PL-Variable(n) auf (standardm‰ﬂig alle).
-    * listsysprops [VARNAME1...]   Listet die Systemeinstellungen von Java auf (standardm‰ﬂig alle).
+    * listsysprops [VARNAME1...]   Listet die System-Properties von Java auf (standardm‰ﬂig alle).
     * load VARNAME datei.txt       L‰dt Variable aus einer Textatei.
     * dump VARNAME datei.txt       Schreibt die Variable in eine Textdatei.
     * prepare VARNAME              Verwenden Sie ? in der n‰chsten SQL-Anweisung

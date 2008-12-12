@@ -18,5 +18,5 @@ Alle anderen Zeilen enthalten SQL-Anweisungen (oder Kommentare).
 	und nicht ausgeführt).
 Nach einer Variablenexpansion mit dem Befehl '*' (oder jedem anderen PL-Befehl),
 können PL-Variablen in den meisten Befehlen wie folgt verwendet werden: *{PLVARNAME}
-Wenn Sie Reguläre Ausdrücke in Kommandos verwenden, beachten Sie bitte, das diese
+Wenn Sie Reguläre Ausdrücke in Kommandos verwenden, beachten Sie bitte, daß diese
 im Befehlstext nur nach dem '*' oder '\' Präfix (falls vorhanden) wirken,
