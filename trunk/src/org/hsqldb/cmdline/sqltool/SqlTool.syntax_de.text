@@ -3,7 +3,7 @@ Optionen:
     --help                   Gibt diese Hilfe aus.
     --list                   Zeigt urlids aus der RC-Datei an.
     --noInput                Nicht von stdin lesen (Standardeinstellung wenn
-                             Sql-Datei angegeben oder der Schalter --sql benutzt wird).
+                             SQL-Datei angegeben oder der Schalter --sql benutzt wird).
     --stdInput               Liest von stdin ZUSÄTZLICH zu SQL-Dateien/--sql Eingabe.
     --inlineRc=url=val1,user=val2[,x=val3...][,password=]  Inline RC-Variablen
     --debug                  Gibt Debug Infos auf stderr aus.
