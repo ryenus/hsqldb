@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,11 @@ import org.hsqldb.lib.Set;
 /**
  * Maps integer keys to Objects. Hashes the keys.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.8.0
  */
-public class ObjectCacheHashMap extends BaseHashMap {
+public final class ObjectCacheHashMap extends BaseHashMap {
 
     Set        keySet;
     Collection values;
@@ -103,6 +103,6 @@ public class ObjectCacheHashMap extends BaseHashMap {
         return new ObjectCacheIterator();
     }
 
-    public class ObjectCacheIterator extends BaseHashIterator
+    public final class ObjectCacheIterator extends BaseHashIterator
     implements Iterator {}
 }

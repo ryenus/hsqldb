@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,8 @@ public class BaseHashMap {
  *
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
- * @author fredt@users
- * @version 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.2
  */
 /*
@@ -212,7 +212,7 @@ public class BaseHashMap {
         int lookup = hashIndex.getLookup(key);
         int tempKey;
 
-        for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
+        for (; lookup >= 0; lookup = hashIndex.linkTable[lookup]) {
             tempKey = intKeyTable[lookup];
 
             if (key == tempKey) {
@@ -401,7 +401,7 @@ public class BaseHashMap {
     }
 
     /**
-     * generic method for adding or removing key / values in mult-value
+     * generic method for adding or removing key / values in multi-value
      * maps
      */
     protected Object addOrRemoveMultiVal(long longKey, long longValue,
@@ -431,9 +431,8 @@ public class BaseHashMap {
             if (isObjectKey) {
                 if (objectKeyTable[lookup].equals(objectKey)) {
                     if (removeKey) {
-
-                        while(true) {
-                            objectKeyTable[lookup] = null;
+                        while (true) {
+                            objectKeyTable[lookup]   = null;
                             returnValue = objectValueTable[lookup];
                             objectValueTable[lookup] = null;
 
@@ -441,7 +440,10 @@ public class BaseHashMap {
 
                             multiValueTable[lookup] = false;
                             lookup = hashIndex.hashTable[index];
-                            if (lookup  < 0 || !objectKeyTable[lookup].equals(objectKey)) {
+
+                            if (lookup < 0
+                                    || !objectKeyTable[lookup].equals(
+                                        objectKey)) {
                                 return returnValue;
                             }
                         }
@@ -470,20 +472,21 @@ public class BaseHashMap {
             } else if (isIntKey) {
                 if (longKey == intKeyTable[lookup]) {
                     if (removeKey) {
-                        while(true) {
+                        while (true) {
                             if (longKey == 0) {
-                                hasZeroKey = false;
+                                hasZeroKey   = false;
                                 zeroKeyIndex = -1;
                             }
 
-                            intKeyTable[lookup] = 0;
+                            intKeyTable[lookup]   = 0;
                             intValueTable[lookup] = 0;
 
                             hashIndex.unlinkNode(index, lastLookup, lookup);
 
                             multiValueTable[lookup] = false;
                             lookup = hashIndex.hashTable[index];
-                            if (lookup  < 0 || longKey != intKeyTable[lookup]) {
+
+                            if (lookup < 0 || longKey != intKeyTable[lookup]) {
                                 return null;
                             }
                         }
@@ -498,20 +501,22 @@ public class BaseHashMap {
             } else if (isLongKey) {
                 if (longKey == longKeyTable[lookup]) {
                     if (removeKey) {
-                        while(true) {
+                        while (true) {
                             if (longKey == 0) {
-                                hasZeroKey = false;
+                                hasZeroKey   = false;
                                 zeroKeyIndex = -1;
                             }
 
-                            longKeyTable[lookup] = 0;
+                            longKeyTable[lookup]   = 0;
                             longValueTable[lookup] = 0;
 
                             hashIndex.unlinkNode(index, lastLookup, lookup);
 
                             multiValueTable[lookup] = false;
                             lookup = hashIndex.hashTable[index];
-                            if (lookup  < 0 || longKey != longKeyTable[lookup]) {
+
+                            if (lookup < 0
+                                    || longKey != longKeyTable[lookup]) {
                                 return null;
                             }
                         }
@@ -708,7 +713,7 @@ public class BaseHashMap {
     protected boolean reset() {
 
         if (maxCapacity == 0 || maxCapacity > threshold) {
-            rehash(hashIndex.hashTable.length * 2);
+            rehash(hashIndex.linkTable.length * 2);
 
             return true;
         } else if (purgePolicy == PURGE_ALL) {
@@ -777,7 +782,12 @@ public class BaseHashMap {
                 longValue = longValueTable[lookup];
             }
 
-            addOrRemove(longKey, longValue, objectKey, objectValue, false);
+            if (multiValueTable == null) {
+                addOrRemove(longKey, longValue, objectKey, objectValue, false);
+            } else {
+                addOrRemoveMultiVal(longKey, longValue, objectKey,
+                                    objectValue, false, false);
+            }
 
             if (accessTable != null) {
                 accessTable[hashIndex.elementCount - 1] = accessTable[lookup];

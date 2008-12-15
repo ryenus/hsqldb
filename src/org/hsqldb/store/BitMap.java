@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,13 @@
 
 package org.hsqldb.store;
 
-import java.util.Arrays;
-
 /**
  * Implementation of a bit map of any size, together with static methods to
- * manipulate int values as bit maps.
+ * manipulate int, byte and byte[] values as bit maps.
  *
-* @author fredt@users
-* @version 1.9.0
-* @since 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.8.0
 */
 public class BitMap {
 
@@ -58,7 +56,7 @@ public class BitMap {
 
         defaultCapacity = capacity = words * 32;
         map             = new int[words];
-        limitPos        = initialCapacity;
+        limitPos        = 0;
     }
 
     public int size() {
@@ -76,7 +74,7 @@ public class BitMap {
 
         map      = new int[defaultCapacity / 32];
         capacity = defaultCapacity;
-        limitPos = capacity;
+        limitPos = 0;
     }
 
     /**
@@ -86,6 +84,10 @@ public class BitMap {
 
         while (pos >= capacity) {
             doubleCapacity();
+        }
+
+        if (pos >= limitPos) {
+            limitPos = pos + 1;
         }
 
         int windex = pos >> 5;
@@ -104,7 +106,13 @@ public class BitMap {
      */
     public int unset(int pos) {
 
-        if (pos >= capacity) {
+        while (pos >= capacity) {
+            doubleCapacity();
+        }
+
+        if (pos >= limitPos) {
+            limitPos = pos + 1;
+
             return 0;
         }
 
@@ -126,6 +134,12 @@ public class BitMap {
             doubleCapacity();
         }
 
+        if (pos >= limitPos) {
+            limitPos = pos + 1;
+
+            return 0;
+        }
+
         int windex = pos >> 5;
         int mask   = 0x80000000 >>> (pos & 0x1F);
         int word   = map[windex];
@@ -141,6 +155,10 @@ public class BitMap {
     public byte[] getBytes() {
 
         byte[] buf = new byte[(limitPos + 7) / 8];
+
+        if (buf.length == 0) {
+            return buf;
+        }
 
         for (int i = 0; ; ) {
             int v = map[i / 4];
@@ -184,6 +202,20 @@ public class BitMap {
         map = newmap;
     }
 
+    /**
+     * copy the byte value into the map at given position (0, 24)
+     */
+    public static int setByte(int map, byte value, int pos) {
+
+        int intValue = (value & 0xff) << (24 - pos);
+        int mask     = 0xff000000 >>> pos;
+
+        mask = ~mask;
+        map  &= mask;
+
+        return (map | intValue);
+    }
+
     public static int set(int map, int pos) {
 
         int mask = 0x80000000 >>> pos;
@@ -225,28 +257,28 @@ public class BitMap {
 
     public static boolean isSet(byte[] map, int pos) {
 
-        int mask = 0x00000080 >>> pos;
+        int mask  = 0x00000080 >>> (pos & 0x07);;
+        int index = pos / 8;
 
-        int index = pos /8;
-
-        if (index >= map.length ) {
+        if (index >= map.length) {
             return false;
         }
 
         byte b = map[index];
 
         return (b & mask) == 0 ? false
-                                 : true;
+                               : true;
     }
 
     public static void unset(byte[] map, int pos) {
 
-        int mask = 0x00000080 >>> pos;
+        int mask = 0x00000080 >>> (pos & 0x07);
+
         mask = ~mask;
 
-        int index = pos /8;
+        int index = pos / 8;
 
-        if (index >= map.length ) {
+        if (index >= map.length) {
             return;
         }
 
@@ -257,16 +289,289 @@ public class BitMap {
 
     public static void set(byte[] map, int pos) {
 
-        int mask = 0x00000080 >>> pos;
+        int mask  = 0x00000080 >>> (pos & 0x07);
+        int index = pos / 8;
 
-        int index = pos /8;
-
-        if (index >= map.length ) {
+        if (index >= map.length) {
             return;
         }
 
         byte b = map[index];
 
         map[index] = (byte) (b | mask);
+    }
+
+    /**
+     * AND count bits from source with map contents starting at pos
+     */
+    public static void and(byte[] map, int pos, byte source, int count) {
+
+        int shift     = pos & 0x07;
+        int mask      = (source & 0xff) >>> shift;
+        int innermask = 0xff >> shift;
+        int index     = pos / 8;
+
+        if (count < 8) {
+            innermask = innermask >>> (8 - count);
+            innermask = innermask << (8 - count);
+        }
+
+        mask      &= innermask;
+        innermask = ~innermask;
+
+        if (index >= map.length) {
+            return;
+        }
+
+        byte b = map[index];
+
+        map[index] = (byte) (b & innermask);
+        b          = (byte) (b & mask);
+        map[index] = (byte) (map[index] | b);
+
+        if (shift == 0) {
+            return;
+        }
+
+        shift = 8 - shift;
+
+        if (count > shift) {
+            mask           = ((source & 0xff) << 8) >>> shift;
+            innermask      = 0xff00 >>> shift;
+            innermask      = ~innermask;
+            b              = map[index + 1];
+            map[index + 1] = (byte) (b & innermask);
+            b              = (byte) (b & mask);
+            map[index + 1] = (byte) (map[index + 1] | b);
+        }
+    }
+
+    /**
+     * OR count bits from source with map contents starting at pos
+     */
+    public static void or(byte[] map, int pos, byte source, int count) {
+
+        int shift = pos & 0x07;
+        int mask  = (source & 0xff) >>> shift;
+        int index = pos / 8;
+
+        if (index >= map.length) {
+            return;
+        }
+
+        byte b = (byte) (map[index] | mask);
+
+        map[index] = b;
+
+        if (shift == 0) {
+            return;
+        }
+
+        shift = 8 - shift;
+
+        if (count > shift) {
+            mask           = ((source & 0xff) << 8) >>> shift;
+            b              = (byte) (map[index + 1] | mask);
+            map[index + 1] = b;
+        }
+    }
+
+    /**
+     * overlay count bits from source on map contents starting at pos
+     */
+    public static void overlay(byte[] map, int pos, byte source, int count) {
+
+        int shift     = pos & 0x07;
+        int mask      = (source & 0xff) >>> shift;
+        int innermask = 0xff >> shift;
+        int index     = pos / 8;
+
+        if (count < 8) {
+            innermask = innermask >>> (8 - count);
+            innermask = innermask << (8 - count);
+        }
+
+        mask      &= innermask;
+        innermask = ~innermask;
+
+        if (index >= map.length) {
+            return;
+        }
+
+        byte b = map[index];
+
+        b          = (byte) (b & innermask);
+        map[index] = (byte) (b | mask);
+
+        if (shift == 0) {
+            return;
+        }
+
+        shift = 8 - shift;
+
+        if (count > shift) {
+            mask           = ((source & 0xff) << 8) >>> shift;
+            innermask      = 0xff00 >>> shift;
+            innermask      = ~innermask;
+            b              = map[index + 1];
+            b              = (byte) (b & innermask);
+            map[index + 1] = (byte) (b | mask);
+        }
+    }
+
+    public static int compare(byte[] a, byte[] b) {
+
+        int shortLength = a.length > b.length ? b.length
+                                              : a.length;
+
+        for (int i = 0; i < shortLength; i++) {
+            if (a[i] == b[i]) {
+                continue;
+            }
+
+            return (((int) a[i]) & 0xff) > (((int) b[i]) & 0xff) ? 1
+                                                                 : -1;
+        }
+
+        if (a.length == b.length) {
+            return 0;
+        }
+
+        return a.length > b.length ? 1
+                                   : -1;
+    }
+
+    public static byte[] and(byte[] a, byte[] b) {
+
+        int    length      = a.length > b.length ? a.length
+                                                 : b.length;
+        int    shortLength = a.length > b.length ? b.length
+                                                 : a.length;
+        byte[] map         = new byte[length];
+
+        for (int i = 0; i < shortLength; i++) {
+            map[i] = (byte) (a[i] & b[i]);
+        }
+
+        return map;
+    }
+
+    public static byte[] or(byte[] a, byte[] b) {
+
+        int    length      = a.length > b.length ? a.length
+                                                 : b.length;
+        int    shortLength = a.length > b.length ? b.length
+                                                 : a.length;
+        byte[] map         = new byte[length];
+
+        if (length != shortLength) {
+            byte[] source = a.length > b.length ? a
+                                                : b;
+
+            System.arraycopy(source, shortLength, map, shortLength,
+                             length - shortLength);
+        }
+
+        for (int i = 0; i < shortLength; i++) {
+            map[i] = (byte) (a[i] | b[i]);
+        }
+
+        return map;
+    }
+
+    public static byte[] xor(byte[] a, byte[] b) {
+
+        int    length      = a.length > b.length ? a.length
+                                                 : b.length;
+        int    shortLength = a.length > b.length ? b.length
+                                                 : a.length;
+        byte[] map         = new byte[length];
+
+        if (length != shortLength) {
+            byte[] source = a.length > b.length ? a
+                                                : b;
+
+            System.arraycopy(source, shortLength, map, shortLength,
+                             length - shortLength);
+        }
+
+        for (int i = 0; i < shortLength; i++) {
+            map[i] = (byte) (a[i] ^ b[i]);
+        }
+
+        return map;
+    }
+
+    public static byte[] not(byte[] a) {
+
+        byte[] map = new byte[a.length];
+
+        for (int i = 0; i < a.length; i++) {
+            map[i] = (byte) ~a[i];
+        }
+
+        return map;
+    }
+
+    public static boolean hasAnyBitSet(byte[] map) {
+
+        for (int i = 0; i < map.length; i++) {
+            if (map[i] != 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static byte[] leftShift(byte[] map, int shiftBits) {
+
+        byte[] newMap     = new byte[map.length];
+        int    shiftBytes = shiftBits / 8;
+
+        if (shiftBytes >= map.length) {
+            return newMap;
+        }
+
+        shiftBits = shiftBits % 8;
+
+        if (shiftBits == 0) {
+            for (int i = 0, j = shiftBytes; j < map.length; i++, j++) {
+                newMap[i] = map[j];
+            }
+        } else {
+            for (int i = 0, j = shiftBytes; j < map.length; i++, j++) {
+                int shifted = (map[j] & 0xff) << shiftBits;
+
+                newMap[i] = (byte) shifted;
+
+                if (i > 0) {
+                    newMap[i - 1] |= (byte) (shifted >>> 8);
+                }
+            }
+        }
+
+        return newMap;
+    }
+
+    public static void main(String[] args) {
+
+        byte[] map = new byte[] {
+            0, 0, (byte) 255, (byte) 255, 0, 0
+        };
+
+        map = leftShift(map, 1);
+        map = leftShift(map, 4);
+        map = leftShift(map, 8);
+
+        and(map, 24, (byte) 0x80, 1);
+        and(map, 8, (byte) 0x80, 1);
+        and(map, 12, (byte) 0xff, 8);
+        or(map, 24, (byte) 0x80, 1);
+        or(map, 8, (byte) 0x80, 1);
+        or(map, 12, (byte) 0xff, 8);
+        and(map, 24, (byte) 0, 1);
+        and(map, 8, (byte) 0, 1);
+        and(map, 12, (byte) 0, 8);
     }
 }

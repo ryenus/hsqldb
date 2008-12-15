@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ package org.hsqldb.store;
  * elemenet at and above linkTable[newNodePointer] have never been used
  * as a node and their contents is not significant.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
@@ -130,6 +130,10 @@ class HashIndex {
      * @return either -1 or the first node for this hash value
      */
     int getLookup(int hash) {
+
+        if (elementCount == 0) {
+            return -1;
+        }
 
         int index = (hash & 0x7fffffff) % hashTable.length;
 
