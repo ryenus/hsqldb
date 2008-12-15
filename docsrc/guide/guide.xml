@@ -616,12 +616,13 @@
       <para>A <classname>java.sql.Connection</classname> object also has some
       methods for transaction control. </para>
 
-      <para>The commit() and rollback() method perform an SQL COMMIT and
-      ROLLBACK respectively.</para>
+      <para>The commit() method performs a <literal>COMMIT</literal> while the
+      rollback() method performs a <literal>ROLLBACK</literal> SQL
+      statement.</para>
 
-      <para>The <literal>setSavepiont(String name)</literal> method performs a
+      <para>The <literal>setSavepoint(String name)</literal> method performs a
       <literal>SAVEPOINT &lt;name&gt;</literal> SQL statement and returns a
-      <classname>java.sql.Savepoint</classname> . The
+      <classname>java.sql.Savepoint</classname> object. The
       <literal>rollback(Savepoint name)</literal> method performs a
       <literal>ROLLBACK TO SAVEPOINT &lt;name&gt;</literal> SQL
       statement.</para>
