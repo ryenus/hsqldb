@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import junit.framework.TestResult;
 
 /**
  * Test sql statements via jdbc against in-memory database
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
 public class TestSql extends TestBase {
 
@@ -93,8 +93,8 @@ public class TestSql extends TestBase {
             DatabaseMetaData md = connection.getMetaData();
 
             {
-
                 System.out.println("Testing DatabaseMetaData methods");
+
 //                System.out.println(md.getDatabaseMajorVersion());
 //                System.out.println(md.getDatabaseMinorVersion());
                 System.out.println(md.getDatabaseProductName());
@@ -132,15 +132,19 @@ public class TestSql extends TestBase {
 //                System.out.println(md.getResultSetHoldability());
                 System.out.println(md.getSchemaTerm());
                 System.out.println(md.getSearchStringEscape());
-                System.out.println("Testing DatabaseMetaData.getSQLKeywords()");
+                System.out.println(
+                    "Testing DatabaseMetaData.getSQLKeywords()");
                 System.out.println(md.getSQLKeywords());
 
 //                System.out.println(md.getSQLStateType());
-                System.out.println("Testing DatabaseMetaData.getStringFunctions()");
+                System.out.println(
+                    "Testing DatabaseMetaData.getStringFunctions()");
                 System.out.println(md.getStringFunctions());
-                System.out.println("Testing DatabaseMetaData.getSystemFunctions()");
+                System.out.println(
+                    "Testing DatabaseMetaData.getSystemFunctions()");
                 System.out.println(md.getSystemFunctions());
-                System.out.println("Testing DatabaseMetaData.getTimeDateFunctions()");
+                System.out.println(
+                    "Testing DatabaseMetaData.getTimeDateFunctions()");
                 System.out.println(md.getTimeDateFunctions());
                 System.out.println(md.getURL());
                 System.out.println(md.getUserName());
@@ -208,8 +212,7 @@ public class TestSql extends TestBase {
             {
                 ResultSet rs = md.getCrossReference(null, null,
                                                     "ADDRESSBOOK_CATEGORY",
-                                                    null, null,
-                                                    "ADDRESSBOOK");
+                                                    null, null, "ADDRESSBOOK");
                 ResultSetMetaData rsmd = rs.getMetaData();
 
                 result2 = "";
@@ -409,10 +412,8 @@ public class TestSql extends TestBase {
             ps.setObject(6, new Integer(2), Types.TINYINT);
 
             // allowed conversions
-            ps.setObject(7, new java.sql.Date(System.currentTimeMillis()
-                                              + 2));
-            ps.setObject(8, new java.sql.Time(System.currentTimeMillis()
-                                              + 2));
+            ps.setObject(7, new java.sql.Date(System.currentTimeMillis() + 2));
+            ps.setObject(8, new java.sql.Time(System.currentTimeMillis() + 2));
             ps.setObject(9, new java.sql.Timestamp(System.currentTimeMillis()
                                                    + 2));
             ps.execute();
@@ -456,6 +457,15 @@ public class TestSql extends TestBase {
                 int max = rs.getInt(1);
 
                 System.out.println("Max value for i: " + max);
+            }
+
+            try {
+
+                // cause errors
+                ps.setString(5, "three");
+                assertTrue(false);
+            } catch (SQLException e) {
+                System.out.println("rubbish");
             }
 
             {
@@ -553,9 +563,7 @@ public class TestSql extends TestBase {
             pstmt.execute();
 
             pstmt = connection.prepareStatement(
-                "select count(*) from test where ? is null");
-
-            pstmt.setString(1, "hello");
+                "select count(*) from test where id is null");
 
             ResultSet rs = pstmt.executeQuery();
 
@@ -588,8 +596,7 @@ public class TestSql extends TestBase {
             assertEquals(20, count);
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("TestSql.testBinds() error: "
-                               + e.getMessage());
+            System.out.println("TestSql.testBinds() error: " + e.getMessage());
         }
     }
 
@@ -675,8 +682,7 @@ public class TestSql extends TestBase {
             }
 
             boolean result = (array[0] == null && array[1] == Boolean.TRUE)
-                             || (array[0] == Boolean.TRUE
-                                 && array[1] == null);
+                             || (array[0] == Boolean.TRUE && array[1] == null);
 
             assertTrue(result);
         } catch (SQLException e) {
@@ -684,6 +690,97 @@ public class TestSql extends TestBase {
             System.out.println("TestSql.testUnionColumnType() error: "
                                + e.getMessage());
         }
+    }
+
+    public void testUnionSubquery() throws Exception {
+
+        Statement st = connection.createStatement();
+
+        st.execute("DROP TABLE t1 if exists;");
+        st.execute("DROP TABLE t2 if exists;");
+        st.execute(
+            "CREATE TABLE t1 (id int not null, v1 int, v2 int, primary key(id))");
+        st.execute(
+            "CREATE TABLE t2 (id int not null, v1 int, v3 int, primary key(id))");
+        st.execute("INSERT INTO t1 values(1,1,1)");
+        st.execute("INSERT INTO t1 values(2,2,2)");
+        st.execute("INSERT INTO t2 values(1,3,3)");
+
+        ResultSet rs = st.executeQuery(
+            "select t as atable, a as idvalue, b as value1, c as value2, d as value3 from("
+            + "(select 't1' as t, t1.id as a, t1.v1 as b, t1.v2 as c, null as d from t1) union"
+            + "(select 't2' as t, t2.id as a, t2.v1 as b, null as c, t2.v3 as d from t2)) order by atable, idvalue");
+
+        assertTrue(rs.next());
+        assertEquals("t1", rs.getObject("atable"));
+        assertEquals(1, rs.getObject("idvalue"));
+        assertEquals(1, rs.getObject("value1"));
+        assertEquals(1, rs.getObject("value2"));
+        assertEquals(null, rs.getObject("value3"));
+        assertTrue(rs.next());
+        assertEquals("t1", rs.getObject("atable"));
+        assertEquals(2, rs.getObject("idvalue"));
+        assertEquals(2, rs.getObject("value1"));
+        assertEquals(2, rs.getObject("value2"));
+        assertEquals(null, rs.getObject("value3"));
+        assertTrue(rs.next());
+        assertEquals("t2", rs.getObject("atable"));
+        assertEquals(1, rs.getObject("idvalue"));
+        assertEquals(3, rs.getObject("value1"));
+        assertEquals(null, rs.getObject("value2"));
+        assertEquals(3, rs.getObject("value3"));    //this fails!
+        assertFalse(rs.next());
+    }
+
+    public void testPreparedWithManyParams() throws Exception {
+
+        int    count    = 40;
+        String tabledef = "CREATE TABLE T1 (";
+
+        for (int i = 0; i < count; i++) {
+            if (i != 0) {
+                tabledef = tabledef + ',';
+            }
+
+            tabledef = tabledef + "COL_" + i + " INT NOT NULL";
+        }
+
+        tabledef += ");";
+
+        String querydef = "INSERT INTO T1(";
+
+        for (int i = 0; i < count; i++) {
+            if (i != 0) {
+                querydef = querydef + ',';
+            }
+
+            querydef = querydef + "COL_" + i;
+        }
+
+        querydef += ") VALUES (";
+
+        for (int i = 0; i < count; i++) {
+            if (i != 0) {
+                querydef = querydef + ',';
+            }
+
+            querydef = querydef + "?";
+        }
+
+        querydef += ");";
+
+        Statement st = connection.createStatement();
+
+        st.execute("DROP TABLE T1 IF EXISTS;");
+        st.execute(tabledef);
+
+        PreparedStatement ps = connection.prepareStatement(querydef);
+
+        for (int i = 0; i < count; i++) {
+            ps.setInt(i + 1, i + 311);
+        }
+
+        ps.executeUpdate();
     }
 
     protected void tearDown() {
@@ -694,6 +791,8 @@ public class TestSql extends TestBase {
             e.printStackTrace();
             System.out.println("TestSql.tearDown() error: " + e.getMessage());
         }
+
+        super.tearDown();
     }
 
     public static void main(String[] argv) {

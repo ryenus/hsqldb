@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import junit.framework.TestResult;
 
 /**
  * Test sql statements via jdbc against a database with cached tables
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
 public class TestSqlPersistent extends TestCase {
 
@@ -434,6 +434,7 @@ public class TestSqlPersistent extends TestCase {
     protected void tearDown() {
 
         try {
+            sStatement.execute("SHUTDOWN");
             cConnection.close();
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,7 @@ import org.hsqldb.server.HsqlSocketRequestHandler;
  * Test the HsqlServerFactory interface. After running, connect to the
  * server at port 9999 using the database manager.
  *
- *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.0
  */
 public class TestInstantiation {

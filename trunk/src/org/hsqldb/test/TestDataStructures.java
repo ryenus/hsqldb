@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlLinkedList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.StopWatch;
+
 import junit.framework.TestCase;
 
 /**
@@ -117,7 +118,7 @@ public class TestDataStructures extends TestCase {
 
                 case ADD_AT :
                     tempInt      = getRandomInteger();
-                    tempPosition = getRandomInt(0, vector.size() + 1);
+                    tempPosition = getRandomInt(0, vector.size());
 
                     listCommandsCalled.addElement("Add at " + tempPosition);
 
@@ -141,7 +142,7 @@ public class TestDataStructures extends TestCase {
                     break;
 
                 case GET :
-                    tempPosition = getRandomInt(0, vector.size() + 1);
+                    tempPosition = getRandomInt(0, vector.size() -1);
 
                     listCommandsCalled.addElement("Get " + tempPosition);
 
@@ -165,7 +166,7 @@ public class TestDataStructures extends TestCase {
                     break;
 
                 case REMOVE :
-                    tempPosition = getRandomInt(0, vector.size() + 1);
+                    tempPosition = getRandomInt(0, vector.size() - 1);
 
                     listCommandsCalled.addElement("Remove " + tempPosition);
 
@@ -192,7 +193,7 @@ public class TestDataStructures extends TestCase {
 
                 case SET :
                     tempInt      = getRandomInteger();
-                    tempPosition = getRandomInt(0, vector.size() + 1);
+                    tempPosition = getRandomInt(0, vector.size() -1);
 
                     listCommandsCalled.addElement("Set " + tempPosition);
 
@@ -241,8 +242,7 @@ public class TestDataStructures extends TestCase {
                 default :
             }
 
-            if (arrayListException || linkedListException
-                    || vectorException) {
+            if (arrayListException || linkedListException || vectorException) {
 
                 // if an exception is thrown in vector but not one of the lists or vice versa
                 if (!(arrayListException && linkedListException
@@ -359,8 +359,7 @@ public class TestDataStructures extends TestCase {
      * Integer.MAX_VALUE
      */
     private Integer getRandomInteger() {
-        return new Integer(getRandomInt(0, (int) (Integer.MAX_VALUE
-                / 100.0)));
+        return new Integer(getRandomInt(0, (int) (Integer.MAX_VALUE / 100.0)));
     }
 
     /** Tells whether the given list contains the same data as the vector */
@@ -449,7 +448,7 @@ public class TestDataStructures extends TestCase {
             }
         }
 
-        System.out.println(sw.currentElapsedTimeToMessage("time"));
+        System.out.println(sw.currentElapsedTimeToMessage("time HsqlArrayLsit"));
         sw.zero();
 
         for (int i = 0; i < TEST_RUNS; i++) {
@@ -462,7 +461,7 @@ public class TestDataStructures extends TestCase {
             }
         }
 
-        System.out.println(sw.currentElapsedTimeToMessage("time"));
+        System.out.println(sw.currentElapsedTimeToMessage("time ArrayList"));
         sw.zero();
 
         for (int i = 0; i < TEST_RUNS; i++) {
@@ -475,7 +474,7 @@ public class TestDataStructures extends TestCase {
             }
         }
 
-        System.out.println(sw.currentElapsedTimeToMessage("time"));
+        System.out.println(sw.currentElapsedTimeToMessage("time Vector"));
     }
 
     public static void main(String[] args) {

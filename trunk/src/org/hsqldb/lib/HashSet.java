@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import org.hsqldb.store.BaseHashMap;
 /**
  * This class does not store null keys.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
@@ -58,6 +58,21 @@ public class HashSet extends BaseHashMap implements Set {
 
     public boolean contains(Object key) {
         return super.containsKey(key);
+    }
+
+    public boolean containsAll(Collection col) {
+
+        Iterator it = col.iterator();
+
+        while (it.hasNext()) {
+            if (contains(it.next())) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     public Object get(Object key) {

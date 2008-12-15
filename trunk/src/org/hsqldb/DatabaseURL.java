@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,12 @@ import org.hsqldb.server.ServerConstants;
 /*
  * Parses a connection URL into parts.
  *
- * @author fredt@users
- * @version 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.8.0
  */
+
+// patch 1.9.0 by Blaine Simpson - IPv6 support
 public class DatabaseURL {
 
     static final String        S_DOT               = ".";
@@ -140,7 +142,6 @@ public class DatabaseURL {
         }
 
         String  type = null;
-        String  host = null;
         int     port = 0;
         String  database;
         String  path;
@@ -148,12 +149,17 @@ public class DatabaseURL {
 
         props.setProperty("url", url);
 
-        int semicolpos = url.indexOf(';', pos);
+        int postUrlPos = url.length();
 
-        if (semicolpos < 0) {
-            semicolpos = url.length();
-        } else {
-            arguments = urlImage.substring(semicolpos + 1, urlImage.length());
+        // postUrlPos is the END position in url String,
+        // wrt what remains to be processed.
+        // I.e., if postUrlPos is 100, url no longer needs to examined at
+        // index 100 or later.
+        int semiPos = url.indexOf(';', pos);
+
+        if (semiPos > -1) {
+            arguments  = urlImage.substring(semiPos + 1, urlImage.length());
+            postUrlPos = semiPos;
             extraProps = HsqlProperties.delimitedArgPairsToProps(arguments,
                     "=", ";", null);
 
@@ -161,7 +167,7 @@ public class DatabaseURL {
             props.addProperties(extraProps);
         }
 
-        if (semicolpos == pos + 1 && urlImage.startsWith(S_DOT, pos)) {
+        if (postUrlPos == pos + 1 && urlImage.startsWith(S_DOT, pos)) {
             type = S_DOT;
         } else if (urlImage.startsWith(S_MEM, pos)) {
             type = S_MEM;
@@ -202,62 +208,105 @@ public class DatabaseURL {
         props.setProperty("connection_type", type);
 
         if (isNetwork) {
-            int slashpos = url.indexOf('/', pos);
-            // slashpos is the TRAILING (optional) slash, which separates
-            // either host or port from path.
 
-            if (slashpos < pos || slashpos > semicolpos) {
-                slashpos = semicolpos;
+            // First capture 3 segments:  host + port + path
+            String pathSeg  = null;
+            String hostSeg  = null;
+            String portSeg  = null;
+            int    slashPos = url.indexOf('/', pos);
+
+            if (slashPos > 0 && slashPos < postUrlPos) {
+                pathSeg = url.substring(slashPos, postUrlPos);
+
+                // N.b. pathSeg necessarily begins with /.
+                postUrlPos = slashPos;
             }
 
-            if (urlImage.charAt(pos) == '[') {
-                // Literal IPv6 address
-                int closeIpv6 = urlImage.indexOf(']', pos + 1);
-                if (closeIpv6 <= pos || closeIpv6 >= slashpos)
-                    return null;  // Malformatted Ipv6 addr
-                host = urlImage.substring(pos + 1, closeIpv6);
+            // Assertion
+            if (postUrlPos <= pos) {
+                return null;
             }
 
-            int colonpos = url.indexOf(':',
-                    (host == null) ? pos : pos + 2 + host.length());
+            // Processing different for ipv6 host address and all others:
+            if (url.charAt(pos) == '[') {
 
-            if (colonpos < pos || colonpos > slashpos) {
-                colonpos = slashpos;
+                // ipv6
+                int endIpv6 = url.indexOf(']', pos + 2);
+
+                // Notice 2 instead of 1 to require non-empty addr segment
+                if (endIpv6 < 0 || endIpv6 >= postUrlPos) {
+                    return null;
+
+                    // Wish could throw something with a useful message for user
+                    // here.
+                }
+
+                hostSeg = urlImage.substring(pos + 1, endIpv6);
+
+                if (postUrlPos > endIpv6 + 1) {
+                    portSeg = url.substring(endIpv6 + 1, postUrlPos);
+                }
             } else {
+
+                // non-ipv6
+                int colPos = url.indexOf(':', pos + 1);
+
+                // Notice + 1 to require non-empty addr segment
+                hostSeg = urlImage.substring(pos, (colPos > 0) ? colPos
+                                                               : postUrlPos);
+
+                if (colPos > -1 && postUrlPos > colPos + 1) {
+
+                    // portSeg will be non-empty, but could contain just ":"
+                    portSeg = url.substring(colPos, postUrlPos);
+                }
+            }
+
+            // At this point, the entire url has been parsed into
+            // hostSeg + portSeg + pathSeg.
+            if (portSeg != null) {
+                if (portSeg.length() < 2 || portSeg.charAt(0) != ':') {
+
+                    // Wish could throw something with a useful message for user
+                    // here.
+                    return null;
+                }
+
                 try {
-                    port = Integer.parseInt(url.substring(colonpos + 1,
-                                                          slashpos));
+                    port = Integer.parseInt(portSeg.substring(1));
                 } catch (NumberFormatException e) {
+
+                    // System.err.println("NFE for (" + portSeg + ')'); debug
                     return null;
                 }
             }
 
-            if (host == null) {
-                // Non-IPv6 literal
-                host = urlImage.substring(pos, colonpos);
-            }
-
-            int secondslashpos = url.lastIndexOf('/', semicolpos);
-            // Despite the name, this is for the LAST slash, not the
-            // second pos.  (It's the 2nd that we use, but that fact
-            // is of no consequence).
-
             if (noPath) {
                 path     = "";
-                database = url.substring(slashpos, semicolpos);
-            } else if (secondslashpos < pos) {
+                database = pathSeg;
+            } else if (pathSeg == null) {
                 path     = "/";
                 database = "";
-            } else if (secondslashpos == slashpos) {
-                path     = "/";
-                database = urlImage.substring(secondslashpos + 1, semicolpos);
             } else {
-                path     = url.substring(slashpos, secondslashpos);
-                database = urlImage.substring(secondslashpos + 1, semicolpos);
+                int lastSlashPos = pathSeg.lastIndexOf('/');
+
+                if (lastSlashPos < 1) {
+                    path = "/";
+                    database =
+                        pathSeg.substring(1).toLowerCase(Locale.ENGLISH);
+                } else {
+                    path     = pathSeg.substring(0, lastSlashPos);
+                    database = pathSeg.substring(lastSlashPos + 1);
+                }
             }
 
+            /* Just for debug.  Remove once stable:
+            System.err.println("Host seg (" + hostSeg + "), Port val (" + port
+                    + "), Path val (" + pathSeg + "), path (" + path
+                    + "), db (" + database + ')');
+             */
             props.setProperty("port", port);
-            props.setProperty("host", host);
+            props.setProperty("host", hostSeg);
             props.setProperty("path", path);
 
             if (!noPath && extraProps != null) {
@@ -269,7 +318,7 @@ public class DatabaseURL {
             }
         } else {
             if (type == S_MEM || type == S_RES) {
-                database = urlImage.substring(pos, semicolpos).toLowerCase();
+                database = urlImage.substring(pos, postUrlPos).toLowerCase();
 
                 if (type == S_RES) {
                     if (database.indexOf('/') != 0) {
@@ -277,7 +326,7 @@ public class DatabaseURL {
                     }
                 }
             } else {
-                database = url.substring(pos, semicolpos);
+                database = url.substring(pos, postUrlPos);
             }
 
             if (database.length() == 0) {

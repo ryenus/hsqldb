@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import org.hsqldb.lib.StopWatch;
 import junit.framework.TestCase;
 
 /**
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
 public class TestHashStructures extends TestCase {
 

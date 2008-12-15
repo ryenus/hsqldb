@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import org.hsqldb.persist.HsqlProperties;
  *
  * This test now incorporates the defunct TestTextTables
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.0
  */
@@ -92,7 +92,7 @@ public class TestCacheSize {
     boolean nioMode        = false;
 
     // script format {TEXT | BINARY | COMPRESSED}
-    String  logType       = "TEXT";
+    String  logType       = "BINARY";
     int     writeDelay    = 60;
     boolean indexZip      = false;
     boolean indexLastName = false;
@@ -124,19 +124,24 @@ public class TestCacheSize {
     Connection cConnection;
     FileWriter writer;
 
+    //
+    String filler =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        + "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
     private void checkSelects() {
 
         countTestID();
+        selectID();
 
-//        selectID();
-        selectZipTable();
+//        selectZipTable();
     }
 
     private void checkUpdates() {
 
-        updateIDLinear();
-
+//        updateIDLinear();
 //        updateID();
+        updateTestString();
         countTestID();
         deleteTest();
         countTestID();
@@ -170,7 +175,7 @@ public class TestCacheSize {
                         user, password);
                 sStatement = cConnection.createStatement();
 
-                sStatement.execute("SET WRITE_DELAY " + 100 + " MILLIS");
+                sStatement.execute("SET WRITE_DELAY " + 2);
                 sStatement.execute("SET CHECKPOINT DEFRAG " + 0);
                 sStatement.execute("SET SCRIPTFORMAT " + logType);
                 sStatement.execute("SET LOGSIZE " + 0);
@@ -220,9 +225,6 @@ public class TestCacheSize {
         String ddl7 = "CREATE TEMP TABLE temptest( id INT,"
                       + " firstname VARCHAR, " + " lastname VARCHAR, "
                       + " zip INTEGER, " + " filler VARCHAR)";
-        String filler =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            + "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String mddl1 = "DROP TABLE test2 IF EXISTS";
         String mddl2 = "CREATE " + tableType
                        + " TABLE test2( id1 INT, id2 INT,"
@@ -567,7 +569,7 @@ public class TestCacheSize {
             PreparedStatement ps = cConnection.prepareStatement(
                 "SELECT firstname,lastname,zip,filler FROM test WHERE id = ?");
 
-            for (i = 0; i < bigops; i++) {
+            for (i = 0; i < smallops; i++) {
                 ps.setInt(1, nextIntRandom(randomgen, bigrows - 1));
                 ps.execute();
 
@@ -739,10 +741,55 @@ public class TestCacheSize {
                 "UPDATE test SET zip = zip + 1 WHERE id = ? and zip <> "
                 + smallrows);
 
-            for (i = 0; i < bigops; i++) {
+            for (i = 0; i < smallops; i++) {
                 random = nextIntRandom(randomgen, bigrows - 1);
 
                 ps.setInt(1, random);
+                ps.execute();
+
+                if (reportProgress && (i + 1) % 10000 == 0
+                        || (slow && (i + 1) % 100 == 0)) {
+                    System.out.println("Update " + (i + 1) + " : "
+                                       + sw.elapsedTime() + " rps: "
+                                       + (i * 1000 / (sw.elapsedTime() + 1)));
+                }
+            }
+
+            ps.close();
+        } catch (SQLException e) {
+            System.out.println("error : " + random);
+            e.printStackTrace();
+        }
+
+        long time = sw.elapsedTime();
+        long rate = (i * 1000) / (time + 1);
+
+        storeResult("update with random id", i, time, rate);
+        System.out.println("update time with random id " + i + " rows  -- "
+                           + time + " ms -- " + rate + " tps");
+    }
+
+    void updateTestString() {
+
+        StopWatch        sw        = new StopWatch();
+        java.util.Random randomgen = new java.util.Random();
+        int              i         = 0;
+        boolean          slow      = false;
+        int              count     = 0;
+        int              random    = 0;
+
+        try {
+            PreparedStatement ps = cConnection.prepareStatement(
+                "UPDATE test SET filler = ? WHERE id = ? and zip <> "
+                + smallrows);
+
+            for (i = 0; i < smallops * 2; i++) {
+                random = nextIntRandom(randomgen, bigrows - 1);
+
+                int randomLength = nextIntRandom(randomgen, filler.length());
+                String newFiller = filler.substring(randomLength);
+                ps.setString(1, newFiller);
+                ps.setInt(2, random);
                 ps.execute();
 
                 if (reportProgress && (i + 1) % 10000 == 0
@@ -915,13 +962,14 @@ public class TestCacheSize {
 
     static void deleteDatabase(String path) {
 
-        FileUtil.delete(path + ".backup");
-        FileUtil.delete(path + ".properties");
-        FileUtil.delete(path + ".script");
-        FileUtil.delete(path + ".data");
-        FileUtil.delete(path + ".log");
-        FileUtil.delete(path + ".lck");
-        FileUtil.delete(path + ".csv");
+        FileUtil fileUtil = FileUtil.getDefaultInstance();
+        fileUtil.delete(path + ".backup");
+        fileUtil.delete(path + ".properties");
+        fileUtil.delete(path + ".script");
+        fileUtil.delete(path + ".data");
+        fileUtil.delete(path + ".log");
+        fileUtil.delete(path + ".lck");
+        fileUtil.delete(path + ".csv");
     }
 
     int nextIntRandom(Random r, int range) {

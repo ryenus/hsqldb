@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2008, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import org.hsqldb.lib.RCData;
  * @author Blaine Simpson unsaved@users
  */
 public class SqlTool {
-    static private SqlFile.ToolLogger logger =
+    private static SqlFile.ToolLogger logger =
             SqlFile.ToolLogger.getLog(SqlTool.class);
     private static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
@@ -85,7 +85,7 @@ public class SqlTool {
      * specified on the command line
      */
     private static String CMDLINE_ID = "cmdline";
-    static private SqltoolRB rb = null;
+    private static SqltoolRB rb = null;
     // Must use a shared static RB object, since we need to get messages
     // inside of static methods.
     // This means that the locale will be set the first time this class

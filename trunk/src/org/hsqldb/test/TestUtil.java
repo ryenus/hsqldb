@@ -1,3 +1,34 @@
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 package org.hsqldb.test;
 
 import java.io.File;
@@ -24,8 +55,8 @@ import org.hsqldb.lib.StringUtil;
  * Script writers be aware that you can't use stderr to distinguish error
  * messages.  This class writes error messages to stdout.
  *
- * @author ewanslater@users
- * @author fredt@users
+ * @author Ewan Slater (ewanslater@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
 public class TestUtil {
     /* This class writes \n's as line delimiters.
@@ -545,7 +576,7 @@ abstract class ParsedSection {
          * 'w' - wait
          * 'p' - proceed
          * 's' - silent
-         * 'd'       - display   (No reason to use upper-case).
+         * 'd' - display   (No reason to use upper-case).
          * ' ' - not a test
          */
 
@@ -771,7 +802,7 @@ static private String W_SYNTAX_MSG =
     "Syntax of Wait commands:\n"
  + "    /*w 123*/     To Wait 123 milliseconds\n"
  + "    /*w false x*/ Wait until /*p*/ command in another script has executed\n"
- + "    /*w true x*/  Same, but the /*p*/ must not have executed yet"; 
+ + "    /*w true x*/  Same, but the /*p*/ must not have executed yet";
 
 /** Represents a ParsedSection for wait execution */
     long sleepTime = -1;
@@ -847,7 +878,7 @@ static private String P_SYNTAX_MSG =
     boolean enforceSequence = false;
 
     protected ProceedSection(String[] inLines) {
-        /* Can't user the super constructor, since it does funny things when
+        /* Can't use the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
         lines = inLines;
         int closeCmd = lines[0].indexOf("*/");
@@ -1038,7 +1069,7 @@ class BlankParsedSection extends ParsedSection {
     }
 
     protected String getResultString() {
-        return "No result specified for this section";
+        return message;
     }
 }
 
@@ -1052,7 +1083,7 @@ class IgnoreParsedSection extends ParsedSection {
          * Therefore, renaming to inLines. */
 
         // Inefficient to parse this into SQL when we aren't going to use
-        // it as SQL.  Should probably just be removed to use the 
+        // it as SQL.  Should probably just be removed to use the
         // super() constructor.
         super(inLines);
 

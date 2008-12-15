@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,8 @@
 
 package org.hsqldb.test;
 
+import org.hsqldb.Collation;
+
 /**
  * Test HSQLDBs collation capabilities
  * @author frank.schoenheit@sun.com
@@ -39,7 +41,6 @@ public class TestCollation extends TestBase {
 
     java.sql.Statement      statement;
     java.sql.Connection     connection;
-    org.hsqldb.Collation    collation;
     org.hsqldb.lib.Iterator collIterator;
     org.hsqldb.lib.Iterator localeIterator;
 
@@ -60,9 +61,8 @@ public class TestCollation extends TestBase {
             statement  = connection.createStatement();
         } catch (Exception e) {}
 
-        collation      = new org.hsqldb.Collation();
-        collIterator   = collation.getCollationsIterator();
-        localeIterator = collation.getLocalesIterator();
+        collIterator   = Collation.getCollationsIterator();
+        localeIterator = Collation.getLocalesIterator();
     }
 
     protected void tearDown() {
@@ -79,7 +79,7 @@ public class TestCollation extends TestBase {
     /**
      * checks whether expected locales are present and selectable
      */
-    public void verifyAvailability() {
+    public void testVerifyAvailability() {
 
         // let's check whether unknown collation identifiers are rejected
         try {
@@ -160,7 +160,7 @@ public class TestCollation extends TestBase {
     /**
      * checks whether sorting via a given collation works as expected
      */
-    public void verifyCollation() {
+    public void testVerifyCollation() {
 
         String failedCollations = "";
         String failMessage      = "";
@@ -201,10 +201,12 @@ public class TestCollation extends TestBase {
      */
     protected String checkSorting(String collationName) {
 
-        String prepareStmt =
-            "DROP TABLE WORDLIST IF EXISTS;"
-            + "CREATE TEXT TABLE WORDLIST ( ID INTEGER, WORD VARCHAR(50) );"
-            + "SET TABLE WORDLIST SOURCE \"" + collationName
+        String stmt1 =
+            "DROP TABLE WORDLIST IF EXISTS;";
+        String stmt2 =
+            "CREATE TEXT TABLE WORDLIST ( ID INTEGER, WORD VARCHAR(50) );";
+        String stmt3 =
+            "SET TABLE WORDLIST SOURCE \"" + collationName
             + ".csv;encoding=UTF-8\"";
         String selectStmt    = "SELECT ID, WORD FROM WORDLIST ORDER BY WORD";
         String returnMessage = "";
@@ -213,7 +215,9 @@ public class TestCollation extends TestBase {
 
             // set database collation
             statement.execute(getSetCollationStmt(collationName));
-            statement.execute(prepareStmt);
+            statement.execute(stmt1);
+            statement.execute(stmt2);
+            statement.execute(stmt3);
 
             java.sql.ResultSet results = statement.executeQuery(selectStmt);
 
@@ -240,7 +244,7 @@ public class TestCollation extends TestBase {
     }
 
     public static void main(String[] argv) {
-        runWithResult(TestCollation.class, "verifyAvailability");
-        runWithResult(TestCollation.class, "verifyCollation");
+        runWithResult(TestCollation.class, "testVerifyAvailability");
+        runWithResult(TestCollation.class, "testVerifyCollation");
     }
 }
