@@ -273,9 +273,9 @@
       The script file contains the definition of tables and other database
       objects, plus the data for non-cached tables. The log file contains
       recent changes to the database. The data file contains the data for
-      cached tables and the backup file is a zipped backup of the last known
-      consistent state of the data file. All these files are essential and
-      should never be deleted. For some catalogs, the
+      cached tables and the backup file is a compressed backup of the last
+      known consistent state of the data file. All these files are essential
+      and should never be deleted. For some catalogs, the
       <filename>test.data</filename> and <filename>test.backup</filename>
       files will not be present. In addition to those files, a HyperSQL
       database may link to any formatted text files, such as CSV lists,
@@ -650,7 +650,7 @@
       <title>Closing the Database</title>
 
       <para>All databases running in different modes can be closed with the
-      SHUTDOWN command, issued as an SQL query.</para>
+      SHUTDOWN command, issued as an SQL statement.</para>
 
       <para>When SHUTDOWN is issued, all active transactions are rolled back.
       The catalog files are then saved in a form that can be opened quickly
@@ -4394,7 +4394,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>To upgrade from older version database files (1.7.1 and older)
         that contain CACHED tables, use the SCRIPT procedure below. In all
         versions of HSQLDB, the <literal>SCRIPT 'filename'</literal> command
-        (used as an SQL query) allows you to save a full record of your
+        (used as an SQL statement) allows you to save a full record of your
         database, including database object definitions and data, to a file of
         your choice. You can export a script file using the old version of the
         database engine and open the script as a database with 1.9.0.</para>
@@ -6748,8 +6748,8 @@ INTERSECT [DISTINCT] } selectStatement]
               <para>Performs a checkpoint to creates a new .script file that
               has the minimum size and contains the data for memory tables
               only. It then backs up the .data file containing the CACHED
-              TABLE data in zipped format to the .backup file and closes the
-              database.</para>
+              TABLE data in a compressed format to the .backup file and closes
+              the database.</para>
             </listitem>
           </varlistentry>
 
