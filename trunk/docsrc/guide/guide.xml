@@ -305,12 +305,15 @@
     <section>
       <title>In-Process Access to Database Catalogs</title>
 
-      <para>An <glossterm>in-process</glossterm> database is started from
-      JDBC, with the database path specified in the connection URL. For
-      example, if the <glossterm>file: </glossterm>database name is "testdb"
-      and its files are located in the same directory as where the command to
-      run your application was issued, the following code is used for the
-      connection:</para>
+      <para>In general, JDBC is used for all access to databases. This is done
+      by making a connection to the database, then using various methods of
+      the <classname>java.sql.Connection</classname> object that is returned
+      to access the data. Access to an <glossterm>in-process</glossterm>
+      database is started from JDBC, with the database path specified in the
+      connection URL. For example, if the <glossterm>file:
+      </glossterm>database name is "testdb" and its files are located in the
+      same directory as where the command to run your application was issued,
+      the following code is used for the connection:</para>
 
       <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:testdb", "SA", "");</programlisting>
 
@@ -340,11 +343,15 @@
 
       <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:mymemdb", "SA", "");</programlisting>
 
-      <para>A <glossterm>res:</glossterm> database, is specified by the res:
-      protocol. As it is a Java resource, the database path is a Java URL
-      (similar to the path to a class). In the example below, "resdb" is the
-      root name of the database files, which exists in the directory
-      "org/my/path" within the classpath (probably in a Jar).</para>
+      <para>A <glossterm>res:</glossterm> database, is specified by the
+      <glossterm>res:</glossterm> protocol. As it is a Java resource, the
+      database path is a Java URL (similar to the path to a class). In the
+      example below, "resdb" is the root name of the database files, which
+      exists in the directory "org/my/path" within the classpath (probably in
+      a Jar). A Java resource is stored in a compressed format and is
+      decompressed in memory when it is used. For this reason, a
+      <glossterm>res:</glossterm> database should not contain large amounts of
+      data and is always read-only.</para>
 
       <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:res:org.my.path.resdb", "SA", "");</programlisting>
 
@@ -546,110 +553,159 @@
         <para>A server can provide connections to more than one database. In
         the examples above, more than one set of database names can be
         specified on the command line. It is also possible to specify all the
-        databases in a .properties file, instead of the command line. These
-        capabilities are covered in the ** todo ** chapter.</para>
+        databases in a <literal>.properties</literal> file, instead of the
+        command line. These capabilities are covered in the ** todo **
+        chapter.</para>
       </section>
     </section>
 
     <section>
-      <title>General</title>
+      <title>Accessing the data</title>
 
-      <section>
-        <title>Closing the Database</title>
+      <para>As shown so far, a <classname>java.sql.Connection</classname>
+      object is always used to access the database. But the speed and
+      performance depends on the type of connection.</para>
 
-        <para>All databases running in different modes can be closed with the
-        SHUTDOWN command, issued as an SQL query.</para>
+      <para>Establishing a connection and closing it has some overheads,
+      therefore it is not good practice to create a new connection to perform
+      a small number of operations. A connection should be reused as much as
+      possible and closed only when it is not going to be used again for a
+      long while. </para>
 
-        <para>When SHUTDOWN is issued, all active transactions are rolled
-        back. The catalog files are then saved in a form that can be opened
-        quickly the next time the catalog is opened.</para>
+      <para>Reuse is more important for server connections. A server
+      connection uses a TCP port for communications. Each time a connection is
+      made, a port is allocated by the operating system and deallocated after
+      the connection is closed. If many connections are made from a single
+      client, the operating system may not be able to keep up and may refuse
+      the connection attempt.</para>
 
-        <para>A special form of closing the database is via the SHUTDOWN
-        COMPACT command. This command rewrites the <literal>.data</literal>
-        file that contains the information stored in CACHED tables and
-        compacts it to its minimum size. This command should be issued
-        periodically, especially when lots of inserts, updates or deletes have
-        been performed on the cached tables. Changes to the structure of the
-        database, such as dropping or modifying populated CACHED tables or
-        indexes also create large amounts of unused file space that can be
-        reclaimed using this command.</para>
+      <para>A <classname>java.sql.Connection</classname> object has some
+      methods that return further <classname>java.sql.*</classname> objects.
+      All these objects belong to the connection that returned them and are
+      closed when the connection is closed. These objects can be reused, but
+      if they are not needed after performing the operations, they should be
+      closed.</para>
 
-        <para>Databases are not closed when the last connection to the
-        database is explicitly closed via JDBC. A connection property,
-        <literal>shutdown=true</literal>, can be specified on the first
-        connection to the database (the connection that opens the database) to
-        force a shutdown when the last connection closes.</para>
+      <para>A <classname>java.sql.DatabaseMetaData</classname> object is used
+      to get metadata for the database.</para>
 
-        <para><example>
-            <title>specifying a connection property to shutdown the database
-            when the last connection is closed</title>
+      <para>A <classname>java.sql.Statement</classname> object is used to
+      execute queries and data change statements. A
+      <classname>java.sql.Statement</classname> can be reused to execute a
+      different statement each time.</para>
 
-            <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
-          </example>This feature is useful for running tests, where it may not
-        be practical to shutdown the database after each test. But it is not
-        recommended for application programs.</para>
-      </section>
+      <para>A <classname>java.sql.PreparedStatement</classname> object is used
+      to execute a single query or data change statement repeatedly. The SQL
+      statement usually contains parameters, which can be set to new values
+      before each reuse. When a
+      <classname>java.sql.PreparedStatement</classname> object is created, the
+      engine keeps the compiled SQL statement for reuse, until the
+      <classname>java.sql.PreparedStatement</classname> object is closed. As a
+      result, repeated use of a
+      <classname>java.sql.PreparedStatement</classname> is much faster than
+      using a <classname>java.sql.Statement</classname> object.</para>
 
-      <section>
-        <title>Creating a New Database</title>
+      <para>A <classname>java.sql.CallableStatement</classname> object is used
+      to execute an SQL CALL statement. The SQL CALL statement may contain
+      parameters, which should be be set to new values before each reuse.
+      Similar to <classname>java.sql.PreparedStatement</classname>, the engine
+      keeps the compiled SQL statement for reuse, until the
+      <classname>java.sql.CallableStatement</classname> object is
+      closed.</para>
 
-        <para>When a server instance is started, or when a connection is made
-        to an <glossterm>in-process</glossterm> database, a new, empty
-        database is created if no database exists at the given path.</para>
+      <para>A <classname>java.sql.Connection</classname> object also has some
+      methods for transaction control. </para>
 
-        <para>This feature has a side effect that can confuse new users. If a
-        mistake is made in specifying the path for connecting to an existing
-        database, a connection is nevertheless established to a new database.
-        For troubleshooting purposes, you can specify a connection property
-        <property>ifexists</property>=<literal>true</literal> to allow
-        connection to an existing database only and avoid creating a new
-        database. In this case, if the database does not exist, the
-        <literal>getConnection()</literal> method will throw an
-        exception.</para>
+      <para>The commit() and rollback() method perform an SQL COMMIT and
+      ROLLBACK respectively.</para>
 
-        <para>
-          <example>
-            <title>specifying a connection property to disallow creating a new
-            database</title>
+      <para>The <literal>setSavepiont(String name)</literal> method performs a
+      <literal>SAVEPOINT &lt;name&gt;</literal> SQL statement and returns a
+      <classname>java.sql.Savepoint</classname> . The
+      <literal>rollback(Savepoint name)</literal> method performs a
+      <literal>ROLLBACK TO SAVEPOINT &lt;name&gt;</literal> SQL
+      statement.</para>
 
-            <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
-          </example>
-        </para>
-      </section>
+      <para>The Javadoc for <ulink
+          url="../src/org/hsqldb/jdbc/jdbcConnection.html">
+          <classname>jdbcConnection</classname>
+        </ulink>, <ulink url="../src/org/hsqldb/jdbcDriver.html">
+          <classname>jdbcDriver</classname>
+        </ulink>, <ulink
+          url="../src/org/hsqldb/jdbc/jdbcDatabaseMetaData.html">
+          <classname>jdbcDatabaseMetadata</classname>
+        </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcResultSet.html">
+          <classname>jdbcResultSet</classname>
+        </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcStatement.html">
+          <classname>jdbcStatement</classname>
+        </ulink>, and <ulink
+          url="../src/org/hsqldb/jdbc/jdbcPreparedStatement.html">
+          <classname>jdbcPreparedStatement</classname>
+        </ulink> list all the supported JDBC methods together with information
+      that is specific to HSQLDB.</para>
+    </section>
 
-      <section>
-        <title>Using the Database Engine</title>
+    <section>
+      <title>Closing the Database</title>
 
-        <para>Once a connection is established to a database in any mode, JDBC
-        methods are used to interact with the database. The Javadoc for <ulink
-            url="../src/org/hsqldb/jdbc/jdbcConnection.html">
-            <classname>jdbcConnection</classname>
-          </ulink>, <ulink url="../src/org/hsqldb/jdbcDriver.html">
-            <classname>jdbcDriver</classname>
-          </ulink>, <ulink
-            url="../src/org/hsqldb/jdbc/jdbcDatabaseMetaData.html">
-            <classname>jdbcDatabaseMetadata</classname>
-          </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcResultSet.html">
-            <classname>jdbcResultSet</classname>
-          </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcStatement.html">
-            <classname>jdbcStatement</classname>
-          </ulink>, and <ulink
-            url="../src/org/hsqldb/jdbc/jdbcPreparedStatement.html">
-            <classname>jdbcPreparedStatement</classname>
-          </ulink> list all the supported JDBC methods together with
-        information that is specific to HSQLDB. JDBC methods are broadly
-        divided into: connection-related methods, metadata methods and
-        database access methods. The database access methods use SQL
-        statements to perform actions on the database and return the results
-        either as a Java primitive type or as an instance of the
-        <classname>java.sql.ResultSet</classname> class.</para>
+      <para>All databases running in different modes can be closed with the
+      SHUTDOWN command, issued as an SQL query.</para>
 
-        <para>You can use Database Manager, SQL Tool, or other Java database
-        access tools to explore your database and update it with SQL commands.
-        These programs use JDBC internally to submit your commands to the
-        database engine and to display the results in a human readable
-        format.</para>
-      </section>
+      <para>When SHUTDOWN is issued, all active transactions are rolled back.
+      The catalog files are then saved in a form that can be opened quickly
+      the next time the catalog is opened.</para>
+
+      <para>A special form of closing the database is via the SHUTDOWN COMPACT
+      command. This command rewrites the <literal>.data</literal> file that
+      contains the information stored in CACHED tables and compacts it to its
+      minimum size. This command should be issued periodically, especially
+      when lots of inserts, updates or deletes have been performed on the
+      cached tables. Changes to the structure of the database, such as
+      dropping or modifying populated CACHED tables or indexes also create
+      large amounts of unused file space that can be reclaimed using this
+      command.</para>
+
+      <para>Databases are not closed when the last connection to the database
+      is explicitly closed via JDBC. A connection property,
+      <literal>shutdown=true</literal>, can be specified on the first
+      connection to the database (the connection that opens the database) to
+      force a shutdown when the last connection closes.</para>
+
+      <para><example>
+          <title>specifying a connection property to shutdown the database
+          when the last connection is closed</title>
+
+          <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
+        </example>This feature is useful for running tests, where it may not
+      be practical to shutdown the database after each test. But it is not
+      recommended for application programs.</para>
+    </section>
+
+    <section>
+      <title>Creating a New Database</title>
+
+      <para>When a server instance is started, or when a connection is made to
+      an <glossterm>in-process</glossterm> database, a new, empty database is
+      created if no database exists at the given path.</para>
+
+      <para>This feature has a side effect that can confuse new users. If a
+      mistake is made in specifying the path for connecting to an existing
+      database, a connection is nevertheless established to a new database.
+      For troubleshooting purposes, you can specify a connection property
+      <property>ifexists</property>=<literal>true</literal> to allow
+      connection to an existing database only and avoid creating a new
+      database. In this case, if the database does not exist, the
+      <literal>getConnection()</literal> method will throw an
+      exception.</para>
+
+      <para>
+        <example>
+          <title>specifying a connection property to disallow creating a new
+          database</title>
+
+          <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
+        </example>
+      </para>
     </section>
   </chapter>
 
