@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -220,8 +220,8 @@ public class TestTextTable extends TestBase {
     }
 
     protected void tearDown() {
-        super.tearDown();
         executeStatement("SHUTDOWN");
+        super.tearDown();
     }
 
     /**
@@ -504,26 +504,30 @@ public class TestTextTable extends TestBase {
             } catch (java.sql.SQLException es) { /* that's expected here */
             }
 
+/*
+            // new - a malformed data source assignment by user should not survive
+            // and should revert to the existing one
             assertTrue(
                 "A table with an invalid data source should fall back to read-only.",
                 isReadOnly(m_products.getName()));
+
             assertEquals(
                 "A data source which cannot be set should nonetheless be remembered.",
                 newDataSourceSpec, getDataSourceSpec(m_products.getName()));
-
+*/
             // the data source spec should even survive a shutdown
             executeStatement("SHUTDOWN");
 
             m_connection = newConnection();
             m_statement  = m_connection.createStatement();
-
+/*
             assertEquals(
                 "A data source pointing to a mailformed file should survive a database shutdown.",
                 newDataSourceSpec, getDataSourceSpec(m_products.getName()));
             assertTrue(
                 "After shutdown and DB-reconnect, the table with a malformed source should be read-only, again.",
                 isReadOnly(m_products.getName()));
-
+*/
             // reconnect after fixing the file
             textFile = new PrintStream(
                 FileUtil.getDefaultInstance().openOutputStreamElement(

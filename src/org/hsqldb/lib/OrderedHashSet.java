@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,11 @@ package org.hsqldb.lib;
  *
  * This class does not store null elements.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public class OrderedHashSet extends HashSet {
+public class OrderedHashSet extends HashSet implements HsqlList {
 
     public OrderedHashSet() {
 
@@ -103,19 +103,12 @@ public class OrderedHashSet extends HashSet {
         return true;
     }
 
-    public boolean set(int index,
-                       Object key) throws IndexOutOfBoundsException {
+    public Object set(int index, Object key) throws IndexOutOfBoundsException {
+        throw new IndexOutOfBoundsException();
+    }
 
-        checkRange(index);
-
-        if (contains(key)) {
-            return getIndex(key) == index;
-        }
-
-        super.removeLookup(index);
-        add(key);
-
-        return true;
+    public void add(int index, Object key) throws IndexOutOfBoundsException {
+        throw new IndexOutOfBoundsException();
     }
 
     public Object get(int index) throws IndexOutOfBoundsException {

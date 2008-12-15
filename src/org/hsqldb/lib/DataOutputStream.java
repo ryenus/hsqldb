@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 
-import org.hsqldb.HsqlException;
-
+/**
+ * A wrapper for OutputStream
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class DataOutputStream {
 
     OutputStream stream;

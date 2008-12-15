@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import java.lang.reflect.Array;
 /**
  * Collection of static methods for operations on arrays
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.2
  */
@@ -403,7 +403,7 @@ public class ArrayUtil {
 
         for (int j = 0; j < count; j++) {
             if (arra[j] != arrb[j]) {
-                if (arra[j] == null ||!arra[j].equals(arrb[j])) {
+                if (arra[j] == null || !arra[j].equals(arrb[j])) {
                     return false;
                 }
             }
@@ -660,17 +660,20 @@ public class ArrayUtil {
     }
 
     public static void orBooleanArray(boolean[] source, boolean[] dest) {
+
         for (int i = 0; i < dest.length; i++) {
             dest[i] |= source[i];
         }
     }
 
-    public static boolean areIntIndexesInBooleanArray(int[] arra, boolean[] arrb) {
+    public static boolean areIntIndexesInBooleanArray(int[] arra,
+            boolean[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
             if (arrb[arra[i]]) {
                 continue;
             }
+
             return false;
         }
 
@@ -685,7 +688,7 @@ public class ArrayUtil {
             boolean[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
-            if (arrb[i] &&!arra[i]) {
+            if (arrb[i] && !arra[i]) {
                 return false;
             }
         }
@@ -697,7 +700,9 @@ public class ArrayUtil {
      * Return count of true elements in array
      */
     public static int countTrueElements(boolean[] arra) {
+
         int count = 0;
+
         for (int i = 0; i < arra.length; i++) {
             if (arra[i]) {
                 count++;
@@ -706,6 +711,7 @@ public class ArrayUtil {
 
         return count;
     }
+
     /**
      * Returns true if arra from position start contains all elements of arrb
      * in sequential order.
@@ -971,7 +977,7 @@ public class ArrayUtil {
             return null;
         }
 
-        if (colindex < 0 ) {
+        if (colindex < 0) {
             return colarr;
         }
 
@@ -1011,29 +1017,81 @@ public class ArrayUtil {
     }
 
     /**
-     *  Copies some elements of row into colobject by using colindex as
+     *  Copies some elements of row into newRow by using columnMap as
      *  the list of indexes into row. <p>
      *
-     *  colindex and colobject are of equal length and are normally
+     *  columnMap and newRow are of equal length and are normally
      *  shorter than row. <p>
      *
      *  @param row the source array
-     *  @param colindex the list of indexes into row
-     *  @param colobject the destination array
+     *  @param columnMap the list of indexes into row
+     *  @param newRow the destination array
      */
-    public static void copyColumnValues(Object[] row, int[] colindex,
-                                        Object[] colobject) {
+    public static void projectRow(Object[] row, int[] columnMap,
+                                  Object[] newRow) {
+
+        for (int i = 0; i < columnMap.length; i++) {
+            newRow[i] = row[columnMap[i]];
+        }
+    }
+
+    public static void projectRow(int[] row, int[] columnMap, int[] newRow) {
+
+        for (int i = 0; i < columnMap.length; i++) {
+            newRow[i] = row[columnMap[i]];
+        }
+    }
+
+    /**
+     *  As above but copies in reverse direction. <p>
+     *
+     *  @param row the target array
+     *  @param columnMap the list of indexes into row
+     *  @param newRow the source array
+     */
+    public static void projectRowReverse(Object[] row, int[] columnMap,
+                                         Object[] newRow) {
+
+        for (int i = 0; i < columnMap.length; i++) {
+            row[columnMap[i]] = newRow[i];
+        }
+    }
+
+/*
+    public static void copyColumnValues(int[] row, int[] colindex,
+                                        int[] colobject) {
 
         for (int i = 0; i < colindex.length; i++) {
             colobject[i] = row[colindex[i]];
         }
     }
 
-    public static void copyColumnValues(int[] row, int[] colindex,
-                                        int[] colobject) {
+    public static void copyColumnValues(boolean[] row, int[] colindex,
+                                        boolean[] colobject) {
 
         for (int i = 0; i < colindex.length; i++) {
             colobject[i] = row[colindex[i]];
+        }
+    }
+
+    public static void copyColumnValues(byte[] row, int[] colindex,
+                                        byte[] colobject) {
+
+        for (int i = 0; i < colindex.length; i++) {
+            colobject[i] = row[colindex[i]];
+        }
+    }
+*/
+    public static void projectMap(int[] mainMap, int[] subMap,
+                                  int[] newSubMap) {
+
+        for (int i = 0; i < subMap.length; i++) {
+            for (int j = 0; j < mainMap.length; j++) {
+                if (subMap[i] == mainMap[j]) {
+                    newSubMap[i] = j;
+                    break;
+                }
+            }
         }
     }
 
@@ -1067,8 +1125,8 @@ public class ArrayUtil {
         boolean x = haveEqualSets(a, e, a.length);
         boolean y = haveEqualSets(b, f, b.length);
 
-        System.out.print("test passed: ");
-        System.out.print(x == true && y == true && c.length == a.length - 1
+        System.out.println("test passed: ");
+        System.out.println(x == true && y == true && c.length == a.length - 1
                          && d.length == b.length);
     }
 */

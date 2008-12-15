@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,20 +35,25 @@ import java.sql.Connection;
 
 public class TestScript extends TestBase {
 
+//    String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf04UnionCorresponding.txt";
 //    String path = "TestSelf.txt";
 //    String path = "TestSelf3PartNames.txt";
 //    String path = "TestSelfArithmetic.txt";
-//    String path = "TestSelfAlterColumn.txt";
+    String path = "TestSelfAlterColumn.txt";
 //    String path = "TestSelfCaseWhen.txt";
 //    String path = "TestSelfCheckConstraints.txt";
-    String path = "TestSelfCreate.txt";
+//    String path = "TestSelfColGrant.txt";
+//    String path = "TestSelfCreate.txt";
 //    String path = "TestSelfConstraints.txt";
+//    String path = "TestSelfGrantees.txt";
 //    String path = "TestSelfGroupBy.txt";
 //    String path = "TestSelfInsertDeleteQueries.txt";
 //    String path = "TestSelfInterval.txt";
 //    String path = "TestSelfInternalFunctions.txt";
 //    String path = "TestSelfFieldLimits.txt";
 //    String path = "TestSelfFKModes.txt";
+//    String path = "TestSelfInPredicateReferencing.txt";
 //    String path = "TestSelfIssues.txt";
 //    String path = "TestSelfJoins.txt";
 //    String path = "TestSelfLeftJoin.txt";
@@ -56,13 +61,19 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfImmediateShutdown.txt";
 //    String path = "TestSelfInsertDeleteQueries.txt";
 //    String path = "TestSelfInPredicateReferencing.txt";
+//    String path = "TestSelfMultiGrants.txt";
 //    String path = "TestSelfNot.txt";
 //    String path = "TestSelfRoleNesting.txt";
 //    String path = "TestSelfQueries.txt";
 //    String path = "TestSelfSchemaPersistB1.txt";
+//    String path = "TestSelfSeqRightsA.txt";
+//    String path = "TestSelfSysTables.txt";
+//    String path = "TestSelfTempTable1.txt";
+//    String path = "TestSelfTriggers.txt";
 //    String path = "TestSelfUnions.txt";
 //    String path = "TestSelfUserFunction.txt";
 //    String path = "TestSelfViews.txt";
+//    String path = "TestSelfViewGrants.txt";
 //    String path = "TestSelfSeqRightsA.txt";
 //    String path = "TestTemp.txt";
     public TestScript(String name) {

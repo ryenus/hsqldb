@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,13 +83,13 @@ public class TestLikePredicateOptimizations extends TestBase {
 
         pstmt.executeBatch();
 
-        sql = "select count(*) from test where name = select max(name) from empty";
+        sql = "select count(*) from test where name = (select max(name) from empty)";
         rs  = stmt.executeQuery(sql);
 
         rs.next();
 
         expectedCount = rs.getInt(1);
-        sql           = "select count(*) from test where name like select min(name) from empty";
+        sql           = "select count(*) from test where name like (select min(name) from empty)";
         pstmt         = conn.prepareStatement(sql);
         rs            = pstmt.executeQuery();
 

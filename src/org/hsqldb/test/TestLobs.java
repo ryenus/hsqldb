@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,11 +69,13 @@ public class TestLobs extends TestBase {
         try {
             String ddl0 = "DROP TABLE BLOBTEST IF EXISTS";
             String ddl1 =
-                "CREATE TABLE BLOBTEST(ID IDENTITY, BLOBFIELD BLOB)";
+                "CREATE TABLE BLOBTEST(ID IDENTITY, BLOBFIELD BLOB(1000))";
 
             statement.execute(ddl0);
             statement.execute(ddl1);
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         try {
             String dml0 = "insert into blobtest(blobfield) values(?)";
@@ -119,7 +121,7 @@ public class TestLobs extends TestBase {
         try {
             String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
             String ddl1 =
-                "CREATE TABLE CLOBTEST(ID IDENTITY, CLOBFIELD CLOB)";
+                "CREATE TABLE CLOBTEST(ID IDENTITY, CLOBFIELD CLOB(1000))";
 
             statement.execute(ddl0);
             statement.execute(ddl1);

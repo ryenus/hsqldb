@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,8 +73,8 @@ import java.io.UnsupportedEncodingException;
  * events and to client invocation of the <tt>OutputStream.close()</tt> method.
  *
  * @author boucherb@users
- * @version 1.8.x
- * @since 1.8.x
+ * @version 1.9.0
+ * @since 1.9.0
  */
 
 public class ClosableByteArrayOutputStream extends OutputStream {
@@ -82,7 +82,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     /**
      * Data buffer.
      */
-    protected byte buf[];
+    protected byte[] buf;
 
     /**
      * # of valid bytes in buffer.

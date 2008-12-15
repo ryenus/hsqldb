@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public class TestAnother {
 
             int count = stm.executeUpdate("insert into test (id) values (1)");
 
-            System.out.print(count);
+            System.out.println(count);
             conn.close();
         } catch (Exception e) {
             e.printStackTrace();

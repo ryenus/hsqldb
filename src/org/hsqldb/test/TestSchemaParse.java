@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,6 +105,8 @@ public class TestSchemaParse extends junit.framework.TestCase {
         if (con != null) {
             con.close();
         }
+
+        super.tearDown();
     }
 
     public void test2pTables() throws Exception {
@@ -1018,17 +1020,13 @@ public class TestSchemaParse extends junit.framework.TestCase {
 
     public static void main(String[] sa) {
 
-        if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(TestSchemaParse.class);
-        } else {
-            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+        junit.textui.TestRunner runner = new junit.textui.TestRunner();
 
-            System.exit(
-                runner.run(
-                    runner.getTest(
-                        TestSchemaParse.class.getName())).wasSuccessful() ? 0
-                                                                          : 1);
-        }
+        System.exit(
+            runner.run(
+                runner.getTest(
+                    TestSchemaParse.class.getName())).wasSuccessful() ? 0
+                                                                      : 1);
     }
 
     public static junit.framework.Test suite() {

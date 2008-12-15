@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,14 +56,12 @@ public class TestAcl extends junit.framework.TestCase {
     private ServerAcl[] aclPermitAlls       = null;
     private ServerAcl[] aclDenyAlls         = null;
     private InetAddress localhostByName = InetAddress.getByName("localhost");
-    private InetAddress localhostByAddr =
-        InetAddress.getByAddress(new byte[] {
+    private InetAddress localhostByAddr = InetAddress.getByAddress(new byte[] {
         127, 0, 0, 1
     });
 
     // Can't depend on any other host name being resolvable :(
-    private InetAddress otherHostByAddr =
-        InetAddress.getByAddress(new byte[] {
+    private InetAddress otherHostByAddr = InetAddress.getByAddress(new byte[] {
         1, 2, 3, 4
     });
 
@@ -71,8 +69,7 @@ public class TestAcl extends junit.framework.TestCase {
         commonSetup();
     }
 
-    public TestAcl(String s)
-    throws IOException, ServerAcl.AclFormatException {
+    public TestAcl(String s) throws IOException, ServerAcl.AclFormatException {
 
         super(s);
 
@@ -111,17 +108,6 @@ public class TestAcl extends junit.framework.TestCase {
         pw.close();
         acls.add(new ServerAcl(file));
 
-        file = File.createTempFile("aclDenyAll2", ".txt");
-
-        file.deleteOnExit();
-
-        pw = new PrintWriter(new FileWriter(file));
-
-        pw.println("# Deny all test ACL\n");
-        pw.println("deny 0.0.0.0/0.0.0.0");
-        pw.close();
-        acls.add(new ServerAcl(file));
-
         aclDenyAlls = (ServerAcl[]) acls.toArray(new ServerAcl[0]);
 
         if (verbose) {
@@ -154,17 +140,6 @@ public class TestAcl extends junit.framework.TestCase {
         pw.close();
         acls.add(new ServerAcl(file));
 
-        file = File.createTempFile("aclPermitLocalhost3", ".txt");
-
-        file.deleteOnExit();
-
-        pw = new PrintWriter(new FileWriter(file));
-
-        pw.println("# Permit Localhost test ACL\n");
-        pw.println("permit 127.0.0.1/255.255.255.255");
-        pw.close();
-        acls.add(new ServerAcl(file));
-
         aclPermitLocalhosts = (ServerAcl[]) acls.toArray(new ServerAcl[0]);
 
         if (verbose) {
@@ -187,17 +162,6 @@ public class TestAcl extends junit.framework.TestCase {
         pw.close();
         acls.add(new ServerAcl(file));
 
-        file = File.createTempFile("aclPermitLocalNet2", ".txt");
-
-        file.deleteOnExit();
-
-        pw = new PrintWriter(new FileWriter(file));
-
-        pw.println("# Permit Local Net test ACL\n");
-        pw.println("permit 127.0.0.0/255.255.255.0");
-        pw.close();
-        acls.add(new ServerAcl(file));
-
         aclPermitLocalNets = (ServerAcl[]) acls.toArray(new ServerAcl[0]);
 
         if (verbose) {
@@ -217,18 +181,6 @@ public class TestAcl extends junit.framework.TestCase {
 
         pw.println("# Deny Local Net test ACL\n");
         pw.println("deny 127.0.0.0/24");
-        pw.println("allow 0.0.0.0/0");
-        pw.close();
-        acls.add(new ServerAcl(file));
-
-        file = File.createTempFile("aclDenyLocalNet2", ".txt");
-
-        file.deleteOnExit();
-
-        pw = new PrintWriter(new FileWriter(file));
-
-        pw.println("# Deny Local Net test ACL\n");
-        pw.println("deny 127.0.0.0/255.255.255.0");
         pw.println("allow 0.0.0.0/0");
         pw.close();
         acls.add(new ServerAcl(file));
@@ -256,18 +208,6 @@ public class TestAcl extends junit.framework.TestCase {
         pw.close();
         acls.add(new ServerAcl(file));
 
-        file = File.createTempFile("aclDenyLocalhost2", ".txt");
-
-        file.deleteOnExit();
-
-        pw = new PrintWriter(new FileWriter(file));
-
-        pw.println("# Deny Localhost test ACL\n");
-        pw.println("deny 127.0.0.1/255.255.255.255");
-        pw.println("allow 0.0.0.0/0");
-        pw.close();
-        acls.add(new ServerAcl(file));
-
         aclDenyLocalhosts = (ServerAcl[]) acls.toArray(new ServerAcl[0]);
 
         if (verbose) {
@@ -290,17 +230,6 @@ public class TestAcl extends junit.framework.TestCase {
         pw.close();
         acls.add(new ServerAcl(file));
 
-        file = File.createTempFile("aclPermitAll2", ".txt");
-
-        file.deleteOnExit();
-
-        pw = new PrintWriter(new FileWriter(file));
-
-        pw.println("# Permit all test ACL\n");
-        pw.println("permit 0.0.0.0/0.0.0.0");
-        pw.close();
-        acls.add(new ServerAcl(file));
-
         aclPermitAlls = (ServerAcl[]) acls.toArray(new ServerAcl[0]);
 
         if (verbose) {
@@ -312,29 +241,25 @@ public class TestAcl extends junit.framework.TestCase {
 
     static public void main(String[] sa) {
 
-        if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(TestAcl.class);
-        } else {
-            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+        junit.textui.TestRunner runner = new junit.textui.TestRunner();
 
-            System.exit(
-                runner.run(
-                    runner.getTest(TestAcl.class.getName())).wasSuccessful() ? 0
-                                                                             : 1);
-        }
+        System.exit(
+            runner.run(
+                runner.getTest(TestAcl.class.getName())).wasSuccessful() ? 0
+                                                                         : 1);
     }
 
     public void testDefaultWithNames() {
         assertFalse("Permitting access from localhost with default ACL",
-                    aclDefault.permitAccess(localhostByName));
+                    aclDefault.permitAccess(localhostByName.getAddress()));
     }
 
     public void testDefaultWithIPs() {
 
         assertFalse("Permitting access from localhost with default ACL",
-                    aclDefault.permitAccess(localhostByAddr));
+                    aclDefault.permitAccess(localhostByAddr.getAddress()));
         assertFalse("Permitting access from other host with default ACL",
-                    aclDefault.permitAccess(otherHostByAddr));
+                    aclDefault.permitAccess(otherHostByAddr.getAddress()));
     }
 
     public void testDenyAllWithNames() {
@@ -345,7 +270,7 @@ public class TestAcl extends junit.framework.TestCase {
             acl = (ServerAcl) aclDenyAlls[i];
 
             assertFalse("Permitting access from localhost with deny-all ACL",
-                        acl.permitAccess(localhostByName));
+                        acl.permitAccess(localhostByName.getAddress()));
         }
     }
 
@@ -357,9 +282,9 @@ public class TestAcl extends junit.framework.TestCase {
             acl = (ServerAcl) aclDenyAlls[i];
 
             assertFalse("Permitting access from localhost with deny-all ACL",
-                        acl.permitAccess(localhostByAddr));
+                        acl.permitAccess(localhostByAddr.getAddress()));
             assertFalse("Permitting access from other host with deny-all ACL",
-                        acl.permitAccess(otherHostByAddr));
+                        acl.permitAccess(otherHostByAddr.getAddress()));
         }
     }
 
@@ -372,7 +297,7 @@ public class TestAcl extends junit.framework.TestCase {
 
             assertTrue(
                 "Denying access from localhost with localhost-permit ACL",
-                acl.permitAccess(localhostByName));
+                acl.permitAccess(localhostByName.getAddress()));
         }
     }
 
@@ -385,10 +310,10 @@ public class TestAcl extends junit.framework.TestCase {
 
             assertTrue(
                 "Denying access from localhost with localhost-permit ACL",
-                acl.permitAccess(localhostByAddr));
+                acl.permitAccess(localhostByAddr.getAddress()));
             assertFalse(
                 "Permitting access from other host with localhost-permit ACL",
-                acl.permitAccess(otherHostByAddr));
+                acl.permitAccess(otherHostByAddr.getAddress()));
         }
     }
 
@@ -401,7 +326,7 @@ public class TestAcl extends junit.framework.TestCase {
 
             assertFalse(
                 "Permitting access from localhost with localhost-deny ACL",
-                acl.permitAccess(localhostByName));
+                acl.permitAccess(localhostByName.getAddress()));
         }
     }
 
@@ -414,10 +339,10 @@ public class TestAcl extends junit.framework.TestCase {
 
             assertFalse(
                 "Permitting access from localhost with localhost-deny ACL",
-                acl.permitAccess(localhostByAddr));
+                acl.permitAccess(localhostByAddr.getAddress()));
             assertTrue(
                 "Denying access from other host with localhost-deny ACL",
-                acl.permitAccess(otherHostByAddr));
+                acl.permitAccess(otherHostByAddr.getAddress()));
         }
     }
 
@@ -428,9 +353,8 @@ public class TestAcl extends junit.framework.TestCase {
         for (int i = 0; i < aclPermitLocalNets.length; i++) {
             acl = (ServerAcl) aclPermitLocalNets[i];
 
-            assertTrue(
-                "Denying access from localNet with localNet-permit ACL",
-                acl.permitAccess(localhostByName));
+            assertTrue("Denying access from localNet with localNet-permit ACL",
+                       acl.permitAccess(localhostByName.getAddress()));
         }
     }
 
@@ -441,12 +365,11 @@ public class TestAcl extends junit.framework.TestCase {
         for (int i = 0; i < aclPermitLocalNets.length; i++) {
             acl = (ServerAcl) aclPermitLocalNets[i];
 
-            assertTrue(
-                "Denying access from localNet with localNet-permit ACL",
-                acl.permitAccess(localhostByAddr));
+            assertTrue("Denying access from localNet with localNet-permit ACL",
+                       acl.permitAccess(localhostByAddr.getAddress()));
             assertFalse(
                 "Permitting access from other Net with localNet-permit ACL",
-                acl.permitAccess(otherHostByAddr));
+                acl.permitAccess(otherHostByAddr.getAddress()));
         }
     }
 
@@ -459,7 +382,7 @@ public class TestAcl extends junit.framework.TestCase {
 
             assertFalse(
                 "Permitting access from localNet with localNet-deny ACL",
-                acl.permitAccess(localhostByName));
+                acl.permitAccess(localhostByName.getAddress()));
         }
     }
 
@@ -472,19 +395,10 @@ public class TestAcl extends junit.framework.TestCase {
 
             assertFalse(
                 "Permitting access from localNet with localNet-deny ACL",
-                acl.permitAccess(localhostByAddr));
+                acl.permitAccess(localhostByAddr.getAddress()));
             assertTrue("Denying access from other Net with localNet-deny ACL",
-                       acl.permitAccess(otherHostByAddr));
+                       acl.permitAccess(otherHostByAddr.getAddress()));
         }
-    }
-
-    public void testInetAddrToLong() throws java.net.UnknownHostException {
-
-        assertEquals(
-            "Failed to convert Inet Address to Java long properly",
-            2130706433l,
-            ServerAcl.inetAddrToLong(
-                java.net.InetAddress.getByName("localhost")));
     }
 
     static public Test suite()
@@ -492,7 +406,6 @@ public class TestAcl extends junit.framework.TestCase {
 
         TestSuite newSuite = new TestSuite();
 
-        newSuite.addTest(new TestAcl("testInetAddrToLong"));
         newSuite.addTest(new TestAcl("testDefaultWithNames"));
         newSuite.addTest(new TestAcl("testDefaultWithIPs"));
         newSuite.addTest(new TestAcl("testDenyAllWithNames"));
@@ -508,5 +421,4 @@ public class TestAcl extends junit.framework.TestCase {
 
         return newSuite;
     }
-    ;
 }

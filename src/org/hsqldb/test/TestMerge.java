@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import junit.framework.TestResult;
 
 /**
  * Test merge statements via jdbc against in-memory database
- * @author fredt@users
+ * @author Justin Spadea
  */
 public class TestMerge extends TestBase {
 
@@ -333,6 +333,8 @@ public class TestMerge extends TestBase {
             e.printStackTrace();
             System.out.println("TestSql.tearDown() error: " + e.getMessage());
         }
+        super.tearDown();
+
     }
 
     public static void main(String[] argv) {

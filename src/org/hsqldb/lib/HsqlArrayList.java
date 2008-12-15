@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,8 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 */
     private static final int   DEFAULT_INITIAL_CAPACITY = 10;
     private static final float DEFAULT_RESIZE_FACTOR    = 2.0f;
-    private Object[]           elementData;
+    Object[]                   elementData;
+    Object[]                   reserveElementData;
     private boolean            minimizeOnClear;
 
     public HsqlArrayList(Object[] data, int count) {
@@ -172,11 +173,21 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         return elementData[index];
     }
 
-    /** returns the index of given object or -1 if nt found */
+    /** returns the index of given object or -1 if not found */
     public int indexOf(Object o) {
 
+        if (o == null) {
+            for (int i = 0; i < elementCount; i++) {
+                if (elementData[i] == null) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         for (int i = 0; i < elementCount; i++) {
-            if (elementData[i].equals(o)) {
+            if (o.equals(elementData[i])) {
                 return i;
             }
         }
@@ -206,10 +217,10 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 
         elementCount--;
 
-        elementData[elementCount] = null;
-
-        if (minimizeOnClear && elementCount == 0) {
-            resize(DEFAULT_INITIAL_CAPACITY);
+        if (elementCount == 0) {
+            clear();
+        } else {
+            elementData[elementCount] = null;
         }
 
         return removedObj;
@@ -264,8 +275,14 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 
         System.arraycopy(elementData, 0, newArray, 0, count);
 
+        if (minimizeOnClear && reserveElementData == null) {
+            ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_OBJECT, elementData, 0,
+                                 elementData.length);
+
+            reserveElementData = elementData;
+        }
+
         elementData = newArray;
-        newArray    = null;
     }
 
     /** Trims the array to be the same size as the number of elements. */
@@ -278,11 +295,10 @@ public class HsqlArrayList extends BaseList implements HsqlList {
     // fredt@users
     public void clear() {
 
-        if (minimizeOnClear && elementData.length > DEFAULT_INITIAL_CAPACITY) {
-            elementData = (Object[]) Array.newInstance(
-                elementData.getClass().getComponentType(),
-                DEFAULT_INITIAL_CAPACITY);
-            elementCount = 0;
+        if (minimizeOnClear && reserveElementData != null) {
+            elementData        = reserveElementData;
+            reserveElementData = null;
+            elementCount       = 0;
 
             return;
         }
@@ -296,24 +312,27 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 
     public void setSize(int newSize) {
 
-        if (newSize < elementCount) {
-            if (minimizeOnClear && newSize == 0
-                    && elementData.length > DEFAULT_INITIAL_CAPACITY) {
-                clear();
+        if (newSize == 0) {
+            clear();
 
-                return;
-            }
+            return;
+        }
 
+        if (newSize <= elementCount) {
             for (int i = newSize; i < elementCount; i++) {
                 elementData[i] = null;
             }
+
+            elementCount = newSize;
+
+            return;
+        }
+
+        for (; newSize > elementData.length; ) {
+            increaseCapacity();
         }
 
         elementCount = newSize;
-
-        for (; elementCount > elementData.length; ) {
-            increaseCapacity();
-        }
     }
 
 // fredt@users

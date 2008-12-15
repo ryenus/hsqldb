@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,9 @@ import java.util.NoSuchElementException;
 /**
  * A deque of long value. Implementation based on HsqlDeque class.
  *
- * @author fredt@users
- * @version post 1.8.0
- * @since post 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
  */
 public class LongDeque {
 
@@ -187,12 +187,37 @@ public class LongDeque {
         }
     }
 
-    public long remove(int index) {
+    public int indexOf(long value) {
+
+        for (int i = 0; i < elementCount; i++) {
+            int index = firstindex + i;
+
+            if (index >= list.length) {
+                index -= list.length;
+            }
+
+            if (list[index] == value) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public long remove(final int index) {
 
         int  target = getInternalIndex(index);
         long value  = list[target];
 
-        if (target >= firstindex) {
+        if (target == firstindex) {
+            list[firstindex] = 0;
+
+            firstindex++;
+
+            if (firstindex == list.length) {
+                firstindex = 0;
+            }
+        } else if (target > firstindex) {
             System.arraycopy(list, firstindex, list, firstindex + 1,
                              target - firstindex);
 
@@ -207,14 +232,16 @@ public class LongDeque {
             System.arraycopy(list, target + 1, list, target,
                              endindex - target - 1);
 
-            list[endindex] = 0;
-
             endindex--;
+
+            list[endindex] = 0;
 
             if (endindex == 0) {
                 endindex = list.length;
             }
         }
+
+        elementCount--;
 
         if (elementCount == 0) {
             firstindex = endindex = 0;
@@ -244,25 +271,17 @@ public class LongDeque {
             return;
         }
 
-        // essential to at least double the capacity for the loop to work
         long[] newList = new long[list.length * 2];
 
-        for (int i = 0; i < list.length; i++) {
-            newList[i] = list[i];
-        }
-
-        list    = newList;
-        newList = null;
+        System.arraycopy(list, firstindex, newList, firstindex,
+                         list.length - firstindex);
 
         if (endindex <= firstindex) {
-            int tail = firstindex + elementCount - endindex;
+            System.arraycopy(list, 0, newList, list.length, endindex);
 
-            for (int i = 0; i < endindex; i++) {
-                list[tail + i] = list[i];
-                list[i]        = 0;
-            }
-
-            endindex = firstindex + elementCount;
+            endindex = list.length + endindex;
         }
+
+        list = newList;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,9 +42,12 @@ import java.util.Random;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.persist.HsqlProperties;
 
+import java.io.File;
+
 /**
  * Test large tables containing columns of different types.
- * @author fredt@users
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
 public class TestAllTypes {
 
@@ -88,12 +91,17 @@ public class TestAllTypes {
             sStatement  = null;
             cConnection = null;
 
-            HsqlProperties props      = new HsqlProperties(filepath);
-            boolean        fileexists = props.checkFileExists();
-
             Class.forName("org.hsqldb.jdbcDriver");
 
-            if (!network &&!fileexists == false) {
+            boolean createDatabase = false;
+
+            if (!network) {
+                File file = new File(filepath);
+
+                createDatabase = !file.exists();
+            }
+
+            if (createDatabase) {
                 cConnection = DriverManager.getConnection(url + filepath,
                         user, password);
                 sStatement = cConnection.createStatement();
@@ -101,11 +109,9 @@ public class TestAllTypes {
                 sStatement.execute("SET SCRIPTFORMAT " + logType);
                 sStatement.execute("SET LOGSIZE " + 400);
                 sStatement.execute("SET WRITE_DELAY " + writeDelay);
+                sStatement.execute("SET PROPERTY \"hsqldb.cache_scale\" 16;");
                 sStatement.execute("SHUTDOWN");
                 cConnection.close();
-                props.load();
-                props.setProperty("hsqldb.cache_scale", "" + cacheScale);
-                props.save();
 
                 cConnection = DriverManager.getConnection(url + filepath,
                         user, password);
@@ -150,8 +156,7 @@ public class TestAllTypes {
         // referential integrity checks will slow down inserts a bit
         String ddl6 =
             "ALTER TABLE test add constraint c1 FOREIGN KEY (zip) REFERENCES zip(zip);";
-        String filler =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String filler = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
         try {
             System.out.println("Connecting");
@@ -213,7 +218,7 @@ public class TestAllTypes {
 
 //                ps.setDouble(6, randomgen.nextDouble());
                 ps.setDate(7, new java.sql.Date(nextIntRandom(randomgen, 1000)
-                                                * 24 * 3600 * 1000));
+                                                * 24L * 3600 * 1000));
 
                 String varfiller = filler.substring(0, randomlength);
 

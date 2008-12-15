@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,7 @@ public class TestStressInsert {
             stmt.execute("set property \"hsqldb.cache_size_scale\" 10");
             stmt.execute("set write_delay 0");
             stmt.execute("set logsize " + 0);
+            stmt.execute("set property \"hsqldb.cache_file_scale\" 8");
 
             DatabaseMetaData metaData = con.getMetaData();
             ResultSet        rs = metaData.getTables(null, null, "A", null);
@@ -99,6 +100,9 @@ public class TestStressInsert {
 
     public void shutdown() throws Exception {
         insertStmt.close();
+
+        Statement stmt = con.createStatement();
+        stmt.executeUpdate("SHUTDOWN");
         con.close();
     }
 

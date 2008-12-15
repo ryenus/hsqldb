@@ -1,3 +1,34 @@
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
 package org.hsqldb.lib;
 
 import java.lang.reflect.Array;
@@ -21,7 +52,7 @@ public class StringUtil {
     public static String toZeroPaddedString(long value, int precision,
             int maxSize) {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
 
         if (value < 0) {
             value = -value;
@@ -34,16 +65,16 @@ public class StringUtil {
         }
 
         for (int i = s.length(); i < precision; i++) {
-            buffer.append('0');
+            sb.append('0');
         }
 
-        buffer.append(s);
+        sb.append(s);
 
         if (maxSize < precision) {
-            buffer.setLength(maxSize);
+            sb.setLength(maxSize);
         }
 
-        return buffer.toString();
+        return sb.toString();
     }
 
     public static String toPaddedString(String source, int length, char pad,
@@ -55,21 +86,21 @@ public class StringUtil {
             return source;
         }
 
-        StringBuffer buffer = new StringBuffer(length);
+        StringBuffer sb = new StringBuffer(length);
 
         if (trailing) {
-            buffer.append(source);
+            sb.append(source);
         }
 
         for (int i = len; i < length; i++) {
-            buffer.append(pad);
+            sb.append(pad);
         }
 
         if (!trailing) {
-            buffer.append(source);
+            sb.append(source);
         }
 
-        return buffer.toString();
+        return sb.toString();
     }
 
     /**
@@ -83,22 +114,22 @@ public class StringUtil {
     public static String toLowerSubset(String source, char substitute) {
 
         int          len = source.length();
-        StringBuffer src = new StringBuffer(len);
+        StringBuffer sb = new StringBuffer(len);
         char         ch;
 
         for (int i = 0; i < len; i++) {
             ch = source.charAt(i);
 
             if (!Character.isLetterOrDigit(ch)) {
-                src.append(substitute);
+                sb.append(substitute);
             } else if ((i == 0) && Character.isDigit(ch)) {
-                src.append(substitute);
+                sb.append(substitute);
             } else {
-                src.append(Character.toLowerCase(ch));
+                sb.append(Character.toLowerCase(ch));
             }
         }
 
-        return src.toString();
+        return sb.toString();
     }
 
     /**
@@ -148,19 +179,19 @@ public class StringUtil {
     public static String getList(String[] s, String separator, String quote) {
 
         int          len = s.length;
-        StringBuffer b   = new StringBuffer(len * 16);
+        StringBuffer sb   = new StringBuffer(len * 16);
 
         for (int i = 0; i < len; i++) {
-            b.append(quote);
-            b.append(s[i]);
-            b.append(quote);
+            sb.append(quote);
+            sb.append(s[i]);
+            sb.append(quote);
 
             if (i + 1 < len) {
-                b.append(separator);
+                sb.append(separator);
             }
         }
 
-        return b.toString();
+        return sb.toString();
     }
 
     /**
@@ -182,19 +213,19 @@ public class StringUtil {
     public static String getList(int[] s, String separator, String quote) {
 
         int          len = s.length;
-        StringBuffer b   = new StringBuffer(len * 8);
+        StringBuffer sb   = new StringBuffer(len * 8);
 
         for (int i = 0; i < len; i++) {
-            b.append(quote);
-            b.append(s[i]);
-            b.append(quote);
+            sb.append(quote);
+            sb.append(s[i]);
+            sb.append(quote);
 
             if (i + 1 < len) {
-                b.append(separator);
+                sb.append(separator);
             }
         }
 
-        return b.toString();
+        return sb.toString();
     }
 
     /**
@@ -220,19 +251,19 @@ public class StringUtil {
                                  String quote) {
 
         int          len = s.length;
-        StringBuffer b   = new StringBuffer(len * 16);
+        StringBuffer sb   = new StringBuffer(len * 16);
 
         for (int i = 0; i < len; i++) {
-            b.append(quote);
-            b.append(s[i][0]);
-            b.append(quote);
+            sb.append(quote);
+            sb.append(s[i][0]);
+            sb.append(quote);
 
             if (i + 1 < len) {
-                b.append(separator);
+                sb.append(separator);
             }
         }
 
-        return b.toString();
+        return sb.toString();
     }
 
     /**
