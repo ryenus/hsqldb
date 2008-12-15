@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.sql.Date;
   * the pool, it is added to the pool and returned. When the pool gets
   * full, half the contents that have been accessed less recently are purged.
   *
-  * @author fredt@users
+  * @author Fred Toussi (fredt@users dot sourceforge.net)
   * @version 1.8.0
   * @since 1.7.2
   */
@@ -56,7 +56,7 @@ public class ValuePool {
     static ValuePoolHashMap bigdecimalPool;
     static ValuePoolHashMap stringPool;
     static ValuePoolHashMap datePool;
-    static final int        SPACE_STRING_SIZE = 50;
+    static final int        SPACE_STRING_SIZE       = 50;
     static final int        DEFAULT_VALUE_POOL_SIZE = 10000;
     static final int[]      defaultPoolLookupSize   = new int[] {
         DEFAULT_VALUE_POOL_SIZE, DEFAULT_VALUE_POOL_SIZE,
@@ -77,9 +77,21 @@ public class ValuePool {
     static String[] spaceStrings;
 
     //
+    public final static String[] emptyStringArray = new String[]{};
+    public final static Object[] emptyObjectArray = new Object[]{};
+    public final static int[]    emptyIntArray    = new int[]{};
+
+    //
     static {
         initPool();
     }
+
+    public static final Integer INTEGER_0 = ValuePool.getInt(0);
+    public static final Integer INTEGER_1 = ValuePool.getInt(1);
+    public static final BigDecimal BIG_DECIMAL_0 =
+        ValuePool.getBigDecimal(new BigDecimal(0.0));
+    public static final BigDecimal BIG_DECIMAL_1 =
+        ValuePool.getBigDecimal(new BigDecimal(1.0));
 
     private static void initPool() {
 
@@ -107,19 +119,21 @@ public class ValuePool {
             datePool       = poolList[5];
 
             char[] c = new char[SPACE_STRING_SIZE];
+
             for (int i = 0; i < SPACE_STRING_SIZE; i++) {
                 c[i] = ' ';
             }
 
             String s = new String(c);
+
             for (int i = 0; i <= SPACE_STRING_SIZE; i++) {
                 spaceStrings[i] = s.substring(0, i);
             }
-
-
         }
+    }
 
-
+    public static int getMaxStringLength() {
+        return maxStringLength;
     }
 
     public static void resetPool(int[] sizeArray, int sizeFactor) {
@@ -149,20 +163,22 @@ public class ValuePool {
     }
 
     public static String getSpaces(int length) {
+
         if (length < SPACE_STRING_SIZE) {
             return spaceStrings[length];
         }
 
-        int times = length / SPACE_STRING_SIZE;
-        int add   = length % SPACE_STRING_SIZE;
-        StringBuffer buffer = new StringBuffer(length);
+        int          times  = length / SPACE_STRING_SIZE;
+        int          add    = length % SPACE_STRING_SIZE;
+        StringBuffer sb = new StringBuffer(length);
 
-        for (int i = 0; i < times; i++ ) {
-            buffer.append(spaceStrings[SPACE_STRING_SIZE]);
+        for (int i = 0; i < times; i++) {
+            sb.append(spaceStrings[SPACE_STRING_SIZE]);
         }
 
-        buffer.append(spaceStrings[add]);
-        return buffer.toString();
+        sb.append(spaceStrings[add]);
+
+        return sb.toString();
     }
 
     public static Integer getInt(int val) {
@@ -194,6 +210,13 @@ public class ValuePool {
 
         synchronized (stringPool) {
             return stringPool.getOrAddString(val);
+        }
+    }
+
+    public static String getSubString(String val, int start, int limit) {
+
+        synchronized (stringPool) {
+            return stringPool.getOrAddString(null);
         }
     }
 

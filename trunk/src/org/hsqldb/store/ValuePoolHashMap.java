@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import java.sql.Date;
  * Subclass of BaseHashMap for maintaining a pool of objects. Supports a
  * range of java.lang.* objects.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.2
  *
@@ -143,10 +143,9 @@ public class ValuePoolHashMap extends BaseHashMap {
     protected Long getOrAddLong(long longKey) {
 
         Long testValue;
-        int index = hashIndex.getHashIndex((int) (longKey
-            ^ (longKey >>> 32)));
-        int lookup     = hashIndex.hashTable[index];
-        int lastLookup = -1;
+        int index = hashIndex.getHashIndex((int) (longKey ^ (longKey >>> 32)));
+        int  lookup     = hashIndex.hashTable[index];
+        int  lastLookup = -1;
 
         for (; lookup >= 0;
                 lastLookup = lookup,
@@ -242,6 +241,51 @@ public class ValuePoolHashMap extends BaseHashMap {
         return testValue;
     }
 
+    protected String getOrAddSubString(String key, int from, int limit) {
+
+        // to improve
+        key = key.substring(from, limit);
+
+        String testValue;
+        int    index      = hashIndex.getHashIndex(key.hashCode());
+        int    lookup     = hashIndex.hashTable[index];
+        int    lastLookup = -1;
+
+        for (; lookup >= 0;
+                lastLookup = lookup,
+                lookup = hashIndex.getNextLookup(lookup)) {
+            testValue = (String) objectKeyTable[lookup];
+
+            if (key.equals(testValue)) {
+                if (accessCount == Integer.MAX_VALUE) {
+                    resetAccessCount();
+                }
+
+                accessTable[lookup] = accessCount++;
+
+                return testValue;
+            }
+        }
+
+        if (hashIndex.elementCount >= threshold) {
+            reset();
+
+            return getOrAddString(key);
+        }
+
+        testValue              = new String(key.toCharArray());
+        lookup                 = hashIndex.linkNode(index, lastLookup);
+        objectKeyTable[lookup] = testValue;
+
+        if (accessCount == Integer.MAX_VALUE) {
+            resetAccessCount();
+        }
+
+        accessTable[lookup] = accessCount++;
+
+        return testValue;
+    }
+
     protected Date getOrAddDate(long longKey) {
 
         Date testValue;
@@ -288,10 +332,9 @@ public class ValuePoolHashMap extends BaseHashMap {
     protected Double getOrAddDouble(long longKey) {
 
         Double testValue;
-        int index = hashIndex.getHashIndex((int) (longKey
-            ^ (longKey >>> 32)));
-        int lookup     = hashIndex.hashTable[index];
-        int lastLookup = -1;
+        int index = hashIndex.getHashIndex((int) (longKey ^ (longKey >>> 32)));
+        int    lookup     = hashIndex.hashTable[index];
+        int    lastLookup = -1;
 
         for (; lookup >= 0;
                 lastLookup = lookup,
