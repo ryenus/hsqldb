@@ -2683,7 +2683,7 @@
     <emphasis
     role="bold">HSQLDB_HOME</emphasis><filename>/sample/sqltool.rc</filename>
     to the <emphasis role="bold">HSQLDB_OWNER</emphasis>'s home directory. Use
-    <literal>chmod</literal> to make the file readable and writeable only to
+    <literal>chmod</literal> to make the file readable and writable only to
     <emphasis role="bold">HSQLDB_OWNER</emphasis>. </simpara><programlisting>&sqltool.rc-cdata;</programlisting><simpara>
     We will be using the "localhost-sa" sample urlid definition from the
     config file. The JDBC URL for this urlid is
