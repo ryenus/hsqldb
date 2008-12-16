@@ -396,11 +396,9 @@
       time of running the server, or optionally, as a connection request is
       received.</para>
 
-      <para>Server modes can use preset properties or command line arguments
-      as detailed in the <link endterm="advanced-title"
-      linkend="advanced-chapter" />**todo** chapter. There are three server
-      modes, based on the protocol used for communications between the client
-      and server.</para>
+      <para>There are three server modes, based on the protocol used for
+      communications between the client and server, and breifly disucssed
+      below. More details on servres is provided in a separate chapter.</para>
 
       <section>
         <title>HyperSQL HSQL Server</title>
@@ -415,7 +413,7 @@
 
         <informalexample>
           <screen>
-    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server -database.0 file:mydb -dbname.0 xdb</screen>
+    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
         </informalexample>
 
         <para>The command line argument <literal>--help</literal> can be used
@@ -560,7 +558,7 @@
     </section>
 
     <section>
-      <title>Accessing the data</title>
+      <title>Accessing the Data</title>
 
       <para>As shown so far, a <classname>java.sql.Connection</classname>
       object is always used to access the database. But the speed and
@@ -570,7 +568,7 @@
       therefore it is not good practice to create a new connection to perform
       a small number of operations. A connection should be reused as much as
       possible and closed only when it is not going to be used again for a
-      long while. </para>
+      long while.</para>
 
       <para>Reuse is more important for server connections. A server
       connection uses a TCP port for communications. Each time a connection is
@@ -614,7 +612,7 @@
       closed.</para>
 
       <para>A <classname>java.sql.Connection</classname> object also has some
-      methods for transaction control. </para>
+      methods for transaction control.</para>
 
       <para>The commit() method performs a <literal>COMMIT</literal> while the
       rollback() method performs a <literal>ROLLBACK</literal> SQL
@@ -1516,11 +1514,11 @@
         <glossterm>hsql:</glossterm> communications protocol. The following
         example of the command for starting the server starts the server with
         one (default) database with files named "mydb.*" and the public name
-        of "xdb".</para>
+        (alias) of "xdb".</para>
 
         <informalexample>
           <screen>
-    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server -database.0 file:mydb -dbname.0 xdb</screen>
+    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
         </informalexample>
 
         <para>Alternatively, a server.properties file can be used for passing
@@ -1592,8 +1590,8 @@
       <property>server.property</property>=<literal>value</literal> pairs for
       each property. The <filename>server.properties</filename> or
       <filename>webserver.properties</filename> files must be located in the
-      directory where the command to run the <classname>Server</classname>
-      class is issued.</para>
+      directory where the command to run the
+      <classname>org.hsqldb.server.Server</classname> class is issued.</para>
 
       <para>In all properties files, values are case-sensitive. All values
       apart from names of files or pages are required in lowercase (e.g.
@@ -1623,11 +1621,11 @@
               </entry>
 
               <entry>
-                <literal>test</literal>
+                <literal>file:test</literal>
               </entry>
 
-              <entry>the path and file name of the first database file to
-              use</entry>
+              <entry>the catalog type, path and file name of the first
+              database file to use</entry>
             </row>
 
             <row>
@@ -1667,8 +1665,8 @@
                 <literal>NO DEFAULT</literal>
               </entry>
 
-              <entry>the path and file name of the n'th database file in
-              use</entry>
+              <entry>the catalog type, path and file name of the n'th database
+              file in use</entry>
             </row>
 
             <row>
@@ -1843,12 +1841,12 @@
         </tgroup>
       </table>
 
-      <para>An example of the contents of a server.properties file is given
-      below:</para>
+      <para>An example of the contents of a
+      <literal>server.properties</literal> file is given below:</para>
 
       <programlisting>
     server.database.0=file:/opt/db/accounts
-    server.dbname.0=an_alias
+    server.dbname.0=accounts
 
     server.database.1=file:/opt/db/mydb
     server.dbname.1=enrollments
@@ -1856,11 +1854,19 @@
     server.database.2=mem:adatabase
     server.dbname.2=quickdb</programlisting>
 
+      <para>In the above example, the <literal>server.properties</literal>
+      file indicates that the server provides access to 3 different databases.
+      Two of the databases are file-based, while the third is all-in-memory.
+      The aliases for the databases that the users connect to are
+      <literal>accounts</literal>, <literal>enrollments</literal> and
+      <literal>quickdb</literal>.</para>
+
       <para>All the above properties and their values can be specified on the
       command line to start the server by omitting the
       <literal>server.</literal> prefix. If a property/value pair is specified
       on the command line, it overrides the property value specified in the
-      server.properties or webserver.properties file.</para>
+      <literal>server.properties</literal> or
+      <literal>webserver.properties</literal> file.</para>
 
       <note>
         <para>Upgrading: If you have existing custom properties files, change
@@ -4711,8 +4717,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <programlisting>
     SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
 
-        <para>Text Tables cannot be created in memory-only databases
-        (databases that have no script file).</para>
+        <para>Text Tables cannot be created in <glossterm>mem:</glossterm>
+        (all-in-memory) databases (databases that have no script file).</para>
       </section>
 
       <section>
