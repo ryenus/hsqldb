@@ -754,6 +754,14 @@ public class BaseHashMap {
 
         hashIndex.reset((int) (newCapacity * loadFactor), newCapacity);
 
+        if (multiValueTable != null) {
+            int counter = multiValueTable.length;
+
+            while (--counter >= 0) {
+                multiValueTable[counter] = false;
+            }
+        }
+
         hasZeroKey   = false;
         zeroKeyIndex = -1;
         threshold    = newCapacity;
@@ -921,6 +929,14 @@ public class BaseHashMap {
 
             while (--counter >= from) {
                 accessTable[counter] = 0;
+            }
+        }
+
+        if (multiValueTable != null) {
+            int counter = to;
+
+            while (--counter >= from) {
+                multiValueTable[counter] = false;
             }
         }
     }

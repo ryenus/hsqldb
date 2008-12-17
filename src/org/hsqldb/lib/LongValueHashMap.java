@@ -47,7 +47,7 @@ public class LongValueHashMap extends BaseHashMap {
     Set keySet;
 
     public LongValueHashMap() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public LongValueHashMap(int initialCapacity)

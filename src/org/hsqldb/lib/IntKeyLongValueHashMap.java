@@ -43,7 +43,7 @@ import org.hsqldb.store.BaseHashMap;
 public class IntKeyLongValueHashMap extends BaseHashMap {
 
     public IntKeyLongValueHashMap() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public IntKeyLongValueHashMap(int initialCapacity)

@@ -46,12 +46,12 @@ public class LongKeyIntValueHashMap extends BaseHashMap {
     private Collection values;
 
     public LongKeyIntValueHashMap() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public LongKeyIntValueHashMap(boolean minimize) {
 
-        this(16, 0.75f);
+        this(8, 0.75f);
 
         minimizeOnEmpty = minimize;
     }

@@ -41,7 +41,7 @@ import org.hsqldb.store.BaseHashMap;
 public class OrderedIntHashSet extends BaseHashMap {
 
     public OrderedIntHashSet() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public OrderedIntHashSet(int initialCapacity,
