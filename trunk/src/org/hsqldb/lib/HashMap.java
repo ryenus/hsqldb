@@ -46,7 +46,7 @@ public class HashMap extends BaseHashMap {
     Collection values;
 
     public HashMap() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public HashMap(int initialCapacity) throws IllegalArgumentException {

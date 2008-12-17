@@ -45,7 +45,7 @@ package org.hsqldb.lib;
 public class HashMappedList extends HashMap {
 
     public HashMappedList() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public HashMappedList(int initialCapacity)

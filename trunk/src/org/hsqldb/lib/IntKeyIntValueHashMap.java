@@ -46,7 +46,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap {
     private Collection values;
 
     public IntKeyIntValueHashMap() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public IntKeyIntValueHashMap(int initialCapacity)

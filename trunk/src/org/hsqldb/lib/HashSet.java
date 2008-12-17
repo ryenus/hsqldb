@@ -43,7 +43,7 @@ import org.hsqldb.store.BaseHashMap;
 public class HashSet extends BaseHashMap implements Set {
 
     public HashSet() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public HashSet(int initialCapacity) throws IllegalArgumentException {

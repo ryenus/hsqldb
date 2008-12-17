@@ -48,7 +48,7 @@ public class MultiValueHashMap extends BaseHashMap {
     Iterator   valueIterator;
 
     public MultiValueHashMap() {
-        this(16, 0.75f);
+        this(8, 0.75f);
     }
 
     public MultiValueHashMap(int initialCapacity,

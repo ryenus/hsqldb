@@ -46,7 +46,7 @@ public class OrderedHashSet extends HashSet implements HsqlList {
 
     public OrderedHashSet() {
 
-        super(16, 0.75f);
+        super(8, 0.75f);
 
         isList = true;
     }
