@@ -4065,10 +4065,10 @@ public class SqlFile {
             case java.sql.Types.VARCHAR :
                 return "VARCHAR";
 
-            case java.sql.Types.SQL_TIME_WITH_TIME_ZONE :
+            case org.hsqldb.Types.SQL_TIME_WITH_TIME_ZONE :
                 return "SQL_TIME_WITH_TIME_ZONE";
 
-            case java.sql.Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+            case org.hsqldb.Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return "SQL_TIMESTAMP_WITH_TIME_ZONE";
         }
 
