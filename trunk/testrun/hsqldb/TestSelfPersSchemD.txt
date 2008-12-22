@@ -33,11 +33,12 @@
 -- but are resolved statically at grant time.  I.e., since r had s when
 -- r was granted, it doesn't matter what roles are added/removed to/from
 -- s after that.
-/*u0*/revoke s from r;
-/*u0*/revoke r from blaine;
--- Following necessary because blaine had both r and s implicitly.
-/*u0*/revoke s from blaine;
-/*u0*/revoke s from debbie;
+-- Role nestings ARE preserved in the Roles
+/*u0*/revoke s from r restrict;
+/*u0*/revoke r from blaine restrict;
+-- Following not necessary although blaine had both r and s implicitly.
+/*e*/revoke s from blaine restrict; -- role s was not directly granted to blaine
+/*u0*/revoke s from debbie restrict;
 
 -- Negative tests (after privilege revocation via role revocation)
 /*u0*/connect user blaine password blaine;
@@ -139,4 +140,4 @@ GRANT dba TO debbie;
 /*r2*/SELECT i FROM aschema.samevname;
 
 /*u0*/connect user sa password "";
-/*u0*/REVOKE dba FROM debbie;
+/*u0*/REVOKE dba FROM debbie RESTRICT;

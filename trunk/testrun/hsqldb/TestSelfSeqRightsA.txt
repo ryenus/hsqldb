@@ -17,6 +17,7 @@
 SET WRITE_DELAY 0;
 /*s*/DROP user blaine;
 CREATE user blaine password "b";
+/*u0*/GRANT CHANGE_AUTHORIZATION TO blaine;
 /*s*/DROP SCHEMA bsch CASCADE;
 -- Remove public schema objects.  The CASCADE above takes care of the rest.
 DROP TABLE pt IF EXISTS;
@@ -83,7 +84,7 @@ SET SCHEMA public;
 SET SCHEMA bsch;
 /*c1*/SELECT i, next value for public.ps2 FROM public.pt;
 -- Don't own
-/*e0*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
+/*e*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
 /*u0*/GRANT ALL ON SEQUENCE bsch.bs5 TO PUBLIC;
 -- By virtue of schema ownership
 /*c1*/SELECT i, next value for bs2 FROM bt;

@@ -12,7 +12,7 @@ SET SCHEMA public;
 SET SCHEMA bsch;
 /*c1*/SELECT i, next value for public.ps2 FROM public.pt;
 -- Don't own
-/*e0*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
+/*e*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
 /*u0*/GRANT ALL ON SEQUENCE bsch.bs5 TO PUBLIC;
 -- By virtue of schema ownership
 /*c1*/SELECT i, next value for bs2 FROM bt;
@@ -30,7 +30,7 @@ SET SCHEMA public;
 
 -- Test REVOKES
 -- Can't revoke on objects you don't own
-/*e*/REVOKE ALL ON SEQUENCE public.ps6 FROM public;
-/*u0*/REVOKE ALL ON SEQUENCE bsch.bs1 FROM public;
+/*e*/REVOKE ALL ON SEQUENCE public.ps6 FROM public RESTRICT;
+/*u0*/REVOKE ALL ON SEQUENCE bsch.bs1 FROM public RESTRICT;
 CONNECT USER sa PASSWORD "";
-/*u0*/REVOKE USAGE ON SEQUENCE public.ps6 FROM BLAINE;
+/*u0*/REVOKE USAGE ON SEQUENCE public.ps6 FROM BLAINE RESTRICT;

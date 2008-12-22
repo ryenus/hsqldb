@@ -28,7 +28,7 @@ INSERT INTO C VALUES(5)
  2
  3
  4
-*/SELECT * FROM A UNION (SELECT * FROM C ORDER BY ID LIMIT 2 OFFSET 0) LIMIT 0 OFFSET 1
+*/SELECT * FROM A UNION (SELECT * FROM C ORDER BY ID LIMIT 2 OFFSET 0)  ORDER BY ID LIMIT 0 OFFSET 1
 /*r
  4
  3
@@ -113,4 +113,14 @@ create table bu (id int);
 insert into au values(1,true);
 insert into bu values(2);
 select id, null as b1 from bu union select id, b1 from au;
+--
+drop table test if exists;
+create table test(my_col numeric(10));
+insert into test (my_col) values (100);
+
+select my_col, 0 mycol from test
+ union
+ select 0 mycol2, my_col from test
+
+
 

@@ -13,7 +13,7 @@ SET SCHEMA public;
 SET SCHEMA bsch;
 /*c1*/SELECT i, next value for public.ps2 FROM public.pt;
 -- Don't own
-/*e0*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
+/*e*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
 /*u0*/GRANT ALL ON SEQUENCE bsch.bs5 TO PUBLIC;
 -- By virtue of schema ownership
 /*c1*/SELECT i, next value for bs2 FROM bt;

@@ -123,4 +123,9 @@ insert into
                 t2.PROCESSID ,
                 t2.ATTRIBUTEKEY
             having  max(t2.TSTAMP)=t1.TSTAMP );
+--
+--
+create table element (deadline timestamp);
+SELECT DISTINCT convert(element.deadline,Date) FROM element ORDER BY
+ convert(element.deadline,Date) ASC
 
