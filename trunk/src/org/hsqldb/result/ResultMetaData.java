@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,9 @@ package org.hsqldb.result;
 
 import java.io.IOException;
 
+import org.hsqldb.ColumnBase;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputBinary;
@@ -42,11 +45,11 @@ import org.hsqldb.types.Type;
 /**
  * Meta data for a result set.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.8.0
  */
-public class ResultMetaData {
+public final class ResultMetaData {
 
     public static final int RESULT_METADATA          = 1;
     public static final int SIMPLE_RESULT_METADATA   = 2;
@@ -57,59 +60,73 @@ public class ResultMetaData {
     //
     private int type;
 
-    // always resolved for data results
-    public String[]  colLabels;
-    public String[]  tableNames;
-    public String[]  colNames;
-    public boolean[] isLabelQuoted;
-    public Type[]    colTypes;
+    // values overriding table column
+    public String[] columnLabels;
+    public Type[]   columnTypes;
+    private int     columnCount;
+    private int     extendedColumnCount;
+    public static final ResultMetaData emptyResultMetaData =
+        newResultMetaData(0);
+    public static final ResultMetaData emptyParamMetaData =
+        newParameterMetaData(0);
 
-    // extra attrs, sometimes resolved
-    public String[]              catalogNames;
-    public String[]              schemaNames;
-    public byte[]                colNullable;
-    public boolean[]             isIdentity;
-    public boolean[]             isWritable;
-    public byte[]                paramModes;
-    public String[]              classNames;
-    private int                  columnCount;
-    public static ResultMetaData emptyMetaData = new ResultMetaData();
-
-    // column indexes for generated columns
+    // column indexes or for generated columns
     public int[] colIndexes;
 
-    private ResultMetaData() {}
+    // columns for data columns
+    public ColumnBase[] columns;
+
+    // param mode and nullability for parameter metadata
+    public byte[] paramModes;
+    public byte[] paramNullable;
+
+    //
+    private ResultMetaData(int type) {
+        this.type = type;
+    }
 
     public static ResultMetaData newSimpleResultMetaData(Type[] types) {
 
-        ResultMetaData md = new ResultMetaData();
+        ResultMetaData md = new ResultMetaData(SIMPLE_RESULT_METADATA);
 
-        md.colTypes    = types;
-        md.columnCount = types.length;
-        md.type        = SIMPLE_RESULT_METADATA;
-
-        return md;
-    }
-
-    public static ResultMetaData newResultMetaData(int columns) {
-
-        ResultMetaData md = new ResultMetaData();
-
-        md.prepareData(columns);
-
-        md.type = RESULT_METADATA;
+        md.columnTypes         = types;
+        md.columnCount         = types.length;
+        md.extendedColumnCount = types.length;
 
         return md;
     }
 
-    public static ResultMetaData newParameterMetaData(int columns) {
+    public static ResultMetaData newResultMetaData(int colCount) {
 
-        ResultMetaData md = new ResultMetaData();
+        Type[] types = new Type[colCount];
 
-        md.prepareData(columns);
+        return newResultMetaData(types, colCount, colCount);
+    }
 
-        md.type       = PARAM_METADATA;
-        md.paramModes = new byte[columns];
+    public static ResultMetaData newResultMetaData(Type[] types, int colCount,
+            int extColCount) {
+
+        ResultMetaData md = new ResultMetaData(RESULT_METADATA);
+
+        md.columnLabels        = new String[colCount];
+        md.columns             = new ColumnBase[colCount];
+        md.columnTypes         = types;
+        md.columnCount         = colCount;
+        md.extendedColumnCount = extColCount;
+
+        return md;
+    }
+
+    public static ResultMetaData newParameterMetaData(int colCount) {
+
+        ResultMetaData md = new ResultMetaData(PARAM_METADATA);
+
+        md.columnTypes         = new Type[colCount];
+        md.columnLabels        = new String[colCount];
+        md.paramModes          = new byte[colCount];
+        md.paramNullable       = new byte[colCount];
+        md.columnCount         = colCount;
+        md.extendedColumnCount = colCount;
 
         return md;
     }
@@ -118,11 +135,11 @@ public class ResultMetaData {
             int[] columnIndexes, String[] columnNames) {
 
         if (columnIndexes != null) {
-            ResultMetaData md = new ResultMetaData();
+            ResultMetaData md = new ResultMetaData(GENERATED_INDEX_METADATA);
 
-            md.columnCount = columnIndexes.length;
-            md.type        = GENERATED_INDEX_METADATA;
-            md.colIndexes  = new int[columnIndexes.length];
+            md.columnCount         = columnIndexes.length;
+            md.extendedColumnCount = columnIndexes.length;
+            md.colIndexes          = new int[columnIndexes.length];
 
             for (int i = 0; i < columnIndexes.length; i++) {
                 md.colIndexes[i] = columnIndexes[i] - 1;
@@ -130,11 +147,12 @@ public class ResultMetaData {
 
             return md;
         } else if (columnNames != null) {
-            ResultMetaData md = new ResultMetaData();
+            ResultMetaData md = new ResultMetaData(GENERATED_NAME_METADATA);
 
-            md.columnCount = columnNames.length;
-            md.type        = GENERATED_NAME_METADATA;
-            md.colNames    = (String[]) ArrayUtil.duplicateArray(columnNames);
+            md.columnLabels        = new String[columnNames.length];
+            md.columnCount         = columnNames.length;
+            md.extendedColumnCount = columnNames.length;
+            md.columnLabels        = columnNames;
 
             return md;
         } else {
@@ -142,36 +160,31 @@ public class ResultMetaData {
         }
     }
 
-    void prepareData(int columns) {
+    public void prepareData() {
 
-        colLabels     = new String[columns];
-        tableNames    = new String[columns];
-        colNames      = new String[columns];
-        isLabelQuoted = new boolean[columns];
-        colTypes      = new Type[columns];
-        catalogNames  = new String[columns];
-        schemaNames   = new String[columns];
-        colNullable   = new byte[columns];
-        isIdentity    = new boolean[columns];
-        isWritable    = new boolean[columns];
-        classNames    = new String[columns];
-        columnCount   = columns;
+        if (columns != null) {
+            for (int i = 0; i < columnCount; i++) {
+                if (columnTypes[i] == null) {
+                    columnTypes[i] = columns[i].getDataType();
+                }
+            }
+        }
     }
 
     public int getColumnCount() {
         return columnCount;
     }
 
-    public void setColumnCount(int count) {
-        columnCount = count;
+    public int getExtendedColumnCount() {
+        return columnCount;
     }
 
     public Type[] getParameterTypes() {
-        return colTypes;
+        return columnTypes;
     }
 
     public String[] getGeneratedColumnNames() {
-        return colNames;
+        return columnLabels;
     }
 
     public int[] getGeneratedColumnIndexes() {
@@ -179,178 +192,224 @@ public class ResultMetaData {
     }
 
     public boolean isTableColumn(int i) {
-        return tableNames[i] != null && tableNames[i].length() > 0
-               && colNames[i] != null && colNames[i].length() > 0;
+
+        String colName   = columns[i].getNameString();
+        String tableName = columns[i].getTableNameString();
+
+        return tableName != null && tableName.length() > 0 && colName != null
+               && colName.length() > 0;
     }
 
-    private void decodeTableColumnAttrs(int in, int i) {
+    private static void decodeTableColumnAttrs(int in, ColumnBase column) {
 
-        colNullable[i] = (byte) (in & 0x0000000f);
-        isIdentity[i]  = (in & 0x00000010) != 0;
-        isWritable[i]  = (in & 0x00000020) != 0;
+        column.setNullability(in & 0x0000000f);
+        column.setIdentity((in & 0x00000010) != 0);
+        column.setWriteable((in & 0x00000020) != 0);
     }
 
-    private void writeTableColumnAttrs(RowOutputInterface out,
-                                       int i)
-                                       throws IOException, HsqlException {
+    private static int encodeTableColumnAttrs(ColumnBase column) {
 
-        out.writeByte(encodeTableColumnAttrs(i));
-        out.writeString(catalogNames[i] == null ? ""
-                                                : catalogNames[i]);
-        out.writeString(schemaNames[i] == null ? ""
-                                               : schemaNames[i]);
-    }
+        int out = column.getNullability();    // always between 0x00 and 0x02
 
-    private int encodeTableColumnAttrs(int i) {
-
-        int out = colNullable[i];    // always between 0x00 and 0x02
-
-        if (isIdentity[i]) {
+        if (column.isIdentity()) {
             out |= 0x00000010;
         }
 
-        if (isWritable[i]) {
+        if (column.isWriteable()) {
             out |= 0x00000020;
         }
 
         return out;
     }
 
-    private void readTableColumnAttrs(RowInputBinary in,
-                                      int i)
-                                      throws IOException, HsqlException {
+    private void decodeParamColumnAttrs(int in, int columnIndex) {
+        paramNullable[columnIndex] = (byte) (in & 0x0000000f);
+        paramModes[columnIndex]    = (byte) ((in >> 4) & 0x0000000f);
+    }
 
-        decodeTableColumnAttrs(in.readByte(), i);
+    private int encodeParamColumnAttrs(int columnIndex) {
 
-        catalogNames[i] = in.readString();
-        schemaNames[i]  = in.readString();
+        int out = paramModes[columnIndex] << 4;
+
+        out |= paramNullable[columnIndex];
+
+        return out;
     }
 
     ResultMetaData(RowInputBinary in) throws HsqlException, IOException {
 
-        type = in.readInt();
+        boolean isNull;
 
-        int colCount = in.readInt();
+        type        = in.readInt();
+        columnCount = in.readInt();
 
         switch (type) {
 
             case SIMPLE_RESULT_METADATA : {
-                colTypes = new Type[colCount];
+                columnTypes = new Type[columnCount];
 
-                for (int i = 0; i < colCount; i++) {
+                for (int i = 0; i < columnCount; i++) {
                     int type = in.readType();
 
-                    colTypes[i] = Type.getDefaultType(type);
+                    columnTypes[i] = Type.getDefaultType(type);
                 }
 
                 return;
             }
             case GENERATED_INDEX_METADATA : {
-                colIndexes = new int[colCount];
+                colIndexes = new int[columnCount];
 
-                for (int i = 0; i < colCount; i++) {
+                for (int i = 0; i < columnCount; i++) {
                     colIndexes[i] = in.readInt();
                 }
 
                 return;
             }
             case GENERATED_NAME_METADATA : {
-                colNames = new String[colCount];
+                columnLabels = new String[columnCount];
 
-                for (int i = 0; i < colCount; i++) {
-                    colNames[i] = in.readString();
+                for (int i = 0; i < columnCount; i++) {
+                    columnLabels[i] = in.readString();
                 }
 
                 return;
             }
             case PARAM_METADATA : {
-                paramModes = new byte[colCount];
+                columnTypes   = new Type[columnCount];
+                columnLabels  = new String[columnCount];
+                paramModes    = new byte[columnCount];
+                paramNullable = new byte[columnCount];
+
+                for (int i = 0; i < columnCount; i++) {
+                    columnTypes[i]  = readDataType(in);
+                    columnLabels[i] = in.readString();
+
+                    decodeParamColumnAttrs(in.readByte(), i);
+                }
+
+                return;
             }
             case RESULT_METADATA : {
-                prepareData(colCount);
+                extendedColumnCount = in.readInt();
+                columnLabels        = new String[columnCount];
+                columnTypes         = new Type[columnCount];
+                columns             = new ColumnBase[columnCount];
 
-                for (int i = 0; i < colCount; i++) {
-                    int  type  = in.readType();
-                    long size  = in.readLong();
-                    int  scale = in.readInt();
+                for (int i = 0; i < columnCount; i++) {
+                    Type type = readDataType(in);
 
-                    colTypes[i]   = Type.getType(type, 0, size, scale);
-                    colLabels[i]  = in.readString();
-                    tableNames[i] = in.readString();
-                    colNames[i]   = in.readString();
-                    classNames[i] = in.readString();
+                    columnTypes[i]  = type;
+                    columnLabels[i] = in.readString();
 
-                    if (isTableColumn(i)) {
-                        readTableColumnAttrs(in, i);
-                    }
+                    String catalog = in.readString();
+                    String schema  = in.readString();
+                    String table   = in.readString();
+                    String name    = in.readString();
+                    ColumnBase column = new ColumnBase(catalog, schema, table,
+                                                       name);
 
-                    if (this.type == PARAM_METADATA) {
-                        paramModes[i] = in.readByte();
-                    }
+                    column.setType(type);
+                    decodeTableColumnAttrs(in.readByte(), column);
+
+                    columns[i] = column;
                 }
+
+                return;
+            }
+            default : {
+                throw Error.runtimeError(ErrorCode.U_S0500, "");
             }
         }
     }
 
-    void write(RowOutputInterface out) throws HsqlException, IOException {
-        write(out, columnCount);
+    Type readDataType(RowInputBinary in) throws HsqlException, IOException {
+
+        int  typeCode = in.readType();
+        long size     = in.readLong();
+        int  scale    = in.readInt();
+
+        return Type.getType(typeCode, 0, size, scale);
     }
 
-    void write(RowOutputInterface out,
-               int colCount) throws HsqlException, IOException {
+    void writeDataType(RowOutputInterface out, Type type) {
+
+        out.writeType(type.typeCode);
+        out.writeLong(type.precision);
+        out.writeInt(type.scale);
+    }
+
+    void write(RowOutputInterface out) throws HsqlException, IOException {
 
         out.writeInt(type);
-        out.writeInt(colCount);
+        out.writeInt(columnCount);
 
         switch (type) {
 
             case SIMPLE_RESULT_METADATA : {
-                for (int i = 0; i < colCount; i++) {
-                    out.writeType(colTypes[i].type);
+                for (int i = 0; i < columnCount; i++) {
+                    out.writeType(columnTypes[i].typeCode);
                 }
 
                 return;
             }
             case GENERATED_INDEX_METADATA : {
-                for (int i = 0; i < colCount; i++) {
+                for (int i = 0; i < columnCount; i++) {
                     out.writeInt(colIndexes[i]);
                 }
 
                 return;
             }
             case GENERATED_NAME_METADATA : {
-                for (int i = 0; i < colCount; i++) {
-                    out.writeString(colNames[i]);
+                for (int i = 0; i < columnCount; i++) {
+                    out.writeString(columnLabels[i]);
                 }
 
                 return;
             }
             case PARAM_METADATA :
-            case RESULT_METADATA : {
-                for (int i = 0; i < colCount; i++) {
-                    out.writeType(colTypes[i].type);
-
-                    // fredt - 1.8.0 added
-                    out.writeLong(colTypes[i].size());
-                    out.writeInt(colTypes[i].scale());
-                    out.writeString(colLabels[i] == null ? ""
-                                                         : colLabels[i]);
-                    out.writeString(tableNames[i] == null ? ""
-                                                          : tableNames[i]);
-                    out.writeString(colNames[i] == null ? ""
-                                                        : colNames[i]);
-                    out.writeString(classNames[i] == null ? ""
-                                                          : classNames[i]);
-
-                    if (isTableColumn(i)) {
-                        writeTableColumnAttrs(out, i);
-                    }
-
-                    if (type == PARAM_METADATA) {
-                        out.writeByte(paramModes[i]);
-                    }
+                for (int i = 0; i < columnCount; i++) {
+                    writeDataType(out, columnTypes[i]);
+                    out.writeString(columnLabels[i]);
+                    out.writeByte(encodeParamColumnAttrs(i));
                 }
+
+                return;
+
+            case RESULT_METADATA : {
+                out.writeInt(extendedColumnCount);
+
+                for (int i = 0; i < columnCount; i++) {
+                    ColumnBase column = columns[i];
+
+                    if (columnTypes[i] == null) {
+                        columnTypes[i] = column.getDataType();
+                    }
+
+                    writeDataType(out, columnTypes[i]);
+                    out.writeString(columnLabels[i]);
+                    out.writeString(column.getCatalogNameString());
+                    out.writeString(column.getSchemaNameString());
+                    out.writeString(column.getTableNameString());
+                    out.writeString(column.getNameString());
+                    out.writeByte(encodeTableColumnAttrs(column));
+                }
+
+                return;
+            }
+            default : {
+                throw Error.runtimeError(ErrorCode.U_S0500, "");
             }
         }
+    }
+
+    public ResultMetaData getNewMetaData(int[] columnMap) {
+
+        ResultMetaData newMeta = newResultMetaData(columnMap.length);
+
+        ArrayUtil.projectRow(columnLabels, columnMap, newMeta.columnLabels);
+        ArrayUtil.projectRow(columnTypes, columnMap, newMeta.columnTypes);
+        ArrayUtil.projectRow(columns, columnMap, newMeta.columns);
+
+        return newMeta;
     }
 }

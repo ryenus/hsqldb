@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ public class Sort {
         }
 
         while (r - l > 10) {
-            i = (r + l) >> 1;
+            i = (r + l) >>> 1;
 
             if (comparator.compare(w[l], w[r]) > 0) {
                 swap(w, l, r);
@@ -152,26 +152,5 @@ public class Sort {
 
         w[a] = w[b];
         w[b] = t;
-    }
-
-    public static class StringComparator implements ObjectComparator {
-
-        public int compare(Object a, Object b) {
-
-            // handle nulls
-            if (a == b) {
-                return 0;
-            }
-
-            if (a == null) {
-                return -1;
-            }
-
-            if (b == null) {
-                return 1;
-            }
-
-            return ((String) a).compareTo((String) b);
-        }
     }
 }

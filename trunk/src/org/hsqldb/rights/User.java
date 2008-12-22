@@ -1,39 +1,4 @@
-/* Copyright (c) 1995-2000, The Hypersonic SQL Group.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the Hypersonic SQL Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE HYPERSONIC SQL GROUP,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * on behalf of the Hypersonic SQL Group.
- *
- *
- * For work added by the HSQL Development Group:
- *
- * Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,34 +31,28 @@
 
 package org.hsqldb.rights;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.Tokens;
 import org.hsqldb.lib.StringConverter;
 
-// fredt@users 20021103 - patch 1.7.2 - fix bug in revokeAll()
-// fredt@users 20021103 - patch 1.7.2 - allow for drop table, etc.
-// when tables are dropped or renamed, changes are reflected in the
-// permissions held in User objects.
-// boucherb@users 200208-200212 - doc 1.7.2 - update
-// boucherb@users 200208-200212 - patch 1.7.2 - metadata
-// unsaved@users - patch 1.8.0 moved right managament to new classes
-
 /**
- * A User Object holds the grantee and password for a
+ * A User Object extends Grantee with password for a
  * particular database user.<p>
  *
- * Enhanced in successive versions of HSQLDB.
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @author Blaine Simpson (unsaved@users dot sourceforge.net)
  *
- * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
- * @since Hypersonic SQL
+ * @version 1.9.0
+ * @since 1.8.0
  */
 public class User extends Grantee {
 
     /** password. */
-    private String sPassword;
+    private String password;
 
     /** default schema when new Sessions started (defaults to PUBLIC schema) */
     private HsqlName initialSchema = null;
@@ -102,8 +61,19 @@ public class User extends Grantee {
      * Constructor
      */
     User(HsqlName name, GranteeManager manager) {
-
         super(name, manager);
+    }
+
+    public String getDDL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_USER);
+        sb.append(' ').append(granteeName.statementName).append(' ');
+        sb.append(Tokens.T_PASSWORD).append(' ');
+        sb.append('\'').append(password).append('\'');
+
+        return sb.toString();
     }
 
     public void setPassword(String password) throws HsqlException {
@@ -111,15 +81,18 @@ public class User extends Grantee {
         // TODO:
         // checkComplexity(password);
         // requires: UserManager.createSAUser(), UserManager.createPublicUser()
-        sPassword = password;
+        this.password = password;
     }
 
     /**
      * Checks if this object's password attibute equals
      * specified argument, else throws.
      */
-    public void checkPassword(String test) throws HsqlException {
-        Trace.check(test.equals(sPassword), Trace.ACCESS_IS_DENIED);
+    public void checkPassword(String value) throws HsqlException {
+
+        if (!value.equals(password)) {
+            throw Error.error(ErrorCode.X_28000);
+        }
     }
 
     /**
@@ -127,6 +100,24 @@ public class User extends Grantee {
      */
     public HsqlName getInitialSchema() {
         return initialSchema;
+    }
+
+    public HsqlName getInitialOrDefaultSchema() {
+
+        if (initialSchema != null) {
+            return initialSchema;
+        }
+
+        HsqlName schema =
+            granteeManager.database.schemaManager.findSchemaHsqlName(
+                getNameString());
+
+        if (schema == null) {
+            return granteeManager.database.schemaManager
+                .getDefaultSchemaHsqlName();
+        } else {
+            return schema;
+        }
     }
 
     /**
@@ -150,12 +141,12 @@ public class User extends Grantee {
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append(Token.T_ALTER).append(' ');
-        sb.append(Token.T_USER).append(' ');
+        sb.append(Tokens.T_ALTER).append(' ');
+        sb.append(Tokens.T_USER).append(' ');
         sb.append(getStatementName()).append(' ');
-        sb.append(Token.T_SET).append(' ');
-        sb.append(Token.T_PASSWORD).append(' ');
-        sb.append('"').append(sPassword).append('"');
+        sb.append(Tokens.T_SET).append(' ');
+        sb.append(Tokens.T_PASSWORD).append(' ');
+        sb.append('"').append(password).append('"');
 
         return sb.toString();
     }
@@ -164,19 +155,19 @@ public class User extends Grantee {
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append(Token.T_ALTER).append(' ');
-        sb.append(Token.T_USER).append(' ');
+        sb.append(Tokens.T_ALTER).append(' ');
+        sb.append(Tokens.T_USER).append(' ');
         sb.append(getStatementName()).append(' ');
-        sb.append(Token.T_SET).append(' ');
-        sb.append(Token.T_INITIAL).append(' ');
-        sb.append(Token.T_SCHEMA).append(' ');
+        sb.append(Tokens.T_SET).append(' ');
+        sb.append(Tokens.T_INITIAL).append(' ');
+        sb.append(Tokens.T_SCHEMA).append(' ');
         sb.append(initialSchema.statementName);
 
         return sb.toString();
     }
 
     /**
-     * returns the DDL string
+     * Returns the DDL string
      * sequence that creates this user.
      *
      */
@@ -184,11 +175,11 @@ public class User extends Grantee {
 
         StringBuffer sb = new StringBuffer(64);
 
-        sb.append(Token.T_CREATE).append(' ');
-        sb.append(Token.T_USER).append(' ');
+        sb.append(Tokens.T_CREATE).append(' ');
+        sb.append(Tokens.T_USER).append(' ');
         sb.append(getStatementName()).append(' ');
-        sb.append(Token.T_PASSWORD).append(' ');
-        sb.append(StringConverter.toQuotedString(sPassword, '"', true));
+        sb.append(Tokens.T_PASSWORD).append(' ');
+        sb.append(StringConverter.toQuotedString(password, '"', true));
 
         return sb.toString();
     }
@@ -204,17 +195,11 @@ public class User extends Grantee {
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append(Token.T_CONNECT).append(' ');
-        sb.append(Token.T_USER).append(' ');
-        sb.append(getStatementName());
+        sb.append(Tokens.T_SET).append(' ');
+        sb.append(Tokens.T_SESSION).append(' ');
+        sb.append(Tokens.T_AUTHORIZATION).append(' ');
+        sb.append(StringConverter.toQuotedString(getNameString(), '\'', true));
 
         return sb.toString();
-    }
-
-    /**
-     * Retrieves the Grantee object for this User.
-     */
-    public Grantee getGrantee() {
-        return this;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,12 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
+import org.hsqldb.persist.PersistentStore;
 
 /**
  * Base class for all script readers.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
@@ -98,14 +99,15 @@ public abstract class ScriptReaderBase {
     public abstract boolean readLoggedStatement(Session session)
     throws IOException;
 
-    int            statementType;
-    int            sessionNumber;
-    Object[]       rowData;
-    long           sequenceValue;
-    String         statement;
-    Table          currentTable;
-    NumberSequence currentSequence;
-    String         currentSchema;
+    int             statementType;
+    int             sessionNumber;
+    Object[]        rowData;
+    long            sequenceValue;
+    String          statement;
+    Table           currentTable;
+    PersistentStore currentStore;
+    NumberSequence  currentSequence;
+    String          currentSchema;
 
     public int getStatementType() {
         return statementType;

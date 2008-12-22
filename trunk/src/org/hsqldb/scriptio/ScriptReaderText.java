@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.hsqldb.Statement;
 import org.hsqldb.Database;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
-import org.hsqldb.Trace;
+import org.hsqldb.StatementTypes;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.result.Result;
@@ -52,7 +55,7 @@ import org.hsqldb.types.Type;
  * out by ScriptWriterText. This implementation
  * corresponds to ScriptWriterText.
  *
- *  @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  *  @version 1.8.0
  *  @since 1.7.2
  */
@@ -84,20 +87,41 @@ public class ScriptReaderText extends ScriptReaderBase {
     protected void readDDL(Session session) throws IOException, HsqlException {
 
         for (; readLoggedStatement(session); ) {
+            Statement cs     = null;
+            Result                     result = null;
+
             if (rowIn.getStatementType() == INSERT_STATEMENT) {
                 isInsert = true;
 
                 break;
             }
 
-            Result result = session.executeDirectStatement(statement);
+            try {
+                cs     = session.compileStatement(statement);
+                result = session.executeCompiledStatement(cs, null);
+            } catch (HsqlException e) {
+                result = Result.newErrorResult(e, null);
+            }
 
-            if (result != null && result.isError()) {
+            if (result.isError()) {
+
+                // handle grants on math and library routines in old versions
+                if (cs == null) {}
+                else {
+                    if (cs.getType() == StatementTypes.GRANT) {
+                        continue;
+                    }
+                }
+
+                //
+            }
+
+            if (result.isError()) {
                 db.logger.appLog.logContext(SimpleLog.LOG_ERROR,
                                             result.getMainString());
 
-                throw Trace.error(Trace.ERROR_IN_SCRIPT_FILE,
-                                  Trace.DatabaseScriptReader_readDDL,
+                throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
+                                  ErrorCode.DatabaseScriptReader_readDDL,
                                   new Object[] {
                     new Integer(lineCount), result.getMainString()
                 });
@@ -128,9 +152,11 @@ public class ScriptReaderText extends ScriptReaderBase {
 
                         currentTable = db.schemaManager.getUserTable(session,
                                 tablename, schema);
+                        currentStore = db.persistentStoreCollection.getStore(
+                            currentTable.getPersistenceId());
                     }
 
-                    currentTable.insertFromScript(rowData);
+                    currentTable.insertFromScript(currentStore, rowData);
                 }
             }
 
@@ -138,8 +164,8 @@ public class ScriptReaderText extends ScriptReaderBase {
         } catch (Exception e) {
             db.logger.appLog.logContext(e, null);
 
-            throw Trace.error(Trace.ERROR_IN_SCRIPT_FILE,
-                              Trace.DatabaseScriptReader_readExistingData,
+            throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
+                              ErrorCode.DatabaseScriptReader_readExistingData,
                               new Object[] {
                 new Integer(lineCount), e.toString()
             });
@@ -154,7 +180,7 @@ public class ScriptReaderText extends ScriptReaderBase {
         lineCount++;
 
 //        System.out.println(lineCount);
-        statement = StringConverter.asciiToUnicode(s);
+        statement = StringConverter.unicodeStringToString(s);
 
         if (statement == null) {
             return false;
@@ -203,6 +229,8 @@ public class ScriptReaderText extends ScriptReaderBase {
 
             currentTable = db.schemaManager.getUserTable(session, name,
                     schema);
+            currentStore = db.persistentStoreCollection.getStore(
+                currentTable.getPersistenceId());
 
             Type[] colTypes;
 

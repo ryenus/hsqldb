@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,16 +35,13 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.Timestamp;
 
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
+import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobDataMemory;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataMemory;
 import org.hsqldb.types.IntervalMonthData;
@@ -52,6 +49,7 @@ import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
@@ -59,8 +57,8 @@ import org.hsqldb.types.Type;
  *  byte array. The format of data is that used for storage of cached
  *  tables by v.1.6.x databases, apart from strings.
  *
- * @author sqlbob@users (RMP)
- * @author fredt@users
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.0
  */
@@ -131,7 +129,8 @@ implements org.hsqldb.rowio.RowInputInterface {
         return ValuePool.getDouble(readLong());
     }
 
-    protected BigDecimal readDecimal() throws IOException, HsqlException {
+    protected BigDecimal readDecimal(Type type)
+    throws IOException, HsqlException {
 
         byte[]     bytes  = readByteArray();
         int        scale  = readInt();
@@ -146,25 +145,36 @@ implements org.hsqldb.rowio.RowInputInterface {
     }
 
     protected TimeData readTime(Type type) throws IOException, HsqlException {
-        return new TimeData(readInt(), readInt());
+
+        if (type.typeCode == Types.SQL_TIME) {
+            return new TimeData(readInt(), readInt(), 0);
+        } else {
+            return new TimeData(readInt(), readInt(), readInt());
+        }
     }
 
-    protected Date readDate(Type type) throws IOException, HsqlException {
+    protected TimestampData readDate(Type type)
+    throws IOException, HsqlException {
 
         long date = readLong();
 
-        return ValuePool.getDate(date);
+        return new TimestampData(date);
     }
 
-    protected Timestamp readTimestamp(Type type)
+    protected TimestampData readTimestamp(Type type)
     throws IOException, HsqlException {
-        return HsqlDateTime.timestampValue(readLong(), readInt());
+
+        if (type.typeCode == Types.SQL_TIMESTAMP) {
+            return new TimestampData(readLong(), readInt());
+        } else {
+            return new TimestampData(readLong(), readInt(), readInt());
+        }
     }
 
     protected IntervalMonthData readYearMonthInterval(Type type)
     throws IOException, HsqlException {
 
-        int months = readInt();
+        long months = readLong();
 
         return new IntervalMonthData(months, (IntervalType) type);
     }
@@ -172,8 +182,8 @@ implements org.hsqldb.rowio.RowInputInterface {
     protected IntervalSecondData readDaySecondInterval(Type type)
     throws IOException, HsqlException {
 
-        int seconds = readInt();
-        int nanos   = readInt();
+        long seconds = readLong();
+        int  nanos   = readInt();
 
         return new IntervalSecondData(seconds, nanos, (IntervalType) type);
     }
@@ -211,7 +221,7 @@ implements org.hsqldb.rowio.RowInputInterface {
 
         byte[] bytes = readByteArray();
 
-        return new BlobDataMemory(bytes, false);
+        return new BinaryData(bytes, false);
     }
 
     // helper methods

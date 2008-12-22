@@ -1269,7 +1269,13 @@ public class BaseHashMap {
             throw new NoSuchElementException("Hash Iterator");
         }
 
-        public void remove() throws NoSuchElementException {}
+        public void remove() throws NoSuchElementException {
+            throw new NoSuchElementException("Hash Iterator");
+        }
+
+        public void setValue(Object value) {
+            throw new NoSuchElementException("Hash Iterator");
+        }
     }
 
     protected class MultiValueKeyIterator implements Iterator {
@@ -1315,7 +1321,13 @@ public class BaseHashMap {
             throw new NoSuchElementException("Hash Iterator");
         }
 
-        public void remove() throws NoSuchElementException {}
+        public void remove() throws NoSuchElementException {
+            throw new NoSuchElementException("Hash Iterator");
+        }
+
+        public void setValue(Object value) {
+            throw new NoSuchElementException("Hash Iterator");
+        }
     }
 
     /**
@@ -1426,6 +1438,14 @@ public class BaseHashMap {
             if (isList) {
                 lookup--;
             }
+        }
+
+        public void setValue(Object value) {
+            if (keys) {
+                throw new NoSuchElementException();
+            }
+
+            objectValueTable[lookup] = value;
         }
 
         public int getAccessCount() {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ package org.hsqldb.result;
  * between the client and the engine when sending Result objects back
  * and forth.
  *
- * @author boucherb@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @since 1.7.2
  * @version 1.7.2
  */
@@ -46,17 +46,6 @@ package org.hsqldb.result;
 // similar function is performed. The Result objects do not necessarily contain
 // the same information as stated in SQL standard for CLI.
 public interface ResultConstants {
-
-    /** Expected types of Result returned for an SQL statement */
-    int RETURN_ANY    = 0;
-    int RETURN_COUNT  = 1;
-    int RETURN_RESULT = 2;
-
-    /** Constants indicating generated key return behaviour */
-    int RETURN_GENERATED_KEYS             = 1;     // matching java.sql.Statement constant
-    int RETURN_NO_GENERATED_KEYS          = 2;     // matching java.sql.Statement constant
-    int RETURN_GENERATED_KEYS_COL_NAMES   = 11;    // constant in HSQLDB only
-    int RETURN_GENERATED_KEYS_COL_INDEXES = 21;    // constant in HSQLDB only
 
     /** The offset at which HSQLDB API Result mode values start. */
     int HSQL_API_BASE = 0;
@@ -87,7 +76,7 @@ public interface ResultConstants {
     /**
      * Indicates that the Result object encapsulates a response
      * that communicates the acknowlegement of newly allocated
-     * CompiledStatement object in the form of its statementID
+     * Statement object in the form of its statementID
      * and metadata
      */
     int PREPARE_ACK = HSQL_API_BASE + 4;
@@ -229,6 +218,10 @@ public interface ResultConstants {
      */
     int CLOSE_RESULT = HSQL_API_BASE + 40;
 
+    /**
+     * Indicates that the Result encapsulates a simple value for internal use
+     */
+    int VALUE = HSQL_API_BASE + 41;
 //    /** The offset at which the standard SQL API Result mode values start. */
 //    int SQL_API_BASE = 0x00010000;
 //
@@ -629,12 +622,12 @@ public interface ResultConstants {
      ROLLBACK AND CHAIN 7
      Implementation-defined termination type <0
      */
-    int COMMIT                  = 0;
-    int ROLLBACK                = 1;
-    int SAVEPOINT_NAME_ROLLBACK = 2;
-    int SAVEPOINT_NAME_RELEASE  = 4;
-    int COMMIT_AND_CHAIN        = 6;
-    int ROLLBACK_AND_CHAIN      = 7;
+    int TX_COMMIT                  = 0;
+    int TX_ROLLBACK                = 1;
+    int TX_SAVEPOINT_NAME_ROLLBACK = 2;
+    int TX_SAVEPOINT_NAME_RELEASE  = 4;
+    int TX_COMMIT_AND_CHAIN        = 6;
+    int TX_ROLLBACK_AND_CHAIN      = 7;
 
 /* Environment attributes */
 
@@ -656,4 +649,30 @@ public interface ResultConstants {
      * for example a call having no return value
      */
     int SUCCESS_NO_INFO = -2;
+/*
+   SQL standard properties
+   The operational sensitivity property (either SENSITIVE, INSENSITIVE, or ASENSITIVE).
+   The operational scrollability property (either SCROLL or NO SCROLL).
+   The operational holdability property (either WITH HOLD or WITHOUT HOLD).
+   The operational returnability property (either WITH RETURN or WITHOUT RETURN).
+*/
+
+// data result properties - matching java.sql.ResultSet constants
+    int TYPE_FORWARD_ONLY       = 1003;
+    int TYPE_SCROLL_INSENSITIVE = 1004;
+    int TYPE_SCROLL_SENSITIVE   = 1005;
+
+    //
+    int CONCUR_READ_ONLY = 1007;
+    int CONCUR_UPDATABLE = 1008;
+
+    //
+    int HOLD_CURSORS_OVER_COMMIT = 1;
+    int CLOSE_CURSORS_AT_COMMIT  = 2;
+
+    /** Constants indicating generated key return behaviour */
+    int RETURN_GENERATED_KEYS             = 1;     // matching java.sql.Statement constant
+    int RETURN_NO_GENERATED_KEYS          = 2;     // matching java.sql.Statement constant
+    int RETURN_GENERATED_KEYS_COL_NAMES   = 11;    // constant in HSQLDB only
+    int RETURN_GENERATED_KEYS_COL_INDEXES = 21;    // constant in HSQLDB only
 }

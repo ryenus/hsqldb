@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,10 @@
 package org.hsqldb.rowio;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
 
-import org.hsqldb.Column;
-import org.hsqldb.Table;
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
+import org.hsqldb.ColumnSchema;
 import org.hsqldb.Types;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
@@ -48,6 +46,7 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
@@ -55,8 +54,8 @@ import org.hsqldb.types.Type;
  * Defines the methods that are independent of storage format and declares
  * the format-dependent methods that subclasses should define.
  *
- * @author sqlbob@users (RMP)
- * @author fredt@users
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.0
  */
@@ -128,15 +127,17 @@ implements RowOutputInterface {
 
     protected abstract void writeBoolean(Boolean o);
 
-    protected abstract void writeDate(Date o, Type type);
+    protected abstract void writeDate(TimestampData o, Type type);
 
     protected abstract void writeTime(TimeData o, Type type);
 
-    protected abstract void writeTimestamp(Timestamp o, Type type);
+    protected abstract void writeTimestamp(TimestampData o, Type type);
 
-    protected abstract void writeYearMonthInterval(IntervalMonthData o, Type type);
+    protected abstract void writeYearMonthInterval(IntervalMonthData o,
+            Type type);
 
-    protected abstract void writeDaySecondInterval(IntervalSecondData o, Type type);
+    protected abstract void writeDaySecondInterval(IntervalSecondData o,
+            Type type);
 
     protected abstract void writeOther(JavaObjectData o);
 
@@ -148,37 +149,22 @@ implements RowOutputInterface {
 
     protected abstract void writeBlob(BlobData o, Type type);
 
-    public void writeRow(Object[] data, Table t) {
+    public void writeRow(Object[] data, Type[] types) {
 
         writeSize(0);
-        writeData(data, t);
+        writeData(data, types);
         writeIntData(size(), 0);
     }
 
     /**
-     *  This method is called to write data for a table.
-     *
-     * @param  data
-     * @param  t
-     * @throws  IOException
+     *  This method is called to write data for a table row.
      */
-    public void writeData(Object[] data, Table t) {
-
-        Type[] types = t.getColumnTypes();
-        int    l     = t.getColumnCount();
-
-        writeData(l, types, data, null, null);
+    public void writeData(Object[] data, Type[] types) {
+        writeData(types.length, types, data, null, null);
     }
 
     /**
-     *  This method is called to write data for a Result.
-     *
-     * @param  l
-     * @param  types
-     * @param  data
-     * @param cols
-     * @param primarykeys
-     * @throws  IOException
+     *  This method is called directly to write data for a delete statement.
      */
     public void writeData(int l, Type[] types, Object[] data,
                           HashMappedList cols, int[] primaryKeys) {
@@ -191,13 +177,13 @@ implements RowOutputInterface {
             int    j = hasPK ? primaryKeys[i]
                              : i;
             Object o = data[j];
-            Type    t = types[j];
+            Type   t = types[j];
 
             if (cols != null) {
-                Column col = (Column) cols.get(j);
+                ColumnSchema col = (ColumnSchema) cols.get(j);
 
                 writeFieldPrefix();
-                writeString(col.columnName.statementName);
+                writeString(col.getName().statementName);
             }
 
             if (o == null) {
@@ -208,12 +194,11 @@ implements RowOutputInterface {
 
             writeFieldType(t);
 
-            switch (t.type) {
+            switch (t.typeCode) {
 
                 case Types.SQL_ALL_TYPES :
-                    throw Trace.runtimeError(
-                        Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                        "RowOutputBase");
+                    throw Error.runtimeError(
+                        ErrorCode.U_S0500, "RowOutputBase");
                 case Types.SQL_CHAR :
                 case Types.SQL_VARCHAR :
                 case Types.VARCHAR_IGNORECASE :
@@ -249,15 +234,36 @@ implements RowOutputInterface {
                     break;
 
                 case Types.SQL_DATE :
-                    writeDate((Date) o, t);
+                    writeDate((TimestampData) o, t);
                     break;
 
                 case Types.SQL_TIME :
+                case Types.SQL_TIME_WITH_TIME_ZONE :
                     writeTime((TimeData) o, t);
                     break;
 
                 case Types.SQL_TIMESTAMP :
-                    writeTimestamp((Timestamp) o, t);
+                case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                    writeTimestamp((TimestampData) o, t);
+                    break;
+
+                case Types.SQL_INTERVAL_YEAR :
+                case Types.SQL_INTERVAL_YEAR_TO_MONTH :
+                case Types.SQL_INTERVAL_MONTH :
+                    writeYearMonthInterval((IntervalMonthData) o, t);
+                    break;
+
+                case Types.SQL_INTERVAL_DAY :
+                case Types.SQL_INTERVAL_DAY_TO_HOUR :
+                case Types.SQL_INTERVAL_DAY_TO_MINUTE :
+                case Types.SQL_INTERVAL_DAY_TO_SECOND :
+                case Types.SQL_INTERVAL_HOUR :
+                case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
+                case Types.SQL_INTERVAL_HOUR_TO_SECOND :
+                case Types.SQL_INTERVAL_MINUTE :
+                case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
+                case Types.SQL_INTERVAL_SECOND :
+                    writeDaySecondInterval((IntervalSecondData) o, t);
                     break;
 
                 case Types.OTHER :
@@ -283,8 +289,9 @@ implements RowOutputInterface {
                     break;
 
                 default :
-                    throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                             t.getNameString());
+                    throw Error.runtimeError(
+                        ErrorCode.U_S0500,
+                        t.getNameString());
             }
         }
     }

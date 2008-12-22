@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,14 +33,15 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 
 /**
  * Fields in the source file need not be quoted. Methods in this class unquote
  * the fields if they are quoted and handle quote character doubling in this
  * case.
  *
- * @author sqlbob@users (RMP)
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.0
  */
@@ -70,13 +71,13 @@ public class RowInputTextQuoted extends RowInputText {
         String s = null;
 
         if (next >= qtext.length || qtext[next] != '\"') {
-            return (super.getField(sep, sepLen, isEnd));
+            return super.getField(sep, sepLen, isEnd);
         }
 
         try {
             field++;
 
-            StringBuffer ret   = new StringBuffer();
+            StringBuffer sb   = new StringBuffer();
             boolean      done  = false;
             int          state = NORMAL_FIELD;
             int          end   = -1;
@@ -98,7 +99,7 @@ public class RowInputTextQuoted extends RowInputText {
                             //-- Beginning of field
                             state = NEED_END_QUOTE;
                         } else {
-                            ret.append(qtext[next]);
+                            sb.append(qtext[next]);
                         }
                         break;
 
@@ -106,7 +107,7 @@ public class RowInputTextQuoted extends RowInputText {
                         if (qtext[next] == '\"') {
                             state = FOUND_QUOTE;
                         } else {
-                            ret.append(qtext[next]);
+                            sb.append(qtext[next]);
                         }
                         break;
 
@@ -114,7 +115,7 @@ public class RowInputTextQuoted extends RowInputText {
                         if (qtext[next] == '\"') {
 
                             //-- Escaped quote
-                            ret.append(qtext[next]);
+                            sb.append(qtext[next]);
 
                             state = NEED_END_QUOTE;
                         } else {
@@ -135,12 +136,11 @@ public class RowInputTextQuoted extends RowInputText {
                 }
             }
 
-            s = ret.toString();
+            s = sb.toString();
         } catch (Exception e) {
             throw new IOException(
-                Trace.getMessage(
-                    Trace.QuotedTextDatabaseRowInput_getField2, true,
-                    new Object[] {
+                Error.getMessage(
+                    ErrorCode.TEXT_SOURCE_FIELD_ERROR, 0, new Object[] {
                 new Integer(field), e.toString()
             }));
         }

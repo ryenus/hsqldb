@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,10 @@ package org.hsqldb.rowio;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
 
 import org.hsqldb.CachedRow;
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.TextCache;
@@ -48,12 +47,13 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
  *  Class for writing the data for a database row in text table format.
  *
- * @author sqlbob@users (RMP)
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.0
  */
@@ -185,7 +185,7 @@ public class RowOutputText extends RowOutputBase {
 
         if (s.indexOf('\n') != -1 || s.indexOf('\r') != -1) {
             throw new IllegalArgumentException(
-                Trace.getMessage(Trace.TEXT_STRING_HAS_NEWLINE));
+                Error.getMessage(ErrorCode.TEXT_STRING_HAS_NEWLINE));
         } else if (s.indexOf(sep) != -1) {
             return null;
         }
@@ -209,7 +209,7 @@ public class RowOutputText extends RowOutputBase {
     protected void writeByteArray(byte[] b) {
 
         ensureRoom(b.length * 2);
-        StringConverter.writeHex(this.getBuffer(), count, b);
+        StringConverter.writeHexBytes(this.getBuffer(), count, b);
 
         count += b.length * 2;
     }
@@ -227,12 +227,12 @@ public class RowOutputText extends RowOutputBase {
     }
 
     public void writeIntData(int i, int position) {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "RowInputText");
     }
 
     public void writeLong(long i) {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "RowInputText");
     }
 
@@ -241,7 +241,7 @@ public class RowOutputText extends RowOutputBase {
 
         writeBytes(nextSep);
 
-        switch (type.type) {
+        switch (type.typeCode) {
 
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
@@ -262,7 +262,7 @@ public class RowOutputText extends RowOutputBase {
 
     protected void writeChar(String s, Type t) {
 
-        switch (t.type) {
+        switch (t.typeCode) {
 
             case Types.SQL_CHAR :
                 writeString(s);
@@ -306,7 +306,7 @@ public class RowOutputText extends RowOutputBase {
         writeString(o.toString());
     }
 
-    protected void writeDate(Date o, Type type) {
+    protected void writeDate(TimestampData o, Type type) {
         writeString(type.convertToString(o));
     }
 
@@ -314,7 +314,7 @@ public class RowOutputText extends RowOutputBase {
         writeString(type.convertToString(o));
     }
 
-    protected void writeTimestamp(Timestamp o, Type type) {
+    protected void writeTimestamp(TimestampData o, Type type) {
         writeString(type.convertToString(o));
     }
 
@@ -359,12 +359,12 @@ public class RowOutputText extends RowOutputBase {
 
         try {
             writeSize(0);
-            writeData(r.getData(), r.getTable());
+            writeData(r.getData(), r.getTable().getColumnTypes());
             writeEnd();
         } catch (Exception e) {
             reset();
 
-//            throw (Trace.error(Trace.FILE_IO_ERROR, e.toString()));
+//            throw Error.error(ErrorCode.FILE_IO_ERROR, e.toString());
         }
 
         int rowsize = size();

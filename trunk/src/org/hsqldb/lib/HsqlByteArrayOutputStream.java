@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.io.UnsupportedEncodingException;
  * This class is a replacement for both java.io.ByteArrayOuputStream
  * (without synchronization) and java.io.DataOutputStream
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.0
  */
@@ -165,7 +165,7 @@ implements DataOutput {
 
         count += 2;
 
-        StringConverter.writeUTF(str, this);
+        StringConverter.stringToUTFBytes(str, this);
 
         int bytecount = count - initpos - 2;
 
@@ -182,14 +182,17 @@ implements DataOutput {
     /**
      * does nothing
      */
-    public void flush() throws java.io.IOException {
-    }
+    public void flush() throws java.io.IOException {}
 
     // methods that extend java.io.OutputStream
     public void write(int b) {
 
         ensureRoom(1);
 
+        buf[count++] = (byte) b;
+    }
+
+    public void writeNoCheck(int b) {
         buf[count++] = (byte) b;
     }
 
@@ -295,5 +298,10 @@ implements DataOutput {
         if (newSize > buf.length) {
             buf = new byte[newSize];
         }
+    }
+
+    public void reset(byte[] buffer) {
+        count = 0;
+        buf   = buffer;
     }
 }

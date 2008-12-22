@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,6 @@
 package org.hsqldb.rowio;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
 
 import org.hsqldb.CachedRow;
 import org.hsqldb.lib.StringConverter;
@@ -44,10 +42,11 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @since 1.7.2
  * @version 1.7.2
  */
@@ -77,7 +76,7 @@ public class RowOutputTextLog extends RowOutputBase {
     protected void writeChar(String s, Type t) {
 
         write('\'');
-        StringConverter.unicodeToAscii(this, s, true);
+        StringConverter.stringToUnicodeBytes(this, s, true);
         write('\'');
     }
 
@@ -107,7 +106,7 @@ public class RowOutputTextLog extends RowOutputBase {
 
         ensureRoom((int) (o.length() * 2 + 2));
         write('\'');
-        StringConverter.writeHex(getBuffer(), count, o.getBytes());
+        StringConverter.writeHexBytes(getBuffer(), count, o.getBytes());
 
         count += (o.length() * 2);
 
@@ -156,7 +155,7 @@ public class RowOutputTextLog extends RowOutputBase {
 
         ensureRoom(o.getBytesLength() * 2 + 2);
         write('\'');
-        StringConverter.writeHex(getBuffer(), count, o.getBytes());
+        StringConverter.writeHexBytes(getBuffer(), count, o.getBytes());
 
         count += o.getBytesLength() * 2;
 
@@ -164,7 +163,7 @@ public class RowOutputTextLog extends RowOutputBase {
     }
 
     public void writeString(String value) {
-        StringConverter.unicodeToAscii(this, value, false);
+        StringConverter.stringToUnicodeBytes(this, value, false);
     }
 
     protected void writeBoolean(Boolean o) {
@@ -194,23 +193,33 @@ public class RowOutputTextLog extends RowOutputBase {
     public void writeIntData(int i, int position) {}
 
     protected void writeTime(TimeData o, Type type) {
-        writeBytes(type.convertToSQLString(o));
+        write('\'');
+        writeBytes(type.convertToString(o));
+        write('\'');
     }
 
-    protected void writeDate(Date o, Type type) {
-        writeBytes(type.convertToSQLString(o));
+    protected void writeDate(TimestampData o, Type type) {
+        write('\'');
+        writeBytes(type.convertToString(o));
+        write('\'');
     }
 
-    protected void writeTimestamp(Timestamp o, Type type) {
-        writeBytes(type.convertToSQLString(o));
+    protected void writeTimestamp(TimestampData o, Type type) {
+        write('\'');
+        writeBytes(type.convertToString(o));
+        write('\'');
     }
 
     protected void writeYearMonthInterval(IntervalMonthData o, Type type) {
-        writeBytes(type.convertToSQLString(o));
+        write('\'');
+        writeBytes(type.convertToString(o));
+        write('\'');
     }
 
     protected void writeDaySecondInterval(IntervalSecondData o, Type type) {
-        writeBytes(type.convertToSQLString(o));
+        write('\'');
+        writeBytes(type.convertToString(o));
+        write('\'');
     }
 
     public void writeShort(int i) {

@@ -29,40 +29,18 @@
  */
 
 
-package org.hsqldb.rowio;
+package org.hsqldb.lib;
 
-import java.io.IOException;
+public class ArrayListIdentity extends HsqlArrayList implements HsqlList {
 
-import org.hsqldb.HsqlException;
-import org.hsqldb.types.Type;
+    public int indexOf(Object o) {
 
-/**
- * Public interface for reading the data for a database row.
- *
- * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
- * @since 1.7.0
- */
-public interface RowInputInterface {
+        for (int i = 0; i < elementCount; i++) {
+            if (elementData[i] == o) {
+                return i;
+            }
+        }
 
-    int getPos();
-
-    int getSize();
-
-    int readType() throws IOException;
-
-    String readString() throws IOException;
-
-    short readShort() throws IOException;
-
-    int readInt() throws IOException;
-
-    long readLong() throws IOException;
-
-    Object[] readData(Type[] colTypes) throws IOException, HsqlException;
-
-    void resetRow(int filePos, int size) throws IOException;
-
-    byte[] getBuffer();
+        return -1;
+    }
 }

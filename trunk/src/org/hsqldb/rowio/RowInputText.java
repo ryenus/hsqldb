@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,32 +33,30 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
 
-import org.hsqldb.HsqlDateTime;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
+import org.hsqldb.Scanner;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobDataMemory;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataMemory;
-import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
- *  Class for reading the data for a database row in text table format.
+ * Class for reading the data for a database row in text table format.
  *
- * @author sqlbob@users (RMP)
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.0
  */
@@ -80,17 +78,20 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     protected int     field;
     protected int     next = 0;
     protected boolean allQuoted;
+    protected Scanner scanner;
 
     /**
      * fredt@users - comment - in future may use a custom subclasse of
      * InputStream to read the data.
      *
-     * author: sqlbob@users (RMP)
+     * @author Bob Preston (sqlbob@users dot sourceforge.net)
      */
     public RowInputText(String fieldSep, String varSep, String longvarSep,
                         boolean allQuoted) {
 
         super(new byte[0]);
+
+        scanner = new Scanner();
 
         //-- Newline indicates that field should match to end of line.
         if (fieldSep.endsWith("\n")) {
@@ -142,11 +143,11 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
             if (isEnd) {
                 if ((next >= textLen) && (sepLen > 0)) {
-                    throw Trace.error(Trace.TextDatabaseRowInput_getField);
+                    throw Error.error(ErrorCode.TEXT_SOURCE_NO_END_SEPARATOR);
                 } else if (text.endsWith(sep)) {
                     next = textLen - sepLen;
                 } else {
-                    throw Trace.error(Trace.TextDatabaseRowInput_getField2);
+                    throw Error.error(ErrorCode.TEXT_SOURCE_NO_END_SEPARATOR);
                 }
             } else {
                 next = text.indexOf(sep, start);
@@ -169,8 +170,8 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             }
         } catch (Exception e) {
             throw new IOException(
-                Trace.getMessage(
-                    Trace.TextDatabaseRowInput_getField3, true, new Object[] {
+                Error.getMessage(
+                    ErrorCode.TEXT_SOURCE_FIELD_ERROR, 0, new Object[] {
                 new Integer(field), e.toString()
             }));
         }
@@ -215,7 +216,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     }
 
     public long readLong() throws IOException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "RowInputText");
     }
 
@@ -231,7 +232,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
     protected String readChar(Type type) throws IOException {
 
-        switch (type.type) {
+        switch (type.typeCode) {
 
             case Types.SQL_CHAR :
                 return readString();
@@ -313,7 +314,8 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         return Double.valueOf(s);
     }
 
-    protected BigDecimal readDecimal() throws IOException, HsqlException {
+    protected BigDecimal readDecimal(Type type)
+    throws IOException, HsqlException {
 
         String s = readString();
 
@@ -344,11 +346,10 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return (TimeData) type.convertToTypeLimits(
-            DateTimeType.newTime(s).value);
+        return scanner.newTime(s);
     }
 
-    protected Date readDate(Type type) throws IOException, HsqlException {
+    protected TimestampData readDate(Type type) throws IOException, HsqlException {
 
         String s = readString();
 
@@ -362,10 +363,10 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return HsqlDateTime.dateValue(s);
+        return scanner.newDate(s);
     }
 
-    protected Timestamp readTimestamp(Type type)
+    protected TimestampData readTimestamp(Type type)
     throws IOException, HsqlException {
 
         String s = readString();
@@ -380,7 +381,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return HsqlDateTime.timestampValue(s);
+        return scanner.newTimestamp(s);
     }
 
     protected IntervalMonthData readYearMonthInterval(Type type)
@@ -398,7 +399,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return (IntervalMonthData) ((IntervalType) type).newInterval(s);
+        return (IntervalMonthData) scanner.newInterval(s, (IntervalType) type);
     }
 
     protected IntervalSecondData readDaySecondInterval(Type type)
@@ -416,7 +417,8 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return (IntervalSecondData) ((IntervalType) type).newInterval(s);
+        return (IntervalSecondData) scanner.newInterval(s,
+                (IntervalType) type);
     }
 
     protected Boolean readBoole() throws IOException, HsqlException {
@@ -452,7 +454,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        data = StringConverter.hexToByteArray(s);
+        data = StringConverter.hexStringToByteArray(s);
 
         return new JavaObjectData(data);
     }
@@ -471,7 +473,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        BitMap map = StringConverter.bitToBitMap(s);
+        BitMap map = StringConverter.sqlBitStringToBitMap(s);
 
         return new BinaryData(map.getBytes(), map.size());
     }
@@ -490,7 +492,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return new BinaryData(StringConverter.hexToByteArray(s), false);
+        return new BinaryData(StringConverter.hexStringToByteArray(s), false);
     }
 
     protected ClobData readClob() throws IOException, HsqlException {
@@ -524,9 +526,9 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        byte[] bytes = StringConverter.hexToByteArray(s);
+        byte[] bytes = StringConverter.hexStringToByteArray(s);
 
-        return new BlobDataMemory(bytes, false);
+        return new BinaryData(bytes, false);
     }
 
     public int getLineNumber() {

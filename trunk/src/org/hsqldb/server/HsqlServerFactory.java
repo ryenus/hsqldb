@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,9 @@ package org.hsqldb.server;
 
 import java.sql.SQLException;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.jdbc.Util;
 import org.hsqldb.persist.HsqlProperties;
 
@@ -70,13 +71,14 @@ public class HsqlServerFactory {
             throw new SQLException("Failed to set server properties: " + e);
         }
 
-        if (server.openDatabases() == false) {
+        if (!server.openDatabases()) {
             Throwable t = server.getServerError();
 
             if (t instanceof HsqlException) {
                 throw Util.sqlException((HsqlException) t);
             } else {
-                throw new SQLException(Trace.getMessage(Trace.GENERAL_ERROR));
+
+                throw Util.sqlException(Error.error(ErrorCode.GENERAL_ERROR));
             }
         }
 
@@ -84,6 +86,6 @@ public class HsqlServerFactory {
 
         // Server now implements HsqlSocketRequestHandler,
         // so there's really no need for HsqlSocketRequestHandlerImpl
-        return (HsqlSocketRequestHandler) server;
+        return server;
     }
 }

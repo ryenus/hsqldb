@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,9 +42,10 @@ import java.net.HttpURLConnection;
 import java.net.Socket;
 
 import org.hsqldb.DatabaseManager;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.InOutUtil;
@@ -78,7 +79,7 @@ import org.hsqldb.rowio.RowOutputBinaryNet;
  * Rewritten in version HSQLDB 1.7.2, based on original Hypersonic code.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since Hypersonic SQL
  */
@@ -174,9 +175,9 @@ class WebServerConnection implements Runnable {
      */
     public void run() {
 
+        DataInputStream inStream = null;
         try {
-            DataInputStream inStream =
-                new DataInputStream(socket.getInputStream());
+            inStream = new DataInputStream(socket.getInputStream());
             int    count;
             String request;
             String name   = null;
@@ -205,14 +206,14 @@ class WebServerConnection implements Runnable {
                 method = REQUEST_TYPE_HEAD;
                 offset += BYTES_HEAD.length;
             } else {
-                throw new Exception();
+                method = REQUEST_TYPE_BAD;
             }
 
             count = ArrayUtil.countStartElementsAt(byteArray, offset,
                                                    BYTES_WHITESPACE);
 
             if (count == 0) {
-                throw new Exception();
+                method = REQUEST_TYPE_BAD;
             }
 
             offset += count;
@@ -239,11 +240,16 @@ class WebServerConnection implements Runnable {
                     break;
             }
 
-            inStream.close();
-            socket.close();
         } catch (Exception e) {
             server.printStackTrace(e);
-        }
+        } finally { try {
+            if (inStream != null) {
+                inStream.close();
+            }
+            socket.close();
+        } catch (IOException ioe) {
+            server.printStackTrace(ioe);
+        } }
     }
 
     /**
@@ -315,7 +321,8 @@ class WebServerConnection implements Runnable {
                     int    dbIndex      = server.getDBIndex(databaseName);
                     int    dbID         = server.dbID[dbIndex];
                     Session session = DatabaseManager.newSession(dbID,
-                        resultIn.getMainString(), resultIn.getSubString());
+                        resultIn.getMainString(), resultIn.getSubString(),
+                        resultIn.getUpdateCount());
 
                     resultIn.readAdditionalResults(session, dataIn, rowIn);
 
@@ -333,7 +340,7 @@ class WebServerConnection implements Runnable {
 
                 if (session == null) {
                     resultOut = Result.newErrorResult(
-                        Trace.error(Trace.DATABASE_NOT_EXISTS), null);
+                        Error.error(ErrorCode.SERVER_DATABASE_DISCONNECTED), null);
                 } else {
                     resultIn.setSession(session);
                     resultIn.readAdditionalResults(session, dataIn, rowIn);
@@ -353,8 +360,7 @@ class WebServerConnection implements Runnable {
             DataOutputStream dataOut =
                 new DataOutputStream(socket.getOutputStream());
             String header = getHead(HEADER_OK, false,
-                                    "application/octet-stream",
-                                    rowOut.size());
+                                    "application/octet-stream", rowOut.size());
 
             dataOut.write(header.getBytes(ENCODING));
             dataOut.flush();
@@ -380,7 +386,7 @@ class WebServerConnection implements Runnable {
             int          b;
 
             if (name.endsWith("/")) {
-                name = name + server.getDefaultWebPage();
+                name += server.getDefaultWebPage();
             }
 
             // traversing up the directory structure is forbidden.

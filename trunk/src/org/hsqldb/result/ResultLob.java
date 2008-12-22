@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,21 +36,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.rowio.RowOutputInterface;
 
 /**
  * Sub-class of Result for communicating Blob and Clob operations.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public class ResultLob extends Result {
+public final class ResultLob extends Result {
 
-    public interface LobResultTypes {
+    public static interface LobResultTypes {
 
         int REQUEST_OPEN                       = 1;
         int REQUEST_CLOSE                      = 2;
@@ -332,7 +333,7 @@ public class ResultLob extends Result {
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ResultLob");
         }
 
@@ -418,7 +419,7 @@ public class ResultLob extends Result {
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ResultLob");
         }
     }

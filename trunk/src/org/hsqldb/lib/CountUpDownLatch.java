@@ -29,40 +29,61 @@
  */
 
 
-package org.hsqldb.rowio;
+package org.hsqldb.lib;
 
-import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
-import org.hsqldb.HsqlException;
-import org.hsqldb.types.Type;
+public class CountUpDownLatch {
 
-/**
- * Public interface for reading the data for a database row.
- *
- * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
- * @since 1.7.0
- */
-public interface RowInputInterface {
+    CountDownLatch latch;
+    int            count;
 
-    int getPos();
+    public CountUpDownLatch() {
+        latch      = new CountDownLatch(1);
+        this.count = count;
+    }
 
-    int getSize();
+    public void await() throws InterruptedException {
 
-    int readType() throws IOException;
+        if (count == 0) {
+            return;
+        }
 
-    String readString() throws IOException;
+        latch.await();
+    }
 
-    short readShort() throws IOException;
+    public void countDown() {
 
-    int readInt() throws IOException;
+        count--;
 
-    long readLong() throws IOException;
+        if (count == 0) {
+            latch.countDown();
+        }
+    }
 
-    Object[] readData(Type[] colTypes) throws IOException, HsqlException;
+    public long getCount() {
+        return count;
+    }
 
-    void resetRow(int filePos, int size) throws IOException;
+    public void countUp() {
 
-    byte[] getBuffer();
+        if (latch.getCount() == 0) {
+            latch = new CountDownLatch(1);
+        }
+
+        count++;
+    }
+
+    public void setCount(int count) {
+
+        if (count == 0) {
+            if (latch.getCount() != 0) {
+                latch.countDown();
+            }
+        } else if (latch.getCount() == 0) {
+            latch = new CountDownLatch(1);
+        }
+
+        this.count = count;
+    }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,11 +41,12 @@ import org.hsqldb.Table;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.lib.DataOutputStream;
 
 /**
- *  @author fredt@users
- *  @since 1.8.0
- *  @version 1.7.2
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @since 1.8.0
+ * @version 1.7.2
  */
 class ScriptWriterBinary extends ScriptWriterBase {
 
@@ -63,11 +64,10 @@ class ScriptWriterBinary extends ScriptWriterBase {
     protected void writeSingleColumnResult(Result r)
     throws IOException, HsqlException {
 
+        DataOutputStream dataOutput = new DataOutputStream(fileStreamOut);
         rowOut.reset();
-        r.write(null, rowOut);
-        fileStreamOut.write(rowOut.getOutputStream().getBuffer(), 0,
-                            rowOut.size());
-        fileStreamOut.flush();
+        r.write(dataOutput, rowOut);
+        dataOutput.flush();
     }
 
     // int : row size (0 if no more rows) ,
@@ -76,7 +76,7 @@ class ScriptWriterBinary extends ScriptWriterBase {
                             Object[] data) throws IOException, HsqlException {
 
         rowOut.reset();
-        rowOut.writeRow(data, t);
+        rowOut.writeRow(data, t.getColumnTypes());
         fileStreamOut.write(rowOut.getOutputStream().getBuffer(), 0,
                             rowOut.size());
 

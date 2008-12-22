@@ -29,40 +29,69 @@
  */
 
 
-package org.hsqldb.rowio;
+package org.hsqldb.util;
 
-import java.io.IOException;
-
-import org.hsqldb.HsqlException;
-import org.hsqldb.types.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Public interface for reading the data for a database row.
+ * Allows additional messages to be appended.
  *
- * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
- * @since 1.7.0
+ * It often makes for better (and more efficient) design to add context
+ * details to an exception at intermediate points in the thread.
+ * This class makes it easy and efficient to catch and rethrow for that purpose.
  */
-public interface RowInputInterface {
+public class AppendableException extends Exception {
 
-    int getPos();
+    static final long    serialVersionUID = -1002629580611098803L;
+    public static String LS = System.getProperty("line.separator");
+    public List          appendages       = null;
 
-    int getSize();
+    public String getMessage() {
 
-    int readType() throws IOException;
+        String message = super.getMessage();
 
-    String readString() throws IOException;
+        if (appendages == null) {
+            return message;
+        }
 
-    short readShort() throws IOException;
+        StringBuffer sb = new StringBuffer();
 
-    int readInt() throws IOException;
+        if (message != null) {
+            sb.append(message);
+        }
 
-    long readLong() throws IOException;
+        for (int i = 0; i < appendages.size(); i++) {
+            if (sb.length() > 0) {
+                sb.append(LS);
+            }
 
-    Object[] readData(Type[] colTypes) throws IOException, HsqlException;
+            sb.append(appendages.get(i));
+        }
 
-    void resetRow(int filePos, int size) throws IOException;
+        return sb.toString();
+    }
 
-    byte[] getBuffer();
+    public void appendMessage(String s) {
+
+        if (appendages == null) {
+            appendages = new ArrayList();
+        }
+
+        appendages.add(s);
+    }
+
+    public AppendableException() {}
+
+    public AppendableException(String s) {
+        super(s);
+    }
+
+    public AppendableException(Throwable cause) {
+        super(cause);
+    }
+
+    public AppendableException(String string, Throwable cause) {
+         super(string, cause);
+    }
 }
