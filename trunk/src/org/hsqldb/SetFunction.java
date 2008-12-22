@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,11 @@ import java.math.BigInteger;
 
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.DTIType;
+import org.hsqldb.types.IntervalMonthData;
+import org.hsqldb.types.IntervalSecondData;
+import org.hsqldb.types.IntervalType;
+import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 
 /**
@@ -43,9 +48,9 @@ import org.hsqldb.types.Type;
  * This reduces temporary Object creation by SUM and AVG functions for
  * INTEGER and narrower types.
  *
- * @author fredt@users
- * @author boucherb@users
- * @version 1.7.3
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.2
  *
  */
@@ -56,6 +61,7 @@ public class SetFunction {
 
     //
     private int  setType;
+    private int  dataType;
     private Type type;
 
     //
@@ -80,9 +86,16 @@ public class SetFunction {
             distinctValues  = new HashSet();
         }
 
-        if (setType == Expression.VAR_SAMP
-                || setType == Expression.STDDEV_SAMP) {
+        if (setType == OpTypes.VAR_SAMP || setType == OpTypes.STDDEV_SAMP) {
             this.sample = true;
+        }
+
+        if (type != null) {
+            dataType = type.typeCode;
+
+            if (type.isIntervalType()) {
+                dataType = Types.SQL_INTERVAL;
+            }
         }
     }
 
@@ -91,10 +104,12 @@ public class SetFunction {
         if (item == null) {
             hasNull = true;
 
+            session.addWarning(Error.error(ErrorCode.W_01003));
+
             return;
         }
 
-        if (isDistinct &&!distinctValues.add(item)) {
+        if (isDistinct && !distinctValues.add(item)) {
             return;
         }
 
@@ -102,17 +117,36 @@ public class SetFunction {
 
         switch (setType) {
 
-            case Expression.COUNT :
+            case OpTypes.COUNT :
                 return;
 
-            case Expression.AVG :
-            case Expression.SUM : {
-                switch (type.type) {
+            case OpTypes.AVG :
+            case OpTypes.SUM : {
+                switch (dataType) {
 
                     case Types.TINYINT :
                     case Types.SQL_SMALLINT :
                     case Types.SQL_INTEGER :
                         currentLong += ((Number) item).intValue();
+
+                        return;
+
+                    case Types.SQL_INTERVAL :
+                        if (item instanceof IntervalSecondData) {
+                            addLong(((IntervalSecondData) item).units);
+
+                            currentLong += ((IntervalSecondData) item).nanos;
+
+                            if (Math.abs(currentLong)
+                                    >= DTIType.nanoScaleFactors[0]) {
+                                addLong(currentLong
+                                        / DTIType.nanoScaleFactors[0]);
+
+                                currentLong %= DTIType.nanoScaleFactors[0];
+                            }
+                        } else if (item instanceof IntervalMonthData) {
+                            addLong(((IntervalMonthData) item).units);
+                        }
 
                         return;
 
@@ -140,10 +174,10 @@ public class SetFunction {
                         return;
 
                     default :
-                        throw Trace.error(Trace.SUM_OF_NON_NUMERIC);
+                        throw Error.error(ErrorCode.X_42565);
                 }
             }
-            case Expression.MIN : {
+            case OpTypes.MIN : {
                 if (currentValue == null) {
                     currentValue = item;
 
@@ -156,7 +190,7 @@ public class SetFunction {
 
                 return;
             }
-            case Expression.MAX : {
+            case OpTypes.MAX : {
                 if (currentValue == null) {
                     currentValue = item;
 
@@ -169,41 +203,40 @@ public class SetFunction {
 
                 return;
             }
-            case Expression.EVERY :
+            case OpTypes.EVERY :
                 if (!(item instanceof Boolean)) {
-                    throw Trace.error(Trace.WRONG_DATA_TYPE);
+                    throw Error.error(ErrorCode.X_42565);
                 }
 
-                every &= ((Boolean) item).booleanValue();
+                every = every && ((Boolean) item).booleanValue();
 
                 return;
 
-            case Expression.SOME :
+            case OpTypes.SOME :
                 if (!(item instanceof Boolean)) {
-                    throw Trace.error(Trace.WRONG_DATA_TYPE);
+                    throw Error.error(ErrorCode.X_42565);
                 }
 
-                some |= ((Boolean) item).booleanValue();
+                some = some || ((Boolean) item).booleanValue();
 
                 return;
 
-            case Expression.STDDEV_POP :
-            case Expression.STDDEV_SAMP :
-            case Expression.VAR_POP :
-            case Expression.VAR_SAMP :
-                if (!(item instanceof Number)) {
-                    throw Trace.error(Trace.WRONG_DATA_TYPE);
-                }
-
+            case OpTypes.STDDEV_POP :
+            case OpTypes.STDDEV_SAMP :
+            case OpTypes.VAR_POP :
+            case OpTypes.VAR_SAMP :
                 addDataPoint((Number) item);
 
                 return;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
         }
     }
 
     Object getValue() throws HsqlException {
 
-        if (setType == Expression.COUNT) {
+        if (setType == OpTypes.COUNT) {
             return ValuePool.getInt(count);
         }
 
@@ -213,8 +246,8 @@ public class SetFunction {
 
         switch (setType) {
 
-            case Expression.AVG : {
-                switch (type.type) {
+            case OpTypes.AVG : {
+                switch (dataType) {
 
                     case Types.TINYINT :
                     case Types.SQL_SMALLINT :
@@ -234,16 +267,33 @@ public class SetFunction {
 
                     case Types.SQL_NUMERIC :
                     case Types.SQL_DECIMAL :
-                        return currentBigDecimal.divide(
-                            new BigDecimal(count),
-                            BigDecimal.ROUND_HALF_DOWN);
+                        return currentBigDecimal.divide(new BigDecimal(count),
+                                                        BigDecimal.ROUND_DOWN);
 
+                    case Types.SQL_INTERVAL : {
+                        BigInteger bi =
+                            getLongSum().divide(BigInteger.valueOf(count));
+
+                        if (!NumberType.isInLongLimits(bi)) {
+                            throw Error.error(ErrorCode.X_22015);
+                        }
+
+                        if (((IntervalType) type).isDaySecondIntervalType()) {
+                            return new IntervalSecondData(bi.longValue(),
+                                                          currentLong,
+                                                          (IntervalType) type,
+                                                          true);
+                        } else {
+                            return IntervalMonthData.newIntervalMonth(
+                                bi.longValue(), (IntervalType) type);
+                        }
+                    }
                     default :
-                        throw Trace.error(Trace.SUM_OF_NON_NUMERIC);
+                        throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
                 }
             }
-            case Expression.SUM : {
-                switch (type.type) {
+            case OpTypes.SUM : {
+                switch (dataType) {
 
                     case Types.TINYINT :
                     case Types.SQL_SMALLINT :
@@ -262,33 +312,49 @@ public class SetFunction {
                     case Types.SQL_DECIMAL :
                         return currentBigDecimal;
 
+                    case Types.SQL_INTERVAL : {
+                        BigInteger bi = getLongSum();
+
+                        if (!NumberType.isInLongLimits(bi)) {
+                            throw Error.error(ErrorCode.X_22015);
+                        }
+
+                        if (((IntervalType) type).isDaySecondIntervalType()) {
+                            return new IntervalSecondData(bi.longValue(),
+                                                          currentLong,
+                                                          (IntervalType) type,
+                                                          true);
+                        } else {
+                            return IntervalMonthData.newIntervalMonth(
+                                bi.longValue(), (IntervalType) type);
+                        }
+                    }
                     default :
-                        throw Trace.error(Trace.SUM_OF_NON_NUMERIC);
+                        throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
                 }
             }
-            case Expression.MIN :
-            case Expression.MAX :
+            case OpTypes.MIN :
+            case OpTypes.MAX :
                 return currentValue;
 
-            case Expression.EVERY :
+            case OpTypes.EVERY :
                 return every ? Boolean.TRUE
                              : Boolean.FALSE;
 
-            case Expression.SOME :
+            case OpTypes.SOME :
                 return some ? Boolean.TRUE
                             : Boolean.FALSE;
 
-            case Expression.STDDEV_POP :
-            case Expression.STDDEV_SAMP :
+            case OpTypes.STDDEV_POP :
+            case OpTypes.STDDEV_SAMP :
                 return getStdDev();
 
-            case Expression.VAR_POP :
-            case Expression.VAR_SAMP :
+            case OpTypes.VAR_POP :
+            case OpTypes.VAR_SAMP :
                 return getVariance();
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "SetFunction");
+                throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
         }
     }
 
@@ -300,19 +366,44 @@ public class SetFunction {
      */
     static Type getType(int setType, Type type) throws HsqlException {
 
+        if (setType == OpTypes.COUNT) {
+            return Type.SQL_INTEGER;
+        }
+
+        int dataType = type.isIntervalType() ? Types.SQL_INTERVAL
+                                             : type.typeCode;
+
         switch (setType) {
 
-            case Expression.COUNT :
-                return Type.SQL_INTEGER;
-
-            case Expression.AVG : {
-                switch (type.type) {
+            case OpTypes.AVG : {
+                switch (dataType) {
 
                     case Types.TINYINT :
                     case Types.SQL_SMALLINT :
                     case Types.SQL_INTEGER :
                     case Types.SQL_BIGINT :
+                    case Types.SQL_REAL :
+                    case Types.SQL_FLOAT :
+                    case Types.SQL_DOUBLE :
+                    case Types.SQL_NUMERIC :
+                    case Types.SQL_DECIMAL :
+                    case Types.SQL_INTERVAL :
+                        return type;
+
+                    default :
+                        throw Error.error(ErrorCode.X_42565);
+                }
+            }
+            case OpTypes.SUM : {
+                switch (dataType) {
+
+                    case Types.TINYINT :
+                    case Types.SQL_SMALLINT :
+                    case Types.SQL_INTEGER :
                         return Type.SQL_BIGINT;
+
+                    case Types.SQL_BIGINT :
+                        return Type.SQL_DECIMAL_BIGINT_SQR;
 
                     case Types.SQL_REAL :
                     case Types.SQL_FLOAT :
@@ -321,54 +412,43 @@ public class SetFunction {
 
                     case Types.SQL_NUMERIC :
                     case Types.SQL_DECIMAL :
-                        return Type.SQL_DECIMAL;
+                        return Type.getType(type.typeCode, 0,
+                                            type.precision * 2, type.scale);
+
+                    case Types.SQL_INTERVAL :
+                        return IntervalType.newIntervalType(
+                            type.typeCode, DTIType.maxIntervalPrecision,
+                            type.scale);
 
                     default :
-                        throw Trace.error(Trace.SUM_OF_NON_NUMERIC);
+                        throw Error.error(ErrorCode.X_42565);
                 }
             }
-            case Expression.SUM : {
-                switch (type.type) {
-
-                    case Types.TINYINT :
-                    case Types.SQL_SMALLINT :
-                    case Types.SQL_INTEGER :
-                        return Type.SQL_BIGINT;
-
-                    case Types.SQL_BIGINT :
-                        return Type.SQL_DECIMAL;
-
-                    case Types.SQL_REAL :
-                    case Types.SQL_FLOAT :
-                    case Types.SQL_DOUBLE :
-                        return Type.SQL_DOUBLE;
-
-                    case Types.SQL_NUMERIC :
-                    case Types.SQL_DECIMAL :
-                        return Type.SQL_DECIMAL;
-
-                    default :
-                        throw Trace.error(Trace.SUM_OF_NON_NUMERIC);
-                }
-            }
-            case Expression.MIN :
-            case Expression.MAX :
+            case OpTypes.MIN :
+            case OpTypes.MAX :
                 return type;
 
-            case Expression.EVERY :
-            case Expression.SOME :
-                return Type.SQL_BOOLEAN;
+            case OpTypes.EVERY :
+            case OpTypes.SOME :
+                if (type.isBooleanType()) {
+                    return Type.SQL_BOOLEAN;
+                }
+                break;
 
-            case Expression.STDDEV_POP :
-            case Expression.STDDEV_SAMP :
-            case Expression.VAR_POP :
-            case Expression.VAR_SAMP :
-                return Type.SQL_DOUBLE;
+            case OpTypes.STDDEV_POP :
+            case OpTypes.STDDEV_SAMP :
+            case OpTypes.VAR_POP :
+            case OpTypes.VAR_SAMP :
+                if (type.isNumberType()) {
+                    return Type.SQL_DOUBLE;
+                }
+                break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "SetFunction");
+                throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
         }
+
+        throw Error.error(ErrorCode.X_42565);
     }
 
     // long sum - originally a separate class
@@ -377,7 +457,8 @@ public class SetFunction {
      * Maintain the sum of multiple long values without creating a new
      * BigInteger object for each addition.
      */
-    static BigInteger multiplier = BigInteger.valueOf(0x0000000100000000L);
+    static final BigInteger multiplier =
+        BigInteger.valueOf(0x0000000100000000L);
 
 //        BigInteger bigint = BigInteger.ZERO;
     long hi;
@@ -473,8 +554,7 @@ public class SetFunction {
         }
 
         return sample ? (n == 1) ? null    // NULL (not NaN) is correct in this case
-                                 : new Double(Math.sqrt(vk
-                                 / (double) (n - 1)))
+                                 : new Double(Math.sqrt(vk / (double) (n - 1)))
                       : new Double(Math.sqrt(vk / (double) (n)));
     }
 

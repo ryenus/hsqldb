@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import javax.transaction.xa.Xid;
 //import javax.transaction.HeuristicMixedException;
 //import javax.transaction.HeuristicCommitException;
 //import javax.transaction.HeuristicRollbackException;
-import org.hsqldb.jdbc.jdbcConnection;
+import org.hsqldb.jdbc.JDBCConnection;
 
 import java.sql.SQLException;
 
@@ -88,7 +88,7 @@ public class JDBCXAResource implements XAResource {
      * called?).
      * The answer may be to implement Timeouts.
      */
-    private jdbcConnection   connection;
+    private JDBCConnection   connection;
     private boolean          originalAutoCommitMode;
     static int               XA_STATE_INITIAL  = 0;
     static int               XA_STATE_STARTED  = 1;
@@ -125,11 +125,11 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * @param jdbcConnection A non-wrapped jdbcConnection which we need in
+     * @param JDBCConnection A non-wrapped JDBCConnection which we need in
      *        order to do real (non-wrapped) commits, rollbacks, etc.
      *        This is not for the end user.  We need the real thing.
      */
-    public JDBCXAResource(jdbcConnection connection,
+    public JDBCXAResource(JDBCConnection connection,
                           JDBCXADataSource xaDataSource) {
 
         // We're getting a real Connection here and not a wrapper.
@@ -150,16 +150,13 @@ public class JDBCXAResource implements XAResource {
 
         // Comment out following debug statement before public release:
         System.err.println("Performing a " + (onePhase ? "1-phase"
-                                                       : "2-phase") + " commit on "
-                                                       + xid);
+                : "2-phase") + " commit on " + xid);
 
         JDBCXAResource resource = xaDataSource.getResource(xid);
 
         if (resource == null) {
-            throw new XAException("The XADataSource has no such Xid:  "
-                                  + xid);
+            throw new XAException("The XADataSource has no such Xid:  " + xid);
         }
-
         resource.commitThis(onePhase);
     }
 
@@ -200,7 +197,6 @@ public class JDBCXAResource implements XAResource {
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
-
         dispose();
     }
 
@@ -226,7 +222,6 @@ public class JDBCXAResource implements XAResource {
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
-
         state = XA_STATE_ENDED;
     }
 
@@ -256,7 +251,6 @@ public class JDBCXAResource implements XAResource {
                 "Attempted to forget a XAResource that "
                 + "is not in a heuristically completed state");
         }
-
         dispose();
 
         state = XA_STATE_INITIAL;
@@ -334,10 +328,8 @@ public class JDBCXAResource implements XAResource {
 
         if (resource == null) {
             throw new XAException(
-                "The XADataSource has no such Xid in prepared state:  "
-                + xid);
+                "The XADataSource has no such Xid in prepared state:  " + xid);
         }
-
         resource.rollbackThis();
     }
 
@@ -366,7 +358,6 @@ public class JDBCXAResource implements XAResource {
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
-
         dispose();
     }
 
@@ -405,7 +396,6 @@ public class JDBCXAResource implements XAResource {
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
-
         this.xid = xid;
         state    = XA_STATE_STARTED;
 

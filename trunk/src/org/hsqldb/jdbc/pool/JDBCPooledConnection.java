@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,10 @@ import javax.sql.PooledConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-//#ifdef JDBC4
+//#ifdef JAVA6
 import javax.sql.StatementEventListener;
 
-//#endif JDBC4
+//#endif JAVA6
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 
 /**
@@ -74,16 +74,18 @@ public class JDBCPooledConnection implements PooledConnection {
         this.connectionWrapper.removeConnectionEventListener(listener);
     }
 
-//#ifdef JDBC4
+//#ifdef JAVA6
     public void addStatementEventListener(StatementEventListener listener) {
+
         // TODO:
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
+//#endif JAVA6
+//#ifdef JAVA6
     public void removeStatementEventListener(StatementEventListener listener) {
+
         // TODO:
     }
 
-//#endif JDBC4
+//#endif JAVA6
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
 import org.hsqldb.lib.IntValueHashMap;
 
 /**
@@ -73,6 +74,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * physical <tt>Statement</tt> object or like collection thereof. <p>
      */
     public final class StatementKey {
+
         // assigned in constructor
         private final Method   method;
         private final Object[] args;
@@ -88,8 +90,10 @@ public class WrapperInvocationHandler implements InvocationHandler {
          * @param args the invocation's arguments
          */
         StatementKey(Method method, Object[] args) {
+
             this.method = method;
-            this.args = (args == null) ? null : (Object[]) args.clone();
+            this.args   = (args == null) ? null
+                    : (Object[]) args.clone();
         }
 
         /**
@@ -104,17 +108,17 @@ public class WrapperInvocationHandler implements InvocationHandler {
          * @see java.lang.Object#hashCode()
          */
         public int hashCode() {
+
             if (hashCode == 0) {
                 int h = method.hashCode();
 
                 if (args != null) {
-                    for (int i = args.length -1; i >= 0; i--) {
+                    for (int i = args.length - 1; i >= 0; i--) {
                         if (args[i] != null) {
-                            h = 31*h + args[i].hashCode();
+                            h = 31 * h + args[i].hashCode();
                         }
                     }
                 }
-
                 hashCode = h;
             }
 
@@ -135,14 +139,15 @@ public class WrapperInvocationHandler implements InvocationHandler {
          * @see     java.lang.Object#equals(java.lang.Object)
          */
         public boolean equals(Object obj) {
+
             if (this == obj) {
                 return true;
             } else if (obj instanceof StatementKey) {
                 StatementKey other = (StatementKey) obj;
 
-                return (this.method.equals(other.method) &&
-                        ((this.args == other.args) ||
-                        Arrays.equals(this.args, other.args)));
+                return (this.method.equals(other.method)
+                        && ((this.args == other.args)
+                            || Arrays.equals(this.args, other.args)));
             } else {
                 return false;
             }
@@ -167,7 +172,8 @@ public class WrapperInvocationHandler implements InvocationHandler {
          *      constructed
          */
         public Object[] getArgs() {
-            return (args == null) ? null : (Object[]) args.clone();
+            return (args == null) ? null
+                                  : (Object[]) args.clone();
         }
     }
 
@@ -176,6 +182,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * implementation. <p>
      */
     public interface StatementPool {
+
         /**
          * Indicates to an underlying pool that the given physical
          * <tt>Statement</tt> object is no longer in use by a
@@ -226,6 +233,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * the underlying pool when the surrogate is closed.
      */
     public interface ConnectionPool {
+
         /**
          * Returns a physical <tt>Connection</tt> to an underlying pool. <p>
          *
@@ -239,40 +247,38 @@ public class WrapperInvocationHandler implements InvocationHandler {
     }
 
     // ----- Static computation of Methods that are sensitive to pooling -------
-
-    public static final int WIH_NO_SURROGATE                          = 0;
-    public static final int WIH_CLOSE_SURROGATE                       = 1;
-    public static final int WIH_IS_CLOSED_SURROGATE                   = 2;
-    public static final int WIH_GET_PARENT_SURROGATE                  = 3;
-    public static final int WIH_GET_DATABASEMETADATA_SURROGATE        = 4;
-    public static final int WIH_CREATE_OR_PREPARE_STATEMENT_SURROGATE = 5;
-    public static final int WIH_GET_RESULTSET_SURROGATE               = 6;
-    public static final int WIH_UNWRAP_SURROGATE                      = 7;
-    public static final int WIH_GET_ARRAY_SURROGATE                   = 8;
-
+    public static final int                WIH_NO_SURROGATE            = 0;
+    public static final int                WIH_CLOSE_SURROGATE         = 1;
+    public static final int                WIH_IS_CLOSED_SURROGATE     = 2;
+    public static final int                WIH_GET_PARENT_SURROGATE    = 3;
+    public static final int WIH_GET_DATABASEMETADATA_SURROGATE         = 4;
+    public static final int WIH_CREATE_OR_PREPARE_STATEMENT_SURROGATE  = 5;
+    public static final int                WIH_GET_RESULTSET_SURROGATE = 6;
+    public static final int                WIH_UNWRAP_SURROGATE        = 7;
+    public static final int                WIH_GET_ARRAY_SURROGATE     = 8;
     protected static final IntValueHashMap methodMap = new IntValueHashMap();
 
-
     // ------- Interfaces having methods that are sensitive to pooling ---------
+    protected static final Class[] arrayInterface = new Class[] {
+        Array.class };
+    protected static final Class[] connectionInterface = new Class[] {
+        Connection.class };
+    protected static final Class[] callableStatementInterface = new Class[] {
+        CallableStatement.class };
+    protected static final Class[] databaseMetaDataInterface = new Class[] {
+        DatabaseMetaData.class };
 
-    protected static final Class[] arrayInterface = new Class[]{Array.class};
-    protected static final Class[] connectionInterface
-            = new Class[]{Connection.class};
-    protected static final Class[] callableStatementInterface
-            = new Class[]{CallableStatement.class};
-    protected static final Class[] databaseMetaDataInterface
-            = new Class[]{DatabaseMetaData.class};
     //protected static final Class[] parameterMetaDataInterface
     //        = new Class[]{ParameterMetaData.class};
-    protected static final Class[] preparedStatementInterface
-            = new Class[]{PreparedStatement.class};
+    protected static final Class[] preparedStatementInterface = new Class[] {
+        PreparedStatement.class };
 
     //protected static final Class[] resultSetMetaDataInterface
     //        = new Class[]{ResultSetMetaData.class};
-    protected static final Class[] resultSetInterface
-            = new Class[]{ResultSet.class};
-    protected static final Class[] statementInterface
-            = new Class[]{Statement.class};
+    protected static final Class[] resultSetInterface = new Class[] {
+        ResultSet.class };
+    protected static final Class[] statementInterface = new Class[] {
+        Statement.class };
 
     // ------------------ Static Initialization Helper Methods -----------------
 
@@ -285,9 +291,10 @@ public class WrapperInvocationHandler implements InvocationHandler {
      */
     protected static boolean _isCloseSurrogateMethod(final Class clazz,
             final Method method) {
-        return ((Connection.class.isAssignableFrom(clazz) ||
-                Statement.class.isAssignableFrom(clazz)) &&
-                "close".equals(method.getName()));
+
+        return ((Connection.class.isAssignableFrom(clazz)
+                 || Statement.class.isAssignableFrom(clazz)) && "close".equals(
+                     method.getName()));
     }
 
     /**
@@ -299,9 +306,10 @@ public class WrapperInvocationHandler implements InvocationHandler {
      */
     protected static boolean _isIsClosedSurrogateMethod(final Class clazz,
             final Method method) {
-        return ((Connection.class.isAssignableFrom(clazz) ||
-                Statement.class.isAssignableFrom(clazz)) &&
-                "isClosed".equals(method.getName()));
+
+        return ((Connection.class.isAssignableFrom(clazz)
+                 || Statement.class.isAssignableFrom(
+                     clazz)) && "isClosed".equals(method.getName()));
     }
 
 //    /**
@@ -328,17 +336,15 @@ public class WrapperInvocationHandler implements InvocationHandler {
     }
 
     // ------------------------ Static Initialization --------------------------
-
     static {
         Class[] poolingSensitiveInterfaces = new Class[] {
-            java.sql.Array.class,
-            java.sql.CallableStatement.class,
-            java.sql.Connection.class,
-            java.sql.DatabaseMetaData.class,
+            java.sql.Array.class, java.sql.CallableStatement.class,
+            java.sql.Connection.class, java.sql.DatabaseMetaData.class,
+
             // unlikely to expose raw delegate of interest
             //java.sql.ParameterMetaData.class,
-            java.sql.PreparedStatement.class,
-            java.sql.ResultSet.class,
+            java.sql.PreparedStatement.class, java.sql.ResultSet.class,
+
             // unlikely to expose raw delegate of interest
             //java.sql.ResultSetMetaData.class,
             java.sql.Statement.class
@@ -349,9 +355,8 @@ public class WrapperInvocationHandler implements InvocationHandler {
             Method[] methods = clazz.getMethods();
 
             for (int j = 0; j < methods.length; j++) {
-                Method method = methods[j];
-
-                Class returnType = method.getReturnType();
+                Method method     = methods[j];
+                Class  returnType = method.getReturnType();
 
                 if (_isCloseSurrogateMethod(clazz, method)) {
                     methodMap.put(method, WIH_CLOSE_SURROGATE);
@@ -363,26 +368,28 @@ public class WrapperInvocationHandler implements InvocationHandler {
                     methodMap.put(method, WIH_GET_PARENT_SURROGATE);
                 } else if (Statement.class.isAssignableFrom(returnType)) {
                     String methodName = method.getName();
-                    if (methodName.startsWith("create") ||
-                            methodName.startsWith("prepare")) {
-                        methodMap.put(method,
-                                WIH_CREATE_OR_PREPARE_STATEMENT_SURROGATE);
+
+                    if (methodName.startsWith("create")
+                            || methodName.startsWith("prepare")) {
+                        methodMap.put(
+                            method, WIH_CREATE_OR_PREPARE_STATEMENT_SURROGATE);
                     } else {
                         methodMap.put(method, WIH_GET_PARENT_SURROGATE);
                     }
                 } else if (ResultSet.class.isAssignableFrom(returnType)) {
                     methodMap.put(method, WIH_GET_RESULTSET_SURROGATE);
-                } else if (DatabaseMetaData.class.
-                        isAssignableFrom(returnType)) {
+                } else if (DatabaseMetaData.class.isAssignableFrom(
+                        returnType)) {
                     methodMap.put(method, WIH_GET_DATABASEMETADATA_SURROGATE);
-                //} else if (ParameterMetaData.class.
-                //        isAssignableFrom(returnType)) {
-                // *************************************************************
-                //} else if (ResultSetMetaData.class.
-                //        isAssignableFrom(returnType)) {
-                // *************************************************************
-                //} else if (isIsWrapperForMethod(method)) {
-                // *************************************************************
+
+                    //} else if (ParameterMetaData.class.
+                    //        isAssignableFrom(returnType)) {
+                    // *************************************************************
+                    //} else if (ResultSetMetaData.class.
+                    //        isAssignableFrom(returnType)) {
+                    // *************************************************************
+                    //} else if (isIsWrapperForMethod(method)) {
+                    // *************************************************************
                 } else if (_isUnwrapMethod(method)) {
                     methodMap.put(method, WIH_UNWRAP_SURROGATE);
                 }
@@ -403,6 +410,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
      *         not exposed directly to clients
      */
     protected static Class[] _computeProxiedInterface(Object delegate) {
+
         // NOTE:  Order is important for XXXStatement.
         if (delegate instanceof Array) {
             return arrayInterface;
@@ -435,7 +443,6 @@ public class WrapperInvocationHandler implements InvocationHandler {
     }
 
     // ---------------------------- Instance Fields ----------------------------
-
     // set in constructor
     private Object                   delegate;
     private Object                   surrogate;
@@ -447,8 +454,8 @@ public class WrapperInvocationHandler implements InvocationHandler {
     private WrapperInvocationHandler dbmdHandler;
     private boolean                  surrogateClosed;
     private StatementKey             statementKey;
-    private Set                      resultSets; //ResultSet invocation handlers
-    private Set                      statements; //Statement invocation handlers
+    private Set                      resultSets;    //ResultSet invocation handlers
+    private Set                      statements;    //Statement invocation handlers
 
 // ------------------------------ Constructors ---------------------------------
 
@@ -461,9 +468,10 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * @param statementPool interface to an external statement pool; may be null
      * @throws java.lang.IllegalArgumentException if connection is null
      */
-    public WrapperInvocationHandler(Connection connection,
-            ConnectionPool connectionPool, StatementPool statementPool)
-            throws IllegalArgumentException {
+    public WrapperInvocationHandler(
+            Connection connection, ConnectionPool connectionPool,
+            StatementPool statementPool) throws IllegalArgumentException {
+
         this(connection, null);
 
         this.connectionPool = connectionPool;
@@ -481,7 +489,8 @@ public class WrapperInvocationHandler implements InvocationHandler {
      *      parameters that may be passed to <code>Proxy.newProxyInstance</code>
      *      are violated
      */
-    public WrapperInvocationHandler(Object delegate,
+    public WrapperInvocationHandler(
+            Object delegate,
             WrapperInvocationHandler parent) throws IllegalArgumentException {
 
         if (delegate == null) {
@@ -493,12 +502,11 @@ public class WrapperInvocationHandler implements InvocationHandler {
         if (proxiedInterface == null) {
             throw new IllegalArgumentException("delegate: " + delegate);
         }
-
         this.delegate      = delegate;
         this.parentHandler = parent;
-        this.surrogate     = Proxy.newProxyInstance(proxiedInterface[0].
-                getClassLoader(), proxiedInterface, this);
-
+        this.surrogate =
+            Proxy.newProxyInstance(proxiedInterface[0].getClassLoader(),
+                                   proxiedInterface, this);
     }
 
     // ----------------------- Interface Implementation ------------------------
@@ -509,22 +517,22 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * when a method is invoked on a proxy instance that it is
      * associated with.
      *
-     * @param	proxy the proxy instance that the method was invoked on
+     * @param   proxy the proxy instance that the method was invoked on
      *
-     * @param	method the <code>Method</code> instance corresponding to
+     * @param   method the <code>Method</code> instance corresponding to
      * the interface method invoked on the proxy instance.  The declaring
      * class of the <code>Method</code> object will be the interface that
      * the method was declared in, which may be a superinterface of the
      * proxy interface that the proxy class inherits the method through.
      *
-     * @param	args an array of objects containing the values of the
+     * @param   args an array of objects containing the values of the
      * arguments passed in the method invocation on the proxy instance,
      * or <code>null</code> if interface method takes no arguments.
      * Arguments of primitive types are wrapped in instances of the
      * appropriate primitive wrapper class, such as
      * <code>java.lang.Integer</code> or <code>java.lang.Boolean</code>.
      *
-     * @return	the value to return from the method invocation on the
+     * @return  the value to return from the method invocation on the
      * proxy instance.  If the declared return type of the interface
      * method is a primitive type, then the value returned by
      * this method must be an instance of the corresponding primitive
@@ -538,7 +546,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * a <code>ClassCastException</code> will be thrown by the method
      * invocation on the proxy instance.
      *
-     * @throws	Throwable the exception to throw from the method
+     * @throws  Throwable the exception to throw from the method
      * invocation on the proxy instance.  The exception's type must be
      * assignable either to any of the exception types declared in the
      * <code>throws</code> clause of the interface method or to the
@@ -559,19 +567,22 @@ public class WrapperInvocationHandler implements InvocationHandler {
     //       - This was the obvious and easy synchronization point to pick
     //         initially for prototyping purposes
     public synchronized Object invoke(final Object proxy, final Method method,
-            final Object[] args) throws Throwable {
+                                      final Object[] args) throws Throwable {
 
         Object result;
 
-        switch(_computeSurrogateType(method)) {
+        switch (_computeSurrogateType(method)) {
+
             case WIH_CLOSE_SURROGATE : {
                 closeSurrogate();
 
                 result = null;
+
                 break;
             }
             case WIH_IS_CLOSED_SURROGATE : {
-                result = isClosedSurrogate() ? Boolean.TRUE : Boolean.FALSE;
+                result = isClosedSurrogate() ? Boolean.TRUE
+                        : Boolean.FALSE;
 
                 break;
             }
@@ -579,35 +590,42 @@ public class WrapperInvocationHandler implements InvocationHandler {
                 checkSurrogateClosed();
 
                 result = getParentSurrogate(method, args);
+
                 break;
             }
             case WIH_GET_DATABASEMETADATA_SURROGATE : {
                 checkSurrogateClosed();
 
                 result = getDatabaseMetaDataSurrogate(method, args);
+
                 break;
             }
             case WIH_CREATE_OR_PREPARE_STATEMENT_SURROGATE : {
                 checkSurrogateClosed();
 
                 result = getCreatedOrPreparedStatementSurrogate(method, args);
+
                 break;
             }
             case WIH_GET_RESULTSET_SURROGATE : {
                 checkSurrogateClosed();
 
                 result = getResultSetSurrogate(method, args);
+
                 break;
-            } case WIH_UNWRAP_SURROGATE : {
+            }
+            case WIH_UNWRAP_SURROGATE : {
                 checkSurrogateClosed();
 
                 result = unwrapSurrogate(method, args);
+
                 break;
             }
             case WIH_GET_ARRAY_SURROGATE : {
                 checkSurrogateClosed();
 
                 result = getArraySurrogate(method, args);
+
                 break;
             }
             case WIH_NO_SURROGATE :
@@ -615,6 +633,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
                 checkSurrogateClosed();
 
                 result = method.invoke(delegate, args);
+
                 break;
             }
         }
@@ -651,8 +670,9 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * @throws java.lang.Throwable if the surrogate is closed.
      */
     protected void checkSurrogateClosed() throws Throwable {
+
         if (isClosedSurrogate()) {
-            throw new SQLException("Surrogate Closed."); // TODO: better msg
+            throw new SQLException("Surrogate Closed.");    // TODO: better msg
         }
     }
 
@@ -663,7 +683,8 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * @throws java.lang.Throwable if an access error occurs during work to
      *      enable reuse of the delegate
      */
-    protected void closeSurrogate() throws Throwable  {
+    protected void closeSurrogate() throws Throwable {
+
         if (this.surrogateClosed) {
             return;
         }
@@ -673,36 +694,41 @@ public class WrapperInvocationHandler implements InvocationHandler {
 
             // Changed to set of ResultSet invocation handlers so
             // that handler resources can be cleaned up too.
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 WrapperInvocationHandler handler =
-                        (WrapperInvocationHandler) it.next();
+                    (WrapperInvocationHandler) it.next();
+
                 try {
-                    ((ResultSet)handler.delegate).close();
-                } catch (Exception ex) {}
+                    ((ResultSet) handler.delegate).close();
+                } catch (Exception ex) {
+                }
 
                 try {
                     handler.closeSurrogate();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
         }
 
         if (this.statements != null) {
             Iterator it = this.statements.iterator();
 
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 WrapperInvocationHandler handler =
-                        (WrapperInvocationHandler) it.next();
+                    (WrapperInvocationHandler) it.next();
 
                 try {
                     handler.closeSurrogate();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
         }
 
         if (this.dbmdHandler != null) {
             try {
                 this.dbmdHandler.closeSurrogate();
-            } catch (Throwable ex) {}
+            } catch (Throwable ex) {
+            }
         }
 
         Object delegate = this.delegate;
@@ -735,17 +761,20 @@ public class WrapperInvocationHandler implements InvocationHandler {
      *      invocation handler.
      */
     protected void closeConnectionSurrogate() throws Throwable {
+
         ConnectionPool connectionPool = this.connectionPool;
 
         if (connectionPool == null) {
+
             // CHECKME: policy?
             // pool has "disapeared" or was never provided (why?): should
             // "really" close the connection since it will no be reused.
-            Connection connection    = (Connection) this.delegate;
+            Connection connection = (Connection) this.delegate;
 
             try {
                 connection.close();
-            } catch (SQLException ex) {}
+            } catch (SQLException ex) {
+            }
         } else {
             Connection    connection    = (Connection) this.delegate;
             StatementPool statementPool = this.statementPool;
@@ -764,17 +793,18 @@ public class WrapperInvocationHandler implements InvocationHandler {
      *      invocation handler.
      */
     protected void closeStatementSurrogate() throws Throwable {
-        Statement                stmt          = (Statement) this.delegate;
-        StatementKey             key           = this.statementKey;
-        StatementPool            statementPool = (this.parentHandler == null)
-            ? null
-            : this.parentHandler.statementPool;
+
+        Statement     stmt          = (Statement) this.delegate;
+        StatementKey  key           = this.statementKey;
+        StatementPool statementPool = (this.parentHandler == null) ? null
+                : this.parentHandler.statementPool;
 
         if (key == null || statementPool == null
                 || !statementPool.isPoolable(stmt)) {
             try {
                 stmt.close();
-            } catch (Exception ex) {}
+            } catch (Exception ex) {
+            }
         } else {
             statementPool.checkIn(key, stmt);
         }
@@ -787,6 +817,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * @throws java.lang.Throwable
      */
     protected boolean isClosedSurrogate() throws Throwable {
+
         if (this.surrogateClosed) {
             return true;
         }
@@ -819,11 +850,12 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * @return surrogate for the underlying parent object
      */
     protected Object getParentSurrogate(final Method method,
-            final Object[] args) throws Throwable {
+                                        final Object[] args) throws Throwable {
 
         WrapperInvocationHandler parent = this.parentHandler;
 
-        return (parent == null) ? null : parent.surrogate;
+        return (parent == null) ? null
+                                : parent.surrogate;
     }
 
     /**
@@ -840,7 +872,8 @@ public class WrapperInvocationHandler implements InvocationHandler {
             final Object[] args) throws Throwable {
 
         if (this.dbmdHandler == null) {
-            Object dbmd      = method.invoke(this.delegate, args);
+            Object dbmd = method.invoke(this.delegate, args);
+
             this.dbmdHandler = new WrapperInvocationHandler(dbmd, this);
         }
 
@@ -857,13 +890,13 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * the given method with the given arguments upon the delegate
      * @return surrogate for the delegate Statement object
      */
-    protected Object getCreatedOrPreparedStatementSurrogate(final Method method,
-            final Object[] args) throws Throwable {
+    protected Object getCreatedOrPreparedStatementSurrogate(
+            final Method method, final Object[] args) throws Throwable {
 
         WrapperInvocationHandler handler;
-        Object                   stmt  = null;
-        StatementKey             key   = new StatementKey(method, args);
-        StatementPool            pool  = this.statementPool;
+        Object                   stmt = null;
+        StatementKey             key  = new StatementKey(method, args);
+        StatementPool            pool = this.statementPool;
 
         if (pool != null) {
             stmt = pool.checkOut(key);
@@ -872,15 +905,12 @@ public class WrapperInvocationHandler implements InvocationHandler {
         if (stmt == null) {
             stmt = method.invoke(this.delegate, args);
         }
-
-        handler = new WrapperInvocationHandler(stmt, this);
-
+        handler              = new WrapperInvocationHandler(stmt, this);
         handler.statementKey = key;
 
         if (this.statements == null) {
             this.statements = new HashSet();
         }
-
         statements.add(handler);
 
         return handler.surrogate;
@@ -899,9 +929,9 @@ public class WrapperInvocationHandler implements InvocationHandler {
     protected Object getResultSetSurrogate(final Method method,
             final Object[] args) throws Throwable {
 
-        Object                   rs      = method.invoke(this.delegate, args);
+        Object rs = method.invoke(this.delegate, args);
         WrapperInvocationHandler handler = new WrapperInvocationHandler(rs,
-                this);
+            this);
 
         if (resultSets == null) {
             resultSets = new HashSet();
@@ -928,10 +958,12 @@ public class WrapperInvocationHandler implements InvocationHandler {
      *      result of invoking the method upon the delegate.
      */
     protected Object unwrapSurrogate(final Method method,
-            final Object[] args) throws Throwable {
+                                     final Object[] args) throws Throwable {
+
         Object result = method.invoke(this.delegate, args);
 
-        return (result == this.delegate) ? this.surrogate : result;
+        return (result == this.delegate) ? this.surrogate
+                : result;
     }
 
     /**
@@ -944,173 +976,174 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * the given method with the given arguments upon the delegate
      * @return surrogate for the underlying Array object
      */
-    protected Object getArraySurrogate(final Method method, final Object[] args)
-    throws java.lang.Throwable {
-        Object                   array   = method.invoke(this.delegate, args);
+    protected Object getArraySurrogate(
+            final Method method,
+            final Object[] args) throws java.lang.Throwable {
+
+        Object array = method.invoke(this.delegate, args);
         WrapperInvocationHandler handler = new WrapperInvocationHandler(array,
-                this);
+            this);
 
         return handler.surrogate;
     }
 }
 
 // Was used to help 'visually' verify the handler above covers all the bases
-
-//package org.hsqldb.jdbc.pool;
+// package org.hsqldb.jdbc.pool;
 //
-//import java.lang.reflect.Method;
-//import java.lang.reflect.Modifier;
-//import java.sql.Array;
-//import java.sql.BaseQuery;
-//import java.sql.Blob;
-//import java.sql.CallableStatement;
-//import java.sql.Clob;
-//import java.sql.ConflictingRow;
-//import java.sql.Connection;
-//import java.sql.DataSet;
-//import java.sql.DatabaseMetaData;
-//import java.sql.ParameterMetaData;
-//import java.sql.PreparedStatement;
-//import java.sql.QueryObjectGenerator;
-//import java.sql.Ref;
-//import java.sql.ResultSet;
-//import java.sql.ResultSetMetaData;
-//import java.sql.RowId;
-//import java.sql.SQLData;
-//import java.sql.SQLInput;
-//import java.sql.SQLOutput;
-//import java.sql.SQLXML;
-//import java.sql.Savepoint;
-//import java.sql.Statement;
-//import java.sql.Struct;
-//import java.util.HashSet;
-//import java.util.Set;
+// import java.lang.reflect.Method;
+// import java.lang.reflect.Modifier;
+// import java.sql.Array;
+// import java.sql.BaseQuery;
+// import java.sql.Blob;
+// import java.sql.CallableStatement;
+// import java.sql.Clob;
+// import java.sql.ConflictingRow;
+// import java.sql.Connection;
+// import java.sql.DataSet;
+// import java.sql.DatabaseMetaData;
+// import java.sql.ParameterMetaData;
+// import java.sql.PreparedStatement;
+// import java.sql.QueryObjectGenerator;
+// import java.sql.Ref;
+// import java.sql.ResultSet;
+// import java.sql.ResultSetMetaData;
+// import java.sql.RowId;
+// import java.sql.SQLData;
+// import java.sql.SQLInput;
+// import java.sql.SQLOutput;
+// import java.sql.SQLXML;
+// import java.sql.Savepoint;
+// import java.sql.Statement;
+// import java.sql.Struct;
+// import java.util.HashSet;
+// import java.util.Set;
 //
-///**
+// /**
 // * Displays methods of classes in the JDBC4 java.sql package that may be
 // * sensitive to Connection or Statement pooling.
 // *
 // * @author boucherb@users
 // */
-//public class DisplayMethodsPotentiallySensitiveToPooling {
+// public class DisplayMethodsPotentiallySensitiveToPooling {
 //
 //
-//    static Class[] getSensitiveReturnTypeClasses() {
-//        return new Class[]  {
-//            Array.class,
-//            CallableStatement.class,
-//            Connection.class,
-//            DatabaseMetaData.class,
-//            PreparedStatement.class,
-//            ResultSet.class,
-//            Statement.class
-//        };
-//    }
+// static Class[] getSensitiveReturnTypeClasses() {
+// return new Class[]  {
+// Array.class,
+// CallableStatement.class,
+// Connection.class,
+// DatabaseMetaData.class,
+// PreparedStatement.class,
+// ResultSet.class,
+// Statement.class
+// };
+// }
 //
-//    static Set sensitiveReturnTypeSet;
+// static Set sensitiveReturnTypeSet;
 //
-//    static Set getSensitiveReturnTypeSet() {
-//        if (sensitiveReturnTypeSet == null) {
+// static Set getSensitiveReturnTypeSet() {
+// if (sensitiveReturnTypeSet == null) {
 //
-//            Set set = new HashSet();
+// Set set = new HashSet();
 //
-//            Class[] classes = getSensitiveReturnTypeClasses();
+// Class[] classes = getSensitiveReturnTypeClasses();
 //
-//            for (int i = 0; i < classes.length; i++) {
-//                set.add(classes[i]);
-//            }
+// for (int i = 0; i < classes.length; i++) {
+// set.add(classes[i]);
+// }
 //
-//            sensitiveReturnTypeSet = set;
-//        }
+// sensitiveReturnTypeSet = set;
+// }
 //
-//        return sensitiveReturnTypeSet;
-//    }
+// return sensitiveReturnTypeSet;
+// }
 //
-//    static Class[] getSqlClasses() {
-//        return new Class[]  {
-//            Array.class,
-//            Blob.class,
-//            CallableStatement.class,
-//            Clob.class,
-//            Connection.class,
-//            DatabaseMetaData.class,
-//            ParameterMetaData.class,
-//            PreparedStatement.class,
-//            Ref.class,
-//            ResultSet.class,
-//            ResultSetMetaData.class,
-//            RowId.class,
-//            SQLXML.class,
-//            Statement.class,
-//            Struct.class,
-//            BaseQuery.class,
-//            ConflictingRow.class,
-//            DataSet.class,
-//            QueryObjectGenerator.class,
-//            SQLData.class,
-//            SQLInput.class,
-//            SQLOutput.class,
-//            Savepoint.class
-//        };
-//    }
+// static Class[] getSqlClasses() {
+// return new Class[]  {
+// Array.class,
+// Blob.class,
+// CallableStatement.class,
+// Clob.class,
+// Connection.class,
+// DatabaseMetaData.class,
+// ParameterMetaData.class,
+// PreparedStatement.class,
+// Ref.class,
+// ResultSet.class,
+// ResultSetMetaData.class,
+// RowId.class,
+// SQLXML.class,
+// Statement.class,
+// Struct.class,
+// BaseQuery.class,
+// ConflictingRow.class,
+// DataSet.class,
+// QueryObjectGenerator.class,
+// SQLData.class,
+// SQLInput.class,
+// SQLOutput.class,
+// Savepoint.class
+// };
+// }
 //
-//    public static void main(String[] args) {
-//        doWork();
-//    }
+// public static void main(String[] args) {
+// doWork();
+// }
 //
-//    static void doWork() {
-//        Class[] classes = getSqlClasses();
+// static void doWork() {
+// Class[] classes = getSqlClasses();
 //
-//        for (int i = 0; i < classes.length; i++) {
-//            processClass(classes[i]);
-//        }
-//    }
+// for (int i = 0; i < classes.length; i++) {
+// processClass(classes[i]);
+// }
+// }
 //
 //
-//    static void processClass(Class clazz) {
+// static void processClass(Class clazz) {
 //
-//        Method[] methods = clazz.getMethods();
+// Method[] methods = clazz.getMethods();
 //
-//        boolean found = false;
+// boolean found = false;
 //
-//        for (int i = 0; i < methods.length; i++) {
-//            if (processMethod(found, clazz, methods[i])) {
-//                found = true;
-//            }
-//        }
+// for (int i = 0; i < methods.length; i++) {
+// if (processMethod(found, clazz, methods[i])) {
+// found = true;
+// }
+// }
 //
-//        if (found) {
-//            System.out.println("*****    " + clazz + "    *****");
-//            System.out.println();
-//        }
-//    }
+// if (found) {
+// System.out.println("*****    " + clazz + "    *****");
+// System.out.println();
+// }
+// }
 //
-//    static boolean processMethod(boolean found, Class clazz,
-//            Method method) {
+// static boolean processMethod(boolean found, Class clazz,
+// Method method) {
 //
-//        if (!Modifier.isPublic(method.getModifiers())) {
-//            return false;
-//        }
+// if (!Modifier.isPublic(method.getModifiers())) {
+// return false;
+// }
 //
-//        Class returnType = method.getReturnType();
-//        Set   set        = getSensitiveReturnTypeSet();
+// Class returnType = method.getReturnType();
+// Set   set        = getSensitiveReturnTypeSet();
 //
-//        if (set.contains(returnType)
-//            || "close".equals(method.getName())
-//            || "isClosed".equals(method.getName())
-//            || "isWrapperFor".equals(method.getName())
-//            || "unwrap".equals(method.getName())) {
+// if (set.contains(returnType)
+// || "close".equals(method.getName())
+// || "isClosed".equals(method.getName())
+// || "isWrapperFor".equals(method.getName())
+// || "unwrap".equals(method.getName())) {
 //
-//            if (!found) {
-//                found = true;
+// if (!found) {
+// found = true;
 //
-//                System.out.println("*****    " + clazz + "    *****");
-//            }
+// System.out.println("*****    " + clazz + "    *****");
+// }
 //
-//            System.out.println(method);
+// System.out.println(method);
 //
-//        }
+// }
 //
-//        return found;
-//    }
-//}
+// return found;
+// }
+// }

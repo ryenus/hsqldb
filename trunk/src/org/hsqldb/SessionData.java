@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,53 +35,43 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.index.Node;
-import org.hsqldb.lib.IntKeyHashMap;
+import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
-import org.hsqldb.navigator.ClientRowSetNavigator;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowSetNavigator;
-import org.hsqldb.persist.TempDataFileCache;
+import org.hsqldb.navigator.RowSetNavigatorClient;
+import org.hsqldb.persist.DataFileCacheSession;
+import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.PersistentStoreCollectionSession;
+import org.hsqldb.persist.RowStoreHybrid;
+import org.hsqldb.persist.RowStoreMemory;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
+import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
-import org.hsqldb.types.BlobDataMemory;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.ClobDataMemory;
 
 /*
- * Session data structures
+ * Session semi-persistent data structures
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
 public class SessionData {
 
-    /**
-     * SessionData
-     *
-     * @param database Database
-     * @param session Session
-     */
-    public SessionData(Database database, Session session) {
-        this.database = database;
-        this.session  = session;
-    }
-
-    private Database database;
-    private Session  session;
-
-    // two types of temp tables
-    private IntKeyHashMap indexArrayMap;
-    private IntKeyHashMap indexArrayKeepMap;
+    private final Database           database;
+    private final Session            session;
+    PersistentStoreCollectionSession persistentStoreCollection;
 
     // large results
-    LongKeyHashMap    resultMap;
-    TempDataFileCache resultCache;
+    LongKeyHashMap       resultMap;
+    DataFileCacheSession resultCache;
 
     // lobs
     LongKeyLongValueHashMap lobs = new LongKeyLongValueHashMap();
@@ -89,87 +79,55 @@ public class SessionData {
     // VALUE
     Object currentValue;
 
-    public Object getCurrentValue() {
-        return currentValue;
+    // SEQUENCE
+    HashMap        sequenceMap;
+    OrderedHashSet sequenceUpdateSet;
+
+    public SessionData(Database database, Session session) {
+
+        this.database = database;
+        this.session  = session;
+        persistentStoreCollection =
+            new PersistentStoreCollectionSession(session);
     }
-    /**
-     * get the root for a temp table index
-     */
-    public Node getIndexRoot(HsqlName index, boolean preserve) {
 
-        if (preserve) {
-            if (indexArrayKeepMap == null) {
-                return null;
-            }
+    // transitional feature
+    public PersistentStore getRowStore(TableBase table) {
 
-            return (Node) indexArrayKeepMap.get(index.hashCode());
+        if (table.isSessionBased) {
+            return persistentStoreCollection.getSessionStore(table,
+                    table.getPersistenceId());
+        }
+
+        return database.persistentStoreCollection.getStore(
+            table.getPersistenceId());
+    }
+
+    public PersistentStore getSubqueryRowStore(TableBase table,
+            boolean isCached) {
+
+        RowStoreHybrid store =
+            (RowStoreHybrid) persistentStoreCollection.getSessionStore(table,
+                table.getPersistenceId());
+
+        if (store != null) {
+            store.removeAll();
+
+            return store;
+        }
+
+        return new RowStoreHybrid(session, persistentStoreCollection, table,
+                                  isCached);
+    }
+
+    public PersistentStore getNewResultRowStore(TableBase table,
+            boolean isCached) {
+
+        if (isCached) {
+            return new RowStoreHybrid(session, persistentStoreCollection,
+                                      table);
         } else {
-            if (indexArrayMap == null) {
-                return null;
-            }
-
-            return (Node) indexArrayMap.get(index.hashCode());
-        }
-    }
-
-    /**
-     * set the root for a temp table index
-     */
-    public void setIndexRoot(HsqlName index, boolean preserve, Node root) {
-
-        if (preserve) {
-            if (indexArrayKeepMap == null) {
-                if (root == null) {
-                    return;
-                }
-
-                indexArrayKeepMap = new IntKeyHashMap();
-            }
-
-            indexArrayKeepMap.put(index.hashCode(), root);
-        } else {
-            if (indexArrayMap == null) {
-                if (root == null) {
-                    return;
-                }
-
-                indexArrayMap = new IntKeyHashMap();
-            }
-
-            indexArrayMap.put(index.hashCode(), root);
-        }
-    }
-
-    void dropIndex(HsqlName index, boolean preserve) {
-
-        if (preserve) {
-            if (indexArrayKeepMap != null) {
-                indexArrayKeepMap.remove(index.hashCode());
-            }
-        } else {
-            if (indexArrayMap != null) {
-                indexArrayMap.remove(index.hashCode());
-            }
-        }
-    }
-
-    /**
-     * clear default temp table contents for this session
-     */
-    void clearIndexRoots() {
-
-        if (indexArrayMap != null) {
-            indexArrayMap.clear();
-        }
-    }
-
-    /**
-     * clear ON COMMIT PRESERVE temp table contents for this session
-     */
-    void clearIndexRootsKeep() {
-
-        if (indexArrayKeepMap != null) {
-            indexArrayKeepMap.clear();
+            return new RowStoreMemory(persistentStoreCollection, table);
         }
     }
 
@@ -213,11 +171,12 @@ public class SessionData {
 
     Result getDataResultSlice(long id, int offset, int count) {
 
-        ClientRowSetNavigator navigator = getRowSetSlice(id, offset, count);
+        RowSetNavigatorClient navigator = getRowSetSlice(id, offset, count);
+
         return Result.newDataRowsResult(navigator);
     }
 
-    ClientRowSetNavigator getRowSetSlice(long id, int offset, int count) {
+    RowSetNavigatorClient getRowSetSlice(long id, int offset, int count) {
 
         Result          result = (Result) resultMap.get(id);
         RowSetNavigator source = result.getNavigator();
@@ -226,7 +185,7 @@ public class SessionData {
             count = source.getSize() - offset;
         }
 
-        return new ClientRowSetNavigator(source, offset, count);
+        return new RowSetNavigatorClient(source, offset, count);
     }
 
     public void closeNavigator(long id) {
@@ -253,7 +212,7 @@ public class SessionData {
         resultMap.clear();
     }
 
-    TempDataFileCache getResultCache() throws HsqlException {
+    public DataFileCacheSession getResultCache() {
 
         if (resultCache == null) {
             String path = database.getTempDirectoryPath();
@@ -262,12 +221,16 @@ public class SessionData {
                 return null;
             }
 
-            resultCache =
-                new TempDataFileCache(database,
-                                      path + "/session."
-                                      + Long.toString(session.getId()));
+            try {
+                resultCache =
+                    new DataFileCacheSession(database,
+                                             path + "/session_"
+                                             + Long.toString(session.getId()));
 
-            resultCache.open(false);
+                resultCache.open(false);
+            } catch (Throwable t) {
+                return null;
+            }
         }
 
         return resultCache;
@@ -300,15 +263,12 @@ public class SessionData {
                     dataInput = new DataInputStream(result.getInputStream());
                 }
 
-                BlobData blob = new BlobDataMemory(result.getBlockLength(),
-                                                   dataInput);
+                BlobData blob = new BinaryData(result.getBlockLength(),
+                                               dataInput);
                 long resultLobId = result.getLobID();
 
-                if (dataInput != null) {
-                    blob.setId(database.lobManager.getNewLobId());
-                    lobs.put(resultLobId, blob.getId());
-                }
-
+                blob.setId(database.lobManager.getNewLobId());
+                lobs.put(resultLobId, blob.getId());
                 database.lobManager.addBlob(blob);
 
                 break;
@@ -327,11 +287,8 @@ public class SessionData {
 
                 long resultLobId = result.getLobID();
 
-                if (dataInput != null) {
-                    clob.setId(database.lobManager.getNewLobId());
-                    lobs.put(resultLobId, clob.getId());
-                }
-
+                clob.setId(database.lobManager.getNewLobId());
+                lobs.put(resultLobId, clob.getId());
                 database.lobManager.addClob(clob);
 
                 break;
@@ -363,5 +320,34 @@ public class SessionData {
 
         lobs.clear();
         navigator.reset();
+    }
+
+    //
+    public void startRowProcessing() {
+
+        if (sequenceMap != null) {
+            sequenceMap.clear();
+        }
+    }
+
+    public Object getSequenceValue(NumberSequence sequence)
+    throws HsqlException {
+
+        if (sequenceMap == null) {
+            sequenceMap       = new HashMap();
+            sequenceUpdateSet = new OrderedHashSet();
+        }
+
+        HsqlName key   = sequence.getName();
+        Object   value = sequenceMap.get(key);
+
+        if (value == null) {
+            value = sequence.getValueObject();
+
+            sequenceMap.put(key, value);
+            sequenceUpdateSet.add(sequence);
+        }
+
+        return value;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.lib.Iterator;
 import javax.transaction.xa.Xid;
 import javax.sql.PooledConnection;
 
-import org.hsqldb.jdbc.jdbcConnection;
+import org.hsqldb.jdbc.JDBCConnection;
 
 import java.sql.DriverManager;
 
@@ -59,8 +59,7 @@ import javax.sql.XAConnection;
  * @see javax.sql.XADataSource
  * @see org.hsqldb.jdbc.pool.JDBCXAConnection
  */
-public class JDBCXADataSource extends JDBCConnectionPoolDataSource
-implements XADataSource {
+public class JDBCXADataSource extends JDBCConnectionPoolDataSource implements XADataSource {
 
     /* TODO:  Break off code used here and in JDBCConnectionPoolDataSource
      *        into an abstract class, and have these classes extend the
@@ -138,8 +137,8 @@ implements XADataSource {
                                    + e.getMessage());
         }
 
-        jdbcConnection connection =
-            (jdbcConnection) DriverManager.getConnection(url, connProperties);
+        JDBCConnection connection =
+            (JDBCConnection) DriverManager.getConnection(url, connProperties);
 
         // Comment out before public release:
         System.err.print("New phys:  " + connection);

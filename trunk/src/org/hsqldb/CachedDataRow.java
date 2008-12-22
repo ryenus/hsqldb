@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,14 +45,17 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of rows for tables with memory resident indexes and
  * disk-based data, such as TEXT tables.
  *
- * @version 1.7.2
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.8.0
+ * @version 1.7.0
  */
-class CachedDataRow extends CachedRow {
+public class CachedDataRow extends CachedRow {
 
     /**
      *  Constructor for new rows.
      */
-    CachedDataRow(Table t, Object[] o) throws HsqlException {
+    public CachedDataRow(TableBase t, Object[] o) throws HsqlException {
 
         super(t, o);
 
@@ -63,22 +66,16 @@ class CachedDataRow extends CachedRow {
      *  Constructor when read from the disk into the Cache. The link with
      *  the Nodes is made separetly.
      */
-    CachedDataRow(Table t,
-                  RowInputInterface in) throws IOException, HsqlException {
+    public CachedDataRow(TableBase t,
+                         RowInputInterface in)
+                         throws IOException, HsqlException {
 
         tTable         = t;
+        tableId        = t.getId();
         iPos           = in.getPos();
         storageSize    = in.getSize();
         oData          = in.readData(tTable.getColumnTypes());
         hasDataChanged = false;
-    }
-
-    /**
-     *  As the indexes are in-memory, this passes the existing primary node
-     *  for the construction of the new Row
-     */
-    public Row getUpdatedRow() {
-        return tTable.getRow(iPos, nPrimaryNode);
     }
 
     /**
@@ -89,14 +86,25 @@ class CachedDataRow extends CachedRow {
 
         int index = tTable.getIndexCount();
 
-        nPrimaryNode = Node.newNode(this, 0, tTable);
+        nPrimaryNode = new PointerNode(this);
 
         Node n = nPrimaryNode;
 
         for (int i = 1; i < index; i++) {
-            n.nNext = Node.newNode(this, i, tTable);
+            n.nNext = new PointerNode(this);
             n       = n.nNext;
         }
+    }
+
+    Node insertNode(int index) {
+
+        Node backnode = getNode(index - 1);
+        Node newnode  = new PointerNode(this);
+
+        newnode.nNext  = backnode.nNext;
+        backnode.nNext = newnode;
+
+        return newnode;
     }
 
     /**
@@ -109,13 +117,6 @@ class CachedDataRow extends CachedRow {
     }
 
     /**
-     * returned size does not include the row size written at the beginning
-     */
-    public int getRealSize(RowOutputInterface out) {
-        return out.getSize(this);
-    }
-
-    /**
      *  Writes the data to disk. Unlike CachedRow, hasChanged is never set
      *  to true when changes are made to the Nodes. (Nodes are in-memory).
      *  The only time this is used is when a new Row is added to the Caches.
@@ -123,7 +124,7 @@ class CachedDataRow extends CachedRow {
     public void write(RowOutputInterface out) {
 
         out.writeSize(storageSize);
-        out.writeData(oData, tTable);
+        out.writeData(oData, tTable.colTypes);
         out.writeEnd();
 
         hasDataChanged = false;

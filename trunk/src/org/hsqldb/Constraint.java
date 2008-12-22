@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,10 +67,12 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowIterator;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 
@@ -82,11 +84,14 @@ import org.hsqldb.rights.Grantee;
  * Implementation of a table constraint with references to the indexes used
  * by the constraint.<p>
  *
+ * Partly based on Hypersonic code.
+ *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
-public class Constraint implements SchemaObject {
+public final class Constraint implements SchemaObject {
 
     /*
      SQL CLI codes
@@ -98,6 +103,7 @@ public class Constraint implements SchemaObject {
      Referential Constraint 4 SET DEFAULT
      */
     public static final int CASCADE        = 0,
+                            RESTRICT       = 1,
                             SET_NULL       = 2,
                             NO_ACTION      = 3,
                             SET_DEFAULT    = 4,
@@ -117,9 +123,18 @@ public class Constraint implements SchemaObject {
 
     //
     Expression      check;
+    String          checkStatement;
     private boolean isNotNull;
     int             notNullColumnIndex;
     RangeVariable   rangeVariable;
+    OrderedHashSet  schemaObjectNames;
+
+    // for temp constraints only
+    OrderedHashSet mainColSet;
+    OrderedHashSet refColSet;
+
+    //
+    final public static Constraint[] emptyConstraintArray = new Constraint[]{};
 
     /**
      *  Constructor declaration for PK and UNIQUE
@@ -158,38 +173,37 @@ public class Constraint implements SchemaObject {
         copy.isNotNull          = isNotNull;
         copy.notNullColumnIndex = notNullColumnIndex;
         copy.rangeVariable      = rangeVariable;
+        copy.schemaObjectNames  = schemaObjectNames;
 
         return copy;
     }
 
-    // for temp constraints only
-    OrderedHashSet mainColSet;
-    OrderedHashSet refColSet;
-
     /**
-     * General constructor for constraints.
+     * General constructor for foreign key constraints.
      *
      * @param name name of constraint
      * @param refCols list of referencing columns
-     * @param mainTable referenced table
+     * @param mainTableName referenced table
      * @param mainCols list of referenced columns
      * @param type constraint type
      * @param deleteAction triggered action on delete
      * @param updateAction triggered action on update
      * @throws HsqlException
      */
-    public Constraint(HsqlName name, OrderedHashSet refCols, Table mainTable,
+    public Constraint(HsqlName name, HsqlName refTableName,
+                      OrderedHashSet refCols, HsqlName mainTableName,
                       OrderedHashSet mainCols, int type, int deleteAction,
                       int updateAction) {
 
-        core              = new ConstraintCore();
-        this.name         = name;
-        constType         = type;
-        mainColSet        = mainCols;
-        core.mainTable    = mainTable;
-        refColSet         = refCols;
-        core.deleteAction = deleteAction;
-        core.updateAction = updateAction;
+        core               = new ConstraintCore();
+        this.name          = name;
+        constType          = type;
+        mainColSet         = mainCols;
+        core.refTableName  = refTableName;
+        core.mainTableName = mainTableName;
+        refColSet          = refCols;
+        core.deleteAction  = deleteAction;
+        core.updateAction  = updateAction;
     }
 
     public Constraint(HsqlName name, OrderedHashSet mainCols, int type) {
@@ -207,7 +221,7 @@ public class Constraint implements SchemaObject {
                 core.mainCols = core.mainTable.getPrimaryKey();
 
                 if (core.mainCols == null) {
-                    throw Trace.error(Trace.TABLE_HAS_NO_PRIMARY_KEY);
+                    throw Error.error(ErrorCode.X_42581);
                 }
             } else if (core.mainCols == null) {
                 core.mainCols = core.mainTable.getColumnIndexes(mainColSet);
@@ -223,11 +237,19 @@ public class Constraint implements SchemaObject {
 
     private Constraint() {}
 
+    public int getType() {
+        return SchemaObject.CONSTRAINT;
+    }
+
     /**
      * Returns the HsqlName.
      */
     public HsqlName getName() {
         return name;
+    }
+
+    public HsqlName getCatalogName() {
+        return name.schema.schema;
     }
 
     public HsqlName getSchemaName() {
@@ -240,31 +262,154 @@ public class Constraint implements SchemaObject {
 
     public OrderedHashSet getReferences() {
 
-/*
-        if (check == null) {
-            return null;
+        if (constType == Constraint.CHECK) {
+            return schemaObjectNames;
+        } else if (constType == Constraint.FOREIGN_KEY) {
+            OrderedHashSet set = new OrderedHashSet();
+
+            set.add(core.uniqueName);
+
+            return set;
         }
 
-        OrderedHashSet set = new OrderedHashSet();
+        return null;
+    }
 
-        Expression.collectAllExpressions(set, check,
-                                         Expression.columnExpressionSet,
-                                         Expression.emptyExpressionSet);
-
-        OrderedHashSet nameSet = new OrderedHashSet();
-
-        for (int i = 0; i < set.size(); i++) {
-            HsqlName name = ((Expression) set.get(i)).getColumn().getName();
-
-            nameSet.add(name);
-        }
-
-        return nameSet;
- */
+    public OrderedHashSet getComponents() {
         return null;
     }
 
     public void compile(Session session) throws HsqlException {}
+
+    public String getDDL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        switch (getConstraintType()) {
+
+            case Constraint.PRIMARY_KEY :
+                if (getMainColumns().length > 1
+                        || (getMainColumns().length == 1
+                            && !getName().isReservedName())) {
+                    if (!getName().isReservedName()) {
+                        sb.append(Tokens.T_CONSTRAINT).append(' ');
+                        sb.append(getName().statementName).append(' ');
+                    }
+
+                    sb.append(Tokens.T_PRIMARY).append(' ').append(
+                        Tokens.T_KEY);
+                    getColumnList(getMain(), getMainColumns(),
+                                  getMainColumns().length, sb);
+                }
+                break;
+
+            case Constraint.UNIQUE :
+                if (!getName().isReservedName()) {
+                    sb.append(Tokens.T_CONSTRAINT).append(' ');
+                    sb.append(getName().statementName);
+                    sb.append(' ');
+                }
+
+                sb.append(Tokens.T_UNIQUE);
+
+                int[] col = getMainColumns();
+
+                getColumnList(getMain(), col, col.length, sb);
+                break;
+
+            case Constraint.FOREIGN_KEY :
+                if (isForward) {
+                    sb.append(Tokens.T_ALTER).append(' ').append(
+                        Tokens.T_TABLE).append(' ');
+                    sb.append(
+                        getRef().getName().getSchemaQualifiedStatementName());
+                    sb.append(' ').append(Tokens.T_ADD).append(' ');
+                    getFKStatement(sb);
+                } else {
+                    getFKStatement(sb);
+                }
+                break;
+
+            case Constraint.CHECK :
+                if (isNotNull()) {
+                    break;
+                }
+
+                if (!getName().isReservedName()) {
+                    sb.append(Tokens.T_CONSTRAINT).append(' ');
+                    sb.append(getName().statementName).append(' ');
+                }
+
+                sb.append(Tokens.T_CHECK).append('(');
+                sb.append(check.getDDL());
+                sb.append(')');
+
+                // should not throw as it is already tested OK
+                break;
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Generates the foreign key declaration for a given Constraint object.
+     */
+    private void getFKStatement(StringBuffer a) {
+
+        if (!getName().isReservedName()) {
+            a.append(Tokens.T_CONSTRAINT).append(' ');
+            a.append(getName().statementName);
+            a.append(' ');
+        }
+
+        a.append(Tokens.T_FOREIGN).append(' ').append(Tokens.T_KEY);
+
+        int[] col = getRefColumns();
+
+        getColumnList(getRef(), col, col.length, a);
+        a.append(' ').append(Tokens.T_REFERENCES).append(' ');
+        a.append(getMain().getSchemaName().statementName).append('.');
+        a.append(getMain().getName().statementName);
+
+        col = getMainColumns();
+
+        getColumnList(getMain(), col, col.length, a);
+
+        if (getDeleteAction() != Constraint.NO_ACTION) {
+            a.append(' ').append(Tokens.T_ON).append(' ').append(
+                Tokens.T_DELETE).append(' ');
+            a.append(getDeleteActionString());
+        }
+
+        if (getUpdateAction() != Constraint.NO_ACTION) {
+            a.append(' ').append(Tokens.T_ON).append(' ').append(
+                Tokens.T_UPDATE).append(' ');
+            a.append(getUpdateActionString());
+        }
+    }
+
+    /**
+     * Generates the column definitions for a table.
+     */
+    private static void getColumnList(Table t, int[] col, int len,
+                                      StringBuffer a) {
+
+        a.append('(');
+
+        for (int i = 0; i < len; i++) {
+            a.append(t.getColumn(col[i]).getName().statementName);
+
+            if (i < len - 1) {
+                a.append(',');
+            }
+        }
+
+        a.append(')');
+    }
+
+    public HsqlName getMainTableName() {
+        return core.mainTableName;
+    }
 
     public HsqlName getMainName() {
         return core.mainName;
@@ -274,10 +419,14 @@ public class Constraint implements SchemaObject {
         return core.refName;
     }
 
+    public HsqlName getUniqueName() {
+        return core.uniqueName;
+    }
+
     /**
      *  Returns the type of constraint
      */
-    public int getType() {
+    public int getConstraintType() {
         return constType;
     }
 
@@ -310,10 +459,38 @@ public class Constraint implements SchemaObject {
     }
 
     /**
+     * Returns the foreign key action rule.
+     */
+    private static String getActionString(int action) {
+
+        switch (action) {
+
+            case Constraint.RESTRICT :
+                return Tokens.T_RESTRICT;
+
+            case Constraint.CASCADE :
+                return Tokens.T_CASCADE;
+
+            case Constraint.SET_DEFAULT :
+                return Tokens.T_SET + ' ' + Tokens.T_DEFAULT;
+
+            case Constraint.SET_NULL :
+                return Tokens.T_SET + ' ' + Tokens.T_NULL;
+
+            default :
+                return Tokens.T_NO + ' ' + Tokens.T_ACTION;
+        }
+    }
+
+    /**
      *  The ON DELETE triggered action of (foreign key) constraint
      */
     public int getDeleteAction() {
         return core.deleteAction;
+    }
+
+    public String getDeleteActionString() {
+        return getActionString(core.deleteAction);
     }
 
     /**
@@ -321,6 +498,10 @@ public class Constraint implements SchemaObject {
      */
     public int getUpdateAction() {
         return core.updateAction;
+    }
+
+    public String getUpdateActionString() {
+        return getActionString(core.updateAction);
     }
 
     public int getDeferability() {
@@ -355,29 +536,6 @@ public class Constraint implements SchemaObject {
         return isNotNull;
     }
 
-    /**
-     *  Returns true if an index is part this constraint and the constraint is set for
-     *  a foreign key. Used for tests before dropping an index.
-     */
-    boolean isIndexFK(Index index) {
-
-        if (constType == FOREIGN_KEY || constType == MAIN) {
-            if (core.mainIndex == index || core.refIndex == index) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     *  Returns true if an index is part this constraint and the constraint is set for
-     *  a unique constraint. Used for tests before dropping an index.
-     */
-    boolean isIndexUnique(Index index) {
-        return (constType == UNIQUE && core.mainIndex == index);
-    }
-
     boolean hasColumnOnly(int colIndex) {
 
         switch (constType) {
@@ -401,8 +559,7 @@ public class Constraint implements SchemaObject {
                        && core.mainTable == core.refTable;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Constraint");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");
         }
     }
 
@@ -430,8 +587,7 @@ public class Constraint implements SchemaObject {
                            || core.mainTable == core.refTable);
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Constraint");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");
         }
     }
 
@@ -451,8 +607,7 @@ public class Constraint implements SchemaObject {
                 return ArrayUtil.find(core.refCols, colIndex) != -1;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Constraint");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");
         }
     }
 
@@ -492,14 +647,15 @@ public class Constraint implements SchemaObject {
     }
 
     /**
-     *  Used to update constrains to reflect structural changes in a table.
-     *  Prior checks must ensure that this method does not throw.
+     * Used to update constrains to reflect structural changes in a table. Prior
+     * checks must ensure that this method does not throw.
      *
-     * @param  oldt reference to the old version of the table
-     * @param  newt referenct to the new version of the table
-     * @param  colindex index at which table column is added or removed
-     * @param  adjust -1, 0, +1 to indicate if column is added or removed
-     * @throws  HsqlException
+     * @param session Session
+     * @param oldTable reference to the old version of the table
+     * @param newTable referenct to the new version of the table
+     * @param colIndex index at which table column is added or removed
+     * @param adjust -1, 0, +1 to indicate if column is added or removed
+     * @throws HsqlException
      */
     void updateTable(Session session, Table oldTable, Table newTable,
                      int colIndex, int adjust) throws HsqlException {
@@ -549,12 +705,14 @@ public class Constraint implements SchemaObject {
                 return;
 
             case FOREIGN_KEY :
-                if (Index.isNull(row, core.refCols)) {
+                if (Index.hasNull(row, core.refCols)) {
                     return;
                 }
 
                 // a record must exist in the main table
-                boolean exists = core.mainIndex.exists(session, row,
+                PersistentStore store =
+                    session.sessionData.getRowStore(core.mainTable);
+                boolean exists = core.mainIndex.exists(session, store, row,
                                                        core.refCols);
 
                 if (!exists) {
@@ -577,11 +735,12 @@ public class Constraint implements SchemaObject {
                         }
                     }
 
-                    throw Trace.error(
-                        Trace.INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT,
-                        Trace.Constraint_violation, new Object[] {
+                    String[] info = new String[] {
                         core.refName.name, core.mainTable.getName().name
-                    });
+                    };
+
+                    throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT,
+                                      info);
                 }
         }
     }
@@ -592,22 +751,33 @@ public class Constraint implements SchemaObject {
     void checkCheckConstraint(Session session, Table table,
                               Object[] data) throws HsqlException {
 
-        if (session.compiledStatementExecutor.rangeIterators[0] == null) {
-            session.compiledStatementExecutor.rangeIterators[0] =
+/*
+        if (session.compiledStatementExecutor.rangeIterators[1] == null) {
+            session.compiledStatementExecutor.rangeIterators[1] =
                 rangeVariable.getIterator(session);
         }
+*/
+        RangeIteratorBase it =
+            (RangeIteratorBase) session.sessionContext.getCheckIterator();
 
-        session.compiledStatementExecutor.rangeIterators[0].currentData = data;
+        if (it == null) {
+            it = rangeVariable.getIterator(session);
+
+            session.sessionContext.setCheckIterator(it);
+        }
+
+        it.currentData = data;
 
         boolean nomatch = Boolean.FALSE.equals(check.getValue(session));
 
-        session.compiledStatementExecutor.rangeIterators[0].currentData = null;
+        it.currentData = null;
 
         if (nomatch) {
-            throw Trace.error(Trace.CHECK_CONSTRAINT_VIOLATION,
-                              Trace.Constraint_violation, new Object[] {
+            String[] info = new String[] {
                 name.name, table.tableName.name
-            });
+            };
+
+            throw Error.error(ErrorCode.X_23504, ErrorCode.CONSTRAINT, info);
         }
     }
 
@@ -618,90 +788,81 @@ public class Constraint implements SchemaObject {
 
         boolean nomatch = Boolean.FALSE.equals(check.getValue(session));
 
-        if (nomatch) {
-            session.sessionData.currentValue = null;
-
-            throw Trace.error(Trace.CHECK_CONSTRAINT_VIOLATION,
-                              Trace.Constraint_violation, new Object[] {
-                name.name, table.tableName.name
-            });
-        }
-
         session.sessionData.currentValue = null;
+
+        if (nomatch) {
+            if (table == null) {
+                throw Error.error(ErrorCode.X_23504, name.name);
+            } else {
+                String[] info = new String[] {
+                    name.name, table.tableName.name
+                };
+
+                throw Error.error(ErrorCode.X_23504, ErrorCode.CONSTRAINT,
+                                  info);
+            }
+        }
     }
 
 // fredt@users 20020225 - patch 1.7.0 - cascading deletes
 
     /**
-     * New method to find any referencing row for a
-     * foreign key (finds row in child table). If ON DELETE CASCADE is
-     * supported by this constraint, then the method finds the first row
-     * among the rows of the table ordered by the index and doesn't throw.
-     * Without ON DELETE CASCADE, the method attempts to finds any row that
-     * exists, in which case it throws an exception. If no row is found,
-     * null is returned.
-     * (fredt@users)
+     * New method to find any referencing row for a foreign key (finds row in
+     * child table). If ON DELETE CASCADE is specified for this constraint, then
+     * the method finds the first row among the rows of the table ordered by the
+     * index and doesn't throw. Without ON DELETE CASCADE, the method attempts
+     * to finds any row that exists. If no
+     * row is found, null is returned. (fredt@users)
      *
-     * @param  row array of objects for a database row
-     * @param  forDelete should we allow 'ON DELETE CASCADE' or 'ON UPDATE CASCADE'
-     * @return Node object or null
-     * @throws  HsqlException
+     * @param session Session
+     * @param row array of objects for a database row
+     * @param delete should we allow 'ON DELETE CASCADE' or 'ON UPDATE CASCADE'
+     * @return iterator
+     * @throws HsqlException
      */
     RowIterator findFkRef(Session session, Object[] row,
                           boolean delete) throws HsqlException {
 
-        if (row == null || Index.isNull(row, core.mainCols)) {
+        if (row == null || Index.hasNull(row, core.mainCols)) {
             return core.refIndex.emptyIterator();
         }
 
+        PersistentStore store = session.sessionData.getRowStore(core.refTable);
+
         return delete
-               ? core.refIndex.findFirstRowForDelete(session, row,
+               ? core.refIndex.findFirstRowForDelete(session, store, row,
                    core.mainCols)
-               : core.refIndex.findFirstRow(session, row, core.mainCols);
+               : core.refIndex.findFirstRowIterator(session, store, row,
+                core.mainCols);
     }
 
     /**
      * For the candidate table row, finds any referring node in the main table.
      * This is used to check referential integrity when updating a node. We
      * have to make sure that the main table still holds a valid main record.
-     * If a valid row is found the corresponding <code>Node</code> is returned.
+     * returns true If a valid row is found, false if there are null in the data
      * Otherwise a 'INTEGRITY VIOLATION' Exception gets thrown.
      */
     boolean hasMainRef(Session session, Object[] row) throws HsqlException {
 
-        if (Index.isNull(row, core.refCols)) {
+        if (Index.hasNull(row, core.refCols)) {
             return false;
         }
 
-        boolean exists = core.mainIndex.exists(session, row, core.refCols);
+        PersistentStore store =
+            session.sessionData.getRowStore(core.mainTable);
+        boolean exists = core.mainIndex.exists(session, store, row,
+                                               core.refCols);
 
-        // -- there has to be a valid node in the main table
-        // --
         if (!exists) {
-            throw Trace.error(Trace.INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT,
-                              Trace.Constraint_violation, new Object[] {
-                core.refName.name, core.refTable.getName().name
-            });
+            String[] info = new String[] {
+                core.refName.name, core.mainTable.getName().name
+            };
+
+            throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT, info);
         }
 
         return exists;
-    }
-
-    /**
-     * Test used before adding a new foreign key constraint. This method
-     * returns true if the given row has a corresponding row in the main
-     * table. Also returns true if any column covered by the foreign key
-     * constraint has a null value.
-     */
-    private static boolean hasReferencedRow(Session session, Object[] rowdata,
-            int[] rowColArray, Index mainIndex) throws HsqlException {
-
-        if (Index.isNull(rowdata, rowColArray)) {
-            return true;
-        }
-
-        // else a record must exist in the main index
-        return mainIndex.exists(session, rowdata, rowColArray);
     }
 
     /**
@@ -709,14 +870,15 @@ public class Constraint implements SchemaObject {
      * checks all rows of a table to ensure they all have a corresponding
      * row in the main table.
      */
-    static void checkReferencedRows(Session session, Table table,
-                                    int[] rowColArray,
-                                    Index mainIndex) throws HsqlException {
+    void checkReferencedRows(Session session, Table table,
+                             int[] rowColArray) throws HsqlException {
 
-        RowIterator it = table.getPrimaryIndex().firstRow(session);
+        Index           mainIndex = getMainIndex();
+        PersistentStore store     = session.sessionData.getRowStore(table);
+        RowIterator     it        = table.rowIterator(session);
 
         while (true) {
-            Row row = it.getNext();
+            Row row = it.getNextRow();
 
             if (row == null) {
                 break;
@@ -724,23 +886,28 @@ public class Constraint implements SchemaObject {
 
             Object[] rowData = row.getData();
 
-            if (!Constraint.hasReferencedRow(session, rowData, rowColArray,
-                                             mainIndex)) {
-                String colValues = "";
-
-                for (int i = 0; i < rowColArray.length; i++) {
-                    Object o = rowData[rowColArray[i]];
-
-                    colValues += o;
-                    colValues += ",";
-                }
-
-                throw Trace.error(
-                    Trace.INTEGRITY_CONSTRAINT_VIOLATION_NOPARENT,
-                    Trace.Constraint_violation, new Object[] {
-                    colValues, table.getName().name
-                });
+            if (Index.hasNull(rowData, rowColArray)) {
+                continue;
             }
+
+            if (mainIndex.exists(session, store, rowData, rowColArray)) {
+                continue;
+            }
+
+            String colValues = "";
+
+            for (int i = 0; i < rowColArray.length; i++) {
+                Object o = rowData[rowColArray[i]];
+
+                colValues += o;
+                colValues += ",";
+            }
+
+            String[] info = new String[] {
+                getName().name, getMain().getName().name
+            };
+
+            throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT, info);
         }
     }
 
@@ -752,27 +919,31 @@ public class Constraint implements SchemaObject {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        Expression.collectAllExpressions(set, check, Expression.COLUMN);
+        Expression.collectAllExpressions(set, check,
+                                         Expression.columnExpressionSet,
+                                         Expression.emptyExpressionSet);
 
         return set;
     }
 
     void recompile(Session session, Table newTable) throws HsqlException {
 
-        String    ddl       = check.getDDL();
-        Tokenizer tokenizer = new Tokenizer(ddl);
-        Parser    parser    = new Parser(session, tokenizer);
+        String    ddl     = check.getDDL();
+        Scanner   scanner = new Scanner(ddl);
+        ParserDQL parser  = new ParserDQL(session, scanner);
 
         parser.read();
 
-        Expression condition = parser.readOr();
+        parser.isCheckOrTriggerCondition = true;
 
-        check = condition;
+        Expression condition = parser.XreadBooleanValueExpression();
+
+        check             = condition;
+        schemaObjectNames = parser.compileContext.getSchemaObjectNames();
 
         // this workaround is here to stop LIKE optimisation (for proper scripting)
-        check.setLikeOptimised();
-
-        Select s = Expression.getCheckSelect(session, newTable, check);
+        QuerySpecification s = Expression.getCheckSelect(session, newTable,
+            check);
 
         rangeVariable = s.rangeVariables[0];
 
@@ -785,31 +956,35 @@ public class Constraint implements SchemaObject {
         // to ensure no subselects etc. are in condition
         check.checkValidCheckConstraint();
 
-        // this workaround is here to stop LIKE optimisation
-        check.setLikeOptimised();
+        if (table == null) {
+            check.resolveTypes(session, null);
+        } else {
+            QuerySpecification s = Expression.getCheckSelect(session, table,
+                check);
+            Result r = s.getResult(session, 1);
 
-//        if (table != null) {
-        Select s = Expression.getCheckSelect(session, table, check);
+            if (r.getNavigator().getSize() != 0) {
+                String[] info = new String[] {
+                    table.getName().name, ""
+                };
 
-//            if (checkValues) {
-        Result r = s.getResult(session, 1);
+                throw Error.error(ErrorCode.X_23504, ErrorCode.CONSTRAINT,
+                                  info);
+            }
 
-        if (r.getNavigator().getSize() != 0) {
-            throw Trace.error(Trace.CHECK_CONSTRAINT_VIOLATION);
+            rangeVariable = s.rangeVariables[0];
+
+            // removes reference to the Index object in range variable
+            rangeVariable.setForCheckConstraint();
         }
 
-//            }
-        rangeVariable = s.rangeVariables[0];
-
-        // removes reference to the Index object in range variable
-        rangeVariable.setForCheckConstraint();
-
-//        }
-        if (check.exprType == Expression.NOT
-                && check.eArg.exprType == Expression.IS_NULL
-                && check.eArg.eArg.exprType == Expression.COLUMN) {
-            notNullColumnIndex = check.eArg.eArg.getColumnIndex();
-            isNotNull          = true;
+        if (check.getType() == OpTypes.NOT
+                && check.getLeftNode().getType() == OpTypes.IS_NULL
+                && check.getLeftNode().getLeftNode().getType()
+                   == OpTypes.COLUMN) {
+            notNullColumnIndex =
+                check.getLeftNode().getLeftNode().getColumnIndex();
+            isNotNull = true;
         }
     }
 }

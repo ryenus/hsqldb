@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,57 +67,43 @@
 package org.hsqldb;
 
 import java.io.DataInput;
-import java.sql.Date;
-import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.Random;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.jdbc.jdbcConnection;
+import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
+import org.hsqldb.lib.CountUpDownLatch;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.navigator.ClientRowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.navigator.RowSetNavigatorClient;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.rights.Grantee;
+import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.TimeData;
-import org.hsqldb.rights.User;
-import org.hsqldb.rights.Grantee;
-
-// fredt@users 20020320 - doc 1.7.0 - update
-// fredt@users 20020315 - patch 1.7.0 - switch for scripting
-// fredt@users 20020130 - patch 476694 by velichko - transaction savepoints
-// additions in different parts to support savepoint transactions
-// fredt@users 20020910 - patch 1.7.1 by fredt - database readonly enforcement
-// fredt@users 20020912 - patch 1.7.1 by fredt - permanent internal connection
-// boucherb@users 20030512 - patch 1.7.2 - compiled statements
-//                                       - session becomes execution hub
-// boucherb@users 20050510 - patch 1.7.2 - generalized Result packet passing
-//                                         based command execution
-//                                       - batch execution handling
-// fredt@users 20030628 - patch 1.7.2 - session proxy support
-// fredt@users 20040509 - patch 1.7.2 - SQL conformance for CURRENT_TIMESTAMP and other datetime functions
+import org.hsqldb.types.TimestampData;
+import org.hsqldb.types.Type;
 
 /**
- *  Implementation of a user session with the database. In 1.7.2, Session
- *  becomes the public interface to an HSQLDB database, accessed locally or
- *  remotely via SessionInterface.
+ * Implementation of SQL sessions.
  *
- *  When a Session is closed, all references to internal engine objects are
- *  set to null. But the session id and scripting mode may still be used for
- *  scripting
- *
- * New class based on original Hypersonic code.<p>
- * Extensively rewritten and extended in successive versions of HSQLDB.
- *
- * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -129,40 +115,50 @@ public class Session implements SessionInterface {
 
     //
     public Database database;
-    private User    user;
+    private Grantee user;
 
     // transaction support
-    int             isolationMode = SessionInterface.TX_READ_COMMITTED;
-    int             actionIndex;
-    long            actionTimestamp;
-    long            transactionTimestamp;
-    HsqlArrayList   rowActionList;
-    boolean         rollbackNestedTransaction;
-    HashMappedList  savepoints;
+    boolean          isReadOnlyDefault;
+    int              isolationMode = SessionInterface.TX_READ_COMMITTED;
+    int              actionIndex;
+    long             actionTimestamp;
+    long             transactionTimestamp;
+    boolean          isTransaction;
+    volatile boolean abortTransaction;
+    volatile boolean redoAction;
+    HsqlArrayList    rowActionList;
+    CountUpDownLatch latch = new CountUpDownLatch();
+    OrderedHashSet   tempSet;
 
-    //
-    private int           currentMaxRows;
-    private int           sessionMaxRows;
-    private Number        lastIdentity = ValuePool.getInt(0);
-    private final long    sessionId;
-    private boolean       script;
-    private CommandParser parser;
+    // current settings
+    final int          sessionTimeZoneSeconds;
+    int                timeZoneSeconds;
+    boolean            isNetwork;
+    private int        currentMaxRows;
+    private int        sessionMaxRows;
+    private Number     lastIdentity = ValuePool.INTEGER_0;
+    private final long sessionId;
+    private boolean    script;
 
-    //
-    private jdbcConnection intConnection;
+    // internal connection
+    private JDBCConnection intConnection;
 
     // schema
-    public HsqlName  currentSchema;
-    public HsqlName  loggedSchema;
-    private HsqlName oldSchema;
+    public HsqlName currentSchema;
+    public HsqlName loggedSchema;
 
     // query processing
-    boolean                          isProcessingScript;
-    boolean                          isProcessingLog;
-    public CompiledStatementExecutor compiledStatementExecutor;
-    boolean                          isNetwork;
-    int                              resultMaxMemoryRows;
-    public SessionData               sessionData;
+    ParserCommand         parser;
+    boolean               isProcessingScript;
+    boolean               isProcessingLog;
+    public SessionContext sessionContext;
+    int                   resultMaxMemoryRows;
+
+    //
+    public SessionData sessionData;
+
+    //
+    Statement currentStatement;
 
     /** @todo fredt - clarify in which circumstances Session has to disconnect */
     Session getSession() {
@@ -179,31 +175,28 @@ public class Session implements SessionInterface {
      * @param  id the session identifier, as known to the database
      */
     Session(Database db, User user, boolean autocommit, boolean readonly,
-            long id) {
+            long id, int timeZoneSeconds) {
 
-        sessionId                 = id;
-        database                  = db;
-        this.user                 = user;
-        rowActionList             = new HsqlArrayList(true);
-        savepoints                = new HashMappedList(4);
-        isAutoCommit              = autocommit;
-        isReadOnly                = readonly;
-        compiledStatementExecutor = new CompiledStatementExecutor(this);
-        parser                    = new CommandParser(this, new Tokenizer());
-        resultMaxMemoryRows       = database.getResultMaxMemoryRows();
+        sessionId                   = id;
+        database                    = db;
+        this.user                   = user;
+        this.sessionTimeZoneSeconds = timeZoneSeconds;
+        this.timeZoneSeconds        = timeZoneSeconds;
+        rowActionList               = new HsqlArrayList(true);
+        tempSet                     = new OrderedHashSet();
+        isAutoCommit                = autocommit;
+        isReadOnly                  = readonly;
+        sessionContext              = new SessionContext(this);
+        parser                      = new ParserCommand(this, new Scanner());
 
+        this.setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
 
         sessionData = new SessionData(database, this);
     }
 
     void resetSchema() {
-
-        HsqlName initialSchema = user.getInitialSchema();
-
-        currentSchema = initialSchema == null
-                        ? database.schemaManager.getDefaultSchemaHsqlName()
-                        : initialSchema;
+        currentSchema = user.getInitialOrDefaultSchema();
     }
 
     /**
@@ -224,36 +217,27 @@ public class Session implements SessionInterface {
             return;
         }
 
-        synchronized (database) {
+        database.sessionManager.removeSession(this);
+        rollback(false);
 
-            // test again inside block
-            if (isClosed) {
-                return;
-            }
+        try {
+            database.logger.writeToLog(this, Tokens.T_DISCONNECT);
+        } catch (HsqlException e) {}
 
-            database.sessionManager.removeSession(this);
-            rollback();
+        sessionData.closeAllNavigators();
+        sessionData.persistentStoreCollection.clearAllTables();
+        sessionData.closeResultCache();
+        database.compiledStatementManager.removeSession(sessionId);
+        database.closeIfLast();
 
-            try {
-                database.logger.writeToLog(this, Token.T_DISCONNECT);
-            } catch (HsqlException e) {}
-
-            sessionData.clearIndexRoots();
-            sessionData.clearIndexRootsKeep();
-            sessionData.closeAllNavigators();
-            sessionData.closeResultCache();
-            database.compiledStatementManager.removeSession(sessionId);
-            database.closeIfLast();
-
-            database                  = null;
-            user                      = null;
-            rowActionList             = null;
-            savepoints                = null;
-            intConnection             = null;
-            compiledStatementExecutor = null;
-            lastIdentity              = null;
-            isClosed                  = true;
-        }
+        database                  = null;
+        user                      = null;
+        rowActionList             = null;
+        sessionContext.savepoints = null;
+        intConnection             = null;
+        sessionContext            = null;
+        lastIdentity              = null;
+        isClosed                  = true;
     }
 
     /**
@@ -266,6 +250,11 @@ public class Session implements SessionInterface {
     }
 
     public void setIsolation(int level) throws HsqlException {
+
+        if (isInMidTransaction()) {
+            throw Error.error(ErrorCode.X_25001);
+        }
+
         isolationMode = level;
     }
 
@@ -308,7 +297,7 @@ public class Session implements SessionInterface {
      * @return the name of the user currently connected within this Session
      */
     public String getUsername() {
-        return user.getName();
+        return user.getNameString();
     }
 
     /**
@@ -318,10 +307,10 @@ public class Session implements SessionInterface {
      * @return this Session's User object
      */
     public User getUser() {
-        return user;
+        return (User) user;
     }
 
-    public User getGrantee() {
+    public Grantee getGrantee() {
         return user;
     }
 
@@ -372,7 +361,7 @@ public class Session implements SessionInterface {
     void checkReadWrite() throws HsqlException {
 
         if (isReadOnly) {
-            throw Trace.error(Trace.DATABASE_IS_READONLY);
+            throw Error.error(ErrorCode.X_25006);
         }
     }
 
@@ -382,15 +371,19 @@ public class Session implements SessionInterface {
      */
     void checkDDLWrite() throws HsqlException {
 
-        if (database.isFilesReadOnly()) {
-            throw Trace.error(Trace.DATABASE_IS_READONLY);
+        checkReadWrite();
+
+        if (isProcessingScript || isProcessingLog) {
+            return;
         }
 
-        checkReadWrite();
+        if (database.isFilesReadOnly()) {
+            throw Error.error(ErrorCode.DATABASE_IS_READONLY);
+        }
     }
 
     /**
-     *  Adds a delete ation to the action list.
+     *  Adds a delete action to the row and the transaction manager.
      *
      * @param  table the table of the row
      * @param  row the deleted row
@@ -398,25 +391,25 @@ public class Session implements SessionInterface {
      */
     void addDeleteAction(Table table, Row row) throws HsqlException {
 
-        Transaction t = new Transaction(true, table, row, actionTimestamp);
+//        tempActionHistory.add("add delete action " + actionTimestamp);
+        if (abortTransaction) {
 
-        rowActionList.add(t);
-        database.txManager.addTransaction(this, t);
+//            throw Error.error(ErrorCode.X_40001);
+        }
+
+        database.txManager.addDeleteAction(this, table, row);
     }
 
-    /**
-     *  Adds a row insert action to the action list.
-     *
-     * @param  table the table into which the row was inserted
-     * @param  row the inserted row
-     * @throws  HsqlException
-     */
     void addInsertAction(Table table, Row row) throws HsqlException {
 
-        Transaction t = new Transaction(false, table, row, actionTimestamp);
+//        tempActionHistory.add("add insert to transaction " + actionTimestamp);
+        database.txManager.addInsertAction(this, table, row);
 
-        rowActionList.add(t);
-        database.txManager.addTransaction(this, t);
+        // abort only after adding so that the new row gets removed from indexes
+        if (abortTransaction) {
+
+//            throw Error.error(ErrorCode.X_40001);
+        }
     }
 
     /**
@@ -425,61 +418,113 @@ public class Session implements SessionInterface {
      * @param  autocommit the new value
      * @throws  HsqlException
      */
-    public void setAutoCommit(boolean autocommit) {
+    public void setAutoCommit(boolean autocommit) throws HsqlException {
 
         if (isClosed) {
             return;
         }
 
-        synchronized (database) {
-            if (autocommit != isAutoCommit) {
-                commit();
+        if (autocommit != isAutoCommit) {
+            commit(false);
 
-                isAutoCommit = autocommit;
-            }
+            isAutoCommit = autocommit;
         }
     }
 
-    public void beginAction() throws HsqlException {
+    public void beginAction(Statement cs) {
+
         actionIndex = rowActionList.size();
+
+        database.txManager.beginAction(this, cs, !isTransaction);
+
+//        tempActionHistory.add("beginAction ends " + actionTimestamp);
     }
 
-    public void endAction(Result r) throws HsqlException {
+    public void endAction(Result r) {
+
+//        tempActionHistory.add("endAction " + actionTimestamp);
+        sessionData.persistentStoreCollection.clearStatementTables();
 
         if (r.isError()) {
             database.txManager.rollbackNested(this);
+        } else {
+            database.txManager.completeActions(this);
         }
 
-        if (isAutoCommit) {
-            commit();
-        }
+//        tempActionHistory.add("endAction ends " + actionTimestamp);
     }
 
     public void startPhasedTransaction() throws HsqlException {}
 
-    public void prepareCommit() throws HsqlException {}
+    /** for two phased pre-commit */
+    public void prepareCommit() throws HsqlException {
+
+        if (isClosed) {
+            throw Error.error(ErrorCode.X_08003);
+        }
+
+        if (!database.txManager.prepareCommitActions(this)) {
+
+//            tempActionHistory.add("commit aborts " + actionTimestamp);
+            rollback(false);
+
+            throw Error.error(ErrorCode.X_40001);
+        }
+    }
 
     /**
      * Commits any uncommited transaction this Session may have open
      *
      * @throws  HsqlException
      */
-    public void commit() {
+    public void commit(boolean chain) throws HsqlException {
 
+//        tempActionHistory.add("commit " + actionTimestamp);
         if (isClosed) {
             return;
         }
 
-        synchronized (database) {
-            if (!rowActionList.isEmpty()) {
-                try {
-                    database.logger.writeCommitStatement(this);
-                } catch (HsqlException e) {}
-            }
+        if (!isTransaction) {
+            isReadOnly = isReadOnlyDefault;
 
-            database.txManager.commit(this);
-            sessionData.clearIndexRoots();
+            return;
         }
+
+        boolean log = !rowActionList.isEmpty();
+
+        if (!database.txManager.commitTransaction(this)) {
+
+//            tempActionHistory.add("commit aborts " + actionTimestamp);
+            rollback(false);
+
+            throw Error.error(ErrorCode.X_40001);
+        }
+
+        sessionContext.savepoints.clear();
+        sessionContext.savepointTimestamps.clear();
+        rowActionList.clear();
+        logSequences();
+
+        if (log) {
+            try {
+                database.logger.writeCommitStatement(this);
+            } catch (HsqlException e) {}
+        }
+
+        //* debug 190
+/*
+        if (rowActionList.size() > 2 && rowActionList.size() < 6) {
+            System.out.println("wrong list length " + rowActionList.size());
+        }
+*/
+
+        //* debug 190
+//        database.txManager.commit(this);
+        sessionData.persistentStoreCollection.clearTransactionTables();
+
+//        tempActionHistory.add("commit ends " + actionTimestamp);
+//        tempActionHistory.clear();
+        isReadOnly = isReadOnlyDefault;
     }
 
     /**
@@ -487,22 +532,31 @@ public class Session implements SessionInterface {
      *
      * @throws  HsqlException
      */
-    public void rollback() {
+    public void rollback(boolean chain) {
 
+//        tempActionHistory.add("rollback " + actionTimestamp);
         if (isClosed) {
             return;
         }
 
-        synchronized (database) {
-            if (rowActionList.size() != 0) {
-                try {
-                    database.logger.writeToLog(this, Token.T_ROLLBACK);
-                } catch (HsqlException e) {}
-            }
+        if (!isTransaction) {
+            isReadOnly = isReadOnlyDefault;
 
-            database.txManager.rollback(this);
-            sessionData.clearIndexRoots();
+            return;
         }
+
+        if (!rowActionList.isEmpty()) {
+            try {
+                database.logger.writeToLog(this, Tokens.T_ROLLBACK);
+            } catch (HsqlException e) {}
+        }
+
+        database.txManager.rollback(this);
+        sessionData.persistentStoreCollection.clearTransactionTables();
+
+        isReadOnly = isReadOnlyDefault;
+
+//        tempActionHistory.add("rollback ends " + actionTimestamp);
     }
 
     /**
@@ -519,14 +573,21 @@ public class Session implements SessionInterface {
      * @param  name name of the savepoint
      * @throws  HsqlException if there is no current transaction
      */
-    public void savepoint(String name) throws HsqlException {
+    public void savepoint(String name) {
 
-        savepoints.remove(name);
-        savepoints.add(name, ValuePool.getInt(rowActionList.size()));
+        int index = sessionContext.savepoints.getIndex(name);
+
+        if (index != -1) {
+            sessionContext.savepoints.remove(name);
+            sessionContext.savepointTimestamps.remove(index);
+        }
+
+        sessionContext.savepoints.add(name,
+                                      ValuePool.getInt(rowActionList.size()));
+        sessionContext.savepointTimestamps.addLast(actionTimestamp);
 
         try {
-            database.logger.writeToLog(this,
-                                       DatabaseScript.getSavepointDDL(name));
+            database.logger.writeToLog(this, getSavepointDDL(name));
         } catch (HsqlException e) {}
     }
 
@@ -542,12 +603,38 @@ public class Session implements SessionInterface {
             return;
         }
 
-        try {
-            database.logger.writeToLog(
-                this, DatabaseScript.getSavepointRollbackDDL(name));
-        } catch (HsqlException e) {}
+        int index = sessionContext.savepoints.getIndex(name);
 
-        database.txManager.rollbackSavepoint(this, name);
+        if (index < 0) {
+            throw Error.error(ErrorCode.X_3B001, name);
+        }
+
+        database.txManager.rollbackSavepoint(this, index);
+
+        try {
+            database.logger.writeToLog(this, getSavepointRollbackDDL(name));
+        } catch (HsqlException e) {}
+    }
+
+    /**
+     *  Performs a partial transaction ROLLBACK of current savepoint level.
+     *
+     * @param  name name of savepoint
+     * @throws  HsqlException
+     */
+    public void rollbackToSavepoint() {
+
+        if (isClosed) {
+            return;
+        }
+
+        String name = (String) sessionContext.savepoints.getKey(0);
+
+        database.txManager.rollbackSavepoint(this, 0);
+
+        try {
+            database.logger.writeToLog(this, getSavepointRollbackDDL(name));
+        } catch (HsqlException e) {}
     }
 
     /**
@@ -559,12 +646,16 @@ public class Session implements SessionInterface {
     public void releaseSavepoint(String name) throws HsqlException {
 
         // remove this and all later savepoints
-        int index = savepoints.getIndex(name);
+        int index = sessionContext.savepoints.getIndex(name);
 
-        Trace.check(index >= 0, Trace.SAVEPOINT_NOT_FOUND, name);
+        if (index < 0) {
+            throw Error.error(ErrorCode.X_3B001, name);
+        }
 
-        while (savepoints.size() > index) {
-            savepoints.remove(savepoints.size() - 1);
+        while (sessionContext.savepoints.size() > index) {
+            sessionContext.savepoints.remove(sessionContext.savepoints.size()
+                                             - 1);
+            sessionContext.savepointTimestamps.removeLast();
         }
     }
 
@@ -576,10 +667,23 @@ public class Session implements SessionInterface {
     public void setReadOnly(boolean readonly) throws HsqlException {
 
         if (!readonly && database.databaseReadOnly) {
-            throw Trace.error(Trace.DATABASE_IS_READONLY);
+            throw Error.error(ErrorCode.DATABASE_IS_READONLY);
+        }
+
+        if (isInMidTransaction()) {
+            throw Error.error(ErrorCode.X_25001);
         }
 
         isReadOnly = readonly;
+    }
+
+    public void setReadOnlyDefault(boolean readonly) throws HsqlException {
+
+        if (!readonly && database.databaseReadOnly) {
+            throw Error.error(ErrorCode.DATABASE_IS_READONLY);
+        }
+
+        isReadOnlyDefault = readonly;
     }
 
     /**
@@ -598,6 +702,10 @@ public class Session implements SessionInterface {
      */
     public boolean isAutoCommit() {
         return isAutoCommit;
+    }
+
+    public boolean isInMidTransaction() {
+        return isTransaction;
     }
 
     /**
@@ -627,10 +735,10 @@ public class Session implements SessionInterface {
      *
      * @return  internal connection.
      */
-    jdbcConnection getInternalConnection() throws HsqlException {
+    JDBCConnection getInternalConnection() throws HsqlException {
 
         if (intConnection == null) {
-            intConnection = new jdbcConnection(this);
+            intConnection = new JDBCConnection(this);
         }
 
         return intConnection;
@@ -669,13 +777,11 @@ public class Session implements SessionInterface {
         return rowActionList.size();
     }
 
-    CompiledStatement compileStatement(String sql) throws HsqlException {
+    public Statement compileStatement(String sql) throws HsqlException {
 
         parser.reset(sql);
 
-        CompiledStatement cs = parser.compileStatement(currentSchema);
-
-        cs.sql = sql;
+        Statement cs = parser.compileStatement();
 
         return cs;
     }
@@ -688,188 +794,191 @@ public class Session implements SessionInterface {
      */
     public Result execute(Result cmd) {
 
-        try {
-            if (isClosed) {
-                Trace.check(false, Trace.ACCESS_IS_DENIED,
-                            Trace.getMessage(Trace.Session_execute));
-            }
-        } catch (Throwable t) {
-            return Result.newErrorResult(t, null);
+        if (isClosed) {
+            return Result.newErrorResult(
+                Error.error(ErrorCode.ACCESS_IS_DENIED, null), null);
         }
 
-        synchronized (database) {
-            int type = cmd.getType();
+//        synchronized (database) {
+        int type = cmd.getType();
 
-            if (sessionMaxRows == 0) {
-                currentMaxRows = cmd.getUpdateCount();
+        if (sessionMaxRows == 0) {
+            currentMaxRows = cmd.getUpdateCount();
+        }
+
+        JavaSystem.gc();
+
+        switch (type) {
+
+            case ResultConstants.LARGE_OBJECT_OP : {
+                return performLOBOperation((ResultLob) cmd);
             }
+            case ResultConstants.EXECUTE : {
+                Result result = executeCompiledStatement(cmd);
 
-            // we simply get the next system change number - no matter what type of query
-            actionTimestamp = database.txManager.nextActionTimestamp();
+                result = performPostExecute(cmd, result);
 
-            JavaSystem.gc();
+                return result;
+            }
+            case ResultConstants.BATCHEXECUTE : {
+                Result result = executeCompiledBatchStatement(cmd);
 
-            switch (type) {
+                result = performPostExecute(cmd, result);
 
-                case ResultConstants.LARGE_OBJECT_OP : {
-                    return performLOBOperation((ResultLob) cmd);
-                }
-                case ResultConstants.EXECUTE : {
-                    Result result = executeCompiledStatement(cmd);
+                return result;
+            }
+            case ResultConstants.EXECDIRECT : {
+                Result result = executeDirectStatement(cmd);
 
-                    result = performPostExecute(cmd, result);
+                result = performPostExecute(cmd, result);
 
-                    return result;
-                }
-                case ResultConstants.BATCHEXECUTE : {
-                    Result result = executeCompiledBatchStatement(cmd);
+                return result;
+            }
+            case ResultConstants.BATCHEXECDIRECT : {
+                Result result = executeDirectBatchStatement(cmd);
 
-                    result = performPostExecute(cmd, result);
+                result = performPostExecute(cmd, result);
 
-                    return result;
-                }
-                case ResultConstants.EXECDIRECT : {
-                    Result result =
-                        executeDirectStatement(cmd.getMainString());
+                return result;
+            }
+            case ResultConstants.PREPARE : {
+                Statement cs;
 
-                    result = performPostExecute(cmd, result);
+                try {
+                    cs = database.compiledStatementManager.compile(this,
+                            cmd.getMainString());
+                } catch (Throwable t) {
+                    String errorString = cmd.getMainString();
 
-                    return result;
-                }
-                case ResultConstants.BATCHEXECDIRECT : {
-                    Result result = executeDirectBatchStatement(cmd);
-
-                    result = performPostExecute(cmd, result);
-
-                    return result;
-                }
-                case ResultConstants.PREPARE : {
-                    CompiledStatement cs;
-
-                    try {
-                        cs = database.compiledStatementManager.compile(this,
-                                cmd.getMainString());
-                    } catch (Throwable t) {
-                        return Result.newErrorResult(t, cmd.getMainString());
+                    if (database.getProperties().getErrorLevel()
+                            == HsqlDatabaseProperties.NO_MESSAGE) {
+                        errorString = null;
                     }
 
-                    cs.setGeneratedColumnInfo(
-                        cmd.getGeneratedResultType(),
-                        cmd.getGeneratedResultMetaData());
-
-                    ResultMetaData rmd = cs.getResultMetaData();
-                    ResultMetaData pmd = cs.getParametersMetaData();
-
-                    return Result.newPrepareResponse(cs.id, cs.type, rmd, pmd);
+                    return Result.newErrorResult(t, errorString);
                 }
-                case ResultConstants.CLOSE_RESULT : {
-                    closeNavigator(cmd.getResultId());
 
-                    return Result.updateZeroResult;
+                cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
+                                          cmd.getGeneratedResultMetaData());
+
+                ResultMetaData rmd = cs.getResultMetaData();
+                ResultMetaData pmd = cs.getParametersMetaData();
+
+                return Result.newPrepareResponse(cs.getID(), cs.getType(),
+                                                 rmd, pmd);
+            }
+            case ResultConstants.CLOSE_RESULT : {
+                closeNavigator(cmd.getResultId());
+
+                return Result.updateZeroResult;
+            }
+            case ResultConstants.FREESTMT : {
+                database.compiledStatementManager.freeStatement(
+                    cmd.getStatementID(), sessionId, false);
+
+                return Result.updateZeroResult;
+            }
+            case ResultConstants.GETSESSIONATTR : {
+                int id = cmd.getStatementType();
+
+                return getAttributesResult(id);
+            }
+            case ResultConstants.SETSESSIONATTR : {
+                return setAttributes(cmd);
+            }
+            case ResultConstants.ENDTRAN : {
+                switch (cmd.getEndTranType()) {
+
+                    case ResultConstants.TX_COMMIT :
+                        try {
+                            commit(false);
+                        } catch (Throwable t) {
+                            return Result.newErrorResult(t, null);
+                        }
+                        break;
+
+                    case ResultConstants.TX_COMMIT_AND_CHAIN :
+                        try {
+                            commit(true);
+                        } catch (Throwable t) {
+                            return Result.newErrorResult(t, null);
+                        }
+                        break;
+
+                    case ResultConstants.TX_ROLLBACK :
+                        rollback(false);
+                        break;
+
+                    case ResultConstants.TX_ROLLBACK_AND_CHAIN :
+                        rollback(true);
+                        break;
+
+                    case ResultConstants.TX_SAVEPOINT_NAME_RELEASE :
+                        try {
+                            String name = cmd.getMainString();
+
+                            releaseSavepoint(name);
+                        } catch (Throwable t) {
+                            return Result.newErrorResult(t, null);
+                        }
+                        break;
+
+                    case ResultConstants.TX_SAVEPOINT_NAME_ROLLBACK :
+                        try {
+                            rollbackToSavepoint(cmd.getMainString());
+                        } catch (Throwable t) {
+                            return Result.newErrorResult(t, null);
+                        }
+                        break;
                 }
-                case ResultConstants.FREESTMT : {
-                    database.compiledStatementManager.freeStatement(
-                        cmd.getStatementID(), sessionId, false);
 
-                    return Result.updateZeroResult;
+                return Result.updateZeroResult;
+            }
+            case ResultConstants.SETCONNECTATTR : {
+                switch (cmd.getConnectionAttrType()) {
+
+                    case ResultConstants.SQL_ATTR_SAVEPOINT_NAME :
+                        try {
+                            savepoint(cmd.getMainString());
+                        } catch (Throwable t) {
+                            return Result.newErrorResult(t, null);
+                        }
+
+                    // case ResultConstants.SQL_ATTR_AUTO_IPD
+                    //   - always true
+                    // default: throw - case never happens
                 }
-                case ResultConstants.GETSESSIONATTR : {
-                    return getAttributes();
-                }
-                case ResultConstants.SETSESSIONATTR : {
-                    return setAttributes(cmd);
-                }
-                case ResultConstants.ENDTRAN : {
-                    switch (cmd.getEndTranType()) {
 
-                        case ResultConstants.COMMIT :
-                            commit();
-                            break;
+                return Result.updateZeroResult;
+            }
+            case ResultConstants.REQUESTDATA : {
+                return sessionData.getDataResultSlice(cmd.getResultId(),
+                                                      cmd.getUpdateCount(),
+                                                      cmd.getFetchSize());
+            }
+            case ResultConstants.DISCONNECT : {
+                close();
 
-                        case ResultConstants.ROLLBACK :
-                            rollback();
-                            break;
-
-                        case ResultConstants.SAVEPOINT_NAME_RELEASE :
-                            try {
-                                String name = cmd.getMainString();
-
-                                releaseSavepoint(name);
-                            } catch (Throwable t) {
-                                return Result.newErrorResult(t, null);
-                            }
-                            break;
-
-                        case ResultConstants.SAVEPOINT_NAME_ROLLBACK :
-                            try {
-                                rollbackToSavepoint(cmd.getMainString());
-                            } catch (Throwable t) {
-                                return Result.newErrorResult(t, null);
-                            }
-                            break;
-
-                        // not yet
-                        // case ResultConstants.COMMIT_AND_CHAIN :
-                        // case ResultConstants.ROLLBACK_AND_CHAIN :
-                    }
-
-                    return Result.updateZeroResult;
-                }
-                case ResultConstants.SETCONNECTATTR : {
-                    switch (cmd.getConnectionAttrType()) {
-
-                        case ResultConstants.SQL_ATTR_SAVEPOINT_NAME :
-                            try {
-                                savepoint(cmd.getMainString());
-                            } catch (Throwable t) {
-                                return Result.newErrorResult(t, null);
-                            }
-
-                        // case ResultConstants.SQL_ATTR_AUTO_IPD
-                        //   - always true
-                        // default: throw - case never happens
-                    }
-
-                    return Result.updateZeroResult;
-                }
-                case ResultConstants.REQUESTDATA : {
-                    return sessionData.getDataResultSlice(cmd.getResultId(),
-                                                          cmd.getUpdateCount(),
-                                                          cmd.getFetchSize());
-                }
-                case ResultConstants.DISCONNECT : {
-                    close();
-
-                    return Result.updateZeroResult;
-                }
-                default : {
-                    return Result.newErrorResult(
-                        Trace.runtimeError(
-                            Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                            "Session.execute()"), null);
-                }
+                return Result.updateZeroResult;
+            }
+            default : {
+                return Result.newErrorResult(
+                    Error.runtimeError(
+                        ErrorCode.U_S0500, "Session.execute()"), null);
             }
         }
+
+//      }
     }
 
     private Result performPostExecute(Result command, Result result) {
 
         try {
-            if (database != null) {
-                database.schemaManager.logSequences(this, database.logger);
-
-                if (isAutoCommit) {
-                    database.logger.synchLog();
-                }
-            }
-
             if (result.isData()) {
                 sessionData.getDataResultHead(command, result, isNetwork);
             }
 
             return result;
-        } catch (Exception e) {
-            return Result.newErrorResult(e, null);
         } finally {
             if (database != null && database.logger.needsCheckpoint()) {
                 try {
@@ -882,7 +991,7 @@ public class Session implements SessionInterface {
         }
     }
 
-    public ClientRowSetNavigator getRows(long navigatorId, int offset,
+    public RowSetNavigatorClient getRows(long navigatorId, int offset,
                                          int blockSize) throws HsqlException {
         return sessionData.getRowSetSlice(navigatorId, offset, blockSize);
     }
@@ -891,50 +1000,151 @@ public class Session implements SessionInterface {
         sessionData.closeNavigator(id);
     }
 
-/*
-    public Result sqlExecuteDirectNoPreChecks(String sql) {
+    public Result executeDirectStatement(Result cmd) {
 
-        synchronized (database) {
-            return dbCommandInterpreter.execute(sql);
+        String        sql        = cmd.getMainString();
+        String        sqlCommand = null;
+        HsqlArrayList list;
+
+        try {
+            list = parser.compileStatements(sql, cmd.getStatementType());
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e, null);
         }
+
+        Result result = null;
+
+        for (int i = 0; i < list.size(); i++) {
+            Statement cs = (Statement) list.get(i);
+
+            sqlCommand = cs.getSQL();
+            result     = executeCompiledStatement(cs, null);
+
+            if (result.isError()) {
+                break;
+            }
+        }
+
+        return result;
     }
-*/
+
     public Result executeDirectStatement(String sql) {
 
-        synchronized (database) {
-            return parser.execute(sql);
+        Statement cs;
+
+        parser.reset(sql);
+
+        try {
+            cs = parser.compileStatement();
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e, null);
         }
+
+        Result result = executeCompiledStatement(cs, null);
+
+        return result;
     }
 
-    Result executeCompiledStatement(CompiledStatement cs, Object[] pvals) {
+    public Result executeCompiledStatement(Statement cs, Object[] pvals) {
 
         Result r;
 
-        try {
-            beginAction();
-        } catch (HsqlException e) {
-            return Result.newErrorResult(e, null);
+        if (abortTransaction) {
+
+//            tempActionHistory.add("beginAction aborts" + actionTimestamp);
+            rollback(false);
+
+            return Result.newErrorResult(Error.error(ErrorCode.X_40001), null);
         }
 
-//        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
-        r = compiledStatementExecutor.execute(cs, pvals);
+        currentStatement = cs;
 
-//        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
-        try {
+        if (cs.isSchemaStatement()) {
+            try {
+                if (isReadOnly()) {
+                    throw Error.error(ErrorCode.X_25006);
+                }
+
+                // todo - special autocommit for backward compatibility
+                commit(false);
+            } catch (HsqlException e) {}
+
+            r                = cs.execute(this, null);
+            currentStatement = null;
+
+            return r;
+        }
+
+        if (!cs.isTransactionStatement()) {
+            r                = cs.execute(this, null);
+            currentStatement = null;
+
+            return r;
+        }
+
+        while (true) {
+            beginAction(cs);
+
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+
+                //
+                System.out.println("interrupted");
+            }
+
+            //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
+            r = cs.execute(this, pvals);
+
+            //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
             endAction(r);
-        } catch (HsqlException e) {
-            return Result.newErrorResult(e, null);
+
+            if (abortTransaction) {
+                rollback(false);
+
+                currentStatement = null;
+
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001),
+                                             null);
+            }
+
+            if (redoAction) {
+                redoAction = false;
+
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+
+                    //
+                    System.out.println("interrupted");
+                }
+            } else {
+                break;
+            }
         }
+
+        if (isAutoCommit) {
+            try {
+                commit(false);
+            } catch (Exception e) {
+                currentStatement = null;
+
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001),
+                                             null);
+            }
+        }
+
+        currentStatement = null;
 
         return r;
     }
 
     private Result executeCompiledBatchStatement(Result cmd) {
 
-        int               csid;
-        CompiledStatement cs;
-        int[]             updateCounts;
-        int               count;
+        long      csid;
+        Statement cs;
+        int[]     updateCounts;
+        int       count;
 
         csid = cmd.getStatementID();
         cs   = database.compiledStatementManager.getStatement(this, csid);
@@ -943,8 +1153,7 @@ public class Session implements SessionInterface {
 
             // invalid sql has been removed already
             return Result.newErrorResult(
-                Trace.runtimeError(Trace.INVALID_PREPARED_STATEMENT, null),
-                null);
+                Error.runtimeError(ErrorCode.X_07501, null), null);
         }
 
         count = 0;
@@ -956,7 +1165,8 @@ public class Session implements SessionInterface {
         Result generatedResult = null;
 
         if (cs.hasGeneratedColumns()) {
-            generatedResult = Result.newDataResult(cs.generatedResultMetaData);
+            generatedResult =
+                Result.newDataResult(cs.generatedResultMetaData());
         }
 
         Result error = null;
@@ -990,8 +1200,7 @@ public class Session implements SessionInterface {
 
                 break;
             } else {
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Session");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
             }
         }
 
@@ -1046,8 +1255,7 @@ public class Session implements SessionInterface {
 
                 break;
             } else {
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Session");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
             }
         }
 
@@ -1062,16 +1270,15 @@ public class Session implements SessionInterface {
      */
     private Result executeCompiledStatement(Result cmd) {
 
-        int csid = cmd.getStatementID();
-        CompiledStatement cs =
-            database.compiledStatementManager.getStatement(this, csid);
+        long csid = cmd.getStatementID();
+        Statement cs = database.compiledStatementManager.getStatement(this,
+            csid);
 
         if (cs == null) {
 
             // invalid sql has been removed already
-            return Result.newErrorResult(
-                Trace.runtimeError(Trace.INVALID_PREPARED_STATEMENT, null),
-                null);
+            return Result.newErrorResult(Error.error(ErrorCode.X_07502, null),
+                                         null);
         }
 
         Object[] pvals = cmd.getParameterData();
@@ -1080,11 +1287,14 @@ public class Session implements SessionInterface {
     }
 
 // session DATETIME functions
-    long              currentDateTimeSCN;
-    long              currentMillis;
-    private Date      currentDate;
-    private TimeData  currentTime;
-    private Timestamp currentTimestamp;
+    long                  currentDateSCN;
+    long                  currentTimestampSCN;
+    long                  currentMillis;
+    private TimestampData currentDate;
+    private TimestampData currentTimestamp;
+    private TimestampData localTimestamp;
+    private TimeData      currentTime;
+    private TimeData      localTime;
 
     /**
      * Returns the current date, unchanged for the duration of the current
@@ -1101,16 +1311,13 @@ public class Session implements SessionInterface {
      * CURRENT_XXXX calls in this scope will use this millisecond value.
      * (fredt@users)
      */
-    public Date getCurrentDate() {
+    public TimestampData getCurrentDate() {
 
-        if (currentDateTimeSCN != actionTimestamp) {
-            currentDateTimeSCN = actionTimestamp;
-            currentMillis      = System.currentTimeMillis();
-            currentDate        = HsqlDateTime.getCurrentDate(currentMillis);
-            currentTime        = null;
-            currentTimestamp   = null;
-        } else if (currentDate == null) {
-            currentDate = HsqlDateTime.getCurrentDate(currentMillis);
+        resetCurrentTimestamp();
+
+        if (currentDate == null) {
+            currentDate = (TimestampData) Type.SQL_DATE.getValue(currentMillis
+                    / 1000, 0, timeZoneSeconds);
         }
 
         return currentDate;
@@ -1120,87 +1327,216 @@ public class Session implements SessionInterface {
      * Returns the current time, unchanged for the duration of the current
      * execution unit (statement)
      */
-    TimeData getCurrentTime() {
+    TimeData getCurrentTime(boolean withZone) {
 
-        if (currentDateTimeSCN != actionTimestamp) {
-            currentDateTimeSCN = actionTimestamp;
-            currentMillis      = System.currentTimeMillis();
-            currentDate        = null;
-            currentTime =
-                new TimeData(HsqlDateTime.getNormalisedTime(currentMillis));
-            currentTimestamp = null;
-        } else if (currentTime == null) {
-            currentTime =
-                new TimeData(HsqlDateTime.getNormalisedTime(currentMillis));
+        resetCurrentTimestamp();
+
+        if (withZone) {
+            if (currentTime == null) {
+                int seconds =
+                    (int) (HsqlDateTime.getNormalisedTime(currentMillis))
+                    / 1000;
+                int nanos = (int) (currentMillis % 1000) * 1000000;
+
+                currentTime = new TimeData(seconds, nanos, timeZoneSeconds);
+            }
+
+            return currentTime;
+        } else {
+            if (localTime == null) {
+                int seconds =
+                    (int) (HsqlDateTime.getNormalisedTime(
+                        currentMillis + +timeZoneSeconds * 1000)) / 1000;
+                int nanos = (int) (currentMillis % 1000) * 1000000;
+
+                localTime = new TimeData(seconds, nanos, 0);
+            }
+
+            return localTime;
         }
-
-        return currentTime;
     }
 
     /**
      * Returns the current timestamp, unchanged for the duration of the current
      * execution unit (statement)
      */
-    Timestamp getCurrentTimestamp() {
+    TimestampData getCurrentTimestamp(boolean withZone) {
 
-        if (currentDateTimeSCN != actionTimestamp) {
-            currentDateTimeSCN = actionTimestamp;
-            currentMillis      = System.currentTimeMillis();
-            currentDate        = null;
-            currentTime        = null;
-            currentTimestamp   = HsqlDateTime.getTimestamp(currentMillis);
-        } else if (currentTimestamp == null) {
-            currentTimestamp = HsqlDateTime.getTimestamp(currentMillis);
+        resetCurrentTimestamp();
+
+        if (withZone) {
+            if (currentTimestamp == null) {
+                int nanos = (int) (currentMillis % 1000) * 1000000;
+
+                currentTimestamp = new TimestampData((currentMillis / 1000),
+                                                     nanos, timeZoneSeconds);
+            }
+
+            return currentTimestamp;
+        } else {
+            if (localTimestamp == null) {
+                int nanos = (int) (currentMillis % 1000) * 1000000;
+
+                localTimestamp = new TimestampData(currentMillis / 1000
+                                                   + timeZoneSeconds, nanos,
+                                                       0);
+            }
+
+            return localTimestamp;
         }
-
-        return currentTimestamp;
     }
 
-    Result getAttributes() {
+    private void resetCurrentTimestamp() {
+
+        if (currentTimestampSCN != actionTimestamp) {
+            currentTimestampSCN = actionTimestamp;
+            currentMillis       = System.currentTimeMillis();
+            currentDate         = null;
+            currentTimestamp    = null;
+            localTimestamp      = null;
+            currentTime         = null;
+            localTime           = null;
+        }
+    }
+
+    public int getZoneSeconds() {
+        return timeZoneSeconds;
+    }
+
+    private Result getAttributesResult(int id) {
 
         Result   r    = Result.newSessionAttributesResult();
-        Object[] data = new Object[] {
-            database.getURI(), getUsername(), ValuePool.getLong(sessionId),
-            ValuePool.getInt(isolationMode),
-            ValuePool.getBoolean(isAutoCommit),
-            ValuePool.getBoolean(database.databaseReadOnly),
-            ValuePool.getBoolean(isReadOnly)
-        };
+        Object[] data = r.getSingleRowData();
 
-        r.setSessionAttributes(data);
+        data[SessionInterface.INFO_ID] = ValuePool.getInt(id);
+
+        switch (id) {
+
+            case SessionInterface.INFO_ISOLATION :
+                data[SessionInterface.INFO_INTEGER] =
+                    ValuePool.getInt(isolationMode);
+                break;
+
+            case SessionInterface.INFO_AUTOCOMMIT :
+                data[SessionInterface.INFO_BOOLEAN] =
+                    ValuePool.getBoolean(isAutoCommit);
+                break;
+
+            case SessionInterface.INFO_CONNECTION_READONLY :
+                data[SessionInterface.INFO_BOOLEAN] =
+                    ValuePool.getBoolean(isReadOnly);
+                break;
+
+            case SessionInterface.INFO_CATALOG :
+                data[SessionInterface.INFO_VARCHAR] =
+                    database.getCatalogName().name;
+                break;
+        }
 
         return r;
     }
 
-    Result setAttributes(Result r) {
+    private Result setAttributes(Result r) {
 
         Object[] row = r.getSessionAttributes();
+        int      id  = ((Integer) row[SessionInterface.INFO_ID]).intValue();
 
-        for (int i = 0; i < row.length; i++) {
-            Object value = row[i];
+        try {
+            switch (id) {
 
-            if (value == null) {
-                continue;
-            }
+                case SessionInterface.INFO_AUTOCOMMIT : {
+                    boolean value =
+                        ((Boolean) row[SessionInterface.INFO_BOOLEAN])
+                            .booleanValue();
 
-            try {
-                switch (i) {
+                    this.setAutoCommit(value);
 
-                    case SessionInterface.INFO_AUTOCOMMIT : {
-                        this.setAutoCommit(((Boolean) value).booleanValue());
-
-                        break;
-                    }
-                    case SessionInterface.INFO_CONNECTION_READONLY :
-                        this.setReadOnly(((Boolean) value).booleanValue());
-                        break;
+                    break;
                 }
-            } catch (HsqlException e) {
-                return Result.newErrorResult(e, null);
+                case SessionInterface.INFO_CONNECTION_READONLY : {
+                    boolean value =
+                        ((Boolean) row[SessionInterface.INFO_BOOLEAN])
+                            .booleanValue();
+
+                    this.setReadOnly(value);
+
+                    break;
+                }
+                case SessionInterface.INFO_ISOLATION : {
+                    int value =
+                        ((Integer) row[SessionInterface.INFO_INTEGER])
+                            .intValue();
+
+                    this.setIsolation(value);
+
+                    break;
+                }
+                case SessionInterface.INFO_CATALOG : {
+                    String value =
+                        ((String) row[SessionInterface.INFO_VARCHAR]);
+
+                    this.setCatalog(value);
+                }
             }
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e, null);
         }
 
         return Result.updateZeroResult;
+    }
+
+    public Object getAttribute(int id) {
+
+        switch (id) {
+
+            case SessionInterface.INFO_ISOLATION :
+                return ValuePool.getInt(isolationMode);
+
+            case SessionInterface.INFO_AUTOCOMMIT :
+                return ValuePool.getBoolean(isAutoCommit);
+
+            case SessionInterface.INFO_CONNECTION_READONLY :
+                return ValuePool.getBoolean(isReadOnly);
+
+            case SessionInterface.INFO_CATALOG :
+                return database.getCatalogName().name;
+        }
+
+        return null;
+    }
+
+    public synchronized void setAttribute(int id,
+                                          Object object) throws HsqlException {
+
+        switch (id) {
+
+            case SessionInterface.INFO_AUTOCOMMIT : {
+                boolean value = ((Boolean) object).booleanValue();
+
+                this.setAutoCommit(value);
+
+                break;
+            }
+            case SessionInterface.INFO_CONNECTION_READONLY : {
+                boolean value = ((Boolean) object).booleanValue();
+
+                this.setReadOnly(value);
+
+                break;
+            }
+            case SessionInterface.INFO_ISOLATION : {
+                int value = ((Integer) object).intValue();
+
+                this.setIsolation(value);
+
+                break;
+            }
+            case SessionInterface.INFO_CATALOG : {
+                String value = ((String) object);
+
+                this.setCatalog(value);
+            }
+        }
     }
 
     Result performLOBOperation(ResultLob cmd) {
@@ -1221,15 +1557,14 @@ public class Session implements SessionInterface {
 
         if (lob == null) {
             return Result.newErrorResult(
-                Trace.error(Trace.BLOB_IS_NO_LONGER_VALID), null);
+                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID), null);
         }
 
         switch (operation) {
 
             case ResultLob.LobResultTypes.REQUEST_OPEN :
             case ResultLob.LobResultTypes.REQUEST_CLOSE : {
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Session");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
             }
             case ResultLob.LobResultTypes.REQUEST_GET_BYTES : {
                 try {
@@ -1239,7 +1574,7 @@ public class Session implements SessionInterface {
                     return ResultLob.newLobGetBytesResponse(id,
                             cmd.getOffset(), bytes);
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, "blob operation");
+                    return Result.newErrorResult(e, null);
                 }
             }
             case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
@@ -1260,7 +1595,7 @@ public class Session implements SessionInterface {
                     return ResultLob.newLobGetCharsResponse(id,
                             cmd.getOffset(), chars);
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, "blob operation");
+                    return Result.newErrorResult(e, null);
                 }
             }
             case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
@@ -1277,12 +1612,10 @@ public class Session implements SessionInterface {
             }
             case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :
             case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION : {
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Session");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
             }
             default : {
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Session");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
             }
         }
     }
@@ -1301,41 +1634,18 @@ public class Session implements SessionInterface {
         return isProcessingLog;
     }
 
-    // schema processing
-    boolean isSchemaDefintion() {
-        return oldSchema != null;
-    }
-
-    void startSchemaDefinition(String schema) throws HsqlException {
-
-        if (isProcessingScript) {
-            setSchema(schema);
-
-            return;
-        }
-
-        oldSchema = currentSchema;
-
-        setSchema(schema);
-    }
-
-    void endSchemaDefinition() throws HsqlException {
-
-        if (oldSchema == null) {
-            return;
-        }
-
-        currentSchema = oldSchema;
-        oldSchema     = null;
-
-        database.logger.writeToLog(this,
-                                   DatabaseScript.getSetSchemaDDL(database,
-                                       currentSchema));
-    }
-
     // schema object methods
     public void setSchema(String schema) throws HsqlException {
         currentSchema = database.schemaManager.getSchemaHsqlName(schema);
+    }
+
+    public void setCatalog(String catalog) throws HsqlException {
+
+        if (database.getCatalogName().name.equals(catalog)) {
+            return;
+        }
+
+        throw Error.error(ErrorCode.X_3D000);
     }
 
     /**
@@ -1386,6 +1696,10 @@ public class Session implements SessionInterface {
     public void setResultMemoryRowCount(int count) {
 
         if (database.getTempDirectoryPath() != null) {
+            if (count == 0) {
+                count = Integer.MAX_VALUE;
+            }
+
             resultMaxMemoryRows = count;
         }
     }
@@ -1416,8 +1730,24 @@ public class Session implements SessionInterface {
         return array;
     }
 
-    // logs
-    public synchronized long getLobId() {
+    public HsqlException getLastWarnings() {
+
+        if (sqlWarnings == null || sqlWarnings.size() == 0) {
+            return null;
+        }
+
+        return (HsqlException) sqlWarnings.get(sqlWarnings.size() - 1);
+    }
+
+    public void clearWarnings() {
+
+        if (sqlWarnings != null) {
+            sqlWarnings.clear();
+        }
+    }
+
+    // lobs
+    public long getLobId() {
         return database.lobManager.getNewLobId();
     }
 
@@ -1428,5 +1758,99 @@ public class Session implements SessionInterface {
     public void allocateResultLob(ResultLob result,
                                   DataInput dataInput) throws HsqlException {
         sessionData.allocateLobForResult(result, dataInput);
+    }
+
+    // services
+    Scanner          secondaryScanner;
+    SimpleDateFormat simpleDateFormat;
+    SimpleDateFormat simpleDateFormatGMT;
+    Random           randomGenerator = new Random();
+
+    public double random(long seed) {
+
+        randomGenerator.setSeed(seed);
+
+        return randomGenerator.nextDouble();
+    }
+
+    public double random() {
+        return randomGenerator.nextDouble();
+    }
+
+    public Scanner getScanner() {
+
+        if (secondaryScanner == null) {
+            secondaryScanner = new Scanner();
+        }
+
+        return secondaryScanner;
+    }
+
+    public SimpleDateFormat getSimpleDateFormat() {
+
+        if (simpleDateFormat == null) {
+            simpleDateFormat = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+
+            SimpleTimeZone zone = new SimpleTimeZone(timeZoneSeconds,
+                "hsqldb");
+            Calendar cal = new GregorianCalendar(zone);
+
+            simpleDateFormat.setCalendar(cal);
+        }
+
+        return simpleDateFormat;
+    }
+
+    public SimpleDateFormat getSimpleDateFormatGMT() {
+
+        if (simpleDateFormatGMT == null) {
+            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+
+            Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+            simpleDateFormatGMT.setCalendar(cal);
+        }
+
+        return simpleDateFormatGMT;
+    }
+
+    // SEQUENCE current values
+    void logSequences() throws HsqlException {
+
+        OrderedHashSet set = sessionData.sequenceUpdateSet;
+
+        if (set == null || set.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0, size = set.size(); i < size; i++) {
+            NumberSequence sequence = (NumberSequence) set.get(i);
+
+            database.logger.writeSequenceStatement(this, sequence);
+        }
+
+        sessionData.sequenceUpdateSet.clear();
+    }
+
+    //
+    static String getSavepointDDL(String name) {
+
+        StringBuffer sb = new StringBuffer(Tokens.T_SAVEPOINT);
+
+        sb.append(' ').append('"').append(name).append('"');
+
+        return sb.toString();
+    }
+
+    static String getSavepointRollbackDDL(String name) {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_ROLLBACK).append(' ').append(Tokens.T_TO).append(
+            ' ');
+        sb.append(Tokens.T_SAVEPOINT).append(' ');
+        sb.append('"').append(name).append('"');
+
+        return sb.toString();
     }
 }

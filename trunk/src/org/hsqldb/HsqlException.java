@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,11 @@ import org.hsqldb.result.Result;
 
 /**
  * Class encapsulating all exceptions that can be thrown within the engine.
- * Instances are used to create instances of  java.sql.SQLException and returned
+ * Instances are used to create instances of java.sql.SQLException and returned
  * to JDBC callers.
  *
- * @author fredt@users
- * @version 1.7.2
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class HsqlException extends Exception {
@@ -47,6 +47,13 @@ public class HsqlException extends Exception {
     private String message;
     private String state;
     private int    code;
+    private int    level;
+    private int    statementGroup;
+    private int    statementCode;
+
+    //
+    public final static HsqlException noDataCondition =
+        Error.error(ErrorCode.N_02000);
 
     /**
      * @param message String
@@ -84,6 +91,10 @@ public class HsqlException extends Exception {
         return message;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     /**
      * @return SQL State
      */
@@ -96,5 +107,22 @@ public class HsqlException extends Exception {
      */
     public int getErrorCode() {
         return code;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public int getStatementCode() {
+        return statementCode;
+    }
+
+    public void setStatementType(int group, int code) {
+        statementGroup = group;
+        statementCode  = code;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,13 +33,12 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
 
 /*
  * Utility functions to set up special tables.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
@@ -50,8 +49,8 @@ public class TableUtil {
 
         switch (type) {
 
-            case Table.TEMP_TEXT_TABLE :
-            case Table.TEXT_TABLE : {
+            case TableBase.TEMP_TEXT_TABLE :
+            case TableBase.TEXT_TABLE : {
                 return new TextTable(database, tableHsqlName, type);
             }
             default : {
@@ -60,14 +59,15 @@ public class TableUtil {
         }
     }
 
-    static Table newSubqueryTable(Database database) throws HsqlException {
+    static TableDerived newSubqueryTable(Database database,
+                                         QueryExpression queryExpression)
+                                         throws HsqlException {
 
-        HsqlName sqtablename = database.nameManager.newHsqlName(
-            database.schemaManager.SYSTEM_SCHEMA_HSQLNAME, "SYSTEM_SUBQUERY",
-            false, SchemaObject.TABLE);
+        HsqlName name = database.nameManager.newSubqueryTableName();
 
         try {
-            return new Table(database, sqtablename, Table.SYSTEM_SUBQUERY);
+            return new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
+                                    queryExpression);
         } catch (Exception e) {
             return null;
         }
@@ -76,10 +76,10 @@ public class TableUtil {
     static Table newLookupTable(Database database) {
 
         try {
-            Table table = TableUtil.newSubqueryTable(database);
-            Column column =
-                new Column(table.database.nameManager.getAutoColumnName(0),
-                           Type.SQL_INTEGER, false, true, null);
+            TableDerived table = TableUtil.newSubqueryTable(database, null);
+            ColumnSchema column =
+                new ColumnSchema(HsqlNameManager.getAutoColumnName(0),
+                                 Type.SQL_INTEGER, false, true, null);
 
             table.addColumn(column);
             table.createPrimaryKey(new int[]{ 0 });
@@ -91,105 +91,73 @@ public class TableUtil {
     }
 
     /**
-     * Currently used only by org.hsqldb.SubQuery constructor
+     * For table subqueries
      */
-    static void setTableColumns(Table table, Select select,
-                                boolean uniqueRows) throws HsqlException {
+    static void setTableColumnsForSubquery(Table table,
+                                           QueryExpression queryExpression,
+                                           boolean fullIndex)
+                                           throws HsqlException {
 
-        if (select == null) {
-            return;
-        }
+        table.columnList  = queryExpression.getColumns();
+        table.columnCount = queryExpression.getColumnCount();
 
-        addColumns(table, select);
+        table.createPrimaryKey();
 
-        int[] colIndexes = null;
+        if (fullIndex) {
+            int[] colIndexes = null;
 
-        if (uniqueRows) {
             colIndexes = table.getNewColumnMap();
 
             ArrayUtil.fillSequence(colIndexes);
+
+            table.fullIndex = table.createIndexForColumns(colIndexes);
         }
-
-        table.createPrimaryKey(colIndexes);
-
-        // table doesn't need a Primary constraint object
     }
 
-    // IN condition optimisation
+    static void setTableColumnsForSubquery(Table table, Type[] types,
+                                           boolean fullIndex)
+                                           throws HsqlException {
 
-    /**
-     *
-     */
-    static void setTableColumnsAsExpression(Table table, Expression e,
-            boolean uniqueRows) throws HsqlException {
+        addAutoColumns(table, types);
+        table.createPrimaryKey();
 
-        if (table.getColumnCount() != 0) {
-            return;
-        }
+        if (fullIndex) {
+            int[] colIndexes = null;
 
-        for (int i = 0; i < e.argListDataType.length; i++) {
-            Column column =
-                new Column(table.database.nameManager.getAutoColumnName(i),
-                           e.argListDataType[i], true, false, null);
-
-            table.addColumn(column);
-        }
-
-        int[] colIndexes = null;
-
-        if (uniqueRows) {
             colIndexes = table.getNewColumnMap();
 
             ArrayUtil.fillSequence(colIndexes);
+
+            table.fullIndex = table.createIndexForColumns(colIndexes);
         }
-
-        table.createPrimaryKey(colIndexes);
-
-        // table doesn't need a Primary constraint object
     }
 
-    /**
-     *  Add a set of columns based on a ResultMetaData
-     */
-    public static void addColumns(Table table, ResultMetaData metadata,
-                                  int count) throws HsqlException {
+    public static void addAutoColumns(Table table, Type[] colTypes) {
 
-        for (int i = 0; i < count; i++) {
-            Column column =
-                new Column(table.database.nameManager
-                    .newHsqlName(table.getSchemaName(), metadata
-                        .colLabels[i], metadata.isLabelQuoted[i], SchemaObject
-                        .COLUMN), metadata.colTypes[i], true, false, null);
+        for (int i = 0; i < colTypes.length; i++) {
+            ColumnSchema column =
+                new ColumnSchema(HsqlNameManager.getAutoColumnName(i),
+                                 colTypes[i], true, false, null);
+
+            table.addColumnNoCheck(column);
+        }
+    }
+
+    public static void setColumnsInSchemaTable(Table table,
+            HsqlName[] columnNames, Type[] columnTypes) throws HsqlException {
+
+        for (int i = 0; i < columnNames.length; i++) {
+            HsqlName columnName = columnNames[i];
+
+            columnName = table.database.nameManager.newColumnSchemaHsqlName(
+                table.getName(), columnName);
+
+            ColumnSchema column = new ColumnSchema(columnName, columnTypes[i],
+                                                   true, false, null);
 
             table.addColumn(column);
         }
-    }
 
-    /**
-     *  Add an array of columns
-     */
-    public static void addColumns(Table table,
-                                  Column[] columns) throws HsqlException {
-
-        for (int i = 0; i < columns.length; i++) {
-            table.addColumn(columns[i]);
-        }
-    }
-
-    /**
-     *  Adds a set of columns based on a compiled Select
-     */
-    static void addColumns(Table table, Select select) throws HsqlException {
-
-        for (int i = 0; i < select.visibleColumnCount; i++) {
-            Expression e = select.exprColumns[i];
-            Column column =
-                new Column(table.database.nameManager
-                    .newHsqlName(table.getSchemaName(), e.getAlias(), e
-                        .isAliasQuoted(), SchemaObject.COLUMN), e
-                            .dataType, true, false, null);
-
-            table.addColumn(column);
-        }
+        table.setColumnStructures();
     }
 }

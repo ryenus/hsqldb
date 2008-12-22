@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -52,13 +51,12 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 public class Types {
 
     /**
-     * Names of types.
-     * Used for external, JDBC reporting
-     * Used for library and user function arguments
+     * Names of types returned by JDBC methods and accepted as
+     * library and user function arguments
      */
     public static final String DecimalClassName   = "java.math.BigDecimal";
     public static final String DateClassName      = "java.sql.Date";
-    public static final String TimeClassName = "org.hsqldb.types.TimeData";
+    public static final String TimeClassName      = "java.sql.Time";
     public static final String TimestampClassName = "java.sql.Timestamp";
     public static final String BlobClassName      = "java.sql.Blob";
     public static final String ClobClassName      = "java.sql.Clob";
@@ -535,14 +533,13 @@ public class Types {
     };
 
 // lookup for types
-    static IntValueHashMap javaTypeNumbers;
+    final static IntValueHashMap javaTypeNumbers;
 
 //  boucherb@users - We can't handle method invocations in
 //                   Function.java whose number class is
 //                   narrower than the corresponding internal
 //                   wrapper
-    private static HashSet illegalParameterClasses;
-    private static HashMap javaTypeNames;
+    private final static HashSet illegalParameterClasses;
 
     static {
         javaTypeNumbers = new IntValueHashMap(67, 1);
@@ -555,6 +552,7 @@ public class Types {
         javaTypeNumbers.put(DateClassName, Types.SQL_DATE);
         javaTypeNumbers.put(TimeClassName, Types.SQL_TIME);
         javaTypeNumbers.put(TimestampClassName, Types.SQL_TIMESTAMP);
+        javaTypeNumbers.put("java.util.Date", Types.SQL_DATE);
         javaTypeNumbers.put(DecimalClassName, Types.SQL_DECIMAL);
         javaTypeNumbers.put("boolean", Types.SQL_BOOLEAN);
         javaTypeNumbers.put("java.lang.Boolean", Types.SQL_BOOLEAN);
@@ -579,39 +577,6 @@ public class Types {
         illegalParameterClasses.add(Float.class);
 
         //
-        javaTypeNames = new HashMap();
-
-        javaTypeNames.put(DateClassName, "java.sql.Date");
-        javaTypeNames.put(TimeClassName, "java.sql.Time");
-        javaTypeNames.put(TimestampClassName, "java.sql.Timestamp");
-        javaTypeNames.put(DecimalClassName, "java.math.BigDecimal");
-        javaTypeNames.put("byte", "java.lang.Integer");
-        javaTypeNames.put("java.lang.Byte", "java.lang.Integer");
-        javaTypeNames.put("short", "java.lang.Integer");
-        javaTypeNames.put("java.lang.Short", "java.lang.Integer");
-        javaTypeNames.put("int", "java.lang.Integer");
-        javaTypeNames.put("java.lang.Integer", "java.lang.Integer");
-        javaTypeNames.put("long", "java.lang.Long");
-        javaTypeNames.put("java.lang.Long", "java.lang.Long");
-        javaTypeNames.put("double", "java.lang.Double");
-        javaTypeNames.put("java.lang.Double", "java.lang.Double");
-        javaTypeNames.put("boolean", "java.lang.Boolean");
-        javaTypeNames.put("java.lang.Boolean", "java.lang.Boolean");
-        javaTypeNames.put("java.lang.String", "java.lang.String");
-        javaTypeNames.put("void", "java.lang.Void");
-        javaTypeNames.put("[B", "[B");
-    }
-
-    /**
-     * Translates a type name returned from a method into the name of type
-     * returned in a ResultSet
-     */
-    static String getFunctionReturnClassName(String methodReturnType) {
-
-        String name = (String) javaTypeNames.get(methodReturnType);
-
-        return name == null ? methodReturnType
-                            : name;
     }
 
     /**
@@ -669,23 +634,18 @@ public class Types {
      * @return java.sql.Types int value
      * @throws  HsqlException
      */
-    static int getParameterTypeNr(Class c) throws HsqlException {
+    static int getParameterSQLTypeNumber(Class c) throws HsqlException {
 
         String name;
         int    type;
 
         if (c == null) {
-            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+            throw Error.runtimeError(ErrorCode.U_S0500,
                                      "Types");    //NOI18N
         }
 
         if (Void.TYPE.equals(c)) {
             return Types.SQL_ALL_TYPES;
-        }
-
-        if (illegalParameterClasses.contains(c)) {
-            throw Trace.error(Trace.WRONG_DATA_TYPE,
-                              Trace.UNSUPPORTED_PARAM_CLASS, c.getName());
         }
 
         name = c.getName();
@@ -708,145 +668,13 @@ public class Types {
             }
         }
 
-        Trace.check(type != Integer.MIN_VALUE, Trace.WRONG_DATA_TYPE, name);
+        if (type == Integer.MIN_VALUE) {
+            throw Error.error(ErrorCode.X_42561);
+        }
 
         return type;
     }
 
-/*
-    static boolean areSimilar(int t1, int t2) {
-
-        if (t1 == t2) {
-            return true;
-        }
-
-        if (isNumberType(t1)) {
-            return isNumberType(t2);
-        }
-
-        if (isCharacterType(t1)) {
-            return isCharacterType(t2);
-        }
-
-        if (isBinaryType(t1)) {
-            return isBinaryType(t2);
-        }
-
-        return false;
-    }
-
-    static boolean haveSameInternalRepresentation(int t1, int t2) {
-
-        if (t1 == t2) {
-            return true;
-        }
-
-        if (isCharacterType(t1)) {
-            return isCharacterType(t2);
-        }
-
-        if (isBinaryType(t1)) {
-            return isBinaryType(t2);
-        }
-
-        switch (t1) {
-
-            case TINYINT :
-            case SMALLINT :
-            case INTEGER : {
-                switch (t2) {
-
-                    case TINYINT :
-                    case SMALLINT :
-                    case INTEGER : {
-                        return true;
-                    }
-                    default : {
-                        return false;
-                    }
-                }
-            }
-            case FLOAT :
-            case DOUBLE : {
-                switch (t2) {
-
-                    case FLOAT :
-                    case DOUBLE : {
-                        return true;
-                    }
-                    default : {
-                        return false;
-                    }
-                }
-            }
-            case REAL : {
-                return (t2 == REAL)
-            }
-            case DECIMAL :
-            case NUMERIC : {
-                switch (t2) {
-
-                    case DECIMAL :
-                    case NUMERIC : {
-                        return true;
-                    }
-                    default : {
-                        return false;
-                    }
-                }
-            }
-            default : {
-                return false;
-            }
-        }
-    }
-
-    static boolean isExactNumberType(int type) {
-
-        switch (type) {
-
-            case BIGINT :
-            case DECIMAL :
-            case INTEGER :
-            case NUMERIC :
-            case SMALLINT :
-            case TINYINT :
-                return true;
-
-            default :
-                return false;
-        }
-    }
-
-    static boolean isStrictlyIntegralNumberType(int type) {
-
-        switch (type) {
-
-            case BIGINT :
-            case INTEGER :
-            case SMALLINT :
-            case TINYINT :
-                return true;
-
-            default :
-                return false;
-        }
-    }
-
-    static boolean isApproximateNumberType(int type) {
-
-        switch (type) {
-
-            case DOUBLE :
-            case FLOAT :
-            case REAL :
-                return true;
-
-            default :
-                return false;
-        }
-    }
-*/
     public static boolean acceptsZeroPrecision(int type) {
 
         switch (type) {
@@ -925,24 +753,6 @@ public class Types {
 
             default :
                 return false;
-        }
-    }
-
-    public static int numericPrecisionCreateParamRadix(int type) {
-
-        switch (type) {
-
-            case Types.SQL_DECIMAL :
-            case Types.SQL_NUMERIC :
-                return 10;
-
-            case SQL_FLOAT :
-                return 2;
-
-            default :
-
-                // to mean NOT APPLICABLE (i.e. NULL)
-                return 0;
         }
     }
 

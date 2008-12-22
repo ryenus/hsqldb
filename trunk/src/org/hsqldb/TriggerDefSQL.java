@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,27 +36,28 @@ import org.hsqldb.lib.OrderedHashSet;
 /**
  * Implementation of SQL TRIGGER objects.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
 public class TriggerDefSQL extends TriggerDef {
 
-    Table[]             transitions;
-    RangeVariable[]     rangeVars;
-    Expression          condition;
-    CompiledStatement[] compiledStatements;
-    boolean             hasTransitionTables;
-    boolean             hasTransitionRanges;
-    String              conditionSQL;
-    String              procedureSQL;
-    OrderedHashSet      references;
+    Table[]         transitions;
+    RangeVariable[] rangeVars;
+    Expression      condition;
+    StatementDMQL[] compiledStatements;
+    boolean         hasTransitionTables;
+    boolean         hasTransitionRanges;
+    String          conditionSQL;
+    String          procedureSQL;
+    OrderedHashSet  references;
+
 
     public TriggerDefSQL(HsqlNameManager.HsqlName name, String when,
                          String operation, boolean forEachRow, Table table,
                          Table[] transitions, RangeVariable[] rangeVars,
                          Expression condition,
-                         CompiledStatement[] compiledStatements,
+                         StatementDMQL[] compiledStatements,
                          String conditionSQL, String procedureSQL,
                          OrderedHashSet references) throws HsqlException {
 
@@ -85,6 +86,10 @@ public class TriggerDefSQL extends TriggerDef {
 
     public OrderedHashSet getReferences() {
         return references;
+    }
+
+    public OrderedHashSet getComponents() {
+        return null;
     }
 
     public void compile(Session session) throws HsqlException {}
@@ -117,88 +122,87 @@ public class TriggerDefSQL extends TriggerDef {
         }
 
         for (int i = 0; i < compiledStatements.length; i++) {
-            session.compiledStatementExecutor.execute(compiledStatements[i],
-                    null);
+            compiledStatements[i].execute(session, null);
         }
     }
 
     public String getDDL() {
 
         boolean      isBlock = compiledStatements.length > 1;
-        StringBuffer a       = new StringBuffer(256);
+        StringBuffer sb       = new StringBuffer(256);
 
-        a.append(Token.T_CREATE).append(' ');
-        a.append(Token.T_TRIGGER).append(' ');
-        a.append(name.statementName).append(' ');
-        a.append(when).append(' ');
-        a.append(operation).append(' ');
-        a.append(Token.T_ON).append(' ');
-        a.append(table.getName().statementName).append(' ');
+        sb.append(Tokens.T_CREATE).append(' ');
+        sb.append(Tokens.T_TRIGGER).append(' ');
+        sb.append(name.statementName).append(' ');
+        sb.append(when).append(' ');
+        sb.append(operation).append(' ');
+        sb.append(Tokens.T_ON).append(' ');
+        sb.append(table.getName().statementName).append(' ');
 
         if (hasTransitionRanges || hasTransitionTables) {
-            a.append(Token.T_REFERENCING).append(' ');
+            sb.append(Tokens.T_REFERENCING).append(' ');
 
             String separator = "";
 
             if (transitions[OLD_ROW] != null) {
-                a.append(Token.T_OLD).append(' ').append(Token.T_ROW);
-                a.append(' ').append(Token.T_AS).append(' ');
-                a.append(transitions[OLD_ROW].getName().statementName);
+                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_ROW);
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(transitions[OLD_ROW].getName().statementName);
 
-                separator = Token.T_COMMA;
+                separator = Tokens.T_COMMA;
             }
 
             if (transitions[NEW_ROW] != null) {
-                a.append(separator);
-                a.append(Token.T_NEW).append(' ').append(Token.T_ROW);
-                a.append(' ').append(Token.T_AS).append(' ');
-                a.append(transitions[NEW_ROW].getName().statementName);
+                sb.append(separator);
+                sb.append(Tokens.T_NEW).append(' ').append(Tokens.T_ROW);
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(transitions[NEW_ROW].getName().statementName);
 
-                separator = Token.T_COMMA;
+                separator = Tokens.T_COMMA;
             }
 
             if (transitions[OLD_TABLE] != null) {
-                a.append(separator);
-                a.append(Token.T_OLD).append(' ').append(Token.T_TABLE);
-                a.append(' ').append(Token.T_AS).append(' ');
-                a.append(transitions[OLD_TABLE].getName().statementName);
+                sb.append(separator);
+                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_TABLE);
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(transitions[OLD_TABLE].getName().statementName);
 
-                separator = Token.T_COMMA;
+                separator = Tokens.T_COMMA;
             }
 
             if (transitions[NEW_TABLE] != null) {
-                a.append(separator);
-                a.append(Token.T_OLD).append(' ').append(Token.T_TABLE);
-                a.append(' ').append(Token.T_AS).append(' ');
-                a.append(transitions[NEW_TABLE].getName().statementName);
+                sb.append(separator);
+                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_TABLE);
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(transitions[NEW_TABLE].getName().statementName);
             }
 
-            a.append(' ');
+            sb.append(' ');
         }
 
         if (forEachRow) {
-            a.append(Token.T_FOR).append(' ');
-            a.append(Token.T_EACH).append(' ');
-            a.append(Token.T_ROW).append(' ');
+            sb.append(Tokens.T_FOR).append(' ');
+            sb.append(Tokens.T_EACH).append(' ');
+            sb.append(Tokens.T_ROW).append(' ');
         }
 
         if (condition != Expression.EXPR_TRUE) {
-            a.append(Token.T_WHEN).append(' ');
-            a.append(Token.T_OPENBRACKET).append(conditionSQL);
-            a.append(Token.T_CLOSEBRACKET).append(' ');
+            sb.append(Tokens.T_WHEN).append(' ');
+            sb.append(Tokens.T_OPENBRACKET).append(conditionSQL);
+            sb.append(Tokens.T_CLOSEBRACKET).append(' ');
         }
 
         if (isBlock) {
-            a.append(Token.T_BEGIN).append(' ').append(Token.T_ATOMIC);
-            a.append(' ');
+            sb.append(Tokens.T_BEGIN).append(' ').append(Tokens.T_ATOMIC);
+            sb.append(' ');
         }
 
-        a.append(procedureSQL).append(' ');
+        sb.append(procedureSQL).append(' ');
 
         if (isBlock) {
-            a.append(Token.T_END);
+            sb.append(Tokens.T_END);
         }
 
-        return a.toString();
+        return sb.toString();
     }
 }

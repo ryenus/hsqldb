@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,23 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HashMap;
+import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.WrapperIterator;
+import org.hsqldb.store.ValuePool;
 
+/**
+ * Collection of SQL schema objects of a specific type in a schema
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class SchemaObjectSet {
 
-    HashMap map;
-    int     type;
+    HashMap       map;
+    int           type;
+    SchemaManager manager;
 
     SchemaObjectSet(int type) {
 
@@ -50,8 +62,13 @@ public class SchemaObjectSet {
             case SchemaObject.VIEW :
             case SchemaObject.TABLE :
             case SchemaObject.SEQUENCE :
+            case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
+            case SchemaObject.COLLATION :
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.FUNCTION :
+            case SchemaObject.ASSERTION :
                 map = new HashMappedList();
                 break;
 
@@ -70,10 +87,23 @@ public class SchemaObjectSet {
             case SchemaObject.VIEW :
             case SchemaObject.TABLE :
             case SchemaObject.SEQUENCE :
+            case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
-                return ((SchemaObject) map.get(name)).getName();
+            case SchemaObject.COLLATION :
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.FUNCTION :
+            case SchemaObject.ASSERTION :
+                SchemaObject object = ((SchemaObject) map.get(name));
 
+                return object == null ? null
+                                      : object.getName();
+
+            case SchemaObject.CONSTRAINT :
+            case SchemaObject.INDEX :
+            case SchemaObject.TRIGGER : {
+                return (HsqlName) map.get(name);
+            }
             default :
                 return (HsqlName) map.get(name);
         }
@@ -86,13 +116,17 @@ public class SchemaObjectSet {
             case SchemaObject.VIEW :
             case SchemaObject.TABLE :
             case SchemaObject.SEQUENCE :
+            case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
+            case SchemaObject.COLLATION :
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.FUNCTION :
+            case SchemaObject.ASSERTION :
                 return (SchemaObject) map.get(name);
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "SchemaObjectSet");
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
         }
     }
 
@@ -105,7 +139,7 @@ public class SchemaObjectSet {
         if (map.containsKey(name.name)) {
             int code = getAddErrorCode(name.type);
 
-            throw Trace.error(code, name.name);
+            throw Error.error(code, name.name);
         }
     }
 
@@ -114,7 +148,7 @@ public class SchemaObjectSet {
         if (!map.containsKey(name)) {
             int code = getGetErrorCode(type);
 
-            throw Trace.error(code, name);
+            throw Error.error(code, name);
         }
     }
 
@@ -125,7 +159,7 @@ public class SchemaObjectSet {
         if (map.containsKey(name.name)) {
             int code = getAddErrorCode(name.type);
 
-            throw Trace.error(code, name.name);
+            throw Error.error(code, name.name);
         }
 
         Object value = object;
@@ -133,7 +167,6 @@ public class SchemaObjectSet {
         switch (name.type) {
 
             case SchemaObject.CONSTRAINT :
-            case SchemaObject.ASSERTION :
             case SchemaObject.INDEX :
             case SchemaObject.TRIGGER :
                 value = name;
@@ -164,7 +197,7 @@ public class SchemaObjectSet {
         if (map.containsKey(newName.name)) {
             int code = getAddErrorCode(name.type);
 
-            throw Trace.error(code, newName.name);
+            throw Error.error(code, newName.name);
         }
 
         switch (newName.type) {
@@ -172,14 +205,19 @@ public class SchemaObjectSet {
             case SchemaObject.VIEW :
             case SchemaObject.TABLE :
             case SchemaObject.SEQUENCE :
+            case SchemaObject.CHARSET :
+            case SchemaObject.COLLATION :
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.FUNCTION :
             case SchemaObject.DOMAIN :
-            case SchemaObject.TYPE : {
+            case SchemaObject.TYPE :
+            case SchemaObject.ASSERTION : {
                 int i = ((HashMappedList) map).getIndex(name.name);
 
                 if (i == -1) {
                     int code = getGetErrorCode(name.type);
 
-                    throw Trace.error(code, name.name);
+                    throw Error.error(code, name.name);
                 }
 
                 SchemaObject object =
@@ -191,7 +229,6 @@ public class SchemaObjectSet {
                 break;
             }
             case SchemaObject.CONSTRAINT :
-            case SchemaObject.ASSERTION :
             case SchemaObject.INDEX :
             case SchemaObject.TRIGGER : {
                 map.remove(name.name);
@@ -203,103 +240,193 @@ public class SchemaObjectSet {
         }
     }
 
-    int getAddErrorCode(int type) {
+    static int getAddErrorCode(int type) {
 
         int code;
 
         switch (type) {
 
             case SchemaObject.VIEW :
-                code = Trace.VIEW_ALREADY_EXISTS;
-                break;
-
             case SchemaObject.TABLE :
-                code = Trace.TABLE_ALREADY_EXISTS;
-                break;
-
             case SchemaObject.SEQUENCE :
-                code = Trace.SEQUENCE_ALREADY_EXISTS;
-                break;
-
+            case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
-                code = Trace.SEQUENCE_ALREADY_EXISTS;    // TODO
-                break;
-
             case SchemaObject.TYPE :
-                code = Trace.SEQUENCE_ALREADY_EXISTS;    // TODO
-                break;
-
+            case SchemaObject.COLLATION :
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.FUNCTION :
             case SchemaObject.CONSTRAINT :
-                code = Trace.CONSTRAINT_ALREADY_EXISTS;
-                break;
-
             case SchemaObject.ASSERTION :
-                code = Trace.CONSTRAINT_ALREADY_EXISTS;
-                break;
-
             case SchemaObject.INDEX :
-                code = Trace.INDEX_ALREADY_EXISTS;
-                break;
-
             case SchemaObject.TRIGGER :
-                code = Trace.TRIGGER_ALREADY_EXISTS;
+                code = ErrorCode.X_42504;
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "SchemaObjectSet");
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
         }
 
         return code;
     }
 
-    int getGetErrorCode(int type) {
+    static int getGetErrorCode(int type) {
 
         int code;
 
         switch (type) {
 
             case SchemaObject.VIEW :
-                code = Trace.VIEW_NOT_FOUND;
-                break;
-
             case SchemaObject.TABLE :
-                code = Trace.TABLE_NOT_FOUND;
-                break;
-
             case SchemaObject.SEQUENCE :
-                code = Trace.SEQUENCE_NOT_FOUND;
-                break;
-
+            case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
-                code = Trace.SEQUENCE_NOT_FOUND;    // TODO
-                break;
-
             case SchemaObject.TYPE :
-                code = Trace.SEQUENCE_NOT_FOUND;    // TODO
-                break;
-
             case SchemaObject.CONSTRAINT :
-                code = Trace.CONSTRAINT_NOT_FOUND;
-                break;
-
+            case SchemaObject.COLLATION :
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.FUNCTION :
             case SchemaObject.ASSERTION :
-                code = Trace.CONSTRAINT_NOT_FOUND;
-                break;
-
             case SchemaObject.INDEX :
-                code = Trace.INDEX_NOT_FOUND;
-                break;
-
             case SchemaObject.TRIGGER :
-                code = Trace.TRIGGER_NOT_FOUND;
+                code = ErrorCode.X_42501;
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "SchemaObjectSet");
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
         }
 
         return code;
+    }
+
+    public static String getName(int type) {
+
+        switch (type) {
+
+            case SchemaObject.VIEW :
+                return Tokens.T_VIEW;
+
+            case SchemaObject.TABLE :
+                return Tokens.T_TABLE;
+
+            case SchemaObject.SEQUENCE :
+                return Tokens.T_SEQUENCE;
+
+            case SchemaObject.CHARSET :
+                return Tokens.T_CHARACTER + ' ' + Tokens.T_SET;
+
+            case SchemaObject.DOMAIN :
+                return Tokens.T_DOMAIN;
+
+            case SchemaObject.TYPE :
+                return Tokens.T_TYPE;
+
+            case SchemaObject.CONSTRAINT :
+                return Tokens.T_CONSTRAINT;
+
+            case SchemaObject.COLLATION :
+                return Tokens.T_COLLATION;
+
+            case SchemaObject.PROCEDURE :
+                return Tokens.T_PROCEDURE;
+
+            case SchemaObject.FUNCTION :
+                return Tokens.T_FUNCTION;
+
+            case SchemaObject.ASSERTION :
+                return Tokens.T_ASSERTION;
+
+            case SchemaObject.INDEX :
+                return Tokens.T_INDEX;
+
+            case SchemaObject.TRIGGER :
+                return Tokens.T_TRIGGER;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
+        }
+    }
+
+    String[] getDDL(OrderedHashSet resolved, OrderedHashSet unresolved) {
+
+        HsqlArrayList list = new HsqlArrayList();
+
+        if (!(map instanceof HashMappedList)) {
+            return null;
+        }
+
+        if (map.isEmpty()) {
+            return ValuePool.emptyStringArray;
+        }
+
+        Iterator it = map.values().iterator();
+
+        if (type == SchemaObject.FUNCTION || type == SchemaObject.PROCEDURE) {
+            OrderedHashSet set = new OrderedHashSet();
+
+            while (it.hasNext()) {
+                RoutineSchema routine = (RoutineSchema) it.next();
+
+                for (int i = 0; i < routine.routines.length; i++) {
+                    set.add(routine.routines[i]);
+                }
+            }
+
+            it = set.iterator();
+        }
+
+        while (it.hasNext()) {
+            SchemaObject   object     = (SchemaObject) it.next();
+            OrderedHashSet references = object.getReferences();
+
+            if (references != null) {
+                boolean isResolved = true;
+
+                for (int j = 0; j < references.size(); j++) {
+                    HsqlName name = (HsqlName) references.get(j);
+
+                    if (SqlInvariants.isSchemaNameSystem(name)) {
+                        continue;
+                    }
+
+                    if (name.type == SchemaObject.COLUMN) {
+                        name = name.parent;
+                    }
+
+                    if (name.type == SchemaObject.CHARSET ) {
+
+                        // some built-in character sets have no schema
+                        if (name.schema == null) {
+                            continue;
+                        }
+                    }
+
+                    if (!resolved.contains(name)) {
+                        isResolved = false;
+
+                        break;
+                    }
+                }
+
+                if (!isResolved) {
+                    unresolved.add(object);
+
+                    continue;
+                }
+            }
+
+            resolved.add(object.getName());
+
+            if (object.getType() == SchemaObject.TABLE) {
+                list.addAll(((Table) object).getDDL(resolved, unresolved));
+            } else {
+                list.add(object.getDDL());
+            }
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
     }
 }

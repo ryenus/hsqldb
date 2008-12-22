@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,12 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.ObjectComparator;
-import org.hsqldb.navigator.DataRowSetNavigator;
-import org.hsqldb.result.Result;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.lib.ObjectComparator;
+import org.hsqldb.navigator.RowSetNavigatorData;
+import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.result.Result;
+import org.hsqldb.navigator.RowIterator;
 
 /**
  * Represents an SQL view or anonymous subquery (inline virtual table
@@ -43,147 +45,198 @@ import org.hsqldb.HsqlNameManager.HsqlName;
  * Implements {@link org.hsqldb.lib.ObjectComparator ObjectComparator} to
  * provide the correct order of materialization for nested views / subqueries.
  *
- * @author boucherb@users
- * @author fredt@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
 class SubQuery implements ObjectComparator {
 
-    int      level;
-    boolean  isCorrelated;
-    boolean  isExistsPredicate;
-    boolean  uniqueRows;
-    Select   select;
-    Database database;
-    Table    table;
-    View     view;
-    View     parentView;
+    int                  level;
+    private boolean      isCorrelated;
+    private boolean      isExistsPredicate;
+    private boolean      uniqueRows;
+    private boolean      isUniquePredicate;
+    QueryExpression      queryExpression;
+    Database             database;
+    private TableDerived table;
+    View                 view;
+    View                 parentView;
 
     // IN condition optimisation
     Expression dataExpression;
+    boolean    isDataExpression;
 
-    SubQuery() {}
+    //
+    public final static SubQuery[] emptySubqueryArray = new SubQuery[]{};
 
-    SubQuery(Database database, int level, boolean isCorrelated,
-             boolean isExists, boolean uniqueRows, Select select,
+    SubQuery(Database database, int level, QueryExpression queryExpression,
+             int mode) throws HsqlException {
+
+        this.level           = level;
+        this.queryExpression = queryExpression;
+        this.database        = database;
+
+        switch (mode) {
+
+            case OpTypes.EXISTS :
+                isExistsPredicate = true;
+                break;
+
+            case OpTypes.IN :
+                uniqueRows = true;
+
+                if (queryExpression != null) {
+                    queryExpression.setFullOrder();
+                }
+                break;
+
+            case OpTypes.UNIQUE :
+                isUniquePredicate = true;
+
+                if (queryExpression != null) {
+                    queryExpression.setFullOrder();
+                }
+        }
+    }
+
+    SubQuery(Database database, int level, QueryExpression queryExpression,
              View view) throws HsqlException {
 
-        this.level             = level;
-        this.isCorrelated      = isCorrelated;
-        this.isExistsPredicate = isExists;
-        this.uniqueRows        = uniqueRows;
-        this.select            = select;
-        this.database          = database;
-        this.view              = view;
-
-        HsqlName name;
-
-        if (view == null) {
-            name = database.nameManager.newSubqueryTableName();
-        } else {
-            name = view.getName();
-        }
-
-        table = new Table(database, name, Table.SYSTEM_SUBQUERY);
-
-        if (!isCorrelated) {
-            resolveAndPrepare();
-        }
+        this.level           = level;
+        this.queryExpression = queryExpression;
+        this.database        = database;
+        this.view            = view;
     }
 
-    SubQuery(Database database, int level,
-             Expression dataExpression) throws HsqlException {
+    SubQuery(Database database, int level, Expression dataExpression,
+             int mode) throws HsqlException {
 
         this.level              = level;
-        this.isCorrelated       = false;
+        this.database           = database;
         this.dataExpression     = dataExpression;
         dataExpression.subQuery = this;
-        table                   = TableUtil.newSubqueryTable(database);
+        isDataExpression        = true;
 
-        TableUtil.setTableColumnsAsExpression(table, dataExpression,
-                                              uniqueRows);
+        switch (mode) {
+
+            case OpTypes.IN :
+                uniqueRows = true;
+                break;
+        }
     }
 
-    public void resolveAndPrepare() throws HsqlException {
+    public boolean isCorrelated() {
+        return isCorrelated;
+    }
 
-        if (table == null) {
+    public void setCorrelated() {
+        isCorrelated = true;
+    }
+
+    public TableDerived getTable() {
+        return table;
+    }
+
+    public void prepareTable(Session session) throws HsqlException {
+
+        if (table != null) {
             return;
         }
 
-        if (select != null) {
-            select.resolveTypesAndPrepare();
-        }
+        if (view == null) {
+            table = TableUtil.newSubqueryTable(database, null);
 
-        if (table.columnCount == 0) {
-            TableUtil.setTableColumns(table, select, uniqueRows);
+            if (isDataExpression) {
+                TableUtil.setTableColumnsForSubquery(
+                    table, dataExpression.nodeDataTypes,
+                    uniqueRows || isUniquePredicate);
+            } else {
+                TableUtil.setTableColumnsForSubquery(table, queryExpression,
+                                                     uniqueRows
+                                                     || isUniquePredicate);
+            }
+        } else {
+            table = new TableDerived(database, view.getName(),
+                                     TableBase.VIEW_TABLE, queryExpression);
+            table.columnList  = view.columnList;
+            table.columnCount = table.columnList.size();
+
+            table.createPrimaryKey();
         }
     }
 
-    void setAsInSubquery(Expression e) throws HsqlException {
+    public void materialiseCorrelated(Session session) throws HsqlException {
 
-        dataExpression = e;
-        table          = TableUtil.newSubqueryTable(database);
-
-        TableUtil.setTableColumnsAsExpression(table, dataExpression,
-                                              uniqueRows);
-
-        isCorrelated = false;
+        if (isCorrelated) {
+            materialise(session);
+        }
     }
 
     /**
      * Fills the table with a result set
      */
-    void materialise(Session session) throws HsqlException {
+    public void materialise(Session session) throws HsqlException {
 
-        //IN condition optimisation and table constructors
-        if (dataExpression != null) {
-            dataExpression.insertValuesIntoSubqueryTable(session);
+        PersistentStore store;
+
+        // table constructors
+        if (isDataExpression) {
+            store = session.sessionData.getSubqueryRowStore(table, false);
+
+            dataExpression.insertValuesIntoSubqueryTable(session, store);
 
             return;
         }
 
-        Result r = select.getResult(session, isExistsPredicate ? 1
-                                                               : 0);
+        Result result = queryExpression.getResult(session,
+            isExistsPredicate ? 1
+                              : 0);
+        RowSetNavigatorData navigator =
+            ((RowSetNavigatorData) result.getNavigator());
 
         if (uniqueRows) {
-            ((DataRowSetNavigator) r.getNavigator()).removeDuplicates();
+            navigator.removeDuplicates();
         }
 
-        table.insertResult(session, r);
+        boolean cached = navigator.getSize()
+                         > session.getResultMemoryRowCount();
+
+        store = session.sessionData.getSubqueryRowStore(table, cached);
+
+        table.insertResult(store, result);
+        result.getNavigator().close();
     }
 
-    boolean hasUniqueNotNullRows(Session session) throws HsqlException {
+    public boolean hasUniqueNotNullRows(Session session) throws HsqlException {
 
-        Result r = select.getResult(session, 0);
-        boolean result =
-            ((DataRowSetNavigator) r.getNavigator()).hasUniqueNotNullRows();
+        RowSetNavigatorData navigator = new RowSetNavigatorData(session,
+            table);
+        boolean result = navigator.hasUniqueNotNullRows();
 
         return result;
     }
 
-    boolean hasRows(Session session) throws HsqlException {
+    public Object[] getValues(Session session) throws HsqlException {
 
-        Result  r      = select.getResult(session, 1);
-        boolean result = r.getNavigator().hasNext();
+        RowIterator it = table.rowIterator(session);
 
-        return result;
-    }
+        if (it.hasNext()) {
+            Row row = it.getNextRow();
 
-    Object getSingleObjectResult(Session session) throws HsqlException {
-        return select.getValue(session);
-    }
+            if (it.hasNext()) {
+                throw Error.error(ErrorCode.X_21000);
+            }
 
-    void dematerialiseCorrelated(Session session) {
-
-        if (isCorrelated && table != null) {
-            table.clearAllData(session);
+            return row.getData();
+        } else {
+            return new Object[table.getColumnCount()];
         }
     }
 
-    void dematerialiseAll(Session session) {
+    public Object getValue(Session session) throws HsqlException {
 
-        if (table != null) {
-            table.clearAllData(session);
-        }
+        Object[] data = getValues(session);
+
+        return data[0];
     }
 
     /**
@@ -206,17 +259,16 @@ class SubQuery implements ObjectComparator {
         if (sqa.parentView == null && sqb.parentView == null) {
             return sqb.level - sqa.level;
         } else if (sqa.parentView != null && sqb.parentView != null) {
-            Database db = sqa.parentView.database;
-            int      ia = db.schemaManager.getTableIndex(sqa.parentView);
-            int      ib = db.schemaManager.getTableIndex(sqb.parentView);
+            int ia = database.schemaManager.getTableIndex(sqa.parentView);
+            int ib = database.schemaManager.getTableIndex(sqb.parentView);
 
             if (ia == -1) {
-                ia = db.schemaManager.getTables(
+                ia = database.schemaManager.getTables(
                     sqa.parentView.getSchemaName().name).size();
             }
 
             if (ib == -1) {
-                ib = db.schemaManager.getTables(
+                ib = database.schemaManager.getTables(
                     sqb.parentView.getSchemaName().name).size();
             }
 

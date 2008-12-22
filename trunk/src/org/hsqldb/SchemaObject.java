@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,30 +35,70 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.lib.OrderedHashSet;
 
+/**
+ * SQL schema object interface
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public interface SchemaObject {
 
-    int TABLE      = 1;
-    int VIEW       = 2;
-    int CONSTRAINT = 3;
-    int ASSERTION  = 4;
-    int SEQUENCE   = 5;
-    int TRIGGER    = 6;
-    int COLUMN     = 7;
-    int TRANSITION = 8;
-    int SCHEMA     = 9;
-    int GRANTEE    = 10;
-    int TYPE       = 11;
-    int DOMAIN     = 12;
-    int INDEX      = 13;
+    int CATALOG    = 1;
+    int SCHEMA     = 2;
+    int TABLE      = 3;
+    int VIEW       = 4;
+    int CONSTRAINT = 5;
+    int ASSERTION  = 6;
+    int SEQUENCE   = 7;
+    int TRIGGER    = 8;
+    int COLUMN     = 9;
+    int TRANSITION = 10;
+    int GRANTEE    = 11;
+    int TYPE       = 12;
+    int DOMAIN     = 13;
+    int CHARSET    = 14;
+    int COLLATION  = 15;
+    int FUNCTION   = 16;
+    int PROCEDURE  = 17;
+    int CURSOR     = 18;
+    int INDEX      = 19;
+    int LABEL      = 20;
+    int VARIABLE   = 21;
+    int PARAMETER  = 22;
 
+    //
+    SchemaObject[] emptyArray = new SchemaObject[]{};
+
+    int getType();
 
     HsqlName getName();
 
     HsqlName getSchemaName();
 
+    HsqlName getCatalogName();
+
     Grantee getOwner();
 
     OrderedHashSet getReferences();
 
+    OrderedHashSet getComponents();
+
     void compile(Session session) throws HsqlException;
+
+    String getDDL();
+
+    interface ViewCheckModes {
+
+        int CHECK_NONE    = 0;
+        int CHECK_LOCAL   = 1;
+        int CHECK_CASCADE = 2;
+    }
+
+    interface ParameterModes {
+
+        int PARAM_IN    = 0;
+        int PARAM_OUT   = 1;
+        int PARAM_INOUT = 2;
+    }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc.pool;
 
-import org.hsqldb.jdbc.jdbcConnection;
+import org.hsqldb.jdbc.JDBCConnection;
 
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
@@ -42,14 +42,13 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
-import org.hsqldb.jdbc.jdbcConnection;
+import org.hsqldb.jdbc.JDBCConnection;
 
 /**
  * Don't do pooling. Only be a factory. Let ManagedPoolDataSource do the pooling.
  * @author Jakob Jenkov
  */
-public class JDBCConnectionPoolDataSource
-implements ConnectionPoolDataSource {
+public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
 
     /* TODO:  Break off code used here and in JDBCXADataSource into an
      *        abstract class, and have these classes extend the abstract
@@ -61,12 +60,12 @@ implements ConnectionPoolDataSource {
     private PrintWriter          logWriter          = null;
     protected Properties         connProperties = new java.util.Properties();
 
-    public JDBCConnectionPoolDataSource() {}
+    public JDBCConnectionPoolDataSource() {
+    }
 
-    public JDBCConnectionPoolDataSource(String url, String user,
-                                        String password,
-                                        ConnectionDefaults connectionDefaults)
-                                        throws SQLException {
+    public JDBCConnectionPoolDataSource(
+            String url, String user, String password,
+            ConnectionDefaults connectionDefaults) throws SQLException {
 
         this.url                = url;
         this.connectionDefaults = connectionDefaults;
@@ -148,8 +147,8 @@ implements ConnectionPoolDataSource {
                                    + e.getMessage());
         }
 
-        jdbcConnection connection =
-            (jdbcConnection) DriverManager.getConnection(url, connProperties);
+        JDBCConnection connection =
+            (JDBCConnection) DriverManager.getConnection(url, connProperties);
 
         return createPooledConnection(connection);
     }
@@ -166,14 +165,14 @@ implements ConnectionPoolDataSource {
         String configuredUser     = connProperties.getProperty("user");
         String configuredPassword = connProperties.getProperty("password");
 
-        if (((user == null && configuredUser != null) || (user != null && configuredUser == null))
-                || (user != null &&!user.equals(configuredUser))
-                || ((password == null && configuredPassword != null) || (password != null && configuredPassword == null))
-                || (password != null
-                    &&!password.equals(configuredPassword))) {
-            throw new SQLException(
-                "Given user name or password does not "
-                + "match those configured for this object");
+        if (((user == null && configuredUser != null)
+                || (user != null && configuredUser == null)) || (user != null
+                   && !user.equals(configuredUser)) || ((password == null
+                       && configuredPassword != null) || (password != null
+                           && configuredPassword == null)) || (password
+                               != null && !password.equals(configuredPassword))) {
+            throw new SQLException("Given user name or password does not "
+                                   + "match those configured for this object");
         }
     }
 
@@ -196,7 +195,8 @@ implements ConnectionPoolDataSource {
         return getPooledConnection();
     }
 
-    public void close() {}
+    public void close() {
+    }
 
     protected void logInfo(String message) {
 
@@ -278,20 +278,20 @@ implements ConnectionPoolDataSource {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.8.x
      */
-//#ifdef JDBC4BETA
+//#ifdef JAVA6BETA
 /*
     public QueryObjectGenerator getQueryObjectGenerator() throws SQLException {
         return null;
     }
 */
-//#endif JDBC4
+
+//#endif JAVA6BETA
     // ------------------------ internal implementation ------------------------
-    private PooledConnection createPooledConnection(jdbcConnection connection)
-    throws SQLException {
+    private PooledConnection createPooledConnection(
+            JDBCConnection connection) throws SQLException {
 
         LifeTimeConnectionWrapper connectionWrapper =
-            new LifeTimeConnectionWrapper(connection,
-                                          this.connectionDefaults);
+            new LifeTimeConnectionWrapper(connection, this.connectionDefaults);
         JDBCPooledConnection pooledConnection =
             new JDBCPooledConnection(connectionWrapper);
 

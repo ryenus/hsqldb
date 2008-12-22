@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,8 @@ package org.hsqldb;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.BinaryData;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 
 /**
  * Reusable object for processing LIKE queries.
@@ -76,71 +78,73 @@ import org.hsqldb.types.CharacterType;
  * Enhanced in successive versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
 
 // boucherb@users 20030930 - patch 1.7.2 - optimize into joins if possible
 // fredt@users 20031006 - patch 1.7.2 - reuse Like objects for all rows
+// fredt@users 1.9.0 - LIKE for binary strings
 class Like {
 
+    private final static BinaryData maxByteValue =
+        new BinaryData(new byte[]{ -128 }, false);
     private char[]   cLike;
     private int[]    wildCardType;
     private int      iLen;
     private boolean  isIgnoreCase;
     private int      iFirstWildCard;
     private boolean  isNull;
-    Character        escapeChar;
+    int              escapeChar;
     boolean          hasCollation;
-    boolean          optimised;
     static final int UNDERSCORE_CHAR = 1;
     static final int PERCENT_CHAR    = 2;
+    boolean          isVariable      = true;
+    boolean          isBinary        = false;
+    Type             dataType;
 
-    Like(Character escape, boolean collation) {
-        escapeChar   = escape;
+    Like() {}
+
+    void setParams(boolean collation) {
         hasCollation = collation;
     }
 
-    /**
-     * param setter
-     *
-     * @param s
-     * @param ignorecase
-     */
-    void setParams(String s, boolean ignorecase) throws HsqlException {
-
-        isIgnoreCase = ignorecase;
-
-        normalize(s);
-
-        optimised = true;
+    void setIgnoreCase(boolean flag) {
+        isIgnoreCase = flag;
     }
 
-    /**
-     * Resets the search pattern;
-     */
-    void resetPattern(String s) throws HsqlException {
-        normalize(s);
-    }
-
-    private String getStartsWith() {
+    private Object getStartsWith() {
 
         if (iLen == 0) {
-            return "";
+            return isBinary ? BinaryData.zeroLengthBinary
+                            : "";
         }
 
-        StringBuffer s = new StringBuffer();
-        int          i = 0;
+        StringBuffer              sb = null;
+        HsqlByteArrayOutputStream os = null;
 
-        for (; (i < iLen) && (wildCardType[i] == 0); i++) {
-            s.append(cLike[i]);
+        if (isBinary) {
+            os = new HsqlByteArrayOutputStream();
+        } else {
+            sb = new StringBuffer();
+        }
+
+        int i = 0;
+
+        for (; i < iLen && wildCardType[i] == 0; i++) {
+            if (isBinary) {
+                os.writeByte(cLike[i]);
+            } else {
+                sb.append(cLike[i]);
+            }
         }
 
         if (i == 0) {
             return null;
         }
 
-        return s.toString();
+        return isBinary ? new BinaryData(os.toByteArray(), false)
+                        : sb.toString();
     }
 
     /**
@@ -151,18 +155,48 @@ class Like {
      *
      * @return
      */
-    Boolean compare(Session session, String s) {
+    Boolean compare(Session session, Object o) throws HsqlException {
 
-        if (s == null) {
+        if (o == null) {
+            return null;
+        }
+
+        if (isNull) {
             return null;
         }
 
         if (isIgnoreCase) {
-            s = session.database.collation.toUpperCase(s);
+            o = ((CharacterType) dataType).upper(session, o);
         }
 
-        return compareAt(s, 0, 0, s.length()) ? Boolean.TRUE
-                                              : Boolean.FALSE;
+        return compareAt(o, 0, 0, getLength(o)) ? Boolean.TRUE
+                                                : Boolean.FALSE;
+    }
+
+    char getChar(Object o, int i) {
+
+        char c;
+
+        if (isBinary) {
+            c = (char) ((BinaryData) o).getBytes()[i];
+        } else {
+            c = ((String) o).charAt(i);
+        }
+
+        return c;
+    }
+
+    int getLength(Object o) {
+
+        int l;
+
+        if (isBinary) {
+            l = (int) ((BinaryData) o).length();
+        } else {
+            l = ((String) o).length();
+        }
+
+        return l;
     }
 
     /**
@@ -176,13 +210,13 @@ class Like {
      *
      * @return
      */
-    private boolean compareAt(String s, int i, int j, int jLen) {
+    private boolean compareAt(Object o, int i, int j, int jLen) {
 
         for (; i < iLen; i++) {
             switch (wildCardType[i]) {
 
                 case 0 :                  // general character
-                    if ((j >= jLen) || (cLike[i] != s.charAt(j++))) {
+                    if ((j >= jLen) || (cLike[i] != getChar(o, j++))) {
                         return false;
                     }
                     break;
@@ -199,8 +233,8 @@ class Like {
                     }
 
                     while (j < jLen) {
-                        if ((cLike[i] == s.charAt(j))
-                                && compareAt(s, i, j, jLen)) {
+                        if ((cLike[i] == getChar(o, j))
+                                && compareAt(o, i, j, jLen)) {
                             return true;
                         }
 
@@ -225,20 +259,45 @@ class Like {
      * @param pattern
      * @param b
      */
-    private void normalize(String pattern) throws HsqlException {
+    void setPattern(Session session, Object pattern, Object escape,
+                    boolean hasEscape) throws HsqlException {
 
         isNull = pattern == null;
 
-        if (!isNull && isIgnoreCase) {
-            CharacterType type = (CharacterType) Type.SQL_VARCHAR;
-            pattern = (String) type.upper(null, pattern);
+        if (!hasEscape) {
+            escapeChar = -1;
+        } else {
+            if (escape == null) {
+                isNull = true;
+
+                return;
+            } else {
+                int length = getLength(escape);
+
+                if (length != 1) {
+                    if (isBinary) {
+                        throw Error.error(ErrorCode.X_2200D);
+                    } else {
+                        throw Error.error(ErrorCode.X_22019);
+                    }
+                }
+
+                escapeChar = getChar(escape, 0);
+            }
+        }
+
+        if (isNull) {
+            return;
+        }
+
+        if (isIgnoreCase) {
+            pattern = (String) ((CharacterType) dataType).upper(null, pattern);
         }
 
         iLen           = 0;
         iFirstWildCard = -1;
 
-        int l = pattern == null ? 0
-                                : pattern.length();
+        int l = getLength(pattern);
 
         cLike        = new char[l];
         wildCardType = new int[l];
@@ -247,10 +306,10 @@ class Like {
                 bPercent  = false;
 
         for (int i = 0; i < l; i++) {
-            char c = pattern.charAt(i);
+            char c = getChar(pattern, i);
 
-            if (bEscaping == false) {
-                if (escapeChar != null && escapeChar.charValue() == c) {
+            if (!bEscaping) {
+                if (escapeChar == c) {
                     bEscaping = true;
 
                     continue;
@@ -275,11 +334,19 @@ class Like {
                     bPercent = false;
                 }
             } else {
-                bPercent  = false;
-                bEscaping = false;
+                if (c == escapeChar || c == '_' || c == '%') {
+                    bPercent  = false;
+                    bEscaping = false;
+                } else {
+                    throw Error.error(ErrorCode.X_22025);
+                }
             }
 
             cLike[iLen++] = c;
+        }
+
+        if (bEscaping) {
+            throw Error.error(ErrorCode.X_22025);
         }
 
         for (int i = 0; i < iLen - 1; i++) {
@@ -295,17 +362,17 @@ class Like {
         return iFirstWildCard != -1;
     }
 
-    boolean isEquivalentToFalsePredicate() {
+    boolean isEquivalentToUnknownPredicate() {
         return isNull;
     }
 
     boolean isEquivalentToEqualsPredicate() {
-        return iFirstWildCard == -1;
+        return !isVariable && iFirstWildCard == -1;
     }
 
     boolean isEquivalentToNotNullPredicate() {
 
-        if (isNull ||!hasWildcards()) {
+        if (isVariable || isNull || !hasWildcards()) {
             return false;
         }
 
@@ -320,25 +387,33 @@ class Like {
 
     boolean isEquivalentToBetweenPredicate() {
 
-        return iFirstWildCard > 0
+        return !isVariable && iFirstWildCard > 0
                && iFirstWildCard == wildCardType.length - 1
                && cLike[iFirstWildCard] == '%';
     }
 
     boolean isEquivalentToBetweenPredicateAugmentedWithLike() {
-        return iFirstWildCard > 0 && cLike[iFirstWildCard] == '%';
+        return !isVariable && iFirstWildCard > 0
+               && cLike[iFirstWildCard] == '%';
     }
 
-    String getRangeLow() {
+    Object getRangeLow() {
         return getStartsWith();
     }
 
-    String getRangeHigh() {
+    Object getRangeHigh(Session session) throws HsqlException {
 
-        String s = getStartsWith();
+        Object o = getStartsWith();
 
-        return s == null ? null
-                         : s.concat("\uffff");
+        if (o == null) {
+            return null;
+        }
+
+        if (isBinary) {
+            return new BinaryData((BinaryData) o, maxByteValue);
+        } else {
+            return dataType.concat(session, o, "\uffff");
+        }
     }
 
     public String describe(Session session) {
@@ -348,7 +423,8 @@ class Like {
         sb.append(super.toString()).append("[\n");
         sb.append("escapeChar=").append(escapeChar).append('\n');
         sb.append("isNull=").append(isNull).append('\n');
-        sb.append("optimised=").append(optimised).append('\n');
+
+//        sb.append("optimised=").append(optimised).append('\n');
         sb.append("isIgnoreCase=").append(isIgnoreCase).append('\n');
         sb.append("iLen=").append(iLen).append('\n');
         sb.append("iFirstWildCard=").append(iFirstWildCard).append('\n');

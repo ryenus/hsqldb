@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,8 @@ public class ConnectionDefaults {
     private boolean isReadOnly           = false;
     private String  catalog              = null;
 
-    public ConnectionDefaults() {}
+    public ConnectionDefaults() {
+    }
 
     public ConnectionDefaults(Connection connection) throws SQLException {
 
@@ -103,7 +104,6 @@ public class ConnectionDefaults {
         if (this.transactionIsolation != Connection.TRANSACTION_NONE) {
             connection.setTransactionIsolation(this.transactionIsolation);
         }
-
         connection.setAutoCommit(this.isAutoCommit);
         connection.setReadOnly(this.isReadOnly);
         connection.setCatalog(this.catalog);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,12 +42,15 @@ import org.hsqldb.lib.OrderedHashSet;
 /**
  * Maintains a sequence of numbers.
  *
- * @author  fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version  1.9.0
  * @since 1.7.2
  */
-public class NumberSequence implements SchemaObject {
+public final class NumberSequence implements SchemaObject {
 
+    public final static NumberSequence[] emptyArray = new NumberSequence[]{};
+
+    //
     HsqlName name;
 
     // present value
@@ -67,8 +70,14 @@ public class NumberSequence implements SchemaObject {
     private Type    dataType;
     private boolean isCycle;
     private boolean isAlways;
+    private boolean restartValueDefault;
 
-    private NumberSequence() {}
+    public NumberSequence() {
+
+        try {
+            setDefaults(null, Type.SQL_BIGINT);
+        } catch (HsqlException e) {}
+    }
 
     public NumberSequence(HsqlName name, Type type) throws HsqlException {
         setDefaults(name, type);
@@ -84,7 +93,7 @@ public class NumberSequence implements SchemaObject {
         long min;
         long max;
 
-        switch (dataType.type) {
+        switch (dataType.typeCode) {
 
             case Types.SQL_SMALLINT :
                 max = Short.MAX_VALUE;
@@ -103,14 +112,14 @@ public class NumberSequence implements SchemaObject {
 
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                if (type.scale() == 0) {
+                if (type.scale == 0) {
                     max = Long.MAX_VALUE;
                     min = Long.MIN_VALUE;
 
                     break;
                 }
             default :
-                throw Trace.error(Trace.WRONG_DATA_TYPE);
+                throw Error.error(ErrorCode.X_42565);
         }
 
         minValue  = min;
@@ -130,8 +139,16 @@ public class NumberSequence implements SchemaObject {
         setIncrement(increment);
     }
 
+    public int getType() {
+        return SchemaObject.SEQUENCE;
+    }
+
     public HsqlName getName() {
         return name;
+    }
+
+    public HsqlName getCatalogName() {
+        return name.schema.schema;
     }
 
     public HsqlName getSchemaName() {
@@ -143,12 +160,85 @@ public class NumberSequence implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
+        return null;
+    }
+
+    public OrderedHashSet getComponents() {
+        return null;
     }
 
     public void compile(Session session) {}
 
-    public Type getType() {
+    public String getDDL() {
+
+        StringBuffer sb = new StringBuffer(128);
+
+        if (name == null) {
+            sb.append(Tokens.T_GENERATED).append(' ');
+
+            if (isAlways()) {
+                sb.append(Tokens.T_ALWAYS);
+            } else {
+                sb.append(Tokens.T_BY).append(' ').append(Tokens.T_DEFAULT);
+            }
+
+            sb.append(' ').append(Tokens.T_AS).append(' ').append(
+                Tokens.T_IDENTITY).append(Tokens.T_OPENBRACKET);
+        } else {
+            sb.append(Tokens.T_CREATE).append(' ');
+            sb.append(Tokens.T_SEQUENCE).append(' ');
+            sb.append(getName().getSchemaQualifiedStatementName()).append(' ');
+            sb.append(Tokens.T_AS).append(' ');
+            sb.append(getDataType().getNameString()).append(' ');
+        }
+
+        //
+        sb.append(Tokens.T_START).append(' ');
+        sb.append(Tokens.T_WITH).append(' ');
+        sb.append(peek());
+
+        if (getIncrement() != 1) {
+            sb.append(' ').append(Tokens.T_INCREMENT).append(' ');
+            sb.append(Tokens.T_BY).append(' ');
+            sb.append(getIncrement());
+        }
+
+        if (!hasDefaultMinMax()) {
+            sb.append(' ').append(Tokens.T_MINVALUE).append(' ');
+            sb.append(getMinValue());
+            sb.append(' ').append(Tokens.T_MAXVALUE).append(' ');
+            sb.append(getMaxValue());
+        }
+
+        if (isCycle()) {
+            sb.append(' ').append(Tokens.T_CYCLE);
+        }
+
+        if (name == null) {
+            sb.append(Tokens.T_CLOSEBRACKET);
+        }
+
+        return sb.toString();
+    }
+
+    public String getRestartDDL(Table t) {
+
+        String colname = t.getColumn(t.identityColumn).getName().statementName;
+        NumberSequence seq = t.identitySequence;
+        StringBuffer   sb  = new StringBuffer(128);
+
+        sb.append(Tokens.T_ALTER).append(' ').append(Tokens.T_TABLE);
+        sb.append(' ').append(t.getName().getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_ALTER).append(' ');
+        sb.append(Tokens.T_COLUMN);
+        sb.append(' ').append(colname);
+        sb.append(' ').append(Tokens.T_RESTART);
+        sb.append(' ').append(Tokens.T_WITH).append(' ').append(seq.peek());
+
+        return sb.toString();
+    }
+
+    public Type getDataType() {
         return dataType;
     }
 
@@ -156,32 +246,32 @@ public class NumberSequence implements SchemaObject {
         return increment;
     }
 
-    synchronized long getStartValue() {
+    public synchronized long getStartValue() {
         return startValue;
     }
 
-    synchronized long getMinValue() {
+    public synchronized long getMinValue() {
         return minValue;
     }
 
-    synchronized long getMaxValue() {
+    public synchronized long getMaxValue() {
         return maxValue;
     }
 
-    synchronized boolean isCycle() {
+    public synchronized boolean isCycle() {
         return isCycle;
     }
 
-    synchronized boolean isAlways() {
+    public synchronized boolean isAlways() {
         return isAlways;
     }
 
-    synchronized boolean hasDefaultMinMax() {
+    public synchronized boolean hasDefaultMinMax() {
 
         long min;
         long max;
 
-        switch (dataType.type) {
+        switch (dataType.typeCode) {
 
             case Types.SQL_SMALLINT :
                 max = Short.MAX_VALUE;
@@ -205,8 +295,7 @@ public class NumberSequence implements SchemaObject {
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberSequence");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberSequence");
         }
 
         return minValue == min && maxValue == max;
@@ -215,7 +304,7 @@ public class NumberSequence implements SchemaObject {
     synchronized void setStartValue(long value) throws HsqlException {
 
         if (value < minValue || value > maxValue) {
-            throw Trace.error(Trace.SQL_INVALID_SEQUENCE_PARAMETER);
+            throw Error.error(ErrorCode.X_42597);
         }
 
         startValue = value;
@@ -227,7 +316,7 @@ public class NumberSequence implements SchemaObject {
         checkInTypeRange(value);
 
         if (value >= maxValue || currValue < value) {
-            throw Trace.error(Trace.SQL_INVALID_SEQUENCE_PARAMETER);
+            throw Error.error(ErrorCode.X_42597);
         }
 
         minValue = value;
@@ -242,7 +331,7 @@ public class NumberSequence implements SchemaObject {
         checkInTypeRange(value);
 
         if (value <= minValue || currValue > value) {
-            throw Trace.error(Trace.SQL_INVALID_SEQUENCE_PARAMETER);
+            throw Error.error(ErrorCode.X_42597);
         }
 
         maxValue = value;
@@ -255,10 +344,17 @@ public class NumberSequence implements SchemaObject {
     synchronized void setIncrement(long value) throws HsqlException {
 
         if (value < Short.MIN_VALUE / 2 || value > Short.MAX_VALUE / 2) {
-            throw Trace.error(Trace.SQL_INVALID_SEQUENCE_PARAMETER);
+            throw Error.error(ErrorCode.X_42597);
         }
 
         increment = value;
+    }
+
+    synchronized void setCurrentValueNoCheck(long value) throws HsqlException {
+
+        checkInTypeRange(value);
+
+        currValue = lastValue = value;
     }
 
     synchronized void setStartValueNoCheck(long value) throws HsqlException {
@@ -267,6 +363,10 @@ public class NumberSequence implements SchemaObject {
 
         startValue = value;
         currValue  = lastValue = startValue;
+    }
+
+    synchronized void setStartValueDefault() throws HsqlException {
+        restartValueDefault = true;
     }
 
     synchronized void setMinValueNoCheck(long value) throws HsqlException {
@@ -296,7 +396,7 @@ public class NumberSequence implements SchemaObject {
         long min;
         long max;
 
-        switch (dataType.type) {
+        switch (dataType.typeCode) {
 
             case Types.SQL_SMALLINT :
                 max = Short.MAX_VALUE;
@@ -320,8 +420,7 @@ public class NumberSequence implements SchemaObject {
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberSequence");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberSequence");
         }
 
         return isMax ? max
@@ -333,7 +432,7 @@ public class NumberSequence implements SchemaObject {
         long min;
         long max;
 
-        switch (dataType.type) {
+        switch (dataType.typeCode) {
 
             case Types.SQL_SMALLINT :
                 max = Short.MAX_VALUE;
@@ -357,21 +456,25 @@ public class NumberSequence implements SchemaObject {
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberSequence");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberSequence");
         }
 
         if (value < min || value > max) {
-            throw Trace.error(Trace.SQL_INVALID_SEQUENCE_PARAMETER);
+            throw Error.error(ErrorCode.X_42597);
         }
     }
 
     synchronized void checkValues() throws HsqlException {
 
+        if (restartValueDefault) {
+            currValue           = lastValue = startValue;
+            restartValueDefault = false;
+        }
+
         if (minValue >= maxValue || startValue < minValue
                 || startValue > maxValue || currValue < minValue
                 || currValue > maxValue) {
-            throw Trace.error(Trace.SQL_INVALID_SEQUENCE_PARAMETER);
+            throw Error.error(ErrorCode.X_42597);
         }
     }
 
@@ -420,15 +523,13 @@ public class NumberSequence implements SchemaObject {
 
         if (increment > 0) {
             if (value > currValue) {
-                currValue = currValue
-                            + ((value - currValue + increment) / increment)
-                              * increment;
+                currValue += ((value - currValue + increment) / increment)
+                             * increment;
             }
         } else {
             if (value < currValue) {
-                currValue = currValue
-                            + ((value - currValue + increment) / increment)
-                              * increment;
+                currValue += ((value - currValue + increment) / increment)
+                             * increment;
             }
         }
 
@@ -467,7 +568,7 @@ public class NumberSequence implements SchemaObject {
         long   value = getValue();
         Object result;
 
-        switch (dataType.type) {
+        switch (dataType.typeCode) {
 
             default :
             case Types.SQL_SMALLINT :
@@ -491,10 +592,10 @@ public class NumberSequence implements SchemaObject {
     /**
      * principal getter for the next sequence value
      */
-    synchronized long getValue() throws HsqlException {
+    synchronized public long getValue() throws HsqlException {
 
         if (limitReached) {
-            throw Trace.error(Trace.DATA_SEQUENCE_GENERATOR_LIMIT_EXCEEDED);
+            throw Error.error(ErrorCode.X_2200H);
         }
 
         long nextValue;
@@ -550,8 +651,11 @@ public class NumberSequence implements SchemaObject {
      * reset the wasUsed flag
      */
     synchronized boolean resetWasUsed() {
+
         boolean result = lastValue != currValue;
+
         lastValue = currValue;
+
         return result;
     }
 
@@ -561,7 +665,7 @@ public class NumberSequence implements SchemaObject {
     synchronized public void reset(long value) throws HsqlException {
 
         if (value < minValue || value > maxValue) {
-            throw Trace.error(Trace.SQL_INVALID_SEQUENCE_PARAMETER);
+            throw Error.error(ErrorCode.X_42597);
         }
 
         startValue = currValue = lastValue = value;
