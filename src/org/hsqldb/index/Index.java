@@ -94,6 +94,7 @@ import org.hsqldb.types.Type;
 // fredt@users 20021205 - patch 1.7.2 - changes to method signature
 // fredt@users - patch 1.8.0 - reworked the interface and comparison methods
 // fredt@users - patch 1.8.0 - improved reliability for cached indexes
+// fredt@users - patch 1.9.0 - iterators and concurrency
 
 /**
  * Implementation of an AVL tree with parent pointers in nodes. Subclasses
