@@ -220,7 +220,7 @@ implements ActionListener, WindowListener, KeyListener {
 
         if ((defDriver != null && defURL != null) || (defDatabase != null)) {
             if (defDatabase != null) {
-                defDriver   = "org.hsqldb.jdbc.JDBCDriver";
+                defDriver   = "org.hsqldb.jdbcDriver";
                 defURL      = "jdbc:hsqldb:" + defDatabase;
                 defUser     = "SA";
                 defPassword = "";
@@ -275,7 +275,7 @@ implements ActionListener, WindowListener, KeyListener {
         System.out.println("");
         System.out.println(
             "1. Example: java org.hsqldb.util.ZaurusDatabaseManager +");
-        System.out.println("  -driver 'org.hsqldb.jdbc.JDBCDriver' +");
+        System.out.println("  -driver 'org.hsqldb.jdbcDriver' +");
         System.out.println("  -url 'jdbc:hsqldb:test'");
         System.out.println(
             "2. Example: java org.hsqldb.util.ZaurusDatabaseManager +");
