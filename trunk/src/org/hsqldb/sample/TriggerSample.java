@@ -220,9 +220,7 @@ public class TriggerSample implements Trigger {
 
             // do nothing
         } else {
-            msg = Trace.getMessage(Trace.ASSERT_FAILED) + ": " + msg;
-
-            throw new RuntimeException(msg);
+            throw new RuntimeException("Assert failed");
         }
     }
 
