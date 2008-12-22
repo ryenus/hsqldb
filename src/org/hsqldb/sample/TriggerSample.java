@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@
  */
 
 
-
-// use the org.hsqldb.sample package here; but will be in your own package usually
 package org.hsqldb.sample;
 
 import java.io.PrintWriter;
@@ -42,7 +40,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.Trigger;
 import org.hsqldb.lib.StringUtil;
 
@@ -52,6 +51,9 @@ import org.hsqldb.lib.StringUtil;
 
 /**
  * <P>Sample code for use of triggers in hsqldb.
+ *
+ * This class org.hsqldb.sample package, but a typical implementation is in
+ * users's class hierarchy.
  *
  * SQL to invoke is:<p>
  * CREATE TRIGGER triggerSample BEFORE|AFTER INSERT|UPDATE|DELETE
