@@ -61,17 +61,17 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcPreparedStatementTest extends JdbcTestCase {
+public class JDBCPreparedStatementTest extends JdbcTestCase {
 
     private List<PreparedStatement> statementList;
 
-    public jdbcPreparedStatementTest(String testName) {
+    public JDBCPreparedStatementTest(String testName) {
         super(testName);
     }
 
     protected void setUp() throws Exception {
         statementList = new ArrayList<PreparedStatement>();
-        
+
         super.setUp();
 
         executeScript("setup-all_types-table.sql");
@@ -85,16 +85,16 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
                 } catch(Exception e) {}
             }
         }
-        
+
         super.tearDown();
     }
-    
+
     protected PreparedStatement prepareStatement(String sql) throws Exception
     {
         PreparedStatement pstmt = newConnection().prepareStatement(sql);
-        
+
         statementList.add(pstmt);
-        
+
         return pstmt;
     }
 
@@ -117,7 +117,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcPreparedStatementTest.class);
+        TestSuite suite = new TestSuite(JDBCPreparedStatementTest.class);
 
         return suite;
     }
@@ -714,7 +714,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetRef() throws Exception {
         println("setRef");
-        
+
         if (!getBooleanProperty("test.types.ref", true))
         {
             return;
@@ -739,7 +739,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
         println("setBlob");
 
         byte[]            xval = "setBlob".getBytes();
-        Blob              x    = new jdbcBlob(xval);
+        Blob              x    = new JDBCBlob(xval);
         PreparedStatement stmt = queryBy("c_longvarbinary");
 
         stmt.setBlob(1, x);
@@ -753,7 +753,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
         println("setClob");
 
         String            xval = "setClob";
-        Clob              x    = new jdbcClob(xval);
+        Clob              x    = new JDBCClob(xval);
         PreparedStatement stmt = queryBy("c_longvarchar");
 
         stmt.setClob(1, x);
@@ -765,7 +765,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetArray() throws Exception {
         println("setArray");
-        
+
         if (!getBooleanProperty("test.types.array", true))
         {
             return;
@@ -792,10 +792,10 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
         int expColCount = 21;
         PreparedStatement stmt = queryBy("id");
         ResultSetMetaData rsmd = stmt.getMetaData();
-        
+
         try {
             int count = rsmd.getColumnCount();
-            
+
             this.assertEquals("Column Count", expColCount, count);
 
             for (int i = 1; i <= count; i++) {
@@ -821,7 +821,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
             }
         } catch (Exception ex) {
             fail(ex.getMessage());
-        }        
+        }
 
         stmt.close();
 
@@ -854,7 +854,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
-        
+
         println(rsmd);
     }
 
@@ -863,7 +863,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetURL() throws Exception {
         println("setURL");
-        
+
         if (!getBooleanProperty("test.types.datalink", true))
         {
             return;
@@ -916,7 +916,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetRowId() throws Exception {
         println("setRowId");
-        
+
         if (!getBooleanProperty("test.types.rowid", true))
         {
             return;
@@ -966,7 +966,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
     public void testSetNClob() throws Exception {
         println("setNClob");
 
-        NClob             value = new jdbcNClob("setNClob");
+        NClob             value = new JDBCNClob("setNClob");
         PreparedStatement stmt  = queryBy("c_longvarchar");
 
         stmt.setNClob(1, value);
@@ -978,7 +978,7 @@ public class jdbcPreparedStatementTest extends JdbcTestCase {
      */
     public void testSetSQLXML() throws Exception {
         println("setSQLXML");
-        
+
         if (!getBooleanProperty("test.types.sqlxml", true))
         {
             return;

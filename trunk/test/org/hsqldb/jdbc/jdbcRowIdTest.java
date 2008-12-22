@@ -42,9 +42,9 @@ import org.hsqldb.lib.StringConverter;
  *
  * @author boucherb@users
  */
-public class jdbcRowIdTest extends JdbcTestCase {
+public class JDBCRowIdTest extends JdbcTestCase {
 
-    public jdbcRowIdTest(String testName) {
+    public JDBCRowIdTest(String testName) {
         super(testName);
     }
 
@@ -57,17 +57,17 @@ public class jdbcRowIdTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcRowIdTest.class);
+        TestSuite suite = new TestSuite(JDBCRowIdTest.class);
 
         return suite;
     }
 
     public RowId newRowId(String s) throws Exception {
-        return new jdbcRowId(s);
+        return new JDBCRowId(s);
     }
 
     public RowId newRowId(byte[] b) throws Exception {
-        return new jdbcRowId(b);
+        return new JDBCRowId(b);
     }
 
     /**

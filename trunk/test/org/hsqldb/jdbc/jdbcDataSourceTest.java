@@ -44,9 +44,9 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcDataSourceTest extends JdbcTestCase {
+public class JDBCDataSourceTest extends JdbcTestCase {
 
-    public jdbcDataSourceTest(String testName) {
+    public JDBCDataSourceTest(String testName) {
         super(testName);
     }
 
@@ -59,7 +59,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcDataSourceTest.class);
+        TestSuite suite = new TestSuite(JDBCDataSourceTest.class);
 
         return suite;
     }
@@ -69,7 +69,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
     }
 
     protected DataSource newDataSource() {
-        jdbcDataSource ds = new jdbcDataSource();
+        JDBCDataSource ds = new JDBCDataSource();
 
         ds.setDatabase(getUrl());
         ds.setUser(getUser());
@@ -79,7 +79,7 @@ public class jdbcDataSourceTest extends JdbcTestCase {
     }
 
     protected Class getExpectedWrappedClass() {
-        return jdbcDataSource.class;
+        return JDBCDataSource.class;
     }
 
     protected Object getExpectedWrappedObject(DataSource ds, Class<?> ifc) {

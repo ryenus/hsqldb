@@ -48,7 +48,7 @@ import org.hsqldb.ErrorCode;
  *
  * @author boucherb@users
  */
-public class jdbcResultSetTest extends JdbcTestCase {
+public class JDBCResultSetTest extends JdbcTestCase {
 
     public static final int DEFAULT_RESULT_SET_CLOSED_ERROR_CODE
             = -ErrorCode.X_24501;
@@ -61,7 +61,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
     private List<ResultSet> resultSetList;
 
-    public jdbcResultSetTest(String testName) {
+    public JDBCResultSetTest(String testName) {
         super(testName);
     }
 
@@ -87,7 +87,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcResultSetTest.class);
+        TestSuite suite = new TestSuite(JDBCResultSetTest.class);
 
         return suite;
     }
@@ -220,8 +220,8 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
     protected ResultSet newJdbcResultSet(int type, int concur) throws Exception {
 
-        jdbcConnection conn = (jdbcConnection) newConnection();
-        jdbcStatement  stmt = (jdbcStatement) conn.createStatement(type, concur);
+        JDBCConnection conn = (JDBCConnection) newConnection();
+        JDBCStatement  stmt = (JDBCStatement) conn.createStatement(type, concur);
 
         ResultSet rs =  stmt.executeQuery(select);
 
@@ -1698,7 +1698,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
 
         assertEquals(
                 "fetch direction",
-                jdbcResultSet.FETCH_FORWARD,
+                JDBCResultSet.FETCH_FORWARD,
                 rs.getFetchDirection());
 
         rs.close();
@@ -3135,7 +3135,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
     public void testUnwrap() throws Exception {
         println("unwrap");
 
-        Class<?> iface = jdbcResultSet.class;
+        Class<?> iface = JDBCResultSet.class;
         ResultSet rs = newFOROJdbcResultSet();
 
         Object expResult = rs;
@@ -3149,7 +3149,7 @@ public class jdbcResultSetTest extends JdbcTestCase {
     public void testIsWrapperFor() throws Exception {
         println("isWrapperFor");
 
-        Class<?>  iface = jdbcResultSet.class;
+        Class<?>  iface = JDBCResultSet.class;
         ResultSet rs = newFOROJdbcResultSet();
 
         boolean expResult = true;

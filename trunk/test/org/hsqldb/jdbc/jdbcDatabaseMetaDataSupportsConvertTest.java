@@ -40,19 +40,19 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcDatabaseMetaDataSupportsConvertTest
+public class JDBCDatabaseMetaDataSupportsConvertTest
         extends JdbcTestCase {
-    
+
     /**
      *  in type_name_value array
      */
     protected final int m_toIndex;
-    
+
     /**
      * in type_name_value array
      */
     protected final int m_fromIndex;
-    
+
     /**
      * to test.
      */
@@ -110,22 +110,22 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
         {"interval_hour_to_second", "org.hsqldb.Types.SQL_INTERVAL_HOUR_TO_SECOND"},
         {"interval_minute_to_second", "org.hsqldb.Types.SQL_INTERVAL_MINUTE_TO_SECOND"}
     };
-    
+
     /**
      * Constructs a new test case for the given pair of type index values.
      *
      * @param toIndex of target type
      * @param fromIndex of source type
      */
-    public jdbcDatabaseMetaDataSupportsConvertTest(
+    public JDBCDatabaseMetaDataSupportsConvertTest(
             final int toIndex,
             final int fromIndex) {
         super(computeTestName(toIndex,fromIndex));
-        
+
         m_toIndex = toIndex;
         m_fromIndex = fromIndex;
     }
-    
+
     /**
      * for given pair of type index values.
      *
@@ -143,15 +143,15 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
                 + toType.toUpperCase()
                 + "_from_"
                 + fromType.toUpperCase();
-        
+
         return testName;
     }
-    
+
     /**
      * to speed up getMetaData().
      */
     private static DatabaseMetaData m_dbmd;
-    
+
     /**
      * subject of test.
      *
@@ -162,10 +162,10 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
         if (m_dbmd == null) {
             m_dbmd = super.newConnection().getMetaData();
         }
-        
+
         return m_dbmd;
     }
-    
+
     /**
      * Overriden to run the test and assert its state.
      *
@@ -173,32 +173,32 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
      */
     protected void runTest() throws Throwable {
         //println(super.getName()); // 2600+ printlns is too slow...
-        
+
         final String toName = TYPE_NAME_AND_FIELD[m_toIndex][0];
         final String toField = TYPE_NAME_AND_FIELD[m_toIndex][1];
         final int    toCode = getFieldValue(toField);
-        
+
         final String fromName = TYPE_NAME_AND_FIELD[m_fromIndex][0];
         final String fromField = TYPE_NAME_AND_FIELD[m_fromIndex][1];
         final int    fromCode = getFieldValue(fromField);
-        
+
         final String propertyName =
                 "dbmd.supports.convert.to."
                 + toName
                 + ".from."
                 + fromName;
-        
-        final boolean expectedResult = 
+
+        final boolean expectedResult =
                 getBooleanProperty(
                 propertyName,
                 false);
         final boolean actualResult = getMetaData().supportsConvert(
                 fromCode,
                 toCode);
-        
+
         assertEquals(expectedResult, actualResult);
     }
-    
+
     /**
      * of tests for this test case.
      *
@@ -207,27 +207,27 @@ public class jdbcDatabaseMetaDataSupportsConvertTest
     public static Test suite() {
         final TestSuite suite = new TestSuite(
                 "jdbcDatabaseMetaDataSupportsConvertTest");
-        
+
         final int len = TYPE_NAME_AND_FIELD.length;
-        
+
         for(int toIndex = 0; toIndex < len; toIndex++) {
             for (int fromIndex = 0; fromIndex < len; fromIndex++) {
-                suite.addTest(new jdbcDatabaseMetaDataSupportsConvertTest(
+                suite.addTest(new JDBCDatabaseMetaDataSupportsConvertTest(
                         toIndex,
                         fromIndex));
             }
         }
-        
+
         return suite;
     }
-    
+
     /**
      * runs the tests returned by suite().
      *
      * @param argList ignored.
      */
-    public static void main(java.lang.String[] argList) {        
+    public static void main(java.lang.String[] argList) {
         junit.textui.TestRunner.run(suite());
     }
-    
+
 }

@@ -47,13 +47,13 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**
- * Test of class org.hsqldb.jdbc.jdbcCallableStatement.
+ * Test of class org.hsqldb.jdbc.JDBCCallableStatement.
  *
  * @author boucherb@users
  */
-public class jdbcCallableStatementTest extends JdbcTestCase {
+public class JDBCCallableStatementTest extends JdbcTestCase {
 
-    public jdbcCallableStatementTest(String testName) {
+    public JDBCCallableStatementTest(String testName) {
         super(testName);
     }
 
@@ -66,7 +66,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcCallableStatementTest.class);
+        TestSuite suite = new TestSuite(JDBCCallableStatementTest.class);
 
         return suite;
     }
@@ -1455,7 +1455,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
 
         setUpDualTable();
         prepareCall("select cast(? as varchar) from dual")
-            .setNClob("@p1", new jdbcNClob("setCharacterStream"));
+            .setNClob("@p1", new JDBCNClob("setCharacterStream"));
     }
 
     /**
@@ -1466,7 +1466,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
 
         setUpDualTable();
         prepareCall("select cast(? as varchar) from dual")
-            .setClob("@p1", new jdbcClob("setCharacterStream"));
+            .setClob("@p1", new JDBCClob("setCharacterStream"));
     }
 
     /**
@@ -1477,7 +1477,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
 
         setUpDualTable();
         prepareCall("select cast(? as varchar) from dual")
-            .setBlob("@p1", new jdbcBlob("setCharacterStream".getBytes()));
+            .setBlob("@p1", new JDBCBlob("setCharacterStream".getBytes()));
     }
 
     /**
@@ -1492,7 +1492,7 @@ public class jdbcCallableStatementTest extends JdbcTestCase {
         }
 
         CallableStatement stmt;
-        NClob             expResult = new jdbcNClob("getString");
+        NClob             expResult = new JDBCNClob("getString");
         NClob             result    = null;
 
         try {

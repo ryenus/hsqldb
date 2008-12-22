@@ -55,9 +55,9 @@ import org.hsqldb.ErrorCode;
  *
  * @author boucherb@users
  */
-public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
+public class JDBCCallableStatementWhileClosedTest extends JdbcTestCase {
 
-    public jdbcCallableStatementWhileClosedTest(String testName) {
+    public JDBCCallableStatementWhileClosedTest(String testName) {
         super(testName);
     }
 
@@ -74,7 +74,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
      * @return
      */
     public static TestSuite suite() {
-        return new TestSuite(jdbcCallableStatementWhileClosedTest.class);
+        return new TestSuite(JDBCCallableStatementWhileClosedTest.class);
     }
 
     /**
@@ -1685,7 +1685,7 @@ public class jdbcCallableStatementWhileClosedTest extends JdbcTestCase {
     public void testClose() throws Exception {
         println("close");
 //in this suite, no test is necessary for this method
-        jdbcCallableStatement instance = null;
+        JDBCCallableStatement instance = null;
 
 //        instance.close();
 

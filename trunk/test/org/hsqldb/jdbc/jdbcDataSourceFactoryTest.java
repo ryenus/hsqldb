@@ -43,9 +43,9 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcDataSourceFactoryTest extends JdbcTestCase {
+public class JDBCDataSourceFactoryTest extends JdbcTestCase {
 
-    public jdbcDataSourceFactoryTest(String testName) {
+    public JDBCDataSourceFactoryTest(String testName) {
         super(testName);
     }
 
@@ -58,15 +58,15 @@ public class jdbcDataSourceFactoryTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcDataSourceFactoryTest.class);
+        TestSuite suite = new TestSuite(JDBCDataSourceFactoryTest.class);
 
         return suite;
     }
 
     public Reference newReference() throws NamingException {
 
-        String    fcname = "org.hsqldb.jdbc.jdbcDataSourceFactory";
-        String    dcname = "org.hsqldb.jdbc.jdbcDataSource";
+        String    fcname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
+        String    dcname = "org.hsqldb.jdbc.JDBCDataSource";
         Reference ref    = new Reference(dcname, fcname, null);
 
         ref.add(new StringRefAddr("database", getUrl()));
@@ -86,11 +86,11 @@ public class jdbcDataSourceFactoryTest extends JdbcTestCase {
         Name                  name        = null;
         Context               nameCtx     = null;
         Hashtable             environment = null;
-        jdbcDataSourceFactory factory     = new jdbcDataSourceFactory();
-        jdbcDataSource ds;
+        JDBCDataSourceFactory factory     = new JDBCDataSourceFactory();
+        JDBCDataSource ds;
 
         try {
-            ds = (jdbcDataSource) factory.getObjectInstance(obj,
+            ds = (JDBCDataSource) factory.getObjectInstance(obj,
                                                             name,
                                                             nameCtx,
                                                             environment);
