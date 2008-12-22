@@ -221,10 +221,10 @@ public class TestDbBackup extends junit.framework.TestCase {
 
     public void testOnlineBackup()
     throws SQLException, IOException, TarMalformatException {
-        onlineBackupAndRestore("online.tar");
+        onlineBackupAndRestore("online.tar", false);
     }
 
-    public void onlineBackupAndRestore(String baseTarName)
+    public void onlineBackupAndRestore(String baseTarName, boolean compress)
     throws SQLException, IOException, TarMalformatException {
 
         try {
@@ -235,8 +235,10 @@ public class TestDbBackup extends junit.framework.TestCase {
             conn.createStatement().executeUpdate("INSERT INTO t VALUES(4)");
             conn.createStatement().executeUpdate("INSERT INTO t VALUES(5)");
             conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
-                                                 + baseDir.getAbsolutePath() + '/'
-                                                 + baseTarName + "' BLOCKING");
+                                                 + baseDir.getAbsolutePath()
+                                                 + '/' + baseTarName
+                                                 + "' BLOCKING"
+                    + (compress ? "" : " NOT COMPRESSED"));
             conn.createStatement().executeUpdate(
                     "INSERT INTO t VALUES(6)");
             conn.commit();
@@ -329,6 +331,36 @@ public class TestDbBackup extends junit.framework.TestCase {
         fail("Backup from main() did not throw even though DB is open");
     }
 
+    /**
+     * Tests conflicts between requested file name extension and requested
+     * compression format.
+     */
+    public void testConflictingCompression()
+    throws SQLException, IOException, TarMalformatException {
+
+        boolean caught;
+        try {
+            setupConn("db1");
+            conn.createStatement().executeUpdate("INSERT INTO t VALUES(2)");
+            conn.commit();
+            caught = false;
+            try {
+                conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                        + baseDir.getAbsolutePath()
+                        + "/x/bad.tar' BLOCKING COMPRESSED");
+            } catch (SQLException se) {
+                caught = true;
+            }
+            if (!caught) {
+                fail("BACKUP did not throw even though requested compression "
+                        + "to file '/x/bad.tar'");
+            }
+        } finally {
+            shutdownAndCloseConn();
+        }
+
+    }
+
     static public Test suite() throws IOException, SQLException {
 
         TestSuite newSuite = new TestSuite();
@@ -338,6 +370,7 @@ public class TestDbBackup extends junit.framework.TestCase {
         newSuite.addTest(new TestDbBackup("testMainOpen"));
         newSuite.addTest(new TestDbBackup("testGzip"));
         newSuite.addTest(new TestDbBackup("testOnlineBackup"));
+        newSuite.addTest(new TestDbBackup("testConflictingCompression"));
 
         return newSuite;
     }
