@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import java.sql.Connection;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class jdbcBlobClient implements Blob {
+public class JDBCBlobClient implements Blob {
 
     /**
      * Returns the number of bytes in the <code>BLOB</code> value designated
@@ -288,14 +288,14 @@ public class jdbcBlobClient implements Blob {
     //--
     BlobData blob;
 
-    jdbcBlobClient(BlobData blob) {
+    JDBCBlobClient(BlobData blob) {
         this.blob = blob;
     }
 
-    jdbcBlobClient(Connection connection, long length) throws SQLException {
+    JDBCBlobClient(Connection connection, long length) throws SQLException {
 
-        if (connection instanceof jdbcConnection) {
-            long id = ((jdbcConnection) connection).sessionProxy.getLobId();
+        if (connection instanceof JDBCConnection) {
+            long id = ((JDBCConnection) connection).sessionProxy.getLobId();
 
             this.blob = new org.hsqldb.types.BlobDataRemoteClient(id, length);
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,15 @@ package org.hsqldb.persist;
 import java.io.EOFException;
 
 import org.hsqldb.Database;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;
 import org.hsqldb.scriptio.ScriptReaderBase;
-import org.hsqldb.scriptio.ScriptWriterBase;
 
 /**
  * Restores the state of a Database instance from an SQL log file. <p>
@@ -50,7 +50,7 @@ import org.hsqldb.scriptio.ScriptWriterBase;
  * If there is an error, processing stops at that line and the message is
  * logged to the application log. If memory runs out, an exception is thrown.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.2
  */
@@ -59,8 +59,6 @@ public class ScriptRunner {
     /**
      *  This is used to read the *.log file and manage any necessary
      *  transaction rollback.
-     *
-     * @throws  HsqlException
      */
     public static void runScript(Database database, String logFilename,
                                  int logType) throws HsqlException {
@@ -72,6 +70,8 @@ public class ScriptRunner {
         database.setReferentialIntegrity(false);
 
         ScriptReaderBase scr = null;
+        String           statement;
+        int              statementType;
 
         try {
             StopWatch sw = new StopWatch();
@@ -90,7 +90,7 @@ public class ScriptRunner {
                         current =
                             database.getSessionManager().newSession(database,
                                 database.getUserManager().getSysUser(), false,
-                                true);
+                                true, 0);
 
                         sessionMap.put(currentId, current);
                     }
@@ -104,18 +104,20 @@ public class ScriptRunner {
 
                 Result result = null;
 
-                switch (scr.getStatementType()) {
+                statementType = scr.getStatementType();
+
+                switch (statementType) {
 
                     case ScriptReaderBase.ANY_STATEMENT :
-                        result = current.executeDirectStatement(
-                            scr.getLoggedStatement());
+                        statement = scr.getLoggedStatement();
+                        result    = current.executeDirectStatement(statement);
 
                         if (result != null && result.isError()) {
                             if (result.getException() != null) {
                                 throw result.getException();
                             }
 
-                            throw Trace.error(result);
+                            throw Error.error(result);
                         }
                         break;
 
@@ -124,11 +126,11 @@ public class ScriptRunner {
                         break;
 
                     case ScriptReaderBase.COMMIT_STATEMENT :
-                        current.commit();
+                        current.commit(false);
                         break;
 
                     case ScriptReaderBase.INSERT_STATEMENT : {
-                        current.beginAction();
+                        current.beginAction(null);
 
                         Object[] data = scr.getData();
 
@@ -139,7 +141,7 @@ public class ScriptRunner {
                         break;
                     }
                     case ScriptReaderBase.DELETE_STATEMENT : {
-                        current.beginAction();
+                        current.beginAction(null);
 
                         Object[] data = scr.getData();
 
@@ -172,7 +174,7 @@ public class ScriptRunner {
                 database.logger.appLog.logContext(SimpleLog.LOG_ERROR,
                                                   message);
 
-                throw Trace.error(Trace.OUT_OF_MEMORY);
+                throw Error.error(ErrorCode.OUT_OF_MEMORY);
             } else {
 
                 // stop processing on bad log line

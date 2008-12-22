@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,8 @@ import org.hsqldb.types.Type;
  * at the time of writing and thus includes types that may not yet be
  * supported as table or procedure columns. <p>
  *
- * @author  boucherb@users
- * @version 1.8.x
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.2
  */
 final class DITypeInfo {
@@ -127,7 +127,7 @@ final class DITypeInfo {
      *
      * This is also typically the fully-qualified name of the Java class whose
      * instances are manufactured by HSQLDB in response to
-     * jdbcResultSet.getObject(int). <p>
+     * JDBCResultSet.getObject(int). <p>
      *
      * @return the fully-qualified name of the Java class whose
      *    instances are manufactured by HSQLDB to store
@@ -213,31 +213,31 @@ final class DITypeInfo {
         switch (type) {
 
             case Types.SQL_ARRAY :
-                return "org.hsqldb.jdbc.jdbcArray";
+                return "org.hsqldb.jdbc.JDBCArray";
 
             case Types.SQL_BLOB :
-                return "org.hsqldb.jdbc.jdbcBlob";
+                return "org.hsqldb.jdbc.JDBCBlob";
 
             case Types.SQL_CLOB :
-                return "org.hsqldb.jdbc.jdbcClob";
+                return "org.hsqldb.jdbc.JDBCClob";
 
             case Types.NCLOB :
-                return "org.hsqldb.jdbc.jdbcNClob";
+                return "org.hsqldb.jdbc.JDBCNClob";
 
             case Types.DISTINCT :
-                return "org.hsqldb.jdbc.jdbcDistinct";
+                return "org.hsqldb.jdbc.JDBCDistinct";
 
             case Types.SQL_REF :
-                return "org.hsqldb.jdbc.jdbcRef";
+                return "org.hsqldb.jdbc.JDBCRef";
 
             case Types.ROWID :
-                return "org.hsqldb.jdbc.jdbcRowId";
+                return "org.hsqldb.jdbc.JDBCRowId";
 
             case Types.STRUCT :
-                return "org.hsqldb.jdbc.jdbcStruct";
+                return "org.hsqldb.jdbc.JDBCStruct";
 
             case Types.SQL_XML :
-                return "org.hsqldb.jdbc.jdbcSQLXML";
+                return "org.hsqldb.jdbc.JDBCSQLXML";
 
             default :
                 return null;
@@ -342,7 +342,7 @@ final class DITypeInfo {
             case Types.SQL_INTEGER :
             case Types.SQL_SMALLINT :
             case Types.TINYINT :
-                return ValuePool.getInt(0);
+                return ValuePool.INTEGER_0;
 
             default :
                 return null;
@@ -386,9 +386,11 @@ final class DITypeInfo {
             case Types.OTHER :
                 return "'";    // hypothetically: "{o '"; or new "pkg.cls"(...)
 
+            case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIME :
                 return "'";    // or JDBC escape: "{t '";
 
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP :
                 return "'";    // or JDBC escape: "{ts '";
 
@@ -425,7 +427,9 @@ final class DITypeInfo {
             case Types.SQL_DATE :
             case Types.OTHER :
             case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_XML :
                 return "'";    // or JDBC close escape: "'}";
 
@@ -464,12 +468,14 @@ final class DITypeInfo {
 
             case Types.SQL_BIGINT :
             case Types.SQL_DATE :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIME :
             case Types.SQL_INTEGER :
             case Types.SQL_SMALLINT :
             case Types.TINYINT :
-                return ValuePool.getInt(0);
+                return ValuePool.INTEGER_0;
 
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP :
                 return ValuePool.getInt(6);
 
@@ -523,11 +529,13 @@ final class DITypeInfo {
             case Types.SQL_INTEGER :
             case Types.SQL_SMALLINT :
             case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.TINYINT :
             case Types.SQL_DECIMAL :
             case Types.SQL_NUMERIC :
-                return ValuePool.getInt(0);
+                return ValuePool.INTEGER_0;
 
             case Types.SQL_FLOAT :
             case Types.SQL_REAL :
@@ -573,15 +581,15 @@ final class DITypeInfo {
 
             case Types.SQL_BIGINT :
             case Types.SQL_DECIMAL :
-            case Types.SQL_DOUBLE :
             case Types.SQL_INTEGER :
             case Types.SQL_NUMERIC :
-            case Types.SQL_REAL :
             case Types.SQL_SMALLINT :
             case Types.TINYINT :
                 return ValuePool.getInt(10);
 
             case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE :
+            case Types.SQL_REAL :
                 return ValuePool.getInt(2);
 
             default :
@@ -804,7 +812,7 @@ final class DITypeInfo {
         switch (type) {
 
             case Types.SQL_DATE :
-                return ValuePool.getInt(1);
+                return ValuePool.INTEGER_1;
 
             case Types.SQL_TIME :
                 return ValuePool.getInt(2);
@@ -1044,7 +1052,7 @@ final class DITypeInfo {
      * JVM. <p>
      *
      * @return whether the fully qualified name reported by getStdMapClsName()
-     * is supported as a jdbcResultSet.getXXX return type under the current
+     * is supported as a JDBCResultSet.getXXX return type under the current
      * HSQLDB release, class path and hosting JVM.
      */
     Boolean isStdMapClsSupported() {

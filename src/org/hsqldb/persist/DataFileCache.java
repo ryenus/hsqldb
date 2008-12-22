@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,16 +33,18 @@ package org.hsqldb.persist;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.Database;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.FileAccess;
+import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.Storage;
-import org.hsqldb.lib.ZipUnzipFile;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputBinary;
@@ -57,7 +59,7 @@ import org.hsqldb.store.BitMap;
  *
  * Rewritten for 1.8.0 together with Cache.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.2
  */
@@ -107,15 +109,19 @@ public class DataFileCache {
     public long maxDataFileSize;
 
     //
-    protected Storage dataFile;
-    protected long    fileFreePosition;
-    protected int     maxCacheSize;                // number of Rows
-    protected long    maxCacheBytes;               // number of bytes
-    protected int     maxFreeBlocks;
-    protected Cache   cache;
+    protected Storage       dataFile;
+    protected volatile long fileFreePosition;
+    protected int           maxCacheSize;          // number of Rows
+    protected long          maxCacheBytes;         // number of bytes
+    protected int           maxFreeBlocks;
+    protected Cache         cache;
 
-    public DataFileCache(Database db,
-                         String baseFileName) throws HsqlException {
+    //
+    ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
+    ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
+    ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+
+    public DataFileCache(Database db, String baseFileName) {
 
         initParams(db, baseFileName);
 
@@ -125,8 +131,7 @@ public class DataFileCache {
     /**
      * initial external parameters are set here.
      */
-    protected void initParams(Database database,
-                              String baseFileName) throws HsqlException {
+    protected void initParams(Database database, String baseFileName) {
 
         HsqlDatabaseProperties props = database.getProperties();
 
@@ -135,8 +140,9 @@ public class DataFileCache {
         this.database  = database;
         fa             = database.getFileAccess();
 
-        int cacheScale = props.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_cache_scale, 14, 8, 18);
+        int cacheScale =
+            props.getIntegerProperty(HsqlDatabaseProperties.hsqldb_cache_scale,
+                                     14, 8, 18);
         int cacheSizeScale = props.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_cache_size_scale, 10, 6, 20);
         int cacheFreeCountScale = props.getIntegerProperty(
@@ -177,9 +183,14 @@ public class DataFileCache {
             long    freesize  = 0;
 
             if (!preexists && fa.isStreamElement(fileName)) {
+
+                // OOo related code
                 if (database.isStoredFileAccess()) {
                     preexists = true;
-                } else {
+                }
+
+                // OOo end
+                if (!preexists) {
 
                     // discard "empty" databases
                     File f = new File(fileName);
@@ -201,7 +212,7 @@ public class DataFileCache {
                         version);
 
                 if (!v17) {
-                    throw Trace.error(Trace.WRONG_DATABASE_FILE_VERSION);
+                    throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
                 }
             }
 
@@ -263,8 +274,8 @@ public class DataFileCache {
             database.logger.appLog.logContext(e, "failed");
             close(false);
 
-            throw Trace.error(Trace.FILE_IO_ERROR, Trace.DataFileCache_open,
-                              new Object[] {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.DataFileCache_open, new Object[] {
                 e, fileName
             });
         }
@@ -287,6 +298,8 @@ public class DataFileCache {
             if (cacheReadonly) {
                 if (dataFile != null) {
                     dataFile.close();
+
+                    dataFile = null;
                 }
 
                 return;
@@ -299,7 +312,7 @@ public class DataFileCache {
 
             if (write) {
                 cache.saveAll();
-                Trace.printSystemOut("saveAll: " + sw.elapsedTime());
+                Error.printSystemOut("saveAll: " + sw.elapsedTime());
                 appLog.sendLine(SimpleLog.LOG_NORMAL,
                                 "DataFileCache.close() : save data");
 
@@ -333,8 +346,7 @@ public class DataFileCache {
 
                     appLog.sendLine(SimpleLog.LOG_NORMAL,
                                     "DataFileCache.close() : seek end");
-                    Trace.printSystemOut("pos and flags: "
-                                         + sw.elapsedTime());
+                    Error.printSystemOut("pos and flags: " + sw.elapsedTime());
                 }
             }
 
@@ -345,7 +357,7 @@ public class DataFileCache {
 
                 dataFile = null;
 
-                Trace.printSystemOut("close: " + sw.elapsedTime());
+                Error.printSystemOut("close: " + sw.elapsedTime());
             }
 
             boolean empty = fileFreePosition == INITIAL_FREE_POS;
@@ -357,8 +369,8 @@ public class DataFileCache {
         } catch (Throwable e) {
             appLog.logContext(e, null);
 
-            throw Trace.error(Trace.FILE_IO_ERROR, Trace.DataFileCache_close,
-                              new Object[] {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.DataFileCache_close, new Object[] {
                 e, fileName
             });
         }
@@ -402,7 +414,7 @@ public class DataFileCache {
             dfd.process();
             close(false);
             deleteFile(wasNio);
-            renameDataFile();
+            renameDataFile(wasNio);
             backupFile();
             database.getProperties().setProperty(
                 HsqlDatabaseProperties.hsqldb_cache_version,
@@ -419,8 +431,8 @@ public class DataFileCache {
             database.logger.appLog.logContext(e, null);
 
             throw new HsqlException(
-                e, Trace.getMessage(Trace.GENERAL_IO_ERROR),
-                Trace.GENERAL_IO_ERROR);
+                e, Error.getMessage(ErrorCode.GENERAL_IO_ERROR),
+                ErrorCode.GENERAL_IO_ERROR);
         }
 
         database.logger.appLog.logContext(SimpleLog.LOG_NORMAL, "end");
@@ -431,19 +443,24 @@ public class DataFileCache {
      * Removes the row from the cache data structures.
      * Adds the file space for the row to the list of free positions.
      */
-    public synchronized void remove(int i,
-                                    PersistentStore store)
-                                    throws IOException {
+    public void remove(int i, PersistentStore store) throws HsqlException {
 
-        CachedObject r    = release(i);
-        int          size = r == null ? getStorageSize(i)
-                                      : r.getStorageSize();
+        writeLock.lock();
 
-        freeBlocks.add(i, size);
+        try {
+            CachedObject r = release(i);
+
+            if (r != null) {
+                int size = r.getStorageSize();
+
+                freeBlocks.add(i, size);
+            }
+        } finally {
+            writeLock.unlock();
+        }
     }
 
-    public synchronized void removePersistence(int i,
-            PersistentStore store) throws IOException {}
+    public void removePersistence(int i) throws HsqlException {}
 
     /**
      * Allocates file space for the row. <p>
@@ -451,7 +468,7 @@ public class DataFileCache {
      * Free space is requested from the block manager if it exists.
      * Otherwise the file is grown to accommodate it.
      */
-    private int setFilePos(CachedObject r) throws IOException {
+    private int setFilePos(CachedObject r) throws HsqlException {
 
         int rowSize = r.getStorageSize();
         int i       = freeBlocks == null ? -1
@@ -463,8 +480,7 @@ public class DataFileCache {
             long newFreePosition = fileFreePosition + rowSize;
 
             if (newFreePosition > maxDataFileSize) {
-                throw new IOException(
-                    Trace.getMessage(Trace.DATA_FILE_IS_FULL));
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
 
             fileFreePosition = newFreePosition;
@@ -475,22 +491,21 @@ public class DataFileCache {
         return i;
     }
 
-    public synchronized void add(CachedObject object) throws IOException {
+    public void add(CachedObject object) throws HsqlException {
 
-        int size = object.getRealSize(rowOut);
+        writeLock.lock();
 
-        size = ((size + cachedRowPadding - 1) / cachedRowPadding)
-               * cachedRowPadding;
+        try {
+            int i = setFilePos(object);
 
-        object.setStorageSize(size);
+            cache.put(i, object);
 
-        int i = setFilePos(object);
-
-        cache.put(i, object);
-
-        // was previously used for text tables
-        if (storeOnInsert) {
-            saveRow(object);
+            // was previously used for text tables
+            if (storeOnInsert) {
+                saveRow(object);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -498,100 +513,154 @@ public class DataFileCache {
      * For a CacheObject that had been previously released from the cache.
      * A new version is introduced, using the preallocated space for the object.
      */
-    public synchronized void restore(CachedObject object) throws IOException {
+    public void restore(CachedObject object) throws HsqlException {
 
-        int i = object.getPos();
+        writeLock.lock();
 
-        cache.put(i, object);
+        try {
+            int i = object.getPos();
 
-        // was previously used for text tables
-        if (storeOnInsert) {
-            saveRow(object);
+            cache.put(i, object);
+
+            // was previously used for text tables
+            if (storeOnInsert) {
+                saveRow(object);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
-    public synchronized int getStorageSize(int i) throws IOException {
+    public int getStorageSize(int i) throws HsqlException {
 
-        CachedObject value = cache.get(i);
+        readLock.lock();
 
-        if (value != null) {
-            return value.getStorageSize();
+        try {
+            CachedObject value = cache.get(i);
+
+            if (value != null) {
+                return value.getStorageSize();
+            }
+        } finally {
+            readLock.unlock();
         }
 
         return readSize(i);
     }
 
-    public synchronized CachedObject get(int i, PersistentStore store,
-                                         boolean keep) throws HsqlException {
+    public CachedObject get(int i, PersistentStore store,
+                            boolean keep) throws HsqlException {
+
+        CachedObject object;
 
         if (i < 0) {
             return null;
         }
 
+        readLock.lock();
+
         try {
-            CachedObject object = cache.get(i);
+            object = cache.get(i);
 
-            if (object == null) {
-                RowInputInterface rowInput = readObject(i);
-
-                if (rowInput == null) {
-                    return null;
+            if (object != null) {
+                if (keep) {
+                    object.keepInMemory(true);
                 }
 
-                object = store.get(rowInput);
-
-                // for text tables with empty rows at the beginning,
-                // pos may move forward in readObject
-                i = object.getPos();
-
-                cache.put(i, object);
+                return object;
             }
+        } finally {
+            readLock.unlock();
+        }
+
+        writeLock.lock();
+
+        try {
+            RowInputInterface rowInput = readObject(i);
+
+            if (rowInput == null) {
+                return null;
+            }
+
+            object = store.get(rowInput);
+
+            // for text tables with empty rows at the beginning,
+            // pos may move forward in readObject
+            i = object.getPos();
+
+            cache.put(i, object);
 
             if (keep) {
                 object.keepInMemory(true);
             }
 
             return object;
-        } catch (IOException e) {
+        } catch (HsqlException e) {
             database.logger.appLog.logContext(e, fileName + " get pos: " + i);
 
-            throw Trace.error(Trace.DATA_FILE_ERROR,
-                              Trace.DataFileCache_makeRow, new Object[] {
+            throw Error.error(ErrorCode.DATA_FILE_ERROR,
+                              ErrorCode.DataFileCache_makeRow, new Object[] {
                 e, fileName
             });
+        } finally {
+            writeLock.unlock();
         }
     }
 
-    synchronized RowInputInterface getRaw(int i) throws IOException {
+    RowInputInterface getRaw(int i) throws HsqlException {
         return readObject(i);
     }
 
-    protected synchronized int readSize(int pos) throws IOException {
+    protected int readSize(int pos) throws HsqlException {
 
-        dataFile.seek((long) pos * cacheFileScale);
+        writeLock.lock();
 
-        return dataFile.readInt();
+        try {
+            dataFile.seek((long) pos * cacheFileScale);
+
+            return dataFile.readInt();
+        } catch (IOException e) {
+            throw new HsqlException(e.getMessage(), "", 0);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
-    protected synchronized RowInputInterface readObject(int pos)
-    throws IOException {
+    protected RowInputInterface readObject(int pos) throws HsqlException {
 
-        dataFile.seek((long) pos * cacheFileScale);
+        writeLock.lock();
 
-        int size = dataFile.readInt();
+        try {
+            dataFile.seek((long) pos * cacheFileScale);
 
-        rowIn.resetRow(pos, size);
-        dataFile.read(rowIn.getBuffer(), 4, size - 4);
+            int size = dataFile.readInt();
 
-        return rowIn;
+            rowIn.resetRow(pos, size);
+            dataFile.read(rowIn.getBuffer(), 4, size - 4);
+
+            return rowIn;
+        } catch (IOException e) {
+            throw new HsqlException(e.getMessage(), "", 0);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
-    public synchronized CachedObject release(int i) {
-        return cache.release(i);
+    public CachedObject release(int i) {
+
+        writeLock.lock();
+
+        try {
+            return cache.release(i);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
-    protected synchronized void saveRows(CachedObject[] rows, int offset,
-                                         int count) throws IOException {
+    protected void saveRows(CachedObject[] rows, int offset,
+                            int count) throws HsqlException {
+
+        writeLock.lock();
 
         try {
             for (int i = offset; i < offset + count; i++) {
@@ -601,16 +670,17 @@ public class DataFileCache {
 
                 rows[i] = null;
             }
-        } catch (IOException e) {
+        } catch (HsqlException e) {
             database.logger.appLog.logContext(e, null);
 
-            throw e;
+            throw new HsqlException(e, "", 0);
         } catch (Throwable e) {
             database.logger.appLog.logContext(e, null);
 
-            throw new IOException(e.toString());
+            throw new HsqlException(e.toString(), "", 0);
         } finally {
             initBuffers();
+            writeLock.unlock();
         }
     }
 
@@ -618,14 +688,22 @@ public class DataFileCache {
      * Writes out the specified Row. Will write only the Nodes or both Nodes
      * and table row data depending on what is not already persisted to disk.
      */
-    public synchronized void saveRow(CachedObject row) throws IOException {
+    public void saveRow(CachedObject row) throws HsqlException {
 
-        setFileModified();
-        rowOut.reset();
-        row.write(rowOut);
-        dataFile.seek((long) row.getPos() * cacheFileScale);
-        dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
-                       rowOut.getOutputStream().size());
+        writeLock.lock();
+
+        try {
+            setFileModified();
+            rowOut.reset();
+            row.write(rowOut);
+            dataFile.seek((long) row.getPos() * cacheFileScale);
+            dataFile.write(rowOut.getOutputStream().getBuffer(), 0,
+                           rowOut.getOutputStream().size());
+        } catch (IOException e) {
+            throw new HsqlException(e.getMessage(), "", 0);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -633,25 +711,36 @@ public class DataFileCache {
      *
      * @throws  HsqlException
      */
-    void backupFile() throws IOException {
+    void backupFile() throws HsqlException {
+
+        writeLock.lock();
 
         try {
             if (fa.isStreamElement(fileName)) {
-                ZipUnzipFile.compressFile(fileName, backupFileName + ".new",
-                                          database.getFileAccess());
+                FileArchiver.archive(fileName, backupFileName + ".new",
+                                     database.getFileAccess(),
+                                     FileArchiver.COMPRESSION_ZIP);
             }
         } catch (IOException e) {
             database.logger.appLog.logContext(e, null);
 
-            throw e;
+            throw new HsqlException(e.getMessage(), "", 0);
+        } finally {
+            writeLock.unlock();
         }
     }
 
     void renameBackupFile() {
 
-        if (fa.isStreamElement(backupFileName + ".new")) {
-            fa.removeElement(backupFileName);
-            fa.renameElement(backupFileName + ".new", backupFileName);
+        writeLock.lock();
+
+        try {
+            if (fa.isStreamElement(backupFileName + ".new")) {
+                fa.removeElement(backupFileName);
+                fa.renameElement(backupFileName + ".new", backupFileName);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -660,37 +749,63 @@ public class DataFileCache {
      *
      * @throws  HsqlException
      */
-    void renameDataFile() {
+    void renameDataFile(boolean wasNio) {
 
-        if (fa.isStreamElement(fileName + ".new")) {
-            fa.removeElement(fileName);
-            fa.renameElement(fileName + ".new", fileName);
+        writeLock.lock();
+
+        try {
+            if (fa.isStreamElement(fileName + ".new")) {
+                deleteFile(wasNio);
+                fa.renameElement(fileName + ".new", fileName);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
     void deleteFile(boolean wasNio) {
 
-        // first attemp to delete
-        fa.removeElement(fileName);
+        writeLock.lock();
 
-        if (fa.isStreamElement(fileName)) {
-            if (wasNio) {
-                System.gc();
-                fa.removeElement(fileName);
+        try {
+
+            // first attemp to delete
+            fa.removeElement(fileName);
+
+            // OOo related code
+            if (database.isStoredFileAccess()) {
+                return;
             }
 
+            // OOo end
             if (fa.isStreamElement(fileName)) {
-                fa.renameElement(fileName, fileName + ".old");
+                if (wasNio) {
+                    System.gc();
+                    fa.removeElement(fileName);
+                }
 
-                File oldfile = new File(fileName + ".old");
+                if (fa.isStreamElement(fileName)) {
+                    fa.renameElement(fileName, fileName + ".old");
 
-                FileUtil.deleteOnExit(oldfile);
+                    File oldfile = new File(fileName + ".old");
+
+                    FileUtil.getDefaultInstance().deleteOnExit(oldfile);
+                }
             }
+        } finally {
+            writeLock.unlock();
         }
     }
 
     void deleteBackup() {
-        fa.removeElement(backupFileName);
+
+        writeLock.lock();
+
+        try {
+            fa.removeElement(backupFileName);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -703,10 +818,12 @@ public class DataFileCache {
 
         database.getFileAccess().removeElement(filename);
 
+        // OOo related code
         if (database.isStoredFileAccess()) {
             return;
         }
 
+        // OOo end
         if (!database.getFileAccess().isStreamElement(filename)) {
             return;
         }
@@ -769,22 +886,34 @@ public class DataFileCache {
         return fileModified;
     }
 
-    protected synchronized void setFileModified() throws IOException {
+    public boolean isFileOpen() {
+        return dataFile != null;
+    }
 
-        if (!fileModified) {
+    protected void setFileModified() throws HsqlException {
 
-            // unset saved flag;
-            dataFile.seek(FLAGS_POS);
+        writeLock.lock();
 
-            int flag = BitMap.set(0, FLAG_ISSAVED);
+        try {
+            if (!fileModified) {
 
-            if (hasRowInfo) {
-                flag = BitMap.set(flag, FLAG_ROWINFO);
+                // unset saved flag;
+                dataFile.seek(FLAGS_POS);
+
+                int flag = BitMap.set(0, FLAG_ISSAVED);
+
+                if (hasRowInfo) {
+                    flag = BitMap.set(flag, FLAG_ROWINFO);
+                }
+
+                dataFile.writeInt(flag);
+
+                fileModified = true;
             }
-
-            dataFile.writeInt(flag);
-
-            fileModified = true;
+        } catch (IOException e) {
+            throw new HsqlException(e.getMessage(), "", 0);
+        } finally {
+            writeLock.unlock();
         }
     }
 }

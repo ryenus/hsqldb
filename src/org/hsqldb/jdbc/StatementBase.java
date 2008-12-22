@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,22 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 
-import org.hsqldb.Trace;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
-import org.hsqldb.result.ResultMetaData;
 
+/**
+ * Base class for HSQLDB's implementations of java.sql.Statement and
+ * java.sql.PreparedStatement. Contains common members and methods.
+ *
+ * @author fredt@usrs
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 class StatementBase {
 
     /**
-     * Whether this Statement has been explicitly closed.  A jdbcConnection
+     * Whether this Statement has been explicitly closed.  A JDBCConnection
      * object now explicitly closes all of its open jdbcXXXStatement objects
      * when it is closed.
      */
@@ -54,7 +61,7 @@ class StatementBase {
     protected boolean isEscapeProcessing = true;
 
     /** The connection used to execute this statement. */
-    protected jdbcConnection connection;
+    protected JDBCConnection connection;
 
     /** The maximum number of rows to generate when executing this statement. */
     protected int maxRows;
@@ -63,7 +70,7 @@ class StatementBase {
     protected int fetchSize = 0;
 
     /** Direction of results fetched. */
-    protected int fetchDirection = jdbcResultSet.FETCH_FORWARD;
+    protected int fetchDirection = JDBCResultSet.FETCH_FORWARD;
 
     /** The result of executing this statement. */
     protected Result resultIn;
@@ -75,13 +82,13 @@ class StatementBase {
     protected Result generatedResult;
 
     /** The result set type obtained by executing this statement. */
-    protected int rsScrollability = jdbcResultSet.TYPE_FORWARD_ONLY;
+    protected int rsScrollability = JDBCResultSet.TYPE_FORWARD_ONLY;
 
     /** The result set concurrency obtained by executing this statement. */
-    protected int rsConcurrency = jdbcResultSet.CONCUR_READ_ONLY;
+    protected int rsConcurrency = JDBCResultSet.CONCUR_READ_ONLY;
 
     /** The result set holdability obtained by executing this statement. */
-    protected int rsHoldability = jdbcResultSet.HOLD_CURSORS_OVER_COMMIT;
+    protected int rsHoldability = JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
 
     /** Used by this statement to communicate non-batched requests. */
     protected Result resultOut;
@@ -90,13 +97,16 @@ class StatementBase {
     protected Result batchResultOut;
 
     /** The currently existing ResultSet object */
-    protected jdbcResultSet currentResultSet;
+    protected JDBCResultSet currentResultSet;
 
     /** The currently existing ResultSet object for generated keys */
-    protected jdbcResultSet generatedResultSet;
+    protected JDBCResultSet generatedResultSet;
 
     /** The first warning in the chain. Null if there are no warnings. */
     protected SQLWarning rootWarning;
+
+    /** Implementation in subclasses **/
+    public synchronized void close() throws SQLException {}
 
     /**
      * An internal check for closed statements.
@@ -106,11 +116,12 @@ class StatementBase {
     void checkClosed() throws SQLException {
 
         if (isClosed) {
-            throw Util.sqlException(Trace.STATEMENT_IS_CLOSED);
+            throw Util.sqlException(ErrorCode.X_07501);
         }
 
         if (connection.isClosed) {
-            throw Util.connectionClosedException();
+            close();
+            throw Util.sqlException(ErrorCode.X_07501);
         }
     }
 
@@ -148,10 +159,9 @@ class StatementBase {
         }
 
         if (resultIn.isData()) {
-            currentResultSet = new jdbcResultSet((Statement) this, resultIn,
-                                                 resultIn.metaData,
-                                                 connection.connProperties,
-                                                 connection.isNetConn);
+            currentResultSet = new JDBCResultSet(connection.sessionProxy,
+                    (Statement) this, resultIn, resultIn.metaData,
+                    connection.connProperties, connection.isNetConn);
         }
     }
 
@@ -162,15 +172,11 @@ class StatementBase {
         }
 
         if (generatedResult == null) {
-            ResultMetaData meta = ResultMetaData.newResultMetaData(0);
-
-            generatedResult = Result.newDataResult(meta);
+            generatedResult = Result.emptyGeneratedResult;
         }
-
-        generatedResultSet = new jdbcResultSet(null, generatedResult,
-                                               generatedResult.metaData,
-                                               connection.connProperties,
-                                               connection.isNetConn);
+        generatedResultSet = new JDBCResultSet(connection.sessionProxy, null,
+                generatedResult, generatedResult.metaData,
+                connection.connProperties, connection.isNetConn);
 
         return generatedResultSet;
     }
@@ -184,7 +190,6 @@ class StatementBase {
         if (generatedResultSet != null) {
             generatedResultSet.close();
         }
-
         generatedResultSet = null;
         generatedResult    = null;
         resultIn           = null;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,11 @@ import org.hsqldb.rowio.RowOutputInterface;
 /**
  * Interface for an object stored in the memory cache.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.8.0
  */
 public interface CachedObject {
-
-    int getRealSize(RowOutputInterface out);
 
     void setStorageSize(int size);
 
@@ -62,6 +60,10 @@ public interface CachedObject {
     boolean isInMemory();
 
     void setInMemory(boolean in);
+
+    void restore();
+
+    void destroy();
 
     void write(RowOutputInterface out);
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package org.hsqldb.dbinfo;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import org.hsqldb.CompiledStatement;
+import org.hsqldb.StatementDMQL;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Types;
 import org.hsqldb.lib.HashMap;
@@ -112,9 +112,11 @@ final class DIProcedureInfo {
         return colOffset;
     }
 
+/*
     HsqlArrayList getAliases() {
         return (HsqlArrayList) nameSpace.getInverseAliasMap().get(getFQN());
     }
+*/
 
     Class getColClass(int i) {
         return colClasses[i + colOffset()];
@@ -154,11 +156,13 @@ final class DIProcedureInfo {
             case Types.SQL_DOUBLE :
             case Types.SQL_DATE :
             case Types.SQL_FLOAT :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIME : {
                 size = 8;
 
                 break;
             }
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP : {
                 size = 12;
 
@@ -190,7 +194,7 @@ final class DIProcedureInfo {
     }
 
     String getColName(int i) {
-        return CompiledStatement.PCOL_PREFIX + (i + colOffset());
+        return StatementDMQL.PCOL_PREFIX + (i + colOffset());
     }
 
     Integer getColNullability(int i) {
@@ -318,7 +322,7 @@ final class DIProcedureInfo {
     Integer getOutputParmCount() {
 
         // no support for IN OUT or OUT columns yet
-        return ValuePool.getInt(0);
+        return ValuePool.INTEGER_0;
     }
 
     String getRemark() {
@@ -326,8 +330,8 @@ final class DIProcedureInfo {
     }
 
     Integer getResultSetCount() {
-        return (method.getReturnType() == Void.TYPE) ? ValuePool.getInt(0)
-                                                     : ValuePool.getInt(1);
+        return (method.getReturnType() == Void.TYPE) ? ValuePool.INTEGER_0
+                                                     : ValuePool.INTEGER_1;
     }
 
     Integer getResultType(String origin) {
@@ -381,7 +385,7 @@ final class DIProcedureInfo {
         // hierarchy parent is not final.
         //ARRAY
         try {
-            c = nameSpace.classForName("org.hsqldb.jdbc.jdbcArray");
+            c = nameSpace.classForName("org.hsqldb.jdbc.JDBCArray");
 
             typeMap.put(c, ValuePool.getInt(Types.SQL_ARRAY));
         } catch (Exception e) {}
@@ -402,7 +406,7 @@ final class DIProcedureInfo {
         type = ValuePool.getInt(Types.SQL_BLOB);
 
         try {
-            c = nameSpace.classForName("org.hsqldb.jdbc.jdbcBlob");
+            c = nameSpace.classForName("org.hsqldb.jdbc.JDBCBlob");
 
             typeMap.put(c, type);
         } catch (Exception e) {}
@@ -419,7 +423,7 @@ final class DIProcedureInfo {
         type = ValuePool.getInt(Types.SQL_CLOB);
 
         try {
-            c = nameSpace.classForName("org.hsqldb.jdbc.jdbcClob");
+            c = nameSpace.classForName("org.hsqldb.jdbc.JDBCClob");
 
             typeMap.put(c, type);
         } catch (Exception e) {}
@@ -446,7 +450,7 @@ final class DIProcedureInfo {
 
         // DISTINCT
         try {
-            c = nameSpace.classForName("org.hsqldb.jdbc.jdbcDistinct");
+            c = nameSpace.classForName("org.hsqldb.jdbc.JDBCDistinct");
 
             typeMap.put(c, ValuePool.getInt(Types.DISTINCT));
         } catch (Exception e) {}
@@ -495,7 +499,7 @@ final class DIProcedureInfo {
         type = ValuePool.getInt(Types.SQL_REF);
 
         try {
-            c = nameSpace.classForName("org.hsqldb.jdbc.jdbcRef");
+            c = nameSpace.classForName("org.hsqldb.jdbc.JDBCRef");
 
             typeMap.put(c, type);
         } catch (Exception e) {}
@@ -510,7 +514,7 @@ final class DIProcedureInfo {
         type = ValuePool.getInt(Types.STRUCT);
 
         try {
-            c = nameSpace.classForName("org.hsqldb.jdbc.jdbcStruct");
+            c = nameSpace.classForName("org.hsqldb.jdbc.JDBCStruct");
 
             typeMap.put(c, type);
         } catch (Exception e) {}

@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@
 package org.hsqldb.index;
 
 import org.hsqldb.Row;
-import org.hsqldb.Trace;
+import org.hsqldb.persist.PersistentStore;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 
@@ -80,40 +80,25 @@ import org.hsqldb.Trace;
  * @version 1.7.1
  * @since 1.7.1
  */
-class MemoryNode extends BaseMemoryNode {
+public class MemoryNode extends BaseMemoryNode {
 
     protected Row rData;
 
     /**
-     *  A MemoreyNode is permenently linked with the row it refers to.
+     * A MemoreyNode is permenently linked with the row it refers to.
      *
-     * @param  r
+     * @param r Row
      */
     public MemoryNode(Row r) {
         rData = r;
     }
 
-    int getKey() {
+    public int getPos() {
         return 0;
     }
 
-    Row getRow() {
+    Row getRow(PersistentStore store) {
         return rData;
     }
 
-    Object[] getData() {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
-
-        return rData.getData();
-    }
-
-    void delete() {
-
-        super.delete();
-
-        rData = null;
-    }
 }

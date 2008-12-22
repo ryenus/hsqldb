@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.Storage;
@@ -50,11 +50,11 @@ import org.hsqldb.lib.Storage;
  * This class is a wapper for a random access file such as that used for
  * CACHED table storage.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version  1.8.0
  * @since  1.7.2
  */
-class ScaledRAFile implements ScaledRAInterface {
+final class ScaledRAFile implements ScaledRAInterface {
 
     static final int  DATA_FILE_RAF  = 0;
     static final int  DATA_FILE_NIO  = 1;
@@ -73,9 +73,9 @@ class ScaledRAFile implements ScaledRAInterface {
     long                           bufferOffset;
 
     //
-    long       seekPosition;
-    long       realPosition;
-    static int cacheHit;
+    long seekPosition;
+    long realPosition;
+    int  cacheHit;
 
     /**
      * seekPosition is the position in seek() calls or after reading or writing
@@ -410,8 +410,8 @@ class ScaledRAFile implements ScaledRAInterface {
                 realPosition = seekPosition;
             }
 
-            if (seekPosition >= bufferOffset
-                    && seekPosition < bufferOffset + buffer.length) {
+            if (seekPosition < bufferOffset + buffer.length
+                    && seekPosition + len > bufferOffset) {
                 bufferDirty = true;
             }
 
@@ -436,8 +436,8 @@ class ScaledRAFile implements ScaledRAInterface {
                 realPosition = seekPosition;
             }
 
-            if (seekPosition >= bufferOffset
-                    && seekPosition < bufferOffset + buffer.length) {
+            if (seekPosition < bufferOffset + buffer.length
+                    && seekPosition + 4 > bufferOffset) {
                 bufferDirty = true;
             }
 
@@ -462,8 +462,8 @@ class ScaledRAFile implements ScaledRAInterface {
                 realPosition = seekPosition;
             }
 
-            if (seekPosition >= bufferOffset
-                    && seekPosition < bufferOffset + buffer.length) {
+            if (seekPosition < bufferOffset + buffer.length
+                    && seekPosition + 8 > bufferOffset) {
                 bufferDirty = true;
             }
 
@@ -480,7 +480,7 @@ class ScaledRAFile implements ScaledRAInterface {
     }
 
     public void close() throws IOException {
-        Trace.printSystemOut("cache hit " + cacheHit);
+        Error.printSystemOut("cache hit " + cacheHit);
         file.close();
     }
 

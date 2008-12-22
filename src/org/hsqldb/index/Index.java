@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,24 +67,26 @@
 package org.hsqldb.index;
 
 import java.util.NoSuchElementException;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.hsqldb.Collation;
-import org.hsqldb.Constraint;
-import org.hsqldb.Database;
-import org.hsqldb.Expression;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.OpTypes;
 import org.hsqldb.Row;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.Trace;
+import org.hsqldb.TableBase;
+import org.hsqldb.Tokens;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.navigator.RowIterator;
-import org.hsqldb.types.Type;
-import org.hsqldb.SchemaObject;
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.navigator.RowIterator;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.Type;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users - corrections
 // fredt@users 20020225 - patch 1.7.0 - changes to support cascading deletes
@@ -107,77 +109,76 @@ import org.hsqldb.rights.Grantee;
  */
 public class Index implements SchemaObject {
 
-    // types of index
-    public static final int MEMORY_INDEX  = 0;
-    public static final int DISK_INDEX    = 1;
-    public static final int POINTER_INDEX = 2;
-
     // fields
-    final HsqlName        name;
-    boolean[]             colCheck;
-    private final int[]   colIndex;
-    final Type[]          colTypes;
-    final boolean[]       colDesc;
-    int[]                 pkCols;
-    Type[]                pkTypes;
-    private final boolean isUnique;    // DDL uniqueness
-    private boolean       useRowId;
-    final boolean         isConstraint;
-    public final boolean  isForward;
-    boolean               isTemp;
-    private Node          root;
-    private int           depth;
-    final Collation       collation;
-    static IndexRowIterator emptyIterator = new IndexRowIterator(null, null,
-        null);
-    IndexRowIterator updatableIterators;
-    boolean          onCommitPreserve;
-    Table            table;
+    private final long      persistenceId;
+    private final HsqlName  name;
+    private final boolean[] colCheck;
+    private final int[]     colIndex;
+    private final Type[]    colTypes;
+    private final boolean[] colDesc;
+    private final boolean[] nullsLast;
+    private final int[]     pkCols;
+    private final Type[]    pkTypes;
+    private final boolean   isUnique;    // DDL uniqueness
+    private final boolean   useRowId;
+    private final boolean   isConstraint;
+    public final boolean    isForward;
+    private int             depth;
+    private static final IndexRowIterator emptyIterator =
+        new IndexRowIterator(null, (PersistentStore) null, null, null);
+    private final TableBase table;
+    private int             position;
+
+    //
+    ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
+    ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
+    ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+
+    //
+    public static final Index[] emptyIndexArray = new Index[]{};
 
     /**
      * Constructor declaration
      *
-     *
      * @param name HsqlName of the index
+     * @param id persistnece id
      * @param table table of the index
-     * @param column array of column indexes
-     * @param type array of column types
+     * @param columns array of column indexes
+     * @param descending boolean[]
+     * @param nullsLast boolean[]
+     * @param colTypes array of column types
      * @param unique is this a unique index
      * @param constraint does this index belonging to a constraint
-     * @param forward is this an auto-index for an FK that refers to a table defined after this table
-     * @param visColumns count of visible columns
+     * @param forward is this an auto-index for an FK that refers to a table
+     *   defined after this table
+     * @id
      */
-    public Index(Database database, HsqlName name, Table table, int[] columns,
-                 boolean[] descending, Type[] colTypes, boolean unique,
-                 boolean constraint, boolean forward) {
+    public Index(HsqlName name, long id, TableBase table, int[] columns,
+                 boolean[] descending, boolean[] nullsLast, Type[] colTypes,
+                 boolean unique, boolean constraint, boolean forward) {
 
-        this.name               = name;
-        colIndex                = columns;
-        this.colTypes           = colTypes;
-        colDesc = descending == null ? new boolean[columns.length]
-                                     : descending;
-        isUnique                = unique;
-        isConstraint            = constraint;
-        isForward               = forward;
-        updatableIterators      = new IndexRowIterator(null, null, null);
-        updatableIterators.next = updatableIterators.last = updatableIterators;
-        collation               = database.collation;
-
-        setTable(table);
-    }
-
-    public void setTable(Table table) {
-
-        this.table   = table;
-        this.pkCols  = table.getPrimaryKey();
-        this.pkTypes = table.getPrimaryKeyTypes();
+        persistenceId  = id;
+        this.name      = name;
+        colIndex       = columns;
+        this.colTypes  = colTypes;
+        colDesc        = descending == null ? new boolean[columns.length]
+                                            : descending;
+        this.nullsLast = nullsLast == null ? new boolean[columns.length]
+                                           : nullsLast;
+        isUnique       = unique;
+        isConstraint   = constraint;
+        isForward      = forward;
+        this.table     = table;
+        this.pkCols    = table.getPrimaryKey();
+        this.pkTypes   = table.getPrimaryKeyTypes();
         useRowId = (!isUnique && pkCols.length == 0) || (colIndex.length == 0);
-        colCheck     = table.getNewColumnCheckList();
+        colCheck       = table.getNewColumnCheckList();
 
         ArrayUtil.intIndexesToBooleanArray(colIndex, colCheck);
+    }
 
-        isTemp           = table.isTemp();
-        onCommitPreserve = table.onCommitPreserve();
+    public int getType() {
+        return SchemaObject.INDEX;
     }
 
     /**
@@ -185,6 +186,10 @@ public class Index implements SchemaObject {
      */
     public HsqlName getName() {
         return name;
+    }
+
+    public HsqlName getCatalogName() {
+        return name.schema.schema;
     }
 
     public HsqlName getSchemaName() {
@@ -196,10 +201,67 @@ public class Index implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
+        return null;
+    }
+
+    public OrderedHashSet getComponents() {
+        return null;
     }
 
     public void compile(Session session) {}
+
+    public String getDDL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb = new StringBuffer(64);
+
+        sb.append(Tokens.T_CREATE).append(' ');
+
+        if (isUnique()) {
+            sb.append(Tokens.T_UNIQUE).append(' ');
+        }
+
+        sb.append(Tokens.T_INDEX).append(' ');
+        sb.append(getName().statementName);
+        sb.append(' ').append(Tokens.T_ON).append(' ');
+        sb.append(((Table) table).getName().getSchemaQualifiedStatementName());
+
+        int[] col = getColumns();
+        int   len = getVisibleColumns();
+
+        getColumnList(((Table) table), col, len, sb);
+
+        return sb.toString();
+    }
+
+    private static void getColumnList(Table t, int[] col, int len,
+                                      StringBuffer a) {
+
+        a.append('(');
+
+        for (int i = 0; i < len; i++) {
+            a.append(t.getColumn(col[i]).getName().statementName);
+
+            if (i < len - 1) {
+                a.append(',');
+            }
+        }
+
+        a.append(')');
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public long getPersistenceId() {
+        return persistenceId;
+    }
 
     /**
      * Returns the count of visible columns used
@@ -243,22 +305,6 @@ public class Index implements SchemaObject {
         return colTypes;
     }
 
-    String getColumnNameList() {
-
-        String columnNameList = "";
-
-        for (int j = 0; j < colIndex.length; ++j) {
-            columnNameList +=
-                table.getColumn(colIndex[j]).columnName.statementName;
-
-            if (j < colIndex.length - 1) {
-                columnNameList += ",";
-            }
-        }
-
-        return columnNameList;
-    }
-
     public boolean[] getColumnDesc() {
         return colDesc;
     }
@@ -266,488 +312,382 @@ public class Index implements SchemaObject {
     /**
      * Returns the node count.
      */
-    public int size(Session session) throws HsqlException {
+    public int size(PersistentStore store) throws HsqlException {
 
-        int         count = 0;
-        RowIterator it    = firstRow(session);
+        int count = 0;
 
-        while (it.hasNext()) {
-            it.getNext();
+        readLock.lock();
 
-            count++;
-        }
+        try {
+            RowIterator it = firstRow(null, store);
 
-        return count;
-    }
+            while (it.hasNext()) {
+                it.getNextRow();
 
-    public synchronized int size() throws HsqlException {
-
-        int  size = 0;
-        Node x    = first(null);
-
-        while (x != null) {
-            size++;
-
-            x = next(x);
-        }
-
-        return size;
-    }
-
-    public synchronized boolean isEmpty(Session session) {
-
-        if (isTemp) {
-            return session.sessionData.getIndexRoot(name, onCommitPreserve)
-                   == null;
-        } else {
-            return root == null;
-        }
-    }
-
-    public int sizeEstimate() throws HsqlException {
-
-        firstRow(null);
-
-        return (int) (1L << depth);
-    }
-
-    public void clearAll(Session session) {
-
-        setRoot(session, null);
-
-        depth = 0;
-
-        clearIterators();
-    }
-
-    public void clearIterators() {
-        updatableIterators.next = updatableIterators.last = updatableIterators;
-    }
-
-    public void setRoot(Session session, Node node) {
-
-        if (isTemp) {
-            session.sessionData.setIndexRoot(name, onCommitPreserve, node);
-        } else {
-            root = node;
-        }
-    }
-
-    public int getRoot() {
-        return (root == null) ? -1
-                              : root.getKey();
-    }
-
-    private Node getRoot(Session session) {
-
-        if (isTemp) {
-            if (session == null) {
-                return null;
+                count++;
             }
 
-            return session.sessionData.getIndexRoot(name, onCommitPreserve);
-        } else {
-            return root == null ? root
-                                : root.getUpdatedNode();
+            return count;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public boolean isEmpty(PersistentStore store) {
+
+        readLock.lock();
+
+        try {
+            return store.getAccessor(this) == null;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public int sizeEstimate(PersistentStore store) throws HsqlException {
+
+        readLock.lock();
+
+        try {
+            firstRow(store);
+
+            return (int) (1L << depth);
+        } finally {
+            readLock.unlock();
         }
     }
 
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, Row row,
+    public void insert(Session session, PersistentStore store, Row row,
                        int offset) throws HsqlException {
 
-        Node    n       = getRoot(session);
-        Node    x       = n;
+        Node    n;
+        Node    x;
         boolean isleft  = true;
         int     compare = -1;
 
-        while (true) {
+        writeLock.lock();
+
+        try {
+            n = (Node) store.getAccessor(this);
+            x = n;
+
             if (n == null) {
-                if (x == null) {
-                    setRoot(session, row.getNode(offset));
+                store.setAccessor(this, row.getNode(offset));
 
-                    return;
-                }
-
-                set(x, isleft, row.getNode(offset));
-
-                break;
+                return;
             }
 
-            compare = compareRowForInsert(session, row, n.getRow());
+            while (true) {
+                Row currentRow = n.getRow(store);
 
-            if (compare == 0) {
-                int      errorCode = Trace.VIOLATION_OF_UNIQUE_INDEX;
-                HsqlName name      = this.name;
+                compare = compareRowForInsertOrDelete(session, row,
+                                                      currentRow);
 
-                if (isConstraint) {
-                    Constraint c = table.getUniqueOrPKConstraintForIndex(this);
-
-                    if (c != null) {
-                        name      = c.getName();
-                        errorCode = Trace.VIOLATION_OF_UNIQUE_CONSTRAINT;
-                    }
+                if (compare == 0) {
+                    throw Error.error(ErrorCode.X_23505);
                 }
 
-                throw Trace.error(errorCode, new Object[] {
-                    name.name, getColumnNameList()
-                });
+                isleft = compare < 0;
+                x      = n;
+                n      = child(store, x, isleft);
+
+                if (n == null) {
+                    break;
+                }
             }
 
-            isleft = compare < 0;
-            x      = n;
-            n      = child(x, isleft);
+            x = set(store, x, isleft, row.getNode(offset));
+
+            balance(store, x, isleft);
+        } finally {
+            writeLock.unlock();
         }
-
-        balance(session, x, isleft);
     }
 
     /**
      * Balances part of the tree after an alteration to the index.
      */
-    private void balance(Session session, Node x,
+    private void balance(PersistentStore store, Node x,
                          boolean isleft) throws HsqlException {
 
         while (true) {
             int sign = isleft ? 1
                               : -1;
 
-            x = x.getUpdatedNode();
-
             switch (x.getBalance() * sign) {
 
                 case 1 :
-                    x.setBalance(0);
+                    x = x.setBalance(store, 0);
 
                     return;
 
                 case 0 :
-                    x.setBalance(-sign);
+                    x = x.setBalance(store, -sign);
                     break;
 
                 case -1 :
-                    Node l = child(x, isleft);
+                    Node l = child(store, x, isleft);
 
                     if (l.getBalance() == -sign) {
-                        replace(session, x, l);
-                        set(x, isleft, child(l, !isleft));
-                        set(l, !isleft, x);
+                        replace(store, x, l);
 
-                        x = x.getUpdatedNode();
-
-                        x.setBalance(0);
-
-                        l = l.getUpdatedNode();
-
-                        l.setBalance(0);
+                        x = set(store, x, isleft, child(store, l, !isleft));
+                        l = set(store, l, !isleft, x);
+                        x = x.setBalance(store, 0);
+                        l = l.setBalance(store, 0);
                     } else {
-                        Node r = child(l, !isleft);
+                        Node r = child(store, l, !isleft);
 
-                        replace(session, x, r);
-                        set(l, !isleft, child(r.getUpdatedNode(), isleft));
-                        set(r, isleft, l);
-                        set(x, isleft, child(r.getUpdatedNode(), !isleft));
-                        set(r, !isleft, x);
+                        replace(store, x, r);
 
-                        int rb = r.getUpdatedNode().getBalance();
+                        l = set(store, l, !isleft, child(store, r, isleft));
+                        r = set(store, r, isleft, l);
+                        x = set(store, x, isleft, child(store, r, !isleft));
+                        r = set(store, r, !isleft, x);
 
-                        x.getUpdatedNode().setBalance((rb == -sign) ? sign
-                                                                    : 0);
-                        l.getUpdatedNode().setBalance((rb == sign) ? -sign
-                                                                   : 0);
-                        r.getUpdatedNode().setBalance(0);
+                        int rb = r.getBalance();
+
+                        x = x.setBalance(store, (rb == -sign) ? sign
+                                                              : 0);
+                        l = l.setBalance(store, (rb == sign) ? -sign
+                                                             : 0);
+                        r = r.setBalance(store, 0);
                     }
 
                     return;
             }
-
-            x = x.getUpdatedNode();
 
             if (x.isRoot()) {
                 return;
             }
 
-            isleft = x.isFromLeft();
-            x      = x.getParent();
+            isleft = x.isFromLeft(store);
+            x      = x.getParent(store);
         }
     }
 
-    /**
-     * Delete a node from the index
-     */
-    public void delete(Session session, Node x) throws HsqlException {
+    public void delete(PersistentStore store, Node x) throws HsqlException {
 
         if (x == null) {
             return;
         }
 
-        for (IndexRowIterator it = updatableIterators.next;
-                it != updatableIterators; it = it.next) {
-            it.updateForDelete(x);
-        }
-
         Node n;
 
-        if (x.getLeft() == null) {
-            n = x.getRight();
-        } else if (x.getRight() == null) {
-            n = x.getLeft();
-        } else {
-            Node d = x;
+        writeLock.lock();
 
-            x = x.getLeft();
-
-/*
-            // todo: this can be improved
-
-            while (x.getRight() != null) {
-                if (Trace.STOP) {
-                    Trace.stop();
-                }
-
-                x = x.getRight();
-            }
-*/
-            for (Node temp = x; (temp = temp.getRight()) != null; ) {
-                x = temp;
-            }
-
-            // x will be replaced with n later
-            n = x.getLeft();
-
-            // swap d and x
-            int b = x.getBalance();
-
-            x = x.getUpdatedNode();
-
-            x.setBalance(d.getBalance());
-
-            d = d.getUpdatedNode();
-
-            d.setBalance(b);
-
-            // set x.parent
-            Node xp = x.getParent();
-            Node dp = d.getParent();
-
-            x = x.getUpdatedNode();
-
-            if (d.isRoot()) {
-                setRoot(session, x);
-            }
-
-            x.setParent(dp);
-
-            if (dp != null) {
-                dp = dp.getUpdatedNode();
-
-                if (dp.isRight(d)) {
-                    dp.setRight(x);
-                } else {
-                    dp.setLeft(x);
-                }
-            }
-
-            // relink d.parent, x.left, x.right
-            d = d.getUpdatedNode();
-
-            if (d.equals(xp)) {
-                d.setParent(x);
-
-                if (d.isLeft(x)) {
-                    x = x.getUpdatedNode();
-
-                    x.setLeft(d);
-
-                    Node dr = d.getRight();
-
-                    x = x.getUpdatedNode();
-
-                    x.setRight(dr);
-                } else {
-                    x.setRight(d);
-
-                    Node dl = d.getLeft();
-
-                    x = x.getUpdatedNode();
-
-                    x.setLeft(dl);
-                }
+        try {
+            if (x.getLeft(store) == null) {
+                n = x.getRight(store);
+            } else if (x.getRight(store) == null) {
+                n = x.getLeft(store);
             } else {
-                d.setParent(xp);
+                Node d = x;
 
-                xp = xp.getUpdatedNode();
+                x = x.getLeft(store);
 
-                xp.setRight(d);
+                while (true) {
+                    Node temp = x.getRight(store);
 
-                Node dl = d.getLeft();
-                Node dr = d.getRight();
-
-                x = x.getUpdatedNode();
-
-                x.setLeft(dl);
-                x.setRight(dr);
-            }
-
-            x.getRight().setParent(x);
-            x.getLeft().setParent(x);
-
-            // set d.left, d.right
-            d = d.getUpdatedNode();
-
-            d.setLeft(n);
-
-            if (n != null) {
-                n = n.getUpdatedNode();
-
-                n.setParent(d);
-            }
-
-            d = d.getUpdatedNode();
-
-            d.setRight(null);
-
-            x = d;
-        }
-
-        boolean isleft = x.isFromLeft();
-
-        replace(session, x, n);
-
-        n = x.getParent();
-        x = x.getUpdatedNode();
-
-        x.delete();
-
-        while (n != null) {
-            x = n;
-
-            int sign = isleft ? 1
-                              : -1;
-
-            x = x.getUpdatedNode();
-
-            switch (x.getBalance() * sign) {
-
-                case -1 :
-                    x.setBalance(0);
-                    break;
-
-                case 0 :
-                    x.setBalance(sign);
-
-                    return;
-
-                case 1 :
-                    Node r = child(x, !isleft);
-                    int  b = r.getBalance();
-
-                    if (b * sign >= 0) {
-                        replace(session, x, r);
-                        set(x, !isleft, child(r, isleft));
-                        set(r, isleft, x);
-
-                        if (b == 0) {
-                            x = x.getUpdatedNode();
-
-                            x.setBalance(sign);
-
-                            r = r.getUpdatedNode();
-
-                            r.setBalance(-sign);
-
-                            return;
-                        }
-
-                        x = x.getUpdatedNode();
-
-                        x.setBalance(0);
-
-                        r = r.getUpdatedNode();
-
-                        r.setBalance(0);
-
-                        x = r;
-                    } else {
-                        Node l = child(r, isleft);
-
-                        replace(session, x, l);
-
-                        l = l.getUpdatedNode();
-                        b = l.getBalance();
-
-                        set(r, isleft, child(l, !isleft));
-                        set(l, !isleft, r);
-                        set(x, !isleft, child(l, isleft));
-                        set(l, isleft, x);
-
-                        x = x.getUpdatedNode();
-
-                        x.setBalance((b == sign) ? -sign
-                                                 : 0);
-
-                        r = r.getUpdatedNode();
-
-                        r.setBalance((b == -sign) ? sign
-                                                  : 0);
-
-                        l = l.getUpdatedNode();
-
-                        l.setBalance(0);
-
-                        x = l;
+                    if (temp == null) {
+                        break;
                     }
+
+                    x = temp;
+                }
+
+                // x will be replaced with n later
+                n = x.getLeft(store);
+
+                // swap d and x
+                int b = x.getBalance();
+
+                x = x.setBalance(store, d.getBalance());
+                d = d.setBalance(store, b);
+
+                // set x.parent
+                Node xp = x.getParent(store);
+                Node dp = d.getParent(store);
+
+                if (d.isRoot()) {
+                    store.setAccessor(this, x);
+                }
+
+                x = x.setParent(store, dp);
+
+                if (dp != null) {
+                    if (dp.isRight(d)) {
+                        dp = dp.setRight(store, x);
+                    } else {
+                        dp = dp.setLeft(store, x);
+                    }
+                }
+
+                // relink d.parent, x.left, x.right
+                if (d.equals(xp)) {
+                    d = d.setParent(store, x);
+
+                    if (d.isLeft(x)) {
+                        x = x.setLeft(store, d);
+
+                        Node dr = d.getRight(store);
+
+                        x = x.setRight(store, dr);
+                    } else {
+                        x = x.setRight(store, d);
+
+                        Node dl = d.getLeft(store);
+
+                        x = x.setLeft(store, dl);
+                    }
+                } else {
+                    d  = d.setParent(store, xp);
+                    xp = xp.setRight(store, d);
+
+                    Node dl = d.getLeft(store);
+                    Node dr = d.getRight(store);
+
+                    x = x.setLeft(store, dl);
+                    x = x.setRight(store, dr);
+                }
+
+                // apprently no-ops
+                x.getRight(store).setParent(store, x);
+                x.getLeft(store).setParent(store, x);
+
+                // set d.left, d.right
+                d = d.setLeft(store, n);
+
+                if (n != null) {
+                    n = n.setParent(store, d);
+                }
+
+                d = d.setRight(store, null);
+                x = d;
             }
 
-            isleft = x.isFromLeft();
-            n      = x.getParent();
+            boolean isleft = x.isFromLeft(store);
+
+            replace(store, x, n);
+
+            n = x.getParent(store);
+
+            x.delete();
+
+            while (n != null) {
+                x = n;
+
+                int sign = isleft ? 1
+                                  : -1;
+
+                switch (x.getBalance() * sign) {
+
+                    case -1 :
+                        x = x.setBalance(store, 0);
+                        break;
+
+                    case 0 :
+                        x = x.setBalance(store, sign);
+
+                        return;
+
+                    case 1 :
+                        Node r = child(store, x, !isleft);
+                        int  b = r.getBalance();
+
+                        if (b * sign >= 0) {
+                            replace(store, x, r);
+
+                            x = set(store, x, !isleft,
+                                    child(store, r, isleft));
+                            r = set(store, r, isleft, x);
+
+                            if (b == 0) {
+                                x = x.setBalance(store, sign);
+                                r = r.setBalance(store, -sign);
+
+                                return;
+                            }
+
+                            x = x.setBalance(store, 0);
+                            r = r.setBalance(store, 0);
+                            x = r;
+                        } else {
+                            Node l = child(store, r, isleft);
+
+                            replace(store, x, l);
+
+                            b = l.getBalance();
+                            r = set(store, r, isleft,
+                                    child(store, l, !isleft));
+                            l = set(store, l, !isleft, r);
+                            x = set(store, x, !isleft,
+                                    child(store, l, isleft));
+                            l = set(store, l, isleft, x);
+                            x = x.setBalance(store, (b == sign) ? -sign
+                                                                : 0);
+                            r = r.setBalance(store, (b == -sign) ? sign
+                                                                 : 0);
+                            l = l.setBalance(store, 0);
+                            x = l;
+                        }
+                }
+
+                isleft = x.isFromLeft(store);
+                n      = x.getParent(store);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
-    public RowIterator findFirstRow(Session session, Object[] rowdata,
-                                    int[] rowColMap) throws HsqlException {
+    public RowIterator findFirstRowIterator(Session session,
+            PersistentStore store, Object[] rowdata,
+            int[] rowColMap) throws HsqlException {
 
-        Node node = findNotNull(session, rowdata, rowColMap, true);
+        Node node = findNotNull(session, store, rowdata, rowColMap, true);
 
-        return getIterator(session, node);
+        return getIterator(session, store, node);
     }
 
     public RowIterator findFirstRowForDelete(Session session,
-            Object[] rowdata, int[] rowColMap) throws HsqlException {
+            PersistentStore store, Object[] rowdata,
+            int[] rowColMap) throws HsqlException {
 
-        Node             node = findNotNull(session, rowdata, rowColMap, true);
-        IndexRowIterator it   = getIterator(session, node);
+        Node node = findNotNull(session, store, rowdata, rowColMap, true);
 
-        if (node != null) {
-            updatableIterators.link(it);
+        return getIterator(session, store, node);
+    }
 
-            if (session == null) {
-                throw Trace.error(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                  "Index");
-            }
+    public Row findFirstRow(Session session, PersistentStore store,
+                            Object[] rowdata,
+                            int[] rowColMap) throws HsqlException {
 
-            session.compiledStatementExecutor.addUpdatableIterator(it);
-        }
+        Node node = findNotNull(session, store, rowdata, rowColMap, true);
 
-        return it;
+        return node == null ? null
+                            : node.getRow(store);
     }
 
     /**
      * Finds an existing row
      */
-    public Row findRow(Session session, Row row) throws HsqlException {
+    public Row findRow(Session session, PersistentStore store,
+                       Row row) throws HsqlException {
 
-        Node node = search(session, row);
+        Node node = search(session, store, row);
 
         return node == null ? null
-                            : node.getRow();
+                            : node.getRow(store);
     }
 
-    public boolean exists(Session session, Object[] rowdata,
+    public boolean exists(Session session, PersistentStore store,
+                          Object[] rowdata,
                           int[] rowColMap) throws HsqlException {
-        return findNotNull(session, rowdata, rowColMap, true) != null;
+        return findNotNull(session, store, rowdata, rowColMap, true) != null;
     }
 
     public RowIterator emptyIterator() {
@@ -763,24 +703,24 @@ public class Index implements SchemaObject {
      * @return matching node or null
      * @throws HsqlException
      */
-    private Node findNotNull(Session session, Object[] rowdata,
-                             int[] rowColMap,
+    private Node findNotNull(Session session, PersistentStore store,
+                             Object[] rowdata, int[] rowColMap,
                              boolean first) throws HsqlException {
 
-        Node x = getRoot(session);
+        Node x = (Node) store.getAccessor(this);
         Node n;
         Node result = null;
 
-        if (isNull(rowdata, rowColMap)) {
+        if (hasNull(rowdata, rowColMap)) {
             return null;
         }
 
         while (x != null) {
-            int i = this.compareRowNonUnique(session, rowdata, rowColMap,
-                                             x.getData());
+            int i = this.compareRowNonUnique(rowdata, rowColMap,
+                                             x.getRow(store).getData());
 
             if (i == 0) {
-                if (first == false) {
+                if (!first) {
                     result = x;
 
                     break;
@@ -789,11 +729,11 @@ public class Index implements SchemaObject {
                 }
 
                 result = x;
-                n      = x.getLeft();
+                n      = x.getLeft(store);
             } else if (i > 0) {
-                n = x.getRight();
+                n = x.getRight(store);
             } else {
-                n = x.getLeft();
+                n = x.getLeft(store);
             }
 
             if (n == null) {
@@ -803,44 +743,35 @@ public class Index implements SchemaObject {
             x = n;
         }
 
-        return result;
-    }
-
-    /**
-     * Finds any row that matches the rowdata. Use rowColMap to map index
-     * columns to rowdata. Limit to visible columns of data.
-     *
-     * @param rowdata array containing data for the index columns
-     * @param rowColMap map of the data to columns
-     * @return node matching node
-     * @throws HsqlException
-     */
-/*
-    Node find(Object[] rowdata, int[] rowColMap) throws HsqlException {
-
-        Node x = root;
-
-        while (x != null) {
-            int c = compareRowNonUnique(rowdata, rowColMap, x.getData());
-
-            if (c == 0) {
-                return x;
-            } else if (c < 0) {
-                x = x.getLeft();
-            } else {
-                x = x.getRight();
-            }
+// MVCC 190
+        if (session == null) {
+            return result;
         }
 
-        return null;
+        while (result != null) {
+            Row row = result.getRow(store);
+
+            if (compareRowNonUnique(rowdata, rowColMap, row.getData()) != 0) {
+                result = null;
+
+                break;
+            }
+
+            if (session.database.txManager.canRead(session, row)) {
+                break;
+            }
+
+            result = next(store, result);
+        }
+
+        return result;
     }
-*/
 
     /**
      * Determines if a table row has a null column for any of the columns given
      * in the rowColMap array.
      */
-    public static boolean isNull(Object[] row, int[] rowColMap) {
+    public static boolean hasNull(Object[] row, int[] rowColMap) {
 
         int count = rowColMap.length;
 
@@ -857,14 +788,10 @@ public class Index implements SchemaObject {
      * Determines if a table row has a null column for any of the indexed
      * columns.
      */
-    boolean hasNull(Object[] row) {
+    boolean hasNull(Object[] data) {
 
-        int count = colIndex.length;
-
-        for (int i = 0; i < count; i++) {
-            int j = colIndex[i];
-
-            if (row[j] == null) {
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] == null) {
                 return true;
             }
         }
@@ -882,33 +809,44 @@ public class Index implements SchemaObject {
      * @return iterator
      * @throws HsqlException
      */
-    public RowIterator findFirstRow(Session session, Object[] coldata,
+    public RowIterator findFirstRow(Session session, PersistentStore store,
+                                    Object[] coldata,
                                     int match) throws HsqlException {
 
-        Node x     = getRoot(session);
-        Node found = null;
-        boolean unique = isUnique && match == colIndex.length
-                         && !hasNull(coldata);
+        readLock.lock();
 
-        while (x != null) {
-            int c = compareRowNonUnique(session, coldata, x.getData(), match);
+        try {
+            Node x     = (Node) store.getAccessor(this);
+            Node found = null;
+            boolean unique = isUnique && match == colIndex.length
+                             && !hasNull(coldata);
 
-            if (c == 0) {
-                found = x;
+            while (x != null) {
+                int c = compareRowNonUnique(coldata,
+                                            x.getRow(store).getData(), match);
 
-                if (unique) {
-                    break;
+                if (c == 0) {
+                    found = x;
+
+/*
+// MVCC
+                    if (unique) {
+                        break;
+                    }
+*/
+
+                    x = x.getLeft(store);
+                } else if (c < 0) {
+                    x = x.getLeft(store);
+                } else {
+                    x = x.getRight(store);
                 }
-
-                x = x.getLeft();
-            } else if (c < 0) {
-                x = x.getLeft();
-            } else {
-                x = x.getRight();
             }
-        }
 
-        return getIterator(session, found);
+            return getIterator(session, store, found);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -920,33 +858,59 @@ public class Index implements SchemaObject {
      * @return iterator
      * @throws HsqlException
      */
-    public RowIterator findFirstRow(Session session,
+    public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata) throws HsqlException {
 
-        Node    x      = getRoot(session);
-        Node    found  = null;
-        boolean unique = isUnique && !hasNull(rowdata);
+        readLock.lock();
 
-        while (x != null) {
-            int c = compareRowNonUnique(session, rowdata, colIndex,
-                                        x.getData());
+        try {
+            Node    x      = (Node) store.getAccessor(this);
+            Node    found  = null;
+            boolean unique = isUnique && !hasNull(rowdata, colIndex);
 
-            if (c == 0) {
-                found = x;
+            while (x != null) {
+                int c = compareRowNonUnique(rowdata, colIndex,
+                                            x.getRow(store).getData());
 
+                if (c == 0) {
+                    found = x;
+/*
+// MVCC
                 if (unique) {
                     break;
                 }
-
-                x = x.getLeft();
-            } else if (c < 0) {
-                x = x.getLeft();
-            } else {
-                x = x.getRight();
+*/
+                    x = x.getLeft(store);
+                } else if (c < 0) {
+                    x = x.getLeft(store);
+                } else {
+                    x = x.getRight(store);
+                }
             }
-        }
 
-        return getIterator(session, found);
+// MVCC
+            while (found != null) {
+                Row row = found.getRow(store);
+
+                if (compareRowNonUnique(rowdata, colIndex, row.getData())
+                        != 0) {
+                    found = null;
+
+                    break;
+                }
+
+                if (session == null
+                        || session.database.txManager.canRead(session, row)) {
+                    break;
+                }
+
+                found = next(store, found);
+            }
+
+            return getIterator(session, store, found);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -960,59 +924,63 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    public RowIterator findFirstRow(Session session, Object value,
+    public RowIterator findFirstRow(Session session, PersistentStore store,
+                                    Object value,
                                     int compare) throws HsqlException {
 
-        if (compare == Expression.SMALLER
-                || compare == Expression.SMALLER_EQUAL) {
-            return findFirstRowNotNull(session);
-        }
+        readLock.lock();
 
-        boolean isEqual = compare == Expression.EQUAL
-                          || compare == Expression.IS_NULL;
-        Node x     = getRoot(session);
-        int  iTest = 1;
+        try {
+            if (compare == OpTypes.SMALLER
+                    || compare == OpTypes.SMALLER_EQUAL) {
+                return findFirstRowNotNull(session, store);
+            }
 
-        if (compare == Expression.GREATER) {
-            iTest = 0;
-        }
+            boolean isEqual = compare == OpTypes.EQUAL
+                              || compare == OpTypes.IS_NULL;
+            Node x     = (Node) store.getAccessor(this);
+            int  iTest = 1;
 
-        if (value == null && !isEqual) {
-            return emptyIterator;
-        }
+            if (compare == OpTypes.GREATER) {
+                iTest = 0;
+            }
+
+            if (value == null && !isEqual) {
+                return emptyIterator;
+            }
 
 /*
         // this method returns the correct node only with the following conditions
-        boolean check = compare == Expression.BIGGER
-                        || compare == Expression.EQUAL
-                        || compare == Expression.BIGGER_EQUAL;
+        boolean check = compare == OpCodes.BIGGER
+                        || compare == OpCodes.EQUAL
+                        || compare == OpCodes.BIGGER_EQUAL;
 
         if (!check) {
             Trace.doAssert(false, "Index.findFirst");
         }
 */
-        while (x != null) {
-            boolean t = colTypes[0].compare(value, x.getData()[colIndex[0]])
-                        >= iTest;
+            while (x != null) {
+                boolean t = colTypes[0].compare(
+                    value, x.getRow(store).getData()[colIndex[0]]) >= iTest;
 
-            if (t) {
-                Node r = x.getRight();
+                if (t) {
+                    Node r = x.getRight(store);
 
-                if (r == null) {
-                    break;
+                    if (r == null) {
+                        break;
+                    }
+
+                    x = r;
+                } else {
+                    Node l = x.getLeft(store);
+
+                    if (l == null) {
+                        break;
+                    }
+
+                    x = l;
                 }
-
-                x = r;
-            } else {
-                Node l = x.getLeft();
-
-                if (l == null) {
-                    break;
-                }
-
-                x = l;
             }
-        }
 
 /*
         while (x != null
@@ -1021,28 +989,50 @@ public class Index implements SchemaObject {
             x = next(x);
         }
 */
-        while (x != null) {
-            Object colvalue = x.getData()[colIndex[0]];
-            int    result   = colTypes[0].compare(value, colvalue);
+            while (x != null) {
+                Object colvalue = x.getRow(store).getData()[colIndex[0]];
+                int    result   = colTypes[0].compare(value, colvalue);
 
-            if (result >= iTest) {
-                x = next(x);
-            } else {
-                if (isEqual) {
-                    if (result != 0) {
-                        x = null;
+                if (result >= iTest) {
+                    x = next(store, x);
+                } else {
+                    if (isEqual) {
+                        if (result != 0) {
+                            x = null;
+                        }
+                    } else if (colvalue == null) {
+                        x = next(store, x);
+
+                        continue;
                     }
-                } else if (colvalue == null) {
-                    x = next(x);
 
-                    continue;
+                    break;
+                }
+            }
+
+// MVCC
+            while (session != null && x != null) {
+                Row row = x.getRow(store);
+
+                if (compare == OpTypes.EQUAL
+                        && colTypes[0].compare(
+                            value, row.getData()[colIndex[0]]) != 0) {
+                    x = null;
+
+                    break;
                 }
 
-                break;
-            }
-        }
+                if (session.database.txManager.canRead(session, row)) {
+                    break;
+                }
 
-        return getIterator(session, x);
+                x = next(store, x);
+            }
+
+            return getIterator(session, store, x);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -1052,45 +1042,109 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    public RowIterator findFirstRowNotNull(Session session)
-    throws HsqlException {
+    public RowIterator findFirstRowNotNull(Session session,
+                                           PersistentStore store)
+                                           throws HsqlException {
 
-        Node x = getRoot(session);
+        readLock.lock();
 
-        while (x != null) {
-            boolean t = colTypes[0].compare(null, x.getData()[colIndex[0]])
-                        >= 0;
+        try {
+            Node x = (Node) store.getAccessor(this);
 
-            if (t) {
-                Node r = x.getRight();
+            while (x != null) {
+                boolean t = colTypes[0].compare(
+                    null, x.getRow(store).getData()[colIndex[0]]) >= 0;
 
-                if (r == null) {
+                if (t) {
+                    Node r = x.getRight(store);
+
+                    if (r == null) {
+                        break;
+                    }
+
+                    x = r;
+                } else {
+                    Node l = x.getLeft(store);
+
+                    if (l == null) {
+                        break;
+                    }
+
+                    x = l;
+                }
+            }
+
+            while (x != null) {
+                Object colvalue = x.getRow(store).getData()[colIndex[0]];
+
+                if (colvalue == null) {
+                    x = next(store, x);
+                } else {
+                    break;
+                }
+            }
+
+// MVCC
+            while (session != null && x != null) {
+                Row row = x.getRow(store);
+
+                if (session.database.txManager.canRead(session, row)) {
                     break;
                 }
 
-                x = r;
-            } else {
-                Node l = x.getLeft();
+                x = next(store, x);
+            }
 
-                if (l == null) {
-                    break;
-                }
+            return getIterator(session, store, x);
+        } finally {
+            readLock.unlock();
+        }
+    }
 
+    public void checkIndex(PersistentStore store) {
+
+        readLock.lock();
+
+        try {
+            Node x = (Node) store.getAccessor(this);
+
+            checkNodes(x, null);
+
+            Node l = x;
+            Node r = null;
+
+            while (l != null) {
                 x = l;
+                l = x.getLeft(store);
+                r = x.getRight(store);
+
+                checkNodes(l, r);
             }
+
+            while (x != null) {
+                l = x.getLeft(store);
+                r = x.getLeft(store);
+
+                checkNodes(l, r);
+
+                try {
+                    x = next(store, x);
+                } catch (HsqlException e) {}
+            }
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    void checkNodes(Node l, Node r) {
+
+        if (l != null && l.getBalance() == -2) {
+            System.out.print("broken");
         }
 
-        while (x != null) {
-            Object colvalue = x.getData()[colIndex[0]];
-
-            if (colvalue == null) {
-                x = next(x);
-            } else {
-                break;
-            }
+        if (r != null && r.getBalance() == -2) {
+            System.out.print("broken");
         }
-
-        return getIterator(session, x);
     }
 
     /**
@@ -1100,21 +1154,67 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    public RowIterator firstRow(Session session) {
+    public RowIterator firstRow(Session session,
+                                PersistentStore store) throws HsqlException {
 
-        depth = 0;
+        int tempDepth = 0;
 
-        Node x = getRoot(session);
-        Node l = x;
+        readLock.lock();
 
-        while (l != null) {
-            x = l;
-            l = x.getLeft();
+        try {
+            Node x = (Node) store.getAccessor(this);
+            Node l = x;
 
-            depth++;
+            while (l != null) {
+                x = l;
+                l = x.getLeft(store);
+
+                tempDepth++;
+            }
+
+            while (session != null && x != null) {
+                Row row = x.getRow(store);
+
+                if (session.database.txManager.canRead(session, row)) {
+                    break;
+                }
+
+                x = next(store, x);
+            }
+
+            return getIterator(session, store, x);
+        } finally {
+            depth = tempDepth;
+
+            readLock.unlock();
         }
+    }
 
-        return getIterator(session, x);
+    public RowIterator firstRow(PersistentStore store) {
+
+        int tempDepth = 0;
+
+        readLock.lock();
+
+        try {
+            depth = 0;
+
+            Node x = (Node) store.getAccessor(this);
+            Node l = x;
+
+            while (l != null) {
+                x = l;
+                l = x.getLeft(store);
+
+                tempDepth++;
+            }
+
+            return getIterator(null, store, x);
+        } finally {
+            depth = tempDepth;
+
+            readLock.unlock();
+        }
     }
 
     /**
@@ -1124,35 +1224,35 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    public Row lastRow(Session session) throws HsqlException {
+    public Row lastRow(Session session,
+                       PersistentStore store) throws HsqlException {
 
-        Node x = getRoot(session);
-        Node l = x;
+        readLock.lock();
 
-        while (l != null) {
-            x = l;
-            l = x.getRight();
+        try {
+            Node x = (Node) store.getAccessor(this);
+            Node l = x;
+
+            while (l != null) {
+                x = l;
+                l = x.getRight(store);
+            }
+
+            while (session != null && x != null) {
+                Row row = x.getRow(store);
+
+                if (session.database.txManager.canRead(session, row)) {
+                    break;
+                }
+
+                x = last(store, x);
+            }
+
+            return x == null ? null
+                             : x.getRow(store);
+        } finally {
+            readLock.unlock();
         }
-
-        return x == null ? null
-                         : x.getRow();
-    }
-
-    private Node first(Session session) throws HsqlException {
-
-        depth = 0;
-
-        Node x = getRoot(session);
-        Node l = x;
-
-        while (l != null) {
-            x = l;
-            l = x.getLeft();
-
-            depth++;
-        }
-
-        return x;
     }
 
     /**
@@ -1164,37 +1264,82 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    Node next(Node x) throws HsqlException {
+    private Node next(PersistentStore store, Node x) throws HsqlException {
 
         if (x == null) {
             return null;
         }
 
-        Node r = x.getRight();
+        readLock.lock();
 
-        if (r != null) {
-            x = r;
+        try {
+            Node r = x.getRight(store);
 
-            Node l = x.getLeft();
+            if (r != null) {
+                x = r;
 
-            while (l != null) {
-                x = l;
-                l = x.getLeft();
+                Node l = x.getLeft(store);
+
+                while (l != null) {
+                    x = l;
+                    l = x.getLeft(store);
+                }
+
+                return x;
+            }
+
+            Node ch = x;
+
+            x = x.getParent(store);
+
+            while (x != null && ch.equals(x.getRight(store))) {
+                ch = x;
+                x  = x.getParent(store);
             }
 
             return x;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    private Node last(PersistentStore store, Node x) throws HsqlException {
+
+        if (x == null) {
+            return null;
         }
 
-        Node ch = x;
+        readLock.lock();
 
-        x = x.getParent();
+        try {
+            Node left = x.getLeft(store);
 
-        while (x != null && ch.equals(x.getRight())) {
-            ch = x;
-            x  = x.getParent();
+            if (left != null) {
+                x = left;
+
+                Node right = x.getRight(store);
+
+                while (right != null) {
+                    x     = right;
+                    right = x.getRight(store);
+                }
+
+                return x;
+            }
+
+            Node ch = x;
+
+            x = x.getParent(store);
+
+            while (x != null && ch.equals(x.getLeft(store))) {
+                ch = x;
+                x  = x.getParent(store);
+            }
+
+            return x;
+        } finally {
+            readLock.unlock();
         }
-
-        return x;
     }
 
     /**
@@ -1207,32 +1352,31 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    private Node child(Node x, boolean isleft) throws HsqlException {
-        return isleft ? x.getLeft()
-                      : x.getRight();
+    private static Node child(PersistentStore store, Node x,
+                              boolean isleft) throws HsqlException {
+        return isleft ? x.getLeft(store)
+                      : x.getRight(store);
     }
 
     /**
-     * Replace two nodes
+     * Replace x with n
      *
      * @param x node
      * @param n node
      *
      * @throws HsqlException
      */
-    private void replace(Session session, Node x,
+    private void replace(PersistentStore store, Node x,
                          Node n) throws HsqlException {
 
         if (x.isRoot()) {
             if (n != null) {
-                n = n.getUpdatedNode();
-
-                n.setParent(null);
+                n = n.setParent(store, null);
             }
 
-            setRoot(session, n);
+            store.setAccessor(this, n);
         } else {
-            set(x.getParent(), x.isFromLeft(), n);
+            set(store, x.getParent(store), x.isFromLeft(store), n);
         }
     }
 
@@ -1245,21 +1389,20 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    private void set(Node x, boolean isleft, Node n) throws HsqlException {
-
-        x = x.getUpdatedNode();
+    private static Node set(PersistentStore store, Node x, boolean isleft,
+                            Node n) throws HsqlException {
 
         if (isleft) {
-            x.setLeft(n);
+            x = x.setLeft(store, n);
         } else {
-            x.setRight(n);
+            x = x.setRight(store, n);
         }
 
         if (n != null) {
-            n = n.getUpdatedNode();
-
-            n.setParent(x);
+            n.setParent(store, x);
         }
+
+        return x;
     }
 
     /**
@@ -1271,24 +1414,31 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    private Node search(Session session, Row row) throws HsqlException {
+    private Node search(Session session, PersistentStore store,
+                        Row row) throws HsqlException {
 
-        Object[] d = row.getData();
-        Node     x = getRoot(session);
+        readLock.lock();
 
-        while (x != null) {
-            int c = compareRowForInsert(session, row, x.getRow());
+        try {
+            Node x = (Node) store.getAccessor(this);
 
-            if (c == 0) {
-                return x;
-            } else if (c < 0) {
-                x = x.getLeft();
-            } else {
-                x = x.getRight();
+            while (x != null) {
+                int c = compareRowForInsertOrDelete(session, row,
+                                                    x.getRow(store));
+
+                if (c == 0) {
+                    return x;
+                } else if (c < 0) {
+                    x = x.getLeft(store);
+                } else {
+                    x = x.getRight(store);
+                }
             }
-        }
 
-        return null;
+            return null;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -1304,17 +1454,12 @@ public class Index implements SchemaObject {
      * @return comparison result, -1,0,+1
      * @throws HsqlException
      */
-    public int compareRowNonUnique(Session session, Object[] a,
-                                   int[] rowColMap,
+    public int compareRowNonUnique(Object[] a, int[] rowColMap,
                                    Object[] b) throws HsqlException {
 
         int fieldcount = rowColMap.length;
 
         for (int j = 0; j < fieldcount; j++) {
-/*
-            int i = Column.compare(collation, a[rowColMap[j]],
-                                   b[colIndex[j]], colTypes[j]);
-*/
             int i = colTypes[j].compare(a[rowColMap[j]], b[colIndex[j]]);
 
             if (i != 0) {
@@ -1328,7 +1473,7 @@ public class Index implements SchemaObject {
     /**
      * As above but use the index column data
      */
-    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+    public int compareRowNonUnique(Object[] a, Object[] b,
                                    int fieldcount) throws HsqlException {
 
         for (int j = 0; j < fieldcount; j++) {
@@ -1353,8 +1498,7 @@ public class Index implements SchemaObject {
      * @return comparison result, -1,0,+1
      * @throws HsqlException
      */
-    public static int compareRows(Session session, Object[] a, Object[] b,
-                                  int[] cols,
+    public static int compareRows(Object[] a, Object[] b, int[] cols,
                                   Type[] coltypes) throws HsqlException {
 
         int fieldcount = cols.length;
@@ -1373,15 +1517,14 @@ public class Index implements SchemaObject {
     /**
      * Compare two rows of the table for inserting rows into unique indexes
      * Supports descending columns.
-     * @param a data
-     * @param b data
      *
+     * @param newRow data
+     * @param existingRow data
      * @return comparison result, -1,0,+1
-     *
      * @throws HsqlException
      */
-    private int compareRowForInsert(Session session, Row newRow,
-                                    Row existingRow) throws HsqlException {
+    private int compareRowForInsertOrDelete(Session session, Row newRow,
+            Row existingRow) throws HsqlException {
 
         Object[] a       = newRow.getData();
         Object[] b       = existingRow.getData();
@@ -1389,12 +1532,17 @@ public class Index implements SchemaObject {
         boolean  hasNull = false;
 
         for (; j < colIndex.length; j++) {
-            Object currentvalue = a[colIndex[j]];
-            Object othervalue   = b[colIndex[j]];
-            int    i = colTypes[j].compare(currentvalue, othervalue);
+            Object  currentvalue = a[colIndex[j]];
+            Object  othervalue   = b[colIndex[j]];
+            int     i = colTypes[j].compare(currentvalue, othervalue);
+            boolean nulls        = currentvalue == null || othervalue == null;
 
             if (i != 0) {
-                if (colDesc[j] && currentvalue != null && othervalue != null) {
+                if (colDesc[j] && !nulls) {
+                    i = -i;
+                }
+
+                if (nullsLast[j] && nulls) {
                     i = -i;
                 }
 
@@ -1407,7 +1555,18 @@ public class Index implements SchemaObject {
         }
 
         if (isUnique && !useRowId && !hasNull) {
-            return 0;
+            if (session == null
+                    || session.database.txManager.canRead(session,
+                        existingRow)) {
+
+                //* debug 190
+//                session.database.txManager.canRead(session, existingRow);
+                return 0;
+            } else {
+                int difference = newRow.getPos() - existingRow.getPos();
+
+                return difference;
+            }
         }
 
         for (j = 0; j < pkCols.length; j++) {
@@ -1431,7 +1590,20 @@ public class Index implements SchemaObject {
             return difference;
         }
 
-        return 0;
+        if (session == null
+                || session.database.txManager.canRead(session, existingRow)) {
+            return 0;
+        } else {
+            int difference = newRow.getPos() - existingRow.getPos();
+
+            if (difference < 0) {
+                difference = -1;
+            } else if (difference > 0) {
+                difference = 1;
+            }
+
+            return difference;
+        }
     }
 
     /**
@@ -1463,98 +1635,121 @@ public class Index implements SchemaObject {
         }
     }
 
-    public IndexRowIterator getIterator(Session session, Node x) {
+    Node getVisibleNode(Session session, PersistentStore store, Node node) {
+
+        readLock.lock();
+
+        try {
+            if (session == null) {
+                return node;
+            }
+
+            while (node != null) {
+                try {
+                    Row row = node.getRow(store);
+
+                    if (session.database.txManager.canRead(session, row)) {
+                        break;
+                    }
+
+                    node = Index.this.next(store, node);
+                } catch (Exception e) {
+
+                    //* debug 190
+//                    e.printStackTrace();
+                    throw new NoSuchElementException(e.getMessage());
+                }
+            }
+
+            return node;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public IndexRowIterator getIterator(Session session,
+                                        PersistentStore store, Node x) {
 
         if (x == null) {
             return emptyIterator;
         } else {
-            IndexRowIterator it = new IndexRowIterator(session, this, x);
+            IndexRowIterator it = new IndexRowIterator(session, store, this,
+                x);
 
             return it;
         }
     }
 
-    public static class IndexRowIterator implements RowIterator {
+    public static final class IndexRowIterator implements RowIterator {
 
-        Session                    session;
-        Index                      index;
-        Node                       nextnode;
-        Row                        lastrow;
-        protected IndexRowIterator last;
-        protected IndexRowIterator next;
-        protected IndexRowIterator lastInSession;
-        protected IndexRowIterator nextInSession;
+        final Session         session;
+        final PersistentStore store;
+        final Index           index;
+        Node                  nextnode;
+        Row                   lastrow;
+        IndexRowIterator      last;
+        IndexRowIterator      next;
+        IndexRowIterator      lastInSession;
+        IndexRowIterator      nextInSession;
 
         /**
          * When session == null, rows from all sessions are returned
          */
-        public IndexRowIterator(Session session, Index index, Node node) {
+        public IndexRowIterator(Session session, PersistentStore store,
+                                Index index, Node node) {
+
+            this.session = session;
+            this.store   = store;
+            this.index   = index;
 
             if (index == null) {
                 return;
             }
 
-            this.session  = session;
-            this.index    = index;
-            this.nextnode = node;
+            nextnode = index.getVisibleNode(session, store, node);
         }
 
         public boolean hasNext() {
             return nextnode != null;
         }
 
-        public Row getNext() {
+        public Row getNextRow() {
 
-            if (hasNext()) {
-                try {
-                    lastrow  = nextnode.getRow();
-                    nextnode = index.next(nextnode);
-
-                    if (nextnode == null) {
-                        release();
-                    }
-
-                    return lastrow;
-                } catch (Exception e) {
-                    throw new NoSuchElementException();
-                }
-            } else {
+            if (nextnode == null) {
                 return null;
+            }
+
+            index.readLock.lock();
+
+            try {
+                nextnode = index.getVisibleNode(session, store, nextnode);
+
+                if (nextnode == null) {
+                    release();
+
+                    return null;
+                }
+
+                lastrow  = nextnode.getRow(store);
+                nextnode = index.next(store, nextnode);
+                nextnode = index.getVisibleNode(session, store, nextnode);
+
+                if (nextnode == null) {
+                    release();
+                }
+
+                return lastrow;
+            } catch (Exception e) {
+                throw new NoSuchElementException(e.getMessage());
+            } finally {
+                index.readLock.unlock();
             }
         }
 
         public void remove() throws HsqlException {
-            index.table.delete(session, lastrow);
+            index.table.delete(store, lastrow);
         }
 
-        void updateForDelete(Node node) {
-
-            try {
-                if (node.equals(nextnode)) {
-                    nextnode = index.next(node);
-                }
-            } catch (Exception e) {}
-        }
-
-        void link(IndexRowIterator other) {
-
-            other.next = next;
-            other.last = this;
-            next.last  = other;
-            next       = other;
-        }
-
-        public void release() {
-
-            if (last != null) {
-                last.next = next;
-            }
-
-            if (next != null) {
-                next.last = last;
-            }
-
-            last = next = null;
-        }
+        public void release() {}
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.hsqldb.Database;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Table;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.rowio.RowInputInterface;
@@ -60,7 +61,7 @@ import org.hsqldb.store.ObjectCacheHashMap;
  * compatible pair of org.hsqldb.rowio input/output class instances.
  *
  *
- * @author sqlbob@users (RMP)
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.0
  */
@@ -105,8 +106,7 @@ public class TextCache extends DataFileCache {
         uncommittedCache = new ObjectCacheHashMap(5);
     }
 
-    protected void initParams(Database database,
-                              String baseFileName) throws HsqlException {
+    protected void initParams(Database database, String baseFileName) {
 
         fileName      = baseFileName;
         this.database = database;
@@ -115,23 +115,8 @@ public class TextCache extends DataFileCache {
         HsqlProperties tableprops =
             HsqlProperties.delimitedArgPairsToProps(fileName, "=", ";", null);
 
-        //-- Get file name
-        switch (tableprops.errorCodes.length) {
-
-            case 0 :
-                throw Trace.error(Trace.TEXT_TABLE_SOURCE,
-                                  Trace.TEXT_TABLE_SOURCE_FILENAME);
-            case 1 :
-
-                // source file name is the only key without a value
-                fileName = tableprops.errorKeys[0].trim();
-                break;
-
-            default :
-                throw Trace.error(Trace.TEXT_TABLE_SOURCE,
-                                  Trace.TEXT_TABLE_SOURCE_VALUE_MISSING,
-                                  tableprops.errorKeys[1]);
-        }
+        // source file name is the only key without a value
+        fileName = tableprops.errorKeys[0].trim();
 
         //-- Get separators:
         HsqlDatabaseProperties dbProps = database.getProperties();
@@ -142,11 +127,6 @@ public class TextCache extends DataFileCache {
                 dbProps.getProperty(HsqlDatabaseProperties.textdb_vs, fs)));
         lvs = translateSep(tableprops.getProperty("lvs",
                 dbProps.getProperty(HsqlDatabaseProperties.textdb_lvs, fs)));
-
-        if (fs.length() == 0 || vs.length() == 0 || lvs.length() == 0) {
-            throw Trace.error(Trace.TEXT_TABLE_SOURCE,
-                              Trace.TEXT_TABLE_SOURCE_SEPARATOR);
-        }
 
         //-- Get booleans
         ignoreFirst = tableprops.isPropertyTrue(
@@ -186,6 +166,41 @@ public class TextCache extends DataFileCache {
         cacheFileScale   = 1;
     }
 
+    static void checkTextSouceString(String fileName,
+                                     HsqlDatabaseProperties dbProps)
+                                     throws HsqlException {
+
+        HsqlProperties tableprops =
+            HsqlProperties.delimitedArgPairsToProps(fileName, "=", ";", null);
+
+        //-- Get file name
+        switch (tableprops.errorCodes.length) {
+
+            case 0 :
+                throw Error.error(ErrorCode.X_S0501);
+            case 1 :
+
+                // source file name is the only key without a value
+                fileName = tableprops.errorKeys[0].trim();
+                break;
+
+            default :
+                throw Error.error(ErrorCode.X_S0502);
+        }
+
+        //-- Get separators:
+        String fs = translateSep(tableprops.getProperty("fs",
+            dbProps.getProperty(HsqlDatabaseProperties.textdb_fs, ",")));
+        String vs = translateSep(tableprops.getProperty("vs",
+            dbProps.getProperty(HsqlDatabaseProperties.textdb_vs, fs)));
+        String lvs = translateSep(tableprops.getProperty("lvs",
+            dbProps.getProperty(HsqlDatabaseProperties.textdb_lvs, fs)));
+
+        if (fs.length() == 0 || vs.length() == 0 || lvs.length() == 0) {
+            throw Error.error(ErrorCode.X_S0503);
+        }
+    }
+
     protected void initBuffers() {
 
         if (isQuoted || isAllQuoted) {
@@ -198,7 +213,7 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    private String translateSep(String sep) {
+    private static String translateSep(String sep) {
         return translateSep(sep, false);
     }
 
@@ -206,28 +221,28 @@ public class TextCache extends DataFileCache {
      * Translates the escaped characters in a separator string and returns
      * the non-escaped string.
      */
-    private String translateSep(String sep, boolean isProperty) {
+    private static String translateSep(String sep, boolean isProperty) {
 
         if (sep == null) {
-            return (null);
+            return null;
         }
 
-        int next = 0;
+        int next = sep.indexOf(BACKSLASH_CHAR);
 
-        if ((next = sep.indexOf(BACKSLASH_CHAR)) != -1) {
+        if (next != -1) {
             int          start    = 0;
             char[]       sepArray = sep.toCharArray();
             char         ch       = 0;
             int          len      = sep.length();
-            StringBuffer realSep  = new StringBuffer(len);
+            StringBuffer sb       = new StringBuffer(len);
 
             do {
-                realSep.append(sepArray, start, next - start);
+                sb.append(sepArray, start, next - start);
 
                 start = ++next;
 
                 if (next >= len) {
-                    realSep.append(BACKSLASH_CHAR);
+                    sb.append(BACKSLASH_CHAR);
 
                     break;
                 }
@@ -237,56 +252,56 @@ public class TextCache extends DataFileCache {
                 }
 
                 if (ch == 'n') {
-                    realSep.append(LF_CHAR);
+                    sb.append(LF_CHAR);
 
                     start++;
                 } else if (ch == 'r') {
-                    realSep.append(CR_CHAR);
+                    sb.append(CR_CHAR);
 
                     start++;
                 } else if (ch == 't') {
-                    realSep.append('\t');
+                    sb.append('\t');
 
                     start++;
                 } else if (ch == BACKSLASH_CHAR) {
-                    realSep.append(BACKSLASH_CHAR);
+                    sb.append(BACKSLASH_CHAR);
 
                     start++;
                 } else if (ch == 'u') {
                     start++;
 
-                    realSep.append(
+                    sb.append(
                         (char) Integer.parseInt(
                             sep.substring(start, start + 4), 16));
 
                     start += 4;
                 } else if (sep.startsWith("semi", next)) {
-                    realSep.append(';');
+                    sb.append(';');
 
                     start += 4;
                 } else if (sep.startsWith("space", next)) {
-                    realSep.append(' ');
+                    sb.append(' ');
 
                     start += 5;
                 } else if (sep.startsWith("quote", next)) {
-                    realSep.append(DOUBLE_QUOTE_CHAR);
+                    sb.append(DOUBLE_QUOTE_CHAR);
 
                     start += 5;
                 } else if (sep.startsWith("apos", next)) {
-                    realSep.append('\'');
+                    sb.append('\'');
 
                     start += 4;
                 } else {
-                    realSep.append(BACKSLASH_CHAR);
-                    realSep.append(sepArray[next]);
+                    sb.append(BACKSLASH_CHAR);
+                    sb.append(sepArray[next]);
 
                     start++;
                 }
             } while ((next = sep.indexOf(BACKSLASH_CHAR, start)) != -1);
 
-            realSep.append(sepArray, start, len - start);
+            sb.append(sepArray, start, len - start);
 
-            sep = realSep.toString();
+            sep = sb.toString();
         }
 
         return sep;
@@ -305,13 +320,13 @@ public class TextCache extends DataFileCache {
             fileFreePosition = dataFile.length();
 
             if (fileFreePosition > Integer.MAX_VALUE) {
-                throw new IOException();
+                throw new HsqlException("", "", 0);
             }
 
             initBuffers();
         } catch (Exception e) {
-            throw Trace.error(Trace.FILE_IO_ERROR,
-                              Trace.TextCache_openning_file_error,
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.TextCache_openning_file_error,
                               new Object[] {
                 fileName, e
             });
@@ -344,12 +359,12 @@ public class TextCache extends DataFileCache {
 
             dataFile = null;
 
-            if (empty &&!cacheReadonly) {
-                FileUtil.delete(fileName);
+            if (empty && !cacheReadonly) {
+                FileUtil.getDefaultInstance().delete(fileName);
             }
         } catch (Exception e) {
-            throw Trace.error(Trace.FILE_IO_ERROR,
-                              Trace.TextCache_closing_file_error,
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.TextCache_closing_file_error,
                               new Object[] {
                 fileName, e
             });
@@ -373,11 +388,11 @@ public class TextCache extends DataFileCache {
                     dataFile = null;
                 }
 
-                FileUtil.delete(fileName);
+                FileUtil.getDefaultInstance().delete(fileName);
             }
         } catch (Exception e) {
-            throw Trace.error(Trace.FILE_IO_ERROR,
-                              Trace.TextCache_purging_file_error,
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.TextCache_purging_file_error,
                               new Object[] {
                 fileName, e
             });
@@ -389,7 +404,7 @@ public class TextCache extends DataFileCache {
      */
     public synchronized void remove(int pos,
                                     PersistentStore store)
-                                    throws IOException {
+                                    throws HsqlException {
 
         CachedObject row = (CachedObject) uncommittedCache.remove(pos);
 
@@ -403,23 +418,26 @@ public class TextCache extends DataFileCache {
         release(pos);
     }
 
-    private void clearRowImage(CachedObject row) throws IOException {
+    private void clearRowImage(CachedObject row) throws HsqlException {
 
-        int length = row.getStorageSize()
-                     - ScriptWriterText.BYTES_LINE_SEP.length;
+        try {
+            int length = row.getStorageSize()
+                         - ScriptWriterText.BYTES_LINE_SEP.length;
 
-        rowOut.reset();
+            rowOut.reset();
 
-        HsqlByteArrayOutputStream out = rowOut.getOutputStream();
+            HsqlByteArrayOutputStream out = rowOut.getOutputStream();
 
-        out.fill(' ', length);
-        out.write(ScriptWriterText.BYTES_LINE_SEP);
-        dataFile.seek(row.getPos());
-        dataFile.write(out.getBuffer(), 0, out.size());
+            out.fill(' ', length);
+            out.write(ScriptWriterText.BYTES_LINE_SEP);
+            dataFile.seek(row.getPos());
+            dataFile.write(out.getBuffer(), 0, out.size());
+        } catch (IOException e) {
+            throw new HsqlException(e.getMessage(), "", 0);
+        }
     }
 
-    public synchronized void removePersistence(int pos,
-            PersistentStore store) throws IOException {
+    public synchronized void removePersistence(int pos) throws HsqlException {
 
         CachedObject row = (CachedObject) uncommittedCache.get(pos);
 
@@ -433,88 +451,93 @@ public class TextCache extends DataFileCache {
     }
 
     protected synchronized RowInputInterface readObject(int pos)
-    throws IOException {
+    throws HsqlException {
 
-        ByteArray buffer   = new ByteArray(80);
-        boolean   complete = false;
-        boolean   wasCR    = false;
-        int       c;
-        boolean   hasQuote  = false;
-        boolean   wasNormal = false;
+        try {
+            ByteArray buffer   = new ByteArray(80);
+            boolean   complete = false;
+            boolean   wasCR    = false;
+            int       c;
+            boolean   hasQuote  = false;
+            boolean   wasNormal = false;
 
-        pos = findNextUsedLinePos(pos);
+            pos = findNextUsedLinePos(pos);
 
-        if (pos == -1) {
-            return null;
-        }
-
-        dataFile.seek(pos);
-
-        while (!complete) {
-            wasNormal = false;
-            c         = dataFile.read();
-
-            if (c == -1) {
-                if (buffer.length() == 0) {
-                    return null;
-                }
-
-                complete = true;
-
-                if (wasCR) {
-                    break;
-                }
-
-                if (!cacheReadonly) {
-                    dataFile.write(ScriptWriterText.BYTES_LINE_SEP, 0,
-                                   ScriptWriterText.BYTES_LINE_SEP.length);
-                }
-
-                break;
+            if (pos == -1) {
+                return null;
             }
 
-            switch (c) {
+            dataFile.seek(pos);
 
-                case DOUBLE_QUOTE_CHAR :
-                    wasNormal = true;
-                    complete  = wasCR;
-                    wasCR     = false;
+            while (!complete) {
+                wasNormal = false;
+                c         = dataFile.read();
 
-                    if (isQuoted) {
-                        hasQuote = !hasQuote;
+                if (c == -1) {
+                    if (buffer.length() == 0) {
+                        return null;
                     }
-                    break;
 
-                case CR_CHAR :
-                    wasCR = !hasQuote;
-                    break;
+                    complete = true;
 
-                case LF_CHAR :
-                    complete = !hasQuote;
-                    break;
+                    if (wasCR) {
+                        break;
+                    }
 
-                default :
-                    wasNormal = true;
-                    complete  = wasCR;
-                    wasCR     = false;
+                    if (!cacheReadonly) {
+                        dataFile.write(ScriptWriterText.BYTES_LINE_SEP, 0,
+                                       ScriptWriterText.BYTES_LINE_SEP.length);
+                    }
+
+                    break;
+                }
+
+                switch (c) {
+
+                    case DOUBLE_QUOTE_CHAR :
+                        wasNormal = true;
+                        complete  = wasCR;
+                        wasCR     = false;
+
+                        if (isQuoted) {
+                            hasQuote = !hasQuote;
+                        }
+                        break;
+
+                    case CR_CHAR :
+                        wasCR = !hasQuote;
+                        break;
+
+                    case LF_CHAR :
+                        complete = !hasQuote;
+                        break;
+
+                    default :
+                        wasNormal = true;
+                        complete  = wasCR;
+                        wasCR     = false;
+                }
+
+                buffer.append(c);
             }
 
-            buffer.append(c);
-        }
+            if (complete) {
+                int length = (int) dataFile.getFilePointer() - pos;
 
-        if (complete) {
-            int length = (int) dataFile.getFilePointer() - pos;
+                if (wasNormal) {
+                    length--;
+                }
 
-            if (wasNormal) {
-                length--;
+                ((RowInputText) rowIn).setSource(buffer.toString(), pos,
+                                                 length);
+
+                return rowIn;
             }
 
-            ((RowInputText) rowIn).setSource(buffer.toString(), pos, length);
-
-            return rowIn;
+            return null;
+        } catch (IOException e) {
+            throw new HsqlException(e.getMessage(), "", 0);
         }
-
-        return null;
     }
 
     public int readHeaderLine() throws HsqlException {
@@ -540,15 +563,14 @@ public class TextCache extends DataFileCache {
                     complete = true;
 
                     if (!cacheReadonly) {
-                        dataFile.write(
-                            ScriptWriterText.BYTES_LINE_SEP, 0,
-                            ScriptWriterText.BYTES_LINE_SEP.length);
+                        dataFile.write(ScriptWriterText.BYTES_LINE_SEP, 0,
+                                       ScriptWriterText.BYTES_LINE_SEP.length);
                     }
 
                     break;
                 }
             } catch (IOException e) {
-                throw Trace.error(Trace.TEXT_FILE);
+                throw Error.error(ErrorCode.TEXT_FILE);
             }
 
             switch (c) {
@@ -581,7 +603,7 @@ public class TextCache extends DataFileCache {
 
             return length;
         } catch (IOException e) {
-            throw Trace.error(Trace.TEXT_FILE);
+            throw Error.error(ErrorCode.TEXT_FILE);
         }
     }
 
@@ -594,51 +616,55 @@ public class TextCache extends DataFileCache {
      *
      * If none found return -1
      */
-    int findNextUsedLinePos(int pos) throws IOException {
+    int findNextUsedLinePos(int pos) throws HsqlException {
 
-        int     firstPos   = pos;
-        int     currentPos = pos;
-        boolean wasCR      = false;
+        try {
+            int     firstPos   = pos;
+            int     currentPos = pos;
+            boolean wasCR      = false;
 
-        dataFile.seek(pos);
+            dataFile.seek(pos);
 
-        while (true) {
-            int c = dataFile.read();
+            while (true) {
+                int c = dataFile.read();
 
-            currentPos++;
+                currentPos++;
 
-            switch (c) {
+                switch (c) {
 
-                case CR_CHAR :
-                    wasCR = true;
-                    break;
+                    case CR_CHAR :
+                        wasCR = true;
+                        break;
 
-                case LF_CHAR :
-                    wasCR = false;
-
-                    ((RowInputText) rowIn).skippedLine();
-
-                    firstPos = currentPos;
-                    break;
-
-                case ' ' :
-                    if (wasCR) {
+                    case LF_CHAR :
                         wasCR = false;
 
                         ((RowInputText) rowIn).skippedLine();
-                    }
-                    break;
 
-                case -1 :
-                    return -1;
+                        firstPos = currentPos;
+                        break;
 
-                default :
-                    return firstPos;
+                    case ' ' :
+                        if (wasCR) {
+                            wasCR = false;
+
+                            ((RowInputText) rowIn).skippedLine();
+                        }
+                        break;
+
+                    case -1 :
+                        return -1;
+
+                    default :
+                        return firstPos;
+                }
             }
+        } catch (IOException e) {
+            throw new HsqlException(e.getMessage(), "", 0);
         }
     }
 
-    public synchronized void add(CachedObject object) throws IOException {
+    public synchronized void add(CachedObject object) throws HsqlException {
         super.add(object);
         clearRowImage(object);
     }
@@ -672,7 +698,7 @@ public class TextCache extends DataFileCache {
      * back- fredt
      */
     protected synchronized void saveRows(CachedObject[] rows, int offset,
-                                         int count) throws IOException {
+                                         int count) throws HsqlException {
 
         if (count == 0) {
             return;
@@ -691,7 +717,7 @@ public class TextCache extends DataFileCache {
      * In case the row has been moved to the uncommittedCache, removes it.
      * Then saves the row as normal.
      */
-    public synchronized void saveRow(CachedObject row) throws IOException {
+    public synchronized void saveRow(CachedObject row) throws HsqlException {
         uncommittedCache.remove(row.getPos());
         super.saveRow(row);
     }
@@ -707,32 +733,36 @@ public class TextCache extends DataFileCache {
                 writeHeader(header);
 
                 this.header = header;
-            } catch (IOException e) {
+            } catch (HsqlException e) {
                 throw new HsqlException(
-                    e, Trace.getMessage(Trace.GENERAL_IO_ERROR),
-                    Trace.GENERAL_IO_ERROR);
+                    e, Error.getMessage(ErrorCode.GENERAL_IO_ERROR),
+                    ErrorCode.GENERAL_IO_ERROR);
             }
 
             return;
         }
 
-        throw Trace.error(Trace.TEXT_TABLE_HEADER);
+        throw Error.error(ErrorCode.TEXT_TABLE_HEADER);
     }
 
-    private void writeHeader(String header) throws IOException {
-
-        byte[] buf       = null;
-        String firstLine = header + NL;
+    private void writeHeader(String header) throws HsqlException {
 
         try {
-            buf = firstLine.getBytes(stringEncoding);
-        } catch (UnsupportedEncodingException e) {
-            buf = firstLine.getBytes();
+            byte[] buf       = null;
+            String firstLine = header + NL;
+
+            try {
+                buf = firstLine.getBytes(stringEncoding);
+            } catch (UnsupportedEncodingException e) {
+                buf = firstLine.getBytes();
+            }
+
+            dataFile.write(buf, 0, buf.length);
+
+            fileFreePosition = buf.length;
+        } catch (IOException e) {
+            throw new HsqlException(e.getMessage(), "", 0);
         }
-
-        dataFile.write(buf, 0, buf.length);
-
-        fileFreePosition = buf.length;
     }
 
     private class ByteArray {
@@ -782,7 +812,7 @@ public class TextCache extends DataFileCache {
         return ((RowInputText) rowIn).getLineNumber();
     }
 
-    protected void setFileModified() throws IOException {
+    protected void setFileModified() throws HsqlException {
         fileModified = true;
     }
 }

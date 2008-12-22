@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import javax.naming.spi.ObjectFactory;
  * @author deforest@users
  * @version 1.7.2
  */
-public class jdbcDataSourceFactory implements ObjectFactory {
+public class JDBCDataSourceFactory implements ObjectFactory {
 
     /**
      * Creates a jdbcDatasource object using the location or reference
@@ -68,11 +68,11 @@ public class jdbcDataSourceFactory implements ObjectFactory {
     public Object getObjectInstance(Object obj, Name name, Context nameCtx,
                                     Hashtable environment) throws Exception {
 
-        String    dsClass = "org.hsqldb.jdbc.jdbcDataSource";
+        String    dsClass = "org.hsqldb.jdbc.JDBCDataSource";
         Reference ref     = (Reference) obj;
 
         if (ref.getClassName().equals(dsClass)) {
-            jdbcDataSource ds = new jdbcDataSource();
+            JDBCDataSource ds = new JDBCDataSource();
 
             ds.setDatabase((String) ref.get("database").getContent());
             ds.setUser((String) ref.get("user").getContent());

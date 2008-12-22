@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.Trace;
 import org.hsqldb.TriggerDef;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
@@ -73,7 +72,7 @@ import org.hsqldb.rights.Grantee;
  * and Methods defined within the context of this database name space support
  * object. <p>
  *
- * @author  boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.2
  */
@@ -109,21 +108,18 @@ final class DINameSpace {
     }
 
     /**
-     * Constructs a new name space support object for the
-     * specified Database object. <p>
+     * Constructs a new name space support object for the specified Database
+     * object.
      *
-     * @param database The Database object for which to provide name
-     *      space support
-     * @throws HsqlException if a database access error occurs
+     * <p>
+     *
+     * @param database The Database object for which to provide name space
+     *   support
+     * @throws HsqlException
      */
     public DINameSpace(Database database) throws HsqlException {
-
-        try {
-            this.database    = database;
-            this.catalogName = database.getCatalog();
-        } catch (Exception e) {
-            throw Trace.error(Trace.GENERAL_ERROR, e.toString());
-        }
+        this.database    = database;
+        this.catalogName = database.getCatalogName().name;
     }
 
     /**
@@ -188,41 +184,6 @@ final class DINameSpace {
                                    : new WrapperIterator(catalogName);
     }
 
-    /**
-     * Retrieves the name of the catalog corresponding to the indicated
-     * object. <p>
-     *
-     * <B>Note:</B> the uri of this object's database is returned whenever
-     * catalog reporting is turned on. <p>
-     *
-     * This a stub that will be used until such time (if ever) that the
-     * engine actually supports the concept of multiple hosted
-     * catalogs. <p>
-     *
-     * @return the name of specified object's qualifying catalog, or null if
-     *      catalog reporting is turned off.
-     * @param o the object for which the name of its qualifying catalog
-     *      is to be retrieved
-     */
-    String getCatalogName() {
-        return catalogName;
-    }
-
-    /**
-     * Retrieves a map from each distinct value of this object's database
-     * SQL routine CALL alias map to the list of keys in the input map
-     * mapping to that value. <p>
-     *
-     * @return The requested map
-     */
-    HashMap getInverseAliasMap() {
-
-        if (inverseAliasMap == null) {
-            inverseAliasMap = database.aliasManager.getInverseAliasMap();
-        }
-
-        return inverseAliasMap;
-    }
 
     /**
      * Retrieves the fully qualified name of the given Method object. <p>
@@ -280,19 +241,12 @@ final class DINameSpace {
     }
 
     /**
-     * Deprecated
-     */
-    String getSchemaName(Object o) {
-        return database.schemaManager.PUBLIC_SCHEMA;
-    }
-
-    /**
      * Adds to the given Set the fully qualified names of the Class objects
      * internally granted to PUBLIC in support of core operation.
      *
-     * @param the HashSet to which to add the fully qualified names of
-     * the Class objects internally granted to PUBLIC in support of
-     * core operation.
+     * @param set HashSet to which to add the fully qualified names of the
+     *   Class objects internally granted to PUBLIC in support of core
+     *   operation.
      */
     void addBuiltinToSet(HashSet set) {
         set.addAll(builtin);
@@ -368,6 +322,7 @@ final class DINameSpace {
      * @throws HsqlException if a database access error occurs
      *
      */
+/*
     Iterator iterateRoutineMethods(String className,
                                    boolean andAliases) throws HsqlException {
 
@@ -426,7 +381,7 @@ final class DINameSpace {
         // return the iterator
         return methodList.iterator();
     }
-
+*/
     /**
      * Retrieves an <code>Iterator</code> object describing the
      * fully qualified names of all Java <code>Class</code> objects
@@ -456,7 +411,7 @@ final class DINameSpace {
 
         classSet = new HashSet();
 
-        Iterator schemas = database.schemaManager.userSchemaNameIterator();
+        Iterator schemas = database.schemaManager.allSchemaNameIterator();
 
         while (schemas.hasNext()) {
             String schema = (String) schemas.next();
@@ -523,18 +478,19 @@ final class DINameSpace {
         String   className;
 
         out          = new WrapperIterator();
-        classNameSet = session.getUser().getGrantedClassNames(true);
+        classNameSet = session.getGrantee().getGrantedClassNames(true);
 
         addBuiltinToSet(classNameSet);
 
         classNames = classNameSet.iterator();
 
+/*
         while (classNames.hasNext()) {
             className = (String) classNames.next();
             methods   = iterateRoutineMethods(className, andAliases);
             out       = new WrapperIterator(out, methods);
         }
-
+*/
         return out;
     }
 

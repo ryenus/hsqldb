@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,13 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.hsqldb.DatabaseManager;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlTimer;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * Base cooperative file locking implementation and <tt>LockFile</tt>
@@ -352,7 +352,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * <tt>NIOLockFile</tt> to the hsqldb.jar if such features are reported
  * present. <p>
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @version 1.8.0.3
  * @since 1.7.2
  */
@@ -630,8 +630,7 @@ public class LockFile {
         try {
             lockFile = LockFile.newLockFile(path + ".lck");
         } catch (LockFile.BaseException e) {
-            throw Trace.error(Trace.DATABASE_LOCK_ACQUISITION_FAILURE,
-                              e.getMessage());
+            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE, e.getMessage());
         }
 
         boolean locked = false;
@@ -639,8 +638,7 @@ public class LockFile {
         try {
             locked = lockFile.tryLock();
         } catch (LockFile.BaseException e) {
-            throw Trace.error(Trace.DATABASE_LOCK_ACQUISITION_FAILURE,
-                              e.getMessage());
+            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE, e.getMessage());
         }
 
         // Paranoia mode: In theory, this case can't happen, given the way
@@ -648,7 +646,7 @@ public class LockFile {
         // contracts, an exception will always be thrown instead by the code
         // above.
         if (!locked) {
-            throw Trace.error(Trace.DATABASE_LOCK_ACQUISITION_FAILURE,
+            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
                               lockFile.toString());
         }
 
@@ -792,8 +790,12 @@ public class LockFile {
         long length = 0;
 
         try {
-            if (withCreateNewFile && JavaSystem.createNewFile(file)) {
-                return;
+            if (withCreateNewFile) {
+                try {
+                    file.createNewFile();
+
+                    return;
+                } catch (IOException ioe) {}
             }
 
             if (!file.exists()) {
@@ -1009,17 +1011,17 @@ public class LockFile {
 
         // Should at least be absolutized for reporting purposes, just in case
         // a security or canonicalization exception gets thrown.
-        path      = FileUtil.canonicalOrAbsolutePath(path);
+        path = FileUtil.getDefaultInstance().canonicalOrAbsolutePath(path);
         this.file = new File(path);
 
         try {
-            FileUtil.makeParentDirectories(this.file);
+            FileUtil.getDefaultInstance().makeParentDirectories(this.file);
         } catch (SecurityException ex) {
             throw new FileSecurityException(this, "setPath", ex);
         }
 
         try {
-            this.file = FileUtil.canonicalFile(path);
+            this.file = FileUtil.getDefaultInstance().canonicalFile(path);
         } catch (SecurityException ex) {
             throw new FileSecurityException(this, "setPath", ex);
         } catch (IOException ex) {
@@ -1734,7 +1736,7 @@ public class LockFile {
             // store...
             writeMagic();
             writeHeartbeat();
-            FileUtil.deleteOnExit(file);
+            FileUtil.getDefaultInstance().deleteOnExit(file);
 
             this.locked = true;
 
@@ -1895,7 +1897,7 @@ public class LockFile {
             try {
                 LockFile.this.writeHeartbeat();
             } catch (Throwable t) {
-                Trace.printSystemOut(t.toString());
+                Error.printSystemOut(t.toString());
             }
         }
     }

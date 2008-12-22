@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,17 +32,17 @@
 package org.hsqldb.jdbc;
 
 import java.lang.reflect.Field;
-import org.hsqldb.types.Type;
 
 /**
  * Provides a site for holding the ResultSetMetaData for individual ResultSet
- * columns. <p>
+ * columns. Rewritten for 1.9.0 as a simple data structure for reporting
+ * purposes.<p>
  *
- * @author boucherb@users
- * @version 1.7.2
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @version 1.9.0
  * @since HSQLDB 1.7.2
  */
-public final class jdbcColumnMetaData {
+public final class JDBCColumnMetaData {
 
     /** The column's table's catalog name. */
     public String catalogName;
@@ -64,7 +64,7 @@ public final class jdbcColumnMetaData {
     public String columnName;
 
     /** The column's SQL type. */
-    public Type columnType;
+    public int columnType;
 
     /** The column's value's number of decimal digits. */
     public int precision;
@@ -150,7 +150,6 @@ public final class jdbcColumnMetaData {
                 sb.append(' ');
             }
         }
-
         sb.append(']');
 
         return sb.toString();

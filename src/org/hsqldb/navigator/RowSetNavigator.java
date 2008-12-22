@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.navigator;
 import java.io.IOException;
 
 import org.hsqldb.HsqlException;
+import org.hsqldb.Row;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
@@ -44,11 +45,11 @@ import org.hsqldb.rowio.RowOutputInterface;
  * provides positional navigation and checking, while the subclasses provide
  * object retreival.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public abstract class RowSetNavigator {
+public abstract class RowSetNavigator implements RangeIterator {
 
     public RowSetNavigator() {}
 
@@ -77,6 +78,18 @@ public abstract class RowSetNavigator {
      * Returns the current row object. Type of object is implementation defined.
      */
     public abstract Object getCurrent();
+
+    public long getRowid() {
+        return 0;
+    }
+
+    public Object getRowidObject() {
+        return null;
+    }
+
+    public Row getCurrentRow() {
+        return null;
+    }
 
     /**
      * Add row to the end
@@ -277,12 +290,11 @@ public abstract class RowSetNavigator {
                               ResultMetaData meta)
                               throws HsqlException, IOException;
 
-    /**
-     * isDiskBased
-     *
-     * @return boolean
-     */
     public boolean isDiskBased() {
         return false;
+    }
+
+    public int getRangePosition() {
+        return 0;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,22 +38,36 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.store.ValuePool;
 
 /**
  * Wrapper for java.util.Properties to limit values to Specific types and
  * allow saving and loading.<p>
  *
- * @author fredt@users
- * @version 1.7.2
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.0
  */
 public class HsqlProperties {
 
+    // column number mappings
+    public static final int indexName         = 0;
+    public static final int indexType         = 1;
+    public static final int indexClass        = 2;
+    public static final int indexIsRange      = 3;
+    public static final int indexDefaultValue = 4;
+    public static final int indexRangeLow     = 5;
+    public static final int indexRangeHigh    = 6;
+    public static final int indexValues       = 7;
+    public static final int indexLimit        = 9;
+
+    //
     public static final int NO_VALUE_FOR_KEY = 1;
     protected String        fileName;
     protected Properties    stringProps;
@@ -67,19 +81,19 @@ public class HsqlProperties {
         fileName    = null;
     }
 
-    public HsqlProperties(String name) {
+    public HsqlProperties(String fileName) {
 
-        stringProps = new Properties();
-        fileName    = name;
-        fa          = FileUtil.getDefaultInstance();
+        stringProps   = new Properties();
+        this.fileName = fileName;
+        fa            = FileUtil.getDefaultInstance();
     }
 
-    public HsqlProperties(String name, FileAccess accessor, boolean b) {
+    public HsqlProperties(String fileName, FileAccess accessor, boolean b) {
 
-        stringProps = new Properties();
-        fileName    = name;
-        resource    = b;
-        fa          = accessor;
+        stringProps   = new Properties();
+        this.fileName = fileName;
+        resource      = b;
+        fa            = accessor;
     }
 
     public HsqlProperties(Properties props) {
@@ -158,8 +172,7 @@ public class HsqlProperties {
     /**
      * Choice limited to values list, defaultValue must be in the values list.
      */
-    public int getIntegerProperty(String key, int defaultValue,
-                                  int[] values) {
+    public int getIntegerProperty(String key, int defaultValue, int[] values) {
 
         String prop  = getProperty(key);
         int    value = defaultValue;
@@ -236,7 +249,7 @@ public class HsqlProperties {
 
         if (fileName == null || fileName.length() == 0) {
             throw new FileNotFoundException(
-                Trace.getMessage(Trace.HsqlProperties_load));
+                Error.getMessage(ErrorCode.HsqlProperties_load));
         }
 
         InputStream fis           = null;
@@ -264,7 +277,7 @@ public class HsqlProperties {
 
         if (fileName == null || fileName.length() == 0) {
             throw new java.io.FileNotFoundException(
-                Trace.getMessage(Trace.HsqlProperties_load));
+                Error.getMessage(ErrorCode.HsqlProperties_load));
         }
 
         String filestring = fileName + ".properties";
@@ -280,12 +293,15 @@ public class HsqlProperties {
 // oj@openoffice.org
         fa.createParentDirs(fileString);
 
-        OutputStream fos = fa.openOutputStreamElement(fileString);
+        OutputStream        fos = fa.openOutputStreamElement(fileString);
+        FileAccess.FileSync outDescriptor = fa.getFileSync(fos);
 
         JavaSystem.saveProperties(
             stringProps,
             HsqlDatabaseProperties.PRODUCT_NAME + " "
             + HsqlDatabaseProperties.THIS_FULL_VERSION, fos);
+        fos.flush();
+        outDescriptor.sync();
         fos.close();
 
         return;
@@ -312,7 +328,7 @@ public class HsqlProperties {
      * pairs. Each key is prefixed with the type argument and a dot before
      * being inserted into the properties Object. <p>
      *
-     * "-?" is treated as a key with no value and not inserted.
+     * "--help" is treated as a key with no value and not inserted.
      */
     public static HsqlProperties argArrayToProps(String[] arg, String type) {
 
@@ -321,14 +337,22 @@ public class HsqlProperties {
         for (int i = 0; i < arg.length; i++) {
             String p = arg[i];
 
-            if (p.startsWith("-?")) {
+            if (p.equals("--help") || p.equals("-help")) {
                 props.addError(NO_VALUE_FOR_KEY, p.substring(1));
-            } else if (p.charAt(0) == '-') {
-                props.setProperty(type + "." + p.substring(1), arg[i + 1]);
+            } else if (p.startsWith("--")) {
+                String value = i + 1 < arg.length ? arg[i + 1]
+                                                  : "";
+
+                props.setProperty(type + "." + p.substring(2), value);
 
                 i++;
-            } else {
-                props.addError(NO_VALUE_FOR_KEY, p);
+            } else if (p.charAt(0) == '-') {
+                String value = i + 1 < arg.length ? arg[i + 1]
+                                                  : "";
+
+                props.setProperty(type + "." + p.substring(1), value);
+
+                i++;
             }
         }
 
@@ -408,6 +432,92 @@ public class HsqlProperties {
     public String[] getErrorKeys() {
         return errorKeys;
     }
+
+    public static Object[] getMeta(String name, int type,
+                                   String defaultValue) {
+
+        Object[] row = new Object[indexLimit];
+
+        row[indexName]         = name;
+        row[indexType]         = ValuePool.getInt(type);
+        row[indexClass]        = "java.lang.String";
+        row[indexDefaultValue] = defaultValue;
+
+        return row;
+    }
+
+    public static Object[] getMeta(String name, int type,
+                                   boolean defaultValue) {
+
+        Object[] row = new Object[indexLimit];
+
+        row[indexName]         = name;
+        row[indexType]         = ValuePool.getInt(type);
+        row[indexClass]        = "boolean";
+        row[indexDefaultValue] = defaultValue ? Boolean.TRUE
+                                              : Boolean.FALSE;
+
+        return row;
+    }
+
+    public static Object[] getMeta(String name, int type, int defaultValue,
+                                   int[] values) {
+
+        Object[] row = new Object[indexLimit];
+
+        row[indexName]         = name;
+        row[indexType]         = ValuePool.getInt(type);
+        row[indexClass]        = "int";
+        row[indexDefaultValue] = ValuePool.getInt(defaultValue);
+        row[indexValues]       = values;
+
+        return row;
+    }
+
+    public static Object[] getMeta(String name, int type, int defaultValue,
+                                   int rangeLow, int rangeHigh) {
+
+        Object[] row = new Object[indexLimit];
+
+        row[indexName]         = name;
+        row[indexType]         = ValuePool.getInt(type);
+        row[indexClass]        = "int";
+        row[indexDefaultValue] = ValuePool.getInt(defaultValue);
+        row[indexIsRange]      = Boolean.TRUE;
+        row[indexRangeLow]     = ValuePool.getInt(rangeLow);
+        row[indexRangeHigh]    = ValuePool.getInt(rangeHigh);
+
+        return row;
+    }
+
+    public String toString() {
+
+        StringBuffer sb;
+
+        sb = new StringBuffer();
+
+        sb.append('[');
+
+        int         len = stringProps.size();
+        Enumeration en  = stringProps.propertyNames();
+
+        for (int i = 0; i < len; i++) {
+            String key = (String) en.nextElement();
+
+            sb.append(key);
+            sb.append('=');
+            sb.append(stringProps.get(key));
+
+            if (i + 1 < len) {
+                sb.append(',');
+                sb.append(' ');
+            }
+
+            sb.append(']');
+        }
+
+        return sb.toString();
+    }
 /*
     public static void main(String[] argv) {
 
@@ -418,8 +528,4 @@ public class HsqlProperties {
             ";", "textdb");
     }
 */
-    public String toString() {
-        return "File (" + fileName + ")"
-                + System.getProperty("line.separator") + stringProps.toString();
-    }
 }

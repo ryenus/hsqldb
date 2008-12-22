@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,11 +44,11 @@ import org.hsqldb.Database;
  * channel of fixed size. After reaching this size, the file and channel are
  * closed and a new one opened, up to the maximum size.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version  1.8.0.5
  * @since 1.7.2
  */
-public class ScaledRAFileHybrid implements ScaledRAInterface {
+public final class ScaledRAFileHybrid implements ScaledRAInterface {
 
     final Database    database;
     final String      fileName;
