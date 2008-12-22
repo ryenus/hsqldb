@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,30 +31,38 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 
+/**
+ * Implementation of data item for INTERVAL SECOND.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class IntervalSecondData {
 
-    final int units;
-    int       nanos;
+    public final long units;
+    public final int  nanos;
 
-    public static IntervalSecondData newIntervalDay(int days,
+    public static IntervalSecondData newIntervalDay(long days,
             IntervalType type) throws HsqlException {
         return new IntervalSecondData(days * 24 * 60 * 60, 0, type);
     }
 
-    public static IntervalSecondData newIntervalHour(int hours,
+    public static IntervalSecondData newIntervalHour(long hours,
             IntervalType type) throws HsqlException {
         return new IntervalSecondData(hours * 60 * 60, 0, type);
     }
 
-    public static IntervalSecondData newIntervalMinute(int minutes,
+    public static IntervalSecondData newIntervalMinute(long minutes,
             IntervalType type) throws HsqlException {
         return new IntervalSecondData(minutes * 60, 0, type);
     }
 
-    public static IntervalSecondData newIntervalSeconds(int seconds,
+    public static IntervalSecondData newIntervalSeconds(long seconds,
             IntervalType type) throws HsqlException {
         return new IntervalSecondData(seconds, 0, type);
     }
@@ -63,13 +71,15 @@ public class IntervalSecondData {
                               IntervalType type) throws HsqlException {
 
         if (seconds >= type.getIntervalValueLimit()) {
-
-            // todo - SQL message interval field overflow
-            // data exception interval field overflow.
-            throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+            throw Error.error(ErrorCode.X_22015);
         }
 
-        this.units = (int) seconds;
+        this.units = seconds;
+        this.nanos = nanos;
+    }
+
+    public IntervalSecondData(long seconds, int nanos) throws HsqlException {
+        this.units = seconds;
         this.nanos = nanos;
     }
 
@@ -79,35 +89,43 @@ public class IntervalSecondData {
     public IntervalSecondData(long seconds, long nanos, IntervalType type,
                               boolean normalise) throws HsqlException {
 
-        if (nanos >= DateTimeType.limitNanoseconds) {
-            long carry = nanos / DateTimeType.limitNanoseconds;
+        if (nanos >= DTIType.limitNanoseconds) {
+            long carry = nanos / DTIType.limitNanoseconds;
 
-            nanos   = nanos % DateTimeType.limitNanoseconds;
+            nanos   = nanos % DTIType.limitNanoseconds;
             seconds += carry;
-        } else if (nanos <= -DateTimeType.limitNanoseconds) {
-            long carry = -nanos / DateTimeType.limitNanoseconds;
+        } else if (nanos <= -DTIType.limitNanoseconds) {
+            long carry = -nanos / DTIType.limitNanoseconds;
 
-            nanos   = -(-nanos % DateTimeType.limitNanoseconds);
+            nanos   = -(-nanos % DTIType.limitNanoseconds);
             seconds -= carry;
         }
 
+        int scaleFactor = DTIType.nanoScaleFactors[type.scale];
+
+        nanos /= scaleFactor;
+        nanos *= scaleFactor;
+
         if (seconds > 0 && nanos < 0) {
-            nanos += DateTimeType.limitNanoseconds;
+            nanos += DTIType.limitNanoseconds;
 
             seconds--;
         } else if (seconds < 0 && nanos > 0) {
-            nanos -= DateTimeType.limitNanoseconds;
+            nanos -= DTIType.limitNanoseconds;
 
             seconds++;
         }
 
-        if (seconds >= type.getIntervalValueLimit()) {
+        scaleFactor =
+            DTIType.yearToSecondFactors[type.endPartIndex];
+        seconds /= scaleFactor;
+        seconds *= scaleFactor;
 
-            // todo - SQL message precision exceeded
-            throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+        if (seconds >= type.getIntervalValueLimit()) {
+            throw Error.error(ErrorCode.X_22015);
         }
 
-        this.units = (int) seconds;
+        this.units = seconds;
         this.nanos = (int) nanos;
     }
 
@@ -130,15 +148,18 @@ public class IntervalSecondData {
         long diff = units - b.units;
 
         if (diff == 0) {
-            return (nanos - b.nanos) > 0 ? 1
-                                         : -1;
-        } else {
-            return diff > 0 ? 1
-                            : -1;
+            diff = nanos - b.nanos;
+
+            if (diff == 0) {
+                return 0;
+            }
         }
+
+        return diff > 0 ? 1
+                        : -1;
     }
 
-    public int getSeconds() {
+    public long getSeconds() {
         return units;
     }
 
@@ -147,7 +168,7 @@ public class IntervalSecondData {
     }
 
     public String toString() {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "IntervalSecondData");
     }
 }

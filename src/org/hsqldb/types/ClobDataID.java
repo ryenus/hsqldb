@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,13 @@ import java.io.Writer;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 
+/**
+ * Implementation of CLOB for client side.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class ClobDataID
     implements ClobData {
 
@@ -107,6 +114,10 @@ public class ClobDataID
         return 0L;
     }
 
+    public long nonSpaceLength() {
+        return length;
+    }
+
     public Reader getCharacterStream(long pos, long length) {
         return null;
     }
@@ -133,4 +144,9 @@ public class ClobDataID
     public int getStreamBlockSize() {
         return 0;
     }
+
+    public long getRightTrimSize() {
+        return 0;
+    }
+
 }

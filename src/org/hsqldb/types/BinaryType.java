@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,26 +31,62 @@
 
 package org.hsqldb.types;
 
-import org.hsqldb.Expression;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.StringConverter;
 
 /**
- * Type implementation for BINARY, VARBINARY, etc.<p>
+ * Type implementation for BINARY, VARBINARY and (part) BLOB.<p>
+
+ * SQL:2008 Standard  specifies silent truncation of zero bytes at the end of the
+ * binary strings used for assignment and contatenation.<p>
  *
- * @author fredt@users
+ * * A binary string of type BINARY VALYING and BLOB when assigned to a column
+ * of similar type but shorter maximum length.<p?
+ *
+ * * The Second operand of a concatenation when the length of the result exceeds
+ * the maximum implementation-dependent length of BINARY VARYING and BLOB
+ * binary strings.<p>
+ *
+ * The behaviour is similar to trimming of space characters from strings of
+ * CHARACTER VARYING and CLOB types.<p>
+ *
+ * <p>
+ * In most real-world use-cases, all the bytes of variable-length binary values
+ * stored in a database are significant and should not be discarded.<p>
+ *
+ * HSQLDB follows the Standard completely, despite this inadequecy.<p>
+ *
+ * Comparison of binary values follows the Standard. When two values are not
+ * the same length and all the bytes of the shorter value equal the initial
+ * sequence of bytes of the longer value, then the shorter value is the smaller.
+ * The Standard treats this determination as implementation dependent.<p>
+ *
+ * BIT types, which were part of the SQL:1999, can be converted to and from
+ * BINARY. The BIT strings may be padded with zero bits for byte alignment.<p>
+ *
+ * As an extension to the Standard, HSQLDB supports cast from CHARACTER types
+ * to BINARY. The length of the string must be even and all character
+ * must be hexadecimal characters.<p>
+ *
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
 public class BinaryType extends Type {
 
-    public BinaryType(int type, long precision) {
-        super(type, precision, 0);
+    static final long maxBinaryPrecision = Integer.MAX_VALUE;
+
+    protected BinaryType(int type, long precision) {
+        super(Types.SQL_VARBINARY, type, precision, 0);
     }
 
     public int displaySize() {
@@ -58,31 +94,39 @@ public class BinaryType extends Type {
                                              : (int) precision;
     }
 
-    public int getJDBCTypeNumber() {
-        return type == Types.SQL_BINARY ? Types.BINARY
-                                        : Types.VARBINARY;
+    public int getJDBCTypeCode() {
+        return typeCode == Types.SQL_BINARY ? Types.BINARY
+                                            : Types.VARBINARY;
     }
 
     public String getJDBCClassName() {
         return "[B";
     }
 
-    public int getSQLGenericTypeNumber() {
-        return type;
-    }
-
-    public int getSQLSpecificTypeNumber() {
-        return type;
-    }
-
     public String getNameString() {
-        return type == Types.SQL_BINARY ? Token.T_BINARY
-                                        : Token.T_VARBINARY;
+        return typeCode == Types.SQL_BINARY ? Tokens.T_BINARY
+                                            : Tokens.T_VARBINARY;
+    }
+
+    public String getNameFullString() {
+        return typeCode == Types.SQL_BINARY ? Tokens.T_BINARY
+                                            : "BINARY VARYING";
     }
 
     public String getDefinition() {
-        return type == Types.SQL_BINARY ? Token.T_BINARY
-                                        : Token.T_VARBINARY;
+
+        if (precision == 0) {
+            return getNameString();
+        }
+
+        StringBuffer sb = new StringBuffer(16);
+
+        sb.append(getNameString());
+        sb.append('(');
+        sb.append(precision);
+        sb.append(')');
+
+        return sb.toString();
     }
 
     public boolean isBinaryType() {
@@ -94,51 +138,94 @@ public class BinaryType extends Type {
     }
 
     public boolean requiresPrecision() {
-        return type == Types.SQL_VARBINARY;
+        return typeCode == Types.SQL_VARBINARY;
     }
+
+    /**
+     * relaxes the SQL standard list to avoid problems with covnersion of
+     * literals and java method parameter type issues
+     */
+    public int precedenceDegree(Type other) {
+
+        if (other.typeCode == typeCode) {
+            return 0;
+        }
+
+        if (!other.isBinaryType() ) {
+            return Integer.MIN_VALUE;
+        }
+
+        switch (typeCode) {
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
+                return Integer.MIN_VALUE;
+
+            case Types.SQL_BINARY :
+                return other.typeCode == Types.SQL_BLOB ? 4
+                                                        : 2;
+
+            case Types.SQL_VARBINARY :
+                return other.typeCode == Types.SQL_BLOB ? 4
+                                                        : 2;
+
+            case Types.SQL_BLOB :
+                return other.typeCode == Types.SQL_BINARY ? -4
+                                                        : -2;
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
+        }
+    }
+
 
     public Type getAggregateType(Type other) throws HsqlException {
 
-        if (type == other.type) {
+        if (typeCode == other.typeCode) {
             return precision >= other.precision ? this
                                                 : other;
         }
 
-        switch (other.type) {
+        if (other.isCharacterType()) {
+            return other.getAggregateType(this);
+        }
+
+        switch (other.typeCode) {
 
             case Types.SQL_ALL_TYPES :
                 return this;
 
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING : {
-                long otherPrecision = (other.precision + 7) / 8;
+                long bytePrecision = (other.precision + 7) / 8;
 
-                return precision >= otherPrecision ? this
-                                                   : getBinaryType(type,
-                                                   otherPrecision);
+                return precision >= bytePrecision ? this
+                                                  : getBinaryType(
+                                                      this.typeCode,
+                                                      bytePrecision);
             }
             case Types.SQL_BINARY :
                 return precision >= other.precision ? this
-                                                    : getBinaryType(type,
+                                                    : getBinaryType(typeCode,
                                                     other.precision);
 
             case Types.SQL_VARBINARY :
-                if (type == Types.SQL_BLOB) {
+                if (typeCode == Types.SQL_BLOB) {
                     return precision >= other.precision ? this
-                                                        : getBinaryType(type,
+                                                        : getBinaryType(
+                                                        typeCode,
                                                         other.precision);
                 } else {
                     return other.precision >= precision ? other
                                                         : getBinaryType(
-                                                        other.type, precision);
+                                                        other.typeCode,
+                                                        precision);
                 }
             case Types.SQL_BLOB :
                 return other.precision >= precision ? other
-                                                    : getBinaryType(other.type,
-                                                    precision);
+                                                    : getBinaryType(
+                                                    other.typeCode, precision);
 
             default :
-                throw Trace.error(Trace.INVALID_CONVERSION);
+                throw Error.error(ErrorCode.X_42562);
         }
     }
 
@@ -148,22 +235,22 @@ public class BinaryType extends Type {
     public Type getCombinedType(Type other,
                                 int operation) throws HsqlException {
 
-        if (operation != Expression.CONCAT) {
+        if (operation != OpTypes.CONCAT) {
             return getAggregateType(other);
         }
 
         Type newType;
-        long otherPrecision = other.precision;
+        long newPrecision = this.precision + other.precision;
 
-        switch (other.type) {
+        switch (other.typeCode) {
 
             case Types.SQL_ALL_TYPES :
                 return this;
 
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
-                newType        = this;
-                otherPrecision = (other.precision + 7) / 8;
+                newPrecision = this.precision + (other.precision + 7) / 8;
+                newType      = this;
                 break;
 
             case Types.SQL_BINARY :
@@ -171,8 +258,8 @@ public class BinaryType extends Type {
                 break;
 
             case Types.SQL_VARBINARY :
-                newType = (type == Types.SQL_BLOB) ? this
-                                                   : other;
+                newType = (typeCode == Types.SQL_BLOB) ? this
+                                                       : other;
                 break;
 
             case Types.SQL_BLOB :
@@ -180,10 +267,21 @@ public class BinaryType extends Type {
                 break;
 
             default :
-                throw Trace.error(Trace.INVALID_CONVERSION);
+                throw Error.error(ErrorCode.X_42561);
         }
 
-        return getBinaryType(newType.type, precision + otherPrecision);
+        if (newPrecision > maxBinaryPrecision) {
+            if (typeCode == Types.SQL_BINARY) {
+
+                // Standard disallows type length reduction
+                // todo - better error message
+                throw Error.error(ErrorCode.X_42561);
+            } else if (typeCode == Types.SQL_VARBINARY) {
+                newPrecision = maxBinaryPrecision;
+            }
+        }
+
+        return getBinaryType(newType.typeCode, newPrecision);
     }
 
     public int compare(Object a, Object b) {
@@ -201,119 +299,118 @@ public class BinaryType extends Type {
         }
 
         if (a instanceof BinaryData && b instanceof BinaryData) {
-            int i = compareTo(((BinaryData) a).getBytes(),
-                              ((BinaryData) b).getBytes());
+            byte[] data1  = ((BinaryData) a).getBytes();
+            byte[] data2  = ((BinaryData) b).getBytes();
+            int    length = data1.length > data2.length ? data2.length
+                                                        : data1.length;
 
-            return (i == 0) ? 0
-                            : (i < 0 ? -1
-                                     : 1);
-        }
+            for (int i = 0; i < length; i++) {
+                if (data1[i] == data2[i]) {
+                    continue;
+                }
 
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "BinaryType");
-    }
+                return (((int) data1[i]) & 0xff) > (((int) data2[i]) & 0xff)
+                       ? 1
+                       : -1;
+            }
 
-    /*
-     * Compares a <CODE>byte[]</CODE> with another specified
-     * <CODE>byte[]</CODE> for order.  Returns a negative integer, zero,
-     * or a positive integer as the first object is less than, equal to, or
-     * greater than the specified second <CODE>byte[]</CODE>.<p>
-     *
-     * @param o1 the first byte[] to be compared
-     * @param o2 the second byte[] to be compared
-     * @return a negative integer, zero, or a positive integer as this object
-     * is less than, equal to, or greater than the specified object.
-     */
-    static int compareTo(byte[] o1, byte[] o2) {
-
-        int len  = o1.length;
-        int lenb = o2.length;
-
-        for (int i = 0; ; i++) {
-            int a = 0;
-            int b = 0;
-
-            if (i < len) {
-                a = ((int) o1[i]) & 0xff;
-            } else if (i >= lenb) {
+            if (data1.length == data2.length) {
                 return 0;
             }
 
-            if (i < lenb) {
-                b = ((int) o2[i]) & 0xff;
-            }
-
-            if (a > b) {
-                return 1;
-            }
-
-            if (b > a) {
-                return -1;
-            }
+            return data1.length > data2.length ? 1
+                                               : -1;
         }
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "BinaryType");
     }
 
     public Object convertToTypeLimits(Object a) throws HsqlException {
+        return castOrConvertToType(null, a, this, false);
+    }
+
+    public Object castToType(SessionInterface session, Object a,
+                             Type otherType) throws HsqlException {
+        return castOrConvertToType(session, a, otherType, true);
+    }
+
+    public Object convertToType(SessionInterface session, Object a,
+                                Type otherType) throws HsqlException {
+        return castOrConvertToType(session, a, otherType, false);
+    }
+
+    public Object convertJavaToSQL(SessionInterface session,
+                                   Object a) throws HsqlException {
+
+        if (a instanceof byte[]) {
+            return new BinaryData((byte[]) a, true);
+        }
+
+        throw Error.error(ErrorCode.X_42561);
+    }
+
+    public Object convertSQLToJava(SessionInterface session,
+                                   Object a) throws HsqlException {
+        return ((BlobData)a).getBytes();
+    }
+
+    Object castOrConvertToType(SessionInterface session, Object a,
+                               Type otherType,
+                               boolean cast) throws HsqlException {
+
+        BlobData b;
 
         if (a == null) {
             return null;
+        }
+
+        switch (otherType.typeCode) {
+
+            // non-SQL feature, for compatibility with previous versions
+            case Types.SQL_VARCHAR :
+            case Types.SQL_CHAR : {
+                b         = session.getScanner().convertToBinary((String) a);
+                otherType = getBinaryType(Types.SQL_VARBINARY, b.length());
+
+                break;
+            }
+            case Types.SQL_BIT : {
+                b         = (BlobData) a;
+                otherType = getBinaryType(Types.SQL_VARBINARY, b.length());
+
+                break;
+            }
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+            case Types.SQL_BLOB :
+                b = (BlobData) a;
+                break;
+
+            default :
+                throw Error.error(ErrorCode.X_22501);
         }
 
         if (precision == 0) {
-            return a;
+            return b;    // never a blob
         }
 
-        long length = ((BlobData) a).length();
-
-        if (length == precision) {
-            return a;
-        } else if (length > precision) {
-            if (getRightTrimSize((BlobData) a) > precision) {
-                throw Trace.error(Trace.STRING_DATA_TRUNCATION);
+        if (b.length() > precision && b.nonZeroLength() > precision) {
+            if (!cast) {
+                throw Error.error(ErrorCode.X_22001);
             }
 
-            switch (type) {
-
-                case Types.SQL_BINARY :
-                case Types.SQL_VARBINARY : {
-                    byte[] data = ((BlobData) a).getBytes(0, (int) precision);
-
-                    return new BinaryData(data, false);
-                }
-                case Types.SQL_BLOB : {
-                    byte[] data = ((BlobData) a).getBytes(0, (int) precision);
-
-                    return new BlobDataMemory(data, false);
-                }
-            }
-        } else {
-            if (type == Types.SQL_BINARY) {
-                byte[] data = new byte[(int) precision];
-
-                System.arraycopy(((BlobData) a).getBytes(), 0, data, 0,
-                                 (int) length);
-
-                return new BinaryData(data, false);
-            }
+            session.addWarning(Error.error(ErrorCode.W_01004));
         }
 
-        return a;
-    }
+        if (otherType.typeCode == Types.SQL_BLOB) {
+            byte[] bytes = b.getBytes(0, (int) precision);
 
-    public Object castToType(Session session, Object a,
-                             Type otherType) throws HsqlException {
-
-        if (a == null) {
-            return null;
+            b = new BinaryData(bytes, false);
         }
 
-        a = convertToType(session, a, otherType);
-
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_BINARY : {
-                BinaryData b = (BinaryData) a;
-
                 if (b.length() > precision) {
                     byte[] data = b.getBytes(0, (int) precision);
 
@@ -328,8 +425,6 @@ public class BinaryType extends Type {
                 return b;
             }
             case Types.SQL_VARBINARY : {
-                BinaryData b = (BinaryData) a;
-
                 if (b.length() > precision) {
                     byte[] data = b.getBytes(0, (int) precision);
 
@@ -339,25 +434,13 @@ public class BinaryType extends Type {
                 return b;
             }
             default :
-                throw Trace.error(Trace.INVALID_CONVERSION);
         }
+
+        throw Error.error(ErrorCode.X_22501);
     }
 
-    public Object convertToType(Session session, Object a,
-                                Type otherType) throws HsqlException {
-
-        if (a == null) {
-            return null;
-        }
-
-        if (otherType.isBinaryType()) {
-            return convertToTypeLimits(a);
-        }
-
-        throw Trace.error(Trace.INVALID_CONVERSION);
-    }
-
-    public Object convertToDefaultType(Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session,
+                                       Object a) throws HsqlException {
 
         if (a == null) {
             return a;
@@ -369,7 +452,7 @@ public class BinaryType extends Type {
             return a;
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        throw Error.error(ErrorCode.X_22501);
     }
 
     public String convertToString(Object a) {
@@ -389,6 +472,11 @@ public class BinaryType extends Type {
 
         return StringConverter.byteArrayToSQLHexString(
             ((BinaryData) a).getBytes());
+    }
+
+    public boolean canConvertFrom(Type otherType) {
+        return otherType.typeCode == Types.SQL_ALL_TYPES
+               || otherType.isBinaryType() || otherType.isCharacterType();
     }
 
     public long position(BlobData data, BlobData otherData, Type otherType,
@@ -421,7 +509,7 @@ public class BinaryType extends Type {
         }
 
         if (end < offset) {
-            throw Trace.error(Trace.SQL_DATA_SUBSTRING_ERROR);
+            throw Error.error(ErrorCode.X_22011);
         }
 
         if (offset > end || end < 0) {
@@ -444,11 +532,7 @@ public class BinaryType extends Type {
         // change method signature to take long
         byte[] bytes = ((BlobData) data).getBytes(offset, (int) length);
 
-        if (data instanceof BinaryData) {
-            return new BinaryData(bytes, false);
-        } else {
-            return new BlobDataMemory(bytes, false);
-        }
+        return new BinaryData(bytes, false);
     }
 
     int getRightTrimSize(BlobData data) {
@@ -496,8 +580,8 @@ public class BinaryType extends Type {
                              endindex - startindex);
         }
 
-        if (type == Types.SQL_BLOB) {
-            BlobData blob = new BlobDataMemory(newBytes, newBytes == bytes);
+        if (typeCode == Types.SQL_BLOB) {
+            BlobData blob = new BinaryData(newBytes, newBytes == bytes);
 
             blob.setId(session.getLobId());
             session.database.lobManager.addBlob(blob);
@@ -520,7 +604,7 @@ public class BinaryType extends Type {
             length = ((BlobData) overlay).length();
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY : {
@@ -535,12 +619,11 @@ public class BinaryType extends Type {
             }
             case Types.SQL_BLOB : {
                 BlobData blob =
-                    new BlobDataMemory(substring(data, 0, offset, true),
-                                       overlay);
+                    new BinaryData(substring(data, 0, offset, true), overlay);
 
-                blob = new BlobDataMemory(blob,
-                                          substring(data, offset + length, 0,
-                                                    false));
+                blob = new BinaryData(blob,
+                                      substring(data, offset + length, 0,
+                                                false));
 
                 blob.setId(session.getLobId());
                 session.database.lobManager.addBlob(blob);
@@ -548,8 +631,7 @@ public class BinaryType extends Type {
                 return blob;
             }
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "BinaryType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "BinaryType");
         }
     }
 
@@ -560,8 +642,12 @@ public class BinaryType extends Type {
             return null;
         }
 
-        if (type == Types.SQL_BLOB) {
-            BlobData blob = new BlobDataMemory((BlobData) a, (BlobData) b);
+        if (((BlobData) a).length() + ((BlobData) b).length() > precision) {
+            throw Error.error(ErrorCode.X_22001);
+        }
+
+        if (typeCode == Types.SQL_BLOB) {
+            BlobData blob = new BinaryData((BlobData) a, (BlobData) b);
 
             blob.setId(session.getLobId());
             session.database.lobManager.addBlob(blob);
@@ -596,8 +682,7 @@ public class BinaryType extends Type {
                 return new BlobType(precision);
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "BinaryType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "BinaryType");
         }
     }
 }

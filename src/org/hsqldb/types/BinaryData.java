@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,27 +31,33 @@
 
 package org.hsqldb.types;
 
+import java.io.DataInput;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.ArrayUtil;
 
 /**
- * Java representation of a BINARY field value. <p>
+ * Implementation of BlobData for memory binary data.<p>
+ * A Binary object instance always wraps a non-null byte[] object.
  *
- * A Binary object instance always wraps a non-null byte[] object; all
- * NULL SQL field values are represented internally by HSQLDB as Java null.
- *
- * @author fredt@users
- * @version 1.7.2
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.2
  */
-public class BinaryData extends BlobDataMemory {
+public class BinaryData implements BlobData {
 
-    private int     hash;
-    private boolean hashed;
-    private boolean isBits;
-    private long    bitLength;
+    public final static BinaryData zeroLengthBinary =
+        new BinaryData(new byte[0], false);
+    long               id;
+    protected byte[]   data;
+    private boolean    isBits;
+    private final long bitLength;
 
     /**
      * This constructor is used inside the engine when an already serialized
@@ -62,17 +68,57 @@ public class BinaryData extends BlobDataMemory {
      * clone is true.
      */
     public BinaryData(byte[] data, boolean clone) {
-        super(data, clone);
+
+        if (clone) {
+            data = (byte[]) ArrayUtil.duplicateArray(data);
+        }
+
+        this.data      = data;
+        this.bitLength = data.length * 8;
     }
 
     public BinaryData(BlobData b1, BlobData b2) throws HsqlException {
-        super(b1, b2);
+
+        long length = (b1.length() + b2.length());
+
+        if (length > Integer.MAX_VALUE) {
+            throw Error.error(ErrorCode.X_22001);
+        }
+
+        data = new byte[(int) length];
+
+        System.arraycopy(b1.getBytes(), 0, data, 0, (int) b1.length());
+        System.arraycopy(b2.getBytes(), 0, data, (int) b1.length(),
+                         (int) b2.length());
+
+        this.bitLength = (b1.length() + b2.length()) * 8;
     }
 
     public BinaryData(byte[] data, long bitLength) {
-        super(data, false);
+
+        this.data      = data;
         this.bitLength = bitLength;
-        this.isBits = true;
+        this.isBits    = true;
+    }
+
+    public BinaryData(long length, DataInput stream) throws HsqlException {
+
+        data      = new byte[(int) length];
+        bitLength = data.length * 8;
+
+        try {
+            stream.readFully(data);
+        } catch (IOException e) {
+            throw new HsqlException(e, null, 0);
+        }
+    }
+
+    public byte[] getBytes() {
+        return data;
+    }
+
+    public long length() {
+        return data.length;
     }
 
     public long bitLength() {
@@ -83,53 +129,122 @@ public class BinaryData extends BlobDataMemory {
         return isBits;
     }
 
-    public boolean equals(Object other) {
+    public byte[] getBytes(long pos, int length) {
 
-        if (other == this) {
-            return true;
+        if (!isInLimits(data.length, pos, length)) {
+            throw new IndexOutOfBoundsException();
         }
 
-        if (!(other instanceof BinaryData)) {
-            return false;
+        byte[] bytes = new byte[length];
+
+        System.arraycopy(data, (int) pos, bytes, 0, length);
+
+        return bytes;
+    }
+
+    public InputStream getBinaryStream() throws HsqlException {
+        return new BlobInputStream(this, 0L, length());
+    }
+
+    public InputStream getBinaryStream(long pos,
+                                       long length) throws HsqlException {
+
+        if (!isInLimits(data.length, pos, length)) {
+            throw new IndexOutOfBoundsException();
         }
 
-        if (data.length != ((BinaryData) other).data.length) {
-            return false;
+        return new BlobInputStream(this, pos, length());
+    }
+
+    public int setBytes(long pos, byte[] bytes, int offset, int length) {
+
+        if (!isInLimits(data.length, pos, 0)) {
+            throw new IndexOutOfBoundsException();
         }
 
-        return ArrayUtil.containsAt(data, 0, ((BinaryData) other).data);
+        if (!isInLimits(data.length, pos, length)) {
+            data = (byte[]) ArrayUtil.resizeArray(data, (int) pos + length);
+        }
+
+        System.arraycopy(bytes, offset, data, (int) pos, length);
+
+        return length;
+    }
+
+    public int setBytes(long pos, byte[] bytes) {
+
+        setBytes(pos, bytes, 0, bytes.length);
+
+        return bytes.length;
+    }
+
+    public OutputStream setBinaryStream(long pos) {
+        return null;
+    }
+
+    public void truncate(long len) {
+
+        if (data.length > len) {
+            data = (byte[]) ArrayUtil.resizeArray(data, (int) len);
+        }
     }
 
     public BlobData duplicate() throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "BinaryData");
+        return new BinaryData(data, true);
     }
 
-    public int hashCode() {
+    public long position(byte[] pattern, long start) {
 
-        int h = 0;
-
-        if (hashed) {
-            return hash;
-        } else {
-            for (int i = 0; i < data.length; i++) {
-                h = 31 * h + data[i];
-            }
-
-            hash   = h;
-            hashed = true;
+        if (pattern.length > data.length) {
+            return -1;
         }
 
-        return hash;
+        if (start >= data.length) {
+            return -1;
+        }
+
+        return ArrayUtil.find(data, (int) start, data.length, pattern);
+    }
+
+    public long position(BlobData pattern, long start) {
+
+        if (pattern.length() > data.length) {
+            return -1;
+        }
+
+        byte[] bytes = pattern.getBytes();
+
+        return position(bytes, start);
+    }
+
+    public long nonZeroLength() {
+
+        // temp
+        return data.length;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public int getStreamBlockSize() {
+        return 1024;
     }
 
     public boolean isClosed() {
         return false;
     }
 
+    public void free() {}
+
     public void setSession(SessionInterface session) {}
 
-    public int getStreamBlockSize() {
-        return 0;
+    //---
+    static boolean isInLimits(long fullLength, long pos, long len) {
+        return pos >= 0 && len >= 0 && pos + len <= fullLength;
     }
 }

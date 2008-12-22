@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,46 +34,46 @@ package org.hsqldb.types;
 import java.math.BigDecimal;
 
 import org.hsqldb.Collation;
-import org.hsqldb.Expression;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Library;
+import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.ValuePool;
 
 /**
- * Type implementation for CHARACTER, VARCHAR, etc.<p>
+ * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
 public class CharacterType extends Type {
 
-    Collation                     collation;
-    boolean                       isEqualIdentical;
-    final static int              sqlDefaultCharPrecision = 1;
-    public static final Collation defaultCollation        = new Collation();
-    public final static CharacterType sqlIdentifierType =
-        new CharacterType(Types.SQL_VARCHAR, 128L);
+    Collation        collation;
+    boolean          isEqualIdentical;
+    final static int sqlDefaultCharPrecision = 1;
+    public static final Collation defaultCollation =
+        Collation.getDefaultInstance();
 
     public CharacterType(Collation collation, int type, long precision) {
 
-        super(type, precision, 0);
+        super(Types.SQL_VARCHAR, type, precision, 0);
 
-        this.collation = defaultCollation;
+        this.collation = collation;
         isEqualIdentical = this.collation.isEqualAlwaysIdentical()
                            && type != Types.VARCHAR_IGNORECASE;
     }
 
     public CharacterType(int type, long precision) {
 
-        super(type, precision, 0);
+        super(Types.SQL_VARCHAR, type, precision, 0);
 
         this.collation = defaultCollation;
         isEqualIdentical = this.collation.isEqualAlwaysIdentical()
@@ -85,9 +85,9 @@ public class CharacterType extends Type {
                                              : (int) precision;
     }
 
-    public int getJDBCTypeNumber() {
+    public int getJDBCTypeCode() {
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_CHAR :
                 return Types.CHAR;
@@ -100,8 +100,7 @@ public class CharacterType extends Type {
                 return Types.CLOB;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "CharacterType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
     }
 
@@ -109,34 +108,50 @@ public class CharacterType extends Type {
         return "java.lang.String";
     }
 
-    public int getSQLGenericTypeNumber() {
-        return type == Types.SQL_CHAR ? type
-                                      : Types.SQL_VARCHAR;
-    }
-
-    public int getSQLSpecificTypeNumber() {
-        return type;
+    public int getSQLGenericTypeCode() {
+        return typeCode == Types.SQL_CHAR ? typeCode
+                                          : Types.SQL_VARCHAR;
     }
 
     public String getNameString() {
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_CHAR :
-                return Token.T_CHARACTER;
+                return Tokens.T_CHARACTER;
 
             case Types.SQL_VARCHAR :
-                return Token.T_VARCHAR;
+                return Tokens.T_VARCHAR;
 
             case Types.VARCHAR_IGNORECASE :
-                return Token.T_VARCHAR_IGNORECASE;
+                return Tokens.T_VARCHAR_IGNORECASE;
 
             case Types.SQL_CLOB :
-                return Token.T_CLOB;
+                return Tokens.T_CLOB;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "CharacterType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
+        }
+    }
+
+    public String getFullNameString() {
+
+        switch (typeCode) {
+
+            case Types.SQL_CHAR :
+                return Tokens.T_CHARACTER;
+
+            case Types.SQL_VARCHAR :
+                return "CHARACTER VARYING";
+
+            case Types.VARCHAR_IGNORECASE :
+                return Tokens.T_VARCHAR_IGNORECASE;
+
+            case Types.SQL_CLOB :
+                return "CHARACTER LARGE OBJECT";
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
     }
 
@@ -165,54 +180,103 @@ public class CharacterType extends Type {
     }
 
     public boolean requiresPrecision() {
-        return type == Types.SQL_VARCHAR || type == Types.VARCHAR_IGNORECASE;
+        return typeCode == Types.SQL_VARCHAR
+               || typeCode == Types.VARCHAR_IGNORECASE;
+    }
+
+    public int precedenceDegree(Type other) {
+
+        if (other.typeCode == typeCode) {
+            return 0;
+        }
+
+        if (!other.isCharacterType() ) {
+            return Integer.MIN_VALUE;
+        }
+        switch (typeCode) {
+
+            case Types.SQL_CHAR :
+                return other.typeCode == Types.SQL_CLOB ? 4
+                                                        : 2;
+
+            case Types.SQL_VARCHAR :
+            case Types.VARCHAR_IGNORECASE :
+                return other.typeCode == Types.SQL_CLOB ? 4
+                                                        : -2;
+
+            case Types.SQL_CLOB :
+                return other.typeCode == Types.SQL_CHAR ? -4
+                                                        : -2;
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
+        }
     }
 
     public Type getAggregateType(Type other) throws HsqlException {
 
-        if (type == other.type) {
+        if (typeCode == other.typeCode) {
             return precision >= other.precision ? this
                                                 : other;
         }
 
-        switch (other.type) {
+        switch (other.typeCode) {
 
             case Types.SQL_ALL_TYPES :
                 return this;
 
             case Types.SQL_CHAR :
                 return precision >= other.precision ? this
-                                                    : getCharacterType(type,
-                                                    other.precision);
+                                                    : getCharacterType(
+                                                    typeCode, other.precision);
 
             case Types.SQL_VARCHAR :
-                if (type == Types.SQL_CLOB
-                        || type == Types.VARCHAR_IGNORECASE) {
+                if (typeCode == Types.SQL_CLOB
+                        || typeCode == Types.VARCHAR_IGNORECASE) {
                     return precision >= other.precision ? this
                                                         : getCharacterType(
-                                                        type, other.precision);
+                                                        typeCode,
+                                                        other.precision);
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
-                                                        other.type, precision);
+                                                        other.typeCode,
+                                                        precision);
                 }
             case Types.VARCHAR_IGNORECASE :
-                if (type == Types.SQL_CLOB) {
+                if (typeCode == Types.SQL_CLOB) {
                     return precision >= other.precision ? this
                                                         : getCharacterType(
-                                                        type, other.precision);
+                                                        typeCode,
+                                                        other.precision);
                 } else {
                     return other.precision >= precision ? other
                                                         : getCharacterType(
-                                                        other.type, precision);
+                                                        other.typeCode,
+                                                        precision);
                 }
             case Types.SQL_CLOB :
                 return other.precision >= precision ? other
                                                     : getCharacterType(
-                                                    other.type, precision);
+                                                    other.typeCode, precision);
 
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
+            case Types.SQL_BLOB :
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+            case Types.OTHER :
+                throw Error.error(ErrorCode.X_42562);
             default :
-                throw Trace.error(Trace.INVALID_CONVERSION);
+
+                /**
+                 * @todo - this seems to be allowed in SQL-92 (is in NIST)
+                 * but is disallowed in SQL:2008
+                 * need to make dependent on a database property
+                 */
+                int length = other.displaySize();
+
+                return getCharacterType(Types.SQL_VARCHAR,
+                                        length).getAggregateType(this);
         }
     }
 
@@ -222,13 +286,13 @@ public class CharacterType extends Type {
     public Type getCombinedType(Type other,
                                 int operation) throws HsqlException {
 
-        if (operation != Expression.CONCAT) {
+        if (operation != OpTypes.CONCAT) {
             return getAggregateType(other);
         }
 
         Type newType;
 
-        switch (other.type) {
+        switch (other.typeCode) {
 
             case Types.SQL_ALL_TYPES :
                 return this;
@@ -239,14 +303,14 @@ public class CharacterType extends Type {
 
             case Types.SQL_VARCHAR :
                 newType =
-                    (type == Types.SQL_CLOB || type == Types
+                    (typeCode == Types.SQL_CLOB || typeCode == Types
                         .VARCHAR_IGNORECASE) ? this
                                              : other;
                 break;
 
             case Types.VARCHAR_IGNORECASE :
-                newType = type == Types.SQL_CLOB ? this
-                                                 : other;
+                newType = typeCode == Types.SQL_CLOB ? this
+                                                     : other;
                 break;
 
             case Types.SQL_CLOB :
@@ -254,10 +318,10 @@ public class CharacterType extends Type {
                 break;
 
             default :
-                throw Trace.error(Trace.INVALID_CONVERSION);
+                throw Error.error(ErrorCode.X_42562);
         }
 
-        return getCharacterType(newType.type, precision + other.precision);
+        return getCharacterType(newType.typeCode, precision + other.precision);
     }
 
     public int compare(Object a, Object b) {
@@ -282,7 +346,7 @@ public class CharacterType extends Type {
                                      : la;
         int    result;
 
-        if (type == Types.VARCHAR_IGNORECASE) {
+        if (typeCode == Types.VARCHAR_IGNORECASE) {
             result = collation.compareIgnoreCase(as.substring(0, shortLength),
                                                  bs.substring(0, shortLength));
         } else {
@@ -302,7 +366,7 @@ public class CharacterType extends Type {
             bs = bs.substring(shortLength, lb);
         }
 
-        if (type == Types.VARCHAR_IGNORECASE) {
+        if (typeCode == Types.VARCHAR_IGNORECASE) {
             return collation.compareIgnoreCase(as, bs);
         } else {
             return collation.compare(as, bs);
@@ -319,16 +383,20 @@ public class CharacterType extends Type {
             return a;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_CHAR : {
                 int slen = ((String) a).length();
 
+                if (slen == precision) {
+                    return a;
+                }
+
                 if (slen > precision) {
-                    if (Library.rtrim((String) a).length() <= precision) {
+                    if (getRightTrimSise((String) a, ' ') <= precision) {
                         return ((String) a).substring(0, (int) precision);
                     } else {
-                        throw Trace.error(Trace.STRING_DATA_TRUNCATION);
+                        throw Error.error(ErrorCode.X_22001);
                     }
                 }
 
@@ -347,36 +415,35 @@ public class CharacterType extends Type {
                 int slen = ((String) a).length();
 
                 if (slen > precision) {
-                    if (StringUtil.rTrimSize((String) a) <= precision) {
+                    if (getRightTrimSise((String) a, ' ') <= precision) {
                         return ((String) a).substring(0, (int) precision);
                     } else {
-                        throw Trace.error(Trace.STRING_DATA_TRUNCATION);
+                        throw Error.error(ErrorCode.X_22001);
                     }
                 }
 
                 return a;
             }
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "CharacterType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
     }
 
-    public Object castToType(Session session, Object a,
+    public Object castToType(SessionInterface session, Object a,
                              Type otherType) throws HsqlException {
 
         if (a == null) {
             return a;
         }
 
-        switch (otherType.type) {
+        switch (otherType.typeCode) {
 
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
                 if (precision != 0 && ((String) a).length() > precision) {
                     if (Library.rtrim((String) a).length() <= precision) {
-                        session.addWarning(Trace.error(Trace.GENERIC_WARNING));
+                        session.addWarning(Error.error(ErrorCode.W_01004));
                     }
 
                     return ((String) a).substring(0, (int) precision);
@@ -384,47 +451,40 @@ public class CharacterType extends Type {
 
                 return convertToTypeLimits(a);
 
-            case Types.SQL_CLOB :
-                if (precision != 0 && ((ClobData) a).length() > precision) {
-                    String s = ((ClobData) a).toString();
+            case Types.SQL_CLOB : {
+                long length = ((ClobData) a).length();
 
-                    if (Library.rtrim(s).length() <= precision) {
-                        session.addWarning(Trace.error(Trace.GENERIC_WARNING));
+                if (precision != 0 && length > precision) {
+                    if (((ClobData) a).nonSpaceLength() > precision) {
+                        session.addWarning(Error.error(ErrorCode.W_01004));
                     }
 
-                    return ((String) a).substring(0, (int) precision);
+                    return ((ClobData) a).getSubString(0, (int) precision);
                 }
 
                 return convertToTypeLimits(a);
-
+            }
             case Types.SQL_BLOB :
-                throw Trace.error(Trace.INVALID_CONVERSION);
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY : {
-                String s = otherType.convertToString(a);
-
-                return convertToTypeLimits(s);
+                throw Error.error(ErrorCode.X_42561);
             }
-            default : {
-                String s = otherType.convertToString(a);
-
-                if (s.length() > precision) {
-                    s = s.substring(0, (int) precision);
-                }
-
-                return convertToTypeLimits(s);
-            }
+            default :
         }
+
+        String s = otherType.convertToString(a);
+
+        return convertToTypeLimits(s);
     }
 
-    public Object convertToType(Session session, Object a,
+    public Object convertToType(SessionInterface session, Object a,
                                 Type otherType) throws HsqlException {
 
         if (a == null) {
             return a;
         }
 
-        switch (otherType.type) {
+        switch (otherType.typeCode) {
 
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
@@ -432,15 +492,17 @@ public class CharacterType extends Type {
                 return convertToTypeLimits(a);
 
             case Types.SQL_CLOB : {
-                String s = ((ClobData) a).toString();
+                ClobData c = (ClobData) a;
 
-                return convertToTypeLimits(s);
-            }
-            case Types.SQL_BLOB :
-                throw Trace.error(Trace.INVALID_CONVERSION);
-            case Types.SQL_BINARY :
-            case Types.SQL_VARBINARY : {
-                String s = otherType.convertToString(a);
+                if (typeCode == Types.SQL_CLOB) {
+                    return convertToTypeLimits(a);
+                }
+
+                if (precision != 0 && c.nonSpaceLength() > precision) {
+                    throw Error.error(ErrorCode.X_22001);
+                }
+
+                String s = c.getSubString(0, (int) precision);
 
                 return convertToTypeLimits(s);
             }
@@ -452,32 +514,49 @@ public class CharacterType extends Type {
         }
     }
 
-    public Object convertToDefaultType(Object a) throws HsqlException {
+    public Object convertToTypeJDBC(SessionInterface session, Object a,
+                                    Type otherType) throws HsqlException {
+
+        if (a == null) {
+            return a;
+        }
+
+        return convertToType(session, a, otherType);
+    }
+
+    public Object convertToDefaultType(SessionInterface session,
+                                       Object a) throws HsqlException {
 
         if (a == null) {
             return a;
         }
 
         if (a instanceof Boolean) {
-            return convertToType(null, a, Type.SQL_BOOLEAN);
+            return convertToType(session, a, Type.SQL_BOOLEAN);
         } else if (a instanceof BigDecimal) {
             a = JavaSystem.toString((BigDecimal) a);
 
-            return convertToType(null, a, Type.SQL_VARCHAR);
+            return convertToType(session, a, Type.SQL_VARCHAR);
         } else if (a instanceof Number) {
             a = a.toString();    // use shortcut
 
-            return convertToType(null, a, Type.SQL_VARCHAR);
+            return convertToType(session, a, Type.SQL_VARCHAR);
         } else if (a instanceof String) {
-            return convertToType(null, a, Type.SQL_VARCHAR);
+            return convertToType(session, a, Type.SQL_VARCHAR);
         } else if (a instanceof java.sql.Date) {
-            return convertToType(null, a, Type.SQL_DATE);
+            String s = ((java.sql.Date) a).toString();
+
+            return convertToType(session, s, Type.SQL_VARCHAR);
         } else if (a instanceof java.sql.Time) {
-            return convertToType(null, a, Type.SQL_TIME);
+            String s = ((java.sql.Time) a).toString();
+
+            return convertToType(session, s, Type.SQL_VARCHAR);
         } else if (a instanceof java.sql.Timestamp) {
-            return convertToType(null, a, Type.SQL_TIMESTAMP);
+            String s = ((java.sql.Timestamp) a).toString();
+
+            return convertToType(session, s, Type.SQL_VARCHAR);
         } else {
-            throw Trace.error(Trace.INVALID_CONVERSION);
+            throw Error.error(ErrorCode.X_42561);
         }
     }
 
@@ -487,7 +566,7 @@ public class CharacterType extends Type {
             return null;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_CHAR : {
                 int slen = ((String) a).length();
@@ -511,8 +590,7 @@ public class CharacterType extends Type {
                 return (String) a;
             }
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "CharacterType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
     }
 
@@ -527,8 +605,17 @@ public class CharacterType extends Type {
         return StringConverter.toQuotedString(s, '\'', true);
     }
 
+    public boolean canConvertFrom(Type otherType) {
+        return otherType.typeCode == Types.SQL_ALL_TYPES
+               || (!otherType.isBinaryType() && !otherType.isObjectType());
+    }
+
     public boolean isEqualIdentical() {
         return isEqualIdentical;
+    }
+
+    public boolean isCaseInsensitive() {
+        return typeCode == Types.VARCHAR_IGNORECASE;
     }
 
     public long position(Object data, Object otherData, Type otherType,
@@ -538,7 +625,7 @@ public class CharacterType extends Type {
             return -1L;
         }
 
-        if (otherType.type == Types.SQL_CLOB) {
+        if (otherType.typeCode == Types.SQL_CLOB) {
             long otherLength = ((ClobData) data).length();
 
             if (offset + otherLength > ((String) data).length()) {
@@ -558,20 +645,29 @@ public class CharacterType extends Type {
 
             return ((String) data).indexOf((String) otherData, (int) offset);
         } else {
-            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                     "CharacterType");
+            throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
     }
 
     public Object substring(Session session, Object data, long offset,
-                            long length,
-                            boolean hasLength) throws HsqlException {
+                            long length, boolean hasLength,
+                            boolean trailing) throws HsqlException {
 
         long end;
-        long dataLength = type == Types.SQL_CLOB ? ((ClobData) data).length()
-                                                 : ((String) data).length();
+        long dataLength = typeCode == Types.SQL_CLOB
+                          ? ((ClobData) data).length()
+                          : ((String) data).length();
 
-        if (hasLength) {
+        if (trailing) {
+            end = dataLength;
+
+            if (length > dataLength) {
+                offset = 0;
+                length = dataLength;
+            } else {
+                offset = dataLength - length;
+            }
+        } else if (hasLength) {
             end = offset + length;
         } else {
             end = dataLength > offset ? dataLength
@@ -579,7 +675,7 @@ public class CharacterType extends Type {
         }
 
         if (end < offset) {
-            throw Trace.error(Trace.SQL_DATA_SUBSTRING_ERROR);
+            throw Error.error(ErrorCode.X_22011);
         }
 
         if (offset > end || end < 0) {
@@ -614,8 +710,7 @@ public class CharacterType extends Type {
 
             return clob;
         } else {
-            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                     "CharacterType");
+            throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
     }
 
@@ -628,7 +723,7 @@ public class CharacterType extends Type {
             return null;
         }
 
-        if (type == Types.SQL_CLOB) {
+        if (typeCode == Types.SQL_CLOB) {
             String result = ((ClobData) data).getSubString(0,
                 (int) ((ClobData) data).length());
 
@@ -651,7 +746,7 @@ public class CharacterType extends Type {
             return null;
         }
 
-        if (type == Types.SQL_CLOB) {
+        if (typeCode == Types.SQL_CLOB) {
             String result = ((ClobData) data).getSubString(0,
                 (int) ((ClobData) data).length());
 
@@ -678,7 +773,7 @@ public class CharacterType extends Type {
 
         String s;
 
-        if (type == Types.SQL_CLOB) {
+        if (typeCode == Types.SQL_CLOB) {
             s = ((ClobData) data).getSubString(
                 0, (int) ((ClobData) data).length());
         } else {
@@ -707,7 +802,7 @@ public class CharacterType extends Type {
             s = s.substring(startindex, endindex);
         }
 
-        if (type == Types.SQL_CLOB) {
+        if (typeCode == Types.SQL_CLOB) {
             ClobData clob = new ClobDataMemory(s);
 
             clob.setId(session.getLobId());
@@ -728,15 +823,17 @@ public class CharacterType extends Type {
         }
 
         if (!hasLength) {
-            length = type == Types.SQL_CLOB ? ((ClobData) overlay).length()
-                                            : ((String) overlay).length();
+            length = typeCode == Types.SQL_CLOB ? ((ClobData) overlay).length()
+                                                : ((String) overlay).length();
         }
 
-        Object temp = concat(null, substring(session, data, 0, offset, true),
+        Object temp = concat(null,
+                             substring(session, data, 0, offset, true, false),
                              overlay);
 
         return concat(null, temp,
-                      substring(session, data, offset + length, 0, false));
+                      substring(session, data, offset + length, 0, false,
+                                false));
     }
 
     public Object concat(Session session, Object a,
@@ -763,7 +860,7 @@ public class CharacterType extends Type {
             right = (String) b;
         }
 
-        if (type == Types.SQL_CLOB) {
+        if (typeCode == Types.SQL_CLOB) {
             ClobData clob = new ClobDataMemory(left + right);
 
             clob.setId(session.getLobId());
@@ -777,7 +874,7 @@ public class CharacterType extends Type {
 
     public long size(Object data) throws HsqlException {
 
-        if (type == Types.SQL_CLOB) {
+        if (typeCode == Types.SQL_CLOB) {
             return ((ClobData) data).length();
         }
 
@@ -794,6 +891,18 @@ public class CharacterType extends Type {
         return a.toString() + b.toString();
     }
 */
+    public static int getRightTrimSise(String s, char trim) {
+
+        int endindex = s.length();
+
+        for (--endindex; endindex >= 0 && s.charAt(endindex) == trim;
+                endindex--) {}
+
+        endindex++;
+
+        return endindex;
+    }
+
     public static Type getCharacterType(int type, long precision) {
 
         switch (type) {
@@ -807,8 +916,7 @@ public class CharacterType extends Type {
                 return new ClobType(precision);
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "CharacterType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
     }
 }

@@ -42,7 +42,6 @@ class JDBCBench {
     static String           tableExtension      = "";
     static String           createExtension     = "";
     static String           ShutdownCommand     = "";
-    static String           startupCommand      = "";
     static PrintStream      TabFile             = null;
     static boolean          verbose             = false;
     MemoryWatcherThread     MemoryWatcher;
@@ -88,7 +87,6 @@ class JDBCBench {
                     if (DriverName.equals("org.hsqldb.jdbcDriver")) {
                         tableExtension  = "CREATE CACHED TABLE ";
                         ShutdownCommand = "SHUTDOWN";
-                        startupCommand  = "";
                     }
                 }
             } else if (Args[i].equals("-url")) {
@@ -186,23 +184,19 @@ class JDBCBench {
         Connection  guardian = null;
 
         try {
+            java.util.Date start = new java.util.Date();
+
             if (init) {
-                System.out.println("Start: "
-                                   + (new java.util.Date()).toString());
+                System.out.println("Start: " + start.toString());
                 System.out.print("Initializing dataset...");
                 createDatabase(url, user, password);
-                System.out.println("done.\n");
+
+                double seconds = (System.currentTimeMillis() - start.getTime())
+                                 / 1000D;
+
+                System.out.println("done. in " + seconds + " seconds\n");
                 System.out.println("Complete: "
                                    + (new java.util.Date()).toString());
-            }
-
-            guardian = connect(url, user, password);
-
-            if (startupCommand.length() != 0) {
-                Statement statement = guardian.createStatement();
-
-                statement.execute(startupCommand);
-                statement.close();
             }
 
             System.out.println("* Starting Benchmark Run *");
@@ -212,12 +206,13 @@ class JDBCBench {
             MemoryWatcher.start();
 
             transactions  = true;
-            prepared_stmt = false;
+            prepared_stmt = true;
             start_time    = System.currentTimeMillis();
 
             for (int i = 0; i < n_clients; i++) {
-                Client = new ClientThread(n_txn_per_client, url, user,
-                                          password);
+                Client =
+                    new ClientThread(n_txn_per_client, url, user, password,
+                                     Connection.TRANSACTION_READ_COMMITTED);
 
                 Client.start();
                 vClient.addElement(Client);
@@ -236,47 +231,26 @@ class JDBCBench {
 
             vClient.removeAllElements();
             reportDone();
+
+            guardian = connect(url, user, password);
+
             checkSums(guardian);
+            connectClose(guardian);
 
             // debug - allows stopping the test
             if (!transactions) {
-                throw new Exception("end after one round");
+
+//                throw new Exception("end after one round");
             }
-
-            transactions  = true;
-            prepared_stmt = false;
-            start_time    = System.currentTimeMillis();
-
-            for (int i = 0; i < n_clients; i++) {
-                Client = new ClientThread(n_txn_per_client, url, user,
-                                          password);
-
-                Client.start();
-                vClient.addElement(Client);
-            }
-
-            /*
-             ** Barrier to complete this test session
-             */
-            e = vClient.elements();
-
-            while (e.hasMoreElements()) {
-                Client = (Thread) e.nextElement();
-
-                Client.join();
-            }
-
-            vClient.removeAllElements();
-            reportDone();
-            checkSums(guardian);
 
             transactions  = true;
             prepared_stmt = true;
             start_time    = System.currentTimeMillis();
 
             for (int i = 0; i < n_clients; i++) {
-                Client = new ClientThread(n_txn_per_client, url, user,
-                                          password);
+                Client =
+                    new ClientThread(n_txn_per_client, url, user, password,
+                                     Connection.TRANSACTION_READ_COMMITTED);
 
                 Client.start();
                 vClient.addElement(Client);
@@ -295,15 +269,20 @@ class JDBCBench {
 
             vClient.removeAllElements();
             reportDone();
+
+            guardian = connect(url, user, password);
+
             checkSums(guardian);
+            connectClose(guardian);
 
             transactions  = true;
             prepared_stmt = true;
             start_time    = System.currentTimeMillis();
 
             for (int i = 0; i < n_clients; i++) {
-                Client = new ClientThread(n_txn_per_client, url, user,
-                                          password);
+                Client =
+                    new ClientThread(n_txn_per_client, url, user, password,
+                                     Connection.TRANSACTION_READ_COMMITTED);
 
                 Client.start();
                 vClient.addElement(Client);
@@ -322,7 +301,43 @@ class JDBCBench {
 
             vClient.removeAllElements();
             reportDone();
+
+            guardian = connect(url, user, password);
+
             checkSums(guardian);
+            connectClose(guardian);
+
+            transactions  = true;
+            prepared_stmt = true;
+            start_time    = System.currentTimeMillis();
+
+            for (int i = 0; i < n_clients; i++) {
+                Client =
+                    new ClientThread(n_txn_per_client, url, user, password,
+                                     Connection.TRANSACTION_READ_COMMITTED);
+
+                Client.start();
+                vClient.addElement(Client);
+            }
+
+            /*
+             ** Barrier to complete this test session
+             */
+            e = vClient.elements();
+
+            while (e.hasMoreElements()) {
+                Client = (Thread) e.nextElement();
+
+                Client.join();
+            }
+
+            vClient.removeAllElements();
+            reportDone();
+
+            guardian = connect(url, user, password);
+
+            checkSums(guardian);
+            connectClose(guardian);
         } catch (Exception E) {
             System.out.println(E.getMessage());
             E.printStackTrace();
@@ -333,9 +348,11 @@ class JDBCBench {
                 MemoryWatcher.join();
 
                 if (ShutdownCommand.length() > 0) {
+                    guardian = connect(url, user, password);
+
                     Statement Stmt = guardian.createStatement();
 
-                    Stmt.execute(ShutdownCommand);
+                    Stmt.execute("SHUTDOWN IMMEDIATELY");
                     Stmt.close();
                     connectClose(guardian);
                 }
@@ -428,7 +445,6 @@ class JDBCBench {
                         String password) throws Exception {
 
         Connection Conn = connect(url, user, password);
-        ;
         String     s    = Conn.getMetaData().getDatabaseProductName();
 
         System.out.println("DBMS: " + s);
@@ -449,6 +465,11 @@ class JDBCBench {
             Statement Stmt       = Conn.createStatement();
             String    Query;
 
+//
+            Stmt.execute("SET WRITE_DELAY 10000 MILLIS;");
+            Stmt.execute("SET PROPERTY \"hsqldb.cache_scale\" 16;");
+
+//
             Query = "SELECT count(*) ";
             Query += "FROM   accounts";
 
@@ -585,11 +606,13 @@ class JDBCBench {
 
             Stmt.execute(Query);
             Stmt.clearWarnings();
+
+/*
             Stmt.execute("SET TABLE ACCOUNTS SOURCE \"ACCOUNTS.TXT\"");
             Stmt.execute("SET TABLE BRANCHES SOURCE \"BBRANCHES.TXT\"");
             Stmt.execute("SET TABLE TELLERS SOURCE \"TELLERS.TXT\"");
             Stmt.execute("SET TABLE HISTORY SOURCE \"HISTORY.TXT\"");
-
+*/
             if (transactions) {
                 Conn.commit();
             }
@@ -680,8 +703,7 @@ class JDBCBench {
             }
 
             if (prepared_stmt) {
-                Query =
-                    "INSERT INTO tellers(Tid,Bid,Tbalance) VALUES (?,?,0)";
+                Query = "INSERT INTO tellers(Tid,Bid,Tbalance) VALUES (?,?,0)";
                 pstmt = Conn.prepareStatement(Query);
             }
 
@@ -884,8 +906,8 @@ class JDBCBench {
                 System.out.println("sums match!");
             }
 
-            System.out.println(abalancesum + " " + bbalancesum + " "
-                               + tbalancesum + " " + deltasum);
+            System.out.println("A " + abalancesum + " B " + bbalancesum
+                               + " T " + tbalancesum + " H " + deltasum);
         } finally {
             if (st1 != null) {
                 st1.close();
@@ -904,7 +926,9 @@ class JDBCBench {
         PreparedStatement pstmt5 = null;
 
         public ClientThread(int number_of_txns, String url, String user,
-                            String password) {
+                            String password, int transactionMode) {
+
+            System.out.println(number_of_txns);
 
             ntrans = number_of_txns;
             Conn   = connect(url, user, password);
@@ -917,6 +941,8 @@ class JDBCBench {
                 if (transactions) {
                     Conn.setAutoCommit(false);
                 }
+
+                Conn.setTransactionIsolation(transactionMode);
 
                 if (prepared_stmt) {
                     String Query;

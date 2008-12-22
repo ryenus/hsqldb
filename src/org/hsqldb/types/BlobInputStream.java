@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,15 @@ package org.hsqldb.types;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 
 /**
  * This class is used as an InputStream to retrieve data from a Blob.
  * mark() and reset() are not supported.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
@@ -115,7 +116,7 @@ public class BlobInputStream extends InputStream {
     private void checkClosed() throws HsqlException {
 
         if (isClosed || blob.isClosed()) {
-            throw Trace.error(Trace.BLOB_STREAM_IS_CLOSED);
+            throw Error.error(ErrorCode.BLOB_STREAM_IS_CLOSED);
         }
     }
 

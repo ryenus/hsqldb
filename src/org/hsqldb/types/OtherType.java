@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,26 +33,27 @@ package org.hsqldb.types;
 
 import java.io.Serializable;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Session;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 
 /**
  * Type implementation for OTHER type.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public class OtherType extends Type {
+public final class OtherType extends Type {
 
-    static OtherType otherType = new OtherType();
+    static final OtherType otherType = new OtherType();
 
     private OtherType() {
-        super(Types.OTHER, 0, 0);
+        super(Types.OTHER, Types.OTHER, 0, 0);
     }
 
     public int displaySize() {
@@ -60,37 +61,37 @@ public class OtherType extends Type {
                                              : (int) precision;
     }
 
-    public int getJDBCTypeNumber() {
-        return type;
+    public int getJDBCTypeCode() {
+        return typeCode;
     }
 
     public String getJDBCClassName() {
         return "java.lang.Object";
     }
 
-    public int getSQLGenericTypeNumber() {
+    public int getSQLGenericTypeCode() {
 
         // return Types.SQL_UDT;
-        return type;
+        return typeCode;
     }
 
-    public int getSQLSpecificTypeNumber() {
+    public int typeCode() {
 
         // return Types.SQL_UDT;
-        return type;
+        return typeCode;
     }
 
     public String getNameString() {
-        return Token.T_OTHER;
+        return Tokens.T_OTHER;
     }
 
     public String getDefinition() {
-        return Token.T_OTHER;
+        return Tokens.T_OTHER;
     }
 
     public Type getAggregateType(Type other) throws HsqlException {
 
-        if (type == other.type) {
+        if (typeCode == other.typeCode) {
             return this;
         }
 
@@ -98,7 +99,7 @@ public class OtherType extends Type {
             return this;
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        throw Error.error(ErrorCode.X_42562);
     }
 
     public Type getCombinedType(Type other,
@@ -123,18 +124,20 @@ public class OtherType extends Type {
         return a;
     }
 
-    public Object convertToType(Session session, Object a,
+    // to review - if conversion is supported, then must be serializable and wappred
+    public Object convertToType(SessionInterface session, Object a,
                                 Type otherType) throws HsqlException {
         return a;
     }
 
-    public Object convertToDefaultType(Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session,
+                                       Object a) throws HsqlException {
 
         if (a instanceof Serializable) {
             return a;
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        throw Error.error(ErrorCode.X_42561);
     }
 
     public String convertToString(Object a) {
@@ -155,6 +158,33 @@ public class OtherType extends Type {
 
         return StringConverter.byteArrayToSQLHexString(
             ((JavaObjectData) a).getBytes());
+    }
+
+    public Object convertSQLToJava(SessionInterface session,
+                                   Object a) throws HsqlException {
+        return ((JavaObjectData) a).getObject();
+    }
+
+    public boolean canConvertFrom(Type otherType) {
+
+        if (otherType.typeCode == typeCode) {
+            return true;
+        }
+
+        if (otherType.typeCode == Types.SQL_CHAR
+                || otherType.typeCode == Types.SQL_VARCHAR) {
+            return true;
+        }
+
+        if (otherType.isNumberType()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isObjectType() {
+        return true;
     }
 
     public static OtherType getOtherType() {

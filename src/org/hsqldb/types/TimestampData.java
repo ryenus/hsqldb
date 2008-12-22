@@ -31,65 +31,75 @@
 
 package org.hsqldb.types;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import org.hsqldb.HsqlException;
-import org.hsqldb.SessionInterface;
-
 /**
- * Interface for Binary Large Object implementations.<p>
- *
- * All positions are 0 based
+ * Implementation of data item for TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public interface BlobData {
+public class TimestampData {
 
-    byte[] getBytes();
+    long seconds;
+    int  nanos;
+    int  zone;
 
-           // todo - new method to return BlobData with long length arg
-    byte[] getBytes(long pos, int length) throws HsqlException;
+    public TimestampData(long seconds) {
+        this.seconds = seconds;
+    }
 
-    InputStream getBinaryStream() throws HsqlException;
+    public TimestampData(long seconds, int nanos) {
+        this.seconds = seconds;
+        this.nanos   = nanos;
+    }
 
-    InputStream getBinaryStream(long pos,
-                                       long length) throws HsqlException;
+    public TimestampData(long seconds, int nanos, int zoneSeconds) {
 
-    long length();
+        this.seconds = seconds;
+        this.nanos   = nanos;
+        this.zone    = zoneSeconds;
+    }
 
-    long bitLength();
+    public long getSeconds() {
+        return seconds;
+    }
 
-    boolean isBits();
+    public int getNanos() {
+        return nanos;
+    }
 
-    int setBytes(long pos, byte[] bytes, int offset,
-                        int len) throws HsqlException;
+    public int getZone() {
+        return zone;
+    }
 
-    int setBytes(long pos, byte[] bytes) throws HsqlException;
+    public boolean equals(Object other) {
 
-    OutputStream setBinaryStream(long pos) throws HsqlException;
+        if (other instanceof TimestampData) {
+            return seconds == ((TimestampData) other).seconds
+                   && nanos == ((TimestampData) other).nanos
+                   && zone == ((TimestampData) other).zone;
+        }
 
-    void truncate(long len) throws HsqlException;
+        return false;
+    }
 
-    BlobData duplicate() throws HsqlException;
+    public int hashCode() {
+        return (int) seconds ^ nanos;
+    }
 
-    long position(byte[] pattern, long start) throws HsqlException;
+    public int compareTo(TimestampData b) {
 
-    long position(BlobData pattern, long start) throws HsqlException;
+        long diff = seconds - b.seconds;
 
-    long nonZeroLength();
+        if (diff == 0) {
+            diff = nanos - b.nanos;
 
-    long getId();
+            if (diff == 0) {
+                return 0;
+            }
+        }
 
-    void setId(long id);
-
-    void free();
-
-    boolean isClosed();
-
-    void setSession(SessionInterface session);
-
-    int getStreamBlockSize();
+        return diff > 0 ? 1
+                        : -1;
+    }
 }

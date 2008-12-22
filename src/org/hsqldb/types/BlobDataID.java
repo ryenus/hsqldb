@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -104,6 +104,10 @@ public class BlobDataID implements BlobData {
 
     public long position(byte[] pattern, long start) throws HsqlException {
         return 0L;
+    }
+
+    public long nonZeroLength() {
+        return length;
     }
 
     public OutputStream setBinaryStream(long pos) throws HsqlException {

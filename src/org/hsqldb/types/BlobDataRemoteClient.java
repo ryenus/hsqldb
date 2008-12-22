@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,21 +35,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.Trace;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-
 /**
  * Implementation of BlobData for the client. No binary data is contained
  * here.<p>
  *
- * Instances of this class are contained in a Result rows returned to the
+ * Instances of this class are contained in Result rows returned to the
  * clinet.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
@@ -109,28 +109,28 @@ public class BlobDataRemoteClient implements BlobData {
 
     public int setBytes(long pos, byte[] bytes, int offset,
                         int len) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "BlobDataClient");
+        throw Error.runtimeError(
+            ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public int setBytes(long pos, byte[] bytes) {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "BlobDataClient");
+        throw Error.runtimeError(
+            ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public OutputStream setBinaryStream(long pos) {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "BlobDataClient");
+        throw Error.runtimeError(
+            ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public BlobData duplicate() {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "BlobDataClient");
+        throw Error.runtimeError(
+            ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public void truncate(long len) {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "BlobDataClient");
+        throw Error.runtimeError(
+            ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public long position(byte[] pattern, long start) throws HsqlException {
@@ -149,6 +149,11 @@ public class BlobDataRemoteClient implements BlobData {
         byte[] bytePattern = pattern.getBytes();
 
         return position(bytePattern, start);
+    }
+
+    public long nonZeroLength() {
+        throw Error.runtimeError(
+            ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public long getId() {
@@ -172,7 +177,7 @@ public class BlobDataRemoteClient implements BlobData {
 
             return new BlobDataRemoteClient(id, length);
         } catch (IOException e) {
-            throw Trace.error(Trace.TRANSFER_CORRUPTED);
+            throw Error.error(ErrorCode.SERVER_TRANSFER_CORRUPTED);
         }
     }
 
@@ -195,7 +200,7 @@ public class BlobDataRemoteClient implements BlobData {
     void checkClosed() throws HsqlException {
 
         if (isClosed()) {
-            throw Trace.error(Trace.BLOB_IS_NO_LONGER_VALID);
+            throw Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID);
         }
     }
 

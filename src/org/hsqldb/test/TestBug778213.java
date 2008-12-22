@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -155,22 +155,17 @@ public class TestBug778213 extends TestBase {
 
         conn = newConnection();
 
-//#ifdef  JDBC3
-/*
-
+//#ifdef JAVA4
         try {
             pstmt = conn.prepareStatement("create table test(id int)");
 
             assertTrue("expected zero parameter for prepared DDL",
                        0 == pstmt.getParameterMetaData().getParameterCount());
-
         } finally {
             conn.close();
         }
 
-*/
-
-//#endif JDBC3
+//#endif JAVA4
     }
 
     /* Runs TestBug778213_Part3 test from the command line*/

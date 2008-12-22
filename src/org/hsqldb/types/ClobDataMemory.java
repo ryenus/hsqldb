@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,13 +43,13 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.lib.ArrayUtil;
 
 /**
- * Implementation of ClobData for memory character data.<p>
+ * Implementation of CLOB for memory character data.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public class ClobDataMemory implements ClobData {
+public final class ClobDataMemory implements ClobData {
 
     long   id;
     char[] data;
@@ -186,10 +186,20 @@ public class ClobDataMemory implements ClobData {
         return 0L;
     }
 
+    // temp
+    public long nonSpaceLength() {
+        return data.length;
+    }
+
     public void free() {}
 
     public int getStreamBlockSize() {
         return 256 * 1024;
+    }
+
+    public long getRightTrimSize() {
+        // todo
+        return 0;
     }
 
     public boolean isClosed() {

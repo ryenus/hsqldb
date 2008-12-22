@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,18 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Session;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 
-public class BlobType extends BinaryType {
+public final class BlobType extends BinaryType {
 
-    static final int defaultBlobSize = 1024 * 1024;
+    static final long maxBlobPrecision = 1024L * 1024 * 1024 * 1024;
+    static final int  defaultBlobSize  = 1024 * 1024;
 
     public BlobType() {
         super(Types.SQL_BLOB, defaultBlobSize);
@@ -55,7 +57,7 @@ public class BlobType extends BinaryType {
                                              : (int) precision;
     }
 
-    public int getJDBCTypeNumber() {
+    public int getJDBCTypeCode() {
         return Types.BLOB;
     }
 
@@ -63,16 +65,12 @@ public class BlobType extends BinaryType {
         return "java.sql.Blob";
     }
 
-    public int getSQLGenericTypeNumber() {
-        return type;
-    }
-
-    public int getSQLSpecificTypeNumber() {
-        return type;
-    }
-
     public String getNameString() {
-        return Token.T_BLOB;
+        return Tokens.T_BLOB;
+    }
+
+    public String getFullNameString() {
+        return "BINARY LARGE OBJECT";
     }
 
     public String getDefinition() {
@@ -82,13 +80,13 @@ public class BlobType extends BinaryType {
 
         if (precision % (1024 * 1024 * 1024) == 0) {
             factor     = precision / (1024 * 1024 * 1024);
-            multiplier = Token.T_G_MULTIPLIER;
+            multiplier = Tokens.T_G_FACTOR;
         } else if (precision % (1024 * 1024) == 0) {
             factor     = precision / (1024 * 1024);
-            multiplier = Token.T_M_MULTIPLIER;
+            multiplier = Tokens.T_M_FACTOR;
         } else if (precision % (1024) == 0) {
             factor     = precision / (1024);
-            multiplier = Token.T_K_MULTIPLIER;
+            multiplier = Tokens.T_K_FACTOR;
         }
 
         StringBuffer sb = new StringBuffer(16);
@@ -137,29 +135,32 @@ public class BlobType extends BinaryType {
     }
 
     public Object convertToTypeLimits(Object a) throws HsqlException {
+
+        // todo
         return a;
     }
 
-    public Object convertToType(Session session, Object a,
+    public Object convertToType(SessionInterface session, Object a,
                                 Type otherType) throws HsqlException {
 
         if (a == null) {
             return null;
         }
 
-        if (otherType.type == Types.SQL_BLOB) {
+        if (otherType.typeCode == Types.SQL_BLOB) {
             return a;
         }
 
-        if (otherType.type == Types.SQL_BINARY
-                || otherType.type == Types.SQL_VARBINARY) {
-            return new BlobDataMemory(((BinaryData) a).data, false);
+        if (otherType.typeCode == Types.SQL_BINARY
+                || otherType.typeCode == Types.SQL_VARBINARY) {
+            return new BinaryData(((BinaryData) a).data, false);
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        throw Error.error(ErrorCode.X_42561);
     }
 
-    public Object convertToDefaultType(Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session,
+                                       Object a) throws HsqlException {
 
         if (a == null) {
             return a;
@@ -167,10 +168,10 @@ public class BlobType extends BinaryType {
 
         // conversion to Blob via PreparedStatement.setObject();
         if (a instanceof byte[]) {
-            return new BlobDataMemory((byte[]) a, false);
+            return new BinaryData((byte[]) a, false);
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        throw Error.error(ErrorCode.X_42561);
     }
 
     public String convertToString(Object a) {

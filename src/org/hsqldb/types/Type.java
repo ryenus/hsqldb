@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,42 +31,143 @@
 
 package org.hsqldb.types;
 
-import java.math.BigDecimal;
-
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.HsqlNameManager;
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
-import org.hsqldb.Trace;
+import org.hsqldb.SessionInterface;
 import org.hsqldb.Types;
 import org.hsqldb.lib.IntValueHashMap;
-import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.store.BitMap;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.rights.Grantee;
+import org.hsqldb.store.ValuePool;
 
 /**
  * Base class for type objects.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public abstract class Type {
+public abstract class Type implements SchemaObject, Cloneable {
 
-    public final int type;
-    final long       precision;
-    final int        scale;
+    public final static Type[] emptyArray = new Type[]{};
 
-    Type(int type, long precision, int scale) {
+    //
+    public final int        typeComparisonGroup;
+    public final int        typeCode;
+    public final long       precision;
+    public final int        scale;
+    public UserTypeModifier userTypeModifier;
 
-        this.type      = type;
-        this.precision = (int) precision;
-        this.scale     = scale;
+    //
+    Type(int typeGroup, int type, long precision, int scale) {
+
+        this.typeComparisonGroup = typeGroup;
+        this.typeCode            = type;
+        this.precision           = precision;
+        this.scale               = scale;
     }
 
-    public long size() {
-        return precision;
+    // interface specific methods
+    public final int getType() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getType();
     }
 
-    public int scale() {
-        return scale;
+    public final HsqlName getName() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getName();
+    }
+
+    public final HsqlName getCatalogName() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getSchemaName().schema;
+    }
+
+    public final HsqlName getSchemaName() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getSchemaName();
+    }
+
+    public final Grantee getOwner() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getOwner();
+    }
+
+    public final OrderedHashSet getReferences() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getReferences();
+    }
+
+    public final OrderedHashSet getComponents() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getComponents();
+    }
+
+    public final void compile(Session session) throws HsqlException {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        userTypeModifier.compile(session);
+    }
+
+    /**
+     *  Retrieves the SQL character sequence required to (re)create the
+     *  trigger, as a StringBuffer
+     *
+     * @return the SQL character sequence required to (re)create the
+     *  trigger
+     */
+    public String getDDL() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getDDL();
+    }
+
+    public Type duplicate() {
+
+        try {
+            return (Type) clone();
+        } catch (CloneNotSupportedException e) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
     }
 
     public abstract int displaySize();
@@ -75,7 +176,7 @@ public abstract class Type {
      * Returns the JDBC type number of type, if it exists,
      * otherwise the HSQLDB / SQL type.
      */
-    public abstract int getJDBCTypeNumber();
+    public abstract int getJDBCTypeCode();
 
     /**
      * Returns the JDBC class name of type, if it exists,
@@ -83,18 +184,26 @@ public abstract class Type {
      */
     public abstract String getJDBCClassName();
 
+    public Integer getJDBCScale() {
+        return acceptsScale() ? ValuePool.getInt(scale)
+                              : null;
+    }
+
+    public Integer getJDBCPrecision() {
+
+        return precision > Integer.MAX_VALUE
+               ? ValuePool.getInt(Integer.MAX_VALUE)
+               : ValuePool.INTEGER_0;
+    }
+
     /**
      * Returns the generic SQL CLI type number of type, if it exists,
      * otherwise the HSQLDB type. The generic type is returned for DATETIME
      * and INTERVAL types.
      */
-    public abstract int getSQLGenericTypeNumber();
-
-    /**
-     * Returns the specific SQL CLI type number of type, if it exists,
-     * otherwise the HSQLDB type
-     */
-    public abstract int getSQLSpecificTypeNumber();
+    public int getSQLGenericTypeCode() {
+        return typeCode;
+    }
 
     /**
      * Returns the name of the type
@@ -102,9 +211,25 @@ public abstract class Type {
     public abstract String getNameString();
 
     /**
+     * Returns the name of the type
+     */
+    public String getFullNameString() {
+        return getNameString();
+    }
+
+    /**
      * Returns the full definition of the type, including parameters
      */
-    public abstract String getDefinition();
+    abstract String getDefinition();
+
+    public final String getTypeDefinition() {
+
+        if (userTypeModifier == null) {
+            return getDefinition();
+        }
+
+        return getSchemaName().statementName + '.' + getName().statementName;
+    }
 
     public abstract int compare(Object a, Object b);
 
@@ -116,7 +241,7 @@ public abstract class Type {
      * are implemented. For CHARACTER values, it performs truncation in all
      * cases of long strings.
      */
-    public Object castToType(Session session, Object a,
+    public Object castToType(SessionInterface session, Object a,
                              Type type) throws HsqlException {
         return convertToType(session, a, type);
     }
@@ -126,24 +251,45 @@ public abstract class Type {
      * truncation of trailing spaces only. For other long strings, it raises
      * an exception.
      */
-    public abstract Object convertToType(Session session, Object a,
+    public abstract Object convertToType(SessionInterface session, Object a,
                                          Type type) throws HsqlException;
+
+    /**
+     * Convert type for JDBC. Same as convertToType, but supports non-standard
+     * SQL conversions supported by JDBC
+     */
+    public Object convertToTypeJDBC(SessionInterface session, Object a,
+                                    Type type) throws HsqlException {
+        return convertToType(session, a, type);
+    }
+
+    public Object convertJavaToSQL(SessionInterface session,
+                                   Object a) throws HsqlException {
+        return a;
+    }
+
+    public Object convertSQLToJava(SessionInterface session,
+                                   Object a) throws HsqlException {
+        return a;
+    }
 
     /**
      * Converts the object to the given type. Used for JDBC conversions.
      */
-    public abstract Object convertToDefaultType(Object o) throws HsqlException;
+    public abstract Object convertToDefaultType(
+        SessionInterface sessionInterface, Object o) throws HsqlException;
 
     public abstract String convertToString(Object a);
 
     public abstract String convertToSQLString(Object a);
 
-    public Type getParentType() {
-        return null;
-    }
+    public abstract boolean canConvertFrom(Type otherType);
 
     public boolean isDistinctType() {
-        return false;
+
+        return userTypeModifier == null ? false
+                                        : userTypeModifier.schemaObjectType
+                                          == SchemaObject.TYPE;
     }
 
     public boolean isStructuredType() {
@@ -151,7 +297,10 @@ public abstract class Type {
     }
 
     public boolean isDomainType() {
-        return false;
+
+        return userTypeModifier == null ? false
+                                        : userTypeModifier.schemaObjectType
+                                          == SchemaObject.DOMAIN;
     }
 
     public boolean isCharacterType() {
@@ -166,7 +315,15 @@ public abstract class Type {
         return false;
     }
 
+    public boolean isExactNumberType() {
+        return false;
+    }
+
     public boolean isDateTimeType() {
+        return false;
+    }
+
+    public boolean isDateTimeTypeWithZone() {
         return false;
     }
 
@@ -190,6 +347,10 @@ public abstract class Type {
         return false;
     }
 
+    public boolean isObjectType() {
+        return false;
+    }
+
     public boolean acceptsPrecision() {
         return false;
     }
@@ -204,6 +365,15 @@ public abstract class Type {
 
     public boolean acceptsScale() {
         return false;
+    }
+
+    public int precedenceDegree(Type other) {
+
+        if (other.typeCode == typeCode) {
+            return 0;
+        }
+
+        return Integer.MIN_VALUE;
     }
 
     /**
@@ -227,36 +397,55 @@ public abstract class Type {
     /**
      * All arithmetic ops are called on the pre-determined Type object of the result
      */
-    public Object add(Object a, Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
+    public Object absolute(Object a) throws HsqlException {
+        throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object subtract(Object a, Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
+    public Object negate(Object a) throws HsqlException {
+        throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+    }
+
+    public Object add(Object a, Object b,
+                      Type otherType) throws HsqlException {
+        throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+    }
+
+    public Object subtract(Object a, Object b,
+                           Type otherType) throws HsqlException {
+        throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
     public Object multiply(Object a, Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
+        throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
     public Object divide(Object a, Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
+        throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
     public Object concat(Session session, Object a,
                          Object b) throws HsqlException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
+        throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
     public boolean equals(Object other) {
 
+        if (other == this) {
+            return true;
+        }
+
         if (other instanceof Type) {
-            return ((Type) other).type == type
+            return ((Type) other).typeCode == typeCode
                    && ((Type) other).precision == precision
-                   && ((Type) other).scale == scale;
+                   && ((Type) other).scale == scale
+                   && ((Type) other).userTypeModifier == userTypeModifier;
         }
 
         return false;
+    }
+
+    public int hashCode() {
+        return typeCode + (int) precision << 8 + scale << 16;
     }
 
     // null type
@@ -266,11 +455,18 @@ public abstract class Type {
     public static final Type SQL_CHAR = new CharacterType(Types.SQL_CHAR, 0);
     public static final Type SQL_VARCHAR = new CharacterType(Types.SQL_VARCHAR,
         0);
-    public static final Type SQL_VARCHAR_MAX_WIDTH =
-        new CharacterType(Types.SQL_VARCHAR, 0);    // todo - needs max implementation defined width. used for parameters
+    public static final Type SQL_VARCHAR_MAX_LENGTH =
+        new CharacterType(Types.SQL_VARCHAR, 0);    // todo - needs max implementation defined length. used for parameters
     public static final ClobType SQL_CLOB = new ClobType();
     public static final Type VARCHAR_IGNORECASE =
         new CharacterType(Types.VARCHAR_IGNORECASE, 0);
+
+    // binary types
+    public static final BitType SQL_BIT = new BitType(Types.SQL_BIT, 0);
+    public static final BitType SQL_BIT_VARYING =
+        new BitType(Types.SQL_BIT_VARYING, 0);
+    public static final BitType SQL_BIT_VARYING_MAX_LENGTH =
+        new BitType(Types.SQL_BIT_VARYING, 0);      // todo - needs max implementation defined length. used for parameters
 
     // binary types
     public static final BinaryType SQL_BINARY =
@@ -292,6 +488,9 @@ public abstract class Type {
     public static final NumberType SQL_DECIMAL =
         new NumberType(Types.SQL_DECIMAL, NumberType.defaultNumericPrecision,
                        0);
+    public static final NumberType SQL_DECIMAL_BIGINT_SQR =
+        new NumberType(Types.SQL_DECIMAL,
+                       NumberType.bigintSquareNumericPrecision, 0);
     public static final NumberType SQL_DOUBLE =
         new NumberType(Types.SQL_DOUBLE, 0, 0);
 
@@ -307,133 +506,91 @@ public abstract class Type {
 
     // date time
     public static final DateTimeType SQL_DATE =
-        new DateTimeType(Types.SQL_DATE, 0);
+        new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_DATE, 0);
     public static final DateTimeType SQL_TIME =
-        new DateTimeType(Types.SQL_TIME,
-                         DateTimeType.defaultTimeFractionPrecision);
+        new DateTimeType(Types.SQL_TIME, Types.SQL_TIME,
+                         DTIType.defaultTimeFractionPrecision);
+    public static final DateTimeType SQL_TIME_WITH_TIME_ZONE =
+        new DateTimeType(Types.SQL_TIME, Types.SQL_TIME_WITH_TIME_ZONE,
+                         DTIType.defaultTimeFractionPrecision);
     public static final DateTimeType SQL_TIMESTAMP =
+        new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP,
+                         DTIType.defaultTimestampFractionPrecision);
+    public static final DateTimeType SQL_TIMESTAMP_WITH_TIME_ZONE =
         new DateTimeType(Types.SQL_TIMESTAMP,
-                         DateTimeType.defaultTimestampFractionPrecision);
+                         Types.SQL_TIMESTAMP_WITH_TIME_ZONE,
+                         DTIType.defaultTimestampFractionPrecision);
     public static final DateTimeType SQL_TIMESTAMP_NO_FRACTION =
-        new DateTimeType(Types.SQL_TIMESTAMP, 0);
+        new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0);
 
     // interval
     public static final IntervalType SQL_INTERVAL_YEAR =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_YEAR,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_MONTH =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_MONTH,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_HOUR =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_HOUR,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_MINUTE =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_MINUTE,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_SECOND =
-        IntervalType.newIntervalType(
-            Types.SQL_INTERVAL_SECOND, IntervalType.defaultIntervalPrecision,
-            IntervalType.defaultIntervalFractionPrecision);
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
+                                     DTIType.defaultIntervalPrecision,
+                                     DTIType.defaultIntervalFractionPrecision);
     public static final IntervalType SQL_INTERVAL_SECOND_MAX_FRACTION =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
-                                     IntervalType.defaultIntervalPrecision,
-                                     IntervalType.maxFractionPrecision);
+                                     DTIType.defaultIntervalPrecision,
+                                     DTIType.maxFractionPrecision);
     public static final IntervalType SQL_INTERVAL_YEAR_TO_MONTH =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_YEAR_TO_MONTH,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY_TO_HOUR =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY_TO_HOUR,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY_TO_MINUTE =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY_TO_MINUTE,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_DAY_TO_SECOND =
-        IntervalType.newIntervalType(
-            Types.SQL_INTERVAL_DAY_TO_SECOND,
-            IntervalType.defaultIntervalPrecision,
-            IntervalType.defaultIntervalFractionPrecision);
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY_TO_SECOND,
+                                     DTIType.defaultIntervalPrecision,
+                                     DTIType.defaultIntervalFractionPrecision);
     public static final IntervalType SQL_INTERVAL_HOUR_TO_MINUTE =
         IntervalType.newIntervalType(Types.SQL_INTERVAL_HOUR_TO_MINUTE,
-                                     IntervalType.defaultIntervalPrecision, 0);
+                                     DTIType.defaultIntervalPrecision, 0);
     public static final IntervalType SQL_INTERVAL_HOUR_TO_SECOND =
-        IntervalType.newIntervalType(
-            Types.SQL_INTERVAL_HOUR_TO_SECOND,
-            IntervalType.defaultIntervalPrecision,
-            IntervalType.defaultIntervalFractionPrecision);
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_HOUR_TO_SECOND,
+                                     DTIType.defaultIntervalPrecision,
+                                     DTIType.defaultIntervalFractionPrecision);
     public static final IntervalType SQL_INTERVAL_MINUTE_TO_SECOND =
-        IntervalType.newIntervalType(
-            Types.SQL_INTERVAL_MINUTE_TO_SECOND,
-            IntervalType.defaultIntervalPrecision,
-            IntervalType.defaultIntervalFractionPrecision);
-
-    /**
-     * For literals, supports only the types returned by Tokenizer
-     */
-    public static Type getValueType(int type, Object value) {
-
-        long precision = 0;
-        int  scale     = 0;
-
-        if (value != null) {
-            switch (type) {
-
-                case Types.SQL_INTEGER :
-                case Types.SQL_BIGINT :
-                case Types.SQL_DOUBLE :
-                case Types.SQL_BOOLEAN :
-                case Types.SQL_ALL_TYPES :
-                    break;
-
-                case Types.SQL_CHAR :
-                    precision = value.toString().length();
-                    break;
-
-                case Types.SQL_VARBINARY :
-                    precision = ((BinaryData) value).length();
-                    break;
-
-                case Types.SQL_BIT :
-                    precision = ((BinaryData) value).bitLength();
-                    break;
-
-                case Types.SQL_NUMERIC :
-                    precision = JavaSystem.precision((BigDecimal) value);
-                    scale     = ((BigDecimal) value).scale();
-                    break;
-
-                default :
-                    throw Trace.runtimeError(
-                        Trace.UNSUPPORTED_INTERNAL_OPERATION, "Type");
-            }
-        }
-
-        try {
-            return getType(type, 0, precision, scale);
-        } catch (HsqlException e) {
-
-            // exception should never be thrown
-            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                     "Type");
-        }
-    }
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_MINUTE_TO_SECOND,
+                                     DTIType.defaultIntervalPrecision,
+                                     DTIType.defaultIntervalFractionPrecision);
 
     public static Type getDefaultType(int type) {
 
         try {
             return getType(type, 0, 0, 0);
-        } catch (HsqlException e) {
-
-            // exception should never be thrown
-            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                     "Type");
+        } catch (Exception e) {
+            return null;
         }
     }
 
-    public static int getHSQLDBTypeCode(int jdbcTypeNumber)
-    throws HsqlException {
+    public static Type getDefaultTypeWithSize(int type) {
+
+        try {
+            return getType(type, 0, 0, 0);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static int getHSQLDBTypeCode(int jdbcTypeNumber) {
 
         switch (jdbcTypeNumber) {
 
@@ -465,10 +622,10 @@ public abstract class Type {
     }
 
     /**
-     * translate an internal type number to JDBC type number
-     * if a type is not supported internally, it is returned without translation
+     * translate an internal type number to JDBC type number if a type is not
+     * supported internally, it is returned without translation
      *
-     * @param i int
+     * @param type int
      * @return int
      */
     public static int getJDBCTypeCode(int type) {
@@ -531,8 +688,7 @@ public abstract class Type {
 
             case Types.SQL_FLOAT :
                 if (precision > 53) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE,
-                                      "" + precision);
+                    throw Error.error(ErrorCode.X_42592, "" + precision);
                 }
             case Types.SQL_REAL :
             case Types.SQL_DOUBLE :
@@ -560,7 +716,9 @@ public abstract class Type {
 
             case Types.SQL_DATE :
             case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return DateTimeType.getDateTimeType(type, scale);
 
             case Types.SQL_INTERVAL_YEAR :
@@ -582,27 +740,26 @@ public abstract class Type {
                 return OTHER;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Type");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Type");
         }
     }
 
-    public static Type getAggregatedType(Type add,
-                                         Type existing) throws HsqlException {
+    public static Type getAggregateType(Type add,
+                                        Type existing) throws HsqlException {
 
-        if (existing == null || existing.type == Types.SQL_ALL_TYPES) {
+        if (existing == null || existing.typeCode == Types.SQL_ALL_TYPES) {
             return add;
         }
 
-        if (add == null || add.type == Types.SQL_ALL_TYPES) {
+        if (add == null || add.typeCode == Types.SQL_ALL_TYPES) {
             return existing;
         }
 
         return existing.getAggregateType(add);
     }
 
-    public static IntValueHashMap typeAliases;
-    public static IntValueHashMap typeNames;
+    public static final IntValueHashMap typeAliases;
+    public static final IntValueHashMap typeNames;
 
     static {
         typeNames = new IntValueHashMap(37);
@@ -639,7 +796,7 @@ public abstract class Type {
         typeAliases.put("CHAR VARYING", Types.SQL_VARCHAR);
         typeAliases.put("CHARACTER VARYING", Types.SQL_VARCHAR);
         typeAliases.put("CHARACTER LARGE OBJECT", Types.SQL_CLOB);
- */
+*/
         typeAliases.put("INT", Types.SQL_INTEGER);
         typeAliases.put("DEC", Types.SQL_DECIMAL);
         typeAliases.put("LONGVARCHAR", Types.SQL_VARCHAR);
@@ -659,34 +816,23 @@ public abstract class Type {
         return i;
     }
 
-    /**
-     * convertJavaToSQLType
-     *
-     * @param value Object
-     * @param dataType Type
-     * @return Object
-     */
-    public static Object convertJavaToSQLType(Object a, Type dataType) {
-
-        if (a instanceof byte[]) {
-            return new BinaryData((byte[]) a, false);
-        } else if (a instanceof java.sql.Time) {
-            return new TimeData(((java.sql.Time) a).getTime());
-        }
-
-        return a;
-    }
-
     public static boolean isSupportedSQLType(int typeNumber) {
 
-        try {
-            if (getDefaultType(typeNumber) != null) {
-                return true;
-            }
-        } catch (RuntimeException e) {
+        if (getDefaultType(typeNumber) == null) {
             return false;
         }
 
-        return false;
+        return true;
+    }
+
+    public static boolean matches(Type[] one, Type[] other) {
+
+        for (int i = 0; i < one.length; i++) {
+            if (one[i].typeCode != other[i].typeCode) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

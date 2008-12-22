@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,16 +37,24 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.Trace;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 
-public class ClobDataRemoteClient implements ClobData {
+/**
+ * Implementation of CLOB for client side.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
+public final class ClobDataRemoteClient implements ClobData {
 
-    long       id;
+    long             id;
     final long       length;
     SessionInterface session;
     boolean          hasWriter;
@@ -77,10 +85,9 @@ public class ClobDataRemoteClient implements ClobData {
             throw new IndexOutOfBoundsException();
         }
 
-        ResultLob resultOut =
-            ResultLob.newLobGetCharsRequest(id, position, length);
-        ResultLob resultIn =
-            (ResultLob) session.execute(resultOut);
+        ResultLob resultOut = ResultLob.newLobGetCharsRequest(id, position,
+            length);
+        ResultLob resultIn = (ResultLob) session.execute(resultOut);
 
         return resultIn.getCharArray();
     }
@@ -97,7 +104,6 @@ public class ClobDataRemoteClient implements ClobData {
         this.id = id;
     }
 
-
     public String getSubString(long position,
                                int length) throws HsqlException {
         return new String(getChars(position, length));
@@ -107,12 +113,17 @@ public class ClobDataRemoteClient implements ClobData {
         return length;
     }
 
-    public long position(String searchstr, long start) throws HsqlException{
+    public long position(String searchstr, long start) throws HsqlException {
         return 0L;
     }
 
     public long position(ClobData searchstr, long start) {
         return 0L;
+    }
+
+    public long nonSpaceLength() {
+        throw Error.runtimeError(ErrorCode.U_S0500,
+                                 "ClobDataClient");
     }
 
     public OutputStream setAsciiStream(long pos) {
@@ -124,23 +135,33 @@ public class ClobDataRemoteClient implements ClobData {
     }
 
     public int setString(long pos, String str) throws HsqlException {
-        throw Trace.error(Trace.OPERATION_NOT_SUPPORTED);
+        throw Error.runtimeError(ErrorCode.U_S0500,
+                                 "ClobDataClient");
     }
 
-    public int setString(long pos, String str, int offset, int len) throws HsqlException{
-        throw Trace.error(Trace.OPERATION_NOT_SUPPORTED);
+    public int setString(long pos, String str, int offset,
+                         int len) throws HsqlException {
+        throw Error.runtimeError(ErrorCode.U_S0500,
+                                 "ClobDataClient");
     }
 
-    public int setChars(long pos, char[] chars, int offset, int len) throws HsqlException {
-        throw Trace.error(Trace.OPERATION_NOT_SUPPORTED);
+    public int setChars(long pos, char[] chars, int offset,
+                        int len) throws HsqlException {
+        throw Error.runtimeError(ErrorCode.U_S0500,
+                                 "ClobDataClient");
     }
 
     public void truncate(long len) throws HsqlException {
-        throw Trace.error(Trace.OPERATION_NOT_SUPPORTED);
+        throw Error.runtimeError(ErrorCode.U_S0500,
+                                 "ClobDataClient");
     }
 
     public int getStreamBlockSize() {
         return 256 * 1024;
+    }
+
+    public long getRightTrimSize() {
+        return 0;
     }
 
     public void setSession(SessionInterface session) {
@@ -156,11 +177,12 @@ public class ClobDataRemoteClient implements ClobData {
 
             return new ClobDataRemoteClient(id, length);
         } catch (IOException e) {
-            throw Trace.error(Trace.TRANSFER_CORRUPTED);
+            throw Error.error(ErrorCode.SERVER_TRANSFER_CORRUPTED);
         }
     }
 
-    public void write(RowOutputInterface out) throws IOException, HsqlException {
+    public void write(RowOutputInterface out)
+    throws IOException, HsqlException {
         out.writeLong(id);
         out.writeLong(length);
     }
@@ -177,7 +199,7 @@ public class ClobDataRemoteClient implements ClobData {
     void checkClosed() throws HsqlException {
 
         if (isClosed()) {
-            throw Trace.error(Trace.BLOB_IS_NO_LONGER_VALID);
+            throw Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID);
         }
     }
 }

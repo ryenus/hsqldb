@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,9 @@ package org.hsqldb.types;
 
 import java.io.Serializable;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.InOutUtil;
 
 /**
@@ -59,7 +60,7 @@ import org.hsqldb.lib.InOutUtil;
  * OTHER. This limitation does not exist for String values assigned to
  * PreparedStatement variables.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
@@ -87,12 +88,7 @@ public class JavaObjectData {
             data = InOutUtil.serialize(o);
         } catch (Exception e) {
 
-            // TODO:  This is wrong.
-            // According to SQL 2003, error code 18,
-            // sqlstate 40001 is supposed to indicate a
-            // transaction rollback due to
-            // transaction serialization failure
-            throw Trace.error(Trace.SERIALIZATION_FAILURE, e.toString());
+            throw Error.error(ErrorCode.X_22521, e.toString());
         }
     }
 
@@ -116,12 +112,7 @@ public class JavaObjectData {
             return InOutUtil.deserialize(data);
         } catch (Exception e) {
 
-            // TODO:  This is wrong.
-            // According to SQL 2003, error code 18,
-            // sqlstate 40001 is supposed to indicate a
-            // transaction rollback due to
-            // transaction serialization failure
-            throw Trace.error(Trace.SERIALIZATION_FAILURE, e.toString());
+            throw Error.error(ErrorCode.X_22521, e.toString());
         }
     }
 

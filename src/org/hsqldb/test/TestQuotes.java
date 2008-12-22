@@ -79,7 +79,7 @@ public class TestQuotes extends TestCase {
         ResultSet         rs2        = null;
 
         try {
-            DriverManager.registerDriver(new org.hsqldb.jdbc.jdbcDriver());
+            DriverManager.registerDriver(new org.hsqldb.jdbc.JDBCDriver());
 
             connection = DriverManager.getConnection("jdbc:hsqldb:.", "sa",
                     "");

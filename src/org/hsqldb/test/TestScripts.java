@@ -173,7 +173,7 @@ class TestScripts extends TestUtil {
         }
 
         try {
-            DriverManager.registerDriver(new org.hsqldb.jdbc.jdbcDriver());
+            DriverManager.registerDriver(new org.hsqldb.jdbc.JDBCDriver());
 
             Connection cConnection = null;
             String     id;
