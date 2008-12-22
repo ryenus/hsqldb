@@ -49,7 +49,7 @@ class JDBCBench {
     /* main program,    creates a 1-tps database:  i.e. 1 branch, 10 tellers,...
      *                    runs one TPC BM B transaction
      * example command line:
-     * -driver  org.hsqldb.jdbcDriver -url jdbc:hsqldb:/hsql/jdbcbench/test -user sa -clients 20 -tpc 10000
+     * -driver  org.hsqldb.jdbc.JDBCDriver -url jdbc:hsqldb:/hsql/jdbcbench/test -user sa -clients 20 -tpc 10000
      */
     public static void main(String[] Args) {
 
@@ -84,7 +84,8 @@ class JDBCBench {
                         ShutdownCommand = "SHUTDOWN";
                     }
 
-                    if (DriverName.equals("org.hsqldb.jdbcDriver")) {
+                    if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
+                        || DriverName.equals("org.hsqldb.jdbcDriver")) {
                         tableExtension  = "CREATE CACHED TABLE ";
                         ShutdownCommand = "SHUTDOWN";
                     }

@@ -45,7 +45,7 @@ public class TestNitin {
         java.io.BufferedReader br = null;
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             c = java.sql.DriverManager.getConnection(
                 "jdbc:hsqldb:c:/ft/hsqldb_w_1_8_0/oom/my.db", "SA", "");

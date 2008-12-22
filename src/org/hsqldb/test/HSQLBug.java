@@ -44,9 +44,9 @@ public class HSQLBug {
 
     public static void main(String[] args) throws Exception {
 
-        Class.forName("org.hsqldb.jdbcDriver");
+        Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
-        String     url        = "jdbc:hsqldb:.";
+        String     url        = "jdbc:hsqldb:mem:.";
         Properties properties = new Properties();
 
         properties.setProperty("user", "sa");

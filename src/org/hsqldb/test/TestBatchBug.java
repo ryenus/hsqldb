@@ -73,7 +73,7 @@ public class TestBatchBug {
         try {
 
 // Load the HSQL Database Engine JDBC driver
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             String[] urls = {
                 IN_PROCESS_FILE_URL, HSQLDB_LOCALHOST_URL,

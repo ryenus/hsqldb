@@ -62,7 +62,7 @@ public class TestCascade extends TestCase {
     protected void setUp() {
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
             createDatabase();
 
             con = DriverManager.getConnection("jdbc:hsqldb:testdb", "sa", "");

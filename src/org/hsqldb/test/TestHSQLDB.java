@@ -55,7 +55,7 @@ public class TestHSQLDB {
 
         java.sql.DatabaseMetaData metaData = null;
         String databaseURL                 = "jdbc:hsqldb:hsql://localhost";
-        String                    driver   = "org.hsqldb.jdbcDriver";
+        String                    driver   = "org.hsqldb.jdbc.JDBCDriver";
         String                    user     = "sa";
         String                    password = "";
 

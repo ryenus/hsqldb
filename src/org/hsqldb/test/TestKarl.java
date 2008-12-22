@@ -86,7 +86,7 @@ public class TestKarl {
             String  shutdown   = SHUTDOWN;
             boolean autocommit = false;
 
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             c = DriverManager.getConnection("jdbc:hsqldb:file:db/brwahl",
                                             "sa", "");

@@ -48,7 +48,7 @@ public class ShutdownServer {
     public static void main(String[] arg) {
 
         boolean webserver;
-        String  driver = "org.hsqldb.jdbcDriver";
+        String  driver = "org.hsqldb.jdbc.JDBCDriver";
         String  url;
         String  user;
         String  password;

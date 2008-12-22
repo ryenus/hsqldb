@@ -88,7 +88,7 @@ public class TestMultipleConnections {
     protected Connection createObject() {
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             return DriverManager.getConnection("jdbc:hsqldb:/hsql/test/test",
                                                "sa", "");

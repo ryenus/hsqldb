@@ -53,7 +53,7 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
     /* TODO:  Break off code used here and in JDBCXADataSource into an
      *        abstract class, and have these classes extend the abstract
      *        class. */
-    public static final String   driver             = "org.hsqldb.jdbcDriver";
+    public static final String   driver             = "org.hsqldb.jdbc.JDBCDriver";
     protected String             url                = null;
     protected ConnectionDefaults connectionDefaults = null;
     private int                  loginTimeout       = 0;

@@ -123,7 +123,7 @@ public class TestBatchExecution extends TestBase {
 
         // get the connection and statement
         driver =
-            (Driver) Class.forName("org.hsqldb.jdbcDriver").newInstance();
+            (Driver) Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
 
         DriverManager.registerDriver(driver);
 
@@ -300,9 +300,9 @@ public class TestBatchExecution extends TestBase {
     public static void preparedTestTwo() {
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
-            Connection con = DriverManager.getConnection("jdbc:hsqldb:.",
+            Connection con = DriverManager.getConnection("jdbc:hsqldb:mem:.",
                 "sa", "");
 
             System.out.println("con=" + con);

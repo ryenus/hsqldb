@@ -171,8 +171,8 @@ class TestSelf extends TestUtil {
 //                testPerformance("jdbc:hsqldb:test2", "sa", "", max, true);
             }
 
-            test("jdbc:hsqldb:.", "sa", "", false);
-//            testPerformance("jdbc:hsqldb:.", "sa", "", max, false);
+            test("jdbc:hsqldb:mem:.", "sa", "", false);
+//            testPerformance("jdbc:hsqldb:mem:.", "sa", "", max, false);
         } catch (Exception e) {
             print("TestSelf error: " + e.getMessage());
             e.printStackTrace();

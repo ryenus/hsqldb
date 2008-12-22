@@ -75,7 +75,7 @@ public class TestSqlPersistent extends TestCase {
         TestSelf.deleteDatabase("/hsql/test/testpersistent");
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             cConnection = DriverManager.getConnection(url, user, password);
             sStatement  = cConnection.createStatement();

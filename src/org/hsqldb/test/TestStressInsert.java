@@ -52,7 +52,7 @@ public class TestStressInsert {
 
     public void init() throws Exception {
 
-        String driver = "org.hsqldb.jdbcDriver";
+        String driver = "org.hsqldb.jdbc.JDBCDriver";
         String url    = "jdbc:hsqldb:file:testing/test";
 
         Class.forName(driver);

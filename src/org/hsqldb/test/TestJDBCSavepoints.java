@@ -90,7 +90,7 @@ public class TestJDBCSavepoints extends TestCase {
         server.start();
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             conn1 = DriverManager.getConnection(url, user, password);
             conn2 = DriverManager.getConnection(url, user, password);

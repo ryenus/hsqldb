@@ -91,7 +91,7 @@ public class TestAllTypes {
             sStatement  = null;
             cConnection = null;
 
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             boolean createDatabase = false;
 

@@ -25,7 +25,7 @@ public class TestDbBackup extends junit.framework.TestCase {
 
     static {
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             // TODO:  Rename to upper-class JDBC driver class name
         } catch (ClassNotFoundException cnfe) {
