@@ -47,7 +47,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.types.Type;
 import org.hsqldb.FunctionCustom;
 
-/* $Id: jdbcDatabaseMetaData.java 241 2007-06-14 08:26:42Z boucherb $ */
+/* $Id$ */
 
 // fredt@users 20020320 - patch 1.7.0 - JDBC 2 support and error trapping
 // JDBC 2 methods can now be called from jdk 1.1.x - see javadoc comments

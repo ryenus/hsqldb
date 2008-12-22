@@ -104,7 +104,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-/* $Id: JDBCSQLXML.java 250 2007-06-14 11:29:16Z boucherb $ */
+/* $Id$ */
 
 /*
 * $Log: JDBCSQLXML.java,v $

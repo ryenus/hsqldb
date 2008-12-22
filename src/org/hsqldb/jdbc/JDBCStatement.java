@@ -43,7 +43,7 @@ import org.hsqldb.StatementTypes;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 
-/* $Id: jdbcStatement.java 249 2007-06-14 08:48:22Z boucherb $ */
+/* $Id$ */
 
 // fredt@users   20020320 - patch 1.7.0 - JDBC 2 support and error trapping
 //

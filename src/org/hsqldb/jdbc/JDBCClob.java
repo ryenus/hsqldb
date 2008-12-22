@@ -38,7 +38,7 @@ import java.sql.SQLException;
 
 import org.hsqldb.lib.AsciiStringInputStream;
 
-/* $Id: jdbcClob.java 175 2007-06-05 12:59:52Z fredt $ */
+/* $Id$ */
 
 // boucherb@users 2004-03/04-xx - doc 1.7.2 - javadocs updated; methods put in
 //                                            correct (historical, interface

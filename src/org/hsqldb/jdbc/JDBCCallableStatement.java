@@ -57,7 +57,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.result.ResultConstants;
 
-/* $Id: jdbcCallableStatement.java 239 2007-06-14 08:24:10Z boucherb $ */
+/* $Id$ */
 
 // boucherb@users patch 1.7.2 - CallableStatement impl removed
 // from JDBCParameterMetaData and moved here; sundry changes elsewhere to

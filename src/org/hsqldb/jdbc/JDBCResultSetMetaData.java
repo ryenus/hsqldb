@@ -42,7 +42,7 @@ import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.CharacterType;
 
-/* $Id: jdbcResultSetMetaData.java 247 2007-06-14 08:33:15Z boucherb $ */
+/* $Id$ */
 
 // fredt@users    - 20040412 - removed DITypeInfo dependencies
 // boucherb@users - 200404xx - removed unused imports;refinement for better

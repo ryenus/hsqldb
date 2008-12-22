@@ -34,7 +34,7 @@ package org.hsqldb.jdbc;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 
-/* $Id: JDBCSavepoint.java 69 2007-04-18 02:22:37Z unsaved $ */
+/* $Id$ */
 /*
  * $Log: JDBCSavepoint.java,v $
  * Revision 1.10  2006/07/12 12:38:22  boucherb

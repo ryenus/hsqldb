@@ -39,7 +39,7 @@ import java.sql.SQLException;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
 
-/* $Id: JDBCParameterMetaData.java 244 2007-06-14 08:30:06Z boucherb $ */
+/* $Id$ */
 
 // fredt@users 20040412 - removed DITypeInfo dependencies
 // fredt@usres 1.9.0 - utilise the new type support
