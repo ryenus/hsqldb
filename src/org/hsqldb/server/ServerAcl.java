@@ -199,53 +199,6 @@ public final class ServerAcl {
                 sb.append('.');
             }
 
-            sb.append(((uba[i] & 0x80) == 0) ? uba[i]
-                                             : (256 + uba[i]));
-        }
-
-        return sb.toString();
-    }
-
-    /**
-     * @param uba  Unsigned byte array
-     */
-    static public String colonNotation(byte[] uba) {
-
-        // TODO:  handle odd byte lengths.
-        if ((uba.length / 2) * 2 != uba.length) {
-            throw new RuntimeException(
-                "At this time .colonNotation only handles even byte quantities");
-        }
-
-        StringBuffer sb = new StringBuffer();
-
-        for (int i = 0; i < uba.length; i += 2) {
-            if (i > 0) {
-                sb.append(':');
-            }
-
-            sb.append(Integer.toHexString((((uba[i] & 0x80) == 0) ? uba[i]
-                                                                  : (256 + uba[i])) * 256 + (((uba[i + 1] & 0x80) == 0)
-                                                                  ? uba[i + 1]
-                                                                  : (256
-                                                                  + uba[i + 1]))));
-        }
-
-        return sb.toString();
-    }
-
-    /**
-     * @param uba  Unsigned byte array
-     */
-    static public String dottedNotation2(byte[] uba) {
-
-        StringBuffer sb = new StringBuffer();
-
-        for (int i = 0; i < uba.length; i++) {
-            if (i > 0) {
-                sb.append('.');
-            }
-
             sb.append((int) uba[i] & 0xff);
         }
 
@@ -255,7 +208,7 @@ public final class ServerAcl {
     /**
      * @param uba  Unsigned byte array
      */
-    static public String colonNotation2(byte[] uba) {
+    static public String colonNotation(byte[] uba) {
 
         // TODO:  handle odd byte lengths.
         if ((uba.length / 2) * 2 != uba.length) {
