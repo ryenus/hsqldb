@@ -67,7 +67,7 @@ public class Testdb {
         // current working directory
         conn = DriverManager.getConnection("jdbc:hsqldb:"
                                            + db_file_name_prefix,    // filenames
-                                           "sa",                     // username
+                                           "SA",                     // username
                                            "");                      // password
     }
 

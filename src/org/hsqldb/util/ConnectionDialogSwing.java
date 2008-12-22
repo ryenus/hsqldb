@@ -201,7 +201,7 @@ implements ActionListener, ItemListener {
         controls.add(mURL);
         controls.add(Box.createVerticalGlue());
 
-        mUser = new JTextField("sa");
+        mUser = new JTextField("SA");
 
         mUser.addActionListener(this);
         controls.add(mUser);

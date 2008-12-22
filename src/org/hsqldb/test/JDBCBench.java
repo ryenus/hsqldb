@@ -49,7 +49,7 @@ class JDBCBench {
     /* main program,    creates a 1-tps database:  i.e. 1 branch, 10 tellers,...
      *                    runs one TPC BM B transaction
      * example command line:
-     * -driver  org.hsqldb.jdbc.JDBCDriver -url jdbc:hsqldb:/hsql/jdbcbench/test -user sa -clients 20 -tpc 10000
+     * -driver  org.hsqldb.jdbc.JDBCDriver -url jdbc:hsqldb:/hsql/jdbcbench/test -user SA -clients 20 -tpc 10000
      */
     public static void main(String[] Args) {
 

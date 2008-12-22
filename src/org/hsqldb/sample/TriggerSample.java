@@ -128,7 +128,7 @@ public class TriggerSample implements Trigger {
     static final PrintWriter out  = new PrintWriter(System.out);
     static final String      drv  = "org.hsqldb.jdbc.JDBCDriver";
     static final String      url  = "jdbc:hsqldb:mem:trigger-sample";
-    static final String      usr  = "sa";
+    static final String      usr  = "SA";
     static final String      pwd  = "";
     static final String      impl = TriggerSample.class.getName();
     static final String      tn   = "trig_test";

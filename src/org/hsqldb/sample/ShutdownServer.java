@@ -77,7 +77,7 @@ public class ShutdownServer {
 
         port        = props.getIntegerProperty("server.port", defaultport);
         url         = props.getProperty("server.url", defaulturl + ":" + port);
-        user        = props.getProperty("server.user", "sa");
+        user        = props.getProperty("server.user", "SA");
         password    = props.getProperty("server.password", "");
         shutdownarg = props.getProperty("server.shutdownarg", "");
 

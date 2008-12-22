@@ -106,9 +106,9 @@ class FindFile {
             // Connect to the database
             // It will be create automatically if it does not yet exist
             // 'testfiles' in the URL is the name of the database
-            // "sa" is the user name and "" is the (empty) password
+            // "SA" is the user name and "" is the (empty) password
             Connection conn =
-                DriverManager.getConnection("jdbc:hsqldb:testfiles", "sa",
+                DriverManager.getConnection("jdbc:hsqldb:testfiles", "SA",
                                             "");
 
             // Check the command line parameters
