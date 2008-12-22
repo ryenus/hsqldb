@@ -1,4 +1,4 @@
-package org.hsqldb.test;
+package org.hsqldb.cmdline;
 
 import java.io.FileReader;
 import org.hsqldb.util.sqltool.SqlFileScanner;
@@ -9,6 +9,12 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+/**
+ * Exercises the SqlFile Scanner.
+ *
+ * Can be used to test scanning behavior for complex cases like nesting,
+ * either interactively or with SQL scripts.
+ */
 public class SqlFileScannerDriver {
     static Pattern foreachPattern =
             Pattern.compile("(?i)foreach\\s+(\\S+)\\s*\\(\\s*([^)]+)*\\)\\s*");
