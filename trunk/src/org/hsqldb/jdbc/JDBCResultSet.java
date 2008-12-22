@@ -83,7 +83,7 @@ import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.SessionInterface;
 
-/* $Id: JDBCResultSet.java 246 2007-06-14 08:32:03Z boucherb $ */
+/* $Id$ */
 
 //boucherb@users 20051207 - patch 1.8.0.x - initial JDBC 4.0 support work
 //fredt@users    20060431 - patch 1.9.0 rewrite with RowSetNavigator

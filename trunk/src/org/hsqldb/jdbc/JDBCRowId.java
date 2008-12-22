@@ -45,7 +45,7 @@ import java.sql.SQLException;
 
 import java.util.Arrays;
 
-/* $Id: jdbcRowId.java 248 2007-06-14 08:35:33Z boucherb $ */
+/* $Id$ */
 
 //boucherb@users 20060522 - doc 1.8.1 full synch up to Mustang Build 84
 

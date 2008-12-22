@@ -89,7 +89,7 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
-/* $Id: JDBCParameterMetaData.java 245 2007-06-14 08:30:59Z boucherb $ */
+/* $Id$ */
 
 // changes by fredt
 // SimpleDateFormat objects moved out of methods to improve performance
