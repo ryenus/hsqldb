@@ -430,7 +430,7 @@ examples:
       </javac>
    </target>
 
-    <target name="util" depends="lib, jflex"
+    <target name="util" depends="lib, -sqlfile-scanner"
             description="compiles the util and cmdline folders">
       <javac srcdir="${swsrc}"
              destdir="classes"
@@ -1359,6 +1359,26 @@ xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true
         </delete>
     </target>
 
+    <target name="-sqlfile-scanner">
+      <!-- Prepares SqlFileScanner.java, running Jflex only if needed.
+           Purpose here is to require jflex library only if user modifies
+           the *.flex file.
+      -->
+      <dependset>
+        <srcfilelist dir="src/org/hsqldb/cmdline">
+          <file name="sqltool.flex"/>
+        </srcfilelist>
+        <targetfilelist dir="src/org/hsqldb/cmdline/sqltool">
+          <file name="SqlFileScanner.java"/>
+        </targetfilelist>
+      </dependset>
+      <available property="skip.jflex" type="file"
+                 file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
+      <antcall target="-condl-jflex"/>
+      <copy todir="${swsrc}/org/hsqldb/cmdline/sqltool"
+            file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
+    </target>
+
     <target name="-init-jflex">
       <available property='_jflex_available' classpath='${jflex.lib}'
                  classname='JFlex.anttask.JFlexTask'/>
@@ -1368,11 +1388,15 @@ xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true
                classpath='${jflex.lib}'/>
      </target>
 
+    <target name="-condl-jflex" unless="skip.jflex">
+      <!-- Only reason for this method is that target dependencies (if/unless)
+      get executed BEFORE the main target -->
+      <antcall target="jflex"/>
+    </target>
+
     <target name="jflex" depends="-init-jflex">
         <jflex file="src/org/hsqldb/cmdline/sqltool.flex" destdir="src"/>
         <!-- A limitation of the jflex task is that you must specify the .flex
              files individually and explicitly.  No filesets, etc. -->
-        <copy todir="${swsrc}/org/hsqldb/cmdline/sqltool"
-              file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 </project>
