@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import java.sql.Savepoint;
 
 /* $Id$ */
 /*
- * $Log: jdbcSavepoint.java,v $
+ * $Log: JDBCSavepoint.java,v $
  * Revision 1.10  2006/07/12 12:38:22  boucherb
  * doc 1.9.0
  * - full synch up to Mustang b90
@@ -63,7 +63,7 @@ import java.sql.Savepoint;
  * If the connection is autoCommit, setting savepoints has no effect as any
  * such savepoint is cleared upon the execution of the first transactional
  * statement. <p>
-
+ *
  * </div>
  * <!-- end release-specific documentation -->
  *
@@ -71,13 +71,13 @@ import java.sql.Savepoint;
  * @author boucherb@users
  * @since JDK 1.4, HSQLDB 1.7.2
  */
-public class jdbcSavepoint implements Savepoint {
+public class JDBCSavepoint implements Savepoint {
 
     int            id;
     String         name;
-    jdbcConnection connection;
+    JDBCConnection connection;
 
-    jdbcSavepoint(String name, jdbcConnection conn) throws SQLException {
+    JDBCSavepoint(String name, JDBCConnection conn) throws SQLException {
 
         if (name == null) {
             throw Util.nullArgument("name");
@@ -86,17 +86,15 @@ public class jdbcSavepoint implements Savepoint {
         if (conn == null) {
             throw Util.nullArgument("conn");
         }
-
         this.name       = name;
         this.connection = conn;
     }
 
-    jdbcSavepoint(jdbcConnection conn) throws SQLException {
+    JDBCSavepoint(JDBCConnection conn) throws SQLException {
 
         if (conn == null) {
             throw Util.nullArgument("conn");
         }
-
         this.id         = conn.getSavepointID();
         this.connection = conn;
     }

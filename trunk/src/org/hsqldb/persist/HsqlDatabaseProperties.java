@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,9 @@ import java.util.Enumeration;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
@@ -44,18 +45,17 @@ import org.hsqldb.lib.Set;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Manages a .properties file for a database.
  *
- * @author fredt@users
- * @version 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
 
-    private static String hsqldb_method_class_names =
+    private static final String hsqldb_method_class_names =
         "hsqldb.method_class_names";
     private static HashSet accessibleJavaMethodNames;
 
@@ -82,17 +82,26 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      * seperated method names becomes accessible. An empty property value means
      * no class is accessible.<p>
      *
-     * All methods of org.hsqldb.Library are always accessible.
+     * A property value that ends with .* is treated as a wild card and allows
+     * access to all classe or method names formed by substitution of the
+     * asterisk.<p>
+     *
+     * All methods of org.hsqldb.Library and java.lang.Math are always
+     * accessible.
      *
      *
      */
     public static boolean supportsJavaMethod(String name) {
 
-        if (name.startsWith("org.hsqldb.Library")) {
+        if (accessibleJavaMethodNames == null) {
             return true;
         }
 
-        if (accessibleJavaMethodNames == null) {
+        if (name.startsWith("org.hsqldb.Library.")) {
+            return true;
+        }
+
+        if (name.startsWith("java.lang.Math.")) {
             return true;
         }
 
@@ -100,19 +109,23 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             return true;
         }
 
+        Iterator it = accessibleJavaMethodNames.iterator();
+
+        while (it.hasNext()) {
+            String className = (String) it.next();
+            int    limit     = className.lastIndexOf(".*");
+
+            if (limit < 1) {
+                continue;
+            }
+
+            if (name.startsWith(className.substring(0, limit + 1))) {
+                return true;
+            }
+        }
+
         return false;
     }
-
-    // column number mappings
-    public static final int indexName         = 0;
-    public static final int indexAccess       = 1;
-    public static final int indexClass        = 2;
-    public static final int indexIsRange      = 3;
-    public static final int indexDefaultValue = 4;
-    public static final int indexRangeLow     = 5;
-    public static final int indexRangeHigh    = 6;
-    public static final int indexValues       = 7;
-    public static final int indexLimit        = 8;
 
     // accessibility
     private static final int SET_PROPERTY  = 0;
@@ -128,7 +141,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String MODIFIED_NEW       = "no-new-files";
 
     // allowed property metadata
-    private static HashMap meta = new HashMap();
+    private static final HashMap meta = new HashMap();
 
     // versions
     public static final String VERSION_STRING_1_7_0     = "1.7.0";
@@ -172,7 +185,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_cache_size_scale =
         "hsqldb.cache_size_scale";
     public static final String hsqldb_cache_version = "hsqldb.cache_version";
-    public static final String hsqldb_catalog       = "hsqldb.catalog";
     public static final String hsqldb_compatible_version =
         "hsqldb.compatible_version";
     public static final String hsqldb_default_table_type =
@@ -180,6 +192,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_defrag_limit = "hsqldb.defrag_limit";
     private static final String hsqldb_files_readonly =
         "hsqldb.files_readonly";
+    public static final String hsqldb_lock_file     = "hsqldb.lock_file";
     public static final String hsqldb_log_size      = "hsqldb.log_size";
     public static final String hsqldb_nio_data_file = "hsqldb.nio_data_file";
     public static final String hsqldb_max_nio_scale = "hsqldb.max_nio_scale";
@@ -199,6 +212,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "sql.enforce_strict_size";
     public static final String sql_tx_no_multi_write =
         "sql.tx_no_multi_rewrite";
+    public static final String sql_enforce_keywords = "sql.enforce_keywords";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -227,7 +241,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         meta.put(db_modified, getMeta(db_modified, FILE_PROPERTY, null));
 
         // string defaults for user defined props
-        meta.put(hsqldb_catalog, getMeta(hsqldb_catalog, SET_PROPERTY, null));
         meta.put(hsqldb_default_table_type,
                  getMeta(hsqldb_default_table_type, SET_PROPERTY, "memory"));
         meta.put(hsqldb_temp_directory,
@@ -246,10 +259,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                  getMeta(textdb_allow_full_path, FILE_PROPERTY, false));
 
         // boolean defaults for user defined props
+        meta.put(hsqldb_lock_file,
+                 getMeta(hsqldb_lock_file, SET_PROPERTY, true));
         meta.put(hsqldb_nio_data_file,
                  getMeta(hsqldb_nio_data_file, SET_PROPERTY, false));
         meta.put(sql_enforce_strict_size,
                  getMeta(sql_enforce_strict_size, SET_PROPERTY, false));
+        meta.put(sql_enforce_keywords,
+                 getMeta(sql_enforce_keywords, SET_PROPERTY, false));
         meta.put(sql_tx_no_multi_write,
                  getMeta(sql_tx_no_multi_write, SET_PROPERTY, false));
         meta.put(textdb_quoted, getMeta(textdb_quoted, SET_PROPERTY, false));
@@ -260,15 +277,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         // integral defaults for user-defined set props
         meta.put(hsqldb_applog,
-                 getMeta(hsqldb_applog, SET_PROPERTY, 0, new byte[] {
+                 getMeta(hsqldb_applog, SET_PROPERTY, 0, new int[] {
             0, 1, 2
         }));
         meta.put(hsqldb_cache_file_scale,
-                 getMeta(hsqldb_cache_file_scale, SET_PROPERTY, 1, new byte[] {
+                 getMeta(hsqldb_cache_file_scale, SET_PROPERTY, 1, new int[] {
             1, 8
         }));
         meta.put(hsqldb_script_format,
-                 getMeta(hsqldb_script_format, SET_PROPERTY, 0, new byte[] {
+                 getMeta(hsqldb_script_format, SET_PROPERTY, 0, new int[] {
             0, 1, 3
         }));
 
@@ -311,6 +328,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         // char padding to size and exception if data is too long
         setProperty(sql_enforce_strict_size, false);
+
+        // SQL reserved words not allowed as identifiers
+        setProperty(sql_enforce_keywords, false);
 
         // removed from 1.7.2 - sql.month is always true (1-12)
         // removed from 1.7.2 - sql.strict_fk is always enforced
@@ -394,6 +414,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // set default table type to MEMORY
         setProperty(hsqldb_default_table_type, "memory");
 
+        // set lock file true
+        setProperty(hsqldb_lock_file, true);
+
         // the property "version" is also set to the current version
         //
         // the following properties can be set by the user as defaults for
@@ -408,7 +431,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // "textdb.cache_scale", 10  -- allowed range 8-16
         // "textdb.cache_size_scale", 10  -- allowed range 8-20
         //
-        // settings for OOo integration
+        // OOo related code
         if (db.isStoredFileAccess()) {
             setProperty(hsqldb_default_table_type, "cached");
             setProperty(hsqldb_cache_scale, 13);
@@ -416,6 +439,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             setProperty(sql_enforce_strict_size, true);
             setProperty(hsqldb_nio_data_file, false);
         }
+
+        // OOo end
     }
 
     /**
@@ -433,8 +458,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         try {
             exists = super.load();
         } catch (Exception e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, Trace.LOAD_SAVE_PROPERTIES,
-                              new Object[] {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.LOAD_SAVE_PROPERTIES, new Object[] {
                 fileName, e
             });
         }
@@ -451,7 +476,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         int check = version.substring(0, 5).compareTo(THIS_VERSION);
 
         if (check > 0) {
-            throw Trace.error(Trace.WRONG_DATABASE_FILE_VERSION);
+            throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
         }
 
         version = getProperty(db_version);
@@ -506,8 +531,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         } catch (Exception e) {
             database.logger.appLog.logContext(SimpleLog.LOG_ERROR, "failed");
 
-            throw Trace.error(Trace.FILE_IO_ERROR, Trace.LOAD_SAVE_PROPERTIES,
-                              new Object[] {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.LOAD_SAVE_PROPERTIES, new Object[] {
                 fileName, e
             });
         }
@@ -540,7 +565,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
                 if (row != null
                         && (db_readonly.equals(propertyName)
-                            || ((Integer) row[indexAccess]).intValue()
+                            || ((Integer) row[indexType]).intValue()
                                == SET_PROPERTY)) {
 
                     // can add error checking with defaults
@@ -558,7 +583,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         while (it.hasNext()) {
             Object[] row = (Object[]) it.next();
 
-            if (((Integer) row[indexAccess]).intValue() == SET_PROPERTY) {
+            if (((Integer) row[indexType]).intValue() == SET_PROPERTY) {
                 set.add(row);
             }
         }
@@ -571,7 +596,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] row = (Object[]) meta.get(key);
 
         return row != null
-               && ((Integer) row[indexAccess]).intValue() == SET_PROPERTY;
+               && ((Integer) row[indexType]).intValue() == SET_PROPERTY;
     }
 
     public boolean isBoolean(String key) {
@@ -579,7 +604,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] row = (Object[]) meta.get(key);
 
         return row != null && row[indexClass].equals("boolean")
-               && ((Integer) row[indexAccess]).intValue() == SET_PROPERTY;
+               && ((Integer) row[indexType]).intValue() == SET_PROPERTY;
     }
 
     public boolean isIntegral(String key) {
@@ -587,7 +612,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] row = (Object[]) meta.get(key);
 
         return row != null && row[indexClass].equals("int")
-               && ((Integer) row[indexAccess]).intValue() == SET_PROPERTY;
+               && ((Integer) row[indexType]).intValue() == SET_PROPERTY;
     }
 
     public boolean isString(String key) {
@@ -595,7 +620,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] row = (Object[]) meta.get(key);
 
         return row != null && row[indexClass].equals("java.lang.String")
-               && ((Integer) row[indexAccess]).intValue() == SET_PROPERTY;
+               && ((Integer) row[indexType]).intValue() == SET_PROPERTY;
     }
 
     public String setDatabaseProperty(String key,
@@ -610,19 +635,24 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     }
 
     public int getDefaultWriteDelay() {
-        return database.isStoredFileAccess() ? 2000
-                                             : 10000;
+
+        // OOo related code
+        if (database.isStoredFileAccess()) {
+            return 2000;
+        }
+
+        // OOo end
+        return 10000;
     }
 
 //---------------------
 // new properties to review / persist
-    public int NO_MESSAGE = 1;
+    public final static int NO_MESSAGE = 1;
 
     public int getErrorLevel() {
 
-        return 0;
-
-//        return NO_MESSAGE;
+        //      return 0;
+        return NO_MESSAGE;
     }
 
     public boolean divisionByZero() {
@@ -655,63 +685,5 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }
 
         return FILES_NOT_MODIFIED;
-    }
-
-    private static Object[] getMeta(String name, int accessLevel,
-                                    String defaultValue) {
-
-        Object[] row = new Object[indexLimit];
-
-        row[indexName]         = name;
-        row[indexAccess]       = ValuePool.getInt(accessLevel);
-        row[indexClass]        = "java.lang.String";
-        row[indexDefaultValue] = defaultValue;
-
-        return row;
-    }
-
-    private static Object[] getMeta(String name, int accessLevel,
-                                    boolean defaultValue) {
-
-        Object[] row = new Object[indexLimit];
-
-        row[indexName]         = name;
-        row[indexAccess]       = ValuePool.getInt(accessLevel);
-        row[indexClass]        = "boolean";
-        row[indexDefaultValue] = defaultValue ? Boolean.TRUE
-                                              : Boolean.FALSE;
-
-        return row;
-    }
-
-    private static Object[] getMeta(String name, int accessLevel,
-                                    int defaultValue, byte[] values) {
-
-        Object[] row = new Object[indexLimit];
-
-        row[indexName]         = name;
-        row[indexAccess]       = ValuePool.getInt(accessLevel);
-        row[indexClass]        = "int";
-        row[indexDefaultValue] = ValuePool.getInt(defaultValue);
-        row[indexValues]       = values;
-
-        return row;
-    }
-
-    private static Object[] getMeta(String name, int accessLevel,
-                                    int defaultValue, int rangeLow,
-                                    int rangeHigh) {
-
-        Object[] row = new Object[indexLimit];
-
-        row[indexName]         = name;
-        row[indexAccess]       = ValuePool.getInt(accessLevel);
-        row[indexClass]        = "int";
-        row[indexDefaultValue] = ValuePool.getInt(defaultValue);
-        row[indexIsRange]      = Boolean.TRUE;
-        row[indexRangeLow]     = ValuePool.getInt(rangeLow);
-        row[indexRangeHigh]    = ValuePool.getInt(rangeHigh);
-
-        return row;
     }
 }

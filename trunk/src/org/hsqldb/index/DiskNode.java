@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,8 +70,8 @@ import java.io.IOException;
 
 import org.hsqldb.CachedRow;
 import org.hsqldb.Row;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.IntLookup;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 
@@ -91,22 +91,23 @@ import org.hsqldb.rowio.RowOutputInterface;
  *  New class derived from the Hypersonic code
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version    1.7.2
+ * @version 1.7.2
  * @since Hypersonic SQL
  */
 public class DiskNode extends Node {
 
-    protected Row           rData;
+    public int              iData;
     private int             iLeft   = NO_POS;
     private int             iRight  = NO_POS;
     private int             iParent = NO_POS;
     private int             iId;    // id of Index object for this Node
     public static final int SIZE_IN_BYTE = 4 * 4;
 
-    DiskNode(CachedRow r, RowInputInterface in, int id) throws IOException {
+    public DiskNode(CachedRow r, RowInputInterface in,
+                    int id) throws IOException {
 
         iId      = id;
-        rData    = r;
+        iData    = r.getPos();
         iBalance = in.readInt();
         iLeft    = in.readInt();
 
@@ -127,38 +128,31 @@ public class DiskNode extends Node {
         }
     }
 
-    DiskNode(CachedRow r, int id) {
+    public DiskNode(CachedRow r, int id) {
         iId   = id;
-        rData = r;
+        iData = r.getPos();
     }
 
-    void delete() {
-        rData    = null;
+    public void delete() {
+
+        iLeft    = NO_POS;
+        iRight   = NO_POS;
+        iParent  = NO_POS;
         iBalance = -2;
     }
 
-    int getKey() {
-
-        if (rData != null) {
-            return ((CachedRow) rData).iPos;
-        }
-
-        return NO_POS;
+    public int getPos() {
+        return iData;
     }
 
-    Row getRow() {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(rData != null);
-        }
-
-        return rData;
+    Row getRow(PersistentStore store) {
+        return (Row) store.get(iData);
     }
 
-    private Node findNode(int pos) {
+    private Node findNode(PersistentStore store, int pos) {
 
         Node ret = null;
-        Row  r   = ((CachedRow) rData).getTable().getRow(pos);
+        Row  r   = (Row) store.get(pos);
 
         if (r != null) {
             ret = r.getNode(iId);
@@ -173,7 +167,7 @@ public class DiskNode extends Node {
             return iLeft == NO_POS;
         }
 
-        return iLeft == ((DiskNode) node).getKey();
+        return iLeft == ((DiskNode) node).getPos();
     }
 
     boolean isRight(Node node) {
@@ -182,123 +176,116 @@ public class DiskNode extends Node {
             return iRight == NO_POS;
         }
 
-        return iRight == ((DiskNode) node).getKey();
+        return iRight == ((DiskNode) node).getPos();
     }
 
-    Node getLeft() {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+    Node getLeft(PersistentStore store) {
 
         if (iLeft == NO_POS) {
             return null;
         }
 
-        return findNode(iLeft);
+        return findNode(store, iLeft);
     }
 
-    Node getRight() {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+    Node getRight(PersistentStore store) {
 
         if (iRight == NO_POS) {
             return null;
         }
 
-        return findNode(iRight);
+        return findNode(store, iRight);
     }
 
-    Node getParent() {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+    Node getParent(PersistentStore store) {
 
         if (iParent == NO_POS) {
             return null;
         }
 
-        return findNode(iParent);
+        return findNode(store, iParent);
+    }
+
+    int getBalance() {
+        return iBalance;
     }
 
     boolean isRoot() {
         return iParent == Node.NO_POS;
     }
 
-    boolean isFromLeft() {
+    boolean isFromLeft(PersistentStore store) {
 
         if (this.isRoot()) {
             return true;
         }
 
-        if (Trace.DOASSERT) {
-            Trace.doAssert(getParent() != null);
-        }
+        DiskNode parent = (DiskNode) getParent(store);
 
-        DiskNode parent = (DiskNode) getParent();
-
-        return getKey() == parent.iLeft;
+        return getPos() == parent.iLeft;
     }
 
-    Object[] getData() {
+    Node setParent(PersistentStore store, Node n) {
 
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+        CachedRow row = (CachedRow) store.getKeep(iData);
 
-        return rData.getData();
+        row.setChanged();
+
+        DiskNode node = (DiskNode) row.getNode(iId);
+
+        node.iParent = n == null ? NO_POS
+                                 : n.getPos();
+
+        row.keepInMemory(false);
+
+        return node;
     }
 
-    void setParent(Node n) {
+    public Node setBalance(PersistentStore store, int b) {
 
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+        CachedRow row = (CachedRow) store.getKeep(iData);
 
-        ((CachedRow) rData).setChanged();
+        row.setChanged();
 
-        iParent = n == null ? NO_POS
-                            : n.getKey();
+        DiskNode node = (DiskNode) row.getNode(iId);
+
+        node.iBalance = b;
+
+        row.keepInMemory(false);
+
+        return node;
     }
 
-    void setBalance(int b) {
+    Node setLeft(PersistentStore store, Node n) {
 
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+        CachedRow row = (CachedRow) store.getKeep(iData);
 
-        if (iBalance != b) {
-            ((CachedRow) rData).setChanged();
+        row.setChanged();
 
-            iBalance = b;
-        }
+        DiskNode node = (DiskNode) row.getNode(iId);
+
+        node.iLeft = n == null ? NO_POS
+                               : n.getPos();
+
+        row.keepInMemory(false);
+
+        return node;
     }
 
-    void setLeft(Node n) {
+    Node setRight(PersistentStore store, Node n) {
 
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+        CachedRow row = (CachedRow) store.getKeep(iData);
 
-        ((CachedRow) rData).setChanged();
+        row.setChanged();
 
-        iLeft = n == null ? NO_POS
-                          : n.getKey();
-    }
+        DiskNode node = (DiskNode) row.getNode(iId);
 
-    void setRight(Node n) {
+        node.iRight = n == null ? NO_POS
+                                : n.getPos();
 
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+        row.keepInMemory(false);
 
-        ((CachedRow) rData).setChanged();
-
-        iRight = n == null ? NO_POS
-                           : n.getKey();
+        return node;
     }
 
     boolean equals(Node n) {
@@ -331,19 +318,10 @@ public class DiskNode extends Node {
             }
         }
 */
-        return this == n || (n != null && getKey() == ((DiskNode) n).getKey());
+        return this == n || (n != null && getPos() == ((DiskNode) n).getPos());
     }
 
     public void write(RowOutputInterface out) throws IOException {
-
-        if (Trace.DOASSERT) {
-
-            // fredt - assert not correct - row can be deleted from one index but
-            // not yet deleted from other indexes while the process of finding
-            // the node is in progress which may require saving the row
-            // to make way for new rows in the cache
-            // Trace.doAssert(iBalance != -2);
-        }
 
         out.writeInt(iBalance);
         out.writeInt((iLeft == NO_POS) ? 0
@@ -354,14 +332,6 @@ public class DiskNode extends Node {
                                          : iParent);
     }
 
-    Node getUpdatedNode() {
-
-        Row row = rData.getUpdatedRow();
-
-        return row == null ? null
-                           : row.getNode(iId);
-    }
-
     public void writeTranslate(RowOutputInterface out, IntLookup lookup) {
 
         out.writeInt(iBalance);
@@ -370,7 +340,7 @@ public class DiskNode extends Node {
         writeTranslatePointer(iParent, out, lookup);
     }
 
-    private void writeTranslatePointer(int pointer, RowOutputInterface out,
+    private static void writeTranslatePointer(int pointer, RowOutputInterface out,
                                        IntLookup lookup) {
 
         int newPointer = 0;

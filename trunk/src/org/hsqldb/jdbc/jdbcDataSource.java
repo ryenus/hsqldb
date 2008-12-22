@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,12 @@ import javax.sql.DataSource;
 
 import org.hsqldb.jdbcDriver;
 
-//#ifdef JDBC4
+//#ifdef JAVA6
 import java.sql.Wrapper;
+
 import javax.sql.CommonDataSource;
 
-//#endif JDBC4
+//#endif JAVA6
 
 /* $Id$ */
 
@@ -115,15 +116,17 @@ import javax.sql.CommonDataSource;
  * @version 1.9.0
  * @revised JDK 1.6, HSQLDB 1.9.0
  */
-//#ifdef JDBC4
+
+//#ifdef JAVA6
 @SuppressWarnings("serial")
-//#endif JDBC4
-public class jdbcDataSource implements Serializable, Referenceable, DataSource
 
-//#ifdef JDBC4
-,CommonDataSource, Wrapper
+//#endif JAVA6
+public class JDBCDataSource implements Serializable, Referenceable, DataSource
 
-//#endif JDBC4
+//#ifdef JAVA6
+, CommonDataSource, Wrapper
+
+//#endif JAVA6
 {
 
     /**
@@ -154,7 +157,8 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
     /**
      * Constructor
      */
-    public jdbcDataSource() {}
+    public JDBCDataSource() {
+    }
 
     /**
      * <p>Attempts to establish a connection with the data source that
@@ -207,13 +211,14 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * @exception SQLException if a database access error occurs.
      *  @since JDK 1.6, HSQLDB 1.9.0
      */
-//#ifdef JDBC4BETA
+//#ifdef JAVA6BETA
 /*
    public <T extends BaseQuery> T createQueryObject(Class<T> ifc) throws SQLException {
         return QueryObjectFactory.createDefaultQueryObject(ifc, this);
    }
 */
-//#endif JDBC4BETA
+
+//#endif JAVA6BETA
 
     /**
      * Creates a concrete implementation of a Query interface using the JDBC drivers <code>QueryObjectGenerator</code>
@@ -235,13 +240,14 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * @exception SQLException if a database access error occurs.
      * @since 1.6
      */
-//#ifdef JDBC4BETA
+//#ifdef JAVA6BETA
 /*
     public <T extends BaseQuery> T createQueryObject(Class<T> ifc, DataSource ds) throws SQLException {
         return QueryObjectFactory.createQueryObject(ifc, ds);
     }
 */
-//#endif JDBC4BETA
+
+//#endif JAVA6BETA
 
     /**
      * Retrieves the QueryObjectGenerator for the given JDBC driver.  If the
@@ -258,6 +264,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
         return null;
     }
 */
+
 //#endif JDBC4BETA
     // ------------------- java.sql.Wrapper implementation ---------------------
 
@@ -278,9 +285,10 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 1.9.0
      */
-//#ifdef JDBC4
+//#ifdef JAVA6
     @SuppressWarnings("unchecked")
-    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+
         if (isWrapperFor(iface)) {
             return (T) this;
         }
@@ -288,7 +296,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
         throw Util.invalidArgument("iface: " + iface);
     }
 
-//#endif JDBC4
+//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -305,12 +313,13 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 1.9.0
      */
-//#ifdef JDBC4
-    public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
+//#ifdef JAVA6
+    public boolean isWrapperFor(
+            java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JDBC4
+//#endif JAVA6
     // ------------------------ internal implementation ------------------------
 
     /**
@@ -366,7 +375,7 @@ public class jdbcDataSource implements Serializable, Referenceable, DataSource
     // javadoc to be copied from javax.naming.Referenceable.getReference()
     public Reference getReference() throws NamingException {
 
-        String    cname = "org.hsqldb.jdbc.jdbcDataSourceFactory";
+        String    cname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
         Reference ref   = new Reference(getClass().getName(), cname, null);
 
         ref.add(new StringRefAddr("database", getDatabase()));

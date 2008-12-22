@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,20 @@
 
 package org.hsqldb.persist;
 
+import java.io.IOException;
+import java.io.File;
+import java.text.SimpleDateFormat;
+
 import org.hsqldb.Database;
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.SimpleLog;
+import org.hsqldb.lib.tar.DbBackup;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
+import org.hsqldb.lib.tar.TarMalformatException;
 
 // boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
 
@@ -58,23 +64,24 @@ import org.hsqldb.lib.SimpleLog;
  *  implementation, lowering its breakability factor and promoting
  *  long-term code flexibility.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.0
  */
 public class Logger {
 
+    public SimpleLog appLog;
+
     /**
      *  The Log object this Logger object wraps
      */
-    Log              log;
-    public SimpleLog appLog;
+    private Log log;
 
     /**
      *  The LockFile object this Logger uses to cooperatively lock
      *  the database files
      */
-    private LockFile lf;
+    private LockFile lockFile;
     boolean          needsCheckpoint;
     private boolean  logStatements;
     private boolean  syncFile = false;
@@ -111,7 +118,10 @@ public class Logger {
 
         logStatements = false;
 
-        if (!db.isFilesReadOnly()) {
+        boolean useLock = db.getProperties().isPropertyTrue(
+            HsqlDatabaseProperties.hsqldb_lock_file);
+
+        if (useLock && !db.isFilesReadOnly()) {
             acquireLock(path);
         }
 
@@ -148,9 +158,6 @@ public class Logger {
     public boolean closeLog(int closemode) {
 
         if (log == null) {
-            appLog.sendLine(SimpleLog.LOG_ERROR, "Database closed");
-            appLog.close();
-
             return true;
         }
 
@@ -327,12 +334,12 @@ public class Logger {
     public synchronized void checkpoint(boolean mode) throws HsqlException {
 
         if (logStatements) {
-            appLog.logContext(appLog.LOG_NORMAL, "start");
+            appLog.logContext(SimpleLog.LOG_NORMAL, "start");
 
             needsCheckpoint = false;
 
             log.checkpoint(mode);
-            appLog.logContext(appLog.LOG_NORMAL, "end");
+            appLog.logContext(SimpleLog.LOG_NORMAL, "end");
         }
     }
 
@@ -404,15 +411,14 @@ public class Logger {
      */
     public DataFileCache openTextCache(Table table, String source,
                                        boolean readOnlyData,
-                                       boolean reversed)
-                                       throws HsqlException {
+                                       boolean reversed) throws HsqlException {
         return log.openTextCache(table, source, readOnlyData, reversed);
     }
 
     /**
      *  Closes the TextCache object.
      */
-    public void closeTextCache(Table table) throws HsqlException {
+    public void closeTextCache(Table table) {
         log.closeTextCache(table);
     }
 
@@ -425,25 +431,89 @@ public class Logger {
      */
     public void acquireLock(String path) throws HsqlException {
 
-        if (lf != null) {
+        if (lockFile != null) {
             return;
         }
 
-        lf = LockFile.newLockFileLock(path);
+        lockFile = LockFile.newLockFileLock(path);
     }
 
     public void releaseLock() {
 
         try {
-            if (lf != null) {
-                lf.tryRelease();
+            if (lockFile != null) {
+                lockFile.tryRelease();
             }
-        } catch (Exception e) {
-            if (Trace.TRACE) {
-                Trace.printSystemOut(e.toString());
-            }
+        } catch (Exception e) {}
+
+        lockFile = null;
+    }
+
+    static private SimpleDateFormat backupFileFormat =
+        new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+    static private Character runtimeFileDelim = null;
+
+    public synchronized void backup(String destPath, String dbPath,
+                                    boolean script,
+                                    boolean blocking,
+                                    boolean compressed) throws HsqlException {
+
+        /* If want to add db Id also, will need to pass either Database
+         * instead of dbPath, or pass dbPath + Id from CommandStatement.
+         */
+        if (runtimeFileDelim == null) {
+            runtimeFileDelim =
+                new Character(System.getProperty("file.separator").charAt(0));
         }
 
-        lf = null;
+        String instanceName = new File(dbPath).getName();
+
+        if (destPath == null || destPath.length() < 1) {
+            throw Error.error(ErrorCode.X_2200F, "0-length destination path");
+        }
+
+        char lastChar = destPath.charAt(destPath.length() - 1);
+        boolean generateName = (lastChar == '/'
+                                || lastChar == runtimeFileDelim.charValue());
+        File archiveFile =
+            generateName
+            ? (new File(destPath.substring(0, destPath.length() - 1),
+                        instanceName + '-'
+                        + backupFileFormat.format(new java.util.Date())
+                        + ".tar.gz"))
+            : (new File(destPath));
+
+        // This treats paths as directories if the last element contains
+        // no dot.
+        log.closeForBackup();
+
+        try {
+            appLog.logContext(SimpleLog.LOG_NORMAL,
+                              "Initiating backup of instance '" + instanceName
+                              + "'");
+
+            // By default, DbBackup will throw if archiveFile (or
+            // corresponding work file) already exist.  That's just what we
+            // want here.
+            DbBackup backup = new DbBackup(archiveFile, dbPath);
+
+            backup.setAbortUponModify(false);
+            backup.write();
+            appLog.logContext(SimpleLog.LOG_NORMAL,
+                              "Successfully backed up instance '"
+                              + instanceName + "' to '" + destPath + "'");
+
+            // RENAME tempPath to destPath
+        } catch (IllegalArgumentException iae) {
+            throw Error.error(ErrorCode.X_HV00A, iae.getMessage());
+        } catch (IOException ioe) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, ioe.getMessage());
+        } catch (TarMalformatException tme) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, tme.getMessage());
+        } finally {
+            log.openAfterBackup();
+
+            needsCheckpoint = false;
+        }
     }
 }

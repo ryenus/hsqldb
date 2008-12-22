@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,8 @@ package org.hsqldb.index;
 
 import java.io.IOException;
 
-import org.hsqldb.Trace;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.persist.*;
 
 /**
  *  Common MEMORY and TEXT table node implementation. Nodes are always in
@@ -88,27 +88,24 @@ abstract class BaseMemoryNode extends Node {
     protected Node nRight;
     protected Node nParent;
 
-    void delete() {
+    public void delete() {
         iBalance = -2;
         nLeft    = nRight = nParent = null;
     }
 
-    Node getLeft() {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
-
+    Node getLeft(PersistentStore store) {
         return nLeft;
     }
 
-    void setLeft(Node n) {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+    Node setLeft(PersistentStore persistentStore, Node n) {
 
         nLeft = n;
+
+        return this;
+    }
+
+    public int getBalance() {
+        return iBalance;
     }
 
     boolean isLeft(Node node) {
@@ -119,30 +116,18 @@ abstract class BaseMemoryNode extends Node {
         return nRight == node;
     }
 
-    Node getRight() {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
-
+    Node getRight(PersistentStore persistentStore) {
         return nRight;
     }
 
-    void setRight(Node n) {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+    Node setRight(PersistentStore persistentStore, Node n) {
 
         nRight = n;
+
+        return this;
     }
 
-    Node getParent() {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
-
+    Node getParent(PersistentStore store) {
         return nParent;
     }
 
@@ -150,37 +135,29 @@ abstract class BaseMemoryNode extends Node {
         return nParent == null;
     }
 
-    void setParent(Node n) {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+    Node setParent(PersistentStore persistentStore, Node n) {
 
         nParent = n;
+
+        return this;
     }
 
-    void setBalance(int b) {
-
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
+    public Node setBalance(PersistentStore store, int b) {
 
         iBalance = b;
+
+        return this;
     }
 
-    boolean isFromLeft() {
+    boolean isFromLeft(PersistentStore store) {
 
         if (this.isRoot()) {
             return true;
         }
 
-        Node parent = getParent();
+        Node parent = getParent(store);
 
-        if (Trace.DOASSERT) {
-            Trace.doAssert(parent != null);
-        }
-
-        return equals(parent.getLeft());
+        return equals(parent.getLeft(store));
     }
 
     boolean equals(Node n) {

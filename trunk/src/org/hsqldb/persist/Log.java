@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,16 +70,17 @@ import java.io.File;
 import java.io.IOException;
 
 import org.hsqldb.Database;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.FileAccess;
+import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.SimpleLog;
-import org.hsqldb.lib.ZipUnzipFile;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptWriterBase;
 
@@ -120,8 +121,7 @@ import org.hsqldb.scriptio.ScriptWriterBase;
  * Extensively rewritten and extended in successive versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @author fredt@users.
- * @version 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @since Hypersonic SQL
  */
 public class Log {
@@ -153,7 +153,7 @@ public class Log {
         int logMegas = properties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_log_size, 0);
 
-        maxLogSize = logMegas * 1024 * 1024;
+        maxLogSize = logMegas * 1024L * 1024;
         scriptFormat = properties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_script_format,
             ScriptWriterBase.SCRIPT_TEXT_170);
@@ -320,9 +320,9 @@ public class Log {
     void backupData() throws IOException {
 
         if (fa.isStreamElement(fileName + ".data")) {
-            ZipUnzipFile.compressFile(fileName + ".data",
-                                      fileName + ".backup.new",
-                                      database.getFileAccess());
+            FileArchiver.archive(fileName + ".data", fileName + ".backup.new",
+                                 database.getFileAccess(),
+                                 FileArchiver.COMPRESSION_ZIP);
         }
     }
 
@@ -376,6 +376,7 @@ public class Log {
 
         database.logger.appLog.logContext(SimpleLog.LOG_NORMAL, "start");
         deleteNewAndOldFiles();
+        writeScript(false);
 
         if (cache != null) {
             if (forceDefrag()) {
@@ -391,7 +392,7 @@ public class Log {
 
                 try {
                     cache.backupFile();
-                } catch (IOException e1) {
+                } catch (Exception e1) {
                     deleteNewBackup();
                     cache.open(false);
 
@@ -402,7 +403,6 @@ public class Log {
             }
         }
 
-        writeScript(false);
         properties.setDBModified(HsqlDatabaseProperties.FILES_NEW);
         closeLog();
         deleteLog();
@@ -428,10 +428,90 @@ public class Log {
                 }
             }
         } catch (IOException e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 */
         database.logger.appLog.logContext(SimpleLog.LOG_NORMAL, "end");
+    }
+
+    /**
+     * Performs checkpoint including pre and post operations. Returns to the
+     * same state as before the checkpoint.
+     */
+    boolean closeForBackup() {
+
+        if (filesReadOnly) {
+            return false;
+        }
+
+        deleteNewAndOldFiles();
+
+        try {
+            writeScript(false);
+        } catch (HsqlException e) {
+            deleteNewScript();
+
+            return false;
+        }
+
+        if (cache != null) {
+            try {
+                cache.close(true);
+                cache.backupFile();
+            } catch (Exception e) {
+
+                // backup failed perhaps due to lack of disk space
+                deleteNewScript();
+                deleteNewBackup();
+
+                try {
+                    if (!cache.isFileOpen()) {
+                        cache.open(false);
+                    }
+                } catch (Exception e1) {}
+
+                return false;
+            }
+        }
+
+        try {
+            properties.setDBModified(HsqlDatabaseProperties.FILES_NEW);
+            closeLog();
+        } catch (Exception e) {}
+
+        deleteLog();
+        renameNewScript();
+        renameNewBackup();
+
+        try {
+            properties.setDBModified(
+                HsqlDatabaseProperties.FILES_NOT_MODIFIED);
+        } catch (Exception e) {}
+
+        return true;
+    }
+
+    boolean openAfterBackup() {
+
+        if (filesReadOnly) {
+            return false;
+        }
+
+        try {
+            if (cache != null) {
+                cache.open(false);
+            }
+
+            if (dbLogWriter != null) {
+                openLog();
+            }
+
+            properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED);
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -441,7 +521,7 @@ public class Log {
 
         long megas = properties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_defrag_limit, 200);
-        long defraglimit = megas * 1024 * 1024;
+        long defraglimit = megas * 1024L * 1024;
         long lostSize    = cache.freeBlocks.getLostBlocksSize();
 
         return lostSize > defraglimit;
@@ -474,7 +554,7 @@ public class Log {
     }
 
     int getLogSize() {
-        return (int) (maxLogSize / (1024 * 11024));
+        return (int) (maxLogSize / (1024 * 1024));
     }
 
     void setLogSize(int megas) {
@@ -482,7 +562,7 @@ public class Log {
         properties.setProperty(HsqlDatabaseProperties.hsqldb_log_size,
                                String.valueOf(megas));
 
-        maxLogSize = megas * 1024 * 1024;
+        maxLogSize = megas * 1024L * 1024;
     }
 
     int getScriptType() {
@@ -495,10 +575,12 @@ public class Log {
      */
     void setScriptType(int type) throws HsqlException {
 
+        // OOo related code
         if (database.isStoredFileAccess()) {
             return;
         }
 
+        // OOo end
         boolean needsCheckpoint = scriptFormat != type;
 
         scriptFormat = type;
@@ -533,14 +615,10 @@ public class Log {
      */
     void writeStatement(Session session, String s) throws HsqlException {
 
-        if (s == null || s.length() == 0) {
-            return;
-        }
-
         try {
             dbLogWriter.writeLogStatement(session, s);
         } catch (IOException e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
@@ -554,7 +632,7 @@ public class Log {
         try {
             dbLogWriter.writeInsertStatement(session, t, row);
         } catch (IOException e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
@@ -568,7 +646,7 @@ public class Log {
         try {
             dbLogWriter.writeDeleteStatement(session, t, row);
         } catch (IOException e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
@@ -582,7 +660,7 @@ public class Log {
         try {
             dbLogWriter.writeSequenceStatement(session, s);
         } catch (IOException e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
@@ -595,7 +673,7 @@ public class Log {
         try {
             dbLogWriter.writeCommitStatement(session);
         } catch (IOException e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
@@ -628,7 +706,7 @@ public class Log {
             dbLogWriter.setWriteDelay(writeDelay);
             dbLogWriter.start();
         } catch (Exception e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
     }
 
@@ -690,11 +768,11 @@ public class Log {
             if (e instanceof HsqlException) {
                 throw (HsqlException) e;
             } else if (e instanceof IOException) {
-                throw Trace.error(Trace.FILE_IO_ERROR, e.toString());
+                throw Error.error(ErrorCode.FILE_IO_ERROR, e.toString());
             } else if (e instanceof OutOfMemoryError) {
-                throw Trace.error(Trace.OUT_OF_MEMORY);
+                throw Error.error(ErrorCode.OUT_OF_MEMORY);
             } else {
-                throw Trace.error(Trace.GENERAL_ERROR, e.toString());
+                throw Error.error(ErrorCode.GENERAL_ERROR, e.toString());
             }
         }
     }
@@ -704,7 +782,13 @@ public class Log {
      */
     private void processDataFile() throws HsqlException {
 
-        if (cache == null || filesReadOnly || database.isStoredFileAccess()
+        // OOo related code
+        if (database.isStoredFileAccess()) {
+            return;
+        }
+
+        // OOo end
+        if (cache == null || filesReadOnly
                 || !fa.isStreamElement(logFileName)) {
             return;
         }
@@ -738,11 +822,11 @@ public class Log {
         DataFileCache.deleteOrResetFreePos(database, fileName + ".data");
 
         try {
-            ZipUnzipFile.decompressFile(fileName + ".backup",
-                                        fileName + ".data",
-                                        database.getFileAccess());
+            FileArchiver.unarchive(fileName + ".backup", fileName + ".data",
+                                   database.getFileAccess(),
+                                   FileArchiver.COMPRESSION_ZIP);
         } catch (Exception e) {
-            throw Trace.error(Trace.FILE_IO_ERROR, Trace.Message_Pair,
+            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.Message_Pair,
                               new Object[] {
                 fileName + ".backup", e.toString()
             });
@@ -761,7 +845,7 @@ public class Log {
         if (!properties.isPropertyTrue(
                 HsqlDatabaseProperties.textdb_allow_full_path)) {
             if (source.indexOf("..") != -1) {
-                throw (Trace.error(Trace.ACCESS_IS_DENIED, source));
+                throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
             }
 
             String path = new File(
@@ -775,7 +859,9 @@ public class Log {
         }
 
         TextCache c;
-        int       type;
+
+        // checks are performed separately as TextChar constructor cannot throw
+        TextCache.checkTextSouceString(source, database.getProperties());
 
         if (reversed) {
             c = new TextCache(table, source);
@@ -789,12 +875,14 @@ public class Log {
         return c;
     }
 
-    void closeTextCache(Table table) throws HsqlException {
+    void closeTextCache(Table table) {
 
         TextCache c = (TextCache) textCacheList.remove(table.getName());
 
         if (c != null) {
-            c.close(true);
+            try {
+                c.close(true);
+            } catch (HsqlException e) {}
         }
     }
 

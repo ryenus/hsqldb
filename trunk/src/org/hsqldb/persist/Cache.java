@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,8 @@
 
 package org.hsqldb.persist;
 
-import java.io.IOException;
-
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.HsqlException;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.Sort;
@@ -48,8 +47,9 @@ import org.hsqldb.store.ObjectCacheHashMap;
  * Also provides services for selecting rows to be saved and passing them
  * to DataFileCache.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
+ * @since 1.8.0
  */
 public class Cache {
 
@@ -63,7 +63,7 @@ public class Cache {
 
 //
     private final ObjectCacheHashMap cacheMap;
-    long                             cacheBytesLength;
+    volatile long                    cacheBytesLength;
 
     // for testing
     StopWatch saveAllTimer = new StopWatch(false);
@@ -107,8 +107,7 @@ public class Cache {
     /**
      * Adds a row to the cache.
      */
-    synchronized void put(int key,
-                                 CachedObject row) throws IOException {
+    synchronized void put(int key, CachedObject row) throws HsqlException {
 
         int storageSize = row.getStorageSize();
 
@@ -148,12 +147,12 @@ public class Cache {
      * in the cache.
      *
      */
-    private synchronized void cleanUp() throws IOException {
+    private synchronized void cleanUp() throws HsqlException {
 
         int removeCount = cacheMap.size() / 2;
         int accessTarget = cacheMap.getAccessCountCeiling(removeCount,
             removeCount / 8);
-        ObjectCacheHashMap.ObjectCacheIterator it = cacheMap.iterator();
+        ObjectCacheHashMap.ObjectCacheIterator it        = cacheMap.iterator();
         int                                    savecount = 0;
 
         for (; it.hasNext(); ) {
@@ -176,13 +175,13 @@ public class Cache {
         saveRows(savecount);
     }
 
-    private synchronized void saveRows(int count) throws IOException {
+    private synchronized void saveRows(int count) throws HsqlException {
 
         if (count == 0) {
             return;
         }
 
-        rowComparator.setType(rowComparator.COMPARE_POSITION);
+        rowComparator.setType(CachedObjectComparator.COMPARE_POSITION);
         sortTimer.start();
         Sort.sort(rowTable, rowComparator, 0, count - 1);
         sortTimer.stop();
@@ -203,7 +202,7 @@ public class Cache {
     /**
      * Writes out all modified cached Rows.
      */
-    synchronized void saveAll() throws IOException {
+    synchronized void saveAll() throws HsqlException {
 
         Iterator it        = cacheMap.iterator();
         int      savecount = 0;
@@ -217,17 +216,17 @@ public class Cache {
         }
 
         saveRows(savecount);
-        Trace.printSystemOut(
+        Error.printSystemOut(
             saveAllTimer.elapsedTimeToMessage(
                 "Cache.saveRow() total row save time"));
-        Trace.printSystemOut("Cache.saveRow() total row save count = "
+        Error.printSystemOut("Cache.saveRow() total row save count = "
                              + saveRowCount);
-        Trace.printSystemOut(
+        Error.printSystemOut(
             makeRowTimer.elapsedTimeToMessage(
                 "Cache.makeRow() total row load time"));
-        Trace.printSystemOut("Cache.makeRow() total row load count = "
+        Error.printSystemOut("Cache.makeRow() total row load count = "
                              + makeRowCount);
-        Trace.printSystemOut(
+        Error.printSystemOut(
             sortTimer.elapsedTimeToMessage("Cache.sort() total time"));
     }
 
@@ -241,7 +240,7 @@ public class Cache {
         cacheBytesLength = 0;
     }
 
-    static class CachedObjectComparator implements ObjectComparator {
+    static final class CachedObjectComparator implements ObjectComparator {
 
         static final int COMPARE_LAST_ACCESS = 0;
         static final int COMPARE_POSITION    = 1;

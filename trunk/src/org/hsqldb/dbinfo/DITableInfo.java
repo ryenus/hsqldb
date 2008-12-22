@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,13 @@ package org.hsqldb.dbinfo;
 
 import java.util.Locale;
 
-import org.hsqldb.Column;
+import org.hsqldb.ColumnSchema;
 import org.hsqldb.Table;
 import org.hsqldb.Types;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.TableBase;
+import org.hsqldb.TextTable;
 
 /**
  * Provides extended information about HSQLDB tables and their
@@ -143,12 +145,12 @@ final class DITableInfo {
      */
     Integer getColBufLen(int i) {
 
-        int    size;
-        int    type;
-        Column column;
+        int          size;
+        int          type;
+        ColumnSchema column;
 
         column = table.getColumn(i);
-        type   = column.getType().getJDBCTypeNumber();
+        type   = column.getDataType().getJDBCTypeCode();
 
         switch (type) {
 
@@ -156,9 +158,9 @@ final class DITableInfo {
             case Types.SQL_CLOB :
             case Types.VARCHAR_IGNORECASE :
             case Types.SQL_VARCHAR : {
-                size = column.getType().size() > Integer.MAX_VALUE
+                size = column.getDataType().precision > Integer.MAX_VALUE
                        ? Integer.MAX_VALUE
-                       : (int) column.getType().size();
+                       : (int) column.getDataType().precision;
 
                 if (size == 0) {}
                 else if (size > HALF_MAX_INT) {
@@ -172,9 +174,9 @@ final class DITableInfo {
             case Types.SQL_BINARY :
             case Types.SQL_BLOB :
             case Types.SQL_VARBINARY : {
-                size = column.getType().size() > Integer.MAX_VALUE
+                size = column.getDataType().precision > Integer.MAX_VALUE
                        ? Integer.MAX_VALUE
-                       : (int) column.getType().size();
+                       : (int) column.getDataType().precision;
 
                 break;
             }
@@ -183,11 +185,13 @@ final class DITableInfo {
             case Types.SQL_FLOAT :
             case Types.SQL_DATE :
             case Types.SQL_REAL :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIME : {
                 size = 8;
 
                 break;
             }
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP : {
                 size = 12;
 
@@ -228,12 +232,12 @@ final class DITableInfo {
      */
     Integer getColCharOctLen(int i) {
 
-        int    size;
-        int    type;
-        Column column;
+        int          size;
+        int          type;
+        ColumnSchema column;
 
         column = table.getColumn(i);
-        type   = column.getType().getJDBCTypeNumber();
+        type   = column.getDataType().getJDBCTypeCode();
 
         switch (type) {
 
@@ -241,9 +245,9 @@ final class DITableInfo {
             case Types.SQL_CLOB :
             case Types.VARCHAR_IGNORECASE :
             case Types.SQL_VARCHAR : {
-                size = column.getType().size() > Integer.MAX_VALUE
+                size = column.getDataType().precision > Integer.MAX_VALUE
                        ? Integer.MAX_VALUE
-                       : (int) column.getType().size();
+                       : (int) column.getDataType().precision;
 
                 if (size == 0) {}
                 else if (size > HALF_MAX_INT) {
@@ -273,7 +277,7 @@ final class DITableInfo {
      */
     Integer getColJDBCDataType(int i) {
         return ValuePool.getInt(
-            table.getColumn(i).getType().getJDBCTypeNumber());
+            table.getColumn(i).getDataType().getJDBCTypeCode());
     }
 
     /**
@@ -283,7 +287,7 @@ final class DITableInfo {
      * @return the SQL data type name for the specified column
      */
     String getColDataTypeName(int i) {
-        return table.getColumn(i).getType().getNameString();
+        return table.getColumn(i).getDataType().getNameString();
     }
 
     /**
@@ -294,7 +298,7 @@ final class DITableInfo {
      */
     Integer getColDataTypeSub(int i) {
 
-        int type = table.getColumn(i).getType().getJDBCTypeNumber();
+        int type = table.getColumn(i).getDataType().getJDBCTypeCode();
         int sub = type == Types.VARCHAR_IGNORECASE ? Types.TYPE_SUB_IGNORECASE
                                                    : Types.TYPE_SUB_DEFAULT;
 
@@ -334,10 +338,10 @@ final class DITableInfo {
      */
     String getColIsNullable(int i) {
 
-        Column column = table.getColumn(i);
+        ColumnSchema column = table.getColumn(i);
 
         return (column.isNullable() && !column.isPrimaryKey()) ? "YES"
-                                                            : "NO";
+                                                               : "NO";
     }
 
     /**
@@ -347,7 +351,7 @@ final class DITableInfo {
      * @return the simple name of the specified column.
      */
     String getColName(int i) {
-        return table.getColumn(i).columnName.name;
+        return table.getColumn(i).getName().name;
     }
 
     /**
@@ -358,7 +362,7 @@ final class DITableInfo {
      */
     Integer getColNullability(int i) {
 
-        Column column = table.getColumn(i);
+        ColumnSchema column = table.getColumn(i);
 
         return (column.isNullable() && !column.isPrimaryKey())
                ? ValuePool.getInt(DITypeInfo.columnNullable)
@@ -376,7 +380,7 @@ final class DITableInfo {
      */
     Integer getColPrecRadix(int i) {
 
-        ti.setTypeCode(table.getColumn(i).getType().getJDBCTypeNumber());
+        ti.setTypeCode(table.getColumn(i).getDataType().getJDBCTypeCode());
 
         return ti.getNumPrecRadix();
     }
@@ -412,16 +416,16 @@ final class DITableInfo {
      * @return the fixed number of digits to the right of the decimal point
      * for exact numeric types.
      */
-    Integer getColScale(int i) {
+    Integer getColScaleOrNull(int i) {
 
-        Column column;
-        int    type;
+        ColumnSchema column;
+        int          type;
 
         column = table.getColumn(i);
-        type   = column.getType().getJDBCTypeNumber();
+        type   = column.getDataType().getJDBCTypeCode();
 
         return Types.acceptsScaleCreateParam(type)
-               ? ValuePool.getInt(column.getType().scale())
+               ? ValuePool.getInt(column.getDataType().scale)
                : null;
     }
 
@@ -466,20 +470,20 @@ final class DITableInfo {
      */
     Integer getColSize(int i) {
 
-        Column column;
-        int    type;
-        int    size;
+        ColumnSchema column;
+        int          type;
+        int          size;
 
         column = table.getColumn(i);
-        type   = column.getType().getJDBCTypeNumber();
+        type   = column.getDataType().getJDBCTypeCode();
 
         if (!Types.acceptsPrecision(type)) {
             return null;
         }
 
-        size = column.getType().size() > Integer.MAX_VALUE ? Integer.MAX_VALUE
-                                                           : (int) column
-                                                           .getType().size();
+        size = column.getDataType().precision > Integer.MAX_VALUE
+               ? Integer.MAX_VALUE
+               : (int) column.getDataType().precision;
 
         if (size > 0) {
             return ValuePool.getInt(size);
@@ -498,7 +502,7 @@ final class DITableInfo {
      */
     Integer getColSqlDataType(int i) {
 
-        ti.setTypeCode(table.getColumn(i).getType().getJDBCTypeNumber());
+        ti.setTypeCode(table.getColumn(i).getDataType().getJDBCTypeCode());
 
         return ti.getSqlDataType();
     }
@@ -511,7 +515,7 @@ final class DITableInfo {
      */
     Integer getColSqlDateTimeSub(int i) {
 
-        ti.setTypeCode(table.getColumn(i).getType().getJDBCTypeNumber());
+        ti.setTypeCode(table.getColumn(i).getDataType().getJDBCTypeCode());
 
         return ti.getSqlDateTimeSub();
     }
@@ -522,7 +526,8 @@ final class DITableInfo {
      * @return the full data source descriptor
      */
     String getDataSource() {
-        return table.getDataSource();
+        return table.isText() ? ((TextTable) table).getDataSource()
+                              : null;
     }
 
     /**
@@ -546,7 +551,7 @@ final class DITableInfo {
             case Table.TEXT_TABLE :
                 return "TEXT";
 
-            case Table.VIEW :
+            case TableBase.VIEW_TABLE :
             default :
                 return null;
         }
@@ -682,11 +687,11 @@ final class DITableInfo {
      *
      * @return the standard JDBC type of the table
      */
-    String getStandardType() {
+    String getJDBCStandardType() {
 
         switch (table.getTableType()) {
 
-            case Table.VIEW :
+            case TableBase.VIEW_TABLE :
                 return "VIEW";
 
             case Table.TEMP_TABLE :
@@ -723,7 +728,13 @@ final class DITableInfo {
      *    read semantics
      */
     Boolean isDataSourceDescending() {
-        return ValuePool.getBoolean(table.isDescDataSource());
+
+        if (table.isText()) {
+            return ((TextTable) table).isDescDataSource() ? Boolean.TRUE
+                                                          : Boolean.FALSE;
+        }
+
+        return Boolean.FALSE;
     }
 
     /**

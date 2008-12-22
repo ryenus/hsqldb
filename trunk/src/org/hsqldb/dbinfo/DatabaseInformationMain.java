@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,30 +31,36 @@
 
 package org.hsqldb.dbinfo;
 
-import org.hsqldb.Column;
+import java.lang.reflect.Method;
+
+import org.hsqldb.ColumnSchema;
 import org.hsqldb.Constraint;
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
-import org.hsqldb.SchemaManager;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
+import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
+import org.hsqldb.TableBase;
 import org.hsqldb.Types;
-import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.GrantConstants;
+import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 
 /* $Id$ */
@@ -76,7 +82,19 @@ import org.hsqldb.types.Type;
  */
 
 /**
- * Produces a collection of tables that form the system data dictionary. <p>
+ * Provides definitions for a few of the SQL Standard Schemata views that are
+ * supported by HSQLDB.<p>
+ *
+ * Provides definitions for some of HSQLDB's additional system view.
+ *
+ * The views supported in this class are exclusively those that are needed
+ * to build the ResultSet objects that are returned by JDBC DatabaseMetaData
+ * calls.<p>
+ *
+ * The definitions for the rest of SQL standard and HSQLDB specific system views
+ * are provided by DatabaseInformationFull, which extends this class. <p>
+ *
+ * Produces a collection of views that form the system data dictionary. <p>
  *
  * Implementations use a group of arrays of equal size to store various
  * attributes or cached instances of system tables.<p>
@@ -137,22 +155,28 @@ import org.hsqldb.types.Type;
  * in that slot, the table contents are cleared and rebuilt. <p>
  *
  * (fredt@users) <p>
- * @author boucherb@users
- * @version 1.8.x
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
 
-    // HsqlName objects for the system tables
+    static Type CARDINAL_NUMBER = SqlInvariants.CARDINAL_NUMBER;
+    static Type YES_OR_NO       = SqlInvariants.YES_OR_NO;
+    static Type CHARACTER_DATA  = SqlInvariants.CHARACTER_DATA;
+    static Type SQL_IDENTIFIER  = SqlInvariants.SQL_IDENTIFIER;
+    static Type TIME_STAMP      = SqlInvariants.TIME_STAMP;
 
     /** The HsqlNames of the system tables. */
     protected static final HsqlName[] sysTableHsqlNames;
 
     /** Current user for each cached system table */
-    protected final long[] sysTableSessions = new long[sysTableNames.length];
+    protected final HsqlName[] sysTableSessions =
+        new HsqlName[sysTableNames.length];
 
     /** true if the contents of a cached system table depends on the session */
-    protected final boolean[] sysTableSessionDependent =
+    protected static final boolean[] sysTableSessionDependent =
         new boolean[sysTableNames.length];
 
     /** cache of system tables */
@@ -160,12 +184,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /** Set: { names of system tables that are not to be cached } */
     protected static final HashSet nonCachedTablesSet;
-
-    /**
-     * Map: simple <code>Column</code> name <code>String</code> object =>
-     * <code>HsqlName</code> object.
-     */
-    protected static final HashMap columnNameMap;
 
     /**
      * The <code>Session</code> object under consideration in the current
@@ -181,8 +199,10 @@ class DatabaseInformationMain extends DatabaseInformation {
     /** Provides naming support. */
     protected DINameSpace ns;
 
+    /** Provides SQL function/procedure reporting support. */
+    protected DIProcedureInfo pi;
+
     static {
-        columnNameMap      = new HashMap();
         nonCachedTablesSet = new HashSet();
         sysTableHsqlNames  = new HsqlName[sysTableNames.length];
 
@@ -190,7 +210,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             sysTableHsqlNames[i] =
                 HsqlNameManager.newInfoSchemaTableHsqlName(sysTableNames[i]);
             sysTableHsqlNames[i].schema =
-                SchemaManager.INFORMATION_SCHEMA_HSQLNAME;
+                SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
+            sysTableSessionDependent[i] = true;
         }
 
         // build the set of non-cached tables
@@ -232,72 +253,17 @@ class DatabaseInformationMain extends DatabaseInformation {
         init();
     }
 
-    /**
-     * Adds a <code>Column</code> object with the specified name, data type,
-     * data size and nullability to the specified <code>Table</code>
-     * object. <p>
-     *
-     * @param t the table to which to add the specified column
-     * @param name the name of the column
-     * @param type the data type of the column
-     * @param size the precision/length of the column
-     * @param nullable <code>true</code> if the column is to allow null values,
-     *      else <code>false</code>
-     * @throws HsqlException if a problem occurs when adding the
-     *      column (e.g. duplicate name)
-     */
-    protected final void addColumn(Table t, String name, int type, int size,
-                                   boolean nullable) throws HsqlException {
+    protected final void addColumn(Table t, String name,
+                                   Type type) throws HsqlException {
 
-        HsqlName cn;
-        Column   c;
+        HsqlName     cn;
+        ColumnSchema c;
 
-        cn = (HsqlName) columnNameMap.get(name);
-
-        if (cn == null) {
-            cn = database.nameManager.newInfoSchemaColumnHsqlName(name,
-                    t.getName());
-
-            columnNameMap.put(name, cn);
-        }
-
-        Type typeObject = Type.getType(type, 0, size, 0);
-
-        c = new Column(cn, typeObject, nullable, false, null);
+        cn = database.nameManager.newInfoSchemaColumnHsqlName(name,
+                t.getName());
+        c = new ColumnSchema(cn, type, true, false, null);
 
         t.addColumn(c);
-    }
-
-    /**
-     * Adds a <code>Column</code> object with the specified name, data type
-     * and nullability to the specified <code>Table</code> object. <p>
-     *
-     * @param t the table to which to add the specified column
-     * @param name the name of the column
-     * @param type the data type of the column
-     * @param nullable <code>true</code> if the column is to allow null values,
-     *      else <code>false</code>
-     * @throws HsqlException if a problem occurs when adding the
-     *      column (e.g. duplicate name)
-     */
-    protected final void addColumn(Table t, String name, int type,
-                                   boolean nullable) throws HsqlException {
-        addColumn(t, name, type, 0, nullable);
-    }
-
-    /**
-     * Adds a nullable <code>Column</code> object with the specified name and
-     * data type to the specified <code>Table</code> object. <p>
-     *
-     * @param t the table to which to add the specified column
-     * @param name the name of the column
-     * @param type the data type of the column
-     * @throws HsqlException if a problem occurs when adding the
-     *      column (e.g. duplicate name)
-     */
-    protected final void addColumn(Table t, String name,
-                                   int type) throws HsqlException {
-        addColumn(t, name, type, true);
     }
 
     /**
@@ -331,7 +297,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 t.clearAllData(session);
             }
 
-            sysTableSessions[i] = -1;
+            sysTableSessions[i] = null;
         }
 
         isDirty = false;
@@ -384,14 +350,11 @@ class DatabaseInformationMain extends DatabaseInformation {
 //            fully comprehensive, security aware and accessible to all users.
         switch (tableIndex) {
 
+            case SYSTEM_ALLTYPEINFO :
+                return SYSTEM_ALLTYPEINFO();
+
             case SYSTEM_BESTROWIDENTIFIER :
                 return SYSTEM_BESTROWIDENTIFIER();
-
-            case SYSTEM_CATALOGS :
-                return SYSTEM_CATALOGS();
-
-            case SYSTEM_COLUMNPRIVILEGES :
-                return SYSTEM_COLUMNPRIVILEGES();
 
             case SYSTEM_COLUMNS :
                 return SYSTEM_COLUMNS();
@@ -414,9 +377,6 @@ class DatabaseInformationMain extends DatabaseInformation {
             case SYSTEM_SCHEMAS :
                 return SYSTEM_SCHEMAS();
 
-            case SYSTEM_TABLEPRIVILEGES :
-                return SYSTEM_TABLEPRIVILEGES();
-
             case SYSTEM_TABLES :
                 return SYSTEM_TABLES();
 
@@ -429,15 +389,17 @@ class DatabaseInformationMain extends DatabaseInformation {
             case SYSTEM_USERS :
                 return SYSTEM_USERS();
 
-            // required by SYSTEM_TYPEINFRO
-            case SYSTEM_ALLTYPEINFO :
-                return SYSTEM_ALLTYPEINFO();
+            case COLUMN_PRIVILEGES :
+                return COLUMN_PRIVILEGES();
 
-            case SYSTEM_CHECK_CONSTRAINTS :
-                return SYSTEM_CHECK_CONSTRAINTS();
+            case SEQUENCES :
+                return SEQUENCES();
 
-            case SYSTEM_SEQUENCES :
-                return SYSTEM_SEQUENCES();
+            case TABLE_PRIVILEGES :
+                return TABLE_PRIVILEGES();
+
+            case INFORMATION_SCHEMA_CATALOG_NAME :
+                return INFORMATION_SCHEMA_CATALOG_NAME();
 
             default :
                 return null;
@@ -453,44 +415,11 @@ class DatabaseInformationMain extends DatabaseInformation {
     protected final void init() throws HsqlException {
 
         ns = new DINameSpace(database);
+        pi = new DIProcedureInfo(ns);
 
         // flag the Session-dependent cached tables
-        sysTableSessionDependent[SYSTEM_ALIASES] =
-            sysTableSessionDependent[SYSTEM_CLASSPRIVILEGES] =
-            sysTableSessionDependent[SYSTEM_BESTROWIDENTIFIER] =
-            sysTableSessionDependent[SYSTEM_COLUMNPRIVILEGES] =
-            sysTableSessionDependent[SYSTEM_COLUMNS] =
-            sysTableSessionDependent[SYSTEM_CROSSREFERENCE] =
-            sysTableSessionDependent[SYSTEM_INDEXINFO] =
-            sysTableSessionDependent[SYSTEM_PRIMARYKEYS] =
-            sysTableSessionDependent[SYSTEM_PROCEDURES] =
-            sysTableSessionDependent[SYSTEM_PROCEDURECOLUMNS] =
-            sysTableSessionDependent[SYSTEM_TABLEPRIVILEGES] =
-            sysTableSessionDependent[SYSTEM_TABLES] =
-            sysTableSessionDependent[SYSTEM_TRIGGERCOLUMNS] =
-            sysTableSessionDependent[SYSTEM_TRIGGERS] =
-            sysTableSessionDependent[SYSTEM_VIEWS] =
-            sysTableSessionDependent[SYSTEM_TEXTTABLES] =
-            sysTableSessionDependent[SYSTEM_CHECK_CONSTRAINTS] =
-            sysTableSessionDependent[SYSTEM_SEQUENCES] =
-            sysTableSessionDependent[SYSTEM_USAGE_PRIVILEGES] =
-            sysTableSessionDependent[SYSTEM_TABLE_CONSTRAINTS] =
-            sysTableSessionDependent[SYSTEM_CHECK_COLUMN_USAGE] =
-            sysTableSessionDependent[SYSTEM_CHECK_ROUTINE_USAGE] =
-            sysTableSessionDependent[SYSTEM_CHECK_TABLE_USAGE] =
-            sysTableSessionDependent[SYSTEM_VIEW_COLUMN_USAGE] =
-            sysTableSessionDependent[SYSTEM_VIEW_TABLE_USAGE] =
-            sysTableSessionDependent[SYSTEM_VIEW_ROUTINE_USAGE] =
-            sysTableSessionDependent[SYSTEM_AUTHORIZATIONS] = true;
-
         Table t;
 
-/*
-        Session oldSession = session;
-
-        session = database.sessionManager.getSysSession(
-            database.schemaManager.INFORMATION_SCHEMA);
-*/
         for (int i = 0; i < sysTables.length; i++) {
             t = sysTables[i] = generateTable(i);
 
@@ -506,13 +435,20 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         for (int i = 0; i < sysTableHsqlNames.length; i++) {
             if (sysTables[i] != null) {
-                gm.grant(GranteeManager.PUBLIC_ROLE_NAME, sysTables[i], right,
-                         null, false);
+                gm.grantSystemToPublic(sysTables[i], right);
             }
         }
-/*
-        session = oldSession;
-*/
+
+        right = Right.fullRights;
+
+        gm.grantSystemToPublic(SqlInvariants.YES_OR_NO, right);
+        gm.grantSystemToPublic(SqlInvariants.TIME_STAMP, right);
+        gm.grantSystemToPublic(SqlInvariants.CARDINAL_NUMBER, right);
+        gm.grantSystemToPublic(SqlInvariants.CHARACTER_DATA, right);
+        gm.grantSystemToPublic(SqlInvariants.SQL_CHARACTER, right);
+        gm.grantSystemToPublic(SqlInvariants.SQL_IDENTIFIER_CHARSET, right);
+        gm.grantSystemToPublic(SqlInvariants.SQL_IDENTIFIER, right);
+        gm.grantSystemToPublic(SqlInvariants.SQL_TEXT, right);
     }
 
     /**
@@ -526,7 +462,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      */
     protected final boolean isAccessibleTable(Table table)
     throws HsqlException {
-        return session.getUser().isAccessible(table);
+        return session.getGrantee().isAccessible(table);
     }
 
     /**
@@ -589,11 +525,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             cacheClear();
         }
 
-        long    oldSessionId = sysTableSessions[tableIndex];
-        boolean tableValid   = oldSessionId != -1;
+        HsqlName oldUser    = sysTableSessions[tableIndex];
+        boolean  tableValid = oldUser != null;
 
         // user has changed and table is user-dependent
-        if (session.getId() != oldSessionId
+        if (session.getGrantee().getName() != oldUser
                 && sysTableSessionDependent[tableIndex]) {
             tableValid = false;
         }
@@ -610,13 +546,14 @@ class DatabaseInformationMain extends DatabaseInformation {
         // fredt - clear the contents of table and set new User
         t.clearAllData(session);
 
-        sysTableSessions[tableIndex] = session.getId();
+        sysTableSessions[tableIndex] = session.getGrantee().getName();
 
         // match and if found, generate.
         t = generateTable(tableIndex);
 
-        // t will be null at this point, if the implementation
-        // does not support the particular table
+        // t will be null at this point if the implementation
+        // does not support the particular table.
+        //
         // send back what we found or generated
         return t;
     }
@@ -753,19 +690,19 @@ class DatabaseInformationMain extends DatabaseInformation {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_BESTROWIDENTIFIER]);
 
-            addColumn(t, "SCOPE", Types.SQL_SMALLINT, false);            // not null
-            addColumn(t, "COLUMN_NAME", Types.SQL_VARCHAR, false);       // not null
-            addColumn(t, "DATA_TYPE", Types.SQL_SMALLINT, false);        // not null
-            addColumn(t, "TYPE_NAME", Types.SQL_VARCHAR, 32, false);     // not null
-            addColumn(t, "COLUMN_SIZE", Types.SQL_INTEGER);
-            addColumn(t, "BUFFER_LENGTH", Types.SQL_INTEGER);
-            addColumn(t, "DECIMAL_DIGITS", Types.SQL_SMALLINT);
-            addColumn(t, "PSEUDO_COLUMN", Types.SQL_SMALLINT, false);    // not null
-            addColumn(t, "TABLE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_NAME", Types.SQL_VARCHAR, false);        // not null
-            addColumn(t, "NULLABLE", Types.SQL_SMALLINT, false);         // not null
-            addColumn(t, "IN_KEY", Types.SQL_BOOLEAN, false);            // not null
+            addColumn(t, "SCOPE", Type.SQL_SMALLINT);            // not null
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);         // not null
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);        // not null
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);           // not null
+            addColumn(t, "COLUMN_SIZE", Type.SQL_INTEGER);
+            addColumn(t, "BUFFER_LENGTH", Type.SQL_INTEGER);
+            addColumn(t, "DECIMAL_DIGITS", Type.SQL_SMALLINT);
+            addColumn(t, "PSEUDO_COLUMN", Type.SQL_SMALLINT);    // not null
+            addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);          // not null
+            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);         // not null
+            addColumn(t, "IN_KEY", Type.SQL_BOOLEAN);            // not null
 
             // order: SCOPE
             // for unique:  TABLE_CAT, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME
@@ -776,6 +713,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         // calculated column values
         Integer scope;           // { temp, transaction, session }
@@ -830,6 +770,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
+            // todo - requires access to the actual columns
             if (table.isView() || !isAccessibleTable(table)) {
                 continue;
             }
@@ -843,153 +784,36 @@ class DatabaseInformationMain extends DatabaseInformation {
             ti.setTable(table);
 
             inKey = ValuePool.getBoolean(table.isBestRowIdentifiersStrict());
-            tableCatalog = ns.getCatalogName();
+            tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
-            tableName    = ti.getName();
-            scope        = ti.getBRIScope();
-            pseudo       = ti.getBRIPseudo();
+            tableName    = table.getName().name;
+
+            Type[] types = table.getColumnTypes();
+
+            scope  = ti.getBRIScope();
+            pseudo = ti.getBRIPseudo();
 
             for (int i = 0; i < cols.length; i++) {
+                ColumnSchema column = table.getColumn(i);
+
                 row                  = t.getEmptyRowData();
                 row[iscope]          = scope;
-                row[icolumn_name]    = ti.getColName(i);
-                row[idata_type]      = ti.getColJDBCDataType(i);
-                row[itype_name]      = ti.getColDataTypeName(i);
-                row[icolumn_size]    = ti.getColSize(i);
-                row[ibuffer_length]  = ti.getColBufLen(i);
-                row[idecimal_digits] = ti.getColScale(i);
+                row[icolumn_name]    = column.getName().name;
+                row[idata_type] = ValuePool.getInt(types[i].getJDBCTypeCode());
+                row[itype_name]      = types[i].getNameString();
+                row[icolumn_size]    = types[i].getJDBCPrecision();
+                row[ibuffer_length]  = null;
+                row[idecimal_digits] = types[i].getJDBCScale();
                 row[ipseudo_column]  = pseudo;
                 row[itable_cat]      = tableCatalog;
                 row[itable_schem]    = tableSchema;
                 row[itable_name]     = tableName;
-                row[inullable]       = ti.getColNullability(i);
+                row[inullable]       = column.getNullability();
                 row[iinKey]          = inKey;
 
-                t.insertSys(row);
+                t.insertSys(store, row);
             }
         }
-
-        t.setDataReadOnly(true);
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object naming the accessible catalogs
-     * defined within this database. <p>
-     *
-     * Each row is a catalog name description with the following column: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * TABLE_CAT   VARCHAR   catalog name
-     * </pre> <p>
-     *
-     * @return a <code>Table</code> object naming the accessible
-     *        catalogs defined within this database
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    final Table SYSTEM_CATALOGS() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_CATALOGS];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_CATALOGS]);
-
-            addColumn(t, "TABLE_CAT", Types.SQL_VARCHAR, false);    // not null
-
-            // order:  TABLE_CAT
-            // true PK
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
-
-            return t;
-        }
-
-        Object[] row;
-        Iterator catalogs;
-
-        catalogs = ns.iterateCatalogNames();
-
-        while (catalogs.hasNext()) {
-            row    = t.getEmptyRowData();
-            row[0] = (String) catalogs.next();
-
-            t.insertSys(row);
-        }
-
-        t.setDataReadOnly(true);
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the visible
-     * access rights for all visible columns of all accessible
-     * tables defined within this database.<p>
-     *
-     * Each row is a column privilege description with the following
-     * columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * TABLE_CAT    VARCHAR   table catalog
-     * TABLE_SCHEM  VARCHAR   table schema
-     * TABLE_NAME   VARCHAR   table name
-     * COLUMN_NAME  VARCHAR   column name
-     * GRANTOR      VARCHAR   grantor of access
-     * GRANTEE      VARCHAR   grantee of access
-     * PRIVILEGE    VARCHAR   name of access
-     * IS_GRANTABLE VARCHAR   grantable?: "YES" - grant to others, else "NO"
-     * </pre>
-     *
-     * <b>Note:</b> As of 1.7.2, HSQLDB does not support column level
-     * privileges. However, it does support table-level privileges, so they
-     * are reflected here.  That is, the content of this table is equivalent
-     * to a projection of SYSTEM_TABLEPRIVILEGES and SYSTEM_COLUMNS joined by
-     * full table identifier. <p>
-     *
-     * @return a <code>Table</code> object describing the visible
-     *        access rights for all visible columns of
-     *        all accessible tables defined within this
-     *        database
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    final Table SYSTEM_COLUMNPRIVILEGES() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_COLUMNPRIVILEGES];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_COLUMNPRIVILEGES]);
-
-            addColumn(t, "TABLE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_NAME", Types.SQL_VARCHAR, false);         // not null
-            addColumn(t, "COLUMN_NAME", Types.SQL_VARCHAR, false);        // not null
-            addColumn(t, "GRANTOR", Types.SQL_VARCHAR, false);            // not null
-            addColumn(t, "GRANTEE", Types.SQL_VARCHAR, false);            // not null
-            addColumn(t, "PRIVILEGE", Types.SQL_VARCHAR, 10, false);      // not null
-            addColumn(t, "IS_GRANTABLE", Types.SQL_VARCHAR, 3, false);    // not null
-
-            // order: COLUMN_NAME, PRIVILEGE
-            // for unique: GRANTEE, GRANTOR, TABLE_NAME, TABLE_SCHEM, TABLE_CAT
-            // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
-                3, 6, 5, 4, 2, 1, 0
-            }, false);
-
-            return t;
-        }
-
-        Result rs;
-
-        rs = session.executeDirectStatement(
-            "select a.TABLE_CAT, a.TABLE_SCHEM, a.TABLE_NAME, b.COLUMN_NAME, "
-            + "a.GRANTOR, a.GRANTEE, a.PRIVILEGE, a.IS_GRANTABLE "
-            + "from  INFORMATION_SCHEMA.SYSTEM_TABLEPRIVILEGES a, "
-            + "INFORMATION_SCHEMA.SYSTEM_COLUMNS b "
-            + "where a.TABLE_NAME = b.TABLE_NAME and "
-            + "a.TABLE_SCHEM = b.TABLE_SCHEM;");
-
-        t.insertSys(rs);
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -1042,38 +866,38 @@ class DatabaseInformationMain extends DatabaseInformation {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_COLUMNS]);
 
-            addColumn(t, "TABLE_CAT", Types.SQL_VARCHAR);                  // 0
-            addColumn(t, "TABLE_SCHEM", Types.SQL_VARCHAR);                // 1
-            addColumn(t, "TABLE_NAME", Types.SQL_VARCHAR, false);          // not null
-            addColumn(t, "COLUMN_NAME", Types.SQL_VARCHAR, false);         // not null
-            addColumn(t, "DATA_TYPE", Types.SQL_SMALLINT, false);          // not null
-            addColumn(t, "TYPE_NAME", Types.SQL_VARCHAR, 32, false);       // not null
-            addColumn(t, "COLUMN_SIZE", Types.SQL_INTEGER);                // 6
-            addColumn(t, "BUFFER_LENGTH", Types.SQL_INTEGER);              // 7
-            addColumn(t, "DECIMAL_DIGITS", Types.SQL_INTEGER);             // 8
-            addColumn(t, "NUM_PREC_RADIX", Types.SQL_INTEGER);             // 9
-            addColumn(t, "NULLABLE", Types.SQL_INTEGER, false);            // not null
-            addColumn(t, "REMARKS", Types.SQL_VARCHAR);                    // 11
-            addColumn(t, "COLUMN_DEF", Types.SQL_VARCHAR);                 // 12
-            addColumn(t, "SQL_DATA_TYPE", Types.SQL_INTEGER);              // 13
-            addColumn(t, "SQL_DATETIME_SUB", Types.SQL_INTEGER);           // 14
-            addColumn(t, "CHAR_OCTET_LENGTH", Types.SQL_INTEGER);          // 15
-            addColumn(t, "ORDINAL_POSITION", Types.SQL_INTEGER, false);    // not null
-            addColumn(t, "IS_NULLABLE", Types.SQL_VARCHAR, 3, false);      // not null
-            addColumn(t, "SCOPE_CATLOG", Types.SQL_VARCHAR);               // 18
-            addColumn(t, "SCOPE_SCHEMA", Types.SQL_VARCHAR);               // 19
-            addColumn(t, "SCOPE_TABLE", Types.SQL_VARCHAR);                // 20
-            addColumn(t, "SOURCE_DATA_TYPE", Types.SQL_VARCHAR);           // 21
+            addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);              // 0
+            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);            // 1
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);             // not null
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);            // not null
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);           // not null
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);              // not null
+            addColumn(t, "COLUMN_SIZE", Type.SQL_INTEGER);          // 6
+            addColumn(t, "BUFFER_LENGTH", Type.SQL_INTEGER);        // 7
+            addColumn(t, "DECIMAL_DIGITS", Type.SQL_INTEGER);       // 8
+            addColumn(t, "NUM_PREC_RADIX", Type.SQL_INTEGER);       // 9
+            addColumn(t, "NULLABLE", Type.SQL_INTEGER);             // not null
+            addColumn(t, "REMARKS", CHARACTER_DATA);                // 11
+            addColumn(t, "COLUMN_DEF", CHARACTER_DATA);             // 12
+            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);        // 13
+            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);     // 14
+            addColumn(t, "CHAR_OCTET_LENGTH", Type.SQL_INTEGER);    // 15
+            addColumn(t, "ORDINAL_POSITION", Type.SQL_INTEGER);     // not null
+            addColumn(t, "IS_NULLABLE", YES_OR_NO);                 // not null
+            addColumn(t, "SCOPE_CATLOG", SQL_IDENTIFIER);           // 18
+            addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);           // 19
+            addColumn(t, "SCOPE_TABLE", SQL_IDENTIFIER);            // 20
+            addColumn(t, "SOURCE_DATA_TYPE", SQL_IDENTIFIER);       // 21
 
             // ----------------------------------------------------------------
             // JDBC 4.0 - added Mustang b86
             // ----------------------------------------------------------------
-            addColumn(t, "IS_AUTOINCREMENT", Types.SQL_BOOLEAN, false);    // not null
+            addColumn(t, "IS_AUTOINCREMENT", Type.SQL_BOOLEAN);     // not null
 
             // ----------------------------------------------------------------
             // HSQLDB-specific
             // ----------------------------------------------------------------
-            addColumn(t, "TYPE_SUB", Types.SQL_INTEGER, false);            // not null
+            addColumn(t, "TYPE_SUB", Type.SQL_INTEGER);             // not null
 
             // order: TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION
             // added for unique: TABLE_CAT
@@ -1084,6 +908,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         // calculated column values
         String tableCatalog;
@@ -1135,33 +962,40 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
+            // todo - requires access to the actual columns
             if (!isAccessibleTable(table)) {
                 continue;
             }
 
             ti.setTable(table);
 
-            tableCatalog = ns.getCatalogName();
+            tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
             tableName    = ti.getName();
             columnCount  = table.getColumnCount();
 
+            Type[] types = table.getColumnTypes();
+
             for (int i = 0; i < columnCount; i++) {
-                row                     = t.getEmptyRowData();
+                ColumnSchema column = table.getColumn(i);
+
+                row = t.getEmptyRowData();
+
+                //
                 row[itable_cat]         = tableCatalog;
                 row[itable_schem]       = tableSchema;
                 row[itable_name]        = tableName;
-                row[icolumn_name]       = ti.getColName(i);
-                row[idata_type]         = ti.getColJDBCDataType(i);
-                row[itype_name]         = ti.getColDataTypeName(i);
-                row[icolumn_size]       = ti.getColSize(i);
-                row[ibuffer_length]     = ti.getColBufLen(i);
-                row[idecimal_digits]    = ti.getColScale(i);
+                row[icolumn_name]       = column.getName().name;
+                row[idata_type]         = types[i].getJDBCTypeCode();
+                row[itype_name]         = types[i].getNameString();
+                row[icolumn_size]       = types[i].getJDBCPrecision();
+                row[ibuffer_length]     = null;
+                row[idecimal_digits]    = types[i].getJDBCScale();
                 row[inum_prec_radix]    = ti.getColPrecRadix(i);
-                row[inullable]          = ti.getColNullability(i);
+                row[inullable]          = column.getNullability();
                 row[iremark]            = ti.getColRemarks(i);
-                row[icolumn_def]        = ti.getColDefault(i);
-                row[isql_data_type]     = ti.getColSqlDataType(i);
+                row[icolumn_def]        = column.getDefaultDDL();
+                row[isql_data_type]     = types[i].getJDBCTypeCode();
                 row[isql_datetime_sub]  = ti.getColSqlDateTimeSub(i);
                 row[ichar_octet_length] = ti.getColCharOctLen(i);
                 row[iordinal_position]  = ValuePool.getInt(i + 1);
@@ -1173,11 +1007,9 @@ class DatabaseInformationMain extends DatabaseInformation {
                 // HSQLDB-specific
                 row[itype_sub] = ti.getColDataTypeSub(i);
 
-                t.insertSys(row);
+                t.insertSys(store, row);
             }
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -1223,20 +1055,20 @@ class DatabaseInformationMain extends DatabaseInformation {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_CROSSREFERENCE]);
 
-            addColumn(t, "PKTABLE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "PKTABLE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "PKTABLE_NAME", Types.SQL_VARCHAR, false);      // not null
-            addColumn(t, "PKCOLUMN_NAME", Types.SQL_VARCHAR, false);     // not null
-            addColumn(t, "FKTABLE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "FKTABLE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "FKTABLE_NAME", Types.SQL_VARCHAR, false);      // not null
-            addColumn(t, "FKCOLUMN_NAME", Types.SQL_VARCHAR, false);     // not null
-            addColumn(t, "KEY_SEQ", Types.SQL_SMALLINT, false);          // not null
-            addColumn(t, "UPDATE_RULE", Types.SQL_SMALLINT, false);      // not null
-            addColumn(t, "DELETE_RULE", Types.SQL_SMALLINT, false);      // not null
-            addColumn(t, "FK_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "PK_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "DEFERRABILITY", Types.SQL_SMALLINT, false);    // not null
+            addColumn(t, "PKTABLE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "PKTABLE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "PKTABLE_NAME", SQL_IDENTIFIER);        // not null
+            addColumn(t, "PKCOLUMN_NAME", SQL_IDENTIFIER);       // not null
+            addColumn(t, "FKTABLE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "FKTABLE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "FKTABLE_NAME", SQL_IDENTIFIER);        // not null
+            addColumn(t, "FKCOLUMN_NAME", SQL_IDENTIFIER);       // not null
+            addColumn(t, "KEY_SEQ", Type.SQL_SMALLINT);          // not null
+            addColumn(t, "UPDATE_RULE", Type.SQL_SMALLINT);      // not null
+            addColumn(t, "DELETE_RULE", Type.SQL_SMALLINT);      // not null
+            addColumn(t, "FK_NAME", SQL_IDENTIFIER);
+            addColumn(t, "PK_NAME", SQL_IDENTIFIER);
+            addColumn(t, "DEFERRABILITY", Type.SQL_SMALLINT);    // not null
 
             // order: FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, and KEY_SEQ
             // added for unique: FK_NAME
@@ -1248,6 +1080,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         // calculated column values
         String  pkTableCatalog;
@@ -1315,7 +1150,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (!isAccessibleTable(table)) {
+            if (table.isView() || !isAccessibleTable(table)) {
                 continue;
             }
 
@@ -1325,7 +1160,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             for (int i = 0; i < constraintCount; i++) {
                 constraint = (Constraint) constraints[i];
 
-                if (constraint.getType() == Constraint.FOREIGN_KEY
+                if (constraint.getConstraintType() == Constraint.FOREIGN_KEY
                         && isAccessibleTable(constraint.getRef())) {
                     fkConstraintsList.add(constraint);
                 }
@@ -1348,9 +1183,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             fkInfo.setTable(fkTable);
 
             fkTableName    = fkInfo.getName();
-            pkTableCatalog = ns.getCatalogName();
+            pkTableCatalog = pkTable.getCatalogName().name;
             pkTableSchema  = pkTable.getSchemaName().name;
-            fkTableCatalog = ns.getCatalogName();
+            fkTableCatalog = fkTable.getCatalogName().name;
             fkTableSchema  = fkTable.getSchemaName().name;
             mainCols       = constraint.getMainColumns();
             refCols        = constraint.getRefColumns();
@@ -1383,11 +1218,9 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[ipk_name]        = pkName;
                 row[ideferrability]  = deferrability;
 
-                t.insertSys(row);
+                t.insertSys(store, row);
             }
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -1431,32 +1264,35 @@ class DatabaseInformationMain extends DatabaseInformation {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_INDEXINFO]);
 
             // JDBC
-            addColumn(t, "TABLE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_NAME", Types.SQL_VARCHAR, false);           // NOT NULL
-            addColumn(t, "NON_UNIQUE", Types.SQL_BOOLEAN, false);           // NOT NULL
-            addColumn(t, "INDEX_QUALIFIER", Types.SQL_VARCHAR);
-            addColumn(t, "INDEX_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "TYPE", Types.SQL_SMALLINT, false);                // NOT NULL
-            addColumn(t, "ORDINAL_POSITION", Types.SQL_SMALLINT, false);    // NOT NULL
-            addColumn(t, "COLUMN_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "ASC_OR_DESC", Types.SQL_VARCHAR, 1, true);
-            addColumn(t, "CARDINALITY", Types.SQL_INTEGER);
-            addColumn(t, "PAGES", Types.SQL_INTEGER);
-            addColumn(t, "FILTER_CONDITION", Types.SQL_VARCHAR);
+            addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);             // NOT NULL
+            addColumn(t, "NON_UNIQUE", Type.SQL_BOOLEAN);           // NOT NULL
+            addColumn(t, "INDEX_QUALIFIER", SQL_IDENTIFIER);
+            addColumn(t, "INDEX_NAME", SQL_IDENTIFIER);
+            addColumn(t, "TYPE", Type.SQL_SMALLINT);                // NOT NULL
+            addColumn(t, "ORDINAL_POSITION", Type.SQL_SMALLINT);    // NOT NULL
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);
+            addColumn(t, "ASC_OR_DESC", CHARACTER_DATA);
+            addColumn(t, "CARDINALITY", Type.SQL_INTEGER);
+            addColumn(t, "PAGES", Type.SQL_INTEGER);
+            addColumn(t, "FILTER_CONDITION", CHARACTER_DATA);
 
             // HSQLDB extension
-            addColumn(t, "ROW_CARDINALITY", Types.SQL_INTEGER);
+            addColumn(t, "ROW_CARDINALITY", Type.SQL_INTEGER);
 
             // order: NON_UNIQUE, TYPE, INDEX_NAME, and ORDINAL_POSITION.
             // added for unique: INDEX_QUALIFIER, TABLE_NAME
             // false PK, as INDEX_QUALIFIER may be null
             t.createPrimaryKey(null, new int[] {
-                3, 6, 5, 7, 4, 2
+                3, 6, 5, 7, 4, 2, 1
             }, false);
 
             return t;
         }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         // calculated column values
         String  tableCatalog;
@@ -1520,7 +1356,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             ti.setTable(table);
 
-            tableCatalog = ns.getCatalogName();
+            tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
             tableName    = ti.getName();
 
@@ -1542,7 +1378,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 indexName      = ti.getIndexName(i);
                 nonUnique      = ti.isIndexNonUnique(i);
                 cardinality    = ti.getIndexCardinality(i);
-                pages          = ValuePool.getInt(0);
+                pages          = ValuePool.INTEGER_0;
                 rowCardinality = ti.getIndexRowCardinality(i);
                 cols           = ti.getIndexColumns(i);
                 indexType      = ti.getIndexType(i);
@@ -1565,12 +1401,10 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row[irow_cardinality]  = rowCardinality;
                     row[ifilter_condition] = filterCondition;
 
-                    t.insertSys(row);
+                    t.insertSys(store, row);
                 }
             }
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -1604,12 +1438,12 @@ class DatabaseInformationMain extends DatabaseInformation {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_PRIMARYKEYS]);
 
-            addColumn(t, "TABLE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_NAME", Types.SQL_VARCHAR, false);     // not null
-            addColumn(t, "COLUMN_NAME", Types.SQL_VARCHAR, false);    // not null
-            addColumn(t, "KEY_SEQ", Types.SQL_SMALLINT, false);       // not null
-            addColumn(t, "PK_NAME", Types.SQL_VARCHAR);
+            addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);     // not null
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);    // not null
+            addColumn(t, "KEY_SEQ", Type.SQL_SMALLINT);     // not null
+            addColumn(t, "PK_NAME", SQL_IDENTIFIER);
 
             // order: COLUMN_NAME
             // added for unique: TABLE_NAME, TABLE_SCHEM, TABLE_CAT
@@ -1620,6 +1454,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         // calculated column values
         String tableCatalog;
@@ -1663,7 +1500,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             }
 
             constraint     = table.getPrimaryConstraint();
-            tableCatalog   = ns.getCatalogName();
+            tableCatalog   = table.getCatalogName().name;
             tableSchema    = table.getSchemaName().name;
             tableName      = table.getName().name;
             primaryKeyName = constraint.getName().name;
@@ -1675,15 +1512,13 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[itable_cat]   = tableCatalog;
                 row[itable_schem] = tableSchema;
                 row[itable_name]  = tableName;
-                row[icolumn_name] = table.getColumn(cols[j]).columnName.name;
+                row[icolumn_name] = table.getColumn(cols[j]).getName().name;
                 row[ikey_seq]     = ValuePool.getInt(j + 1);
                 row[ipk_name]     = primaryKeyName;
 
-                t.insertSys(row);
+                t.insertSys(store, row);
             }
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -1774,35 +1609,35 @@ class DatabaseInformationMain extends DatabaseInformation {
             // ----------------------------------------------------------------
             // required
             // ----------------------------------------------------------------
-            addColumn(t, "PROCEDURE_CAT", Types.SQL_VARCHAR);              // 0
-            addColumn(t, "PROCEDURE_SCHEM", Types.SQL_VARCHAR);            // 1
-            addColumn(t, "PROCEDURE_NAME", Types.SQL_VARCHAR, false);      // not null
-            addColumn(t, "COLUMN_NAME", Types.SQL_VARCHAR, false);         // not null
-            addColumn(t, "COLUMN_TYPE", Types.SQL_SMALLINT, false);        // not null
-            addColumn(t, "DATA_TYPE", Types.SQL_SMALLINT, false);          // not null
-            addColumn(t, "TYPE_NAME", Types.SQL_VARCHAR, 32, false);       // not null
-            addColumn(t, "PRECISION", Types.SQL_INTEGER);                  // 7
-            addColumn(t, "LENGTH", Types.SQL_INTEGER);                     // 8
-            addColumn(t, "SCALE", Types.SQL_SMALLINT);                     // 9
-            addColumn(t, "RADIX", Types.SQL_SMALLINT);                     // 10
-            addColumn(t, "NULLABLE", Types.SQL_SMALLINT, false);           // not null
-            addColumn(t, "REMARKS", Types.SQL_VARCHAR);                    // 12
+            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);          // 0
+            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);        // 1
+            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);         // not null
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);            // not null
+            addColumn(t, "COLUMN_TYPE", Type.SQL_SMALLINT);         // not null
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);           // not null
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);              // not null
+            addColumn(t, "PRECISION", Type.SQL_INTEGER);            // 7
+            addColumn(t, "LENGTH", Type.SQL_INTEGER);               // 8
+            addColumn(t, "SCALE", Type.SQL_SMALLINT);               // 9
+            addColumn(t, "RADIX", Type.SQL_SMALLINT);               // 10
+            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);            // not null
+            addColumn(t, "REMARKS", CHARACTER_DATA);                // 12
 
             // ----------------------------------------------------------------
             // JDBC 4.0
             // ----------------------------------------------------------------
-            addColumn(t, "COLUMN_DEF", Types.SQL_VARCHAR);                 // 13
-            addColumn(t, "SQL_DATA_TYPE", Types.SQL_INTEGER);              // 14
-            addColumn(t, "SQL_DATETIME_SUB", Types.SQL_INTEGER);           // 15
-            addColumn(t, "CHAR_OCTET_LENGTH", Types.SQL_INTEGER);          // 16
-            addColumn(t, "ORDINAL_POSITION", Types.SQL_INTEGER, false);    // not null
-            addColumn(t, "IS_NULLABLE", Types.SQL_VARCHAR, 5, false);      // not null
-            addColumn(t, "SPECIFIC_NAME", Types.SQL_VARCHAR, false);       // not null
+            addColumn(t, "COLUMN_DEF", CHARACTER_DATA);             // 13
+            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);        // 14
+            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);     // 15
+            addColumn(t, "CHAR_OCTET_LENGTH", Type.SQL_INTEGER);    // 16
+            addColumn(t, "ORDINAL_POSITION", Type.SQL_INTEGER);     // not null
+            addColumn(t, "IS_NULLABLE", CHARACTER_DATA);            // not null
+            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);          // not null
 
             // ----------------------------------------------------------------
             // just for JDBC sort contract
             // ----------------------------------------------------------------
-            addColumn(t, "JDBC_SEQ", Types.SQL_INTEGER, false);            // not null
+            addColumn(t, "JDBC_SEQ", Type.SQL_INTEGER);             // not null
 
             // ----------------------------------------------------------------
             // order: PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME, SEQ
@@ -1815,9 +1650,191 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        t.setDataReadOnly(true);
+        // calculated column values
+        String  procedureCatalog;
+        String  procedureSchema;
+        String  procedureName;
+        String  columnName;
+        Integer columnType;
+        Integer dataType;
+        String  dataTypeName;
+        Integer precision;
+        Integer length;
+        Integer scale;
+        Integer radix;
+        Integer nullability;
+        String  remark;
+
+        // JDBC 4.0
+        String  colDefault;
+        Integer sqlDataType;
+        Integer sqlDateTimeSub;
+        Integer charOctetLength;
+        Integer ordinalPosition;
+        String  isNullable;
+        String  specificName;
+
+        // extended
+        int jdbcSequence;
+
+        // intermediate holders
+        int           colCount;
+        HsqlArrayList aliasList;
+        Object[]      info;
+        Method        method;
+        Iterator      methods;
+        Object[]      row;
+        DITypeInfo    ti;
+
+        // Initialization
+        methods = ns.iterateAllAccessibleMethods(session, true);    // and aliases
+        ti      = new DITypeInfo();
+
+        // no such thing as identity or ignorecase return/parameter
+        // procedure columns.  Future: may need to worry about this if
+        // result columns are ever reported
+        ti.setTypeSub(Types.TYPE_SUB_DEFAULT);
+
+        // JDBC 4.0
+        // TODO: we do not yet support declarative p-column defaults.
+        //       In essence, the default value for a procedure column is NULL
+        colDefault       = null;
+        procedureCatalog = database.getCatalogName().name;
+        procedureSchema =
+            database.schemaManager.getDefaultSchemaHsqlName().name;
+
+        // Do it.
+        while (methods.hasNext()) {
+            info      = (Object[]) methods.next();
+            method    = (Method) info[0];
+            aliasList = (HsqlArrayList) info[1];
+
+            pi.setMethod(method);
+
+            specificName  = pi.getSpecificName();
+            procedureName = pi.getFQN();
+            colCount      = pi.getColCount();
+
+            for (int i = 0; i < colCount; i++) {
+                ti.setTypeCode(pi.getColTypeCode(i));
+
+                columnName   = pi.getColName(i);
+                columnType   = pi.getColUsage(i);
+                dataType     = pi.getColJDBCDataType(i);
+                dataTypeName = ti.getTypeName();
+                precision    = ti.getPrecision();
+                length       = pi.getColLen(i);
+                scale        = ti.getDefaultScale();
+                radix        = ti.getNumPrecRadix();
+                nullability  = pi.getColNullability(i);
+                remark       = pi.getColRemark(i);
+
+                // JDBC 4.0
+                //colDefault    = null;
+                sqlDataType     = ti.getSqlDataType();
+                sqlDateTimeSub  = ti.getSqlDateTimeSub();
+                charOctetLength = ti.getCharOctLen();
+                ordinalPosition = pi.getColOrdinalPosition(i);
+                isNullable      = pi.getColIsNullable(i);
+
+                // extended
+                jdbcSequence = pi.getColSequence(i);
+
+                addPColRows(t, aliasList, procedureCatalog, procedureSchema,
+                            procedureName, columnName, columnType, dataType,
+                            dataTypeName, precision, length, scale, radix,
+                            nullability, remark, colDefault, sqlDataType,
+                            sqlDateTimeSub, charOctetLength, ordinalPosition,
+                            isNullable, specificName, jdbcSequence);
+            }
+        }
 
         return t;
+    }
+
+    /**
+     * Inserts a set of procedure description rows into the <code>Table</code>
+     * object specified by the <code>t</code> argument. <p>
+     *
+     * @param t the table into which the specified rows will eventually
+     *      be inserted
+     * @param l the list of procedure name aliases to which the specified column
+     *      values apply
+     * @param cat the procedure catalog name
+     * @param schem the procedure schema name
+     * @param pName the base (non-alias) procedure name
+     * @param ip the procedure input parameter count
+     * @param op the procedure output parameter count
+     * @param rs the procedure result column count
+     * @param remark a human-readable remark regarding the procedure
+     * @param pType the procedure type code, indicating whether it is a
+     *      function, procedure, or uncatagorized (i.e. returns
+     *      a value, does not return a value, or it is unknown
+     *      if it returns a value)
+     * @param specificName the specific name of the procedure
+     *      (typically but not limited to a
+     *      fully qualified Java Method name and signature)
+     * @param origin origin of the procedure, e.g.
+     *      (["BUILTIN" | "USER DEFINED"] "ROUTINE" | "TRIGGER") | "ALIAS", etc.
+     * @throws HsqlException if there is problem inserting the specified rows
+     *      in the table
+     *
+     */
+    protected void addProcRows(Table t, HsqlArrayList l, String cat,
+                               String schem, String pName, Integer ip,
+                               Integer op, Integer rs, String remark,
+                               Integer pType, String specificName,
+                               String origin) throws HsqlException {
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
+
+        // column number mappings
+        final int icat          = 0;
+        final int ischem        = 1;
+        final int ipname        = 2;
+        final int iinput_parms  = 3;
+        final int ioutput_parms = 4;
+        final int iresult_sets  = 5;
+        final int iremark       = 6;
+        final int iptype        = 7;
+        final int isn           = 8;
+        final int iporigin      = 9;
+        Object[]  row           = t.getEmptyRowData();
+
+        row[icat]          = cat;
+        row[ischem]        = schem;
+        row[ipname]        = pName;
+        row[iinput_parms]  = ip;
+        row[ioutput_parms] = op;
+        row[iresult_sets]  = rs;
+        row[iremark]       = remark;
+        row[iptype]        = pType;
+        row[iporigin]      = origin;
+        row[isn]           = specificName;
+
+        t.insertSys(store, row);
+
+        if (l != null) {
+            int size = l.size();
+
+            for (int i = 0; i < size; i++) {
+                row                = t.getEmptyRowData();
+                pName              = (String) l.get(i);
+                row[icat]          = cat;
+                row[ischem]        = schem;
+                row[ipname]        = pName;
+                row[iinput_parms]  = ip;
+                row[ioutput_parms] = op;
+                row[iresult_sets]  = rs;
+                row[iremark]       = remark;
+                row[iptype]        = pType;
+                row[iporigin]      = "ALIAS";
+                row[isn]           = specificName;
+
+                t.insertSys(store, row);
+            }
+        }
     }
 
     /**
@@ -1863,27 +1880,27 @@ class DatabaseInformationMain extends DatabaseInformation {
             // ----------------------------------------------------------------
             // required
             // ----------------------------------------------------------------
-            addColumn(t, "PROCEDURE_CAT", Types.SQL_VARCHAR);             // 0
-            addColumn(t, "PROCEDURE_SCHEM", Types.SQL_VARCHAR);           // 1
-            addColumn(t, "PROCEDURE_NAME", Types.SQL_VARCHAR, false);     // not null
-            addColumn(t, "NUM_INPUT_PARAMS", Types.SQL_INTEGER);          // 3
-            addColumn(t, "NUM_OUTPUT_PARAMS", Types.SQL_INTEGER);         // 4
-            addColumn(t, "NUM_RESULT_SETS", Types.SQL_INTEGER);           // 5
-            addColumn(t, "REMARKS", Types.SQL_VARCHAR);                   // 6
+            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);          // 0
+            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);        // 1
+            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);         // not null
+            addColumn(t, "NUM_INPUT_PARAMS", Type.SQL_INTEGER);     // 3
+            addColumn(t, "NUM_OUTPUT_PARAMS", Type.SQL_INTEGER);    // 4
+            addColumn(t, "NUM_RESULT_SETS", Type.SQL_INTEGER);      // 5
+            addColumn(t, "REMARKS", CHARACTER_DATA);                // 6
 
             // basically: function (returns result), procedure (no return value)
             // or unknown (say, a trigger callout routine)
-            addColumn(t, "PROCEDURE_TYPE", Types.SQL_SMALLINT, false);    // not null
+            addColumn(t, "PROCEDURE_TYPE", Type.SQL_SMALLINT);      // not null
 
             // ----------------------------------------------------------------
             // JDBC 4.0
             // ----------------------------------------------------------------
-            addColumn(t, "SPECIFIC_NAME", Types.SQL_VARCHAR, false);      // not null
+            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);          // not null
 
             // ----------------------------------------------------------------
             // extended
             // ----------------------------------------------------------------
-            addColumn(t, "ORIGIN", Types.SQL_VARCHAR, 32, false);         // not null
+            addColumn(t, "ORIGIN", CHARACTER_DATA);                 // not null
 
             // ----------------------------------------------------------------
             // order: PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME
@@ -1896,9 +1913,209 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        t.setDataReadOnly(true);
+        // calculated column values
+        // ------------------------
+        // required
+        // ------------------------
+        String  catalog;
+        String  schema;
+        String  procName;
+        Integer numInputParams;
+        Integer numOutputParams;
+        Integer numResultSets;
+        String  remarks;
+        Integer procRType;
+
+        // -------------------
+        // extended
+        // -------------------
+        String procOrigin;
+        String specificName;
+
+        // intermediate holders
+        String        alias;
+        HsqlArrayList aliasList;
+        Iterator      methods;
+        Object[]      methodInfo;
+        Method        method;
+        String        methodOrigin;
+        Object[]      row;
+
+        // Initialization
+        methods = ns.iterateAllAccessibleMethods(session, true);    //and aliases
+        catalog = database.getCatalogName().name;
+        schema  = database.schemaManager.getDefaultSchemaHsqlName().name;
+
+        // Do it.
+        while (methods.hasNext()) {
+            methodInfo   = (Object[]) methods.next();
+            method       = (Method) methodInfo[0];
+            aliasList    = (HsqlArrayList) methodInfo[1];
+            methodOrigin = (String) methodInfo[2];
+
+            pi.setMethod(method);
+
+            procName        = pi.getFQN();
+            numInputParams  = pi.getInputParmCount();
+            numOutputParams = pi.getOutputParmCount();
+            numResultSets   = pi.getResultSetCount();
+            remarks         = pi.getRemark();
+            procRType       = pi.getResultType(methodOrigin);
+            specificName    = pi.getSpecificName();
+            procOrigin      = pi.getOrigin(methodOrigin);
+
+            addProcRows(t, aliasList, catalog, schema, procName,
+                        numInputParams, numOutputParams, numResultSets,
+                        remarks, procRType, specificName, procOrigin);
+        }
 
         return t;
+    }
+
+    /**
+     * Inserts a set of procedure column description rows into the
+     * <code>Table</code> specified by the <code>t</code> argument.
+     *
+     * <p>
+     *
+     * @param t the table in which the rows are to be inserted
+     * @param l the list of procedure name aliases to which the specified
+     *   column values apply
+     * @param cat the procedure's catalog name
+     * @param schem the procedure's schema name
+     * @param pName the procedure's simple base (non-alias) name
+     * @param cName the procedure column name
+     * @param cType the column type (return, parameter, result)
+     * @param dType the column's data type code
+     * @param tName the column's canonical data type name
+     * @param prec the column's precision
+     * @param len the column's buffer length
+     * @param scale the column's scale (decimal digits)
+     * @param radix the column's numeric precision radix
+     * @param nullability the column's java.sql.DatbaseMetaData nullabiliy code
+     * @param remark a human-readable remark regarding the column
+     * @param colDefault String
+     * @param sqlDataType helper value to back JDBC contract sort order
+     * @param sqlDateTimeSub Integer
+     * @param charOctetLength Integer
+     * @param ordinalPosition Integer
+     * @param isNullable String
+     * @param specificName the specific name of the procedure (typically but
+     *   not limited to a fully qualified Java Method name and signature)
+     * @param jdbcSequence int
+     * @throws HsqlException if there is problem inserting the specified rows
+     *   in the table
+     */
+    protected void addPColRows(Table t, HsqlArrayList l, String cat,
+                               String schem, String pName, String cName,
+                               Integer cType, Integer dType, String tName,
+                               Integer prec, Integer len, Integer scale,
+                               Integer radix, Integer nullability,
+                               String remark, String colDefault,
+                               Integer sqlDataType, Integer sqlDateTimeSub,
+                               Integer charOctetLength,
+                               Integer ordinalPosition, String isNullable,
+                               String specificName,
+                               int jdbcSequence) throws HsqlException {
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
+
+        // column number mappings
+        final int icat       = 0;
+        final int ischem     = 1;
+        final int iname      = 2;
+        final int icol_name  = 3;
+        final int icol_type  = 4;
+        final int idata_type = 5;
+        final int itype_name = 6;
+        final int iprec      = 7;
+        final int ilength    = 8;
+        final int iscale     = 9;
+        final int iradix     = 10;
+        final int inullable  = 11;
+        final int iremark    = 12;
+
+        // JDBC 4.0
+        final int icol_default      = 13;
+        final int isql_data_type    = 14;
+        final int isql_datetime_sub = 15;
+        final int ichar_octet_len   = 16;
+        final int iordinal_position = 17;
+        final int iis_nullable      = 18;
+        final int ispecific_name    = 19;
+
+        // HSQLDB extension
+        final int ijdbc_sequence = 20;
+
+        // initialization
+        Object[] row      = t.getEmptyRowData();
+        Integer  sequence = ValuePool.getInt(jdbcSequence);
+
+        // Do it.
+        row[icat]       = cat;
+        row[ischem]     = schem;
+        row[iname]      = pName;
+        row[icol_name]  = cName;
+        row[icol_type]  = cType;
+        row[idata_type] = dType;
+        row[itype_name] = tName;
+        row[iprec]      = prec;
+        row[ilength]    = len;
+        row[iscale]     = scale;
+        row[iradix]     = radix;
+        row[inullable]  = nullability;
+        row[iremark]    = remark;
+
+        // JDBC 4.0
+        row[icol_default]      = colDefault;
+        row[isql_data_type]    = sqlDataType;
+        row[isql_datetime_sub] = sqlDateTimeSub;
+        row[ichar_octet_len]   = charOctetLength;
+        row[iordinal_position] = ordinalPosition;
+        row[iis_nullable]      = isNullable;
+        row[ispecific_name]    = specificName;
+
+        // HSQLDB extension
+        row[ijdbc_sequence] = sequence;
+
+        t.insertSys(store, row);
+
+        if (l != null) {
+            int size = l.size();
+
+            for (int i = 0; i < size; i++) {
+                row             = t.getEmptyRowData();
+                pName           = (String) l.get(i);
+                row[icat]       = cat;
+                row[ischem]     = schem;
+                row[iname]      = pName;
+                row[icol_name]  = cName;
+                row[icol_type]  = cType;
+                row[idata_type] = dType;
+                row[itype_name] = tName;
+                row[iprec]      = prec;
+                row[ilength]    = len;
+                row[iscale]     = scale;
+                row[iradix]     = radix;
+                row[inullable]  = nullability;
+                row[iremark]    = remark;
+
+                // JDBC 4.0
+                row[icol_default]      = colDefault;
+                row[isql_data_type]    = sqlDataType;
+                row[isql_datetime_sub] = sqlDateTimeSub;
+                row[ichar_octet_len]   = charOctetLength;
+                row[iordinal_position] = ordinalPosition;
+                row[iis_nullable]      = isNullable;
+                row[ispecific_name]    = specificName;
+
+                // HSQLDB extension
+                row[ijdbc_sequence] = sequence;
+
+                t.insertSys(store, row);
+            }
+        }
     }
 
     /**
@@ -1925,9 +2142,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_SCHEMAS]);
 
-            addColumn(t, "TABLE_SCHEM", Types.SQL_VARCHAR, false);    // not null
-            addColumn(t, "TABLE_CATALOG", Types.SQL_VARCHAR);
-            addColumn(t, "IS_DEFAULT", Types.SQL_BOOLEAN);
+            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);    // not null
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "IS_DEFAULT", Type.SQL_BOOLEAN);
 
             // order: TABLE_SCHEM
             // true PK, as rows never have null TABLE_SCHEM
@@ -1936,6 +2153,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
         Iterator schemas;
         Object[] row;
 
@@ -1952,138 +2171,12 @@ class DatabaseInformationMain extends DatabaseInformation {
             String schema = (String) schemas.next();
 
             row[0] = schema;
-            row[1] = ns.getCatalogName();
+            row[1] = database.getCatalogName().name;
             row[2] = schema.equals(defschema) ? Boolean.TRUE
                                               : Boolean.FALSE;
 
-            t.insertSys(row);
+            t.insertSys(store, row);
         }
-
-        t.setDataReadOnly(true);
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the visible access
-     * rights for each accessible table definied within this database. <p>
-     *
-     * Each row is a table privilege description with the following columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * TABLE_CAT    VARCHAR   table catalog
-     * TABLE_SCHEM  VARCHAR   table schema
-     * TABLE_NAME   VARCHAR   table name
-     * GRANTOR      VARCHAR   grantor of access
-     * GRANTEE      VARCHAR   grantee of access
-     * PRIVILEGE    VARCHAR   { "SELECT" | "INSERT" | "UPDATE" | "DELETE" }
-     * IS_GRANTABLE VARCHAR   { "YES" | "NO" |  NULL (unknown) }
-     * </pre>
-     *
-     * <b>Note:</b> Up to and including HSQLDB 1.7.2, the access rights granted
-     * on a table apply to all of the columns of that table as well. <p>
-     *
-     * @return a <code>Table</code> object describing the visible
-     *        access rights for each accessible table
-     *        defined within this database
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    final Table SYSTEM_TABLEPRIVILEGES() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_TABLEPRIVILEGES];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_TABLEPRIVILEGES]);
-
-            addColumn(t, "TABLE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_NAME", Types.SQL_VARCHAR, false);         // not null
-            addColumn(t, "GRANTOR", Types.SQL_VARCHAR, false);            // not null
-            addColumn(t, "GRANTEE", Types.SQL_VARCHAR, false);            // not null
-            addColumn(t, "PRIVILEGE", Types.SQL_VARCHAR, 10, false);      // not null
-            addColumn(t, "IS_GRANTABLE", Types.SQL_VARCHAR, 3, false);    // not null
-
-            // order: TABLE_SCHEM, TABLE_NAME, and PRIVILEGE,
-            // added for unique:  GRANTEE, GRANTOR, TABLE_CAT
-            // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
-                1, 2, 5, 4, 3, 0
-            }, false);
-
-            return t;
-        }
-
-        // calculated column values
-        String tableCatalog;
-        String tableSchema;
-        String tableName;
-        String grantorName;
-        String granteeName;
-        String privilege;
-        String isGrantable;
-
-        // intermediate holders
-        HsqlArrayList users;
-        User          user;
-        String[]      tablePrivileges;
-        Iterator      tables;
-        Table         table;
-        HsqlName      accessKey;
-        Object[]      row;
-
-        // column number mappings
-        final int itable_cat    = 0;
-        final int itable_schem  = 1;
-        final int itable_name   = 2;
-        final int igrantor      = 3;
-        final int igrantee      = 4;
-        final int iprivilege    = 5;
-        final int iis_grantable = 6;
-
-        // Initialization
-        grantorName = GranteeManager.DBA_ADMIN_ROLE_NAME;
-        users       = database.getUserManager().listVisibleUsers(session);
-        tables      = allTables();
-
-        // Do it.
-        while (tables.hasNext()) {
-            table     = (Table) tables.next();
-            accessKey = table.getName();
-
-            // Only show table grants if session user is admin, has some
-            // right, or the special PUBLIC user has some right.
-            if (!isAccessibleTable(table)) {
-                continue;
-            }
-
-            tableName    = table.getName().name;
-            tableCatalog = ns.getCatalogName();
-            tableSchema  = table.getSchemaName().name;
-
-            for (int i = 0; i < users.size(); i++) {
-                user            = (User) users.get(i);
-                granteeName     = user.getName();
-                tablePrivileges = user.getRightsArray(table);
-                isGrantable     = (user.isAdmin()) ? "YES"
-                                                   : "NO";
-
-                for (int j = 0; j < tablePrivileges.length; j++) {
-                    privilege          = (String) tablePrivileges[j];
-                    row                = t.getEmptyRowData();
-                    row[itable_cat]    = tableCatalog;
-                    row[itable_schem]  = tableSchema;
-                    row[itable_name]   = tableName;
-                    row[igrantor]      = grantorName;
-                    row[igrantee]      = granteeName;
-                    row[iprivilege]    = privilege;
-                    row[iis_grantable] = isGrantable;
-
-                    t.insertSys(row);
-                }
-            }
-        }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -2112,6 +2205,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                                     {"MEMORY" | "CACHED" | "TEXT" | ...}
      * READ_ONLY                 BOOLEAN   TRUE if table is read-only,
      *                                     else FALSE.
+     * COMMIT_ACTION             VARCHAR   "PRESERVE" or "DELETE" for temp tables,
+     *                                     else NULL
      * </pre> <p>
      *
      * @return a <code>Table</code> object describing the accessible
@@ -2128,26 +2223,27 @@ class DatabaseInformationMain extends DatabaseInformation {
             // -------------------------------------------------------------
             // required
             // -------------------------------------------------------------
-            addColumn(t, "TABLE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "TABLE_NAME", Types.SQL_VARCHAR, false);        // not null
-            addColumn(t, "TABLE_TYPE", Types.SQL_VARCHAR, 16, false);    // not null
-            addColumn(t, "REMARKS", Types.SQL_VARCHAR);
+            addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);       // not null
+            addColumn(t, "TABLE_TYPE", CHARACTER_DATA);       // not null
+            addColumn(t, "REMARKS", CHARACTER_DATA);
 
             // -------------------------------------------------------------
             // JDBC 3.0
             // -------------------------------------------------------------
-            addColumn(t, "TYPE_CAT", Types.SQL_VARCHAR);
-            addColumn(t, "TYPE_SCHEM", Types.SQL_VARCHAR);
-            addColumn(t, "TYPE_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "SELF_REFERENCING_COL_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "REF_GENERATION", Types.SQL_VARCHAR);
+            addColumn(t, "TYPE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "TYPE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "SELF_REFERENCING_COL_NAME", SQL_IDENTIFIER);
+            addColumn(t, "REF_GENERATION", CHARACTER_DATA);
 
             // -------------------------------------------------------------
             // extended
             // ------------------------------------------------------------
-            addColumn(t, "HSQLDB_TYPE", Types.SQL_VARCHAR, 6, true);
-            addColumn(t, "READ_ONLY", Types.SQL_BOOLEAN, false);         // not null
+            addColumn(t, "HSQLDB_TYPE", SQL_IDENTIFIER);
+            addColumn(t, "READ_ONLY", Type.SQL_BOOLEAN);      // not null
+            addColumn(t, "COMMIT_ACTION", CHARACTER_DATA);    // not null
 
             // ------------------------------------------------------------
             // order TABLE_TYPE, TABLE_SCHEM and TABLE_NAME
@@ -2159,6 +2255,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         // intermediate holders
         Iterator    tables;
@@ -2183,8 +2282,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int iref_gen    = 9;
 
         // hsqldb ext
-        final int ihsqldb_type = 10;
-        final int iread_only   = 11;
+        final int ihsqldb_type   = 10;
+        final int iread_only     = 11;
+        final int icommit_action = 12;
 
         // Initialization
         tables = allTables();
@@ -2201,18 +2301,20 @@ class DatabaseInformationMain extends DatabaseInformation {
             ti.setTable(table);
 
             row               = t.getEmptyRowData();
-            row[itable_cat]   = ns.getCatalogName();
+            row[itable_cat]   = database.getCatalogName().name;
             row[itable_schem] = table.getSchemaName().name;
             row[itable_name]  = ti.getName();
-            row[itable_type]  = ti.getStandardType();
+            row[itable_type]  = ti.getJDBCStandardType();
             row[iremark]      = ti.getRemark();
             row[ihsqldb_type] = ti.getHsqlType();
             row[iread_only]   = ti.isReadOnly();
+            row[icommit_action] = table.isTemp()
+                                  ? (table.onCommitPreserve() ? "PRESERVE"
+                                                              : "DELETE")
+                                  : null;
 
-            t.insertSys(row);
+            t.insertSys(store, row);
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -2258,7 +2360,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_TABLETYPES]);
 
-            addColumn(t, "TABLE_TYPE", Types.SQL_VARCHAR, 16, false);    // not null
+            addColumn(t, "TABLE_TYPE", SQL_IDENTIFIER);    // not null
 
             // order: TABLE_TYPE
             // true PK
@@ -2267,16 +2369,16 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
         Object[] row;
 
         for (int i = 0; i < tableTypes.length; i++) {
             row    = t.getEmptyRowData();
             row[0] = tableTypes[i];
 
-            t.insertSys(row);
+            t.insertSys(store, row);
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -2339,29 +2441,29 @@ class DatabaseInformationMain extends DatabaseInformation {
             //-------------------------------------------
             // required by JDBC:
             // ------------------------------------------
-            addColumn(t, "TYPE_NAME", Types.SQL_VARCHAR, 32, false);
-            addColumn(t, "DATA_TYPE", Types.SQL_SMALLINT, false);
-            addColumn(t, "PRECISION", Types.SQL_INTEGER);
-            addColumn(t, "LITERAL_PREFIX", Types.SQL_VARCHAR, 2, true);
-            addColumn(t, "LITERAL_SUFFIX", Types.SQL_VARCHAR, 2, true);
-            addColumn(t, "CREATE_PARAMS", Types.SQL_VARCHAR);
-            addColumn(t, "NULLABLE", Types.SQL_SMALLINT);
-            addColumn(t, "CASE_SENSITIVE", Types.SQL_BOOLEAN);
-            addColumn(t, "SEARCHABLE", Types.SQL_SMALLINT);
-            addColumn(t, "UNSIGNED_ATTRIBUTE", Types.SQL_BOOLEAN);
-            addColumn(t, "FIXED_PREC_SCALE", Types.SQL_BOOLEAN);
-            addColumn(t, "AUTO_INCREMENT", Types.SQL_BOOLEAN);
-            addColumn(t, "LOCAL_TYPE_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "MINIMUM_SCALE", Types.SQL_SMALLINT);
-            addColumn(t, "MAXIMUM_SCALE", Types.SQL_SMALLINT);
-            addColumn(t, "SQL_DATA_TYPE", Types.SQL_INTEGER);
-            addColumn(t, "SQL_DATETIME_SUB", Types.SQL_INTEGER);
-            addColumn(t, "NUM_PREC_RADIX", Types.SQL_INTEGER);
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);
+            addColumn(t, "PRECISION", Type.SQL_INTEGER);
+            addColumn(t, "LITERAL_PREFIX", CHARACTER_DATA);
+            addColumn(t, "LITERAL_SUFFIX", CHARACTER_DATA);
+            addColumn(t, "CREATE_PARAMS", CHARACTER_DATA);
+            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);
+            addColumn(t, "CASE_SENSITIVE", Type.SQL_BOOLEAN);
+            addColumn(t, "SEARCHABLE", Type.SQL_INTEGER);
+            addColumn(t, "UNSIGNED_ATTRIBUTE", Type.SQL_BOOLEAN);
+            addColumn(t, "FIXED_PREC_SCALE", Type.SQL_BOOLEAN);
+            addColumn(t, "AUTO_INCREMENT", Type.SQL_BOOLEAN);
+            addColumn(t, "LOCAL_TYPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "MINIMUM_SCALE", Type.SQL_SMALLINT);
+            addColumn(t, "MAXIMUM_SCALE", Type.SQL_SMALLINT);
+            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);
+            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);
+            addColumn(t, "NUM_PREC_RADIX", Type.SQL_INTEGER);
 
             //-------------------------------------------
             // for JDBC sort contract:
             //-------------------------------------------
-            addColumn(t, "TYPE_SUB", Types.SQL_INTEGER);
+            addColumn(t, "TYPE_SUB", Type.SQL_INTEGER);
 
             // order: DATA_TYPE, TYPE_SUB
             // true PK
@@ -2372,16 +2474,20 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        Result rs;
-
-        rs = session.executeDirectStatement(
-            "select TYPE_NAME, DATA_TYPE, PRECISION, LITERAL_PREFIX, LITERAL_SUFFIX, CREATE_PARAMS, NULLABLE, CASE_SENSITIVE, SEARCHABLE,"
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        Session sys = database.sessionManager.newSysSession(
+            SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
+        Result rs = sys.executeDirectStatement(
+            "select TYPE_NAME, DATA_TYPE, PRECISION, LITERAL_PREFIX,"
+            + "LITERAL_SUFFIX, CREATE_PARAMS, NULLABLE, CASE_SENSITIVE,"
+            + "SEARCHABLE,"
             + "UNSIGNED_ATTRIBUTE, FIXED_PREC_SCALE, AUTO_INCREMENT, LOCAL_TYPE_NAME, MINIMUM_SCALE, "
             + "MAXIMUM_SCALE, SQL_DATA_TYPE, SQL_DATETIME_SUB, NUM_PREC_RADIX, TYPE_SUB "
             + "from INFORMATION_SCHEMA.SYSTEM_ALLTYPEINFO  where AS_TAB_COL = true;");
 
-        t.insertSys(rs);
-        t.setDataReadOnly(true);
+        t.insertSys(store, rs);
+        sys.close();
 
         return t;
     }
@@ -2470,36 +2576,36 @@ class DatabaseInformationMain extends DatabaseInformation {
             //-------------------------------------------
             // same as SYSTEM_TYPEINFO:
             // ------------------------------------------
-            addColumn(t, "TYPE_NAME", Types.SQL_VARCHAR, 32, false);
-            addColumn(t, "DATA_TYPE", Types.SQL_SMALLINT, false);
-            addColumn(t, "PRECISION", Types.SQL_INTEGER);
-            addColumn(t, "LITERAL_PREFIX", Types.SQL_VARCHAR, 2, true);
-            addColumn(t, "LITERAL_SUFFIX", Types.SQL_VARCHAR, 2, true);
-            addColumn(t, "CREATE_PARAMS", Types.SQL_VARCHAR);
-            addColumn(t, "NULLABLE", Types.SQL_SMALLINT);
-            addColumn(t, "CASE_SENSITIVE", Types.SQL_BOOLEAN);
-            addColumn(t, "SEARCHABLE", Types.SQL_SMALLINT);
-            addColumn(t, "UNSIGNED_ATTRIBUTE", Types.SQL_BOOLEAN);
-            addColumn(t, "FIXED_PREC_SCALE", Types.SQL_BOOLEAN);
-            addColumn(t, "AUTO_INCREMENT", Types.SQL_BOOLEAN);
-            addColumn(t, "LOCAL_TYPE_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "MINIMUM_SCALE", Types.SQL_SMALLINT);
-            addColumn(t, "MAXIMUM_SCALE", Types.SQL_SMALLINT);
-            addColumn(t, "SQL_DATA_TYPE", Types.SQL_INTEGER);
-            addColumn(t, "SQL_DATETIME_SUB", Types.SQL_INTEGER);
-            addColumn(t, "NUM_PREC_RADIX", Types.SQL_INTEGER);
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);
+            addColumn(t, "PRECISION", Type.SQL_INTEGER);
+            addColumn(t, "LITERAL_PREFIX", CHARACTER_DATA);
+            addColumn(t, "LITERAL_SUFFIX", CHARACTER_DATA);
+            addColumn(t, "CREATE_PARAMS", CHARACTER_DATA);
+            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);
+            addColumn(t, "CASE_SENSITIVE", Type.SQL_BOOLEAN);
+            addColumn(t, "SEARCHABLE", Type.SQL_SMALLINT);
+            addColumn(t, "UNSIGNED_ATTRIBUTE", Type.SQL_BOOLEAN);
+            addColumn(t, "FIXED_PREC_SCALE", Type.SQL_BOOLEAN);
+            addColumn(t, "AUTO_INCREMENT", Type.SQL_BOOLEAN);
+            addColumn(t, "LOCAL_TYPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "MINIMUM_SCALE", Type.SQL_SMALLINT);
+            addColumn(t, "MAXIMUM_SCALE", Type.SQL_SMALLINT);
+            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);
+            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);
+            addColumn(t, "NUM_PREC_RADIX", Type.SQL_INTEGER);
 
             //-------------------------------------------
             // SQL CLI / ODBC - not in JDBC spec
             // ------------------------------------------
-            addColumn(t, "INTERVAL_PRECISION", Types.SQL_INTEGER);
+            addColumn(t, "INTERVAL_PRECISION", Type.SQL_INTEGER);
 
             //-------------------------------------------
             // extended:
             //-------------------------------------------
             // level of support
             //-------------------------------------------
-            addColumn(t, "AS_TAB_COL", Types.SQL_BOOLEAN);
+            addColumn(t, "AS_TAB_COL", Type.SQL_BOOLEAN);
 
             // for instance, some executable methods take Connection
             // or return non-serializable Object such as ResultSet, neither
@@ -2508,56 +2614,56 @@ class DatabaseInformationMain extends DatabaseInformation {
             // Also, triggers take Object[] row, which we show as ARRAY
             // presently, although STRUCT would probably be better in the
             // future, as the row can actually contain mixed data types.
-            addColumn(t, "AS_PROC_COL", Types.SQL_BOOLEAN);
+            addColumn(t, "AS_PROC_COL", Type.SQL_BOOLEAN);
 
             //-------------------------------------------
             // actual values for attributes that cannot be represented
             // within the limitations of the SQL CLI / JDBC interface
             //-------------------------------------------
-            addColumn(t, "MAX_PREC_ACT", Types.SQL_BIGINT);
-            addColumn(t, "MIN_SCALE_ACT", Types.SQL_INTEGER);
-            addColumn(t, "MAX_SCALE_ACT", Types.SQL_INTEGER);
+            addColumn(t, "MAX_PREC_ACT", Type.SQL_BIGINT);
+            addColumn(t, "MIN_SCALE_ACT", Type.SQL_INTEGER);
+            addColumn(t, "MAX_SCALE_ACT", Type.SQL_INTEGER);
 
             //-------------------------------------------
             // how do we store this internally as a column value?
             //-------------------------------------------
-            addColumn(t, "COL_ST_CLS_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "COL_ST_IS_SUP", Types.SQL_BOOLEAN);
+            addColumn(t, "COL_ST_CLS_NAME", SQL_IDENTIFIER);
+            addColumn(t, "COL_ST_IS_SUP", Type.SQL_BOOLEAN);
 
             //-------------------------------------------
             // what is the standard Java mapping for the type?
             //-------------------------------------------
-            addColumn(t, "STD_MAP_CLS_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "STD_MAP_IS_SUP", Types.SQL_BOOLEAN);
+            addColumn(t, "STD_MAP_CLS_NAME", SQL_IDENTIFIER);
+            addColumn(t, "STD_MAP_IS_SUP", Type.SQL_BOOLEAN);
 
             //-------------------------------------------
             // what, if any, custom mapping do we provide?
             // (under the current build options and hosting VM)
             //-------------------------------------------
-            addColumn(t, "CST_MAP_CLS_NAME", Types.SQL_VARCHAR);
-            addColumn(t, "CST_MAP_IS_SUP", Types.SQL_BOOLEAN);
+            addColumn(t, "CST_MAP_CLS_NAME", SQL_IDENTIFIER);
+            addColumn(t, "CST_MAP_IS_SUP", Type.SQL_BOOLEAN);
 
             //-------------------------------------------
             // what is the max representable and actual
             // character octet length, if applicable?
             //-------------------------------------------
-            addColumn(t, "MCOL_JDBC", Types.SQL_INTEGER);
-            addColumn(t, "MCOL_ACT", Types.SQL_BIGINT);
+            addColumn(t, "MCOL_JDBC", Type.SQL_INTEGER);
+            addColumn(t, "MCOL_ACT", Type.SQL_BIGINT);
 
             //-------------------------------------------
             // what is the default or fixed scale, if applicable?
             //-------------------------------------------
-            addColumn(t, "DEF_OR_FIXED_SCALE", Types.SQL_INTEGER);
+            addColumn(t, "DEF_OR_FIXED_SCALE", Type.SQL_INTEGER);
 
             //-------------------------------------------
             // Any type-specific, localized remarks can go here
             //-------------------------------------------
-            addColumn(t, "REMARKS", Types.SQL_VARCHAR);
+            addColumn(t, "REMARKS", CHARACTER_DATA);
 
             //-------------------------------------------
             // required for JDBC sort contract:
             //-------------------------------------------
-            addColumn(t, "TYPE_SUB", Types.SQL_INTEGER);
+            addColumn(t, "TYPE_SUB", Type.SQL_INTEGER);
 
             // order:  DATA_TYPE, TYPE_SUB
             // true primary key
@@ -2568,6 +2674,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
         Object[]   row;
         int        type;
         DITypeInfo ti;
@@ -2709,10 +2817,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             //------------------------------------------
             row[itype_sub] = ti.getDataTypeSub();
 
-            t.insertSys(row);
+            t.insertSys(store, row);
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
@@ -2731,9 +2837,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_USERS]);
 
-            addColumn(t, "USER_NAME", Types.SQL_VARCHAR, false);
-            addColumn(t, "ADMIN", Types.SQL_BOOLEAN, false);
-            addColumn(t, "INITIAL_SCHEMA", Types.SQL_VARCHAR, true);
+            addColumn(t, "USER_NAME", SQL_IDENTIFIER);
+            addColumn(t, "ADMIN", Type.SQL_BOOLEAN);
+            addColumn(t, "INITIAL_SCHEMA", SQL_IDENTIFIER);
 
             // order: USER
             // true PK
@@ -2741,6 +2847,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             return t;
         }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         // Intermediate holders
         HsqlArrayList users;
@@ -2756,167 +2865,188 @@ class DatabaseInformationMain extends DatabaseInformation {
             row           = t.getEmptyRowData();
             user          = (User) users.get(i);
             initialSchema = user.getInitialSchema();
-            row[0]        = user.getName();
+            row[0]        = user.getNameString();
             row[1]        = ValuePool.getBoolean(user.isAdmin());
             row[2]        = ((initialSchema == null) ? null
                                                      : initialSchema.name);
 
-            t.insertSys(row);
+            t.insertSys(store, row);
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
 
+// -----------------------------------------------------------------------------
+// SQL SCHEMATA VIEWS
+// limited to views used in JDBC DatabaseMetaData
+
     /**
-     * The SYSTEM_CHECK_CONSTRAINTS table has one row for each domain
-     * constraint, table check constraint, and assertion. <p>
+     * Retrieves a <code>Table</code> object describing the visible
+     * access rights for all visible columns of all accessible
+     * tables defined within this database.<p>
      *
-     * <b>Definition:</b><p>
+     * Each row is a column privilege description with the following
+     * columns: <p>
      *
      * <pre class="SqlCodeExample">
-     * CREATE TABLE SYSTEM_CHECK_CONSTRAINTS (
-     *      CONSTRAINT_CATALOG  VARCHAR NULL,
-     *      CONSTRAINT_SCHEMA   VARCHAR NULL,
-     *      CONSTRAINT_NAME     VARCHAR NOT NULL,
-     *      CHECK_CLAUSE        VARCHAR NOT NULL,
-     *
-     *      UNIQUE ( CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, CONSTRAINT_NAME )
-     * )
+     * TABLE_CAT    VARCHAR   table catalog
+     * TABLE_SCHEM  VARCHAR   table schema
+     * TABLE_NAME   VARCHAR   table name
+     * COLUMN_NAME  VARCHAR   column name
+     * GRANTOR      VARCHAR   grantor of access
+     * GRANTEE      VARCHAR   grantee of access
+     * PRIVILEGE    VARCHAR   name of access
+     * IS_GRANTABLE VARCHAR   grantable?: "YES" - grant to others, else "NO"
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Note:</b> From 1.9.0, HSQLDB supports column level
+     * privileges. <p>
      *
-     * <ol>
-     * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA and
-     *      CONSTRAINT_NAME are the catalog name, unqualified schema name,
-     *      and qualified identifier, respectively, of the constraint being
-     *      described. <p>
-     *
-     * <li> Case: <p>
-     *
-     *      <table>
-     *          <tr>
-     *               <td valign="top" halign="left">a)</td>
-     *               <td> If the character representation of the
-     *                    &lt;search condition&gt; contained in the
-     *                    &lt;check constraint definition&gt;,
-     *                    &lt;domain constraint definition&gt;, or
-     *                    &lt;assertion definition&gt; that defined
-     *                    the check constraint being described can be
-     *                    represented without truncation, then the
-     *                    value of CHECK_CLAUSE is that character
-     *                    representation. </td>
-     *          </tr>
-     *          <tr>
-     *              <td align="top" halign="left">b)</td>
-     *              <td>Otherwise, the value of CHECK_CLAUSE is the
-     *                  null value.</td>
-     *          </tr>
-     *      </table>
-     * </ol>
+     * @return a <code>Table</code> object describing the visible
+     *        access rights for all visible columns of
+     *        all accessible tables defined within this
+     *        database
+     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_CHECK_CONSTRAINTS() throws HsqlException {
+    final Table COLUMN_PRIVILEGES() throws HsqlException {
 
-        Table t = sysTables[SYSTEM_CHECK_CONSTRAINTS];
+        Table t = sysTables[COLUMN_PRIVILEGES];
 
         if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_CHECK_CONSTRAINTS]);
+            t = createBlankTable(sysTableHsqlNames[COLUMN_PRIVILEGES]);
 
-            addColumn(t, "CONSTRAINT_CATALOG", Types.SQL_VARCHAR);
-            addColumn(t, "CONSTRAINT_SCHEMA", Types.SQL_VARCHAR);
-            addColumn(t, "CONSTRAINT_NAME", Types.SQL_VARCHAR, false);    // not null
-            addColumn(t, "CHECK_CLAUSE", Types.SQL_VARCHAR, false);       // not null
-
-            // false PK, as FKTABLE_CAT, FKTABLE_SCHEM and/or FK_NAME
-            // may be null
+            addColumn(t, "GRANTOR", SQL_IDENTIFIER);           // not null
+            addColumn(t, "GRANTEE", SQL_IDENTIFIER);           // not null
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);        // not null
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);       // not null
+            addColumn(t, "PRIVILEGE_TYPE", CHARACTER_DATA);    // not null
+            addColumn(t, "IS_GRANTABLE", YES_OR_NO);           // not null
             t.createPrimaryKey(null, new int[] {
-                0, 1, 2
+                2, 3, 4, 5, 6, 1, 0
             }, false);
 
             return t;
         }
 
-        // calculated column values
-        // Intermediate holders
-        Iterator     tables;
-        Table        table;
-        Constraint[] tableConstraints;
-        int          constraintCount;
-        Constraint   constraint;
-        Object[]     row;
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
-        // column number mappings
-        final int icons_cat    = 0;
-        final int icons_schem  = 1;
-        final int icons_name   = 2;
-        final int icons_clause = 3;
+// calculated column values
+        String  tableCatalog;
+        String  tableSchema;
+        String  tableName;
+        Grantee granteeObject;
 
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+// intermediate holders
+        User     user;
+        Iterator tables;
+        Table    table;
+        Object[] row;
+
+// column number mappings
+        final int grantor        = 0;
+        final int grantee        = 1;
+        final int table_catalog  = 2;
+        final int table_schema   = 3;
+        final int table_name     = 4;
+        final int column_name    = 5;
+        final int privilege_type = 6;
+        final int is_grantable   = 7;
+
+        // enumerations
+        OrderedHashSet grantees =
+            session.getGrantee().getGranteeAndAllRolesWithPublic();
+
+// Initialization
+        tables = allTables();
 
         while (tables.hasNext()) {
-            table = (Table) tables.next();
+            table        = (Table) tables.next();
+            tableName    = table.getName().name;
+            tableCatalog = database.getCatalogName().name;
+            tableSchema  = table.getSchemaName().name;
 
-            if (!isAccessibleTable(table)) {
-                continue;
-            }
+            for (int i = 0; i < grantees.size(); i++) {
+                granteeObject = (Grantee) grantees.get(i);
 
-            tableConstraints = table.getConstraints();
-            constraintCount  = tableConstraints.length;
+                OrderedHashSet rights =
+                    granteeObject.getAllDirectPrivileges(table);
+                OrderedHashSet grants =
+                    granteeObject.getAllGrantedPrivileges(table);
 
-            for (int i = 0; i < constraintCount; i++) {
-                constraint = (Constraint) tableConstraints[i];
+                if (!grants.isEmpty()) {
+                    grants.addAll(rights);
 
-                if (constraint.getType() != Constraint.CHECK) {
-                    continue;
+                    rights = grants;
                 }
 
-                row              = t.getEmptyRowData();
-                row[icons_cat]   = ns.getCatalogName();
-                row[icons_schem] = table.getSchemaName().name;
-                row[icons_name]  = constraint.getName().name;
+                for (int j = 0; j < rights.size(); j++) {
+                    Right right          = (Right) rights.get(j);
+                    Right grantableRight = right.getGrantableRights();
 
-                try {
-                    row[icons_clause] = constraint.getCheckDDL();
-                } catch (Exception e) {}
+                    for (int k = 0; k < Right.privilegeTypes.length; k++) {
+                        OrderedHashSet columnList =
+                            right.getColumnsForPrivilege(
+                                table, Right.privilegeTypes[k]);
+                        OrderedHashSet grantableList =
+                            grantableRight.getColumnsForPrivilege(table,
+                                Right.privilegeTypes[k]);
 
-                t.insertSys(row);
+                        for (int l = 0; l < columnList.size(); l++) {
+                            HsqlName fullName = ((HsqlName) columnList.get(l));
+
+                            row                 = t.getEmptyRowData();
+                            row[grantor] = right.getGrantor().getName().name;
+                            row[grantee] = right.getGrantee().getName().name;
+                            row[table_catalog]  = tableCatalog;
+                            row[table_schema]   = tableSchema;
+                            row[table_name]     = tableName;
+                            row[column_name]    = fullName.name;
+                            row[privilege_type] = Right.privilegeNames[k];
+                            row[is_grantable] =
+                                right.getGrantee() == table.getOwner()
+                                || grantableList.contains(fullName) ? "YES"
+                                                                    : "NO";
+
+                            try {
+                                t.insertSys(store, row);
+                            } catch (HsqlException e) {}
+                        }
+                    }
+                }
             }
         }
-
-        t.setDataReadOnly(true);
 
         return t;
     }
 
     /**
-     * The SYSTEM_SEQUENCES table has one row for each external sequence
+     * The SEQUENCES view has one row for each external sequence
      * generator. <p>
      *
      * <b>Definition:</b> <p>
      *
      * <pre class="SqlCodeExample">
-     * CREATE TABLE SYSTEM_SEQUENCES (
+     *
      *      SEQUENCE_CATALOG     VARCHAR NULL,
      *      SEQUENCE_SCHEMA      VARCHAR NULL,
      *      SEQUENCE_NAME        VARCHAR NOT NULL,
-     *      DTD_IDENTIFIER       VARCHAR NOT NULL,
+     *      DATA_TYPE            CHARACTER_DATA
+     *      DATA_TYPE            CHARACTER_DATA
+     *      NUMERIC_PRECISION    CARDINAL_NUMBER
+     *      NUMERIC_PRECISION_RADIX CARDINAL_NUMBER
+     *      NUMERIC_SCALE        CARDINAL_NUMBER
      *      MAXIMUM_VALUE        VARCHAR NOT NULL,
      *      MINIMUM_VALUE        VARCHAR NOT NULL,
      *      INCREMENT            VARCHAR NOT NULL,
-     *      CYCLE_OPTION         VARCHAR NOT NULL,
+     *      CYCLE_OPTION         VARCHAR {'YES', 'NO'},
      *      START_WITH           VARCHAR NOT NULL,
+     *      DECLARED_DATA_TYPE   CHARACTER_DATA
+     *      DECLARED_NUMERIC_PRECISION CARDINAL_NUMBER
+     *      DECLARED_NUMERIC_SCLAE     CARDINAL_NUMBER
      *
-     *      CHECK(CYCLE_OPTION IN('YES', 'NO')),
-     *
-     *      CHECK(CAST(START_WITH AS BIGINT)
-     *          BETWEEN CAST(MINIMUM_VALUE AS BIGINT)
-     *              AND CAST(MAXIMUM_VALUE AS BIGINT)),
-     *
-     *      UNIQUE(SEQUENCE_CATALOG, SEQUENCE_SCHEMA, SEQUENCE_NAME)
-     * )
      * </pre>
      *
      * <b>DESCRIPTION:</b><p>
@@ -2955,38 +3085,45 @@ class DatabaseInformationMain extends DatabaseInformation {
      * <li> The value of START_WITH is HSQLDB-specific (not in the SQL 200n
      *      spec).  <p>
      *
-     *      It is the character representation of the START WITH clause
-     *      value that would be required to recreate or ALTER RESET START WITH
-     *      the described SEQUENCE, such that its behaviour would be identical
-     *      to that exhibited at the instant this table is materialized in the
-     *      session context. <p>
+     *      It is the character representation of the START WITH value. <p>
      *
-     *      In short, this is the character representation of value that
-     *      would be generated by NEXT VALUE FOR at the instant this table
-     *      is materialized in session context. <p>
+     * <li> The value of NEXT_VALUE is HSQLDB-specific (not in the SQL 200n)<p>
+     *      This is the character representation of the value that
+     *      would be generated by NEXT VALUE FOR when this sequence
+     *      is materialized in an SQL statement. <p>
+     * </ol>
      *
+     * @throws HsqlException
+     * @return Table
      */
-    final Table SYSTEM_SEQUENCES() throws HsqlException {
+    final Table SEQUENCES() throws HsqlException {
 
-        Table t = sysTables[SYSTEM_SEQUENCES];
+        Table t = sysTables[SEQUENCES];
 
         if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_SEQUENCES]);
+            t = createBlankTable(sysTableHsqlNames[SEQUENCES]);
 
-            addColumn(t, "SEQUENCE_CATALOG", Types.SQL_VARCHAR);
-            addColumn(t, "SEQUENCE_SCHEMA", Types.SQL_VARCHAR);
-            addColumn(t, "SEQUENCE_NAME", Types.SQL_VARCHAR, true);        // not null
-            addColumn(t, "DTD_IDENTIFIER", Types.SQL_VARCHAR, true);       // not null
-            addColumn(t, "MAXIMUM_VALUE", Types.SQL_VARCHAR, 20, true);    // not null
-            addColumn(t, "MINIMUM_VALUE", Types.SQL_VARCHAR, 20, true);    // not null
-            addColumn(t, "INCREMENT", Types.SQL_VARCHAR, 20, true);        // not null
-            addColumn(t, "CYCLE_OPTION", Types.SQL_VARCHAR, 3, true);      // not null
+            addColumn(t, "SEQUENCE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "SEQUENCE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "SEQUENCE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "DATA_TYPE", CHARACTER_DATA);
+            addColumn(t, "NUMERIC_PRECISION", CARDINAL_NUMBER);
+            addColumn(t, "NUMERIC_PRECISION_RADIX", CARDINAL_NUMBER);
+            addColumn(t, "NUMERIC_SCALE", CARDINAL_NUMBER);
+            addColumn(t, "MAXIMUM_VALUE", CHARACTER_DATA);
+            addColumn(t, "MINIMUM_VALUE", CHARACTER_DATA);
+            addColumn(t, "INCREMENT", CHARACTER_DATA);
+            addColumn(t, "CYCLE_OPTION", YES_OR_NO);
+            addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
+            addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
+            addColumn(t, "DECLARED_NUMERIC_SCLAE", CARDINAL_NUMBER);
 
             // HSQLDB-specific
-            addColumn(t, "START_WITH", Types.SQL_VARCHAR, 20, true);       // not null
+            addColumn(t, "START_WITH", CHARACTER_DATA);
+            addColumn(t, "NEXT_VALUE", CHARACTER_DATA);
 
             // order SEQUENCE_CATALOG, SEQUENCE_SCHEMA, SEQUENCE_NAME
-            // false PK, as SCHEMA and/or CATALOG may be null
+            // false PK, as CATALOG may be null
             t.createPrimaryKey(null, new int[] {
                 0, 1, 2
             }, false);
@@ -2994,69 +3131,354 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        //
-        final int iseq_cat    = 0;
-        final int iseq_schem  = 1;
-        final int iseq_name   = 2;
-        final int iseq_dtdid  = 3;
-        final int iseq_max    = 4;
-        final int iseq_min    = 5;
-        final int iseq_incr   = 6;
-        final int iseq_cycopt = 7;
-        final int iseq_start  = 8;
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         //
-        final String min = ValuePool.getString("0");
-        final String intMax =
-            ValuePool.getString(String.valueOf(Integer.MAX_VALUE));
-
-        // 19 is longer than max value pool string length (15)
-        final String longMax     = String.valueOf(Long.MAX_VALUE);
-        final String cycleOption = ValuePool.getString("NO");
+        final int sequence_catalog           = 0;
+        final int sequence_schema            = 1;
+        final int sequence_name              = 2;
+        final int data_type                  = 3;
+        final int numeric_precision          = 4;
+        final int numeric_precision_radix    = 5;
+        final int numeric_scale              = 6;
+        final int maximum_value              = 7;
+        final int minimum_value              = 8;
+        final int increment                  = 9;
+        final int cycle_option               = 10;
+        final int declared_data_type         = 11;
+        final int declared_numeric_precision = 12;
+        final int declared_numeric_scale     = 13;
+        final int start_with                 = 14;
+        final int next_value                 = 15;
 
         //
         Iterator       it;
         Object[]       row;
-        String         sequenceName;
         NumberSequence sequence;
-        int            dataType;
 
         it = database.schemaManager.databaseObjectIterator(
             SchemaObject.SEQUENCE);
 
         while (it.hasNext()) {
-            row              = t.getEmptyRowData();
-            sequence         = (NumberSequence) it.next();
-            dataType         = sequence.getType().type;
-            sequenceName     = sequence.getName().name;
-            row[iseq_cat]    = ns.getCatalogName();
-            row[iseq_schem]  = sequence.getSchemaName().name;
-            row[iseq_name]   = sequenceName;
-            row[iseq_dtdid]  = sequence.getType().getNameString();
-            row[iseq_min]    = min;
-            row[iseq_incr]   = String.valueOf(sequence.getIncrement());
-            row[iseq_cycopt] = cycleOption;
-            row[iseq_start]  = String.valueOf(sequence.peek());
+            sequence = (NumberSequence) it.next();
 
-            switch (dataType) {
-
-                case Types.SQL_INTEGER : {
-                    row[iseq_max] = intMax;
-
-                    break;
-                }
-                case Types.SQL_BIGINT :
-                default : {
-                    row[iseq_max] = longMax;
-
-                    break;
-                }
+            if (!session.getGrantee().isAccessible(sequence)) {
+                continue;
             }
 
-            t.insertSys(row);
+            row = t.getEmptyRowData();
+
+            NumberType type = (NumberType) sequence.getDataType();
+            int radix =
+                (type.typeCode == Types.SQL_NUMERIC || type.typeCode == Types
+                    .SQL_DECIMAL) ? 10
+                                  : 2;
+
+            row[sequence_catalog] = database.getCatalogName().name;
+            row[sequence_schema]  = sequence.getSchemaName().name;
+            row[sequence_name]    = sequence.getName().name;
+            row[data_type]        = sequence.getDataType().getFullNameString();
+            row[numeric_precision] =
+                ValuePool.getInt((int) type.getPrecision());
+            row[numeric_precision_radix]    = ValuePool.getInt(radix);
+            row[numeric_scale]              = ValuePool.INTEGER_0;
+            row[maximum_value] = String.valueOf(sequence.getMaxValue());
+            row[minimum_value] = String.valueOf(sequence.getMinValue());
+            row[increment] = String.valueOf(sequence.getIncrement());
+            row[cycle_option]               = sequence.isCycle() ? "YES"
+                                                                 : "NO";
+            row[declared_data_type]         = row[data_type];
+            row[declared_numeric_precision] = row[numeric_precision];
+            row[declared_numeric_scale]     = row[declared_numeric_scale];
+            row[start_with] = String.valueOf(sequence.getStartValue());
+            row[next_value] = String.valueOf(sequence.peek());
+
+            t.insertSys(store, row);
         }
 
-        t.setDataReadOnly(true);
+        return t;
+    }
+
+/*
+    WHERE ( GRANTEE IN ( 'PUBLIC', CURRENT_USER )
+    OR GRANTEE IN ( SELECT ROLE_NAME FROM ENABLED_ROLES )
+    OR GRANTOR = CURRENT_USER
+    OR GRANTOR IN ( SELECT ROLE_NAME FROM ENABLED_ROLES ) )
+
+*/
+
+/**
+     * The TABLE_PRIVILEGES view has one row for each visible access
+     * right for each accessible table definied within this database. <p>
+     *
+     * Each row is a table privilege description with the following columns: <p>
+     *
+     * <pre class="SqlCodeExample">
+     * GRANTOR      VARCHAR   grantor of access
+     * GRANTEE      VARCHAR   grantee of access
+     * TABLE_CATALOG    VARCHAR   table catalog
+     * TABLE_SCHEMA  VARCHAR   table schema
+     * TABLE_NAME   VARCHAR   table name
+     * PRIVILEGE_TYPE    VARCHAR   { "SELECT" | "INSERT" | "UPDATE" | "DELETE" | "REFERENCES" | "TRIGGER" }
+     * IS_GRANTABLE VARCHAR   { "YES" | "NO" }
+     * WITH_HIERARCHY   { "YES" | "NO" }
+     * </pre>
+     *
+     * @return a <code>Table</code> object describing the visible
+     *        access rights for each accessible table
+     *        defined within this database
+     * @throws HsqlException if an error occurs while producing the table
+     */
+    final Table TABLE_PRIVILEGES() throws HsqlException {
+
+        Table t = sysTables[TABLE_PRIVILEGES];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[TABLE_PRIVILEGES]);
+
+            addColumn(t, "GRANTOR", SQL_IDENTIFIER);           // not null
+            addColumn(t, "GRANTEE", SQL_IDENTIFIER);           // not null
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);        // not null
+            addColumn(t, "PRIVILEGE_TYPE", CHARACTER_DATA);    // not null
+            addColumn(t, "IS_GRANTABLE", YES_OR_NO);           // not null
+            addColumn(t, "WITH_HIERARCHY", YES_OR_NO);
+            t.createPrimaryKey(null, new int[] {
+                0, 1, 2, 3, 4, 5, 6
+            }, false);
+
+            return t;
+        }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
+
+        // calculated column values
+        String  tableCatalog;
+        String  tableSchema;
+        String  tableName;
+        Grantee granteeObject;
+        String  privilege;
+
+        // intermediate holders
+        Iterator tables;
+        Table    table;
+        Object[] row;
+
+        // column number mappings
+        final int grantor        = 0;
+        final int grantee        = 1;
+        final int table_catalog  = 2;
+        final int table_schema   = 3;
+        final int table_name     = 4;
+        final int privilege_type = 5;
+        final int is_grantable   = 6;
+        final int with_hierarchy = 7;
+        OrderedHashSet grantees =
+            session.getGrantee().getGranteeAndAllRolesWithPublic();
+
+        tables = allTables();
+
+        while (tables.hasNext()) {
+            table        = (Table) tables.next();
+            tableName    = table.getName().name;
+            tableCatalog = table.getCatalogName().name;
+            tableSchema  = table.getSchemaName().name;
+
+            for (int i = 0; i < grantees.size(); i++) {
+                granteeObject = (Grantee) grantees.get(i);
+
+                OrderedHashSet rights =
+                    granteeObject.getAllDirectPrivileges(table);
+                OrderedHashSet grants =
+                    granteeObject.getAllGrantedPrivileges(table);
+
+                if (!grants.isEmpty()) {
+                    grants.addAll(rights);
+
+                    rights = grants;
+                }
+
+                for (int j = 0; j < rights.size(); j++) {
+                    Right right          = (Right) rights.get(j);
+                    Right grantableRight = right.getGrantableRights();
+
+                    for (int k = 0; k < Right.privilegeTypes.length; k++) {
+                        if (!right.canAccess(Right.privilegeTypes[k])) {
+                            continue;
+                        }
+
+                        privilege           = Right.privilegeNames[k];
+                        row                 = t.getEmptyRowData();
+                        row[grantor] = right.getGrantor().getName().name;
+                        row[grantee] = right.getGrantee().getName().name;
+                        row[table_catalog]  = tableCatalog;
+                        row[table_schema]   = tableSchema;
+                        row[table_name]     = tableName;
+                        row[privilege_type] = privilege;
+                        row[is_grantable] =
+                            right.getGrantee() == table.getOwner()
+                            || grantableRight.canAccess(
+                                Right.privilegeTypes[k]) ? "YES"
+                                                         : "NO";
+                        row[with_hierarchy] = "NO";
+
+                        try {
+                            t.insertSys(store, row);
+                        } catch (HsqlException e) {}
+                    }
+                }
+            }
+        }
+
+        return t;
+    }
+
+    Table TABLES() throws HsqlException {
+
+        Table t = sysTables[TABLES];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[TABLES]);
+
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_TYPE", CHARACTER_DATA);
+            addColumn(t, "SELF_REFERENCING_COLUMN_NAME", SQL_IDENTIFIER);
+            addColumn(t, "REFERENCE_GENERATION", CHARACTER_DATA);
+            addColumn(t, "USER_DEFINED_TYPE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "USER_DEFINED_TYPE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "USER_DEFINED_TYPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "IS_INSERTABLE_INTO", YES_OR_NO);
+            addColumn(t, "IS_TYPED", YES_OR_NO);
+            addColumn(t, "COMMIT_ACTION", CHARACTER_DATA);
+
+            //
+            t.createPrimaryKey(null, new int[] {
+                0, 1, 2,
+            }, false);
+
+            return t;
+        }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
+
+        // intermediate holders
+        Iterator  tables;
+        Table     table;
+        Object[]  row;
+        final int table_catalog                = 0;
+        final int table_schema                 = 1;
+        final int table_name                   = 2;
+        final int table_type                   = 3;
+        final int self_referencing_column_name = 4;
+        final int reference_generation         = 5;
+        final int user_defined_type_catalog    = 6;
+        final int user_defined_type_schema     = 7;
+        final int user_defined_type_name       = 8;
+        final int is_insertable_into           = 9;
+        final int is_typed                     = 10;
+        final int commit_action                = 11;
+
+        // Initialization
+        tables = allTables();
+
+        // Do it.
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+
+            if (!isAccessibleTable(table)) {
+                continue;
+            }
+
+            row                = t.getEmptyRowData();
+            row[table_catalog] = database.getCatalogName().name;
+            row[table_schema]  = table.getSchemaName().name;
+            row[table_name]    = table.getName().name;
+
+            switch (table.getTableType()) {
+
+                case Table.SYSTEM_TABLE :
+                case TableBase.VIEW_TABLE :
+                    row[table_type]         = "VIEW";
+                    row[is_insertable_into] = "NO";
+                    break;
+
+                case Table.TEMP_TABLE :
+                case Table.TEMP_TEXT_TABLE :
+                    row[table_type]         = "GLOBAL TEMPORARY";
+                    row[is_insertable_into] = "YES";
+                    break;
+
+                default :
+                    row[table_type]         = "BASE TABLE";
+                    row[is_insertable_into] = table.isWritable() ? "YES"
+                                                                 : "NO";
+                    break;
+            }
+
+            row[self_referencing_column_name] = null;
+            row[reference_generation]         = null;
+            row[user_defined_type_catalog]    = null;
+            row[user_defined_type_schema]     = null;
+            row[user_defined_type_name]       = null;
+            row[is_typed]                     = "NO";
+            row[commit_action] = table.isTemp()
+                                 ? (table.onCommitPreserve() ? "PRESERVE"
+                                                             : "DELETE")
+                                 : null;
+
+            t.insertSys(store, row);
+        }
+
+        return t;
+    }
+
+// -----------------------------------------------------------------------------
+// SQL SCHEMATA BASE TABLE
+
+    /**
+     * Retrieves a <code>Table</code> object naming the accessible catalogs
+     * defined within this database. <p>
+     *
+     * Each row is a catalog name description with the following column: <p>
+     *
+     * <pre class="SqlCodeExample">
+     * TABLE_CAT   VARCHAR   catalog name
+     * </pre> <p>
+     *
+     * @return a <code>Table</code> object naming the accessible
+     *        catalogs defined within this database
+     * @throws HsqlException if an error occurs while producing the table
+     */
+    final Table INFORMATION_SCHEMA_CATALOG_NAME() throws HsqlException {
+
+        Table t = sysTables[INFORMATION_SCHEMA_CATALOG_NAME];
+
+        if (t == null) {
+            t = createBlankTable(
+                sysTableHsqlNames[INFORMATION_SCHEMA_CATALOG_NAME]);
+
+            addColumn(t, "CATALOG_NAME", SQL_IDENTIFIER);    // not null
+
+            // order:  TABLE_CAT
+            // true PK
+            t.createPrimaryKey(null, new int[]{ 0 }, true);
+
+            return t;
+        }
+
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        Object[] row = t.getEmptyRowData();
+
+        row[0] = database.getCatalogName().name;
+
+        t.insertSys(store, row);
 
         return t;
     }

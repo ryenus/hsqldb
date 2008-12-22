@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,14 @@
 
 package org.hsqldb.persist;
 
-import java.io.IOException;
-
+import org.hsqldb.HsqlException;
+import org.hsqldb.Session;
 import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * Interface for a store for CachedObject object.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.8.0
  */
@@ -55,18 +55,18 @@ public interface PersistentStore {
 
     int getStorageSize(int key);
 
-    /** add new object */
-    void add(CachedObject object) throws IOException;
-
     /** add object previously removed from persistnce */
-    void restore(CachedObject object) throws IOException;
+    void restore(CachedObject object) throws HsqlException;
 
-    CachedObject get(RowInputInterface in) throws IOException;
+    CachedObject get(RowInputInterface in) throws HsqlException;
 
-    CachedObject getNewInstance(int size) throws IOException;
+    CachedObject getNewCachedObject(Session session,
+                                    Object object) throws HsqlException;
 
     /** remove the persisted image but not the cached copy */
     void removePersistence(int i);
+
+    void removeAll();
 
     /** remove both persisted and cached copies */
     void remove(int i);
@@ -76,4 +76,14 @@ public interface PersistentStore {
 
     /** commit persisted image */
     void commit(CachedObject object);
+
+    DataFileCache getCache();
+
+    void setCache(DataFileCache cache);
+
+    void release();
+
+    Object getAccessor(Object key);
+
+    void setAccessor(Object key, Object accessor);
 }

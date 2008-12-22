@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,6 @@ import org.hsqldb.lib.AsciiStringInputStream;
 // boucherb@users 2006-05-22    - doc   1.9.0 - full synch up to Mustang Build 84
 //                              - patch 1.9.0 - setAsciiStream &
 //                                              setCharacterStream improvement
-
 /*
  * $Log: jdbcClob.java,v $
  * Revision 1.12  2006/07/10 13:41:25  boucherb
@@ -63,6 +62,7 @@ import org.hsqldb.lib.AsciiStringInputStream;
  * - better bounds checking
  *
  */
+
 /**
  * The mapping in the Java<sup><font size=-2>TM</font></sup> programming language
  * for the SQL <code>CLOB</code> type.
@@ -104,11 +104,11 @@ import org.hsqldb.lib.AsciiStringInputStream;
  *
  * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
  * SQL CLOB data implementations, meaning that an HSQLDB Clob object <em>may</em>
- * contain a logical pointer to remote SQL CLOB data (see {@link jdbcClobClient 
+ * contain a logical pointer to remote SQL CLOB data (see {@link jdbcClobClient
  * jdbcClobClient}) or it may directly contain a local representation of the
  * data (as implemented in this class).  In particular, when the product is built
  * under JDK 1.6+ and the Clob instance is constructed as a result of calling
- * jdbcConnection.createClob(), then the resulting Clob instance is initially
+ * JDBCConnection.createClob(), then the resulting Clob instance is initially
  * disconnected (is not bound to the tranaction scope of the vending Connection
  * object), the data is contained directly and all interface methods for
  * updating the CLOB value are supported for local use until the first
@@ -125,7 +125,7 @@ import org.hsqldb.lib.AsciiStringInputStream;
  * @since JDK 1.2, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 1.9.0
  */
-public class jdbcClob implements Clob {
+public class JDBCClob implements Clob {
 
     /**
      * Retrieves the number of characters
@@ -203,15 +203,13 @@ public class jdbcClob implements Clob {
         if (pos < MIN_POS || pos > dlen) {
             Util.outOfRangeArgument("pos: " + pos);
         }
-
         pos--;
 
         if (length < 0 || length > dlen - pos) {
             throw Util.outOfRangeArgument("length: " + length);
         }
 
-        return (pos == 0 && length == dlen)
-                ? ldata
+        return (pos == 0 && length == dlen) ? ldata
                 : ldata.substring((int) pos, (int) pos + length);
     }
 
@@ -346,8 +344,8 @@ public class jdbcClob implements Clob {
         // by now, we know sslen and start are both < Integer.MAX_VALUE
         String s;
 
-        if (searchstr instanceof jdbcClob) {
-            s = ((jdbcClob) searchstr).data();
+        if (searchstr instanceof JDBCClob) {
+            s = ((JDBCClob) searchstr).data();
         } else {
             s = searchstr.getSubString(1L, (int) sslen);
         }
@@ -380,11 +378,11 @@ public class jdbcClob implements Clob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
-     * result of calling jdbcConnection.createClob(), this operation affects
+     * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in the
-     * database because jdbcConnection.createClob() constructs disconnected,
+     * database because JDBCConnection.createClob() constructs disconnected,
      * initially empty Clob instances. To propogate the Clob value to a database
      * in this case, it is required to supply the Clob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
@@ -427,7 +425,7 @@ public class jdbcClob implements Clob {
             throw Util.nullArgument("str");
         }
 
-        return (setString(pos, str, 0, str.length()));
+        return setString(pos, str, 0, str.length());
     }
 
     /**
@@ -450,11 +448,11 @@ public class jdbcClob implements Clob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
-     * result of calling jdbcConnection.createClob(), this operation affects
+     * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
-     * database because jdbcConnection.createClob() constructs disconnected,
+     * database because JDBCConnection.createClob() constructs disconnected,
      * initially empty Clob instances. To propogate the Clob value to a database
      * in this case, it is required to supply the Clob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
@@ -492,7 +490,7 @@ public class jdbcClob implements Clob {
      * @param len the number of characters to be written
      * @return the number of characters written
      * @exception SQLException if there is an error accessing the
-    *            <code>CLOB</code> value or if pos is less than 1
+     *            <code>CLOB</code> value or if pos is less than 1
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
@@ -551,7 +549,6 @@ public class jdbcClob implements Clob {
             for (int i = ipos, j = 0; j < len; i++, j++) {
                 sb.setCharAt(i, str.charAt(offset + j));
             }
-
             str = null;
         }
 
@@ -584,11 +581,11 @@ public class jdbcClob implements Clob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
-     * result of calling jdbcConnection.createClob(), this operation affects
+     * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
-     * database because jdbcConnection.createClob() constructs disconnected,
+     * database because JDBCConnection.createClob() constructs disconnected,
      * initially empty Clob instances. To propogate the Clob value to a database
      * in this case, it is required to supply the Clob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
@@ -632,29 +629,27 @@ public class jdbcClob implements Clob {
      * @since JDK 1.4, HSQLDB 1.7.2
      * @revised JDK 1.6, HSQLDB 1.9.0
      */
-    public java.io.OutputStream setAsciiStream(final long pos)
-    throws SQLException {
+    public java.io.OutputStream setAsciiStream(
+            final long pos) throws SQLException {
 
         if (!this.createdByConnection) {
 
             // TODO - Better error message
             throw Util.notSupported();
         }
-
         checkValid(this.data);
 
         if (pos < MIN_POS || pos > MAX_POS) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
 
-         return new java.io.ByteArrayOutputStream() {
+        return new java.io.ByteArrayOutputStream() {
 
-           public synchronized void close() throws java.io.IOException {
+            public synchronized void close() throws java.io.IOException {
 
                 try {
-                    jdbcClob.this.setString(pos,
-                                            new String(toByteArray(),
-                                                       "US-ASCII"));
+                    JDBCClob.this.setString(pos,
+                            new String(toByteArray(), "US-ASCII"));
                 } catch (SQLException se) {
                     throw new java.io.IOException(se.toString());
                 } finally {
@@ -685,11 +680,11 @@ public class jdbcClob implements Clob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
-     * result of calling jdbcConnection.createClob(), this operation affects
+     * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
-     * database because jdbcConnection.createClob() constructs disconnected,
+     * database because JDBCConnection.createClob() constructs disconnected,
      * initially empty Clob instances. To propogate the Clob value to a database
      * in this case, it is required to supply the Clob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
@@ -734,15 +729,14 @@ public class jdbcClob implements Clob {
      * @since JDK 1.4, HSQLDB 1.7.2
      * @revised JDK 1.6, HSQLDB 1.9.0
      */
-    public java.io.Writer setCharacterStream(final long pos)
-    throws SQLException {
+    public java.io.Writer setCharacterStream(
+            final long pos) throws SQLException {
 
         if (!this.createdByConnection) {
 
             // TODO - Better error message
             throw Util.notSupported();
         }
-
         checkValid(this.data);
 
         if (pos < MIN_POS || pos > MAX_POS) {
@@ -754,7 +748,7 @@ public class jdbcClob implements Clob {
             public synchronized void close() throws java.io.IOException {
 
                 try {
-                    jdbcClob.this.setString(pos, toString());
+                    JDBCClob.this.setString(pos, toString());
                 } catch (SQLException se) {
                     throw new java.io.IOException(se.toString());
                 } finally {
@@ -780,11 +774,11 @@ public class jdbcClob implements Clob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is fully supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
-     * result of calling jdbcConnection.createClob(), this operation affects
+     * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
-     * database because jdbcConnection.createClob() constructs disconnected,
+     * database because JDBCConnection.createClob() constructs disconnected,
      * initially empty Blob instances. To propogate the truncated clob value to
      * a database in this case, it is required to supply the Clob instance to
      * an updating or inserting setXXX method of a Prepared or Callable
@@ -792,7 +786,7 @@ public class jdbcClob implements Clob {
      * updateable ResultSet. <p>
      *
      * <b>Implementation Notes:</b> <p>
-     * 
+     *
      * HSQLDB throws an SQLException if the specified <tt>len</tt> is greater
      * than the value returned by {@link #length() length}. <p>
      *
@@ -880,12 +874,10 @@ public class jdbcClob implements Clob {
     }
 
     // ---------------------- internal implementation --------------------------
-
     private static final long MIN_POS = 1L;
-    private static final long MAX_POS = 1L + (long)Integer.MAX_VALUE;
-
-    private volatile String  data;
-    private final    boolean createdByConnection;
+    private static final long MAX_POS = 1L + (long) Integer.MAX_VALUE;
+    private volatile String   data;
+    private final boolean     createdByConnection;
 
     /**
      * Constructs a new jdbcClob object wrapping the given character
@@ -904,14 +896,14 @@ public class jdbcClob implements Clob {
      * @param data the character sequence representing the Clob value
      * @throws SQLException if the argument is null
      */
-    public jdbcClob(final String data) throws SQLException {
+    public JDBCClob(final String data) throws SQLException {
 
         this.init(data);
 
         this.createdByConnection = false;
     }
 
-    protected jdbcClob() {
+    protected JDBCClob() {
         this.data                = "";
         this.createdByConnection = true;
     }
@@ -921,7 +913,6 @@ public class jdbcClob implements Clob {
         if (data == null) {
             throw Util.nullArgument("data");
         }
-
         this.data = data;
     }
 

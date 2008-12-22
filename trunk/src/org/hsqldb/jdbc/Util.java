@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package org.hsqldb.jdbc;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 
-//#ifdef JDBC4
+//#ifdef JAVA6
 import java.sql.SQLDataException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -44,9 +44,10 @@ import java.sql.SQLSyntaxErrorException;
 import java.sql.SQLTransactionRollbackException;
 import java.sql.SQLTransientConnectionException;
 
-//#endif JDBC4
+//#endif JAVA6
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.result.Result;
 
 /* $Id$ */
@@ -64,8 +65,8 @@ import org.hsqldb.result.Result;
  * Provides driver constants and a gateway from internal HsqlExceptions to
  * external SQLExceptions.
  *
- * @author fredt@users
- * @author boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.2
  */
@@ -73,7 +74,7 @@ public class Util {
 
     static final void throwError(HsqlException e) throws SQLException {
 
-//#ifdef JDBC4
+//#ifdef JAVA6
         throw sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
                            e);
 
@@ -83,12 +84,12 @@ public class Util {
                                e.getErrorCode());
 */
 
-//#endif JDBC4
+//#endif JAVA6
     }
 
     static final void throwError(Result r) throws SQLException {
 
-//#ifdef JDBC4
+//#ifdef JAVA6
         throw sqlException(r.getMainString(), r.getSubString(),
                            r.getErrorCode(), r.getException());
 
@@ -98,12 +99,12 @@ public class Util {
                                r.getErrorCode());
 */
 
-//#endif JDBC4
+//#endif JAVA6
     }
 
     public static final SQLException sqlException(HsqlException e) {
 
-//#ifdef JDBC4
+//#ifdef JAVA6
         return sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
                             e);
 
@@ -113,64 +114,63 @@ public class Util {
                                 e.getErrorCode());
 */
 
-//#endif JDBC4
+//#endif JAVA6
     }
 
     public static final SQLException sqlException(int id) {
-        return sqlException(Trace.error(id));
+        return sqlException(Error.error(id));
+    }
+
+    public static final SQLException sqlExceptionSQL(int id) {
+        return sqlException(Error.error(id));
     }
 
     public static final SQLException sqlException(int id, String message) {
-        return sqlException(Trace.error(id, message));
+        return sqlException(Error.error(id, message));
+    }
+
+    public static final SQLException sqlException(int id, int add) {
+        return sqlException(Error.error(id, add));
     }
 
     static final SQLException sqlException(int id, int subId, Object[] add) {
-        return sqlException(Trace.error(id, subId, add));
+        return sqlException(Error.error(id, subId, add));
     }
 
     static final SQLException notSupported() {
+        return sqlException(Error.error(ErrorCode.X_0A000));
+    }
 
-        String msg       = "JDBC feature not supported.";
-        String sqlState  = "0A000";
-        int    errorCode = Trace.FUNCTION_NOT_SUPPORTED;
-
-//#ifdef JDBC4
-        return sqlException(msg, sqlState, errorCode, null);
-
-//#else
-/*
-        return new SQLException(msg, sqlState, errorCode);
-*/
-
-//#endif JDBC4
+    static SQLException notUpdatableColumn() {
+        return sqlException(ErrorCode.X_0U000);
     }
 
     public static SQLException nullArgument() {
-        return sqlException(Trace.JDBC_INVALID_ARGUMENT);
+        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT);
     }
 
     static SQLException nullArgument(String name) {
-        return sqlException(Trace.JDBC_INVALID_ARGUMENT, name + ": null");
+        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, name + ": null");
     }
 
     public static SQLException invalidArgument() {
-        return sqlException(Trace.JDBC_INVALID_ARGUMENT);
+        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT);
     }
 
     public static SQLException invalidArgument(String name) {
-        return sqlException(Trace.JDBC_INVALID_ARGUMENT, name);
+        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, name);
     }
 
     public static SQLException outOfRangeArgument() {
-        return sqlException(Trace.JDBC_INVALID_ARGUMENT);
+        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT);
     }
 
     public static SQLException outOfRangeArgument(String name) {
-        return sqlException(Trace.JDBC_INVALID_ARGUMENT, name);
+        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, name);
     }
 
     public static SQLException connectionClosedException() {
-        return sqlException(Trace.CONNECTION_IS_CLOSED);
+        return sqlException(ErrorCode.X_08003);
     }
 
     public static SQLWarning sqlWarning(Result r) {
@@ -180,7 +180,7 @@ public class Util {
 
     public static SQLException sqlException(Result r) {
 
-//#ifdef JDBC4
+//#ifdef JAVA6
         return new SQLException(r.getMainString(), r.getSubString(),
                                 r.getErrorCode(), r.getException());
 
@@ -190,32 +190,32 @@ public class Util {
                                 r.getErrorCode());
 */
 
-//#endif JDBC4
+//#endif JAVA6
     }
 
-    // TODO: Needs review.
+// TODO: Needs review.
 //
-//       Connection exception subclass may be an insufficient descriminator
-//       regarding the choice of throwing transient or non-transient
-//       connection exception.
+//  Connection exception subclass may be an insufficient descriminator
+//  regarding the choice of throwing transient or non-transient
+//  connection exception.
 //
 // SQL 2003 Table 32  SQLSTATE class and subclass values
 //
 //  connection exception 08 (no subclass)                     000
 //
-//                          SQL-client unable to establish    001
-//                          SQL-connection
+//                     SQL-client unable to establish    001
+//                     SQL-connection
 //
-//                          connection name in use            002
+//                     connection name in use            002
 //
-//                          connection does not exist         003
+//                     connection does not exist         003
 //
-//                          SQL-server rejected establishment 004
-//                          of SQL-connection
+//                     SQL-server rejected establishment 004
+//                     of SQL-connection
 //
-//                          connection failure                006
+//                     connection failure                006
 //
-//                          transaction resolution unknown    007
+//                     transaction resolution unknown    007
 // org.hsqldb.Trace - sql-error-messages
 //
 // 080=08000 socket creation error                             - better 08001 ?
@@ -227,7 +227,8 @@ public class Util {
 // 003=08003 Connection is broken
 // 004=08003 The database is shutdown
 // 094=08003 Database does not exists                          - better 08001 ?
-//#ifdef JDBC4
+//
+//#ifdef JAVA6
     public static final SQLException sqlException(String msg, String sqlstate,
             int code, Throwable cause) {
 
@@ -294,7 +295,7 @@ public class Util {
             ///
             // Our only Access Violation SQLSTATE so far is:
             //
-            // Trace.NOT_AUTHORIZED 255=42000 User not authorized for action '$$'
+            // Error.NOT_AUTHORIZED 255=42000 User not authorized for action '$$'
             //
             // Our syntax exceptions are apparently all sqlstate "37000"
             //
@@ -349,24 +350,24 @@ public class Util {
         }
     }
 
-//#endif JDBC4
+//#endif JAVA6
 // -----------------------------------------------------------------------------
 // TODO:
 // This is just reminder stuff to borrow from as error reporting is refined,
 // better localized and made more standards-compliant.
 //    static SQLException blobDirectUpdateByLocatorNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException blobInFreedStateException() {
-//        return sqlException(Trace.ASSERT_FAILED, "valid==true");
+//        return sqlException(ErrorCode.ASSERT_FAILED, "valid==true");
 //    }
 //
 //    static SQLException blobInputMaxOctetLengthExceededException(long length) {
 //        String msg = "Maximum Blob input octet length exceeded: "
 //                   + length; //NOI18N
 //
-//        return sqlException(Trace.INPUTSTREAM_ERROR, msg);
+//        return sqlException(ErrorCode.INPUTSTREAM_ERROR, msg);
 //    }
 //
 //    static SQLException blobInputStreamTransferCorruptedException(Exception e) {
@@ -374,24 +375,24 @@ public class Util {
 //        // have sqlstate 40001, which is supposed to indicate a
 //        // transaction rollback due to transaction serialization
 //        // failure
-//        return sqlException(Trace.TRANSFER_CORRUPTED, String.valueOf(e));
+//        return sqlException(ErrorCode.TRANSFER_CORRUPTED, String.valueOf(e));
 //    }
 //
 //    static SQLException callableStatementOutAndInOutParametersNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException callableStatementParameterIndexNotFoundException(int index) {
 //        //String msg = "Parameter index out of bounds: " + index; //NOI18N
-//        return sqlException(Trace.error(Trace.COLUMN_NOT_FOUND, Integer.toString(index)));
+//        return sqlException(Error.error(ErrorCode.COLUMN_NOT_FOUND, Integer.toString(index)));
 //    }
 //
 //    static SQLException callableStatementParameterNameNotFoundException(String parameterName) {
-//        return sqlException(Trace.error(Trace.COLUMN_NOT_FOUND, parameterName));
+//        return sqlException(Error.error(ErrorCode.COLUMN_NOT_FOUND, parameterName));
 //    }
 //
 //    static SQLException characterInputStreamIOException(Exception e) {
-//        return sqlException(Trace.INPUTSTREAM_ERROR, String.valueOf(e));
+//        return sqlException(Error.INPUTSTREAM_ERROR, String.valueOf(e));
 //    }
 //
 //    static SQLException characterInputStreamTransferCorruptedException(Exception e) {
@@ -399,34 +400,34 @@ public class Util {
 //        // have sqlstate 40001, which is supposed to indicate a
 //        // transaction rollback due to transaction serialization
 //        // failure
-//        return sqlException(Trace.TRANSFER_CORRUPTED, String.valueOf(e));
+//        return sqlException(ErrorCode.TRANSFER_CORRUPTED, String.valueOf(e));
 //    }
 //
 //    static SQLException characterOutputStreamIOException(Exception e) {
-//        return sqlException(Trace.GENERAL_IO_ERROR, String.valueOf(e));
+//        return sqlException(ErrorCode.GENERAL_IO_ERROR, String.valueOf(e));
 //    }
 //
 //    static SQLException characterSequenceIndexArgumentOutOfBoundsException(String name, long value) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, name + ": " + value);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, name + ": " + value);
 //    }
 //
 //    static SQLException clientInfoNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED, "ClientInfo");
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED, "ClientInfo");
 //    }
 //
 //    static SQLException clobDirectUpdateByLocatorNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException clobInFreedStateException() {
-//        return sqlException(Trace.ASSERT_FAILED, "valid==true");
+//        return sqlException(ErrorCode.ASSERT_FAILED, "valid==true");
 //    }
 //
 //    static SQLException clobInputMaxCharacterLengthExceededException(long length) {
 //        String msg = "Max Clob input character length exceeded: "
 //                   + length; //NOI18N
 //
-//        return sqlException(Trace.INPUTSTREAM_ERROR, msg);
+//        return sqlException(ErrorCode.INPUTSTREAM_ERROR, msg);
 //    }
 //
 //    static SQLException clobInputStreamTransferCorruptedException(Exception e) {
@@ -434,25 +435,25 @@ public class Util {
 //        // have sqlstate 40001, which is supposed to indicate a
 //        // transaction rollback due to transaction serialization
 //        // failure
-//        return sqlException(Trace.TRANSFER_CORRUPTED, String.valueOf(e));
+//        return sqlException(ErrorCode.TRANSFER_CORRUPTED, String.valueOf(e));
 //    }
 //
 ////    public static SQLException connectionClosedException() {
-////        return sqlException(Trace.CONNECTION_IS_CLOSED);
+////        return sqlException(ErrorCode.CONNECTION_IS_CLOSED);
 ////    }
 //
 //
 //    static SQLException connectionNativeSQLException(String sql, int index) {
 //        boolean substitute = true;
-//        String msg = Trace.getMessage(Trace.JDBC_CONNECTION_NATIVE_SQL,
+//        String msg = Error.getMessage(ErrorCode.JDBC_CONNECTION_NATIVE_SQL,
 //                                      substitute, new Object[]{
 //                                      sql.substring(index)});
 //
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, msg);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, msg);
 //    }
 //
 //    static SQLException connectionResetFailureException(Exception e) {
-//        return sqlException(Trace.GENERAL_ERROR, "Error resetting connection: "
+//        return sqlException(ErrorCode.GENERAL_ERROR, "Error resetting connection: "
 //                                   + e.getMessage());
 //    }
 //
@@ -466,79 +467,79 @@ public class Util {
 //    }
 //
 //    public static SQLException driverConnectMalformedURLException(String url) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, "url: " + url);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "url: " + url);
 //    }
 //
 //    public static SQLException driverConnectTimeoutException(long timeout) {
-//        return sqlException(Trace.GENERAL_ERROR,
+//        return sqlException(ErrorCode.GENERAL_ERROR,
 //                           "Connect operation timed out after " + timeout + " ms.");
 //    }
 //
 //
 //    static SQLException illegalBestRowIdentifierScopeArgumentException(int scope) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT,
-//                            Trace.JDBC_ILLEGAL_BRI_SCOPE,
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+//                            Error.JDBC_ILLEGAL_BRI_SCOPE,
 //                            new Object[]  {Integer.toString(scope)});
 //    }
 //
 //    static SQLException illegalConnectionSubProtocolException(String protocol) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, "protocol: " + protocol);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "protocol: " + protocol);
 //    }
 //
 //    static SQLException illegalHexadecimalCharacterSequenceArgumentException(String name, Exception e) {
-//        return sqlException(Trace.INVALID_CONVERSION, name + ": " + e);
+//        return sqlException(ErrorCode.INVALID_CONVERSION, name + ": " + e);
 //    }
 //
 //    static SQLException illegalNegativeIntegralArgumentException(String name, long value) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, name + ": " + value);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, name + ": " + value);
 //    }
 //
 //    static SQLException illegalNullArgumentException(String name) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, name + ": null");
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, name + ": null");
 //    }
 //
 //    static SQLException illegalResultSetConcurrencyArgumentException(int concurrency) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, "concurrency: " + concurrency);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "concurrency: " + concurrency);
 //    }
 //
 //    static SQLException illegalResultSetFetchDirectionArgumentException(int direction) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, "direction: " + direction);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "direction: " + direction);
 //    }
 //
 //    static SQLException illegalResultSetHoldabilityArgumentException(int holdability) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, "holdability: " + holdability);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "holdability: " + holdability);
 //    }
 //
 //    static SQLException illegalResultSetTypeArgumentException(int type) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, "type: " + type);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "type: " + type);
 //    }
 //
 //    static SQLException illegalTableTypeArgumentException(int index, String type) {
 //        String msg = "types[" + index + "]=>\"" + type + "\"";
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, msg);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, msg);
 //    }
 //
 //    static SQLException illegalTransactionIsolationLevelArgumentException(int level) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, "level: " + level);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "level: " + level);
 //    }
 //
 //    static SQLException illegalUnicodeStreamLengthArgumentException(int length) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT,
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
 //                "Odd length argument for pre-JDBC4 UTF16 encoded stream: "
 //                  + length); //NOI18N
 //    }
 //
 //    static SQLException invalidDateTimeEscapeException(Exception e) {
-//        return sqlException(Trace.INVALID_ESCAPE, e.getMessage());
+//        return sqlException(ErrorCode.INVALID_ESCAPE, e.getMessage());
 //    }
 //
 //    static SQLException invalidNullInputStreamArgumentException() {
-//        return sqlException(Trace.error(Trace.JDBC_INVALID_ARGUMENT,
-//                Trace.JDBC_NULL_STREAM));
+//        return sqlException(ErrorCode.error(ErrorCode.JDBC_INVALID_ARGUMENT,
+//                Error.JDBC_NULL_STREAM));
 //    }
 //
 //    static SQLException octetInputStreamInvalidCharacterEncodingException(Exception e) {
-//        return sqlException(Trace.INVALID_CHARACTER_ENCODING, String.valueOf(e));
+//        return sqlException(ErrorCode.INVALID_CHARACTER_ENCODING, String.valueOf(e));
 //    }
 //
 //    static SQLException octetInputStreamTransferCorruptedException(Exception e) {
@@ -546,42 +547,42 @@ public class Util {
 //        // have sqlstate 40001, which is supposed to indicate a
 //        // transaction rollback due to transaction serialization
 //        // failure
-//        return sqlException(Trace.TRANSFER_CORRUPTED, String.valueOf(e));
+//        return sqlException(ErrorCode.TRANSFER_CORRUPTED, String.valueOf(e));
 //    }
 //
 //    static SQLException octetSequenceIndexArgumentOutOfBoundsException(String name, long value) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, name + ": " + value);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, name + ": " + value);
 //    }
 //
 //    static SQLException parameterMetaDataParameterIndexNotFoundException(int index) {
 //        // String msg = param + " is out of range"; //NOI18N
-//        return sqlException(Trace.COLUMN_NOT_FOUND, Integer.toString(index));
+//        return sqlException(ErrorCode.COLUMN_NOT_FOUND, Integer.toString(index));
 //    }
 //
 //    static SQLException preparedStatementFeatureNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException preparedStatementInitializationException(Exception e) {
-//        return sqlException(Trace.GENERAL_ERROR, e.toString());
+//        return sqlException(ErrorCode.GENERAL_ERROR, e.toString());
 //    }
 //
 //    static SQLException preparedStatementParameterIndexNotFoundException(int parameterIndex) {
-//        return sqlException(Trace.COLUMN_NOT_FOUND,
+//        return sqlException(ErrorCode.COLUMN_NOT_FOUND,
 //                            Integer.toString(parameterIndex));
 //    }
 //
 //    static SQLException resultSetClosedException() {
-//        return sqlException(Trace.JDBC_RESULTSET_IS_CLOSED);
+//        return sqlException(ErrorCode.JDBC_RESULTSET_IS_CLOSED);
 //    }
 //
 //    static SQLException resultSetColumnIndexNotFoundException(int columnIndex) {
-//        return sqlException(Trace.COLUMN_NOT_FOUND,
+//        return sqlException(ErrorCode.COLUMN_NOT_FOUND,
 //                Integer.toString(columnIndex));
 //    }
 //
 //    static SQLException resultSetColumnNameNotFoundException(String columnName) {
-//        return sqlException(Trace.error(Trace.COLUMN_NOT_FOUND, columnName));
+//        return sqlException(Error.error(ErrorCode.COLUMN_NOT_FOUND, columnName));
 //    }
 //
 //    static SQLWarning resultSetConcurrencyTranslationWarning(int requestedConcurrency,
@@ -590,19 +591,19 @@ public class Util {
 //        String translated = toResultSetConcurrencyString(translatedConcurrency);
 //        String msg        = requested + " => " + translated;
 //
-//        return new SQLWarning(msg, "SOO10", Trace.JDBC_INVALID_ARGUMENT);
+//        return new SQLWarning(msg, "SOO10", Error.JDBC_INVALID_ARGUMENT);
 //    }
 //
 //    static SQLException resultSetCursorNameNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException resultSetDataIsNotAvailableException() {
-//        return sqlException(Trace.NO_DATA_IS_AVAILABLE);
+//        return sqlException(ErrorCode.NO_DATA_IS_AVAILABLE);
 //    }
 //
 //    static SQLException resultSetFetchDirectionValueNotSupportedException(int direction) {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED,
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED,
 //                            toResultSetFetchDirectionString(direction));
 //    }
 //
@@ -611,39 +612,39 @@ public class Util {
 //        String translated = toResultSetHoldabilityString(translatedHoldability);
 //        String msg        = requested + " => " + translated;
 //
-//        return new SQLWarning(msg, "SOO10", Trace.JDBC_INVALID_ARGUMENT);
+//        return new SQLWarning(msg, "SOO10", Error.JDBC_INVALID_ARGUMENT);
 //    }
 //
 //
 //    static SQLException resultSetHoldabilityValueNotSupportedException(int holdability) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, toResultSetHoldabilityString(holdability));
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, toResultSetHoldabilityString(holdability));
 //    }
 //
 //    static SQLException resultSetIsForwardOnlyException() {
-//        return sqlException(Trace.RESULTSET_FORWARD_ONLY);
+//        return sqlException(ErrorCode.RESULTSET_FORWARD_ONLY);
 //    }
 //
 //    static SQLException resultSetMetaDataColumnIndexNotFoundException(int columnIndex) {
-//        return Util.sqlException(Trace.COLUMN_NOT_FOUND,
+//        return Util.sqlException(ErrorCode.COLUMN_NOT_FOUND,
 //                Integer.toString(columnIndex));
 //    }
 //
 //    static SQLException resultSetMetaDataInitializationNullResultArgumentException() {
-//        return sqlException(Trace.GENERAL_ERROR,
-//                Trace.JDBC_NO_RESULT_SET, null);
+//        return sqlException(ErrorCode.GENERAL_ERROR,
+//                Error.JDBC_NO_RESULT_SET, null);
 //    }
 //
 //    static SQLException resultSetMetaDataInitializationNullResultSetArgumentException() {
-//        return sqlException(Trace.GENERAL_ERROR,
-//                Trace.JDBC_NO_RESULT_SET_METADATA, null);
+//        return sqlException(ErrorCode.GENERAL_ERROR,
+//                Error.JDBC_NO_RESULT_SET_METADATA, null);
 //    }
 //
 //    static SQLException resultSetNotRefreshableException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException resultSetNotUpdateableException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLWarning resultSetTypeTranslationWarning(int requestedType, int translatedType) {
@@ -651,62 +652,62 @@ public class Util {
 //        String translated = toResultSetTypeString(translatedType);
 //        String msg        = requested + " => " + translated;
 //
-//        return new SQLWarning(msg, "SOO10", Trace.JDBC_INVALID_ARGUMENT);
+//        return new SQLWarning(msg, "SOO10", Error.JDBC_INVALID_ARGUMENT);
 //    }
 //
 //
 //    static SQLException resultSetWasNotGeneratedByStatementExecutionException() {
 //        String msg = "Expected but did not receive a result set"; // NOI18N
 //
-//        return sqlException(Trace.UNEXPECTED_EXCEPTION, msg);
+//        return sqlException(ErrorCode.UNEXPECTED_EXCEPTION, msg);
 //    }
 //
 //    static SQLException resultSetWillNotBeGeneratedByExecuteQueryException() {
-//        return sqlException(Trace.JDBC_STATEMENT_NOT_RESULTSET);
+//        return sqlException(ErrorCode.JDBC_STATEMENT_NOT_RESULTSET);
 //    }
 //
 //    static SQLException retrieveAutoGeneratedKeysFeatureNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException savepointIssuedOnDifferentConnectionException() {
-//        return sqlException(Trace.ASSERT_FAILED, "savepoint.connection==this");
+//        return sqlException(ErrorCode.ASSERT_FAILED, "savepoint.connection==this");
 //    }
 //
 //    static SQLException savepointNumericIdentifierNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException savepointRollbackInAutocommitException() {
-//        return sqlException(Trace.ASSERT_FAILED, "autocommit==false");
+//        return sqlException(ErrorCode.ASSERT_FAILED, "autocommit==false");
 //    }
 //
 //    static SQLException savepointWrongObjectClassException(Class clazz) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, "savepoint: " + clazz);
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "savepoint: " + clazz);
 //    }
 //
 //    static SQLException sqlxmlDirectUpdateByLocatorNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException sqlxmlInFreedStateException() {
-//        return sqlException(Trace.ASSERT_FAILED, "valid==true");
+//        return sqlException(ErrorCode.ASSERT_FAILED, "valid==true");
 //    }
 //
 //    static SQLException sqlxmlParseException(Exception e) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, e.toString());
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, e.toString());
 //    }
 //
 //    static SQLException sqlxmlParserInitializationException(Exception e) {
-//        return sqlException(Trace.GENERAL_ERROR, e.toString());
+//        return sqlException(ErrorCode.GENERAL_ERROR, e.toString());
 //    }
 //
 //    static SQLException statementClosedException() {
-//        return sqlException(Trace.STATEMENT_IS_CLOSED);
+//        return sqlException(ErrorCode.STATEMENT_IS_CLOSED);
 //    }
 //
 //    static SQLException statementGetMoreResultsWithCurrentResultSetHandlingNotSupportedException() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static int toObjectDataType(Object o) {
@@ -733,7 +734,7 @@ public class Util {
 //            {
 //                return "CONCUR_READ_ONLY";
 //            }
-//            case jdbcResultSet.CONCUR_UPDATABLE:
+//            JDBCResultSet.CONCUR_UPDATABLE:
 //            {
 //                return "CONCUR_UPDATABLE";
 //            }
@@ -746,15 +747,15 @@ public class Util {
 //
 //    static String toResultSetFetchDirectionString(int direction) {
 //        switch(direction) {
-//            case jdbcResultSet.FETCH_FORWARD:
+//            case JDBCResultSet.FETCH_FORWARD:
 //            {
 //                return "FETCH_FORWARD";
 //            }
-//            case jdbcResultSet.FETCH_REVERSE:
+//            case JDBCResultSet.FETCH_REVERSE:
 //            {
 //                return "FETCH_REVERSE";
 //            }
-//            case jdbcResultSet.FETCH_UNKNOWN:
+//            case JDBCResultSet.FETCH_UNKNOWN:
 //            {
 //                return "FETCH_UNKNOWN";
 //            }
@@ -767,11 +768,11 @@ public class Util {
 //
 //    static String toResultSetHoldabilityString(int type) {
 //        switch(type) {
-//            case jdbcResultSet.CLOSE_CURSORS_AT_COMMIT:
+//            case JDBCResultSet.CLOSE_CURSORS_AT_COMMIT:
 //            {
 //                return "CLOSE_CURSORS_AT_COMMIT";
 //            }
-//            case jdbcResultSet.HOLD_CURSORS_OVER_COMMIT:
+//            case JDBCResultSet.HOLD_CURSORS_OVER_COMMIT:
 //            {
 //                return "HOLD_CURSORS_OVER_COMMIT";
 //            }
@@ -785,15 +786,15 @@ public class Util {
 //
 //    static String toResultSetTypeString(int type) {
 //        switch(type) {
-//            case jdbcResultSet.TYPE_FORWARD_ONLY:
+//            case JDBCResultSet.TYPE_FORWARD_ONLY:
 //            {
 //                return "TYPE_FORWARD_ONLY";
 //            }
-//            case jdbcResultSet.TYPE_SCROLL_INSENSITIVE:
+//            case JDBCResultSet.TYPE_SCROLL_INSENSITIVE:
 //            {
 //                return "TYPE_SCROLL_INSENSITIVE";
 //            }
-//            case jdbcResultSet.TYPE_SCROLL_SENSITIVE:
+//            case JDBCResultSetjdbcResultSet.TYPE_SCROLL_SENSITIVE:
 //            {
 //                return "TYPE_SCROLL_SENSITIVE";
 //            }
@@ -805,36 +806,36 @@ public class Util {
 //    }
 //
 //    static SQLException unsupportedDataType_ARRAY_Exception() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //
 //    static SQLException unsupportedDataType_DATALINK_Exception() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException unsupportedDataType_DISTINCT_Exception() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException unsupportedDataType_REF_Exception() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException unsupportedDataType_ROWID_Exception() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException unsupportedDataType_SQLXML_Exception() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException unsupportedDataType_STRUCT_Exception() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //    static SQLException unsupportedDataTypes_STRUCT_AND_DISTINCT_Exception() {
-//        return sqlException(Trace.FUNCTION_NOT_SUPPORTED);
+//        return sqlException(ErrorCode.FUNCTION_NOT_SUPPORTED);
 //    }
 //
 //
@@ -851,7 +852,7 @@ public class Util {
 //                + " : "
 //                + srcVal;
 //
-//        return sqlException(Trace.INVALID_CONVERSION, msg);
+//        return sqlException(ErrorCode.INVALID_CONVERSION, msg);
 //    }
 //
 //    static SQLException unsupportedResultSetValueConversionException(int srcType, Object srcVal, int dstType) {
@@ -861,29 +862,29 @@ public class Util {
 //                + " : "
 //                + srcVal;
 //
-//        return sqlException(Trace.INVALID_CONVERSION, msg);
+//        return sqlException(ErrorCode.INVALID_CONVERSION, msg);
 //    }
 //
 //    static SQLException updateCountResultInResultSetInitializationException() {
-//        return sqlException(Trace.ASSERT_FAILED, "result.mode != UPDATECOUNT");
+//        return sqlException(ErrorCode.ASSERT_FAILED, "result.mode != UPDATECOUNT");
 //    }
 //
 //    static SQLException updateCountWasNotGeneratedByPreparedStatementExecutionException() {
 //        String msg = "Expected but did not receive a row update count"; //NOI18N
 //
-//        return sqlException(Trace.UNEXPECTED_EXCEPTION, msg);
+//        return sqlException(ErrorCode.UNEXPECTED_EXCEPTION, msg);
 //    }
 //
 //    static SQLException updateCountWasNotGeneratedByStatementExecutionException() {
-//        return sqlException(Trace.ASSERT_FAILED,
-//                            Trace.getMessage(Trace.JDBC_STATEMENT_EXECUTE_UPDATE));
+//        return sqlException(ErrorCode.ASSERT_FAILED,
+//                            Error.getMessage(ErrorCode.JDBC_STATEMENT_EXECUTE_UPDATE));
 //    }
 //
 //    static SQLException updateCountWillNotBeGeneratedByExecuteUpdateException() {
-//        return sqlException(Trace.JDBC_STATEMENT_NOT_ROW_COUNT);
+//        return sqlException(ErrorCode.JDBC_STATEMENT_NOT_ROW_COUNT);
 //    }
 //
 //    public static SQLException wrappedObjectNotFoundException(Class clazz) {
-//        return sqlException(Trace.JDBC_INVALID_ARGUMENT, String.valueOf(clazz));
+//        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, String.valueOf(clazz));
 //    }
 }

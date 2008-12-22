@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ import java.sql.SQLException;
 // boucherb@users 2005-12-07 - patch 1.8.0.x - initial JDBC 4.0 support work
 // boucherb@users 2006-05-22 - doc 1.9.0     - full synch up to Mustang Build 84
 //                           - patch 1.9.0   - setBinaryStream improvement
-
 /*
  * $Log: jdbcBlob.java,v $
  * Revision 1.14  2006/07/12 11:55:45  boucherb
@@ -102,16 +101,16 @@ import java.sql.SQLException;
  *
  * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
  * SQL BLOB data implementations, meaning that an HSQLDB Blob object <em>may</em>
- * contain a logical pointer to remote SQL BLOB data (see {@link jdbcBlobClient 
+ * contain a logical pointer to remote SQL BLOB data (see {@link jdbcBlobClient
  * jdbcBlobClient}) or it may directly contain a local representation of the
  * data (as implemented in this class).  In particular, when the product is built
  * under JDK 1.6+ and the Blob instance is constructed as a result of calling
- * jdbcConnection.createBlob(), then the resulting Blob instance is initially
+ * JDBCConnection.createBlob(), then the resulting Blob instance is initially
  * disconnected (is not bound to the tranaction scope of the vending Connection
  * object), the data is contained directly and all interface methods for
  * updating the BLOB value are supported for local use until the first
  * invocation of free(); otherwise, an HSQLDB Blob's implementation is
- * determined at runtime by the driver, it is typically not valid beyond the 
+ * determined at runtime by the driver, it is typically not valid beyond the
  * duration of the transaction in which is was created, and there no
  * standard way to query whether it represents a local or remote
  * value.<p>
@@ -125,7 +124,7 @@ import java.sql.SQLException;
  * @since JDK 1.2, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 1.9.0
  */
-public class jdbcBlob implements Blob {
+public class JDBCBlob implements Blob {
 
     /**
      * Returns the number of bytes in the <code>BLOB</code> value
@@ -190,7 +189,6 @@ public class jdbcBlob implements Blob {
         if (pos < MIN_POS || pos > dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         pos--;
 
         if (length < 0 || length > dlen - pos) {
@@ -334,8 +332,8 @@ public class jdbcBlob implements Blob {
         final int iplen = (int) plen;
         byte[]    bap;
 
-        if (pattern instanceof jdbcBlob) {
-            bap = ((jdbcBlob) pattern).data();
+        if (pattern instanceof JDBCBlob) {
+            bap = ((JDBCBlob) pattern).data();
         } else {
             bap = pattern.getBytes(1L, iplen);
         }
@@ -388,11 +386,11 @@ public class jdbcBlob implements Blob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Blob instance is constructed as a
-     * result of calling jdbcConnection.createBlob(), this operation affects
+     * result of calling JDBCConnection.createBlob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
-     * database because jdbcConnection.createBlob() constructs disconnected,
+     * database because JDBCConnection.createBlob() constructs disconnected,
      * initially empty Blob instances. To propogate the Blob value to a database
      * in this case, it is required to supply the Blob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
@@ -460,11 +458,11 @@ public class jdbcBlob implements Blob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Blob instance is constructed as a
-     * result of calling jdbcConnection.createBlob(), this operation affects
+     * result of calling JDBCConnection.createBlob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
-     * database because jdbcConnection.createBlob() constructs disconnected,
+     * database because JDBCConnection.createBlob() constructs disconnected,
      * initially empty Blob instances. To propogate the Blob value to a database
      * in this case, it is required to supply the Blob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
@@ -534,7 +532,6 @@ public class jdbcBlob implements Blob {
         if (pos < MIN_POS || pos > 1L + (Integer.MAX_VALUE - len)) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         pos--;
 
         byte[] ldata = this.data;
@@ -551,7 +548,6 @@ public class jdbcBlob implements Blob {
             ldata = temp;
             temp  = null;
         }
-
         System.arraycopy(bytes, offset, ldata, (int) pos, len);
 
         // paranoia, in case somone free'd us during the array copies.
@@ -583,11 +579,11 @@ public class jdbcBlob implements Blob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Blob instance is constructed as a
-     * result of calling jdbcConnection.createBlob(), this operation affects
+     * result of calling JDBCConnection.createBlob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
-     * database because jdbcConnection.createBlob() constructs disconnected,
+     * database because JDBCConnection.createBlob() constructs disconnected,
      * initially empty Blob instances. To propogate the Blob value to a database
      * in this case, it is required to supply the Blob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
@@ -642,7 +638,6 @@ public class jdbcBlob implements Blob {
         if (pos < MIN_POS || pos > MAX_POS) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         checkValid(this.data);
 
         return new java.io.ByteArrayOutputStream() {
@@ -650,7 +645,7 @@ public class jdbcBlob implements Blob {
             public synchronized void close() throws java.io.IOException {
 
                 try {
-                    jdbcBlob.this.setBytes(pos, toByteArray());
+                    JDBCBlob.this.setBytes(pos, toByteArray());
                 } catch (SQLException se) {
                     throw new java.io.IOException(se.toString());
                 } finally {
@@ -675,11 +670,11 @@ public class jdbcBlob implements Blob {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.9.0 this feature is fully supported. <p>
-     * 
+     *
      * When built under JDK 1.6+ and the Blob instance is constructed as a
-     * result of calling jdbcConnection.createBlob(), this operation affects
+     * result of calling JDBCConnection.createBlob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
-     * database because jdbcConnection.createBlob() constructs disconnected,
+     * database because JDBCConnection.createBlob() constructs disconnected,
      * initially empty Blob instances. To propogate the truncated Blob value to
      * a database in this case, it is required to supply the Blob instance to
      * an updating or inserting setXXX method of a Prepared or Callable
@@ -726,12 +721,12 @@ public class jdbcBlob implements Blob {
      * This method frees the <code>Blob</code> object and releases the resources that
      * it holds. The object is invalid once the <code>free</code>
      * method is called.
-     *<p>
+     * <p>
      * After <code>free</code> has been called, any attempt to invoke a
      * method other than <code>free</code> will result in a <code>SQLException</code>
      * being thrown.  If <code>free</code> is called multiple times, the subsequent
      * calls to <code>free</code> are treated as a no-op.
-     *<p>
+     * <p>
      *
      * @throws SQLException if an error occurs releasing
      * the Blob's resources
@@ -771,7 +766,6 @@ public class jdbcBlob implements Blob {
         if (pos < MIN_POS || pos > dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         pos--;
 
         if (length < 0 || length > dlen - pos) {
@@ -793,11 +787,12 @@ public class jdbcBlob implements Blob {
         // whose buffer is the full size required to represent the
         // underlying BLOB value.
 //        if (isGetBinaryStreamUsesCopy()) {
-            final byte[] out = new byte[(int) length];
+        final byte[] out = new byte[(int) length];
 
-            System.arraycopy(ldata, (int) pos, out, 0, (int) length);
+        System.arraycopy(ldata, (int) pos, out, 0, (int) length);
 
-            return new ByteArrayInputStream(out);
+        return new ByteArrayInputStream(out);
+
 //        } else {
 //            return new BinaryInputStream(ldata, pos, length);
 //        }
@@ -822,17 +817,15 @@ public class jdbcBlob implements Blob {
      * the underlying buffer; else false
      */
     public boolean isGetBinaryStreamUsesCopy() {
-         return getBinaryStreamUsesCopy;
+        return getBinaryStreamUsesCopy;
     }
 
     // ---------------------- internal implementation --------------------------
-
     public static final long MIN_POS = 1L;
-    public static final long MAX_POS = 1L + (long)Integer.MAX_VALUE;
-
-    private volatile byte[] data;
-    private final boolean   createdByConnection;
-    private boolean         getBinaryStreamUsesCopy;
+    public static final long MAX_POS = 1L + (long) Integer.MAX_VALUE;
+    private volatile byte[]  data;
+    private final boolean    createdByConnection;
+    private boolean          getBinaryStreamUsesCopy;
 
     /**
      * Constructs a new jdbcBlob instance wrapping the given octet sequence. <p>
@@ -847,14 +840,14 @@ public class jdbcBlob implements Blob {
      * @param data the octet sequence representing the Blob value
      * @throws SQLException if the argument is null
      */
-    public jdbcBlob(final byte[] data) throws SQLException {
+    public JDBCBlob(final byte[] data) throws SQLException {
 
         init(data);
 
         this.createdByConnection = false;
     }
 
-    protected jdbcBlob() {
+    protected JDBCBlob() {
         this.data                = new byte[0];
         this.createdByConnection = true;
     }
@@ -864,7 +857,6 @@ public class jdbcBlob implements Blob {
         if (data == null) {
             throw Util.nullArgument();
         }
-
         this.data = data;    // (byte[]) data.clone();
     }
 

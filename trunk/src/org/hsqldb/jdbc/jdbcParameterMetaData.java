@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
 /*
- * $Log: jdbcParameterMetaData.java,v $
+ * $Log: JDBCParameterMetaData.java,v $
  * Revision 1.15  2006/07/12 12:21:40  boucherb
  * - correct CVS Id var
  *
@@ -65,27 +65,28 @@ import org.hsqldb.types.Type;
  * implementations, the data that would be returned by a <code>ParameterMetaData</code>
  * object may not be available until the <code>PreparedStatement</code> has
  * been executed.
- *<p>
- *Some driver implementations may not be able to provide information about the
- *types and properties for each parameter marker in a <code>CallableStatement</code>
- *object.
+ * <p>
+ * Some driver implementations may not be able to provide information about the
+ * types and properties for each parameter marker in a <code>CallableStatement</code>
+ * object.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @version 1.9.0
  * @since JDK 1.4, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 1.9.0
  */
 
-//#ifdef JDBC4
- public class jdbcParameterMetaData implements ParameterMetaData, java.sql.Wrapper {
+//#ifdef JAVA6
+public class JDBCParameterMetaData implements ParameterMetaData,
+        java.sql.Wrapper {
 
 //#else
 /*
-public class jdbcParameterMetaData
+public class JDBCParameterMetaData
     implements ParameterMetaData {
 */
 
-//#endif
+//#endif JAVA6
 
     /**
      * Retrieves the number of parameters in the <code>PreparedStatement</code>
@@ -115,7 +116,7 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-        return nullability[--param];
+        return ParameterMetaData.parameterNullableUnknown;
     }
 
     /**
@@ -130,7 +131,7 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-        return types[--param].isNumberType();
+        return rmd.columnTypes[--param].isNumberType();
     }
 
     /**
@@ -152,16 +153,17 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-        Type type = types[--param];
+        Type type = rmd.columnTypes[--param];
 
         if (type.isDateTimeType()) {
             return type.displaySize();
         } else {
-            long size =  type.size();
+            long size = type.precision;
 
             if (size > Integer.MAX_VALUE) {
                 size = 0;
             }
+
             return (int) size;
         }
     }
@@ -179,8 +181,7 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-
-        return types[--param].scale();
+        return rmd.columnTypes[--param].scale;
     }
 
     /**
@@ -196,7 +197,7 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-        return types[--param].getJDBCTypeNumber();
+        return rmd.columnTypes[--param].getJDBCTypeCode();
     }
 
     /**
@@ -212,7 +213,7 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-        return types[--param].getNameString();
+        return rmd.columnTypes[--param].getNameString();
     }
 
     /**
@@ -232,7 +233,7 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-        return classNames[--param];
+        return rmd.columnTypes[--param].getJDBCClassName();
     }
 
     /**
@@ -251,7 +252,7 @@ public class jdbcParameterMetaData
 
         checkRange(param);
 
-        return modes[--param];
+        return rmd.paramModes[--param];
     }
 
     //----------------------------- JDBC 4.0 -----------------------------------
@@ -274,18 +275,18 @@ public class jdbcParameterMetaData
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 1.9.0
      */
-//#ifdef JDBC4
+//#ifdef JAVA6
     @SuppressWarnings("unchecked")
-    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
-            if (isWrapperFor(iface)) {
-                return (T) this;
-            }
+    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
-            throw Util.invalidArgument("iface: " + iface);
+        if (isWrapperFor(iface)) {
+            return (T) this;
         }
 
+        throw Util.invalidArgument("iface: " + iface);
+    }
 
-//#endif JDBC4
+//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -302,25 +303,17 @@ public class jdbcParameterMetaData
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 1.9.0
      */
-//#ifdef JDBC4
-    public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
+//#ifdef JAVA6
+    public boolean isWrapperFor(
+            java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JDBC4
+//#endif JAVA6
     // -------------------------- Internal Implementation ----------------------
 
     /** The metadata object with which this object is constructed */
     ResultMetaData rmd;
-
-    /** Data type objects of the parameters. */
-    Type[] types;
-
-    /** Parameter mode values */
-    byte[] modes;
-
-    /** nullability code for site to which param is bound */
-    byte[] nullability;
 
     /**
      * The fully-qualified name of the Java class whose instances should
@@ -340,19 +333,14 @@ public class jdbcParameterMetaData
     int parameterCount;
 
     /**
-     * Creates a new instance of jdbcParameterMetaData. <p>
+     * Creates a new instance of JDBCParameterMetaData. <p>
      *
      * @param r A Result object describing the statement parameters
      * @throws SQLException never - reserved for future use
      */
-    jdbcParameterMetaData(ResultMetaData metaData) throws SQLException {
-
-        rmd = metaData;
-        types = rmd.colTypes;
-        parameterCount = types.length;
-        nullability = rmd.colNullable;
-        classNames = rmd.classNames;
-        modes = rmd.paramModes;
+    JDBCParameterMetaData(ResultMetaData metaData) throws SQLException {
+        rmd            = metaData;
+        parameterCount = rmd.getColumnCount();
     }
 
     /**
@@ -381,8 +369,7 @@ public class jdbcParameterMetaData
 
         try {
             return toStringImpl();
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             return super.toString() + "[toStringImpl_exception=" + t + "]";
         }
     }
@@ -396,9 +383,9 @@ public class jdbcParameterMetaData
     private String toStringImpl() throws Exception {
 
         StringBuffer sb;
-        Method[] methods;
-        Method method;
-        int count;
+        Method[]     methods;
+        Method       method;
+        int          count;
 
         sb = new StringBuffer();
 
@@ -411,7 +398,6 @@ public class jdbcParameterMetaData
 
             return sb.toString();
         }
-
         methods = getClass().getDeclaredMethods();
 
         sb.append('[');
@@ -435,17 +421,16 @@ public class jdbcParameterMetaData
                 if (method.getParameterTypes().length != 1) {
                     continue;
                 }
-
                 sb.append(method.getName());
                 sb.append('=');
-                sb.append(method.invoke(this, new Object[] {new Integer(i + 1)}));
+                sb.append(method.invoke(this,
+                                        new Object[] { new Integer(i + 1) }));
 
                 if (j + 1 < len) {
                     sb.append(',');
                     sb.append(' ');
                 }
             }
-
             sb.append(']');
 
             if (i + 1 < count) {
@@ -453,7 +438,6 @@ public class jdbcParameterMetaData
                 sb.append(' ');
             }
         }
-
         sb.append('\n');
         sb.append(']');
 

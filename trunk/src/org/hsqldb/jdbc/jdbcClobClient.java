@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.sql.SQLException;
 import org.hsqldb.HsqlException;
 import org.hsqldb.types.ClobData;
 
-public class jdbcClobClient implements Clob {
+public class JDBCClobClient implements Clob {
 
     /**
      * Retrieves the <code>CLOB</code> value designated by this
@@ -276,7 +276,7 @@ public class jdbcClobClient implements Clob {
     //
     ClobData clob;
 
-    jdbcClobClient(ClobData clob) {
+    JDBCClobClient(ClobData clob) {
         this.clob = clob;
     }
 }

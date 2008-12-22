@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,22 +50,6 @@ import org.hsqldb.persist.HsqlProperties;
 // boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
 
 /**
- * The following comments are from the http://ldbc.sourceforge.net project.
- * These are the issues with HSQLDB JDBC implementation that are currently
- * not resolved. Other issues stated there have been resolved in 1.8.0.
- *
- * Statement / PreparedStatement setMaxFieldSize is ignored.
- *
- * The database should support at least Connection.TRANSACTION_READ_COMMITTED.
- * Currently, only TRANSACTION_READ_UNCOMMITTED is supported.
- *
- * Statement.getQueryTimeout doesn't return the value set before.
- *
- * When autocommit is on, executing a query on a statement is
- * supposed to close the old resultset. This is not implemented.
- */
-
-/**
  * Provides the java.sql.Driver interface implementation required by
  * the JDBC specification. <p>
  *
@@ -91,7 +75,7 @@ import org.hsqldb.persist.HsqlProperties;
  *  </pre>
  *
  *  For detailed information about how to obtain HSQLDB JDBC Connections,
- *  please see {@link org.hsqldb.jdbc.jdbcConnection jdbcConnection}.<p>
+ *  please see {@link org.hsqldb.jdbc.JDBCConnection JDBCConnection}.<p>
  *
  * <hr>
  *
@@ -110,7 +94,7 @@ import org.hsqldb.persist.HsqlProperties;
  * <code>int</code> values that are defined only in the JDBC 2 or greater
  * version of the {@link java.sql.ResultSet ResultSet} interface.  For this
  * reason, when the product is compiled under JDK 1.1.x, these values are
- * defined in {@link org.hsqldb.jdbc.jdbcResultSet jdbcResultSet}. <p>
+ * defined in {@link org.hsqldb.jdbc.JDBCResultSet JDBCResultSet}. <p>
  *
  * In a JRE 1.1.x environment, calling JDBC 2 methods that take or return the
  * JDBC2-only <code>ResultSet</code> values can be achieved by referring
@@ -118,10 +102,10 @@ import org.hsqldb.persist.HsqlProperties;
  * respectively, as follows: <p>
  *
  * <pre class="JavaCodeExample">
- * jdbcResultSet.FETCH_FORWARD
- * jdbcResultSet.TYPE_FORWARD_ONLY
- * jdbcResultSet.TYPE_SCROLL_INSENSITIVE
- * jdbcResultSet.CONCUR_READ_ONLY
+ * JDBCResultSet.FETCH_FORWARD
+ * JDBCResultSet.TYPE_FORWARD_ONLY
+ * JDBCResultSet.TYPE_SCROLL_INSENSITIVE
+ * JDBCResultSet.CONCUR_READ_ONLY
  * // etc.
  * </pre>
  *
@@ -151,15 +135,20 @@ import org.hsqldb.persist.HsqlProperties;
  * <code>Class.forName()</code> will continue to work without modification. <p>
  *
  * <hr>
- *
- * (fredt@users)<br>
- * (boucherb@users)<p>
- *
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * </div> <!-- end release-specific documentation -->
  *
- * @see org.hsqldb.jdbc.jdbcConnection
+ * @see org.hsqldb.jdbc.JDBCConnection
  */
-public class jdbcDriver implements Driver {
+public class JDBCDriver implements Driver {
+
+    /**
+     * Default constructor
+     */
+    public JDBCDriver() {
+    }
 
     /**
      * Attempts to make a database connection to the given URL.<p>
@@ -266,12 +255,13 @@ public class jdbcDriver implements Driver {
      * @return a <code>Connection</code> object that represents a
      *      connection to the URL
      */
-//#ifdef JDBC4
+
+//#ifdef JAVA6
     @SuppressWarnings("deprecation")
-//#endif JDBC4
+
+//#endif JAVA6
     public static Connection getConnection(String url,
-                                           Properties info)
-                                           throws SQLException {
+            Properties info) throws SQLException {
 
         final HsqlProperties props = DatabaseURL.parseURL(url, true, false);
 
@@ -284,7 +274,6 @@ public class jdbcDriver implements Driver {
             // is not an HSQLDB driver url
             return null;
         }
-
         props.addProperties(info);
 
         long timeout = DriverManager.getLoginTimeout();
@@ -292,24 +281,24 @@ public class jdbcDriver implements Driver {
         if (timeout == 0) {
 
             // no timeout restriction
-            return new jdbcConnection(props);
+            return new JDBCConnection(props);
         }
 
         String connType = props.getProperty("connection_type");
 
         if (DatabaseURL.isInProcessDatabaseType(connType)) {
-            return new jdbcConnection(props);
+            return new JDBCConnection(props);
         }
 
         // TODO:  Better: ThreadPool? HsqlTimer with callback?
-        final jdbcConnection[] conn = new jdbcConnection[1];
+        final JDBCConnection[] conn = new JDBCConnection[1];
         final SQLException[]   ex   = new SQLException[1];
         Thread                 t    = new Thread() {
 
             public void run() {
 
                 try {
-                    conn[0] = new jdbcConnection(props);
+                    conn[0] = new JDBCConnection(props);
                 } catch (SQLException se) {
                     ex[0] = se;
                 }
@@ -322,7 +311,8 @@ public class jdbcDriver implements Driver {
 
         try {
             t.join(1000 * timeout);
-        } catch (InterruptedException ie) {}
+        } catch (InterruptedException ie) {
+        }
 
         try {
 
@@ -334,7 +324,8 @@ public class jdbcDriver implements Driver {
             // become visible to other threads with the
             // potential of arbitrary behavior.
             t.stop();
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         if (ex[0] != null) {
             throw ex[0];
@@ -409,7 +400,6 @@ public class jdbcDriver implements Driver {
         if (info == null) {
             info = new Properties();
         }
-
         p          = new DriverPropertyInfo("user", null);
         p.value    = info.getProperty("user");
         p.required = true;
@@ -429,7 +419,7 @@ public class jdbcDriver implements Driver {
         p.choices  = choices;
         pinfo[3]   = p;
         p          = new DriverPropertyInfo("default_schema", null);
-        p.value = info.getProperty("default_schema", "false");
+        p.value    = info.getProperty("default_schema", "false");
         p.required = false;
         p.choices  = choices;
         pinfo[4]   = p;
@@ -488,13 +478,13 @@ public class jdbcDriver implements Driver {
      *         <code>false</code> otherwise
      */
     public boolean jdbcCompliant() {
-
         return true;
     }
 
     static {
         try {
-            DriverManager.registerDriver(new jdbcDriver());
-        } catch (Exception e) {}
+            DriverManager.registerDriver(new JDBCDriver());
+        } catch (Exception e) {
+        }
     }
 }

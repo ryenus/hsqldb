@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,9 +70,7 @@ import java.io.IOException;
 
 import org.hsqldb.CachedRow;
 import org.hsqldb.Row;
-import org.hsqldb.Table;
-import org.hsqldb.Trace;
-import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
@@ -81,57 +79,25 @@ import org.hsqldb.rowio.RowOutputInterface;
 // fredt@users 20021215 - doc 1.7.2 - javadoc comments
 
 /**
- *  The parent for all AVL node implementations, features factory methods for
- *  its subclasses. Subclasses of Node vary in the way they hold
+ *  The parent for all AVL node implementations. Subclasses of Node vary
+ *  in the way they hold
  *  references to other Nodes in the AVL tree, or to their Row data.<br>
  *
  *  nNext links the Node objects belonging to different indexes for each
  *  table row. It is used solely by Row to locate the node belonging to a
- *  particular index.
+ *  particular index.<br>
  *
+ *  Enhanced in various versions of HSQLDB
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.2
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
 public abstract class Node {
 
     static final int NO_POS = CachedRow.NO_POS;
-    int              iBalance;    // currently, -2 means 'deleted'
-    public Node             nNext;       // node of next index (nNext==null || nNext.iId=iId+1)
-
-    public static final Node newNode(Row r, int id, Table t) {
-
-        switch (t.getIndexType()) {
-
-            case Index.MEMORY_INDEX :
-                return new MemoryNode(r);
-
-            case Index.POINTER_INDEX :
-                return new PointerNode((CachedRow) r, id);
-
-            case Index.DISK_INDEX :
-            default :
-                return new DiskNode((CachedRow) r, id);
-        }
-    }
-
-    public static final Node newNode(Row r, RowInputInterface in, int id,
-                              Table t) throws IOException {
-
-        switch (t.getIndexType()) {
-
-            case Index.MEMORY_INDEX :
-                return new MemoryNode(r);
-
-            case Index.POINTER_INDEX :
-                return new PointerNode((CachedRow) r, id);
-
-            case Index.DISK_INDEX :
-            default :
-                return new DiskNode((CachedRow) r, in, id);
-        }
-    }
+    public int              iBalance;    // currently, -2 means 'deleted'
+    public Node      nNext;       // node of next index (nNext==null || nNext.iId=iId+1)
 
     /**
      *  This method unlinks the Node from the other Nodes in the same Index
@@ -139,17 +105,17 @@ public abstract class Node {
      *
      *  It must keep the links between the Nodes in different Indexes.
      */
-    abstract void delete();
+    public abstract void delete();
 
     /**
      *  File offset of Node. Used with CachedRow objects only
      */
-    abstract int getKey();
+    abstract public int getPos();
 
     /**
      *  Return the Row Object that is linked to this Node.
      */
-    abstract Row getRow();
+    abstract Row getRow(PersistentStore store);
 
     /**
      *  Getters and setters for AVL index operations.
@@ -158,60 +124,30 @@ public abstract class Node {
 
     abstract boolean isRight(Node node);
 
-    abstract Node getLeft();
+    abstract Node getLeft(PersistentStore store);
 
-    abstract void setLeft(Node n);
+    abstract Node setLeft(PersistentStore store, Node n);
 
-    abstract Node getRight();
+    abstract Node getRight(PersistentStore store);
 
-    abstract void setRight(Node n);
+    abstract Node setRight(PersistentStore store, Node n);
 
-    abstract Node getParent();
+    abstract Node getParent(PersistentStore store);
 
-    abstract void setParent(Node n);
+    abstract Node setParent(PersistentStore store, Node n);
 
-    final int getBalance() {
+    abstract int getBalance();
 
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-        }
-
-        return iBalance;
-    }
-
-    abstract void setBalance(int b);
+    abstract public Node setBalance(PersistentStore store, int b);
 
     abstract boolean isRoot();
 
-    abstract boolean isFromLeft();
-
-    /**
-     *  Returns the database table data for this Node
-     *
-     */
-    abstract Object[] getData();
+    abstract boolean isFromLeft(PersistentStore store);
 
     abstract boolean equals(Node n);
-
-    /**
-     *  Returns the Node Object that currently represents this Node in the
-     *  AVL index structure. In current implementations of Node this is
-     *  always the same as the this Object for MEMORY and TEXT tables but can
-     *  be a different Object for CACHED tables, where DiskNode Objects may
-     *  be freed from the Cache. Calling this method returns a Node with
-     *  currently valid pointers to its linked AVL Nodes.
-     *
-     */
-    Node getUpdatedNode() {
-        return this;
-    }
 
     /**
      *  Writes out the node in an implementation dependent way.
      */
     public abstract void write(RowOutputInterface out) throws IOException;
-
-    boolean isDeleted() {
-        return iBalance == -2;
-    }
 }

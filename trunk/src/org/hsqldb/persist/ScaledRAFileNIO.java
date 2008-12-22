@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 import org.hsqldb.Database;
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
 import org.hsqldb.lib.SimpleLog;
 
 /**
@@ -48,11 +48,11 @@ import org.hsqldb.lib.SimpleLog;
  * channel of fixed size. After reaching this size, the file and channel are
  * closed.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version  1.8.0.5
  * @since 1.8.0.5
  */
-class ScaledRAFileNIO implements ScaledRAInterface {
+final class ScaledRAFileNIO implements ScaledRAInterface {
 
     private final boolean       readOnly;
     private final long          bufferLength;
@@ -129,7 +129,7 @@ class ScaledRAFileNIO implements ScaledRAInterface {
                                           : FileChannel.MapMode.READ_WRITE, 0,
                                           bufferLength);
 
-            Trace.printSystemOut("NIO file instance created. mode: "
+            Error.printSystemOut("NIO file instance created. mode: "
                                  + readOnly);
 
             if (!readOnly) {
@@ -160,7 +160,7 @@ class ScaledRAFileNIO implements ScaledRAInterface {
                 buffer.position(0);
             }
         } catch (Throwable e) {
-            Trace.printSystemOut("NIO constructor failed:  " + bufferLength);
+            Error.printSystemOut("NIO constructor failed:  " + bufferLength);
 
             buffer  = null;
             channel = null;
@@ -299,7 +299,7 @@ class ScaledRAFileNIO implements ScaledRAInterface {
     public void close() throws IOException {
 
         try {
-            Trace.printSystemOut("NIO close() start - fileLength = "
+            Error.printSystemOut("NIO close() start - fileLength = "
                                  + bufferLength);
 
             if (buffer != null && bufferModified) {
