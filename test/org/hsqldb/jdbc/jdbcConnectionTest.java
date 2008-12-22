@@ -54,9 +54,9 @@ import java.util.Map;
  *
  * @author boucherb@users
  */
-public class jdbcConnectionTest extends JdbcTestCase {
+public class JDBCConnectionTest extends JdbcTestCase {
 
-    public jdbcConnectionTest(String testName) {
+    public JDBCConnectionTest(String testName) {
         super(testName);
     }
 
@@ -69,7 +69,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcConnectionTest.class);
+        TestSuite suite = new TestSuite(JDBCConnectionTest.class);
 
         return suite;
     }
@@ -79,7 +79,7 @@ public class jdbcConnectionTest extends JdbcTestCase {
     }
 
     protected Class getExpectedWrappedClass() {
-        return jdbcConnection.class;
+        return JDBCConnection.class;
     }
 
     protected Object getExpectedWrappedObject(Connection conn, Class<?> ifc) {

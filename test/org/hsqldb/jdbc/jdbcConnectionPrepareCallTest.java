@@ -40,19 +40,19 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcConnectionPrepareCallTest extends JdbcTestCase {
+public class JDBCConnectionPrepareCallTest extends JdbcTestCase {
     protected static String computeTestName(
             int typeIndex,
             int concurrencyIndex) {
         String typeName = rstype[typeIndex][0];
         String concurName = rsconcurrency[concurrencyIndex][0];
-        
+
         return "testPrepareCall_"
                 + typeName
                 + "_"
                 + concurName;
     }
-    
+
     protected static String computeTestName(
             int typeIndex,
             int concurrencyIndex,
@@ -60,7 +60,7 @@ public class jdbcConnectionPrepareCallTest extends JdbcTestCase {
         String typeName = rstype[typeIndex][0];
         String concurName = rsconcurrency[concurrencyIndex][0];
         String holdName = rsholdability[holdabilityIndex][0];
-        
+
         return "testPrepareCall_"
                 + typeName
                 + "_"
@@ -68,107 +68,107 @@ public class jdbcConnectionPrepareCallTest extends JdbcTestCase {
                 + "_"
                 + holdName;
     }
-    
+
     protected final int m_holdabilityIndex;
     protected final int m_concurrencyIndex;
     protected final int m_typeIndex;
     protected final boolean m_holdabilitySpecified;
-    
-    public jdbcConnectionPrepareCallTest(
+
+    public JDBCConnectionPrepareCallTest(
             int typeIndex,
             int concurrencyIndex,
             int holdabilityIndex) {
         super(computeTestName(typeIndex, concurrencyIndex, holdabilityIndex));
-        
+
         m_typeIndex = typeIndex;
         m_concurrencyIndex = concurrencyIndex;
         m_holdabilityIndex = holdabilityIndex;
         m_holdabilitySpecified = true;
     }
-    
-    public jdbcConnectionPrepareCallTest(
+
+    public JDBCConnectionPrepareCallTest(
             int typeIndex,
             int concurrencyIndex) {
         super(computeTestName(typeIndex, concurrencyIndex));
-        
+
         m_typeIndex = typeIndex;
         m_concurrencyIndex = concurrencyIndex;
         m_holdabilityIndex = Integer.MIN_VALUE;
         m_holdabilitySpecified = false;
     }
-    
+
     public static Test suite() {
-        TestSuite suite = new TestSuite("jdbcConnectionPrepareCallTest");
-        
+        TestSuite suite = new TestSuite("JDBCConnectionPrepareCallTest");
+
         for(int i = 0; i < rstype.length; i++) {
             for (int j = 0; j < rsconcurrency.length; j++) {
-                suite.addTest(new jdbcConnectionPrepareCallTest(i, j));
-            }            
-        }   
-        
+                suite.addTest(new JDBCConnectionPrepareCallTest(i, j));
+            }
+        }
+
         for(int i = 0; i < rstype.length; i++) {
             for (int j = 0; j < rsconcurrency.length; j++) {
                 for (int k = 0; k < rsholdability.length; k++)
-                suite.addTest(new jdbcConnectionPrepareCallTest(i, j, k));
-            }            
-        }         
+                suite.addTest(new JDBCConnectionPrepareCallTest(i, j, k));
+            }
+        }
 
         return suite;
-    }    
+    }
 
     public static void main(java.lang.String[] argList) {
 
         junit.textui.TestRunner.run(suite());
-    }    
-    
+    }
+
     protected int getResultSetType() throws Exception {
         return getFieldValue(rstype[m_typeIndex][1]);
     }
-    
+
     protected int getResultSetConcurrency() throws Exception {
         return getFieldValue(rsconcurrency[m_concurrencyIndex][1]);
     }
-    
+
     protected int getResultSetHoldability() throws Exception {
         return getFieldValue(rsholdability[m_holdabilityIndex][1]);
     }
-    
+
     protected String getSql() {
         return "call 1;";
-    }    
-    
+    }
+
     protected void runTest() throws Throwable {
         println(getName());
-        
+
         final int type        = getResultSetType();
         final int concurrency = getResultSetConcurrency();
-        final int holdability = m_holdabilitySpecified 
-                ? getResultSetHoldability() 
+        final int holdability = m_holdabilitySpecified
+                ? getResultSetHoldability()
                 : Integer.MIN_VALUE;
         final String sql = getSql();
-        
+
         final Connection conn = newConnection();
-        final Statement stmt = m_holdabilitySpecified 
-                ? conn.prepareCall(sql, type, concurrency, holdability) 
+        final Statement stmt = m_holdabilitySpecified
+                ? conn.prepareCall(sql, type, concurrency, holdability)
                 : conn.prepareCall(sql, type, concurrency);
-        
+
         connectionFactory().registerStatement(stmt);
-        
+
         SQLWarning warning = conn.getWarnings();
-        
+
         if(warning == null) {
             assertEquals(
-                    "ResultSet Type", 
-                    type, 
+                    "ResultSet Type",
+                    type,
                     stmt.getResultSetType());
             assertEquals(
-                    "ResultSet Concurrency", 
-                    concurrency, 
+                    "ResultSet Concurrency",
+                    concurrency,
                     stmt.getResultSetConcurrency());
             if(m_holdabilitySpecified) {
                 assertEquals(
-                        "ResultSet Holdability", 
-                        holdability, 
+                        "ResultSet Holdability",
+                        holdability,
                         stmt.getResultSetHoldability());
             }
         } else {

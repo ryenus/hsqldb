@@ -44,15 +44,15 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcStatementTest extends JdbcTestCase {
+public class JDBCStatementTest extends JdbcTestCase {
 
-    public jdbcStatementTest(String testName) {
+    public JDBCStatementTest(String testName) {
         super(testName);
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         super.executeScript("setup-sample-data-tables.sql");
     }
 
@@ -61,27 +61,27 @@ public class jdbcStatementTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcStatementTest.class);
-        
+        TestSuite suite = new TestSuite(JDBCStatementTest.class);
+
         return suite;
     }
-    
+
     protected Statement newStatement() throws Exception {
         return newConnection().createStatement();
     }
-    
+
     protected int getExpectedDefaultResultSetHoldability() {
         return ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
     protected Class getExpectedWrappedClass() {
-        return jdbcStatement.class;
+        return JDBCStatement.class;
     }
-    
+
     protected Object getExpectedWrappedObject(Statement stmt, Class<?> ifc) {
         return stmt;
     }
-    
+
     /**
      * Test of executeQuery method, of interface java.sql.Statement.
      */
@@ -98,7 +98,7 @@ public class jdbcStatementTest extends JdbcTestCase {
 
         StringBuffer sb = new StringBuffer();
 
-        try { 
+        try {
             stmt.executeQuery("insert into t values(1)");
             sb.append("Allowed DML.   ");
         } catch (SQLException ex) {
@@ -111,7 +111,7 @@ public class jdbcStatementTest extends JdbcTestCase {
         } catch (SQLException ex) {
             //ex.printStackTrace();
         }
-        
+
         if (sb.length() > 0) {
             fail(sb.toString());
         }
@@ -122,15 +122,15 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testExecuteUpdate() throws Exception {
         println("executeUpdate");
-        
+
         Statement stmt = newStatement();
-        
+
         stmt.execute("create table t(id int)");
-        
+
         int count = stmt.executeUpdate("insert into t values(1)");
-        
+
         assertEquals(1, count);
-        
+
         try {
             stmt.executeUpdate("select * from customer");
             fail("Allowed DQL.");
@@ -144,15 +144,15 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testClose() throws Exception {
         println("close");
-        
+
         Statement stmt = newStatement();
-        
+
         assertEquals(false, stmt.isClosed());
-        
+
         stmt.close();
-        
+
         assertEquals(true, stmt.isClosed());
-        
+
         try {
             stmt.executeQuery("select * from customer");
             fail("Allowed access after close.");
@@ -165,11 +165,11 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetMaxFieldSize() throws Exception {
         println("getMaxFieldSize");
-        
-        Statement stmt = newStatement();        
+
+        Statement stmt = newStatement();
         int       expResult = 0;
         int       result = stmt.getMaxFieldSize();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -178,10 +178,10 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testSetMaxFieldSize() throws Exception {
         println("setMaxFieldSize");
-        
+
         int       max = 0;
         Statement stmt = newStatement();
-        
+
         stmt.setMaxFieldSize(max);
     }
 
@@ -190,11 +190,11 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetMaxRows() throws Exception {
         println("getMaxRows");
-        
-        Statement stmt      = newStatement();        
+
+        Statement stmt      = newStatement();
         int       expResult = 0;
         int       result    = stmt.getMaxRows();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -203,10 +203,10 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testSetMaxRows() throws Exception {
         println("setMaxRows");
-        
+
         int        max = 0;
         Statement stmt = newStatement();
-        
+
         stmt.setMaxRows(max);
     }
 
@@ -215,14 +215,14 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testSetEscapeProcessing() throws Exception {
         println("setEscapeProcessing");
-        
+
         boolean   enable = true;
         Statement stmt   = newStatement();
-        
+
         stmt.setEscapeProcessing(enable);
-        
+
         enable = false;
-        
+
         stmt.setEscapeProcessing(enable);
     }
 
@@ -231,11 +231,11 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetQueryTimeout() throws Exception {
         println("getQueryTimeout");
-        
-        Statement stmt      = newStatement();        
+
+        Statement stmt      = newStatement();
         int       expResult = 0;
         int       result    = stmt.getQueryTimeout();
-                
+
         assertEquals(expResult, result);
     }
 
@@ -244,14 +244,14 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testSetQueryTimeout() throws Exception {
         println("setQueryTimeout");
-        
+
         int       seconds = 0;
         Statement stmt    = newStatement();
-        
+
         stmt.setQueryTimeout(seconds);
-        
+
         seconds = 1;
-        
+
         stmt.setQueryTimeout(seconds);
     }
 
@@ -260,9 +260,9 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testCancel() throws Exception {
         println("cancel");
-        
+
         Statement stmt = newStatement();
-        
+
         stmt.cancel();
     }
 
@@ -271,11 +271,11 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetWarnings() throws Exception {
         println("getWarnings");
-        
-        Statement  stmt      = newStatement();        
+
+        Statement  stmt      = newStatement();
         SQLWarning expResult = null;
         SQLWarning result    = stmt.getWarnings();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -284,9 +284,9 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testClearWarnings() throws Exception {
         println("clearWarnings");
-        
+
         Statement stmt = newStatement();
-        
+
         stmt.clearWarnings();
     }
 
@@ -295,10 +295,10 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testSetCursorName() throws Exception {
         println("setCursorName");
-        
+
         String    name = "";
         Statement stmt = newStatement();
-        
+
         stmt.setCursorName(name);
     }
 
@@ -307,19 +307,19 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testExecute() throws Exception {
         println("execute");
-        
+
         String    sql       = "select * from customer";
-        Statement stmt      = newStatement();        
+        Statement stmt      = newStatement();
         boolean   expResult = true;
         boolean   result    = stmt.execute(sql);
-        
+
         assertEquals(expResult, result);
-        
+
         sql       = "delete from customer where 1=0";
         expResult = false;
-        result    = stmt.execute(sql); 
-        
-        assertEquals(expResult, result);        
+        result    = stmt.execute(sql);
+
+        assertEquals(expResult, result);
     }
 
     /**
@@ -327,14 +327,14 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetResultSet() throws Exception {
         println("getResultSet");
-        
+
         String    sql  = "select * from customer";
         Statement stmt = newStatement();
-        
+
         stmt.execute(sql);
-        
+
         ResultSet rs = stmt.getResultSet();
-        
+
         assertNotNull(rs);
     }
 
@@ -343,15 +343,15 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetUpdateCount() throws Exception {
         println("getUpdateCount");
-        
+
         String    sql  = "delete from customer where 1=0";
         Statement stmt = newStatement();
-        
+
         stmt.execute(sql);
-        
+
         int expResult = 0;
         int result    = stmt.getUpdateCount();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -360,24 +360,24 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetMoreResults() throws Exception {
         println("getMoreResults");
-        
-        String    sql  = "select * from customer";        
+
+        String    sql  = "select * from customer";
         Statement stmt = newStatement();
-                
+
         stmt.execute(sql);
-        
+
         boolean expResult = true;
         boolean result    = stmt.getMoreResults();
-        
+
         assertEquals(expResult, result);
-        
+
         sql = "delete from customer where 1=0";
-        
+
         stmt.execute(sql);
-        
+
         expResult = false;
         result    = stmt.getMoreResults();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -386,32 +386,32 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testSetFetchDirection() throws Exception {
         println("setFetchDirection");
-        
+
         // every driver should support at least FETCH_FORWARD
-        
+
         int       direction = ResultSet.FETCH_FORWARD;
         Statement stmt      = newStatement();
-        
+
         stmt.setFetchDirection(direction);
-        
+
         // optional - just inform if not supported.
         // TODO:  check getWarnings
-        
+
         direction = ResultSet.FETCH_REVERSE;
-        
+
         try {
             stmt.setFetchDirection(direction);
         } catch (Exception e) {
             println(e.toString());
         }
-        
+
         direction = ResultSet.FETCH_UNKNOWN;
-        
+
         try {
             stmt.setFetchDirection(direction);
         } catch (Exception e) {
             println(e.toString());
-        }        
+        }
     }
 
     /**
@@ -419,14 +419,14 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetFetchDirection() throws Exception {
         println("getFetchDirection");
-        
+
         // default direction for every driver should be FETCH_FORWARD
         // TODO:  sets and gets with corresponding check of getWarnings
-        
-        Statement stmt = newStatement();        
+
+        Statement stmt = newStatement();
         int expResult  = ResultSet.FETCH_FORWARD;
         int result     = stmt.getFetchDirection();
-                
+
         assertEquals(expResult, result);
     }
 
@@ -435,10 +435,10 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testSetFetchSize() throws Exception {
         println("setFetchSize");
-        
+
         int       rows = 1;
         Statement stmt = newStatement();
-        
+
         stmt.setFetchSize(rows);
     }
 
@@ -447,13 +447,13 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetFetchSize() throws Exception {
         println("getFetchSize");
-        
+
         // Really, there is no default for all drivers...
         // it should be enough to be able to call the method.
-        Statement stmt = newStatement();        
+        Statement stmt = newStatement();
         int expResult  = 0;
         int result     = stmt.getFetchSize();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -462,11 +462,11 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetResultSetConcurrency() throws Exception {
         println("getResultSetConcurrency");
-        
-        Statement stmt      = newStatement();        
+
+        Statement stmt      = newStatement();
         int       expResult = ResultSet.CONCUR_READ_ONLY;
         int       result    = stmt.getResultSetConcurrency();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -475,11 +475,11 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetResultSetType() throws Exception {
         println("getResultSetType");
-        
-        Statement stmt      = newStatement();        
+
+        Statement stmt      = newStatement();
         int       expResult = ResultSet.TYPE_FORWARD_ONLY;
         int       result    = stmt.getResultSetType();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -488,10 +488,10 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testAddBatch() throws Exception {
         println("addBatch");
-        
+
         String    sql  = "delete from customer where id = 1";
         Statement stmt = newStatement();
-        
+
         stmt.addBatch(sql);
     }
 
@@ -500,13 +500,13 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testClearBatch() throws Exception {
         println("clearBatch");
-        
+
         Statement stmt = newStatement();
-        
+
         stmt.addBatch("delete from customer where id = 1");
         stmt.addBatch("delete from customer where id = 2");
         stmt.addBatch("delete from customer where id = 3");
-        
+
         stmt.clearBatch();
     }
 
@@ -515,17 +515,17 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testExecuteBatch() throws Exception {
         println("executeBatch");
-        
+
         Statement stmt = newStatement();
-        
+
         stmt.addBatch("delete from customer where id = 1");
         stmt.addBatch("delete from customer where id = 2");
         stmt.addBatch("delete from customer where id = 3");
         stmt.addBatch("delete from customer where id = 99999999999999");
-        
+
         int[] expResult = new int[]{ 1, 1, 1, 0 };
         int[] result    = stmt.executeBatch();
-        
+
         assertJavaArrayEquals(expResult, result);
     }
 
@@ -534,10 +534,10 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetConnection() throws Exception {
         println("getConnection");
-        
-        Statement  stmt = newStatement();        
+
+        Statement  stmt = newStatement();
         Connection conn = stmt.getConnection();
-        
+
         assertNotNull(conn);
     }
 
@@ -546,7 +546,7 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetGeneratedKeys() throws Exception {
         println("getGeneratedKeys");
-       
+
         // TODO
         fail("TODO: The test case is empty.");
     }
@@ -556,11 +556,11 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testGetResultSetHoldability() throws Exception {
         println("getResultSetHoldability");
-        
-        Statement stmt      = newStatement();        
+
+        Statement stmt      = newStatement();
         int       expResult = getExpectedDefaultResultSetHoldability();
         int       result    = stmt.getResultSetHoldability();
-        
+
         assertEquals(expResult, result);
     }
 
@@ -569,13 +569,13 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testIsClosed() throws Exception {
         println("isClosed");
-        
+
         Statement stmt = newStatement();
-        
+
         assertEquals(false, stmt.isClosed());
-        
+
         stmt.close();
-        
+
         assertEquals(true, stmt.isClosed());
     }
 
@@ -584,12 +584,12 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testUnwrap() throws Exception {
         println("unwrap");
-        
+
         Statement  stmt = newStatement();
         Class      wcls = getExpectedWrappedClass();
         Object     wobj = getExpectedWrappedObject(stmt, wcls);
-        
-        assertEquals("stmt.unwrap(" + wcls + ").equals(" + wobj + ")", 
+
+        assertEquals("stmt.unwrap(" + wcls + ").equals(" + wobj + ")",
                      wobj,
                      stmt.unwrap(wcls));
     }
@@ -599,12 +599,12 @@ public class jdbcStatementTest extends JdbcTestCase {
      */
     public void testIsWrapperFor() throws Exception {
         println("isWrapperFor");
-        
+
         Statement  stmt = newStatement();
         Class      wcls = getExpectedWrappedClass();
 
-        assertEquals("stmt.isWrapperFor(" + wcls + ")", 
-                      true, 
+        assertEquals("stmt.isWrapperFor(" + wcls + ")",
+                      true,
                       stmt.isWrapperFor(wcls));
     }
 
@@ -612,5 +612,5 @@ public class jdbcStatementTest extends JdbcTestCase {
 
         junit.textui.TestRunner.run(suite());
     }
-    
+
 }

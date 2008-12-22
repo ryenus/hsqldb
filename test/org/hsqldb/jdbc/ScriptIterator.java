@@ -192,4 +192,13 @@ public class ScriptIterator implements Iterator {
     public void remove() throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Unsupported.
+     *
+     * @throws java.lang.UnsupportedOperationException always
+     */
+    public void setValue(Object object) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -60,9 +60,9 @@ import org.w3c.dom.NodeList;
  *
  * @author boucherb@users
  */
-public class jdbcSQLXMLTest extends JdbcTestCase {
+public class JDBCSQLXMLTest extends JdbcTestCase {
 
-    public jdbcSQLXMLTest(String testName) {
+    public JDBCSQLXMLTest(String testName) {
         super(testName);
     }
 
@@ -103,7 +103,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
         ss.setInputStream(is);
         ss.setSystemId(getResource("resources/xml/MyDoc.xml.zip").toExternalForm());
 
-        return new jdbcSQLXML(ss);
+        return new JDBCSQLXML(ss);
     }
 
     protected String newMyDocString() throws Exception {
@@ -185,13 +185,13 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcSQLXMLTest.class);
+        TestSuite suite = new TestSuite(JDBCSQLXMLTest.class);
 
         return suite;
     }
 
     /**
-     * Test of free method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of free method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testFree() throws Exception {
         println("free");
@@ -202,7 +202,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getBinaryStream method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of getBinaryStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetBinaryStream() throws Exception {
         println("getBinaryStream");
@@ -221,12 +221,12 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setBinaryStream method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of setBinaryStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetBinaryStream() throws Exception {
         println("setBinaryStream");
 
-        SQLXML       instance = new jdbcSQLXML();
+        SQLXML       instance = new JDBCSQLXML();
         OutputStream os       = instance.setBinaryStream();
         OutputStreamWriter writer = new OutputStreamWriter(os);
 
@@ -258,7 +258,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getCharacterStream method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of getCharacterStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetCharacterStream() throws Exception {
         println("getCharacterStream");
@@ -277,12 +277,12 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setCharacterStream method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of setCharacterStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetCharacterStream() throws Exception {
         println("setCharacterStream");
 
-        SQLXML instance = new jdbcSQLXML();
+        SQLXML instance = new JDBCSQLXML();
         Writer writer   = instance.setCharacterStream();
         String expected = newMyDocString();
 
@@ -304,7 +304,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getString method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of getString method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetString() throws Exception {
         println("getString");
@@ -327,14 +327,14 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setString method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of setString method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetString() throws Exception {
         println("setString");
 
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
-        jdbcSQLXML instance = new jdbcSQLXML();
+        JDBCSQLXML instance = new JDBCSQLXML();
 
         instance.setString(expected);
 
@@ -346,7 +346,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getSource method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetDOMSource() throws Exception {
         println("getDOMSource");
@@ -355,7 +355,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getSource method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetSAXSource() throws Exception {
         println("getSAXSource");
@@ -364,7 +364,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getSource method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetStAXSource() throws Exception {
         println("getStAXSource");
@@ -373,7 +373,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of getSource method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetStreamSource() throws Exception {
         println("getStreamSource");
@@ -382,7 +382,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setResult method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetDOMResult() throws Exception {
         println("setDOMResult");
@@ -391,7 +391,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setResult method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetSAXResult() throws Exception {
         println("setSAXResult");
@@ -400,7 +400,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setResult method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetStAXResult() throws Exception {
         println("setStAXResult");
@@ -409,7 +409,7 @@ public class jdbcSQLXMLTest extends JdbcTestCase {
     }
 
     /**
-     * Test of setResult method, of class org.hsqldb.jdbc.jdbcSQLXML.
+     * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetStreamResult() throws Exception {
         println("setStreamResult");

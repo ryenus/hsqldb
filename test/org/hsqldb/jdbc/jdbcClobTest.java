@@ -45,9 +45,9 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcClobTest extends JdbcTestCase {
+public class JDBCClobTest extends JdbcTestCase {
 
-    public jdbcClobTest(String testName) {
+    public JDBCClobTest(String testName) {
         super(testName);
     }
 
@@ -60,7 +60,7 @@ public class jdbcClobTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcClobTest.class);
+        TestSuite suite = new TestSuite(JDBCClobTest.class);
 
         return suite;
     }
@@ -71,7 +71,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testLength() throws Exception {
         println("length");
 
-        jdbcClob clob       = new jdbcClob("Test");
+        JDBCClob clob       = new JDBCClob("Test");
         long     expResult  = "Test".length();
         long     result     = clob.length();
 
@@ -84,7 +84,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testGetSubString() throws Exception {
         println("getSubString");
 
-        jdbcClob clob      = new jdbcClob("Test");
+        JDBCClob clob      = new JDBCClob("Test");
         String   result    = clob.getSubString(2, 2);
 
         assertEquals("es", result);
@@ -96,7 +96,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testGetCharacterStream() throws Exception {
         println("getCharacterStream");
 
-        jdbcClob clob      = new jdbcClob("Test");
+        JDBCClob clob      = new JDBCClob("Test");
         Reader   expResult = new StringReader("Test");
         Reader   result    = clob.getCharacterStream();
 
@@ -116,7 +116,7 @@ public class jdbcClobTest extends JdbcTestCase {
         }
 
         String      testVal   = sb.toString();
-        jdbcClob    clob      = new jdbcClob(testVal);
+        JDBCClob    clob      = new JDBCClob(testVal);
         InputStream expResult = new StringBufferInputStream(testVal);
         InputStream result    = clob.getAsciiStream();
 
@@ -129,7 +129,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testPosition() throws Exception {
         println("position");
 
-        jdbcClob clob   = new jdbcClob("Test");
+        JDBCClob clob   = new JDBCClob("Test");
         long     result = clob.position("est", 1);
 
         assertEquals(2L, result);
@@ -141,7 +141,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testSetString() throws Exception {
         println("setString");
 
-        jdbcClob clob = (jdbcClob) newConnection().createClob();
+        JDBCClob clob = (JDBCClob) newConnection().createClob();
 
         try {
             clob.setString(1, "T");
@@ -161,7 +161,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testSetAsciiStream() throws Exception {
         println("setAsciiStream");
 
-        jdbcClob clob = (jdbcClob) newConnection().createClob();
+        JDBCClob clob = (JDBCClob) newConnection().createClob();
 
         try {
             clob.setString(1L, "T");
@@ -191,7 +191,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testSetCharacterStream() throws Exception {
         println("setCharacterStream");
 
-        jdbcClob clob = (jdbcClob) newConnection().createClob();
+        JDBCClob clob = (JDBCClob) newConnection().createClob();
 
         try {
             clob.setString(1L, "T");
@@ -221,7 +221,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testTruncate() throws Exception {
         println("truncate");
 
-        jdbcClob clob = new jdbcClob("Test");
+        JDBCClob clob = new JDBCClob("Test");
 
         try {
             clob.truncate(2);
@@ -237,7 +237,7 @@ public class jdbcClobTest extends JdbcTestCase {
     public void testFree() throws Exception {
         println("free");
 
-        jdbcClob clob = new jdbcClob("Test");
+        JDBCClob clob = new JDBCClob("Test");
 
         try {
             clob.free();
@@ -271,7 +271,7 @@ public class jdbcClobTest extends JdbcTestCase {
         } catch (Exception e){ }
 
         try {
-            clob.position(new jdbcClob("est"),1);
+            clob.position(new JDBCClob("est"),1);
             assertTrue("position(Clob,long) operation allowed after free", false);
         } catch (Exception e){ }
 

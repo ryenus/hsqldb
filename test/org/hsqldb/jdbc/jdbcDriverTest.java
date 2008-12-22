@@ -40,9 +40,9 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcDriverTest extends JdbcTestCase {
+public class JDBCDriverTest extends JdbcTestCase {
 
-    public jdbcDriverTest(String testName) {
+    public JDBCDriverTest(String testName) {
         super(testName);
     }
 
@@ -55,7 +55,7 @@ public class jdbcDriverTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcDriverTest.class);
+        TestSuite suite = new TestSuite(JDBCDriverTest.class);
 
         return suite;
     }
@@ -75,7 +75,7 @@ public class jdbcDriverTest extends JdbcTestCase {
     protected int getExpectedMinorVersion() {
        return getIntProperty("driver.minor.version", 9);
     }
-    
+
     protected boolean getExpectedJdbcCompliant()
     {
         return getBooleanProperty("driver.jdbc.compliant", true);

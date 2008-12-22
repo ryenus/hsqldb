@@ -40,9 +40,9 @@ import java.sql.Types;
  *
  * @author boucherb@users
  */
-public class jdbcParameterMetaDataTest extends JdbcTestCase {
+public class JDBCParameterMetaDataTest extends JdbcTestCase {
 
-    public jdbcParameterMetaDataTest(String testName) {
+    public JDBCParameterMetaDataTest(String testName) {
         super(testName);
     }
 
@@ -55,7 +55,7 @@ public class jdbcParameterMetaDataTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcParameterMetaDataTest.class);
+        TestSuite suite = new TestSuite(JDBCParameterMetaDataTest.class);
 
         return suite;
     }
@@ -66,7 +66,7 @@ public class jdbcParameterMetaDataTest extends JdbcTestCase {
     }
 
     protected Class getExpectedWrappedClass() {
-        return jdbcParameterMetaData.class;
+        return JDBCParameterMetaData.class;
     }
 
     protected Object getExpectedWrappedObject(ParameterMetaData pmd, Class<?> ifc) {

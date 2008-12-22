@@ -42,9 +42,9 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcSavepointTest extends JdbcTestCase {
-    
-    public jdbcSavepointTest(String testName) {
+public class JDBCSavepointTest extends JdbcTestCase {
+
+    public JDBCSavepointTest(String testName) {
         super(testName);
     }
 
@@ -57,8 +57,8 @@ public class jdbcSavepointTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcSavepointTest.class);
-        
+        TestSuite suite = new TestSuite(JDBCSavepointTest.class);
+
         return suite;
     }
 
@@ -67,31 +67,31 @@ public class jdbcSavepointTest extends JdbcTestCase {
      */
     public void testGetSavepointId() throws Exception {
         println("getSavepointId");
-        
-        Connection conn = super.newConnection();        
+
+        Connection conn = super.newConnection();
         Savepoint sp = null;
         int id;
-        
+
         assertEquals(true, conn.getAutoCommit());
-        
-        try {            
+
+        try {
             sp = conn.setSavepoint();
             id = sp.getSavepointId();
             fail("Allowed setSavepoint()/getSavepointId() while autocommit == true");
         } catch (SQLException ex) {
             // ex.printStackTrace();
         }
-        
+
         conn.setAutoCommit(false);
 
-        try {    
+        try {
             sp = conn.setSavepoint();
             id = sp.getSavepointId();
-            
+
             println("savepoint id: " + id);
         } catch (SQLException ex) {
             fail(ex.getMessage());
-        }        
+        }
     }
 
     /**
@@ -99,33 +99,33 @@ public class jdbcSavepointTest extends JdbcTestCase {
      */
     public void testGetSavepointName() throws Exception {
         println("getSavepointName");
-        
-        Connection conn = super.newConnection();        
+
+        Connection conn = super.newConnection();
         Savepoint sp = null;
         String expResult = "sp1";
         String result;
-        
+
         assertEquals(true, conn.getAutoCommit());
-        
-        try {            
+
+        try {
             sp = conn.setSavepoint(expResult);
             result = sp.getSavepointName();
-            
+
             fail("Allowed setSavepoint(String)/getSavepointName() while autocommit == true");
         } catch (SQLException ex) {
             // ex.printStackTrace();
         }
-        
-        conn.setAutoCommit(false);        
-        
-        sp = conn.setSavepoint(expResult);        
+
+        conn.setAutoCommit(false);
+
+        sp = conn.setSavepoint(expResult);
         result = sp.getSavepointName();
-        
+
         assertEquals(expResult, result);
     }
 
     public static void main(java.lang.String[] argList) {
 
         junit.textui.TestRunner.run(suite());
-    }   
+    }
 }

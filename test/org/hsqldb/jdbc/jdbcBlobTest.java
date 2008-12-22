@@ -44,9 +44,9 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class jdbcBlobTest extends JdbcTestCase {
+public class JDBCBlobTest extends JdbcTestCase {
 
-    public jdbcBlobTest(String testName) {
+    public JDBCBlobTest(String testName) {
         super(testName);
     }
 
@@ -59,13 +59,13 @@ public class jdbcBlobTest extends JdbcTestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(jdbcBlobTest.class);
+        TestSuite suite = new TestSuite(JDBCBlobTest.class);
 
         return suite;
     }
 
     protected Blob newBlob(byte[] bytes) throws Exception {
-        return new jdbcBlob(bytes);
+        return new JDBCBlob(bytes);
     }
 
     protected Blob createBlob() throws Exception {
@@ -103,7 +103,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of getBinaryStream method, of class org.hsqldb.jdbc.jdbcBlob.
-     * @throws java.lang.Exception 
+     * @throws java.lang.Exception
      */
     public void testGetBinaryStream() throws Exception {
         println("getBinaryStream");
@@ -119,7 +119,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of position method, of class org.hsqldb.jdbc.jdbcBlob.
-     * @throws java.lang.Exception 
+     * @throws java.lang.Exception
      */
     public void testPosition() throws Exception {
         println("position");
@@ -134,7 +134,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of setBytes method, of class org.hsqldb.jdbc.jdbcBlob.
-     * @throws java.lang.Exception 
+     * @throws java.lang.Exception
      */
     public void testSetBytes() throws Exception {
         println("setBytes");
@@ -154,7 +154,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of setBinaryStream method, of class org.hsqldb.jdbc.jdbcBlob.
-     * @throws java.lang.Exception 
+     * @throws java.lang.Exception
      */
     public void testSetBinaryStream() throws Exception {
         println("setBinaryStream");
@@ -181,7 +181,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of truncate method, of class org.hsqldb.jdbc.jdbcBlob.
-     * @throws java.lang.Exception 
+     * @throws java.lang.Exception
      */
     public void testTruncate() throws Exception {
         println("truncate");
@@ -199,7 +199,7 @@ public class jdbcBlobTest extends JdbcTestCase {
 
     /**
      * Test of free method, of class org.hsqldb.jdbc.jdbcBlob.
-     * @throws java.lang.Exception 
+     * @throws java.lang.Exception
      */
     public void testFree() throws Exception {
         println("free");

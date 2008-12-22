@@ -4,6 +4,6 @@
     Document   : MyEntity.ent
     Created on : December 21, 2005, 2:12 AM CST
     Author     : boucherb@users
-    Description: Test jdbcSQLXML
+    Description: Test JDBCSQLXML
 -->
-<description>Testing jdbcSQLXML<![CDATA[<unparsed> <> stuff %apos;]]>></description>
+<description>Testing JDBCSQLXML<![CDATA[<unparsed> <> stuff %apos;]]>></description>
