@@ -221,7 +221,7 @@ SET SCHEMA public;
 SET SCHEMA blaine;
 /*u1*/INSERT INTO xtblj1 values(1, 'one');
 SET SCHEMA public;
-/*u1*/SELECT * INTO blaine.xtblt4 FROM blaine.xtblt1 WHERE i = 0;
+CREATE TABLE blaine.xtblt4 AS (SELECT *  FROM blaine.xtblt1 WHERE i = 0) WITH DATA;
 /*c1*/SELECT * FROM blaine.xtblt4;
 SET SCHEMA blaine;
 
@@ -255,7 +255,7 @@ SET SCHEMA public;
 SET SCHEMA blaine;
 /*u1*/INSERT INTO xtblj1 values(1, 'one');
 SET SCHEMA public;
-/*u1*/SELECT * INTO blaine.xctblt4 FROM blaine.xctblt1 WHERE i = 0;
+CREATE TABLE blaine.xctblt4 AS (SELECT * FROM blaine.xctblt1 WHERE i = 0) WITH DATA;
 /*c1*/SELECT * FROM blaine.xctblt4;
 SET SCHEMA blaine;
 

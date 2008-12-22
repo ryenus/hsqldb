@@ -75,9 +75,9 @@ insert into single values(3);
  three-----
 */select case c when in(0,1,2) then 'one-or-two' when in(0,3,30) then 'three-----' end from single order by 1
 /*r
- ::
- ::
- :OK:
+ NULL
+ NULL
+ :OK   :
 */select ':' || case c when in(0,10,10) then 'WRONG' when in(0,3,34)
  then 'OK' end || ':' from single order by 1
 

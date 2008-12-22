@@ -6,11 +6,13 @@
 -- Correct handling of index creation for foreign keys
 -- check the consistency of foreign keys and primary keys
 /*e*/create table VEREIN(VCODE CHAR(10) not null);
-/*e*/create unique index VEREIN_PK on VEREIN (VCODE);
 /*e*/create table BEWERB(VCODE CHAR(10) not null, ID SMALLINT not null);
-/*e*/create unique index BEWERB_FK2 on BEWERB(ID);
 /*e*/create unique index BEWERB_FK1 on BEWERB(VCODE);
 /*e*/alter table BEWERB add constraint bv foreign key (VCODE) references VEREIN (VCODE);
+
+--  fails as a uique indexes on verein and bewerb exist
+/*e*/create unique index VEREIN_PK on VEREIN (VCODE);
+/*e*/create unique index BEWERB_FK2 on BEWERB(ID);
 
 -- null value in not null column
 /*e*/insert into verein values (null);
@@ -42,7 +44,7 @@ INSERT INTO APP2 (VALUE) VALUES(14);
 */select * from "View2"
 
 --test INSERT .. INTO and indexes
-select * into cached bewerb_copy from bewerb;
+create cached table bewerb_copy  as (select * from bewerb) with data;
 create index idx_bewerb_copy on bewerb_copy(VCODE,ID);
 
 /*u0*/SHUTDOWN;

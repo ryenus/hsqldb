@@ -39,7 +39,7 @@ drop view v_colors if exists;
 create view v_colors(vid, vval) as select id, val from colors;
 create view v_colors_o(vid, vval) as select id, val from colors order by id desc;
 create view v_colors_o_l(vid, vval) as select id, val from colors order by id desc limit 1 offset 0;
-/*e*/create view v_colors_o_l_x(vid, vval) as select id, val from colors limit 1 offset 0;
+create view v_colors_o_l_x(vid, vval) as select id, val from colors limit 1 offset 0;
 /*e*/create view v_colors_o_l_x(vid, vval) as select id, val into newtable from colors;
 --
 /*c4*/select * from v_colors join v_test_view on server_id=vid;

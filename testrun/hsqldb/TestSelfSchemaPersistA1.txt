@@ -29,7 +29,7 @@ DROP TABLE tblj1 IF exists;
 -- Test one update that will be persisted (most update tests won't be)
 /*u1*/UPDATE public.tblt1 set i = 1 WHERE i = 100;
 /*u1*/INSERT INTO tblj1 values(1, 'one');
-/*u1*/SELECT * INTO public.tblt4 FROM public.tblt1 WHERE i = 0;
+CREATE TABLE public.tblt4 AS (SELECT * FROM public.tblt1 WHERE i = 0) WITH DATA;
 /*c1*/SELECT * FROM public.tblt4;
 
 --                  ******************************       CACH Tables
@@ -55,7 +55,7 @@ DROP TABLE tblj1 IF exists;
 -- Test one update that will be persisted (most update tests won't be)
 /*u1*/UPDATE public.ctblt1 set i = 1 WHERE i = 100;
 /*u1*/INSERT INTO tblj1 values(1, 'one');
-/*u1*/SELECT * INTO public.ctblt4 FROM public.ctblt1 WHERE i = 0;
+CREATE TABLE public.ctblt4 AS (SELECT * FROM public.ctblt1 WHERE i = 0) WITH DATA;
 /*c1*/SELECT * FROM public.ctblt4;
 
 --                  ******************************       Views

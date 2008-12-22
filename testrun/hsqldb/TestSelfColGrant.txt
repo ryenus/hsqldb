@@ -6,6 +6,9 @@
 /*u0*/CREATE USER unprivd PASSWORD "unprivd";
 
 /*u0*/CREATE USER u1 PASSWORD "u1";
+/*u0*/GRANT CHANGE_AUTHORIZATION TO u1;
+/*u0*/GRANT CHANGE_AUTHORIZATION TO privd;
+/*u0*/GRANT CHANGE_AUTHORIZATION TO unprivd;
 /*u0*/CREATE TABLE multicol (openc int, closedc int, limitedc int);
 /*u1*/INSERT INTO multicol values (1, 2, 3);
 /*c1*/SELECT * from multicol;

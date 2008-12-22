@@ -1,5 +1,5 @@
 -- SIMPLE OUTER - NO NULLS
-SET PROPERTY "hsqldb.default_table_type" 'cached'
+-- SET PROPERTY "hsqldb.default_table_type" 'cached'
 drop table x if exists;
 drop table y if exists;
 create table x(a int, b int);
@@ -338,20 +338,20 @@ insert into a values('a',22);
 insert into a values('b','32');
 
 create table b (b1 varchar(10), b2 integer);
-insert into b values(null,14);
+insert into b values(null,13);
 insert into b values('a',14);
 insert into b values('c',15);
 
 -- should return 3 rows:
 /*r
- NULL,12,NULL,14
  NULL,NULL,c,15
+ NULL,12,NULL,13
  a,22,a,14
 */select * from a right outer join b on ((a.a1=b.b1) or (a.a1
- is null and b.b1 is null)) order by a1
+ is null and b.b1 is null)) order by a1, a2
 -- should return 2 rows:
 /*r
- NULL,12,NULL,14
+ NULL,12,NULL,13
  a,22,a,14
 */select * from a right outer join b on (1=1) where
  ((a.a1=b.b1) or (a.a1 is null and b.b1 is null)) order by a1
@@ -361,19 +361,19 @@ insert into b values('c',15);
 */select * from a right outer join b on (1=1) where a.a1=b.b1 order by a1
 -- should return 3 rows:
 /*r
- NULL,NULL,NULL,14
+ NULL,NULL,NULL,13
  NULL,NULL,c,15
  a,22,a,14
 */select * from a right outer join b on a.a1=b.b1 where (1=1) order by a1
 /*r
- NULL,NULL,NULL,14
+ NULL,NULL,NULL,13
  NULL,NULL,c,15
  a,22,a,14
 */select * from a right outer join b on a.a1=b.b1 order by a1
 -- add an index and retest
 create index idxa on a(a2);
 /*r
- NULL,NULL,NULL,14
+ NULL,NULL,NULL,13
  NULL,NULL,c,15
  a,22,a,14
 */select * from a right outer join b on a.a1=b.b1 order by a1
@@ -383,7 +383,7 @@ create index idxa on a(a2);
  a,22
 */select a.* from a right outer join b on a.a1=b.b1 order by a1
 /*r
- NULL,14
+ NULL,13
  c,15
  a,14
 */select b.* from a right outer join b on a.a1=b.b1 order by a1

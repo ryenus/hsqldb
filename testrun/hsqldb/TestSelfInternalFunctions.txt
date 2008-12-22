@@ -2,7 +2,7 @@
 /*rXXX*/call trim(FROM '   XXX   ');
 /*rXXX*/call trim(BOTH FROM '   XXX   ');
 /*rXXX*/call trim(BOTH ' ' FROM '   XXX   ');
-/*e/call trim(BOTH FROM);
+/*e*/call trim(BOTH FROM);
 /*rXXX*/call substring( ' XXX  ' from 2 for 3);
 /*rXXX*/call substring( ' XXX' from 2);
 /*rXXXX*/call overlay( 'YYY' placing 'XXXX' from 1 for 3);

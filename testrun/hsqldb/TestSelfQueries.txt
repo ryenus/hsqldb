@@ -39,18 +39,18 @@ insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
   values ('VS', 3, '2003-11-10', 18, 3, 'my name goes here');
 --
 /*c11*/select * from testtable where adate = '2003-11-10' and secondNum = 18;
-/*c11*/select * from testtable where (adate, secondNum) = ('2003-11-10', 18);
+/*c11*/select * from testtable where (adate, secondNum) = (DATE'2003-11-10', 18);
 /*c11*/select * from testtable where adate = '2003-11-10';
 /*c1*/select * from testtable where adate = '2003-11-10' and firstNum = 20;
-/*c1*/select * from testtable where (adate, firstNum) = ('2003-11-10', 20);
+/*c1*/select * from testtable where (adate, firstNum) = (DATE'2003-11-10', 20);
 /*c11*/select * from testtable where adate = '2003-11-10' and thirdNum = 3;
-/*c11*/select * from testtable where (adate, thirdNum) = ('2003-11-10', 3);
+/*c11*/select * from testtable where (adate, thirdNum) = (DATE'2003-11-10', 3);
 
 drop index IDX_TESTTABLE_aString;
 drop index IDX_TESTTABLE_aDate_secondNum;
 alter table TESTTABLE add constraint tt_pk primary key (astring);
 /*c11*/select * from testtable where adate = '2003-11-10' and secondNum = 18;
-/*c11*/select * from testtable where (adate, secondNum) = ('2003-11-10', 18);
+/*c11*/select * from testtable where (adate, secondNum) = (DATE'2003-11-10', 18);
 /*c11*/select * from testtable where adate = '2003-11-10';
 /*c1*/select * from testtable where adate = '2003-11-10' and firstNum = 20;
 /*c11*/select * from testtable where adate = '2003-11-10' and thirdNum = 3;
@@ -107,3 +107,14 @@ CREATE TABLE "liste"("kosten" INT, "preis" INT);
 insert into "liste" values(100, 10);
 /*r100*/SELECT "kosten" AS "total" FROM "liste" WHERE "kosten" > 0 ORDER BY "total" DESC;
 /*r110*/SELECT ("kosten"+"preis") AS "total" FROM "liste" WHERE "kosten"+"preis" > 0 ORDER BY "total" DESC;
+drop table t1 if exists;
+drop table t2 if exists;
+create table t1(t1c1 int, t1c2 int);
+create table t2(t2c1 int, t2c2 int);
+insert into t1 values 1, 2;
+insert into t2 values 2, 3;
+/*r1,2,2,3*/select * from t1, t2;
+/*r1,2,2,3*/select * from t1, t2 where t1c2 = t2c1;
+/*r1,2,2,3*/select * from t1 join t2 on t1c2 = t2c1;
+/*r1,2,2,3*/select * from t1 left outer join t2 on t1c2 = t2c1;
+/*r1,2,2,3*/select * from t1 right outer join t2 on t1c2 = t2c1;

@@ -2,11 +2,11 @@
 
 /*u0*/SET SCHEMA information_schema;
 /*u0*/CREATE SCHEMA sChEmA1 authorization sa;
-/*c1*/select * from system_schemata
+/*c1*/select * from schemata
     where schema_owner = 'SA' AND schema_name = 'SCHEMA1';
 
 /*u0*/CREATE SCHEMA dEfAuLt authorization sa;
-/*c1*/select * from system_schemata
+/*c1*/select * from schemata
     where schema_name = 'DEFAULT';
 
 /*u0*/SET INITIAL SCHEMA "DEFAULT";
@@ -18,7 +18,7 @@
     WHERE user_name = 'SA' AND initial_schema IS NULL;
 
 /*u0*/CREATE SCHEMA "mIxEdCaSe" AUTHORIZATION sa;
-/*c1*/select * from system_schemata where schema_name = 'mIxEdCaSe';
+/*c1*/select * from schemata where schema_name = 'mIxEdCaSe';
 /*u0*/CREATE TABLE "mIxEdCaSe".t1(i int);
 /*e*/DROP TABLE mIxEdCaSe.t1;
 /*u0*/DROP TABLE "mIxEdCaSe".t1;

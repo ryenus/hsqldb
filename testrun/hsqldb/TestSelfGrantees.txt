@@ -1,16 +1,16 @@
-/*e/CREATE USER public PASSWORD public ADMIN
-/*e/CREATE USER sys PASSWORD sys ADMIN
-/*e/CREATE USER _SYSTEM PASSWORD system ADMIN
-/*e/CREATE USER public PASSWORD public
-/*e/CREATE USER sys PASSWORD sys
-/*e/CREATE USER _SYSTEM PASSWORD system
+/*e*/CREATE USER public PASSWORD public ADMIN
+/*e*/CREATE USER _SYSTEM PASSWORD system ADMIN
+/*e*/CREATE USER public PASSWORD public
+/*e*/CREATE USER _SYSTEM PASSWORD system
 CREATE USER blaine PASSWORD blaine;
+/*u0*/GRANT CHANGE_AUTHORIZATION TO blaine;
 CREATE USER blaineadm PASSWORD blaineadm ADMIN;
 CREATE USER debbie PASSWORD debbie;
 DROP TABLE public.t1 IF EXISTS;
 CREATE TABLE public.t1 (i int);
 INSERT INTO public.t1 VALUES (1);
 CREATE USER us3 PASSWORD us3;
+/*u0*/GRANT CHANGE_AUTHORIZATION TO us3;
 
 -----------------------------------------------------------------------
 --                        RESERVED USERS and ROLES
@@ -25,7 +25,7 @@ GRANT SELECT ON t2 TO public;
 CONNECT USER us3 PASSWORD us3;
 /*c1*/SELECT * FROM t2;
 CONNECT USER sa PASSWORD "";
-REVOKE SELECT ON t2 FROM public;
+REVOKE SELECT ON t2 FROM public RESTRICT;
 CONNECT USER us3 PASSWORD us3;
 /*e*/SELECT * FROM t2;
 CONNECT USER sa PASSWORD "";
@@ -46,8 +46,8 @@ CONNECT USER sa PASSWORD "";
 -- Prohibit grants/revokes for _SYSTEM, DBA
 /*e*/GRANT ALL ON public.t1 TO dba;
 /*e*/GRANT ALL ON public.t1 TO _system;
-/*e*/REVOKE ALL ON public.t1 TO dba;
-/*e*/REVOKE ALL ON public.t1 TO _system;
+/*e*/REVOKE ALL ON public.t1 FROM dba RESTRICT;
+/*e*/REVOKE ALL ON public.t1 FROM _system RESTRICT;
 -----------------------------------------------------------------------
 
 -- Roles and Users share a namespace
@@ -61,12 +61,12 @@ CREATE USER conflict1 PASSWORD conflict1;
 -- Grant and revoke lists for users and roles
 GRANT SELECT, UPDATE, DELETE, INSERT ON public.t2 TO conflict1;
 GRANT SELECT, UPDATE, DELETE, INSERT ON public.t2 TO conflict2;
-REVOKE SELECT, UPDATE, DELETE, INSERT ON public.t2 FROM conflict1;
-REVOKE SELECT, UPDATE, DELETE, INSERT ON public.t2 FROM conflict2;
+REVOKE SELECT, UPDATE, DELETE, INSERT ON public.t2 FROM conflict1 RESTRICT;
+REVOKE SELECT, UPDATE, DELETE, INSERT ON public.t2 FROM conflict2 RESTRICT;
 
 -- Wrong right names
 /*e*/GRANT SELECT, TABLE, COLUMN ON public.t2 TO conflict1;
-/*e*/REVOKE SELECT, TABLE, COLUMN ON public.t2 FROM conflict1;
+/*e*/REVOKE SELECT, TABLE, COLUMN ON public.t2 FROM conflict1 RESTRICT;
 
 -- Roles are not schemas
 /*e*/CREATE TABLE dba.x1 (i int);
@@ -89,23 +89,24 @@ CONNECT USER blaine PASSWORD blaine;
 /*u0*/CREATE USER user1 password user1;
 /*u0*/GRANT dba TO debbie;
 CONNECT USER sa PASSWORD "";
-/*u0*/REVOKE dba FROM blaine;
+/*u0*/REVOKE dba FROM blaine RESTRICT;
 CONNECT USER blaine PASSWORD blaine;
 /*e*/SET TABLE public.t1 READONLY true;
 /*e*/CREATE USER user2 password user2;
-/*e*/REVOKE dba FROM debbie;
+/*e*/REVOKE dba FROM debbie RESTRICT;
 
 -- Test using non-existent roles and re-creating existing roles.
 CONNECT USER sa PASSWORD "";
 CREATE USER us1 PASSWORD us1;
+/*u0*/GRANT CHANGE_AUTHORIZATION TO us1;
 CREATE USER us2 PASSWORD us2;
 /*e*/DROP ROLE r1;
 /*u0*/CREATE ROLE r1;
 /*u0*/GRANT r1 TO us1;
 /*e*/GRANT r1 TO us1;
-/*u0*/REVOKE r1 FROM us1;
-/*e*/REVOKE r1 FROM us1;
-/*e*/REVOKE r2 FROM us1;
+/*u0*/REVOKE r1 FROM us1 RESTRICT;
+/*e*/REVOKE r1 FROM us1 RESTRICT;
+/*e*/REVOKE r2 FROM us1 RESTRICT;
 /*u0*/DROP ROLE r1;
 
 -- Basics
@@ -137,13 +138,13 @@ CONNECT USER us1 PASSWORD us1;
 /*u0*/CREATE TABLE us1t1 (i int);
 /*u0*/DROP TABLE us1t1;
 CONNECT USER sa PASSWORD "";
-/*u0*/REVOKE dba FROM us1;
+/*u0*/REVOKE dba FROM us1 RESTRICT;
 -- us1: t1 rights via role r1
 CONNECT USER us1 PASSWORD us1;
 /*c2*/SELECT * FROM public.t1;
 /*e*/CREATE TABLE us1t1 (i int);
 CONNECT USER sa PASSWORD "";
-/*u0*/REVOKE r1 FROM us1;
+/*u0*/REVOKE r1 FROM us1 RESTRICT;
 -- us1: no privs
 CONNECT USER us1 PASSWORD us1;
 /*e*/SELECT * FROM public.t1;
@@ -155,7 +156,7 @@ CONNECT USER us1 PASSWORD us1;
 /*c2*/SELECT * FROM public.t1;
 /*e*/CREATE TABLE us1t1 (i int);
 CONNECT USER sa PASSWORD "";
-/*u0*/REVOKE ALL ON t1 FROM r1;
+/*u0*/REVOKE ALL ON t1 FROM r1 RESTRICT;
 -- us1: no privs
 CONNECT USER us1 PASSWORD us1;
 /*e*/SELECT * FROM public.t1;
@@ -179,7 +180,7 @@ CONNECT USER us1 PASSWORD us1;
 /*c2*/SELECT * FROM public.t1;
 /*e*/CREATE TABLE us1t1 (i int);
 CONNECT USER sa PASSWORD "";
-/*u0*/REVOKE ALL ON t1 FROM us1;
+/*u0*/REVOKE ALL ON t1 FROM us1 RESTRICT;
 
 -- Role nesting
 CREATE ROLE r1;
@@ -195,4 +196,4 @@ CONNECT USER us1 PASSWORD us1;
 /*u0*/CREATE TABLE us1t1 (i int);
 /*u0*/DROP TABLE us1t1;
 CONNECT USER sa PASSWORD "";
-REVOKE dba FROM r1;
+REVOKE dba FROM r1 RESTRICT;

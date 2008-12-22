@@ -32,9 +32,9 @@
 /*e*/drop schema s3;
 /*e*/drop user sa1;
 
-/*c1*/SELECT * FROM system_schemata WHERE schema_name = 'S1';
-/*c1*/SELECT * FROM system_schemata WHERE schema_name = 'S2';
-/*c1*/SELECT * FROM system_schemata WHERE schema_name = 'S3';
+/*c1*/SELECT * FROM schemata WHERE schema_name = 'S1';
+/*c1*/SELECT * FROM schemata WHERE schema_name = 'S2';
+/*c1*/SELECT * FROM schemata WHERE schema_name = 'S3';
 /*c1*/SELECT * FROM system_tables
     WHERE table_schem = 'S1' AND table_name = 'T1';
 /*c1*/SELECT * FROM system_tables
@@ -48,9 +48,9 @@
 /*u0*/DROP USER sa1 CASCADE;
 /*e*/drop role r1;
 
-/*c0*/SELECT * FROM system_schemata WHERE schema_name = 'S1';
-/*c1*/SELECT * FROM system_schemata WHERE schema_name = 'S2';
-/*c1*/SELECT * FROM system_schemata WHERE schema_name = 'S3';
+/*c0*/SELECT * FROM schemata WHERE schema_name = 'S1';
+/*c1*/SELECT * FROM schemata WHERE schema_name = 'S2';
+/*c1*/SELECT * FROM schemata WHERE schema_name = 'S3';
 /*c0*/SELECT * FROM system_tables
     WHERE table_schem = 'S1' AND table_name = 'T1';
 /*c1*/SELECT * FROM system_tables
@@ -59,9 +59,9 @@
     WHERE table_schem = 'S3' AND table_name = 'T3';
 
 /*u0*/drop role r1 CASCADE;
-/*c0*/SELECT * FROM system_schemata WHERE schema_name = 'S1';
-/*c1*/SELECT * FROM system_schemata WHERE schema_name = 'S2';
-/*c0*/SELECT * FROM system_schemata WHERE schema_name = 'S3';
+/*c0*/SELECT * FROM schemata WHERE schema_name = 'S1';
+/*c1*/SELECT * FROM schemata WHERE schema_name = 'S2';
+/*c0*/SELECT * FROM schemata WHERE schema_name = 'S3';
 /*c0*/SELECT * FROM system_tables
     WHERE table_schem = 'S1' AND table_name = 'T1';
 /*c1*/SELECT * FROM system_tables
