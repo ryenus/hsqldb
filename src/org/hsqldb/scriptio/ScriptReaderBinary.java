@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,20 +38,23 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.hsqldb.Database;
+import org.hsqldb.Error;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.persist.PersistentStore;
 
 /**
  * Reader corresponding to BinaryDatabaseScritReader.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
@@ -78,8 +81,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
                 1 << 13));
     }
 
-    protected void readDDL(Session session)
-    throws IOException, HsqlException {
+    protected void readDDL(Session session) throws IOException, HsqlException {
 
         Result r = Result.newResult(dataStreamIn, rowIn);
 
@@ -96,7 +98,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
                 db.logger.appLog.logContext(SimpleLog.LOG_ERROR,
                                             result.getMainString());
 
-                throw Trace.error(result);
+                throw Error.error(result);
             }
         }
     }
@@ -111,12 +113,13 @@ class ScriptReaderBinary extends ScriptReaderBase {
                 break;
             }
 
-            String schema = session.getSchemaName(currentSchema);
-            Table  t      = db.schemaManager.getUserTable(session, s, schema);
-            int    j      = 0;
+            String          schema = session.getSchemaName(currentSchema);
+            Table t = db.schemaManager.getUserTable(session, s, schema);
+            PersistentStore store  = db.persistentStoreCollection.getStore(t.getPersistenceId());
+            int             j      = 0;
 
             for (j = 0; ; j++) {
-                if (readRow(t) == false) {
+                if (!readRow(store, t)) {
                     break;
                 }
             }
@@ -124,8 +127,8 @@ class ScriptReaderBinary extends ScriptReaderBase {
             int checkCount = readTableTerm();
 
             if (j != checkCount) {
-                throw Trace.error(Trace.ERROR_IN_SCRIPT_FILE,
-                                  Trace.ERROR_IN_BINARY_SCRIPT_1,
+                throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
+                                  ErrorCode.ERROR_IN_BINARY_SCRIPT_1,
                                   new Object[] {
                     s, new Integer(j), new Integer(checkCount)
                 });
@@ -135,7 +138,8 @@ class ScriptReaderBinary extends ScriptReaderBase {
 
     // int : row size (0 if no more rows) ,
     // BinaryServerRowInput : row (column values)
-    protected boolean readRow(Table t) throws IOException, HsqlException {
+    protected boolean readRow(PersistentStore store,
+                              Table t) throws IOException, HsqlException {
 
         boolean more = readRow(rowIn, 0);
 
@@ -145,7 +149,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
 
         Object[] data = rowIn.readData(t.getColumnTypes());
 
-        t.insertFromScript(data);
+        t.insertFromScript(store, data);
 
         return true;
     }
@@ -178,8 +182,8 @@ class ScriptReaderBinary extends ScriptReaderBase {
 
         if (checkOp != ScriptWriterBase.INSERT
                 && checkOp != ScriptWriterBase.INSERT_WITH_SCHEMA) {
-            throw Trace.error(Trace.ERROR_IN_SCRIPT_FILE,
-                              Trace.ERROR_IN_BINARY_SCRIPT_2);
+            throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
+                              ErrorCode.ERROR_IN_BINARY_SCRIPT_2);
         }
 
         return s;

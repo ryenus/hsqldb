@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ package org.hsqldb.server;
  * HSQLDB servers
  *
  * @author  boucherb@users
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 public interface ServerConstants {
@@ -68,6 +68,7 @@ public interface ServerConstants {
     boolean SC_DEFAULT_TLS                = false;
     boolean SC_DEFAULT_TRACE              = false;
     boolean SC_DEFAULT_REMOTE_OPEN_DB     = false;
+    int     SC_DEFAULT_MAX_DATABASES      = 10;
 
     // type of server
     int SC_PROTOCOL_HTTP = 0;
@@ -89,11 +90,11 @@ public interface ServerConstants {
     String SC_KEY_WEB_ROOT           = SC_KEY_PREFIX + ".root";
     String SC_KEY_MAX_CONNECTIONS    = SC_KEY_PREFIX + ".maxconnections";
     String SC_KEY_REMOTE_OPEN_DB     = SC_KEY_PREFIX + ".remote_open";
-    String SC_KEY_ACL                = SC_KEY_PREFIX + ".acl";
+    String SC_KEY_MAX_DATABASES      = SC_KEY_PREFIX + ".maxdatabases";
+    String SC_KEY_ACL_FILEPATH       = SC_KEY_PREFIX + ".acl_filepath";
 
     // web server page defaults
     String SC_DEFAULT_WEB_MIME = "text/html";
     String SC_DEFAULT_WEB_PAGE = "index.html";
     String SC_DEFAULT_WEB_ROOT = ".";
-    String ACL_FILENAME        = "acl.txt";
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
  * encoded as ASCII and saved.
  *
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.2
  */
@@ -131,8 +131,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     public void writeLogStatement(Session session,
-                                  String s)
-                                  throws IOException, HsqlException {
+                                  String s) throws IOException, HsqlException {
 
         schemaToLog = session.currentSchema;
         busyWriting = true;
@@ -141,7 +140,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         addSessionId(session);
         rowOut.writeString(s);
         rowOut.write(BYTES_LINE_SEP);
-        fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+        writeRowOutToFile();
 
         byteCount   += rowOut.size();
         needsSync   = true;
@@ -163,10 +162,10 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_INSERT_INTO);
         rowOut.writeString(table.getName().statementName);
         rowOut.write(BYTES_VALUES);
-        rowOut.writeData(data, table);
+        rowOut.writeData(data, table.getColumnTypes());
         rowOut.write(BYTES_TERM);
         rowOut.write(BYTES_LINE_SEP);
-        fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+        writeRowOutToFile();
 
         byteCount   += rowOut.size();
         needsSync   |= session.isAutoCommit();
@@ -189,7 +188,7 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         rowOut.reset();
         writeSchemaStatement(t.getName().schema);
-        fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+        writeRowOutToFile();
 
         currentSession.loggedSchema = schemaToLog;
     }
@@ -216,10 +215,10 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_DELETE_FROM);
         rowOut.writeString(table.getName().statementName);
         rowOut.write(BYTES_WHERE);
-        rowOut.writeData(table.getColumnCount(), table.getColumnTypes(),
-                         data, table.columnList, table.getPrimaryKey());
+        rowOut.writeData(table.getColumnCount(), table.getColumnTypes(), data,
+                         table.columnList, table.getPrimaryKey());
         rowOut.write(BYTES_LINE_SEP);
-        fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+        writeRowOutToFile();
 
         byteCount   += rowOut.size();
         needsSync   |= session.isAutoCommit();
@@ -240,11 +239,13 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.reset();
         addSessionId(session);
         rowOut.write(BYTES_SEQUENCE);
+        rowOut.writeString(seq.getSchemaName().statementName);
+        rowOut.write('.');
         rowOut.writeString(seq.getName().statementName);
         rowOut.write(BYTES_SEQUENCE_MID);
         rowOut.writeLong(seq.peek());
         rowOut.write(BYTES_LINE_SEP);
-        fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+        writeRowOutToFile();
 
         byteCount   += rowOut.size();
         needsSync   = true;
@@ -264,7 +265,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         addSessionId(session);
         rowOut.write(BYTES_COMMIT);
         rowOut.write(BYTES_LINE_SEP);
-        fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+        writeRowOutToFile();
 
         byteCount   += rowOut.size();
         needsSync   = true;
@@ -277,5 +278,12 @@ public class ScriptWriterText extends ScriptWriterBase {
 
     protected void finalize() {
         sync();
+    }
+
+    private void writeRowOutToFile() throws IOException {
+
+        synchronized (fileStreamOut) {
+            fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+        }
     }
 }

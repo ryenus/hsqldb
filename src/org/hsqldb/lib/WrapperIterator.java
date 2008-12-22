@@ -209,4 +209,8 @@ public class WrapperIterator implements Iterator {
     public void remove() {
         throw new NoSuchElementException();
     }
+
+    public void setValue(Object value) {
+        throw new NoSuchElementException();
+    }
 }

@@ -50,4 +50,6 @@ public interface Iterator {
     long nextLong() throws NoSuchElementException;
 
     void remove() throws NoSuchElementException;
+
+    void setValue(Object value);
 }

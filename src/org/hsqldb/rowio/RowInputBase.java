@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,10 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.Types;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.types.BinaryData;
@@ -46,6 +45,7 @@ import org.hsqldb.types.ClobData;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
@@ -53,8 +53,8 @@ import org.hsqldb.types.Type;
  * Defines the methods that are independent of storage format and declares
  * the format-dependent methods that subclasses should define.
  *
- * @author sqlbob@users (RMP)
- * @author fredt@users
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.0
  */
@@ -87,7 +87,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
 //                Trace.printSystemOut(Trace.DatabaseRowInput_getPos);
         }
 
-        return (filePos);
+        return filePos;
     }
 
     public int getSize() {
@@ -114,7 +114,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
 
     protected abstract Double readReal() throws IOException, HsqlException;
 
-    protected abstract BigDecimal readDecimal()
+    protected abstract BigDecimal readDecimal(Type type)
     throws IOException, HsqlException;
 
     protected abstract Boolean readBoole() throws IOException, HsqlException;
@@ -122,10 +122,10 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     protected abstract TimeData readTime(Type type)
     throws IOException, HsqlException;
 
-    protected abstract Date readDate(Type type)
+    protected abstract TimestampData readDate(Type type)
     throws IOException, HsqlException;
 
-    protected abstract Timestamp readTimestamp(Type type)
+    protected abstract TimestampData readTimestamp(Type type)
     throws IOException, HsqlException;
 
     protected abstract IntervalMonthData readYearMonthInterval(Type type)
@@ -169,7 +169,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
             o    = null;
             type = colTypes[i];
 
-            switch (type.type) {
+            switch (type.typeCode) {
 
                 case Types.SQL_ALL_TYPES :
                 case Types.SQL_CHAR :
@@ -201,7 +201,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
 
                 case Types.SQL_NUMERIC :
                 case Types.SQL_DECIMAL :
-                    o = readDecimal();
+                    o = readDecimal(type);
                     break;
 
                 case Types.SQL_DATE :
@@ -209,10 +209,12 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                     break;
 
                 case Types.SQL_TIME :
+                case Types.SQL_TIME_WITH_TIME_ZONE :
                     o = readTime(type);
                     break;
 
                 case Types.SQL_TIMESTAMP :
+                case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                     o = readTimestamp(type);
                     break;
 
@@ -262,8 +264,8 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                     break;
 
                 default :
-                    throw Trace.runtimeError(
-                        Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                    throw Error.runtimeError(
+                        ErrorCode.U_S0500,
                         "RowInputBase " + type.getNameString());
             }
 
@@ -302,12 +304,12 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     }
 
     public int skipBytes(int n) throws IOException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "RowInputBase");
     }
 
     public String readLine() throws IOException {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "RowInputBase");
     }
 }

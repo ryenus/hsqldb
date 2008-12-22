@@ -29,61 +29,88 @@
  */
 
 
-package org.hsqldb.scriptio;
-
-import java.io.IOException;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-
-import org.hsqldb.Database;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
-import org.hsqldb.lib.FileAccess;
+package org.hsqldb.lib;
 
 /**
+ * A writer for char strings.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @since 1.7.2
- * @version 1.7.2
+ * @version 1.9.0
+ * @since 1.9.0
  */
-class ScriptWriterZipped extends ScriptWriterBinary {
 
-    private static final int bufferSize = 1 << 15;
+public class CharArrayWriter {
 
-    ScriptWriterZipped(Database db, String file, boolean includeCached,
-                       boolean newFile) throws HsqlException {
-        super(db, file, includeCached, newFile);
+    protected char[] buffer;
+    protected int  count;
+
+    public CharArrayWriter(char[] buffer) {
+        this.buffer = buffer;
     }
 
-    /**
-     * Override the underlying method with no operation.
-     */
-    public void sync() {}
+    public void write(int c) {
 
-    protected void openFile() throws HsqlException {
-
-        try {
-            FileAccess           fa  = database.getFileAccess();
-            java.io.OutputStream fos = fa.openOutputStreamElement(outFile);
-
-            outDescriptor = fa.getFileSync(fos);
-            fileStreamOut = new DeflaterOutputStream(fos,
-                    new Deflater(Deflater.DEFAULT_COMPRESSION), bufferSize);
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.Message_Pair,
-                              new Object[] {
-                e.toString(), outFile
-            });
+        if (count == buffer.length) {
+            ensureSize(count + 1);
         }
+
+        buffer[count++] = (char) c;
+    }
+
+    void ensureSize(int size) {
+
+        if (size <= buffer.length) {
+            return;
+        }
+
+        int newSize = buffer.length;
+
+        while (newSize < size) {
+            newSize *= 2;
+        }
+
+        char[] newBuffer = new char[newSize];
+
+        System.arraycopy(buffer, 0, newBuffer, 0, count);
+
+        buffer = newBuffer;
+    }
+
+    public void write(String str, int off, int len) {
+
+        ensureSize(count + len);
+        str.getChars(off, off + len, buffer, count);
+
+        count += len;
+    }
+
+    public void reset() {
+        count = 0;
+    }
+
+    public void reset(char[] buffer) {
+        count       = 0;
+        this.buffer = buffer;
+    }
+
+    public char[] toCharArray() {
+
+        char[] newBuffer = new char[count];
+
+        System.arraycopy(buffer, 0, newBuffer, 0, count);
+
+        return (char[]) newBuffer;
+    }
+
+    public int size() {
+        return count;
     }
 
     /**
-     * This may not really be necessary, unless we add implementations where
-     * non-compressed data is added to the end of the copressed part.
+     * Converts input data to a string.
+     * @return the string.
      */
-    protected void finishStream() throws IOException {
-        ((DeflaterOutputStream) fileStreamOut).finish();
-        fileStreamOut.flush();
+    public String toString() {
+        return new String(buffer, 0, count);
     }
 }

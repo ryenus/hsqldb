@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,10 @@ package org.hsqldb.rowio;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.Timestamp;
 
 import org.hsqldb.CachedRow;
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.java.JavaSystem;
@@ -48,15 +47,16 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
- *  Provides methods for writing the data for a row to a
- *  byte array. The new format of data consists of mainly binary values
- *  and is not compatible with v.1.6.x databases.
+ * Provides methods for writing the data for a row to a
+ * byte array. The new format of data consists of mainly binary values
+ * and is not compatible with v.1.6.x databases.
  *
- * @author sqlbob@users (RMP)
- * @author fredt@users
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.0
  */
@@ -74,9 +74,9 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     /**
-     *  Constructor used for network transmission of result sets
+     * Constructor used for network transmission of result sets
      *
-     * @exception  IOException when an IO error is encountered
+     * @param buffer byte[]
      */
     public RowOutputBinary(byte[] buffer) {
         super(buffer);
@@ -123,8 +123,11 @@ public class RowOutputBinary extends RowOutputBase {
         int temp = count;
 
         writeInt(0);
-        StringConverter.writeUTF(s, this);
-        writeIntData(count - temp - 4, temp);
+
+        if (s != null && s.length() != 0) {
+            StringConverter.stringToUTFBytes(s, this);
+            writeIntData(count - temp - 4, temp);
+        }
     }
 
     /**
@@ -138,7 +141,7 @@ public class RowOutputBinary extends RowOutputBase {
 
         Object[] data  = row.getData();
         Type[]   types = row.getTable().getColumnTypes();
-        int      cols  = row.getTable().getColumnCount();
+        int      cols  = row.getTable().getDataColumnCount();
 
         return INT_STORE_SIZE + getSize(data, cols, types);
     }
@@ -147,12 +150,11 @@ public class RowOutputBinary extends RowOutputBase {
 
         Object[] data  = row.getData();
         Type[]   types = row.getTable().getColumnTypes();
-        int      cols  = row.getTable().getColumnCount();
+        int      cols  = row.getTable().getDataColumnCount();
 
         return getSize(data, cols, types);
     }
 
-// fredt@users - comment - methods used for writing each SQL type
     protected void writeFieldType(Type type) {
         write(1);
     }
@@ -196,26 +198,37 @@ public class RowOutputBinary extends RowOutputBase {
                                : 0);
     }
 
-    protected void writeDate(Date o, Type type) {
-        writeLong(o.getTime());
+    protected void writeDate(TimestampData o, Type type) {
+        writeLong(o.getSeconds());
     }
 
     protected void writeTime(TimeData o, Type type) {
-        writeInt((int) o.getSeconds());
+
+        writeInt(o.getSeconds());
         writeInt(o.getNanos());
+
+        if (type.typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {
+            writeInt(o.getZone());
+        }
     }
 
-    protected void writeTimestamp(Timestamp o, Type type) {
-        writeLong(o.getTime());
+    protected void writeTimestamp(TimestampData o, Type type) {
+
+        writeLong(o.getSeconds());
         writeInt(o.getNanos());
+
+        if (type.typeCode == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+            writeInt(o.getZone());
+        }
     }
 
     protected void writeYearMonthInterval(IntervalMonthData o, Type type) {
-        this.writeBytes(type.convertToString(o));
+        writeLong(o.units);
     }
 
     protected void writeDaySecondInterval(IntervalSecondData o, Type type) {
-        this.writeBytes(type.convertToString(o));
+        writeLong(o.units);
+        writeInt(o.nanos);
     }
 
     protected void writeOther(JavaObjectData o) {
@@ -252,13 +265,12 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     /**
-     *  Calculate the size of byte array required to store a row.
+     * Calculate the size of byte array required to store a row.
      *
-     * @param  data - the row data
-     * @param  l - number of data[] elements to include in calculation
-     * @param  type - array of java.sql.Types values
+     * @param data - the row data
+     * @param l - number of data[] elements to include in calculation
+     * @param types - array of java.sql.Types values
      * @return size of byte array
-     * @exception  HsqlException when data is inconsistent
      */
     private static int getSize(Object[] data, int l, Type[] types) {
 
@@ -270,11 +282,11 @@ public class RowOutputBinary extends RowOutputBase {
             s += 1;    // type or null
 
             if (o != null) {
-                switch (types[i].type) {
+                switch (types[i].typeCode) {
 
                     case Types.SQL_ALL_TYPES :
-                        throw Trace.runtimeError(
-                            Trace.UNSUPPORTED_INTERNAL_OPERATION,
+                        throw Error.runtimeError(
+                            ErrorCode.U_S0500,
                             "RowOutputBinary");
                     case Types.SQL_CHAR :
                     case Types.SQL_VARCHAR :
@@ -315,11 +327,41 @@ public class RowOutputBinary extends RowOutputBase {
                         break;
 
                     case Types.SQL_DATE :
+                        s += 8;
+                        break;
+
                     case Types.SQL_TIME :
                         s += 8;
                         break;
 
+                    case Types.SQL_TIME_WITH_TIME_ZONE :
+                        s += 12;
+                        break;
+
                     case Types.SQL_TIMESTAMP :
+                        s += 12;
+                        break;
+
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                        s += 16;
+                        break;
+
+                    case Types.SQL_INTERVAL_YEAR :
+                    case Types.SQL_INTERVAL_YEAR_TO_MONTH :
+                    case Types.SQL_INTERVAL_MONTH :
+                        s += 8;
+                        break;
+
+                    case Types.SQL_INTERVAL_DAY :
+                    case Types.SQL_INTERVAL_DAY_TO_HOUR :
+                    case Types.SQL_INTERVAL_DAY_TO_MINUTE :
+                    case Types.SQL_INTERVAL_DAY_TO_SECOND :
+                    case Types.SQL_INTERVAL_HOUR :
+                    case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
+                    case Types.SQL_INTERVAL_HOUR_TO_SECOND :
+                    case Types.SQL_INTERVAL_MINUTE :
+                    case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
+                    case Types.SQL_INTERVAL_SECOND :
                         s += 12;
                         break;
 
@@ -343,8 +385,9 @@ public class RowOutputBinary extends RowOutputBase {
                         break;
 
                     default :
-                        Trace.printSystemOut(Trace.FUNCTION_NOT_SUPPORTED
-                                             + " " + types[i].getNameString());
+                        throw Error.runtimeError(
+                            ErrorCode.U_S0500,
+                            "RowOutputBinary");
                 }
             }
         }

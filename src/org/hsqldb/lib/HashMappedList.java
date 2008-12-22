@@ -92,7 +92,9 @@ public class HashMappedList extends HashMap {
 
     public boolean add(Object key, Object value) {
 
-        if (keySet().contains(key)) {
+        int lookup = getLookup(key, key.hashCode());
+
+        if (lookup >= 0) {
             return false;
         }
 
@@ -124,7 +126,9 @@ public class HashMappedList extends HashMap {
             throw new IndexOutOfBoundsException();
         }
 
-        if (keySet().contains(key)) {
+        int lookup = getLookup(key, key.hashCode());
+
+        if (lookup >= 0) {
             return false;
         }
 
@@ -177,7 +181,14 @@ public class HashMappedList extends HashMap {
     public boolean setValue(int index,
                             Object value) throws IndexOutOfBoundsException {
 
-        boolean result = objectValueTable[index].equals(value);
+        boolean result;
+        Object  existing = objectValueTable[index];
+
+        if (value == null) {
+            result = value != existing;
+        } else {
+            result = !value.equals(existing);
+        }
 
         objectValueTable[index] = value;
 

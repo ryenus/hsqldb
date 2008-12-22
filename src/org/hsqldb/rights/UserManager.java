@@ -1,39 +1,4 @@
-/* Copyright (c) 1995-2000, The Hypersonic SQL Group.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the Hypersonic SQL Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE HYPERSONIC SQL GROUP,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * on behalf of the Hypersonic SQL Group.
- *
- *
- * For work added by the HSQL Development Group:
- *
- * Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,21 +32,15 @@
 package org.hsqldb.rights;
 
 import org.hsqldb.Database;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
-import org.hsqldb.Trace;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 
-// fredt@users 20020130 - patch 497872 by Nitin Chauhan - loop optimisation
-// fredt@users 20020320 - doc 1.7.0 - update
-// fredt@users 20021103 - patch 1.7.2 - allow for drop table, etc.
-// fredt@users 20030613 - patch 1.7.2 - simplified data structures and reporting
-// unsaved@users - patch 1.8.0 moved right managament to new classes
-
 /**
- *
  * Manages the User objects for a Database instance.
  * The special users PUBLIC_USER_NAME and SYSTEM_AUTHORIZATION_NAME
  * are created and managed here.  SYSTEM_AUTHORIZATION_NAME is also
@@ -89,17 +48,14 @@ import org.hsqldb.lib.HsqlArrayList;
  * (PUBLIC_USER_NAME is kept in the list because it's needed by MetaData
  * routines via "listVisibleUsers(x, true)").
  *
- * Partly based on Hypersonic code.
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @author Thomas Mueller (Hypersonic SQL Group)
- * @author boucherb@users
- * @author fredt@users
- *
- * @version  1.8.0
- * @since  1.7.2
+ * @version 1.8.0
+ * @since 1.7.2
  * @see  User
  */
-public class UserManager {
+public final class UserManager {
 
     /**
      * This object's set of User objects. <p>
@@ -113,13 +69,12 @@ public class UserManager {
     private GranteeManager granteeManager;
 
     /**
-     * Construction happens once for each Database object.
+     * Construction happens once for each Database instance.
      *
      * Creates special users PUBLIC_USER_NAME and SYSTEM_AUTHORIZATION_NAME.
      * Sets up association with the GranteeManager for this database.
      */
     public UserManager(Database database) throws HsqlException {
-
         granteeManager = database.getGranteeManager();
         userList       = new HashMappedList();
     }
@@ -143,21 +98,19 @@ public class UserManager {
     public User createUser(HsqlName name,
                            String password) throws HsqlException {
 
-        if (name == null) {
-            throw Trace.runtimeError(Trace.NULL_NAME, "UserManager");
-        }
-
-        // This will throw an appropriate Trace if grantee already exists,
+        // This will throw an appropriate exception if grantee already exists,
         // regardless of whether the name is in any User, Role, etc. list.
-        User u       = granteeManager.addUser(name);
-        u.setPassword(password);
-        boolean success = userList.add(name.name, u);
+        User user = granteeManager.addUser(name);
+
+        user.setPassword(password);
+
+        boolean success = userList.add(name.name, user);
 
         if (!success) {
-            throw Trace.error(Trace.USER_ALREADY_EXISTS, name.name);
+            throw Error.error(ErrorCode.X_28503, name.name);
         }
 
-        return u;
+        return user;
     }
 
     /**
@@ -171,7 +124,7 @@ public class UserManager {
      *    <LI>removing the User object with the specified name
      *        from the set.
      *
-     *    <LI>revoking all rights from the removed object<br>
+     *    <LI>revoking all rights from the removed User<br>
      *        (this ensures that in case there are still references to the
      *        just dropped User object, those references
      *        cannot be used to erronously access database objects).
@@ -183,15 +136,21 @@ public class UserManager {
 
         boolean reservedUser = GranteeManager.isReserved(name);
 
-        Trace.check(!reservedUser, Trace.NONMOD_ACCOUNT, name);
+        if (reservedUser) {
+            throw Error.error(ErrorCode.X_28502, name);
+        }
 
         boolean result = granteeManager.removeGrantee(name);
 
-        Trace.check(result, Trace.NO_SUCH_GRANTEE, name);
+        if (!result) {
+            throw Error.error(ErrorCode.X_28501, name);
+        }
 
-        User u = (User) userList.remove(name);
+        User user = (User) userList.remove(name);
 
-        Trace.check(u != null, Trace.USER_NOT_FOUND, name);
+        if (user == null) {
+            throw Error.error(ErrorCode.X_28501, name);
+        }
     }
 
     /**
@@ -208,16 +167,16 @@ public class UserManager {
             password = "";
         }
 
-        User u = get(name);
+        User user = get(name);
 
-        u.checkPassword(password);
+        user.checkPassword(password);
 
-        return u;
+        return user;
     }
 
     /**
      * Retrieves this object's set of User objects as
-     *  an HsqlArrayList. <p>
+     *  an associative list.
      */
     public HashMappedList getUsers() {
         return userList;
@@ -230,17 +189,17 @@ public class UserManager {
 
     /**
      * Returns the User object identified by the
-     * name argument. <p>
+     * name argument.
      */
     public User get(String name) throws HsqlException {
 
-        User u = (User) userList.get(name);
+        User user = (User) userList.get(name);
 
-        if (u == null) {
-            throw Trace.error(Trace.USER_NOT_FOUND, name);
+        if (user == null) {
+            throw Error.error(ErrorCode.X_28501, name);
         }
 
-        return u;
+        return user;
     }
 
     /**
@@ -268,12 +227,12 @@ public class UserManager {
         HsqlArrayList list;
         User          user;
         boolean       isAdmin;
-        String        sessName;
+        String        sessionName;
         String        userName;
 
-        list     = new HsqlArrayList();
-        isAdmin  = session.isAdmin();
-        sessName = session.getUsername();
+        list        = new HsqlArrayList();
+        isAdmin     = session.isAdmin();
+        sessionName = session.getUsername();
 
         if (userList == null || userList.size() == 0) {
             return list;
@@ -286,11 +245,11 @@ public class UserManager {
                 continue;
             }
 
-            userName = user.getName();
+            userName = user.getNameString();
 
             if (isAdmin) {
                 list.add(user);
-            } else if (sessName.equals(userName)) {
+            } else if (sessionName.equals(userName)) {
                 list.add(user);
             }
         }
@@ -311,7 +270,7 @@ public class UserManager {
      *
      */
     public User getSysUser() {
-        return granteeManager.systemRole;
+        return GranteeManager.systemAuthorisation;
     }
 
     public synchronized void removeSchemaReference(String schemaName) {
@@ -328,5 +287,27 @@ public class UserManager {
                 user.setInitialSchema(null);
             }
         }
+    }
+
+    public String[] getInitialSchemaDDL() {
+        HsqlArrayList list = new HsqlArrayList(userList.size());
+        for (int i = 0; i < userList.size() ; i++) {
+            User user = (User) userList.get(i);
+            if (user.isSystem) {
+                continue;
+            }
+            HsqlName name = user.getInitialSchema();
+
+            if (name == null) {
+                continue;
+            }
+
+            list.add(user.getInitialSchemaDDL());
+        }
+
+        String[] array = new String[ list.size() ];
+        list.toArray(array);
+
+        return array;
     }
 }

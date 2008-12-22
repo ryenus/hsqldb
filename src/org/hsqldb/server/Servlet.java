@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,7 @@ package org.hsqldb.server;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -102,7 +103,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  * use the normal JDBC interfaces to connect to the URL of this servlet. An
  * example URL is:
  * <pre>
- * jdbc:hsqldb:http://localhost.com:8080/servlet/org.hsqldb.server.Servlet
+ * jdbc:hsqldb:http://myhost.com:8080/servlet/org.hsqldb.server.Servlet
  * </pre>
  * The database path/name is taken from the servlet engine property:
  * <pre>
@@ -127,7 +128,8 @@ import org.hsqldb.rowio.RowOutputBinary;
  * Extensively rewritten for HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.2
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
 public class Servlet extends javax.servlet.http.HttpServlet {
@@ -140,12 +142,6 @@ public class Servlet extends javax.servlet.http.HttpServlet {
     private RowInputBinary   rowIn;
     private int              iQueries;
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param config
-     */
     public void init(ServletConfig config) {
 
         try {
@@ -168,7 +164,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
             getInitParameter("hsqldb.server.use_web-inf_path");
 
         if (!dbStr.equals(".") && "true".equalsIgnoreCase(useWebInfStr)) {
-            dbStr = getServletContext().getRealPath("/") + "/WEB-INF/" + dbStr;
+            dbStr = getServletContext().getRealPath("/") + "WEB-INF/" + dbStr;
         }
 
 // end WEB-INF patch
@@ -197,14 +193,6 @@ public class Servlet extends javax.servlet.http.HttpServlet {
 
     private static long lModified = 0;
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param req
-     *
-     * @return
-     */
     protected long getLastModified(HttpServletRequest req) {
 
         // this is made so that the cache of the http server is not used
@@ -212,16 +200,6 @@ public class Servlet extends javax.servlet.http.HttpServlet {
         return lModified++;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param request
-     * @param response
-     *
-     * @throws IOException
-     * @throws ServletException
-     */
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
                       throws IOException, ServletException {
@@ -256,16 +234,6 @@ public class Servlet extends javax.servlet.http.HttpServlet {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param request
-     * @param response
-     *
-     * @throws IOException
-     * @throws ServletException
-     */
     public void doPost(HttpServletRequest request,
                        HttpServletResponse response)
                        throws IOException, ServletException {
@@ -294,7 +262,8 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                     try {
                         Session session = DatabaseManager.newSession(dbType,
                             dbPath, resultIn.getMainString(),
-                            resultIn.getSubString(), null);
+                            resultIn.getSubString(), new HsqlProperties(),
+                            resultIn.getUpdateCount());
 
                         resultIn.readAdditionalResults(null, inStream, rowIn);
 

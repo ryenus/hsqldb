@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.lib.StringConverter;
  * This class quotes strings only if they contain the quote character or
  * the separator for the field. The quote character is doubled.
  *
- * @author sqlbob@users (RMP)
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.0
  */
@@ -60,7 +60,7 @@ public class RowOutputTextQuoted extends RowOutputText {
         return s;
     }
 
-    private boolean hasUnprintable(String s) {
+    private static boolean hasUnprintable(String s) {
 
         for (int i = 0, len = s.length(); i < len; i++) {
             if (Character.isISOControl(s.charAt(i))) {

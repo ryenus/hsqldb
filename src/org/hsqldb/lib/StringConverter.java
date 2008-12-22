@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,15 +78,13 @@ import org.hsqldb.store.BitMap;
  * Collection of static methods for converting strings between different
  * formats and to and from byte arrays.<p>
  *
- * New class, with extensively enhanced and rewritten Hypersonic code.
+ * Includes some methods based on Hypersonic code as indicated.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @author fredt@users
- * @version 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.2
  */
-
-// fredt@users 20020328 - patch 1.7.0 by fredt - error trapping
 public class StringConverter {
 
     private static final byte[] HEXBYTES = {
@@ -94,29 +92,26 @@ public class StringConverter {
         (byte) '6', (byte) '7', (byte) '8', (byte) '9', (byte) 'a', (byte) 'b',
         (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f'
     };
-    private static final String HEXINDEX = "0123456789abcdef0123456789ABCDEF";
 
-    /**
-     * Converts a String into a byte array by using a big-endian two byte
-     * representation of each char value in the string.
-     */
-    byte[] stringToFullByteArray(String s) {
+    private static int getNibble(int value) {
 
-        int    length = s.length();
-        byte[] buffer = new byte[length * 2];
-        int    c;
-
-        for (int i = 0; i < length; i++) {
-            c                 = s.charAt(i);
-            buffer[i * 2]     = (byte) ((c & 0x0000ff00) >> 8);
-            buffer[i * 2 + 1] = (byte) (c & 0x000000ff);
+        if (value >= '0' && value <= '9') {
+            return value - '0';
         }
 
-        return buffer;
+        if (value >= 'a' && value <= 'f') {
+            return 10 + value - 'a';
+        }
+
+        if (value >= 'A' && value <= 'F') {
+            return 10 + value - 'A';
+        }
+
+        return -1;
     }
 
     /**
-     * Compacts a hexadecimal string into a byte array
+     * Converts a hexadecimal string into a byte array
      *
      *
      * @param s hexadecimal string
@@ -124,7 +119,7 @@ public class StringConverter {
      * @return byte array for the hex string
      * @throws IOException
      */
-    public static byte[] hexToByteArray(String s) throws IOException {
+    public static byte[] hexStringToByteArray(String s) throws IOException {
 
         int     l    = s.length();
         byte[]  data = new byte[l / 2 + (l % 2)];
@@ -140,7 +135,7 @@ public class StringConverter {
                 continue;
             }
 
-            n = HEXINDEX.indexOf(c);
+            n = getNibble(c);
 
             if (n == -1) {
                 throw new IOException(
@@ -178,7 +173,7 @@ public class StringConverter {
      * @return byte array for the hex string
      * @throws IOException
      */
-    public static BitMap bitToBitMap(String s) throws IOException {
+    public static BitMap sqlBitStringToBitMap(String s) throws IOException {
 
         int    l = s.length();
         int    n;
@@ -192,7 +187,7 @@ public class StringConverter {
                 continue;
             }
 
-            n = HEXINDEX.indexOf(c);
+            n = getNibble(c);
 
             if (n != 0 && n != 1) {
                 throw new IOException(
@@ -298,7 +293,7 @@ public class StringConverter {
 
         char[] s = new char[bitCount + 3];
 
-        s[0] = 'X';
+        s[0] = 'B';
         s[1] = '\'';
 
         int pos = 2;
@@ -316,13 +311,14 @@ public class StringConverter {
     }
 
     /**
-     * Converts a byte array into hexadecimal characters
-     * which are written as ASCII to the given output stream.
+     * Converts a byte array into hexadecimal characters which are written as
+     * ASCII to the given output stream.
      *
-     * @param o output stream
-     * @param b byte array
+     * @param o output array
+     * @param from offset into output array
+     * @param b input array
      */
-    public static void writeHex(byte[] o, int from, byte[] b) {
+    public static void writeHexBytes(byte[] o, int from, byte[] b) {
 
         int len = b.length;
 
@@ -334,7 +330,7 @@ public class StringConverter {
         }
     }
 
-    public static String byteToString(byte[] b, String charset) {
+    public static String byteArrayToString(byte[] b, String charset) {
 
         try {
             return (charset == null) ? new String(b)
@@ -345,102 +341,79 @@ public class StringConverter {
     }
 
     /**
-     * Converts a Unicode string into UTF8 then convert into a hex string
+     * Hsqldb specific encoding used only for log files. The SQL statements that
+     * need to be written to the log file (input) are Java Unicode strings.
+     * input is converted into a 7bit escaped ASCII string (output)with the
+     * following transformations. All characters outside the 0x20-7f range are
+     * converted to a escape sequence and added to output. If a backslash
+     * character is immdediately followed by 'u', the backslash character is
+     * converted to escape sequence and added to output. All the remaining
+     * characters in input are added to output without conversion. The escape
+     * sequence is backslash, letter u, xxxx, where xxxx is the hex
+     * representation of the character code. (fredt@users)<p>
      *
-     *
-     * @param s normal Unicode string
-     *
-     * @return hex string representation of UTF8 encoding of the input
-     */
-    public static String unicodeToHexString(String s) {
-
-        HsqlByteArrayOutputStream bout = new HsqlByteArrayOutputStream();
-
-        writeUTF(s, bout);
-
-        return byteArrayToHexString(bout.toByteArray());
-    }
-
-// fredt@users 20011120 - patch 450455 by kibu@users - modified
-// method return type changed to HsqlStringBuffer with spare
-// space for end-of-line characters -- to reduce String concatenation
-
-    /**
-     * Hsqldb specific encoding used only for log files.
-     *
-     * The SQL statements that need to be written to the log file (input) are
-     * Java Unicode strings. input is converted into a 7bit escaped ASCII
-     * string (output)with the following transformations.
-     * All characters outside the 0x20-7f range are converted to a
-     * escape sequence and added to output.
-     * If a backslash character is immdediately followed by 'u', the
-     * backslash character is converted to escape sequence and
-     * added to output.
-     * All the remaining characters in input are added to output without
-     * conversion.
-     *
-     * The escape sequence is backslash, letter u, xxxx, where xxxx
-     * is the hex representation of the character code.
-     * (fredt@users)
+     * Method based on Hypersonic Code
      *
      * @param b output stream to wite to
-     * @param s Java Unicode string
-     *
-     * @return number of bytes written out
-     *
+     * @param s Java string
+     * @param doubleSingleQuotes boolean
      */
-    public static int unicodeToAscii(HsqlByteArrayOutputStream b, String s,
-                                     boolean doubleSingleQuotes) {
+    public static void stringToUnicodeBytes(HsqlByteArrayOutputStream b,
+            String s, boolean doubleSingleQuotes) {
 
-        int count = 0;
+        final int len = s.length();
+        char[]    chars;
+        int       extras = 0;
 
-        if ((s == null) || (s.length() == 0)) {
-            return 0;
+        if (s == null || len == 0) {
+            return;
         }
 
-        int len = s.length();
+        chars = s.toCharArray();
+
+        b.ensureRoom(len * 2 + 5);
 
         for (int i = 0; i < len; i++) {
-            char c = s.charAt(i);
+            char c = chars[i];
 
             if (c == '\\') {
-                if ((i < len - 1) && (s.charAt(i + 1) == 'u')) {
-                    b.write(c);    // encode the \ as unicode, so 'u' is ignored
-                    b.write('u');
-                    b.write('0');
-                    b.write('0');
-                    b.write('5');
-                    b.write('c');
+                if ((i < len - 1) && (chars[i + 1] == 'u')) {
+                    b.writeNoCheck(c);    // encode the \ as unicode, so 'u' is ignored
+                    b.writeNoCheck('u');
+                    b.writeNoCheck('0');
+                    b.writeNoCheck('0');
+                    b.writeNoCheck('5');
+                    b.writeNoCheck('c');
 
-                    count += 6;
+                    extras += 5;
                 } else {
                     b.write(c);
-
-                    count++;
                 }
             } else if ((c >= 0x0020) && (c <= 0x007f)) {
-                b.write(c);        // this is 99%
-
-                count++;
+                b.writeNoCheck(c);        // this is 99%
 
                 if (c == '\'' && doubleSingleQuotes) {
-                    b.write(c);
+                    b.writeNoCheck(c);
 
-                    count++;
+                    extras++;
                 }
             } else {
-                b.write('\\');
-                b.write('u');
-                b.write(HEXBYTES[(c >> 12) & 0xf]);
-                b.write(HEXBYTES[(c >> 8) & 0xf]);
-                b.write(HEXBYTES[(c >> 4) & 0xf]);
-                b.write(HEXBYTES[c & 0xf]);
+                b.writeNoCheck('\\');
+                b.writeNoCheck('u');
+                b.writeNoCheck(HEXBYTES[(c >> 12) & 0xf]);
+                b.writeNoCheck(HEXBYTES[(c >> 8) & 0xf]);
+                b.writeNoCheck(HEXBYTES[(c >> 4) & 0xf]);
+                b.writeNoCheck(HEXBYTES[c & 0xf]);
 
-                count += 6;
+                extras += 5;
+            }
+
+            if (extras > len) {
+                b.ensureRoom(len + extras + 5);
+
+                extras = 0;
             }
         }
-
-        return count;
     }
 
 // fredt@users 20020522 - fix for 557510 - backslash bug
@@ -449,54 +422,16 @@ public class StringConverter {
 // immdediately by a character outside the 0x20-7f range in a database field.
 
     /**
-     * Hsqldb specific decoding used only for log files.
+     * Hsqldb specific decoding used only for log files. This method converts
+     * the 7 bit escaped ASCII strings in a log file back into Java Unicode
+     * strings. See stringToUnicodeBytes() above. <p>
      *
-     * This method converts the 7 bit escaped ASCII strings in a log file
-     * back into Java Unicode strings. See unicodeToAccii() above,
+     * Method based on Hypersonic Code
      *
      * @param s encoded ASCII string in byte array
-     * @param offset position of first byte
-     * @param length number of bytes to use
-     *
-     * @return Java Unicode string
+     * @return Java string
      */
-    public static String asciiToUnicode(byte[] s, int offset, int length) {
-
-        if (length == 0) {
-            return "";
-        }
-
-        char[] b = new char[length];
-        int    j = 0;
-
-        for (int i = 0; i < length; i++) {
-            byte c = s[offset + i];
-
-            if (c == '\\' && i < length - 5) {
-                byte c1 = s[offset + i + 1];
-
-                if (c1 == 'u') {
-                    i++;
-
-                    // 4 characters read should always return 0-15
-                    int k = HEXINDEX.indexOf(s[offset + (++i)]) << 12;
-
-                    k      += HEXINDEX.indexOf(s[offset + (++i)]) << 8;
-                    k      += HEXINDEX.indexOf(s[offset + (++i)]) << 4;
-                    k      += HEXINDEX.indexOf(s[offset + (++i)]);
-                    b[j++] = (char) k;
-                } else {
-                    b[j++] = (char) c;
-                }
-            } else {
-                b[j++] = (char) c;
-            }
-        }
-
-        return new String(b, 0, j);
-    }
-
-    public static String asciiToUnicode(String s) {
+    public static String unicodeStringToString(String s) {
 
         if ((s == null) || (s.indexOf("\\u") == -1)) {
             return s;
@@ -516,11 +451,11 @@ public class StringConverter {
                     i++;
 
                     // 4 characters read should always return 0-15
-                    int k = HEXINDEX.indexOf(s.charAt(++i)) << 12;
+                    int k = getNibble(s.charAt(++i)) << 12;
 
-                    k      += HEXINDEX.indexOf(s.charAt(++i)) << 8;
-                    k      += HEXINDEX.indexOf(s.charAt(++i)) << 4;
-                    k      += HEXINDEX.indexOf(s.charAt(++i));
+                    k      += getNibble(s.charAt(++i)) << 8;
+                    k      += getNibble(s.charAt(++i)) << 4;
+                    k      += getNibble(s.charAt(++i));
                     b[j++] = (char) k;
                 } else {
                     b[j++] = c;
@@ -624,35 +559,44 @@ public class StringConverter {
     /**
      * Writes a string to the specified DataOutput using UTF-8 encoding in a
      * machine-independent manner.
-     * <p>
+     *
      * @param      str   a string to be written.
      * @param      out   destination to write to
      * @return     The number of bytes written out.
      */
-    public static int writeUTF(String str, HsqlByteArrayOutputStream out) {
+    public static int stringToUTFBytes(String str,
+                                       HsqlByteArrayOutputStream out) {
 
         int strlen = str.length();
         int c,
             count  = 0;
 
+        if (out.count + strlen + 8 > out.buf.length) {
+            out.ensureRoom(strlen + 8);
+        }
+
+        char[] arr = str.toCharArray();
+
         for (int i = 0; i < strlen; i++) {
-            c = str.charAt(i);
+            c = arr[i];
 
             if (c >= 0x0001 && c <= 0x007F) {
-                out.write(c);
+                out.buf[out.count++] = (byte) c;
 
                 count++;
             } else if (c > 0x07FF) {
-                out.write(0xE0 | ((c >> 12) & 0x0F));
-                out.write(0x80 | ((c >> 6) & 0x3F));
-                out.write(0x80 | ((c >> 0) & 0x3F));
-
-                count += 3;
+                out.buf[out.count++] = (byte) (0xE0 | ((c >> 12) & 0x0F));
+                out.buf[out.count++] = (byte) (0x80 | ((c >> 6) & 0x3F));
+                out.buf[out.count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
+                count                += 3;
             } else {
-                out.write(0xC0 | ((c >> 6) & 0x1F));
-                out.write(0x80 | ((c >> 0) & 0x3F));
+                out.buf[out.count++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
+                out.buf[out.count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
+                count                += 2;
+            }
 
-                count += 2;
+            if (out.count + 8 > out.buf.length) {
+                out.ensureRoom(strlen - i + 8);
             }
         }
 
@@ -682,26 +626,29 @@ public class StringConverter {
 
     /**
      * Using a Reader and a Writer, returns a String from an InputStream.
+     *
+     * Method based on Hypersonic Code
+     *
+     * @param x InputStream to read from
+     * @throws IOException
+     * @return a Java string
      */
     public static String inputStreamToString(InputStream x,
-            int length) throws IOException {
+            String encoding) throws IOException {
 
-        InputStreamReader in        = new InputStreamReader(x);
+        InputStreamReader in        = new InputStreamReader(x, encoding);
         StringWriter      writer    = new StringWriter();
         int               blocksize = 8 * 1024;
         char[]            buffer    = new char[blocksize];
 
-        for (int left = length; left > 0; ) {
-            int read = in.read(buffer, 0, left > blocksize ? blocksize
-                                                           : left);
+        for (;;) {
+            int read = in.read(buffer);
 
             if (read == -1) {
                 break;
             }
 
             writer.write(buffer, 0, read);
-
-            left -= read;
         }
 
         writer.close();
@@ -713,13 +660,16 @@ public class StringConverter {
 
     /**
      * Returns the quoted version of the string using the quotechar argument.
-     * doublequote argument indicates whether each instance of quotechar
-     * inside the string is doubled.<p>
+     * doublequote argument indicates whether each instance of quotechar inside
+     * the string is doubled.<p>
      *
      * null string argument returns null. If the caller needs the literal
-     * "NULL" it should created it itself <p>
+     * "NULL" it should created it itself<p>
      *
-     * The reverse conversion is handled in Tokenizer.java
+     * @param s Java string
+     * @param quoteChar character used for qutoing
+     * @param extraQuote true if quoteChar itself should be repeated
+     * @return String
      */
     public static String toQuotedString(String s, char quoteChar,
                                         boolean extraQuote) {
@@ -752,182 +702,11 @@ public class StringConverter {
         return new String(b);
     }
 
-// TODO: CBB further review and testing...
-//    private static final int MAX_TO_QUOTED_BUFFER_SIZE = 64 * 1024;
-//    private static final char[] scb = new char[MAX_TO_QUOTED_BUFFER_SIZE];
-//    private static StringBuffer ssb = new StringBuffer();
-//
-//    /**
-//     * Returns the quoted version of the string using the quoteChar argument.
-//     * extraQuote argument indicates whether each instance of quoteChar
-//     * inside the string is doubled.<p>
-//     *
-//     * A null string argument returns null. If the caller needs the literal
-//     * "NULL" it should handle the case directly. <p>
-//     *
-//     * The reverse conversion is handled in Tokenizer.java. <p>
-//     *
-//     * This version is up to 2x faster than the original for degenerate cases,
-//     * i.e. when extraQuote is false or when there are zero occurences of
-//     * quoteChar in s.  It is also up to 1.5x faster when the length
-//     * of the resulting value is less than or equal to the compiled
-//     * MAX_TO_QUOTED_BUFFER_SIZE. <p>
-//     *
-//     * For all-quoted TEXT tables, experiments involving hundreds of thousands
-//     * of insertions, even under several hundred threads of execution, indicate
-//     * an average 20% speedup for the degenerate cases when using the JDBC batch
-//     * facility on a table with one identity column and three varchar
-//     * columns with average data length between 80 and 100 characters per
-//     * field. <p>
-//     *
-//     * For all-quoted TEXT tables, similar experiments over a range of other
-//     * field data lengths and distribution of internal quote characters indicate
-//     * performance at least identical to the original method, with best case
-//     * approaching 10% speed up over the original method. <p>
-//     */
-//    public static String toQuotedString(final String s,
-//                                        final char quoteChar,
-//                                        final boolean extraQuote) {
-//        if (s == null) {
-//            return null;
-//        }
-//
-//        if (!extraQuote) {
-//            // Then we don't need to double up internal quote chars at all,
-//            // so emperically, the following is the optimal performing
-//            // technique discovered so far.
-//            //
-//            // Tests indicate that even under serveral hundred threads,
-//            // this is up to 2X faster (and burns 33% less memory) than
-//            // the original method.
-//            synchronized(ssb) {
-//                final int len = 2 + s.length();
-//
-//                ssb.ensureCapacity(len);
-//                ssb.setLength(0);
-//
-//                String out = ssb.append(quoteChar)
-//                                .append(s)
-//                                .append(quoteChar)
-//                                .toString();
-//
-//                // Put a limit on the long-term heap consumed by
-//                // trying to optimize this method.
-////#ifdef JAVA5
-///*
-//                if (len > MAX_TO_QUOTED_BUFFER_SIZE) {
-//                    ssb.setLength(0);
-//                    ssb.trimToSize();
-//                }
-//*/
-//
-////#else
-//                if (len > MAX_TO_QUOTED_BUFFER_SIZE) {
-//                    ssb = new StringBuffer();
-//                }
-//
-////#endif JAVA5
-//
-//                return out;
-//            }
-//        }
-//
-//        final int count = count(s, quoteChar);
-//
-//        if (count == 0) {
-//            // Then we don't need to double up internal quote chars at all,
-//            // so emperically, the following is the optimal performing
-//            // technique discovered so far.
-//            //
-//            // Tests indicate that even under serveral hundred threads,
-//            // this is up to 2X faster (and burns 33% less memory) than
-//            // the original method.
-//            synchronized(ssb) {
-//                final int len = 2 + s.length();
-//
-//                ssb.ensureCapacity(len);
-//                ssb.setLength(0);
-//
-//                String out = ssb.append(quoteChar)
-//                                .append(s)
-//                                .append(quoteChar)
-//                                .toString();
-//
-//                // Put a limit on the long-term heap consumed by
-//                // trying to optimize this method.
-////#ifdef JAVA5
-///*
-//                if (len > MAX_TO_QUOTED_BUFFER_SIZE) {
-//                    ssb.setLength(0);
-//                    ssb.trimToSize();
-//                }
-//*/
-//
-////#else
-//                if (len > MAX_TO_QUOTED_BUFFER_SIZE) {
-//                    ssb = new StringBuffer();
-//                }
-//
-////#endif JAVA5
-//
-//                return out;
-//            }
-//        } else {
-//            // we need to double up some internal quote chars
-//
-//            final int slen = s.length();
-//            final int len  = 2 + count + slen;
-//
-//            if (len <= scb.length) {
-//                // then we can (re)use our static buffer to avoid
-//                // excess heap allocation, which can speed
-//                // things up noticably
-//
-//                synchronized(scb) {
-//                    final char[] b = scb;
-//
-//                    b[0]     = quoteChar;
-//                    b[len-1] = quoteChar;
-//
-//                    for (int i = 0, j = 1 ; i < slen ; i++) {
-//                        final char c = s.charAt(i);
-//
-//                        b[j++] = c;
-//
-//                        if (c == '\'') {
-//                            b[j++] = c;
-//                        }
-//                    }
-//
-//                    return new String(b, 0, len);
-//                }
-//            } else {
-//                // the output string is larger than our static buffer
-//                final char[] b = new char[len];
-//
-//                b[0]     = quoteChar;
-//                b[len-1] = quoteChar;
-//
-//                for (int i = 0, j = 1 ; i < slen ; i++) {
-//                    final char c = s.charAt(i);
-//
-//                    b[j++] = c;
-//
-//                    if (c == '\'') {
-//                        b[j++] = c;
-//                    }
-//                }
-//
-//                return new String(b, 0, len);
-//            }
-//        }
-//    }
-
     /**
      * Counts Character c in String s
      *
-     * @param String s
-     *
+     * @param s Java string
+     * @param c character to count
      * @return int count
      */
     static int count(final String s, final char c) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,17 +45,18 @@ import org.hsqldb.HsqlDateTime;
  * LOG_NORMAL corresponds to property value 2 and logs additional normal events
  * and minor errors.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.8.0
  */
 public class SimpleLog {
 
-    public static int   LOG_NONE   = 0;
-    public static int   LOG_ERROR  = 1;
-    public static int   LOG_NORMAL = 2;
-    private PrintWriter writer;
-    private int         level;
+    public static final int LOG_NONE   = 0;
+    public static final int LOG_ERROR  = 1;
+    public static final int LOG_NORMAL = 2;
+    private PrintWriter     writer;
+    private int             level;
+    private boolean         isSystem;
 
     public SimpleLog(String path, int level, boolean useFile) {
 
@@ -67,6 +68,7 @@ public class SimpleLog {
 
                 makeLog(file);
             } else {
+                isSystem = true;
                 writer = new PrintWriter(System.out);
             }
         }
@@ -75,17 +77,22 @@ public class SimpleLog {
     private void makeLog(File file) {
 
         try {
-            FileUtil.makeParentDirectories(file);
+            FileUtil.getDefaultInstance().makeParentDirectories(file);
 
             writer = new PrintWriter(new FileWriter(file.getPath(), true),
                                      true);
         } catch (Exception e) {
+            isSystem = true;
             writer = new PrintWriter(System.out);
         }
     }
 
     public int getLevel() {
         return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     public PrintWriter getPrintWriter() {
@@ -107,7 +114,7 @@ public class SimpleLog {
 
         String info = HsqlDateTime.getSytemTimeString();
 
-//#ifdef JDBC3
+//#ifdef JAVA4
         Throwable           temp     = new Throwable();
         StackTraceElement[] elements = temp.getStackTrace();
 
@@ -116,7 +123,7 @@ public class SimpleLog {
                     + elements[1].getMethodName();
         }
 
-//#endif
+//#endif JAVA4
         writer.println(info + " " + message);
     }
 
@@ -128,7 +135,7 @@ public class SimpleLog {
 
         String info = HsqlDateTime.getSytemTimeString();
 
-//#ifdef JDBC3
+//#ifdef JAVA4
         Throwable           temp     = new Throwable();
         StackTraceElement[] elements = temp.getStackTrace();
 
@@ -144,7 +151,7 @@ public class SimpleLog {
                     + elements[0].getMethodName();
         }
 
-//#endif
+//#endif JAVA4
         if (message == null) {
             message = "";
         }
@@ -161,8 +168,10 @@ public class SimpleLog {
 
     public void close() {
 
-        if (writer != null) {
+        if (writer != null && !isSystem) {
             writer.close();
         }
+
+        writer = null;
     }
 }

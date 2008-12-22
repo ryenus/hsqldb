@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,14 +48,16 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.security.cert.X509Certificate;
 
-import org.hsqldb.Trace;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 
 /**
  * The default secure socket factory implementation.
  *
- * @author unsaved@users
- * @author boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Blaine Simpson (unsaved@users dot sourceforge.net)
+ *
  * @version 1.7.2
  * @since 1.7.2
  */
@@ -133,10 +135,10 @@ implements HandshakeCompletedListener {
         ss = (SSLServerSocket) getServerSocketFactoryImpl()
             .createServerSocket(port);
 
-        if (Trace.TRACE) {
-            Trace.printSystemOut("[" + this + "]: createServerSocket()");
-            Trace.printSystemOut("capabilities for " + ss + ":");
-            Trace.printSystemOut("----------------------------");
+        if (Error.TRACE) {
+            Error.printSystemOut("[" + this + "]: createServerSocket()");
+            Error.printSystemOut("capabilities for " + ss + ":");
+            Error.printSystemOut("----------------------------");
             dump("supported cipher suites", ss.getSupportedCipherSuites());
             dump("enabled cipher suites", ss.getEnabledCipherSuites());
         }
@@ -163,10 +165,10 @@ implements HandshakeCompletedListener {
         ss = (SSLServerSocket) getServerSocketFactoryImpl()
             .createServerSocket(port, 128, addr);
 
-        if (Trace.TRACE) {
-            Trace.printSystemOut("[" + this + "]: createServerSocket()");
-            Trace.printSystemOut("capabilities for " + ss + ":");
-            Trace.printSystemOut("----------------------------");
+        if (Error.TRACE) {
+            Error.printSystemOut("[" + this + "]: createServerSocket()");
+            Error.printSystemOut("capabilities for " + ss + ":");
+            Error.printSystemOut("----------------------------");
             dump("supported cipher suites", ss.getSupportedCipherSuites());
             dump("enabled cipher suites", ss.getEnabledCipherSuites());
         }
@@ -176,14 +178,14 @@ implements HandshakeCompletedListener {
 
     private static void dump(String title, String[] as) {
 
-        Trace.printSystemOut(title);
-        Trace.printSystemOut("----------------------------");
+        Error.printSystemOut(title);
+        Error.printSystemOut("----------------------------");
 
         for (int i = 0; i < as.length; i++) {
-            Trace.printSystemOut(String.valueOf(as[i]));
+            Error.printSystemOut(String.valueOf(as[i]));
         }
 
-        Trace.printSystemOut("----------------------------");
+        Error.printSystemOut("----------------------------");
     }
 
     /**
@@ -333,7 +335,7 @@ implements HandshakeCompletedListener {
 
         if (start < 0) {
             throw new UnknownHostException(
-                Trace.getMessage(Trace.HsqlSocketFactorySecure_verify));
+                Error.getMessage(ErrorCode.SERVER_SECURE_VERIFY_1));
         }
 
         start += 3;
@@ -343,15 +345,15 @@ implements HandshakeCompletedListener {
 
         if (CN.length() < 1) {
             throw new UnknownHostException(
-                Trace.getMessage(Trace.HsqlSocketFactorySecure_verify2));
+                Error.getMessage(ErrorCode.SERVER_SECURE_VERIFY_2));
         }
 
         if (!CN.equalsIgnoreCase(host)) {
 
             // TLS_HOSTNAME_MISMATCH
             throw new UnknownHostException(
-                Trace.getMessage(
-                    Trace.HsqlSocketFactorySecure_verify3, true,
+                Error.getMessage(
+                    ErrorCode.SERVER_SECURE_VERIFY_3, 0,
                     new Object[] {
                 CN, host
             }));
@@ -364,21 +366,21 @@ implements HandshakeCompletedListener {
         String     sessionId;
         SSLSocket  socket;
 
-        if (Trace.TRACE) {
+        if (Error.TRACE) {
             socket  = evt.getSocket();
             session = evt.getSession();
 
-            Trace.printSystemOut("SSL handshake completed:");
-            Trace.printSystemOut(
+            Error.printSystemOut("SSL handshake completed:");
+            Error.printSystemOut(
                 "------------------------------------------------");
-            Trace.printSystemOut("socket:      : " + socket);
-            Trace.printSystemOut("cipher suite : "
+            Error.printSystemOut("socket:      : " + socket);
+            Error.printSystemOut("cipher suite : "
                                  + session.getCipherSuite());
 
             sessionId = StringConverter.byteArrayToHexString(session.getId());
 
-            Trace.printSystemOut("session id   : " + sessionId);
-            Trace.printSystemOut(
+            Error.printSystemOut("session id   : " + sessionId);
+            Error.printSystemOut(
                 "------------------------------------------------");
         }
     }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,10 @@
 
 package org.hsqldb.rights;
 
-import org.hsqldb.store.ValuePool;
-import org.hsqldb.Token;
-
 /**
  * The constants for grants.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
@@ -68,21 +65,5 @@ public interface GrantConstants {
     int TRIGGER = 1 << 7;
 
     /** Combined flag permitting any action. */
-    int     ALL         = SELECT | DELETE | INSERT | UPDATE | USAGE | EXECUTE;
-    Integer INTEGER_ALL = ValuePool.getInt(ALL);
-    int     MASK        = -1;
-
-    /** equals shift value for first grant constant */
-    int GRANT_SHIFT = 16;
-
-    //
-    String S_R_ALL     = Token.T_ALL;
-    String S_R_SELECT  = Token.T_SELECT;
-    String S_R_UPDATE  = Token.T_UPDATE;
-    String S_R_DELETE  = Token.T_DELETE;
-    String S_R_INSERT  = Token.T_INSERT;
-    String S_R_USAGE   = Token.T_USAGE;
-    String S_R_EXECUTE = Token.T_EXECUTE;
-    String S_R_REFERENCES = Token.T_REFERENCES;
-    String S_R_TRIGGER = Token.T_TRIGGER;
+    int ALL = SELECT | DELETE | INSERT | UPDATE | USAGE | EXECUTE;
 }

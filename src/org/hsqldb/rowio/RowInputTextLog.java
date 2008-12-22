@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,81 +33,85 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
 
-import org.hsqldb.HsqlDateTime;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Token;
-import org.hsqldb.Tokenizer;
-import org.hsqldb.Types;
-import org.hsqldb.lib.StringConverter;
-import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.Scanner;
+import org.hsqldb.Tokens;
 import org.hsqldb.scriptio.ScriptReaderBase;
-import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobDataMemory;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataMemory;
-import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.JavaObjectData;
+import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
- *  Class for reading the data for a database row from the script file.
+ * Class for reading the data for a database row from the script file.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase
 implements RowInputInterface {
 
-    Tokenizer tokenizer;
-    String    tableName  = null;
-    String    schemaName = null;
-    int       statementType;
+    Scanner scanner;
+    String  tableName  = null;
+    String  schemaName = null;
+    int     statementType;
+    Object  value;
 
     public RowInputTextLog() {
 
         super(new byte[0]);
 
-        tokenizer = new Tokenizer();
+        scanner = new Scanner();
     }
 
     public void setSource(String text) throws HsqlException {
 
-        tokenizer.reset(text);
+        scanner.reset(text);
 
         statementType = ScriptReaderBase.ANY_STATEMENT;
 
-        String s = tokenizer.getString();
+        scanner.scanNext();
 
-        if (s.equals(Token.T_INSERT)) {
+        String s = scanner.getString();
+
+        if (s.equals(Tokens.T_INSERT)) {
             statementType = ScriptReaderBase.INSERT_STATEMENT;
 
-            tokenizer.getString();
+            scanner.scanNext();
+            scanner.scanNext();
 
-            tableName = tokenizer.getString();
+            tableName = scanner.getString();
 
-            tokenizer.getString();
-        } else if (s.equals(Token.T_DELETE)) {
+            scanner.scanNext();
+        } else if (s.equals(Tokens.T_DELETE)) {
             statementType = ScriptReaderBase.DELETE_STATEMENT;
 
-            tokenizer.getString();
+            scanner.scanNext();
+            scanner.scanNext();
 
-            tableName = tokenizer.getString();
-        } else if (s.equals(Token.T_COMMIT)) {
+            tableName = scanner.getString();
+        } else if (s.equals(Tokens.T_COMMIT)) {
             statementType = ScriptReaderBase.COMMIT_STATEMENT;
-        } else if (s.equals(Token.T_SET)) {
-            if (tokenizer.isGetThis(Token.T_SCHEMA)) {
-                schemaName    = tokenizer.getSimpleName();
+        } else if (s.equals(Tokens.T_SET)) {
+            scanner.scanNext();
+
+            if (Tokens.T_SCHEMA.equals(scanner.getString())) {
+                scanner.scanNext();
+
+                schemaName    = scanner.getString();
                 statementType = ScriptReaderBase.SET_SCHEMA_STATEMENT;
             }
         }
@@ -125,90 +129,61 @@ implements RowInputInterface {
         return schemaName;
     }
 
-    protected String readField() throws IOException {
+    protected void readField() {
 
-        try {
-            tokenizer.getString();
+        readFieldPrefix();
+        scanner.scanNext();
 
-            if (statementType == ScriptReaderBase.DELETE_STATEMENT) {
-                tokenizer.getString();
-                tokenizer.getString();
-            }
+        value = scanner.getValue();
+    }
 
-            String s = tokenizer.getString();
+    protected void readNumberField(Type type) {
 
-            if (tokenizer.getType() == Types.SQL_ALL_TYPES) {
-                s = null;
-            }
+        readFieldPrefix();
+        scanner.scanNext();
 
-            return s;
-        } catch (HsqlException e) {
-            throw new IOException(e.getMessage());
+        boolean minus = scanner.getTokenType() == Tokens.MINUS;
+
+        if (minus) {
+            scanner.scanNext();
+        }
+
+        value = scanner.getValue();
+
+        if (minus) {
+            try {
+                value = ((NumberType) scanner.getDataType()).negate(value);
+            } catch (HsqlException e) {}
         }
     }
 
-    protected String readNumberField() throws IOException {
+    protected void readFieldPrefix() {
 
-        try {
-            tokenizer.getString();
+        scanner.scanNext();
 
-            if (statementType == ScriptReaderBase.DELETE_STATEMENT) {
-                tokenizer.getString();
-                tokenizer.getString();
-            }
-
-            String s = tokenizer.getString();
-
-            if ("-".equals(s)) {
-                s = s + tokenizer.getString();
-            } else if (tokenizer.getType() == Types.SQL_ALL_TYPES) {
-                s = null;
-            }
-
-            return s;
-        } catch (HsqlException e) {
-            throw new IOException(e.getMessage());
+        if (statementType == ScriptReaderBase.DELETE_STATEMENT) {
+            scanner.scanNext();
+            scanner.scanNext();
         }
     }
 
     public String readString() throws IOException {
 
-        String s = readField();
+        readField();
 
-        return ValuePool.getString(s);
+        return (String) value;
     }
 
     public short readShort() throws IOException {
-
-        String s = readNumberField();
-
-        if (s == null) {
-            return 0;
-        }
-
-        return Short.parseShort(s);
+        throw Error.runtimeError(ErrorCode.U_S0500, "");
     }
 
     public int readInt() throws IOException {
-
-        String s = readNumberField();
-
-        if (s == null) {
-            return 0;
-        }
-
-        return Integer.parseInt(s);
+        throw Error.runtimeError(ErrorCode.U_S0500, "");
     }
 
     public long readLong() throws IOException {
-
-        String s = readNumberField();
-
-        if (s == null) {
-            return 0;
-        }
-
-        return Long.parseLong(s);
+        throw Error.runtimeError(ErrorCode.U_S0500, "");
     }
 
     public int readType() throws IOException {
@@ -222,58 +197,46 @@ implements RowInputInterface {
     }
 
     protected String readChar(Type type) throws IOException {
-        return readString();
+
+        readField();
+
+        return (String) value;
     }
 
     protected Integer readSmallint() throws IOException, HsqlException {
 
-        String s = readNumberField();
+        readNumberField(Type.SQL_SMALLINT);
 
-        if (s == null) {
-            return null;
-        }
-
-        int i = Integer.parseInt(s);
-
-        return ValuePool.getInt(i);
+        return (Integer) value;
     }
 
     protected Integer readInteger() throws IOException, HsqlException {
 
-        String s = readNumberField();
+        readNumberField(Type.SQL_INTEGER);
 
-        if (s == null) {
-            return null;
-        }
-
-        int i = Integer.parseInt(s);
-
-        return ValuePool.getInt(i);
+        return (Integer) value;
     }
 
     protected Long readBigint() throws IOException, HsqlException {
 
-        String s = readNumberField();
+        readNumberField(Type.SQL_BIGINT);
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        long i = Long.parseLong(s);
-
-        return ValuePool.getLong(i);
+        return ValuePool.getLong(((Number) value).longValue());
     }
 
     protected Double readReal() throws IOException, HsqlException {
 
-        String s = readNumberField();
+        readNumberField(Type.SQL_DOUBLE);
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        double i = JavaSystem.parseDouble(s);
-
+/*
         if (tokenizer.isGetThis(Token.T_DIVIDE)) {
             s = tokenizer.getString();
 
@@ -288,152 +251,157 @@ implements RowInputInterface {
                 i = Double.POSITIVE_INFINITY;
             }
         }
-
-        return ValuePool.getDouble(Double.doubleToLongBits(i));
+*/
+        return (Double) value;
     }
 
-    protected BigDecimal readDecimal() throws IOException, HsqlException {
+    protected BigDecimal readDecimal(Type type)
+    throws IOException, HsqlException {
 
-        String s = readNumberField();
+        readNumberField(type);
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        BigDecimal i = new BigDecimal(s);
-
-        return ValuePool.getBigDecimal(i);
+        return (BigDecimal) type.convertToDefaultType(null, value);
     }
 
     protected TimeData readTime(Type type) throws IOException, HsqlException {
 
-        String s = readField();
+        readField();
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        return (TimeData) DateTimeType.newTime(s).value;
+        return scanner.newTime((String) value);
     }
 
-    protected Date readDate(Type type) throws IOException, HsqlException {
+    protected TimestampData readDate(Type type) throws IOException, HsqlException {
 
-        String s = readField();
+        readField();
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        return HsqlDateTime.dateValue(s);
+        return scanner.newDate((String) value);
     }
 
-    protected Timestamp readTimestamp(Type type)
+    protected TimestampData readTimestamp(Type type)
     throws IOException, HsqlException {
 
-        String s = readField();
+        readField();
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        return HsqlDateTime.timestampValue(s);
+        return scanner.newTimestamp((String) value);
     }
 
     protected IntervalMonthData readYearMonthInterval(Type type)
     throws IOException, HsqlException {
 
-        String s = readField();
+        readField();
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        return (IntervalMonthData) ((IntervalType) type).newInterval(s);
+        return (IntervalMonthData) scanner.newInterval((String) value,
+                (IntervalType) type);
     }
 
     protected IntervalSecondData readDaySecondInterval(Type type)
     throws IOException, HsqlException {
 
-        String s = readField();
+        readField();
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        return (IntervalSecondData) ((IntervalType) type).newInterval(s);
+        return (IntervalSecondData) scanner.newInterval((String) value,
+                (IntervalType) type);
     }
 
     protected Boolean readBoole() throws IOException, HsqlException {
 
-        String s = readField();
+        readField();
 
-        if (s == null) {
-            return null;
-        }
-
-        return s.equalsIgnoreCase("TRUE") ? Boolean.TRUE
-                                          : Boolean.FALSE;
+        return (Boolean) value;
     }
 
     protected Object readOther() throws IOException, HsqlException {
 
-        byte[] data;
-        String s = readField();
+        readFieldPrefix();
 
-        if (s == null) {
+        if (scanner.scanNull()) {
             return null;
         }
 
-        data = StringConverter.hexToByteArray(s);
+        scanner.scanBinaryString();
 
-        return new JavaObjectData(data);
+        value = scanner.getValue();
+
+        return new JavaObjectData(((BinaryData) value).getBytes());
     }
 
     protected BinaryData readBit() throws IOException, HsqlException {
 
-        String s = readField();
+        readFieldPrefix();
 
-        if (s == null) {
+        if (scanner.scanNull()) {
             return null;
         }
 
-        BitMap map = StringConverter.bitToBitMap(s);
+        scanner.scanBitString();
 
-        return new BinaryData(map.getBytes(), map.size());
+        value = scanner.getValue();
+
+        return (BinaryData) value;
     }
 
     protected BinaryData readBinary() throws IOException, HsqlException {
 
-        String s = readField();
+        readFieldPrefix();
 
-        if (s == null) {
+        if (scanner.scanNull()) {
             return null;
         }
 
-        return new BinaryData(StringConverter.hexToByteArray(s), false);
+        scanner.scanBinaryString();
+
+        value = scanner.getValue();
+
+        return (BinaryData) value;
     }
 
     protected ClobData readClob() throws IOException, HsqlException {
 
-        String s = readField();
+        readField();
 
-        if (s == null) {
+        if (value == null) {
             return null;
         }
 
-        return new ClobDataMemory(s.toCharArray(), false);
+        return new ClobDataMemory(((String) value).toCharArray(), false);
     }
 
     protected BlobData readBlob() throws IOException, HsqlException {
 
-        String s = readField();
+        readFieldPrefix();
 
-        if (s == null) {
+        if (scanner.scanNull()) {
             return null;
         }
 
-        byte[] bytes = StringConverter.hexToByteArray(s);
+        scanner.scanBinaryString();
 
-        return new BlobDataMemory(bytes, false);
+        value = scanner.getValue();
+
+        return new BinaryData(((BinaryData) value).getBytes(), false);
     }
 }

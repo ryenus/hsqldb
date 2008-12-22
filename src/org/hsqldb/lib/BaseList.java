@@ -197,5 +197,9 @@ abstract class BaseList {
 
             throw new NoSuchElementException();
         }
+
+        public void setValue(Object value) {
+            throw new NoSuchElementException();
+        }
     }
 }

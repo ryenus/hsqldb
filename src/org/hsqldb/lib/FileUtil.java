@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,10 @@ import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * A collection of static file management methods.<p>
- * Also implements the default FileAccess method
+ * Also provides the default FileAccess implementation
  *
- * @author fredt@users
- * @author boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
  * @version 1.8.0
  * @since 1.7.2
@@ -105,22 +105,22 @@ public class FileUtil implements FileAccess {
     // even if, unlike for File.getCanonicalPath(), (new File("a")).exists() or
     // (new File("A")).exits(), regardless of the hosting system's
     // file path case sensitivity policy.
-    public static final boolean fsIsIgnoreCase =
+    public final boolean fsIsIgnoreCase =
         (new File("A")).equals(new File("a"));
 
     // posix separator normalized to File.separator?
     // CHECKME: is this true for every file system under Java?
-    public static final boolean fsNormalizesPosixSeparator =
+    public final boolean fsNormalizesPosixSeparator =
         (new File("/")).getPath().endsWith(File.separator);
 
     // for JDK 1.1 createTempFile
-    static final Random random = new Random(System.currentTimeMillis());
+    final Random random = new Random(System.currentTimeMillis());
 
     /**
      * Delete the named file
      */
-    public static void delete(String filename) {
-        (new File(filename)).delete();
+    public boolean delete(String filename) {
+        return (new File(filename)).delete();
     }
 
     /**
@@ -138,26 +138,25 @@ public class FileUtil implements FileAccess {
      * @param f the abstract pathname of the file be deleted when the virtual
      *       machine terminates
      */
-    public static void deleteOnExit(File f) {
+    public void deleteOnExit(File f) {
         JavaSystem.deleteOnExit(f);
     }
 
     /**
      * Return true or false based on whether the named file exists.
      */
-    public static boolean exists(String filename) {
+    public boolean exists(String filename) {
         return (new File(filename)).exists();
     }
 
-    public static boolean exists(String fileName, boolean resource,
-                                 Class cla) {
+    public boolean exists(String fileName, boolean resource, Class cla) {
 
         if (fileName == null || fileName.length() == 0) {
             return false;
         }
 
         return resource ? null != cla.getResource(fileName)
-                        : FileUtil.exists(fileName);
+                        : FileUtil.getDefaultInstance().exists(fileName);
     }
 
     /**
@@ -167,15 +166,17 @@ public class FileUtil implements FileAccess {
      * If a file with oldname does not exist, no file will exist after the
      * operation.
      */
-    public static void renameOverwrite(String oldname, String newname) {
+    private boolean renameOverwrite(String oldname, String newname) {
 
-        delete(newname);
+        boolean deleted = delete(newname);
 
         if (exists(oldname)) {
             File file = new File(oldname);
 
-            file.renameTo(new File(newname));
+            return file.renameTo(new File(newname));
         }
+
+        return deleted;
     }
 
     public static IOException toIOException(Throwable e) {
@@ -193,7 +194,7 @@ public class FileUtil implements FileAccess {
      * @param path the path for which to retrieve the absolute path
      * @return the absolute path
      */
-    public static String absolutePath(String path) {
+    public String absolutePath(String path) {
         return (new File(path)).getAbsolutePath();
     }
 
@@ -204,7 +205,7 @@ public class FileUtil implements FileAccess {
      * @param f the File for which to retrieve the absolute File
      * @return the canonical File
      */
-    public static File canonicalFile(File f) throws IOException {
+    public File canonicalFile(File f) throws IOException {
         return new File(f.getCanonicalPath());
     }
 
@@ -215,7 +216,7 @@ public class FileUtil implements FileAccess {
      * @param path the path for which to retrieve the canonical File
      * @return the canonical File
      */
-    public static File canonicalFile(String path) throws IOException {
+    public File canonicalFile(String path) throws IOException {
         return new File(new File(path).getCanonicalPath());
     }
 
@@ -226,7 +227,7 @@ public class FileUtil implements FileAccess {
      * @param f the File for which to retrieve the canonical path
      * @return the canonical path
      */
-    public static String canonicalPath(File f) throws IOException {
+    public String canonicalPath(File f) throws IOException {
         return f.getCanonicalPath();
     }
 
@@ -237,7 +238,7 @@ public class FileUtil implements FileAccess {
      * @param path the path for which to retrieve the canonical path
      * @return the canonical path
      */
-    public static String canonicalPath(String path) throws IOException {
+    public String canonicalPath(String path) throws IOException {
         return new File(path).getCanonicalPath();
     }
 
@@ -249,7 +250,7 @@ public class FileUtil implements FileAccess {
      *      absolute path
      * @return the canonical or absolute path
      */
-    public static String canonicalOrAbsolutePath(String path) {
+    public String canonicalOrAbsolutePath(String path) {
 
         try {
             return canonicalPath(path);
@@ -258,7 +259,7 @@ public class FileUtil implements FileAccess {
         }
     }
 
-    public static void makeParentDirectories(File f) {
+    public void makeParentDirectories(File f) {
 
         String parent = f.getParent();
 
@@ -292,7 +293,7 @@ public class FileUtil implements FileAccess {
         }
     }
 
-    public class FileSync implements FileAccess.FileSync {
+    public static class FileSync implements FileAccess.FileSync {
 
         FileDescriptor outDescriptor;
 

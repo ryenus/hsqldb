@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package org.hsqldb.rowio;
 
 import org.hsqldb.CachedRow;
-import org.hsqldb.Table;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.types.Type;
@@ -40,8 +39,8 @@ import org.hsqldb.types.Type;
 /**
  * Public interface for writing the data for a database row.
  *
- * @author sqlbob@users (RMP)
- * @author fredt@users
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.0
  */
@@ -65,9 +64,9 @@ public interface RowOutputInterface {
 
     void writeLong(long i);
 
-    void writeRow(Object[] data, Table t);
+    void writeRow(Object[] data, Type[] types);
 
-    void writeData(Object[] data, Table t);
+    void writeData(Object[] data, Type[] types);
 
     void writeData(int l, Type[] types, Object[] data, HashMappedList cols,
                    int[] primarykeys);

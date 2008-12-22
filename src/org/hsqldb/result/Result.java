@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,22 +33,24 @@ package org.hsqldb.result;
 
 import java.io.DataInput;
 import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StringReader;
 
-import org.hsqldb.CompiledStatement;
+import org.hsqldb.ColumnBase;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.Trace;
+import org.hsqldb.StatementTypes;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
-import org.hsqldb.navigator.ClientRowSetNavigator;
-import org.hsqldb.navigator.LinkedListRowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.navigator.RowSetNavigatorClient;
+import org.hsqldb.navigator.RowSetNavigatorLinkedList;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.types.BooleanType;
-import org.hsqldb.types.CharacterType;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 
 /**
@@ -60,12 +62,12 @@ import org.hsqldb.types.Type;
  *  responses (such as exception indications, update counts, result sets and
  *  result set metadata). It also implements the HSQL wire protocol for
  *  comunicating all such requests and responses across the network.
+ *  Uses a navigator for data.
  *
- *  Originally a class in Hypersonic, rewritten in successive
- *  versions of HSQLDB. Uses a navigator for data since 1.9.0.
- *
- * @author fredt@users, boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
+ * @since 1.9.0
  */
 public class Result {
 
@@ -73,10 +75,38 @@ public class Result {
         newResult(ResultConstants.UPDATECOUNT);
     public static final Result updateOneResult =
         newResult(ResultConstants.UPDATECOUNT);
+    public static final Result updateTwoResult =
+        newResult(ResultConstants.UPDATECOUNT);
 
     static {
         updateOneResult.setUpdateCount(1);
+        updateTwoResult.setUpdateCount(2);
     }
+
+    public static final ResultMetaData sessionAttributesMetaData =
+        ResultMetaData.newResultMetaData(SessionInterface.INFO_LIMIT);
+
+    static {
+        for (int i = 0; i < Session.INFO_LIMIT; i++) {
+            sessionAttributesMetaData.columns[i] = new ColumnBase(null, null,
+                    null, null);
+        }
+
+        sessionAttributesMetaData.columns[Session.INFO_ID].setType(
+            Type.SQL_INTEGER);
+        sessionAttributesMetaData.columns[Session.INFO_INTEGER].setType(
+            Type.SQL_INTEGER);
+        sessionAttributesMetaData.columns[Session.INFO_BOOLEAN].setType(
+            Type.SQL_BOOLEAN);
+        sessionAttributesMetaData.columns[Session.INFO_VARCHAR].setType(
+            Type.SQL_VARCHAR);
+        sessionAttributesMetaData.prepareData();
+    }
+
+    private static final ResultMetaData emptyMeta =
+        ResultMetaData.newResultMetaData(0);
+    public static final Result emptyGeneratedResult =
+        Result.newDataResult(emptyMeta);
 
     // type of result
     byte mode;
@@ -93,7 +123,8 @@ public class Result {
     // database name for new connection
     private String databaseName;
 
-    // user / password for new connection or error strings
+    // user / password for new connection
+    // error strings in error results
     private String mainString;
     private String subString;
 
@@ -101,15 +132,18 @@ public class Result {
     int errorCode;
 
     // the exception if this is an error
-    private Throwable exception;
+    private HsqlException exception;
 
     // prepared statement id
-    int statementID;
+    long statementID;
 
     // statement type based on whether it returns an update count or a result set
-    int statementType;
+    // type of session info requested
+    int statementReturnType;
 
-    // max rows (out) or update count (in)
+    // max rows (out)
+    // update count (in)
+    // time zone seconds (connect)
     private int updateCount;
 
     // fetch size (in)
@@ -121,9 +155,6 @@ public class Result {
     //
     private int lobCount;
     ResultLob   lobResults;
-
-    // transient - number of significant data columns
-    private int significantColumns;
 
     /** A Result object's metadata */
     public ResultMetaData metaData;
@@ -141,6 +172,9 @@ public class Result {
 
     //
     int generateKeys;
+
+    // simple value for PSM
+    Object valueData;
 
     public static Result newResult(RowSetNavigator nav) {
 
@@ -160,18 +194,21 @@ public class Result {
         switch (type) {
 
             case ResultConstants.EXECUTE :
+                navigator = new RowSetNavigatorClient(1);
+                break;
+
             case ResultConstants.BATCHEXECUTE :
             case ResultConstants.BATCHEXECDIRECT :
             case ResultConstants.SETSESSIONATTR :
-                navigator = new LinkedListRowSetNavigator();
+                navigator = new RowSetNavigatorLinkedList();
                 break;
 
             case ResultConstants.PARAM_METADATA :
-                navigator = new LinkedListRowSetNavigator();
+                navigator = new RowSetNavigatorLinkedList();
                 break;
 
             case ResultConstants.BATCHEXECRESPONSE :
-                navigator = new ClientRowSetNavigator();
+                navigator = new RowSetNavigatorClient();
                 break;
 
             case ResultConstants.DATA :
@@ -180,8 +217,7 @@ public class Result {
                 break;
 
             case ResultConstants.LARGE_OBJECT_OP :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Result");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Result");
             default :
         }
 
@@ -207,7 +243,7 @@ public class Result {
 
             return result;
         } catch (IOException e) {
-            throw Trace.error(Trace.TRANSFER_CORRUPTED);
+            throw Error.error(ErrorCode.X_08000);
         }
     }
 
@@ -262,21 +298,24 @@ public class Result {
 
         in.resetRow(0, length);
 
-        byte[] byteArray = in.getBuffer();
-        int    offset    = 4;
+        byte[]    byteArray = in.getBuffer();
+        final int offset    = 4;
 
         dataInput.readFully(byteArray, offset, length - offset);
 
         switch (mode) {
 
             case ResultConstants.GETSESSIONATTR :
+                result.statementReturnType = in.readByte();
+                break;
+
             case ResultConstants.DISCONNECT :
             case ResultConstants.RESETSESSION :
             case ResultConstants.STARTTRAN :
                 break;
 
             case ResultConstants.PREPARE :
-                result.setStatementType(in.readInt());
+                result.setStatementType(in.readByte());
 
                 result.mainString      = in.readString();
                 result.rsScrollability = in.readShort();
@@ -297,18 +336,18 @@ public class Result {
                 break;
 
             case ResultConstants.FREESTMT :
-                result.statementID = in.readInt();
+                result.statementID = in.readLong();
                 break;
 
             case ResultConstants.EXECDIRECT :
-                result.updateCount     = in.readInt();
-                result.fetchSize       = in.readInt();
-                result.statementType   = in.readByte();
-                result.mainString      = in.readString();
-                result.rsScrollability = in.readShort();
-                result.rsConcurrency   = in.readShort();
-                result.rsHoldability   = in.readShort();
-                result.generateKeys    = in.readByte();
+                result.updateCount         = in.readInt();
+                result.fetchSize           = in.readInt();
+                result.statementReturnType = in.readByte();
+                result.mainString          = in.readString();
+                result.rsScrollability     = in.readShort();
+                result.rsConcurrency       = in.readShort();
+                result.rsHoldability       = in.readShort();
+                result.generateKeys        = in.readByte();
 
                 if (result.generateKeys == ResultConstants
                         .RETURN_GENERATED_KEYS_COL_NAMES || result
@@ -322,6 +361,7 @@ public class Result {
                 result.databaseName = in.readString();
                 result.mainString   = in.readString();
                 result.subString    = in.readString();
+                result.updateCount  = in.readInt();
                 break;
 
             case ResultConstants.ERROR :
@@ -346,9 +386,19 @@ public class Result {
 
                 switch (type) {
 
-                    case ResultConstants.SAVEPOINT_NAME_RELEASE :
-                    case ResultConstants.SAVEPOINT_NAME_ROLLBACK :
+                    case ResultConstants.TX_SAVEPOINT_NAME_RELEASE :
+                    case ResultConstants.TX_SAVEPOINT_NAME_ROLLBACK :
                         result.mainString = in.readString();    // savepoint name
+                        break;
+
+                    case ResultConstants.TX_COMMIT :
+                    case ResultConstants.TX_ROLLBACK :
+                    case ResultConstants.TX_COMMIT_AND_CHAIN :
+                    case ResultConstants.TX_ROLLBACK_AND_CHAIN :
+                        break;
+
+                    default :
+                        throw Error.runtimeError(ErrorCode.U_S0500, "Result");
                 }
 
                 break;
@@ -362,30 +412,32 @@ public class Result {
 
                     case ResultConstants.SQL_ATTR_SAVEPOINT_NAME :
                         result.mainString = in.readString();    // savepoint name
+                        break;
 
                     //  case ResultConstants.SQL_ATTR_AUTO_IPD :
                     //      - always true
                     //  default: throw - case never happens
+                    default :
+                        throw Error.runtimeError(ErrorCode.U_S0500, "Result");
                 }
 
                 break;
             }
             case ResultConstants.PREPARE_ACK :
-                result.statementType     = in.readByte();
-                result.statementID       = in.readInt();
-                result.metaData          = new ResultMetaData(in);
-                result.parameterMetaData = new ResultMetaData(in);
+                result.statementReturnType = in.readByte();
+                result.statementID         = in.readLong();
+                result.metaData            = new ResultMetaData(in);
+                result.parameterMetaData   = new ResultMetaData(in);
                 break;
 
             case ResultConstants.EXECUTE :
-                result.updateCount        = in.readInt();
-                result.fetchSize          = in.readInt();
-                result.statementID        = in.readInt();
-                result.rsScrollability    = in.readShort();
-                result.rsConcurrency      = in.readShort();
-                result.rsHoldability      = in.readShort();
-                result.metaData           = new ResultMetaData(in);
-                result.significantColumns = result.metaData.getColumnCount();
+                result.updateCount     = in.readInt();
+                result.fetchSize       = in.readInt();
+                result.statementID     = in.readLong();
+                result.rsScrollability = in.readShort();
+                result.rsConcurrency   = in.readShort();
+                result.rsHoldability   = in.readShort();
+                result.metaData        = new ResultMetaData(in);
 
                 result.navigator.read(in, result.metaData);
                 break;
@@ -394,19 +446,17 @@ public class Result {
             case ResultConstants.BATCHEXECUTE :
             case ResultConstants.BATCHEXECDIRECT :
             case ResultConstants.SETSESSIONATTR : {
-                result.updateCount        = in.readInt();
-                result.fetchSize          = in.readInt();
-                result.statementID        = in.readInt();
-                result.metaData           = new ResultMetaData(in);
-                result.significantColumns = result.metaData.getColumnCount();
+                result.updateCount = in.readInt();
+                result.fetchSize   = in.readInt();
+                result.statementID = in.readLong();
+                result.metaData    = new ResultMetaData(in);
 
                 result.navigator.read(in, result.metaData);
 
                 break;
             }
             case ResultConstants.PARAM_METADATA : {
-                result.metaData           = new ResultMetaData(in);
-                result.significantColumns = result.metaData.colLabels.length;
+                result.metaData = new ResultMetaData(in);
 
                 result.navigator.read(in, result.metaData);
 
@@ -420,63 +470,59 @@ public class Result {
                 break;
             }
             case ResultConstants.DATA : {
-                result.updateCount        = in.readInt();
-                result.fetchSize          = in.readInt();
-                result.rsScrollability    = in.readShort();
-                result.rsConcurrency      = in.readShort();
-                result.rsHoldability      = in.readShort();
-                result.metaData           = new ResultMetaData(in);
-                result.significantColumns = result.metaData.getColumnCount();
-                result.navigator          = new ClientRowSetNavigator();
+                result.updateCount     = in.readInt();
+                result.fetchSize       = in.readInt();
+                result.rsScrollability = in.readShort();
+                result.rsConcurrency   = in.readShort();
+                result.rsHoldability   = in.readShort();
+                result.mainString      = in.readString();
+                result.metaData        = new ResultMetaData(in);
+                result.navigator       = new RowSetNavigatorClient();
 
                 result.navigator.read(in, result.metaData);
 
                 break;
             }
             case ResultConstants.DATAHEAD : {
-                result.updateCount        = in.readInt();
-                result.fetchSize          = in.readInt();
-                result.rsScrollability    = in.readShort();
-                result.rsConcurrency      = in.readShort();
-                result.rsHoldability      = in.readShort();
-                result.metaData           = new ResultMetaData(in);
-                result.significantColumns = result.metaData.getColumnCount();
-                result.navigator          = new ClientRowSetNavigator();
+                result.updateCount     = in.readInt();
+                result.fetchSize       = in.readInt();
+                result.rsScrollability = in.readShort();
+                result.rsConcurrency   = in.readShort();
+                result.rsHoldability   = in.readShort();
+                result.mainString      = in.readString();
+                result.metaData        = new ResultMetaData(in);
+                result.navigator       = new RowSetNavigatorClient();
 
                 result.navigator.read(in, result.metaData);
 
                 break;
             }
             case ResultConstants.DATAROWS : {
-                result.metaData           = new ResultMetaData(in);
-                result.significantColumns = result.metaData.getColumnCount();
-                result.navigator          = new ClientRowSetNavigator();
+                result.metaData  = new ResultMetaData(in);
+                result.navigator = new RowSetNavigatorClient();
 
                 result.navigator.read(in, result.metaData);
 
                 break;
             }
             default :
-                throw new HsqlException(
-                    Trace.getMessage(
-                        Trace.Result_Result, true, new Object[]{
-                            new Integer(mode) }), null, 0);
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "Result.newResult");
         }
 
         return result;
     }
 
     /**
-     * For BATCHEXECUTE, BATCHEXECDIRECT
+     * For interval PSM return values
      */
-    public static Result newBatchExecuteResult(int type, Type[] types,
-            int id) {
+    public static Result newPSMResult(int type, String label, Object value) {
 
-        Result result = newResult(type);
+        Result result = newResult(ResultConstants.VALUE);
 
-        result.metaData = ResultMetaData.newSimpleResultMetaData(types);
-        result.significantColumns = types.length;
-        result.statementID        = id;
+        result.errorCode  = type;
+        result.mainString = label;
+        result.valueData  = value;
 
         return result;
     }
@@ -489,37 +535,20 @@ public class Result {
         return newResult(ResultConstants.PREPARE);
     }
 
-    public static Result newPrepareStatementRequest(String sql,
-            int resultSetType, int resultSetConcurrency,
-            int resultSetHoldability, int generatedKeys,
-            int[] generatedIndexes, String[] generatedNames) {
-
-        Result result = newResult(ResultConstants.PREPARE);
-
-        result.mainString      = sql;
-        result.rsScrollability = resultSetType;
-        result.rsConcurrency   = resultSetConcurrency;
-        result.rsHoldability   = resultSetHoldability;
-        result.generateKeys    = generatedKeys;
-        result.generatedMetaData =
-            ResultMetaData.newGeneratedColumnsMetaData(generatedIndexes,
-                generatedNames);
-
-        return result;
-    }
-
     /**
      * For SQLEXECUTE
      * For execution of SQL prepared statements.
      * The parameters are set afterwards as the Result is reused
      */
-    public static Result newPreparedExecuteRequest(Type[] types, int id) {
+    public static Result newPreparedExecuteRequest(Type[] types,
+            long statementId) {
 
         Result result = newResult(ResultConstants.EXECUTE);
 
-        result.metaData = ResultMetaData.newSimpleResultMetaData(types);
-        result.significantColumns = types.length;
-        result.statementID        = id;
+        result.metaData    = ResultMetaData.newSimpleResultMetaData(types);
+        result.statementID = statementId;
+
+        result.navigator.add(new Object[]{});
 
         return result;
     }
@@ -531,8 +560,7 @@ public class Result {
     public void setPreparedExecuteProperties(Object[] parameterValues,
             int maxRows, int fetchSize) {
 
-        navigator.clear();
-        navigator.add(parameterValues);
+        ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
 
         updateCount    = maxRows;
         this.fetchSize = fetchSize;
@@ -542,13 +570,12 @@ public class Result {
      * For BATCHEXECUTE
      */
     public static Result newBatchedPreparedExecuteRequest(Type[] types,
-            int id) {
+            long statementId) {
 
         Result result = newResult(ResultConstants.BATCHEXECUTE);
 
-        result.metaData = ResultMetaData.newSimpleResultMetaData(types);
-        result.significantColumns = types.length;
-        result.statementID        = id;
+        result.metaData    = ResultMetaData.newSimpleResultMetaData(types);
+        result.statementID = statementId;
 
         return result;
     }
@@ -562,7 +589,6 @@ public class Result {
         Result result = newResult(ResultConstants.BATCHEXECDIRECT);
 
         result.metaData = ResultMetaData.newSimpleResultMetaData(types);
-        result.significantColumns = result.metaData.getColumnCount();
 
         return result;
     }
@@ -581,7 +607,6 @@ public class Result {
         Type[] types = new Type[]{ Type.SQL_INTEGER };
 
         result.metaData = ResultMetaData.newSimpleResultMetaData(types);
-        result.significantColumns = result.metaData.getColumnCount();
 
         Object[][] table = new Object[updateCounts.length][];
 
@@ -589,7 +614,7 @@ public class Result {
             table[i] = new Object[]{ ValuePool.getInt(updateCounts[i]) };
         }
 
-        ((ClientRowSetNavigator) result.navigator).setData(table);
+        ((RowSetNavigatorClient) result.navigator).setData(table);
 
         return result;
     }
@@ -602,13 +627,14 @@ public class Result {
     }
 
     public static Result newConnectionAttemptRequest(String user,
-            String password, String database) {
+            String password, String database, int timeZoneSeconds) {
 
         Result result = newResult(ResultConstants.CONNECT);
 
         result.mainString   = user;
         result.subString    = password;
         result.databaseName = database;
+        result.updateCount  = timeZoneSeconds;
 
         return result;
     }
@@ -624,7 +650,7 @@ public class Result {
         return result;
     }
 
-    public static Result newUpdateCountResult(int count) {
+    public static Result getUpdateCountResult(int count) {
 
         switch (count) {
 
@@ -633,6 +659,9 @@ public class Result {
 
             case 1 :
                 return Result.updateOneResult;
+
+            case 2 :
+                return Result.updateTwoResult;
 
             default :
         }
@@ -656,38 +685,74 @@ public class Result {
         return result;
     }
 
-    public static Result newSingleColumnResult(String colName, Type type) {
+    public static Result newSingleColumnResult(ResultMetaData meta) {
 
         Result result = newResult(ResultConstants.DATA);
 
-        result.navigator              = new LinkedListRowSetNavigator();
-        result.metaData               = ResultMetaData.newResultMetaData(1);
-        result.significantColumns     = 1;
-        result.metaData.colNames[0]   = colName;
-        result.metaData.colLabels[0]  = colName;
-        result.metaData.tableNames[0] = "";
-        result.metaData.colTypes[0]   = type;
+        result.metaData  = meta;
+        result.navigator = new RowSetNavigatorLinkedList();
 
         return result;
     }
 
-    public static Result newPrepareResponse(int csID, int csType,
+    public static Result newSingleColumnResult(String colName, Type type) {
+
+        Result result = newResult(ResultConstants.DATA);
+
+        result.metaData            = ResultMetaData.newResultMetaData(1);
+        result.metaData.columns[0] = new ColumnBase(null, null, null, colName);
+
+        result.metaData.columns[0].setType(type);
+        result.metaData.prepareData();
+
+        //
+        result.navigator = new RowSetNavigatorLinkedList();
+
+        return result;
+    }
+
+    public static Result newSingleColumnStringResult(String colName,
+            String contents) {
+
+        Result result = Result.newSingleColumnResult("OPERATION",
+            Type.SQL_VARCHAR);
+        LineNumberReader lnr =
+            new LineNumberReader(new StringReader(contents));
+
+        while (true) {
+            String line = null;
+
+            try {
+                line = lnr.readLine();
+            } catch (Exception e) {}
+
+            if (line == null) {
+                break;
+            }
+
+            result.getNavigator().add(new Object[]{ line });
+        }
+
+        return result;
+    }
+
+    public static Result newPrepareResponse(long csID, int csType,
             ResultMetaData rsmd, ResultMetaData pmd) {
 
         Result r = newResult(ResultConstants.PREPARE_ACK);
 
         r.statementID = csID;
-        r.statementType =
-            (csType == CompiledStatement.SELECT || csType == CompiledStatement
-                .CALL) ? ResultConstants.RETURN_RESULT
-                       : ResultConstants.RETURN_COUNT;
+        r.statementReturnType =
+            (csType == StatementTypes.SELECT_CURSOR || csType == StatementTypes
+                .CALL) ? StatementTypes.RETURN_RESULT
+                       : StatementTypes.RETURN_COUNT;
         r.metaData          = rsmd;
         r.parameterMetaData = pmd;
 
         return r;
     }
 
-    public static Result newFreeStmtRequest(int statementID) {
+    public static Result newFreeStmtRequest(long statementID) {
 
         Result r = newResult(ResultConstants.FREESTMT);
 
@@ -708,45 +773,21 @@ public class Result {
      * For both EXECDIRECT and PREPARE
      */
     public void setPrepareOrExecuteProperties(String sql, int maxRows,
-            int fetchSize, int statementRetType, int resultSetType,
+            int fetchSize, int statementReturnType, int resultSetType,
             int resultSetConcurrency, int resultSetHoldability, int keyMode,
             int[] generatedIndexes, String[] generatedNames) {
 
-        mainString      = sql;
-        updateCount     = maxRows;
-        this.fetchSize  = fetchSize;
-        statementType   = statementRetType;
-        rsScrollability = resultSetType;
-        rsConcurrency   = resultSetConcurrency;
-        rsHoldability   = resultSetHoldability;
-        generateKeys    = keyMode;
+        mainString               = sql;
+        updateCount              = maxRows;
+        this.fetchSize           = fetchSize;
+        this.statementReturnType = statementReturnType;
+        rsScrollability          = resultSetType;
+        rsConcurrency            = resultSetConcurrency;
+        rsHoldability            = resultSetHoldability;
+        generateKeys             = keyMode;
         generatedMetaData =
             ResultMetaData.newGeneratedColumnsMetaData(generatedIndexes,
                 generatedNames);
-    }
-
-    public static Result newReleaseSavepointRequest(String name) {
-
-        Result result;
-
-        result = newResult(ResultConstants.ENDTRAN);
-
-        result.setMainString(name);
-        result.setEndTranType(ResultConstants.SAVEPOINT_NAME_RELEASE);
-
-        return result;
-    }
-
-    public static Result newRollbackToSavepointRequest(String name) {
-
-        Result result;
-
-        result = newResult(ResultConstants.ENDTRAN);
-
-        result.setMainString(name);
-        result.setEndTranType(ResultConstants.SAVEPOINT_NAME_ROLLBACK);
-
-        return result;
     }
 
     public static Result newSetSavepointRequest(String name) {
@@ -787,9 +828,8 @@ public class Result {
 
         Result result = newResult(ResultConstants.DATA);
 
-        result.navigator          = new LinkedListRowSetNavigator();
-        result.significantColumns = md.getColumnCount();
-        result.metaData           = md;
+        result.navigator = new RowSetNavigatorLinkedList();
+        result.metaData  = md;
 
         return result;
     }
@@ -819,13 +859,17 @@ public class Result {
 
         Result result = newResult(ResultConstants.DATAHEAD);
 
-        result.significantColumns = source.significantColumns;
-        result.metaData           = source.metaData;
-        result.navigator = new ClientRowSetNavigator(source.navigator, offset,
+        result.metaData = source.metaData;
+        result.navigator = new RowSetNavigatorClient(source.navigator, offset,
                 count);
 
         result.navigator.setId(source.navigator.getId());
         result.setSession(session);
+
+        result.rsConcurrency   = source.rsConcurrency;
+        result.rsHoldability   = source.rsHoldability;
+        result.rsScrollability = source.rsScrollability;
+        result.fetchSize       = source.fetchSize;
 
         return result;
     }
@@ -839,10 +883,9 @@ public class Result {
 
         Result result = newResult(ResultConstants.DATAROWS);
 
-        result.id                 = source.id;
-        result.significantColumns = source.significantColumns;
-        result.metaData           = source.metaData;
-        result.navigator = new ClientRowSetNavigator(source.navigator, offset,
+        result.id       = source.id;
+        result.metaData = source.metaData;
+        result.navigator = new RowSetNavigatorClient(source.navigator, offset,
                 count);
 
         return result;
@@ -864,86 +907,54 @@ public class Result {
 
         Result result = newResult(ResultConstants.DATA);
 
-        result.navigator          = new LinkedListRowSetNavigator();
-        result.metaData           = ResultMetaData.newResultMetaData(7);
-        result.significantColumns = 7;
-        result.metaData.colNames = result.metaData.colLabels =
-            result.metaData.tableNames = new String[] {
-            "", "", "", "", "", "", ""
-        };
-        result.metaData.colTypes = new Type[] {
-            CharacterType.SQL_VARCHAR, CharacterType.SQL_VARCHAR,
-            NumberType.SQL_BIGINT, NumberType.SQL_INTEGER,
-            BooleanType.SQL_BOOLEAN, BooleanType.SQL_BOOLEAN,
-            BooleanType.SQL_BOOLEAN
-        };
+        result.navigator = new RowSetNavigatorLinkedList();
+        result.metaData  = sessionAttributesMetaData;
+
+        result.navigator.add(new Object[SessionInterface.INFO_LIMIT]);
 
         return result;
     }
 
-    /** @todo fredt - move the messages to Trace.java */
+    /** @todo fredt - move the messages to Error.java */
     public static Result newErrorResult(Throwable t, String statement) {
 
         Result result = newResult(ResultConstants.ERROR);
 
-        result.exception = t;
-
         if (t instanceof HsqlException) {
-            HsqlException he = (HsqlException) t;
-
-            result.mainString = he.getMessage();
-            result.subString  = he.getSQLState();
+            result.exception  = (HsqlException) t;
+            result.mainString = result.exception.getMessage();
+            result.subString  = result.exception.getSQLState();
 
             if (statement != null) {
                 result.mainString += " in statement [" + statement + "]";
             }
 
-            result.errorCode = he.getErrorCode();
+            result.errorCode = result.exception.getErrorCode();
         } else if (t instanceof OutOfMemoryError) {
 
-            // At this point, we've nothing to lose by doing this
+            // gc() at this point may clear the memory allocated so far
+            // todo - review if it's better to gc higher up the stack
             System.gc();
             t.printStackTrace();
 
-            result.mainString = "out of memory";
-            result.subString  = "S1000";
-            result.errorCode  = Trace.OUT_OF_MEMORY;
+            result.exception  = Error.error(ErrorCode.OUT_OF_MEMORY);
+            result.mainString = result.exception.getMessage();
+            result.subString  = result.exception.getSQLState();
+            result.errorCode  = result.exception.getErrorCode();
         } else {
             t.printStackTrace();
 
-            result.mainString = Trace.getMessage(Trace.GENERAL_ERROR) + " "
-                                + t;
-            result.subString = "S1000";
+            result.exception  = Error.error(ErrorCode.GENERAL_ERROR);
+            result.mainString = result.exception.getMessage() + " " + t;
+            result.subString  = result.exception.getSQLState();
+            result.errorCode  = result.exception.getErrorCode();
 
             if (statement != null) {
                 result.mainString += " in statement [" + statement + "]";
             }
-
-            result.errorCode = Trace.GENERAL_ERROR;
         }
 
         return result;
-    }
-
-    /**
-     *  Method declaration
-     *
-     * @param  columns
-     */
-    public void setColumnCount(int columns) {
-
-        significantColumns = columns;
-
-        metaData.setColumnCount(significantColumns);
-    }
-
-    /**
-     *  Method declaration
-     *
-     * @return
-     */
-    public int getColumnCount() {
-        return significantColumns;
     }
 
     public void write(DataOutputStream dataOut,
@@ -960,13 +971,16 @@ public class Result {
         switch (mode) {
 
             case ResultConstants.GETSESSIONATTR :
+                rowOut.writeByte(statementReturnType);
+                break;
+
             case ResultConstants.DISCONNECT :
             case ResultConstants.RESETSESSION :
             case ResultConstants.STARTTRAN :
                 break;
 
             case ResultConstants.PREPARE :
-                rowOut.writeInt(statementID);
+                rowOut.writeByte(statementReturnType);
                 rowOut.writeString(mainString);
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
@@ -981,7 +995,7 @@ public class Result {
                 break;
 
             case ResultConstants.FREESTMT :
-                rowOut.writeInt(statementID);
+                rowOut.writeLong(statementID);
                 break;
 
             case ResultConstants.CLOSE_RESULT :
@@ -991,7 +1005,7 @@ public class Result {
             case ResultConstants.EXECDIRECT :
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
-                rowOut.writeByte(statementType);           // currently unused
+                rowOut.writeByte(statementReturnType);
                 rowOut.writeString(mainString);
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
@@ -1009,6 +1023,7 @@ public class Result {
                 rowOut.writeString(databaseName);
                 rowOut.writeString(mainString);
                 rowOut.writeString(subString);
+                rowOut.writeInt(updateCount);
                 break;
 
             case ResultConstants.ERROR :
@@ -1033,19 +1048,26 @@ public class Result {
 
                 switch (type) {
 
-                    case ResultConstants.SAVEPOINT_NAME_RELEASE :
-                    case ResultConstants.SAVEPOINT_NAME_ROLLBACK :
+                    case ResultConstants.TX_SAVEPOINT_NAME_RELEASE :
+                    case ResultConstants.TX_SAVEPOINT_NAME_ROLLBACK :
                         rowOut.writeString(mainString);    // savepoint name
-                    default :
+                        break;
 
-                    // do nothing
+                    case ResultConstants.TX_COMMIT :
+                    case ResultConstants.TX_ROLLBACK :
+                    case ResultConstants.TX_COMMIT_AND_CHAIN :
+                    case ResultConstants.TX_ROLLBACK_AND_CHAIN :
+                        break;
+
+                    default :
+                        throw Error.runtimeError(ErrorCode.U_S0500, "Result");
                 }
 
                 break;
             }
             case ResultConstants.PREPARE_ACK :
-                rowOut.writeByte(statementType);
-                rowOut.writeInt(statementID);
+                rowOut.writeByte(statementReturnType);
+                rowOut.writeLong(statementID);
                 metaData.write(rowOut);
                 parameterMetaData.write(rowOut);
                 break;
@@ -1053,7 +1075,7 @@ public class Result {
             case ResultConstants.EXECUTE :
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
-                rowOut.writeInt(statementID);
+                rowOut.writeLong(statementID);
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
@@ -1067,7 +1089,7 @@ public class Result {
             case ResultConstants.SETSESSIONATTR : {
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
-                rowOut.writeInt(statementID);
+                rowOut.writeLong(statementID);
                 metaData.write(rowOut);
                 navigator.write(rowOut, metaData);
 
@@ -1088,9 +1110,12 @@ public class Result {
 
                     case ResultConstants.SQL_ATTR_SAVEPOINT_NAME :
                         rowOut.writeString(mainString);    // savepoint name
+                        break;
 
                     // case ResultConstants.SQL_ATTR_AUTO_IPD // always true
                     // default: // throw, but case never happens
+                    default :
+                        throw Error.runtimeError(ErrorCode.U_S0500, "Result");
                 }
 
                 break;
@@ -1108,12 +1133,13 @@ public class Result {
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
-                metaData.write(rowOut, significantColumns);
+                rowOut.writeString(mainString);
+                metaData.write(rowOut);
                 navigator.write(rowOut, metaData);
                 break;
 
             case ResultConstants.DATAROWS :
-                metaData.write(rowOut, significantColumns);
+                metaData.write(rowOut);
                 navigator.write(rowOut, metaData);
                 break;
 
@@ -1123,13 +1149,13 @@ public class Result {
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
-                metaData.write(rowOut, significantColumns);
+                rowOut.writeString(mainString);
+                metaData.write(rowOut);
                 navigator.write(rowOut, metaData);
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Result");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Result");
         }
 
         rowOut.writeIntData(rowOut.size() - startPos, startPos);
@@ -1172,20 +1198,24 @@ public class Result {
         return mode == ResultConstants.UPDATECOUNT;
     }
 
+    public boolean isSimpleValue() {
+        return mode == ResultConstants.VALUE;
+    }
+
     public boolean hasGeneratedKeys() {
         return mode == ResultConstants.UPDATECOUNT && chainedResult != null;
     }
 
-    public Throwable getException() {
+    public HsqlException getException() {
         return exception;
     }
 
-    public int getStatementID() {
+    public long getStatementID() {
         return statementID;
     }
 
-    public void setStatementID(int id) {
-        statementID = id;
+    public void setStatementID(int statementId) {
+        statementID = statementId;
     }
 
     public String getMainString() {
@@ -1202,6 +1232,10 @@ public class Result {
 
     public int getErrorCode() {
         return errorCode;
+    }
+
+    public Object getSimpleValue() {
+        return valueData;
     }
 
     public String getDatabaseName() {
@@ -1289,15 +1323,17 @@ public class Result {
     }
 
     public Object[] getSingleRowData() {
-        return (Object[]) initialiseNavigator().getNext();
+
+        Object[] data = (Object[]) initialiseNavigator().getNext();
+
+        data = (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
+                metaData.getColumnCount());
+
+        return data;
     }
 
     public Object[] getParameterData() {
-        return (Object[]) initialiseNavigator().getNext();
-    }
-
-    public void setSessionAttributes(Object[] data) {
-        navigator.add(data);
+        return ((RowSetNavigatorClient) navigator).getData(0);
     }
 
     public Object[] getSessionAttributes() {
@@ -1309,11 +1345,11 @@ public class Result {
     }
 
     public void setStatementType(int type) {
-        statementType = type;
+        statementReturnType = type;
     }
 
     public int getStatementType() {
-        return statementType;
+        return statementReturnType;
     }
 
     public int getGeneratedResultType() {
@@ -1381,6 +1417,10 @@ public class Result {
         return navigator;
     }
 
+    public void setNavigator(RowSetNavigator navigator) {
+        this.navigator = navigator;
+    }
+
     public RowSetNavigator initialiseNavigator() {
 
         switch (mode) {
@@ -1402,8 +1442,7 @@ public class Result {
                 return navigator;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "Result");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Result");
         }
     }
 }

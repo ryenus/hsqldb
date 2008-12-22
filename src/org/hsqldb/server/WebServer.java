@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,10 +111,8 @@ import org.hsqldb.resources.BundleHandler;
  *   <li>File extensions for mime types must be lowercase and start with '.'
  * </ul>
  *
- * Replaces original Hypersonic class of the same name.
- *
- * @author fredt@users
- * @author boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
@@ -140,33 +138,28 @@ public class WebServer extends Server {
      */
     public static void main(String[] args) {
 
-        String propsPath = FileUtil.canonicalOrAbsolutePath("webserver");
-        HsqlProperties fileProps =
-            ServerConfiguration.getPropertiesFromFile(propsPath);
-        HsqlProperties props = fileProps == null ? new HsqlProperties()
-                                                 : fileProps;
+        String propsPath =
+            FileUtil.getDefaultInstance().canonicalOrAbsolutePath("webserver");
+        ServerProperties fileProps =
+            ServerConfiguration.getPropertiesFromFile(
+            ServerConstants.SC_PROTOCOL_HTTP,
+            propsPath);
+        ServerProperties props       = fileProps == null ?
+
+            new ServerProperties(ServerConstants.SC_PROTOCOL_HTTP)
+                                                       : fileProps;
         HsqlProperties stringProps = null;
-        try {
-            stringProps = HsqlProperties.argArrayToProps(args,
-                    ServerConstants.SC_KEY_PREFIX);
-        } catch (ArrayIndexOutOfBoundsException aioob) {
-            // I'd like to exit with 0 here, but it's possible that user
-            // has called main() programmatically and does not want us to
-            // exit.
+
+        stringProps = HsqlProperties.argArrayToProps(args,
+                ServerConstants.SC_KEY_PREFIX);
+
+        if (stringProps.getErrorKeys().length != 0) {
             printHelp("webserver.help");
+
             return;
         }
 
-        if (stringProps != null) {
-            if (stringProps.getErrorKeys().length != 0) {
-                printHelp("webserver.help");
-
-                return;
-            }
-
-            props.addProperties(stringProps);
-        }
-
+        props.addProperties(stringProps);
         ServerConfiguration.translateDefaultDatabaseProperty(props);
 
         // Standard behaviour when started from the command line
@@ -180,6 +173,10 @@ public class WebServer extends Server {
 
         try {
             server.setProperties(props);
+
+            props.validate();
+            // This must be called after setProperties, because stringProps
+            // isn't populated until then.
         } catch (Exception e) {
             server.printError("Failed to set properties");
             server.printStackTrace(e);

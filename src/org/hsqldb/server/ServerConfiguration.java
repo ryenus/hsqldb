@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.persist.HsqlProperties;
  * Assists with Server and WebServer configuration tasks.
  *
  * @author  boucherb@users
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 public final class ServerConfiguration implements ServerConstants {
@@ -93,13 +93,14 @@ public final class ServerConfiguration implements ServerConstants {
      *      (which is added automatically)
      * @return a new properties object loaded from the specified file
      */
-    public static HsqlProperties getPropertiesFromFile(String path) {
+    public static ServerProperties getPropertiesFromFile(int protocol,
+            String path) {
 
         if (StringUtil.isEmpty(path)) {
             return null;
         }
 
-        HsqlProperties p = new HsqlProperties(path);
+        ServerProperties p = new ServerProperties(protocol, path);
 
         try {
             p.load();
@@ -181,27 +182,25 @@ public final class ServerConfiguration implements ServerConstants {
      *
      * @return a new default properties object
      */
-    public static HsqlProperties newDefaultProperties(int protocol) {
+    public static ServerProperties newDefaultProperties(int protocol) {
 
-        HsqlProperties p = new HsqlProperties();
+        ServerProperties p = new ServerProperties(protocol);
 
         p.setProperty(SC_KEY_AUTORESTART_SERVER,
                       SC_DEFAULT_SERVER_AUTORESTART);
         p.setProperty(SC_KEY_ADDRESS, SC_DEFAULT_ADDRESS);
         p.setProperty(SC_KEY_NO_SYSTEM_EXIT, SC_DEFAULT_NO_SYSTEM_EXIT);
+        p.setProperty(SC_KEY_MAX_DATABASES, SC_DEFAULT_MAX_DATABASES);
 
-        boolean isTls = SC_DEFAULT_TLS;
-
-        try {
-            isTls = System.getProperty("javax.net.ssl.keyStore") != null;
-        } catch (Exception e) {}
-
-        p.setProperty(SC_KEY_PORT, getDefaultPort(protocol, isTls));
         p.setProperty(SC_KEY_SILENT, SC_DEFAULT_SILENT);
-        p.setProperty(SC_KEY_TLS, isTls);
+        p.setProperty(SC_KEY_TLS, SC_DEFAULT_TLS);
         p.setProperty(SC_KEY_TRACE, SC_DEFAULT_TRACE);
         p.setProperty(SC_KEY_WEB_DEFAULT_PAGE, SC_DEFAULT_WEB_PAGE);
         p.setProperty(SC_KEY_WEB_ROOT, SC_DEFAULT_WEB_ROOT);
+        // Purposefully do not set a default Port because the default is
+        // derived from TLS, which is runtime-configurable.
+        // Things work very well if we leave it unset here and use the
+        // getDefaultPort() method above to get the correct value.
 
         return p;
     }
@@ -248,7 +247,9 @@ public final class ServerConfiguration implements ServerConstants {
 
                 p.setProperty(SC_KEY_DATABASE + ".0", defaultdb);
                 p.setProperty(SC_KEY_DBNAME + ".0", "");
-            } else if (p.getProperty(SC_KEY_DBNAME + "." + 0) == null) {
+            }
+
+            if (p.getProperty(SC_KEY_DBNAME + "." + 0) == null) {
                 p.setProperty(SC_KEY_DBNAME + ".0", "");
             }
         }
@@ -260,8 +261,7 @@ public final class ServerConfiguration implements ServerConstants {
      *
      * @param p The properties object upon which to perform the translation
      */
-    public static void translateDefaultNoSystemExitProperty(
-            HsqlProperties p) {
+    public static void translateDefaultNoSystemExitProperty(HsqlProperties p) {
 
         if (p == null) {
             return;
