@@ -228,7 +228,7 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
         pText.add(mURL);
         pLabel.add(createLabel("User:"));
 
-        mUser = new TextField("sa");
+        mUser = new TextField("SA");
 
         mUser.addActionListener(this);
         pText.add(mUser);

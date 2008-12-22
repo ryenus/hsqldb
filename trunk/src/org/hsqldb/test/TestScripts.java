@@ -50,6 +50,8 @@ class TestScripts extends TestUtil {
      * the file name (defaulting to closing).
      * So, by default, for each script file, a new connection will be made
      * and closed immediately after the script runs.
+     *
+     * @author Blaine Simpson
      */
     public static void main(String[] argv) {
 
@@ -153,7 +155,7 @@ class TestScripts extends TestUtil {
     static String DEF_DB = "test3";
     static String DEF_URL = "jdbc:hsqldb:" + DEF_DB
                             + ";sql.enforce_strict_size=true";
-    static String DEF_USER     = "sa";
+    static String DEF_USER     = "SA";
     static String DEF_PASSWORD = "";
 
     static void test(String url, String user, String password, String db,

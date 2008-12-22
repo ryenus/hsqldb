@@ -141,7 +141,7 @@ implements ActionListener, ItemListener, KeyListener {
         p.add(mURL);
         p.add(createLabel("User:"));
 
-        mUser = new TextField("sa");
+        mUser = new TextField("SA");
 
         mUser.addKeyListener(this);
         p.add(mUser);

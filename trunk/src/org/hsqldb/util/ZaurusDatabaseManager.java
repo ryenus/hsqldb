@@ -222,7 +222,7 @@ implements ActionListener, WindowListener, KeyListener {
             if (defDatabase != null) {
                 defDriver   = "org.hsqldb.jdbc.JDBCDriver";
                 defURL      = "jdbc:hsqldb:" + defDatabase;
-                defUser     = "sa";
+                defUser     = "SA";
                 defPassword = "";
             }
 
@@ -260,7 +260,7 @@ implements ActionListener, WindowListener, KeyListener {
         System.out.println("-password passw");
         System.out.println("Alternative the database argument is used,");
         System.out.println(
-            "and the hsqldb Driver Standalone is choosen for user 'sa'.");
+            "and the hsqldb Driver Standalone is choosen for user 'SA'.");
         System.out.println("-database db");
         System.out.println(
             "-query qu                   the query qu will be read during initialization");

@@ -162,7 +162,7 @@ implements ActionListener, WindowListener, KeyListener {
     // (ulrivo): variables set by arguments from the commandline
     static String defDriver   = "org.hsqldb.jdbc.JDBCDriver";
     static String defURL      = "jdbc:hsqldb:mem:.";
-    static String defUser     = "sa";
+    static String defUser     = "SA";
     static String defPassword = "";
     static String defScript;
     static String defDirectory;
