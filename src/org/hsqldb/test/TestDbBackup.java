@@ -32,12 +32,14 @@
 package org.hsqldb.test;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
@@ -79,18 +81,19 @@ public class TestDbBackup extends junit.framework.TestCase {
 
     protected void shutdownAndCloseConn() throws SQLException {
 
-        if (conn != null) {
-            if (!alreadyShut) {
-                conn.createStatement().executeUpdate("SHUTDOWN");
-                alreadyShut = true;
-            }
-            if (verbose) {
-                System.err.println("Shut down 'db1'");
-            }
-            conn.close();
-
-            conn = null;
+        if (conn == null) {
+            return;
         }
+        if (!alreadyShut) {
+            conn.createStatement().executeUpdate("SHUTDOWN");
+            alreadyShut = true;
+        }
+        if (verbose) {
+            System.err.println("Shut down 'db1'");
+        }
+        conn.close();
+
+        conn = null;
     }
 
     /**
@@ -131,7 +134,7 @@ public class TestDbBackup extends junit.framework.TestCase {
     }
 
     /**
-     * I prefer to not use JUnit's unnecessary setUp() convention.
+     * Accommodate JUnit's test-runner conventions.
      */
     public TestDbBackup(String s) throws IOException, SQLException {
         super(s);
@@ -139,6 +142,8 @@ public class TestDbBackup extends junit.framework.TestCase {
 
     /**
      * JUnit convention for cleanup.
+     *
+     * Called after each test*() method.
      */
     protected void tearDown() throws IOException, SQLException {
 
@@ -153,7 +158,9 @@ public class TestDbBackup extends junit.framework.TestCase {
     static boolean verbose = Boolean.getBoolean("VERBOSE");
 
     /**
-     * Specifically, this method sets up DB with id "db1".
+     * Specifically, this method creates and populates "db1", then closes it.
+     *
+     * Invoked before each test*() invocation by JUnit.
      */
     protected void setUp() throws IOException, SQLException {
         if (verbose) {
@@ -250,16 +257,28 @@ public class TestDbBackup extends junit.framework.TestCase {
         mainBackupAndRestore("compressed.tar.gz");
     }
 
+    /**
+     * Test all forms of online backups with explicit filenames.
+     */
     public void testOnlineBackup()
     throws SQLException, IOException, TarMalformatException {
-        onlineBackupAndRestore("online.tar", false);
+        onlineBackupAndRestore("online.tar", true, false, "db11");
+        onlineBackupAndRestore("online.tar.gz", false, true, "db12");
+        onlineBackupAndRestore("online.tgz", false, true, "db13");
     }
 
-    public void onlineBackupAndRestore(String baseTarName, boolean compress)
+    public void onlineBackupAndRestore(String baseTarName,
+            boolean populate, boolean compress, String restoreDest)
     throws SQLException, IOException, TarMalformatException {
 
         try {
             setupConn("db1");
+            conn.createStatement().executeUpdate("DELETE FROM t");
+            // For this case, we wipe the data that we so carefully set up,
+            // so that we can call this method repeatedly without worrying
+            // about left-over data from a previous run.
+            conn.commit();
+            conn.createStatement().executeUpdate("INSERT INTO t VALUES(1)");
             conn.createStatement().executeUpdate("INSERT INTO t VALUES(2)");
             conn.createStatement().executeUpdate("INSERT INTO t VALUES(3)");
             conn.commit();
@@ -276,13 +295,13 @@ public class TestDbBackup extends junit.framework.TestCase {
             conn.createStatement().executeUpdate("SHUTDOWN");
             alreadyShut = true;
             if (verbose) {
-                    System.err.println("Shut down 'db1'");
+                System.err.println("Shut down 'db1'");
             }
         } finally {
             shutdownAndCloseConn();
         }
 
-        File destDir = new File(baseDir, "db2");
+        File destDir = new File(baseDir, restoreDest);
 
         if (!destDir.mkdir()) {
             throw new IOException("Failed to make new dir. to restore to: "
@@ -295,7 +314,7 @@ public class TestDbBackup extends junit.framework.TestCase {
         });
 
         try {
-            setupConn("db2");
+            setupConn(restoreDest);
             conn.createStatement().executeUpdate("ROLLBACK");
 
             ResultSet rs =
@@ -317,7 +336,7 @@ public class TestDbBackup extends junit.framework.TestCase {
             baseDir.getAbsolutePath() + "/db1/dbfile"
         });
 
-        File destDir = new File(baseDir, "db2");
+        File destDir = new File(baseDir, "mainrestored");
 
         if (!destDir.mkdir()) {
             throw new IOException("Failed to make new dir. to restore to: "
@@ -330,7 +349,7 @@ public class TestDbBackup extends junit.framework.TestCase {
         });
 
         try {
-            setupConn("db2");
+            setupConn("mainrestored");
 
             ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM t;");
 
@@ -341,7 +360,7 @@ public class TestDbBackup extends junit.framework.TestCase {
         }
     }
 
-    public void testMainOpen()
+    public void testMainAlreadyOpen()
     throws SQLException, IOException, TarMalformatException {
 
         try {
@@ -363,10 +382,9 @@ public class TestDbBackup extends junit.framework.TestCase {
     }
 
     /**
-     * Tests conflicts between requested file name extension and requested
-     * compression format.
+     * Test that bad explicit filenames are rejected for onilne backups.
      */
-    public void testConflictingCompression()
+    public void testTarFileNames()
     throws SQLException, IOException, TarMalformatException {
 
         boolean caught;
@@ -374,6 +392,73 @@ public class TestDbBackup extends junit.framework.TestCase {
             setupConn("db1");
             conn.createStatement().executeUpdate("INSERT INTO t VALUES(2)");
             conn.commit();
+
+            // #1:  COMPRESSED -> no-extension
+            caught = false;
+            try {
+                conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                        + baseDir.getAbsolutePath()
+                        + "/x/bad' BLOCKING COMPRESSED");
+            } catch (SQLException se) {
+                caught = true;
+            }
+            if (!caught) {
+                fail("BACKUP did not throw even though requested compression "
+                        + "to file '/x/bad'");
+            }
+            // #2:  NOT COMPRESSED -> no-extension
+            caught = false;
+            try {
+                conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                        + baseDir.getAbsolutePath()
+                        + "/x/bad' BLOCKING NOT COMPRESSED");
+            } catch (SQLException se) {
+                caught = true;
+            }
+            if (!caught) {
+                fail("BACKUP did not throw even though requested "
+                        + "no-compression to file '/x/bad'");
+            }
+            // #3:  COMPRESSED -> *.txt
+            caught = false;
+            try {
+                conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                        + baseDir.getAbsolutePath()
+                        + "/x/bad.txt' BLOCKING COMPRESSED");
+            } catch (SQLException se) {
+                caught = true;
+            }
+            if (!caught) {
+                fail("BACKUP did not throw even though requested compression "
+                        + "to file '/x/bad.txt'");
+            }
+            // #4:  NOT COMPRESSED -> *.txt
+            caught = false;
+            try {
+                conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                        + baseDir.getAbsolutePath()
+                        + "/x/bad.txt' BLOCKING NOT COMPRESSED");
+            } catch (SQLException se) {
+                caught = true;
+            }
+            if (!caught) {
+                fail("BACKUP did not throw even though requested "
+                        + "no-compression to file '/x/bad.txt'");
+            }
+            // #5:  DEFAULT -> *.tar
+            caught = false;
+            try {
+                conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                        + baseDir.getAbsolutePath()
+                        + "/x/bad.tar' BLOCKING");
+            } catch (SQLException se) {
+                caught = true;
+            }
+            if (!caught) {
+                fail("BACKUP did not throw even though requested default "
+                        + "to file '/x/bad.tar'");
+            }
+            // #6:  COMPRESSION -> *.tar
             caught = false;
             try {
                 conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
@@ -386,23 +471,154 @@ public class TestDbBackup extends junit.framework.TestCase {
                 fail("BACKUP did not throw even though requested compression "
                         + "to file '/x/bad.tar'");
             }
+            // #7:  NOT COMPRESSED -> *.tar.gz
+            caught = false;
+            try {
+                conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                        + baseDir.getAbsolutePath()
+                        + "/x/bad.tar.gz' BLOCKING NOT COMPRESSED");
+            } catch (SQLException se) {
+                caught = true;
+            }
+            if (!caught) {
+                fail("BACKUP did not throw even though requested "
+                        + "non-compression to file '/x/bad.tar.gz'");
+            }
+            // #8:  NOT COMPRESSED -> *.tgz
+            caught = false;
+            try {
+                conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                        + baseDir.getAbsolutePath()
+                        + "/x/bad.tgz' BLOCKING NOT COMPRESSED");
+            } catch (SQLException se) {
+                caught = true;
+            }
+            if (!caught) {
+                fail("BACKUP did not throw even though requested "
+                        + "non-compression to file '/x/bad.tgz'");
+            }
+
+            // Finally run a test to ensure that the attempts above didn't
+            // fail for some unexpected reason.
+            conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                    + baseDir.getAbsolutePath()
+                    + "/positivetest.tar' BLOCKING NOT COMPRESSED");
         } finally {
             shutdownAndCloseConn();
         }
 
     }
 
+    /**
+     * Test that correct DB names are generated when user supplies just a
+     * directory.
+     *
+     * N.b.  This test may not work right if tests are run at midnight.
+     * This limitation will be removed once we can update the FilenameFilters
+     * with Java 4's java.util.regex.
+     */
+    public void testAutoNaming()
+    throws SQLException, IOException, TarMalformatException {
+
+        boolean caught;
+        int fileCount;
+        try {
+            setupConn("db1");
+            conn.createStatement().executeUpdate("INSERT INTO t VALUES(2)");
+            conn.commit();
+
+            fileCount = baseDir.listFiles(autoTarFilenameFilter).length;
+            if (fileCount != 0)
+                throw new IllegalStateException(Integer.toString(fileCount)
+                        + " auto-tar files exist in baseDir '"
+                        + baseDir.getAbsolutePath()
+                        + "' before starting testAutoNaming");
+            fileCount = baseDir.listFiles(autoTarGzFilenameFilter).length;
+            if (fileCount != 0)
+                throw new IllegalStateException(Integer.toString(fileCount)
+                        + " auto-tar.gz files exist in baseDir '"
+                        + baseDir.getAbsolutePath()
+                        + "' before starting testAutoNaming");
+            conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                    + baseDir.getAbsolutePath()
+                    + "/' BLOCKING NOT COMPRESSED");
+            fileCount = baseDir.listFiles(autoTarFilenameFilter).length;
+            if (fileCount != 1)
+                throw new IllegalStateException(Integer.toString(fileCount)
+                        + " auto-tar files exist in baseDir '"
+                        + baseDir.getAbsolutePath()
+                        + "' after writing a non-compressed backup");
+            fileCount = baseDir.listFiles(autoTarGzFilenameFilter).length;
+            if (fileCount != 0)
+                throw new IllegalStateException(Integer.toString(fileCount)
+                        + " auto-tar.gz files exist in baseDir '"
+                        + baseDir.getAbsolutePath()
+                        + "' after writing a non-compressed backup");
+            conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
+                    + baseDir.getAbsolutePath()
+                    + "/' BLOCKING COMPRESSED");
+            fileCount = baseDir.listFiles(autoTarFilenameFilter).length;
+            if (fileCount != 1)
+                throw new IllegalStateException(Integer.toString(fileCount)
+                        + " auto-tar files exist in baseDir '"
+                        + baseDir.getAbsolutePath()
+                        + "' after writing both backups");
+            fileCount = baseDir.listFiles(autoTarGzFilenameFilter).length;
+            if (fileCount != 1)
+                throw new IllegalStateException(Integer.toString(fileCount)
+                        + " auto-tar.gz files exist in baseDir '"
+                        + baseDir.getAbsolutePath()
+                        + "' after writing a compressed backup");
+        } finally {
+            shutdownAndCloseConn();
+        }
+
+    }
     static public Test suite() throws IOException, SQLException {
 
         TestSuite newSuite = new TestSuite();
 
         newSuite.addTest(new TestDbBackup("testSanity"));
         newSuite.addTest(new TestDbBackup("testBasicBackup"));
-        newSuite.addTest(new TestDbBackup("testMainOpen"));
+        newSuite.addTest(new TestDbBackup("testMainAlreadyOpen"));
         newSuite.addTest(new TestDbBackup("testGzip"));
         newSuite.addTest(new TestDbBackup("testOnlineBackup"));
-        newSuite.addTest(new TestDbBackup("testConflictingCompression"));
+        newSuite.addTest(new TestDbBackup("testTarFileNames"));
+        newSuite.addTest(new TestDbBackup("testAutoNaming"));
 
         return newSuite;
     }
+
+    private String currentYyyyMMdd =
+            new SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
+
+    FilenameFilter autoTarFilenameFilter = new FilenameFilter() {
+        private String suffixFormat = "-yyyyMMddTHHmmss.tar";
+        public boolean accept(File dir, String name) {
+            if (name.length() < suffixFormat.length() + 1) {
+                // Require variable name length >= 1 char
+                return false;
+            }
+            int suffixPos = name.length() - suffixFormat.length();
+            // Would like to use Java 1.4's java.util.regex here.
+            return name.endsWith(".tar")
+                    && name.substring(suffixPos, currentYyyyMMdd.length() + 1)
+                    .equals("-" + currentYyyyMMdd);
+        }
+    };
+
+    FilenameFilter autoTarGzFilenameFilter = new FilenameFilter() {
+        private String suffixFormat = "-yyyyMMddTHHmmss.tar.gz";
+        public boolean accept(File dir, String name) {
+            if (name.length() < suffixFormat.length() + 1) {
+                // Require variable name length >= 1 char
+                return false;
+            }
+            int suffixPos = name.length() - suffixFormat.length();
+            // Would like to use Java 1.4's java.util.regex here.
+            return name.endsWith(".tar.gz")
+                    && name.substring(suffixPos, currentYyyyMMdd.length() + 1)
+                    .equals("-" + currentYyyyMMdd);
+        }
+    };
 }
