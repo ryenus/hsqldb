@@ -160,7 +160,7 @@ implements ActionListener, WindowListener, KeyListener {
     String           ifHuge = "";
 
     // (ulrivo): variables set by arguments from the commandline
-    static String defDriver   = "org.hsqldb.jdbc.JDBCDriver";
+    static String defDriver   = "org.hsqldb.jdbcDriver";
     static String defURL      = "jdbc:hsqldb:mem:.";
     static String defUser     = "SA";
     static String defPassword = "";
