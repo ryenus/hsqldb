@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *  New class from the Hypersonic Original
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version    1.7.2
+ * @version 1.8.0
  * @since Hypersonic SQL
  */
 public class CachedRow extends Row {
@@ -100,8 +100,8 @@ public class CachedRow extends Row {
     public static final int NO_POS = -1;
 
     //
-    protected Table tTable;
-    int             storageSize;
+    protected TableBase tTable;
+    int                 storageSize;
 
     /**
      *  Flag indicating unwritten data.
@@ -126,20 +126,12 @@ public class CachedRow extends Row {
      * @param o row data
      * @throws HsqlException if a database access error occurs
      */
-    public CachedRow(Table t, Object[] o) throws HsqlException {
+    public CachedRow(TableBase t, Object[] o) throws HsqlException {
 
-        tTable = t;
+        tTable  = t;
+        tableId = tTable.getId();
 
-        int indexcount = t.getIndexCount();
-
-        nPrimaryNode = Node.newNode(this, 0, t);
-
-        Node n = nPrimaryNode;
-
-        for (int i = 1; i < indexcount; i++) {
-            n.nNext = Node.newNode(this, i, t);
-            n       = n.nNext;
-        }
+        setNewNodes();
 
         oData          = o;
         hasDataChanged = hasNodesChanged = true;
@@ -153,7 +145,7 @@ public class CachedRow extends Row {
      * @throws IOException
      * @throws HsqlException
      */
-    public CachedRow(Table t,
+    public CachedRow(TableBase t,
                      RowInputInterface in) throws IOException, HsqlException {
 
         tTable      = t;
@@ -162,16 +154,20 @@ public class CachedRow extends Row {
 
         int indexcount = t.getIndexCount();
 
-        nPrimaryNode = Node.newNode(this, in, 0, t);
+        nPrimaryNode = new DiskNode(this, in, 0);
 
         Node n = nPrimaryNode;
 
         for (int i = 1; i < indexcount; i++) {
-            n.nNext = Node.newNode(this, in, i, t);
+            n.nNext = new DiskNode(this, in, i);
             n       = n.nNext;
         }
 
         oData = in.readData(tTable.getColumnTypes());
+    }
+
+    Node insertNode(int index) {
+        return null;
     }
 
     private void readRowInfo(RowInputInterface in)
@@ -188,11 +184,7 @@ public class CachedRow extends Row {
      * @throws HsqlException
      */
     public void delete() throws HsqlException {
-
         super.delete();
-
-        hasNodesChanged = hasDataChanged = false;
-        tTable          = null;
     }
 
     public int getStorageSize() {
@@ -205,7 +197,15 @@ public class CachedRow extends Row {
      * @param pos position in data file
      */
     public void setPos(int pos) {
+
         iPos = pos;
+
+        Node n = nPrimaryNode;
+
+        while (n != null) {
+            ((DiskNode) n).iData = iPos;
+            n                    = n.nNext;
+        }
     }
 
     /**
@@ -229,16 +229,8 @@ public class CachedRow extends Row {
      *
      * @return Table
      */
-    public Table getTable() {
+    public TableBase getTable() {
         return tTable;
-    }
-
-    /**
-     * returned size does not include the row size written at the beginning
-     */
-    public int getRealSize(RowOutputInterface out) {
-        return tTable.getIndexCount() * DiskNode.SIZE_IN_BYTE
-               + out.getSize(this);
     }
 
     public void setStorageSize(int size) {
@@ -268,38 +260,35 @@ public class CachedRow extends Row {
         return false;
     }
 
-    /**
-     *  Using the internal reference to the Table, returns the current cached
-     *  Row. Valid for deleted rows only before any subsequent insert or
-     *  update on any cached table.<p>
-     *
-     *  Access to tables while performing the internal operations for an
-     *  SQL statement result in CachedRow objects to be cleared from the cache.
-     *  This method returns the CachedRow, loading it to the cache if it is not
-     *  there.
-     * @return the current Row in Cache for this Object
-     * @throws HsqlException
-     */
-    public Row getUpdatedRow() {
-        return tTable == null ? null
-                              : (CachedRow) tTable.rowStore.get(iPos);
+    public void destroy() {
+
+        super.destroy();
+
+        tTable = null;
     }
 
     /**
      * used in CachedDataRow
      */
-    void setNewNodes() {}
+    void setNewNodes() {
+        int indexcount = tTable.getIndexCount();
+
+        nPrimaryNode = new DiskNode(this, 0);
+
+        Node n = nPrimaryNode;
+
+        for (int i = 1; i < indexcount; i++) {
+            n.nNext = new DiskNode(this, i);
+            n       = n.nNext;
+        }
+    }
 
     /**
-     *  Used exclusively by Cache to save the row to disk. New implementation
-     *  in 1.7.2 writes out only the Node data if the table row data has not
-     *  changed. This situation accounts for the majority of invocations as
-     *  for each row deleted or inserted, the Nodes for several other rows
-     *  will change.
-     *
-     * @param output data source
-     * @throws IOException
-     * @throws HsqlException
+     * Used exclusively by Cache to save the row to disk. New implementation in
+     * 1.7.2 writes out only the Node data if the table row data has not
+     * changed. This situation accounts for the majority of invocations as for
+     * each row deleted or inserted, the Nodes for several other rows will
+     * change.
      */
     public void write(RowOutputInterface out) {
 
@@ -307,7 +296,7 @@ public class CachedRow extends Row {
             writeNodes(out);
 
             if (hasDataChanged) {
-                out.writeData(oData, tTable);
+                out.writeData(oData, tTable.colTypes);
                 out.writeEnd();
 
                 hasDataChanged = false;
@@ -332,7 +321,7 @@ public class CachedRow extends Row {
             rownode = rownode.nNext;
         }
 
-        out.writeData(getData(), getTable());
+        out.writeData(getData(), tTable.colTypes);
         out.writeEnd();
     }
 

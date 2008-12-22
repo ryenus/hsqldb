@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 
 package org.hsqldb;
 
-import org.hsqldb.Parser.CompileContext;
+import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
@@ -44,7 +44,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Determines how JOIN and WHERE expressions are used in query
  * processing and which indexes are used for table access.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
@@ -147,11 +147,11 @@ public class RangeVariableResolver {
             return Expression.EXPR_TRUE;
         }
 
-        Expression arg1 = e.getArg();
-        Expression arg2 = e.getArg2();
+        Expression arg1 = e.getLeftNode();
+        Expression arg2 = e.getRightNode();
         int        type = e.getType();
 
-        if (type == Expression.AND) {
+        if (type == OpTypes.AND) {
             arg1 = decomposeCondition(arg1, conditions);
             arg2 = decomposeCondition(arg2, conditions);
 
@@ -163,18 +163,18 @@ public class RangeVariableResolver {
                 return arg1;
             }
 
-            e.setLeftExpression(arg1);
-            e.setRightExpression(arg2);
+            e.setLeftNode(arg1);
+            e.setRightNode(arg2);
 
             return e;
-        } else if (type == Expression.EQUAL) {
-            if (arg1.getType() == Expression.ROW
-                    && arg2.getType() == Expression.ROW) {
-                for (int i = 0; i < arg1.argList.length; i++) {
-                    Expression part = new Expression(arg1.argList[i],
-                                                     arg2.argList[i]);
+        } else if (type == OpTypes.EQUAL) {
+            if (arg1.getType() == OpTypes.ROW
+                    && arg2.getType() == OpTypes.ROW) {
+                for (int i = 0; i < arg1.nodes.length; i++) {
+                    Expression part = new ExpressionLogical(arg1.nodes[i],
+                                                     arg2.nodes[i]);
 
-                    part.resolveTypes(null);
+                    part.resolveTypes(null, null);
                     conditions.add(part);
                 }
 
@@ -194,15 +194,11 @@ public class RangeVariableResolver {
      */
     void assignToLists() throws HsqlException {
 
-        for (int i = 0; i < queryExpressions.size(); i++) {
-            assignToLists((Expression) queryExpressions.get(i),
-                          whereExpressions, 0);
-        }
-
         int lastOuterIndex = -1;
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            if (rangeVariables[i].isLeftJoin || rangeVariables[i].isRightJoin) {
+            if (rangeVariables[i].isLeftJoin
+                    || rangeVariables[i].isRightJoin) {
                 lastOuterIndex = i;
             }
 
@@ -214,6 +210,11 @@ public class RangeVariableResolver {
                                   joinExpressions, lastOuterIndex + 1);
                 }
             }
+        }
+
+        for (int i = 0; i < queryExpressions.size(); i++) {
+            assignToLists((Expression) queryExpressions.get(i),
+                          whereExpressions, lastOuterIndex);
         }
     }
 
@@ -263,20 +264,21 @@ public class RangeVariableResolver {
                 Expression e = (Expression) list.get(j);
 
                 if (!e.isColumnEqual
-                        || e.eArg.rangeVariable == e.eArg2.rangeVariable) {
+                        || e.getLeftNode().getRangeVariable()
+                           == e.getRightNode().getRangeVariable()) {
                     continue;
                 }
 
-                if (e.eArg.rangeVariable == rangeVariables[i]) {
-                    map.put(e.eArg.column, e.eArg2);
+                if (e.getLeftNode().getRangeVariable() == rangeVariables[i]) {
+                    map.put(e.getLeftNode().getColumn(), e.getRightNode());
 
-                    if (!set.add(e.eArg.column)) {
+                    if (!set.add(e.getLeftNode().getColumn())) {
                         hasChain = true;
                     }
                 } else {
-                    map.put(e.eArg2.column, e.eArg);
+                    map.put(e.getRightNode().getColumn(), e.getLeftNode());
 
-                    if (!set.add(e.eArg2.column)) {
+                    if (!set.add(e.getRightNode().getColumn())) {
                         hasChain = true;
                     }
                 }
@@ -312,12 +314,12 @@ public class RangeVariableResolver {
 
     void closeJoinChain(HsqlArrayList[] array, Expression e1, Expression e2) {
 
-        int idx1  = rangeVarSet.getIndex(e1.rangeVariable);
-        int idx2  = rangeVarSet.getIndex(e2.rangeVariable);
+        int idx1  = rangeVarSet.getIndex(e1.getRangeVariable());
+        int idx2  = rangeVarSet.getIndex(e2.getRangeVariable());
         int index = idx1 > idx2 ? idx1
                                 : idx2;
 
-        array[index].add(new Expression(e1, e2));
+        array[index].add(new ExpressionLogical(e1, e2));
     }
 
     /**
@@ -327,7 +329,10 @@ public class RangeVariableResolver {
     void assignToRangeVariables() throws HsqlException {
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            if (rangeVariables[i].isLeftJoin || rangeVariables[i].isRightJoin) {
+            boolean isOuter = rangeVariables[i].isLeftJoin
+                              || rangeVariables[i].isRightJoin;
+
+            if (isOuter) {
                 assignToRangeVariable(rangeVariables[i], i,
                                       joinExpressions[i], true);
                 assignToRangeVariable(rangeVariables[i], i,
@@ -338,9 +343,9 @@ public class RangeVariableResolver {
                                       joinExpressions[i], true);
             }
 
-            if (rangeVariables[i].hasIndexCondition
+            if (rangeVariables[i].hasIndexCondition()
                     && inExpressions[i] != null) {
-                if (!flags[i] && (rangeVariables[i].isLeftJoin || rangeVariables[i].isRightJoin)) {
+                if (!flags[i] && isOuter) {
                     rangeVariables[i].addWhereCondition(inExpressions[i]);
                 } else {
                     rangeVariables[i].addJoinCondition(inExpressions[i]);
@@ -358,7 +363,7 @@ public class RangeVariableResolver {
     }
 
     /**
-     * Assigns a set of conditions to a range variable or IN condition list.
+     * Assigns a set of conditions to a range variable.
      */
     void assignToRangeVariable(RangeVariable rangeVar, int rangeVarIndex,
                                HsqlArrayList exprList,
@@ -368,50 +373,72 @@ public class RangeVariableResolver {
             return;
         }
 
-        // assign all non-indexables
+        colIndexSetEqual.clear();
+        colIndexSetOther.clear();
+
         for (int j = 0, size = exprList.size(); j < size; j++) {
             Expression e = (Expression) exprList.get(j);
 
-            if (rangeVar.hasIndexCondition) {
-                rangeVar.addCondition(e, isJoin);
-                exprList.set(j, null);
-
-                continue;
-            } else if (e.getIndexableExpression(rangeVar) == null) {
+            if (rangeVar.hasIndexCondition()) {
                 rangeVar.addCondition(e, isJoin);
                 exprList.set(j, null);
 
                 continue;
             }
 
-            //
-            int type = e.getType();
-
-            if (type == Expression.EQUAL) {
-                int colIndex = e.getArg().getColumnIndex();
-
-                colIndexSetEqual.add(colIndex);
-            } else if (type != Expression.IN) {
-                int colIndex = e.getArg().getColumnIndex();
-
-                colIndexSetOther.add(colIndex);
-            } else {
-
-                // IN expression
-                Index index = rangeVar.rangeTable.getIndexForColumn(
-                    e.eArg.argList[0].getColumnIndex());
-
-                if (index != null && inExpressions[rangeVarIndex] == null) {
-                    inExpressions[rangeVarIndex] = e;
-
-                    inExpressionCount++;
-                } else {
-                    rangeVar.addCondition(e, isJoin);
-                }
-
+            if (e.getIndexableExpression(rangeVar) == null) {
+                rangeVar.addCondition(e, isJoin);
                 exprList.set(j, null);
 
                 continue;
+            }
+
+            // can use index
+            int type = e.getType();
+
+            switch (type) {
+
+                default : {
+                    int colIndex = e.getLeftNode().getColumnIndex();
+
+                    colIndexSetOther.add(colIndex);
+
+                    break;
+                }
+                case OpTypes.EQUAL :
+                    if (e.exprSubType == OpTypes.ANY_QUANTIFIED) {
+                        Index index = rangeVar.rangeTable.getIndexForColumn(
+                            e.getLeftNode().nodes[0].getColumnIndex());
+
+// code to disable IN optimisation
+//                        index = null;
+                        if (index != null
+                                && inExpressions[rangeVarIndex] == null) {
+                            inExpressions[rangeVarIndex] = e;
+
+                            inExpressionCount++;
+                        } else {
+                            rangeVar.addCondition(e, isJoin);
+                        }
+
+                        exprList.set(j, null);
+
+                        continue;
+                    }
+                case OpTypes.IS_NULL : {
+                    int colIndex = e.getLeftNode().getColumnIndex();
+
+                    colIndexSetEqual.add(colIndex);
+
+                    break;
+                }
+                case OpTypes.NOT : {
+                    int colIndex = e.getLeftNode().getLeftNode().getColumnIndex();
+
+                    colIndexSetOther.add(colIndex);
+
+                    break;
+                }
             }
         }
 
@@ -423,8 +450,8 @@ public class RangeVariableResolver {
             idx     = rangeVar.rangeTable.getIndexForColumns(colIndexSetOther);
         }
 
-        // different procedure for all temp tables
-        if (idx == null && rangeVar.rangeTable.isTemp) {
+        // different procedure for subquery tables
+        if (idx == null && rangeVar.rangeTable.isSessionBased) {
             if (!colIndexSetEqual.isEmpty()) {
                 int[] cols = colIndexSetEqual.toArray();
 
@@ -467,9 +494,9 @@ public class RangeVariableResolver {
 
                 int type = e.getType();
 
-                if (type == Expression.EQUAL) {
+                if (type == OpTypes.EQUAL) {
                     int offset = ArrayUtil.find(cols,
-                                                e.getArg().getColumnIndex());
+                                                e.getLeftNode().getColumnIndex());
 
                     if (offset != -1 && firstRowExpressions[offset] == null) {
                         firstRowExpressions[offset] = e;
@@ -509,24 +536,48 @@ public class RangeVariableResolver {
 
             rangeVar.addIndexCondition(firstRowExpressions, idx, colCount,
                                        isJoin);
-        } else {
-            for (int j = 0; j < exprList.size(); j++) {
-                Expression e = (Expression) exprList.get(j);
 
-                if (e == null) {
-                    continue;
-                }
+            return;
+        }
 
-                if (!rangeVar.hasIndexCondition && e.getArg2() != null
-                        && !e.getArg2().isCorrelated()
-                        && cols[0] == e.getArg().getColumnIndex()) {
-                    rangeVar.addIndexCondition(e, idx, isJoin);
-                } else {
-                    rangeVar.addCondition(e, isJoin);
-                }
+        for (int j = 0; j < exprList.size(); j++) {
+            Expression e = (Expression) exprList.get(j);
 
-                exprList.set(j, null);
+            if (e == null) {
+                continue;
             }
+
+            if (rangeVar.hasIndexCondition()) {
+                rangeVar.addCondition(e, isJoin);
+                exprList.set(j, null);
+
+                continue;
+            }
+
+            boolean isIndexed = false;
+
+            if (e.getType() == OpTypes.NOT
+                    && cols[0] == e.getLeftNode().getLeftNode().getColumnIndex()) {
+                isIndexed = true;
+            }
+
+            if (cols[0] == e.getLeftNode().getColumnIndex()) {
+                if (e.getRightNode() != null && !e.getRightNode().isCorrelated()) {
+                    isIndexed = true;
+                }
+
+                if (e.getType() == OpTypes.IS_NULL) {
+                    isIndexed = true;
+                }
+            }
+
+            if (isIndexed) {
+                rangeVar.addIndexCondition(e, idx, isJoin);
+            } else {
+                rangeVar.addCondition(e, isJoin);
+            }
+
+            exprList.set(j, null);
         }
     }
 
@@ -541,10 +592,10 @@ public class RangeVariableResolver {
 
             if (in != null) {
                 Index index = rangeVar.rangeTable.getIndexForColumn(
-                    in.eArg.argList[0].getColumnIndex());
+                    in.getLeftNode().nodes[0].getColumnIndex());
                 RangeVariable newRangeVar =
-                    new RangeVariable(in.getArg2().subQuery.table, null, null,
-                                      compileContext);
+                    new RangeVariable(in.getRightNode().subQuery.getTable(), null,
+                                      null, null, compileContext);
                 RangeVariable[] newList =
                     new RangeVariable[rangeVariables.length + 1];
 
@@ -554,10 +605,10 @@ public class RangeVariableResolver {
                 rangeVariables = newList;
 
                 // make two columns as arg
-                Column left = rangeVar.rangeTable.getColumn(
-                    in.eArg.argList[0].getColumnIndex());
-                Column right = newRangeVar.rangeTable.getColumn(0);
-                Expression e = new Expression(rangeVar, left, newRangeVar,
+                ColumnSchema left = rangeVar.rangeTable.getColumn(
+                    in.getLeftNode().nodes[0].getColumnIndex());
+                ColumnSchema right = newRangeVar.rangeTable.getColumn(0);
+                Expression e = new ExpressionLogical(rangeVar, left, newRangeVar,
                                               right);
 
                 rangeVar.addIndexCondition(e, index, flags[i]);

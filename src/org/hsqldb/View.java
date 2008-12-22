@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,26 +32,26 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
 
 // fredt@users 20020420 - patch523880 by leptipre@users - VIEW support - modified
 // fredt@users 20031227 - remimplementated as compiled query
 
 /**
- * Represents an SQL VIEW based on a SELECT statement.
+ * Represents an SQL VIEW based on a query expression
  *
  * @author leptipre@users
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.0
  */
-public class View extends Table {
+public class View extends TableDerived {
 
-    Select         viewSelect;
-    SubQuery       viewSubQuery;
-    private String statement;
-    HsqlName[]     colList;
+    SubQuery viewSubQuery;
+    String   statement;
+
+    //
+    HsqlName[] columnNames;
 
     /** schema at the time of compilation */
     HsqlName compileTimeSchema;
@@ -68,33 +68,41 @@ public class View extends Table {
     OrderedHashSet schemaObjectNames;
 
     /**
-     * Constructor.
-     * @param Session
-     * @param db database
-     * @param name HsqlName of the view
-     * @param definition SELECT statement of the view
-     * @param columns array of HsqlName column names
-     * @throws HsqlException
+     * check option
      */
-    View(Session session, Database db, HsqlName name, String definition,
-            HsqlName[] columns) throws HsqlException {
+    int check;
 
-        super(db, name, VIEW);
+    //
+    private Table baseTable;
 
-        isReadOnly        = true;
-        colList           = columns;
-        statement         = definition;
+    //
+    Expression checkExpression;
+
+    View(Session session, Database db, HsqlName name, HsqlName[] columnNames,
+            String definition, int check) throws HsqlException {
+
+        super(db, name, TableBase.VIEW_TABLE);
+
+        this.columnNames  = columnNames;
+        this.statement    = definition;
+        this.check        = check;
         compileTimeSchema = session.getSchemaHsqlName(null);
+    }
 
-        compile(session);
+    public int getType() {
+        return SchemaObject.VIEW;
     }
 
     public OrderedHashSet getReferences() {
         return schemaObjectNames;
     }
 
+    public OrderedHashSet getComponents() {
+        return null;
+    }
+
     /**
-     * Compiles the SELECT statement and sets up the columns.
+     * Compiles the query expression and sets up the columns.
      */
     public void compile(Session session) throws HsqlException {
 
@@ -104,12 +112,29 @@ public class View extends Table {
 
         session.setSchema(compileTimeSchema.name);
 
-        Parser p = new Parser(session, new Tokenizer(statement));
+        ParserDQL p = new ParserDQL(session, new Scanner(statement));
 
         p.read();
 
-        viewSubQuery = p.readSubquery(0, this, true, Expression.VIEW);
+        viewSubQuery    = p.XreadViewSubquery(this);
+        queryExpression = viewSubQuery.queryExpression;
 
+        if (getColumnCount() == 0) {
+            if (columnNames == null) {
+                columnNames =
+                    viewSubQuery.queryExpression.getResultColumnNames();
+            }
+
+            if (columnNames.length
+                    != viewSubQuery.queryExpression.getColumnCount()) {
+                throw Error.error(ErrorCode.X_42593, tableName.name);
+            }
+
+            TableUtil.setColumnsInSchemaTable(
+                this, columnNames, queryExpression.getColumnTypes());
+        }
+
+        //
         viewSubqueries = p.compileContext.getSubqueries();
 
         for (int i = 0; i < viewSubqueries.length; i++) {
@@ -118,20 +143,68 @@ public class View extends Table {
             }
         }
 
-
-        viewSelect        = viewSubQuery.select;
+        //
+        viewSubQuery.getTable().view       = this;
+        viewSubQuery.getTable().columnList = columnList;
         schemaObjectNames = p.compileContext.getSchemaObjectNames();
+        baseTable                          = queryExpression.getBaseTable();
 
-        if (super.getColumnCount() == 0) {
-            columnList  = viewSubQuery.table.columnList;
-            columnCount = viewSubQuery.table.getColumnCount();
-        } else {
-            viewSubQuery.table.columnList = columnList;
+        if (baseTable == null) {
+            return;
+        }
+
+        switch (check) {
+
+            case SchemaObject.ViewCheckModes.CHECK_NONE :
+                break;
+
+            case SchemaObject.ViewCheckModes.CHECK_LOCAL :
+                checkExpression = queryExpression.getCheckCondition();
+                break;
+
+            case SchemaObject.ViewCheckModes.CHECK_CASCADE :
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "View");
         }
     }
 
+    public String getDDL() {
+
+        StringBuffer sb = new StringBuffer(128);
+
+        sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_VIEW);
+        sb.append(' ');
+        sb.append(getName().getSchemaQualifiedStatementName()).append(' ');
+        sb.append('(');
+
+        int count = getColumnCount();
+
+        for (int j = 0; j < count; j++) {
+            sb.append(getColumn(j).getName().statementName);
+
+            if (j < count - 1) {
+                sb.append(',');
+            }
+        }
+
+        sb.append(')').append(' ').append(Tokens.T_AS).append(' ');
+        sb.append(getStatement());
+
+        return sb.toString();
+    }
+
+    public int[] getUpdatableColumns() {
+        return queryExpression.getBaseTableColumnMap();
+    }
+
+    public int getCheckOption() {
+        return check;
+    }
+
     /**
-     * Returns the SELECT statement for the view.
+     * Returns the query expression for the view.
      */
     public String getStatement() {
         return statement;
@@ -141,20 +214,11 @@ public class View extends Table {
      * Overridden to disable SET TABLE READONLY DDL for View objects.
      */
     public void setDataReadOnly(boolean value) throws HsqlException {
-        throw Trace.error(Trace.NOT_A_TABLE);
+        throw Error.error(ErrorCode.X_28000);
     }
 
-    public void collectAllBaseColumnExpressions(HashSet set) {
+    public void collectAllFunctionExpressions(OrderedHashSet collector) {
 
-        Expression.collectAllExpressions(
-            set, viewSubqueries[viewSubqueries.length - 1].select,
-            Expression.COLUMN);
-    }
-
-    public void collectAllFunctionExpressions(HashSet set) {
-
-        Expression.collectAllExpressions(
-            set, viewSubqueries[viewSubqueries.length - 1].select,
-            Expression.FUNCTION);
+        // filter schemaObjectNames
     }
 }

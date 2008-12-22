@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc.pool;
 
-import org.hsqldb.jdbc.jdbcConnection;
+import org.hsqldb.jdbc.JDBCConnection;
 
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
@@ -62,14 +62,14 @@ import java.util.Set;
  */
 public class LifeTimeConnectionWrapper extends BaseConnectionWrapper {
 
-    protected jdbcConnection     connection          = null;
+    protected JDBCConnection     connection          = null;
     protected PooledConnection   pooledConnection    = null;
     protected Set                connectionListeners = new HashSet();
     protected ConnectionDefaults connectionDefaults  = null;
 
-    public LifeTimeConnectionWrapper(jdbcConnection connection,
-                                     ConnectionDefaults connectionDefaults)
-                                     throws SQLException {
+    public LifeTimeConnectionWrapper(
+            JDBCConnection connection,
+            ConnectionDefaults connectionDefaults) throws SQLException {
 
         this.connection = connection;
 
@@ -82,8 +82,8 @@ public class LifeTimeConnectionWrapper extends BaseConnectionWrapper {
         }
     }
 
-    public LifeTimeConnectionWrapper(jdbcConnection connection)
-    throws SQLException {
+    public LifeTimeConnectionWrapper(
+            JDBCConnection connection) throws SQLException {
         this(connection, null);
     }
 
@@ -132,14 +132,14 @@ public class LifeTimeConnectionWrapper extends BaseConnectionWrapper {
 
     /**
      * Closes the connection physically. The pool is not notified of this.
-     * @throws SQLException If something goes wrong during the closing of the wrapped jdbcConnection.
+     * @throws SQLException If something goes wrong during the closing of the wrapped JDBCConnection.
      */
     public void closePhysically() throws SQLException {
 
         SQLException exception = null;
 
         if (!isClosed && this.connection != null
-                &&!this.connection.isClosed()) {
+                && !this.connection.isClosed()) {
             try {
                 this.connection.close();
             } catch (SQLException e) {
@@ -148,7 +148,6 @@ public class LifeTimeConnectionWrapper extends BaseConnectionWrapper {
                 exception = e;
             }
         }
-
         this.isClosed           = true;
         this.pooledConnection   = null;
         this.connection         = null;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,18 +31,35 @@
 
 package org.hsqldb.jdbc.pool;
 
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 
-import org.hsqldb.Trace;
 import org.hsqldb.jdbc.Util;
+
+//#ifdef JAVA6
+import java.sql.ClientInfoStatus;
+import java.sql.NClob;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLXML;
+
+//#endif JAVA6
 
 /* $Id */
 
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060523 - patch 1.9.0 full synch up to Mustang Build 84
-
 /*
  * $Log: BaseConnectionWrapper.java,v $
  * Revision 1.7  2006/07/12 12:45:54  boucherb
@@ -184,9 +201,8 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
         return getConnection().createStatement();
     }
 
-    public Statement createStatement(int resultSetType,
-                                     int resultSetConcurrency)
-                                     throws SQLException {
+    public Statement createStatement(
+            int resultSetType, int resultSetConcurrency) throws SQLException {
 
         validate();
 
@@ -194,10 +210,9 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
                 resultSetConcurrency);
     }
 
-    public Statement createStatement(int resultSetType,
-                                     int resultSetConcurrency,
-                                     int resultSetHoldability)
-                                     throws SQLException {
+    public Statement createStatement(
+            int resultSetType, int resultSetConcurrency,
+            int resultSetHoldability) throws SQLException {
 
         validate();
 
@@ -232,8 +247,7 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
     }
 
     public CallableStatement prepareCall(String sql, int resultSetType,
-                                         int resultSetConcurrency)
-                                         throws SQLException {
+            int resultSetConcurrency) throws SQLException {
 
         validate();
 
@@ -242,9 +256,8 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
     }
 
     public CallableStatement prepareCall(String sql, int resultSetType,
-                                         int resultSetConcurrency,
-                                         int resultSetHoldability)
-                                         throws SQLException {
+            int resultSetConcurrency,
+            int resultSetHoldability) throws SQLException {
 
         validate();
 
@@ -252,8 +265,7 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
                 resultSetConcurrency, resultSetHoldability);
     }
 
-    public PreparedStatement prepareStatement(String sql)
-    throws SQLException {
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
 
         validate();
 
@@ -273,8 +285,7 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
 
         validate();
 
-        return this.prepareStatement(sql, resultSetType,
-                                     resultSetConcurrency);
+        return this.prepareStatement(sql, resultSetType, resultSetConcurrency);
     }
 
     public PreparedStatement prepareStatement(String sql, int resultSetType,
@@ -311,86 +322,97 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
     }
 
     //------------------------- JDBC 4.0 -----------------------------------
-//#ifdef JDBC4
+//#ifdef JAVA6
     public Clob createClob() throws SQLException {
+
         validate();
+
         return this.getConnection().createClob();
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
+//#endif JAVA6
+//#ifdef JAVA6
     public Blob createBlob() throws SQLException {
+
         validate();
+
         return this.getConnection().createBlob();
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
+//#endif JAVA6
+//#ifdef JAVA6
     public NClob createNClob() throws SQLException {
+
         validate();
+
         return this.getConnection().createNClob();
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
+//#endif JAVA6
+//#ifdef JAVA6
     public SQLXML createSQLXML() throws SQLException {
+
         validate();
+
         return this.getConnection().createSQLXML();
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
+//#endif JAVA6
+//#ifdef JAVA6
     public boolean isValid(int timeout) throws SQLException {
+
         validate();
+
         return this.getConnection().isValid(timeout);
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
-    public void setClientInfo(String name, String value) throws SQLClientInfoException {
+//#endif JAVA6
+//#ifdef JAVA6
+    public void setClientInfo(String name,
+                              String value) throws SQLClientInfoException {
+
         try {
             validate();
         } catch (SQLException e) {
-            throw new SQLClientInfoException(e.getMessage(),
-                                          e.getSQLState(),
-                                          e.getErrorCode(),
-                                          (Map<String,ClientInfoStatus>) null,
-                                          e);
+            throw new SQLClientInfoException(e.getMessage(), e.getSQLState(),
+                    e.getErrorCode(), (Map<String, ClientInfoStatus>) null, e);
         }
         this.getConnection().setClientInfo(name, value);
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
-    public void setClientInfo(Properties properties) throws SQLClientInfoException {
+//#endif JAVA6
+//#ifdef JAVA6
+    public void setClientInfo(
+            Properties properties) throws SQLClientInfoException {
+
         try {
             validate();
         } catch (SQLException e) {
-            throw new SQLClientInfoException(e.getMessage(),
-                                          e.getSQLState(),
-                                          e.getErrorCode(),
-                                          (Map<String,ClientInfoStatus>) null,
-                                          e);
+            throw new SQLClientInfoException(e.getMessage(), e.getSQLState(),
+                    e.getErrorCode(), (Map<String, ClientInfoStatus>) null, e);
         }
-
         this.getConnection().setClientInfo(properties);
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
+//#endif JAVA6
+//#ifdef JAVA6
     public String getClientInfo(String name) throws SQLException {
+
         validate();
+
         return this.getConnection().getClientInfo(name);
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
+//#endif JAVA6
+//#ifdef JAVA6
     public Properties getClientInfo() throws SQLException {
+
         validate();
+
         return this.getConnection().getClientInfo();
     }
 
-//#endif JDBC4
+//#endif JAVA6
 //#ifdef JDBC4BETA
 /*
     public <T extends BaseQuery> T createQueryObject(java.lang.Class<T> ifc) throws SQLException {
@@ -398,17 +420,20 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
         return this.getConnection().createQueryObject(ifc);
     }
 */
-//#endif JDBC4
+
+//#endif JAVA6
 //#ifdef JDBC4BETA
 /*
-      public <T extends BaseQuery> T createQueryObject(Class<T> ifc, Connection con) throws SQLException {
-          validate();
-          return this.getConnection().createQueryObject(ifc, con);
-      }
+    public <T extends BaseQuery> T createQueryObject(Class<T> ifc, Connection con) throws SQLException {
+        validate();
+        return this.getConnection().createQueryObject(ifc, con);
+    }
 */
-//#endif JDBC4
-//#ifdef JDBC4
-    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+
+//#endif JAVA6
+//#ifdef JAVA6
+    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+
         validate();
 
         if (this.isWrapperFor(iface)) {
@@ -418,31 +443,34 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
         throw Util.invalidArgument("iface: " + iface);
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
-    public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
+//#endif JAVA6
+//#ifdef JAVA6
+    public boolean isWrapperFor(
+            java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JDBC4
+//#endif JAVA6
 // --------------------------- Added: Mustang Build 80 -------------------------
-//#ifdef JDBC4
+//#ifdef JAVA6
     // renamed from createArray - b87
-    public Array createArrayOf(String typeName, Object[] elements) throws
-            SQLException {
+    public Array createArrayOf(String typeName,
+                               Object[] elements) throws SQLException {
+
         validate();
 
         return this.getConnection().createArrayOf(typeName, elements);
     }
 
-//#endif JDBC4
-//#ifdef JDBC4
-    public Struct createStruct(String typeName, Object[] attributes)
-    throws SQLException {
+//#endif JAVA6
+//#ifdef JAVA6
+    public Struct createStruct(String typeName,
+                               Object[] attributes) throws SQLException {
+
         validate();
 
         return this.getConnection().createStruct(typeName, attributes);
     }
 
-//#endif JDBC4
+//#endif JAVA6
 }

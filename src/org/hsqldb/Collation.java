@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,16 @@ package org.hsqldb;
 import java.text.Collator;
 import java.util.Locale;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
 
 /**
- * Implementation of collation support for all CHAR and VARCHAR data.
+ * Implementation of collation support for CHAR and VARCHAR data.
  *
- * @author frank.schoenheit@sun.com
- * @author fredt@users
+ * @author Frand Schoenheit frank.schoenheit@sun.com
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.8.0
  */
@@ -69,6 +70,7 @@ public class Collation {
         nameToJavaName.put("German", "de-DE");
         nameToJavaName.put("Greek", "el-GR");
         nameToJavaName.put("Latin1_General", "en-US");
+        nameToJavaName.put("English", "en-US");
         nameToJavaName.put("Spanish", "es-ES");
         nameToJavaName.put("Estonian", "et-EE");
         nameToJavaName.put("Basque", "eu");
@@ -147,20 +149,39 @@ public class Collation {
         nameToJavaName.put("Zulu", "zu-ZA");
     }
 
-    String   name;
+    final static Collation defaultCollation = new Collation();
+
+    final HsqlName   name;
     Collator collator;
     Locale   locale;
     boolean  equalIsIdentical = true;
 
-    public Collation() {
+    private Collation() {
         locale = Locale.ENGLISH;
+        name = null;
     }
 
-    public org.hsqldb.lib.Iterator getCollationsIterator() {
+    public Collation(Database database) {
+        locale = Locale.ENGLISH;
+        String language = locale.getDisplayLanguage(Locale.ENGLISH);
+
+        name = database.nameManager.newHsqlName(language, true, SchemaObject.COLLATION);
+
+    }
+
+    public HsqlName getName() {
+        return name;
+    }
+
+    public static Collation getDefaultInstance() {
+            return defaultCollation;
+    }
+
+    public static org.hsqldb.lib.Iterator getCollationsIterator() {
         return nameToJavaName.keySet().iterator();
     }
 
-    public org.hsqldb.lib.Iterator getLocalesIterator() {
+    public static org.hsqldb.lib.Iterator getLocalesIterator() {
         return nameToJavaName.values().iterator();
     }
 
@@ -174,15 +195,15 @@ public class Collation {
         } catch (HsqlException e) {}
     }
 
-    void setCollation(String name) throws HsqlException {
+    void setCollation(String newName) throws HsqlException {
 
-        String jname = (String) Collation.nameToJavaName.get(name);
+        String jname = (String) Collation.nameToJavaName.get(newName);
 
         if (jname == null) {
-            throw Trace.error(Trace.INVALID_COLLATION_NAME_NO_SUBCLASS);
+            throw Error.error(ErrorCode.X_42501, jname);
         }
 
-        this.name = name;
+        name.rename(newName, true);
 
         String[] parts    = StringUtil.split(jname, "-");
         String   language = parts[0];
@@ -242,5 +263,4 @@ public class Collation {
     public String toLowerCase(String s) {
         return s.toLowerCase(locale);
     }
-
 }

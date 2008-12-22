@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,30 +33,33 @@ package org.hsqldb;
 
 import java.io.DataInput;
 
-import org.hsqldb.navigator.ClientRowSetNavigator;
+import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
+import org.hsqldb.types.TimestampData;
 
 /**
  * Interface to Session and its remote proxy objects. Used by the
  * implementations of JDBC interfaces to communicate with the database at
  * the session level.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
 public interface SessionInterface {
 
-    // fredt@users - marked as used
-    int INFO_DATABASE            = 0;
-    int INFO_USER                = 1;
-    int INFO_SESSION_ID          = 2;
-    int INFO_ISOLATION           = 3;
-    int INFO_AUTOCOMMIT          = 4;    // used
-    int INFO_DATABASE_READONLY   = 5;
-    int INFO_CONNECTION_READONLY = 6;    // used
+    int INFO_ID                  = 0;    // used
+    int INFO_INTEGER             = 1;    // used
+    int INFO_BOOLEAN             = 2;    // used
+    int INFO_VARCHAR             = 3;    // used
+    int INFO_LIMIT               = 4;
 
+    //
+    int INFO_ISOLATION           = 0;    // used
+    int INFO_AUTOCOMMIT          = 1;    // used
+    int INFO_CONNECTION_READONLY = 2;    // used
+    int INFO_CATALOG             = 3;
     //
     int TX_READ_UNCOMMITTED = 1;
     int TX_READ_COMMITTED   = 2;
@@ -65,7 +68,7 @@ public interface SessionInterface {
 
     Result execute(Result r) throws HsqlException;
 
-    ClientRowSetNavigator getRows(long navigatorId, int offset,
+    RowSetNavigatorClient getRows(long navigatorId, int offset,
                                   int size) throws HsqlException;
 
     void closeNavigator(long id);
@@ -82,23 +85,29 @@ public interface SessionInterface {
 
     void setAutoCommit(boolean autoCommit) throws HsqlException;
 
-    void setIsolation(int level) throws HsqlException;
-
     int getIsolation() throws HsqlException;
+
+    void setIsolation(int level) throws HsqlException;
 
     void startPhasedTransaction() throws HsqlException;
 
     void prepareCommit() throws HsqlException;
 
-    void commit() throws HsqlException;
+    void commit(boolean chain) throws HsqlException;
 
-    void rollback() throws HsqlException;
+    void rollback(boolean chain) throws HsqlException;
 
     void rollbackToSavepoint(String name) throws HsqlException;
 
     void savepoint(String name) throws HsqlException;
 
     void releaseSavepoint(String name) throws HsqlException;
+
+    void addWarning(HsqlException warning);
+
+    Object getAttribute(int id) throws HsqlException;
+
+    void setAttribute(int id, Object value) throws HsqlException;
 
     long getId();
 
@@ -110,4 +119,10 @@ public interface SessionInterface {
 
     void allocateResultLob(ResultLob result,
                            DataInput dataInput) throws HsqlException;
+
+    Scanner getScanner();
+
+    TimestampData getCurrentDate();
+
+    int getZoneSeconds();
 }

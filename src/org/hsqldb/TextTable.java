@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,9 @@ package org.hsqldb;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.TextCache;
+import org.hsqldb.persist.DataFileCache;
+import org.hsqldb.index.Index;
+import org.hsqldb.persist.PersistentStore;
 
 // tony_lai@users 20020820 - patch 595099 - user define PK name
 
@@ -43,43 +46,28 @@ import org.hsqldb.persist.TextCache;
  * Extends Table to provide the notion of an SQL base table object whose
  * data is read from and written to a text format data file.
  *
- * @author sqlbob@users (RMP)
- * @version    1.8.0
+ * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @version 1.8.0
  */
-class TextTable extends org.hsqldb.Table {
+public class TextTable extends org.hsqldb.Table {
 
     private String  dataSource  = "";
     private boolean isReversed  = false;
     private boolean isConnected = false;
 
+//    TextCache cache;
+
     /**
-     *  Constructs a new TextTable from the given arguments.
+     * Constructs a new TextTable from the given arguments.
      *
-     * @param  db the owning database
-     * @param  name the table's HsqlName
-     * @param  type (normal or temp text table)
-     * @param  sessionid the id of the owning session (for temp table)
-     * @exception  HsqlException  Description of the Exception
+     * @param db the owning database
+     * @param name the table's HsqlName
+     * @param type code (normal or temp text table)
+     * @throws HsqlException Description of the Exception
      */
     TextTable(Database db, HsqlNameManager.HsqlName name,
               int type) throws HsqlException {
         super(db, name, type);
-    }
-
-    /**
-     * common handling for all errors during <code>connect</code>
-     */
-    private void onConnectError(Session session) {
-
-        if (cache != null) {
-            try {
-                cache.close(false);
-            } catch (HsqlException ex) {}
-        }
-
-        cache = null;
-
-        clearAllData(session);
     }
 
     public boolean isConnected() {
@@ -106,10 +94,15 @@ class TextTable extends org.hsqldb.Table {
             return;
         }
 
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this.getPersistenceId());
+        DataFileCache cache = null;
+
         try {
-            cache = database.logger.openTextCache(this, dataSource,
-                                                  withReadOnlyData,
-                                                  isReversed);
+            cache = (TextCache) database.logger.openTextCache(this,
+                    dataSource, withReadOnlyData, isReversed);
+
+            store.setCache(cache);
 
             // read and insert all the rows from the source file
             CachedRow row     = null;
@@ -120,34 +113,42 @@ class TextTable extends org.hsqldb.Table {
             }
 
             while (true) {
-                row = (CachedRow) rowStore.get(nextpos);
+                row = (CachedRow) store.get(nextpos);
 
                 if (row == null) {
                     break;
                 }
 
+                Object[] data = row.getData();
+
                 nextpos = row.getPos() + row.getStorageSize();
 
                 row.setNewNodes();
-                insertFromTextSource(session, row);
+                systemUpdateIdentityValue(data);
+                enforceRowConstraints(session, data);
+
+                for (int i = 0; i < indexList.length; i++) {
+                    indexList[i].insert(null, store, row, i);
+                }
             }
-        } catch (HsqlException e) {
+        } catch (Exception e) {
             int linenumber = cache == null ? 0
                                            : ((TextCache) cache)
                                                .getLineNumber();
 
-            onConnectError(session);
+            clearAllData(session);
+
+            if (cache != null) {
+                database.logger.closeTextCache(this);
+                store.release();
+            }
 
             // everything is in order here.
             // At this point table should either have a valid (old) data
             // source and cache or have an empty source and null cache.
-            throw Trace.error(Trace.TEXT_FILE, new Object[] {
+            throw Error.error(ErrorCode.TEXT_FILE, 0, new Object[] {
                 new Integer(linenumber), e.getMessage()
             });
-        } catch (java.lang.RuntimeException t) {
-            onConnectError(session);
-
-            throw t;
         }
 
         isConnected = true;
@@ -157,14 +158,12 @@ class TextTable extends org.hsqldb.Table {
     /**
      * disconnects from the data source
      */
-    public void disconnect(Session session) throws HsqlException {
+    public void disconnect() {
 
-        // Close old cache:
-        database.logger.closeTextCache(this);
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this.getPersistenceId());
 
-        cache = null;
-
-        clearAllData(session);
+        store.release();
 
         isConnected = false;
     }
@@ -180,16 +179,29 @@ class TextTable extends org.hsqldb.Table {
                            boolean isReversedNew,
                            boolean isReadOnlyNew) throws HsqlException {
 
+        String  dataSourceOld = dataSource;
+        boolean isReversedOld = isReversed;
+        boolean isReadOnlyOld = isReadOnly;
+
         if (dataSourceNew == null) {
             dataSourceNew = "";
         }
 
-        disconnect(session);
+        disconnect();
 
         dataSource = dataSourceNew;
         isReversed = (isReversedNew && dataSource.length() > 0);
 
-        connect(session, isReadOnlyNew);
+        try {
+            connect(session, isReadOnlyNew);
+        } catch (HsqlException e) {
+            dataSource = dataSourceOld;
+            isReversed = isReversedOld;
+
+            connect(session, isReadOnlyOld);
+
+            throw e;
+        }
     }
 
     /**
@@ -198,19 +210,20 @@ class TextTable extends org.hsqldb.Table {
      */
     protected void setDataSource(Session session, String dataSourceNew,
                                  boolean isReversedNew,
-                                 boolean newFile) throws HsqlException {
+                                 boolean createFile) throws HsqlException {
 
         if (getTableType() == Table.TEMP_TEXT_TABLE) {
             ;
         } else {
-            session.getUser().checkSchemaUpdateOrGrantRights(
+            session.getGrantee().checkSchemaUpdateOrGrantRights(
                 getSchemaName().name);
         }
 
         dataSourceNew = dataSourceNew.trim();
 
-        if (newFile && FileUtil.exists(dataSourceNew)) {
-            throw Trace.error(Trace.TEXT_SOURCE_EXISTS, dataSourceNew);
+        if (createFile
+                && FileUtil.getDefaultInstance().exists(dataSourceNew)) {
+            throw Error.error(ErrorCode.TEXT_SOURCE_EXISTS, dataSourceNew);
         }
 
         //-- Open if descending, direction changed, file changed, or not connected currently
@@ -234,19 +247,26 @@ class TextTable extends org.hsqldb.Table {
 
     public void setHeader(String header) throws HsqlException {
 
-        if (cache != null && ((TextCache) cache).ignoreFirst) {
-            ((TextCache) cache).setHeader(header);
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this.getPersistenceId());
+        TextCache cache = (TextCache) store.getCache();
+
+        if (cache != null && cache.ignoreFirst) {
+            cache.setHeader(header);
 
             return;
         }
 
-        throw Trace.error(Trace.TEXT_TABLE_HEADER);
+        throw Error.error(ErrorCode.TEXT_TABLE_HEADER);
     }
 
     public String getHeader() {
 
-        String header = cache == null ? null
-                                      : ((TextCache) cache).getHeader();
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this.getPersistenceId());
+        TextCache cache  = (TextCache) store.getCache();
+        String    header = cache == null ? null
+                                         : cache.getHeader();
 
         return header == null ? null
                               : StringConverter.toQuotedString(header, '\"',
@@ -260,11 +280,11 @@ class TextTable extends org.hsqldb.Table {
     void checkDataReadOnly() throws HsqlException {
 
         if (dataSource.length() == 0) {
-            throw Trace.error(Trace.UNKNOWN_DATA_SOURCE);
+            throw Error.error(ErrorCode.TEXT_TABLE_UNKNOWN_DATA_SOURCE);
         }
 
         if (isReadOnly) {
-            throw Trace.error(Trace.DATA_IS_READONLY);
+            throw Error.error(ErrorCode.DATA_IS_READONLY);
         }
     }
 
@@ -276,11 +296,11 @@ class TextTable extends org.hsqldb.Table {
 
         if (!value) {
             if (isReversed) {
-                throw Trace.error(Trace.DATA_IS_READONLY);
+                throw Error.error(ErrorCode.DATA_IS_READONLY);
             }
 
             if (database.isFilesReadOnly()) {
-                throw Trace.error(Trace.DATABASE_IS_READONLY);
+                throw Error.error(ErrorCode.DATABASE_IS_READONLY);
             }
         }
 
@@ -293,16 +313,62 @@ class TextTable extends org.hsqldb.Table {
         return false;
     }
 
-    protected Table duplicate() throws HsqlException {
-        return new TextTable(database, tableName, getTableType());
-    }
-
-    void drop() throws HsqlException {
-        openCache(null, "", false, false);
-    }
-
     void setIndexRoots(String s) throws HsqlException {
 
         // do nothing
     }
+
+    String getDataSourceDDL() {
+
+        String dataSource = getDataSource();
+
+        if (dataSource == null) {
+            return null;
+        }
+
+        boolean      isDesc = isDescDataSource();
+        StringBuffer sb     = new StringBuffer(128);
+
+        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
+        sb.append(getName().getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_SOURCE).append(' ').append('"');
+        sb.append(dataSource);
+        sb.append('"');
+
+        if (isDesc) {
+            sb.append(' ').append(Tokens.T_DESC);
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Generates the SET TABLE <tablename> SOURCE HEADER <string> statement for a
+     * text table;
+     */
+    String getDataSourceHeader() {
+
+        String header = getHeader();
+
+        if (header == null) {
+            return null;
+        }
+
+        StringBuffer sb = new StringBuffer(128);
+
+        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
+        sb.append(getName().getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_SOURCE).append(' ');
+        sb.append(Tokens.T_HEADER).append(' ');
+        sb.append(header);
+
+        return sb.toString();
+    }
+
+    /**
+     * Used by TextCache to insert a row into the indexes when the source
+     * file is first read.
+     */
+    protected void insertFromTextSource(Session session,
+                                        CachedRow row) throws HsqlException {}
 }

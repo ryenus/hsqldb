@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.hsqldb.store.ValuePool;
  *
  * Maintains a reference to the timer used for file locks and logging.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.2
  */
@@ -119,8 +119,9 @@ public class DatabaseManager {
     /**
      * Used by server to open a new session
      */
-    public static Session newSession(int dbID, String user,
-                                     String password) throws HsqlException {
+    public static Session newSession(int dbID, String user, String password,
+                                     int timeZoneSeconds)
+                                     throws HsqlException {
 
         Database db = (Database) databaseIDMap.get(dbID);
 
@@ -128,7 +129,7 @@ public class DatabaseManager {
             return null;
         }
 
-        Session session = db.connect(user, password);
+        Session session = db.connect(user, password, timeZoneSeconds);
 
         session.isNetwork = true;
 
@@ -139,8 +140,8 @@ public class DatabaseManager {
      * Used by in-process connections and by Servlet
      */
     public static Session newSession(String type, String path, String user,
-                                     String password,
-                                     HsqlProperties props)
+                                     String password, HsqlProperties props,
+                                     int timeZoneSeconds)
                                      throws HsqlException {
 
         Database db = getDatabase(type, path, props);
@@ -149,7 +150,7 @@ public class DatabaseManager {
             return null;
         }
 
-        return db.connect(user, password);
+        return db.connect(user, password, timeZoneSeconds);
     }
 
     /**
@@ -237,8 +238,8 @@ public class DatabaseManager {
                 // from this synchronized block
                 // it is here simply as a placeholder for future development
                 case Database.DATABASE_OPENING :
-                    throw Trace.error(Trace.DATABASE_LOCK_ACQUISITION_FAILURE,
-                                      Trace.DatabaseManager_getDatabase);
+                    throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+                                      ErrorCode.DatabaseManager_getDatabase);
             }
         }
 
@@ -261,7 +262,7 @@ public class DatabaseManager {
         } else if (type == DatabaseURL.S_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+            throw Error.runtimeError(ErrorCode.U_S0500,
                                      "DatabaseManager.getDatabaseObject");
         }
 
@@ -299,9 +300,8 @@ public class DatabaseManager {
         } else if (type == DatabaseURL.S_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw (Trace.runtimeError(
-                Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                "DatabaseManager.lookupDatabaseObject()"));
+            throw (Error.runtimeError(
+                ErrorCode.U_S0500, "DatabaseManager.lookupDatabaseObject()"));
         }
 
         return (Database) databaseMap.get(key);
@@ -325,7 +325,7 @@ public class DatabaseManager {
         } else if (type == DatabaseURL.S_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+            throw Error.runtimeError(ErrorCode.U_S0500,
                                      "DatabaseManager.addDatabaseObject()");
         }
 
@@ -354,9 +354,8 @@ public class DatabaseManager {
         } else if (type == DatabaseURL.S_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw (Trace.runtimeError(
-                Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                "DatabaseManager.lookupDatabaseObject()"));
+            throw (Error.runtimeError(
+                ErrorCode.U_S0500, "DatabaseManager.lookupDatabaseObject()"));
         }
 
         databaseIDMap.remove(dbID);
@@ -462,7 +461,7 @@ public class DatabaseManager {
     private static String filePathToKey(String path) {
 
         try {
-            return FileUtil.canonicalPath(path);
+            return FileUtil.getDefaultInstance().canonicalPath(path);
         } catch (Exception e) {
             return path;
         }

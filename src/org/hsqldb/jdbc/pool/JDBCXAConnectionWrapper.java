@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,17 +33,17 @@
 // @(#)$Id$
 package org.hsqldb.jdbc.pool;
 
-import org.hsqldb.jdbc.jdbcConnection;
+import org.hsqldb.jdbc.JDBCConnection;
 
 import java.sql.SQLException;
 import java.sql.Savepoint;
 
 /**
- * This is a wrapper class for jdbcConnection objects (not XAConnection
+ * This is a wrapper class for JDBCConnection objects (not XAConnection
  * object).
  * Purpose of this class is to intercept and handle XA-related operations
  * according to chapter 12 of the JDBC 3.0 specification, by returning this
- * wrapped jdbcConnection to end-users.
+ * wrapped JDBCConnection to end-users.
  * Global transaction services and XAResources will not use this wrapper.
  * It also supports pooling, by virtue of the parent class,
  * LifeTimeConnectionWrapper.
@@ -59,7 +59,7 @@ import java.sql.Savepoint;
  *
  * @since HSQLDB v. 1.9.0
  * @author Blaine Simpson, blaine.simpson@admc.com
- * @see org.hsqldb.jdbc.jdbcConnection
+ * @see org.hsqldb.jdbc.JDBCConnection
  * @see org.hqldb.jdbc.pool.LifeTimeConnectionWrapper;
  */
 public class JDBCXAConnectionWrapper extends LifeTimeConnectionWrapper {
@@ -76,10 +76,9 @@ public class JDBCXAConnectionWrapper extends LifeTimeConnectionWrapper {
      */
     private JDBCXAResource xaResource;
 
-    public JDBCXAConnectionWrapper(jdbcConnection connection,
-                                   JDBCXAResource xaResource,
-                                   ConnectionDefaults connectionDefaults)
-                                   throws SQLException {
+    public JDBCXAConnectionWrapper(
+            JDBCConnection connection, JDBCXAResource xaResource,
+            ConnectionDefaults connectionDefaults) throws SQLException {
 
         /* Could pass in the creating XAConnection, which has methods to
          * get the connection and the xaResource, but this way cuts down

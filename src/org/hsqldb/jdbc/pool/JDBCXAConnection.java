@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,14 +44,13 @@ import javax.transaction.xa.XAResource;
  *
  * Other than the xaResource, this class deals with Connection Wrappers
  * not the real thing, but these correspond 1:1 with physical
- * jdbcConnections.
+ * JDBCConnections.
  *
  * @since HSQLDB v. 1.9.0
  * @author Blaine Simpson, blaine.simpson@admc.com
  * @see javax.sql.XAConnection
  */
-public class JDBCXAConnection extends JDBCPooledConnection
-implements XAConnection {
+public class JDBCXAConnection extends JDBCPooledConnection implements XAConnection {
 
     JDBCXAResource xaResource;
 

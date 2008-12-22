@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,6 +71,8 @@ import org.hsqldb.lib.IntLookup;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.index.MemoryNode;
+import org.hsqldb.store.ValuePool;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 // fredt@users 20020920 - patch 1.7.1 - refactoring to cut mamory footprint
@@ -88,10 +90,17 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public class Row implements CachedObject {
 
-    int                tableId;
-    public int                iPos;
-    protected Object[] oData;
-    public Node     nPrimaryNode;
+    int                       tableId;
+    int                       iPos;
+    protected Object[]        oData;
+    public Node               nPrimaryNode;
+    boolean                   isDeleted;
+    public volatile RowAction rowAction;
+
+    //* debug 190
+    protected RowActionBase rowActionB;
+
+    //* debug 190
 
     /**
      *  Default constructor used only in subclasses.
@@ -102,16 +111,16 @@ public class Row implements CachedObject {
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
      *  are not yet linked with other Nodes in the AVL indexes.
      */
-    Row(Table t, Object[] o) throws HsqlException {
+    public Row(TableBase t, Object[] o) throws HsqlException {
 
         int index = t.getIndexCount();
 
-        nPrimaryNode = Node.newNode(this, 0, t);
+        nPrimaryNode = new MemoryNode(this);
 
         Node n = nPrimaryNode;
 
         for (int i = 1; i < index; i++) {
-            n.nNext = Node.newNode(this, i, t);
+            n.nNext = new MemoryNode(this);
             n       = n.nNext;
         }
 
@@ -149,17 +158,15 @@ public class Row implements CachedObject {
         return n;
     }
 
-    /**
-     * Returns the Row Object that currently represents the same database row.
-     * In current implementations of Row, this is always the same as the this
-     * Object for MEMORY tables, but could be a different Object for CachedRow
-     * or CachedDataRow implementation. For example the Row Object that
-     * represents a given database row can be freed from the Cache when other
-     * rows need to be loaded into the Cache. getUpdatedRow() returns a
-     * currently valid Row object that is in the Cache.
-     */
-    public Row getUpdatedRow() {
-        return this;
+    Node insertNode(int index) {
+
+        Node backnode = getNode(index - 1);
+        Node newnode  = new MemoryNode(this);
+
+        newnode.nNext  = backnode.nNext;
+        backnode.nNext = newnode;
+
+        return newnode;
     }
 
     /**
@@ -174,34 +181,23 @@ public class Row implements CachedObject {
      *  from the Cache.
      */
     void delete() throws HsqlException {
-
-        JavaSystem.memoryRecords++;
-
-        nPrimaryNode = null;
+        isDeleted = true;
     }
 
-    void clearNodeLinks() {
+    void clearNonPrimaryNodes() throws HsqlException {
 
-        Node last;
-        Node temp;
+        Node n = nPrimaryNode.nNext;
 
-        last = nPrimaryNode;
+        while (n != null) {
+            n.delete();
 
-        while (last.nNext != null) {
-            temp       = last.nNext;
-            last.nNext = null;
-            last       = temp;
+            n.iBalance = 0;
+            n          = n.nNext;
         }
-
-        nPrimaryNode = null;
     }
 
     boolean isCascadeDeleted() {
-        return nPrimaryNode == null;
-    }
-
-    public int getRealSize(RowOutputInterface out) {
-        return 0;
+        return isDeleted;
     }
 
     public void setStorageSize(int size) {
@@ -216,8 +212,8 @@ public class Row implements CachedObject {
         return ((long) tableId << 32) + ((long) iPos);
     }
 
-    public static long getId(Table table, int pos) {
-        return ((long) table.getId() << 32) + ((long) pos);
+    public Object getRowidObject() {
+        return ValuePool.getLong(getId());
     }
 
     public int getPos() {
@@ -240,6 +236,26 @@ public class Row implements CachedObject {
 
     public boolean isInMemory() {
         return true;
+    }
+
+    public void restore() {
+
+        Node n = nPrimaryNode;
+
+        while (n != null) {
+            n.iBalance = 0;
+            n          = n.nNext;
+        }
+
+        isDeleted = false;
+    }
+
+    public void destroy() {
+
+        JavaSystem.memoryRecords++;
+
+        oData        = null;
+        nPrimaryNode = null;
     }
 
     public void setInMemory(boolean in) {}

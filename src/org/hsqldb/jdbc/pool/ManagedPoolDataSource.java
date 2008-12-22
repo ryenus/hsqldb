@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,25 +31,27 @@
 
 package org.hsqldb.jdbc.pool;
 
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.PooledConnection;
 
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.util.Properties;
-
-import java.sql.SQLException;
-import java.util.*;
-
-import org.hsqldb.Trace;
 import org.hsqldb.jdbc.Util;
 
 /* $Id$ */
 
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060523 - patch 1.9.0 full synch up to Mustang Build 84
-
 /*
  * $Log: ManagedPoolDataSource.java,v $
  * Revision 1.23  2006/07/12 12:45:54  boucherb
@@ -66,8 +68,8 @@ import org.hsqldb.jdbc.Util;
  *
  * @author Jakob Jenkov
  */
-public class ManagedPoolDataSource
-implements javax.sql.DataSource, ConnectionEventListener {
+public class ManagedPoolDataSource implements javax.sql.DataSource,
+        ConnectionEventListener {
 
     /**
      * The default connection count in the pool.
@@ -89,7 +91,7 @@ implements javax.sql.DataSource, ConnectionEventListener {
     private int                          sessionTimeout           = 0;
     private JDBCConnectionPoolDataSource connectionPoolDataSource = null;
     private Set                          connectionsInUse = new HashSet();
-    private List connectionsInactive = new ArrayList();
+    private List                         connectionsInactive = new ArrayList();
     private Map sessionConnectionWrappers = new HashMap();
     private int                          maxPoolSize = DEFAULT_MAX_POOL_SIZE;
     private ConnectionDefaults           connectionDefaults       = null;
@@ -126,10 +128,9 @@ implements javax.sql.DataSource, ConnectionEventListener {
     /**
      * Base constructor that handles all parameters.
      */
-    public ManagedPoolDataSource(String url, String user, String password,
-                                 int maxPoolSize,
-                                 ConnectionDefaults connectionDefaults)
-                                 throws SQLException {
+    public ManagedPoolDataSource(
+            String url, String user, String password, int maxPoolSize,
+            ConnectionDefaults connectionDefaults) throws SQLException {
 
         this.connectionPoolDataSource = new JDBCConnectionPoolDataSource(url,
                 user, password, connectionDefaults);
@@ -151,9 +152,9 @@ implements javax.sql.DataSource, ConnectionEventListener {
      *
      * @see #ManagedPoolDataSource()
      */
-    public ManagedPoolDataSource(String url, String user, String password,
-                                 ConnectionDefaults connectionDefaults)
-                                 throws SQLException {
+    public ManagedPoolDataSource(
+            String url, String user, String password,
+            ConnectionDefaults connectionDefaults) throws SQLException {
         this(url, user, password, DEFAULT_MAX_POOL_SIZE, connectionDefaults);
     }
 
@@ -223,8 +224,7 @@ implements javax.sql.DataSource, ConnectionEventListener {
      * @param seconds Time, in seconds.
      * @see #JDBCConnectionPoolDataSource.setLoginTimeout(int)
      */
-    public synchronized void setLoginTimeout(int seconds)
-    throws SQLException {
+    public synchronized void setLoginTimeout(int seconds) throws SQLException {
         connectionPoolDataSource.setLoginTimeout(seconds);
     }
 
@@ -238,8 +238,8 @@ implements javax.sql.DataSource, ConnectionEventListener {
     /**
      * @see #JDBCConnectionPoolDataSource.setLoginTimeout(PrintWriter)
      */
-    public synchronized void setLogWriter(PrintWriter out)
-    throws SQLException {
+    public synchronized void setLogWriter(
+            PrintWriter out) throws SQLException {
         connectionPoolDataSource.setLogWriter(out);
     }
 
@@ -260,10 +260,12 @@ implements javax.sql.DataSource, ConnectionEventListener {
         String managedPassword = getPassword();
         String managedUser     = getUsername();
 
-        if (((user == null && managedUser != null) || (user != null && managedUser == null))
-                || (user != null &&!user.equals(managedUser))
-                || ((password == null && managedPassword != null) || (password != null && managedPassword == null))
-                || (password != null &&!password.equals(managedPassword))) {
+        if (((user == null && managedUser != null)
+                || (user != null && managedUser == null)) || (user != null
+                   && !user.equals(managedUser)) || ((password == null
+                       && managedPassword != null) || (password != null
+                           && managedPassword == null)) || (password != null
+                               && !password.equals(managedPassword))) {
             throw new SQLException(
                 "Connection pool manager user/password validation failed");
         }
@@ -316,17 +318,14 @@ implements javax.sql.DataSource, ConnectionEventListener {
             if (!initialized) {
                 if (initialSize > maxPoolSize) {
                     throw new SQLException("Initial size of " + initialSize
-                                           + " exceeds max. pool size of "
-                                           + maxPoolSize);
+                            + " exceeds max. pool size of " + maxPoolSize);
                 }
-
                 logInfo("Pre-initializing " + initialSize
                         + " physical connections");
 
                 for (int i = 0; i < initialSize; i++) {
                     connectionsInactive.add(createNewConnection());
                 }
-
                 initialized = true;
             }
 
@@ -397,24 +396,25 @@ implements javax.sql.DataSource, ConnectionEventListener {
      *  @exception SQLException if a database access error occurs.
      *  @since JDK 1.6, HSQLDB 1.8.x
      */
-//#ifdef JDBC4BETA
+//#ifdef JAVA6BETA
 /*
    public <T extends BaseQuery> T createQueryObject(Class<T> ifc) throws SQLException {
         return QueryObjectFactory.createDefaultQueryObject(ifc, this);
    }
 */
-//#endif JDBC4
 
-     /**
+//#endif JAVA6BETA
+
+    /**
      * Creates a concrete implementation of a Query interface using the JDBC drivers <code>QueryObjectGenerator</code>
      * implementation.
-     * <p>*
+     * <p>
      * If the JDBC driver does not provide its own <code>QueryObjectGenerator</code>, the <code>QueryObjectGenerator</code>
      * provided with Java SE will be used.
-     *<p>
+     * <p>
      * This method is primarly for developers of Wrappers to JDBC implementations.
      * Application developers should use <code>createQueryObject(Class&LT;T&GT; ifc).
-      *<p>
+     * <p>
      * @param ifc The Query interface that will be created
      * @param ds The <code>DataSource</code> that will be used when invoking methods that access
      * the data source. The QueryObjectGenerator implementation will use
@@ -425,13 +425,14 @@ implements javax.sql.DataSource, ConnectionEventListener {
      * @exception SQLException if a database access error occurs.
      * @since 1.6
      */
-//#ifdef JDBC4BETA
+//#ifdef JAVA6BETA
 /*
     public <T extends BaseQuery> T createQueryObject(Class<T> ifc, javax.sql.DataSource ds) throws SQLException {
         return QueryObjectFactory.createQueryObject(ifc, ds);
     }
 */
-//#endif JDBC4
+
+//#endif JAVA6BETA
 
     /**
      * Retrieves the QueryObjectGenerator for the given JDBC driver.  If the
@@ -442,13 +443,14 @@ implements javax.sql.DataSource, ConnectionEventListener {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.8.x
      */
-//#ifdef JDBC4BETA
+//#ifdef JAVA6BETA
 /*
     public QueryObjectGenerator getQueryObjectGenerator() throws SQLException {
         return null;
     }
 */
-//#endif JDBC4
+
+//#endif JAVA6BETA
 
     /**
      * Returns an object that implements the given interface to allow access to non-standard methods,
@@ -464,8 +466,9 @@ implements javax.sql.DataSource, ConnectionEventListener {
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 1.8.x
      */
-//#ifdef JDBC4
-    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+//#ifdef JAVA6
+    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+
         if (isWrapperFor(iface)) {
             return (T) this;
         }
@@ -473,7 +476,7 @@ implements javax.sql.DataSource, ConnectionEventListener {
         throw Util.invalidArgument("iface: " + iface);
     }
 
-//#endif JDBC4
+//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -490,12 +493,13 @@ implements javax.sql.DataSource, ConnectionEventListener {
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 1.8.x
      */
-//#ifdef JDBC4
-    public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException {
+//#ifdef JAVA6
+    public boolean isWrapperFor(
+            java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JDBC4
+//#endif JAVA6
     // ------------------------ internal implementation ------------------------
     private void doWait(long loginTimeoutExpiration) throws SQLException {
 
@@ -529,11 +533,9 @@ implements javax.sql.DataSource, ConnectionEventListener {
         // so I am assuming that this is a coding error.  (The size
         // method does return the actual size of an array).  -blaine
         logInfo("Connection created since no connections available and "
-                + "pool has space for more connections. Pool size: "
-                + size());
+                + "pool has space for more connections. Pool size: " + size());
 
-        pooledConnection =
-            this.connectionPoolDataSource.getPooledConnection();
+        pooledConnection = this.connectionPoolDataSource.getPooledConnection();
 
         pooledConnection.addConnectionEventListener(this);
 
@@ -554,8 +556,7 @@ implements javax.sql.DataSource, ConnectionEventListener {
                 (SessionConnectionWrapper) this.sessionConnectionWrappers.get(
                     connectionInUse);
 
-            if (isSessionTimedOut(now, sessionWrapper,
-                                  sessionTimeoutMillis)) {
+            if (isSessionTimedOut(now, sessionWrapper, sessionTimeoutMillis)) {
                 abandonedConnections.add(sessionWrapper);
             }
         }
@@ -692,7 +693,6 @@ implements javax.sql.DataSource, ConnectionEventListener {
                 }
             }
         }
-
         this.connectionsInUse.add(pooledConnection);
 
         SessionConnectionWrapper sessionWrapper =
@@ -1200,8 +1200,8 @@ implements javax.sql.DataSource, ConnectionEventListener {
         // TODO:  Add report for max and min settings which aren't
         // implemented yet.
         return sb.toString() + "\n    Max Active: " + getMaxActive()
-               + "\n    Init Size: " + getInitialSize()
-               + "\n    Conn Props: " + getConnectionProperties()
-               + "\n    Validation Query: " + validationQuery + '\n';
+               + "\n    Init Size: " + getInitialSize() + "\n    Conn Props: "
+               + getConnectionProperties() + "\n    Validation Query: "
+               + validationQuery + '\n';
     }
 }

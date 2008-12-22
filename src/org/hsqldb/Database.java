@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,15 +68,20 @@ package org.hsqldb;
 
 import java.lang.reflect.Constructor;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.Logger;
+import org.hsqldb.persist.PersistentStoreCollectionDatabase;
+import org.hsqldb.result.Result;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.User;
 import org.hsqldb.rights.UserManager;
+import org.hsqldb.types.Type;
 
 // fredt@users 20020130 - patch 476694 by velichko - transaction savepoints
 // additions to different parts to support savepoint transactions
@@ -110,13 +115,14 @@ import org.hsqldb.rights.UserManager;
 /**
  *  Database is the root class for HSQL Database Engine database. <p>
  *
- *  It holds the data structure that form an HSQLDB database instance.
+ *  It holds the data structures that form an HSQLDB database instance.
  *
  * Modified significantly from the Hypersonic original in successive
  * HSQLDB versions.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
 public class Database {
@@ -146,14 +152,12 @@ public class Database {
     /** true means filesReadOnly but CACHED and TEXT tables are disallowed */
     private boolean                filesInJar;
     public boolean                 sqlEnforceStrictSize;
-    public int                     firstIdentity;
     private boolean                bIgnoreCase;
     private boolean                bReferentialIntegrity;
     private HsqlDatabaseProperties databaseProperties;
     private boolean                shutdownOnNoConnection;
 
     // schema invarient objects
-    public MethodAliasManager aliasManager;
     public UserManager     userManager;
     public GranteeManager  granteeManager;
     public HsqlNameManager nameManager;
@@ -161,10 +165,13 @@ public class Database {
     // session related objects
     public SessionManager     sessionManager;
     public TransactionManager txManager;
-    CompiledStatementManager  compiledStatementManager;
+    StatementManager          compiledStatementManager;
 
     // schema objects
     public SchemaManager schemaManager;
+
+    //
+    public PersistentStoreCollectionDatabase persistentStoreCollection;
 
     //
     public LobManager lobManager;
@@ -183,8 +190,8 @@ public class Database {
     /**
      *  Constructs a new Database object.
      *
-     * @param type is the type of the database: "mem", "file", "res"
-     * @param path is the fiven path to the database files
+     * @param type is the type of the database: "mem:", "file:", "res:"
+     * @param path is the given path to the database files
      * @param name is the combination of type and canonical path
      * @param props property overrides placed on the connect URL
      * @exception  HsqlException if the specified name and path
@@ -239,7 +246,7 @@ public class Database {
         shutdownOnNoConnection = urlProperties.getProperty("shutdown",
                 "false").equals("true");
         logger                   = new Logger();
-        compiledStatementManager = new CompiledStatementManager(this);
+        compiledStatementManager = new StatementManager(this);
         lobManager               = new LobManager();
     }
 
@@ -269,37 +276,61 @@ public class Database {
         try {
             databaseProperties = new HsqlDatabaseProperties(this);
             isNew = !DatabaseURL.isFileBasedDatabaseType(sType)
-                    ||!databaseProperties.checkFileExists();
+                    || !databaseProperties.checkFileExists();
 
             if (isNew && urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.url_ifexists)) {
-                throw Trace.error(Trace.DATABASE_NOT_EXISTS, sName);
+                throw Error.error(ErrorCode.DATABASE_NOT_EXISTS, sName);
             }
 
             databaseProperties.load();
             databaseProperties.setURLProperties(urlProperties);
             compiledStatementManager.reset();
 
-            nameManager           = new HsqlNameManager();
-            granteeManager        = new GranteeManager(this);
-            userManager           = new UserManager(this);
-            aliasManager          = new MethodAliasManager();
-            schemaManager         = new SchemaManager(this);
+            nameManager    = new HsqlNameManager(this);
+            granteeManager = new GranteeManager(this);
+            userManager    = new UserManager(this);
+            schemaManager  = new SchemaManager(this);
+            persistentStoreCollection =
+                new PersistentStoreCollectionDatabase();
             bReferentialIntegrity = true;
             sessionManager        = new SessionManager(this);
             txManager             = new TransactionManager(this);
-            collation             = new Collation();
+            collation             = new Collation(this);
             dbInfo = DatabaseInformation.newDatabaseInformation(this);
 
             databaseProperties.setDatabaseVariables();
+
+            String version = databaseProperties.getProperty(
+                HsqlDatabaseProperties.db_version);
+
+            if ("1.7.0".equals(version) || "1.7.1".equals(version)
+                    || "1.7.2".equals(version) || "1.7.3".equals(version)) {
+                schemaManager.createPublicSchema();
+            }
 
             if (DatabaseURL.isFileBasedDatabaseType(sType)) {
                 logger.openLog(this);
             }
 
             if (isNew) {
-                sessionManager.getSysSession().executeDirectStatement(
-                    "CREATE USER SA PASSWORD \"\" ADMIN");
+                HsqlName name = nameManager.newHsqlName("SA", false,
+                    SchemaObject.GRANTEE);
+
+                userManager.createUser(name, "");
+
+                Session session = sessionManager.getSysSession();
+
+                granteeManager.grant(name.name,
+                                     SqlInvariants.DBA_ADMIN_ROLE_NAME,
+                                     granteeManager.getDBARole());
+                logger.writeToLog(session,
+                                  "CREATE USER SA PASSWORD \'\' ADMIN");
+                schemaManager.createPublicSchema();
+                logger.writeToLog(session,
+                                  "CREATE SCHEMA PUBLIC AUTHORIZATION DBA");
+                logger.writeToLog(session,
+                                  "SET DEFAULT INITIAL SCHEMA PUBLIC");
                 logger.synchLogForce();
             }
 
@@ -312,7 +343,7 @@ public class Database {
             DatabaseManager.removeDatabase(this);
 
             if (!(e instanceof HsqlException)) {
-                e = Trace.error(Trace.GENERAL_ERROR, e.toString());
+                e = Error.error(ErrorCode.GENERAL_ERROR, e.toString());
             }
 
             throw (HsqlException) e;
@@ -332,7 +363,6 @@ public class Database {
 
         granteeManager = null;
         userManager    = null;
-        aliasManager        = null;
         nameManager    = null;
         schemaManager  = null;
         sessionManager = null;
@@ -360,9 +390,8 @@ public class Database {
         return sPath;
     }
 
-    public String getCatalog() {
-        return getProperties().getProperty(
-            HsqlDatabaseProperties.hsqldb_catalog);
+    public HsqlName getCatalogName() {
+        return nameManager.getCatalogName();
     }
 
     /**
@@ -399,12 +428,16 @@ public class Database {
      *
      * Throws if username or password is invalid.
      */
-    synchronized Session connect(String username,
-                                 String password) throws HsqlException {
+    synchronized Session connect(String username, String password,
+                                 int timeZoneSeconds) throws HsqlException {
+
+        if (username.equalsIgnoreCase("SA")) {
+            username = "SA";
+        }
 
         User user = userManager.getUser(username, password);
         Session session = sessionManager.newSession(this, user,
-            databaseReadOnly, false);
+            databaseReadOnly, false, timeZoneSeconds);
 
         logger.logConnectUser(session);
 
@@ -498,8 +531,8 @@ public class Database {
         String dttName = getProperties().getProperty(
             HsqlDatabaseProperties.hsqldb_default_table_type);
 
-        return Token.T_CACHED.equalsIgnoreCase(dttName) ? Table.CACHED_TABLE
-                                                        : Table.MEMORY_TABLE;
+        return Tokens.T_CACHED.equalsIgnoreCase(dttName) ? Table.CACHED_TABLE
+                                                         : Table.MEMORY_TABLE;
     }
 
     /**
@@ -572,7 +605,7 @@ public class Database {
             if (t instanceof HsqlException) {
                 he = (HsqlException) t;
             } else {
-                he = Trace.error(Trace.GENERAL_ERROR, t.toString());
+                he = Error.error(ErrorCode.GENERAL_ERROR, t.toString());
             }
         }
 
@@ -648,6 +681,107 @@ public class Database {
         }
     }
 
+    public String[] getSettingsDDL() {
+
+        HsqlArrayList list = new HsqlArrayList();
+        String        name = getCatalogName().statementName;
+
+        list.add("SET DATABASE CATALOG NAME " + name);
+
+        if (collation.name != null) {
+            name = collation.getName().statementName;
+
+            list.add("SET DATABASE COLLATION " + name);
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
+    public String[] getPropertiesDDL() {
+
+        if (logger.hasLog()) {
+            int     delay  = logger.getWriteDelay();
+            boolean millis = delay < 1000;
+
+            if (millis) {
+                if (delay != 0 && delay < 20) {
+                    delay = 20;
+                }
+            } else {
+                delay /= 1000;
+            }
+
+            String statement = "SET WRITE_DELAY " + delay + (millis ? " MILLIS"
+                                                                    : "");
+
+            return new String[]{ statement };
+        }
+
+        return new String[0];
+    }
+
+    /**
+     * Returns the schema and authorisation statements for the database.
+     */
+    public Result getScript(boolean indexRoots) {
+
+        Result   r = Result.newSingleColumnResult("COMMAND", Type.SQL_VARCHAR);
+        String[] list = getSettingsDDL();
+
+        addRows(r, list);
+
+        list = getGranteeManager().getDDL();
+
+        addRows(r, list);
+
+        // schemas and schema objects such as tables, sequences, etc.
+        list = schemaManager.getDDL();
+
+        addRows(r, list);
+
+        // index roots
+        if (indexRoots) {
+            list = schemaManager.getIndexRootsDDL();
+
+            addRows(r, list);
+        }
+
+        // user session start schema names
+        list = getUserManager().getInitialSchemaDDL();
+
+        addRows(r, list);
+
+        // grantee rights
+        list = getGranteeManager().getRightstDDL();
+
+        addRows(r, list);
+
+        list = getPropertiesDDL();
+
+        addRows(r, list);
+
+        return r;
+    }
+
+    private static void addRows(Result r, String[] sql) {
+
+        if (sql == null) {
+            return;
+        }
+
+        for (int i = 0; i < sql.length; i++) {
+            String[] s = new String[1];
+
+            s[0] = sql[i];
+
+            r.initialiseNavigator().add(s);
+        }
+    }
+
 // boucherb@users - 200403?? - patch 1.7.2 - metadata
 //------------------------------------------------------------------------------
 
@@ -677,7 +811,6 @@ public class Database {
     }
 
     String tempDirectoryPath;
-    int    maxMemoryRows;
 
     public String getTempDirectoryPath() {
 

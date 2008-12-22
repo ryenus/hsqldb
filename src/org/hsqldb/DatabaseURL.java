@@ -338,21 +338,20 @@ public class DatabaseURL {
 
         return props;
     }
-/*
+
     public static void main(String[] argv) {
 
         parseURL(
             "JDBC:hsqldb:hsql://myhost:1777/mydb;filepath=c:/myfile/database/db",
-            true);
-        parseURL("JDBC:hsqldb:../data/mydb.db", true);
-        parseURL("JDBC:hsqldb:../data/mydb.db;ifexists=true", true);
-        parseURL("JDBC:hsqldb:HSQL://localhost:9000/mydb", true);
+            true, false);
+        parseURL("JDBC:hsqldb:../data/mydb.db", true, false);
+        parseURL("JDBC:hsqldb:../data/mydb.db;ifexists=true", true, false);
+        parseURL("JDBC:hsqldb:HSQL://localhost:9000/mydb", true, false);
         parseURL(
             "JDBC:hsqldb:Http://localhost:8080/servlet/org.hsqldb.Servlet/mydb;ifexists=true",
-            true);
+            true, false);
         parseURL("JDBC:hsqldb:Http://localhost/servlet/org.hsqldb.Servlet/",
-                 true);
-        parseURL("JDBC:hsqldb:hsql://myhost", true);
+                 true, false);
+        parseURL("JDBC:hsqldb:hsql://myhost", true, false);
     }
-*/
 }

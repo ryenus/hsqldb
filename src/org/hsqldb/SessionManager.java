@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 
 package org.hsqldb;
 
-import org.hsqldb.SchemaManager.Schema;
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.rights.User;
@@ -40,7 +40,7 @@ import org.hsqldb.rights.User;
  * Container that maintains a map of session id's to Session objects.
  * Responsible for managing opening and closing of sessions.
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.8.0
  * @since 1.7.2
  */
@@ -65,7 +65,7 @@ public class SessionManager {
 
         User sysUser = db.getUserManager().getSysUser();
 
-        sysSession = new Session(db, sysUser, false, false, 0);
+        sysSession = new Session(db, sysUser, false, false, 0, 0);
     }
 
 // TODO:
@@ -82,20 +82,23 @@ public class SessionManager {
 //                 JAAS-plugin, etc.
 
     /**
-     *  Binds the specified Session object into this SessionManager's active
-     *  Session registry. This method is typically called internally from
-     * {@link
-     *  Database#connect(String,String) Database.connect(username,password)}
-     *  as the final step, when a successful connection has been made.
+     * Binds the specified Session object into this SessionManager's active
+     * Session registry. This method is typically called internally as
+     * the final step, when a successful connection has been made.
      *
      * @param db the database to which the new Session is initially connected
      * @param user the Session User
      * @param readonly the ReadOnly attribute for the new Session
+     * @param forLog true when session is for reading a log
+     * @param timeZoneSeconds the session time zone second interval
+     * @return Session
      */
     public synchronized Session newSession(Database db, User user,
-                                           boolean readonly, boolean forLog) {
+                                           boolean readonly, boolean forLog,
+                                           int timeZoneSeconds) {
 
-        Session s = new Session(db, user, !forLog, readonly, sessionIdCount);
+        Session s = new Session(db, user, !forLog, readonly, sessionIdCount,
+                                timeZoneSeconds);
 
         s.isProcessingLog = forLog;
 
@@ -107,14 +110,12 @@ public class SessionManager {
     }
 
     /**
-     * Retrieves the special SYS Session.
-     *
-     * @return the special SYS Session
+     * Retrieves a new SYS Session.
      */
     public Session getSysSessionForScript(Database db) throws HsqlException {
 
         Session session = new Session(db, db.getUserManager().getSysUser(),
-                                      false, false, 0);
+                                      false, false, 0, 0);
 
         session.currentSchema      = db.schemaManager.getSchemaHsqlName(null);
         session.isProcessingScript = true;
@@ -123,9 +124,7 @@ public class SessionManager {
     }
 
     /**
-     * Retrieves the special SYS Session.
-     *
-     * @return the special SYS Session
+     * Retrieves the common SYS Session.
      */
     public Session getSysSession() {
 
@@ -141,8 +140,6 @@ public class SessionManager {
 
     /**
      * Retrieves the special SYS Session.
-     *
-     * @return the special SYS Session
      */
     public Session getSysSession(String schema,
                                  User user) throws HsqlException {
@@ -155,6 +152,17 @@ public class SessionManager {
         sysSession.setUser(user);
 
         return sysSession;
+    }
+
+    public Session newSysSession(HsqlName schema,
+                                 User user) throws HsqlException {
+
+        Session session = new Session(sysSession.database, user, false, false,
+                                      0, 0);
+
+        session.currentSchema = schema;
+
+        return session;
     }
 
     /**
@@ -172,8 +180,6 @@ public class SessionManager {
 
     /**
      *  Removes the session from management and disconnects.
-     *
-     * @param  session to disconnect
      */
     synchronized void removeSession(Session session) {
         sessionMap.remove(session.getId());
@@ -197,9 +203,6 @@ public class SessionManager {
      * Retrieves a list of the Sessions in this container that
      * are visible to the specified Session, given the access rights of
      * the Session User.
-     *
-     * @param session The Session determining visibility
-     * @return the Sessions visible to the specified Session
      */
     public synchronized Session[] getVisibleSessions(Session session) {
         return session.isAdmin() ? getAllSessions()
@@ -233,7 +236,7 @@ public class SessionManager {
         for (int i = 0; it.hasNext(); i++) {
             Session session = (Session) it.next();
 
-            if (userName.equals(session.getUser().getName())) {
+            if (userName.equals(session.getGrantee().getNameString())) {
                 return true;
             }
         }
