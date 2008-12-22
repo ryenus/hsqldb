@@ -312,7 +312,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
 //#else
 /*
-public class jdbcDatabaseMetaData implements DatabaseMetaData {
+public class JDBCDatabaseMetaData implements DatabaseMetaData {
 */
 
 //#endif
