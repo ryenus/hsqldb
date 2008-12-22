@@ -1,0 +1,252 @@
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+package org.hsqldb;
+
+import org.hsqldb.result.Result;
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.lib.HsqlArrayList;
+
+/**
+ * Implementation of Statement for CREATE SCHEMA statements.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
+public class StatementSchemaDefinition extends StatementSchema {
+
+    StatementSchema[] statements;
+
+    StatementSchemaDefinition(StatementSchema[] statements) {
+
+        super();
+
+        this.statements = statements;
+    }
+
+    public Result execute(Session session, Object[] args) {
+
+        Result result = getResult(session);
+
+        if (result.isError()) {
+            result.getException().setStatementType(group, type);
+        }
+
+        return result;
+    }
+
+    Result getResult(Session session) {
+
+        schemaName = statements[0].getSchemalName();
+
+        if (this.isExplain) {
+            return Result.newSingleColumnStringResult("OPERATION",
+                    describe(session));
+        }
+
+/*
+        Constraint[] constraints = new Constraint[constraintList.size()];
+
+        constraintList.toArray(constraints);
+
+        cs = new CompiledStatementSchemaDefinition(array, constraints);
+
+        startSchemaDefinition(schemaName);
+
+        endSchemaDefinition();
+
+*/
+        StatementSchema cs;
+        Result          result      = statements[0].execute(session, null);
+        HsqlArrayList   constraints = new HsqlArrayList();
+
+        if (statements.length == 1 || result.isError()) {
+            return result;
+        }
+
+        HsqlName oldSessionSchema = session.getCurrentSchemaHsqlName();
+
+        try {
+            session.database.logger.writeToLog(
+                session, getSetSchemaStatement(schemaName));
+        } catch (HsqlException e) {}
+
+        try {
+            session.setSchema(schemaName.name);
+        } catch (HsqlException e) {}
+
+        for (int i = 1; i < statements.length; i++) {
+            statements[i].setSchemaHsqlName(schemaName);
+
+//            statements[i].isSchemaDefinition = true;
+            session.parser.reset(statements[i].getSQL());
+
+            try {
+                session.parser.read();
+
+                switch (statements[i].getType()) {
+
+                    case StatementTypes.GRANT :
+                    case StatementTypes.GRANT_ROLE :
+                        result = statements[i].execute(session, null);
+                        break;
+
+                    case StatementTypes.CREATE_TABLE :
+                        cs                    = session.parser.compileCreate();
+                        cs.isSchemaDefinition = true;
+
+                        cs.setSchemaHsqlName(schemaName);
+
+                        if (session.parser.token.tokenType
+                                != Tokens.X_ENDPARSE) {
+                            throw session.parser.unexpectedToken();
+                        }
+
+                        result = cs.execute(session, null);
+
+                        constraints.addAll((HsqlArrayList) cs.arguments[1]);
+                        ((HsqlArrayList) cs.arguments[1]).clear();
+                        break;
+
+                    case StatementTypes.CREATE_ROLE :
+                    case StatementTypes.CREATE_SEQUENCE :
+                    case StatementTypes.CREATE_TYPE :
+                    case StatementTypes.CREATE_CHARACTER_SET :
+                    case StatementTypes.CREATE_COLLATION :
+                        result = statements[i].execute(session, null);
+                        break;
+
+                    case StatementTypes.CREATE_TRIGGER :
+                    case StatementTypes.CREATE_VIEW :
+                    case StatementTypes.CREATE_DOMAIN :
+                        cs                    = session.parser.compileCreate();
+                        cs.isSchemaDefinition = true;
+
+                        cs.setSchemaHsqlName(schemaName);
+
+                        if (session.parser.token.tokenType
+                                != Tokens.X_ENDPARSE) {
+                            throw session.parser.unexpectedToken();
+                        }
+
+                        result = cs.execute(session, null);
+                        break;
+
+                    case StatementTypes.CREATE_ROUTINE :
+                        cs                    = session.parser.compileCreate();
+                        cs.isSchemaDefinition = true;
+
+                        cs.setSchemaHsqlName(schemaName);
+
+                        if (session.parser.token.tokenType
+                                != Tokens.X_ENDPARSE) {
+                            throw session.parser.unexpectedToken();
+                        }
+
+                        result = cs.execute(session, null);
+                        break;
+
+                    case StatementTypes.CREATE_ASSERTION :
+                    case StatementTypes.CREATE_TRANSFORM :
+                    case StatementTypes.CREATE_TRANSLATION :
+                    case StatementTypes.CREATE_CAST :
+                    case StatementTypes.CREATE_ORDERING :
+                        throw session.parser.unsupportedFeature();
+
+                    default :
+                        throw Error.runtimeError(ErrorCode.U_S0500, "");
+                }
+
+                if (result.isError()) {
+                    break;
+                }
+            } catch (HsqlException e) {
+                result = Result.newErrorResult(e, statements[i].getSQL());
+            }
+        }
+
+        if (!result.isError()) {
+            try {
+                for (int i = 0; i < constraints.size(); i++) {
+                    Constraint c = (Constraint) constraints.get(i);
+                    Table table =
+                        session.database.schemaManager.getUserTable(session,
+                            c.core.refTableName);
+
+                    ParserDDL.addForeignKey(session, table, c, null);
+                }
+            } catch (HsqlException e) {
+                result = Result.newErrorResult(e, sql);
+            }
+        }
+
+        if (result.isError()) {
+            try {
+                session.database.schemaManager.dropSchema(schemaName.name,
+                        true);
+                session.database.logger.writeToLog(
+                    session, getDropSchemaStatement(schemaName));
+            } catch (HsqlException e) {}
+        }
+
+        try {
+            session.setSchema(oldSessionSchema.name);
+            session.database.logger.writeToLog(
+                session, getSetSchemaStatement(oldSessionSchema));
+        } catch (HsqlException e) {}
+
+        return result;
+    }
+
+/*
+    if (constraintList != null && constraintList.size() > 0) {
+        try {
+            for (int i = 0; i < constraintList.size(); i++) {
+                Constraint c = (Constraint) constraintList.get(i);
+                Table table = database.schemaManager.getUserTable(session,
+                    c.core.refTableName);
+
+                addForeignKey(table, c);
+            }
+        } finally {
+            constraintList.clear();
+        }
+    }
+*/
+    String getDropSchemaStatement(HsqlName schema) {
+        return "DROP SCHEMA " + schema.statementName + " " + Tokens.T_CASCADE;
+    }
+
+    String getSetSchemaStatement(HsqlName schema) {
+        return "SET SCHEMA " + schema.statementName;
+    }
+}

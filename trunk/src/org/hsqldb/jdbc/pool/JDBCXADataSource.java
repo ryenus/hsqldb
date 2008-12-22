@@ -29,7 +29,6 @@
  */
 
 
-
 // @(#)$Id$
 package org.hsqldb.jdbc.pool;
 
