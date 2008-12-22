@@ -34,9 +34,9 @@
    <property name="build.vendor" value="${user.name}"/>
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQLDB Development Group"/>
-   <property name="swsrc" value="tmp/switchedsrc"/>
+   <property name="swsrc" value="src"/>
 
-   <!-- It is safe to override these with settings in your own 
+   <!-- It is safe to override these with settings in your own
         build.properties file. -->
    <property name="build.debug" value="on"/>
    <property name="servletapi.lib" value="lib/servlet.jar"/>
@@ -168,7 +168,7 @@ examples:
    </target>
 
     <target name="codeswitcher" depends="-prepare"
-            description="uses +-JDBC2 +-JDBC2 +-JAVA2">
+            description="uses +-JAVA2 +-JAVA4 +-JAVA6">
       <javac destdir="classes">
          <src path="src"/>
          <include name="org/hsqldb/util/CodeSwitcher.java"/>
@@ -183,8 +183,9 @@ examples:
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg file="${swsrc}/org/hsqldb/lib/java/JavaSystem.java"/>
+         <arg file="${swsrc}/org/hsqldb/util/DatabaseManager.java"/>
         <arg file="${swsrc}/org/hsqldb/util/ConnectionDialogCommon.java"/>
-        <arg value="+JAVA1TARGET"/>
+        <arg value="-JAVA2FULL"/>
       </java>
     </target>
 
@@ -192,17 +193,18 @@ examples:
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
          <arg file="${swsrc}/org/hsqldb/lib/java/JavaSystem.java"/>
+         <arg file="${swsrc}/org/hsqldb/util/DatabaseManager.java"/>
          <arg file="${swsrc}/org/hsqldb/util/ConnectionDialogCommon.java"/>
-         <arg value="-JAVA1TARGET"/>
+         <arg value="+JAVA2FULL"/>
        </java>
     </target>
 
     <target name="switchtodeprecatedjdbc" depends="codeswitcher"
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSet.java"/>
+        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCCallableStatement.java"/>
+        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCPreparedStatement.java"/>
+        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCResultSet.java"/>
         <arg value="+DEPRECATEDJDBC"/>
       </java>
     </target>
@@ -210,9 +212,9 @@ examples:
     <target name="switchoffdeprecatedjdbc" depends="codeswitcher"
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcCallableStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcPreparedStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/jdbcResultSet.java"/>
+        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCCallableStatement.java"/>
+        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCPreparedStatement.java"/>
+        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCResultSet.java"/>
         <arg value="-DEPRECATEDJDBC"/>
       </java>
     </target>
@@ -223,12 +225,13 @@ examples:
             description="Execute code switchers, other than for JVM version">
     </target>
 
+    <!-- this target is obsolete -->
     <target name="switchtojdk11" depends="switches"
             description="self explanatory" unless="ant.java.iscjavamodern">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="-JAVA2"/>
-          <arg value="-JDBC3"/>
-          <arg value="-JDBC4"/>
+          <arg value="-JAVA4"/>
+          <arg value="-JAVA6"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=../${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
@@ -242,8 +245,8 @@ examples:
             description="self explanatory" if="ant.java.iscjava12">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
-          <arg value="-JDBC3"/>
-          <arg value="-JDBC4"/>
+          <arg value="-JAVA4"/>
+          <arg value="-JAVA6"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=../${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
@@ -256,8 +259,8 @@ examples:
             description="self explanatory" if="ant.java.iscjava14" unless="ant.java.iscjava16">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
-          <arg value="+JDBC3"/>
-          <arg value="-JDBC4"/>
+          <arg value="+JAVA4"/>
+          <arg value="-JAVA6"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=../${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
@@ -270,8 +273,8 @@ examples:
             description="self explanatory" if="ant.java.iscjava16">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
-          <arg value="+JDBC3"/>
-          <arg value="+JDBC4"/>
+          <arg value="+JAVA4"/>
+          <arg value="+JAVA6"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=../${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
@@ -333,15 +336,15 @@ examples:
          <include name="org/hsqldb/store/*.java"/>
          <include name="org/hsqldb/types/*.java"/>
          <exclude name="org/hsqldb/server/HsqlSocketFactorySecure.java" unless="ant.java.hasjsse"/>
-         <exclude name="org/hsqldb/jdbc/jdbcBlob.java"/>
-         <exclude name="org/hsqldb/jdbc/jdbcClob.java"/>
-         <exclude name="org/hsqldb/jdbc/jdbcDataSource*.java"/>
-         <exclude name="org/hsqldb/jdbc/jdbcParameterMetaData.java"/>
-         <exclude name="org/hsqldb/jdbc/jdbcSavepoint.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCBlob.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCClob.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCDataSource*.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCParameterMetaData.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCSavepoint.java"/>
 <!-- BEGIN JDBC 4-->
-         <exclude name="org/hsqldb/jdbc/jdbcNClob.java"/>
-         <exclude name="org/hsqldb/jdbc/jdbcRowId.java"/>
-         <exclude name="org/hsqldb/jdbc/jdbcSQLXML.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCNClob.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCRowId.java"/>
+         <exclude name="org/hsqldb/jdbc/JDBCSQLXML.java"/>
 <!-- TODO
          <exclude name="org/hsqldb/jdbc/jdbcConflictingRowImpl.java"/>
          <exclude name="org/hsqldb/jdbc/jdbcDataSetImpl.java"/>
@@ -365,8 +368,8 @@ examples:
                  debug="${build.debug}"
                  optimize="${build.optimize}"
        >
-         <include name="org/hsqldb/jdbc/jdbcBlob.java"/>
-         <include name="org/hsqldb/jdbc/jdbcClob.java"/>
+         <include name="org/hsqldb/jdbc/JDBCBlob.java"/>
+         <include name="org/hsqldb/jdbc/JDBCClob.java"/>
       </javac>
    </target>
 
@@ -378,9 +381,9 @@ examples:
                  optimize="${build.optimize}"
        >
       <include name="org/hsqldb/jdbc/pool/*.java"/>
-      <include name="org/hsqldb/jdbc/jdbcDataSource*.java"/>
-      <include name="org/hsqldb/jdbc/jdbcParameterMetaData.java"/>
-      <include name="org/hsqldb/jdbc/jdbcSavepoint.java"/>
+      <include name="org/hsqldb/jdbc/JDBCDataSource*.java"/>
+      <include name="org/hsqldb/jdbc/JDBCParameterMetaData.java"/>
+      <include name="org/hsqldb/jdbc/JDBCSavepoint.java"/>
       <include name="org/hsqldb/persist/NIOLockFile.java"/>
       <include name="org/hsqldb/persist/NIOScaledRAFile.java"/>
       </javac>
@@ -393,9 +396,9 @@ examples:
                  debug="${build.debug}"
                  optimize="${build.optimize}"
        >
-         <include name="org/hsqldb/jdbc/jdbcNClob.java"/>
-         <include name="org/hsqldb/jdbc/jdbcRowId.java"/>
-         <include name="org/hsqldb/jdbc/jdbcSQLXML.java"/>
+         <include name="org/hsqldb/jdbc/JDBCNClob.java"/>
+         <include name="org/hsqldb/jdbc/JDBCRowId.java"/>
+         <include name="org/hsqldb/jdbc/JDBCSQLXML.java"/>
 <!-- TODO
          <include name="org/hsqldb/jdbc/jdbcConflictingRowImpl.java"/>
          <include name="org/hsqldb/jdbc/jdbcDataSetImpl.java"/>
@@ -529,15 +532,14 @@ examples:
          <exclude name="org/hsqldb/server/HsqlServerProperties.class"/>
          <exclude name="org/hsqldb/server/HsqlSocketRequestHandler.class"/>
          <exclude name="org/hsqldb/server/HsqlSocketRequestHandlerImpl.class"/>
-         <exclude name="org/hsqldb/jdbc/jdbcDataSource.class"/>
-         <exclude name="org/hsqldb/jdbc/jdbcDataSourceFactory.class"/>
+         <exclude name="org/hsqldb/jdbc/JDBCDataSource.class"/>
+         <exclude name="org/hsqldb/jdbc/jDBCDataSourceFactory.class"/>
          <exclude name="org/hsqldb/server/Server.class"/>
          <exclude name="org/hsqldb/server/Server$ServerThread.class"/>
          <exclude name="org/hsqldb/server/ServerConnection.class"/>
          <exclude name="org/hsqldb/server/ServerConfiguration.class"/>
          <exclude name="org/hsqldb/server/WebServer.class"/>
          <exclude name="org/hsqldb/server/WebServerConnection.class"/>
-         <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
          <exclude name="org/hsqldb/jdbc/Array.class"/>
          <exclude name="org/hsqldb/jdbc/Blob.class"/>
          <exclude name="org/hsqldb/jdbc/Clob.class"/>
@@ -564,7 +566,6 @@ examples:
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/sample/*"/>
-         <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
          <exclude name="org/hsqldb/jdbc/Array.class"/>
          <exclude name="org/hsqldb/jdbc/Blob.class"/>
          <exclude name="org/hsqldb/jdbc/Clob.class"/>
@@ -600,7 +601,6 @@ examples:
          <exclude name="org/hsqldb/cmdline/*"/>
          <exclude name="org/hsqldb/test/*"/>
          <exclude name="org/hsqldb/sample/*"/>
-         <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
          <exclude name="org/hsqldb/jdbc/Array.class"/>
          <exclude name="org/hsqldb/jdbc/Blob.class"/>
          <exclude name="org/hsqldb/jdbc/Clob.class"/>
@@ -628,7 +628,6 @@ examples:
               include nothing in the jar -->
          <include name="**/*"/>
          <!-- -->
-         <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
          <exclude name="org/hsqldb/jdbc/Array.class"/>
          <exclude name="org/hsqldb/jdbc/Ref.class"/>
          <exclude name="org/hsqldb/jdbc/Map.class"/>
@@ -693,7 +692,6 @@ examples:
          <exclude name="org/hsqldb/util/Zaurus*"/>
          <exclude name="org/hsqldb/test/*.class"/>
          <exclude name="org/hsqldb/sample/*.class"/>
-         <exclude name="org/hsqldb/jdbc/jdbcStubs.class"/>
          <exclude name="org/hsqldb/jdbc/Array.class"/>
          <exclude name="org/hsqldb/jdbc/Blob.class"/>
          <exclude name="org/hsqldb/jdbc/Clob.class"/>
@@ -723,7 +721,7 @@ examples:
                   org/hsqldb/lib/StringConverter*,
                   org/hsqldb/lib/StringInputStream*,
                   org/hsqldb/lib/java/JavaSystem*,
-                  org/hsqldb/jdbc/jdbc*,
+                  org/hsqldb/jdbc/JDBC*,
                   org/hsqldb/jdbc/Util*,
                   org/hsqldb/jdbc/pool/*,
                   org/hsqldb/rowio/RowOutputBase*,
@@ -873,7 +871,7 @@ examples:
     <target name="javadoc" depends="-preparedoc,-javaversion2,-doclink-1.2"
             description="Create javadoc for the distribution package">
       <javadoc
-           sourcefiles="src/org/hsqldb/jdbc/jdbcDriver.java,
+           sourcefiles="src/org/hsqldb/jdbc/JDBCDriver.java,
                         src/org/hsqldb/Trigger.java,
                         src/org/hsqldb/server/Server.java,
                         src/org/hsqldb/server/WebServer.java,

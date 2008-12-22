@@ -2,18 +2,21 @@
 # This eliminates the need for CodeSwitcher to scan all source files.
 
 org/hsqldb/HsqlDateTime.java
-org/hsqldb/jdbc/jdbcCallableStatement.java
-org/hsqldb/jdbc/jdbcConnection.java
-org/hsqldb/jdbc/jdbcDatabaseMetaData.java
-org/hsqldb/jdbc/jdbcDataSource.java
-org/hsqldb/jdbc/jdbcDriver.java
-org/hsqldb/jdbc/jdbcNClob.java
-org/hsqldb/jdbc/jdbcParameterMetaData.java
-org/hsqldb/jdbc/jdbcPreparedStatement.java
-org/hsqldb/jdbc/jdbcResultSet.java
-org/hsqldb/jdbc/jdbcResultSetMetaData.java
-org/hsqldb/jdbc/jdbcStatement.java
-org/hsqldb/jdbc/jdbcStubs.java
+org/hsqldb/lib/tar/TarFileOutputStream.java
+org/hsqldb/lib/tar/TarGenerator.java
+org/hsqldb/lib/tar/TarReader.java
+org/hsqldb/jdbc/JDBCCallableStatement.java
+org/hsqldb/jdbc/JDBCConnection.java
+org/hsqldb/jdbc/JDBCDatabaseMetaData.java
+org/hsqldb/jdbc/JDBCDataSource.java
+org/hsqldb/jdbc/JDBCDriver.java
+org/hsqldb/jdbc/JDBCNClob.java
+org/hsqldb/jdbc/JDBCParameterMetaData.java
+org/hsqldb/jdbc/JDBCPreparedStatement.java
+org/hsqldb/jdbc/JDBCResultSet.java
+org/hsqldb/jdbc/JDBCResultSetMetaData.java
+org/hsqldb/jdbc/JDBCStatement.java
+org/hsqldb/jdbc/JDBCStubs.java
 org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
 org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
 org/hsqldb/jdbc/pool/JDBCPooledConnection.java
