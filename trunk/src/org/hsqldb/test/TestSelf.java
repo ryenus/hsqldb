@@ -33,7 +33,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2007, The HSQL Development Group
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,6 +77,7 @@ import java.sql.Statement;
 import java.sql.Types;
 
 import org.hsqldb.lib.Sort;
+import org.hsqldb.lib.StringComparator;
 
 /**
  *  Main test class, containing several JDBC and script based tests to
@@ -161,17 +162,17 @@ class TestSelf extends TestUtil {
 
         // DriverManager.setLogStream(System.out);
         try {
-            DriverManager.registerDriver(new org.hsqldb.jdbc.jdbcDriver());
+            DriverManager.registerDriver(new org.hsqldb.jdbc.JDBCDriver());
 
             if (persistent) {
                 testPersistence();
                 deleteDatabase("test2");
                 test("jdbc:hsqldb:test2", "sa", "", true);
-                testPerformance("jdbc:hsqldb:test2", "sa", "", max, true);
+//                testPerformance("jdbc:hsqldb:test2", "sa", "", max, true);
             }
 
             test("jdbc:hsqldb:.", "sa", "", false);
-            testPerformance("jdbc:hsqldb:.", "sa", "", max, false);
+//            testPerformance("jdbc:hsqldb:.", "sa", "", max, false);
         } catch (Exception e) {
             print("TestSelf error: " + e.getMessage());
             e.printStackTrace();
@@ -233,14 +234,14 @@ class TestSelf extends TestUtil {
 
             filelist = new File(new File(absolute).getParent()).list();
 
-            Sort.sort((Object[]) filelist, new Sort.StringComparator(), 0,
+            Sort.sort((Object[]) filelist, new StringComparator(), 0,
                       filelist.length - 1);
 
             for (int i = 0; i < filelist.length; i++) {
                 String fname = filelist[i];
 
                 if (fname.startsWith("TestSelf") && fname.endsWith(".txt")
-                        &&!fname.equals("TestSelf.txt")) {
+                        && !fname.equals("TestSelf.txt")) {
                     print("Openning DB");
 
                     cConnection = DriverManager.getConnection(url, user,
@@ -280,9 +281,9 @@ class TestSelf extends TestUtil {
 
         Statement sStatement = null;
         ResultSet r;
-        String    s = "";
-        String    name       = persistent ? "Persistent"
-                                          : "Memory";
+        String    s    = "";
+        String    name = persistent ? "Persistent"
+                                    : "Memory";
 
         print(name + " TabProfile");
 
@@ -360,7 +361,7 @@ class TestSelf extends TestUtil {
 
             int integer2 = r.getInt(1);
 
-            s = "select \"org.hsqldb.lib.StringConverter.hexToByteArray\""
+            s = "select \"org.hsqldb.lib.StringConverter.hexStringToByteArray\""
                 + "(\"org.hsqldb.lib.StringConverter.byteArrayToHexString\"(x'abcd')) "
                 + "from TabProfile";
             r = sStatement.executeQuery(s);
@@ -372,9 +373,8 @@ class TestSelf extends TestUtil {
             r.next();
 
             b1n = r.getBytes(1);
-
             s = "select \"org.hsqldb.lib.StringConverter.byteArrayToHexString\"(licence) filler, "
-                + "\"org.hsqldb.lib.StringConverter.hexToByteArray\"(filler) "
+                + "\"org.hsqldb.lib.StringConverter.hexStringToByteArray\"(filler) "
                 + "from TabProfile";
             r = sStatement.executeQuery(s);
 
@@ -389,7 +389,7 @@ class TestSelf extends TestUtil {
 
             sStatement.executeUpdate(s);
 
-            s = "select \"org.hsqldb.lib.StringConverter.hexToByteArray\"(filler) "
+            s = "select \"org.hsqldb.lib.StringConverter.hexStringToByteArray\"(filler) "
                 + "from TabProfile order by id desc";
             r = sStatement.executeQuery(s);
 
@@ -453,8 +453,7 @@ class TestSelf extends TestUtil {
 
             int[] ia2 = (int[]) (r.getObject(1));
 
-            if (ia2[0] != 1 || ia2[1] != 2 || ia2[2] != 3
-                    || ia2.length != 3) {
+            if (ia2[0] != 1 || ia2[1] != 2 || ia2[2] != 3 || ia2.length != 3) {
                 throw new Exception("Object data error: int[]");
             }
 
@@ -525,14 +524,17 @@ class TestSelf extends TestUtil {
         }
 
         try {
-
-            // test duplicate keys & small transaction rollback
-            s = "CREATE TABLE marotest (id int PRIMARY KEY, dat int);"
-                + "INSERT INTO marotest VALUES (1,0);"
-                + "INSERT INTO marotest VALUES (2,0);"
-                + "INSERT INTO marotest VALUES (2,0);";
-
             try {
+
+                // test duplicate keys & small transaction rollback
+                s = "CREATE TABLE marotest (id int PRIMARY KEY, dat int);";
+
+                sStatement.execute(s);
+
+                s = "INSERT INTO marotest VALUES (1,0);"
+                    + "INSERT INTO marotest VALUES (2,0);"
+                    + "INSERT INTO marotest VALUES (2,0);";
+
                 sStatement.execute(s);
 
                 s = "";
@@ -610,7 +612,7 @@ class TestSelf extends TestUtil {
                 i = r.getInt(11);             // NULLABLE
                 s = s.toUpperCase();
 
-                if (!s.equals("ID4INTEGER") &&!s.equals("DAT4INTEGER")) {
+                if (!s.equals("ID4INTEGER") && !s.equals("DAT4INTEGER")) {
                     throw new Exception("Wrong database meta data");
                 }
             }
@@ -628,8 +630,7 @@ class TestSelf extends TestUtil {
     }
 
     static void testPerformance(String url, String user, String password,
-                                int max,
-                                boolean persistent) throws Exception {
+                                int max, boolean persistent) throws Exception {
 
         if (persistent) {
             deleteDatabase("test2");
@@ -706,9 +707,8 @@ class TestSelf extends TestUtil {
                 // close & reopen to test backup
                 cConnection.close();
 
-                cConnection = DriverManager.getConnection(url, user,
-                        password);
-                sStatement = cConnection.createStatement();
+                cConnection = DriverManager.getConnection(url, user, password);
+                sStatement  = cConnection.createStatement();
             }
 
             start = System.currentTimeMillis();
@@ -745,9 +745,8 @@ class TestSelf extends TestUtil {
                 // open the database; it must be restored after shutdown
                 cConnection.close();
 
-                cConnection = DriverManager.getConnection(url, user,
-                        password);
-                sStatement = cConnection.createStatement();
+                cConnection = DriverManager.getConnection(url, user, password);
+                sStatement  = cConnection.createStatement();
             }
 
             start = System.currentTimeMillis();

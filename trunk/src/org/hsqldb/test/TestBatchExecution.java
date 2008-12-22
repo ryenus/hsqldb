@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.lib.StopWatch;
 /**
  * A quick test of the new CompiledStatement and batch execution facilities.
  *
- * @author boucherb@users
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @since 1.7.2
  * @version 1.7.2
  */
@@ -64,7 +64,7 @@ public class TestBatchExecution extends TestBase {
         "update test set fname = 'Hans' where id = ?";
     static final String select_sql   = "select * from test where id = ?";
     static final String delete_sql   = "delete from test where id = ?";
-    static final String call_sql     = "call   identity()";
+    static final String call_sql     = "call identity()";
     static final String shutdown_sql = "shutdown compact";
     static final String def_db_path  = "batchtest";
     static final int    def_runs     = 5;
@@ -282,8 +282,8 @@ public class TestBatchExecution extends TestBase {
 
             // selects
             sw.zero();
-            selectStmnt.executeBatch();
-            printCommandStats(sw, "selects");
+//            selectStmnt.executeBatch();
+//            printCommandStats(sw, "selects");
 
             // deletes
             sw.zero();
@@ -292,8 +292,8 @@ public class TestBatchExecution extends TestBase {
 
             // calls
             sw.zero();
-            callStmnt.executeBatch();
-            printCommandStats(sw, "calls  ");
+//            callStmnt.executeBatch();
+//            printCommandStats(sw, "calls  ");
         }
     }
 

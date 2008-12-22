@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,31 +34,32 @@ package org.hsqldb.types;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.hsqldb.Expression;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Library;
-import org.hsqldb.Session;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.OpTypes;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.ValuePool;
 
 /**
- * Type instance for all NUMBER types.<p>
+ * Type subclass for all NUMBER types.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public class NumberType extends Type {
+public final class NumberType extends Type {
 
-    static final int tinyintPrecision        = 3;
-    static final int smallintPrecision       = 5;
-    static final int integerPrecision        = 10;
-    static final int bigintPrecision         = 19;
-    static final int doublePrecision         = 0;
-    static final int defaultNumericPrecision = 100;
+    static final int tinyintPrecision             = 3;
+    static final int smallintPrecision            = 5;
+    static final int integerPrecision             = 10;
+    static final int bigintPrecision              = 19;
+    static final int doublePrecision              = 0;
+    static final int defaultNumericPrecision      = 100;
+    static final int bigintSquareNumericPrecision = 40;
 
     //
     static final int TINYINT_WIDTH  = 8;
@@ -67,15 +68,33 @@ public class NumberType extends Type {
     static final int BIGINT_WIDTH   = 64;
     static final int DOUBLE_WIDTH   = 128;    // nominal width
     static final int DECIMAL_WIDTH  = 256;    // nominal width
+
+    //
     public static final Type SQL_NUMERIC_DEFAULT_INT =
         new NumberType(Types.NUMERIC, defaultNumericPrecision, 0);
+
+    //
+    public static final BigDecimal MAX_LONG =
+        BigDecimal.valueOf(Long.MAX_VALUE);
+    public static final BigDecimal MIN_LONG =
+        BigDecimal.valueOf(Long.MIN_VALUE);
+    public static final BigDecimal MAX_INT =
+        BigDecimal.valueOf(Integer.MAX_VALUE);
+    public static final BigDecimal MIN_INT =
+        BigDecimal.valueOf(Integer.MIN_VALUE);
+
+    //
+    public static final BigInteger MIN_LONG_BI =
+        MIN_LONG.toBigInteger();
+    public static final BigInteger MAX_LONG_BI =
+        MAX_LONG.toBigInteger();
 
     //
     final int typeWidth;
 
     public NumberType(int type, long precision, int scale) {
 
-        super(type, precision, scale);
+        super(Types.SQL_NUMERIC, type, precision, scale);
 
         switch (type) {
 
@@ -107,14 +126,41 @@ public class NumberType extends Type {
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
+        }
+    }
+
+    /**
+     * Returns decimal precision for NUMERIC/DECIMAL. Retuns binary precision
+     * for other parts.
+     */
+    public int getPrecision() {
+
+        switch (typeCode) {
+
+            case Types.TINYINT :
+            case Types.SQL_SMALLINT :
+            case Types.SQL_INTEGER :
+            case Types.SQL_BIGINT :
+                return typeWidth;
+
+            case Types.SQL_REAL :
+            case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE :
+                return 64;
+
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                return (int) precision;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
     public int displaySize() {
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_DECIMAL :
             case Types.SQL_NUMERIC :
@@ -124,6 +170,10 @@ public class NumberType extends Type {
                     }
 
                     return (int) precision + 1;
+                }
+
+                if (precision == scale) {
+                    return (int) precision + 3;
                 }
 
                 return (int) precision + 2;
@@ -146,27 +196,18 @@ public class NumberType extends Type {
                 return 4;                    // decimal precision + "-".length();
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
-    public int getJDBCTypeNumber() {
-        return type == Types.SQL_BIGINT ? Types.BIGINT
-                                        : type;
-    }
-
-    public int getSQLGenericTypeNumber() {
-        return type;
-    }
-
-    public int getSQLSpecificTypeNumber() {
-        return type;
+    public int getJDBCTypeCode() {
+        return typeCode == Types.SQL_BIGINT ? Types.BIGINT
+                                            : typeCode;
     }
 
     public String getJDBCClassName() {
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -184,51 +225,61 @@ public class NumberType extends Type {
                 return "java.math.BigDecimal";
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
     public String getNameString() {
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.TINYINT :
-                return Token.T_TINYINT;
+                return Tokens.T_TINYINT;
 
             case Types.SQL_SMALLINT :
-                return Token.T_SMALLINT;
+                return Tokens.T_SMALLINT;
 
             case Types.SQL_INTEGER :
-                return Token.T_INTEGER;
+                return Tokens.T_INTEGER;
 
             case Types.SQL_BIGINT :
-                return Token.T_BIGINT;
+                return Tokens.T_BIGINT;
 
             case Types.SQL_REAL :
-                return Token.T_REAL;
+                return Tokens.T_REAL;
 
             case Types.SQL_FLOAT :
-                return Token.T_FLOAT;
+                return Tokens.T_FLOAT;
 
             case Types.SQL_DOUBLE :
-                return Token.T_DOUBLE;
+                return Tokens.T_DOUBLE;
 
             case Types.SQL_NUMERIC :
-                return Token.T_NUMERIC;
+                return Tokens.T_NUMERIC;
 
             case Types.SQL_DECIMAL :
-                return Token.T_DECIMAL;
+                return Tokens.T_DECIMAL;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
+        }
+    }
+
+    public String getFullNameString() {
+
+        switch (typeCode) {
+
+            case Types.SQL_DOUBLE :
+                return "DOUBLE PRECISION";
+
+            default :
+                return getNameString();
         }
     }
 
     public String getDefinition() {
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
@@ -237,8 +288,12 @@ public class NumberType extends Type {
                 sb.append(getNameString());
                 sb.append('(');
                 sb.append(precision);
-                sb.append(',');
-                sb.append(scale);
+
+                if (scale != 0) {
+                    sb.append(',');
+                    sb.append(scale);
+                }
+
                 sb.append(')');
 
                 return sb.toString();
@@ -254,7 +309,7 @@ public class NumberType extends Type {
 
     public boolean isIntegralType() {
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -270,13 +325,42 @@ public class NumberType extends Type {
         }
     }
 
+    public boolean isExactNumberType() {
+
+        switch (typeCode) {
+
+            case Types.SQL_REAL :
+            case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE :
+                return false;
+
+            default :
+                return true;
+        }
+    }
+
+    public int precedenceDegree(Type other) {
+
+        if (other.isNumberType()) {
+            int otherWidth = ((NumberType) other).typeWidth;
+
+            return otherWidth - typeWidth;
+        }
+
+        return Integer.MIN_VALUE;
+    }
+
     public Type getAggregateType(Type other) throws HsqlException {
 
         if (this == other) {
             return this;
         }
 
-        switch (other.type) {
+        if (other.isCharacterType()) {
+            return other.getAggregateType(this);
+        }
+
+        switch (other.typeCode) {
 
             case Types.SQL_ALL_TYPES :
                 return this;
@@ -293,7 +377,7 @@ public class NumberType extends Type {
                 break;
 
             default :
-                throw Trace.error(Trace.INVALID_CONVERSION);
+                throw Error.error(ErrorCode.X_42562);
         }
 
         if (typeWidth == DOUBLE_WIDTH) {
@@ -316,7 +400,7 @@ public class NumberType extends Type {
                          ? precision - scale
                          : other.precision - other.scale;
 
-        return getNumberType(Types.SQL_NUMERIC, newDigits + newScale,
+        return getNumberType(Types.SQL_DECIMAL, newDigits + newScale,
                              newScale);
     }
 
@@ -352,51 +436,47 @@ public class NumberType extends Type {
     public Type getCombinedType(Type other,
                                 int operation) throws HsqlException {
 
-        if (other.type == Types.SQL_ALL_TYPES) {
+        if (other.typeCode == Types.SQL_ALL_TYPES) {
             other = this;
         }
 
         switch (operation) {
 
+            case OpTypes.ADD :
+                break;
 
-            case Expression.ADD :
+            case OpTypes.MULTIPLY :
                 if (other.isIntervalType()) {
-                    return other;
+                    return other.getCombinedType(this, OpTypes.MULTIPLY);
                 }
                 break;
 
-            case Expression.DIVIDE :
-            case Expression.SUBTRACT :
-                break;
-
-            case Expression.MULTIPLY :
-                if (other.isIntervalType()) {
-                    return other;
-                }
-                break;
-
+            case OpTypes.DIVIDE :
+            case OpTypes.SUBTRACT :
             default :
+
                 // all derivatives of equality ops or comparison ops
                 return getAggregateType(other);
         }
 
+        // resolution for ADD and MULTIPLY only
         if (!other.isNumberType()) {
-            throw Trace.error(Trace.INVALID_CONVERSION);
+            throw Error.error(ErrorCode.X_42562);
         }
 
         if (typeWidth == DOUBLE_WIDTH
                 || ((NumberType) other).typeWidth == DOUBLE_WIDTH) {
-            return NumberType.SQL_DOUBLE;
+            return Type.SQL_DOUBLE;
         }
 
         int sum = typeWidth + ((NumberType) other).typeWidth;
 
         if (sum <= INTEGER_WIDTH) {
-            return NumberType.SQL_INTEGER;
+            return Type.SQL_INTEGER;
         }
 
         if (sum <= BIGINT_WIDTH) {
-            return NumberType.SQL_BIGINT;
+            return Type.SQL_BIGINT;
         }
 
         int  newScale;
@@ -404,9 +484,9 @@ public class NumberType extends Type {
 
         switch (operation) {
 
-            case Expression.DIVIDE :
-            case Expression.SUBTRACT :
-            case Expression.ADD :
+//            case OpCodes.DIVIDE :
+//            case OpCodes.SUBTRACT :
+            case OpTypes.ADD :
                 newScale = scale > other.scale ? scale
                                                : other.scale;
                 newDigits = precision - scale > other.precision - other.scale
@@ -416,14 +496,13 @@ public class NumberType extends Type {
                 newDigits++;
                 break;
 
-            case Expression.MULTIPLY :
+            case OpTypes.MULTIPLY :
                 newDigits = precision - scale + other.precision - other.scale;
                 newScale  = scale + other.scale;
                 break;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
 
         return getNumberType(Types.SQL_DECIMAL, newScale + newDigits,
@@ -444,29 +523,66 @@ public class NumberType extends Type {
             return 1;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER : {
-                int ai = ((Number) a).intValue();
-                int bi = ((Number) b).intValue();
+                if (b instanceof Integer) {
+                    int ai = ((Number) a).intValue();
+                    int bi = ((Number) b).intValue();
 
-                return (ai > bi) ? 1
-                                 : (bi > ai ? -1
-                                            : 0);
+                    return (ai > bi) ? 1
+                                     : (bi > ai ? -1
+                                                : 0);
+                } else if (b instanceof Double) {
+                    double ai = ((Number) a).doubleValue();
+                    double bi = ((Number) b).doubleValue();
+
+                    return (ai > bi) ? 1
+                                     : (bi > ai ? -1
+                                                : 0);
+                } else if (b instanceof BigDecimal) {
+                    BigDecimal ad = convertToDecimal(a);
+                    int        i  = ad.compareTo((BigDecimal) b);
+
+                    return (i == 0) ? 0
+                                    : (i < 0 ? -1
+                                             : 1);
+                }
             }
             case Types.SQL_BIGINT : {
-                long longa = ((Number) a).longValue();
-                long longb = ((Number) b).longValue();
+                if (b instanceof Long) {
+                    long longa = ((Number) a).longValue();
+                    long longb = ((Number) b).longValue();
 
-                return (longa > longb) ? 1
-                                       : (longb > longa ? -1
-                                                        : 0);
+                    return (longa > longb) ? 1
+                                           : (longb > longa ? -1
+                                                            : 0);
+                } else if (b instanceof Double) {
+                    BigDecimal ad =
+                        BigDecimal.valueOf(((Number) a).longValue());
+                    BigDecimal bd = new BigDecimal(((Double) b).doubleValue());
+                    int        i  = ad.compareTo(bd);
+
+                    return (i == 0) ? 0
+                                    : (i < 0 ? -1
+                                             : 1);
+                } else if (b instanceof BigDecimal) {
+                    BigDecimal ad =
+                        BigDecimal.valueOf(((Number) a).longValue());
+                    int i = ad.compareTo((BigDecimal) b);
+
+                    return (i == 0) ? 0
+                                    : (i < 0 ? -1
+                                             : 1);
+                }
             }
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
             case Types.SQL_DOUBLE : {
+
+                // todo big-decimal etc
                 double ad = ((Number) a).doubleValue();
                 double bd = ((Number) b).doubleValue();
 
@@ -475,27 +591,27 @@ public class NumberType extends Type {
                                             : 0);
             }
             case Types.SQL_NUMERIC :
-            case Types.SQL_DECIMAL :
-                int i = ((BigDecimal) a).compareTo((BigDecimal) b);
+            case Types.SQL_DECIMAL : {
+                BigDecimal bd = convertToDecimal(b);
+                int        i  = ((BigDecimal) a).compareTo(bd);
 
                 return (i == 0) ? 0
                                 : (i < 0 ? -1
                                          : 1);
-
+            }
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
-    /** @todo - review if range enforcement / java type conversion is necessary */
+    /** @todo - review usage to see if range enforcement / java type conversion is necessary */
     public Object convertToTypeLimits(Object a) throws HsqlException {
 
         if (a == null) {
             return null;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -519,22 +635,37 @@ public class NumberType extends Type {
                 int valuePrecision = JavaSystem.precision(dec);
 
                 if (valuePrecision > precision) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                    throw Error.error(ErrorCode.X_22003);
                 }
 
                 return dec;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
-    public Object convertToType(Session session, Object a,
+    public Object convertToType(SessionInterface session, Object a,
                                 Type otherType) throws HsqlException {
 
         if (a == null) {
             return a;
+        }
+
+        if (otherType.typeCode == typeCode) {
+            switch (typeCode) {
+
+                case Types.SQL_NUMERIC :
+                case Types.SQL_DECIMAL :
+                    if (otherType.scale == scale
+                            && otherType.precision <= precision) {
+                        return a;
+                    }
+                    break;
+
+                default :
+                    return a;
+            }
         }
 
         if (otherType.isIntervalType()) {
@@ -547,94 +678,35 @@ public class NumberType extends Type {
                 case Types.SQL_INTERVAL_DAY :
                 case Types.SQL_INTERVAL_HOUR :
                 case Types.SQL_INTERVAL_MINUTE : {
-                    Integer value = ValuePool.getInt(
-                        ((IntervalType) otherType).convertToInt(a));
+                    Long value = ValuePool.getLong(
+                        ((IntervalType) otherType).convertToLong(a));
 
-                    return convertToType(session, value, Type.SQL_INTEGER);
+                    return convertToType(session, value, Type.SQL_BIGINT);
                 }
                 case Types.SQL_INTERVAL_SECOND : {
                     long seconds = ((IntervalSecondData) a).units;
                     long nanos   = ((IntervalSecondData) a).nanos;
                     BigDecimal value =
-                        DateTimeIntervalType.getSecondPart(seconds, nanos,
-                                                           otherType.scale);
+                        ((DTIType) otherType).getSecondPart(seconds, nanos);
 
-                    return convertToType(
-                        session, value,
-                        DateTimeIntervalType.extractSecondType);
+                    return value;
                 }
             }
         }
 
-        switch (otherType.type) {
+        switch (otherType.typeCode) {
 
             case Types.SQL_CLOB :
-                a = ((ClobData) a).getSubString(
-                    0L, (int) ((ClobData) a).length());
+                a = ((ClobData) a).getSubString(0L,
+                                                (int) ((ClobData) a).length());
+
+            // fall through
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {
-                a = Library.trim((String) a, " ", true, true);
+                a = session.getScanner().convertToNumber((String) a, this);
 
-                switch (this.type) {
-
-                    case Types.TINYINT :
-                        try {
-                            int value = Byte.parseByte((String) a);
-
-                            return ValuePool.getInt(value);
-                        } catch (NumberFormatException e) {
-                            throw Trace.error(Trace.INVALID_CONVERSION);
-                        }
-                    case Types.SQL_SMALLINT :
-                        try {
-                            int value = Short.parseShort((String) a);
-
-                            return ValuePool.getInt(value);
-                        } catch (NumberFormatException e) {
-                            throw Trace.error(Trace.INVALID_CONVERSION);
-                        }
-                    case Types.SQL_INTEGER :
-                        try {
-                            int value = Integer.parseInt((String) a);
-
-                            return ValuePool.getInt(value);
-                        } catch (NumberFormatException e) {
-                            throw Trace.error(Trace.INVALID_CONVERSION);
-                        }
-                    case Types.SQL_BIGINT :
-                        try {
-                            long l = Long.parseLong((String) a);
-
-                            return ValuePool.getLong(l);
-                        } catch (NumberFormatException e) {
-                            throw Trace.error(Trace.INVALID_CONVERSION);
-                        }
-                    case Types.SQL_REAL :
-                    case Types.SQL_FLOAT :
-                    case Types.SQL_DOUBLE :
-                        try {
-                            double d = Double.parseDouble((String) a);
-
-                            return ValuePool.getDouble(
-                                Double.doubleToLongBits(d));
-                        } catch (NumberFormatException e) {
-                            throw Trace.error(Trace.INVALID_CONVERSION);
-                        }
-                    case Types.SQL_NUMERIC :
-                    case Types.SQL_DECIMAL :
-                        try {
-                            a = new BigDecimal((String) a);
-
-                            return convertToTypeLimits(a);
-                        } catch (NumberFormatException e) {
-                            throw Trace.error(Trace.INVALID_CONVERSION);
-                        }
-                    default :
-                        throw Trace.runtimeError(
-                            Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                            "NumberType");
-                }
+                return convertToDefaultType(session, a);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -648,15 +720,15 @@ public class NumberType extends Type {
                 break;
 
             default :
-                throw Trace.error(Trace.INVALID_CONVERSION);
+                throw Error.error(ErrorCode.X_42561);
         }
 
-        switch (this.type) {
+        switch (this.typeCode) {
 
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :
-                return convertToInt(a, this.type);
+                return convertToInt(a, this.typeCode);
 
             case Types.SQL_BIGINT :
                 return convertToLong(a);
@@ -671,21 +743,41 @@ public class NumberType extends Type {
                 BigDecimal value = convertToDecimal(a);
 
                 return convertToTypeLimits(value);
-        }
 
-        return null;
+            default :
+                throw Error.error(ErrorCode.X_42561);
+        }
     }
 
-    /**
-     * Converts a value to the type of the default instance of this type
-     */
-    public Object convertToDefaultType(Object a) throws HsqlException {
+    public Object convertToTypeJDBC(SessionInterface session, Object a,
+                                    Type otherType) throws HsqlException {
 
         if (a == null) {
             return a;
         }
 
-        Type type;
+        switch (otherType.typeCode) {
+
+            case Types.SQL_BOOLEAN :
+                a         = ((Boolean) a).booleanValue() ? ValuePool.INTEGER_1
+                                                         : ValuePool.INTEGER_0;
+                otherType = Type.SQL_INTEGER;
+        }
+
+        return convertToType(session, a, otherType);
+    }
+
+    /**
+     * Converts a value to this type
+     */
+    public Object convertToDefaultType(SessionInterface session,
+                                       Object a) throws HsqlException {
+
+        if (a == null) {
+            return a;
+        }
+
+        Type otherType;
 
         if (a instanceof Number) {
             if (a instanceof BigInteger) {
@@ -699,23 +791,31 @@ public class NumberType extends Type {
             }
 
             if (a instanceof Integer) {
-                type = Type.SQL_INTEGER;
+                otherType = Type.SQL_INTEGER;
             } else if (a instanceof Long) {
-                type = Type.SQL_BIGINT;
+                otherType = Type.SQL_BIGINT;
             } else if (a instanceof Double) {
-                type = Type.SQL_DOUBLE;
+                otherType = Type.SQL_DOUBLE;
             } else if (a instanceof BigDecimal) {
-                type = Type.SQL_DECIMAL;
+                if (typeCode == Types.SQL_DECIMAL
+                        || typeCode == Types.SQL_NUMERIC) {
+                    return convertToTypeLimits(a);
+                }
+
+                BigDecimal val = (BigDecimal) a;
+
+                otherType = getNumberType(Types.SQL_DECIMAL,
+                                          JavaSystem.precision(val), scale);
             } else {
-                throw Trace.error(Trace.INVALID_CONVERSION);
+                throw Error.error(ErrorCode.X_42561);
             }
         } else if (a instanceof String) {
-            type = Type.SQL_VARCHAR;
+            otherType = Type.SQL_VARCHAR;
         } else {
-            throw Trace.error(Trace.INVALID_CONVERSION);
+            throw Error.error(ErrorCode.X_42561);
         }
 
-        return convertToType(null, a, type);
+        return convertToType(session, a, otherType);
     }
 
     /**
@@ -742,39 +842,39 @@ public class NumberType extends Type {
             long temp = ((Long) a).longValue();
 
             if (Integer.MAX_VALUE < temp || temp < Integer.MIN_VALUE) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                throw Error.error(ErrorCode.X_22003);
             }
 
             value = (int) temp;
         } else if (a instanceof BigDecimal) {
-            BigInteger bi = ((BigDecimal) a).toBigInteger();
+            BigDecimal bd = ((BigDecimal) a);
 
-            if (bi.compareTo(MAX_INT) > 0 || bi.compareTo(MIN_INT) < 0) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+            if (bd.compareTo(MAX_INT) > 0 || bd.compareTo(MIN_INT) < 0) {
+                throw Error.error(ErrorCode.X_22003);
             }
 
-            value = bi.intValue();
+            value = bd.intValue();
         } else if (a instanceof Double || a instanceof Float) {
             double d = ((Number) a).doubleValue();
 
             if (Double.isInfinite(d) || Double.isNaN(d)
                     || d >= (double) Integer.MAX_VALUE + 1
                     || d <= (double) Integer.MIN_VALUE - 1) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                throw Error.error(ErrorCode.X_22003);
             }
 
             value = (int) d;
         } else {
-            throw Trace.error(Trace.INVALID_CONVERSION);
+            throw Error.error(ErrorCode.X_42561);
         }
 
         if (type == Types.TINYINT) {
             if (Byte.MAX_VALUE < value || value < Byte.MIN_VALUE) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                throw Error.error(ErrorCode.X_22003);
             }
         } else if (type == Types.SQL_SMALLINT) {
             if (Short.MAX_VALUE < value || value < Short.MIN_VALUE) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                throw Error.error(ErrorCode.X_22003);
             }
         }
 
@@ -792,25 +892,25 @@ public class NumberType extends Type {
         } else if (a instanceof Long) {
             return (Long) a;
         } else if (a instanceof BigDecimal) {
-            BigInteger bi = ((BigDecimal) a).toBigInteger();
+            BigDecimal bd = (BigDecimal) a;
 
-            if (bi.compareTo(MAX_LONG) > 0 || bi.compareTo(MIN_LONG) < 0) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+            if (bd.compareTo(MAX_LONG) > 0 || bd.compareTo(MIN_LONG) < 0) {
+                throw Error.error(ErrorCode.X_22003);
             }
 
-            return ValuePool.getLong(bi.longValue());
+            return ValuePool.getLong(bd.longValue());
         } else if (a instanceof Double || a instanceof Float) {
             double d = ((Number) a).doubleValue();
 
             if (Double.isInfinite(d) || Double.isNaN(d)
                     || d >= (double) Long.MAX_VALUE + 1
                     || d <= (double) Long.MIN_VALUE - 1) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                throw Error.error(ErrorCode.X_22003);
             }
 
             return ValuePool.getLong((long) d);
         } else {
-            throw Trace.error(Trace.INVALID_CONVERSION);
+            throw Error.error(ErrorCode.X_42561);
         }
     }
 
@@ -833,7 +933,7 @@ public class NumberType extends Type {
             BigDecimal bdd    = new BigDecimal(value + signum);
 
             if (bdd.compareTo(bd) != signum) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                throw Error.error(ErrorCode.X_22003);
             }
         } else {
             value = ((Number) a).doubleValue();
@@ -842,8 +942,33 @@ public class NumberType extends Type {
         return ValuePool.getDouble(Double.doubleToLongBits(value));
     }
 
-    private static BigDecimal convertToDecimal(Object a)
-    throws HsqlException {
+    public static double toDouble(Object a) throws HsqlException {
+
+        double value;
+
+        if (a instanceof java.lang.Double) {
+            return ((Double) a).doubleValue();
+        } else if (a instanceof BigDecimal) {
+            BigDecimal bd = (BigDecimal) a;
+
+            value = bd.doubleValue();
+
+            int        signum = bd.signum();
+            BigDecimal bdd    = new BigDecimal(value + signum);
+
+            if (bdd.compareTo(bd) != signum) {
+                throw Error.error(ErrorCode.X_22003);
+            }
+        } else if (a instanceof Number) {
+            value = ((Number) a).doubleValue();
+        } else {
+            throw Error.error(ErrorCode.X_22501);
+        }
+
+        return value;
+    }
+
+    private static BigDecimal convertToDecimal(Object a) {
 
         if (a instanceof BigDecimal) {
             return (BigDecimal) a;
@@ -853,12 +978,12 @@ public class NumberType extends Type {
             double value = ((Number) a).doubleValue();
 
             if (Double.isInfinite(value) || Double.isNaN(value)) {
-                throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                return null;
             }
 
             return new BigDecimal(value);
         } else {
-            throw Trace.error(Trace.INVALID_CONVERSION);
+            throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
@@ -868,7 +993,7 @@ public class NumberType extends Type {
             return null;
         }
 
-        switch (this.type) {
+        switch (this.typeCode) {
 
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -907,17 +1032,38 @@ public class NumberType extends Type {
                 return JavaSystem.toString((BigDecimal) a);
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
     public String convertToSQLString(Object a) {
+
         if (a == null) {
             return "NULL";
         }
 
         return convertToString(a);
+    }
+
+    public boolean canConvertFrom(Type otherType) {
+
+        if (otherType.typeCode == Types.SQL_ALL_TYPES) {
+            return true;
+        }
+
+        if (otherType.isNumberType()) {
+            return true;
+        }
+
+        if (otherType.isIntervalType()) {
+            return true;
+        }
+
+        if (otherType.isCharacterType()) {
+            return true;
+        }
+
+        return false;
     }
 
     public int compareToTypeRange(Object o) {
@@ -931,7 +1077,7 @@ public class NumberType extends Type {
             int  min;
             int  max;
 
-            switch (type) {
+            switch (typeCode) {
 
                 case Types.TINYINT :
                     min = Byte.MIN_VALUE;
@@ -966,33 +1112,19 @@ public class NumberType extends Type {
             }
 
             return 0;
-        } else {
-            try {
-                o = convertToLong(o);
-
-                return compareToTypeRange(o);
-            } catch (HsqlException e) {
-                if (e.getErrorCode() == -Trace.NUMERIC_VALUE_OUT_OF_RANGE) {
-                    if (o instanceof BigDecimal) {
-                        return ((BigDecimal) o).signum();
-                    } else if (o instanceof Double) {
-                        return ((Double) o).doubleValue() > 0 ? 1
-                                                              : -1;
-                    }
-                }
-            }
         }
 
         return 0;
     }
 
-    public Object add(Object a, Object b) throws HsqlException {
+    public Object add(Object a, Object b,
+                      Type otherType) throws HsqlException {
 
         if (a == null || b == null) {
             return null;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -1006,8 +1138,8 @@ public class NumberType extends Type {
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
-                a = convertToDefaultType(a);
-                b = convertToDefaultType(b);
+                a = convertToDefaultType(null, a);
+                b = convertToDefaultType(null, b);
 
                 BigDecimal abd = (BigDecimal) a;
                 BigDecimal bbd = (BigDecimal) b;
@@ -1029,18 +1161,18 @@ public class NumberType extends Type {
                 return ValuePool.getLong(longa + longb);
             }
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
-    public Object subtract(Object a, Object b) throws HsqlException {
+    public Object subtract(Object a, Object b,
+                           Type otherType) throws HsqlException {
 
         if (a == null || b == null) {
             return null;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -1052,8 +1184,8 @@ public class NumberType extends Type {
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
-                a = convertToDefaultType(a);
-                b = convertToDefaultType(b);
+                a = convertToDefaultType(null, a);
+                b = convertToDefaultType(null, b);
 
                 BigDecimal abd = (BigDecimal) a;
                 BigDecimal bbd = (BigDecimal) b;
@@ -1077,8 +1209,7 @@ public class NumberType extends Type {
             default :
         }
 
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                 "NumberType");
+        throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
     }
 
     public Object multiply(Object a, Object b) throws HsqlException {
@@ -1087,7 +1218,7 @@ public class NumberType extends Type {
             return null;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -1099,8 +1230,8 @@ public class NumberType extends Type {
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
-                a = convertToDefaultType(a);
-                b = convertToDefaultType(b);
+                a = convertToDefaultType(null, a);
+                b = convertToDefaultType(null, b);
 
                 BigDecimal abd = (BigDecimal) a;
                 BigDecimal bbd = (BigDecimal) b;
@@ -1122,8 +1253,7 @@ public class NumberType extends Type {
                 return ValuePool.getLong(longa * longb);
             }
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
@@ -1133,7 +1263,7 @@ public class NumberType extends Type {
             return null;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -1141,21 +1271,27 @@ public class NumberType extends Type {
                 double ad = ((Number) a).doubleValue();
                 double bd = ((Number) b).doubleValue();
 
+                if (bd == 0) {
+                    throw Error.error(ErrorCode.X_22012);
+                }
+
                 return ValuePool.getDouble(Double.doubleToLongBits(ad / bd));
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
-                a = convertToDefaultType(a);
-                b = convertToDefaultType(b);
+                a = convertToDefaultType(null, a);
+                b = convertToDefaultType(null, b);
 
                 BigDecimal abd   = (BigDecimal) a;
                 BigDecimal bbd   = (BigDecimal) b;
                 int        scale = abd.scale() > bbd.scale() ? abd.scale()
                                                              : bbd.scale();
 
-                return (bbd.signum() == 0) ? null
-                                           : abd.divide(bbd, scale,
-                                           BigDecimal.ROUND_HALF_DOWN);
+                if (bbd.signum() == 0) {
+                    throw Error.error(ErrorCode.X_22012);
+                }
+
+                return abd.divide(bbd, scale, BigDecimal.ROUND_DOWN);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -1164,7 +1300,7 @@ public class NumberType extends Type {
                 int bi = ((Number) b).intValue();
 
                 if (bi == 0) {
-                    throw Trace.error(Trace.DIVISION_BY_ZERO);
+                    throw Error.error(ErrorCode.X_22012);
                 }
 
                 return ValuePool.getInt(ai / bi);
@@ -1174,20 +1310,84 @@ public class NumberType extends Type {
                 long bl = ((Number) b).longValue();
 
                 if (bl == 0) {
-                    throw Trace.error(Trace.DIVISION_BY_ZERO);
+                    throw Error.error(ErrorCode.X_22012);
                 }
 
                 return ValuePool.getLong(al / bl);
             }
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
+        }
+    }
+
+    public Object absolute(Object a) throws HsqlException {
+        return isNegative(a) ? negate(a)
+                             : a;
+    }
+
+    public Object negate(Object a) throws HsqlException {
+
+        if (a == null) {
+            return null;
+        }
+
+        switch (typeCode) {
+
+            case Types.SQL_REAL :
+            case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE : {
+                double ad = -((Number) a).doubleValue();
+
+                return ValuePool.getDouble(Double.doubleToLongBits(ad));
+            }
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                return ((BigDecimal) a).negate();
+
+            case Types.TINYINT : {
+                int value = ((Number) a).intValue();
+
+                if (value == Byte.MIN_VALUE) {
+                    throw Error.error(ErrorCode.X_22003);
+                }
+
+                return ValuePool.getInt(-value);
+            }
+            case Types.SQL_SMALLINT : {
+                int value = ((Number) a).intValue();
+
+                if (value == Short.MIN_VALUE) {
+                    throw Error.error(ErrorCode.X_22003);
+                }
+
+                return ValuePool.getInt(-value);
+            }
+            case Types.SQL_INTEGER : {
+                int value = ((Number) a).intValue();
+
+                if (value == Integer.MIN_VALUE) {
+                    throw Error.error(ErrorCode.X_22003);
+                }
+
+                return ValuePool.getInt(-value);
+            }
+            case Types.SQL_BIGINT : {
+                long value = ((Number) a).longValue();
+
+                if (value == Long.MIN_VALUE) {
+                    throw Error.error(ErrorCode.X_22003);
+                }
+
+                return ValuePool.getLong(-value);
+            }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
     public Type getIntegralType() {
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -1197,10 +1397,21 @@ public class NumberType extends Type {
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
                 return scale == 0 ? this
-                                  : new NumberType(type, precision, 0);
+                                  : new NumberType(typeCode, precision, 0);
 
             default :
                 return this;
+        }
+    }
+
+    public static boolean isZero(Object a) {
+
+        if (a instanceof BigDecimal) {
+            return ((BigDecimal) a).signum() == 0;
+        } else if (a instanceof Double) {
+            return ((Double) a).doubleValue() == 0 || ((Double) a).isNaN();
+        } else {
+            return ((Number) a).longValue() == 0;
         }
     }
 
@@ -1210,7 +1421,7 @@ public class NumberType extends Type {
             return false;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -1232,75 +1443,92 @@ public class NumberType extends Type {
                 return ((Number) a).longValue() < 0;
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
 
-    public Object absolute(Object a) throws HsqlException {
-        return isNegative(a) ? negate(a)
-                             : a;
-    }
-
-    public Object negate(Object a) throws HsqlException {
+    public int compareToZero(Object a) throws HsqlException {
 
         if (a == null) {
-            return null;
+            return 0;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
             case Types.SQL_DOUBLE : {
-                double ad = -((Number) a).doubleValue();
+                double ad = ((Number) a).doubleValue();
 
-                return ValuePool.getDouble(Double.doubleToLongBits(ad));
+                return ad == 0 ? 0
+                               : ad < 0 ? -1
+                                        : 1;
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                return ((BigDecimal) a).negate();
+                return ((BigDecimal) a).signum();
 
-            case Types.TINYINT : {
-                int value = ((Number) a).intValue();
-
-                if (value == Byte.MIN_VALUE) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
-                }
-
-                return ValuePool.getInt(-value);
-            }
-            case Types.SQL_SMALLINT : {
-                int value = ((Number) a).intValue();
-
-                if (value == Short.MIN_VALUE) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
-                }
-
-                return ValuePool.getInt(-value);
-            }
+            case Types.TINYINT :
+            case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER : {
-                int value = ((Number) a).intValue();
+                int ai = ((Number) a).intValue();
 
-                if (value == Integer.MIN_VALUE) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
-                }
-
-                return ValuePool.getInt(-value);
+                return ai == 0 ? 0
+                               : ai < 0 ? -1
+                                        : 1;
             }
             case Types.SQL_BIGINT : {
-                long value = ((Number) a).longValue();
+                long al = ((Number) a).longValue();
 
-                if (value == Long.MIN_VALUE) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
-                }
-
-                return ValuePool.getLong(-value);
+                return al == 0 ? 0
+                               : al < 0 ? -1
+                                        : 1;
             }
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
+    }
+
+    public static long scaledDecimal(Object a, int scale) {
+
+        if (a == null) {
+            return 0;
+        }
+
+        if (scale == 0) {
+            return 0;
+        }
+
+        BigDecimal value = ((BigDecimal) a);
+
+        if (value.scale() == 0) {
+            return 0;
+        }
+
+        value = value.setScale(0, BigDecimal.ROUND_FLOOR);
+        value = ((BigDecimal) a).subtract(value);
+
+        return value.movePointRight(scale).longValue();
+    }
+
+    public static boolean isInLongLimits(BigDecimal result) {
+
+        if (NumberType.MIN_LONG.compareTo(result) > 0
+                || NumberType.MAX_LONG.compareTo(result) < 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean isInLongLimits(BigInteger result) {
+
+        if (MAX_LONG_BI.compareTo(result) < 0
+                || MIN_LONG_BI.compareTo(result) > 0) {
+            return false;
+        }
+
+        return true;
     }
 
     public Object ceiling(Object a) throws HsqlException {
@@ -1309,7 +1537,7 @@ public class NumberType extends Type {
             return null;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -1317,7 +1545,7 @@ public class NumberType extends Type {
                 double ad = Math.ceil(((Double) a).doubleValue());
 
                 if (Double.isInfinite(ad)) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                    throw Error.error(ErrorCode.X_22003);
                 }
 
                 return ValuePool.getDouble(Double.doubleToLongBits(ad));
@@ -1328,7 +1556,7 @@ public class NumberType extends Type {
                     BigDecimal.ROUND_CEILING);
 
                 if (JavaSystem.precision(value) > precision) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                    throw Error.error(ErrorCode.X_22003);
                 }
             }
             default :
@@ -1342,7 +1570,7 @@ public class NumberType extends Type {
             return null;
         }
 
-        switch (type) {
+        switch (typeCode) {
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -1350,7 +1578,7 @@ public class NumberType extends Type {
                 double value = Math.floor(((Double) a).doubleValue());
 
                 if (Double.isInfinite(value)) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                    throw Error.error(ErrorCode.X_22003);
                 }
 
                 return ValuePool.getDouble(Double.doubleToLongBits(value));
@@ -1361,12 +1589,30 @@ public class NumberType extends Type {
                     BigDecimal.ROUND_FLOOR);
 
                 if (JavaSystem.precision(value) > precision) {
-                    throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+                    throw Error.error(ErrorCode.X_22003);
                 }
             }
             default :
                 return a;
         }
+    }
+
+    public Object truncate(Object a, int s) throws HsqlException {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (s >= scale) {
+            return a;
+        }
+
+        BigDecimal dec = convertToDecimal(a);
+
+        dec = dec.setScale(s, BigDecimal.ROUND_DOWN);
+        dec = dec.setScale(scale, BigDecimal.ROUND_DOWN);
+
+        return convertToDefaultType(null, dec);
     }
 
     public static NumberType getNumberType(int type, long precision,
@@ -1395,15 +1641,7 @@ public class NumberType extends Type {
                 return new NumberType(type, precision, scale);
 
             default :
-                throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "NumberType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
     }
-
-    static final BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
-    static final BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
-    static final BigInteger MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
-    static final BigInteger MIN_INT = BigInteger.valueOf(Integer.MIN_VALUE);
-    static final BigDecimal BIG_DECIMAL_0 = new BigDecimal(0.0);
-    static final BigDecimal BIG_DECIMAL_1 = new BigDecimal(1.0);
 }

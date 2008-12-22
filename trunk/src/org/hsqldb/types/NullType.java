@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,46 +31,46 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Session;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 
-public class NullType extends Type {
+/**
+ * Type subclass for untyped NULL values.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
+public final class NullType extends Type {
 
-    static NullType nullType = new NullType();
+    static final NullType nullType = new NullType();
 
     private NullType() {
-        super(Types.SQL_ALL_TYPES, 0, 0);
+        super(Types.SQL_ALL_TYPES, Types.SQL_ALL_TYPES, 0, 0);
     }
 
     public int displaySize() {
         return 4;
     }
 
-    public int getJDBCTypeNumber() {
-        return type;
+    public int getJDBCTypeCode() {
+        return typeCode;
     }
 
     public String getJDBCClassName() {
         return "java.lang.Void";
     }
 
-    public int getSQLGenericTypeNumber() {
-        return type;
-    }
-
-    public int getSQLSpecificTypeNumber() {
-        return type;
-    }
-
     public String getNameString() {
-        return Token.T_NULL;
+        return Tokens.T_NULL;
     }
 
     public String getDefinition() {
-        return Token.T_NULL;
+        return Tokens.T_NULL;
     }
 
     public Type getAggregateType(Type other) throws HsqlException {
@@ -82,9 +82,8 @@ public class NullType extends Type {
         return other;
     }
 
-
     public int compare(Object a, Object b) {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "NullType");
     }
 
@@ -92,23 +91,28 @@ public class NullType extends Type {
         return null;
     }
 
-    public Object convertToType(Session session, Object a,
+    public Object convertToType(SessionInterface session, Object a,
                                 Type otherType) throws HsqlException {
         return null;
     }
 
-    public Object convertToDefaultType(Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session,
+                                       Object a) throws HsqlException {
         return null;
     }
 
     public String convertToString(Object a) {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "NullType");
     }
 
     public String convertToSQLString(Object a) {
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(ErrorCode.U_S0500,
                                  "NullType");
+    }
+
+    public boolean canConvertFrom(Type otherType) {
+        return true;
     }
 
     public static Type getNullType() {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,25 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Session;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 
-public class ClobType extends CharacterType {
+/**
+ * Type subclass CLOB data.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
+public final class ClobType extends CharacterType {
 
-    static final int defaultClobSize = 1024 * 1024;
+    static final long maxClobPrecision = 1024L * 1024 * 1024 * 1024;
+    static final int  defaultClobSize  = 1024 * 1024;
 
     public ClobType() {
         super(Types.SQL_CLOB, defaultClobSize);
@@ -55,7 +64,7 @@ public class ClobType extends CharacterType {
                                              : (int) precision;
     }
 
-    public int getJDBCTypeNumber() {
+    public int getJDBCTypeCode() {
         return Types.CLOB;
     }
 
@@ -63,16 +72,16 @@ public class ClobType extends CharacterType {
         return "java.sql.Clob";
     }
 
-    public int getSQLGenericTypeNumber() {
-        return type;
-    }
-
-    public int getSQLSpecificTypeNumber() {
-        return type;
+    public int getSQLGenericTypeCode() {
+        return typeCode;
     }
 
     public String getNameString() {
-        return Token.T_CLOB;
+        return Tokens.T_CLOB;
+    }
+
+    public String getFullNameString() {
+        return "CHARACTER LARGE OBJECT";
     }
 
     public String getDefinition() {
@@ -80,15 +89,17 @@ public class ClobType extends CharacterType {
         long   factor     = precision;
         String multiplier = null;
 
-        if (precision % (1024 * 1024 * 1024) == 0) {
-            factor     = precision / (1024 * 1024 * 1024);
-            multiplier = Token.T_G_MULTIPLIER;
-        } else if (precision % (1024 * 1024) == 0) {
-            factor     = precision / (1024 * 1024);
-            multiplier = Token.T_M_MULTIPLIER;
-        } else if (precision % (1024) == 0) {
-            factor     = precision / (1024);
-            multiplier = Token.T_K_MULTIPLIER;
+        if (precision % (1024) == 0) {
+            if (precision % (1024 * 1024 * 1024) == 0) {
+                factor     = precision / (1024 * 1024 * 1024);
+                multiplier = Tokens.T_G_FACTOR;
+            } else if (precision % (1024 * 1024) == 0) {
+                factor     = precision / (1024 * 1024);
+                multiplier = Tokens.T_M_FACTOR;
+            } else {
+                factor     = precision / (1024);
+                multiplier = Tokens.T_K_FACTOR;
+            }
         }
 
         StringBuffer sb = new StringBuffer(16);
@@ -132,18 +143,21 @@ public class ClobType extends CharacterType {
                                         : 0);
     }
 
+/** @todo implement */
     public Object convertToTypeLimits(Object a) throws HsqlException {
+
+        // todo
         return a;
     }
 
-    public Object convertToType(Session session, Object a,
+    public Object convertToType(SessionInterface session, Object a,
                                 Type otherType) throws HsqlException {
 
         if (a == null) {
             return null;
         }
 
-        if (otherType.type == Types.SQL_CLOB) {
+        if (otherType.typeCode == Types.SQL_CLOB) {
             return a;
         }
 
@@ -151,10 +165,11 @@ public class ClobType extends CharacterType {
             return new ClobDataMemory(((String) a).toCharArray(), false);
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        throw Error.error(ErrorCode.X_42561);
     }
 
-    public Object convertToDefaultType(Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session,
+                                       Object a) throws HsqlException {
 
         if (a == null) {
             return a;
@@ -165,7 +180,7 @@ public class ClobType extends CharacterType {
             return new ClobDataMemory(((String) a).toCharArray(), false);
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        throw Error.error(ErrorCode.X_42561);
     }
 
     public String convertToString(Object a) {
@@ -191,13 +206,13 @@ public class ClobType extends CharacterType {
     public long position(Object data, Object otherData, Type otherType,
                          long start) throws HsqlException {
 
-        if (otherType.type == Types.SQL_CLOB) {
+        if (otherType.typeCode == Types.SQL_CLOB) {
             return ((ClobData) data).position((ClobData) otherData, start);
         } else if (otherType.isCharacterType()) {
             return ((ClobData) data).position((String) otherData, start);
         } else {
-            throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
-                                     "CharacterType");
+            throw Error.runtimeError(
+                ErrorCode.U_S0500,  "ClobType");
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,33 +31,36 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Library;
-import org.hsqldb.Session;
-import org.hsqldb.Token;
-import org.hsqldb.Trace;
+import org.hsqldb.OpTypes;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
+import org.hsqldb.store.BitMap;
 
 /**
  * Type implementation for BOOLEAN.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public class BooleanType extends Type {
+public final class BooleanType extends Type {
 
-    static BooleanType booleanType = new BooleanType();
+    static final BooleanType booleanType = new BooleanType();
 
     private BooleanType() {
-        super(Types.SQL_BOOLEAN, 0, 0);
+        super(Types.SQL_BOOLEAN, Types.SQL_BOOLEAN, 0, 0);
     }
 
     public int displaySize() {
-        return  5;
-
+        return 5;
     }
-    public int getJDBCTypeNumber() {
+
+    public int getJDBCTypeCode() {
         return Types.BOOLEAN;
     }
 
@@ -65,20 +68,12 @@ public class BooleanType extends Type {
         return "java.lang.Boolean";
     }
 
-    public int getSQLGenericTypeNumber() {
-        return type;
-    }
-
-    public int getSQLSpecificTypeNumber() {
-        return type;
-    }
-
     public String getNameString() {
-        return Token.T_BOOLEAN;
+        return Tokens.T_BOOLEAN;
     }
 
     public String getDefinition() {
-        return Token.T_BOOLEAN;
+        return Tokens.T_BOOLEAN;
     }
 
     public boolean isBooleanType() {
@@ -87,16 +82,29 @@ public class BooleanType extends Type {
 
     public Type getAggregateType(Type other) throws HsqlException {
 
-        if (type == other.type) {
+        if (typeCode == other.typeCode) {
             return this;
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        if (other.isCharacterType()) {
+            return other.getAggregateType(this);
+        }
+
+        throw Error.error(ErrorCode.X_42562);
     }
 
     public Type getCombinedType(Type other,
                                 int operation) throws HsqlException {
-        return this;
+
+        switch (operation) {
+
+            case OpTypes.EQUAL :
+                if (other.isBooleanType()) {
+                    return this;
+                }
+        }
+
+        throw Error.error(ErrorCode.X_42561);
     }
 
     public int compare(Object a, Object b) {
@@ -125,20 +133,32 @@ public class BooleanType extends Type {
         return a;
     }
 
-    public Object convertToType(Session session, Object a,
+    public Object convertToType(SessionInterface session, Object a,
                                 Type otherType) throws HsqlException {
 
         if (a == null) {
             return a;
         }
 
-        switch (otherType.type) {
+        switch (otherType.typeCode) {
 
             case Types.SQL_BOOLEAN :
                 return a;
 
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING : {
+                BinaryData b = (BinaryData) a;
+
+                if (b.length() == 1) {
+                    return BitMap.isSet(b.getBytes(), 0) ? Boolean.TRUE
+                                                         : Boolean.FALSE;
+                }
+
+                break;
+            }
             case Types.SQL_CLOB :
                 a = Type.SQL_VARCHAR.convertToType(session, a, otherType);
+                // fall through
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {
@@ -153,13 +173,38 @@ public class BooleanType extends Type {
                 } else if (((String) a).equalsIgnoreCase("NULL")) {
                     return null;
                 }
+
+                break;
             }
+        }
+
+        throw Error.error(ErrorCode.X_22018);
+    }
+
+    public Object convertToTypeJDBC(SessionInterface session, Object a,
+                                    Type otherType) throws HsqlException {
+
+        if (a == null) {
+            return a;
+        }
+
+        switch (otherType.typeCode) {
+
+            case Types.SQL_BOOLEAN :
+                return a;
+
             default :
-                throw Trace.error(Trace.STRING_DATA_TRUNCATION);
+                if (otherType.isNumberType()) {
+                    return NumberType.isZero(a) ? Boolean.FALSE
+                                                : Boolean.TRUE;
+                }
+
+                return convertToType(session, a, otherType);
         }
     }
 
-    public Object convertToDefaultType(Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session,
+                                       Object a) throws HsqlException {
 
         if (a == null) {
             return null;
@@ -168,10 +213,10 @@ public class BooleanType extends Type {
         if (a instanceof Boolean) {
             return a;
         } else if (a instanceof String) {
-            convertToType(null, a, Type.SQL_VARCHAR);
+            convertToType(session, a, Type.SQL_VARCHAR);
         }
 
-        throw Trace.error(Trace.INVALID_CONVERSION);
+        throw Error.error(ErrorCode.X_42561);
     }
 
     public String convertToString(Object a) {
@@ -192,6 +237,11 @@ public class BooleanType extends Type {
 
         return ((Boolean) a).booleanValue() ? "TRUE"
                                             : "FALSE";
+    }
+
+    public boolean canConvertFrom(Type otherType) {
+        return otherType.typeCode == Types.SQL_ALL_TYPES
+               || otherType.isBooleanType() || otherType.isCharacterType();
     }
 
     public static BooleanType getBooleanType() {

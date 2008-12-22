@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,46 +31,77 @@
 
 package org.hsqldb.types;
 
-import java.sql.Time;
+/**
+ * Implementation of data item for TIME.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
+public class TimeData {
 
-public class TimeData extends Time {
+    final int zone;
+    final int seconds;
+    final int nanos;
 
-    int nanos;
+    public TimeData(int seconds, int nanos, int zoneSeconds) {
+
+        while (seconds < 0) {
+            seconds += 24 * 60 * 60;
+        }
+
+        if (seconds > 24 * 60 * 60) {
+            seconds %= 24 * 60 * 60;
+        }
+
+        this.zone    = zoneSeconds;
+        this.seconds = seconds;
+        this.nanos   = nanos;
+    }
 
     public TimeData(int seconds, int nanos) {
-
-        super(seconds * 1000);
-
-        this.nanos = nanos;
-    }
-
-    public TimeData(long time) {
-        super(time);
-    }
-
-    public TimeData(long time, int nanos) {
-
-        super(time);
-
-        this.nanos = nanos;
+        this (seconds, nanos, 0);
     }
 
     public int getSeconds() {
-        return (int) super.getTime()/1000;
+        return seconds;
     }
 
     public int getNanos() {
         return nanos;
     }
 
-    public void setNanos(int newNanos) {}
+    public int getZone() {
+        return zone;
+    }
 
-    /**
-     * This is never called inside the engine. It may be called
-     * by client programs when a Time field is retrieved using
-     * ResultSet.getObject()
-     */
-    public String toString() {
-        return super.toString();
+    public boolean equals(Object other) {
+
+        if (other instanceof TimeData) {
+            return seconds == ((TimeData) other).seconds
+                   && nanos == ((TimeData) other).nanos;
+        }
+
+        return false;
+    }
+
+    public int hashCode() {
+        return seconds ^ nanos;
+    }
+
+    public int compareTo(TimeData b) {
+
+        long diff = seconds - b.seconds;
+
+        if (diff == 0) {
+            diff = nanos - b.nanos;
+
+            if (diff == 0) {
+                return 0;
+            }
+        }
+
+        return diff > 0 ? 1
+                        : -1;
     }
 }

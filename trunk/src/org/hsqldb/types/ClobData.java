@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,55 +42,57 @@ import org.hsqldb.SessionInterface;
 /**
  * Interface for Character Large Object implementations.<p>
  *
- * @author fredt@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
 public interface ClobData {
 
-    public char[] getChars(final long position,
-                           int length) throws HsqlException;
+    char[] getChars(final long position, int length) throws HsqlException;
 
-    public char[] getClonedChars();
+    char[] getClonedChars();
 
-    public long length();
+    long length();
 
-    public String getSubString(final long pos,
-                               final int length) throws HsqlException;
+    String getSubString(final long pos, final int length) throws HsqlException;
 
-    public void truncate(long len) throws HsqlException;
+    void truncate(long len) throws HsqlException;
 
-    public InputStream getAsciiStream() throws HsqlException;
+    InputStream getAsciiStream() throws HsqlException;
 
-    public OutputStream setAsciiStream(long pos);
+    OutputStream setAsciiStream(long pos);
 
-    public Reader getCharacterStream() throws HsqlException;
+    Reader getCharacterStream() throws HsqlException;
 
-    public Writer setCharacterStream(long pos) throws HsqlException;
+    Writer setCharacterStream(long pos) throws HsqlException;
 
-    public int setString(long pos, String str) throws HsqlException;
+    int setString(long pos, String str) throws HsqlException;
 
-    public int setString(long pos, String str, int offset,
-                         int len) throws HsqlException;
+    int setString(long pos, String str, int offset,
+                  int len) throws HsqlException;
 
-    public int setChars(long pos, char[] chars, int offset,
-                        int len) throws HsqlException;
+    int setChars(long pos, char[] chars, int offset,
+                 int len) throws HsqlException;
 
-    public long position(String searchstr, long start) throws HsqlException;
+    long position(String searchstr, long start) throws HsqlException;
 
-    public long position(ClobData searchstr, long start) throws HsqlException;
+    long position(ClobData searchstr, long start) throws HsqlException;
 
-    public Reader getCharacterStream(long pos, long length);
+    long nonSpaceLength();
 
-    public long getId();
+    Reader getCharacterStream(long pos, long length);
 
-    public void setId(long id);
+    long getId();
 
-    public void free();
+    void setId(long id);
 
-    public boolean isClosed();
+    void free();
 
-    public void setSession(SessionInterface session);
+    boolean isClosed();
 
-    public int getStreamBlockSize();
+    void setSession(SessionInterface session);
+
+    int getStreamBlockSize();
+
+    long getRightTrimSize();
 }

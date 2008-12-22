@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,12 @@
 
 package org.hsqldb.test;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.hsqldb.Trace;
 import junit.framework.TestCase;
 
 /**
@@ -128,8 +126,6 @@ public class TestGroupByHaving extends TestCase {
 
     protected void tearDown() throws Exception {
 
-        super.tearDown();
-
         // I decided not the use the "IF EXISTS" clause since it is not a
         // SQL standard.
         try {
@@ -149,6 +145,9 @@ public class TestGroupByHaving extends TestCase {
 
             conn = null;
         }
+
+        super.tearDown();
+
     }
 
     private void addEmployee(int id, String firstName, String lastName,
@@ -180,7 +179,7 @@ public class TestGroupByHaving extends TestCase {
             },
         };
 
-        compareResults(sql, expected, 0);
+        compareResults(sql, expected, "00000");
     }
 
     /**
@@ -206,7 +205,7 @@ public class TestGroupByHaving extends TestCase {
             },
         };
 
-        compareResults(sql, expected, 0);
+        compareResults(sql, expected, "00000");
     }
 
     /**
@@ -233,7 +232,7 @@ public class TestGroupByHaving extends TestCase {
             },
         };
 
-        compareResults(sql, expected, 0);
+        compareResults(sql, expected, "00000");
     }
 
     /**
@@ -255,7 +254,7 @@ public class TestGroupByHaving extends TestCase {
             },
         };
 
-        compareResults(sql, expected, 0);
+        compareResults(sql, expected, "00000");
     }
 
     /**
@@ -273,7 +272,7 @@ public class TestGroupByHaving extends TestCase {
                      + "having avg(salary) > 1000000 " + "";
         Object[][] expected = new Object[][]{};
 
-        compareResults(sql, expected, 0);
+        compareResults(sql, expected, "00000");
     }
 
     /**
@@ -287,14 +286,14 @@ public class TestGroupByHaving extends TestCase {
                      + "having (max(id) > 1) and (superior_id > 1) " + "";
         Object[][] expected = new Object[][]{};
 
-        compareResults(sql, expected, -Trace.NOT_IN_AGGREGATE_OR_GROUP_BY);
+        compareResults(sql, expected, "42573");
     }
 
     //------------------------------------------------------------
     // Helper methods
     //------------------------------------------------------------
     private void compareResults(String sql, Object[][] rows,
-                                int errorCode) throws SQLException {
+                                String sqlState) throws SQLException {
 
         ResultSet rs = null;
 
@@ -302,15 +301,15 @@ public class TestGroupByHaving extends TestCase {
             rs = stmt.executeQuery(sql);
 
             assertTrue("Statement <" + sql + "> \nexpecting error code: "
-                       + errorCode, (0 == errorCode));
+                       + sqlState, ("00000".equals(sqlState)));
         } catch (SQLException sqlx) {
-            if (sqlx.getErrorCode() != errorCode) {
+            if (!sqlx.getSQLState().equals(sqlState)) {
                 sqlx.printStackTrace();
             }
 
             assertTrue("Statement <" + sql + "> \nthrows wrong error code: "
                        + sqlx.getErrorCode() + " expecting error code: "
-                       + errorCode, (sqlx.getErrorCode() == errorCode));
+                       + sqlState, (sqlx.getSQLState().equals(sqlState)));
 
             return;
         }
@@ -352,14 +351,5 @@ public class TestGroupByHaving extends TestCase {
         assertEquals("Statement <" + sql
                      + "> \nreturned wrong number of rows.", rows.length,
                          rowCount);
-    }
-
-    //------------------------------------------------------------
-    // Main program
-    //------------------------------------------------------------
-    public static void main(String[] args) throws IOException {
-
-//        junit.swingui.TestRunner.run(TestGroupByHaving.class);
-        junit.textui.TestRunner.run(TestGroupByHaving.class);
     }
 }

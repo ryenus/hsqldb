@@ -31,65 +31,72 @@
 
 package org.hsqldb.types;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.hsqldb.HsqlException;
-import org.hsqldb.SessionInterface;
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.SchemaObject;
+import org.hsqldb.Session;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.rights.Grantee;
+import org.hsqldb.Tokens;
 
 /**
- * Interface for Binary Large Object implementations.<p>
- *
- * All positions are 0 based
+ * Implementation of CHARACTER SET objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public interface BlobData {
+public class Charset implements SchemaObject {
 
-    byte[] getBytes();
+    HsqlName        name;
+    public HsqlName base;
 
-           // todo - new method to return BlobData with long length arg
-    byte[] getBytes(long pos, int length) throws HsqlException;
+    public Charset(HsqlName name) {
+        this.name = name;
+    }
 
-    InputStream getBinaryStream() throws HsqlException;
+    public int getType() {
+        return SchemaObject.CHARSET;
+    }
 
-    InputStream getBinaryStream(long pos,
-                                       long length) throws HsqlException;
+    public HsqlName getName() {
+        return name;
+    }
 
-    long length();
+    public HsqlName getCatalogName() {
+        return name.schema.schema;
+    }
 
-    long bitLength();
+    public HsqlName getSchemaName() {
+        return name.schema;
+    }
 
-    boolean isBits();
+    public Grantee getOwner() {
+        return name.schema.owner;
+    }
 
-    int setBytes(long pos, byte[] bytes, int offset,
-                        int len) throws HsqlException;
+    public OrderedHashSet getReferences() {
+        OrderedHashSet set = new OrderedHashSet();
+        set.add(base);
+        return set;
+    }
 
-    int setBytes(long pos, byte[] bytes) throws HsqlException;
+    public OrderedHashSet getComponents() {
+        return null;
+    }
 
-    OutputStream setBinaryStream(long pos) throws HsqlException;
+    public void compile(Session session) throws HsqlException {}
 
-    void truncate(long len) throws HsqlException;
+    public String getDDL() {
 
-    BlobData duplicate() throws HsqlException;
+        StringBuffer sb = new StringBuffer();
 
-    long position(byte[] pattern, long start) throws HsqlException;
+        sb.append(Tokens.T_CREATE).append(' ').append(
+            Tokens.T_CHARACTER).append(' ').append(Tokens.T_SET).append(' ');
+        sb.append(name.getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_AS).append(' ').append(Tokens.T_GET);
+        sb.append(' ').append(base.getSchemaQualifiedStatementName());
 
-    long position(BlobData pattern, long start) throws HsqlException;
-
-    long nonZeroLength();
-
-    long getId();
-
-    void setId(long id);
-
-    void free();
-
-    boolean isClosed();
-
-    void setSession(SessionInterface session);
-
-    int getStreamBlockSize();
+        return sb.toString();
+    }
 }

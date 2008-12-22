@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,44 +31,47 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Trace;
 import org.hsqldb.Types;
 
+/**
+ * Implementation of data item for INTERVAL MONTH.<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class IntervalMonthData {
 
-    final int    units;
+    public final long units;
 
-    public static IntervalMonthData newIntervalYear(int years,
+    public static IntervalMonthData newIntervalYear(long years,
             IntervalType type) throws HsqlException {
-
-        if (years >= type.getIntervalValueLimit()) {
-            // todo - message precision exceeded
-            // data exception interval field overflow.
-            throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
-        }
         return new IntervalMonthData(years * 12, type);
     }
 
-    public static IntervalMonthData newIntervalMonth(int months,
+    public static IntervalMonthData newIntervalMonth(long months,
             IntervalType type) throws HsqlException {
         return new IntervalMonthData(months, type);
     }
 
-    public IntervalMonthData(int months,
+    public IntervalMonthData(long months,
                              IntervalType type) throws HsqlException {
 
         if (months >= type.getIntervalValueLimit()) {
-
-            // todo - message precision exceeded
-            // data exception interval field overflow.
-            throw Trace.error(Trace.NUMERIC_VALUE_OUT_OF_RANGE);
+            throw Error.error(ErrorCode.X_22006);
         }
 
-        if (type.type == Types.SQL_INTERVAL_YEAR ) {
+        if (type.typeCode == Types.SQL_INTERVAL_YEAR) {
             months -= (months % 12);
         }
 
+        this.units = months;
+    }
+
+    public IntervalMonthData(long months) throws HsqlException {
         this.units = months;
     }
 
@@ -82,12 +85,12 @@ public class IntervalMonthData {
     }
 
     public int hashCode() {
-        return units;
+        return (int) units;
     }
 
     public int compareTo(IntervalMonthData b) {
 
-        int diff = units - b.units;
+        long diff = units - b.units;
 
         if (diff == 0) {
             return 0;
@@ -98,8 +101,8 @@ public class IntervalMonthData {
     }
 
     public String toString() {
-
-        throw Trace.runtimeError(Trace.UNSUPPORTED_INTERNAL_OPERATION,
+        throw Error.runtimeError(
+            ErrorCode.U_S0500,
                                  "IntervalMonthData");
     }
 }

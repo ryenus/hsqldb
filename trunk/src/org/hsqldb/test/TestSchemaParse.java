@@ -45,7 +45,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
 
     protected void setUp() throws Exception {
 
-        org.hsqldb.jdbc.jdbcDriver.class.getName();
+        org.hsqldb.jdbc.JDBCDriver.class.getName();
 
         con = DriverManager.getConnection("jdbc:hsqldb:mem:parsetest", "sa",
                                           "");

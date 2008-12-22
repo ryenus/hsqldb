@@ -38,8 +38,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.hsqldb.jdbc.jdbcBlob;
-import org.hsqldb.jdbc.jdbcClob;
+import org.hsqldb.jdbc.JDBCBlob;
+import org.hsqldb.jdbc.JDBCClob;
 
 import java.sql.Clob;
 
@@ -84,13 +84,13 @@ public class TestLobs extends TestBase {
             byte[]            data = new byte[] {
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
             };
-            Blob              blob = new jdbcBlob(data);
+            Blob              blob = new JDBCBlob(data);
 
             ps.setBlob(1, blob);
             ps.executeUpdate();
 
             data[4] = 50;
-            blob    = new jdbcBlob(data);
+            blob    = new JDBCBlob(data);
 
             ps.setBlob(1, blob);
             ps.executeUpdate();
@@ -132,13 +132,13 @@ public class TestLobs extends TestBase {
             String            dql0 = "select * from clobtest;";
             PreparedStatement ps   = connection.prepareStatement(dml0);
             String            data = "Testing blob insert and select ops";
-            Clob              clob = new jdbcClob(data);
+            Clob              clob = new JDBCClob(data);
 
             ps.setClob(1, clob);
             ps.executeUpdate();
 
             data = data.replaceFirst("insert", "INSERT");
-            clob = new jdbcClob(data);
+            clob = new JDBCClob(data);
 
             ps.setClob(1, clob);
             ps.executeUpdate();
