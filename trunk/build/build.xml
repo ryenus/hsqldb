@@ -34,7 +34,7 @@
    <property name="build.vendor" value="${user.name}"/>
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQLDB Development Group"/>
-   <property name="swsrc" value="src"/>
+   <property name="swsrc" value="tmp/switchedsrc"/>
 
    <!-- It is safe to override these with settings in your own
         build.properties file. -->
