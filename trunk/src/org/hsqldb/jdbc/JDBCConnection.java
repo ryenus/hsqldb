@@ -495,7 +495,7 @@ import java.sql.SQLInput;
  * When built under a Java runtime that supports JDBC 4.0, HSQLDB distribution
  * jars containing the Driver implementatiton also include the file
  * <code>META-INF/services/java.sql.Driver</code>. This file contains the fully
- * qualified class name ('org.hsqldb.jdbcDriver') of the HSQLDB implementation
+ * qualified class name ('org.hsqldb.jdbc.JDBCDriver') of the HSQLDB implementation
  * of <code>java.sql.Driver</code>. <p>
  *
  * Hence, under JDBC 4.0 or greater, applications no longer need to explictly

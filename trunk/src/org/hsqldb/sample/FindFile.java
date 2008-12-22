@@ -101,7 +101,7 @@ class FindFile {
         try {
 
             // Load the HSQL Database Engine JDBC driver
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             // Connect to the database
             // It will be create automatically if it does not yet exist

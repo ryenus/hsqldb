@@ -61,7 +61,7 @@ public class TestSubQueriesInPreparedStatements {
         Driver            driver;
 
         driver =
-            (Driver) Class.forName("org.hsqldb.jdbcDriver").newInstance();
+            (Driver) Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
 
         DriverManager.registerDriver(driver);
 

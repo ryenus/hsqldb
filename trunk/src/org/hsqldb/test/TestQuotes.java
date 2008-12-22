@@ -81,7 +81,7 @@ public class TestQuotes extends TestCase {
         try {
             DriverManager.registerDriver(new org.hsqldb.jdbc.JDBCDriver());
 
-            connection = DriverManager.getConnection("jdbc:hsqldb:.", "sa",
+            connection = DriverManager.getConnection("jdbc:hsqldb:mem:.", "sa",
                     "");
             statement = connection.createStatement();
 

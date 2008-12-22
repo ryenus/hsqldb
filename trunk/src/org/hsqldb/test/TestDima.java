@@ -42,7 +42,7 @@ public class TestDima {
     public void testOne() {
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             Connection conn = java.sql.DriverManager.getConnection(
                 "jdbc:hsqldb:file:/hsql/testdima/test", "sa", "");
@@ -131,7 +131,7 @@ public class TestDima {
         TestSelf.deleteDatabase("test");
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             Properties pp = new Properties();
 

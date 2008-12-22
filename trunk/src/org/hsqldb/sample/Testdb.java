@@ -57,7 +57,7 @@ public class Testdb {
 
         // Load the HSQL Database Engine JDBC driver
         // hsqldb.jar should be in the class path or made part of the current jar
-        Class.forName("org.hsqldb.jdbcDriver");
+        Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
         // connect to the database.   This will load the db files and start the
         // database if it is not alread running.

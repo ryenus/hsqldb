@@ -89,7 +89,7 @@ class TestPreparedSubQueries {
         try {
             String url = "jdbc:hsqldb:test";
 
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             con = java.sql.DriverManager.getConnection(url, "sa", "");
 

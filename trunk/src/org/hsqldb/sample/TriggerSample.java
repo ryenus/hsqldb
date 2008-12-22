@@ -126,7 +126,7 @@ import org.hsqldb.lib.StringUtil;
 public class TriggerSample implements Trigger {
 
     static final PrintWriter out  = new PrintWriter(System.out);
-    static final String      drv  = "org.hsqldb.jdbcDriver";
+    static final String      drv  = "org.hsqldb.jdbc.JDBCDriver";
     static final String      url  = "jdbc:hsqldb:mem:trigger-sample";
     static final String      usr  = "sa";
     static final String      pwd  = "";

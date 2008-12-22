@@ -74,7 +74,7 @@ public class TestHarness extends JFrame {
         }
 
         try {
-            Class.forName("org.hsqldb.jdbcDriver").newInstance();
+            Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
         } catch (Exception e) {
             System.out.println("ERROR: failed to load HSQLDB JDBC driver.");
             e.printStackTrace();

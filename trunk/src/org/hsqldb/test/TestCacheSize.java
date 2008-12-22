@@ -166,7 +166,7 @@ public class TestCacheSize {
             sStatement  = null;
             cConnection = null;
 
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             if (filedb) {
                 deleteDatabase(filepath);

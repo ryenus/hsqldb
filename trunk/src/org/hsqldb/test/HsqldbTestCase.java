@@ -97,7 +97,7 @@ public class HsqldbTestCase {
         HsqldbTestCase.deleteDir(new File("hsqldb"));
 
         try {
-            Class  clsDriver = Class.forName("org.hsqldb.jdbcDriver");
+            Class  clsDriver = Class.forName("org.hsqldb.jdbc.JDBCDriver");
             Driver driver    = (Driver) clsDriver.newInstance();
 
             DriverManager.registerDriver(driver);

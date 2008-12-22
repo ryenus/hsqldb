@@ -51,7 +51,7 @@ import java.util.StringTokenizer;
  */
 public class RCData {
 
-    public static final String DEFAULT_JDBC_DRIVER   = "org.hsqldb.jdbcDriver";
+    public static final String DEFAULT_JDBC_DRIVER   = "org.hsqldb.jdbc.JDBCDriver";
     private String             defaultJdbcDriverName = DEFAULT_JDBC_DRIVER;
 
     public void setDefaultJdbcDriver(String defaultJdbcDriverName) {
@@ -366,7 +366,7 @@ public class RCData {
         // http://java.sun.com/products/jdbc/jdbc-frequent.html;
         // Why doesn't calling class.forName() load my JDBC driver?
         // There is a bug in the JDK 1.1.x that can cause Class.forName()
-        // to fail. // new org.hsqldb.jdbcDriver();
+        // to fail. // new org.hsqldb.jdbc.JDBCDriver();
         /* This does register the new driver instance, as can be shown by
          * DriverManager.getDrivers(), but somehow the registered driver
          * does not pick up the URL, and the result is always:

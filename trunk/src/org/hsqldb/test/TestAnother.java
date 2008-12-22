@@ -57,7 +57,7 @@ public class TestAnother {
         try {
             Connection conn = null;
 
-            Class.forName("org.hsqldb.jdbcDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             conn = DriverManager.getConnection(url + filepath, user,
                                                password);

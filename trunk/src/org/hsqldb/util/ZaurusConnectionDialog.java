@@ -64,9 +64,9 @@ implements ActionListener, ItemListener, KeyListener {
 
     static final String[][] sJDBCTypes = {
         {
-            "HSQL In-Memory", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:."
+            "HSQL In-Memory", "org.hsqldb.jdbc.JDBCDriver", "jdbc:hsqldb:mem:."
         }, {
-            "HSQL Standalone", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:test"
+            "HSQL Standalone", "org.hsqldb.jdbc.JDBCDriver", "jdbc:hsqldb:test"
         }, {
             "MM.MySQL", "org.gjt.mm.mysql.Driver", "jdbc:mysql://localhost/"
         }, {
@@ -129,13 +129,13 @@ implements ActionListener, ItemListener, KeyListener {
         p.add(types);
         p.add(createLabel("Driver:"));
 
-        mDriver = new TextField("org.hsqldb.jdbcDriver");
+        mDriver = new TextField("org.hsqldb.jdbc.JDBCDriver");
 
         mDriver.addKeyListener(this);
         p.add(mDriver);
         p.add(createLabel("URL:"));
 
-        mURL = new TextField("jdbc:hsqldb:.");
+        mURL = new TextField("jdbc:hsqldb:mem:.");
 
         mURL.addKeyListener(this);
         p.add(mURL);

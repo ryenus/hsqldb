@@ -48,7 +48,7 @@ public class AllSimpleTests {
 
         System.out.println("*********** " + JDBCBench.class.getName());
         JDBCBench.main(new String[] {
-            "-driver", "org.hsqldb.jdbcDriver", "-url",
+            "-driver", "org.hsqldb.jdbc.JDBCDriver", "-url",
             "jdbc:hsqldb:/hsql/jdbcbench/test;shutdown=true;applog=1",
             "-user", "sa", "-init", "-clients", "2", "-tpc", "3200"
         });

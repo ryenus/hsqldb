@@ -43,7 +43,7 @@ import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
 import javax.sql.DataSource;
 
-import org.hsqldb.jdbcDriver;
+import org.hsqldb.jdbc.JDBCDriver;
 
 //#ifdef JAVA6
 import java.sql.Wrapper;
@@ -194,7 +194,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
             props.put("password", password);
         }
 
-        return jdbcDriver.getConnection(database, props);
+        return JDBCDriver.getConnection(database, props);
     }
 
     //------------------------- JDBC 4.0 -----------------------------------
