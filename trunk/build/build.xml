@@ -35,6 +35,9 @@
    <property name="hsqldb.title" value="HSQLDB"/>
    <property name="hsqldb.vendor" value="The HSQLDB Development Group"/>
    <property name="swsrc" value="tmp/switchedsrc"/>
+   <condition property="switch.inplace">
+     <equals arg1="${swsrc}" arg2="src"/>
+   </condition>
 
    <!-- It is safe to override these with settings in your own
         build.properties file. -->
@@ -140,26 +143,27 @@ examples:
 
 
    <target name="reinit" depends="clean-docwork"
-       description="Just like 'clean' target, except overwrites switched soure files to prevent need for a complete re-copy">
-       <!-- Beware this will retain a copy of removed artifcats unser src.
+       description="Just like 'clean' target, except overwrites switched source files to prevent need for a complete re-copy">
+       <!-- Beware this will retain a copy of removed artifcats under src.
             You must use the real 'clean' target to really purge everything. -->
+       <fail message="Just use 'clean' for inplace-switching setups"
+             if="switch.inplace"/>
        <delete dir="classes"/>
        <copy todir='${swsrc}' preservelastmodified='true'>
            <fileset dir='src' includes='**/*.java'/>
        </copy>
    </target>
 
-   <target name="clean" depends="-clean"
+   <target name="clean" depends="-clean, -clean-switch-branch"
            description="Delete the /classes and work directories created by ant tasks">
         <echo message="Use the 'cleanall' target to also purge generated doc and .jar files"/>
    </target>
 
    <target name="-clean" depends="clean-docwork">
         <delete dir="classes"/>
-        <delete dir="${swsrc}"/>
    </target>
 
-   <target name="cleanall" depends="-clean,clean-doc"
+   <target name="cleanall" depends="-clean, -clean-switch-branch, clean-doc"
            description="Same as clean but delete the jar and doc files as well">
       <mkdir dir="lib"/>
       <delete>
@@ -173,10 +177,7 @@ examples:
          <src path="src"/>
          <include name="org/hsqldb/util/CodeSwitcher.java"/>
        </javac>
-       <mkdir dir='${swsrc}'/>
-       <copy todir='${swsrc}' preservelastmodified='true'>
-           <fileset dir='src' includes='**/*.java'/>
-       </copy>
+       <antcall target="-update-switch-branch"/>
     </target>
 
     <target name="switchtojava1target" depends="codeswitcher"
@@ -1396,5 +1397,16 @@ xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true
         <jflex file="src/org/hsqldb/cmdline/sqltool.flex" destdir="src"/>
         <!-- A limitation of the jflex task is that you must specify the .flex
              files individually and explicitly.  No filesets, etc. -->
+    </target>
+
+    <target name="-update-switch-branch" unless="switch.inplace">
+       <mkdir dir='${swsrc}'/>
+       <copy todir='${swsrc}' preservelastmodified='true'>
+           <fileset dir='src' includes='**/*.java'/>
+       </copy>
+    </target>
+
+    <target name="-clean-switch-branch" unless="switch.inplace">
+        <delete dir="${swsrc}"/>
     </target>
 </project>
