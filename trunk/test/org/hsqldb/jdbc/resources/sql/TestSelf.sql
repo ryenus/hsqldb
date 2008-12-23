@@ -1,5 +1,8 @@
 --
--- TestSelf.sql
+-- TestSelf.txt
+--
+
+-- TestSelf.txt is used by TestSelf.java to test the database
 --
 -- Comment lines must start with -- and are ignored
 -- Lines starting with spaces belongs to last line
@@ -48,7 +51,7 @@ create table T4(nr integer,lvc longVarChar(100),dt date,tm time)
 create table T5(dec decimal(10) primary key,b binary(1) not null)
 create table "T6"("x" tinyint,s smallint not null,b bigint)
 create table t7("-x's'-" real,f float(2),n numeric,t timestamp)
-create table t8(bin binary,vb varbinary,lvb longvarbinary)
+create table t8(bin binary,vb varbinary(10),lvb longvarbinary(100))
 create table t9(nr integer not null,x smallint not null primary key)
 create unique index it1 on t1(nr)
 script
@@ -59,6 +62,7 @@ drop index it4
 create unique index it4 on t4(nr,tm)
 drop index it4
 create index it4 on t4(tm,nr)
+-- a duplicate index
 create index it4b on t4(tm,nr)
 create unique index it4c on t4(tm,nr)
 drop index it4b
@@ -67,12 +71,13 @@ drop table t1;drop table t2;drop table "T3";
 DROP TABLE T4;Drop Table T5; drop table T6
 drop table t7; drop table t8; drop table t9
 create user "test" password "test-p"
+GRANT CHANGE_AUTHORIZATION TO "test"
 create table test (id integer)
-revoke all on test from "test"
+revoke all on test from "test" restrict
 select * from test order by test.id
 grant all on test to "test"
 grant select on test to "test"
-revoke select,insert,update,delete on test from "test"
+revoke select, insert, update, delete on test from "test" restrict
 connect user "test" password "test-p"
 set password "test-p2"
 connect user sa password ""
@@ -131,7 +136,7 @@ insert into t_double values(2,1.4,1.0)
 create table t_date (id integer,d date,t time,ts timestamp )
 insert into t_DATE values(0,{d '1999-08-21'},'18:53:00',null)
 insert into t_date values(1,'1999-08-22','17:00:01','2000-02-29 10:00:00')
-create table t_bit (b1 bit,b2 bit)
+create table t_bit (b1 boolean,b2 boolean)
 insert into t_bit values(false,false)
 insert into t_bit select b2,b1 from t_bit
 insert into t_bit values(true,false)
@@ -198,6 +203,7 @@ DROP TABLE HLO
 
 -- ResultSet with value
 /*u0*/ create table empty(c char);
+
 /*u0*/ create table test(nr integer,name char(5));
 /*r0*/ select count(*) from test;
 /*u1*/ insert into test values(1,null);
@@ -237,7 +243,7 @@ CREATE TABLE Address(ID INTEGER PRIMARY KEY,organization VARCHAR(20),
 CREATE TABLE Country(ID INTEGER PRIMARY KEY,name VARCHAR(20))
 INSERT INTO COUNTRY(ID, name) VALUES(23, 'USA')
 INSERT INTO ADDRESS(ID, countryID) VALUES(5,
-  SELECT ID FROM Country WHERE name = 'USA')
+  (SELECT ID FROM Country WHERE name = 'USA'))
 SELECT * FROM ADDRESS INNER JOIN COUNTRY ON CountryID = COUNTRY.ID
 SELECT * FROM ADDRESS LEFT JOIN COUNTRY ON CountryID = COUNTRY.ID
 INSERT INTO ADDRESS(ID) VALUES(6)
@@ -280,7 +286,7 @@ insert into test_maxrows select id+4 from test_maxrows;
  3
  2
  1
-*/select limit 3 4 id from test_maxrows order by id desc
+*/select id from test_maxrows order by id desc offset 3 fetch 4 rows only
 /*r
  4
  3
@@ -381,7 +387,7 @@ DROP TABLE PRODUCT
 /*e*/ creat unique index 1
 /*e*/ select id from test where yes>2;
 /*e*/ select id from test where id has 5
-/*e*/ drop table test; grant access
+/*e*/ grant access
 /*e*/ connect user or maybe not
 /*e*/ set parameter
 /*e*/ set autocommit and
@@ -393,6 +399,7 @@ DROP TABLE PRODUCT
 /*e*/ create table mem(i int)drop table mem",
 
 -- ResultSet with sizes
+drop table test;
 create table test(nr integer,name char(5), other varchar(10));
 /*r0*/ select count(*) from test;
 insert into test values(1,null,null);

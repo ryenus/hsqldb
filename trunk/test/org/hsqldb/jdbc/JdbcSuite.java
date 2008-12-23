@@ -88,6 +88,7 @@ public class JdbcSuite extends TestCase {
         suite.addTest(org.hsqldb.jdbc.JDBCSQLXMLTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCSavepointTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCStatementTest.suite());
+		suite.addTest(org.hsqldb.jdbc.ScriptedTest.suite());
         // TODO:
         //suite.addTest(org.hsqldb.jdbc.jdbcConflictingRowTest.suite());
         //suite.addTest(org.hsqldb.jdbc.jdbcDataSetTest.suite());
