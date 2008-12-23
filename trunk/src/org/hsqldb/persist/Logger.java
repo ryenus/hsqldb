@@ -475,12 +475,13 @@ public class Logger {
         char lastChar = destPath.charAt(destPath.length() - 1);
         boolean generateName = (lastChar == '/'
                                 || lastChar == runtimeFileDelim.charValue());
+        String defaultCompressionSuffix = compressed ? ".tar.gz" : ".tar";
         File archiveFile =
             generateName
             ? (new File(destPath.substring(0, destPath.length() - 1),
                         instanceName + '-'
                         + backupFileFormat.format(new java.util.Date())
-                        + (compressed ? ".tar.gz" : ".tar")))
+                        + defaultCompressionSuffix))
             : (new File(destPath));
         boolean nameImpliesCompress = archiveFile.getName().endsWith(".tar.gz")
             || archiveFile.getName().endsWith(".tgz");
