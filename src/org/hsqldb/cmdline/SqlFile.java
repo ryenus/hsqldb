@@ -1339,41 +1339,45 @@ public class SqlFile {
                             (tableName == null) ? other
                                                 : ("SELECT * FROM "
                                                    + tableName));
-                    List colList = new ArrayList();
-                    int[] incCols = null;
-                    if (dsvSkipCols != null) {
-                        Set skipCols = new HashSet();
-                        String[] skipColsArray =
-                                dsvSkipCols.split(dsvColDelim, -1);
-                        // Don't know if better to use dsvColDelim or
-                        // dsvColSplitter.  Going with former, since the
-                        // latter should not need to be set for eXporting
-                        // (only importing).
-                        for (int i = 0; i < skipColsArray.length; i++) {
-                            skipCols.add(skipColsArray[i].trim().toLowerCase());
-                        }
-                        ResultSetMetaData rsmd = rs.getMetaData();
-                        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-                            if (!skipCols.remove(rsmd.getColumnName(i)
-                                    .toLowerCase())) {
-                                colList.add(new Integer(i));
+                    try {
+                        List colList = new ArrayList();
+                        int[] incCols = null;
+                        if (dsvSkipCols != null) {
+                            Set skipCols = new HashSet();
+                            String[] skipColsArray =
+                                    dsvSkipCols.split(dsvColDelim, -1);
+                            // Don't know if better to use dsvColDelim or
+                            // dsvColSplitter.  Going with former, since the
+                            // latter should not need to be set for eXporting
+                            // (only importing).
+                                for (int i = 0; i < skipColsArray.length; i++) {
+                                skipCols.add(skipColsArray[i].trim().toLowerCase());
+                            }
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                                if (!skipCols.remove(rsmd.getColumnName(i)
+                                        .toLowerCase())) {
+                                    colList.add(new Integer(i));
+                                }
+                            }
+                            if (colList.size() < 1) {
+                                throw new BadSpecial(rb.getString(
+                                        SqltoolRB.DSV_NOCOLSLEFT, dsvSkipCols));
+                            }
+                            if (skipCols.size() > 0) {
+                                throw new BadSpecial(rb.getString(
+                                        SqltoolRB.DSV_SKIPCOLS_MISSING,
+                                            skipCols.toString()));
+                            }
+                            incCols = new int[colList.size()];
+                            for (int i = 0; i < incCols.length; i++) {
+                                incCols[i] = ((Integer) colList.get(i)).intValue();
                             }
                         }
-                        if (colList.size() < 1) {
-                            throw new BadSpecial(rb.getString(
-                                    SqltoolRB.DSV_NOCOLSLEFT, dsvSkipCols));
-                        }
-                        if (skipCols.size() > 0) {
-                            throw new BadSpecial(rb.getString(
-                                    SqltoolRB.DSV_SKIPCOLS_MISSING,
-                                        skipCols.toString()));
-                        }
-                        incCols = new int[colList.size()];
-                        for (int i = 0; i < incCols.length; i++) {
-                            incCols[i] = ((Integer) colList.get(i)).intValue();
-                        }
+                        displayResultSet(null, rs, incCols, null);
+                    } finally {
+                        rs.close();
                     }
-                    displayResultSet(null, rs, incCols, null);
                     pwDsv.flush();
                     stdprintln(rb.getString(SqltoolRB.FILE_WROTECHARS,
                             Long.toString(dsvFile.length()),
@@ -2766,15 +2770,18 @@ public class SqlFile {
             excludeSysSchemas = false;
 
             if (rs != null) {
-                rs = null;
+                try {
+                    rs.close();
+                } catch (SQLException se) {
+                    // We already got what we want from it, or have/are
+                    // processing a more specific error.
+                }
             }
 
             if (statement != null) {
                 try {
                     statement.close();
-                } catch (Exception e) {}
-
-                statement = null;
+                } catch (SQLException se) {}
             }
         }
     }
@@ -2815,6 +2822,7 @@ public class SqlFile {
 
         long startTime = 0;
         if (reportTimes) startTime = (new java.util.Date()).getTime();
+        try { // VERY outer block just to ensure we close "statement"
         try { if (doPrepare) {
             if (lastSqlStatement.indexOf('?') < 1) {
                 lastSqlStatement = null;
@@ -2825,6 +2833,7 @@ public class SqlFile {
             doPrepare = false;
 
             PreparedStatement ps = curConn.prepareStatement(lastSqlStatement);
+            statement = ps;
 
             if (prepareVar == null) {
                 if (binBuffer == null) {
@@ -2850,8 +2859,6 @@ public class SqlFile {
             }
 
             ps.executeUpdate();
-
-            statement = ps;
         } else {
             statement = curConn.createStatement();
 
@@ -2870,12 +2877,24 @@ public class SqlFile {
         possiblyUncommitteds.set(
             !commitOccursPattern.matcher(lastSqlStatement).matches());
 
+        ResultSet rs = null;
         try {
-            displayResultSet(statement, statement.getResultSet(), null, null);
+            rs = statement.getResultSet();
+            displayResultSet(statement, rs, null, null);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException se) {
+                    // We already got what we want from it, or have/are
+                    // processing a more specific error.
+                }
+            }
+        }
         } finally {
             try {
                 statement.close();
-            } catch (Exception e) {}
+            } catch (SQLException se) {}
         }
         lastSqlStatement = null;
     }
@@ -2884,6 +2903,8 @@ public class SqlFile {
      * Display the given result set for user.
      * The last 3 params are to narrow down records and columns where
      * that can not be done with a where clause (like in metadata queries).
+     * <P/>
+     * Caller is responsible for closing any passed Statement or ResultSet.
      *
      * @param statement The SQL Statement that the result set is for.
      *                  (This is so we can get the statement's update count.
@@ -3103,6 +3124,9 @@ public class SqlFile {
                                             val = streamToString(
                                                 r.getAsciiStream(i), charset);
                                         } catch (Exception e) { }
+                                        // Why not handling this?
+                                        // Perhaps only coding exception for
+                                        // char set we know we have.
                                     }
                             }
                         }
@@ -3544,8 +3568,8 @@ public class SqlFile {
             }
         }
 
-        Statement statement = curConn.createStatement();
         ResultSet r         = null;
+        Statement statement = curConn.createStatement();
 
         // STEP 1: GATHER DATA
         try {
@@ -3641,12 +3665,10 @@ public class SqlFile {
             try {
                 if (r != null) {
                     r.close();
-
-                    r = null;
                 }
 
                 statement.close();
-            } catch (Exception e) {}
+            } catch (SQLException se) {}
         }
     }
 
@@ -4747,6 +4769,12 @@ public class SqlFile {
                 }
             }
         } finally {
+            if (ps != null) try {
+                ps.close();
+            } catch (SQLException se) {
+                // We already got what we want from it, or have/are
+                // processing a more specific error.
+            }
             try {
                 if (dsvRecordsPerCommit > 0
                     && (recCount - rejectCount) % dsvRecordsPerCommit != 0) {
