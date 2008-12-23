@@ -544,13 +544,13 @@ public class TestDbBackup extends junit.framework.TestCase {
                     + "/' BLOCKING NOT COMPRESSED");
             fileCount = baseDir.listFiles(autoTarFilenameFilter).length;
             if (fileCount != 1)
-                throw new IllegalStateException(Integer.toString(fileCount)
+                fail(Integer.toString(fileCount)
                         + " auto-tar files exist in baseDir '"
                         + baseDir.getAbsolutePath()
                         + "' after writing a non-compressed backup");
             fileCount = baseDir.listFiles(autoTarGzFilenameFilter).length;
             if (fileCount != 0)
-                throw new IllegalStateException(Integer.toString(fileCount)
+                fail(Integer.toString(fileCount)
                         + " auto-tar.gz files exist in baseDir '"
                         + baseDir.getAbsolutePath()
                         + "' after writing a non-compressed backup");
@@ -559,13 +559,13 @@ public class TestDbBackup extends junit.framework.TestCase {
                     + "/' BLOCKING COMPRESSED");
             fileCount = baseDir.listFiles(autoTarFilenameFilter).length;
             if (fileCount != 1)
-                throw new IllegalStateException(Integer.toString(fileCount)
+                fail(Integer.toString(fileCount)
                         + " auto-tar files exist in baseDir '"
                         + baseDir.getAbsolutePath()
                         + "' after writing both backups");
             fileCount = baseDir.listFiles(autoTarGzFilenameFilter).length;
             if (fileCount != 1)
-                throw new IllegalStateException(Integer.toString(fileCount)
+                fail(Integer.toString(fileCount)
                         + " auto-tar.gz files exist in baseDir '"
                         + baseDir.getAbsolutePath()
                         + "' after writing a compressed backup");
@@ -589,8 +589,9 @@ public class TestDbBackup extends junit.framework.TestCase {
         return newSuite;
     }
 
-    private String currentYyyyMMdd =
-            new SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
+    private String autoMiddlingString = "-"
+            + new SimpleDateFormat("yyyyMMdd").format(new java.util.Date())
+            + 'T';
 
     FilenameFilter autoTarFilenameFilter = new FilenameFilter() {
         private String suffixFormat = "-yyyyMMddTHHmmss.tar";
@@ -602,8 +603,9 @@ public class TestDbBackup extends junit.framework.TestCase {
             int suffixPos = name.length() - suffixFormat.length();
             // Would like to use Java 1.4's java.util.regex here.
             return name.endsWith(".tar")
-                    && name.substring(suffixPos, currentYyyyMMdd.length() + 1)
-                    .equals("-" + currentYyyyMMdd);
+                    && name.substring(suffixPos,
+                    suffixPos + autoMiddlingString.length())
+                    .equals(autoMiddlingString);
         }
     };
 
@@ -617,8 +619,9 @@ public class TestDbBackup extends junit.framework.TestCase {
             int suffixPos = name.length() - suffixFormat.length();
             // Would like to use Java 1.4's java.util.regex here.
             return name.endsWith(".tar.gz")
-                    && name.substring(suffixPos, currentYyyyMMdd.length() + 1)
-                    .equals("-" + currentYyyyMMdd);
+                    && name.substring(suffixPos,
+                    suffixPos + autoMiddlingString.length())
+                    .equals(autoMiddlingString);
         }
     };
 }
