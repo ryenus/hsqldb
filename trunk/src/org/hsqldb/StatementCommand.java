@@ -589,9 +589,8 @@ public class StatementCommand extends Statement {
 
                         // Do not enforce this constraint for SCRIPT type
                         // backup.
-                        // TODO:  Define a message for Non-file database
                         return Result.newErrorResult(
-                            Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY),
+                            Error.error(ErrorCode.DATABASE_IS_NON_FILE),
                             null);
 
                         // If we were to back up res: type DB's, could use

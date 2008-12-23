@@ -72,6 +72,9 @@ public interface ErrorCode {
     int DATABASE_IS_MEMORY_ONLY     = 63;
     int OUT_OF_MEMORY               = 72;
     int ERROR_IN_SCRIPT_FILE        = 78;
+    int UNSUPPORTED_FILENAME_SUFFIX = 79;
+    int COMPRESSION_SUFFIX_MISMATCH = 80;
+    int DATABASE_IS_NON_FILE        = 82;
 
     //
     int DATABASE_NOT_EXISTS                   = 94;

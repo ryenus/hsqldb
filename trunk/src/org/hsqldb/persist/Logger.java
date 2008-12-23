@@ -485,17 +485,14 @@ public class Logger {
         boolean nameImpliesCompress = archiveFile.getName().endsWith(".tar.gz")
             || archiveFile.getName().endsWith(".tgz");
         if ((!nameImpliesCompress) && !archiveFile.getName().endsWith(".tar")) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
-                    "Will only write archive files with suffix .tar, .tar.gz, "
-                    + "(attempted '" + archiveFile.getName() + "'");
-            // TODO:  Define a more specific error message
+            throw Error.error(ErrorCode.UNSUPPORTED_FILENAME_SUFFIX, 0,
+                    new String[] { archiveFile.getName(),
+                    ".tar, .tar.gz, .tgz" });
         }
         if (compressed != nameImpliesCompress) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
-                    "Mismatch between requested compression mode '"
-                    + compressed + "' and target file name '"
-                    + archiveFile.getName() + "'");
-            // TODO:  Define a more specific error message
+            throw Error.error(ErrorCode.COMPRESSION_SUFFIX_MISMATCH, 0,
+                    new Object[]
+                    { new Boolean(compressed), archiveFile.getName() });
         }
 
         log.closeForBackup();
