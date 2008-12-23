@@ -5,12 +5,13 @@
  */
 
 create table customers(
-    id INTEGER default 0, firstname VARCHAR, lastname VARCHAR,
+    id INTEGER default 0, firstname VARCHAR(50), lastname VARCHAR(50),
     entrytime TIMESTAMP);
 
 create procedure new_customer(firstname varchar(50), lastname varchar(50))
+    modifies sql data
     insert into customers values (
-        default, firstname, lastname, current_timestamp);
+        default, firstname, lastname, current_timestamp)
 .;
 
 SELECT count(*) FROM customers;
