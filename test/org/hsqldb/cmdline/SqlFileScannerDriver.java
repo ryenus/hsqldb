@@ -1,10 +1,10 @@
 package org.hsqldb.cmdline;
 
 import java.io.FileReader;
-import org.hsqldb.util.sqltool.SqlFileScanner;
-import org.hsqldb.util.sqltool.Token;
-import org.hsqldb.util.sqltool.TokenSource;
-import org.hsqldb.util.sqltool.TokenList;
+import org.hsqldb.cmdline.sqltool.SqlFileScanner;
+import org.hsqldb.cmdline.sqltool.Token;
+import org.hsqldb.cmdline.sqltool.TokenSource;
+import org.hsqldb.cmdline.sqltool.TokenList;
 import java.io.IOException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
