@@ -480,11 +480,24 @@ public class Logger {
             ? (new File(destPath.substring(0, destPath.length() - 1),
                         instanceName + '-'
                         + backupFileFormat.format(new java.util.Date())
-                        + ".tar.gz"))
+                        + (compressed ? ".tar.gz" : ".tar")))
             : (new File(destPath));
+        boolean nameImpliesCompress = archiveFile.getName().endsWith(".tar.gz")
+            || archiveFile.getName().endsWith(".tgz");
+        if ((!nameImpliesCompress) && !archiveFile.getName().endsWith(".tar")) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                    "Will only write archive files with suffix .tar, .tar.gz, "
+                    + "(attempted '" + archiveFile.getName() + "'");
+            // TODO:  Define a more specific error message
+        }
+        if (compressed != nameImpliesCompress) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                    "Mismatch between requested compression mode '"
+                    + compressed + "' and target file name '"
+                    + archiveFile.getName() + "'");
+            // TODO:  Define a more specific error message
+        }
 
-        // This treats paths as directories if the last element contains
-        // no dot.
         log.closeForBackup();
 
         try {
