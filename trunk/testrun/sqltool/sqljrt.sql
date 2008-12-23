@@ -8,7 +8,7 @@ create function dehex(VARCHAR, INTEGER)
     returns INTEGER
     no sql
     language java
-    external name 'CLASSPATH:java.lang.Integer.valueOf';
+    external name 'CLASSPATH:java.lang.Integer.valueOf'
 .;
 
 CALL dehex('12', 16);
