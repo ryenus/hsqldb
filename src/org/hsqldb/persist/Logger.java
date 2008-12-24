@@ -454,8 +454,7 @@ public class Logger {
     static private Character runtimeFileDelim = null;
 
     public synchronized void backup(String destPath, String dbPath,
-                                    boolean script,
-                                    boolean blocking,
+                                    boolean script, boolean blocking,
                                     boolean compressed) throws HsqlException {
 
         /* If want to add db Id also, will need to pass either Database
@@ -475,7 +474,8 @@ public class Logger {
         char lastChar = destPath.charAt(destPath.length() - 1);
         boolean generateName = (lastChar == '/'
                                 || lastChar == runtimeFileDelim.charValue());
-        String defaultCompressionSuffix = compressed ? ".tar.gz" : ".tar";
+        String defaultCompressionSuffix = compressed ? ".tar.gz"
+                                                     : ".tar";
         File archiveFile =
             generateName
             ? (new File(destPath.substring(0, destPath.length() - 1),
@@ -483,17 +483,23 @@ public class Logger {
                         + backupFileFormat.format(new java.util.Date())
                         + defaultCompressionSuffix))
             : (new File(destPath));
-        boolean nameImpliesCompress = archiveFile.getName().endsWith(".tar.gz")
+        boolean nameImpliesCompress =
+            archiveFile.getName().endsWith(".tar.gz")
             || archiveFile.getName().endsWith(".tgz");
-        if ((!nameImpliesCompress) && !archiveFile.getName().endsWith(".tar")) {
+
+        if ((!nameImpliesCompress)
+                && !archiveFile.getName().endsWith(".tar")) {
             throw Error.error(ErrorCode.UNSUPPORTED_FILENAME_SUFFIX, 0,
-                    new String[] { archiveFile.getName(),
-                    ".tar, .tar.gz, .tgz" });
+                              new String[] {
+                archiveFile.getName(), ".tar, .tar.gz, .tgz"
+            });
         }
+
         if (compressed != nameImpliesCompress) {
             throw Error.error(ErrorCode.COMPRESSION_SUFFIX_MISMATCH, 0,
-                    new Object[]
-                    { new Boolean(compressed), archiveFile.getName() });
+                              new Object[] {
+                new Boolean(compressed), archiveFile.getName()
+            });
         }
 
         log.closeForBackup();
