@@ -593,13 +593,12 @@
       different statement each time.</para>
 
       <para>A <classname>java.sql.PreparedStatement</classname> object is used
-      to execute a single query or data change statement repeatedly. The SQL
-      statement usually contains parameters, which can be set to new values
-      before each reuse. When a
-      <classname>java.sql.PreparedStatement</classname> object is created, the
-      engine keeps the compiled SQL statement for reuse, until the
-      <classname>java.sql.PreparedStatement</classname> object is closed. As a
-      result, repeated use of a
+      to execute a single statement repeatedly. The SQL statement usually
+      contains parameters, which can be set to new values before each reuse.
+      When a <classname>java.sql.PreparedStatement</classname> object is
+      created, the engine keeps the compiled SQL statement for reuse, until
+      the <classname>java.sql.PreparedStatement</classname> object is closed.
+      As a result, repeated use of a
       <classname>java.sql.PreparedStatement</classname> is much faster than
       using a <classname>java.sql.Statement</classname> object.</para>
 
@@ -775,7 +774,7 @@
       name. You should avoid using such names as future versions of HyperSQL
       are likely to support the reserved words and may reject your table
       definitions or queries. The full list of SQL reserved words is in the
-      source of the <classname>org.hsqldb.Token</classname> class.</para>
+      source of the <classname>org.hsqldb.Tokens</classname> class.</para>
 
       <para>If you have to use a reserved keyword as the name of a database
       object, you can enclose it in double quotes.</para>
@@ -1243,7 +1242,8 @@
         <title>Bit and Boolean Types</title>
 
         <para>In previous versions, BIT was simply an alias for BOOLEAN. In
-        1.9.0 BIT is a single-bit bit map.</para>
+        1.9.0 BIT is a single-bit bit map, while BIT(n) and BIT VARYING(n) are
+        strings of bits..</para>
 
         <para>The primary representation of BOOLEAN column is
         <literal>'true'</literal> or <literal>'false'</literal> either as the
@@ -1423,40 +1423,55 @@
     </section>
 
     <section>
-      <title>Issues with Transactions</title>
+      <title>Transactions and Concurrency Control</title>
 
-      <para>HSQLDB supports transactions at the READ_UNCOMMITTED level, also
-      known as level 0 transaction isolation. This means that during the
-      lifetime of a transaction, other connections to the database can see the
-      changes made to the data. Therefore, the following issues may be
-      encountered only with multiple connections to a database using
-      transactions:</para>
+      <para>Up to and including version 1.8, HSQLDB supported transactions at
+      the READ UNCOMMITTED level, also known as level 0 transaction isolation.
+      At this level, during the lifetime of a transaction, uncommitted changes
+      made to the data by a session are visible to other, concurrent sessions.
+      From version 1.9, HSQLDB no longer supports READ UNCOMMITTED as the new
+      architecture is based on multi-version rows for uncommitted data and
+      more than one version may exist for some rows.</para>
 
-      <para>If two transactions modify the same row, no exception is raised
-      when both transactions are committed. This can be avoided by designing
-      your database in such a way that application data consistency does not
-      depend on exclusive modification of data by one transaction. You can set
-      a database property to cause an exception when this
-      happens.<programlisting>SET PROPERTY "sql.tx_no_multi_rewrite" TRUE</programlisting>When
-      an <literal>ALTER TABLE .. INSERT COLUMN</literal> or <literal>DROP
-      COLUMN</literal> command results in changes to the table structure, the
-      current session is committed. If an uncommitted transaction started by
-      another connections has changed the data in the affected table, it may
-      not be possible to roll it back after the <literal>ALTER TABLE</literal>
-      command. This may also apply to <literal>ADD INDEX</literal> or
-      <literal>ADD CONSTRAINT</literal> commands. It is recommended to use
-      these <literal>ALTER</literal> commands only when it is known that other
-      connections are not using transactions.</para>
+      <para>HyperSQL 1.9 supports 3 levels of transaction isolation: READ
+      COMMITTED, REPEATABLE READ and SERIALIZABLE. It also supports two
+      concurrency control modes, two phased locking (2PL) and multiversion
+      concurrency control (MVCC). The isolation level is a property of each
+      SQL session, so different sessions can have different isolation levels.
+      The concurrency control strategy governs all the sessions and is set for
+      the database, as opposed for individual sessions.</para>
 
-      <para>After a CHECKPOINT command is issued, uncommitted transactions can
-      be continued, committed, or rolled back. However, if the database is not
-      subsequently closed properly with the SHUTDOWN command, any such
-      transaction that still remains uncommitted at the time of shutdown, is
-      part committed (to the state at CHECKPOINT) at the next startup. It is
-      recommended to use the CHECKPOINT command either when no uncommitted
-      transactions is in progress, or it is known that any such transaction is
-      not likely to last for such a long time that an abnormal shutdown might
-      affect its data.</para>
+      <para>Two Phased Locking</para>
+
+      <para>In the 2PL mode, each table that is read by a transaction is
+      locked with a shared lock, and each table that is written to is locked
+      with an exclusive lock. If two sessions read and modify different tables
+      then both go through simultaneously. If one session tries to lock a
+      table that has been exclusively locked by the other, it will either
+      fail, or wait, depending on the locks.</para>
+
+      <para>MVCC</para>
+
+      <para>In MVCC mode, there are no locks. Transactions can read and modify
+      the same table simultaneously. When a transaction commits, then any
+      other transaction that has modified the same row as the committing
+      transaction, will be terminated. This happens when one of the sessions
+      has an isolation level of REPEATABLE READ or SERIALIZABLE. But if the a
+      session's isolation level is READ COMMITTED, it waits for the other,
+      conflicting transaction to complete and commit, and then starts reading
+      or modifying the data. If a session, or the transaction it is running,
+      is read-only, then it will not lock the tables it reads and will go
+      ahead and complete regardless of what other transactions may do.</para>
+
+      <para>The following command switches the concurrency control mode for
+      the database</para>
+
+      <para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVCC }</programlisting>The
+      default isolation mode for a session is READ COMMITTED. This can be
+      changed using JDBC ... Or, alternatively, using SQL.</para>
+
+      <para><programlisting>SET TRANSACTION ISOLATION LEVEL { READ COMMITTED | REPEATABLE READ | SERIALIZABLE }</programlisting>More
+      on transactions </para>
     </section>
   </chapter>
 
