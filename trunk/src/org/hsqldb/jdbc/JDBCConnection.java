@@ -1228,7 +1228,7 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         try {
-            sessionProxy.setReadOnly(readOnly);
+            sessionProxy.setReadOnlyDefault(readOnly);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -1249,7 +1249,7 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         try {
-            return sessionProxy.isReadOnly();
+            return sessionProxy.isReadOnlyDefault();
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -1344,13 +1344,11 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Although HSQLDB presently supports only
-     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>,
-     * all valid isolation levels are accepted and
-     * reported as set. Calling this method during
-     * a transaction presently has no effect, other
-     * than to change the value reported by
-     * <code>getTransactionIsolation()</code>.<p>
+     * HSQLDB 2.0 supports all isolation levels above
+     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>.
+     * If <code>Connection.TRANSACTION_READ_UNCOMMITED</code> is specified,
+     * it is promoted to a higher isolation level.
+     * Calling this method during a transaction always fails.<p>
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -1404,10 +1402,11 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Although HSQLDB presently supports only
-     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>,
-     * all valid isolation levels are accepted and
-     * reported as set. <p>
+     * HSQLDB 2.0 supports all isolation levels above
+     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>.
+     * If <code>Connection.TRANSACTION_READ_UNCOMMITED</code> was specified,
+     * it is promoted to a higher isolation level, which is returned by this
+     * call.<p>
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -1457,10 +1456,12 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSQLDB produces warnings whenever a createStatement(),
+     * HSQLDB produces warnings whenever a createStatement(),
      * prepareStatement() or prepareCall() invocation requests an unsupported
      * but defined combination of result set type, concurrency and holdability,
-     * such that another set is substituted.
+     * such that another set is substituted.<p>
+     * Other warnings are typically raised during the execution of data change
+     * and query statements.<p>
      *
      * </div> <!-- end release-specific documentation -->
      * @return the first <code>SQLWarning</code> object or <code>null</code>
@@ -1491,10 +1492,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Before HSQLDB 1.7.2, <code>SQLWarning</code> was not
-     * supported, and calls to this method are simply ignored. <p>
-     *
-     * Starting with HSQLDB 1.7.2, the standard behaviour is implemented. <p>
+     * The standard behaviour is implemented. <p>
      *
      * </div> <!-- end release-specific documentation -->
      *

@@ -1027,8 +1027,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         row    = t.getEmptyRowData();
         row[0] = "SESSION_READONLY";
-        row[1] = session.isReadOnly() ? "TRUE"
-                                      : "FALSE";
+        row[1] = session.isReadOnlyDefault() ? "TRUE"
+                                             : "FALSE";
 
         t.insertSys(store, row);
 
@@ -1150,7 +1150,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[iuname]    = s.getUsername();
             row[iis_admin] = ValuePool.getBoolean(s.isAdmin());
             row[iautocmt]  = ValuePool.getBoolean(s.isAutoCommit());
-            row[ireadonly] = ValuePool.getBoolean(s.isReadOnly());
+            row[ireadonly] = ValuePool.getBoolean(s.isReadOnlyDefault());
             row[imaxrows]  = ValuePool.getInt(s.getSQLMaxRows());
             row[ilast_id] =
                 ValuePool.getLong(((Number) s.getLastIdentity()).longValue());

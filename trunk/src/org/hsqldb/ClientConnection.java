@@ -86,8 +86,8 @@ public class ClientConnection implements SessionInterface {
     private long                 lobIDSequence;
 
     //
-    private boolean isReadOnly   = false;
-    private boolean isAutoCommit = true;
+    private boolean isReadOnlyDefault = false;
+    private boolean isAutoCommit      = true;
     private int     zoneSeconds;
     private Scanner scanner;
 
@@ -298,23 +298,24 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized boolean isReadOnly() throws HsqlException {
+    public synchronized boolean isReadOnlyDefault() throws HsqlException {
 
         Object info = getAttribute(SessionInterface.INFO_CONNECTION_READONLY);
 
-        isReadOnly = ((Boolean) info).booleanValue();
+        isReadOnlyDefault = ((Boolean) info).booleanValue();
 
-        return isReadOnly;
+        return isReadOnlyDefault;
     }
 
-    public synchronized void setReadOnly(boolean mode) throws HsqlException {
+    public synchronized void setReadOnlyDefault(boolean mode)
+    throws HsqlException {
 
-        if (mode != isReadOnly) {
+        if (mode != isReadOnlyDefault) {
             setAttribute(SessionInterface.INFO_CONNECTION_READONLY,
                          mode ? Boolean.TRUE
                               : Boolean.FALSE);
 
-            isReadOnly = mode;
+            isReadOnlyDefault = mode;
         }
     }
 

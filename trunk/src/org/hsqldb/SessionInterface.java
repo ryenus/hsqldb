@@ -59,7 +59,7 @@ public interface SessionInterface {
     int INFO_ISOLATION           = 0;    // used
     int INFO_AUTOCOMMIT          = 1;    // used
     int INFO_CONNECTION_READONLY = 2;    // used
-    int INFO_CATALOG             = 3;
+    int INFO_CATALOG             = 3;    // used
     //
     int TX_READ_UNCOMMITTED = 1;
     int TX_READ_COMMITTED   = 2;
@@ -77,9 +77,9 @@ public interface SessionInterface {
 
     boolean isClosed();
 
-    boolean isReadOnly() throws HsqlException;
+    boolean isReadOnlyDefault() throws HsqlException;
 
-    void setReadOnly(boolean readonly) throws HsqlException;
+    void setReadOnlyDefault(boolean readonly) throws HsqlException;
 
     boolean isAutoCommit() throws HsqlException;
 

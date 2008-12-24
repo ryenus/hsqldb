@@ -111,7 +111,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
     // enforcement of these settings will be done.
     boolean isAutoCommit         = true;
     boolean isReadOnly           = false;
-    int     transactionIsolation = Connection.TRANSACTION_READ_UNCOMMITTED;
+    int     transactionIsolation = Connection.TRANSACTION_READ_COMMITTED;
     String  catalog              = null;
 
     /** Optional query to validate new Connections before returning them. */

@@ -2680,7 +2680,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see JDBCConnection
      */
     public int getDefaultTransactionIsolation() throws SQLException {
-        return Connection.TRANSACTION_READ_UNCOMMITTED;
+        return Connection.TRANSACTION_READ_COMMITTED;
     }
 
     /**
@@ -2712,9 +2712,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information</h3>
-     * HSQLDB supports <code>TRANSACTION_READ_UNCOMMITED</code> in all cases
-     * and the rest of the isolation levels where there is only one connection
-     * to the database.
+     * HSQLDB supports levels above <code>TRANSACTION_READ_UNCOMMITED</code> in
+     * all cases.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2728,8 +2727,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     public boolean supportsTransactionIsolationLevel(
             int level) throws SQLException {
 
-        return level == Connection.TRANSACTION_READ_UNCOMMITTED
-               || level == Connection.TRANSACTION_READ_COMMITTED
+        return level == Connection.TRANSACTION_READ_COMMITTED
                || level == Connection.TRANSACTION_REPEATABLE_READ
                || level == Connection.TRANSACTION_SERIALIZABLE;
     }

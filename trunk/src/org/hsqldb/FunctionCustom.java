@@ -554,8 +554,8 @@ public class FunctionCustom extends FunctionSQL {
                                               : Boolean.FALSE;
 
             case FUNC_ISREADONLYSESSION :
-                return session.isReadOnly() ? Boolean.TRUE
-                                            : Boolean.FALSE;
+                return session.isReadOnlyDefault() ? Boolean.TRUE
+                                                   : Boolean.FALSE;
 
             case FUNC_ISREADONLYDATABASE :
                 return session.getDatabase().databaseReadOnly ? Boolean.TRUE
