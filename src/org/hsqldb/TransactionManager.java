@@ -675,6 +675,10 @@ public class TransactionManager {
 
     void endTransactionTPL(Session session) {
 
+        if (session.isReadOnly() ) {
+            return;
+        }
+
         unlockTablesTPL(session);
 
 
@@ -713,6 +717,10 @@ public class TransactionManager {
     }
 
     void beginActionTPL(Session session, Statement cs) {
+
+        if (session.isReadOnly() ) {
+            return;
+        }
 
         setWaitedSessionsTPL(session, cs);
 

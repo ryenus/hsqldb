@@ -255,6 +255,10 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_25001);
         }
 
+        if (level == SessionInterface.TX_READ_UNCOMMITTED) {
+            level = SessionInterface.TX_READ_COMMITTED;
+        }
+
         isolationMode = level;
     }
 
@@ -693,6 +697,10 @@ public class Session implements SessionInterface {
      */
     public boolean isReadOnly() {
         return isReadOnly;
+    }
+
+    public boolean isReadOnlyDefault() {
+        return isReadOnlyDefault;
     }
 
     /**
@@ -1458,7 +1466,7 @@ public class Session implements SessionInterface {
                         ((Boolean) row[SessionInterface.INFO_BOOLEAN])
                             .booleanValue();
 
-                    this.setReadOnly(value);
+                    this.setReadOnlyDefault(value);
 
                     break;
                 }
@@ -1520,7 +1528,7 @@ public class Session implements SessionInterface {
             case SessionInterface.INFO_CONNECTION_READONLY : {
                 boolean value = ((Boolean) object).booleanValue();
 
-                this.setReadOnly(value);
+                this.setReadOnlyDefault(value);
 
                 break;
             }

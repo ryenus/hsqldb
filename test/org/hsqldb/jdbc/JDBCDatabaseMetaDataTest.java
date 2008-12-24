@@ -1828,7 +1828,7 @@ public class JDBCDatabaseMetaDataTest extends JdbcTestCase {
 
         int expResult = getIntProperty(
                 "dbmd.default.transaction.isolation",
-                Connection.TRANSACTION_READ_UNCOMMITTED);
+                Connection.TRANSACTION_READ_COMMITTED);
         int result = dbmd.getDefaultTransactionIsolation();
         assertEquals(expResult, result);
     }
