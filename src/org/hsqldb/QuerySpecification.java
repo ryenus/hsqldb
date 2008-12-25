@@ -1804,7 +1804,12 @@ public class QuerySpecification extends QueryExpression {
     void getBaseTableNames(OrderedHashSet set) {
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            HsqlName name = rangeVariables[i].rangeTable.getName();
+            Table rangeTable = rangeVariables[i].rangeTable;
+            HsqlName name = rangeTable.getName();
+
+            if (rangeTable.isReadOnly() || rangeTable.isTemp() ) {
+                continue;
+            }
 
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
@@ -1812,7 +1817,5 @@ public class QuerySpecification extends QueryExpression {
 
             set.add(name);
         }
-
-        // todo - add subqueries
     }
 }
