@@ -240,21 +240,4 @@ public class StatementInsert extends StatementDMQL {
 
         return newData;
     }
-
-    public void getTableNamesForRead(OrderedHashSet set) {
-
-        for (int i = 0; i < rangeVariables.length; i++) {
-            HsqlName name = rangeVariables[i].rangeTable.getName();
-
-            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                continue;
-            }
-
-            set.add(name);
-        }
-    }
-
-    public void getTableNamesForWrite(OrderedHashSet set) {
-        set.add(baseTable.getName());
-    }
 }

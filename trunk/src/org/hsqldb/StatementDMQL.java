@@ -772,7 +772,12 @@ public abstract class StatementDMQL extends Statement {
     public void getTableNamesForRead(OrderedHashSet set) {
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            HsqlName name = rangeVariables[i].rangeTable.getName();
+            Table rangeTable = rangeVariables[i].rangeTable;
+            HsqlName name = rangeTable.getName();
+
+            if (rangeTable.isReadOnly() || rangeTable.isTemp() ) {
+                continue;
+            }
 
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
@@ -780,9 +785,20 @@ public abstract class StatementDMQL extends Statement {
 
             set.add(name);
         }
+
+        for (int i = 0; i < subqueries.length; i++) {
+            if (subqueries[i].queryExpression != null) {
+                subqueries[i].queryExpression.getBaseTableNames(set);
+            }
+        }
+
     }
 
     public void getTableNamesForWrite(OrderedHashSet set) {
+        if (baseTable.isTemp() ) {
+            return;
+        }
+
         set.add(baseTable.getName());
     }
 
