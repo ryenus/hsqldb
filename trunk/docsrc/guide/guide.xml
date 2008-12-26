@@ -613,15 +613,16 @@
       <para>A <classname>java.sql.Connection</classname> object also has some
       methods for transaction control.</para>
 
-      <para>The commit() method performs a <literal>COMMIT</literal> while the
-      rollback() method performs a <literal>ROLLBACK</literal> SQL
-      statement.</para>
+      <para>The <methodname>commit()</methodname> method performs a
+      <literal>COMMIT</literal> while the <methodname>rollback()</methodname>
+      method performs a <literal>ROLLBACK</literal> SQL statement.</para>
 
-      <para>The <literal>setSavepoint(String name)</literal> method performs a
-      <literal>SAVEPOINT &lt;name&gt;</literal> SQL statement and returns a
-      <classname>java.sql.Savepoint</classname> object. The
-      <literal>rollback(Savepoint name)</literal> method performs a
-      <literal>ROLLBACK TO SAVEPOINT &lt;name&gt;</literal> SQL
+      <para>The <literal>
+          <methodname>setSavepoint(String name)</methodname>
+        </literal> method performs a <literal>SAVEPOINT &lt;name&gt;</literal>
+      SQL statement and returns a <classname>java.sql.Savepoint</classname>
+      object. The <literal>rollback(Savepoint name)</literal> method performs
+      a <literal>ROLLBACK TO SAVEPOINT &lt;name&gt;</literal> SQL
       statement.</para>
 
       <para>The Javadoc for <ulink
@@ -692,9 +693,9 @@
       For troubleshooting purposes, you can specify a connection property
       <property>ifexists</property>=<literal>true</literal> to allow
       connection to an existing database only and avoid creating a new
-      database. In this case, if the database does not exist, the
-      <literal>getConnection()</literal> method will throw an
-      exception.</para>
+      database. In this case, if the database does not exist, the <literal>
+          <methodname>getConnection()</methodname>
+        </literal> method will throw an exception.</para>
 
       <para>
         <example>
@@ -767,14 +768,16 @@
       <para>Over 300 words are reserved by the standard and should not be used
       as table or column names. For example, the word POSITION is reserved as
       it is a function defined by the Standards with a similar role as
-      <literal>String.indexOf()</literal> in Java. HyperSQL does not currently
-      prevent you from using a reserved word if it does not support its use or
-      can distinguish it. For example CUBE is a reserved words that is not
-      currently supported by HyperSQL and is allowed as a table or column
-      name. You should avoid using such names as future versions of HyperSQL
-      are likely to support the reserved words and may reject your table
-      definitions or queries. The full list of SQL reserved words is in the
-      source of the <classname>org.hsqldb.Tokens</classname> class.</para>
+      <literal>
+          <methodname>String.indexOf()</methodname>
+        </literal> in Java. HyperSQL does not currently prevent you from using
+      a reserved word if it does not support its use or can distinguish it.
+      For example CUBE is a reserved words that is not currently supported by
+      HyperSQL and is allowed as a table or column name. You should avoid
+      using such names as future versions of HyperSQL are likely to support
+      the reserved words and may reject your table definitions or queries. The
+      full list of SQL reserved words is in the source of the
+      <classname>org.hsqldb.Tokens</classname> class.</para>
 
       <para>If you have to use a reserved keyword as the name of a database
       object, you can enclose it in double quotes.</para>
@@ -1145,13 +1148,14 @@
         result of the operations is returned in a JDBC
         <classname>ResultSet</classname> in any of related Java types:
         <classname>Integer</classname>, <classname>Long</classname> or
-        <classname>BigDecimal</classname>. The
-        <literal>ResultSet.getXXXX()</literal> methods can be used to retrieve
-        the values so long as the returned value can be represented by the
-        resulting type. This type is deterministically based on the query, not
-        on the actual rows returned. The type does not change when the same
-        query that returned one row, returns many rows as a result of adding
-        more data to the tables.</para>
+        <classname>BigDecimal</classname>. The <literal>
+            <methodname>ResultSet.getXXXX()</methodname>
+          </literal> methods can be used to retrieve the values so long as the
+        returned value can be represented by the resulting type. This type is
+        deterministically based on the query, not on the actual rows returned.
+        The type does not change when the same query that returned one row,
+        returns many rows as a result of adding more data to the
+        tables.</para>
 
         <para>If the SELECT statement refers to a simple column or function,
         then the return type is the type corresponding to the column or the
@@ -1203,9 +1207,12 @@
         <literal>0.2</literal> is considered a DECIMAL value but
         <literal>0.2E0</literal> is considered a DOUBLE value.</para>
 
-        <para>When <literal>PreparedStatement.setDouble()</literal> or
-        <literal>setFloat()</literal> is used, the value is treated as a
-        DOUBLE automatically.</para>
+        <para>When <literal>
+            <methodname>PreparedStatement.setDouble()</methodname>
+          </literal> or <literal>
+            <methodname>setFloat()</methodname>
+          </literal> is used, the value is treated as a DOUBLE
+        automatically.</para>
 
         <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
         expression, the type of the result is DOUBLE.</para>
@@ -1425,53 +1432,102 @@
     <section>
       <title>Transactions and Concurrency Control</title>
 
-      <para>Up to and including version 1.8, HSQLDB supported transactions at
-      the READ UNCOMMITTED level, also known as level 0 transaction isolation.
-      At this level, during the lifetime of a transaction, uncommitted changes
-      made to the data by a session are visible to other, concurrent sessions.
-      From version 1.9, HSQLDB no longer supports READ UNCOMMITTED as the new
-      architecture is based on multi-version rows for uncommitted data and
-      more than one version may exist for some rows.</para>
+      <para>Before version 1.9, HSQLDB supported READ UNCOMMITTED transaction
+      isolation. Al this isolation level, uncommitted changes made to the data
+      by a session are visible to other, concurrent sessions. From version
+      1.9, HSQLDB no longer supports READ UNCOMMITTED as the new architecture
+      is based on multi-version rows for uncommitted data and more than one
+      version may exist for some rows.</para>
 
-      <para>HyperSQL 1.9 supports 3 levels of transaction isolation: READ
+      <para>HyperSQL 2.0 supports 3 levels of transaction isolation: READ
       COMMITTED, REPEATABLE READ and SERIALIZABLE. It also supports two
-      concurrency control modes, two phased locking (2PL) and multiversion
+      concurrency control modes, two-phased-locking (2PL) and multiversion
       concurrency control (MVCC). The isolation level is a property of each
       SQL session, so different sessions can have different isolation levels.
       The concurrency control strategy governs all the sessions and is set for
-      the database, as opposed for individual sessions.</para>
+      the database, as opposed for individual sessions. All the supported
+      transaction modes avoid the "dirty read" phenomenon and do not read
+      uncommitted changes made to rows by other transactions.</para>
 
-      <para>Two Phased Locking</para>
+      <section>
+        <title>Two Phased Locking</title>
 
-      <para>In the 2PL mode, each table that is read by a transaction is
-      locked with a shared lock, and each table that is written to is locked
-      with an exclusive lock. If two sessions read and modify different tables
-      then both go through simultaneously. If one session tries to lock a
-      table that has been exclusively locked by the other, it will either
-      fail, or wait, depending on the locks.</para>
+        <para>In the 2PL mode, each table that is read by a transaction is
+        locked with a shared lock, and each table that is written to is locked
+        with an exclusive lock. If two sessions read and modify different
+        tables then both go through simultaneously. If one session tries to
+        lock a table that has been exclusively locked by the other, the engine
+        will put it in wait, or it will invalidate the action it is attempting
+        to perform, depending on the locks.</para>
 
-      <para>MVCC</para>
+        <para>When a transaction is running in read-only mode (or the session
+        is in read-only mode), then it will not lock the tables and will go
+        ahead and complete regardless of what other transactions may
+        do.</para>
 
-      <para>In MVCC mode, there are no locks. Transactions can read and modify
-      the same table simultaneously. When a transaction commits, then any
-      other transaction that has modified the same row as the committing
-      transaction, will be terminated. This happens when one of the sessions
-      has an isolation level of REPEATABLE READ or SERIALIZABLE. But if the a
-      session's isolation level is READ COMMITTED, it waits for the other,
-      conflicting transaction to complete and commit, and then starts reading
-      or modifying the data. If a session, or the transaction it is running,
-      is read-only, then it will not lock the tables it reads and will go
-      ahead and complete regardless of what other transactions may do.</para>
+        <para>If a table is read-only, it will not be locked by any
+        transaction.</para>
+      </section>
 
-      <para>The following command switches the concurrency control mode for
-      the database</para>
+      <section>
+        <title>MVCC</title>
 
-      <para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVCC }</programlisting>The
-      default isolation mode for a session is READ COMMITTED. This can be
-      changed using JDBC ... Or, alternatively, using SQL.</para>
+        <para>In MVCC mode, there are no shared, read locks. Exclusive locks
+        are used on individual rows, but their use is different. Transactions
+        can read and modify the same table simultaneously, generally without
+        waiting for other transactions.</para>
 
-      <para><programlisting>SET TRANSACTION ISOLATION LEVEL { READ COMMITTED | REPEATABLE READ | SERIALIZABLE }</programlisting>More
-      on transactions </para>
+        <para>When transactions are running in READ COMMITTED mode, no
+        conflict will occur. If a transaction that runs in this mode wants to
+        modify a row that has been modified by another uncommitted
+        transaction, then the engine puts the transaction in wait, until the
+        other transaction has committed. The transaction then continues
+        automatically.</para>
+
+        <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
+        isolation modes, conflict can happen. There is no difference in
+        operation between these two isolation modes. If a transaction that
+        runs in this mode wants to modify a row that has been modified by
+        another uncommitted transaction, the engine allows it to go ahead
+        despite the conflict. When one of the conflicting sessions commits,
+        the commit goes through. But when committing, the engine will
+        invalidate the other, conflicting transaction and roll back all its
+        changes. </para>
+
+        <para>In all isolation modes, when a transaction only reads data, then
+        it will go ahead and complete regardless of what other transactions
+        may do. This does not depend on the transaction being
+        read-only.</para>
+      </section>
+
+      <section>
+        <title>Commands</title>
+
+        <para>The following SQL command switches the concurrency control mode
+        for the database. It can be issued only when all sessions have been
+        committed or rolled back.</para>
+
+        <para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVCC }</programlisting>The
+        default isolation level for a session is READ COMMITTED. This can be
+        changed using the JDBC <classname>java.sql.Connection</classname>
+        object and its <methodname>setTransactionIsolation(int
+        level)</methodname> method. The session can be put in read-only mode
+        using the <methodname>setReadOnly(boolean readOnly)</methodname>
+        method. Both methods can be invoked only after a commit or a
+        rollback.</para>
+
+        <para>The isolation level and / or the read only mode of a transaction
+        can be modified using the same SQL command. You can use the command to
+        change only the isolation mode, only the read-only mode, or both at
+        the same time. This command can be issued only after a commit or
+        rollback.</para>
+
+        <para><programlisting>SET TRANSACTION &lt;transaction characteristic&gt; [ &lt;comma&gt; &lt;transaction characteristic&gt; ]
+
+&lt;transaction characteristic&gt; :=
+{ ISOLATION LEVEL { READ COMMITTED | REPEATABLE READ | SERIALIZABLE } } | { READ ONLY | READ WRITE }
+</programlisting>More on transactions</para>
+      </section>
     </section>
   </chapter>
 
@@ -1507,7 +1563,7 @@
       </keywordset>
 
       <legalnotice>
-        <para>Copyright 2002-2008 Fred Toussi. Permission is granted to
+        <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
         distribute this document without any alteration under the terms of the
         HSQLDB license. Additional permission is granted to the HSQLDB
         Development Group to distribute this document with or without
@@ -4038,11 +4094,11 @@
       </keywordset>
 
       <legalnotice>
-        <para>Copyright 2005 Fred Toussi. Permission is granted to distribute
-        this document without any alteration under the terms of the HSQLDB
-        license. Additional permission is granted to the HSQLDB Development
-        Group to distribute this document with or without alterations under
-        the terms of the HSQLDB license.</para>
+        <para>Copyright 2005-2009 Fred Toussi. Permission is granted to
+        distribute this document without any alteration under the terms of the
+        HSQLDB license. Additional permission is granted to the HSQLDB
+        Development Group to distribute this document with or without
+        alterations under the terms of the HSQLDB license.</para>
       </legalnotice>
     </chapterinfo>
 
@@ -4687,7 +4743,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       </keywordset>
 
       <legalnotice>
-        <para>Copyright 2002-2005 Bob Preston and Fred Toussi. Permission is
+        <para>Copyright 2002-2009 Bob Preston and Fred Toussi. Permission is
         granted to distribute this document without any alteration under the
         terms of the HSQLDB license. Additional permission is granted to the
         HSQLDB Development Group to distribute this document with or without
