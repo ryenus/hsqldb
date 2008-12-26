@@ -1070,17 +1070,6 @@ public class BaseHashMap {
         removeFromElementArrays(lookup);
     }
 
-    protected Object removeLookup(int lookup) {
-
-        if (isObjectKey) {
-            return addOrRemove(0, 0, objectKeyTable[lookup], null, true);
-        } else if (isIntKey) {
-            return addOrRemove(intKeyTable[lookup], 0, null, null, true);
-        } else {
-            return addOrRemove(longKeyTable[lookup], 0, null, null, true);
-        }
-    }
-
     /**
      * Clear the map completely.
      */
@@ -1433,7 +1422,24 @@ public class BaseHashMap {
 
             removed = true;
 
-            BaseHashMap.this.removeLookup(lookup);
+            if (BaseHashMap.this.isObjectKey) {
+                if (multiValueTable == null) {
+                    addOrRemove(0, 0, objectKeyTable[lookup], null, true);
+                } else {
+                    if (keys) {
+                        addOrRemoveMultiVal(0, 0, objectKeyTable[lookup],
+                                            null, true, false);
+                    } else {
+                        addOrRemoveMultiVal(0, 0, objectKeyTable[lookup],
+                                            objectValueTable[lookup], false,
+                                            true);
+                    }
+                }
+            } else if (isIntKey) {
+                addOrRemove(intKeyTable[lookup], 0, null, null, true);
+            } else {
+                addOrRemove(longKeyTable[lookup], 0, null, null, true);
+            }
 
             if (isList) {
                 lookup--;
@@ -1441,6 +1447,7 @@ public class BaseHashMap {
         }
 
         public void setValue(Object value) {
+
             if (keys) {
                 throw new NoSuchElementException();
             }
