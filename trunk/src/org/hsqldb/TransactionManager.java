@@ -85,7 +85,8 @@ public class TransactionManager {
     MultiValueHashMap waitedSessions  = new MultiValueHashMap();
 
     //
-    HashMap tableLocks = new HashMap();
+    HashMap tableWriteLocks = new HashMap();
+    MultiValueHashMap tableReadLocks = new MultiValueHashMap();
 
     TransactionManager(Database db) {
         database = db;
@@ -742,6 +743,33 @@ public class TransactionManager {
         OrderedHashSet nameSet = new OrderedHashSet();
 
         cs.getTableNamesForWrite(nameSet);
+
+        for (int i = 0; i < nameSet.size(); i++) {
+            HsqlName name = (HsqlName) nameSet.get(i);
+
+            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                continue;
+            }
+
+            Session holder = (Session) tableWriteLocks.get(name);
+
+            if (holder != null && holder != session) {
+                session.tempSet.add(holder);
+            }
+
+            Iterator it = tableReadLocks.get(name);
+
+            while(it.hasNext()) {
+                holder = (Session) it.next();
+
+                if (holder != session) {
+                    session.tempSet.add(holder);
+                }
+            }
+        }
+
+        nameSet.clear();
+
         cs.getTableNamesForRead(nameSet);
 
         for (int i = 0; i < nameSet.size(); i++) {
@@ -751,12 +779,13 @@ public class TransactionManager {
                 continue;
             }
 
-            Session holder = (Session) tableLocks.get(name);
+            Session holder = (Session) tableWriteLocks.get(name);
 
             if (holder != null && holder != session) {
                 session.tempSet.add(holder);
             }
         }
+
     }
 
     void setWaitingSessionTPL(Session session) {
@@ -785,6 +814,18 @@ public class TransactionManager {
         OrderedHashSet nameSet = new OrderedHashSet();
 
         cs.getTableNamesForWrite(nameSet);
+
+        for (int i = 0; i < nameSet.size(); i++) {
+            HsqlName name = (HsqlName) nameSet.get(i);
+
+            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                continue;
+            }
+
+            tableWriteLocks.put(name, session);
+        }
+
+        nameSet.clear();
         cs.getTableNamesForRead(nameSet);
 
         for (int i = 0; i < nameSet.size(); i++) {
@@ -794,13 +835,13 @@ public class TransactionManager {
                 continue;
             }
 
-            tableLocks.put(name, session);
+            tableReadLocks.put(name, session);
         }
     }
 
     void unlockTablesTPL(Session session) {
 
-        Iterator it = tableLocks.values().iterator();
+        Iterator it = tableWriteLocks.values().iterator();
 
         while (it.hasNext()) {
             Session s = (Session) it.next();
@@ -809,6 +850,17 @@ public class TransactionManager {
                 it.setValue(null);
             }
         }
+
+        it = tableReadLocks.values().iterator();
+
+        while (it.hasNext()) {
+            Session s = (Session) it.next();
+
+            if (s == session) {
+                it.remove();
+            }
+        }
+
     }
 
     /**
