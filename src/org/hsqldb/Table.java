@@ -136,6 +136,7 @@ public class Table extends TableBase implements SchemaObject {
 
 // -----------------------------------------------------------------------
     Constraint[]    constraintList;            // constrainst for the table
+    Constraint[]    fkPath;                    //
     HsqlArrayList[] triggerLists;              // array of trigger lists
     Expression[]    colDefaults;               // fredt - expressions of DEFAULT values
     protected int[] defaultColumnMap;          // fred - holding 0,1,2,3,...
@@ -247,8 +248,9 @@ public class Table extends TableBase implements SchemaObject {
         primaryKeyTypes = null;
         identityColumn  = -1;
         columnList      = new HashMappedList();
-        indexList       = Index.emptyIndexArray;
-        constraintList  = Constraint.emptyConstraintArray;
+        indexList       = Index.emptyArray;
+        constraintList  = Constraint.emptyArray;
+        fkPath          = Constraint.emptyArray;
         triggerLists    = new HsqlArrayList[TriggerDef.NUM_TRIGS];
 
         if (database.isFilesReadOnly() && isFileBased()) {
@@ -265,8 +267,8 @@ public class Table extends TableBase implements SchemaObject {
         this.tableType      = TableBase.RESULT_TABLE;
         this.columnList     = table.columnList;
         this.columnCount    = table.columnCount;
-        this.indexList      = Index.emptyIndexArray;
-        this.constraintList = Constraint.emptyConstraintArray;
+        this.indexList      = Index.emptyArray;
+        this.constraintList = Constraint.emptyArray;
 
         createPrimaryKey();
     }
@@ -614,6 +616,16 @@ public class Table extends TableBase implements SchemaObject {
 
         constraintList =
             (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, c, i, 1);
+
+        OrderedHashSet list = new OrderedHashSet();
+
+        if (list.size() > 0) {
+            fkPath = new Constraint[list.size()];
+
+            list.toArray(fkPath);
+        }
+
+        getConstraintPath(defaultColumnMap, list);
     }
 
     /**
@@ -629,6 +641,23 @@ public class Table extends TableBase implements SchemaObject {
     public Constraint getPrimaryConstraint() {
         return primaryKeyCols.length == 0 ? null
                                           : constraintList[0];
+    }
+
+    void getConstraintPath(int[] columnMap, OrderedHashSet list) {
+
+        for (int i = 0; i < constraintList.length; i++) {
+            if (constraintList[i].hasTriggeredAction()) {
+                int[] mainColumns = constraintList[i].getMainColumns();
+
+                if (ArrayUtil.countCommonElements(columnMap, mainColumns)
+                        > 0) {
+                    if (list.add(constraintList[i])) {
+                        constraintList[i].getRef().getConstraintPath(
+                            constraintList[i].getRefColumns(), list);
+                    }
+                }
+            }
+        }
     }
 
     Constraint getNotNullConstraintForColumn(int colIndex) {

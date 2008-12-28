@@ -769,13 +769,22 @@ public abstract class StatementDMQL extends Statement {
         return rangeVariables;
     }
 
+    // this fk references -> other  :  other read lock
+    // other fk references this :  if constraint trigger action  : other write lock
+
     public void getTableNamesForRead(OrderedHashSet set) {
 
-        for (int i = 0; i < rangeVariables.length; i++) {
-            Table rangeTable = rangeVariables[i].rangeTable;
-            HsqlName name = rangeTable.getName();
+        if (!baseTable.isTemp()) {
+            for (int i =0; i < baseTable.fkPath.length; i++) {
+                set.add(baseTable.fkPath[i].getMain().getName());
+            }
+        }
 
-            if (rangeTable.isReadOnly() || rangeTable.isTemp() ) {
+        for (int i = 0; i < rangeVariables.length; i++) {
+            Table    rangeTable = rangeVariables[i].rangeTable;
+            HsqlName name       = rangeTable.getName();
+
+            if (rangeTable.isReadOnly() || rangeTable.isTemp()) {
                 continue;
             }
 
@@ -791,15 +800,19 @@ public abstract class StatementDMQL extends Statement {
                 subqueries[i].queryExpression.getBaseTableNames(set);
             }
         }
-
     }
 
     public void getTableNamesForWrite(OrderedHashSet set) {
-        if (baseTable.isTemp() ) {
+
+        if (baseTable.isTemp()) {
             return;
         }
 
         set.add(baseTable.getName());
+
+        for (int i =0; i < baseTable.fkPath.length; i++) {
+            set.add(baseTable.fkPath[i].getMain().getName());
+        }
     }
 
     public ResultMetaData generatedResultMetaData() {

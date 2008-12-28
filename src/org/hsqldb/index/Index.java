@@ -136,7 +136,7 @@ public class Index implements SchemaObject {
     ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
 
     //
-    public static final Index[] emptyIndexArray = new Index[]{};
+    public static final Index[] emptyArray = new Index[]{};
 
     /**
      * Constructor declaration
@@ -785,6 +785,18 @@ public class Index implements SchemaObject {
         return false;
     }
 
+    public static boolean hasAllNull(Object[] row, int[] rowColMap) {
+
+        int count = rowColMap.length;
+
+        for (int i = 0; i < count; i++) {
+            if (row[rowColMap[i]] != null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
     /**
      * Determines if a table row has a null column for any of the indexed
      * columns.

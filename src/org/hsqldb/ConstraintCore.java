@@ -105,6 +105,7 @@ class ConstraintCore {
     Index refIndex;
     int   deleteAction;
     int   updateAction;
+    int   matchType;
 
     //
     ConstraintCore duplicate() {
@@ -122,6 +123,7 @@ class ConstraintCore {
         copy.refIndex     = refIndex;
         copy.deleteAction = deleteAction;
         copy.updateAction = updateAction;
+        copy.matchType    = matchType;
 
         return copy;
     }
