@@ -481,7 +481,7 @@ examples:
    </target>
 
    <target name="test" depends="-requireJunit, classes16"
-           description="compiles the /test folder">
+           description="compiles the /test-classes folder">
          <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
