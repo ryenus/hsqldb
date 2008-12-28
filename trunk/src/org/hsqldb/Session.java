@@ -256,7 +256,7 @@ public class Session implements SessionInterface {
         }
 
         if (level == SessionInterface.TX_READ_UNCOMMITTED) {
-            level = SessionInterface.TX_READ_COMMITTED;
+            isReadOnly = true;
         }
 
         isolationMode = level;

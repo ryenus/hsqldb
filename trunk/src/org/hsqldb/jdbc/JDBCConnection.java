@@ -1344,10 +1344,9 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 supports all isolation levels above
-     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>.
-     * If <code>Connection.TRANSACTION_READ_UNCOMMITED</code> is specified,
-     * it is promoted to a higher isolation level.
+     * HSQLDB 2.0 supports all isolation levels. If database transaction 
+     * control is MVCC, <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
+     * is promoted to <code>Connection.TRANSACTION_READ_COMMITED</code>.
      * Calling this method during a transaction always fails.<p>
      *
      * </div> <!-- end release-specific documentation -->
@@ -1402,11 +1401,9 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 supports all isolation levels above
-     * <code>Connection.TRANSACTION_READ_UNCOMMITED</code>.
-     * If <code>Connection.TRANSACTION_READ_UNCOMMITED</code> was specified,
-     * it is promoted to a higher isolation level, which is returned by this
-     * call.<p>
+     * HSQLDB 2.0 supports all isolation levels. If database transaction 
+     * control is MVCC, <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
+     * is promoted to <code>Connection.TRANSACTION_READ_COMMITED</code>.
      *
      * </div> <!-- end release-specific documentation -->
      *

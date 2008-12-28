@@ -55,7 +55,7 @@ public class UserTypeModifier {
     final HsqlName name;
     final int      schemaObjectType;
     final Type     dataType;
-    Constraint[]   constraints = Constraint.emptyConstraintArray;
+    Constraint[]   constraints = Constraint.emptyArray;
     Expression     defaultExpression;
     boolean        isNullable = true;
 

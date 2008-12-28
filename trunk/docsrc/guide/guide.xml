@@ -1435,20 +1435,18 @@
 
       <para>Before version 1.9, HSQLDB supported READ UNCOMMITTED transaction
       isolation. Al this isolation level, uncommitted changes made to the data
-      by a session are visible to other, concurrent sessions. From version
-      1.9, HSQLDB no longer supports READ UNCOMMITTED as the new architecture
-      is based on multi-version rows for uncommitted data and more than one
-      version may exist for some rows.</para>
+      by a session are visible to other, concurrent sessions.</para>
 
-      <para>HyperSQL 2.0 supports 3 levels of transaction isolation: READ
-      COMMITTED, REPEATABLE READ and SERIALIZABLE. It also supports two
-      concurrency control modes, two-phased-locking (2PL) and multiversion
-      concurrency control (MVCC). The isolation level is a property of each
-      SQL session, so different sessions can have different isolation levels.
-      The concurrency control strategy governs all the sessions and is set for
-      the database, as opposed for individual sessions. All the supported
-      transaction modes avoid the "dirty read" phenomenon and do not read
-      uncommitted changes made to rows by other transactions.</para>
+      <para>HyperSQL 2.0 supports 4 levels of transaction isolation: READ
+      UNCOMMITTED, READ COMMITTED, REPEATABLE READ and SERIALIZABLE. It also
+      supports two concurrency control modes, two-phased-locking (2PL) and
+      multiversion concurrency control (MVCC). The isolation level is a
+      property of each SQL session, so different sessions can have different
+      isolation levels. The concurrency control strategy governs all the
+      sessions and is set for the database, as opposed for individual
+      sessions. Isolation levels above READ UNCOMMITTED avoid the "dirty read"
+      phenomenon and do not read uncommitted changes made to rows by other
+      transactions.</para>
 
       <section>
         <title>Two Phased Locking</title>
@@ -1463,8 +1461,9 @@
 
         <para>When a transaction is running in read-only mode (or the session
         is in read-only mode), then it will not lock the tables and will go
-        ahead and complete regardless of what other transactions may
-        do.</para>
+        ahead and complete regardless of what other transactions may do. The
+        READ UNCOMMITTED isolation level can be used in this mode for
+        read-only operations.</para>
 
         <para>If a table is read-only, it will not be locked by any
         transaction.</para>
@@ -1494,6 +1493,10 @@
         the commit goes through. But when committing, the engine will
         invalidate the other, conflicting transaction and roll back all its
         changes.</para>
+
+        <para>In this mode, READ UNCOMMITTED is promoted to READ COMMITTED, as
+        the new architecture is based on multi-version rows for uncommitted
+        data and more than one version may exist for some rows. </para>
 
         <para>In all isolation modes, when a transaction only reads data, then
         it will go ahead and complete regardless of what other transactions

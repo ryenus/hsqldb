@@ -1388,6 +1388,30 @@ public class ParserDDL extends ParserRoutine {
             }
         }
 
+        int matchType = OpTypes.MATCH_SIMPLE;
+
+        if (token.tokenType == Tokens.MATCH) {
+            read();
+
+            switch (token.tokenType) {
+
+                case Tokens.SIMPLE :
+                    read();
+                    break;
+
+                case Tokens.PARTIAL :
+                    throw super.unsupportedFeature();
+                case Tokens.FULL :
+                    read();
+
+                    matchType = OpTypes.MATCH_FULL;
+                    break;
+
+                default :
+                    throw unexpectedToken();
+            }
+        }
+
         // -- In a while loop we parse a maximium of two
         // -- "ON" statements following the foreign key
         // -- definition this can be
@@ -1485,7 +1509,7 @@ public class ParserDDL extends ParserRoutine {
         return new Constraint(constraintName, refTable.getName(), refColSet,
                               mainTableName, mainColSet,
                               Constraint.FOREIGN_KEY, deleteAction,
-                              updateAction);
+                              updateAction, matchType);
     }
 
     private HsqlName readFKTableName(HsqlName schema) throws HsqlException {

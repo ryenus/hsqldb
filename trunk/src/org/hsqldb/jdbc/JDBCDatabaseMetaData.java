@@ -2712,8 +2712,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information</h3>
-     * HSQLDB supports levels above <code>TRANSACTION_READ_UNCOMMITED</code> in
-     * all cases.
+     * HSQLDB supports all levels.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2727,7 +2726,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     public boolean supportsTransactionIsolationLevel(
             int level) throws SQLException {
 
-        return level == Connection.TRANSACTION_READ_COMMITTED
+        return level == Connection.TRANSACTION_READ_UNCOMMITTED
+               || level == Connection.TRANSACTION_READ_COMMITTED
                || level == Connection.TRANSACTION_REPEATABLE_READ
                || level == Connection.TRANSACTION_SERIALIZABLE;
     }

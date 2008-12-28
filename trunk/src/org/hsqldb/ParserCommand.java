@@ -410,75 +410,103 @@ public class ParserCommand extends ParserDDL {
             case Tokens.TRANSACTION : {
                 read();
 
-                Object[] args = new Object[2];
+                int      level    = 0;
+                boolean  readonly = false;
+                Object[] args     = new Object[2];
 
-                if (token.tokenType == Tokens.READ) {
-                    read();
-
-                    boolean readonly = false;
-
-                    if (token.tokenType == Tokens.ONLY) {
-                        read();
-
-                        readonly = true;
-                    } else {
-                        readThis(Tokens.WRITE);
-
-                        readonly = false;
-                    }
-
-                    args[0] = Boolean.valueOf(readonly);
-
-                    return new StatementCommand(StatementTypes.SET_TRANSACTION,
-                                                args);
-                } else if (token.tokenType == Tokens.ISOLATION) {
-                    read();
-                    readThis(Tokens.LEVEL);
-
-                    int level;
-
+                outerloop:
+                while (true) {
                     switch (token.tokenType) {
 
-                        case Tokens.SERIALIZABLE :
-                            read();
-
-                            level = SessionInterface.TX_SERIALIZABLE;
-                            break;
-
-                        case Tokens.READ :
-                            read();
-
-                            if (token.tokenType == Tokens.COMMITTED) {
-                                read();
-
-                                level = SessionInterface.TX_READ_COMMITTED;
-                            } else if (token.tokenType == Tokens.UNCOMMITTED) {
-                                read();
-
-                                level = SessionInterface.TX_READ_UNCOMMITTED;
-                            } else {
+                        case Tokens.READ : {
+                            if (args[0] != null) {
                                 throw unexpectedToken();
                             }
-                            break;
 
-                        case Tokens.REPEATABLE :
                             read();
-                            readThis(Tokens.READ);
 
-                            level = SessionInterface.TX_REPEATABLE_READ;
+                            if (token.tokenType == Tokens.ONLY) {
+                                read();
+
+                                readonly = true;
+                            } else {
+                                readThis(Tokens.WRITE);
+
+                                readonly = false;
+                            }
+
+                            args[0] = Boolean.valueOf(readonly);
+
                             break;
+                        }
+                        case Tokens.ISOLATION : {
+                            if (args[1] != null) {
+                                throw unexpectedToken();
+                            }
 
-                        default :
-                            throw unexpectedToken();
+                            read();
+                            readThis(Tokens.LEVEL);
+
+                            switch (token.tokenType) {
+
+                                case Tokens.SERIALIZABLE :
+                                    read();
+
+                                    level = SessionInterface.TX_SERIALIZABLE;
+                                    break;
+
+                                case Tokens.READ :
+                                    read();
+
+                                    if (token.tokenType == Tokens.COMMITTED) {
+                                        read();
+
+                                        level =
+                                            SessionInterface.TX_READ_COMMITTED;
+                                    } else if (token.tokenType
+                                               == Tokens.UNCOMMITTED) {
+                                        read();
+
+                                        level =
+                                            SessionInterface
+                                                .TX_READ_UNCOMMITTED;
+                                    } else {
+                                        throw unexpectedToken();
+                                    }
+                                    break;
+
+                                case Tokens.REPEATABLE :
+                                    read();
+                                    readThis(Tokens.READ);
+
+                                    level =
+                                        SessionInterface.TX_REPEATABLE_READ;
+                                    break;
+
+                                default :
+                                    throw unexpectedToken();
+                            }
+
+                            args[1] = new Integer(level);
+
+                            break;
+                        }
+                        default : {
+                            if (args[0] == null && args[1] == null) {
+                                throw unexpectedToken();
+                            }
+
+                            break outerloop;
+                        }
                     }
-
-                    args[1] = new Integer(level);
-
-                    return new StatementCommand(StatementTypes.SET_TRANSACTION,
-                                                args);
                 }
 
-                throw unexpectedTokenRequire(Tokens.T_READ);
+                if (!readonly && level == 1) {
+                    throw unexpectedToken(Tokens.T_WRITE);
+                }
+
+                return new StatementCommand(StatementTypes.SET_TRANSACTION,
+                                            args);
             }
             case Tokens.READONLY : {
                 read();

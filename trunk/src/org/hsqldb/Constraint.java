@@ -134,7 +134,7 @@ public final class Constraint implements SchemaObject {
     OrderedHashSet refColSet;
 
     //
-    final public static Constraint[] emptyConstraintArray = new Constraint[]{};
+    final public static Constraint[] emptyArray = new Constraint[]{};
 
     /**
      *  Constructor declaration for PK and UNIQUE
@@ -193,7 +193,7 @@ public final class Constraint implements SchemaObject {
     public Constraint(HsqlName name, HsqlName refTableName,
                       OrderedHashSet refCols, HsqlName mainTableName,
                       OrderedHashSet mainCols, int type, int deleteAction,
-                      int updateAction) {
+                      int updateAction, int matchType) {
 
         core               = new ConstraintCore();
         this.name          = name;
@@ -204,6 +204,7 @@ public final class Constraint implements SchemaObject {
         refColSet          = refCols;
         core.deleteAction  = deleteAction;
         core.updateAction  = updateAction;
+        core.matchType     = matchType;
     }
 
     public Constraint(HsqlName name, OrderedHashSet mainCols, int type) {
@@ -504,6 +505,28 @@ public final class Constraint implements SchemaObject {
         return getActionString(core.updateAction);
     }
 
+    public boolean hasTriggeredAction() {
+
+        if (constType == Constraint.FOREIGN_KEY ) {
+            switch (core.deleteAction) {
+
+                case Constraint.CASCADE:
+                case Constraint.SET_DEFAULT:
+                case Constraint.SET_NULL:
+                    return true;
+            }
+
+            switch (core.updateAction) {
+
+                case Constraint.CASCADE:
+                case Constraint.SET_DEFAULT:
+                case Constraint.SET_NULL:
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public int getDeferability() {
         return NOT_DEFERRABLE;
     }
@@ -706,7 +729,22 @@ public final class Constraint implements SchemaObject {
 
             case FOREIGN_KEY :
                 if (Index.hasNull(row, core.refCols)) {
-                    return;
+                    if (core.refCols.length == 1) {
+                        return;
+                    }
+
+                    if (Index.hasAllNull(row, core.refCols)) {
+                        return;
+                    }
+
+                    if (core.matchType == OpTypes.MATCH_FULL) {
+                        String[] info = new String[] {
+                            core.refName.name, core.mainTable.getName().name
+                        };
+
+                        throw Error.error(ErrorCode.X_23502,
+                                          ErrorCode.CONSTRAINT, info);
+                    }
                 }
 
                 // a record must exist in the main table
