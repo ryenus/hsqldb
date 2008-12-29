@@ -2,24 +2,8 @@
 <!-- $Id$ -->
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2CR1/docbookx.dtd" [
-<!ENTITY revision "$Revision$">
-<!ENTITY date "$Date$">
-<!ENTITY docbasename "guide">
-<!ENTITY baseurl "http://hsqldb.org/doc/&docbasename;">
-<!ENTITY blaineaddr "blaine.simpson@admc.com">
-<!ENTITY fredaddr "ft@cluedup.com">
-<!-- Component chapters and appendices -->
-<!ENTITY building-appendix.xml SYSTEM "building.xml">
-<!ENTITY dbfiles-appendix.xml SYSTEM "dbfiles.xml">
-<!ENTITY openoffice-appendix.xml SYSTEM "openoffice.xml">
-<!ENTITY testutility-appendix.xml SYSTEM "testutility.xml">
-<!-- Imported cdata sandwich files -->
-<!ENTITY Testdb.java-cdata SYSTEM "../../tmp/docwork/guide/cdata/Testdb.java">
-<!ENTITY server.properties-cdata SYSTEM "../../tmp/docwork/guide/cdata/server.properties">
-<!ENTITY sqltool.rc-cdata SYSTEM "../../tmp/docwork/guide/cdata/sqltool.rc">
-<!ENTITY hsqldb.cfg-cdata SYSTEM "../../tmp/docwork/guide/cdata/hsqldb.cfg">
-<!ENTITY acl.txt-cdata SYSTEM "../../tmp/docwork/guide/cdata/acl.txt">
 ]>
+
 <book>
   <title>HyperSQL User Guide</title>
 
@@ -32,7 +16,7 @@
 
         <surname>Simpson</surname>
 
-        <email>&blaineaddr;</email>
+        <email>&blaine_addr;</email>
 
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
@@ -44,7 +28,7 @@
 
         <surname>Toussi</surname>
 
-        <email>&fredaddr;</email>
+        <email>&fred_addr;</email>
 
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
@@ -52,9 +36,9 @@
       </editor>
     </authorgroup>
 
-    <edition>&revision;</edition>
+    <edition>$Revision$</edition>
 
-    <pubdate>&date;</pubdate>
+    <pubdate>$Date$</pubdate>
 
     <keywordset>
       <keyword>Hsqldb</keyword>
@@ -1995,7 +1979,7 @@
 
             <surname>Simpson</surname>
 
-            <email>&blaineaddr;</email>
+            <email>&blaine_addr;</email>
 
             <affiliation>
               <orgname>HSQLDB Development Group</orgname>
@@ -2423,7 +2407,7 @@
 
         <surname>Simpson</surname>
 
-        <email>&blaineaddr;</email>
+        <email>&blaine_addr;</email>
 
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
@@ -3096,8 +3080,8 @@
 
         <para>If you want troubleshooting help, use the HSQLDB lists/forums or
         email me at <ulink
-        url="mailto:blaine.simpson@admc.com?Subject=hsqldb-unix">
-        &blaineaddr;</ulink>. If you email me, make sure to include the
+        url="mailto:&blaine_addr;?Subject=hsqldb-unix">
+        &blaine_addr;</ulink>. If you email me, make sure to include the
         revision number from your <filename>hsqldb</filename> init script
         (it's towards the top in the line that starts like "# $Id:"), and the
         output of a run of <screen>
