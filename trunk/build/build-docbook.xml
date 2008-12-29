@@ -26,10 +26,13 @@
     "local.properties" file).
   -->
 
+  <!-- Since the main HSQLDB build file imports this one, relative property
+       file specifications must be relative to the project root, not build/ -->
+
   <!-- Put local env property changes in this NON-CHANGE-CONTROLLED file: -->
-  <property file="local-docbook.properties"/>
+  <property file="build/local-docbook.properties"/>
   <!-- For change-controlled (by your project) ant-docbook-specific props: -->
-  <property file="docbook.properties"/>
+  <property file="build/docbook.properties"/>
 
   <property name="oasis.stylesheet.url"
             value="http://docbook.sourceforge.net/release/xsl-ns/current"/>
