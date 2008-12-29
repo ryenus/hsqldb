@@ -975,8 +975,8 @@ examples:
 
   <target name="-prep-images">
     <fail unless="dbimage.path">Ant property 'dbimage.path' is required
-This is normally the "images" subdirectory of a DocBook v.5
-Style Sheet distribution.  The distro can be obtained at
+This is normally the "images" subdirectory of a DocBook v.5 Style Sheet
+distribution.  The distro can be obtained at
 http://docbook.sourceforge.net/release/xsl-ns.</fail>
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>
@@ -998,6 +998,16 @@ http://docbook.sourceforge.net/release/xsl-ns.</fail>
     </antcall>
   </target>
 
-  <target name="clean-docs" depends="hsqldb-ant-docbook.clean"
-          description="Purge derived documentation files"/>
+  <target name="-ensure-catalog" unless="_catalog.present">
+    <copy file="build/rng-catalog-sample.xml"
+          tofile="stylesheets/rng-catalog.xml"/>
+    <echo>Just created a local 'stylesheets/rng-catalog.xml' file for you.
+To speed up XML validations, you should edit this file.</echo>
+  </target>
+
+  <target name="-validation-setup">
+    <available property="_catalog.present" file="stylesheets/rng-catalog.xml"
+               type="file"/>
+    <antcall target="-ensure-catalog"/>
+  </target>
 </project>
