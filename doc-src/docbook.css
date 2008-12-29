@@ -32,12 +32,67 @@ span.term a      {
 }
 
 div.caption      { font-size: 80%; }
-div.important    { background: yellow; }
-div.warning      { background: red; }
-div.caution      { background: #ffb573; }
 
-pre.programlisting { background-color: silver; padding: 5px; }
-pre.screen         { background-color: #BDC6DE; padding: 5px; }
+div.tip {
+    background-color:silver;
+    border:3px solid gray;
+}
+div.note {
+    background-color:silver;
+    border:3px solid gray;
+}
+div.warning {
+    background-color:yellow;
+    border:3px solid red;
+}
+div.caution {
+    background-color:orange;
+    border:3px solid yellow;
+}
+div.important {
+    background-color:orange;
+    border:3px solid yellow;
+}
+
+pre.screen {
+    background-color:fff0f5;
+    border:1px solid gray;
+    padding:5px;
+    font-family:monospace;
+}
+
+pre.programlisting {
+    background-color:silver;
+    border:1px solid gray;
+    padding:5px;
+    font-family:monospace;
+}
+
+div.variablelist {
+    border:2px solid gray;
+    padding:3px;
+}
+/*
+ * Unfortunately, with variablelist.as.table set, the terms and values can be
+ * differentiated solely by span.term.  Both terms are just
+ * table tbody tr td p.
+ */
+div.variablelist table tbody tr td {
+    /* This setting only has effect if variablelist.as.table. */
+    border:1px solid gray;
+    background-color:#dcdcdc;
+}
+
+span.term {  /* in a variablelist, also in dl dt */
+    font-weight:bold;
+    padding-left:3px; padding-right:3px;
+    color:000080;
+    background-color:778899;
+}
+
+div.itemizedlist ul.disc li {
+    margin-bottom:3px;
+}
 
 h1.title { font-size: 200%; }
 div.chapter h2.title {
