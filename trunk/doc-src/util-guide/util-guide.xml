@@ -502,8 +502,8 @@
                     On UNIX or Linux, any real or virtual terminal will work.
                     </para><para>
                     On your shell command line, run
-                <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar --help</screen>
+                    <informalexample>
+              <screen>    java -jar $HSQLDB_HOME/lib/hsqldb.jar --help</screen>
                 </informalexample>
                     to see what command-line arguments are available.
                     Note that you don't need to worry about setting the
@@ -512,16 +512,16 @@
                     Assuming that you set up your SqlTool RC file
                     at the default location and you want to use the HSQLDB
                     JDBC driver, you will want to run something like
-                <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar mem</screen>
+                    <informalexample>
+                  <screen>    java -jar $HSQLDB_HOME/lib/hsqldb.jar mem</screen>
                 </informalexample>
                     for interactive use, or
-                <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql="SQL statement;" mem</screen>
+                    <informalexample>
+                    <screen>    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql="SQL statement;" mem</screen>
                     </informalexample>
                     or
-                    <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar mem filepath1.sql...</screen>
+                    <informalexample>
+                    <screen>     java -jar $HSQLDB_HOME/lib/hsqldb.jar mem filepath1.sql...</screen>
                     </informalexample>
                     where <literal>mem</literal> is an
                     <emphasis>urlid</emphasis>,
@@ -569,8 +569,8 @@
             The <link xlink:href='sqltool_auth-sect' endterm='auth-title'/> section.
             explains the second method.  Here's an example of the first method
             (after you have set the classpath appropriately).
-        <informalexample><screen>
-java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
+            <informalexample>
+              <screen>java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
         </informalexample></para>
         <tip><simpara>
             If the tables of query output on your screen are all messy
@@ -700,12 +700,12 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
                 HSQLDB distribution <footnoteref linkend='samplelocFn'/>.
                 To separate the sample data from your regular data, you can
                 put it into its own schema by running this before you import:
-            <informalexample><programlisting>
-    CREATE SCHEMA sampledata AUTHORIZATION dba;
+                <informalexample>
+                <programlisting>    CREATE SCHEMA sampledata AUTHORIZATION dba;
     SET SCHEMA sampledata;</programlisting>
             </informalexample>
                 Run it like this from an SqlTool session
-    <programlisting>\i HSQLDB_HOME/sample/sampledata.sql</programlisting>
+      <programlisting>    \i HSQLDB_HOME/sample/sampledata.sql</programlisting>
                 where <emphasis role='bold'>HSQLDB_HOME</emphasis> is the
                 base directory of your HSQLDB software installation
                 <footnoteref linkend='samplelocFn'/>.
@@ -760,12 +760,11 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
             If you have any doubt about where your home directory is, just
             run SqlTool with a phony urlid and it will tell you where it
             expects the configuration file to be.
-        <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar x</screen>
-        </informalexample></para><para>
+            <informalexample>
+              <screen>    java -jar $HSQLDB_HOME/lib/hsqldb.jar x</screen>
+            </informalexample></para><para>
             The config file consists of stanza(s) like this:
-        <informalexample><screen>
-    urlid web
+        <informalexample><screen>    urlid web
     url jdbc:hsqldb:hsql://localhost
     username web
     password webspassword</screen>
@@ -775,8 +774,7 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
             paragraphs down).
             The URL may contain JDBC connection properties.
             You can have as many blank lines and comments like
-        <informalexample><screen>
-    # This comment</screen>
+        <informalexample><screen>    # This comment</screen>
         </informalexample>
         </para><simpara>
             in the file as you like.
@@ -868,8 +866,8 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
             </simpara></listitem></varlistentry>
             <varlistentry><term><literal>password</literal></term><listitem><para>
                 You may only use this element to set empty password, like
-                <informalexample><screen>
-                    password=</screen>
+                <informalexample>
+                  <screen>    password=</screen>
                 </informalexample>For any other password value, omit the
                 <literal>password</literal> element and you will be prompted
                 for the value.
@@ -879,9 +877,9 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
             (Use the <literal>--driver</literal> switch instead of
             <literal>--inlineRc</literal> to specify a JDBC driver class).
             Here is an example of invoking SqlTool to connect to a standalone database.
-            <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar
-         --inlineRc=url=jdbc:hsqldb:file:/home/dan/dandb,user=dan</screen></informalexample>
+            <informalexample>
+              <screen>java -jar $HSQLDB_HOME/lib/hsqldb.jar --inlineRc=url=jdbc:hsqldb:file:/home/dan/dandb,user=dan</screen>
+            </informalexample>
         </para>
         <simpara>
             For security reasons, you cannot specify a non-empty password as
@@ -943,14 +941,14 @@ java org.hsqldb.cmdline.SqlTool --driver=oracle.jdbc.OracleDriver urlid</screen>
             Here are UNIX and Windows examples where somebody wants to use the
             new SqlTool with their older HSQLDB database, as well as with
             Postgresql and a local application.  Bourne-compatible shell example:
-            <informalexample><screen>
-CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/classes:/usr/local/lib/pg.jdbc3.jar
+            <informalexample>
+              <screen>CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/classes:/usr/local/lib/pg.jdbc3.jar
 export CLASSPATH
 java org.hsqldb.cmdline.SqlTool urlid</screen>
             </informalexample>
             Postgresql and a local application.  Windows Cmd shell example:
-            <informalexample><screen>
-set CLASSPATH=/path/to/hsqldbutil.jar;c:/home/bob/classes;/javalibs/pg.jdbc3.jar
+            <informalexample>
+              <screen>set CLASSPATH=/path/to/hsqldbutil.jar;c:/home/bob/classes;/javalibs/pg.jdbc3.jar
 java org.hsqldb.cmdline.SqlTool urlid</screen>
             </informalexample>
         </para>
@@ -966,8 +964,8 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
         <para>
             You run SqlTool interactively by specifying no SQL filepaths on
             the SqlTool command line.  Like this.
-        <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid</screen>
+            <informalexample>
+              <screen>    java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid</screen>
         </informalexample></para><procedure>
             <title>What happens when SqlTool is run interactively
                 (using all default settings)
@@ -1459,8 +1457,8 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 it must not occur in the <emphasis>from</emphasis> or
                 <emphasis>to</emphasis> strings.
                 Example
-                <informalexample><screen>
-    :s@from string@to string@</screen>
+                <informalexample>
+                  <screen>    :s@from string@to string@</screen>
                 </informalexample></para>
                 <simpara>
                 The <emphasis>to string </emphasis> is substituted for the first
@@ -1508,9 +1506,8 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 more powerful, since the Perl/Java regular expression are
                 a superset of the vi regular expressions.
                 As an example,
-                <informalexample><screen>
-                    :24 s/pin/needle/g;
-                    </screen>
+                <informalexample>
+                  <screen>    :24 s/pin/needle/g;</screen>
                 </informalexample> would start with command number 24 from
                 command history, substitute "needle" for all occurrences of
                 "pin", then execute the result of that substitution
@@ -1528,8 +1525,8 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
         <para>
             I find the ":/regex/"  and ":/regex/;" constructs particularly
             handy for every-day usage.
-            <informalexample><screen>
-                    :/\\d/;</screen>
+            <informalexample>
+              <screen>    :/\\d/;</screen>
             </informalexample>re-executes the last \d command that you gave
             (The extra "\" is needed to escape the special meaning of "\"
             in regular expressions).
@@ -1540,9 +1537,10 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
             If you want to be safe about it, do it in two steps to verify
             that you didn't accidentally recall some other command which
             happened to contain the string "insert", like
-            <informalexample><screen>
-    :/insert/
-    :;</screen></informalexample>(Executing the last only if you are
+            <informalexample>
+                 <screen>    :/insert/
+    :;</screen>
+               </informalexample>(Executing the last only if you are
             satisfied when SqlTool reports what command it restored).
             Often, of course, you will want to change the command before
             re-executing, and that's when you combine the :s and :a commands.
@@ -1611,7 +1609,8 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 column labels and the <literal>getclobval</literal> function.
             </simpara></listitem></varlistentry>
             <varlistentry><term>* VARNAME ~</term><listitem><para>
-                Exactly the same as <programlisting>* VARNAME ~</programlisting>
+                Exactly the same as
+                <programlisting>    * VARNAME ~</programlisting>
                 except that the fetched results will be displayed in addition
                 to setting the variable.
             </para></listitem></varlistentry>
@@ -1626,14 +1625,14 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
             It is just like the Bourne shell variable ? in that it is always
             automatically set to the first value of a result set (or the
             return value of other SQL commands).
-            It works just like the <programlisting>* VARNAME ~</programlisting>
+            It works just like the <literal>* VARNAME ~</literal>
             command described above, but it all happens automatically.
             You can, of course, dereference ? like any PL variable, but it
-            does not list with the <programlisting>list</programlisting> and
-            <programlisting>listvalues</programlisting> commands.
+            does not list with the <literal>list</literal> and
+            <literal>listvalues</literal> commands.
             You can see the value whenever you want by running
             <informalexample><programlisting>
-    \p  *{?}</programlisting></informalexample>
+    \p *{?}</programlisting></informalexample>
           </para>
         <simpara>
             Note that PL commands are used to upload and download column
@@ -1679,15 +1678,15 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
             The very first column value from the first result row of the
             next SQL command will be stored to the binary byte buffer.
         </simpara>
-        <example><title>Inserting binary data into database from a file</title><screen>
-    \bl /tmp/favoritesong.mp3
+        <example><title>Inserting binary data into database from a file</title>
+          <screen>    \bl /tmp/favoritesong.mp3
     \bp
     INSERT INTO musictbl (id, stream) VALUES(3112, ?);</screen>
-            </example>
-        <example><title>Downloading binary data from database to a file</title><screen>
-    SELECT stream FROM musictbl WHERE id = 3112;
+        </example>
+        <example><title>Downloading binary data from database to a file</title>
+            <screen>    SELECT stream FROM musictbl WHERE id = 3112;
     \bd /tmp/favoritesong.mp3</screen>
-            </example>
+        </example>
         <simpara>
             You can also store and retrieve text column values to/from
             ASCII files, as documented in the
@@ -1772,16 +1771,17 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 If you just have a couple Commands to run, you can run them
                 directly from the comand-line or from a shell script without an
                 SQL file, like this.
-            <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql="SQL statement;" urlid</screen>
+              <informalexample>
+                  <screen>java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql="SQL statement;" urlid</screen>
             </informalexample>
-            <note><simpara>
-                The <literal>--sql</literal> automatically implies
+            <note>
+              <simpara>The <literal>--sql</literal> switch automatically implies
                 <literal>--noinput</literal>, so if you want to execute the
                 specified SQL before <emphasis>and in addition to</emphasis> an
                 interactive session (or stdin piping), then you must also give
                 the <emphasis>--stdinput</emphasis> switch.
-            </simpara></note>
+              </simpara>
+            </note>
             </para><para>
                 Since SqlTool transmits SQL statements to the database engine
                 only when a line is terminated with ";", if you want feedback
@@ -1790,14 +1790,14 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 linebreaks after the semicolons in the expression.
                 With any Bourne-compatible shell, you can include linebreaks in
                 the SQL statements like this.
-            <informalexample><screen>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql='
+                <informalexample>
+                  <screen>    java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql='
         SQL statement number one;
         SQL statement
             number two;
         SQL statement three;
     ' urlid</screen>
-            </informalexample>
+              </informalexample>
             </para><note><simpara>
                 The multi-line examples in this section will only work as-is
                 with a Bourne-compatible shell.
@@ -1812,8 +1812,8 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 The <emphasis>--sql</emphasis> switch is very useful for
                 setting shell variables to the output of SQL Statements, like
                 this.
-                <informalexample><programlisting><![CDATA[
-    # A shell script
+                <informalexample>
+                  <programlisting><![CDATA[    # A shell script
     USERCOUNT=`java -jar $HSQLDB_HOME/lib/hsqldb.jar --sql='
         select count(*) from usertbl;
     ' urlid` || {
@@ -1821,7 +1821,8 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
     }
     echo "There are $USERCOUNT users registered in the database."
     [ "$USECOUNT" -gt 3 ] && {   # If there are more than 3 users registered
-        # Some conditional shell scripting]]></programlisting></informalexample>
+        # Some conditional shell scripting]]></programlisting>
+              </informalexample>
             </para>
         </section>
         <section><title>SQL Files</title>
@@ -1830,8 +1831,8 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 the <emphasis>urlid</emphasis>.
             </simpara><para>
                 Often, you will want to redirect output to a file, like
-                <informalexample><screen><![CDATA[
-java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&1]]></screen>
+                <informalexample>
+                  <screen><![CDATA[ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&1]]></screen>
             </informalexample></para><simpara>
                 You can also execute SQL files from an interactive session with
                 the "\i"' Special Command,
@@ -1875,8 +1876,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&1]]></scree
             <para>
                 You can execute this SQL file with a Memory Only database with
                 a command like
-            <informalexample><programlisting>
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar  --sql='
+              <informalexample>
+              <programlisting>    java -jar $HSQLDB_HOME/lib/hsqldb.jar  --sql='
         create user tomcat password "x";
     ' mem path/to/hsqldb/sample/sample.sql</programlisting>
             </informalexample>
@@ -1908,23 +1909,24 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&1]]></scree
                 You can of course, redirect output
                 <emphasis>from</emphasis> SqlTool to a file
                 or another program.
-                <informalexample><screen><![CDATA[
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql > file.txt 2>&1
+                <informalexample>
+                  <screen><![CDATA[java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql > file.txt 2>&1
 
-    java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql 2>&1 | someprogram...]]></screen>
+java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql 2>&1 | someprogram...]]></screen>
             </informalexample></para><para>
                 You can type commands in to SqlTool while being in
                 non-interactive mode by supplying "-" as the file name.
                 This is a good way to test how SqlTool will behave when
                 processing your SQL files.
-            <informalexample><screen>
-        java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid -</screen>
-            </informalexample></para><para>
+                <informalexample>
+                  <screen>    java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid -</screen>
+                </informalexample></para>
+                <para>
                 This is how you have SqlTool read its input from another
                 program:
-            <example><title>Piping input into SqlTool</title><screen>
-        echo "Some SQL commands with '$VARIABLES';" |
-        java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid -</screen>
+                <example><title>Piping input into SqlTool</title>
+                  <screen>    echo "Some SQL commands with '$VARIABLES';" |
+    java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid -</screen>
             </example>
             For a shell not as graceful as the Bourne-compatible shells, you
             would need to type this all on the same line (or use a
@@ -2011,8 +2013,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&1]]></scree
                     completely exit.
                     If a script <filename>x.sql</filename> has a \q command in
                     it, then it doesn't matter if the script is executed like
-                    <screen>
-    java -jar .../hsqldb.jar urlid a.sql x.sql z.sql</screen> or if you use
+          <screen>    java -jar .../hsqldb.jar urlid a.sql x.sql z.sql</screen>
+                    or if you use
                     \i to read it in interactively, or if another SQL file
                     uses \i to nest it.
                     If \q is encountered, SqlTool will quit.
@@ -2025,10 +2027,10 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&1]]></scree
                     the user and SqlTool will exit with a failure status.
                     If you give no abort message, then SqlTool will exit
                     quietly with successful status.
-                    As a result, <programlisting>\q</programlisting> means to
-                    make an immediate but graceful exit, whereas
-                    <programlisting>\q Message</programlisting> means to abort
-                    immediately.
+                    As a result, <programlisting>    \q</programlisting>
+                    means to make an immediate but graceful exit, whereas
+                    <programlisting>    \q Message</programlisting>
+                    means to abort immediately.
                 </para></listitem></varlistentry>
                 <varlistentry><term>\p [text to print]</term><listitem><simpara>
                     Print the given string to stdout.
@@ -2148,12 +2150,12 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&1]]></scree
                 are not printed in non-interactive mode).
                 In this case, do not give the sql file(s) as an argument to
                 SqlTool, but pipe them in instead, like
-                <informalexample><screen><![CDATA[
-java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid < filepath1.sql > /tmp/log.html 2</screen>
-            </informalexample>
+                <informalexample>
+                  <screen><![CDATA[java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid < filepath1.sql > /tmp/log.html 2]]></screen>
+              </informalexample>
                 or
-                <informalexample><screen><![CDATA[
-cat filepath1.sql... |
+              <informalexample>
+                <screen><![CDATA[cat filepath1.sql... |
 java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
             </informalexample>
             For a shell not as graceful as the Bourne-compatible shells, you
@@ -2167,8 +2169,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 SqlTool defaults to the US-ASCII character set (for reading).
                 You can use another character set by setting the system
                 property <property>sqlfile.charset</property>, like
-            <informalexample><screen>
-java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...</screen>
+              <informalexample>
+                  <screen>java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...</screen>
             </informalexample></para><simpara>
                 You can also set this per urlid in the SqlTool configuration
                 file.
@@ -2350,8 +2352,7 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
                     can get functionality like the traditional
                     <literal>for (i = 0; i &lt; x; i++)</literal> by appending
                     to a variable and testing the string length, like
-                    <programlisting>
-    * while (*i &lt; ${x})
+                    <programlisting>    * while (*i &lt; ${x})
         * i = *{i}.</programlisting>
                     <literal>i</literal> will be a growing line of dots.
                 </para></listitem> <listitem><para>
@@ -2380,19 +2381,16 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
                 <emphasis>appendage</emphasis> in the "/?" listing shows
                 where you can append additional text to the original command.
                 So, if you define
-                <programlisting>
-          sql> /= myworkers  SELECT name FROM employees</programlisting>
+                <programlisting>    sql> /= myworkers  SELECT name FROM employees</programlisting>
                 , you could narrow the query variously during different macro
                 invocations, like
-                <programlisting>
-          sql> /myworkers WHERE dept = 20;
-          sql> /myworkers WHERE name like 'Karen%';</programlisting>
+                <programlisting>    sql> /myworkers WHERE dept = 20;
+    sql> /myworkers WHERE name like 'Karen%';</programlisting>
                 </para><para>
                 Just like when recalling a command from history, you use ";"
                 to execute even Special and PL macro commands.
-                <programlisting>
-          sql> /= notate  Work completed by
-          sql> /notate Blaine;</programlisting>
+                <programlisting>    sql> /= notate  Work completed by
+    sql> /notate Blaine;</programlisting>
                 If you don't type the ;, you will just recall the command
                 to the buffer (from which you can execute or edit it, if
                 you wish to).
@@ -2415,8 +2413,7 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
                 permissions on some application tables.
             </simpara>
             <example><title>Simple SQL file using PL</title>
-                <programlisting>
-    /*
+                <programlisting>    /*
        grantwrite.sql
 
        Run SqlTool like this:
@@ -2567,8 +2564,8 @@ java -Dsqlfile.charset=UTF-8 -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql...<
                 <filename>sample</filename> directory with the
                 name <filename>pl.sql</filename>
                 <footnoteref linkend='samplelocFn'/>.
-                Definitely give it a run, like <screen>
-java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
+                Definitely give it a run, like
+                <screen>java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             </para>
             <example><title>SQL File showing use of most PL features</title>
                 <programlisting><xi:include href="../verbatim/sample/pl.sql"
@@ -2671,8 +2668,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             (as explained in the previous section).
         </simpara>
         <para>
-            <example><title>Interactive Raw Mode example</title><screen>
-    sql> \.
+          <example><title>Interactive Raw Mode example</title>
+            <screen>    sql> \.
     Enter RAW SQL.  No \, :, * commands.
     End with a line containing only ".;" to send to database,
     or ":." to store to edit buffer for editing or saving.
@@ -2756,13 +2753,11 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         </para>
         <para>
           <example><title>SQL/JRT Example</title>
-            <programlisting>
-                <xi:include href="../verbatim/testrun/sqltool/sqljrt.sql"
+      <programlisting><xi:include href="../verbatim/testrun/sqltool/sqljrt.sql"
                             parse="text"/></programlisting>
           </example>
           <example><title>SQL/PSM Example</title>
-            <programlisting>
-                <xi:include href="../verbatim/testrun/sqltool/sqlpsm.sql"
+      <programlisting><xi:include href="../verbatim/testrun/sqltool/sqlpsm.sql"
                             parse="text"/></programlisting>
           </example>
         </para>
@@ -2832,8 +2827,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         </simpara> <para>
             If you are using a non-HSQLDB JDBC driver, you must set your
             CLASSPATH to include this new jar file and your JDBC driver,
-            then run SqlTool like <informalexample><screen>
-        java org.hsqldb.cmdline.SqlTool ...</screen>
+            then run SqlTool like <informalexample>
+              <screen>    java org.hsqldb.cmdline.SqlTool ...</screen>
             </informalexample>
             You can specify your JDBC driver class either with the
             <literal>--driver</literal> switch to SqlTool, or in your
@@ -2927,8 +2922,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 table name plus the extension <literal>.dsv</literal>.
                 <example><title>DSV Export Example</title>
                     <screen>    SET SCHEMA icf;
-    \x projects
-</screen>
+    \x projects</screen>
                 </example>
                 We could also have run <literal>\x icf.projects</literal>
                 (which would have created a file named
@@ -2961,8 +2955,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 extension.
                 <example><title>DSV Import Example</title>
                     <screen>    SET SCHEMA newschema;
-    \m projects.dsv
-</screen>
+    \m projects.dsv</screen>
                 </example>
                 If the DSV file was named with the target schema, you would
                 have skipped the <literal>SET SCHEMA</literal> command, like
@@ -2985,8 +2978,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 with the working script <filename>dsv-sample.sql</filename>
                 <footnoteref linkend='samplelocFn'/>.
                 You can execute it like
-                <informalexample><screen>
-    java -jar ../lib/hsqldb.jar mem dsv-sample.sql</screen>
+                <informalexample>
+            <screen>    java -jar ../lib/hsqldb.jar mem dsv-sample.sql</screen>
                 </informalexample>
                 (assuming that you are using the supplied
                 <filename>sqltool.rc</filename> file or have have urlid
@@ -3010,8 +3003,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 like \20, \020, \0x20.
                 For example, to change the column delimiter to the tab character,
                 you would give the command
-                <informalexample><screen>
-    * *DSV_COL_DELIM = \t</screen>
+                <informalexample>
+                  <screen>    * *DSV_COL_DELIM = \t</screen>
                 </informalexample>
             </para><simpara>
                 The output delimiter values,
@@ -3026,8 +3019,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 than one in the current directory named according to the source
                 table, set the PL variable <literal>*DSV_TARGET_FILE</literal>,
                 like
-                <informalexample><screen>
-    * *DSV_TARGET_FILE = /tmp/dtbl.dsv</screen>
+                <informalexample>
+                  <screen>    * *DSV_TARGET_FILE = /tmp/dtbl.dsv</screen>
                 </informalexample>
             </para><simpara>
                 For exports, you must always specify the source table name
@@ -3113,8 +3106,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
                 working DSV files and let you take it from there.
         <example>
             <title>Sample DSV headerswitch settings</title>
-            <programlisting>
-    # RCS keyword was here.
+            <programlisting>    # RCS keyword was here.
 
     headerswitch{
     itemdef:name|-|-|hardness|breakdc|-
@@ -3126,8 +3118,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
             You can use * for target-table-name here, for the obvious purpose.
         <example>
             <title>DSV targettable setting</title>
-            <programlisting>
-    targettable=t</programlisting>
+            <programlisting>    targettable=t</programlisting>
         </example>
                 This last example is from the SqlTool unit test file
                 <filename>dsv-trimming.dsv</filename>.
@@ -3182,13 +3173,11 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
   testrun/hsqldb directory, together with a set of TestSelf*.txt files. To
   start the application in Windows, change to the directory and type:</para>
 
-  <screen>
-    runtest TestSelf</screen>
+  <screen>    runtest TestSelf</screen>
 
   <para>In Unix / Linux, type:</para>
 
-  <screen>
-    ./runTest.sh TestSelf</screen>
+  <screen>    ./runTest.sh TestSelf</screen>
 
   <para>The new version of <classname>TestSelf</classname> runs multiple SQL
   test files to test different SQL operations of the database. All files in
@@ -3204,8 +3193,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
     a more general program which you can use to test any script files which
     you specify (with scripts of the same exact format as described below).
     For example,
-    <screen>
-          java org.hsqldb.test.TestScriptRunner --urlid=mem script1.tsql script2.sql</screen>
+    <screen>java org.hsqldb.test.TestScriptRunner --urlid=mem script1.tsql script2.sql</screen>
      You must have the HSQLDB classes, including the util and test classes,
      in your CLASSPATH.
      The urlid must be set up in an RC file as explained in the
@@ -3246,8 +3234,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         quries regardless of results. Used for preparation of tests, not for
         actual tests.</simpara>
 
-        <programlisting>
-/*s*/ Any SQL statement - errors are ignored</programlisting>
+        <programlisting>/*s*/ Any SQL statement - errors are ignored</programlisting>
       </informalexample>
     </listitem>
 
@@ -3257,8 +3244,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         asserts the number of rows in the result matches the given
         count.</simpara>
 
-        <programlisting><![CDATA[
-/*c<rows>*/ SQL statement returning count of <rows>]]></programlisting>
+        <programlisting><![CDATA[/*c<rows>*/ SQL statement returning count of <rows>]]></programlisting>
       </informalexample>
     </listitem>
 
@@ -3268,8 +3254,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         such as DELETE and UPDATE. It asserts the update count
         matches.</simpara>
 
-        <programlisting><![CDATA[
-/*u<count>*/ SQL statement returning an update count equal to <count>]]></programlisting>
+        <programlisting><![CDATA[/*u<count>*/ SQL statement returning an update count equal to <count>]]></programlisting>
       </informalexample>
     </listitem>
 
@@ -3281,8 +3266,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         assert a certain state in the database. For example a CREATE TABLE can
         be used to assert the table of the same name already exists.</simpara>
 
-        <programlisting>
-/*e*/ SQL statement that should produce an error when executing</programlisting>
+        <programlisting>/*e*/ SQL statement that should produce an error when executing</programlisting>
       </informalexample>
     </listitem>
 
@@ -3291,8 +3275,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         <simpara>The /*r....*/ option asserts the SELECT query returns a
         single row containing the given set of field values.</simpara>
 
-        <programlisting><![CDATA[
-/*r<string1>,<string2>*/ SQL statement returning a single row ResultSet equal to the specified value]]></programlisting>
+        <programlisting><![CDATA[/*r<string1>,<string2>*/ SQL statement returning a single row ResultSet equal to the specified value]]></programlisting>
       </informalexample>
     </listitem>
 
@@ -3301,8 +3284,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         <simpara>The extended /*r...*/ option asserts the SELECT query returns
         the given rows containing the given set of field values.</simpara>
 
-        <programlisting><![CDATA[
-/*r
+        <programlisting><![CDATA[/*r
     <string1>,<string2>
     <string1>,<string2>
     <string1>,<string2>
@@ -3315,8 +3297,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
     <listitem>
       <simpara>The /*d*/ directive just displays the supplied text.</simpara>
       <informalexample>
-        <programlisting>
-/*d*/ Some message</programlisting>
+        <programlisting>/*d*/ Some message</programlisting>
       </informalexample>
     </listitem>
 
@@ -3324,8 +3305,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
         <simpara>The /*w MILLIS*/ directive causes the test to Wait for a
           specified number of millisedonds.</simpara>
       <informalexample>
-        <programlisting>
-/*w 1000*/ Optional message</programlisting>
+        <programlisting>/*w 1000*/ Optional message</programlisting>
       </informalexample>
     </listitem>
     <listitem>
@@ -3338,8 +3318,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
           /*p*/ command runs after the /*w*/ command is waiting.
         </simpara>
       <informalexample>
-        <programlisting>
-/*w true script4*/ Optional message</programlisting>
+        <programlisting>/*w true script4*/ Optional message</programlisting>
       </informalexample>
     </listitem>
 
@@ -3348,8 +3327,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
           peer directive to /*w*/, which causes a waiting thread to Proceed.
         </simpara>
       <informalexample>
-        <programlisting>
-/*p true script4*/ Optional message</programlisting>
+        <programlisting>/*p true script4*/ Optional message</programlisting>
       </informalexample>
     </listitem>
 
@@ -3368,8 +3346,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
     messages (like in /*d*/, /*w*/, /*p*/).
     It expands to the current time, down to the second.  For example,
       <informalexample>
-      <programlisting>
-/*d*/ It is now ${timestamp}</programlisting>
+      <programlisting>/*d*/ It is now ${timestamp}</programlisting>
       </informalexample>
   </para>
 </chapter>
@@ -3500,8 +3477,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
     skipped and a JDBC connection will be established immediately. Assuming
     that the hsqldb.jar (or an alternative jar) are in your CLASSPATH, this
     command will list the available command-line options. <informalexample>
-        <screen>
-    java org.hsqldb.util.DatabaseManagerSwing --help</screen>
+        <screen>    java org.hsqldb.util.DatabaseManagerSwing --help</screen>
       </informalexample></para>
 
     <simpara>It's convenient to skip the connection dialog window if you
@@ -3542,8 +3518,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
 
     <para>To set up launch items/icons, first experiment on your command line
     to find exactly what command works. For example, <informalexample>
-        <screen>
-    java -cp /path/to/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing --urlid mem</screen>
+        <screen>java -cp /path/to/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing --urlid mem</screen>
       </informalexample> Then, use your window manager to add an item that
     runs this command.</para>
   </section>
@@ -3596,8 +3571,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar mem $HSQLDB_HOME/pl.jar</screen>
     <para>Here's a UNIX example where somebody wants to use the new
     DatabaseManagerSwing with their older HSQLDB database, as well as with
     Postgresql and a local application. <informalexample>
-        <screen>
-CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/myapp/classes:/usr/local/lib/pg.jdbc3.jar
+        <screen>CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/myapp/classes:/usr/local/lib/pg.jdbc3.jar
 export CLASSPATH
 java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
       </informalexample></para>
