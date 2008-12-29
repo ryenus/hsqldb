@@ -87,11 +87,15 @@ task to transfer entire directories of files.</echo>
   </target>
 
   <target name="regen-docs" description="Clean and regen project DocBook docs"
-          depends="clean, gen-docs"/>
+          depends="clean-docs, gen-docs"/>
 
   <property name="_for.automation.blurb"
     value="If you want to automate the antcalls and you don't mind using
 Ant-contrib or Antelope, you can use one of their 'for' tasks with a DirSet."/>
+
+  <target name="-validation-setup">
+    <fail message="Something is wrong.  '-validation-setup' is abstract"/>
+  </target>
 
   <target name="gen-docs">
     <fail>You must implement your own "gen-docs" target by editing
@@ -305,7 +309,7 @@ ${_for.automation.blurb}</fail>
     </xslt>
   </target>
 
-  <target name="clean" description="Remove all derived artifacts">
+  <target name="clean-docs" description="Remove all derived artifacts">
     <delete dir="tmp/doc-work"/>
     <delete dir="${docoutput.path}"/>
   </target>
@@ -333,19 +337,20 @@ OR for any CMD-like Windows shell:
 
     <available property="_ivysettings.present" file="build/ivysettings.xml"
                type="file"/>
-     <antcall target="-ensure-ivysettings"/>
+    <antcall target="-ensure-ivysettings"/>
     <ivy:settings/>
   </target>
 
   <target name="-ensure-ivysettings" unless="_ivysettings.present">
     <copy file="build/ivysettings-sample.xml" tofile="build/ivysettings.xml"/>
     <echo>Just created a local 'ivysettings.xml' file for you.
-Customize this as you wish and/or set Ivy properties
-(or any other build properties) local properties in
-a 'local.properties' file.</echo>
+Customize this as you wish and/or set Ivy properties (or any other
+docbook-specific local build properties) in a 'local.properties'
+file.</echo>
   </target>
 
-  <target name="validate-doc" unless="validation.skip" depends="-ivy-setup"
+  <target name="validate-doc" unless="validation.skip"
+          depends="-validation-setup, -ivy-setup"
           description="Validate specified DocBook source document">
     <fail unless="doc.name"
           message="Ant property 'doc.name' is required by target 'validate'."/>
