@@ -54,8 +54,8 @@ div.important {
     border:3px solid yellow;
 }
 
-pre.screen {
-    background-color:fff0f5;
+pre.screen         {
+    background-color:#BDC6DE;
     border:1px solid gray;
     padding:5px;
     font-family:monospace;
@@ -86,8 +86,8 @@ div.variablelist table tbody tr td {
 span.term {  /* in a variablelist, also in dl dt */
     font-weight:bold;
     padding-left:3px; padding-right:3px;
-    color:000080;
-    background-color:778899;
+    color:#000080;
+    background-color:#778899;
 }
 
 div.itemizedlist ul.disc li {
