@@ -1,0 +1,58 @@
+<ivy-module version="2.0">
+  <!-- $Id$ -->
+  <info organisation="admc" module="docbook"/>
+  <configurations>
+    <conf name="baseconf" visibility="private"/>
+    <conf name="msv" description="Sun MSV" extends="xalan"/>
+    <conf name="rs-msv" extends="msv"
+          description="Runtime path for Catalog-Resolving Schematron-Capable MSV Validator"/>
+    <conf name="xalan" description="Xalan Xslt" extends="baseconf"/>
+    <conf name="fop" description="FOP"/>
+  </configurations>
+  <dependencies>
+    <dependency name="relames" rev="20060319"
+                transitive="false" conf="msv->default"/>
+    <dependency name="msv" rev="20081113"
+                transitive="false" conf="msv->default"/>
+    <dependency name="relaxngDatatype" rev="20081113"
+                transitive="false" conf="msv->default"/>
+    <dependency name="xsdlib" rev="20081113"
+                transitive="false" conf="msv->default"/>
+    <dependency name="isorelax" rev="20081113"
+                transitive="false" conf="msv->default"/>
+    <dependency name="fop" rev="0.94"
+                transitive="false" conf="fop->default"/>
+    <dependency name="fop-hyph" rev="1.2"
+                transitive="false" conf="fop->default"/>
+    <dependency name="jai_codec" rev="1.1.3"
+                transitive="false" conf="fop->default"/>
+    <dependency name="jai_core" rev="1.1.3"
+                transitive="false" conf="fop->default"/>
+    <dependency name="xmlgraphics-commons" rev="1.2"
+                transitive="false" conf="fop->default"/>
+    <dependency name="avalon-framework" rev="4.2.0"
+                transitive="false" conf="fop->default"/>
+    <dependency name="batik-all" rev="1.6"
+                transitive="false" conf="fop->default"/>
+    <dependency name="commons-io" rev="1.3.1"
+                transitive="false" conf="fop->default"/>
+    <dependency name="commons-logging" rev="1.1.1"
+                transitive="false" conf="fop->default"/>
+    <dependency name="xalan" rev="2.7.1"
+                transitive="false" conf="xalan->default"/>
+    <dependency name="serializer" rev="2.7.1"
+                transitive="false" conf="xalan->default"/>
+    <dependency name="docbook-ext-xalan2" rev="1.73.2"
+                transitive="false" conf="xalan->default"/>
+    <dependency name="xml-apis" rev="1.3"
+                transitive="false" conf="baseconf->default"/>
+    <dependency name="xercesImpl" rev="2.9.0"
+                transitive="false" conf="baseconf->default"/>
+    <dependency name="resolver" rev="1.2"
+                transitive="false" conf="msv->default"/>
+    <dependency name="admc-rs-msv" rev="1.0a"
+                transitive="false" conf="rs-msv->default"/>
+    <!-- Use if can get XML Commons Resolver working:
+    -->
+  </dependencies>
+</ivy-module>

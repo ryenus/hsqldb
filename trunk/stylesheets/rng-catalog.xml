@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+
+<!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN"
+    "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+  <!--
+  <public publicId="-//OASIS/ENTITIES DocBook Character Entities V4.5//EN"
+          uri="file:/home/blaine/db-entities-4/dbcentx.mod"/>
+  -->
+  <!--  Set the uri value above to match the corresponding value in the
+        xmlcatalog definition in your "build-docbook.xml" file
+        (to eliminate the Internet dependency and speed up validations. -->
+</catalog>

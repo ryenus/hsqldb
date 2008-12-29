@@ -142,7 +142,7 @@ examples:
    </target>
 
 
-   <target name="reinit" depends="clean-docwork"
+   <target name="reinit"
        description="Just like 'clean' target, except overwrites switched source files to prevent need for a complete re-copy">
        <!-- Beware this will retain a copy of removed artifcats under src.
             You must use the real 'clean' target to really purge everything. -->
@@ -159,11 +159,11 @@ examples:
         <echo message="Use the 'cleanall' target to also purge generated doc and .jar files"/>
    </target>
 
-   <target name="-clean" depends="clean-docwork">
+   <target name="-clean">
         <delete dir="classes"/>
    </target>
 
-   <target name="cleanall" depends="-clean, -clean-switch-branch, clean-doc"
+   <target name="cleanall" depends="-clean, -clean-switch-branch, clean-docs"
            description="Same as clean but delete the jar and doc files as well">
       <mkdir dir="lib"/>
       <delete>
@@ -916,448 +916,6 @@ examples:
      </javadoc>
    </target>
 
-   <!-- ******************************************************************* -->
-   <!--  From here down to the matching ******* line, DocBook-related stuff -->
-
-    <!-- Only do vigilant runtime checking for props for externally
-         executable targets.  Requirements for internals are just noted -->
-
-    <property name='fop-loglevel' value='error'/>
-    <property name='style.html' value='${docbook.xsl.home}/html/docbook.xsl'/>
-    <property name='style.chunk' value='${docbook.xsl.home}/html/chunk.xsl'/>
-    <property name='style.fo' value='${docbook.xsl.home}/fo/docbook.xsl'/>
-    <!-- This is default only for invoking some external docbook targets -->
-    <property name='outputType' value='html'/>
-
-    <!-- Note that we do not generate postscript by default -->
-    <target name='docbook'
-        description='Generate all DocBook docs in HTML and PDF formats'
-            depends='docbook-html, docbook-chunk, docbook-pdf'/>
-
-    <target name='docbook-html' depends='-initContrib'
-            description='Generate all DocBook non-chunk HTML output'>
-        <antcall inheritall='false' target='-ddIterate'>
-            <param name='outputType' value='html'/>
-        </antcall>
-    </target>
-    <target name='docbook-chunk' depends='-initContrib'
-            description='Generate all DocBook Chunk HTML output'>
-        <antcall inheritall='false' target='-ddIterate'>
-            <param name='outputType' value='chunk'/>
-        </antcall>
-    </target>
-    <target name='docbook-pdf' depends='-initContrib'
-            description='Generate all DocBook PDF output'>
-        <antcall inheritall='false' target='-ddIterate'>
-            <param name='outputType' value='pdf'/>
-        </antcall>
-    </target>
-    <target name='docbook-ps' depends='-initContrib'
-            description='Generate all DocBook Postscript output'>
-        <antcall inheritall='false' target='-ddIterate'>
-            <param name='outputType' value='ps'/>
-        </antcall>
-    </target>
-
-    <target name='-ddIterate'>
-        <!-- Iterate through docsrc dirs, invoking condlGenbok for each -->
-        <!-- Internal caller MUST set 'outputType' -->
-        <pathconvert property='_docsrcdirs' targetos='unix' pathsep='|'
-                     setonempty='false'> <path>
-             <dirset dir='docsrc' includes='*'/>
-        </path> </pathconvert>
-        <!-- If is needed so that ant doesn't fail if there are no
-             DocDir documents -->
-        <if><isset property='_docsrcdirs'/><then>
-            <foreach list='${_docsrcdirs}' param='docdirpath' inheritall='false'
-                     target='-condlGenbook' delimiter='|'>
-                <param name='outputType' value='${outputType}'/>
-            </foreach>
-        </then></if>
-    </target>
-
-    <target name='-condlGenbook'>
-        <!-- Conditionally run target 'html' or 'chunked' or 'pdf' -->
-        <!-- Internal caller MUST set 'docdirpath' and 'outputType' -->
-        <!-- Invoke genbook target iff corresponding DocBook src file exists -->
-        <basename property='book' file='${docdirpath}'/>
-        <!-- Note that inheritall is true, so we pass through all vars, incl.
-             'book'.  N.b. This target (-condlGenbook) should be called
-             with inheritall false!! -->
-        <if> <available type='file' file='${docdirpath}/${book}.xml'/> <then>
-            <antcall target='${outputType}'/>
-        </then> </if>
-    </target>
-
-    <target name='-preDocbook'>
-        <!-- description='Run before generating docbook for a partic. dir -->
-        <!-- Required Props:  book -->
-        <mkdir dir='tmp/docwork/${book}/cdata'/>
-        <if><not><uptodate targetfile='tmp/docwork/${book}/cdata/.status'>
-            <!-- Mappers don't work with multiple patterns.
-            Therefore, have to use a timestamp file.  -->
-            <srcfiles dir='src/org/hsqldb/sample'
-             includes='*.java'/>
-            <srcfiles dir='sample'
-             includes='*.txt, *.ksh, *.properties, *.rc, *.cfg, *.sql'/>
-            <srcfiles dir="testrun/sqltool" includes="sqlpsm.sql, sqljrt.sql"/>
-        </uptodate></not><then>
-            <!-- This copies files matching the fileset below to the docwork
-                 dir w/ data so that DocBook may entity include them.
-                 For the time being, these files must reside in the main
-                 directory for this specific book. -->
-            <pathconvert property='_virginfiles1' targetos='unix' pathsep='|'
-                         setonempty='false'> <path>
-                 <fileset dir='src/org/hsqldb/sample' includes='*.java'/>
-            </path> </pathconvert>
-            <pathconvert property='_virginfiles2' targetos='unix' pathsep='|'
-                         setonempty='false'> <path>
-                 <fileset dir='sample'
-                 includes='*.txt, *.ksh, *.properties, *.rc, *.cfg, *.sql'/>
-            </path> </pathconvert>
-            <pathconvert property='_virginfiles3' targetos='unix' pathsep='|'
-                         setonempty='false'> <path>
-               <fileset dir='testrun/sqltool'
-                        includes='sqlpsm.sql, sqljrt.sql'/>
-            </path> </pathconvert>
-            <if><isset property='_virginfiles1'/><then>
-              <foreach list='${_virginfiles1}' param='vfile' inheritall='false'
-                    target='-sandwich1' delimiter='|'>
-                    <param name='book' value='${book}'/>
-                </foreach>
-            </then></if>
-            <if><isset property='_virginfiles2'/><then>
-              <foreach list='${_virginfiles2}' param='vfile' inheritall='false'
-                    target='-sandwich2' delimiter='|'>
-                    <param name='book' value='${book}'/>
-                </foreach>
-            </then></if>
-            <if><isset property='_virginfiles3'/><then>
-              <foreach list='${_virginfiles3}' param='vfile' inheritall='false'
-                    target='-sandwich3' delimiter='|'>
-                    <param name='book' value='${book}'/>
-                </foreach>
-            </then></if>
-        </then></if>
-        <touch file='tmp/docwork/${book}/cdata/.status'/>
-    </target>
-
-    <target name='-postDocbook'>
-        <!-- Run after generating docbook for a partic. dir -->
-        <!-- Property 'book' MUST be set before calling this target -->
-        <copy todir='doc'>
-            <fileset dir='docsrc' excludes='.*, *.css, *.java, *.sql, *.txt'/>
-        </copy>
-        <copy todir='doc/${book}'>
-            <fileset dir='docsrc/${book}'
-                     excludes='.*, *.css, *.java, *.sql, *.txt'/>
-        </copy>
-        <delete file='doc/${book}/${book}.bs'/>
-    </target>
-
-    <target name='chunk' description='Build one Chunk HTML DocBook book'
-            depends='-setXsltFilesets'>
-        <fail unless='book'
-              message="You must set property 'book' to use target 'chunk'"/>
-        <dependset>
-            <srcfileset refid='sharedXsltSrcFiles'/>
-            <srcfileset refid='bookXsltSrcFiles'/>
-              <!-- This messy because ant doesn't support wildcard
-              ch[0-9]*.html -->
-            <targetfileset  dir='doc/${book}'
-                includes='ch0*.html, ch1*.html, ch2*.html, ch3*.html,
-                         ch4*.html, ch5*.html, ch6*.html, ch7*.html,
-                         ch8*.html, ch9*.html, index.html'/>
-        </dependset>
-        <if><not><available type='file' file='doc/${book}/index.html'/></not>
-        <then>
-            <antcall target='-preDocbook'/>
-            <fail unless='style.chunk'
-                  message="You must set property 'style.chunk'"/>
-            <antcall target='-htmlXslt' inheritall='false'>
-                <param name='_stylesheet' value='${style.chunk}'/>
-                <param name='book' value='${book}'/>
-                <param name='_ext' value='.bs'/>
-            </antcall>
-            <antcall target='-postDocbook'/>
-        </then></if>
-        <copy todir='doc'>
-            <fileset dir='docsrc'
-                     includes='**/*.css, **/*.java, **/*.sql, **/*.txt'/>
-        </copy>
-    </target>
-    <target name='html' description='Build one single-page HTML DocBook book'
-            depends='-setXsltFilesets'>
-        <fail unless='book'
-              message="You must set property 'book' to use target 'html'"/>
-        <dependset>
-            <srcfileset refid='sharedXsltSrcFiles'/>
-            <srcfileset refid='bookXsltSrcFiles'/>
-            <targetfileset  dir='doc/${book}' includes='${book}.html'/>
-        </dependset>
-        <if><not><available type='file' file='doc/${book}/${book}.html'/></not>
-        <then>
-            <antcall target='-preDocbook'/>
-            <antcall target='-htmlXslt' inheritall='false'>
-                <param name='_stylesheet' value='${style.html}'/>
-                <param name='book' value='${book}'/>
-            </antcall>
-            <antcall target='-postDocbook'/>
-        </then></if>
-        <copy todir='doc'>
-            <fileset dir='docsrc'
-includes='**/*.css, **/*.java, **/*.sql, **/*.txt, **/*.properties, **/*.cfg'/>
-        </copy>
-    </target>
-    <target name='fo' description='Build one DocBook FO file'
-            depends='-initContrib, -setXsltFilesets'>
-        <fail unless='book'
-              message="You must set property 'book' to use target 'fo'"/>
-        <dependset>
-            <!-- Images and included files may be needed for .fo gen and
-                 pdf/ps gen.  Need to test that to optimize the dependsets. -->
-            <srcfileset refid='sharedXsltSrcFiles'/>
-            <srcfileset refid='bookXsltSrcFiles'/>
-              <!-- This messy because ant doesn't support wildcard
-              ch[0-9]*.html -->
-              <targetfilelist  dir='tmp/docwork/${book}' files='${book}.fo'/>
-        </dependset>
-        <if><not><available type='file'
-                    file='tmp/docwork/${book}/${book}.fo'/></not>
-        <then>
-            <antcall target='-preDocbook'/>
-            <fail unless='style.html'
-                  message="You must set property 'style.html'"/>
-            <antcall target='-foXslt' inheritall='false'>
-                <param name='book' value='${book}'/>
-            </antcall>
-            <antcall target='-postDocbook'/>
-        </then></if>
-    </target>
-    <target name='pdf' depends='fo'>
-        <!-- The depended-upon fo target will check required props -->
-        <dependset>
-            <!-- Images and included files may be needed for .fo gen and
-                 pdf/ps gen.  Need to test that to optimize the dependsets. -->
-            <srcfileset refid='sharedXsltSrcFiles'/>
-            <srcfileset refid='bookXsltSrcFiles'/>
-            <srcfilelist dir='tmp/docwork/${book}' files='${book}.fo'/>
-            <targetfilelist dir='doc/${book}' files='${book}.pdf'/>
-        </dependset>
-        <if><not><available type='file' file='doc/${book}/${book}.pdf'/></not>
-        <then>
-            <antcall target='-fop' inheritall='false'>
-                <param name='_lvl' value='${fop-loglevel}'/>
-                <param name='_fmt' value='application/pdf'/>
-                <param name='book' value='${book}'/>
-            </antcall>
-        </then></if>
-    </target>
-    <target name='ps' depends='fo'>
-        <!-- The depended-upon fo target will check required props -->
-        <dependset>
-            <!-- Images and included files may be needed for .fo gen and
-                 pdf/ps gen.  Need to test that to optimize the dependsets. -->
-            <srcfileset refid='sharedXsltSrcFiles'/>
-            <srcfileset refid='bookXsltSrcFiles'/>
-            <srcfilelist dir='tmp/docwork/${book}' files='${book}.fo'/>
-            <targetfilelist dir='doc/${book}' files='${book}.ps'/>
-        </dependset>
-        <if><not><available type='file' file='doc/${book}/${book}.ps'/></not>
-        <then>
-            <antcall target='-fop' inheritall='false'>
-                <param name='_lvl' value='${fop-loglevel}'/>
-                <param name='_fmt' value='application/postscript'/>
-                <param name='book' value='${book}'/>
-            </antcall>
-        </then></if>
-    </target>
-
-    <target name='-checkXslt' unless='_xsltChecked'>
-        <!-- Don't call this before -initContrib called -->
-        <if><not> <available
-            classname='org.apache.xalan.processor.TransformerFactoryImpl'/>
-        </not><then>
-        <fail message="XSLT library not available.  See 'readmedocbook.txt'"/>
-        </then></if>
-        <property name='_xsltChecked' value='true'/>
-    </target>
-
-    <target name='-setXsltFilesets'>
-        <!-- You MUST set property 'book' before calling this target -->
-        <fileset id='bookXsltSrcFiles' dir='docsrc/${book}'
-            includes='**/*.xml, **/*.png, **/*.jpg, **/*.txt, **/*.java,
-                      **/*.sql, **/*.properties, **/*.rc, **/*.cfg'/>
-        <fileset id='sharedXsltSrcFiles' dir='docsrc'
-                includes='*.xml, *.txt, *.png, *.java, *.jpg, *.html, *.sql'/>
-    </target>
-
-    <target name='-sandwich1'>
-        <basename property='base' file='${vfile}'/>
-        <loadfile srcfile='${vfile}' property='content'/>
-        <dependset>
-            <srcfilelist dir='src/org/hsqldb/sample' files='${base}'/>
-            <targetfilelist dir='tmp/docwork/${book}/cdata' files='${base}'/>
-        </dependset>
-        <if><not><available file='tmp/docwork/${book}/cdata/${base}'/></not>
-        <then>
-            <mkdir dir='tmp/docwork/${book}/cdata'/>
-            <echo file='tmp/docwork/${book}/cdata/${base}'
-                  message='&lt;![CDATA[${content}]]&gt;'/>
-        </then></if>
-    </target>
-
-    <target name='-sandwich2'>
-        <basename property='base' file='${vfile}'/>
-        <loadfile srcfile='${vfile}' property='content'/>
-        <dependset>
-            <srcfilelist dir='sample' files='${base}'/>
-            <targetfilelist dir='tmp/docwork/${book}/cdata' files='${base}'/>
-        </dependset>
-        <if><not><available file='tmp/docwork/${book}/cdata/${base}'/></not>
-        <then>
-            <mkdir dir='tmp/docwork/${book}/cdata'/>
-            <echo file='tmp/docwork/${book}/cdata/${base}'
-                  message='&lt;![CDATA[${content}]]&gt;'/>
-        </then></if>
-    </target>
-
-    <target name='-sandwich3'>
-        <basename property='base' file='${vfile}'/>
-        <loadfile srcfile='${vfile}' property='content'/>
-        <dependset>
-          <srcfilelist dir='testrun/sqltool' files='${base}'/>
-            <targetfilelist dir='tmp/docwork/${book}/cdata' files='${base}'/>
-        </dependset>
-        <if><not><available file='tmp/docwork/${book}/cdata/${base}'/></not>
-        <then>
-            <mkdir dir='tmp/docwork/${book}/cdata'/>
-            <echo file='tmp/docwork/${book}/cdata/${base}'
-                  message='&lt;![CDATA[${content}]]&gt;'/>
-        </then></if>
-    </target>
-
-    <!-- I'm not sure that <fop> actually needs the Xslt libs, but it
-         probably does.  Test this sometime.  -->
-    <target name='-initFop' unless='_fop_initted' depends='-checkXslt'>
-        <fail unless='fop.home'
-  message="To build from DocBook FO files, you must set property 'fop.home'"/>
-        <if><not><available file='${fop.home}' type='dir'/></not><then>
-            <fail message="The &lt;fop&gt; target not found where expected under '${fop.home}'"/>
-        </then></if>
-        <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop">
-            <classpath>
-                <!-- Directory not present in FOP v. 5 distros.
-                <fileset dir='${fop.home}/build' includes='fop*.jar'/>
-                -->
-                <!-- See the FOP docs for why these are needed, and where
-                     to get them from -->
-                <fileset dir='${fop.home}/lib'
-             includes='avalon*.jar, batik*.jar, jimi*.jar, fop.jar, fop-*.jar'/>
-            </classpath>
-        </taskdef>
-        <property name='_fop_initted' value='true'/>
-    </target>
-
-    <target name='-initContrib' unless='_contrib_initted'>
-        <!-- We use ant-contrib-X.jar (where X is a version).  Make sure
-             that this jar is located at path-to-ant-bin/../lib -->
-        <available property='_contrib_there'
-                   classname='net.sf.antcontrib.logic.For'/>
-        <fail unless='_contrib_there' message="You must put a recent cut of ant-contrib-X.jar into 'path-to-ant-bin/../lib/'"/>
-        <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-        <property name='_contrib_initted' value='true'/>
-    </target>
-
-    <target name='-fop' depends='-initFop'>
-        <!-- Required properties:  book, _lvl, _fmt -->
-        <fop format="${_fmt}" outdir="doc/${book}" messagelevel="${_lvl}"
-            basedir='docsrc/${book}'>
-            <fileset file='tmp/docwork/${book}/${book}.fo'/>
-        </fop>
-    </target>
-
-    <target name='-htmlXslt' depends='-checkXslt'>
-        <!-- This does not check dependencies.  Do that before calling. -->
-        <!-- Required properties:  _stylesheet, book -->
-        <fail if='_css' message="Internal property '_css' set externally"/>
-        <fail unless='docbook.xsl.home' message="To use the DocBook targets, you must set property 'docbook.xsl.home"/>
-        <if><not><available type='file' file='${_stylesheet}'/></not><then>
-            <fail message="DocBook style sheet '${_stylesheet}' not found."/>
-        </then></if>
-        <available property='_css' value='${book}.css' type='file'
-                   file='docsrc/${book}/${book}.css'/>
-        <property name='_css' value='../shared.css'/>
-        <property name='_ext' value='.html'/>
-        <xslt
-               basedir='docsrc/${book}'
-               destdir='doc/${book}'
-               force='yes'
-               style='${_stylesheet}'
-               includes='${book}.xml'
-               extension='${_ext}'>
-            <param name='html.stylesheet' expression='${_css}'/>
-            <param name='navig.graphics' expression='true'/>
-            <param name='navig.graphics.path' expression='navicons/'/>
-            <param name='navig.graphics.extension' expression='.gif'/>
-            <param name='chunk.section.depth' expression='0'/>
-        </xslt>
-        <!-- Portable, but liberal (too liberal) test -->
-        <if><contains string='${_stylesheet}' substring="chunk.xml"
-                      casesensitive="false"/><then>
-          <property name="_output.basename" value="index"/>
-        </then></if>
-        <property name="_output.basename" value="${book}"/>
-        <echo>
-Due to limitation of Java Docbook Processors, you will need to 
-run a native command to generate the Hyperlinks in the book index.
-On UNIX, you can run:
-
-xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true --stringparam navig.graphics.path navicons/ --stringparam navig.graphics.extension .gif --stringparam chunk.section.depth 0 -o ../doc/${book}/${_output.basename}.html ${_stylesheet} ../docsrc/${book}/${book}.xml
-        </echo>
-    </target>
-
-    <target name='-foXslt' depends='-checkXslt'>
-        <!-- This does not check dependencies.  Do that before calling. -->
-        <!-- Required props:  book -->
-        <fail unless='docbook.xsl.home' message="To use the DocBook targets, you must set property 'docbook.xsl.home"/>
-        <if><not><available type='file' file='${style.fo}'/></not><then>
-            <fail message="DocBook style sheet '${style.fo}' not found."/>
-        </then></if>
-        <xslt
-               basedir='docsrc/${book}'
-               destdir='tmp/docwork/${book}'
-               force='yes'
-               style='${style.fo}'
-               includes='${book}.xml'
-               extension='.fo'
-         >
-            <param name='use.extensions' expression='1'/>
-            <param name='tablecolumns.extension' expression='0'/>
-            <param name='textinsert.extension' expression='1'/>
-            <param name='fop.extensions' expression='0'/>
-         </xslt>
-    </target>
-
-    <target name='clean-doc' description='Remove derived documentation files'
-            depends='clean-docwork'>
-        <!-- All CVS-controlled are in docsrc directory.
-             At that point, doc will contain only derived files, and this
-             target can just wipe out the docwork and doc directories. -->
-        <delete quiet='true' includeEmptyDirs='true'>
-            <fileset dir='doc' includes='*.gif, *.css, guide/**'/>
-            <fileset dir='doc/src' excludes='*.gif, *.css'/>
-        </delete>
-        <delete dir='tmp/docwork' quiet='true' includeEmptyDirs='true'/>
-    </target>
-
-    <target name='clean-docwork' description='Remove temporary documentation files'>
-        <delete dir='tmp/docwork' quiet='true' includeEmptyDirs='true'/>
-        <delete quiet='true' includeEmptyDirs='true'>
-            <fileset dir='doc' includes='**/*.xml'/>
-        </delete>
-    </target>
-
     <target name="-sqlfile-scanner">
       <!-- Prepares SqlFileScanner.java, running Jflex only if needed.
            Purpose here is to require jflex library only if user modifies
@@ -1409,4 +967,37 @@ xsltproc --stringparam html.stylesheet ${_css} --stringparam navig.graphics true
     <target name="-clean-switch-branch" unless="switch.inplace">
         <delete dir="${swsrc}"/>
     </target>
+
+    <!-- ***********************************************************
+    *************   DOCBOOK v.5 BUILD SYSTEM   *********************
+    *************************************************************-->
+  <import file="build-docbook.xml"/>
+
+  <target name="-prep-images">
+    <fail unless="dbimage.path">Ant property 'dbimage.path' is required
+This is normally the "images" subdirectory of a DocBook v.5
+Style Sheet distribution.  The distro can be obtained at
+http://docbook.sourceforge.net/release/xsl-ns.</fail>
+    <copy todir="doc-src/images/db">
+      <fileset dir="${dbimage.path}"/>
+    </copy>
+  </target>
+
+  <target name="gen-docs" description="Generate Docbook documents for project"
+          depends="validate-docs, -prep-images, -gen-docs-setup">
+    <antcall target="docbook-transform">
+      <param name="doc.name" value="util-guide"/>
+    </antcall>
+    <antcall target="-gen-docs-complete"/>
+  </target>
+
+  <target name="validate-docs"
+          description="Validate project DocBook source files using a modified version of Sun's MSV Validator">
+    <antcall target="validate-doc">
+      <param name="doc.name" value="util-guide"/>
+    </antcall>
+  </target>
+
+  <target name="clean-docs" depends="hsqldb-ant-docbook.clean"
+          description="Purge derived documentation files"/>
 </project>
