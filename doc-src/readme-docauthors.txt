@@ -1,4 +1,10 @@
+$Id$
+
 HOW TO CREATE AND WORK WITH DOCBOOK DOCUMENTS FOR HSQLDB
+
+! IMPORTANT  !   These instructions are obsolete.
+                 I'll update them ASAP.
+
 
 At some point, this document itself should be converted to DocBook format.
 
