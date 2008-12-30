@@ -339,8 +339,8 @@
       <para>When using relative paths, these paths will be taken relative to
       the directory in which the shell command to start the Java Virtual
       Machine was executed. Refer to Javadoc for <link
-          xlink:href="../src/org/hsqldb/jdbc/jdbcConnection.html">
-          <classname>jdbcConnection</classname>
+          xlink:href="../src/org/hsqldb/jdbc/JDBCConnection.html">
+          <classname>JDBCConnection</classname>
         </link> for more details.</para>
 
       <para>A <glossterm>mem:</glossterm> database is specified by the
@@ -484,8 +484,8 @@
         to it using the HSQLDB JDBC Driver contained in
         <filename>hsqldb.jar</filename>. Full information on how to connect to
         a server is provided in the Java Documentation for <link
-            xlink:href="../src/org/hsqldb/jdbc/jdbcConnection.html">
-            <classname>jdbcConnection</classname>
+            xlink:href="../src/org/hsqldb/jdbc/JDBCConnection.html">
+            <classname>JDBCConnection</classname>
           </link> (located in the <filename>/doc/src</filename> directory of
         HSQLDB distribution. A common example is connection to the default
         port (9001) used for the <glossterm>hsql:</glossterm> protocol on the
@@ -496,7 +496,7 @@
 
           <programlisting>
     try {
-        Class.forName("org.hsqldb.jdbcDriver" );
+        Class.forName("org.hsqldb.jdbc.JDBCDriver" );
     } catch (Exception e) {
         System.out.println("ERROR: failed to load HSQLDB JDBC driver.");
         e.printStackTrace();
@@ -635,20 +635,20 @@
       statement.</para>
 
       <para>The Javadoc for <link
-          xlink:href="../src/org/hsqldb/jdbc/jdbcConnection.html">
-          <classname>jdbcConnection</classname>
-        </link>, <link xlink:href="../src/org/hsqldb/jdbcDriver.html">
-          <classname>jdbcDriver</classname>
+          xlink:href="../src/org/hsqldb/jdbc/JDBCConnection.html">
+          <classname>JDBCConnection</classname>
+        </link>, <link xlink:href="../src/org/hsqldb/jdbc.JDBCDriver.html">
+          <classname>JDBCDriver</classname>
         </link>, <link
-          xlink:href="../src/org/hsqldb/jdbc/jdbcDatabaseMetaData.html">
-          <classname>jdbcDatabaseMetadata</classname>
-        </link>, <link xlink:href="../src/org/hsqldb/jdbc/jdbcResultSet.html">
-          <classname>jdbcResultSet</classname>
-        </link>, <link xlink:href="../src/org/hsqldb/jdbc/jdbcStatement.html">
-          <classname>jdbcStatement</classname>
+          xlink:href="../src/org/hsqldb/jdbc/JDBCDatabaseMetaData.html">
+          <classname>JDBCDatabaseMetadata</classname>
+        </link>, <link xlink:href="../src/org/hsqldb/jdbc/JDBCResultSet.html">
+          <classname>JDBCResultSet</classname>
+        </link>, <link xlink:href="../src/org/hsqldb/jdbc/JDBCStatement.html">
+          <classname>JDBCStatement</classname>
         </link>, and <link
-          xlink:href="../src/org/hsqldb/jdbc/jdbcPreparedStatement.html">
-          <classname>jdbcPreparedStatement</classname>
+          xlink:href="../src/org/hsqldb/jdbc/JDBCPreparedStatement.html">
+          <classname>JDBCPreparedStatement</classname>
         </link> list all the supported JDBC methods together with information
       that is specific to HSQLDB.</para>
     </section>
@@ -810,7 +810,7 @@
       capabilities of HSQLDB are fully supported. The relevant JDBC classes
       are thoroughly documented with additional clarifications and HyperSQL
       specific comments. See the JavaDoc for <link
-      xlink:href="../src/index.html">org.hsqldb.jdbcXXXX</link>
+      xlink:href="../src/index.html">org.hsqldb.jdbc.JDBCXXXX</link>
       classes.</para>
     </section>
 
