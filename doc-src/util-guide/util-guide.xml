@@ -812,7 +812,7 @@
                 You can, alternatively, set this for one
                 SqlTool/DatabaseManager invocation by using the command
                 line switch <emphasis>--driver</emphasis>.
-                Defaults to <emphasis>org.hsqldb.jdbcDriver</emphasis>.
+                Defaults to <emphasis>org.hsqldb.jdbc.JDBCDriver</emphasis>.
             </simpara></listitem></varlistentry>
             <varlistentry><term>truststore</term><listitem><simpara>
                 TLS trust keystore store file path as documented in the
