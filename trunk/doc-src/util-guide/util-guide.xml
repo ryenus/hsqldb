@@ -386,7 +386,7 @@
                     <literal>\dX filter</literal> commands now use the
                     filter as a regular expression, where possible.
                 </simpara></listitem><listitem><simpara>
-                    New <literal>*DSV_TRIM_ALL</literal> to automatically
+                    New <varname>*DSV_TRIM_ALL</varname> to automatically
                     handle import of
                     data which is both positional and character-delimited.
                 </simpara></listitem><listitem><simpara>
@@ -455,14 +455,14 @@
                 </simpara></step><step><simpara>
                     Find out where your hsqldb.jar file resides.
                     It typically resides at
-<emphasis role='bold'>HSQLDB_HOME</emphasis><filename>/lib/hsqldb.jar</filename>
-                    where <emphasis role='bold'>HSQLDB_HOME</emphasis> is the
+            <varname>HSQLDB_HOME</varname><filename>/lib/hsqldb.jar</filename>
+                    where <varname>HSQLDB_HOME</varname> is the
                     "hsqldb" directory inside the root level of your HSQLDB
                     software installation.
                     (For example, if you extract
                     <filename>hsqldb-9.1.0.zip</filename> into
                     <filename>c:\temp</filename>,
-                    your HSQLDB_HOME would be
+                    your <varname>HSQLDB_HOME</varname> would be
                     <filename>c:/temp/hsqldb-9.1.0/hsqldb</filename>.
                     The forward slashes work just fine on Windows).
                     For this reason, I'm going to use
@@ -816,8 +816,8 @@
             </simpara></listitem></varlistentry>
             <varlistentry><term>truststore</term><listitem><simpara>
                 TLS trust keystore store file path as documented in the
-                <!-- TODO:  Figure out how to work Inter-Book links.
-                <link linkend='tls-chapt' endterm='tls-title'/> -->
+                <remark>Once get inter-book links working, add link to
+                  tls-chapt using tls-title (or whatever it is now).</remark>
                 TLS chapter.
                 You usually only need to set this if the server is using a
                 non-publicly-certified certificate (like a self-signed
@@ -847,24 +847,24 @@
             are required.  The rest are optional.
         </simpara>
         <variablelist>
-            <varlistentry><term><literal>url</literal></term><listitem><simpara>
+            <varlistentry><term><varname>url</varname></term><listitem><simpara>
                 The JDBC URL of the database you wish to connect to.
             </simpara></listitem></varlistentry>
-            <varlistentry><term><literal>user</literal></term><listitem><simpara>
+            <varlistentry><term><varname>user</varname></term><listitem><simpara>
                 The username to connect to the database as.
             </simpara></listitem></varlistentry>
-            <varlistentry><term><literal>charset</literal></term><listitem><simpara>
+            <varlistentry><term><varname>charset</varname></term><listitem><simpara>
                 Sets the character encoding. Defaults to <literal>US-ASCII</literal>.
             </simpara></listitem></varlistentry>
-            <varlistentry><term><literal>truststore</literal></term><listitem><simpara>
+            <varlistentry><term><varname>truststore</varname></term><listitem><simpara>
                 The TLS trust keystore file path as documented in the TLS chapter.
             </simpara></listitem></varlistentry>
-            <varlistentry><term><literal>transiso</literal></term><listitem><simpara>
+            <varlistentry><term><varname>transiso</varname></term><listitem><simpara>
                 <classname>java.sql.Connection</classname> transaction
                 isolation level to connect with, as specified in the Java
                 API spec.
             </simpara></listitem></varlistentry>
-            <varlistentry><term><literal>password</literal></term><listitem><para>
+            <varlistentry><term><varname>password</varname></term><listitem><para>
                 You may only use this element to set empty password, like
                 <informalexample>
                   <screen>    password=</screen>
@@ -1579,7 +1579,7 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 it in SQL statements, print statements, and PL conditionals,
                 by using the <literal>*{VARNAME}</literal> or
                 <literal>*{:VARNAME}</literal> construct.
-                The only difference between <literal>*{VARNAME}</literal> and
+                The only difference between <literal>*{literal}</literal> and
                 <literal>*{:VARNAME}</literal> is that the former produces an
                 error if VARNAME is not set, whereas the latter will expand
                 to a zero-length string if VARNAME is not set.
@@ -2276,7 +2276,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
             looking at (and running!) the sample script
             <filename>sample/pl.sql</filename> in your HSQLDB distribution
             <footnoteref linkend='samplelocFn'/> and
-            using the <literal>*?</literal> command from within an interactive
+            using the <varname>*?</varname> command from within an interactive
             SqlTool session as a reference.  (By
             <emphasis>significant</emphasis> shell scripting, I mean to the
             extent of using variables, for loops, etc.).
@@ -2340,11 +2340,11 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                     string instead of fail if VARNAME is not set.
                 </simpara></listitem> <listitem><simpara>
                     Java system variables work the same exact way, except you
-                    use <literal>$</literal> instead of <literal>*</literal>
+                    use <literal>$</literal> instead of <varname>*</varname>
                     to dereference, like so:  <literal>${user.name}</literal>.
                 </simpara></listitem> <listitem><simpara>
                     Variables are normally written like
-                    <literal>*VARNAME</literal> in logical expressions to
+                    <varname>*VARNAME</varname> in logical expressions to
                     prevent them from being evaluated too early.
                     See below about logical expressions.
                 </simpara></listitem> <listitem><para>
@@ -2456,11 +2456,11 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 expression, they just enclose a list).
             </simpara> <simpara>
                 There is a critical difference between
-                <literal>*{VARNAME}</literal> and <literal>*VARNAME</literal>
+                <literal>*{VARNAME}</literal> and <varname>*VARNAME</varname>
                 inside logical expressions.
                 <literal>*{VARNAME}</literal> is expanded one time when the
                 parser first encounters the logical expression.
-                <literal>*VARNAME</literal> is re-expanded every time that the
+                <varname>*VARNAME</varname> is re-expanded every time that the
                 expression is evaluated.
                 So, you would never want to code
                 <literal>* while (*{X} &lt; 5)</literal> because the statement
@@ -2472,7 +2472,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 <literal>*{VARNAME}</literal> variables in expressions.
                 (They would expand and then the expression would most likely
                 no longer be a valid expression as listed in the table below).
-                Quotes and whitespace are fine in <literal>*VARNAME</literal>
+                Quotes and whitespace are fine in <varname>*VARNAME</varname>
                 variables, but it is the entire value that will be used in
                 evaluations, regardless of whether quotes match up, etc.
                 I.e. quotes and whitespace are not <emphasis>special</emphasis>
@@ -2794,9 +2794,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
             These instructions assume that you are capable of running an Ant
             build.
             See the
-            <!-- TODO:  Figure out how to work Inter-Book links.
-            <link linkend='building-appendix' endterm='building-title'/>
-            -->
+            <remark>Once get inter-book links working, add link to
+              building appendix, w/ title.</remark>
             Building
             chapter if you need more details than what you see here.
         </simpara>
@@ -2841,9 +2840,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
         <note><simpara>
             This feature is independent of HSQLDB
             Text Tables
-            <!-- TODO:  Figure out how to work Inter-Book links.
-            <link linkend='texttables-chapt' endterm='texttables-title'/>,
-            -->
+            <remark>Once get inter-book links working, add link to
+              texttables chapter, w/ title.</remark>
             a server-side feature of HSQLDB.
             It makes no difference to SqlTool whether the source or target
             table of your export/import is a memory, cache, or text table.
@@ -2993,9 +2991,9 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 or the null representation value occurs in the data being
                 exported.
                 You change these values by setting the PL variables
-                <literal>*DSV_COL_DELIM</literal>,
-                <literal>*DSV_ROW_DELIM</literal>,
-                <literal>*DSV_NULL_REP</literal>.
+                <varname>*DSV_COL_DELIM</varname>,
+                <varname>*DSV_ROW_DELIM</varname>,
+                <varname>*DSV_NULL_REP</varname>.
                 Notice that the asterisk is part of the variable names, to
                 indicate that these variables are used by SqlTool internally.
                 When specifying delimiters, you can use the escape seqpences
@@ -3008,8 +3006,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 </informalexample>
             </para><simpara>
                 The output delimiter values,
-                <literal>*DSV_COL_SPLITTER</literal> and
-                <literal>*DSV_ROW_SPLITTER</literal>, are set using normal
+                <varname>*DSV_COL_SPLITTER</varname> and
+                <varname>*DSV_ROW_SPLITTER</varname>, are set using normal
                 Perl/Java regexp syntax.
                 There are escapes for specifying special characters, and
                 anything else you would need.
@@ -3017,7 +3015,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 For imports, you must always specify the source DSV file path.
                 If you want to <emphasis>export</emphasis> to a different file
                 than one in the current directory named according to the source
-                table, set the PL variable <literal>*DSV_TARGET_FILE</literal>,
+                table, set the PL variable <varname>*DSV_TARGET_FILE</varname>,
                 like
                 <informalexample>
                   <screen>    * *DSV_TARGET_FILE = /tmp/dtbl.dsv</screen>
@@ -3028,21 +3026,21 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 If you want to <emphasis>import</emphasis> to a table other
                 than that derived from
                 the input DSV file name, set the PL variable
-                <literal>*DSV_TARGET_TABLE</literal>.
+                <varname>*DSV_TARGET_TABLE</varname>.
                 The table name may contain a schema name prefix.
             </simpara><simpara>
                 You don't need to import all of the columns in a data file.
                 To designate the fields to be skipped, iether set the PL
-                PL variable <literal>*DSV_SKIP_COLUMNS</literal>, or replace
+                PL variable <varname>*DSV_SKIP_COLUMNS</varname>, or replace
                 the column names in the header line to "-" (hyphen).
-                The value of <literal>*DSV_SKIP_COLUMNS</literal> is
+                The value of <varname>*DSV_SKIP_COLUMNS</varname> is
                 case-insensitive, and multiple column names are separated with
                 white space and/or commas.
             </simpara><para>
                 You can specify a query instead of a tablename with the
                 \x command in order to filter or transform data from a table
                 or view, or to export the output of a join, etc.
-                You must set the PL variable <literal>*DSV_TARGET_FILE</literal>,
+                You must set the PL variable <varname>*DSV_TARGET_FILE</varname>,
                 as explained above (since there is no table name from which to
                 automatically map a file name).
                 <example>
@@ -3126,7 +3124,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 (before any normal data or header lines).
             </para>
             <simpara>
-                There is also the <literal>*DSV_CONST_COLS</literal> setting,
+                There is also the <varname>*DSV_CONST_COLS</varname> setting,
                 which you can use to automatically write static, constant
                 values to the specified columns of all inserted rows.
             </simpara>
@@ -3163,7 +3161,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
     </keywordset>
   </info>
 
-  <para>The <literal>org.hsqldb.test</literal> package contains a number of
+  <para>The <classname>org.hsqldb.test</classname> package contains a number of
   tests for various functions of the database engine. Among these, the
   <classname>TestSelf</classname> class performs the tests that are based on
   scripts. To run the tests, you should compile the
@@ -3435,10 +3433,11 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
 
     <simpara>The DatabaseManagers do work with HSQLDB servers serving
         TLS-encrypted JDBC data. See the
-        <!-- TODO:  Figure out how to work Inter-Book links.
-        <link endterm="tls-title" linkend="tls-chapt" /> -->
         TLS chapter and the <link endterm="auth-title"
-    xlink:href="sqltool_auth-sect" /> section of this Guide.</simpara>
+          xlink:href="sqltool_auth-sect" /> section of this Guide.
+        <remark>Once get inter-book links working, add link to
+          tls-chapt using tls-title (or whatever it is now).</remark>
+      </simpara>
 
     <tip><simpara>
         If you are using DatabaseManagerSwing with Oracle, you will want
@@ -3534,9 +3533,9 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
 
     <simpara>These instructions assume that you are capable of running an Ant
     build. See the
-            <!-- TODO:  Figure out how to work Inter-Book links.
-        <link endterm="building-title" linkend="building-appendix" />
-            --> Building
+        <remark>Once get inter-book links working, add link to
+          building appendix, w/ title.</remark>
+          Building
     chapter.</simpara>
 
     <procedure>
@@ -3596,7 +3595,7 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
               </simpara></listitem></varlistentry>
               <varlistentry><term>jdbcDriver</term><listitem><simpara>
                   URL of a data source to auto-connect to.  String value.
-                  Defaults to <literal>org.hsqldb.jdbcDriver</literal>.
+                  Defaults to <classname>org.hsqldb.driver.JDBCDriver</classname>.
               </simpara></listitem></varlistentry>
               <varlistentry><term>jdbcUser</term><listitem><simpara>
                   User name for data source to auto-connect to.  String value.
