@@ -3,19 +3,20 @@
 /* and in the directory /hsqldb/docs/hypersonic_lic.txt */
 
 a:visited { color: #083194; }
+a:link { color: #0000BB; }
+a:active { color: #0000FF; font-weight:bold; }
 
-span.guimenu
-    { font-family: monospace; font-style: italic; font-weight: bold; }
-span.guimenuitem
-    { font-family: monospace; font-style: italic; font-weight: bold; }
-span.guilabel
-    { font-family: monospace; font-style: italic; font-weight: bold; }
-span.guibutton
-    { font-family: monospace; font-style: italic; font-weight: bold; }
-span.guiicon
-    { font-family: monospace; font-style: italic; font-weight: bold; }
-span.guisubmenu
-    { font-family: monospace; font-style: italic; font-weight: bold; }
+span.guibutton, span.guilabel, span.guimenu, span.guimenuitem, span.guisubmenu {
+    color: #083194;
+    font-family:sans-serif;
+}
+span.guibutton, span.guilabel {
+    font-weight:bold;
+}
+span.guimenu, span.guimenuitem, span.guisubmenu {
+    font-style:italic;
+}
+
 span.term        {
     font-family: monospace;
     font-weight: bold;
@@ -113,6 +114,14 @@ div.section h2.title {
 }
 
 span.remark        {
-    font-weight: bold;
-    color: orange;
+    background-color:#32cd32;
+    font:normal bold 12px sans-serif;
+    border:2px solid green; padding-left:2px; padding-right:2px;
+}
+
+div.table-contents {
+    background-color:#708090;
+}
+div.table-contents td {
+    background-color:#F5F5F5;
 }
