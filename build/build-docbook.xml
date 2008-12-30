@@ -54,7 +54,7 @@
   <property name="xml.catalog.allowPI" value="yes"/>
   <property name="xml.catalog.staticCatalog" value="yes"/>
   <property name="ivy.dep.file" value="build/ivy.xml"/>
-  <property name="distro.baseurl" value="http://hsqldb.org/doc"/>
+  <property name="distro.baseurl" value="http://hsqldb.org/doc/2.0"/>
 
   <property name="docoutput.path" value="doc"/>
   <property name="javac.debug" value="true"/>

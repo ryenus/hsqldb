@@ -464,7 +464,7 @@
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
         the source file
-        <filename xlink:href="../verbatim/src/org/hsqldb/server/Servlet.java">
+        <filename xlink:href="&distro_baseurl;/&doc_basename;/verbatim/src/org/hsqldb/server/Servlet.java">
         src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
@@ -1649,7 +1649,7 @@
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
         the source file
-        <filename xlink:href="../verbatim/src/org/hsqldb/server/Servlet.java">
+        <filename xlink:href="&distro_baseurl;/&doc_basename;/verbatim/src/org/hsqldb/server/Servlet.java">
         src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
@@ -1919,7 +1919,7 @@
               <literal>.html=text/html</literal> define the mime types of the
               static files served by the web server. See the source for
               <filename
-              xlink:href="../verbatim/src/org/hsqldb/server/WebServer.java">
+                xlink:href="&distro_baseurl;/&doc_basename;/verbatim/src/org/hsqldb/server/WebServer.java">
               src/org/hsqldb/server/WebServer.java</filename>
               for a list.</entry>
             </row>
