@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
+
 <!DOCTYPE book [
-<!ENTITY COPYRIGHT_YEAR "2008">
-<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
-%dummy22;
-<!ENTITY % dummy23 SYSTEM "../entities/addresses.ent">
-%dummy23;
+  <!ENTITY COPYRIGHT_YEAR "2008">
+  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+  <!ENTITY % dummy23 SYSTEM "../entities/addresses.ent"> %dummy23;
 ]>
+
 <book version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
