@@ -10,8 +10,8 @@
 <book xmlns="http://docbook.org/ns/docbook" version="5.0"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude">
-  <!-- I declare the default namespace + those for prefixes xlink: and xi: in
-       the root element, so I can use them anywhere in this file. -->
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
     <title>HyperSQL Utilities Guide</title>
     <info>
         <authorgroup>
@@ -3714,5 +3714,7 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
   </section>
 </chapter>
 
+  <!--  Enable the index as soon as mark some index terms.
   <index xml:id="book-ind"/>
+  -->
 </book>

@@ -1,20 +1,31 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0"?>
 <!-- $Id$ -->
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
-"http://www.oasis-open.org/docbook/xml/4.2CR1/docbookx.dtd" [
+
+<!DOCTYPE book [
+    <!ENTITY COPYRIGHT_YEAR "2008">
+    <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+    <!ENTITY % dummy23 SYSTEM "../entities/addresses.ent"> %dummy23;
 ]>
 
-<book>
-  <title>HyperSQL User Guide</title>
+<book xmlns="http://docbook.org/ns/docbook" version="5.0"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
 
-  <bookinfo>
+  <title>HyperSQL User Guide</title>
+  <subtitle>HyperSQL Database Engine, aka HSQLDB</subtitle>
+
+  <info>
     <authorgroup>
-      <corpauthor>The HSQLDB Development Group</corpauthor>
+      <editor>
+          <orgname>The HSQLDB Development Group</orgname>
+      </editor>
 
       <editor>
-        <firstname>Blaine</firstname>
-
-        <surname>Simpson</surname>
+        <personname>
+          <firstname>Blaine</firstname> <surname>Simpson</surname>
+        </personname>
 
         <email>&blaine_addr;</email>
 
@@ -24,9 +35,9 @@
       </editor>
 
       <editor>
-        <firstname>Fred</firstname>
-
-        <surname>Toussi</surname>
+        <personname>
+          <firstname>Fred</firstname> <surname>Toussi</surname>
+        </personname>
 
         <email>&fred_addr;</email>
 
@@ -57,27 +68,29 @@
       granted to distribute this document without any alteration under the
       terms of the HSQLDB license.</para>
     </legalnotice>
-  </bookinfo>
+  </info>
 
-  <preface>
-    <title>Introduction</title>
+  <preface xml:id="book-pref">
+    <title>Preface</title>
 
     <para>If you notice any mistakes in this document, please email the author
     listed at the beginning of the chapter. If you have problems with the
     procedures themselves, please use the HSQLDB support facilities which are
-    listed at <ulink
-    url="http://hsqldb.org/web/hsqlSupport.html">**todo**</ulink>.</para>
+    listed at <link
+    xlink:href="http://hsqldb.org/web/hsqlSupport.html">**todo**</link>.</para>
+
+    <xi:include href="../altformats-sect.xml"/>
   </preface>
 
-  <chapter>
+  <chapter xml:id="running-chapt">
     <title>Running and Using HyperSQL</title>
 
-    <chapterinfo>
+    <info>
       <authorgroup>
         <author>
-          <firstname>Fred</firstname>
-
-          <surname>Toussi</surname>
+          <personname>
+            <firstname>Fred</firstname> <surname>Toussi</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -104,9 +117,9 @@
         Development Group to distribute this document with or without
         alterations under the terms of the HSQLDB license.</para>
       </legalnotice>
-    </chapterinfo>
+    </info>
 
-    <section>
+    <section xml:id="running_jar-sect">
       <title>The HSQLDB Jar</title>
 
       <para>The HSQLDB jar package is located in the /lib directory of the ZIP
@@ -138,7 +151,7 @@
       database engine that has a JDBC driver.</para>
     </section>
 
-    <section>
+    <section xml:id="running_tools-sect">
       <title>Running Database Access Tools</title>
 
       <para>The tools are used for interactive user access to databases,
@@ -189,7 +202,7 @@
       tools.</para>
     </section>
 
-    <section>
+    <section xml:id="running_db-sect">
       <title>A HyperSQL Database</title>
 
       <para>Each HyperSQL database is called a catalog. There are three types
@@ -287,7 +300,7 @@
       program.</para>
     </section>
 
-    <section>
+    <section xml:id="running_inprocess-sect">
       <title>In-Process Access to Database Catalogs</title>
 
       <para>In general, JDBC is used for all access to databases. This is done
@@ -314,10 +327,10 @@
 
       <para>When using relative paths, these paths will be taken relative to
       the directory in which the shell command to start the Java Virtual
-      Machine was executed. Refer to Javadoc for <ulink
-          url="../src/org/hsqldb/jdbc/jdbcConnection.html">
+      Machine was executed. Refer to Javadoc for <link
+          xlink:href="../src/org/hsqldb/jdbc/jdbcConnection.html">
           <classname>jdbcConnection</classname>
-        </ulink> for more details.</para>
+        </link> for more details.</para>
 
       <para>A <glossterm>mem:</glossterm> database is specified by the
       <glossterm>mem:</glossterm> protocol. For <glossterm>mem:</glossterm>
@@ -357,7 +370,7 @@
       multiple Java processes.</para>
     </section>
 
-    <section>
+    <section xml:id="running_modes-sect">
       <title>Listener / Server Modes</title>
 
       <para>For most applications, <glossterm>in-process</glossterm> access is
@@ -385,7 +398,7 @@
       communications between the client and server, and briefly disucssed
       below. More details on servres is provided in a separate chapter.</para>
 
-      <section>
+      <section xml:id="running_hsqlserver-sect">
         <title>HyperSQL HSQL Server</title>
 
         <para>This is the preferred way of running a database server and the
@@ -405,7 +418,7 @@
         to get a list of available arguments.</para>
       </section>
 
-      <section>
+      <section xml:id="running_httpserver-sect">
         <title>HyperSQL HTTP Server</title>
 
         <para>This method of access is used when the computer hosting the
@@ -429,7 +442,7 @@
         to get a list of available arguments.</para>
       </section>
 
-      <section>
+      <section xml:id="running_servlet-sect">
         <title>HyperSQL HTTP Servlet</title>
 
         <para>This method of access also uses the HTTP protocol. It is used
@@ -453,16 +466,16 @@
         <glossterm>in-process</glossterm>, or using a Server</para>
       </section>
 
-      <section>
+      <section xml:id="running_connecting-sect">
         <title>Connecting to a Database Server</title>
 
         <para>When a HyperSQL server is running, client programs can connect
         to it using the HSQLDB JDBC Driver contained in
         <filename>hsqldb.jar</filename>. Full information on how to connect to
-        a server is provided in the Java Documentation for <ulink
-            url="../src/org/hsqldb/jdbc/jdbcConnection.html">
+        a server is provided in the Java Documentation for <link
+            xlink:href="../src/org/hsqldb/jdbc/jdbcConnection.html">
             <classname>jdbcConnection</classname>
-          </ulink> (located in the <filename>/doc/src</filename> directory of
+          </link> (located in the <filename>/doc/src</filename> directory of
         HSQLDB distribution. A common example is connection to the default
         port (9001) used for the <glossterm>hsql:</glossterm> protocol on the
         same machine:</para>
@@ -494,18 +507,19 @@
         <para>Note in the above connection URL, there is no mention of the
         database file, as this was specified when running the server. Instead,
         the public name defined for dbname.0 is used. Also, see the <link
-        endterm="advanced-title" linkend="advanced-chapter" />**todo** chapter
+        endterm="advanced-title" linkend="advanced-chapt" />**todo** chapter
         for the connection URL when there is more than one database per server
         instance.</para>
       </section>
 
-      <section>
+      <section xml:id="running_security-sect">
         <title>Security Considerations</title>
 
         <para>When a HyperSQL server is run, network access should be
         adequately protected. Source IP addresses may be restricted by use of
         TCP filtering or firewall programs, or standalone firewalls.<link
-        endterm="tls-title" linkend="tls-chapter" /> Only secure passwords
+        endterm="tls-sect-title" linkend="listeners_tls-sect" />
+        Only secure passwords
         should be used-- most importantly, the password for the default system
         user should be changed from the default empty string. If you are
         purposefully providing data to the public, then the wide-open public
@@ -530,7 +544,7 @@
         **todo**.</para>
       </section>
 
-      <section>
+      <section xml:id="running_multiple_db-sect">
         <title>Using Multiple Databases</title>
 
         <para>A server can provide connections to more than one database. In
@@ -542,7 +556,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="running-data-access-sect">
       <title>Accessing the Data</title>
 
       <para>As shown so far, a <classname>java.sql.Connection</classname>
@@ -602,34 +616,34 @@
       <literal>COMMIT</literal> while the <methodname>rollback()</methodname>
       method performs a <literal>ROLLBACK</literal> SQL statement.</para>
 
-      <para>The <literal>
+      <para>The
           <methodname>setSavepoint(String name)</methodname>
-        </literal> method performs a <literal>SAVEPOINT &lt;name&gt;</literal>
+      method performs a <literal>SAVEPOINT &lt;name&gt;</literal>
       SQL statement and returns a <classname>java.sql.Savepoint</classname>
       object. The <literal>rollback(Savepoint name)</literal> method performs
       a <literal>ROLLBACK TO SAVEPOINT &lt;name&gt;</literal> SQL
       statement.</para>
 
-      <para>The Javadoc for <ulink
-          url="../src/org/hsqldb/jdbc/jdbcConnection.html">
+      <para>The Javadoc for <link
+          xlink:href="../src/org/hsqldb/jdbc/jdbcConnection.html">
           <classname>jdbcConnection</classname>
-        </ulink>, <ulink url="../src/org/hsqldb/jdbcDriver.html">
+        </link>, <link xlink:href="../src/org/hsqldb/jdbcDriver.html">
           <classname>jdbcDriver</classname>
-        </ulink>, <ulink
-          url="../src/org/hsqldb/jdbc/jdbcDatabaseMetaData.html">
+        </link>, <link
+          xlink:href="../src/org/hsqldb/jdbc/jdbcDatabaseMetaData.html">
           <classname>jdbcDatabaseMetadata</classname>
-        </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcResultSet.html">
+        </link>, <link xlink:href="../src/org/hsqldb/jdbc/jdbcResultSet.html">
           <classname>jdbcResultSet</classname>
-        </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcStatement.html">
+        </link>, <link xlink:href="../src/org/hsqldb/jdbc/jdbcStatement.html">
           <classname>jdbcStatement</classname>
-        </ulink>, and <ulink
-          url="../src/org/hsqldb/jdbc/jdbcPreparedStatement.html">
+        </link>, and <link
+          xlink:href="../src/org/hsqldb/jdbc/jdbcPreparedStatement.html">
           <classname>jdbcPreparedStatement</classname>
-        </ulink> list all the supported JDBC methods together with information
+        </link> list all the supported JDBC methods together with information
       that is specific to HSQLDB.</para>
     </section>
 
-    <section>
+    <section xml:id="running_closing-sect">
       <title>Closing the Database</title>
 
       <para>All databases running in different modes can be closed with the
@@ -665,7 +679,7 @@
       recommended for application programs.</para>
     </section>
 
-    <section>
+    <section xml:id="running_newdb-sect">
       <title>Creating a New Database</title>
 
       <para>When a server instance is started, or when a connection is made to
@@ -678,9 +692,9 @@
       For troubleshooting purposes, you can specify a connection property
       <property>ifexists</property>=<literal>true</literal> to allow
       connection to an existing database only and avoid creating a new
-      database. In this case, if the database does not exist, the <literal>
-          <methodname>getConnection()</methodname>
-        </literal> method will throw an exception.</para>
+      database. In this case, if the database does not exist, the
+      <methodname>getConnection()</methodname>
+      method will throw an exception.</para>
 
       <para>
         <example>
@@ -693,15 +707,15 @@
     </section>
   </chapter>
 
-  <chapter id="sql_issues-chapter">
-    <title id="sql_issues-title">SQL Issues</title>
+  <chapter xml:id="sqlissues-chapt">
+    <title xml:id="sqlissues-title">SQL Issues</title>
 
-    <chapterinfo>
+    <info>
       <authorgroup>
         <author>
-          <firstname>Fred</firstname>
-
-          <surname>Toussi</surname>
+          <personname>
+            <firstname>Fred</firstname> <surname>Toussi</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -728,9 +742,9 @@
         Development Group to distribute this document with or without
         alterations under the terms of the HSQLDB license.</para>
       </legalnotice>
-    </chapterinfo>
+    </info>
 
-    <section>
+    <section xml:id="sqlissues_standards-sect">
       <title>Standards Support</title>
 
       <para>HSQLDB 1.9.0 supports the dialect of SQL defined by SQL standards
@@ -742,7 +756,7 @@
       conformance.</para>
 
       <para><citetitle>The SQL Syntax chapter of this guide </citetitle><link
-      endterm="sqlsyntax-title" linkend="sqlsyntax-chapter">**todo**</link>
+      endterm="sqlsyntax-title" linkend="sqlsyntax-chapt">**todo**</link>
       lists all the keywords and most of the syntax that is supported. When
       writing or converting existing SQL DDL (Data Definition Language), DML
       (Data Manipulation Language) or DQL (Data Query Language) statements for
@@ -753,9 +767,8 @@
       <para>Over 300 words are reserved by the standard and should not be used
       as table or column names. For example, the word POSITION is reserved as
       it is a function defined by the Standards with a similar role as
-      <literal>
-          <methodname>String.indexOf()</methodname>
-        </literal> in Java. HyperSQL does not currently prevent you from using
+      <methodname>String.indexOf()</methodname>
+      in Java. HyperSQL does not currently prevent you from using
       a reserved word if it does not support its use or can distinguish it.
       For example CUBE is a reserved words that is not currently supported by
       HyperSQL and is allowed as a table or column name. You should avoid
@@ -774,9 +787,9 @@
       among such constructs.</para>
 
       <para>For a well-written basic guide to SQL with examples, you can
-      consult <ulink
-      url="http://www.postgresql.org/files/documentation/books/aw_pgsql/index.html">PostgreSQL:
-      Introduction and Concepts</ulink> by Bruce Momjian, which is available
+      consult <link
+      xlink:href="http://www.postgresql.org/files/documentation/books/aw_pgsql/index.html">PostgreSQL:
+      Introduction and Concepts</link> by Bruce Momjian, which is available
       on the web. Most of the core SQL coverage in the book applies also to
       HyperSQL. There are some differences in keywords supported by one and
       not the other engine (OUTER, OID's, etc.) or used differently
@@ -785,11 +798,11 @@
       <para>In version 1.9.0, all features of JDBC4 that apply to the
       capabilities of HSQLDB are fully supported. The relevant JDBC classes
       are thoroughly documented with additional clarifications and HyperSQL
-      specific comments. See the JavaDoc for <ulink
-      url="../src/index.html">org.hsqldb.jdbcXXXX</ulink> classes.</para>
+      specific comments. See the JavaDoc for <link
+      xlink:href="../src/index.html">org.hsqldb.jdbcXXXX</link> classes.</para>
     </section>
 
-    <section>
+    <section xml:id="sqlissues_tabletypes-sect">
       <title>Different Types of Tables</title>
 
       <para>HSQLDB supports TEMP tables and three types of persistent
@@ -837,7 +850,7 @@
       The Text table data source can always be reassigned to a different file
       if necessary. Two commands are needed to set up a TEXT table as detailed
       in the <link endterm="texttables-title"
-      linkend="texttables-chapter">**todo**</link> chapter.</para>
+      linkend="texttables-chapt">**todo**</link> chapter.</para>
 
       <para>With all-in-memory databases (see above), both MEMORY table and
       CACHED table declarations are treated as declarations for non-persistent
@@ -855,10 +868,9 @@
       statements is needed to access different types of table.</para>
     </section>
 
-    <section>
+    <section xml:id="sqlissues_constr_indexes-sect">
       <title>Constraints and Indexes</title>
 
-      <section>
         <para>HyperSQL supports PRIMARY KEY, NOT NULL, UNIQUE, CHECK and
         FOREIGN KEY constraints. This support is fairly comprehensive and
         covers multi-column constraints and indexes, plus cascading updates
@@ -870,8 +882,8 @@
         each FOREIGN KEY constraint. Because of this, you should not create
         duplicate user-defined indexes on the same column sets covered by
         these constraints. This would result in unnecessary memory and speed
-        overheads. See the discussion in the <link endterm="sql_issues-title"
-        linkend="sql_issues-chapter">**todo**</link> chapter for more
+        overheads. See the discussion in the <link endterm="sqlissues-title"
+        linkend="sqlissues-chapt">**todo**</link> chapter for more
         information.</para>
 
         <para>Indexes are crucial for adequate query speed. When queries
@@ -884,7 +896,6 @@
         processing of queries at over 100,000 rows per second. Any query that
         runs into several seconds should be checked and indexes should be
         added to the relevant columns of the tables if necessary.</para>
-      </section>
 
       <section>
         <title>Primary Key Constraints</title>
@@ -1094,7 +1105,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="sqlissues_types_ops-sect">
       <title>Types and Arithmetic Operations</title>
 
       <para>Table columns of all types supported by HSQLDB can be indexed and
@@ -1133,9 +1144,9 @@
         result of the operations is returned in a JDBC
         <classname>ResultSet</classname> in any of related Java types:
         <classname>Integer</classname>, <classname>Long</classname> or
-        <classname>BigDecimal</classname>. The <literal>
-            <methodname>ResultSet.getXXXX()</methodname>
-          </literal> methods can be used to retrieve the values so long as the
+        <classname>BigDecimal</classname>. The
+        <methodname>ResultSet.getXXXX()</methodname>
+        methods can be used to retrieve the values so long as the
         returned value can be represented by the resulting type. This type is
         deterministically based on the query, not on the actual rows returned.
         The type does not change when the same query that returned one row,
@@ -1192,12 +1203,9 @@
         <literal>0.2</literal> is considered a DECIMAL value but
         <literal>0.2E0</literal> is considered a DOUBLE value.</para>
 
-        <para>When <literal>
-            <methodname>PreparedStatement.setDouble()</methodname>
-          </literal> or <literal>
-            <methodname>setFloat()</methodname>
-          </literal> is used, the value is treated as a DOUBLE
-        automatically.</para>
+        <para>When <methodname>PreparedStatement.setDouble()</methodname>
+        or <methodname>setFloat()</methodname> is used, the value is treated
+        as a DOUBLE automatically.</para>
 
         <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
         expression, the type of the result is DOUBLE.</para>
@@ -1331,7 +1339,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="sqlissies_seq_identitis-sect">
       <title>Sequences and Identity</title>
 
       <para>The SEQUENCE objects and IDENTITY columns are supported fully
@@ -1414,7 +1422,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="sqlissues_trans_cc-sect">
       <title>Transactions and Concurrency Control</title>
 
       <para>Before version 1.9, HSQLDB supported READ UNCOMMITTED transaction
@@ -1519,16 +1527,16 @@
     </section>
   </chapter>
 
-  <chapter id="server-chapter">
-    <title id="server-title">HyperSQL Network Listeners: Server, WebServer,
-    and Servlet</title>
+  <chapter xml:id="server-chapt">
+    <title xml:id="server-title">HyperSQL Network Listeners</title>
+    <subtitle>Server, WebServer, and Servlet</subtitle>
 
-    <chapterinfo>
+    <info>
       <authorgroup>
         <author>
-          <firstname>Fred</firstname>
-
-          <surname>Toussi</surname>
+          <personname>
+            <firstname>Fred</firstname> <surname>Toussi</surname>
+        </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -1557,15 +1565,15 @@
         Development Group to distribute this document with or without
         alterations under the terms of the HSQLDB license.</para>
       </legalnotice>
-    </chapterinfo>
+    </info>
 
-    <section>
+    <section xml:id="listeners-sect">
       <title>Listeners</title>
 
       <para>As described in the **todo** chapter, network listeners or servers
       provide connectivity to catalogs from different JVM processes.</para>
 
-      <section>
+      <section xml:id="listeners_hsqlserver-sect">
         <title>HyperSQL Server</title>
 
         <para>This is the preferred way of running a database server and the
@@ -1591,7 +1599,7 @@
         next section.</para>
       </section>
 
-      <section>
+      <section xml:id="listeners_httpserver-sect">
         <title>HyperSQL HTTP Server</title>
 
         <para>This method of access is used when the computer hosting the
@@ -1615,7 +1623,7 @@
         next section.</para>
       </section>
 
-      <section>
+      <section xml:id="listeners_servlet-sect">
         <title>HyperSQL HTTP Servlet</title>
 
         <para>This method of access also uses the HTTP protocol. It is used
@@ -1641,7 +1649,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="listeners_server_props-sect">
       <title>Server and Web Server Properties</title>
 
       <para>Properties files for running the servers are not created
@@ -1935,7 +1943,7 @@
       </note>
     </section>
 
-    <section>
+    <section xml:id="listeners_appstart-sect">
       <title>Starting a Server from your application</title>
 
       <para>If you want to start the server from within your application, as
@@ -1967,17 +1975,17 @@
       <para />
     </section>
 
-    <section>
-      <title id="tls-title">TLS Encryption</title>
+    <section xml:id="listeners_tls-sect">
+      <title xml:id="tls-sect-title">TLS Encryption</title>
 
       <subtitle>Listener TLS Support (a. k. a. SSL)</subtitle>
 
-      <chapterinfo>
+      <info>
         <authorgroup>
           <author>
-            <firstname>Blaine</firstname>
-
-            <surname>Simpson</surname>
+            <personname>
+              <firstname>Blaine</firstname> <surname>Simpson</surname>
+            </personname>
 
             <email>&blaine_addr;</email>
 
@@ -2005,7 +2013,7 @@
 
           <keyword>Security</keyword>
         </keywordset>
-      </chapterinfo>
+      </info>
 
       <para>This section explains how to encrypt the stream between JDBC
       network clients and HyperSQL Listeners. If you are running an
@@ -2028,7 +2036,7 @@
 
           <listitem>
             <para>If Java 2.x or 3.x, then you will need to <link
-            linkend="jsse-section">install JSSE</link>. Your server and/or
+            linkend="jsse-sect">install JSSE</link>. Your server and/or
             client will start up much slower than that of Java 4.x users.
             Client-side users will not be able to use the https: JDBC protocol
             (because the https protocol handler is not implemented in 2.x/3.x
@@ -2036,7 +2044,7 @@
           </listitem>
 
           <listitem>
-            <para>A <link linkend="privatekey-section">JKS keystore containing
+            <para>A <link linkend="privatekey-sect">JKS keystore containing
             a private key</link>, in order to run a Listener.</para>
           </listitem>
 
@@ -2116,9 +2124,9 @@
           X509 certificate that you need for the next step.</para>
 
           <para>Now, you need to add this cert to one of the system trust
-          keystores or to a keystore of your own. See <ulink
-          url="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores">
-          the Customizing Stores section in JSSERefGuide.html</ulink> to see
+          keystores or to a keystore of your own. See <link
+          xlink:href="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores">
+          the Customizing Stores section in JSSERefGuide.html</link> to see
           where your system trust keystores are. You can put private keystores
           anywhere you want to. The following command will add the cert to an
           existing keystore, or create a new keystore if
@@ -2152,7 +2160,7 @@
               <screen>
     java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</screen>
             </example> This example runs the program <link
-          linkend="unix-chapter">SqlTool</link>. SqlTool has built-in TLS
+          linkend="unix-chapt">SqlTool</link>. SqlTool has built-in TLS
           support however, so, for SqlTool you can set
           <literal>truststore</literal> on a per-urlid basis in the SqlTool
           configuration file.</para>
@@ -2166,9 +2174,9 @@
           to it.</para>
 
           <para>If you want more details on anything, see JSSERefGuide.html on
-          <ulink
-          url="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html">
-          Sun's site</ulink>, or in the subdirectory
+          <link
+          xlink:href="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html">
+          Sun's site</link>, or in the subdirectory
           <filename>docs/guide/security/jsse</filename> of your Java SE
           docs.</para>
         </section>
@@ -2176,7 +2184,7 @@
         <section>
           <title>Server-Side, aka Listener-Side</title>
 
-          <simpara>Get yourself a <link linkend="privatekey-section">JKS
+          <simpara>Get yourself a <link linkend="privatekey-sect">JKS
           keystore containing a private key</link>. Then set properties
           <literal>system.javax.net.ssl.keyStore</literal> and
           <literal>system.javax.net.ssl.keyStorePassword</literal> in your
@@ -2188,7 +2196,7 @@
           password (of both the keystore and the private key record-- they
           must be the same).</simpara>
 
-          <caution id="tlspassword-caution">
+          <caution xml:id="tlspassword-caution">
             <para>If you set any password in a .properties (or any other)
             file, you need to restrict access to the file. On a good operating
             system, you can do this like so: <informalexample>
@@ -2202,22 +2210,22 @@
           <literal>javax.net.ssl.keyStorePassword</literal> and
           <literal>avax.net.ssl.keyStore</literal> in the JSSE docs.</simpara>
 
-          <note>Before version 1.9, HyperSQL depended on directly setting the
-          corresponding JSSE properties. The new idiom is more secure and
-          easier to manage. If you have an old password in your config file,
-          you should remove it.</note>
+          <note><simpara>Before version 1.9, HyperSQL depended on directly
+          setting the corresponding JSSE properties. The new idiom is more
+          secure and easier to manage. If you have an old password in your
+          config file, you should remove it.</simpara></note>
         </section>
       </section>
 
-      <section id="jsse-section">
+      <section xml:id="jsse-sect">
         <title>JSSE</title>
 
         <para>If you are running Java 4.x or later, then you are all set. Java
         1.x users, you are on your own (Sun does not provide a JSSE that will
         work with 1.x). Java 2.x and 3.x users continue...</para>
 
-        <para>Go to <ulink
-        url="http://java.sun.com/products/jsse/index-103.html" />. If you
+        <para>Go to <link
+        xlink:href="http://java.sun.com/products/jsse/index-103.html" />. If you
         agree to the terms and meet the requirements, download the domestic or
         global JSSE software. All you need from the software distro is the
         three jar files. If you have a JDK installation, then move the 3 jar
@@ -2228,7 +2236,7 @@
         <para>Pretty painless.</para>
       </section>
 
-      <section id="privatekey-section">
+      <section xml:id="privatekey-sect">
         <title>Making a Private-key Keystore</title>
 
         <para>There are two main ways to do this. Either you can use a
@@ -2244,8 +2252,8 @@
           certificate. That is well documented at many other places.</para>
 
           <para>Assuming that you have a standard pem-style private key
-          certificate, here's how you can use <ulink
-          url="http://www.openssl.org">openssl</ulink> and the program
+          certificate, here's how you can use <link
+          xlink:href="http://www.openssl.org">openssl</link> and the program
           <classname>DERImport</classname> to get it into a JKS
           keystore.</para>
 
@@ -2280,9 +2288,9 @@
         <section>
           <title>Non-CA-Signed Cert</title>
 
-          <para>Run <literal>man keytool</literal> or see <ulink
-          url="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CreateKeystore">
-          the Creating a Keystore section of JSSERefGuide.html</ulink>.</para>
+          <para>Run <literal>man keytool</literal> or see <link
+          xlink:href="http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CreateKeystore">
+          the Creating a Keystore section of JSSERefGuide.html</link>.</para>
         </section>
       </section>
 
@@ -2294,7 +2302,7 @@
         <literal>system.javax.net.ssl.keyStore</literal> and
         <literal>system.javax.net.ssl.keyStorePassword</literal> properties as
         instructed above, and follow the instructions in the <link
-        endterm="unix-title" linkend="unix-chapter" /> chapter, paying close
+        endterm="unix-title" linkend="unix-chapt" /> chapter, paying close
         attention to the TLS-related comments in the template config
         file.</para>
 
@@ -2304,7 +2312,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="listeners_acl-sect">
       <title>Network Access Control</title>
 
       <subtitle>Aka Server ACLs</subtitle>
@@ -2327,11 +2335,12 @@
       request. This is efficient because the database engine never even gets
       the request until it is approved by the ACL filter code.</simpara>
 
-      <simpara>The sample file located at <filename>sample/acl.txt</filename>
+      <para>The sample file located at <filename>sample/acl.txt</filename>
       in your HyperSQL distribution explains how to write an ACL file.
-      <programlisting>&acl.txt-cdata;</programlisting>You put your file
-      wherever it is convenient for you, and specify that path with the
-      property <literal>server.acl</literal> or
+      <programlisting><xi:include href="../verbatim/sample/acl.txt"
+                                  parse="text"/></programlisting>
+      You put your file wherever it is convenient for you, and specify that
+      path with the property <literal>server.acl</literal> or
       <literal>webserver.acl</literal> in your
       <filename>server.properties</filename> or
       <filename>webserver.properties</filename> file (depending on whether
@@ -2343,7 +2352,7 @@
       same directory as your <filename>.properties</filename> file and specify
       the property value as just <filename>acl.txt</filename>. This file name
       is intuitive, and things will continue to work as expected if you move
-      or copy the entire directory.</simpara>
+      or copy the entire directory.</para>
 
       <warning>
         <simpara>If your <classname>Server</classname> or
@@ -2395,17 +2404,17 @@
     </section>
   </chapter>
 
-  <chapter id="unix-chapter">
-    <title id="unix-title">HyperSQL on UNIX</title>
+  <chapter xml:id="unix-chapt">
+    <title xml:id="unix-title">HyperSQL on UNIX</title>
 
     <subtitle>How to quickly get a HyperSQL (aka HSQLDB) Listener up and
     running on UNIX, including Mac OS X</subtitle>
 
-    <chapterinfo>
+    <info>
       <author>
-        <firstname>Blaine</firstname>
-
-        <surname>Simpson</surname>
+        <personname>
+          <firstname>Blaine</firstname> <surname>Simpson</surname>
+        </personname>
 
         <email>&blaine_addr;</email>
 
@@ -2429,9 +2438,9 @@
 
         <keyword>HOWTO</keyword>
       </keywordset>
-    </chapterinfo>
+    </info>
 
-    <section>
+    <section xml:id="unix_purpose-sect">
       <title>Purpose</title>
 
       <simpara>This chapter explains how to quickly install, run, and use a
@@ -2457,10 +2466,10 @@
       convert.</simpara>
     </section>
 
-    <section>
+    <section xml:id="unix_install-sect">
       <title>Installation</title>
 
-      <simpara>Go to <ulink url="http://sourceforge.net/projects/hsqldb" />
+      <simpara>Go to <link xlink:href="http://sourceforge.net/projects/hsqldb" />
       and click on the "files" link. You want the current version. This will
       be the highest numbered version under the plain black "hsqldb" heading.
       See if there's a distribution for the current HSQLDB version in the
@@ -2470,8 +2479,8 @@
       you prefer somebody else's build, you should still find out the current
       version of HSQLDB as described in the previous paragraph. It's very
       likely that you can find a binary package for your UNIX variant with
-      your OS distributor, <ulink url="http://www.jpackage.org/" /> <ulink
-      url="http://sunfreeware.com/" />, etc. Nowadays, most UNIXes have
+      your OS distributor, <link xlink:href="http://www.jpackage.org/" /> <link
+      xlink:href="http://sunfreeware.com/" />, etc. Nowadays, most UNIXes have
       software package management systems which check Internet repositories.
       Just search the repositories for "hsqldb" and "hypersql". The challenge
       is finding an <emphasis>up-to-date</emphasis> package. You will get
@@ -2603,7 +2612,7 @@
       if it works, or build your own.</simpara>
 
       <simpara>To use the supplied <filename>hsqldb.jar</filename>, just skip
-      to the <link linkend="catalog_setup-section"> next section of this
+      to the <link linkend="unix_cat_setup-sect"> next section of this
       document</link>. Otherwise build a new
       <filename>hsqldb.jar</filename>.</simpara>
 
@@ -2612,7 +2621,7 @@
 
         <step>
           <para>If you don't already have Ant, download the latest stable
-          binary version from <ulink url="http://ant.apache.org" />. cd to
+          binary version from <link xlink:href="http://ant.apache.org" />. cd to
           where you want Ant to live, and extract from the archive with
           <informalexample>
               <screen>
@@ -2660,13 +2669,16 @@
         </step>
       </procedure>
 
+      <simpara><remark>Restore building appendix link</remark></simpara>
+      <!--
       <simpara>See the <link endterm="building-title"
-      linkend="building-appendix" /> appendix if you want to build anything
+      linkend="building-app" /> appendix if you want to build anything
       other than <filename>hsqldb.jar</filename> with all default
       settings.</simpara>
+      -->
     </section>
 
-    <section id="catalog_setup-section">
+    <section xml:id="unix_cat_setup-sect">
       <title>Setting up a HyperSQL Persistent Database Catalog and a HyperSQL
       Network Listener</title>
 
@@ -2706,8 +2718,8 @@
           directory and rename it to
           <filename>server.properties</filename>.</simpara>
 
-          <programlisting>&server.properties-cdata;</programlisting>
-
+          <programlisting><xi:include parse="text"
+              href="../verbatim/sample/server.properties"/></programlisting>
           <simpara>Since the value of the first database
           (<property>server.database.0</property>) begins with
           <literal>file:</literal>, the catalog will be persisted to a set of
@@ -2744,12 +2756,16 @@
       </procedure>
     </section>
 
-    <section><title>Accessing your Database</title><simpara> Copy the file
+    <section xml:id="unix_access-sect">
+      <title>Accessing your Database</title><simpara> Copy the file
     <emphasis
     role="bold">HSQLDB_HOME</emphasis><filename>/sample/sqltool.rc</filename>
     to the <emphasis role="bold">HSQLDB_OWNER</emphasis>'s home directory. Use
     <literal>chmod</literal> to make the file readable and writable only to
-    <emphasis role="bold">HSQLDB_OWNER</emphasis>. </simpara><programlisting>&sqltool.rc-cdata;</programlisting><simpara>
+    <emphasis role="bold">HSQLDB_OWNER</emphasis>. </simpara>
+    <programlisting><xi:include href="../verbatim/sample/sqltool.rc"
+                                parse="text"/></programlisting>
+    <simpara>
     We will be using the "localhost-sa" sample urlid definition from the
     config file. The JDBC URL for this urlid is
     <literal>jdbc:hsqldb:hsql://localhost</literal>. That is the URL for the
@@ -2762,19 +2778,25 @@
       </informalexample> If you get a prompt, then all is well. If security is
     of any concern to you at all, then you should change the privileged
     password in the database. Use the command <link
-    linkend="set_password-section">SET PASSWORD</link> command to change SA's
+    linkend="set_password-sect">SET PASSWORD</link> command to change SA's
     password. <informalexample>
         <programlisting>
     SET PASSWORD 'newpassword';</programlisting>
-      </informalexample></para> Note that with SQL-conformant databases like
+      </informalexample></para>
+    <simpara>Note that with SQL-conformant databases like
     HyperSQL 1.9, user names and passwords are case sensitive. If you don't
     quote the name, it will be interpreted as upper-case, like any named SQL
-    object.<simpara> When you're finished playing, exit with the command
+    object.
+    </simpara><simpara> When you're finished playing, exit with the command
     <literal>\q</literal>. </simpara><simpara> If you changed the SA password,
     then you need to fix the password in the <filename>sqltool.rc</filename>
     file accordingly. </simpara><simpara> You can, of course, also access the
-    database with any JDBC client program. See the <link
-    endterm="firstclient-title" linkend="firstclient-appendix" /> appendix.
+    database with any JDBC client program.
+      <remark>Restore firstclient appendix link</remark>
+    <!--
+    See the <link
+    endterm="firstclient-title" linkend="firstclient-app" /> appendix.
+    -->
     You will need to modify your classpath to include
     <filename>hsqldb.jar</filename> as well as your client class(es). You can
     also use the other HSQLDB client programs, such as
@@ -2787,11 +2809,11 @@
     to put <filename>sqltool.rc</filename>, how to execute sql files, and
     other <classname>SqlTool</classname> features. </simpara></section>
 
-    <section>
+    <section xml:id="unix_addl_accts-sect">
       <title>Create additional Accounts</title>
 
       <simpara>Connect to the database as SA (or any other Administrative
-      user) and run <link linkend="create_user-section">CREATE USER</link> to
+      user) and run <link linkend="create_user-sect">CREATE USER</link> to
       create new accounts for your catalog. HSQLDB accounts are
       database-catalog-specific, not
       <classname>Listener</classname>-specific.</simpara>
@@ -2806,7 +2828,7 @@
       a DBA account, with an empty string password. You should set a password
       (as described above). You can create as many additional users as you
       wish. To make a user a DBA, you can use the "ADMIN" option to the <link
-      linkend="create_user-section">CREATE USER</link> command, or GRANT the
+      linkend="create_user-sect">CREATE USER</link> command, or GRANT the
       DBA Role to the account after creating it.</simpara>
 
       <simpara>Once an object is created, the object creator and users with
@@ -2825,7 +2847,7 @@
       want to keep secret).</simpara>
     </section>
 
-    <section>
+    <section xml:id="unix_shutdown-sect">
       <title>Shutdown</title>
 
       <para>Do a clean database shutdown when you are finished with the
@@ -2838,7 +2860,7 @@
       all served database catalogs are shut down.</para>
     </section>
 
-    <section>
+    <section xml:id="unix_daemon-sect">
       <title>Running Hsqldb as a System Daemon</title>
 
       <simpara>You can, of course, run HSQLDB through inittab on System V
@@ -2925,10 +2947,12 @@
             catalogs. If you are using our sample
             <filename>server.properties</filename> file, you just need to know
             that you need to set up access for the catalog specified with
-            <literal>file:db0/dbo</literal>. <note> Pre-1.9 versions of the
+            <literal>file:db0/dbo</literal>.
+            </para>
+            <note><simpara>Pre-1.9 versions of the
             hsqldb init script required use of .properties settings of the
             form<literal>server.urlid.X</literal>. These settings are not
-            obsolete and should be removed.</note></para>
+            obsolete and should be removed.</simpara></note>
           </step>
 
           <step>
@@ -2974,7 +2998,8 @@
             <literal>localhostdb1</literal>, since that is the urlid name that
             we used in the <filename>sqltool.rc</filename> file.</simpara>
 
-            <programlisting>&hsqldb.cfg-cdata;</programlisting>
+            <programlisting><xi:include href="../verbatim/sample/hsqldb.cfg"
+                                        parse="text"/></programlisting>
 
             <simpara>
               <emphasis role="bold">Verify that the init script
@@ -2993,8 +3018,8 @@
 
             <simpara>Re-run the script with each of the possible arguments to
             really test it good. If anything doesn't work right, then see the
-            <link endterm="initscriptTrouble-section-title"
-            linkend="initscriptTrouble-section" /> section.</simpara>
+            <link endterm="unix_inittrouble-title"
+            linkend="unix_inittrouble-sect" /> section.</simpara>
           </step>
 
           <step>
@@ -3038,8 +3063,8 @@
         INVOC_ADDL_ARGS items).</simpara>
       </section>
 
-      <section id="initscriptTrouble-section">
-        <title id="initscriptTrouble-section-title">Troubleshooting the Init
+      <section xml:id="unix_inittrouble-sect">
+        <title xml:id="unix_inittrouble-title">Troubleshooting the Init
         Script</title>
 
         <simpara>Definitely look at the init script log file, which is at an
@@ -3079,9 +3104,9 @@
         <literal>-v</literal> and <literal>-x</literal>.</para>
 
         <para>If you want troubleshooting help, use the HSQLDB lists/forums or
-        email me at <ulink
-        url="mailto:&blaine_addr;?Subject=hsqldb-unix">
-        &blaine_addr;</ulink>. If you email me, make sure to include the
+        email me at <link
+        xlink:href="mailto:&blaine_addr;?Subject=hsqldb-unix">
+        &blaine_addr;</link>. If you email me, make sure to include the
         revision number from your <filename>hsqldb</filename> init script
         (it's towards the top in the line that starts like "# $Id:"), and the
         output of a run of <screen>
@@ -3089,7 +3114,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="unix_upgrade-sect">
       <title>Upgrading</title>
 
       <simpara>This section is for users who are using our UNIX init script,
@@ -3115,15 +3140,15 @@
     </section>
   </chapter>
 
-  <chapter id="advanced-chapter">
-    <title id="advanced-title">Advanced Topics</title>
+  <chapter xml:id="advanced-chapt">
+    <title xml:id="advanced-title">Advanced Topics</title>
 
-    <chapterinfo>
+    <info>
       <authorgroup>
         <author>
-          <firstname>Fred</firstname>
-
-          <surname>Toussi</surname>
+          <personname>
+            <firstname>Fred</firstname> <surname>Toussi</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -3150,18 +3175,18 @@
         Development Group to distribute this document with or without
         alterations under the terms of the HSQLDB license.</para>
       </legalnotice>
-    </chapterinfo>
+    </info>
 
-    <section>
+    <section xml:id="advanced_connections-sect">
       <title>Connections</title>
 
       <para>The normal method of accessing an HSQLDB database is via the JDBC
       Connection interface. An introduction to different methods of providing
       database services and accessing them can be found in the <link
-      endterm="sql_issues-title" linkend="sql_issues-chapter" /> chapter.
+      endterm="sqlissues-title" linkend="sqlissues-chapt" /> chapter.
       Details and examples of how to connect via JDBC are provided in our
-      <ulink url="../src/org/hsqldb/jdbc/jdbcConnection.html">JavaDoc for
-      <literal>jdbcConnection</literal></ulink>.</para>
+      <link xlink:href="../src/org/hsqldb/jdbc/jdbcConnection.html">JavaDoc for
+      <literal>jdbcConnection</literal></link>.</para>
 
       <para>A uniform method is used to distinguish between different types of
       connection. The common driver identifier is
@@ -3378,7 +3403,7 @@
         </tgroup>
       </table>
 
-      <section>
+      <section xml:id="conn_props-sect">
         <title>Connection properties</title>
 
         <para>Each new JDBC Connection to a database can specify connection
@@ -3519,7 +3544,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="advanced_dbprops-sect">
       <title>Database Properties</title>
 
       <para>The database engine generates a <literal>.properties</literal>
@@ -3931,7 +3956,7 @@
                   database properties defaults. Individual
                   <property>textdb.*</property> properties are listed in the
                   <link endterm="texttables-title"
-                  linkend="texttables-chapter" /> chapter. <literal>(SET
+                  linkend="texttables-chapt" /> chapter. <literal>(SET
                   PROPERTY)</literal></para>
                 </entry>
               </row>
@@ -3948,7 +3973,7 @@
         <simpara>The property sql.compare_in_locale=true is no longer
         supported. If the line exists in a .properties file, it will switch
         the database to the collation for the current default. See the <link
-        endterm="collation-title" linkend="collation-section" />
+        endterm="collation-title" linkend="collation-sect" />
         command.</simpara>
 
         <simpara>When HSQLDB is used in OpenOffice.org, some property values
@@ -3961,7 +3986,7 @@
       </section>
     </section>
 
-    <section>
+    <section xml:id="advanced_sqlcmd_dbprops-sect">
       <title>SQL Commands for Database Properties</title>
 
       <para>There are some database properties that are set with dedicated SQL
@@ -4053,15 +4078,15 @@
     </section>
   </chapter>
 
-  <chapter>
+  <chapter xml:id="deployment-chapt">
     <title>Deployment Issues</title>
 
-    <chapterinfo>
+    <info>
       <authorgroup>
         <author>
-          <firstname>Fred</firstname>
-
-          <surname>Toussi</surname>
+        <personname>
+            <firstname>Fred</firstname> <surname>Toussi</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -4088,9 +4113,9 @@
         Development Group to distribute this document with or without
         alterations under the terms of the HSQLDB license.</para>
       </legalnotice>
-    </chapterinfo>
+    </info>
 
-    <section>
+    <section xml:id="deploymen_modes-sect">
       <title>Mode of Operation and Tables</title>
 
       <para>HSQLDB has many modes of operation and features that allow it to
@@ -4229,7 +4254,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       </section>
     </section>
 
-    <section>
+    <section xml:id="deployment_mem_disk-sect">
       <title>Memory and Disk Use</title>
 
       <para>Memory used by the program can be thought of as two distinct
@@ -4334,7 +4359,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       </section>
     </section>
 
-    <section>
+    <section xml:id="deployment_conns-sect">
       <title>Managing Database Connections</title>
 
       <para>In all running modes (server or <glossterm>in-process</glossterm>)
@@ -4402,7 +4427,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       application is under heavy load.</para>
     </section>
 
-    <section>
+    <section xml:id="deployment_upgrade-sect">
       <title>Upgrading Databases</title>
 
       <para>Any database that is not produced with the release version of
@@ -4414,8 +4439,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       <para>Once a database is upgraded to 1.9.0, it can no longer be used
       with previous versions of HSQLDB.</para>
 
-      <section id="upgrade_via_script-section">
-        <title id="upgrade_via_script-title">Upgrading From Older
+      <section xml:id="upgrade_via_script-sect">
+        <title xml:id="upgrade_via_script-title">Upgrading From Older
         Versions</title>
 
         <para>There may be some potential legacy issues in the upgrade from
@@ -4587,7 +4612,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       </section>
     </section>
 
-    <section>
+    <section xml:id="deployment_backup-sect">
       <title>Backing Up Database Catalogs</title>
 
       <para>The database engine saves the files containing all the data in a
@@ -4623,8 +4648,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
         <programlisting>BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
 
-        <simpara>See the <link linkend="syntax_backup-section">SQL Syntax
-        Chapter</link> for details about the command and its options. See the
+        <simpara>See the <remark>Add link to sqlsyntax_backup-sect</remark> SQL Syntax
+        Chapter for details about the command and its options. See the
         sections below about restoring a backup.</simpara>
       </section>
 
@@ -4690,17 +4715,17 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     </section>
   </chapter>
 
-  <chapter id="texttables-chapter">
-    <title id="texttables-title">Text Tables</title>
+  <chapter xml:id="texttables-chapt">
+    <title xml:id="texttables-title">Text Tables</title>
 
     <subtitle>Text Tables as a Standard Feature of Hsqldb</subtitle>
 
-    <chapterinfo>
+    <info>
       <authorgroup>
         <author>
-          <firstname>Bob</firstname>
-
-          <surname>Preston</surname>
+          <personname>
+            <firstname>Bob</firstname> <surname>Preston</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -4708,9 +4733,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </author>
 
         <author>
-          <firstname>Fred</firstname>
-
-          <surname>Toussi</surname>
+          <personname>
+            <firstname>Fred</firstname> <surname>Toussi</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -4737,7 +4762,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         HSQLDB Development Group to distribute this document with or without
         alterations under the terms of the HSQLDB license.</para>
       </legalnotice>
-    </chapterinfo>
+    </info>
 
     <para>Text Table support for HSQLDB was originally developed by Bob
     Preston independently from the Project. Subsequently Bob joined the
@@ -4758,7 +4783,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     data stored in text files and will have wide-ranging use way beyond the
     currently established Java realm of HSQLDB.</para>
 
-    <section>
+    <section xml:id="texttables_impl-sect">
       <title>The Implementation</title>
 
       <section>
@@ -5023,7 +5048,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_scale=12"</programlisting>
       </section>
 
-      <section id="disconnecting_text_tables">
+      <section xml:id="disconnecting_text_tables">
         <title>Disconnecting Text Tables</title>
 
         <para>Text tables may be <emphasis>disconnected</emphasis> from their
@@ -5044,11 +5069,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       </section>
     </section>
 
-    <!-- Blaine adding section here because otherwise the resultant documents
-         looke exactly like the following is all part of the Implementation
-         section. -->
-
-    <section>
+    <section xml:id="texttables_issues-sect">
       <title>Text File Issues</title>
 
       <itemizedlist>
@@ -5118,9 +5139,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       </itemizedlist>
     </section>
 
-    <!-- See my comment for the previous section. -->
-
-    <section>
+    <section xml:id="texttables_globalprops-sect">
       <title>Text File Global Properties</title>
 
       <itemizedlist>
@@ -5178,17 +5197,19 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     </section>
   </chapter>
 
-  <chapter id="sqlsyntax-chapter">
-    <title id="sqlsyntax-title">SQL Syntax</title>
+  <chapter xml:id="sqlsyntax-chapt">
+    <title xml:id="sqlsyntax-title">SQL Syntax</title>
 
-    <chapterinfo>
+    <info>
       <authorgroup>
-        <corpauthor>The Hypersonic SQL Group</corpauthor>
+        <editor>
+            <orgname>The HSQLDB Development Group</orgname>
+        </editor>
 
         <author>
-          <firstname>Fred</firstname>
-
-          <surname>Toussi</surname>
+          <personname>
+            <firstname>Fred</firstname> <surname>Toussi</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -5198,9 +5219,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </author>
 
         <author>
-          <firstname>Peter</firstname>
-
-          <surname>Hudson</surname>
+          <personname>
+            <firstname>Peter</firstname> <surname>Hudson</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -5208,9 +5229,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </author>
 
         <author>
-          <firstname>Joe</firstname>
-
-          <surname>Maher</surname>
+          <personname>
+            <firstname>Joe</firstname> <surname>Maher</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -5220,9 +5241,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </author>
 
         <editor>
-          <firstname>Blaine</firstname>
-
-          <surname>Simpson</surname>
+          <personname>
+            <firstname>Blaine</firstname> <surname>Simpson</surname>
+          </personname>
 
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
@@ -5243,14 +5264,14 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
         <keyword>SQL</keyword>
       </keywordset>
-    </chapterinfo>
+    </info>
 
     <para>HSQLDB version 1.8.0 supports the SQL statements and syntax
     described in this chapter. This chapter has not been updated to cover the
     additional features of 1.9.0</para>
 
-    <section>
-      <title>.Notational Conventions Used in this Chapter</title>
+    <section xml:id="sqlsyntax_notation-sect">
+      <title>Notational Conventions Used in this Chapter</title>
 
       <para><literal>[A]</literal> means A is optional.</para>
 
@@ -5266,15 +5287,15 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       <para>UPPERCASE words are keywords</para>
     </section>
 
-    <section>
+    <section xml:id="sqlsyntax_sqlcommands-sect">
       <title>SQL Commands</title>
 
       <!-- The first items using footnotes must define them.
-         That's why this one has "<footnode id=" instead of "<footnoteref..."
+         That's why this one has "<footnode xml:id=" instead of "<footnoteref..."
      -->
 
-      <section id="alter_index-section">
-        <title id="alter_index-title">ALTER INDEX<footnote id="posthyper">
+      <section xml:id="alter_index-sect">
+        <title xml:id="alter_index-title">ALTER INDEX<footnote xml:id="posthyper">
             <para>These features were added by HSQL Development Group since
             April 2001</para>
           </footnote></title>
@@ -5286,8 +5307,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       </section>
 
       <!-- Template for new items:  (Put new items into alphabetical position)
-    <section id="@-section">
-        <title id="@-title">@<footnoteref linkend="posthyper"/></title>
+    <section xml:id="@-sect">
+        <title xml:id="@-title">@<footnoteref linkend="posthyper"/></title>
         <programlisting>
         </programlisting>
         <para>
@@ -5296,8 +5317,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     </section>
     -->
 
-      <section id="alter_sequence-section">
-        <title id="alter_sequence-title">ALTER SEQUENCE<footnoteref
+      <section xml:id="alter_sequence-sect">
+        <title xml:id="alter_sequence-title">ALTER SEQUENCE<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>ALTER SEQUENCE &lt;sequencename&gt; RESTART WITH &lt;value&gt;;</programlisting>
@@ -5316,12 +5337,12 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Requires Administrative privileges.</para>
       </section>
 
-      <section id="alter_table-section">
-        <title id="alter_table-title">ALTER TABLE<footnoteref
+      <section xml:id="alter_table-sect">
+        <title xml:id="alter_table-title">ALTER TABLE<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>ALTER TABLE &lt;tablename&gt; ADD [COLUMN] &lt;columnname&gt; <link
-            linkend="datatypes-section">Datatype</link>
+            linkend="sqlsyntax_datatypes-sect">Datatype</link>
     [(columnSize[,precision])] [{DEFAULT &lt;defaultValue&gt; |
     GENERATED BY DEFAULT AS IDENTITY (START WITH &lt;n&gt;[, INCREMENT BY &lt;m&gt;])}] |
     [[NOT] NULL] [IDENTITY] [PRIMARY KEY]
@@ -5374,24 +5395,24 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <itemizedlist>
           <title>Restrictions</title>
 
-          <listitem>The column must be already be a PK column to accept an
-          IDENTITY definition.</listitem>
+          <listitem><simpara>The column must be already be a PK column to accept an
+              IDENTITY definition.</simpara></listitem>
 
-          <listitem>If the column is already an IDENTITY column and there is
+        <listitem><simpara>If the column is already an IDENTITY column and there is
           no IDENTITY definition, the existing IDENTITY attribute is
-          removed.</listitem>
+          removed.</simpara></listitem>
 
-          <listitem>The default expression will be that of the new definition,
+        <listitem><simpara>The default expression will be that of the new definition,
           meaning an existing default can be dropped by omission, or a new
-          default added.</listitem>
+          default added.</simpara></listitem>
 
-          <listitem>The NOT NULL attribute will be that of the new definition
-          (similar to previous item).</listitem>
+        <listitem><simpara>The NOT NULL attribute will be that of the new definition
+            (similar to previous item).</simpara></listitem>
 
-          <listitem>Depending on the type of change, the table may have to be
+        <listitem><simpara>Depending on the type of change, the table may have to be
           empty for the command to work. It always works when the type of
           change is possible in general and the individual existing values can
-          all be converted.</listitem>
+          all be converted.</simpara></listitem>
         </itemizedlist>
 
         <programlisting>ALTER TABLE &lt;tablename&gt; ALTER COLUMN &lt;columnname&gt;
@@ -5444,8 +5465,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <programlisting>ALTER TABLE &lt;tablename&gt; RENAME TO &lt;newname&gt;;</programlisting>
       </section>
 
-      <section id="alter_user-section">
-        <title id="alter_user-title">ALTER USER<footnoteref
+      <section xml:id="alter_user-sect">
+        <title xml:id="alter_user-title">ALTER USER<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>ALTER USER &lt;username&gt; SET PASSWORD &lt;password&gt;;</programlisting>
@@ -5457,7 +5478,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         command <programlisting>ALTER USER &lt;username&gt; SET INITIAL SCHEMA &lt;schemaname&gt;;</programlisting>
         This is the schema which database object names will resolve to for
         this user, unless overridden as explained in <link
-        endterm="schemanaming-title" linkend="schemanaming-section" />. For
+        endterm="sqlsyntax_schemanaming-title"
+        linkend="sqlsyntax_schemanaming-sect" />. For
         reasons of backwards compatibility, the initial schema value will not
         be persisted across database shutdowns until HSQLDB version 1.8.1.
         (I.e., INITIAL SCHEMA settings will be lost upon database shutdown
@@ -5466,23 +5488,25 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Only an administrator may use these commands.</para>
       </section>
 
-      <section id="call-section">
-        <title id="call-title">CALL</title>
+      <section xml:id="call-sect">
+        <title xml:id="call-title">CALL</title>
 
-        <programlisting>CALL <link linkend="expression-section">Expression</link>;</programlisting>
+        <programlisting>CALL <link linkend="sqlsyntax_expression-sect">
+            Expression</link>;</programlisting>
 
         <para>Any expression can be called like a stored procedure, including,
         but not only Java stored procedures or functions. This command returns
         a ResultSet with one column and one row (the result) just like a
         SELECT statement with one row and one column.</para>
 
-        <para>See also: <link endterm="stored-title"
-        linkend="stored-section" />, <link endterm="expression-title"
-        linkend="expression-section" />.</para>
+        <para>See also: <link endterm="sqlsyntax_stored-title"
+        linkend="sqlsyntax_stored-sect" />,
+        <link endterm="sqlsyntax_expression-title"
+        linkend="sqlsyntax_expression-sect" />.</para>
       </section>
 
-      <section id="checkpoint-section">
-        <title id="checkpoint-title">CHECKPOINT</title>
+      <section xml:id="checkpoint-sect">
+        <title xml:id="checkpoint-title">CHECKPOINT</title>
 
         <programlisting>CHECKPOINT [DEFRAG<footnoteref linkend="posthyper" />];</programlisting>
 
@@ -5493,25 +5517,25 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         to its minimal size.</para>
 
         <para>See also: <link endterm="shutdown-title"
-        linkend="shutdown-section" />, <link endterm="set_logsize-title"
-        linkend="set_logsize-section" />.</para>
+        linkend="shutdown-sect" />, <link endterm="set_logsize-title"
+        linkend="set_logsize-sect" />.</para>
       </section>
 
-      <section id="commit-section">
-        <title id="commit-title">COMMIT</title>
+      <section xml:id="commit-sect">
+        <title xml:id="commit-title">COMMIT</title>
 
         <programlisting>COMMIT [WORK];</programlisting>
 
         <para>Ends a transaction and makes the changes permanent.</para>
 
         <para>See also: <link endterm="rollback-title"
-        linkend="rollback-section" />, <link endterm="set_autocommit-title"
-        linkend="set_autocommit-section" />, <link endterm="set_logsize-title"
-        linkend="set_logsize-section" />.</para>
+        linkend="rollback-sect" />, <link endterm="set_autocommit-title"
+        linkend="set_autocommit-sect" />, <link endterm="set_logsize-title"
+        linkend="set_logsize-sect" />.</para>
       </section>
 
-      <section id="connect-section">
-        <title id="connect-title">CONNECT</title>
+      <section xml:id="connect-sect">
+        <title xml:id="connect-title">CONNECT</title>
 
         <programlisting>CONNECT USER &lt;username&gt; PASSWORD &lt;password&gt;;</programlisting>
 
@@ -5519,18 +5543,18 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         double quoted. Use "" for an empty password.</para>
 
         <para>See also: <link endterm="grant-title"
-        linkend="grant-section" />, <link endterm="revoke-title"
-        linkend="revoke-section" />.</para>
+        linkend="grant-sect" />, <link endterm="revoke-title"
+        linkend="revoke-sect" />.</para>
       </section>
 
-      <section id="create_alias-section">
-        <title id="create_alias-title">CREATE ALIAS</title>
+      <section xml:id="create_alias-sect">
+        <title xml:id="create_alias-title">CREATE ALIAS</title>
 
         <programlisting>CREATE ALIAS &lt;function&gt; FOR &lt;javaFunction&gt;;</programlisting>
 
         <para>Creates an alias for a static Java function to be used as a
-        <link linkend="stored-section">Stored Procedure</link>. The function
-        must be accessible from the JVM in which the database runs.
+        <link linkend="sqlsyntax_stored-sect">Stored Procedure</link>.
+        The function must be accessible from the JVM in which the database runs.
         Example:</para>
 
         <informalexample>
@@ -5543,12 +5567,13 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
           To validate the alias, use it.</simpara>
         </note>
 
-        <para>See also: <link endterm="call-title" linkend="call-section" />,
-        <link endterm="stored-title" linkend="stored-section" />.</para>
+        <para>See also: <link endterm="call-title" linkend="call-sect" />,
+        <link endterm="sqlsyntax_stored-title"
+        linkend="sqlsyntax_stored-sect"/>.</para>
       </section>
 
-      <section id="create_index-section">
-        <title id="create_index-title">CREATE INDEX</title>
+      <section xml:id="create_index-sect">
+        <title xml:id="create_index-title">CREATE INDEX</title>
 
         <programlisting>CREATE [UNIQUE] INDEX &lt;index&gt; ON &lt;table&gt; (&lt;column&gt; [DESC] [, ...]) [DESC];</programlisting>
 
@@ -5561,12 +5586,12 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         must be unique within the whole database.</para>
 
         <para>See also: <link endterm="create_table-title"
-        linkend="create_table-section" />, <link endterm="drop_index-title"
-        linkend="drop_index-section" />.</para>
+        linkend="create_table-sect" />, <link endterm="drop_index-title"
+        linkend="drop_index-sect" />.</para>
       </section>
 
-      <section id="create_role-section">
-        <title id="create_role-title">CREATE ROLE<footnoteref
+      <section xml:id="create_role-sect">
+        <title xml:id="create_role-title">CREATE ROLE<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>CREATE ROLE &lt;rolename&gt;;</programlisting>
@@ -5605,8 +5630,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <simpara>Requires Administrative privileges.</simpara>
       </section>
 
-      <section id="create_sequence-section">
-        <title id="create_sequence-title">CREATE SEQUENCE<footnoteref
+      <section xml:id="create_sequence-sect">
+        <title xml:id="create_sequence-title">CREATE SEQUENCE<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>CREATE SEQUENCE &lt;sequencename&gt; [AS {INTEGER | BIGINT}]
@@ -5630,8 +5655,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         way of retrieving the last returned value of a sequence.</para>
       </section>
 
-      <section id="create_table-section">
-        <title id="create_table-title">CREATE TABLE</title>
+      <section xml:id="create_table-sect">
+        <title xml:id="create_table-title">CREATE TABLE</title>
 
         <programlisting>CREATE [MEMORY | CACHED | [GLOBAL] TEMPORARY | TEMP <footnoteref
             linkend="posthyper" /> | TEXT<footnoteref linkend="posthyper" />] TABLE &lt;name&gt;
@@ -5646,16 +5671,17 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <variablelist>
           <title>Components of a CREATE TABLE command</title>
 
-          <varlistentry id="columnDef-entry">
+          <varlistentry xml:id="columnDef-entry">
             <!-- N.b.!!!!  Put NO whitespace immediately after programlisting
                tags, because the way DocBook formats the itemlist in PDF, we
-               have no whitespare to waste to fit the examples in the 
+               have no whitespace to waste to fit the examples in the 
                horizontal space. -->
 
-            <term id="columnDef-title">columnDefinition</term>
+            <term xml:id="columnDef-title">columnDefinition</term>
 
             <listitem>
-              <programlisting>columnname <link linkend="datatypes-section">Datatype</link> [(columnSize[,precision])]
+              <programlisting>columnname
+              <link linkend="sqlsyntax_datatypes-sect">Datatype</link> [(columnSize[,precision])]
     [{DEFAULT &lt;defaultValue&gt; |
     GENERATED BY DEFAULT AS IDENTITY
     (START WITH &lt;n&gt;[, INCREMENT BY &lt;m&gt;])}] |
@@ -5738,8 +5764,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
               a WHERE clause. In the current version of HSQLDB, the conditions
               for a CHECK constraint can only reference the current row,
               meaning there should be no SELECT statement. Sample table
-              definitions with CHECK constraints are in <!-- Would be nice to link to this, but there's no copy
-                         under the doc directory. -->
+              definitions with CHECK constraints are in
+              <remark>Add verbatim link here</remark>
               <literal>TestSelfCheckConstraints.txt</literal>. This file is in
               the /hsqldb/testrun/hsqldb/ directory of the zip.</para>
             </listitem>
@@ -5772,11 +5798,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </variablelist>
 
         <para>See also: <link endterm="drop_table-title"
-        linkend="drop_table-section" />.</para>
+        linkend="drop_table-sect" />.</para>
       </section>
 
-      <section id="create_trigger-section">
-        <title id="create_trigger-title">CREATE TRIGGER<footnoteref
+      <section xml:id="create_trigger-sect">
+        <title xml:id="create_trigger-title">CREATE TRIGGER<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>CREATE TRIGGER &lt;name&gt; {BEFORE | AFTER} {INSERT | UPDATE | DELETE} ON &lt;table&gt;
@@ -5801,8 +5827,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>where 'row1' and 'row2' represent the 'before' and 'after'
         states of the row acted on, with each column being a member of the
         array. The mapping of members of the row arrays to database types is
-        specified in <link endterm="datatypes-title"
-        linkend="datatypes-section" />. For example, BIGINT is represented by
+        specified in <link endterm="sqlsyntax_datatypes-title"
+        linkend="sqlsyntax_datatypes-sect" />.
+        For example, BIGINT is represented by
         a <filename>java.lang.Long Object</filename>. Note that the number of
         elements in the row arrays could be larger than the number of columns
         by one or two elements. Never modify the last elements of the array,
@@ -5854,41 +5881,41 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         the 'row2' values, these changes may or may not affect the database
         and will almost certainly result in data inconsistency.</para>
 
-        <para>Please refer to the code for <ulink
-            url="../src/org/hsqldb/Trigger.html">
+        <para>Please refer to the code for <link
+            xlink:href="../src/org/hsqldb/Trigger.html">
             <classname>org.hsqldb.sample.Trigger</classname>
-          </ulink> and <ulink
-            url="../src/org/hsqldb/sample/TriggerSample.html">
+          </link> and <link
+            xlink:href="../src/org/hsqldb/sample/TriggerSample.html">
             <classname>org.hsqldb.sample.TriggerSample</classname>
-          </ulink> for more information on how to write a trigger
+          </link> for more information on how to write a trigger
         class.</para>
 
         <para>See also: <link endterm="drop_trigger-title"
-        linkend="drop_trigger-section" />.</para>
+        linkend="drop_trigger-sect" />.</para>
       </section>
 
-      <section id="create_user-section">
-        <title id="create_user-title">CREATE USER</title>
+      <section xml:id="create_user-sect">
+        <title xml:id="create_user-title">CREATE USER</title>
 
         <programlisting>CREATE USER &lt;username&gt; PASSWORD &lt;password&gt; [ADMIN];</programlisting>
 
         <para>Creates a new user or new administrator in this database.
         Password must be double quoted. Empty password can be made using "".
         You can change a password afterwards using a <link
-        endterm="alter_user-title" linkend="alter_user-section" />
+        endterm="alter_user-title" linkend="alter_user-sect" />
         command.</para>
 
         <para>Only an administrator can do this.</para>
 
         <para>See also: <link endterm="connect-title"
-        linkend="connect-section" />, <link endterm="grant-title"
-        linkend="grant-section" />, <link endterm="revoke-title"
-        linkend="revoke-section" />. <link endterm="alter_user-title"
-        linkend="alter_user-section" />,</para>
+        linkend="connect-sect" />, <link endterm="grant-title"
+        linkend="grant-sect" />, <link endterm="revoke-title"
+        linkend="revoke-sect" />. <link endterm="alter_user-title"
+        linkend="alter_user-sect" />,</para>
       </section>
 
-      <section id="create_view-section">
-        <title id="create_view-title">CREATE VIEW<footnoteref
+      <section xml:id="create_view-sect">
+        <title xml:id="create_view-title">CREATE VIEW<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>CREATE VIEW &lt;viewname&gt;[(&lt;viewcolumn&gt;,..) AS SELECT ... FROM ... [WHERE Expression]
@@ -5974,27 +6001,27 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       FROM mealsjv</programlisting>
         </informalexample>
 
-        <para>See also: <link endterm="expression-title"
-        linkend="expression-section" />, <link endterm="select-title"
-        linkend="select-section" />, <link endterm="drop_view-title"
-        linkend="drop_view-section" />.</para>
+        <para>See also: <link endterm="sqlsyntax_expression-title"
+        linkend="sqlsyntax_expression-sect" />, <link endterm="select-title"
+        linkend="select-sect" />, <link endterm="drop_view-title"
+        linkend="drop_view-sect" />.</para>
       </section>
 
-      <section id="delete-section">
-        <title id="delete-title">DELETE</title>
+      <section xml:id="delete-sect">
+        <title xml:id="delete-title">DELETE</title>
 
         <programlisting>DELETE FROM table [WHERE Expression];</programlisting>
 
         <para>Removes rows in a table.</para>
 
-        <para>See also: <link endterm="expression-title"
-        linkend="expression-section" />, <link endterm="insert-title"
-        linkend="insert-section" />, <link endterm="select-title"
-        linkend="select-section" />.</para>
+        <para>See also: <link endterm="sqlsyntax_expression-title"
+        linkend="sqlsyntax_expression-sect" />, <link endterm="insert-title"
+        linkend="insert-sect" />, <link endterm="select-title"
+        linkend="select-sect" />.</para>
       </section>
 
-      <section id="disconnect-section">
-        <title id="disconnect-title">DISCONNECT</title>
+      <section xml:id="disconnect-sect">
+        <title xml:id="disconnect-title">DISCONNECT</title>
 
         <programlisting>DISCONNECT;</programlisting>
 
@@ -6004,11 +6031,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         execute other queries (including CONNECT) with this connection.</para>
 
         <para>See also: <link endterm="connect-title"
-        linkend="connect-section" />.</para>
+        linkend="connect-sect" />.</para>
       </section>
 
-      <section id="drop_index-section">
-        <title id="drop_index-title">DROP INDEX</title>
+      <section xml:id="drop_index-sect">
+        <title xml:id="drop_index-title">DROP INDEX</title>
 
         <programlisting>DROP INDEX index [IF EXISTS];</programlisting>
 
@@ -6016,7 +6043,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         the index backs a UNIQUE of FOREIGN KEY constraint.</para>
 
         <para>See also: <link endterm="create_index-title"
-        linkend="create_index-section" />.</para>
+        linkend="create_index-sect" />.</para>
       </section>
 
       <section>
@@ -6028,8 +6055,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         itself.</para>
       </section>
 
-      <section id="drop_sequence-section">
-        <title id="drop_sequence-title">DROP SEQUENCE<footnoteref
+      <section xml:id="drop_sequence-sect">
+        <title xml:id="drop_sequence-title">DROP SEQUENCE<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>DROP SEQUENCE &lt;sequencename&gt; [IF EXISTS] [RESTRICT | CASCADE];</programlisting>
@@ -6056,8 +6083,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <simpara>Requires Administrative privileges.</simpara>
       </section>
 
-      <section id="drop_table-section">
-        <title id="drop_table-title">DROP TABLE</title>
+      <section xml:id="drop_table-sect">
+        <title xml:id="drop_table-title">DROP TABLE</title>
 
         <programlisting>DROP TABLE &lt;table&gt; [IF EXISTS] [RESTRICT | CASCADE];</programlisting>
 
@@ -6074,22 +6101,22 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <simpara>See also:</simpara>
 
         <simpara><link endterm="create_table-title"
-        linkend="create_table-section" />.</simpara>
+        linkend="create_table-sect" />.</simpara>
       </section>
 
-      <section id="drop_trigger-section">
-        <title id="drop_trigger-title">DROP TRIGGER</title>
+      <section xml:id="drop_trigger-sect">
+        <title xml:id="drop_trigger-title">DROP TRIGGER</title>
 
         <programlisting>DROP TRIGGER &lt;trigger&gt;;</programlisting>
 
         <para>Removes a trigger from the database.</para>
 
         <para>See also: <link endterm="create_trigger-title"
-        linkend="create_trigger-section" />.</para>
+        linkend="create_trigger-sect" />.</para>
       </section>
 
-      <section id="drop_user-section">
-        <title id="drop_user-title">DROP USER</title>
+      <section xml:id="drop_user-sect">
+        <title xml:id="drop_user-title">DROP USER</title>
 
         <programlisting>DROP USER &lt;username&gt;;</programlisting>
 
@@ -6098,11 +6125,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Only an administrator do this.</para>
 
         <para>See also: <link endterm="create_user-title"
-        linkend="create_user-section" />.</para>
+        linkend="create_user-sect" />.</para>
       </section>
 
-      <section id="drop_view-section">
-        <title id="drop_view-title">DROP VIEW<footnoteref
+      <section xml:id="drop_view-sect">
+        <title xml:id="drop_view-title">DROP VIEW<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>DROP VIEW &lt;viewname&gt; [IF EXISTS] [RESTRICT | CASCADE];</programlisting>
@@ -6115,11 +6142,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         views.</para>
 
         <para>See also: <link endterm="create_view-title"
-        linkend="create_view-section" />.</para>
+        linkend="create_view-sect" />.</para>
       </section>
 
-      <section id="explain-section">
-        <title id="explain-title">EXPLAIN PLAN</title>
+      <section xml:id="explain-sect">
+        <title xml:id="explain-title">EXPLAIN PLAN</title>
 
         <programlisting>EXPLAIN PLAN FOR { SELECT ... | DELETE ... | INSERT ... | UPDATE ..};</programlisting>
 
@@ -6130,8 +6157,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         can be used to optimise the query or to add indexes to tables.</para>
       </section>
 
-      <section id="grant-section">
-        <title id="grant-title">GRANT</title>
+      <section xml:id="grant-sect">
+        <title xml:id="grant-title">GRANT</title>
 
         <programlisting>GRANT { SELECT | DELETE | INSERT | UPDATE | ALL } [,...]
 ON { table | CLASS "package.class" } TO &lt;grantee&gt;;</programlisting>
@@ -6145,8 +6172,8 @@ ON { table | CLASS "package.class" } TO &lt;grantee&gt;;</programlisting>
 
         <para>The first form of the GRANT command assigns privileges to a
         grantee for a table or for a class. To allow a user to call a <link
-        linkend="stored-section">Store Procedure</link> static function, the
-        right ALL must be used. Examples: <informalexample>
+        linkend="sqlsyntax_stored-sect">Store Procedure</link> static function,
+        the right ALL must be used. Examples: <informalexample>
             <programlisting>    GRANT SELECT ON Test TO GUEST;
     GRANT ALL ON CLASS "java.lang.Math.abs" TO PUBLIC;</programlisting>
           </informalexample></para>
@@ -6163,23 +6190,23 @@ ON { table | CLASS "package.class" } TO &lt;grantee&gt;;</programlisting>
         <simpara>Requires Administrative privileges.</simpara>
 
         <simpara>See also: <link endterm="revoke-title"
-        linkend="revoke-section" />, <link endterm="create_user-title"
-        linkend="create_user-section" />, <link endterm="create_role-title"
-        linkend="create_role-section" />.</simpara>
+        linkend="revoke-sect" />, <link endterm="create_user-title"
+        linkend="create_user-sect" />, <link endterm="create_role-title"
+        linkend="create_role-sect" />.</simpara>
       </section>
 
-      <section id="insert-section">
-        <title id="insert-title">INSERT</title>
+      <section xml:id="insert-sect">
+        <title xml:id="insert-title">INSERT</title>
 
         <programlisting>INSERT INTO table [( column [,...] )]
-{ VALUES(<link linkend="expression-section">Expression</link> [,...]) | <link
-            linkend="select-section">SelectStatement</link>};</programlisting>
+{ VALUES(<link linkend="sqlsyntax_expression-sect">Expression</link> [,...]) | <link
+            linkend="select-sect">SelectStatement</link>};</programlisting>
 
         <para>Adds one or more new rows of data into a table.</para>
       </section>
 
-      <section id="revoke-section">
-        <title id="revoke-title">REVOKE</title>
+      <section xml:id="revoke-sect">
+        <title xml:id="revoke-title">REVOKE</title>
 
         <programlisting>REVOKE { SELECT | DELETE | INSERT | UPDATE | ALL } [,...]
 ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
@@ -6200,11 +6227,11 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
         <simpara>Both forms require Administrative privileges.</simpara>
 
         <simpara>See also: <link endterm="grant-title"
-        linkend="grant-section" />.</simpara>
+        linkend="grant-sect" />.</simpara>
       </section>
 
-      <section id="rollback-section">
-        <title id="rollback-title">ROLLBACK</title>
+      <section xml:id="rollback-sect">
+        <title xml:id="rollback-title">ROLLBACK</title>
 
         <programlisting>ROLLBACK [TO SAVEPOINT &lt;savepoint name&gt;<footnoteref
             linkend="posthyper" /> |  WORK}];</programlisting>
@@ -6217,11 +6244,11 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
         savepoint is not found.</para>
 
         <para>See also: <link endterm="commit-title"
-        linkend="commit-section" />.</para>
+        linkend="commit-sect" />.</para>
       </section>
 
-      <section id="savepoint-section">
-        <title id="savepoint-title">SAVEPOINT<footnoteref
+      <section xml:id="savepoint-sect">
+        <title xml:id="savepoint-title">SAVEPOINT<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SAVEPOINT &lt;savepoint name&gt;;</programlisting>
@@ -6229,11 +6256,11 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
         <para>Sets up a SAVEPOINT for use with ROLLBACK TO SAVEPOINT.</para>
 
         <para>See also: <link endterm="commit-title"
-        linkend="commit-section" />.</para>
+        linkend="commit-sect" />.</para>
       </section>
 
-      <section id="script-section">
-        <title id="script-title">SCRIPT</title>
+      <section xml:id="script-sect">
+        <title xml:id="script-title">SCRIPT</title>
 
         <programlisting>SCRIPT ['file'];</programlisting>
 
@@ -6246,8 +6273,8 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
         <para>Only an administrator may do this.</para>
       </section>
 
-      <section id="select-section">
-        <title id="select-title">SELECT<footnoteref
+      <section xml:id="select-sect">
+        <title xml:id="select-title">SELECT<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SELECT [{LIMIT &lt;offset&gt; &lt;limit&gt; | TOP &lt;limit&gt;}<footnoteref
@@ -6255,7 +6282,7 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
 { selectExpression | table.* | * } [, ...]
 [INTO [CACHED | TEMP  | TEXT]<footnoteref linkend="posthyper" /> newTable]
 FROM tableList
-[WHERE <link linkend="expression-section">Expression</link>]
+[WHERE <link linkend="sqlsyntax_expression-sect">Expression</link>]
 [GROUP BY Expression [, ...]]
 [HAVING Expression]
 [{ UNION [ALL | DISTINCT] | {MINUS [DISTINCT] | EXCEPT [DISTINCT] } |
@@ -6371,13 +6398,13 @@ INTERSECT [DISTINCT] } selectStatement]
         </variablelist>
 
         <para>See also: <link endterm="insert-title"
-        linkend="insert-section" />, <link endterm="update-title"
-        linkend="update-section" />, <link endterm="delete-title"
-        linkend="delete-section" />.</para>
+        linkend="insert-sect" />, <link endterm="update-title"
+        linkend="update-sect" />, <link endterm="delete-title"
+        linkend="delete-sect" />.</para>
       </section>
 
-      <section id="set_autocommit-section">
-        <title id="set_autocommit-title">SET AUTOCOMMIT</title>
+      <section xml:id="set_autocommit-sect">
+        <title xml:id="set_autocommit-title">SET AUTOCOMMIT</title>
 
         <programlisting>SET AUTOCOMMIT { TRUE | FALSE };</programlisting>
 
@@ -6385,15 +6412,15 @@ INTERSECT [DISTINCT] } selectStatement]
         switched on, then all statements will be committed as individual
         transactions. Otherwise, the statements are grouped into transactions
         that are terminated by either <link
-        linkend="commit-section">COMMIT</link> or <link
-        linkend="rollback-section">ROLLBACK</link>. By default, new
+        linkend="commit-sect">COMMIT</link> or <link
+        linkend="rollback-sect">ROLLBACK</link>. By default, new
         connections are in auto-commit mode. This command should not be used
         directly. Use the JDBC equivalent method,
         Connection.setAutoCommit(boolean autocommit).</para>
       </section>
 
-      <section id="collation-section">
-        <title id="collation-title">SET DATABASE COLLATION<footnoteref
+      <section xml:id="collation-sect">
+        <title xml:id="collation-title">SET DATABASE COLLATION<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SET DATABASE COLLATION &lt;double quoted collation name&gt;;</programlisting>
@@ -6421,8 +6448,8 @@ INTERSECT [DISTINCT] } selectStatement]
         checkpoint.</para>
       </section>
 
-      <section id="set_ignorecase-section">
-        <title id="set_ignorecase-title">SET IGNORECASE</title>
+      <section xml:id="set_ignorecase-sect">
+        <title xml:id="set_ignorecase-title">SET IGNORECASE</title>
 
         <programlisting>SET IGNORECASE { TRUE | FALSE };</programlisting>
 
@@ -6440,23 +6467,24 @@ INTERSECT [DISTINCT] } selectStatement]
         <para>Only an administrator may do this.</para>
       </section>
 
-      <section id="set_initialschema-section">
-        <title id="set_initialschema-title">SET INITIAL SCHEMA <footnoteref
+      <section xml:id="set_initialschema-sect">
+        <title xml:id="set_initialschema-title">SET INITIAL SCHEMA <footnoteref
         linkend="posthyper" /></title>
 
         <para>Users may change their base default schema name with the command
         <programlisting>SET INITIAL SCHEMA &lt;schemaname&gt;;</programlisting>
         This is the schema which database object names will resolve to for the
         current user, unless overridden as explained in <link
-        endterm="schemanaming-title" linkend="schemanaming-section" />. For
-        reasons of backwards compatibility, the initial schema value will not
-        be persisted across database shutdowns until HSQLDB version 1.8.1.
+          endterm="sqlsyntax_schemanaming-title"
+          linkend="sqlsyntax_schemanaming-sect" />.
+        For reasons of backwards compatibility, the initial schema value will
+        not be persisted across database shutdowns until HSQLDB version 1.8.1.
         (I.e., INITIAL SCHEMA settings will be lost upon database shutdown
         with HSQLDB versions lower than version 1.8.1).</para>
       </section>
 
-      <section id="set_logsize-section">
-        <title id="set_logsize-title">SET LOGSIZE</title>
+      <section xml:id="set_logsize-sect">
+        <title xml:id="set_logsize-title">SET LOGSIZE</title>
 
         <programlisting>SET LOGSIZE &lt;size&gt;;</programlisting>
 
@@ -6466,7 +6494,7 @@ INTERSECT [DISTINCT] } selectStatement]
         0 means no limit.</para>
 
         <para>See also: <link endterm="checkpoint-title"
-        linkend="checkpoint-section" />.</para>
+        linkend="checkpoint-sect" />.</para>
       </section>
 
       <section>
@@ -6477,8 +6505,8 @@ INTERSECT [DISTINCT] } selectStatement]
         <para>Describe me!</para>
       </section>
 
-      <section id="set_password-section">
-        <title id="set_password-title">SET PASSWORD</title>
+      <section xml:id="set_password-sect">
+        <title xml:id="set_password-title">SET PASSWORD</title>
 
         <programlisting>SET PASSWORD &lt;password&gt;;</programlisting>
 
@@ -6486,15 +6514,15 @@ INTERSECT [DISTINCT] } selectStatement]
         must be double quotedEmpty password can be set using "".</para>
       </section>
 
-      <section id="set_property-section">
-        <title id="set_property-title">SET PROPERTY<footnoteref
+      <section xml:id="set_property-sect">
+        <title xml:id="set_property-title">SET PROPERTY<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SET PROPERTY &lt;double quoted name&gt; &lt;value&gt;;</programlisting>
 
         <para>Sets a database property. Properties that can be set using this
         command are either boolean or integral and are listed in the <link
-        endterm="advanced-title" linkend="advanced-chapter" /> chapter.</para>
+        endterm="advanced-title" linkend="advanced-chapt" /> chapter.</para>
       </section>
 
       <section>
@@ -6505,8 +6533,8 @@ INTERSECT [DISTINCT] } selectStatement]
         <para>Describe me!</para>
       </section>
 
-      <section id="set_refint-section">
-        <title id="set_refint-title">SET REFERENTIAL INTEGRITY</title>
+      <section xml:id="set_refint-sect">
+        <title xml:id="set_refint-title">SET REFERENTIAL INTEGRITY</title>
 
         <programlisting>SET REFERENTIAL_INTEGRITY { TRUE | FALSE };</programlisting>
 
@@ -6525,11 +6553,11 @@ INTERSECT [DISTINCT] } selectStatement]
         <para>Only an administrator may do this.</para>
 
         <para>See also: <link endterm="create_table-title"
-        linkend="create_table-section" />.</para>
+        linkend="create_table-sect" />.</para>
       </section>
 
-      <section id="set_schema-section">
-        <title id="set_schema-title">SET SCHEMA<footnoteref
+      <section xml:id="set_schema-sect">
+        <title xml:id="set_schema-title">SET SCHEMA<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SET SCHEMA &lt;schemaname&gt;;</programlisting>
@@ -6547,8 +6575,8 @@ INTERSECT [DISTINCT] } selectStatement]
         have the default schema.</para>
       </section>
 
-      <section id="set_scriptformat-section">
-        <title id="set_scriptformat-title">SET SCRIPTFORMAT<footnoteref
+      <section xml:id="set_scriptformat-sect">
+        <title xml:id="set_scriptformat-title">SET SCRIPTFORMAT<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SET SCRIPTFORMAT {TEXT | BINARY | COMPRESSED};</programlisting>
@@ -6558,8 +6586,8 @@ INTERSECT [DISTINCT] } selectStatement]
         Recommended only for very large script files.</para>
       </section>
 
-      <section id="set_table_index-section">
-        <title id="set_table_index-title">SET TABLE INDEX</title>
+      <section xml:id="set_table_index-sect">
+        <title xml:id="set_table_index-title">SET TABLE INDEX</title>
 
         <programlisting>SET TABLE tableName INDEX 'index1rootPos index2rootPos ... ';</programlisting>
 
@@ -6568,8 +6596,8 @@ INTERSECT [DISTINCT] } selectStatement]
         files; it should not be used directly.</para>
       </section>
 
-      <section id="set_table_readonly-section">
-        <title id="set_table_readonly-title">SET TABLE READONLY<footnoteref
+      <section xml:id="set_table_readonly-sect">
+        <title xml:id="set_table_readonly-title">SET TABLE READONLY<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SET TABLE &lt;tablename&gt; READONLY {TRUE | FALSE};</programlisting>
@@ -6577,14 +6605,14 @@ INTERSECT [DISTINCT] } selectStatement]
         <para>Sets the table as read only.</para>
       </section>
 
-      <section id="set_table_source-section">
-        <title id="set_table_source-title">SET TABLE SOURCE<footnoteref
+      <section xml:id="set_table_source-sect">
+        <title xml:id="set_table_source-title">SET TABLE SOURCE<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SET TABLE &lt;tablename&gt; SOURCE &lt;file and options&gt; [DESC];</programlisting>
 
         <para>For details see the <link endterm="texttables-title"
-        linkend="texttables-chapter" /> chapter.</para>
+        linkend="texttables-chapt" /> chapter.</para>
 
         <para>This command is used exclusively with TEXT tables to specify
         which file is used for storage of the data. The optional DESC
@@ -6763,8 +6791,8 @@ INTERSECT [DISTINCT] } selectStatement]
         <para>Only an administrator may do this.</para>
       </section>
 
-      <section id="set_write_delay-section">
-        <title id="set_write_delay-title">SET WRITE DELAY<footnoteref
+      <section xml:id="set_write_delay-sect">
+        <title xml:id="set_write_delay-title">SET WRITE DELAY<footnoteref
         linkend="posthyper" /></title>
 
         <programlisting>SET WRITE_DELAY {{ TRUE | FALSE } | &lt;seconds&gt; | &lt;milliseconds&gt; MILLIS};</programlisting>
@@ -6795,8 +6823,8 @@ INTERSECT [DISTINCT] } selectStatement]
         <para>Only an administrator may do this.</para>
       </section>
 
-      <section id="shutdown-section">
-        <title id="shutdown-title">SHUTDOWN</title>
+      <section xml:id="shutdown-sect">
+        <title xml:id="shutdown-title">SHUTDOWN</title>
 
         <programlisting>SHUTDOWN [IMMEDIATELY | COMPACT | SCRIPT<footnoteref
             linkend="posthyper" />];</programlisting>
@@ -6865,22 +6893,22 @@ INTERSECT [DISTINCT] } selectStatement]
         <simpara>Only an administrator may use the SHUTDOWN command.</simpara>
       </section>
 
-      <section id="update-section">
-        <title id="update-title">UPDATE</title>
+      <section xml:id="update-sect">
+        <title xml:id="update-title">UPDATE</title>
 
         <programlisting>UPDATE table SET column = Expression [, ...] [WHERE Expression];</programlisting>
 
         <para>Modifies data of a table in the database.</para>
 
         <para>See also: <link endterm="select-title"
-        linkend="select-section" />, <link endterm="insert-title"
-        linkend="insert-section" />, <link endterm="delete-title"
-        linkend="delete-section" />.</para>
+        linkend="select-sect" />, <link endterm="insert-title"
+        linkend="insert-sect" />, <link endterm="delete-title"
+        linkend="delete-sect" />.</para>
       </section>
     </section>
 
-    <section id="schemanaming-section">
-      <title id="schemanaming-title">Schema object naming</title>
+    <section xml:id="sqlsyntax_schemanaming-sect">
+      <title xml:id="sqlsyntax_schemanaming-title">Schema object naming</title>
 
       <simpara><emphasis>Schema</emphasis> objects are database objects that
       are always scoped to a specific schema. Each schema has a namespace.
@@ -6890,25 +6918,25 @@ INTERSECT [DISTINCT] } selectStatement]
       <literal>schemaname.objectname</literal>. All HSQLDB database objects
       are schema objects, other than the following.</simpara>
 
-      <simplelist>
+      <itemizedlist>
         <title>HSQLDB Non-Schema Object Types</title>
 
-        <member>
+        <listitem>
           <simpara>Users</simpara>
-        </member>
+        </listitem>
 
-        <member>
+        <listitem>
           <simpara>Roles</simpara>
-        </member>
+        </listitem>
 
-        <member>
+        <listitem>
           <simpara>Store Procedure Java Classes</simpara>
-        </member>
+        </listitem>
 
-        <member>
+        <listitem>
           <simpara>HSQL Aliases</simpara>
-        </member>
-      </simplelist>
+        </listitem>
+      </itemizedlist>
 
       <simpara>Our current Java-class-based Triggers are not fully schema
       objects. However, we are in the process of implementing SQL-conformant
@@ -6933,11 +6961,11 @@ INTERSECT [DISTINCT] } selectStatement]
       session's current schema setting. The session schema value will be your
       login user's <emphasis>initial schema</emphasis>, or whatever you last
       set it to with <link endterm="set_schema-title"
-      linkend="set_schema-section" /> in your <emphasis>current</emphasis>
+      linkend="set_schema-sect" /> in your <emphasis>current</emphasis>
       JDBC session with the SET SCHEMA command. (Your initial schema is
-      "PUBLIC" unless changed with the <link linkend="alter_user-section">
+      "PUBLIC" unless changed with the <link linkend="alter_user-sect">
       ALTER USER SET INITIAL SCHEMA</link> or the <link
-      endterm="set_initialschema-title" linkend="set_initialschema-section" />
+      endterm="set_initialschema-title" linkend="set_initialschema-sect" />
       command).</simpara>
 
       <simpara>In addition to namespace scoping, there are permission aspects
@@ -6971,8 +6999,8 @@ INTERSECT [DISTINCT] } selectStatement]
       always has at least one non-system schema.</simpara>
     </section>
 
-    <section id="datatypes-section">
-      <title id="datatypes-title">Data Types</title>
+    <section xml:id="sqlsyntax_datatypes-sect">
+      <title xml:id="sqlsyntax_datatypes-title">Data Types</title>
 
       <table frame="all" pgwide="1" tocentry="1">
         <title>Data Types. The types on the same line are equivalent.</title>
@@ -7231,7 +7259,7 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para>CHAR and VARCHAR and LONGVARCHAR columns are by default compared
       and sorted according to POSIX standards. See the <link
-      endterm="collation-title" linkend="collation-section" /> section above
+      endterm="collation-title" linkend="collation-sect" /> section above
       to modify this behavior. The property
       <literal>sql.compare_in_locale</literal> is no longer supported.
       Instead, you can define a collation to be used for all character
@@ -7243,7 +7271,7 @@ INTERSECT [DISTINCT] } selectStatement]
       PreparedStatements with JDBC automates this transformation.</para>
     </section>
 
-    <section>
+    <section xml:id="sqlsyntax_comments-sect">
       <title>SQL Comments</title>
 
       <simplelist>
@@ -7263,8 +7291,8 @@ INTERSECT [DISTINCT] } selectStatement]
       <para>All these types of comments are ignored by the database.</para>
     </section>
 
-    <section id="stored-section">
-      <title id="stored-title">Stored Procedures / Functions</title>
+    <section xml:id="sqlsyntax_stored-sect">
+      <title xml:id="sqlsyntax_stored-title">Stored Procedures / Functions</title>
 
       <para>Stored procedures are static Java functions that are called
       directly from the SQL language or using an alias. Calling Java functions
@@ -7295,7 +7323,7 @@ INTERSECT [DISTINCT] } selectStatement]
       method signature is used to call each Java library method.</para>
     </section>
 
-    <section>
+    <section xml:id="sqlsyntax_builtin-sect">
       <title>Built-in Functions and Stored Procedures</title>
 
       <variablelist>
@@ -8074,13 +8102,13 @@ INTERSECT [DISTINCT] } selectStatement]
         </varlistentry>
       </variablelist>
 
-      <para>See also: <link endterm="call-title" linkend="call-section" />,
+      <para>See also: <link endterm="call-title" linkend="call-sect" />,
       <link endterm="create_alias-title"
-      linkend="create_alias-section" />.</para>
+      linkend="create_alias-sect" />.</para>
     </section>
 
-    <section id="expression-section">
-      <title id="expression-title">SQL Expression</title>
+    <section xml:id="sqlsyntax_expression-sect">
+      <title xml:id="sqlsyntax_expression-title">SQL Expression</title>
 
       <programlisting>[NOT] condition [{ OR | AND } condition]</programlisting>
 
@@ -8292,10 +8320,10 @@ INTERSECT [DISTINCT] } selectStatement]
     </section>
   </chapter>
 
-  <chapter>
+  <chapter xml:id="builtin_functions-chapt">
     <title>Built In Functions</title>
 
-    <section>
+    <section xml:id="builtin_functions_intro-sect">
       <title>Introduction</title>
 
       <para>HSQLDB supports a wide range of built-in functions and allows
@@ -8307,7 +8335,7 @@ INTERSECT [DISTINCT] } selectStatement]
         <title>SQL Standard Functions</title>
 
         <para>A wide rang of functions defined by SQL/Foundation are
-        supported.  SQL/Foundation functions that have no parameter are called
+        supported.  SQL/Foundation functions that have no parameter are called
         without empty parentheses. Functions with multiple parameters often
         use keywords instead of commas to separate the parameters. Many
         functions are overloaded. Among these, some have one or more optional
@@ -8380,13 +8408,13 @@ INTERSECT [DISTINCT] } selectStatement]
       </section>
     </section>
 
-    <section>
+    <section xml:id="builtin_functions_string-sect">
       <title>String and Binary String Functions</title>
 
       <para>In SQL, there are three kinds of string: character, binary and
       bit. The units are respectively characters, octets, and bits. Each kind
       of string can be in different data types. CHAR, VARCHAR and CLOB are the
-      character data types.  BINARY, VARBINARY and BLOB are the binary data
+      character data types.  BINARY, VARBINARY and BLOB are the binary data
       types. BIT and BIT VARYING are the bit string types. In all string
       functions, the position of a unit of the string within the whole string
       is specified from 1 to the length of the whole string. In the BNF,
@@ -8399,14 +8427,14 @@ INTERSECT [DISTINCT] } selectStatement]
       <para><literal>ASCII ( &lt;char value expr&gt; )</literal></para>
 
       <para>Returns an INTEGER equal to the ASCII code value of the first
-      character of <literal>&lt;char value expr&gt;</literal>.  (JDBC)</para>
+      character of <literal>&lt;char value expr&gt;</literal>.  (JDBC)</para>
 
       <para><literal>CHAR ( &lt;UNICODE code&gt; ) </literal></para>
 
       <para>The argument is an INTEGER. Returns a character string containing
       a single character that has the specified<literal> &lt;UNICODE
       code&gt;</literal>, which is an integer. ASCII codes are a subset of the
-      allowed values for <literal>&lt;UNICODE code&gt;</literal>.
+      allowed values for <literal>&lt;UNICODE code&gt;</literal>.
       (JDBC)</para>
 
       <para><literal>CONCAT ( &lt;char value expr 1&gt;, &lt;char value expr
@@ -8417,7 +8445,7 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para>The arguments are character strings or binary strings. Returns a
       string formed by concatenation of the arguments. Equivalent to the SQL
-      concatenation expression  <literal>&lt;value expr 1&gt; || &lt;value
+      concatenation expression  <literal>&lt;value expr 1&gt; || &lt;value
       expr 2&gt;</literal>. (JDBC)</para>
 
       <para><literal>DIFFERENCE ( &lt;char value expr 1&gt;, &lt;char value
@@ -8428,19 +8456,19 @@ INTERSECT [DISTINCT] } selectStatement]
       many letters of the two SOUNDEX value are different. (JDBC)</para>
 
       <para>INSERT ( &lt;char value expr 1&gt;, , &lt;offset&gt;,
-      &lt;length&gt;,  &lt;char value expr 2&gt; )</para>
+      &lt;length&gt;,  &lt;char value expr 2&gt; )</para>
 
-      <para>Returns a character string based on <literal>&lt;char value expr
+      <para>Returns a character string based on <literal>&lt;char value expr
       1&gt;</literal> in which <literal>&lt;length&gt;</literal> characters
       have been removed from the<literal>&lt;offset&gt;</literal> position and
-      in their place, the whole  <literal>&lt;char value expr 2&gt;</literal>
+      in their place, the whole  <literal>&lt;char value expr 2&gt;</literal>
       is copied. Equivalent to SQL/Foundation <literal>OVERLAY( &lt;char value
       expr1&gt; PLACING &lt; char value expr2&gt; FROM &lt;offset&gt; FOR
       &lt;length&gt; )</literal> . (JDBC)</para>
 
       <para><literal>LCASE ( &lt;char value expr&gt; ) </literal></para>
 
-      <para>Returns a character string that is the lower case version of the 
+      <para>Returns a character string that is the lower case version of the
       <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
       <literal>LOWER (&lt;char value expr&gt; )</literal> . (JDBC)</para>
 
@@ -8456,16 +8484,16 @@ INTERSECT [DISTINCT] } selectStatement]
       <para><literal>LENGTH ( &lt;char value expr&gt; ) </literal></para>
 
       <para>Returns as a BIGINT value the number of characters
-      in <literal>&lt;char value expr&gt;</literal>. Equivalent to
-      SQL/Foundation <literal>CHAR_LENGTH(<literal>&lt;char value
-      expr&gt;</literal> )</literal>. (JDBC)</para>
+      in <literal>&lt;char value expr&gt;</literal>. Equivalent to
+      SQL/Foundation <literal>CHAR_LENGTH(&lt;char value
+      expr&gt;)</literal>. (JDBC)</para>
 
       <para><literal>LOCATE ( &lt;char value expr 1&gt;, &lt;char value expr
       2&gt; [ , &lt;offset&gt; ] ) </literal></para>
 
       <para>Returns as a BIGINT value the starting position of the first
-      occurrence of <literal>&lt;char value expr 1&gt;</literal>
-      within <literal>&lt;char value expr 2&gt;</literal>. If
+      occurrence of <literal>&lt;char value expr 1&gt;</literal>
+      within <literal>&lt;char value expr 2&gt;</literal>. If
       <literal>&lt;offset</literal>&gt; is specified, the search begins with
       the position indicated by <literal>&lt;offset&gt;</literal>. If the
       search is not successful, 0 is returned. Equivalent to SQL/Foundation
@@ -8474,7 +8502,7 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para><literal>LTRIM ( &lt;char value expr&gt; ) </literal></para>
 
-      <para>Returns a character string based on <literal>&lt;char value
+      <para>Returns a character string based on <literal>&lt;char value
       expr&gt;</literal> with the leading space characters removed. Equivalent
       to SQL/Foundation <literal>TRIM( LEADING ' ' FROM &lt;char value
       expr&gt; )</literal>. (JDBC)</para>
@@ -8483,14 +8511,14 @@ INTERSECT [DISTINCT] } selectStatement]
       </literal></para>
 
       <para>Returns a character string based on<literal> &lt;char value
-      expr&gt;</literal>,  repeated <literal>&lt;count&gt;</literal> times.
+      expr&gt;</literal>,  repeated <literal>&lt;count&gt;</literal> times.
       (JDBC)</para>
 
-      <para>REPLACE ( &lt;char value expr 1&gt;, &lt;char value expr 2&gt;, 
+      <para>REPLACE ( &lt;char value expr 1&gt;, &lt;char value expr 2&gt;,
       &lt;char value expr 3&gt; )</para>
 
       <para>Returns a character string based on <literal>&lt;char value expr
-      1&gt;</literal> where each occurrence of  <literal>&lt;char value expr
+      1&gt;</literal> where each occurrence of  <literal>&lt;char value expr
       2&gt;</literal> has been replaced with a copy of <literal>&lt;char value
       expr 3&gt;</literal>. (JDBC)</para>
 
@@ -8511,16 +8539,16 @@ INTERSECT [DISTINCT] } selectStatement]
       <para><literal>SOUNDEX ( &lt;char value expr&gt; ) </literal></para>
 
       <para>Returns a four character code representing the sound
-      of <literal>&lt;char value expr&gt;</literal>. The US census algorithm
+      of <literal>&lt;char value expr&gt;</literal>. The US census algorithm
       is used. For example the soundex value for Washington is W252.
       (JDBC)</para>
 
       <para><literal>SPACE ( &lt;count&gt; ) </literal></para>
 
-      <para>Returns a character string consisting of <literal>&lt;count&gt;
+      <para>Returns a character string consisting of <literal>&lt;count&gt;
       </literal>spaces. (JDBC)</para>
 
-      <para>{ SUBSTR | SUBSTRING } ( &lt;char value expr&gt;, &lt;offset&gt;, 
+      <para>{ SUBSTR | SUBSTRING } ( &lt;char value expr&gt;, &lt;offset&gt;, 
       &lt;length&gt; )</para>
 
       <para>The JDBC version of SQL/Foundation <literal>SUBSTRING</literal>
@@ -8552,7 +8580,7 @@ INTERSECT [DISTINCT] } selectStatement]
       <para>All functions return a BIGINT value that measures the length of
       the string in the given unit. CHAR_LENGTH counts characters,
       OCTET_LENGTH counts octets and BIT_LENGTH counts bits in the string. For
-      CHAR_LENGTH, if  <literal>[ USING OCTETS ] </literal>is specified, the
+      CHAR_LENGTH, if  <literal>[ USING OCTETS ] </literal>is specified, the
       octet count is returned. (Foundation)</para>
 
       <para><literal>OVERLAY ( &lt;char value expr 1&gt; PLACING &lt;char
@@ -8596,7 +8624,7 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para>The character version of SUBSTRING returns a character string that
       consists of the characters of the <literal>&lt;char value expr&gt;
-      </literal>from <literal>&lt;start position&gt;</literal>. If the
+      </literal>from <literal>&lt;start position&gt;</literal>. If the
       optional<literal> &lt;string length&gt;</literal> is specified, only
       <literal>&lt;string length&gt; </literal>characters are returned.</para>
 
@@ -8620,13 +8648,13 @@ INTERSECT [DISTINCT] } selectStatement]
       space character is used as default.</para>
 
       <para>The binary version of TRIM returns a binary string based on
-      <literal>&lt;binary value expr&gt;</literal>.  Consecutive instances of
+      <literal>&lt;binary value expr&gt;</literal>.  Consecutive instances of
       <literal>&lt;trim octet&gt; </literal>are removed in the same manner as
       in the character version. If<literal> [ &lt;trim octet&gt; ]</literal>
       is not specified, the 0 octet is used as default. (Foundation)</para>
     </section>
 
-    <section>
+    <section xml:id="builtin_functions_numeric-sect">
       <title>Numeric Functions</title>
 
       <para><literal>ABS ( &lt;num value expr&gt; | &lt;interval value
@@ -8654,8 +8682,9 @@ INTERSECT [DISTINCT] } selectStatement]
       2&gt; ) </literal></para>
 
       <para>The <literal>&lt;num value expr1&gt;</literal> and
-      <literal>&lt;num value expr2&gt;</literal> express the <var>x</var> and
-      <var>y</var> coordinates of a point. Returns the angle, in radians,
+      <literal>&lt;num value expr2&gt;</literal> express the
+      <varname>x</varname> and <varname>y</varname> coordinates of a point.
+      Returns the angle, in radians,
       representing the angle coordinate of the point in polar coordinates, as
       a value of DOUBLE type. (JDBC)</para>
 
@@ -8680,10 +8709,9 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para><literal>DEGREES ( &lt;num value expr&gt; ) </literal></para>
 
-      <para>Converts the argument (an angle expressed in<literal
-      style="font-size:9.0pt;font-family:&quot;Courier New&quot;; ">
-      </literal>radians) into degrees and returns the value in the DOUBLE
-      type. (JDBC)</para>
+      <para>Converts the argument (an angle expressed in
+      <literal>radians</literal>) into degrees and returns the value in the
+      DOUBLE type. (JDBC)</para>
 
       <para><literal>EXP ( &lt;num value expr&gt; ) </literal></para>
 
@@ -8695,7 +8723,7 @@ INTERSECT [DISTINCT] } selectStatement]
       <para>Returns the largest integer that is less than or equal to the
       argument. If the argument is exact numeric then the result is exact
       numeric with a scale of 0. If the argument is approximate numeric, then
-      the result is of DOUBLE type. (JDBC and Foundation) </para>
+      the result is of DOUBLE type. (JDBC and Foundation) </para>
 
       <para><literal>LN ( &lt;num value expr&gt; ) </literal></para>
 
@@ -8733,9 +8761,8 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para><literal>RADIANS ( &lt;num value expr&gt; ) </literal></para>
 
-      <para>Converts the argument (an angle expressed in<literal
-      style="font-size:9.0pt;font-family:&quot;Courier New&quot;; ">
-      </literal>degrees) into radians and returns the value in the DOUBLE
+      <para>Converts the argument (an angle expressed in<literal>
+      degrees</literal>) into radians and returns the value in the DOUBLE
       type. (JDBC)</para>
 
       <para><literal>RAND ( [ &lt;int value expr&gt; ] ) </literal></para>
@@ -8783,15 +8810,15 @@ INTERSECT [DISTINCT] } selectStatement]
       <para>Returns a value in the same type as <literal>&lt;num value
       expr&gt;</literal>. The value is rounded by replacing digits with zeros
       from <literal>&lt;int value expr&gt;</literal> places right of the
-      decimal point to the end. If <literal>&lt;int value expr&gt;</literal>
+      decimal point to the end. If <literal>&lt;int value expr&gt;</literal>
       is negative, <literal>ABS( &lt;int value expr&gt; )</literal> digits to
       left of the decimal point and all digits to the right of the decimal
-      points are replaced with zeros.  Results of calling TRUNCATE with
-      12345.6789 with (-2, 0, 2, 4) are  (12300.0000, 12345.0000, 12345.6700,
+      points are replaced with zeros.  Results of calling TRUNCATE with
+      12345.6789 with (-2, 0, 2, 4) are  (12300.0000, 12345.0000, 12345.6700,
       12345.6789). (JDBC)</para>
     </section>
 
-    <section>
+    <section xml:id="builtin_functions_datetime-sect">
       <title>Date Time and Interval Functions</title>
 
       <para><literal>EXTRACT ( &lt;extract field&gt; FROM &lt;extract
@@ -8804,7 +8831,7 @@ INTERSECT [DISTINCT] } selectStatement]
       <para><literal>TIMEZONE_HOUR | TIMEZONE_MINUTE | SECOND |
       SECONDS_MIDNIGHT |</literal></para>
 
-      <para>DAY_NAME | MONTH_NAME </para>
+      <para>DAY_NAME | MONTH_NAME </para>
 
       <para><literal>&lt;extract source&gt; ::= &lt;datatime value expr&gt; |
       &lt;interval value expr&gt;</literal></para>
@@ -8821,7 +8848,7 @@ INTERSECT [DISTINCT] } selectStatement]
       specified, a string in the range Sunday -Saturday is returned.</para>
 
       <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
-      </literal><literal> </literal><literal>&lt;datatime value
+      </literal><literal> </literal><literal>&lt;datatime value
       expr&gt;</literal>, different groups of <literal>&lt;extract
       source&gt;</literal> can be used depending on the data type of the
       expression. The <literal>TIMEZONE_HOUR | TIMEZONE_MINUTE</literal>
@@ -8832,16 +8859,15 @@ INTERSECT [DISTINCT] } selectStatement]
       types.</para>
 
       <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
-      </literal><literal> </literal><literal>&lt;interval value
-      expr&gt;</literal>, the <literal>&lt;extract field&gt;</literal> must be
+       &lt;interval value expr&gt;</literal>, the
+       <literal>&lt;extract field&gt;</literal> must be
       one of the fields of the INTERVAL type of the expressions. The
       <literal>YEAR | MONTH</literal> options may be valid for INTERVAL types
-      based on months. The<literal> </literal><literal><literal>DAY | HOUR |
-      MINUTE | SECOND</literal> |
-      <literal>SECONDS_MIDNIGHT</literal></literal> options may be valid for
+      based on months. The <literal>DAY | HOUR | MINUTE | SECOND</literal> |
+      <literal>SECONDS_MIDNIGHT</literal> options may be valid for
       INTERVAL types based on seconds. For example,<literal> DAY | HOUR |
       MINUTE</literal> are the only valid fields for the INTERVAL DAY TO
-      MINUTE data type.  (Foundation with HSQLDB extensions)</para>
+      MINUTE data type.  (Foundation with HSQLDB extensions)</para>
 
       <para><literal>CURRENT_DATE</literal></para>
 
@@ -8861,7 +8887,7 @@ INTERSECT [DISTINCT] } selectStatement]
       type. CURRENT_TIME returns a value of TIME WITH TIME ZONE type.
       LOCALTIME returns a value of TIME type. CURRENT_TIMESTAMP returns a
       value of TIMESTAMP WITH TIME ZONE type. LOCALTIMESTAMP returns a value
-      of TIMESTAMP type. If the optional <literal>[ ( &lt;time precision&gt; )
+      of TIMESTAMP type. If the optional <literal>[ ( &lt;time precision&gt; )
       ]</literal> or<literal> [ ( &lt;timestamp precision&gt; ) ]</literal> is
       used, then the returned value has the specified fraction of the second
       precision. (Foundation)</para>
@@ -8869,7 +8895,7 @@ INTERSECT [DISTINCT] } selectStatement]
       <para><literal>CURDATE ()</literal></para>
 
       <para>This function is equivalent to<literal> CURRENT_DATE.
-      </literal>(JDBC)<literal> </literal></para>
+      </literal>(JDBC)<literal> </literal></para>
 
       <para><literal>CURTIME ()</literal></para>
 
@@ -8958,25 +8984,25 @@ INTERSECT [DISTINCT] } selectStatement]
       <para>This function is equvalent to<literal> EXTRACT ( YEAR FROM ... )
       </literal>Returns an integer in the range of 1 - 9999. (JDBC)</para>
 
-      <para><literal>TIMESTAMPADD  ( &lt;datetime value expr&gt;, &lt;numeric
+      <para><literal>TIMESTAMPADD  ( &lt;datetime value expr&gt;, &lt;numeric
       value expression&gt;, &lt;tsi datetime field&gt; )</literal></para>
 
-      <para><literal>TIMESTAMPDIFF  ( &lt;datetime value expr 1&gt;, datetime
+      <para><literal>TIMESTAMPDIFF  ( &lt;datetime value expr 1&gt;, datetime
       value expr 2&gt;, &lt;tsi datetime field&gt; )</literal></para>
 
       <para><literal>&lt;tsi datetime field&gt; ::= SQL_TSI_FRAC_SECOND |
-      SQL_TSI_SECOND | SQL_TSI_MINUTE | SQL_TSI_HOUR | SQL_TSI_DAY | 
-      SQL_TSI_WEEK  |  SQL_TSI_MONTH | SQL_TSI_QUARTER |
+      SQL_TSI_SECOND | SQL_TSI_MINUTE | SQL_TSI_HOUR | SQL_TSI_DAY |
+      SQL_TSI_WEEK  |  SQL_TSI_MONTH | SQL_TSI_QUARTER |
       SQL_TSI_YEAR</literal></para>
 
       <para>HSQLDB supports full SQL Standard dateteime features. It supports
       adding integers representing units of time directly to datetime values
       using the arithmetic plus operator. It also supports subtracting one
       <literal>&lt;datetime value expr&gt;</literal> from another in the given
-      units of days using the minus operator. An example of 
+      units of days using the minus operator. An example of
       <literal>&lt;datetime value expr&gt; + &lt;numeric value expression&gt;
-      &lt;datetime field&gt; </literal>is <literal>LOCAL_TIMESTAMP + 5
-      DAY</literal>. An example of  <literal>( &lt;datetime value expr&gt; -
+      &lt;datetime field&gt; </literal>is <literal>LOCAL_TIMESTAMP + 5
+      DAY</literal>. An example of  <literal>( &lt;datetime value expr&gt; -
       &lt;numeric value expression&gt; ) &lt;datetime field&gt; </literal>is
       (<literal>CURRENT_DATE - DATE '2008-08-8') MONTH </literal>which returns
       the number of calendar months between the two dates.</para>
@@ -8990,14 +9016,14 @@ INTERSECT [DISTINCT] } selectStatement]
       BIGINT, regardless of the type of arguments. The two datetime arguments
       of TIMESTAMPDIFF should be of the same type. (JDBC)</para>
 
-      <para><literal>DATEDIFF  ( &lt;datetime value expr 1&gt;, datetime value
+      <para><literal>DATEDIFF  ( &lt;datetime value expr 1&gt;, datetime value
       expr 2&gt;, &lt;field&gt; )</literal></para>
 
       <para><literal>&lt;field&gt; ::= 'yy' | 'mm' | 'dd' | 'hh' | 'mi' | 'ss'
       | 'ms'</literal></para>
 
       <para>The DATEDIFF function is an alternative to TIMESTAMPDIFF, with
-      fewer available field options. The fields translate to YEAR, MONTH, 
+      fewer available field options. The fields translate to YEAR, MONTH,
       DAY, HOUR, MINUTE, SECOND and MILLISECOND. (HSQLDB}</para>
 
       <para><literal>TO_CHAR( &lt;datetime value expr&gt;, &lt;char value
@@ -9021,338 +9047,251 @@ INTERSECT [DISTINCT] } selectStatement]
       follows:</para>
 
       <table>
-        <tr>
-          <td>
-            <para>
+        <title>BC / AD Values</title>
+        <tgroup cols="2">
+          <thead><row>
+          <entry>
               <literal>BC | B.C. | AD | A.D.</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
-              <literal>Returns ‘AD’ for common era and ‘BC’ for before common
-              era</literal>
-            </para>
-          </td>
-        </tr>
+          <entry>
+              Returns <literal>AD</literal> for common era and <literal>BC</literal> for before common
+              era
+          </entry>
+        </row></thead>
 
-        <tr>
-          <td>
-            <para>
+        <tbody>
+        <row>
+          <entry>
               <literal>RRRR</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>4-digit year</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>YYYY</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>4-digit year</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>IYYY</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>4-digit year</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>YY</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>2 digit year</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>IY</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>2 digit year</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>IYYY</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>4-digit year</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>MM</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Month (01-12)</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>MON</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Short three-letter name of month</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>MONTH</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Name of month</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>WW</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Week of year (1-53) where week 1 starts on the first
               day of the year and continues to the seventh day of the
               year.</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>W</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Week of month (1-5) where week 1 starts on the first
               day of the month and ends on the seventh.</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>IW</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Week of year (1-52 or 1-53) based on the ISO
               standard.</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>DAY</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Name of day.</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>DD</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Day of month (1-31).</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>DDD</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Day of year (1-366).</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>DY</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Short three-letter</literal>
 
               <literal>name of day.</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>HH</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Hour of day (0-11).</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>HH12</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Hour of day (0-11).</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>HH24</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Hour of day (0-23).</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>MI</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Minute (0-59).</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>SS</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Second (0-59).</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
 
-        <tr>
-          <td>
-            <para>
+        <row>
+          <entry>
               <literal>FF</literal>
-            </para>
-          </td>
+          </entry>
 
-          <td>
-            <para>
+          <entry>
               <literal>Fractional seconds.</literal>
-            </para>
-          </td>
-        </tr>
+          </entry>
+        </row>
+        </tbody>
+        </tgroup>
       </table>
     </section>
 
-    <section>
+    <section xml:id="builtin_functions_sysfunc-sect">
       <title>System Functions</title>
 
       <para><literal>DATABASE ()</literal></para>
@@ -9367,7 +9306,7 @@ INTERSECT [DISTINCT] } selectStatement]
       otherwise returns <literal>&lt;value expr2&gt;</literal>. The type of
       both arguments must be the same. Equivalent to SQL Standard
       <literal>COALESCE( &lt;value expr1&gt;, &lt;value expr2&gt; )</literal>
-      function .  (JDBC)</para>
+      function .  (JDBC)</para>
 
       <para><literal>USER ()</literal></para>
 
@@ -9397,7 +9336,7 @@ INTERSECT [DISTINCT] } selectStatement]
       context than the CONVERT function.</para>
 
       <para>The definition of CONVERT in the JDBC Standard does not allow the
-      precision, scale or length to be specified.  This is required by the SQL
+      precision, scale or length to be specified.  This is required by the SQL
       standard for BINARY, BIT, BLOB, CHAR, CLOB, VARBINARY and VARCHAR types
       and is often needed for DECIMAL and NUMERIC. Therefore, HSQLDB allows
       the use of precision, scale or length for the type definition when they
@@ -9434,4 +9373,8 @@ INTERSECT [DISTINCT] } selectStatement]
       and indicates the name of the catalog.</para>
     </section>
   </chapter>
+
+  <!--  Enable the index as soon as mark some index terms.
+  <index xml:id="book-ind"/>
+  -->
 </book>
