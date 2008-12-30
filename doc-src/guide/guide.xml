@@ -51,7 +51,7 @@
         <email>&fred_addr;</email>
 
         <affiliation>
-          <orgname>HYPer Development Group</orgname>
+          <orgname>HSQLDB Development Group</orgname>
         </affiliation>
       </editor>
     </authorgroup>
@@ -463,7 +463,7 @@
         <filename>Servlet</filename> class, in the HSQLDB jar, should be
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
-        the source file <filename>org.hsqldb.server.Servlet.java</filename> to
+        the source file <link xlink:href="org.hsqldb.server.Servlet.java"/> to
         see the details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
@@ -9604,7 +9604,7 @@ INTERSECT [DISTINCT] } selectStatement]
       subsequently set by the SET SCHEMA command.</para>
 
       <para>CURRENT_CATALOG is always the same within a given HSQLDB database
-      and indicates the name of the catalog. SOme ftu</para>
+      and indicates the name of the catalog.</para>
     </section>
   </chapter>
 
