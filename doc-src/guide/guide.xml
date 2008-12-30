@@ -463,8 +463,9 @@
         <filename>Servlet</filename> class, in the HSQLDB jar, should be
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
-        the source file <link xlink:href="org.hsqldb.server.Servlet.java"/> to
-        see the details.</para>
+        the source file
+        <filename xlink:href="../verbatim/src/org/hsqldb/server/Servlet.java">
+        src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
         the JDBC driver at the client end. They do not provide a web front end
@@ -1647,8 +1648,9 @@
         <filename>Servlet</filename> class, in the HSQLDB jar, should be
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
-        the source file <filename>org.hsqldb.server.Servlet.java</filename> to
-        see the details.</para>
+        the source file
+        <filename xlink:href="../verbatim/src/org/hsqldb/server/Servlet.java">
+        src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
         the JDBC driver at the client end. They do not provide a web front end
@@ -1916,7 +1918,10 @@
               <entry>multiple entries such as
               <literal>.html=text/html</literal> define the mime types of the
               static files served by the web server. See the source for
-              <filename>WebServer.java</filename> for a list.</entry>
+              <filename
+              xlink:href="../verbatim/src/org/hsqldb/server/WebServer.java">
+              src/org/hsqldb/server/WebServer.java</filename>
+              for a list.</entry>
             </row>
           </tbody>
         </tgroup>
