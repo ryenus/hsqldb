@@ -1338,7 +1338,7 @@ public class QuerySpecification extends QueryExpression {
         HashMappedList columnList;
         int            tableType;
 
-        tableName = session.database.nameManager.newSubqueryTableName();
+        tableName = session.database.nameManager.getSubqueryTableName();
         tableType = persistenceScope == TableBase.SCOPE_STATEMENT
                     ? TableBase.SYSTEM_SUBQUERY
                     : TableBase.RESULT_TABLE;

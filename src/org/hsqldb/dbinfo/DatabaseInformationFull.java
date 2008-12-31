@@ -1544,11 +1544,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         String triggerBody;
 
         // Intermediate holders
-        Iterator      tables;
-        Table         table;
-        HsqlArrayList triggerList;
-        TriggerDef    def;
-        Object[]      row;
+        Iterator     tables;
+        Table        table;
+        TriggerDef[] triggerList;
+        TriggerDef   def;
+        Object[]     row;
 
         // column number mappings
         final int itrigger_cat       = 0;
@@ -1582,7 +1582,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         // Do it.
         while (tables.hasNext()) {
             table       = (Table) tables.next();
-            triggerList = table.getTriggerList();
+            triggerList = table.getTriggers();
 
             // faster test first
             if (triggerList == null) {
@@ -1599,8 +1599,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             triggerSchema  = tableSchema;
             tableName      = table.getName().name;
 
-            for (int j = 0; j < triggerList.size(); j++) {
-                def         = (TriggerDef) triggerList.get(j);
+            for (int j = 0; j < triggerList.length; j++) {
+                def         = (TriggerDef) triggerList[j];
                 triggerName = def.getName().name;
                 description = def.getDDL();
                 status      = def.isValid() ? "ENABLED"

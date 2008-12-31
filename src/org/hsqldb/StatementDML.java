@@ -494,7 +494,7 @@ public class StatementDML extends StatementDMQL {
             // creation of a new identity value
             table.setIdentityColumn(session, data);
 
-            if (table.triggerLists[Trigger.UPDATE_BEFORE] != null) {
+            if (table.triggerLists[Trigger.UPDATE_BEFORE].length != 0) {
                 table.fireBeforeTriggers(session, Trigger.UPDATE_BEFORE,
                                          row.getData(), data, cols);
             }

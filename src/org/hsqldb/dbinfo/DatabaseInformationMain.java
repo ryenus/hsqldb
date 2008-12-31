@@ -208,7 +208,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         for (int i = 0; i < sysTableNames.length; i++) {
             sysTableHsqlNames[i] =
-                HsqlNameManager.newInfoSchemaTableHsqlName(sysTableNames[i]);
+                HsqlNameManager.newInfoSchemaTableName(sysTableNames[i]);
             sysTableHsqlNames[i].schema =
                 SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
             sysTableSessionDependent[i] = true;
@@ -259,9 +259,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         HsqlName     cn;
         ColumnSchema c;
 
-        cn = database.nameManager.newInfoSchemaColumnHsqlName(name,
-                t.getName());
-        c = new ColumnSchema(cn, type, true, false, null);
+        cn = database.nameManager.newInfoSchemaColumnName(name, t.getName());
+        c  = new ColumnSchema(cn, type, true, false, null);
 
         t.addColumn(c);
     }
@@ -3192,7 +3191,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[declared_numeric_precision] = row[numeric_precision];
             row[declared_numeric_scale]     = row[declared_numeric_scale];
             row[start_with] = String.valueOf(sequence.getStartValue());
-            row[next_value] = String.valueOf(sequence.peek());
+            row[next_value]                 = String.valueOf(sequence.peek());
 
             t.insertSys(store, row);
         }

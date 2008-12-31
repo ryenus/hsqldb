@@ -150,23 +150,19 @@ public class Collation {
     }
 
     final static Collation defaultCollation = new Collation();
+    final HsqlName         name;
+    Collator               collator;
+    Locale                 locale;
+    boolean                equalIsIdentical = true;
 
-    final HsqlName   name;
-    Collator collator;
-    Locale   locale;
-    boolean  equalIsIdentical = true;
+    public Collation() {
 
-    private Collation() {
         locale = Locale.ENGLISH;
-        name = null;
-    }
 
-    public Collation(Database database) {
-        locale = Locale.ENGLISH;
         String language = locale.getDisplayLanguage(Locale.ENGLISH);
 
-        name = database.nameManager.newHsqlName(language, true, SchemaObject.COLLATION);
-
+        name = HsqlNameManager.newInfoSchemaObjectName(language, true,
+                SchemaObject.COLLATION);
     }
 
     public HsqlName getName() {
@@ -174,7 +170,7 @@ public class Collation {
     }
 
     public static Collation getDefaultInstance() {
-            return defaultCollation;
+        return defaultCollation;
     }
 
     public static org.hsqldb.lib.Iterator getCollationsIterator() {

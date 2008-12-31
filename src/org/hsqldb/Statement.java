@@ -47,6 +47,11 @@ public abstract class Statement {
 
     final static int META_RESET_VIEWS      = 1;
     final static int META_RESET_STATEMENTS = 2;
+
+    //
+    final static Statement[] emptyArray = new Statement[]{};
+
+    //
     final int        type;
     int              group;
     boolean          isValid = true;

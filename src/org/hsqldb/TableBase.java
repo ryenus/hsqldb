@@ -151,7 +151,7 @@ public class TableBase {
     }
 
     int getId() {
-        return (int) persistenceId;
+        return 0;
     }
 
     public final boolean onCommitPreserve() {

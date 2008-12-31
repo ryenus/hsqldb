@@ -63,7 +63,7 @@ public class TableUtil {
                                          QueryExpression queryExpression)
                                          throws HsqlException {
 
-        HsqlName name = database.nameManager.newSubqueryTableName();
+        HsqlName name = database.nameManager.getSubqueryTableName();
 
         try {
             return new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,

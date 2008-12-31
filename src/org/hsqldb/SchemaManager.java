@@ -83,9 +83,8 @@ public class SchemaManager {
     // SCHEMA management
     void createPublicSchema() {
 
-        HsqlName name =
-            database.nameManager.newHsqlName(SqlInvariants.PUBLIC_SCHEMA,
-                                             false, SchemaObject.SCHEMA);
+        HsqlName name = database.nameManager.newHsqlName(null,
+            SqlInvariants.PUBLIC_SCHEMA, SchemaObject.SCHEMA);
         Schema schema = new Schema(name,
                                    database.getGranteeManager().getDBARole());
 

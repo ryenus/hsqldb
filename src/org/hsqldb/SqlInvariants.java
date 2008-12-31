@@ -77,17 +77,22 @@ public class SqlInvariants {
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
     public static final HsqlName SQLJ_SCHEMA_HSQLNAME;
+    public static final HsqlName SYSTEM_SUBQUERY_HSQLNAME;
 
     static {
         INFORMATION_SCHEMA_HSQLNAME =
-            HsqlNameManager.newHsqlSystemObjectName(INFORMATION_SCHEMA,
+            HsqlNameManager.newSystemObjectName(INFORMATION_SCHEMA,
                 SchemaObject.SCHEMA);
         SYSTEM_SCHEMA_HSQLNAME =
-            HsqlNameManager.newHsqlSystemObjectName(SYSTEM_SCHEMA,
+            HsqlNameManager.newSystemObjectName(SYSTEM_SCHEMA,
                 SchemaObject.SCHEMA);
-        SQLJ_SCHEMA_HSQLNAME =
-            HsqlNameManager.newHsqlSystemObjectName(SQLJ_SCHEMA,
+        SQLJ_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(SQLJ_SCHEMA,
                 SchemaObject.SCHEMA);
+        SYSTEM_SUBQUERY_HSQLNAME =
+            HsqlNameManager.newSystemObjectName(SYSTEM_SUBQUERY,
+                SchemaObject.TABLE);
+
+        SYSTEM_SUBQUERY_HSQLNAME.setSchemaIfNull(SYSTEM_SCHEMA_HSQLNAME);
     }
 
     public static final Type CARDINAL_NUMBER;
@@ -99,41 +104,36 @@ public class SqlInvariants {
     static {
         HsqlName name;
 
-        name = HsqlNameManager.newHsqlName("CARDINAL_NUMBER",
-                                           INFORMATION_SCHEMA_HSQLNAME,
-                                           SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName("CARDINAL_NUMBER",
+                false, SchemaObject.DOMAIN);
         CARDINAL_NUMBER = new NumberType(Types.SQL_BIGINT, 0, 0);
         CARDINAL_NUMBER.userTypeModifier = new UserTypeModifier(name,
                 SchemaObject.DOMAIN, CARDINAL_NUMBER);
 
         //
-        name = HsqlNameManager.newHsqlName("YES_OR_NO",
-                                           INFORMATION_SCHEMA_HSQLNAME,
-                                           SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName("YES_OR_NO", false,
+                SchemaObject.DOMAIN);
         YES_OR_NO = new CharacterType(Types.SQL_VARCHAR, 3);
         YES_OR_NO.userTypeModifier = new UserTypeModifier(name,
                 SchemaObject.DOMAIN, YES_OR_NO);
 
         //
-        name = HsqlNameManager.newHsqlName("CHARACTER_DATA",
-                                           INFORMATION_SCHEMA_HSQLNAME,
-                                           SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName("CHARACTER_DATA",
+                false, SchemaObject.DOMAIN);
         CHARACTER_DATA = new CharacterType(Types.SQL_VARCHAR, (1 << 16));
         CHARACTER_DATA.userTypeModifier = new UserTypeModifier(name,
                 SchemaObject.DOMAIN, CHARACTER_DATA);
 
         //
-        name = HsqlNameManager.newHsqlName("SQL_IDENTIFIER",
-                                           INFORMATION_SCHEMA_HSQLNAME,
-                                           SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName("SQL_IDENTIFIER",
+                false, SchemaObject.DOMAIN);
         SQL_IDENTIFIER = new CharacterType(Types.SQL_VARCHAR, 128);
         SQL_IDENTIFIER.userTypeModifier = new UserTypeModifier(name,
                 SchemaObject.DOMAIN, SQL_IDENTIFIER);
 
         //
-        name = HsqlNameManager.newHsqlName("TIME_STAMP",
-                                           INFORMATION_SCHEMA_HSQLNAME,
-                                           SchemaObject.DOMAIN);
+        name = HsqlNameManager.newInfoSchemaObjectName("TIME_STAMP", false,
+                SchemaObject.DOMAIN);
         TIME_STAMP = new DateTimeType(Types.SQL_TIMESTAMP,
                                       Types.SQL_TIMESTAMP, 6);
         TIME_STAMP.userTypeModifier = new UserTypeModifier(name,
@@ -143,53 +143,78 @@ public class SqlInvariants {
     public static final Charset SQL_TEXT;
     public static final Charset SQL_IDENTIFIER_CHARSET;
     public static final Charset SQL_CHARACTER;
-    public static final Charset ASCII_GRAPHIC;    //GRAPHIC_IRV;
-    public static final Charset ASCII_FULL;
-    public static Charset       ISO8BIT;
+    public static final Charset ASCII_GRAPHIC;    // == GRAPHIC_IRV
+    public static final Charset GRAPHIC_IRV;
+    public static final Charset ASCII_FULL;       // == ISO8BIT
+    public static final Charset ISO8BIT;
     public static final Charset LATIN1;
-    public static Charset       UTF32;
-    public static Charset       UTF16;
-    public static Charset       UTF8;
+    public static final Charset UTF32;
+    public static final Charset UTF16;
+    public static final Charset UTF8;
 
     static {
         HsqlName name;
 
-        name = HsqlNameManager.newHsqlName("SQL_TEXT",
-                                           INFORMATION_SCHEMA_HSQLNAME,
-                                           SchemaObject.CHARSET);
+        name = HsqlNameManager.newInfoSchemaObjectName("SQL_TEXT", false,
+                SchemaObject.CHARSET);
         SQL_TEXT = new Charset(name);
 
         //
-        name = HsqlNameManager.newHsqlName("SQL_IDENTIFIER",
-                                           INFORMATION_SCHEMA_HSQLNAME,
-                                           SchemaObject.CHARSET);
+        name = HsqlNameManager.newInfoSchemaObjectName("SQL_IDENTIFIER",
+                false, SchemaObject.CHARSET);
         SQL_IDENTIFIER_CHARSET = new Charset(name);
 
         //
-        name = HsqlNameManager.newHsqlName("SQL_CHARACTER",
-                                           INFORMATION_SCHEMA_HSQLNAME,
-                                           SchemaObject.CHARSET);
+        name = HsqlNameManager.newInfoSchemaObjectName("SQL_CHARACTER", false,
+                SchemaObject.CHARSET);
         SQL_CHARACTER = new Charset(name);
 
         //
-        name = HsqlNameManager.newHsqlName("LATIN1", null,
-                                           SchemaObject.CHARSET);
+        name = HsqlNameManager.newInfoSchemaObjectName("LATIN1", false,
+                SchemaObject.CHARSET);
         LATIN1 = new Charset(name);
 
         //
-        name = HsqlNameManager.newHsqlName("ASCII_GRAPHIC", null,
-                                           SchemaObject.CHARSET);
+        name = HsqlNameManager.newInfoSchemaObjectName("ASCII_GRAPHIC", false,
+                SchemaObject.CHARSET);
         ASCII_GRAPHIC = new Charset(name);
 
         //
-        name = HsqlNameManager.newHsqlName("ASCII_FULL", null,
-                                           SchemaObject.CHARSET);
+        name = HsqlNameManager.newInfoSchemaObjectName("GRAPHIC_IRV", false,
+                SchemaObject.CHARSET);
+        GRAPHIC_IRV = new Charset(name);
+
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("ASCII_FULL", false,
+                SchemaObject.CHARSET);
         ASCII_FULL = new Charset(name);
 
-/**
- * GRAPHIC_IRV, ISO8BIT == ASCII_FULL, GRAPHIC_IRV == ASCII_GRAPHIC, LATIN1
- * UTF32, UTF16, UTF8
- */
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("ISO8BIT", false,
+                SchemaObject.CHARSET);
+        ISO8BIT = new Charset(name);
+
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("UTF32", false,
+                SchemaObject.CHARSET);
+        UTF32 = new Charset(name);
+
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("UTF16", false,
+                SchemaObject.CHARSET);
+        UTF16 = new Charset(name);
+
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("UTF8", false,
+                SchemaObject.CHARSET);
+        UTF8 = new Charset(name);
+        /*
+         * Foundattion 4.2.1
+         * Character sets defined by standards or by SQL-implementations reside
+         * in the Information Schema (named INFORMATION_SCHEMA) in each catalog,
+         * as do collations defined by standards and collations,
+         * transliterations, and transcodings defined by SQL implementations.
+         */
     }
 
     public static final void checkSchemaNameNotSystem(String name)
