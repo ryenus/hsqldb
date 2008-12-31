@@ -507,23 +507,24 @@ public final class Constraint implements SchemaObject {
 
     public boolean hasTriggeredAction() {
 
-        if (constType == Constraint.FOREIGN_KEY ) {
+        if (constType == Constraint.FOREIGN_KEY) {
             switch (core.deleteAction) {
 
-                case Constraint.CASCADE:
-                case Constraint.SET_DEFAULT:
-                case Constraint.SET_NULL:
+                case Constraint.CASCADE :
+                case Constraint.SET_DEFAULT :
+                case Constraint.SET_NULL :
                     return true;
             }
 
             switch (core.updateAction) {
 
-                case Constraint.CASCADE:
-                case Constraint.SET_DEFAULT:
-                case Constraint.SET_NULL:
+                case Constraint.CASCADE :
+                case Constraint.SET_DEFAULT :
+                case Constraint.SET_NULL :
                     return true;
             }
         }
+
         return false;
     }
 
@@ -728,7 +729,14 @@ public final class Constraint implements SchemaObject {
                 return;
 
             case FOREIGN_KEY :
+                PersistentStore store =
+                    session.sessionData.getRowStore(core.mainTable);
+
                 if (Index.hasNull(row, core.refCols)) {
+                    if (core.matchType == OpTypes.MATCH_SIMPLE) {
+                        return;
+                    }
+
                     if (core.refCols.length == 1) {
                         return;
                     }
@@ -737,49 +745,27 @@ public final class Constraint implements SchemaObject {
                         return;
                     }
 
-                    if (core.matchType == OpTypes.MATCH_FULL) {
-                        String[] info = new String[] {
-                            core.refName.name, core.mainTable.getName().name
-                        };
-
-                        throw Error.error(ErrorCode.X_23502,
-                                          ErrorCode.CONSTRAINT, info);
-                    }
-                }
-
-                // a record must exist in the main table
-                PersistentStore store =
-                    session.sessionData.getRowStore(core.mainTable);
-                boolean exists = core.mainIndex.exists(session, store, row,
-                                                       core.refCols);
-
-                if (!exists) {
+                    // core.matchType == OpTypes.MATCH_FULL
+                } else if (core.mainIndex.exists(session, store, row,
+                                                 core.refCols)) {
+                    return;
+                } else if (core.mainTable == core.refTable) {
 
                     // special case: self referencing table and self referencing row
-                    if (core.mainTable == core.refTable) {
-                        boolean match = true;
+                    int compare = core.mainIndex.compareRowNonUnique(row,
+                        core.refCols, row);
 
-                        for (int i = 0; i < core.mainCols.length; i++) {
-                            if (!row[core.refCols[i]].equals(
-                                    row[core.mainCols[i]])) {
-                                match = false;
-
-                                break;
-                            }
-                        }
-
-                        if (match) {
-                            return;
-                        }
+                    if (compare == 0) {
+                        return;
                     }
-
-                    String[] info = new String[] {
-                        core.refName.name, core.mainTable.getName().name
-                    };
-
-                    throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT,
-                                      info);
                 }
+
+                String[] info = new String[] {
+                    core.refName.name, core.mainTable.getName().name
+                };
+
+                throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT,
+                                  info);
         }
     }
 
@@ -925,10 +911,15 @@ public final class Constraint implements SchemaObject {
             Object[] rowData = row.getData();
 
             if (Index.hasNull(rowData, rowColArray)) {
+                if (core.matchType == OpTypes.MATCH_SIMPLE) {
+                    continue;
+                }
+            } else if (mainIndex.exists(session, store, rowData,
+                                        rowColArray)) {
                 continue;
             }
 
-            if (mainIndex.exists(session, store, rowData, rowColArray)) {
+            if (Index.hasAllNull(rowData, rowColArray)) {
                 continue;
             }
 
@@ -937,7 +928,7 @@ public final class Constraint implements SchemaObject {
             for (int i = 0; i < rowColArray.length; i++) {
                 Object o = rowData[rowColArray[i]];
 
-                colValues += o;
+                colValues += table.getColumnTypes()[i].convertToString(o);
                 colValues += ",";
             }
 

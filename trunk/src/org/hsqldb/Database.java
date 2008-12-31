@@ -296,7 +296,7 @@ public class Database {
             bReferentialIntegrity = true;
             sessionManager        = new SessionManager(this);
             txManager             = new TransactionManager(this);
-            collation             = new Collation(this);
+            collation             = collation.getDefaultInstance();
             dbInfo = DatabaseInformation.newDatabaseInformation(this);
 
             databaseProperties.setDatabaseVariables();

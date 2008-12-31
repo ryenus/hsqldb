@@ -42,7 +42,7 @@ import org.hsqldb.types.Type;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
- * @since 1.7.2
+ * @since 1.9.0
  */
 public class TableDerived extends Table {
 
@@ -108,6 +108,9 @@ public class TableDerived extends Table {
         createPrimaryIndex(primaryKeyCols, primaryKeyTypes, null);
     }
 
+    public int getId() {
+        return 0;
+    }
 
     public boolean isWritable() {
         return true;

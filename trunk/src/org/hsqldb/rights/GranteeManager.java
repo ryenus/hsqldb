@@ -82,7 +82,7 @@ public class GranteeManager {
     static User systemAuthorisation;
 
     static {
-        HsqlName name = HsqlNameManager.newHsqlSystemObjectName(
+        HsqlName name = HsqlNameManager.newSystemObjectName(
             SqlInvariants.SYSTEM_AUTHORIZATION_NAME, SchemaObject.GRANTEE);
 
         systemAuthorisation          = new User(name, null);

@@ -45,13 +45,11 @@ public class TriggerDefSQL extends TriggerDef {
     Table[]         transitions;
     RangeVariable[] rangeVars;
     Expression      condition;
-    StatementDMQL[] compiledStatements;
     boolean         hasTransitionTables;
     boolean         hasTransitionRanges;
     String          conditionSQL;
     String          procedureSQL;
     OrderedHashSet  references;
-
 
     public TriggerDefSQL(HsqlNameManager.HsqlName name, String when,
                          String operation, boolean forEachRow, Table table,
@@ -61,19 +59,19 @@ public class TriggerDefSQL extends TriggerDef {
                          String conditionSQL, String procedureSQL,
                          OrderedHashSet references) throws HsqlException {
 
-        this.name               = name;
-        this.when               = when;
-        this.operation          = operation;
-        this.forEachRow         = forEachRow;
-        this.table              = table;
-        this.transitions        = transitions;
-        this.rangeVars          = rangeVars;
-        this.condition          = condition == null ? Expression.EXPR_TRUE
-                                                    : condition;
-        this.compiledStatements = compiledStatements;
-        this.conditionSQL       = conditionSQL;
-        this.procedureSQL       = procedureSQL;
-        this.references         = references;
+        this.name         = name;
+        this.when         = when;
+        this.operation    = operation;
+        this.forEachRow   = forEachRow;
+        this.table        = table;
+        this.transitions  = transitions;
+        this.rangeVars    = rangeVars;
+        this.condition    = condition == null ? Expression.EXPR_TRUE
+                                              : condition;
+        this.statements   = compiledStatements;
+        this.conditionSQL = conditionSQL;
+        this.procedureSQL = procedureSQL;
+        this.references   = references;
         hasTransitionRanges = transitions[OLD_ROW] != null
                               || transitions[NEW_ROW] != null;
         hasTransitionTables = transitions[OLD_TABLE] != null
@@ -121,15 +119,15 @@ public class TriggerDefSQL extends TriggerDef {
             return;
         }
 
-        for (int i = 0; i < compiledStatements.length; i++) {
-            compiledStatements[i].execute(session, null);
+        for (int i = 0; i < statements.length; i++) {
+            statements[i].execute(session, null);
         }
     }
 
     public String getDDL() {
 
-        boolean      isBlock = compiledStatements.length > 1;
-        StringBuffer sb       = new StringBuffer(256);
+        boolean      isBlock = statements.length > 1;
+        StringBuffer sb      = new StringBuffer(256);
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_TRIGGER).append(' ');

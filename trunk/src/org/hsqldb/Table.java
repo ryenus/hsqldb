@@ -137,7 +137,9 @@ public class Table extends TableBase implements SchemaObject {
 // -----------------------------------------------------------------------
     Constraint[]    constraintList;            // constrainst for the table
     Constraint[]    fkPath;                    //
-    HsqlArrayList[] triggerLists;              // array of trigger lists
+    Constraint[]    fkConstraints;             //
+    TriggerDef[]    triggerList;
+    TriggerDef[][]  triggerLists;              // array of trigger lists
     Expression[]    colDefaults;               // fredt - expressions of DEFAULT values
     protected int[] defaultColumnMap;          // fred - holding 0,1,2,3,...
     private boolean hasDefaultValues;          //fredt - shortcut for above
@@ -251,7 +253,13 @@ public class Table extends TableBase implements SchemaObject {
         indexList       = Index.emptyArray;
         constraintList  = Constraint.emptyArray;
         fkPath          = Constraint.emptyArray;
-        triggerLists    = new HsqlArrayList[TriggerDef.NUM_TRIGS];
+        fkConstraints   = Constraint.emptyArray;
+        triggerList     = TriggerDef.emptyArray;
+        triggerLists    = new TriggerDef[TriggerDef.NUM_TRIGS][];
+
+        for (int i = 0; i < TriggerDef.NUM_TRIGS; i++) {
+            triggerLists[i] = TriggerDef.emptyArray;
+        }
 
         if (database.isFilesReadOnly() && isFileBased()) {
             this.isReadOnly = true;
@@ -322,7 +330,7 @@ public class Table extends TableBase implements SchemaObject {
         OrderedHashSet set = new OrderedHashSet();
 
         set.addAll(constraintList);
-        set.addAll(getTriggerList());
+        set.addAll(triggerList);
 
         for (int i = 0; i < indexList.length; i++) {
             if (!indexList[i].isConstraint()) {
@@ -331,19 +339,6 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         return set;
-    }
-
-    public HsqlArrayList getTriggerList() {
-
-        HsqlArrayList list = new HsqlArrayList();
-
-        for (int i = 0; i < triggerLists.length; i++) {
-            if (triggerLists[i] != null) {
-                list.addAll(triggerLists[i]);
-            }
-        }
-
-        return list;
     }
 
     public void compile(Session session) throws HsqlException {}
@@ -412,11 +407,10 @@ public class Table extends TableBase implements SchemaObject {
 
     String[] getTriggerDDL() {
 
-        HsqlArrayList triggers = getTriggerList();
-        String[]      array    = new String[triggers.size()];
+        String[] array = new String[triggerList.length];
 
-        for (int i = 0; i < triggers.size(); i++) {
-            array[i] = ((TriggerDef) triggers.get(i)).getDDL();
+        for (int i = 0; i < triggerList.length; i++) {
+            array[i] = triggerList[i].getDDL();
         }
 
         return array;
@@ -610,14 +604,17 @@ public class Table extends TableBase implements SchemaObject {
      */
     public void addConstraint(Constraint c) {
 
-        int i = c.getConstraintType() == Constraint.PRIMARY_KEY ? 0
-                                                                : constraintList
-                                                                    .length;
+        int index = c.getConstraintType() == Constraint.PRIMARY_KEY ? 0
+                                                                    : constraintList
+                                                                        .length;
 
         constraintList =
-            (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, c, i, 1);
+            (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, c, index,
+                1);
 
         OrderedHashSet list = new OrderedHashSet();
+
+        getConstraintPath(defaultColumnMap, list);
 
         if (list.size() > 0) {
             fkPath = new Constraint[list.size()];
@@ -625,7 +622,20 @@ public class Table extends TableBase implements SchemaObject {
             list.toArray(fkPath);
         }
 
-        getConstraintPath(defaultColumnMap, list);
+        list.clear();
+
+        for (int i = 0; i < constraintList.length; i++) {
+            if (constraintList[i].getConstraintType()
+                    == Constraint.FOREIGN_KEY) {
+                list.add(constraintList[i]);
+            }
+        }
+
+        if (list.size() > 0) {
+            fkConstraints = new Constraint[list.size()];
+
+            list.toArray(fkConstraints);
+        }
     }
 
     /**
@@ -990,6 +1000,7 @@ public class Table extends TableBase implements SchemaObject {
         newList.toArray(tn.constraintList);
         tn.setBestRowIdentifiers();
 
+        tn.triggerList  = triggerList;
         tn.triggerLists = triggerLists;
 
         return tn;
@@ -1748,7 +1759,7 @@ public class Table extends TableBase implements SchemaObject {
 
         setIdentityColumn(session, data);
 
-        if (triggerLists[Trigger.INSERT_BEFORE] != null) {
+        if (triggerLists[Trigger.INSERT_BEFORE].length != 0) {
             fireBeforeTriggers(session, Trigger.INSERT_BEFORE, null, data,
                                null);
         }
@@ -2012,8 +2023,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     boolean hasTrigger(int trigVecIndex) {
-        return triggerLists[trigVecIndex] != null
-               && !triggerLists[trigVecIndex].isEmpty();
+        return triggerLists[trigVecIndex].length != 0;
     }
 
     void fireAfterTriggers(Session session, int trigVecIndex,
@@ -2023,14 +2033,10 @@ public class Table extends TableBase implements SchemaObject {
             return;
         }
 
-        HsqlArrayList trigVec = triggerLists[trigVecIndex];
+        TriggerDef[] trigVec = triggerLists[trigVecIndex];
 
-        if (trigVec == null) {
-            return;
-        }
-
-        for (int i = 0, size = trigVec.size(); i < size; i++) {
-            TriggerDef td         = (TriggerDef) trigVec.get(i);
+        for (int i = 0, size = trigVec.length; i < size; i++) {
+            TriggerDef td         = trigVec[i];
             boolean    sqlTrigger = td instanceof TriggerDefSQL;
 
             if (td.hasOldTable()) {
@@ -2086,14 +2092,10 @@ public class Table extends TableBase implements SchemaObject {
             return;
         }
 
-        HsqlArrayList trigVec = triggerLists[trigVecIndex];
+        TriggerDef[] trigVec = triggerLists[trigVecIndex];
 
-        if (trigVec == null) {
-            return;
-        }
-
-        for (int i = 0, size = trigVec.size(); i < size; i++) {
-            TriggerDef td         = (TriggerDef) trigVec.get(i);
+        for (int i = 0, size = trigVec.length; i < size; i++) {
+            TriggerDef td         = trigVec[i];
             boolean    sqlTrigger = td instanceof TriggerDefSQL;
 
             if (cols != null && td.getUpdateColumns() != null
@@ -2124,29 +2126,41 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Adds a trigger.
      */
-    void addTrigger(TriggerDef trigDef, HsqlName otherName) {
+    void addTrigger(TriggerDef td, HsqlName otherName) {
 
-        if (triggerLists[trigDef.vectorIndex] == null) {
-            triggerLists[trigDef.vectorIndex] = new HsqlArrayList();
-        }
+        int index = triggerList.length;
 
-        HsqlArrayList list = triggerLists[trigDef.vectorIndex];
+        if (otherName != null) {
+            for (int i = 0; i < triggerList.length; i++) {
+                if (triggerList[i].name.name.equals(otherName.name)) {
+                    index = i + 1;
 
-        if (otherName == null) {
-            list.add(trigDef);
-        } else {
-            for (int i = 0; i < list.size(); i++) {
-                TriggerDef trigger = (TriggerDef) list.get(i);
-
-                if (trigger.name.name.equals(otherName.name)) {
-                    list.add(i, trigDef);
-
-                    return;
+                    break;
                 }
             }
-
-            list.add(trigDef);
         }
+
+        triggerList = (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
+                td, index, 1);
+
+        TriggerDef[] list = triggerLists[td.vectorIndex];
+
+        index = list.length;
+
+        if (otherName != null) {
+            for (int i = 0; i < list.length; i++) {
+                TriggerDef trigger = list[i];
+
+                if (trigger.name.name.equals(otherName.name)) {
+                    index = i + 1;
+
+                    break;
+                }
+            }
+        }
+
+        list = (TriggerDef[]) ArrayUtil.toAdjustedArray(list, td, index, 1);
+        triggerLists[td.vectorIndex] = list;
     }
 
     /**
@@ -2154,22 +2168,9 @@ public class Table extends TableBase implements SchemaObject {
      */
     TriggerDef getTrigger(String name) {
 
-        // look in each trigger list of each type of trigger
-        final int numTrigs = TriggerDef.NUM_TRIGS;
-
-        for (int tv = 0; tv < numTrigs; tv++) {
-            HsqlArrayList v = triggerLists[tv];
-
-            if (v == null) {
-                continue;
-            }
-
-            for (int tr = v.size() - 1; tr >= 0; tr--) {
-                TriggerDef td = (TriggerDef) v.get(tr);
-
-                if (td.name.name.equals(name)) {
-                    return td;
-                }
+        for (int i = triggerList.length - 1; i >= 0; i--) {
+            if (triggerList[i].name.name.equals(name)) {
+                return triggerList[i];
             }
         }
 
@@ -2181,30 +2182,44 @@ public class Table extends TableBase implements SchemaObject {
      */
     void removeTrigger(String name) {
 
+        TriggerDef td = null;
+
+        for (int i = 0; i < triggerList.length; i++) {
+            td = triggerList[i];
+
+            if (td.name.name.equals(name)) {
+                td.terminate();
+
+                triggerList =
+                    (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
+                        null, i, -1);
+
+                break;
+            }
+        }
+
+        if (td == null) {
+            return;
+        }
+
+        int index = td.vectorIndex;
+
         // look in each trigger list of each type of trigger
-        final int numTrigs = TriggerDef.NUM_TRIGS;
+        for (int j = 0; j < triggerLists[index].length; j++) {
+            td = triggerLists[index][j];
 
-        for (int tv = 0; tv < numTrigs; tv++) {
-            HsqlArrayList v = triggerLists[tv];
+            if (td.name.name.equals(name)) {
+                td.terminate();
 
-            if (v == null) {
-                continue;
-            }
+                triggerLists[index] = (TriggerDef[]) ArrayUtil.toAdjustedArray(
+                    triggerLists[index], null, j, -1);
 
-            for (int tr = v.size() - 1; tr >= 0; tr--) {
-                TriggerDef td = (TriggerDef) v.get(tr);
-
-                if (td.name.name.equals(name)) {
-                    v.remove(tr);
-                    td.terminate();
-                }
-            }
-
-            if (v.isEmpty()) {
-                triggerLists[tv] = null;
+                break;
             }
         }
     }
+
+    //list = (TriggerDef[]) ArrayUtil.toAdjustedArray(list, trigDef, list.length, 1);
 
     /**
      * Drops all triggers.
@@ -2212,22 +2227,12 @@ public class Table extends TableBase implements SchemaObject {
     void releaseTriggers() {
 
         // look in each trigger list of each type of trigger
-        final int numTrigs = TriggerDef.NUM_TRIGS;
-
-        for (int tv = 0; tv < numTrigs; tv++) {
-            HsqlArrayList v = triggerLists[tv];
-
-            if (v == null) {
-                continue;
+        for (int i = 0; i < TriggerDef.NUM_TRIGS; i++) {
+            for (int j = 0; j < triggerLists[i].length; j++) {
+                triggerLists[i][j].terminate();
             }
 
-            for (int tr = v.size() - 1; tr >= 0; tr--) {
-                TriggerDef td = (TriggerDef) v.get(tr);
-
-                td.terminate();
-            }
-
-            triggerLists[tv] = null;
+            triggerLists[i] = TriggerDef.emptyArray;
         }
     }
 
@@ -2489,8 +2494,8 @@ public class Table extends TableBase implements SchemaObject {
         column.getName().rename(newName);
     }
 
-    public HsqlArrayList[] getTriggers() {
-        return triggerLists;
+    public TriggerDef[] getTriggers() {
+        return triggerList;
     }
 
     public void indexRow(Session session, Row row) throws HsqlException {

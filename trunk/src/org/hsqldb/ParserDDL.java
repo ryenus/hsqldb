@@ -1779,7 +1779,7 @@ public class ParserDDL extends ParserRoutine {
             HsqlName schema =
                 database.schemaManager.getDefaultSchemaHsqlName();
 
-            name = database.nameManager.newHsqlName(schema, alias, false,
+            name = database.nameManager.newHsqlName(schema, alias,
                     SchemaObject.FUNCTION);
             routines = Routine.newRoutines(Routine.getMethods(methodFQN));
         }

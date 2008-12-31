@@ -32,7 +32,6 @@
 package org.hsqldb.dbinfo;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
@@ -40,9 +39,9 @@ import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TriggerDef;
+import org.hsqldb.TriggerDefSQL;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
-import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.rights.Grantee;
@@ -183,7 +182,6 @@ final class DINameSpace {
         return catalogName == null ? new WrapperIterator()
                                    : new WrapperIterator(catalogName);
     }
-
 
     /**
      * Retrieves the fully qualified name of the given Method object. <p>
@@ -382,6 +380,7 @@ final class DINameSpace {
         return methodList.iterator();
     }
 */
+
     /**
      * Retrieves an <code>Iterator</code> object describing the
      * fully qualified names of all Java <code>Class</code> objects
@@ -402,12 +401,10 @@ final class DINameSpace {
     Iterator iterateAccessibleTriggerClassNames(Grantee grantee)
     throws HsqlException {
 
-        Table           table;
-        HashSet         classSet;
-        TriggerDef      triggerDef;
-        HsqlArrayList[] triggerLists;
-        HsqlArrayList   triggerList;
-        int             listSize;
+        Table        table;
+        HashSet      classSet;
+        TriggerDef   triggerDef;
+        TriggerDef[] triggerList;
 
         classSet = new HashSet();
 
@@ -420,31 +417,19 @@ final class DINameSpace {
                     SchemaObject.TABLE);
 
             while (tables.hasNext()) {
-                table        = (Table) tables.next();
-                triggerLists = table.getTriggers();
+                table       = (Table) tables.next();
+                triggerList = table.getTriggers();
 
-                if (triggerLists == null) {
-                    continue;
-                }
+                for (int j = 0; j < triggerList.length; j++) {
+                    triggerDef = triggerList[j];
 
-                for (int j = 0; j < triggerLists.length; j++) {
-                    triggerList = triggerLists[j];
-
-                    if (triggerList == null) {
+                    if (!triggerDef.isValid()
+                            || !grantee.isAccessible(
+                                table, triggerDef.getPrivilegeType())) {
                         continue;
                     }
 
-                    listSize = triggerList.size();
-
-                    for (int k = 0; k < listSize; k++) {
-                        triggerDef = (TriggerDef) triggerList.get(k);
-
-                        if (!triggerDef.isValid()
-                                || !grantee.isAccessible(
-                                    table, triggerDef.getPrivilegeType())) {
-                            continue;
-                        }
-
+                    if (!(triggerDef instanceof TriggerDefSQL)) {
                         classSet.add(triggerDef.getClassName());
                     }
                 }

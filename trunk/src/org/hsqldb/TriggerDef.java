@@ -72,7 +72,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     static final int defaultQueueSize = 1024;
     //
 
-    TriggerDef[] emptyArray = new TriggerDef[]{};
+    static final TriggerDef[] emptyArray = new TriggerDef[]{};
 
     // other variables
     Thread   thread;
@@ -95,6 +95,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     protected int              rowsQueued;                      // rows in pendingQueue
     protected boolean          valid     = true;                // parsing valid
     protected volatile boolean keepGoing = true;
+    protected Statement[] statements = Statement.emptyArray;
 
     TriggerDef() {}
 

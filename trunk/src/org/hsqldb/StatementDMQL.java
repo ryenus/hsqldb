@@ -771,12 +771,19 @@ public abstract class StatementDMQL extends Statement {
 
     // this fk references -> other  :  other read lock
     // other fk references this :  if constraint trigger action  : other write lock
-
     public void getTableNamesForRead(OrderedHashSet set) {
 
         if (!baseTable.isTemp()) {
-            for (int i =0; i < baseTable.fkPath.length; i++) {
-                set.add(baseTable.fkPath[i].getMain().getName());
+            for (int i = 0; i < baseTable.fkConstraints.length; i++) {
+                set.add(baseTable.fkConstraints[i].getMain().getName());
+            }
+
+            for (int i = 0; i < baseTable.triggerList.length; i++) {
+                TriggerDef td = baseTable.triggerList[i];
+
+                for (int j = 0; j < td.statements.length; j++) {
+                    td.statements[j].getTableNamesForRead(set);
+                }
             }
         }
 
@@ -810,8 +817,16 @@ public abstract class StatementDMQL extends Statement {
 
         set.add(baseTable.getName());
 
-        for (int i =0; i < baseTable.fkPath.length; i++) {
+        for (int i = 0; i < baseTable.fkPath.length; i++) {
             set.add(baseTable.fkPath[i].getMain().getName());
+        }
+
+        for (int i = 0; i < baseTable.triggerList.length; i++) {
+            TriggerDef td = baseTable.triggerList[i];
+
+            for (int j = 0; j < td.statements.length; j++) {
+                td.statements[j].getTableNamesForRead(set);
+            }
         }
     }
 
