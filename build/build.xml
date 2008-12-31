@@ -877,7 +877,8 @@ examples:
                         src/org/hsqldb/server/Server.java,
                         src/org/hsqldb/server/WebServer.java,
                         src/org/hsqldb/sample/TriggerSample.java,
-                        src/org/hsqldb/util/RCData.java,
+                        src/org/hsqldb/lib/RCData.java,
+                        src/org/hsqldb/test/TestScriptRunner.java,
                         src/org/hsqldb/cmdline/SqlTool.java"
            destdir="doc/src"
            classpath="${servletapi.lib};${junit38.lib}"

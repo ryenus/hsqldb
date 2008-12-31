@@ -339,7 +339,7 @@
       <para>When using relative paths, these paths will be taken relative to
       the directory in which the shell command to start the Java Virtual
       Machine was executed. Refer to Javadoc for <link
-          xlink:href="../src/org/hsqldb/jdbc/JDBCConnection.html">
+          xlink:href="&distro_baseurl;/src/org/hsqldb/jdbcJDBCConnection.html">
           <classname>JDBCConnection</classname>
         </link> for more details.</para>
 
@@ -463,8 +463,8 @@
         <filename>Servlet</filename> class, in the HSQLDB jar, should be
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
-        the source file
-        <filename xlink:href="&distro_baseurl;/&doc_basename;/verbatim/src/org/hsqldb/server/Servlet.java">
+        the source file <filename
+      xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/server/Servlet.java">
         src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
@@ -485,7 +485,7 @@
         to it using the HSQLDB JDBC Driver contained in
         <filename>hsqldb.jar</filename>. Full information on how to connect to
         a server is provided in the Java Documentation for <link
-            xlink:href="../src/org/hsqldb/jdbc/JDBCConnection.html">
+  xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/jdbcJDBCConnection.java">
             <classname>JDBCConnection</classname>
           </link> (located in the <filename>/doc/src</filename> directory of
         HSQLDB distribution. A common example is connection to the default
@@ -519,7 +519,7 @@
         <para>Note in the above connection URL, there is no mention of the
         database file, as this was specified when running the server. Instead,
         the public name defined for dbname.0 is used. Also, see the <link
-        endterm="advanced-title" linkend="advanced-chapt" />**todo** chapter
+        endterm="advanced-title" xlink:href="#advanced-chapt" />**todo** chapter
         for the connection URL when there is more than one database per server
         instance.</para>
       </section>
@@ -530,7 +530,7 @@
         <para>When a HyperSQL server is run, network access should be
         adequately protected. Source IP addresses may be restricted by use of
         TCP filtering or firewall programs, or standalone firewalls.<link
-        endterm="tls-sect-title" linkend="listeners_tls-sect" /> Only secure
+        endterm="tls-sect-title" xlink:href="#listeners_tls-sect" /> Only secure
         passwords should be used-- most importantly, the password for the
         default system user should be changed from the default empty string.
         If you are purposefully providing data to the public, then the
@@ -635,22 +635,20 @@
       <literal>ROLLBACK TO SAVEPOINT &lt;name&gt;</literal> SQL
       statement.</para>
 
-      <para>The Javadoc for <link
-          xlink:href="../src/org/hsqldb/jdbc/JDBCConnection.html">
-          <classname>JDBCConnection</classname>
-        </link>, <link xlink:href="../src/org/hsqldb/jdbc.JDBCDriver.html">
-          <classname>JDBCDriver</classname>
-        </link>, <link
-          xlink:href="../src/org/hsqldb/jdbc/JDBCDatabaseMetaData.html">
-          <classname>JDBCDatabaseMetadata</classname>
-        </link>, <link xlink:href="../src/org/hsqldb/jdbc/JDBCResultSet.html">
-          <classname>JDBCResultSet</classname>
-        </link>, <link xlink:href="../src/org/hsqldb/jdbc/JDBCStatement.html">
-          <classname>JDBCStatement</classname>
-        </link>, and <link
-          xlink:href="../src/org/hsqldb/jdbc/JDBCPreparedStatement.html">
-          <classname>JDBCPreparedStatement</classname>
-        </link> list all the supported JDBC methods together with information
+      <para>The Javadoc for <classname
+        xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCConnection.html">
+        JDBCConnection</classname>, <classname
+          xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCDriver.html">
+        JDBCDriver</classname>, <classname
+          xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCDatabaseMetaData.html">
+        JDBCDatabaseMetadata</classname> <classname
+          xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCResultSet.html">
+        JDBCResultSet</classname> <classname
+          xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCStatement.html">
+        JDBCStatement</classname> <classname
+          xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCPreparedStatement.html">
+        JDBCPreparedStatement</classname>
+        list all the supported JDBC methods together with information
       that is specific to HSQLDB.</para>
     </section>
 
@@ -769,7 +767,7 @@
       conformance.</para>
 
       <para><citetitle>The SQL Syntax chapter of this guide </citetitle><link
-      endterm="sqlsyntax-title" linkend="sqlsyntax-chapt">**todo**</link>
+      endterm="sqlsyntax-title" xlink:href="#sqlsyntax-chapt">**todo**</link>
       lists all the keywords and most of the syntax that is supported. When
       writing or converting existing SQL DDL (Data Definition Language), DML
       (Data Manipulation Language) or DQL (Data Query Language) statements for
@@ -787,7 +785,9 @@
       column name. You should avoid using such names as future versions of
       HyperSQL are likely to support the reserved words and may reject your
       table definitions or queries. The full list of SQL reserved words is in
-      the source of the <classname>org.hsqldb.Tokens</classname> class.</para>
+      the <link
+        xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/Tokens.java">
+    source of the <classname>org.hsqldb.Tokens</classname> class</link>.</para>
 
       <para>If you have to use a reserved keyword as the name of a database
       object, you can enclose it in double quotes.</para>
@@ -810,9 +810,9 @@
       <para>In version 1.9.0, all features of JDBC4 that apply to the
       capabilities of HSQLDB are fully supported. The relevant JDBC classes
       are thoroughly documented with additional clarifications and HyperSQL
-      specific comments. See the JavaDoc for <link
-      xlink:href="../src/index.html">org.hsqldb.jdbc.JDBCXXXX</link>
-      classes.</para>
+      specific comments. See the <link xlink:href="&distro_baseurl;/src/">
+      JavaDoc for <classname>org.hsqldb.jdbc.JDBCXXXX</classname> classes
+      </link>.</para>
     </section>
 
     <section xml:id="sqlissues_tabletypes-sect">
@@ -863,7 +863,7 @@
       The Text table data source can always be reassigned to a different file
       if necessary. Two commands are needed to set up a TEXT table as detailed
       in the <link endterm="texttables-title"
-      linkend="texttables-chapt">**todo**</link> chapter.</para>
+      xlink:href="#texttables-chapt">**todo**</link> chapter.</para>
 
       <para>With all-in-memory databases (see above), both MEMORY table and
       CACHED table declarations are treated as declarations for non-persistent
@@ -896,7 +896,7 @@
       user-defined indexes on the same column sets covered by these
       constraints. This would result in unnecessary memory and speed
       overheads. See the discussion in the <link endterm="sqlissues-title"
-      linkend="sqlissues-chapt">**todo**</link> chapter for more
+      xlink:href="#sqlissues-chapt">**todo**</link> chapter for more
       information.</para>
 
       <para>Indexes are crucial for adequate query speed. When queries joining
@@ -1438,7 +1438,7 @@
       <title>Transactions and Concurrency Control</title>
 
       <para>Before version 1.9, HSQLDB supported READ UNCOMMITTED transaction
-      isolation. Al this isolation level, uncommitted changes made to the data
+      isolation. At this isolation level, uncommitted changes made to the data
       by a session are visible to other, concurrent sessions.</para>
 
       <para>HyperSQL 2.0 supports 4 levels of transaction isolation: READ
@@ -1649,7 +1649,7 @@
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
         the source file
-        <filename xlink:href="&distro_baseurl;/&doc_basename;/verbatim/src/org/hsqldb/server/Servlet.java">
+        <filename xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/server/Servlet.java">
         src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
@@ -1919,7 +1919,7 @@
               <literal>.html=text/html</literal> define the mime types of the
               static files served by the web server. See the source for
               <filename
-                xlink:href="&distro_baseurl;/&doc_basename;/verbatim/src/org/hsqldb/server/WebServer.java">
+              xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/server/WebServer.java">
               src/org/hsqldb/server/WebServer.java</filename>
               for a list.</entry>
             </row>
@@ -1968,10 +1968,11 @@
       <para>If you want to start the server from within your application, as
       opposed to the command line or batch files, you should create an
       instance of Server or Web Server, then assign the properties and start
-      the Server. An working example of this can be found in the
-      <classname>org.hsqldb.test.TestBase</classname> source. The example
-      below sets the same properties as in the server.properties file
-      example.</para>
+      the Server. An working example of this can be found in the <link
+      xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/test.TestBase.java">
+      <classname>org.hsqldb.test.TestBase</classname> source</link>.
+      The example below sets the same properties as in the server.properties
+      file example.</para>
 
       <programlisting>
     HsqlProperties p = new HsqlProperties();
@@ -2056,8 +2057,9 @@
           </listitem>
 
           <listitem>
-            <para>If Java 2.x or 3.x, then you will need to <link
-            linkend="jsse-sect">install JSSE</link>. Your server and/or client
+            <para>If Java 2.x or 3.x, then you will need to
+             <link xlink:href="#jsse-sect">install JSSE</link>.
+            Your server and/or client
             will start up much slower than that of Java 4.x users. Client-side
             users will not be able to use the https: JDBC protocol (because
             the https protocol handler is not implemented in 2.x/3.x Java
@@ -2065,8 +2067,8 @@
           </listitem>
 
           <listitem>
-            <para>A <link linkend="privatekey-sect">JKS keystore containing a
-            private key</link>, in order to run a Listener.</para>
+            <para>A <link xlink:href="#privatekey-sect">JKS keystore
+            containing a private key</link>, in order to run a Listener.</para>
           </listitem>
 
           <listitem>
@@ -2163,8 +2165,8 @@
           <para>If you are making a new keystore, you probably want to start
           with a copy of your system default keystore which you can find
           somewhere under your <varname>JAVA_HOME</varname> directory (typically
-          jre/lib/security/cacerts for a JDK, but I forget exactly where it is
-          for a JRE).</para>
+          <filename>jre/lib/security/cacerts</filename> for a JDK, but I forget
+          exactly where it is for a JRE).</para>
 
           <para>Unless your OS can't stop other people from writing to your
           files, you probably do not want to set a password on the trust
@@ -2180,9 +2182,9 @@
 
               <screen>
     java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</screen>
-            </example> This example runs the program <link
-          linkend="unix-chapt">SqlTool</link>. SqlTool has built-in TLS
-          support however, so, for SqlTool you can set
+          </example> This example runs the program
+          <link xlink:href="#unix-chapt">SqlTool</link>. SqlTool has built-in
+          TLS support however, so, for SqlTool you can set
           <varname>truststore</varname> on a per-urlid basis in the SqlTool
           configuration file.</para>
 
@@ -2205,8 +2207,8 @@
         <section>
           <title>Server-Side, aka Listener-Side</title>
 
-          <simpara>Get yourself a <link linkend="privatekey-sect">JKS keystore
-          containing a private key</link>. Then set properties
+          <simpara>Get yourself a <link xlink:href="#privatekey-sect">
+          JKS keystore containing a private key</link>. Then set properties
           <varname>system.javax.net.ssl.keyStore</varname> and
           <varname>system.javax.net.ssl.keyStorePassword</varname> in your
           <filename>server.properties</filename> or
@@ -2326,13 +2328,15 @@
         <varname>system.javax.net.ssl.keyStore</varname> and
         <varname>system.javax.net.ssl.keyStorePassword</varname> properties as
         instructed above, and follow the instructions in the <link
-        endterm="unix-title" linkend="unix-chapt" /> chapter, paying close
+        endterm="unix-title" xlink:href="#unix-chapt" /> chapter, paying close
         attention to the TLS-related comments in the template config
         file.</para>
 
         <para>If you are using a private server certificate, make sure to also
         set the trust store filepath for relevant urlids in your RC file, as
-        explained in the sample config file.</para>
+        explained in the sample <link
+          xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.cfg">
+        config file</link>.</para>
       </section>
     </section>
 
@@ -2359,7 +2363,9 @@
       request. This is efficient because the database engine never even gets
       the request until it is approved by the ACL filter code.</simpara>
 
-      <para>The sample file located at <filename>sample/acl.txt</filename> in
+      <para>The sample file <filename
+        xlink:href="&distro_baseurl;/verbatim/sample/acl.txt">
+      txt</filename> in
       your HyperSQL distribution explains how to write an ACL file.
       <programlisting><xi:include href="../verbatim/sample/acl.txt"
             parse="text" /></programlisting> You put your file wherever it is
@@ -2509,9 +2515,10 @@
       <link xlink:href="http://sunfreeware.com/" />, etc. Nowadays, most
       UNIXes have software package management systems which check Internet
       repositories. Just search the repositories for "hsqldb" and "hypersql".
-      The challenge is finding an <emphasis>up-to-date</emphasis> package. You
+      The challenge is to find an <emphasis>up-to-date</emphasis> package. You
       will get better features and support if you work with the current stable
-      release of HyperSQL. Pay attention to what JVM versions your binary
+      release of HyperSQL. (In particular, HSQLDB version 2.0 added tons of new
+      features).  Pay attention to what JVM versions your binary
       package supports.</simpara>
 
       <note>
@@ -2624,19 +2631,20 @@
       </important>
 
       <simpara>If the description of your distribution says that the
-      hsqldb.jar file will work for your Java version, then you are finished
-      with installation. Otherwise you need to build a new hsqldb.jar
-      file.</simpara>
+      <filename>hsqldb.jar</filename> file will work for your Java version,
+      then you are finished with installation. Otherwise you need to build a
+      new <filename>hsqldb.jar</filename> file.</simpara>
 
       <simpara>If you followed the instructions above and you still don't know
       what Java version your <filename>hsqldb.jar</filename> supports, then
       read <varname>HSQLDB_HOME</varname><filename>/readme.txt</filename> and
       <varname>HSQLDB_HOME</varname><filename>/index.html</filename>. If
-      that still doesn't help, then you can just try your hsqldb.jar and see
-      if it works, or build your own.</simpara>
+      that still doesn't help, then you can just try your
+      <filename>hsqldb.jar</filename> and see if it works, or build your own.
+      </simpara>
 
       <simpara>To use the supplied <filename>hsqldb.jar</filename>, just skip
-      to the <link linkend="unix_cat_setup-sect"> next section of this
+      to the <link xlink:href="#unix_cat_setup-sect"> next section of this
       document</link>. Otherwise build a new
       <filename>hsqldb.jar</filename>.</simpara>
 
@@ -2698,7 +2706,7 @@
 
       <!--
       <simpara>See the <link endterm="building-title"
-      linkend="building-app" /> appendix if you want to build anything
+      xlink:href="#building-app" /> appendix if you want to build anything
       other than <filename>hsqldb.jar</filename> with all default
       settings.</simpara>
       -->
@@ -2738,9 +2746,10 @@
 
         <step>
           <simpara>Become the <varname>HSQLDB_OWNER</varname>.
-          Copy the sample file
+          Copy the sample file <link
+            xlink:href="&distro_baseurl;/verbatim/sample/server.properties">
           <varname>HSQLDB_HOME</varname><filename>/sample/server.properties</filename>
-          to the <varname>HSQLDB_OWNER</varname>'s home
+          </link> to the <varname>HSQLDB_OWNER</varname>'s home
           directory and rename it to
           <filename>server.properties</filename>.</simpara>
 
@@ -2785,9 +2794,10 @@
     <section xml:id="unix_access-sect">
       <title>Accessing your Database</title>
 
-      <simpara>Copy the file
+      <simpara>Copy the file <link
+        xlink:href="&distro_baseurl;/verbatim/sample/sqltool.rc">
       <varname>HSQLDB_HOME</varname><filename>/sample/sqltool.rc</filename>
-      to the <varname>HSQLDB_OWNER</varname>'s home directory.
+      </link> to the <varname>HSQLDB_OWNER</varname>'s home directory.
       Use <literal>chmod</literal> to make the file readable and writable only
       to <varname>HSQLDB_OWNER</varname>.</simpara>
 
@@ -2806,9 +2816,9 @@
     java -jar path/to/hsqldb.jar localhost-sa</screen>
         </informalexample> If you get a prompt, then all is well. If security
       is of any concern to you at all, then you should change the privileged
-      password in the database. Use the command <link
-      linkend="set_password-sect">SET PASSWORD</link> command to change SA's
-      password. <informalexample>
+      password in the database. Use the command
+      <link xlink:href="#set_password-sect">SET PASSWORD</link>
+      command to change SA's password. <informalexample>
           <programlisting>
     SET PASSWORD 'newpassword';</programlisting>
         </informalexample></para>
@@ -2827,7 +2837,7 @@
       <simpara>You can, of course, also access the database with any JDBC
       client program. <remark>Restore firstclient appendix link</remark> <!--
     See the <link
-    endterm="firstclient-title" linkend="firstclient-app" /> appendix.
+    endterm="firstclient-title" xlink:href="#firstclient-app" /> appendix.
     --> You will need to modify your classpath to include
       <filename>hsqldb.jar</filename> as well as your client class(es). You
       can also use the other HSQLDB client programs, such as
@@ -2847,7 +2857,7 @@
       <title>Create additional Accounts</title>
 
       <simpara>Connect to the database as SA (or any other Administrative
-      user) and run <link linkend="create_user-sect">CREATE USER</link> to
+      user) and run <link xlink:href="#create_user-sect">CREATE USER</link> to
       create new accounts for your catalog. HSQLDB accounts are
       database-catalog-specific, not
       <classname>Listener</classname>-specific.</simpara>
@@ -2861,9 +2871,9 @@
       you first create a HyperSQL catalog, it has only one database user-- SA,
       a DBA account, with an empty string password. You should set a password
       (as described above). You can create as many additional users as you
-      wish. To make a user a DBA, you can use the "ADMIN" option to the <link
-      linkend="create_user-sect">CREATE USER</link> command, or GRANT the DBA
-      Role to the account after creating it.</simpara>
+      wish. To make a user a DBA, you can use the "ADMIN" option to the
+      <link xlink:href="#create_user-sect">CREATE USER</link> command, or
+      GRANT the DBA Role to the account after creating it.</simpara>
 
       <simpara>Once an object is created, the object creator and users with
       the DBA role will have all privileges to work with that object. Other
@@ -2961,10 +2971,11 @@
 
         <procedure>
           <step>
-            <simpara>Copy the init script <filename>hsqldb.init</filename>
-            from
-            <varname>HSQLDB_HOME</varname><filename>/sample</filename> to
-            <filename>hsqldb</filename> in the directory where init scripts
+            <simpara>Copy the init script <link
+              xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.init">
+      <varname>HSQLDB_HOME</varname><filename>/sample/hsqldb.init</filename>
+            </link>
+            to <filename>hsqldb</filename> in the directory where init scripts
             live on your variety of UNIX. The most common locations are
             <filename>/etc/init.d</filename> or
             <filename>/etc/rc.d/init.d</filename> on System V style UNIXes,
@@ -2978,8 +2989,9 @@
             a note of every catalog define by a
             <varname>server.database.X</varname> setting. A couple steps down,
             you will need to set up administrative access for each of these
-            catalogs. If you are using our sample
-            <filename>server.properties</filename> file, you just need to know
+            catalogs. If you are using our sample <filename
+              xlink:href="&distro_baseurl;/verbatim/sample/server.properties">
+            server.properties</filename> file, you just need to know
             that you need to set up access for the catalog specified with
             <literal>file:db0/dbo</literal>.</para>
 
@@ -2994,8 +3006,8 @@
           <step>
             <simpara>Either copy <varname>HSQLDB_OWNER</varname>'s
             <filename>sqltool.rc</filename> file into root's home directory,
-            or set the value of AUTH_FILE to the absolute path of
-            <varname>HSQLDB_OWNER</varname>'s
+            or set the value of <varname>AUTH_FILE</varname> to the absolute
+            path of <varname>HSQLDB_OWNER</varname>'s
             <filename>sqltool.rc</filename> file. This file is read directly
             by root, even if you run hsqldb as non-root (by setting
             <varname>HSQLDB_OWNER</varname> in the config file).
@@ -3027,7 +3039,9 @@
             <simpara>Look at the comment towards the top of the init script
             which lists recommended locations for the configuration file for
             various UNIX platforms. Copy the sample config file
-            <varname>HSQLDB_HOME</varname><filename>/sample/hsqldb.cfg</filename>
+            <link xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.cfg">
+          <varname>HSQLDB_HOME</varname><filename>/sample/hsqldb.cfg</filename>
+            </link>
             to one of the listed locations (your choice). Edit the config file
             according to the instructions in it. For our example, you will set
             the value of <varname>URLIDS</varname> to
@@ -3055,7 +3069,7 @@
             <simpara>Re-run the script with each of the possible arguments to
             really test it good. If anything doesn't work right, then see the
             <link endterm="unix_inittrouble-title"
-            linkend="unix_inittrouble-sect" /> section.</simpara>
+            xlink:href="#unix_inittrouble-sect" /> section.</simpara>
           </step>
 
           <step>
@@ -3095,8 +3109,8 @@
 
         <simpara>Follow the examples in the config file to add additional
         classes to the server JVM's classpath and to execute additional
-        classes in your JVM. (See the SERVER_ADDL_CLASSPATH and
-        INVOC_ADDL_ARGS items).</simpara>
+        classes in your JVM. (See the <varname>SERVER_ADDL_CLASSPATH</varname>
+        and <varname>INVOC_ADDL_ARGS</varname> items).</simpara>
       </section>
 
       <section xml:id="unix_inittrouble-sect">
@@ -3221,10 +3235,10 @@
       <para>The normal method of accessing an HSQLDB database is via the JDBC
       Connection interface. An introduction to different methods of providing
       database services and accessing them can be found in the <link
-      endterm="sqlissues-title" linkend="sqlissues-chapt" /> chapter. Details
-      and examples of how to connect via JDBC are provided in our <link
-      xlink:href="../src/org/hsqldb/jdbc/JDBCConnection.html">JavaDoc for
-      <classname>JDBCConnection</classname></link>.</para>
+        endterm="sqlissues-title" xlink:href="#sqlissues-chapt" /> chapter.
+      Details and examples of how to connect via JDBC are provided in our <link
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCConnection.html">
+      JavaDoc for <classname>JDBCConnection</classname></link>.</para>
 
       <para>A uniform method is used to distinguish between different types of
       connection. The common driver identifier is
@@ -3994,7 +4008,7 @@
                   database properties defaults. Individual
                   <property>textdb.*</property> properties are listed in the
                   <link endterm="texttables-title"
-                  linkend="texttables-chapt" /> chapter. <literal>(SET
+                  xlink:href="#texttables-chapt" /> chapter. <literal>(SET
                   PROPERTY)</literal></para>
                 </entry>
               </row>
@@ -4011,7 +4025,7 @@
         <simpara>The property sql.compare_in_locale=true is no longer
         supported. If the line exists in a .properties file, it will switch
         the database to the collation for the current default. See the <link
-        endterm="collation-title" linkend="collation-sect" />
+        endterm="collation-title" xlink:href="#collation-sect" />
         command.</simpara>
 
         <simpara>When HSQLDB is used in OpenOffice.org, some property values
@@ -5361,7 +5375,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
       <!-- Template for new items:  (Put new items into alphabetical position)
     <section xml:id="@-sect">
-        <title xml:id="@-title">@<footnoteref linkend="posthyper"/></title>
+        <title xml:id="@-title">@<footnoteref xlink:href="#posthyper"/></title>
         <programlisting>
         </programlisting>
         <para>
@@ -5394,8 +5408,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <title xml:id="alter_table-title">ALTER TABLE<footnoteref
         linkend="posthyper" /></title>
 
-        <programlisting>ALTER TABLE &lt;tablename&gt; ADD [COLUMN] &lt;columnname&gt; <link
-            linkend="sqlsyntax_datatypes-sect">Datatype</link>
+    <programlisting>ALTER TABLE &lt;tablename&gt; ADD [COLUMN] &lt;columnname&gt;
+      <link
+            xlink:href="#sqlsyntax_datatypes-sect">Datatype</link>
     [(columnSize[,precision])] [{DEFAULT &lt;defaultValue&gt; |
     GENERATED BY DEFAULT AS IDENTITY (START WITH &lt;n&gt;[, INCREMENT BY &lt;m&gt;])}] |
     [[NOT] NULL] [IDENTITY] [PRIMARY KEY]
@@ -5406,8 +5421,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         existing column so that the new column is inserted in a position just
         before the &lt;existingcolumn&gt;.</para>
 
-        <para>It accepts a <link endterm="columnDef-title"
-        linkend="columnDef-entry" /> as in a CREATE TABLE command. If NOT NULL
+        <para>It accepts a
+        <link endterm="columnDef-title" xlink:href="#columnDef-entry" />
+        as in a CREATE TABLE command. If NOT NULL
         is specified and the table is not empty, then a default value must be
         specified. In all other respects, this command is the equivalent of a
         column definition statement in a CREATE TABLE statement.</para>
@@ -5441,9 +5457,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
         <programlisting>ALTER TABLE &lt;tablename&gt; ALTER COLUMN &lt;columnDefinition&gt;;</programlisting>
 
-        <para>This form of ALTER TABLE ALTER COLUMN accepts a <link
-        endterm="columnDef-title" linkend="columnDef-entry" /> as in a CREATE
-        TABLE command, with the following restrictions.</para>
+        <para>This form of ALTER TABLE ALTER COLUMN accepts a
+        <link endterm="columnDef-title" xlink:href="#columnDef-entry" />
+        as in a CREATE TABLE command, with the following restrictions.</para>
 
         <itemizedlist>
           <title>Restrictions</title>
@@ -5540,9 +5556,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>DBA's may change users' base default schema name with the
         command <programlisting>ALTER USER &lt;username&gt; SET INITIAL SCHEMA &lt;schemaname&gt;;</programlisting>
         This is the schema which database object names will resolve to for
-        this user, unless overridden as explained in <link
-        endterm="sqlsyntax_schemanaming-title"
-        linkend="sqlsyntax_schemanaming-sect" />. For reasons of backwards
+        this user, unless overridden as explained in
+        <link endterm="sqlsyntax_schemanaming-title"
+        xlink:href="#sqlsyntax_schemanaming-sect" />. For reasons of backwards
         compatibility, the initial schema value will not be persisted across
         database shutdowns until HSQLDB version 1.8.1. (I.e., INITIAL SCHEMA
         settings will be lost upon database shutdown with HSQLDB versions
@@ -5554,7 +5570,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       <section xml:id="call-sect">
         <title xml:id="call-title">CALL</title>
 
-        <programlisting>CALL <link linkend="sqlsyntax_expression-sect">
+        <programlisting>CALL <link xlink:href="#sqlsyntax_expression-sect">
             Expression</link>;</programlisting>
 
         <para>Any expression can be called like a stored procedure, including,
@@ -5563,9 +5579,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         SELECT statement with one row and one column.</para>
 
         <para>See also: <link endterm="sqlsyntax_stored-title"
-        linkend="sqlsyntax_stored-sect" />, <link
+        xlink:href="#sqlsyntax_stored-sect" />, <link
         endterm="sqlsyntax_expression-title"
-        linkend="sqlsyntax_expression-sect" />.</para>
+        xlink:href="#sqlsyntax_expression-sect" />.</para>
       </section>
 
       <section xml:id="checkpoint-sect">
@@ -5580,8 +5596,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         to its minimal size.</para>
 
         <para>See also: <link endterm="shutdown-title"
-        linkend="shutdown-sect" />, <link endterm="set_logsize-title"
-        linkend="set_logsize-sect" />.</para>
+        xlink:href="#shutdown-sect" />, <link endterm="set_logsize-title"
+        xlink:href="#set_logsize-sect" />.</para>
       </section>
 
       <section xml:id="commit-sect">
@@ -5592,9 +5608,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Ends a transaction and makes the changes permanent.</para>
 
         <para>See also: <link endterm="rollback-title"
-        linkend="rollback-sect" />, <link endterm="set_autocommit-title"
-        linkend="set_autocommit-sect" />, <link endterm="set_logsize-title"
-        linkend="set_logsize-sect" />.</para>
+        xlink:href="#rollback-sect" />, <link endterm="set_autocommit-title"
+        xlink:href="#set_autocommit-sect" />, <link endterm="set_logsize-title"
+        xlink:href="#set_logsize-sect" />.</para>
       </section>
 
       <section xml:id="connect-sect">
@@ -5605,8 +5621,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Connects to the database as a different user. Password should be
         double quoted. Use "" for an empty password.</para>
 
-        <para>See also: <link endterm="grant-title" linkend="grant-sect" />,
-        <link endterm="revoke-title" linkend="revoke-sect" />.</para>
+        <para>See also: <link endterm="grant-title" xlink:href="#grant-sect" />,
+        <link endterm="revoke-title" xlink:href="#revoke-sect" />.</para>
       </section>
 
       <section xml:id="create_alias-sect">
@@ -5615,7 +5631,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <programlisting>CREATE ALIAS &lt;function&gt; FOR &lt;javaFunction&gt;;</programlisting>
 
         <para>Creates an alias for a static Java function to be used as a
-        <link linkend="sqlsyntax_stored-sect">Stored Procedure</link>. The
+        <link xlink:href="#sqlsyntax_stored-sect">Stored Procedure</link>. The
         function must be accessible from the JVM in which the database runs.
         Example:</para>
 
@@ -5629,9 +5645,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
           To validate the alias, use it.</simpara>
         </note>
 
-        <para>See also: <link endterm="call-title" linkend="call-sect" />,
+        <para>See also: <link endterm="call-title" xlink:href="#call-sect" />,
         <link endterm="sqlsyntax_stored-title"
-        linkend="sqlsyntax_stored-sect" />.</para>
+        xlink:href="#sqlsyntax_stored-sect" />.</para>
       </section>
 
       <section xml:id="create_index-sect">
@@ -5648,8 +5664,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         must be unique within the whole database.</para>
 
         <para>See also: <link endterm="create_table-title"
-        linkend="create_table-sect" />, <link endterm="drop_index-title"
-        linkend="drop_index-sect" />.</para>
+        xlink:href="#create_table-sect" />, <link endterm="drop_index-title"
+        xlink:href="#drop_index-sect" />.</para>
       </section>
 
       <section xml:id="create_role-sect">
@@ -5743,7 +5759,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
             <listitem>
               <programlisting>columnname
-              <link linkend="sqlsyntax_datatypes-sect">Datatype</link> [(columnSize[,precision])]
+              <link xlink:href="#sqlsyntax_datatypes-sect">Datatype</link> [(columnSize[,precision])]
     [{DEFAULT &lt;defaultValue&gt; |
     GENERATED BY DEFAULT AS IDENTITY
     (START WITH &lt;n&gt;[, INCREMENT BY &lt;m&gt;])}] |
@@ -5860,7 +5876,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </variablelist>
 
         <para>See also: <link endterm="drop_table-title"
-        linkend="drop_table-sect" />.</para>
+        xlink:href="#drop_table-sect" />.</para>
       </section>
 
       <section xml:id="create_trigger-sect">
@@ -5890,7 +5906,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         states of the row acted on, with each column being a member of the
         array. The mapping of members of the row arrays to database types is
         specified in <link endterm="sqlsyntax_datatypes-title"
-        linkend="sqlsyntax_datatypes-sect" />. For example, BIGINT is
+        xlink:href="#sqlsyntax_datatypes-sect" />. For example, BIGINT is
         represented by a <filename>java.lang.Long Object</filename>. Note that
         the number of elements in the row arrays could be larger than the
         number of columns by one or two elements. Never modify the last
@@ -5942,16 +5958,15 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         the 'row2' values, these changes may or may not affect the database
         and will almost certainly result in data inconsistency.</para>
 
-        <para>Please refer to the code for <link
-            xlink:href="../src/org/hsqldb/Trigger.html">
-            <classname>org.hsqldb.sample.Trigger</classname>
-          </link> and <link
-            xlink:href="../src/org/hsqldb/sample/TriggerSample.html">
-            <classname>org.hsqldb.sample.TriggerSample</classname>
-          </link> for more information on how to write a trigger class.</para>
+      <para>Please refer to the code for <classname
+            xlink:href="&distro_baseurl;/src/org/hsqldb/Trigger.html">
+            org.hsqldb.sample.Trigger</classname> and <classname
+        xlink:href="&distro_baseurl;/src/org/hsqldb/sample/TriggerSample.html">
+            org.hsqldb.sample.TriggerSample</classname>
+          for more information on how to write a trigger class.</para>
 
         <para>See also: <link endterm="drop_trigger-title"
-        linkend="drop_trigger-sect" />.</para>
+        xlink:href="#drop_trigger-sect" />.</para>
       </section>
 
       <section xml:id="create_user-sect">
@@ -5962,16 +5977,16 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Creates a new user or new administrator in this database.
         Password must be double quoted. Empty password can be made using "".
         You can change a password afterwards using a <link
-        endterm="alter_user-title" linkend="alter_user-sect" />
+        endterm="alter_user-title" xlink:href="#alter_user-sect" />
         command.</para>
 
         <para>Only an administrator can do this.</para>
 
         <para>See also: <link endterm="connect-title"
-        linkend="connect-sect" />, <link endterm="grant-title"
-        linkend="grant-sect" />, <link endterm="revoke-title"
-        linkend="revoke-sect" />. <link endterm="alter_user-title"
-        linkend="alter_user-sect" />,</para>
+        xlink:href="#connect-sect" />, <link endterm="grant-title"
+        xlink:href="#grant-sect" />, <link endterm="revoke-title"
+        xlink:href="#revoke-sect" />. <link endterm="alter_user-title"
+        xlink:href="#alter_user-sect" />,</para>
       </section>
 
       <section xml:id="create_view-sect">
@@ -6062,9 +6077,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </informalexample>
 
         <para>See also: <link endterm="sqlsyntax_expression-title"
-        linkend="sqlsyntax_expression-sect" />, <link endterm="select-title"
-        linkend="select-sect" />, <link endterm="drop_view-title"
-        linkend="drop_view-sect" />.</para>
+        xlink:href="#sqlsyntax_expression-sect" />, <link endterm="select-title"
+        xlink:href="#select-sect" />, <link endterm="drop_view-title"
+        xlink:href="#drop_view-sect" />.</para>
       </section>
 
       <section xml:id="delete-sect">
@@ -6075,9 +6090,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Removes rows in a table.</para>
 
         <para>See also: <link endterm="sqlsyntax_expression-title"
-        linkend="sqlsyntax_expression-sect" />, <link endterm="insert-title"
-        linkend="insert-sect" />, <link endterm="select-title"
-        linkend="select-sect" />.</para>
+        xlink:href="#sqlsyntax_expression-sect" />, <link endterm="insert-title"
+        xlink:href="#insert-sect" />, <link endterm="select-title"
+        xlink:href="#select-sect" />.</para>
       </section>
 
       <section xml:id="disconnect-sect">
@@ -6091,7 +6106,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         execute other queries (including CONNECT) with this connection.</para>
 
         <para>See also: <link endterm="connect-title"
-        linkend="connect-sect" />.</para>
+        xlink:href="#connect-sect" />.</para>
       </section>
 
       <section xml:id="drop_index-sect">
@@ -6103,7 +6118,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         the index backs a UNIQUE of FOREIGN KEY constraint.</para>
 
         <para>See also: <link endterm="create_index-title"
-        linkend="create_index-sect" />.</para>
+        xlink:href="#create_index-sect" />.</para>
       </section>
 
       <section>
@@ -6161,7 +6176,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <simpara>See also:</simpara>
 
         <simpara><link endterm="create_table-title"
-        linkend="create_table-sect" />.</simpara>
+        xlink:href="#create_table-sect" />.</simpara>
       </section>
 
       <section xml:id="drop_trigger-sect">
@@ -6172,7 +6187,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Removes a trigger from the database.</para>
 
         <para>See also: <link endterm="create_trigger-title"
-        linkend="create_trigger-sect" />.</para>
+        xlink:href="#create_trigger-sect" />.</para>
       </section>
 
       <section xml:id="drop_user-sect">
@@ -6185,7 +6200,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Only an administrator do this.</para>
 
         <para>See also: <link endterm="create_user-title"
-        linkend="create_user-sect" />.</para>
+        xlink:href="#create_user-sect" />.</para>
       </section>
 
       <section xml:id="drop_view-sect">
@@ -6202,7 +6217,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         views.</para>
 
         <para>See also: <link endterm="create_view-title"
-        linkend="create_view-sect" />.</para>
+        xlink:href="#create_view-sect" />.</para>
       </section>
 
       <section xml:id="explain-sect">
@@ -6231,9 +6246,7 @@ ON { table | CLASS "package.class" } TO &lt;grantee&gt;;</programlisting>
         <emphasis>all users</emphasis>.</para>
 
         <para>The first form of the GRANT command assigns privileges to a
-        grantee for a table or for a class. To allow a user to call a <link
-        linkend="sqlsyntax_stored-sect">Store Procedure</link> static
-        function, the right ALL must be used. Examples: <informalexample>
+        grantee for a table or for a class. To allow a user to call a <link xlink:href="#sqlsyntax_stored-sect">Store Procedure</link> static function, the right ALL must be used. Examples: <informalexample>
             <programlisting>    GRANT SELECT ON Test TO GUEST;
     GRANT ALL ON CLASS "java.lang.Math.abs" TO PUBLIC;</programlisting>
           </informalexample></para>
@@ -6250,17 +6263,17 @@ ON { table | CLASS "package.class" } TO &lt;grantee&gt;;</programlisting>
         <simpara>Requires Administrative privileges.</simpara>
 
         <simpara>See also: <link endterm="revoke-title"
-        linkend="revoke-sect" />, <link endterm="create_user-title"
-        linkend="create_user-sect" />, <link endterm="create_role-title"
-        linkend="create_role-sect" />.</simpara>
+        xlink:href="#revoke-sect" />, <link endterm="create_user-title"
+        xlink:href="#create_user-sect" />, <link endterm="create_role-title"
+        xlink:href="#create_role-sect" />.</simpara>
       </section>
 
       <section xml:id="insert-sect">
         <title xml:id="insert-title">INSERT</title>
 
         <programlisting>INSERT INTO table [( column [,...] )]
-{ VALUES(<link linkend="sqlsyntax_expression-sect">Expression</link> [,...]) | <link
-            linkend="select-sect">SelectStatement</link>};</programlisting>
+{ VALUES(<link xlink:href="#sqlsyntax_expression-sect">Expression</link> [,...]) | <link
+            xlink:href="#select-sect">SelectStatement</link>};</programlisting>
 
         <para>Adds one or more new rows of data into a table.</para>
       </section>
@@ -6287,7 +6300,7 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
         <simpara>Both forms require Administrative privileges.</simpara>
 
         <simpara>See also: <link endterm="grant-title"
-        linkend="grant-sect" />.</simpara>
+        xlink:href="#grant-sect" />.</simpara>
       </section>
 
       <section xml:id="rollback-sect">
@@ -6304,7 +6317,7 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
         savepoint is not found.</para>
 
         <para>See also: <link endterm="commit-title"
-        linkend="commit-sect" />.</para>
+        xlink:href="#commit-sect" />.</para>
       </section>
 
       <section xml:id="savepoint-sect">
@@ -6316,7 +6329,7 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
         <para>Sets up a SAVEPOINT for use with ROLLBACK TO SAVEPOINT.</para>
 
         <para>See also: <link endterm="commit-title"
-        linkend="commit-sect" />.</para>
+        xlink:href="#commit-sect" />.</para>
       </section>
 
       <section xml:id="script-sect">
@@ -6335,14 +6348,13 @@ ON { table | CLASS "package.class" } FROM &lt;grantee&gt;;</programlisting>
 
       <section xml:id="select-sect">
         <title xml:id="select-title">SELECT<footnoteref
-        linkend="posthyper" /></title>
-
+        linkend="posthyper" /></title> 
         <programlisting>SELECT [{LIMIT &lt;offset&gt; &lt;limit&gt; | TOP &lt;limit&gt;}<footnoteref
             linkend="posthyper" />][ALL | DISTINCT]
 { selectExpression | table.* | * } [, ...]
 [INTO [CACHED | TEMP  | TEXT]<footnoteref linkend="posthyper" /> newTable]
 FROM tableList
-[WHERE <link linkend="sqlsyntax_expression-sect">Expression</link>]
+[WHERE <link xlink:href="#sqlsyntax_expression-sect">Expression</link>]
 [GROUP BY Expression [, ...]]
 [HAVING Expression]
 [{ UNION [ALL | DISTINCT] | {MINUS [DISTINCT] | EXCEPT [DISTINCT] } |
@@ -6457,9 +6469,9 @@ INTERSECT [DISTINCT] } selectStatement]
           </varlistentry>
         </variablelist>
 
-        <para>See also: <link endterm="insert-title" linkend="insert-sect" />,
-        <link endterm="update-title" linkend="update-sect" />, <link
-        endterm="delete-title" linkend="delete-sect" />.</para>
+        <para>See also: <link endterm="insert-title" xlink:href="#insert-sect" />,
+        <link endterm="update-title" xlink:href="#update-sect" />, <link
+        endterm="delete-title" xlink:href="#delete-sect" />.</para>
       </section>
 
       <section xml:id="set_autocommit-sect">
@@ -6471,8 +6483,8 @@ INTERSECT [DISTINCT] } selectStatement]
         switched on, then all statements will be committed as individual
         transactions. Otherwise, the statements are grouped into transactions
         that are terminated by either <link
-        linkend="commit-sect">COMMIT</link> or <link
-        linkend="rollback-sect">ROLLBACK</link>. By default, new connections
+        xlink:href="#commit-sect">COMMIT</link> or <link
+        xlink:href="#rollback-sect">ROLLBACK</link>. By default, new connections
         are in auto-commit mode. This command should not be used directly. Use
         the JDBC equivalent method, Connection.setAutoCommit(boolean
         autocommit).</para>
@@ -6535,7 +6547,7 @@ INTERSECT [DISTINCT] } selectStatement]
         This is the schema which database object names will resolve to for the
         current user, unless overridden as explained in <link
         endterm="sqlsyntax_schemanaming-title"
-        linkend="sqlsyntax_schemanaming-sect" />. For reasons of backwards
+        xlink:href="#sqlsyntax_schemanaming-sect" />. For reasons of backwards
         compatibility, the initial schema value will not be persisted across
         database shutdowns until HSQLDB version 1.8.1. (I.e., INITIAL SCHEMA
         settings will be lost upon database shutdown with HSQLDB versions
@@ -6553,7 +6565,7 @@ INTERSECT [DISTINCT] } selectStatement]
         0 means no limit.</para>
 
         <para>See also: <link endterm="checkpoint-title"
-        linkend="checkpoint-sect" />.</para>
+        xlink:href="#checkpoint-sect" />.</para>
       </section>
 
       <section>
@@ -6581,7 +6593,7 @@ INTERSECT [DISTINCT] } selectStatement]
 
         <para>Sets a database property. Properties that can be set using this
         command are either boolean or integral and are listed in the <link
-        endterm="advanced-title" linkend="advanced-chapt" /> chapter.</para>
+        endterm="advanced-title" xlink:href="#advanced-chapt" /> chapter.</para>
       </section>
 
       <section>
@@ -6612,7 +6624,7 @@ INTERSECT [DISTINCT] } selectStatement]
         <para>Only an administrator may do this.</para>
 
         <para>See also: <link endterm="create_table-title"
-        linkend="create_table-sect" />.</para>
+        xlink:href="#create_table-sect" />.</para>
       </section>
 
       <section xml:id="set_schema-sect">
@@ -6671,7 +6683,7 @@ INTERSECT [DISTINCT] } selectStatement]
         <programlisting>SET TABLE &lt;tablename&gt; SOURCE &lt;file and options&gt; [DESC];</programlisting>
 
         <para>For details see the <link endterm="texttables-title"
-        linkend="texttables-chapt" /> chapter.</para>
+        xlink:href="#texttables-chapt" /> chapter.</para>
 
         <para>This command is used exclusively with TEXT tables to specify
         which file is used for storage of the data. The optional DESC
@@ -6959,9 +6971,9 @@ INTERSECT [DISTINCT] } selectStatement]
 
         <para>Modifies data of a table in the database.</para>
 
-        <para>See also: <link endterm="select-title" linkend="select-sect" />,
-        <link endterm="insert-title" linkend="insert-sect" />, <link
-        endterm="delete-title" linkend="delete-sect" />.</para>
+        <para>See also: <link endterm="select-title" xlink:href="#select-sect" />,
+        <link endterm="insert-title" xlink:href="#insert-sect" />, <link
+        endterm="delete-title" xlink:href="#delete-sect" />.</para>
       </section>
     </section>
 
@@ -7020,11 +7032,11 @@ INTERSECT [DISTINCT] } selectStatement]
       session's current schema setting. The session schema value will be your
       login user's <emphasis>initial schema</emphasis>, or whatever you last
       set it to with <link endterm="set_schema-title"
-      linkend="set_schema-sect" /> in your <emphasis>current</emphasis> JDBC
+      xlink:href="#set_schema-sect" /> in your <emphasis>current</emphasis> JDBC
       session with the SET SCHEMA command. (Your initial schema is "PUBLIC"
-      unless changed with the <link linkend="alter_user-sect"> ALTER USER SET
+      unless changed with the <link xlink:href="#alter_user-sect"> ALTER USER SET
       INITIAL SCHEMA</link> or the <link endterm="set_initialschema-title"
-      linkend="set_initialschema-sect" /> command).</simpara>
+      xlink:href="#set_initialschema-sect" /> command).</simpara>
 
       <simpara>In addition to namespace scoping, there are permission aspects
       to the schema of a database object. The
@@ -7317,7 +7329,7 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para>CHAR and VARCHAR and LONGVARCHAR columns are by default compared
       and sorted according to POSIX standards. See the <link
-      endterm="collation-title" linkend="collation-sect" /> section above to
+      endterm="collation-title" xlink:href="#collation-sect" /> section above to
       modify this behavior. The property
       <varname>sql.compare_in_locale</varname> is no longer supported.
       Instead, you can define a collation to be used for all character
@@ -8161,8 +8173,8 @@ INTERSECT [DISTINCT] } selectStatement]
         </varlistentry>
       </variablelist>
 
-      <para>See also: <link endterm="call-title" linkend="call-sect" />, <link
-      endterm="create_alias-title" linkend="create_alias-sect" />.</para>
+      <para>See also: <link endterm="call-title" xlink:href="#call-sect" />, <link
+      endterm="create_alias-title" xlink:href="#create_alias-sect" />.</para>
     </section>
 
     <section xml:id="sqlsyntax_expression-sect">
