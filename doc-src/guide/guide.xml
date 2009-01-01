@@ -17,11 +17,11 @@
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
-  <title>HyperSQL User Guide</title>
-
-  <subtitle>HyperSQL Database Engine, aka HSQLDB</subtitle>
-
   <info>
+    <title>HyperSQL User Guide</title>
+
+    <subtitle>HyperSQL Database Engine, aka HSQLDB</subtitle>
+
     <authorgroup>
       <editor>
         <orgname>The HSQLDB Development Group</orgname>
