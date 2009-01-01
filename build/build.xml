@@ -974,11 +974,12 @@ examples:
     *************************************************************-->
   <import file="build-docbook.xml"/>
 
+<target name="pi" depends="-prep-images"/>
   <target name="-prep-images">
-    <fail unless="dbimage.path">Ant property 'dbimage.path' is required
-This is normally the "images" subdirectory of a DocBook v.5 Style Sheet
-distribution.  The distro can be obtained at
-http://docbook.sourceforge.net/release/xsl-ns.</fail>
+    <fail unless="bimage.path">Ant property 'dbimage.path' is
+required.  This is normally the "images" subdirectory of a DocBook v.5 NS Style
+Sheet distribution.  The docbook-xsl-ns distro can be downloaded from
+'http://docbook.sourceforge.net/projects/docbook'.</fail>
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>
     </copy>

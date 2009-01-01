@@ -83,10 +83,13 @@
 
   <target name="fetch-images"
           description="Fetch stock DocBook image files from Internet">
-    <echo>Copy images from '${oasis.stylesheet.url}/images'
-to '${basedir}/doc-src/images/db'.
-We'll do this automatically for you once Ant has a
-task to transfer entire directories of files.</echo>
+          <echo>Copy the images directory from the latest stable version of the
+docbook-xsl-ns package to
+'${basedir}/doc-src/images/db'.  docbook-xsl-ns is
+available for download from the DocBook project at
+http://sourceforge.net/packages/docbook.
+We'll do this automatically for you once Ant has a task to transfer
+entire directories of files.</echo>
   </target>
 
   <target name="regen-docs" description="Clean and regen project DocBook docs"
