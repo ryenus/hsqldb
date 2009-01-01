@@ -917,11 +917,22 @@ examples:
      </javadoc>
    </target>
 
+    <target name="sqlfile-scanner"
+            description="Run JFlex to regenerate SqlFileScanner.java">
+      <delete file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
+      <antcall target="-sqlfile-scanner"/>
+    </target>
+
     <target name="-sqlfile-scanner">
       <!-- Prepares SqlFileScanner.java, running Jflex only if needed.
            Purpose here is to require jflex library only if user modifies
            the *.flex file.
       -->
+
+      <!-- We no longer remove SqlFileScanner.java automatically.
+           We can't depend on file timestamps, because Subversion doesn't
+           preserve them, so we must depend on the user to manually remove
+           SqlFileScanner.java if they want it regenerated.
       <dependset>
         <srcfilelist dir="src/org/hsqldb/cmdline">
           <file name="sqltool.flex"/>
@@ -930,9 +941,11 @@ examples:
           <file name="SqlFileScanner.java"/>
         </targetfilelist>
       </dependset>
+      -->
       <available property="skip.jflex" type="file"
                  file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
       <antcall target="-condl-jflex"/>
+      <!-- JFlex will only run if SqlFileScanner.java does not exist -->
       <copy todir="${swsrc}/org/hsqldb/cmdline/sqltool"
             file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
