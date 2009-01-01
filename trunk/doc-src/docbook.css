@@ -20,14 +20,14 @@ span.guimenu, span.guimenuitem, span.guisubmenu {
 span.term        {
     font-family: monospace;
     font-weight: bold;
-    background: #083194;
+    background-color: #083194;
     color: white;
     padding: 1px;
 }
 span.term a      {
     font-family: monospace;
     font-weight: bold;
-    background: #083194;
+    background-color: #083194;
     color: white;
     padding: 1px;
 }
@@ -95,22 +95,40 @@ div.itemizedlist ul.disc li {
     margin-bottom:3px;
 }
 
-h1.title { font-size: 200%; }
-div.chapter h2.title {
+h1.title { font-size: 200%; } /* Book title */
+h2.subtitle { font-size: 140%; } /* Book subtitle */
+div.chapter h2.title, div.preface h2.title, div.appendix h2.title, div.index h2.title {
+    /* All components */
     font-size: 170%;
     font-weight: bold;
-    color: black;
-    background: white;
     padding: 2px;
     border: 2px solid #083194;
 }
+div.chapter h2.subtitle, div.preface h2.subtitle, div.appendix h2.subtitle, div.index h2.subtitle {
+    font-size: 130%;
+}
 div.section h2.title {
+    /* level1 sections */
     font-size: 140%;
     font-weight: bold;
     color: #083194;
-    background: white;
     padding: 2px;
-    border: none;
+    border:0;
+}
+div.section h3.title {
+    /* level2 sections */
+    font-size: 130%;
+    font-weight: bold;
+}
+div.section h4.title {
+    /* level3 sections */
+    font-size: 123%;
+    font-weight: bold;
+}
+div.section h5.title {
+    /* level4 sections */
+    font-size: 116%;
+    font-weight: bold;
 }
 
 span.remark        {
@@ -125,3 +143,7 @@ div.table-contents {
 div.table-contents td {
     background-color:#F5F5F5;
 }
+
+img { border:0; padding:0; margin:0; }
+
+p.copyright { font-family:sans-serif; }

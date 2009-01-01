@@ -286,6 +286,7 @@ ${_for.automation.blurb}</fail>
       <param name="textdata.default.encoding" expression="ISO-8859-1"/>
       <param name="use.id.as.filename" expression="1"/>
       <param name="variablelist.as.table" expression="1"/>
+      <param name="body.start.indent" expression="0" if="fop.format"/>
 
       <!-- For tables with unequal column content lengths, this extention
            displays tables terribly: -->
