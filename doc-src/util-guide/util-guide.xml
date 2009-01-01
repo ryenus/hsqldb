@@ -12,8 +12,8 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
-    <title>HyperSQL Utilities Guide</title>
     <info>
+        <title>HyperSQL Utilities Guide</title>
         <authorgroup>
             <editor>
                 <orgname>The HSQLDB Development Group</orgname>
