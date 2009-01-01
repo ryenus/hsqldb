@@ -989,7 +989,7 @@ examples:
 
 <target name="pi" depends="-prep-images"/>
   <target name="-prep-images">
-    <fail unless="bimage.path">Ant property 'dbimage.path' is
+    <fail unless="dbimage.path">Ant property 'dbimage.path' is
 required.  This is normally the "images" subdirectory of a DocBook v.5 NS Style
 Sheet distribution.  The docbook-xsl-ns distro can be downloaded from
 'http://docbook.sourceforge.net/projects/docbook'.</fail>
