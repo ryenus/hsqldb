@@ -8535,8 +8535,8 @@ INTERSECT [DISTINCT] } selectStatement]
       SOUNDEX codes, and returns an INTEGER between 0-3 which indicates how
       many letters of the two SOUNDEX value are different. (JDBC)</para>
 
-      <para>INSERT ( &lt;char value expr 1&gt;, , &lt;offset&gt;,
-      &lt;length&gt;, &lt;char value expr 2&gt; )</para>
+      <para><literal>INSERT ( &lt;char value expr 1&gt;, , &lt;offset&gt;,
+      &lt;length&gt;, &lt;char value expr 2&gt; )</literal></para>
 
       <para>Returns a character string based on <literal>&lt;char value expr
       1&gt;</literal> in which <literal>&lt;length&gt;</literal> characters
