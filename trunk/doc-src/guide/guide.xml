@@ -8199,8 +8199,8 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para>Returns as a BIGINT value the number of characters in
       <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
-      <literal>CHAR_LENGTH(<literal>&lt;char value
-      expr&gt;</literal>)</literal>. (JDBC)</para>
+      <literal>CHAR_LENGTH(&lt;char value
+      expr&gt;)</literal>. (JDBC)</para>
 
       <para><literal>LOCATE ( &lt;char value expr 1&gt;, &lt;char value expr
       2&gt; [ , &lt;offset&gt; ] ) </literal></para>
@@ -8403,8 +8403,8 @@ INTERSECT [DISTINCT] } selectStatement]
       2&gt; ) </literal></para>
 
       <para>The <literal>&lt;num value expr 1&gt;</literal> and
-      <literal>&lt;num value expr 2&gt;</literal> express the <var>x</var> and
-      <var>y</var> coordinates of a point. Returns the angle, in radians,
+      <literal>&lt;num value expr 2&gt;</literal> express the <varname>x</varname> and
+      <varname>y</varname> coordinates of a point. Returns the angle, in radians,
       representing the angle coordinate of the point in polar coordinates, as
       a value of DOUBLE type. (JDBC)</para>
 
@@ -8441,9 +8441,8 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para><literal>DEGREES ( &lt;num value expr&gt; ) </literal></para>
 
-      <para>Converts the argument (an angle expressed in<literal
-      style="font-size:9.0pt;font-family:&quot;Courier New&quot;; ">
-      </literal>radians) into degrees and returns the value in the DOUBLE
+      <para>Converts the argument (an angle expressed in<literal>
+      radians</literal>) into degrees and returns the value in the DOUBLE
       type. (JDBC)</para>
 
       <para><literal>EXP ( &lt;num value expr&gt; ) </literal></para>
