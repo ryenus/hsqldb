@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,53 +27,50 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.jdbc;
 
 import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.hsqldb.lib.Set;
 
 /**
  *
  * @author boucherb@users
  */
 public class ScriptedTest extends JdbcScriptedTestCase {
-    
+
     public ScriptedTest(String script) {
         super(script);
     }
-    
+
     /**
      *
      * @return
      */
     public static Test suite() {
         TestSuite suite = new TestSuite("ScriptTest");
-        
+
         try {
-            
+
             String[] resources = JdbcTestCase.getResoucesInPackage(
                     "org.hsqldb.jdbc.resources.sql");
-            
+
             for (int i = 0; i < resources.length; i++) {
                 suite.addTest(new ScriptedTest(resources[i]));
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        
+
         return suite;
     }
-    
+
     /**
      * @param args
      * @throws java.lang.Exception 
      */
     public static void main(String[] args) throws Exception {
         TestRunner.run(suite());
-    } 
+    }
 }
