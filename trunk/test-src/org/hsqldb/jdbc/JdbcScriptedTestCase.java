@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.jdbc;
 
 import java.io.IOException;
@@ -39,6 +37,7 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
@@ -50,7 +49,7 @@ import org.hsqldb.lib.StringUtil;
  * @author boucherb@users
  */
 public abstract class JdbcScriptedTestCase extends JdbcTestCase {
-    
+
     /**
      *
      * @param name of script resource.
@@ -58,7 +57,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
     public JdbcScriptedTestCase(String name) {
         super(name);
     }
-    
+
     /**
      *
      * @throws java.lang.Exception
@@ -67,11 +66,12 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
     protected Statement newStatement() throws Exception {
         return connectionFactory().createStatement(newConnection());
     }
-    
+
     /**
      *
      * @throws java.lang.Throwable
      */
+    @Override
     public void runTest() throws Throwable {
         try {
             executeScript(getName());
@@ -80,7 +80,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
             throw t;
         }
     }
-    
+
     /**
      *
      * @param resource
@@ -88,139 +88,134 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
      * @return
      */
     protected Reader getScriptReader(final String resource) throws Exception {
-        
+
         final URL resourceURL = getClass().getResource(resource);
-        
+
         if (resourceURL == null) {
             throw new IOException("No such resource: " + resource);
         }
-        
+
         return new InputStreamReader(resourceURL.openStream());
     }
-    
+
     /**
      *
      * @param resource
      * @throws java.lang.Exception
      */
+    @Override
     protected void executeScript(String resource) throws Exception {
-        
-        List             section   = null;
-        Statement        statement = newStatement();
-        LineNumberReader reader    = new LineNumberReader(
+
+        List section = null;
+        Statement statement = newStatement();
+        LineNumberReader reader = new LineNumberReader(
                 getScriptReader(resource));
-        
+
         println("Opened test script: " + resource);
-        
+
         int startLine = 1;
-        
+
         while (true) {
             boolean startSection = false;
-            String  line         = reader.readLine();
-            
+            String line = reader.readLine();
+
             if (line == null) {
                 break;
             }
-            
+
             line = line.substring(0, StringUtil.rTrimSize(line));
-            
+
             if ((line.length() == 0) || line.startsWith("--")) {
                 continue;
             }
-            
+
             if (line.startsWith("/*")) {
                 startSection = true;
             }
-            
+
             if (line.charAt(0) != ' ' && line.charAt(0) != '*') {
                 startSection = true;
             }
-            
+
             if (startSection) {
                 if (section != null) {
                     executeSection(statement, section, startLine);
                 }
-                
-                section   = new ArrayList();
+
+                section = new ArrayList();
                 startLine = reader.getLineNumber();
             }
-            
+
             section.add(line);
         }
-        
+
         if (section != null) {
             executeSection(statement, section, startLine);
         }
-        
+
         statement.close();
         println("Processed lines: " + reader.getLineNumber());
     }
-    
+
     /**
      *
      * @param stmt
      * @param lines
      * @param line
      */
-    protected void executeSection(Statement stmt,  List lines,  int line) {
+    protected void executeSection(Statement stmt, List lines, int line) {
         BaseSection section = getSectionFactory().createSection(lines);
-        
+
         if (section == null) {
             //it was not possible to sucessfully parse the section
-            println("The section starting at line "
-                    + line
-                    + " could not be parsed "
-                    + "and was not processed");
+            println("The section starting at line " + line + " could not be parsed " + "and was not processed");
         } else if (section instanceof IgnoredSection) {
-            println("Line "
-                    + line
-                    + ": "
-                    + section.getResultString());
+            println("Line " + line + ": " + section.getResultString());
         } else if (section instanceof DisplaySection) {
             println(section.getResultString());
         } else if (!section.execute(stmt)) {
             println("section starting at line " + line);
             println("returned an unexpected result.");
             //println(section.toString());
-            ((TestCase)this).fail(section.toString());
+            TestCase.fail(section.toString());
         }
     }
-    
     /**
      *
      */
     private SectionFactory m_sectionFactory;
-    
+
     /**
      *
      * @return
      */
     protected SectionFactory getSectionFactory() {
-        
+
         if (m_sectionFactory == null) {
             String factoryClass = getProperty("SectionFactory", null);
-            
+
             if (factoryClass == null) {
                 m_sectionFactory = new DefaultSectionFactory();
             } else {
-                try{
+                try {
                     m_sectionFactory = (SectionFactory) Class.forName(
                             factoryClass).newInstance();
                 } catch (Exception ex) {
                     println(ex.toString());
-                    
+
                     m_sectionFactory = new DefaultSectionFactory();
                 }
             }
         }
-        
+
         return m_sectionFactory;
     }
-    
+
     /**
      *
      */
     protected interface SectionFactory {
+
         /**
          * Factory method to create appropriate parsed section class
          * for a section.
@@ -231,12 +226,12 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
          */
         BaseSection createSection(List lines);
     }
-    
+
     /**
      *
      */
     protected class DefaultSectionFactory implements SectionFactory {
-        
+
         /**
          *
          * @param list
@@ -246,93 +241,93 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
             char sectionType = ' ';
             String[] lines = null;
             String firstLine = (String) list.get(0);
-            
+
             if (firstLine.startsWith("/*")) {
                 sectionType = firstLine.charAt(2);
-                
+
                 if (!isRecognizedSectionType(sectionType)) {
                     return null;
                 }
-                
-                if ((Character.isUpperCase(sectionType))
-                && (getBooleanProperty("IgnoreCodeCase", true))) {
+
+                if ((Character.isUpperCase(sectionType)) &&
+                        (getBooleanProperty("IgnoreCodeCase", true))) {
                     sectionType = Character.toLowerCase(sectionType);
                 }
-                
+
                 firstLine = firstLine.substring(3);
             }
-            
+
             int offset = 0;
-            
+
             if (firstLine.trim().length() > 0) {
-                lines    = new String[list.size()];
+                lines = new String[list.size()];
                 lines[0] = firstLine;
             } else {
-                lines   = new String[list.size() - 1];
-                offset  = 1;
+                lines = new String[list.size() - 1];
+                offset = 1;
             }
-            
+
             for (int i = (1 - offset); i < lines.length; i++) {
                 lines[i] = (String) list.get(i + offset);
             }
-            
+
             switch (sectionType) {
-                
-                case 'u' : {
+
+                case 'u': {
                     return new UpdateCountSection(lines);
                 }
-                case 's' : {
+                case 's': {
                     return new SilentSection(lines);
                 }
-                case 'r' : {
+                case 'r': {
                     return new ResultSetSection(lines);
                 }
-                case 'c' : {
+                case 'c': {
                     return new RowCountSection(lines);
                 }
-                case 'd' : {
+                case 'd': {
                     return new DisplaySection(lines);
                 }
-                case 'e' : {
+                case 'e': {
                     return new ExceptionSection(lines);
                 }
-                case ' ' : {
+                case ' ': {
                     return new BlankSection(lines);
                 }
-                default : {
+                default: {
                     return new IgnoredSection(lines, sectionType);
                 }
             }
         }
-        
+
         /**
          *
          * @param sectionType
          * @return
          */
-        protected  boolean isRecognizedSectionType(char sectionType) {
+        protected boolean isRecognizedSectionType(char sectionType) {
             switch (Character.toLowerCase(sectionType)) {
-                case ' ' :
-                case 'r' :
-                case 'e' :
-                case 'c' :
-                case 'u' :
-                case 's' :
-                case 'd' : {
+                case ' ':
+                case 'r':
+                case 'e':
+                case 'c':
+                case 'u':
+                case 's':
+                case 'd': {
                     return true;
                 }
-                default : {
+                default: {
                     return false;
                 }
             }
         }
     }
-    
+
     /**
      *
      */
     protected abstract class BaseSection {
-        
+
         /**
          *
          */
@@ -353,92 +348,102 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
          *
          */
         protected String m_sql = null;
-        
+
         /**
          *
          */
-        protected BaseSection() {}
-        
+        protected BaseSection() {
+        }
+
         /**
          *
          * @param lines
          */
         protected BaseSection(String[] lines) {
-            
+
             m_lines = lines;
-            
-            StringBuffer sb       = new StringBuffer();
-            int          endIndex = 0;
-            int          k        = m_lines.length - 1;
-            
+
+            StringBuffer sb = new StringBuffer();
+            int endIndex = 0;
+            int k = m_lines.length - 1;
+
             do {
                 if ((endIndex = m_lines[k].indexOf("*/")) != -1) {
-                    
-                    sb.insert(0," ");
+
+                    sb.insert(0, " ");
                     sb.insert(0, m_lines[k].substring(endIndex + 2));
-                    
+
                     m_lines[k] = m_lines[k].substring(0, endIndex);
-                    
+
                     if (m_lines[k].length() == 0) {
                         m_resEndRow = k - 1;
                     } else {
                         m_resEndRow = k;
                     }
-                    
+
                     break;
                 } else {
-                    sb.insert(0," ");
+                    sb.insert(0, " ");
                     sb.insert(0, m_lines[k]);
                 }
-                
+
                 k--;
             } while (k >= 0);
-            
+
             m_sql = sb.toString();
         }
-        
+
         /**
          *
          * @return
          */
+        @Override
         public String toString() {
             String className = getClass().getName();
             int lastDot = className.lastIndexOf('.');
-            String simpleName = (lastDot >= 0) 
-                ? className.substring(lastDot+1) 
-                : className;
+            String simpleName = (lastDot >= 0)
+                    ? className.substring(lastDot + 1)
+                    : className;
             char type = getType();
-            String  sectionType = (type == ' ') ? simpleName 
+            String sectionType = (type == ' ') ? simpleName
                     : type + ": " + simpleName;
             StringBuffer sb = new StringBuffer();
-            
+
             if (getMessage() != null) {
                 sb.append(getMessage());
-            }            
-            sb.append("\n******\n")
-              .append("Section Type    : ").append(sectionType).append('\n')
-              .append("Section Result  :").append(getResultString())
-              .append("Section Content :\n");
-              
+            }
+            sb.append("\n");
+            sb.append("******\n");
+            sb.append("\n");
+            sb.append("Section Type    : ").append(sectionType).append('\n');
+            sb.append("Section Result  : ").append(getResultString()).append('\n');
+            sb.append("Section Content :\n");
+
             for (int i = 0; i < m_lines.length; i++) {
                 if (m_lines[i].trim().length() > 0) {
-                    sb.append("line ").append(i).append(": ").append(
-                            m_lines[i]).append("\n");
+                    sb.append(MessageFormat.format(
+                            "line {0}: {1}\n",
+                            new Object[]{
+                                "" + i,
+                                m_lines[i]
+                            }));
                 }
-            }            
-            
-            sb.append("Submitted SQL   : \n").append(getSql()).append('\n');
-            sb.append("\n******\n");
-            
+            }
+
+            sb.append("Submitted SQL   : \n");
+            sb.append(getSql()).append('\n');
+            sb.append("\n");
+            sb.append("******\n");
+
             return sb.toString();
         }
-        
+
         /**
          *
          * @return
          */
         protected abstract String getResultString();
-        
+
         /**
          *
          * @return
@@ -446,7 +451,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         protected String getMessage() {
             return m_message;
         }
-        
+
         /**
          *
          * @return
@@ -454,7 +459,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         protected char getType() {
             return m_type;
         }
-        
+
         /**
          *
          * @return
@@ -462,7 +467,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         protected String getSql() {
             return m_sql;
         }
-        
+
         /**
          *
          * @param stmt
@@ -470,24 +475,23 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
          */
         protected boolean execute(Statement stmt) {
             boolean success = false;
-            
+
             try {
                 stmt.execute(getSql());
                 success = true;
             } catch (Exception x) {
                 m_message = x.getMessage();
             }
-            
+
             return success;
         }
-        
     }
-    
+
     /**
      *
      */
     protected class ResultSetSection extends BaseSection {
-        
+
         /**
          *
          */
@@ -495,173 +499,156 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         /**
          *
          */
-        private String[] expectedRows = null;
-        
+        private String[] m_expectedRows = null;
+
         /**
          *
          * @param lines String[]
          */
         protected ResultSetSection(String[] lines) {
-            
+
             super(lines);
-            
+
             m_type = 'r';
-            
-            expectedRows = new String[(m_resEndRow + 1)];
-            
+
+            m_expectedRows = new String[(m_resEndRow + 1)];
+
             for (int i = 0; i <= m_resEndRow; i++) {
                 int skip = StringUtil.skipSpaces(lines[i], 0);
-                
-                expectedRows[i] = lines[i].substring(skip);
+
+                m_expectedRows[i] = lines[i].substring(skip);
             }
         }
-        
+
         /**
          *
          * @return
          */
         protected String getResultString() {
-            
+
             final StringBuffer sb = new StringBuffer();
             final String[] expectedRows = getExpectedRows();
             final int len = expectedRows.length;
-            
+
             for (int i = 0; i < len; i++) {
                 sb.append(expectedRows[i]).append('\n');
             }
-            
+
             return sb.toString();
         }
-        
+
         protected String getTypeName() {
             return "Result Set Section";
         }
-        
+
         /**
          *
          * @param stmt
          * @return
          */
+        @Override
         protected boolean execute(Statement stmt) {
-            
+
             try {
                 try {
                     stmt.execute(getSql());
                 } catch (SQLException s) {
                     throw new Exception(
-                            "Expected a ResultSet, but got the error: "
-                            + s.getMessage());
+                            "Expected a ResultSet, but got the error: " + s.getMessage());
                 }
-                
+
                 //check that update count != -1
                 if (stmt.getUpdateCount() != -1) {
                     throw new Exception(
-                            "Expected a ResultSet, but got an update count of "
-                            + stmt.getUpdateCount());
+                            "Expected a ResultSet, but got an update count of " + stmt.getUpdateCount());
                 }
-                
+
                 //iterate over the ResultSet
                 ResultSet results = stmt.getResultSet();
-                int       count   = 0;
-                
+                int count = 0;
+
                 while (results.next()) {
                     if (count < getExpectedRows().length) {
                         String[] expectedFields =
                                 StringUtil.split(getExpectedRows()[count], m_delimiter);
-                        
-                        if (results.getMetaData().getColumnCount()
-                        == expectedFields.length) {
-                            
+
+                        if (results.getMetaData().getColumnCount() == expectedFields.length) {
+
                             int j = 0;
-                            
+
                             for (int i = 0; i < expectedFields.length; i++) {
                                 j = i + 1;
-                                
+
                                 String actual = results.getString(j);
-                                
+
                                 if (actual == null) {
-                                    
+
                                     if (!expectedFields[i].equalsIgnoreCase(
                                             "NULL")) {
                                         throw new Exception(
-                                                "Expected row " + count
-                                                + " of the ResultSet to contain:\n"
-                                                + getExpectedRows()[count]
-                                                + "\nbut field " + j
-                                                + " contained NULL");
+                                                "Expected row " + count + " of the ResultSet to contain:\n" + getExpectedRows()[count] + "\nbut field " + j + " contained NULL");
                                     }
                                 } else if (!actual.equals(expectedFields[i])) {
-                                    
+
                                     //then the results are different
                                     throw new Exception(
-                                            "Expected row " + (count + 1)
-                                            + " of the ResultSet to contain:\n"
-                                            + getExpectedRows()[count]
-                                            + "\nbut field " + j + " contained "
-                                            + results.getString(j));
+                                            "Expected row " + (count + 1) + " of the ResultSet to contain:\n" + getExpectedRows()[count] + "\nbut field " + j + " contained " + results.getString(j));
                                 }
                             }
                         } else {
-                            
+
                             //we have the wrong number of columns
                             throw new Exception(
-                                    "Expected the ResultSet to contain "
-                                    + expectedFields.length
-                                    + " fields, but it contained "
-                                    + results.getMetaData().getColumnCount()
-                                    + " fields.");
+                                    "Expected the ResultSet to contain " + expectedFields.length + " fields, but it contained " + results.getMetaData().getColumnCount() + " fields.");
                         }
                     }
-                    
+
                     count++;
                 }
 
                 if (count != getExpectedRows().length) {
 
-                    throw new Exception("Expected the ResultSet to contain "
-                            + getExpectedRows().length
-                            + " rows, but it contained " + count
-                            + " rows.");
+                    throw new Exception("Expected the ResultSet to contain " + getExpectedRows().length + " rows, but it contained " + count + " rows.");
                 }
             } catch (Exception x) {
                 m_message = x.getMessage();
-                
+
                 return false;
             }
-            
+
             return true;
         }
-        
+
         /**
          *
          * @return
          */
         private String[] getExpectedRows() {
-            return expectedRows;
+            return m_expectedRows;
         }
     }
-    
+
     /**
      *
      */
     protected class UpdateCountSection extends BaseSection {
-        
+
         /**
          *
          */
         int m_expectedUpdateCount;
-        
+
         /**
          *
          * @param lines
          */
-        protected UpdateCountSection(String[] lines) {            
+        protected UpdateCountSection(String[] lines) {
             super(lines);
-            
-            m_type                = 'u';
+
+            m_type = 'u';
             m_expectedUpdateCount = Integer.parseInt(lines[0]);
         }
-        
+
         /**
          *
          * @return
@@ -669,7 +656,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         protected String getResultString() {
             return Integer.toString(getExpectedUpdateCount());
         }
-        
+
         /**
          *
          * @return
@@ -677,54 +664,49 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         private int getExpectedUpdateCount() {
             return m_expectedUpdateCount;
         }
-        
+
         /**
          *
          * @param stmt
          * @return
          */
-        protected boolean execute(final Statement stmt) {            
+        @Override
+        protected boolean execute(final Statement stmt) {
             try {
                 try {
                     stmt.execute(getSql());
                 } catch (SQLException se) {
-                    throw new Exception("Expected an update count of "
-                            + getExpectedUpdateCount()
-                            + ", but got the error: "
-                            + se.getMessage());
+                    throw new Exception("Expected an update count of " + getExpectedUpdateCount() + ", but got the error: " + se.getMessage());
                 }
-                
+
                 if (stmt.getUpdateCount() != getExpectedUpdateCount()) {
-                    throw new Exception("Expected an update count of "
-                            + getExpectedUpdateCount()
-                            + ", but got an update count of "
-                            + stmt.getUpdateCount() + ".");
+                    throw new Exception("Expected an update count of " + getExpectedUpdateCount() + ", but got an update count of " + stmt.getUpdateCount() + ".");
                 }
             } catch (Exception ex) {
                 m_message = ex.getMessage();
-                
+
                 return false;
             }
-            
+
             return true;
         }
     }
-    
+
     /**
      *
      */
     protected class SilentSection extends BaseSection {
-        
+
         /**
          *
          * @param lines
          */
-        protected SilentSection(String[] lines) {            
+        protected SilentSection(String[] lines) {
             super(lines);
-            
+
             m_type = 's';
         }
-        
+
         /**
          *
          * @return
@@ -732,42 +714,44 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         protected String getResultString() {
             return null;
         }
-        
+
         /**
          *
          * @param stmt
          * @return
          */
-        protected boolean execute(Statement stmt) {            
+        @Override
+        protected boolean execute(Statement stmt) {
             try {
                 stmt.execute(getSql());
-            } catch (Exception x) {}
-            
+            } catch (Exception x) {
+            }
+
             return true;
         }
     }
-    
+
     /**
      *
      */
     protected class RowCountSection extends BaseSection {
-        
+
         /**
          *
          */
         private int m_expectedRowCount;
-        
+
         /**
          *
          * @param lines
          */
         protected RowCountSection(String[] lines) {
             super(lines);
-            
-            m_type             = 'c';
+
+            m_type = 'c';
             m_expectedRowCount = Integer.parseInt(lines[0]);
         }
-        
+
         /**
          *
          * @return
@@ -775,7 +759,7 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         protected String getResultString() {
             return Integer.toString(getExpectedRowCount());
         }
-        
+
         /**
          *
          * @return
@@ -783,67 +767,62 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         private int getExpectedRowCount() {
             return m_expectedRowCount;
         }
-        
+
         /**
          *
          * @param stmt
          * @return
          */
-        protected boolean execute(Statement stmt) {            
+        @Override
+        protected boolean execute(Statement stmt) {
             try {
                 try {
                     stmt.execute(getSql());
                 } catch (SQLException se) {
-                    throw new Exception("Expected a ResultSet containing "
-                            + getExpectedRowCount()
-                            + " rows, but got an error: "
-                            + se.getMessage());
+                    throw new Exception("Expected a ResultSet containing " + getExpectedRowCount() + " rows, but got an error: " + se.getMessage());
                 }
 
                 if (stmt.getUpdateCount() != -1) {
                     throw new Exception(
-                            "Expected a ResultSet, but got an update count of "
-                            + stmt.getUpdateCount());
+                            "Expected a ResultSet, but got an update count of " + stmt.getUpdateCount());
                 }
 
                 ResultSet results = stmt.getResultSet();
-                int       count   = 0;
-                
+                int count = 0;
+
                 while (results.next()) {
                     count++;
                 }
 
                 if (count != getExpectedRowCount()) {
 
-                    throw new Exception("Expected the ResultSet to contain "
-                            + getExpectedRowCount()
-                            + " rows, but it contained " + count
-                            + " rows.");
+                    throw new Exception("Expected the ResultSet to contain " + getExpectedRowCount() + " rows, but it contained " + count + " rows.");
                 }
             } catch (Exception ex) {
                 m_message = ex.getMessage();
-                
+
                 return false;
             }
-            
+
             return true;
         }
     }
-    
+
     /**
      *
      */
-    protected class ExceptionSection extends BaseSection {        
+    protected class ExceptionSection extends BaseSection {
+
         /**
          *
          * @param lines
          */
-        protected ExceptionSection(String[] lines) {            
+        protected ExceptionSection(String[] lines) {
             super(lines);
-            
+
             m_type = 'e';
         }
-        
+
         /**
          *
          * @return
@@ -851,43 +830,44 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
         protected String getResultString() {
             return "SQLException";
         }
-        
+
         /**
          *
          * @param aStatement
          * @return
          */
+        @Override
         protected boolean execute(Statement stmt) {
-            
+
             try {
                 stmt.execute(getSql());
             } catch (SQLException se) {
                 return true;
             } catch (Exception ex) {
                 m_message = ex.getMessage();
-                
+
                 return false;
             }
-            
+
             return false;
         }
     }
-    
+
     /**
      *
      */
     protected class BlankSection extends BaseSection {
-        
+
         /**
          *
          * @param lines
          */
         protected BlankSection(String[] lines) {
             super(lines);
-            
+
             m_type = ' ';
         }
-        
+
         /**
          *
          * @return
@@ -896,12 +876,12 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
             return "No result specified for this section";
         }
     }
-    
+
     /**
      *
      */
     protected class IgnoredSection extends BaseSection {
-        
+
         /**
          *
          * @param lines
@@ -909,10 +889,10 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
          */
         protected IgnoredSection(String[] lines, char type) {
             super(lines);
-            
+
             m_type = type;
         }
-        
+
         /**
          *
          * @return
@@ -921,38 +901,38 @@ public abstract class JdbcScriptedTestCase extends JdbcTestCase {
             return "This section, of type '" + getType() + "' was ignored";
         }
     }
-    
+
     /**
      *
      */
     protected class DisplaySection extends BaseSection {
-        
+
         /**
          *
          * @param inLines
          */
         protected DisplaySection(String[] lines) {
-            m_lines = lines;            
-            int firstSlash = m_lines[0].indexOf('/');            
+            m_lines = lines;
+            int firstSlash = m_lines[0].indexOf('/');
             m_lines[0] = m_lines[0].substring(firstSlash + 1);
         }
-        
+
         /**
          *
          * @return
          */
         protected String getResultString() {
-            
+
             StringBuffer sb = new StringBuffer();
-            
+
             for (int i = 0; i < m_lines.length; i++) {
                 if (i > 0) {
                     sb.append('\n');
                 }
-                
+
                 sb.append("+ " + m_lines[i]);
             }
-            
+
             return sb.toString();
         }
     }
