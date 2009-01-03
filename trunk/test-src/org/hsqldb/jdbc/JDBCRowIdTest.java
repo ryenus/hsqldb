@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.RowId;
 import java.util.Arrays;
 import junit.framework.Test;
@@ -43,7 +43,7 @@ import org.hsqldb.lib.StringConverter;
  *
  * @author boucherb@users
  */
-public class JDBCRowIdTest extends JdbcTestCase {
+public class JDBCRowIdTest extends BaseTestCase {
 
     public JDBCRowIdTest(String testName) {
         super(testName);

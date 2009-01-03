@@ -30,7 +30,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -56,7 +56,7 @@ import org.hsqldb.ErrorCode;
  *
  * @author boucherb@users
  */
-public class JDBCCallableStatementWhileClosedTest extends JdbcTestCase {
+public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
 
     public JDBCCallableStatementWhileClosedTest(String testName) {
         super(testName);

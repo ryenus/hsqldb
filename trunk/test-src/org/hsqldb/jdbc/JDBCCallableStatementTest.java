@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -52,7 +52,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCCallableStatementTest extends JdbcTestCase {
+public class JDBCCallableStatementTest extends BaseTestCase {
 
     public JDBCCallableStatementTest(String testName) {
         super(testName);

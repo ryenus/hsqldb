@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.ResultSetMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -40,7 +40,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCResultSetMetaDataTest extends JdbcTestCase {
+public class JDBCResultSetMetaDataTest extends BaseTestCase {
 
     public JDBCResultSetMetaDataTest(String testName) {
         super(testName);

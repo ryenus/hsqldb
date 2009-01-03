@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
@@ -62,7 +62,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCPreparedStatementTest extends JdbcTestCase {
+public class JDBCPreparedStatementTest extends BaseTestCase {
 
     private List<PreparedStatement> statementList;
 

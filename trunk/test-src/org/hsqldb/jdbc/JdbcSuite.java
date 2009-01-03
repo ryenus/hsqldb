@@ -48,12 +48,14 @@ public class JdbcSuite extends TestCase {
     }
 
     // inherit javadocs
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
 
     // inherit javadocs
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

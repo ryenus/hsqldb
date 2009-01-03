@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.ParameterMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -41,7 +41,7 @@ import java.sql.Types;
  *
  * @author boucherb@users
  */
-public class JDBCParameterMetaDataTest extends JdbcTestCase {
+public class JDBCParameterMetaDataTest extends BaseTestCase {
 
     public JDBCParameterMetaDataTest(String testName) {
         super(testName);

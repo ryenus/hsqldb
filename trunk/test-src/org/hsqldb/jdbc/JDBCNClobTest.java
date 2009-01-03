@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -45,7 +45,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCNClobTest extends JdbcTestCase {
+public class JDBCNClobTest extends BaseTestCase {
 
     public JDBCNClobTest(String testName) {
         super(testName);

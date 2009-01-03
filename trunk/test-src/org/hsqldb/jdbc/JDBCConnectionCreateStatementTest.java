@@ -30,7 +30,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.Connection;
 import java.sql.SQLWarning;
 import java.sql.Statement;
@@ -41,7 +41,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCConnectionCreateStatementTest extends JdbcTestCase {
+public class JDBCConnectionCreateStatementTest extends BaseTestCase {
 
     protected static String computeTestName(
             int typeIndex,

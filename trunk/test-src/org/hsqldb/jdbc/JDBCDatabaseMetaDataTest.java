@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -43,7 +43,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCDatabaseMetaDataTest extends JdbcTestCase {
+public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
     public static final int StandardMaxIdentifierLength = 128;
     public static final int DefaultJDBCMajorVersion = 4;

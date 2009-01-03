@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.PrintWriter;
 import java.sql.Connection;
 //import java.sql.DataSet;
@@ -45,7 +45,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCDataSourceTest extends JdbcTestCase {
+public class JDBCDataSourceTest extends BaseTestCase {
 
     public JDBCDataSourceTest(String testName) {
         super(testName);
