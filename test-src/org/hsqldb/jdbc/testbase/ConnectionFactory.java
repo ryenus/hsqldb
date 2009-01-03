@@ -46,7 +46,7 @@ import java.util.List;
  *
  * @author boucherb@users
  */
-public class JdbcTestCaseConnectionFactory {
+public class ConnectionFactory {
     
     private List<Connection> m_connections = new ArrayList<Connection>();
     private List<Statement> m_statements = new ArrayList<Statement>();
@@ -55,7 +55,7 @@ public class JdbcTestCaseConnectionFactory {
     /**
      * Creates a new instance of JdbcTestCaseConnectionFactory.
      */
-    public JdbcTestCaseConnectionFactory() {
+    public ConnectionFactory() {
         //
     }
     
