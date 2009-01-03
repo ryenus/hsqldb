@@ -29,7 +29,7 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcScriptedTestCase;
+import org.hsqldb.jdbc.testbase.BaseScriptedTestCase;
 import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.IOException;
 import junit.framework.Test;
@@ -40,7 +40,7 @@ import junit.textui.TestRunner;
  *
  * @author boucherb@users
  */
-public class ScriptedTest extends JdbcScriptedTestCase {
+public class ScriptedTest extends BaseScriptedTestCase {
 
     public ScriptedTest(String script) {
         super(script);
