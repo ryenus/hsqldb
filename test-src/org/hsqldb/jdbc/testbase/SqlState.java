@@ -1,4 +1,4 @@
-package org.hsqldb.jdbc.base;
+package org.hsqldb.jdbc.testbase;
 
 import java.io.Serializable;
 import java.util.Collections;

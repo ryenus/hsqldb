@@ -30,7 +30,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.base.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.JdbcTestCase;
 import java.sql.DatabaseMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
