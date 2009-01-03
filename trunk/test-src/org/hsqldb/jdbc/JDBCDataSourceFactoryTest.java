@@ -30,6 +30,7 @@
 
 package org.hsqldb.jdbc;
 
+import org.hsqldb.jdbc.base.JdbcTestCase;
 import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.Name;

@@ -30,6 +30,7 @@
 
 package org.hsqldb.jdbc;
 
+import org.hsqldb.jdbc.base.JdbcTestCase;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;

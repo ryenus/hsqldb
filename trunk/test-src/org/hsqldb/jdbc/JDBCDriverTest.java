@@ -30,6 +30,7 @@
 
 package org.hsqldb.jdbc;
 
+import org.hsqldb.jdbc.base.JdbcTestCase;
 import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
 import java.util.Properties;

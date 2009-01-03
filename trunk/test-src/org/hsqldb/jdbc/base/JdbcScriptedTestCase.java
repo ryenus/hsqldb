@@ -27,8 +27,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hsqldb.jdbc;
+package org.hsqldb.jdbc.base;
 
+import org.hsqldb.jdbc.base.JdbcTestCase;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;

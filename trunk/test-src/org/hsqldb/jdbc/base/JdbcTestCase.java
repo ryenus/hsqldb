@@ -29,8 +29,9 @@
  */
 
 
-package org.hsqldb.jdbc;
+package org.hsqldb.jdbc.base;
 
+import org.hsqldb.jdbc.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

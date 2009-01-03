@@ -29,6 +29,7 @@
  */
 package org.hsqldb.jdbc;
 
+import org.hsqldb.jdbc.base.JdbcTestCase;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
