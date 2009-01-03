@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.base.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.JdbcTestCase;
 import java.sql.RowId;
 import java.util.Arrays;
 import junit.framework.Test;

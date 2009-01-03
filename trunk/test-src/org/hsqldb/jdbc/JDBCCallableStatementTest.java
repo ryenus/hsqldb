@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.base.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.JdbcTestCase;
 import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
