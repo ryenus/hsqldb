@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
@@ -43,7 +43,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCSavepointTest extends JdbcTestCase {
+public class JDBCSavepointTest extends BaseTestCase {
 
     public JDBCSavepointTest(String testName) {
         super(testName);

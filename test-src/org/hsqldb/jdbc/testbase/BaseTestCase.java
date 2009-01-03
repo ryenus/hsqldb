@@ -71,7 +71,7 @@ import org.hsqldb.lib.Set;
  * @version 1.7.2
  * @since 1.7.2
  */
-public abstract class JdbcTestCase extends TestCase {
+public abstract class BaseTestCase extends TestCase {
     
     // static fields
     
@@ -393,7 +393,7 @@ public abstract class JdbcTestCase extends TestCase {
      *
      * @param name test name
      */
-    public JdbcTestCase(String name) {
+    public BaseTestCase(String name) {
         super(name);
     }
     
@@ -970,7 +970,7 @@ public abstract class JdbcTestCase extends TestCase {
         }
         
         //Enumeration resources = ClassLoader.getSystemResources(packagePath);
-        Enumeration resources = JdbcTestCase.class.getClassLoader().getResources(packagePath);
+        Enumeration resources = BaseTestCase.class.getClassLoader().getResources(packagePath);
         OrderedHashSet set = new OrderedHashSet();
         
         while (resources.hasMoreElements()) {

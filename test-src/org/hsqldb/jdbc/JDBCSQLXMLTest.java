@@ -30,7 +30,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -61,7 +61,7 @@ import org.w3c.dom.NodeList;
  *
  * @author boucherb@users
  */
-public class JDBCSQLXMLTest extends JdbcTestCase {
+public class JDBCSQLXMLTest extends BaseTestCase {
 
     public JDBCSQLXMLTest(String testName) {
         super(testName);

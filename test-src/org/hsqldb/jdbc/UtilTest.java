@@ -29,7 +29,7 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -52,7 +52,7 @@ import org.hsqldb.ErrorCode;
  *
  * @author boucherb@users
  */
-public class UtilTest extends JdbcTestCase {
+public class UtilTest extends BaseTestCase {
 
 // SQL 2003 Table 32 - SQLSTATE class and subclass values
 //

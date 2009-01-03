@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,7 +45,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCStatementTest extends JdbcTestCase {
+public class JDBCStatementTest extends BaseTestCase {
 
     public JDBCStatementTest(String testName) {
         super(testName);

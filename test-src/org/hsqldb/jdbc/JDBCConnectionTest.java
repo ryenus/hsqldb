@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.CallableStatement;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -55,7 +55,7 @@ import java.util.Map;
  *
  * @author boucherb@users
  */
-public class JDBCConnectionTest extends JdbcTestCase {
+public class JDBCConnectionTest extends BaseTestCase {
 
     public JDBCConnectionTest(String testName) {
         super(testName);

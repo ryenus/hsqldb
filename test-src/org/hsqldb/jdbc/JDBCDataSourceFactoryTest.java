@@ -30,7 +30,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.JdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.Name;
@@ -44,7 +44,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCDataSourceFactoryTest extends JdbcTestCase {
+public class JDBCDataSourceFactoryTest extends BaseTestCase {
 
     public JDBCDataSourceFactoryTest(String testName) {
         super(testName);
