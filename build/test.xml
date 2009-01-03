@@ -134,7 +134,7 @@
                   includes="*.ent"/>
                   
          <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/sql" 
-                  includes="*.sql"/>
+                  includes="*.*"/>
       </copy>
 
       <!-- Build Jar -->
@@ -214,7 +214,7 @@
       
       <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/sql">
          <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/sql"
-                  includes="*.sql"/>
+                  includes="*.*"/>
       </copy>      
 
       <!-- User Test Properties -->
