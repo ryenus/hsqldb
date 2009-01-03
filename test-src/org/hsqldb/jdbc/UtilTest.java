@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,11 +88,17 @@ public class UtilTest extends JdbcTestCase {
                 ErrorCode.SOCKET_ERROR,
                 ErrorCode.DATABASE_LOCK_ACQUISITION_FAILURE,
 */
-                ErrorCode.DATABASE_NOT_EXISTS
+                ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+                ErrorCode.DATABASE_NOT_EXISTS,
             }
         }, {
             SQLNonTransientConnectionException.class, new int[] {
-                ErrorCode.X_08003, ErrorCode.X_08006,
+                ErrorCode.X_08001,
+                ErrorCode.X_08002,
+                ErrorCode.X_08003,
+                ErrorCode.X_08004,
+                ErrorCode.X_08006,
+                ErrorCode.X_08007
 /*
                 ErrorCode.DATABASE_IS_SHUTDOWN,
                 ErrorCode.UNEXPECTED_EXCEPTION // when setting up TLS
@@ -261,6 +267,8 @@ public class UtilTest extends JdbcTestCase {
                 // 40003  transaction rollback  - statement completion unknown
                 // 40004  transaction rollback  - triggered action exception
                 //
+                ErrorCode.X_40000, ErrorCode.X_40001, ErrorCode.X_40002,
+                ErrorCode.X_40003, ErrorCode.X_40004
             }
         },
 
@@ -398,23 +406,11 @@ public class UtilTest extends JdbcTestCase {
             Field  field     = fields[i];
             String fieldName = field.getName();
 
-            if ("bundleHandle".equals(fieldName)) {
-                continue;
-            }
-
-            if (fieldName.startsWith("NOT_USED_")) {
-                continue;
-            }
-
-            if (fieldName.startsWith("LAST_ERROR_HANDLE")) {
-                continue;
-            }
-
             String testName = "testSqlException_" + fieldName;
 
             try {
                 int      vendorCode = field.getInt(null);
-                UtilTest test       = new UtilTest(testName, vendorCode);
+                UtilTest test       = new UtilTest(testName + "_" + vendorCode, vendorCode);
 
                 suite.addTest(test);
             } catch (Exception e) {
