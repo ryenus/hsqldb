@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.jdbc;
+package org.hsqldb.jdbc.base;
 
 import java.io.BufferedReader;
 import java.io.IOException;

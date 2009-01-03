@@ -31,6 +31,7 @@
 
 package org.hsqldb.jdbc;
 
+import org.hsqldb.jdbc.base.JdbcTestCase;
 import java.sql.ResultSetMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;

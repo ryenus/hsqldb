@@ -30,6 +30,7 @@
 
 package org.hsqldb.jdbc;
 
+import org.hsqldb.jdbc.base.JdbcTestCase;
 import java.sql.Connection;
 import java.sql.SQLWarning;
 import java.sql.Statement;
