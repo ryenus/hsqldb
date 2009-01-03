@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -950,7 +950,7 @@ public abstract class JdbcTestCase extends TestCase {
      * @param msg to print
      */
     protected void println(Object msg) {
-        System.out.println(msg);
+        System.out.println(getClass().getName() + ":" + msg);
     }
     
     /**
