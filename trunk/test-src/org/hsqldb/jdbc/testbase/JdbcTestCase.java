@@ -322,7 +322,7 @@ public abstract class JdbcTestCase extends TestCase {
         }
     }
     
-    private JdbcTestCaseConnectionFactory m_connectionFactory;
+    private ConnectionFactory m_connectionFactory;
     
     /**
      * Retrieves whether a JDBC 4 compliant driver implementation is required
@@ -403,9 +403,9 @@ public abstract class JdbcTestCase extends TestCase {
      * objects used by this test suite. <p>
      * @return the factory.
      */
-    protected JdbcTestCaseConnectionFactory connectionFactory() {
+    protected ConnectionFactory connectionFactory() {
         if (m_connectionFactory == null) {
-            m_connectionFactory = new JdbcTestCaseConnectionFactory();
+            m_connectionFactory = new ConnectionFactory();
         }
         
         return m_connectionFactory;
