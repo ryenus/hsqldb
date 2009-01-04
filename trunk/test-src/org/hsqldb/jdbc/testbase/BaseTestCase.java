@@ -31,7 +31,6 @@
 
 package org.hsqldb.jdbc.testbase;
 
-import org.hsqldb.jdbc.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -416,6 +415,7 @@ public abstract class BaseTestCase extends TestCase {
      *
      * @throws java.lang.Exception probably never
      */
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
@@ -425,6 +425,7 @@ public abstract class BaseTestCase extends TestCase {
      *
      * @throws java.lang.Exception probably never
      */
+    @Override
     protected void tearDown() throws Exception {
         
         connectionFactory().closeRegisteredObjects();
@@ -519,7 +520,7 @@ public abstract class BaseTestCase extends TestCase {
             
             int count = 0;
             
-            for(;className.charAt(count) == '['; count++);
+            for(;className.charAt(count) == '['; count++){}
             
             if (count > 1) {
                 return 'N';
