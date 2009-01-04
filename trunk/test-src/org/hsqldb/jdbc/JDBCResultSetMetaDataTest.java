@@ -31,10 +31,10 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.ResultSetMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  *
@@ -46,12 +46,14 @@ public class JDBCResultSetMetaDataTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
 
         super.executeScript("setup-all_types-table.sql");
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -62,7 +64,7 @@ public class JDBCResultSetMetaDataTest extends BaseTestCase {
         return suite;
     }
 
-    private final String select =
+    private final String m_select =
         "select id as           id_column, " +                            // 1
                "c_bigint        as bigint_column, " +
                "c_binary        as binary_column, " +
@@ -90,7 +92,7 @@ public class JDBCResultSetMetaDataTest extends BaseTestCase {
         return (JDBCResultSetMetaData)
         newConnection()
             .createStatement()
-                .executeQuery(select)
+                .executeQuery(m_select)
                     .getMetaData();
     }
 
@@ -387,7 +389,7 @@ public class JDBCResultSetMetaDataTest extends BaseTestCase {
         // TODO: a thorough test that verifies effect of create params, etc?
         for (int i = 1; i <= columnCount; i++) {
            rsmd.getScale(i);
-        };
+        }
     }
 
     /**
@@ -433,7 +435,7 @@ public class JDBCResultSetMetaDataTest extends BaseTestCase {
 
         for (int i = 1; i <= columnCount; i++) {
            rsmd.getColumnType(i);
-        };
+        }
     }
 
     /**

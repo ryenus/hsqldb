@@ -30,12 +30,12 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.Connection;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  *
@@ -138,6 +138,7 @@ public class JDBCConnectionPrepareCallTest extends BaseTestCase {
         return "call 1;";
     }
 
+    @Override
     protected void runTest() throws Throwable {
         println(getName());
 

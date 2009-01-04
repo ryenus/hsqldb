@@ -31,11 +31,11 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.ParameterMetaData;
+import java.sql.Types;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import java.sql.Types;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  *
@@ -47,10 +47,12 @@ public class JDBCParameterMetaDataTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

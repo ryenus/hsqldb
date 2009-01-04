@@ -31,7 +31,6 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,6 +38,7 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  * Test of interface java.sql.Statement.
@@ -51,12 +51,14 @@ public class JDBCStatementTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
 
         super.executeScript("setup-sample-data-tables.sql");
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
