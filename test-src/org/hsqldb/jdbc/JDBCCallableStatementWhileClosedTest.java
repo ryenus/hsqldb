@@ -30,7 +30,6 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -49,6 +48,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import junit.framework.TestSuite;
 import org.hsqldb.ErrorCode;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 // TODO:  See if this can be done reflectively.
 
@@ -62,10 +62,12 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
