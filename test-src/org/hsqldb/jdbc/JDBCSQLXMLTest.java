@@ -30,7 +30,6 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -56,6 +55,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  *
@@ -67,10 +67,12 @@ public class JDBCSQLXMLTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -154,11 +156,11 @@ public class JDBCSQLXMLTest extends BaseTestCase {
         }
         else if (n1Attrs == null)
         {
-            this.assertNull("n2Attrs", n2Attrs);
+            assertNull("n2Attrs", n2Attrs);
         }
         else if (n2Attrs == null)
         {
-            this.assertNull("n1Attrs", n1Attrs);
+            assertNull("n1Attrs", n1Attrs);
         }
 
         NodeList n1Children = n1.getChildNodes();

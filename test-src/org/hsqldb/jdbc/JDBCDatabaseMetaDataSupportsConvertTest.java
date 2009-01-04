@@ -30,10 +30,10 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.DatabaseMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  * Exhautively tests the supportsConvert(int,int) method of
@@ -172,6 +172,7 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
      *
      * @throws java.lang.Throwable if any exception is thrown
      */
+    @Override
     protected void runTest() throws Throwable {
         //println(super.getName()); // 2600+ printlns is too slow...
 

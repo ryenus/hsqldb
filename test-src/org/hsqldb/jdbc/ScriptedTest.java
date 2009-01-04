@@ -29,12 +29,11 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseScriptedTestCase;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.hsqldb.jdbc.testbase.BaseScriptedTestCase;
 
 /**
  *
@@ -55,7 +54,7 @@ public class ScriptedTest extends BaseScriptedTestCase {
 
         try {
 
-            String[] resources = BaseTestCase.getResoucesInPackage(
+            String[] resources = getResoucesInPackage(
                     "org.hsqldb.jdbc.resources.sql");
 
             for (int i = 0; i < resources.length; i++) {

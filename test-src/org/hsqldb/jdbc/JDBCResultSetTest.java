@@ -52,7 +52,7 @@ public class JDBCResultSetTest extends BaseTestCase {
     public static final int DEFAULT_RESULT_SET_CLOSED_ERROR_CODE = -ErrorCode.X_24501;
     public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE = -ErrorCode.NO_DATA_IS_AVAILABLE;
     public static final int DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE = -ErrorCode.NO_DATA_IS_AVAILABLE;
-    private List<ResultSet> resultSetList;
+    private List<ResultSet> m_resultSetList;
 
     public JDBCResultSetTest(String testName) {
         super(testName);
@@ -62,7 +62,7 @@ public class JDBCResultSetTest extends BaseTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        resultSetList = new ArrayList<ResultSet>();
+        m_resultSetList = new ArrayList<ResultSet>();
 
         executeScript("setup-all_types-table.sql");
         executeScript("populate-all_types-table.sql");
@@ -70,7 +70,7 @@ public class JDBCResultSetTest extends BaseTestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        for (ResultSet rs : resultSetList) {
+        for (ResultSet rs : m_resultSetList) {
             if (rs != null) {
                 try {
                     rs.close();
@@ -109,7 +109,7 @@ public class JDBCResultSetTest extends BaseTestCase {
                 "result.set.after.last.error.code",
                 DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE);
     }
-    private final String select =
+    private final String m_select =
             "select id as           id_column, " + // 1
             "c_bigint        as bigint_column, " +
             "c_binary        as binary_column, " +
@@ -132,7 +132,7 @@ public class JDBCResultSetTest extends BaseTestCase {
             "c_varchar       as varchar_column, " + // 20
             "c_varchar_ignorecase as varchar_ignorecase_column " +
             "from all_types";
-    private final String[] names = new String[]{
+    private final String[] m_names = new String[]{
         "c_bigint",
         "c_binary",
         "c_boolean",
@@ -153,7 +153,7 @@ public class JDBCResultSetTest extends BaseTestCase {
         "c_varchar",
         "c_varchar_ignorecase"
     };
-    private final String[] aliases = new String[]{
+    private final String[] m_aliases = new String[]{
         "bigint_column",
         "binary_column",
         "boolean_column",
@@ -176,15 +176,15 @@ public class JDBCResultSetTest extends BaseTestCase {
     };
 
     protected String getSelect() {
-        return this.select;
+        return this.m_select;
     }
 
     protected String[] getColumnNames() {
-        return this.names;
+        return this.m_names;
     }
 
     protected String[] getColumnAliases() {
-        return this.aliases;
+        return this.m_aliases;
     }
 
     // Forward-Only, Read-Only
@@ -212,9 +212,9 @@ public class JDBCResultSetTest extends BaseTestCase {
         JDBCConnection conn = (JDBCConnection) newConnection();
         JDBCStatement stmt = (JDBCStatement) conn.createStatement(type, concur);
 
-        ResultSet rs = stmt.executeQuery(select);
+        ResultSet rs = stmt.executeQuery(m_select);
 
-        resultSetList.add(rs);
+        m_resultSetList.add(rs);
 
         return rs;
     }
@@ -312,7 +312,6 @@ public class JDBCResultSetTest extends BaseTestCase {
     /**
      * Test of next method, of interface java.sql.ResultSet.
      */
-    @SuppressWarnings("empty-statement")
     public void testNext() throws Exception {
         println("next");
 
@@ -320,7 +319,7 @@ public class JDBCResultSetTest extends BaseTestCase {
 
         assertEquals(true, rs.next());
 
-        while (rs.next());
+        while (rs.next()){}
 
         assertEquals(false, rs.next());
 
@@ -763,13 +762,12 @@ public class JDBCResultSetTest extends BaseTestCase {
     /**
      * Test of getArray method, of interface java.sql.ResultSet.
      */
-    @SuppressWarnings("empty-statement")
     public void testGetAsciiStream_afterLast() throws Exception {
         println("getGetAsciiStream while after last");
 
         ResultSet rs = newFOROJdbcResultSet();
 
-        while (rs.next());
+        while (rs.next()){}
 
         try {
             rs.getArray(1);
@@ -1141,7 +1139,6 @@ public class JDBCResultSetTest extends BaseTestCase {
     /**
      * Test of isAfterLast method, of interface java.sql.ResultSet.
      */
-    @SuppressWarnings("empty-statement")
     public void testIsAfterLast() throws Exception {
         println("isAfterLast");
 
@@ -1153,7 +1150,7 @@ public class JDBCResultSetTest extends BaseTestCase {
 
         assertEquals(false, rs.isAfterLast());
 
-        while (rs.next());
+        while (rs.next()){}
 
         try {
             rs.getObject(1);
@@ -1206,7 +1203,6 @@ public class JDBCResultSetTest extends BaseTestCase {
     /**
      * Test of isFirst method, of interface java.sql.ResultSet.
      */
-    @SuppressWarnings("empty-statement")
     public void testIsFirst() throws Exception {
         println("isFirst");
 
@@ -1238,14 +1234,14 @@ public class JDBCResultSetTest extends BaseTestCase {
                 true,
                 rs.isFirst());
 
-        while (rs.next());
+        while (rs.next()){}
 
         assertEquals(
                 "isFirst() while after all next()",
                 false,
                 rs.isFirst());
 
-        while (rs.previous());
+        while (rs.previous()){}
 
         assertEquals(
                 "isFirst() while before all previous()",
@@ -1259,7 +1255,7 @@ public class JDBCResultSetTest extends BaseTestCase {
                 true,
                 rs.isFirst());
 
-        while (rs.next());
+        while (rs.next()){}
 
         assertEquals(
                 "isFirst() after all next() after all previous()",
@@ -1291,7 +1287,6 @@ public class JDBCResultSetTest extends BaseTestCase {
     /**
      * Test of isLast method, of interface java.sql.ResultSet.
      */
-    @SuppressWarnings("empty-statement")
     public void testIsLast() throws Exception {
         println("isLast");
 
@@ -1309,7 +1304,7 @@ public class JDBCResultSetTest extends BaseTestCase {
                 false,
                 rs.isLast());
 
-        while (rs.next());
+        while (rs.next()){}
 
         assertEquals(
                 "isLast() after all next()",
@@ -1323,7 +1318,7 @@ public class JDBCResultSetTest extends BaseTestCase {
                 true,
                 rs.isLast());
 
-        while (rs.previous());
+        while (rs.previous()){}
 
         assertEquals(
                 "isLast() after all previous() after all next()",
@@ -1354,7 +1349,6 @@ public class JDBCResultSetTest extends BaseTestCase {
     /**
      * Test of beforeFirst method, of interface java.sql.ResultSet.
      */
-    @SuppressWarnings("empty-statement")
     public void testBeforeFirst() throws Exception {
         println("beforeFirst");
 
@@ -1368,7 +1362,7 @@ public class JDBCResultSetTest extends BaseTestCase {
 
         assertEquals(true, rs.isBeforeFirst());
 
-        while (rs.next());
+        while (rs.next()){}
 
         rs.beforeFirst();
 
@@ -2727,13 +2721,12 @@ public class JDBCResultSetTest extends BaseTestCase {
     /**
      * Test of getArray method, of interface java.sql.ResultSet.
      */
-    @SuppressWarnings("empty-statement")
     public void testGetArray_afterLast() throws Exception {
         println("getArray while after last");
 
         ResultSet rs = newFOROJdbcResultSet();
 
-        while (rs.next());
+        while (rs.next()){}
 
         try {
             rs.getArray(1);

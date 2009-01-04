@@ -82,7 +82,7 @@ public class UtilTest extends BaseTestCase {
 // 003=08003 Connection is broken
 // 004=08003 The database is shutdown
 // 094=08003 Database does not exists                          - better 08001 ?
-    private static final Object[][] exceptions = new Object[][] {
+    private static final Object[][] m_exceptions = new Object[][] {
         {
             SQLTransientConnectionException.class, new int[] {
 /*
@@ -278,14 +278,14 @@ public class UtilTest extends BaseTestCase {
             null    // calculated below, in static initializer
         }
     };
-    private static final Map classMap = new HashMap();
+    private static final Map m_classMap = new HashMap();
 
     static {
         List list = new ArrayList();
 
         for (int i = 1; i < ErrorCode.LAST_ERROR_HANDLE; i++) {
-            for (int j = 0; j < exceptions.length - 1; j++) {
-                int[]   codes = (int[]) exceptions[j][1];
+            for (int j = 0; j < m_exceptions.length - 1; j++) {
+                int[]   codes = (int[]) m_exceptions[j][1];
                 boolean found = false;
 
                 for (int k = 0; k < codes.length; k++) {
@@ -308,10 +308,10 @@ public class UtilTest extends BaseTestCase {
             nontransientcodes[i] = ((Integer) list.get(i)).intValue();
         }
 
-        exceptions[exceptions.length - 1][1] = nontransientcodes;
+        m_exceptions[m_exceptions.length - 1][1] = nontransientcodes;
 
-        for (int i = 0; i < exceptions.length; i++) {
-            classMap.put(exceptions[i][0], exceptions[i][1]);
+        for (int i = 0; i < m_exceptions.length; i++) {
+            m_classMap.put(m_exceptions[i][0], m_exceptions[i][1]);
         }
     }
 
@@ -374,7 +374,7 @@ public class UtilTest extends BaseTestCase {
         int     errorCode    = Math.abs(se.getErrorCode());
         String  errorMessage = se.getMessage();
         String  sqlState     = se.getSQLState();
-        int[]   codes        = (int[]) classMap.get(clazz);
+        int[]   codes        = (int[]) m_classMap.get(clazz);
         boolean found        = false;
 
         for (int i = 0; i < codes.length; i++) {

@@ -31,13 +31,13 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  *
@@ -120,10 +120,12 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -1306,7 +1308,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
                 "dbmd.supports.positioned.update",
                 true);
         boolean result = dbmd.supportsPositionedUpdate();
-        assertEquals("TODO:", expResult, result);;
+        assertEquals("TODO:", expResult, result);
     }
 
     /**

@@ -31,7 +31,6 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
@@ -57,6 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  *
@@ -64,22 +64,24 @@ import junit.framework.TestSuite;
  */
 public class JDBCPreparedStatementTest extends BaseTestCase {
 
-    private List<PreparedStatement> statementList;
+    private List<PreparedStatement> m_statementList;
 
     public JDBCPreparedStatementTest(String testName) {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
-        statementList = new ArrayList<PreparedStatement>();
+        m_statementList = new ArrayList<PreparedStatement>();
 
         super.setUp();
 
         executeScript("setup-all_types-table.sql");
     }
 
+    @Override
     protected void tearDown() throws Exception {
-        for(PreparedStatement pstmt : statementList) {
+        for(PreparedStatement pstmt : m_statementList) {
             if (pstmt != null) {
                 try {
                     pstmt.close();
@@ -94,7 +96,7 @@ public class JDBCPreparedStatementTest extends BaseTestCase {
     {
         PreparedStatement pstmt = newConnection().prepareStatement(sql);
 
-        statementList.add(pstmt);
+        m_statementList.add(pstmt);
 
         return pstmt;
     }
@@ -797,7 +799,7 @@ public class JDBCPreparedStatementTest extends BaseTestCase {
         try {
             int count = rsmd.getColumnCount();
 
-            this.assertEquals("Column Count", expColCount, count);
+            assertEquals("Column Count", expColCount, count);
 
             for (int i = 1; i <= count; i++) {
                 rsmd.getCatalogName(i);

@@ -31,7 +31,6 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.sql.CallableStatement;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -46,9 +45,10 @@ import java.sql.NClob;
 import java.sql.ResultSet;
 import java.sql.SQLXML;
 import java.sql.Savepoint;
+import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import java.util.Map;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  * Test of interface java.sql.Connection.
@@ -61,10 +61,12 @@ public class JDBCConnectionTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

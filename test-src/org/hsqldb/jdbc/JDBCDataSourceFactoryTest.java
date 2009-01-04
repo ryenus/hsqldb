@@ -27,10 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.Name;
@@ -39,6 +37,7 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  *
@@ -50,10 +49,12 @@ public class JDBCDataSourceFactoryTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -66,9 +67,9 @@ public class JDBCDataSourceFactoryTest extends BaseTestCase {
 
     public Reference newReference() throws NamingException {
 
-        String    fcname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
-        String    dcname = "org.hsqldb.jdbc.JDBCDataSource";
-        Reference ref    = new Reference(dcname, fcname, null);
+        String fcname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
+        String dcname = "org.hsqldb.jdbc.JDBCDataSource";
+        Reference ref = new Reference(dcname, fcname, null);
 
         ref.add(new StringRefAddr("database", getUrl()));
         ref.add(new StringRefAddr("user", getUser()));
@@ -78,23 +79,23 @@ public class JDBCDataSourceFactoryTest extends BaseTestCase {
     }
 
     /**
-     * Test of getObjectInstance method, of class org.hsqldb.jdbc.jdbcDataSourceFactory.
+     * Test of getObjectInstance method, of class org.hsqldb.jdbc.JDBCDataSourceFactory.
      */
     public void testGetObjectInstance() throws Exception {
         println("getObjectInstance");
 
-        Object                obj         = newReference();
-        Name                  name        = null;
-        Context               nameCtx     = null;
-        Hashtable             environment = null;
-        JDBCDataSourceFactory factory     = new JDBCDataSourceFactory();
+        Object obj = newReference();
+        Name name = null;
+        Context nameCtx = null;
+        Hashtable environment = null;
+        JDBCDataSourceFactory factory = new JDBCDataSourceFactory();
         JDBCDataSource ds;
 
         try {
             ds = (JDBCDataSource) factory.getObjectInstance(obj,
-                                                            name,
-                                                            nameCtx,
-                                                            environment);
+                    name,
+                    nameCtx,
+                    environment);
 
             ds.getConnection();
         } catch (Exception ex) {
@@ -106,5 +107,4 @@ public class JDBCDataSourceFactoryTest extends BaseTestCase {
 
         junit.textui.TestRunner.run(suite());
     }
-
 }
