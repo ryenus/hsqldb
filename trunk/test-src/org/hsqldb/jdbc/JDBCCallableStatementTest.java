@@ -31,7 +31,6 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
 import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -46,6 +45,7 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.testbase.BaseTestCase;
 
 /**
  * Test of class org.hsqldb.jdbc.JDBCCallableStatement.
@@ -58,10 +58,12 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
