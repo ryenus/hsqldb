@@ -1651,6 +1651,9 @@
         <title>common server and webserver properties</title>
 
         <tgroup align="left" cols="3">
+          <colspec colwidth="4cm"/>
+          <colspec colwidth="4cm"/>
+          <colspec/>
           <thead>
             <row>
               <entry>Value</entry>
@@ -1748,6 +1751,9 @@
         <title>server properties</title>
 
         <tgroup align="left" cols="3">
+          <colspec colwidth="4cm"/>
+          <colspec colwidth="4cm"/>
+          <colspec/>
           <thead>
             <row>
               <entry>Value</entry>
@@ -1788,6 +1794,9 @@
         <title>webserver properties</title>
 
         <tgroup align="left" cols="3">
+          <colspec colwidth="4cm"/>
+          <colspec colwidth="4cm"/>
+          <colspec/>
           <thead>
             <row>
               <entry>Value</entry>
@@ -3308,9 +3317,9 @@
           <title>Connection Properties</title>
 
           <tgroup align="left" cols="3">
-            <colspec colname="c1" />
+            <colspec colname="c1" colwidth="7cm"/>
 
-            <colspec colname="c2" />
+            <colspec colname="c2" colwidth="1.5cm"/>
 
             <colspec colname="c3" />
 
@@ -3435,9 +3444,9 @@
           <title>Database-specific Property File Properties</title>
 
           <tgroup align="left" cols="3">
-            <colspec colname="c1" />
+            <colspec colname="c1" colwidth="6.5cm"/>
 
-            <colspec colname="c2" />
+            <colspec colname="c2" colwidth="1.5cm"/>
 
             <colspec colname="c3" />
 
@@ -8966,10 +8975,12 @@ INTERSECT [DISTINCT] } selectStatement]
       string and may cause unexpected results or errors. The supported format
       components are as follows:</para>
 
-      <table>
+      <table colsep="1" frame="all" pgwide="0">
         <title>TO CHAR Values</title>
 
         <tgroup cols="2">
+          <colspec colwidth="5cm"/>
+          <colspec/>
           <tbody>
             <row>
               <entry><literal>BC | B.C. | AD | A.D.</literal></entry>

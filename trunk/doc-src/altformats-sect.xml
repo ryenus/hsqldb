@@ -36,10 +36,8 @@
         <title>Alternate formats of this document</title>
         <!-- <tgroup cols="3" align="left" colsep="1" rowsep="1"> -->
         <tgroup cols="3" align="left">
-          <colspec colwidth="100px">
-          </colspec>
-          <colspec colwidth="200px">
-          </colspec>
+          <colspec colwidth="3cm"/>
+          <colspec colwidth="4cm"/>
           <colspec/>
         <thead><row>
             <entry>format</entry>
