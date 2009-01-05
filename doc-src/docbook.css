@@ -19,26 +19,16 @@ span.guimenu, span.guimenuitem, span.guisubmenu {
 
 div.caption      { font-size: 80%; }
 
-div.tip {
+/********** Admonitions *****************/
+div.tip, div.note {
     background-color:#FFE4E1;
     border:2px solid gray;
 }
-div.note {
-    background-color:#FFE4E1;
-    border:2px solid gray;
-}
-div.warning {
+div.warning, div.caution, div.important {
     background-color:#FFE4E1;
     border:2px solid black;
 }
-div.caution {
-    background-color:#FFE4E1;
-    border:2px solid black;
-}
-div.important {
-    background-color:#FFE4E1;
-    border:2px solid black;
-}
+/****************************************/
 
 pre.screen         {
     background-color:#F5F5F5;
