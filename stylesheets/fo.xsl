@@ -13,15 +13,22 @@
   <!-- See http://www.sagehill.net/docbookxsl/BordersAndShading.html -->
   <xsl:attribute-set name="admonition.properties">
     <xsl:attribute name="border">0.5pt solid black</xsl:attribute>
-    <xsl:attribute name="padding">1pt solid black</xsl:attribute>
-    <xsl:attribute name="background-color">#E0E0E0</xsl:attribute>
-    <xsl:attribute name="padding">0.1in</xsl:attribute>
+    <xsl:attribute name="padding">1pt</xsl:attribute>
+    <xsl:attribute name="background-color">#FFE4E1</xsl:attribute>
+  </xsl:attribute-set>
+
+  <xsl:attribute-set name="table.table.properties">
+    <xsl:attribute name="margin">3pt</xsl:attribute>
+    <!--
+    <xsl:attribute name="font-size">6pt</xsl:attribute>
+    -->
   </xsl:attribute-set>
 
   <!-- See http://docbook.sourceforge.net/release/xsl-ns/current/doc/html/shade.verbatim.style.html -->
   <xsl:attribute-set name="shade.verbatim.style">
     <xsl:attribute name="border">0.5pt solid gray</xsl:attribute>
-    <xsl:attribute name="background-color">#BDC6DE</xsl:attribute>
+    <xsl:attribute name="padding">1pt</xsl:attribute>
+    <xsl:attribute name="background-color">#F0F8FF</xsl:attribute>
     <!-- Note that some of OASIS's examples the long-deprecated "bgcolor".
          You should use "background-color". -->
   </xsl:attribute-set>
@@ -45,8 +52,8 @@
     <!-- By default, long lines in verbatims will overstep the shade box,
          then be truncated -->
 
-    <!--
     <xsl:attribute name="font-size">8pt</xsl:attribute>
+    <!--
          Default is 10pt.
          10pt fits 78 characters inside the shade box, but FO will fold the
          first space character >= 78, leaving a right margin of >= 1 char.
@@ -77,7 +84,7 @@
   </xsl:attribute-set>
   -->
   <xsl:attribute-set name="section.title.level1.properties">
-    <xsl:attribute name="color">#083194</xsl:attribute>
+    <xsl:attribute name="color">#000080</xsl:attribute>
     <xsl:attribute name="font-size">
       <xsl:value-of select="$body.font.master * 1.8"></xsl:value-of>
       <xsl:text>pt</xsl:text>
@@ -124,8 +131,6 @@
       <xsl:value-of select="$body.font.master * 2.1"></xsl:value-of>
       <xsl:text>pt</xsl:text>
     </xsl:attribute>
-    <xsl:attribute name="border-color">#083194</xsl:attribute>
-    <xsl:attribute name="border-style">solid</xsl:attribute>
-    <xsl:attribute name="border-width">medium</xsl:attribute>
+    <xsl:attribute name="color">#000080</xsl:attribute>
   </xsl:attribute-set>
 </xsl:stylesheet> 

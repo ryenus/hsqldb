@@ -278,7 +278,7 @@ ${_for.automation.blurb}</fail>
       <param name="annotation.support" expression="1"/>
       <param name="navig.graphics" expression="1"/>
       <param name="navig.graphics.path" expression="../images/db/"/>
-      <param name="table.borderswith.css" expression="1"/>
+      <param name="table.borders.with.css" expression="1"/>
       <param name="callouts.gaphics" expression="1"/>
       <param name="callouts.gaphics.path" expression="../images/db/callouts/"/>
       <param name="graphic.default.extension" expression=".png"/>
@@ -291,6 +291,8 @@ ${_for.automation.blurb}</fail>
       <param name="variablelist.as.table" expression="1"/>
       <param name="body.start.indent" expression="0" if="fop.format"/>
       <param name="html.cellspacing" expression="0" if="html.format"/>
+      <param name="table.cell.border.thickness"
+             expression="1pt" if="fop.format"/>
 
       <!-- For tables with unequal column content lengths, this extention
            displays tables terribly: -->
