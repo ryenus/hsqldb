@@ -231,7 +231,7 @@ public class StatementDML extends StatementDMQL {
                                + session.getId());
         }
 
-*/
+// debug 190 */
         count = update(session, baseTable, rowset, updateColumnMap);
 
 /* debug 190
@@ -240,7 +240,7 @@ public class StatementDML extends StatementDMQL {
             System.out.println("multiple or zero update");
         }
 
-*/
+// debug 190 */
         return Result.getUpdateCountResult(count);
     }
 

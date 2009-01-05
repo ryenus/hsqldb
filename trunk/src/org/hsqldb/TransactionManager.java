@@ -59,7 +59,6 @@ public class TransactionManager {
 
     Database database;
     boolean  mvcc = false;
-    boolean  reWriteProtect;
 
     //
     ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
@@ -81,12 +80,9 @@ public class TransactionManager {
     IntKeyHashMapConcurrent rowActionMap = new IntKeyHashMapConcurrent(10000);
 
     //
-    MultiValueHashMap waitingSessions = new MultiValueHashMap();
-    MultiValueHashMap waitedSessions  = new MultiValueHashMap();
-
     //
-    HashMap tableWriteLocks = new HashMap();
-    MultiValueHashMap tableReadLocks = new MultiValueHashMap();
+    HashMap           tableWriteLocks = new HashMap();
+    MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
     TransactionManager(Database db) {
         database = db;
@@ -111,11 +107,7 @@ public class TransactionManager {
         throw Error.error(ErrorCode.X_25001);
     }
 
-    public void setReWriteProtection(boolean value) {
-        reWriteProtect = value;
-    }
-
-    void completeActions(Session session) {
+    public void completeActions(Session session) {
 
         writeLock.lock();
 
@@ -153,8 +145,9 @@ public class TransactionManager {
                     for (int i = 0; i < session.tempSet.size(); i++) {
                         Session current = (Session) session.tempSet.get(i);
 
-                        waitedSessions.put(current, session);
+                        current.waitingSessions.add(session);
 
+//                        waitedSessions.put(current, session);
                         // waitingSessions.put(session, current);
                     }
                 }
@@ -165,7 +158,7 @@ public class TransactionManager {
         }
     }
 
-    boolean prepareCommitActions(Session session) {
+    public boolean prepareCommitActions(Session session) {
 
         Object[] list  = session.rowActionList.getArray();
         int      limit = session.rowActionList.size();
@@ -184,7 +177,7 @@ public class TransactionManager {
 
                 if (!rowact.canCommit(session, session.tempSet)) {
 
-                    //                System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
+//                System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
                     return false;
                 }
             }
@@ -210,7 +203,7 @@ public class TransactionManager {
         }
     }
 
-    boolean commitTransaction(Session session) {
+    public boolean commitTransaction(Session session) {
 
         if (session.abortTransaction) {
 
@@ -295,18 +288,25 @@ public class TransactionManager {
                 addToCommittedQueue(session, list);
             }
 
+            try {
+                session.logSequences();
+
+                if (limit != 0) {
+                    database.logger.writeCommitStatement(session);
+                }
+            } catch (HsqlException e) {}
+
             //
             if (mvcc) {
-                if (waitedSessions.containsKey(session)) {
-                    Iterator it = waitedSessions.get(session);
-
-                    while (it.hasNext()) {
-                        Session current = (Session) it.next();
+                if (!session.waitingSessions.isEmpty()) {
+                    for (int i = 0; i < session.waitingSessions.size(); i++) {
+                        Session current =
+                            (Session) session.waitingSessions.get(i);
 
                         current.latch.countDown();
                     }
 
-                    waitedSessions.remove(session);
+                    session.waitingSessions.clear();
                 }
             } else {
                 endTransactionTPL(session);
@@ -319,7 +319,7 @@ public class TransactionManager {
         }
     }
 
-    void rollback(Session session) {
+    public void rollback(Session session) {
 
         session.abortTransaction = false;
 
@@ -331,17 +331,17 @@ public class TransactionManager {
         rollbackPartial(session, 0, session.transactionTimestamp);
         endAction(session, true);
 
-    if (!mvcc) {
-        try {
-            writeLock.lock();
-            endTransactionTPL(session);
-        } finally {
-            writeLock.unlock();
+        if (!mvcc) {
+            try {
+                writeLock.lock();
+                endTransactionTPL(session);
+            } finally {
+                writeLock.unlock();
+            }
         }
-}
     }
 
-    void rollbackSavepoint(Session session, int index) {
+    public void rollbackSavepoint(Session session, int index) {
 
         long timestamp = session.sessionContext.savepointTimestamps.get(index);
         Integer oi = (Integer) session.sessionContext.savepoints.get(index);
@@ -356,7 +356,7 @@ public class TransactionManager {
         rollbackPartial(session, start, timestamp);
     }
 
-    void rollbackNested(Session session) {
+    public void rollbackNested(Session session) {
         rollbackPartial(session, session.actionIndex, session.actionTimestamp);
     }
 
@@ -392,7 +392,7 @@ public class TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    RowAction addDeleteAction(Session session, Table table, Row row) {
+    public RowAction addDeleteAction(Session session, Table table, Row row) {
 
         RowAction action;
 
@@ -410,7 +410,7 @@ public class TransactionManager {
         return action;
     }
 
-    void addInsertAction(Session session, Table table, Row row) {
+    public void addInsertAction(Session session, Table table, Row row) {
 
         RowAction action = row.rowAction;
 
@@ -561,6 +561,12 @@ public class TransactionManager {
 
             // get session commit timestamp
             committedTransactionTimestamps.addLast(session.actionTimestamp);
+
+/* debug 190
+            if (committedTransactions.size() > 64) {
+                System.out.println("******* excessive transaction queue");
+            }
+// debug 190 */
         }
     }
 
@@ -656,7 +662,8 @@ public class TransactionManager {
      * add session to the end of queue when a transaction starts
      * (depending on isolation mode)
      */
-    void beginAction(Session session, Statement cs, boolean beginTransaction) {
+    public void beginAction(Session session, Statement cs,
+                            boolean beginTransaction) {
 
         synchronized (liveTransactionTimestamps) {
             session.actionTimestamp = nextChangeTimestamp();
@@ -667,78 +674,141 @@ public class TransactionManager {
 
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
             }
+        }
 
-            if (!mvcc) {
-                beginActionTPL(session, cs);
+        if (!mvcc) {
+            try {
+                writeLock.lock();
+
+                boolean canProceed = beginActionTPL(session, cs);
+
+                if (!canProceed) {
+                    session.abortTransaction = true;
+                }
+
+/* debug 190
+                if (!canProceed) {
+                    System.out.println("******* cannot start");
+                }
+// debug 190 */
+
+            } finally {
+                writeLock.unlock();
             }
         }
     }
 
     void endTransactionTPL(Session session) {
 
-        if (session.isReadOnly() ) {
+        int unlockedCount = 0;
+
+        if (session.isReadOnly()) {
             return;
         }
 
         unlockTablesTPL(session);
 
+        if (session.waitingSessions.isEmpty()) {
+            return;
+        }
 
-        if (waitedSessions.containsKey(session)) {
-            Session next = null;
-            Iterator it = waitedSessions.get(session);
+        for (int i = 0; i < session.waitingSessions.size(); i++) {
+            Session current = (Session) session.waitingSessions.get(i);
 
-            while (it.hasNext()) {
-                Session current = (Session) it.next();
-                long    count   = current.latch.getCount();
+            current.tempUnlocked = false;
 
-                if (count == 1) {
-                    setWaitedSessionsTPL(current, current.currentStatement);
+            long count = current.latch.getCount();
 
-                    if (current.tempSet.isEmpty()) {
-                        next = current;
-                        lockTablesTPL(current, current.currentStatement);
-                        break;
-                    }
+            if (count == 1) {
+                boolean canProceed = setWaitedSessionsTPL(current,
+                    current.currentStatement);
 
-                    current.tempSet.clear();
+                if (!canProceed) {
+                    current.abortTransaction = true;
+                }
+
+                if (current.tempSet.isEmpty()) {
+                    lockTablesTPL(current, current.currentStatement);
+
+                    current.tempUnlocked = true;
+
+                    unlockedCount++;
                 }
             }
+        }
 
-            it = waitedSessions.get(session);
+        if (unlockedCount > 0) {
 
-            while (it.hasNext()) {
-                Session current = (Session) it.next();
-                setWaitedSessionsTPL(current, current.currentStatement);
-                setWaitingSessionTPL(current);
+/* debug 190
+
+            if (unlockedCount > 1) {
+                System.out.println("*********** multiple unlocked");
             }
+// debug 190 */
 
-            session.tempSet.clear();
-            waitedSessions.remove(session);
+            for (int i = 0; i < session.waitingSessions.size(); i++) {
+                Session current = (Session) session.waitingSessions.get(i);
+
+                if (!current.tempUnlocked) {
+                    boolean canProceed = setWaitedSessionsTPL(current,
+                        current.currentStatement);
+
+                    // this can introduce additional waits for the sessions
+                    if (!canProceed) {
+                        current.abortTransaction = true;
+                    }
+
+/* debug 190
+                    if (current.tempSet.isEmpty()) {
+                        System.out.println("*********** additional unlocked");
+
+                        // shouldn't get here
+                    }
+// debug 190 */
+                }
+            }
         }
-    }
 
-    void beginActionTPL(Session session, Statement cs) {
+        for (int i = 0; i < session.waitingSessions.size(); i++) {
+            Session current = (Session) session.waitingSessions.get(i);
 
-        if (session.isReadOnly() ) {
-            return;
-        }
-
-        setWaitedSessionsTPL(session, cs);
-
-        if (session.tempSet.isEmpty()) {
-            lockTablesTPL(session, cs);
-        } else {
-            setWaitingSessionTPL(session);
-        }
-    }
-
-    void setWaitedSessionsTPL(Session session, Statement cs) {
-
-        if (cs == null) {
-            return;
+            setWaitingSessionTPL(current);
         }
 
         session.tempSet.clear();
+        session.waitingSessions.clear();
+    }
+
+    boolean beginActionTPL(Session session, Statement cs) {
+
+        if (session.isReadOnly()) {
+            return true;
+        }
+
+        boolean canProceed = setWaitedSessionsTPL(session, cs);
+
+        if (canProceed) {
+            if (session.tempSet.isEmpty()) {
+                lockTablesTPL(session, cs);
+
+                // we dont set other sessions that would now be waiting for this one too
+            } else {
+                setWaitingSessionTPL(session);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    boolean setWaitedSessionsTPL(Session session, Statement cs) {
+
+        session.tempSet.clear();
+
+        if (cs == null || session.abortTransaction) {
+            return true;
+        }
 
         OrderedHashSet nameSet = new OrderedHashSet();
 
@@ -759,7 +829,7 @@ public class TransactionManager {
 
             Iterator it = tableReadLocks.get(name);
 
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 holder = (Session) it.next();
 
                 if (holder != session) {
@@ -769,7 +839,6 @@ public class TransactionManager {
         }
 
         nameSet.clear();
-
         cs.getTableNamesForRead(nameSet);
 
         for (int i = 0; i < nameSet.size(); i++) {
@@ -786,6 +855,17 @@ public class TransactionManager {
             }
         }
 
+        for (int i = 0; i < session.waitingSessions.size(); i++) {
+            Session current = (Session) session.waitingSessions.get(i);
+
+            if (session.tempSet.contains(current)) {
+                session.tempSet.clear();
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
     void setWaitingSessionTPL(Session session) {
@@ -795,19 +875,16 @@ public class TransactionManager {
         for (int i = 0; i < count; i++) {
             Session current = (Session) session.tempSet.get(i);
 
-            waitedSessions.put(current, session);
-
-            // waitingSessions.put(session, current);
+            current.waitingSessions.add(session);
         }
 
         session.tempSet.clear();
-
         session.latch.setCount(count);
     }
 
     void lockTablesTPL(Session session, Statement cs) {
 
-        if (cs == null) {
+        if (cs == null || session.abortTransaction) {
             return;
         }
 
@@ -860,7 +937,6 @@ public class TransactionManager {
                 it.remove();
             }
         }
-
     }
 
     /**
