@@ -85,7 +85,7 @@ class JDBCBench {
                     }
 
                     if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
-                        || DriverName.equals("org.hsqldb.jdbcDriver")) {
+                            || DriverName.equals("org.hsqldb.jdbcDriver")) {
                         tableExtension  = "CREATE CACHED TABLE ";
                         ShutdownCommand = "SHUTDOWN";
                     }
@@ -206,139 +206,19 @@ class JDBCBench {
 
             MemoryWatcher.start();
 
-            transactions  = true;
-            prepared_stmt = true;
-            start_time    = System.currentTimeMillis();
 
-            for (int i = 0; i < n_clients; i++) {
-                Client =
-                    new ClientThread(n_txn_per_client, url, user, password,
-                                     Connection.TRANSACTION_READ_COMMITTED);
-
-                Client.start();
-                vClient.addElement(Client);
-            }
-
-            /*
-             ** Barrier to complete this test session
-             */
-            e = vClient.elements();
-
-            while (e.hasMoreElements()) {
-                Client = (Thread) e.nextElement();
-
-                Client.join();
-            }
-
-            vClient.removeAllElements();
-            reportDone();
-
-            guardian = connect(url, user, password);
-
-            checkSums(guardian);
-            connectClose(guardian);
-
-            // debug - allows stopping the test
-            if (!transactions) {
-
-//                throw new Exception("end after one round");
-            }
-
-            transactions  = true;
-            prepared_stmt = true;
-            start_time    = System.currentTimeMillis();
-
-            for (int i = 0; i < n_clients; i++) {
-                Client =
-                    new ClientThread(n_txn_per_client, url, user, password,
-                                     Connection.TRANSACTION_READ_COMMITTED);
-
-                Client.start();
-                vClient.addElement(Client);
-            }
-
-            /*
-             ** Barrier to complete this test session
-             */
-            e = vClient.elements();
-
-            while (e.hasMoreElements()) {
-                Client = (Thread) e.nextElement();
-
-                Client.join();
-            }
-
-            vClient.removeAllElements();
-            reportDone();
-
-            guardian = connect(url, user, password);
-
-            checkSums(guardian);
-            connectClose(guardian);
-
-            transactions  = true;
-            prepared_stmt = true;
-            start_time    = System.currentTimeMillis();
-
-            for (int i = 0; i < n_clients; i++) {
-                Client =
-                    new ClientThread(n_txn_per_client, url, user, password,
-                                     Connection.TRANSACTION_READ_COMMITTED);
-
-                Client.start();
-                vClient.addElement(Client);
-            }
-
-            /*
-             ** Barrier to complete this test session
-             */
-            e = vClient.elements();
-
-            while (e.hasMoreElements()) {
-                Client = (Thread) e.nextElement();
-
-                Client.join();
-            }
-
-            vClient.removeAllElements();
-            reportDone();
-
-            guardian = connect(url, user, password);
-
-            checkSums(guardian);
-            connectClose(guardian);
-
-            transactions  = true;
-            prepared_stmt = true;
-            start_time    = System.currentTimeMillis();
-
-            for (int i = 0; i < n_clients; i++) {
-                Client =
-                    new ClientThread(n_txn_per_client, url, user, password,
-                                     Connection.TRANSACTION_READ_COMMITTED);
-
-                Client.start();
-                vClient.addElement(Client);
-            }
-
-            /*
-             ** Barrier to complete this test session
-             */
-            e = vClient.elements();
-
-            while (e.hasMoreElements()) {
-                Client = (Thread) e.nextElement();
-
-                Client.join();
-            }
-
-            vClient.removeAllElements();
-            reportDone();
-
-            guardian = connect(url, user, password);
-
-            checkSums(guardian);
-            connectClose(guardian);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
         } catch (Exception E) {
             System.out.println(E.getMessage());
             E.printStackTrace();
@@ -365,6 +245,48 @@ class JDBCBench {
 
 //            System.exit(0);
         }
+    }
+
+    void oneRound(String url, String user, String password,
+                  boolean transactions,
+                  boolean prepared) throws InterruptedException, SQLException {
+
+        Vector      vClient  = new Vector();
+        Thread      Client   = null;
+        Enumeration e        = null;
+        Connection  guardian = null;
+
+        //
+        this.transactions  = transactions;
+        this.prepared_stmt = prepared;
+        start_time         = System.currentTimeMillis();
+
+        for (int i = 0; i < n_clients; i++) {
+            Client = new ClientThread(n_txn_per_client, url, user, password,
+                                      Connection.TRANSACTION_READ_COMMITTED);
+
+            Client.start();
+            vClient.addElement(Client);
+        }
+
+        /*
+         ** Barrier to complete this test session
+         */
+        e = vClient.elements();
+
+        while (e.hasMoreElements()) {
+            Client = (Thread) e.nextElement();
+
+            Client.join();
+        }
+
+        vClient.removeAllElements();
+        reportDone();
+
+        guardian = connect(url, user, password);
+
+        checkSums(guardian);
+        connectClose(guardian);
     }
 
     public void reportDone() {
@@ -851,7 +773,7 @@ class JDBCBench {
         }
     }
 
-    void checkSums(Connection conn) throws Exception {
+    void checkSums(Connection conn) throws SQLException {
 
         Statement st1 = null;
         ResultSet rs  = null;

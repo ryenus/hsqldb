@@ -127,8 +127,10 @@ public class Session implements SessionInterface {
     volatile boolean abortTransaction;
     volatile boolean redoAction;
     HsqlArrayList    rowActionList;
-    CountUpDownLatch latch = new CountUpDownLatch();
+    volatile boolean tempUnlocked;
+    OrderedHashSet   waitingSessions;
     OrderedHashSet   tempSet;
+    CountUpDownLatch latch = new CountUpDownLatch();
 
     // current settings
     final int          sessionTimeZoneSeconds;
@@ -183,6 +185,7 @@ public class Session implements SessionInterface {
         this.sessionTimeZoneSeconds = timeZoneSeconds;
         this.timeZoneSeconds        = timeZoneSeconds;
         rowActionList               = new HsqlArrayList(true);
+        waitingSessions             = new OrderedHashSet();
         tempSet                     = new OrderedHashSet();
         isAutoCommit                = autocommit;
         isReadOnly                  = readonly;
@@ -494,8 +497,6 @@ public class Session implements SessionInterface {
             return;
         }
 
-        boolean log = !rowActionList.isEmpty();
-
         if (!database.txManager.commitTransaction(this)) {
 
 //            tempActionHistory.add("commit aborts " + actionTimestamp);
@@ -507,13 +508,6 @@ public class Session implements SessionInterface {
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
         rowActionList.clear();
-        logSequences();
-
-        if (log) {
-            try {
-                database.logger.writeCommitStatement(this);
-            } catch (HsqlException e) {}
-        }
 
         //* debug 190
 /*
@@ -1093,12 +1087,30 @@ public class Session implements SessionInterface {
         while (true) {
             beginAction(cs);
 
+            if (abortTransaction) {
+                rollback(false);
+
+                currentStatement = null;
+
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001),
+                                             null);
+            }
+
             try {
                 latch.await();
             } catch (InterruptedException e) {
 
                 //
                 System.out.println("interrupted");
+            }
+
+            if (abortTransaction) {
+                rollback(false);
+
+                currentStatement = null;
+
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001),
+                                             null);
             }
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());

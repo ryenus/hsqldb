@@ -803,7 +803,6 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.COLLATION : {
                         read();
                         checkIsSimpleName();
-                        checkIsDelimitedIdentifier();
 
                         name = token.tokenString;
 

@@ -74,7 +74,8 @@ public final class HsqlNameManager {
 
     static {
         for (int i = 0; i < autoColumnNames.length; i++) {
-            autoColumnNames[i] = new HsqlName(staticManager, "C" + (i + 1), 0);
+            autoColumnNames[i] = new HsqlName(staticManager, "C" + (i + 1), 0,
+                                              false);
             autoNoNameColumnNames[i] = String.valueOf(i);
         }
     }
@@ -84,7 +85,8 @@ public final class HsqlNameManager {
     private HsqlName catalogName;
 
     public HsqlNameManager(Database database) {
-        catalogName = new HsqlName(this, "PUBLIC", SchemaObject.CATALOG);
+        catalogName = new HsqlName(this, "PUBLIC", SchemaObject.CATALOG,
+                                   false);
     }
 
     public HsqlName getCatalogName() {
@@ -92,7 +94,7 @@ public final class HsqlNameManager {
     }
 
     public static HsqlName newSystemObjectName(String name, int type) {
-        return new HsqlName(staticManager, name, type);
+        return new HsqlName(staticManager, name, type, false);
     }
 
     public static HsqlName newInfoSchemaColumnName(String name,
@@ -110,7 +112,7 @@ public final class HsqlNameManager {
     public static HsqlName newInfoSchemaTableName(String name) {
 
         HsqlName hsqlName = new HsqlName(staticManager, name,
-                                         SchemaObject.TABLE);
+                                         SchemaObject.TABLE, false);
 
         hsqlName.schema = SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
 
@@ -120,7 +122,7 @@ public final class HsqlNameManager {
     public static HsqlName newInfoSchemaObjectName(String name,
             boolean isQuoted, int type) {
 
-        HsqlName hsqlName = new HsqlName(staticManager, name, type);
+        HsqlName hsqlName = new HsqlName(staticManager, name, type, isQuoted);
 
         hsqlName.schema = SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
 
@@ -129,7 +131,7 @@ public final class HsqlNameManager {
 
     public HsqlName newHsqlName(HsqlName schema, String name, int type) {
 
-        HsqlName hsqlName = new HsqlName(this, name, type);
+        HsqlName hsqlName = new HsqlName(this, name, type, false);
 
         hsqlName.schema = schema;
 
@@ -229,7 +231,7 @@ public final class HsqlNameManager {
             return autoColumnNames[i];
         }
 
-        return new HsqlName(staticManager, "C_" + (i + 1), 0);
+        return new HsqlName(staticManager, "C_" + (i + 1), 0, false);
     }
 
     /**
@@ -282,7 +284,7 @@ public final class HsqlNameManager {
             sb.append(namepart);
         }
 
-        HsqlName name = new HsqlName(this, sb.toString(), type);
+        HsqlName name = new HsqlName(this, sb.toString(), type, false);
 
         name.schema = schema;
         name.parent = parent;
@@ -359,11 +361,18 @@ public final class HsqlNameManager {
         }
 
         /** for auto names and system-defined names */
-        private HsqlName(HsqlNameManager man, String name, int type) {
+        private HsqlName(HsqlNameManager man, String name, int type,
+                         boolean isQuoted) {
 
             this(man, type);
 
-            this.name = this.statementName = name;
+            this.name         = this.statementName = name;
+            this.isNameQuoted = isQuoted;
+
+            if (isNameQuoted) {
+                statementName = StringConverter.toQuotedString(name, '"',
+                        true);
+            }
         }
 
         public String getStatementName() {

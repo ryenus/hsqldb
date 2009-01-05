@@ -512,8 +512,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             database.collation.setCollationAsLocale();
         }
 
-        database.txManager.setReWriteProtection(
-            isPropertyTrue(sql_tx_no_multi_write));
         database.setMetaDirty(false);
     }
 
