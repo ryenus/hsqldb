@@ -4770,7 +4770,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         supported encodings can be used.</para>
 
         <para>Finally, HSQLDB provides the ability to read a text file from
-        the bottom up and making them READ ONLY, by placing the keyword "DESC"
+        the bottom up and make it READ ONLY, by placing the keyword "DESC"
         at the end of the SET TABLE SOURCE statement: *** not supported now
         **</para>
 
