@@ -35,6 +35,55 @@
       </simpara> <simpara>
         <link xlink:href="&distro_baseurl;/verbatim/sample/sqltool.rc"/>
       </simpara>
+    </listitem> <listitem xml:id="sampledata.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/sampledata.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/sampledata.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="sample.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/sample.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/sample.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="pl.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/pl.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/pl.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="plsql.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/plsql.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/plsql.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="dsv-sample.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/dsv-sample.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/dsv-sample.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="sqljrt.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/testrun/sqltool/sqljrt.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/testrun/sqltool/sqljrt.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="sqlpsm.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/testrun/sqltool/sqlpsm.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/testrun/sqltool/sqlpsm.sql"/>
+      </simpara>
     </listitem>
   </itemizedlist>
 </appendix>
