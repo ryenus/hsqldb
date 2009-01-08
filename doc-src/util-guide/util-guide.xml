@@ -1637,8 +1637,7 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
             does not list with the <literal>list</literal> and
             <literal>listvalues</literal> commands.
             You can see the value whenever you want by running
-            <informalexample><programlisting>
-    \p *{?}</programlisting></informalexample>
+            <informalexample><programlisting>    \p *{?}</programlisting></informalexample>
           </para>
         <simpara>
             Note that PL commands are used to upload and download column
