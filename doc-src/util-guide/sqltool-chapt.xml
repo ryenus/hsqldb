@@ -376,7 +376,8 @@
             <procedure>
                 <title>To run SqlTool...</title>
                 <step><simpara>
-                    Copy the file <filename xlink:href="#sqltool.rc-link">
+                    Copy the file
+                    <filename xlink:href="#sqltool.rc-link">
                     sample/sqltool.rc</filename>
                     <footnoteref linkend='samplelocFn'/>
                     of your HSQLDB distribution to your home directory and
@@ -642,9 +643,8 @@
             <para>
                 If you want some sample database objects and data to play
                 with, execute the
-                    <filename
-                  xlink:href="&distro_baseurl;/verbatim/sample/sampledata.sql">
-                    sample/sampledata.sql</filename> SQL file
+                <filename xlink:href="#sampledata.sql-link">
+                  sample/sampledata.sql</filename> SQL file
                 <footnoteref linkend='samplelocFn'/>.
                 To separate the sample data from your regular data, you can
                 put it into its own schema by running this before you import:
@@ -1812,9 +1812,10 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
                 You can also use \i in SQL files.
                 This results in nested SQL files.
             </simpara><simpara>
-                You can use the following SQL file, <filename
-                  xlink:href="&distro_baseurl;/verbatim/sample/sample.sql">
-                sample/sample.sql</filename>, from your HSQLDB distribution
+                You can use the following SQL file,
+                <filename xlink:href="#sample.sql-link">
+                  sample/sample.sql</filename>,
+                from your HSQLDB distribution
                 <footnoteref linkend='samplelocFn'/>.
                 It contains SQL as well as Special Commands making good
                 use of most of the Special Commands documented below.
@@ -2228,9 +2229,9 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
             I've tried to design the language features to be intuitive.
             Readers experience with significant shell scripting in any
             language can probably learn everything they need to know by
-            looking at (and running!) the sample script <filename
-              xlink:href="&distro_baseurl;/verbatim/sample/pl.sql">
-            sample/pl.sql</filename> in your HSQLDB distribution
+            looking at (and running!) the sample script
+            <filename xlink:href="#pl.sql-link">
+              sample/pl.sql</filename> in your HSQLDB distribution
             <footnoteref linkend='samplelocFn'/> and
             using the <varname>*?</varname> command from within an interactive
             SqlTool session as a reference.  (By
@@ -2514,9 +2515,9 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
         </section>
         <section> <title>Example</title>
             <para>
-                Below is the example SQL file <filename
-                  xlink:href="&distro_baseurl;/verbatim/sample/pl.sql">
-                sample/pl.sql</filename>, which shows how to use most PL
+                Below is the example SQL file
+                <filename xlink:href="#pl.sql-link">sample/pl.sql</filename>,
+                which shows how to use most PL
                 features <footnoteref linkend='samplelocFn'/>.
                 If you have a question about how to use a particular
                 PL feature, check this file in your distrubition before asking
@@ -2693,9 +2694,9 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
             section for details.
         </simpara>
         <para>
-            The following sample SQL file resides at <filename
-              xlink:href="&distro_baseurl;/verbatim/sample/plsql.sql">
-            sample/plsql.sql</filename> in your HSQLDB distribution
+            The following sample SQL file resides at
+            <filename xlink:href="#plsql.sql-link">sample/plsql.sql</filename>
+            in your HSQLDB distribution
             <footnoteref linkend='samplelocFn'/>.
             This script will only work with Oracle, only if you have
             permission to create the table
@@ -2710,16 +2711,16 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
             everything-- will be transmitted to the database engine.
         </para>
         <para>
-          This file resides at <filename
-            xlink:href="&distro_baseurl;/verbatim/testrun/sqltool/sqljrt.sql">
-          testrun/sqltool/sqljrt.sql</filename>
+          This file resides at
+          <filename xlink:href="#sqljrt.sql-link">
+            testrun/sqltool/sqljrt.sql</filename>
           <example><title>SQL/JRT Example</title>
       <programlisting><xi:include href="../verbatim/testrun/sqltool/sqljrt.sql"
                             parse="text"/></programlisting>
           </example>
-          This file resides at <filename
-            xlink:href="&distro_baseurl;/verbatim/testrun/sqltool/sqlpsm.sql">
-          testrun/sqltool/sqlpsm.sql</filename>
+          This file resides at
+          <filename xlink:href="#sqltool/sqlpsm.sql-link">
+            testrun/sqltool/sqlpsm.sql</filename>
           <example><title>SQL/PSM Example</title>
       <programlisting><xi:include href="../verbatim/testrun/sqltool/sqlpsm.sql"
                             parse="text"/></programlisting>
@@ -2938,8 +2939,8 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                 For a hands on example of a DSM import which generates
                 an import report and uses some other options, change to
                 directory <filename>HSQLDB/sample</filename> and play
-                with the working script <filename
-                  xlink:href="&distro_baseurl;/verbatim/sample/dsv-sample.sql">
+                with the working script
+                <filename xlink:href="#dsv-sample.sql-link">
                   dsv-sample.sql</filename>
                 <footnoteref linkend='samplelocFn'/>.
                 You can execute it like
