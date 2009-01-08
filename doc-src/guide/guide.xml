@@ -310,7 +310,7 @@
       <para>When using relative paths, these paths will be taken relative to
       the directory in which the shell command to start the Java Virtual
       Machine was executed. Refer to Javadoc for <link
-      xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/jdbcJDBCConnection.html">
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbcJDBCConnection.html">
       <classname>JDBCConnection</classname> </link> for more details.</para>
 
       <para>A <glossterm>mem:</glossterm> database is specified by the
@@ -434,7 +434,7 @@
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
         the source file <filename
-        xlink:href="distro_baseurl_DEFAULTVAL/verbatim/src/org/hsqldb/server/Servlet.java">
+        xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/server/Servlet.java">
         src/org/hsqldb/server/Servlet.java</filename> to see the
         details.</para>
 
@@ -456,7 +456,7 @@
         to it using the HSQLDB JDBC Driver contained in
         <filename>hsqldb.jar</filename>. Full information on how to connect to
         a server is provided in the Java Documentation for <link
-        xlink:href="distro_baseurl_DEFAULTVAL/verbatim/src/org/hsqldb/jdbcJDBCConnection.java">
+        xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/jdbcJDBCConnection.java">
         <classname>JDBCConnection</classname> </link> (located in the
         <filename>/doc/src</filename> directory of HSQLDB distribution. A
         common example is connection to the default port (9001) used for the
@@ -606,17 +606,17 @@
       statement.</para>
 
       <para>The Javadoc for <classname
-      xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/jdbc/JDBCConnection.html">
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCConnection.html">
       JDBCConnection</classname>, <classname
-      xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/jdbc/JDBCDriver.html">
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCDriver.html">
       JDBCDriver</classname>, <classname
-      xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/jdbc/JDBCDatabaseMetaData.html">
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCDatabaseMetaData.html">
       JDBCDatabaseMetadata</classname> <classname
-      xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/jdbc/JDBCResultSet.html">
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCResultSet.html">
       JDBCResultSet</classname> <classname
-      xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/jdbc/JDBCStatement.html">
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCStatement.html">
       JDBCStatement</classname> <classname
-      xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/jdbc/JDBCPreparedStatement.html">
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCPreparedStatement.html">
       JDBCPreparedStatement</classname> list all the supported JDBC methods
       together with information that is specific to HSQLDB.</para>
     </section>
@@ -750,7 +750,7 @@
       HyperSQL are likely to support the reserved words and may reject your
       table definitions or queries. The full list of SQL reserved words is in
       the <link
-      xlink:href="distro_baseurl_DEFAULTVAL/verbatim/src/org/hsqldb/Tokens.java">
+      xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/Tokens.java">
       source of the <classname>org.hsqldb.Tokens</classname>
       class</link>.</para>
 
@@ -776,7 +776,7 @@
       capabilities of HSQLDB are fully supported. The relevant JDBC classes
       are thoroughly documented with additional clarifications and HyperSQL
       specific comments. See the <link
-      xlink:href="distro_baseurl_DEFAULTVAL/src/"> JavaDoc for
+      xlink:href="&distro_baseurl;/src/"> JavaDoc for
       <classname>org.hsqldb.jdbc.JDBCXXXX</classname> classes </link>.</para>
     </section>
 
@@ -1612,7 +1612,7 @@
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
         the source file <filename
-        xlink:href="distro_baseurl_DEFAULTVAL/verbatim/src/org/hsqldb/server/Servlet.java">
+        xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/server/Servlet.java">
         src/org/hsqldb/server/Servlet.java</filename> to see the
         details.</para>
 
@@ -1841,7 +1841,7 @@
               <literal>.html=text/html</literal> define the mime types of the
               static files served by the web server. See the source for
               <filename
-              xlink:href="distro_baseurl_DEFAULTVAL/verbatim/src/org/hsqldb/server/WebServer.java">
+              xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/server/WebServer.java">
               src/org/hsqldb/server/WebServer.java</filename> for a
               list.</entry>
             </row>
@@ -1891,7 +1891,7 @@
       opposed to the command line or batch files, you should create an
       instance of Server or Web Server, then assign the properties and start
       the Server. An working example of this can be found in the <link
-      xlink:href="distro_baseurl_DEFAULTVAL/verbatim/src/org/hsqldb/test.TestBase.java">
+      xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/test.TestBase.java">
       <classname>org.hsqldb.test.TestBase</classname> source</link>. The
       example below sets the same properties as in the server.properties file
       example.</para>
@@ -2250,7 +2250,7 @@
         <para>If you are using a private server certificate, make sure to also
         set the trust store filepath for relevant urlids in your RC file, as
         explained in the sample <link
-        xlink:href="distro_baseurl_DEFAULTVAL/verbatim/sample/hsqldb.cfg">
+        xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.cfg">
         config file</link>.</para>
       </section>
     </section>
@@ -2279,7 +2279,7 @@
       the request until it is approved by the ACL filter code.</simpara>
 
       <para>The sample file <filename
-      xlink:href="distro_baseurl_DEFAULTVAL/verbatim/sample/acl.txt">
+      xlink:href="&distro_baseurl;/verbatim/sample/acl.txt">
       txt</filename> in your HyperSQL distribution explains how to write an
       ACL file. <programlisting><xi:include href="../verbatim/sample/acl.txt"
             parse="text" /></programlisting> You put your file wherever it is
@@ -2657,7 +2657,7 @@
         <step>
           <simpara>Become the <varname>HSQLDB_OWNER</varname>. Copy the sample
           file <link
-          xlink:href="distro_baseurl_DEFAULTVAL/verbatim/sample/server.properties">
+          xlink:href="&distro_baseurl;/verbatim/sample/server.properties">
           <varname>HSQLDB_HOME</varname><filename>/sample/server.properties</filename>
           </link> to the <varname>HSQLDB_OWNER</varname>'s home directory and
           rename it to <filename>server.properties</filename>.</simpara>
@@ -2705,7 +2705,7 @@
       <title>Accessing your Database</title>
 
       <simpara>Copy the file <link
-      xlink:href="distro_baseurl_DEFAULTVAL/verbatim/sample/sqltool.rc">
+      xlink:href="&distro_baseurl;/verbatim/sample/sqltool.rc">
       <varname>HSQLDB_HOME</varname><filename>/sample/sqltool.rc</filename>
       </link> to the <varname>HSQLDB_OWNER</varname>'s home directory. Use
       <literal>chmod</literal> to make the file readable and writable only to
@@ -2882,7 +2882,7 @@
         <procedure>
           <step>
             <simpara>Copy the init script <link
-            xlink:href="distro_baseurl_DEFAULTVAL/verbatim/sample/hsqldb.init">
+            xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.init">
             <varname>HSQLDB_HOME</varname><filename>/sample/hsqldb.init</filename>
             </link> to <filename>hsqldb</filename> in the directory where init
             scripts live on your variety of UNIX. The most common locations
@@ -2899,7 +2899,7 @@
             <varname>server.database.X</varname> setting. A couple steps down,
             you will need to set up administrative access for each of these
             catalogs. If you are using our sample <filename
-            xlink:href="distro_baseurl_DEFAULTVAL/verbatim/sample/server.properties">
+            xlink:href="&distro_baseurl;/verbatim/sample/server.properties">
             server.properties</filename> file, you just need to know that you
             need to set up access for the catalog specified with
             <literal>file:db0/dbo</literal>.</para>
@@ -2948,7 +2948,7 @@
             <simpara>Look at the comment towards the top of the init script
             which lists recommended locations for the configuration file for
             various UNIX platforms. Copy the sample config file <link
-            xlink:href="distro_baseurl_DEFAULTVAL/verbatim/sample/hsqldb.cfg">
+            xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.cfg">
             <varname>HSQLDB_HOME</varname><filename>/sample/hsqldb.cfg</filename>
             </link> to one of the listed locations (your choice). Edit the
             config file according to the instructions in it. For our example,
@@ -3141,7 +3141,7 @@
       endterm="sqlissues-title" xlink:href="#sqlissues-chapt"></link> chapter.
       Details and examples of how to connect via JDBC are provided in our
       <link
-      xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/jdbc/JDBCConnection.html">
+      xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCConnection.html">
       JavaDoc for <classname>JDBCConnection</classname></link>.</para>
 
       <para>A uniform method is used to distinguish between different types of
@@ -5632,9 +5632,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         and will almost certainly result in data inconsistency.</para>
 
         <para>Please refer to the code for <classname
-        xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/Trigger.html">
+        xlink:href="&distro_baseurl;/src/org/hsqldb/Trigger.html">
         org.hsqldb.sample.Trigger</classname> and <classname
-        xlink:href="distro_baseurl_DEFAULTVAL/src/org/hsqldb/sample/TriggerSample.html">
+        xlink:href="&distro_baseurl;/src/org/hsqldb/sample/TriggerSample.html">
         org.hsqldb.sample.TriggerSample</classname> for more information on
         how to write a trigger class.</para>
 
