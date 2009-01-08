@@ -160,14 +160,12 @@
       the directory <filename>../lib</filename> relative to the current
       directory.</para>
 
-      <screen>
-    java -cp ../lib/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing</screen>
+      <screen>java -cp ../lib/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing</screen>
 
       <para>If <filename>hsqldb.jar</filename> is in the current directory,
       the command would change to:</para>
 
-      <screen>
-    java -cp hsqldb.jar org.hsqldb.util.DatabaseManagerSwing</screen>
+      <screen>java -cp hsqldb.jar org.hsqldb.util.DatabaseManagerSwing</screen>
 
       <itemizedlist>
         <title>Main classes for the Hsqldb tools</title>
@@ -391,8 +389,7 @@
         "xdb".</para>
 
         <informalexample>
-          <screen>
-    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
+          <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
         </informalexample>
 
         <para>The command line argument <literal>--help</literal> can be used
@@ -415,8 +412,7 @@
         the example command line above with the following:</para>
 
         <informalexample>
-          <screen>
-    org.hsqldb.server.WebServer</screen>
+          <screen>    org.hsqldb.server.WebServer</screen>
         </informalexample>
 
         <para>The command line argument <literal>--help</literal> can be used
@@ -465,8 +461,7 @@
         <example>
           <title>Java code to connect to the local hsql Server</title>
 
-          <programlisting>
-    try {
+          <programlisting>    try {
         Class.forName("org.hsqldb.jdbc.JDBCDriver" );
     } catch (Exception e) {
         System.out.println("ERROR: failed to load HSQLDB JDBC driver.");
@@ -652,7 +647,7 @@
           <title>specifying a connection property to shutdown the database
           when the last connection is closed</title>
 
-          <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
+          <programlisting>Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
         </example>This feature is useful for running tests, where it may not
       be practical to shutdown the database after each test. But it is not
       recommended for application programs.</para>
@@ -679,7 +674,7 @@
           <title>specifying a connection property to disallow creating a new
           database</title>
 
-          <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
+          <programlisting>Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
         </example></para>
     </section>
   </chapter>
@@ -1041,8 +1036,7 @@
         <literal>TB.COL3</literal>):</para>
 
         <informalexample>
-          <programlisting>
-    (TB is a very large table with only a few rows where TB.COL3 = 4)
+          <programlisting>    (TB is a very large table with only a few rows where TB.COL3 = 4)
 
     SELECT * FROM TA JOIN TB ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;
 
@@ -1074,9 +1068,7 @@
         <example>
           <title>query example</title>
 
-          <programlisting>
-
-    SELECT ... FROM (SELECT MAX(TB.COL2) C1 FROM TB WHERE TB.COL3 = 4) T2 JOIN TA ON TA.COL1 = T2.C1</programlisting>
+          <programlisting>SELECT ... FROM (SELECT MAX(TB.COL2) C1 FROM TB WHERE TB.COL3 = 4) T2 JOIN TA ON TA.COL1 = T2.C1</programlisting>
         </example>
 
         <para>More on new capabilities...</para>
@@ -1562,16 +1554,14 @@
         (alias) of "xdb".</para>
 
         <informalexample>
-          <screen>
-    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
+          <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
         </informalexample>
 
         <para>Alternatively, a server.properties file can be used for passing
         the arguments to the server. This file must be located in the
         directory where the command is issued.</para>
 
-        <screen>
-    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
+        <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
 
         <para>The contents of the server.properties file is described in the
         next section.</para>
@@ -1593,8 +1583,7 @@
         the example command line above with the following:</para>
 
         <informalexample>
-          <screen>
-    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
+          <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
         </informalexample>
 
         <para>The contents of the server.properties file is described in the
@@ -1740,8 +1729,7 @@
       <glossterm>mem:</glossterm>, <glossterm>file:</glossterm> or
       <glossterm>res:</glossterm> prefixes and connection properties as
       discussed under CONNECTIONS. For example, <informalexample>
-          <programlisting>
-    database.0=mem:temp;sql.enforce_strict_size=true;</programlisting>
+          <programlisting>    database.0=mem:temp;sql.enforce_strict_size=true;</programlisting>
         </informalexample></para>
 
       <para>Properties or default values specific to
@@ -1851,8 +1839,7 @@
       <para>An example of the contents of a
       <filename>server.properties</filename> file is given below:</para>
 
-      <programlisting>
-    server.database.0=file:/opt/db/accounts
+      <programlisting>    server.database.0=file:/opt/db/accounts
     server.dbname.0=accounts
 
     server.database.1=file:/opt/db/mydb
@@ -1895,8 +1882,7 @@
       example below sets the same properties as in the server.properties file
       example.</para>
 
-      <programlisting>
-    HsqlProperties p = new HsqlProperties();
+      <programlisting>    HsqlProperties p = new HsqlProperties();
     p.setProperty("server.database.0","file:/opt/db/accounts");
     p.setProperty("server.dbname.0","an_alias");
     // set up the rest of properties
@@ -2055,8 +2041,7 @@
           <example>
               <title>Exporting certificate from the server's keystore</title>
 
-              <screen>
-    keytool -export -keystore server.store -alias existing_alias -file server.cer</screen>
+              <screen>    keytool -export -keystore server.store -alias existing_alias -file server.cer</screen>
             </example> In this example, <filename>server.cer</filename> is the
           X509 certificate that you need for the next step.</para>
 
@@ -2072,8 +2057,7 @@
           <example>
             <title>Adding a certificate to the client keystore</title>
 
-            <screen>
-    keytool -import -trustcacerts -keystore trust.store -alias new_alias -file server.cer</screen>
+            <screen>    keytool -import -trustcacerts -keystore trust.store -alias new_alias -file server.cer</screen>
           </example>
 
           <para>If you are making a new keystore, you probably want to start
@@ -2094,8 +2078,7 @@
           run your client program. For example <example>
               <title>Specifying your own trust store to a JDBC client</title>
 
-              <screen>
-    java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</screen>
+              <screen>    java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</screen>
             </example> This example runs the program <link
           xlink:href="#unix-chapt">SqlTool</link>. SqlTool has built-in TLS
           support however, so, for SqlTool you can set
@@ -2137,8 +2120,7 @@
             <para>If you set any password in a .properties (or any other)
             file, you need to restrict access to the file. On a good operating
             system, you can do this like so: <informalexample>
-                <screen>
-    chmod 600 path/to/server.properties</screen>
+                <screen>    chmod 600 path/to/server.properties</screen>
               </informalexample></para>
           </caution>
 
@@ -2203,8 +2185,7 @@
           <example>
             <title>Getting a pem-style private key into a JKS keystore</title>
 
-            <screen>
-    openssl pkcs8 -topk8 -outform DER -in Xpvk.pem -inform PEM -out Xpvk.pk8 -nocrypt
+            <screen>    openssl pkcs8 -topk8 -outform DER -in Xpvk.pem -inform PEM -out Xpvk.pk8 -nocrypt
 
     openssl x509 -in Xcert.pem -out Xcert.der -outform DER
 
@@ -2320,8 +2301,7 @@
       the <classname>ServerAcl</classname> class to test it. <example>
           <title>Validating and Testing an ACL file</title>
 
-          <screen>
-    java -cp path/to/hsqldb.jar org.hsqldb.server.ServerAcl path/to/acl.txt</screen>
+          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.server.ServerAcl path/to/acl.txt</screen>
         </example> If the specified ACL file fails validation, you will be
       given details about the problem. Otherwise, the validated rules will be
       displayed (including the implicit, default deny rules). You then type in
@@ -2448,12 +2428,10 @@
             <para>This package is only for use by a Solaris super-user. It's a
             System V package. Download then uncompress the package with
             uncompress or gunzip <informalexample>
-                <screen>
-    uncompress filename.pkg.Z</screen>
+                <screen>    uncompress filename.pkg.Z</screen>
               </informalexample> You can read about the package by running
             <informalexample>
-                <screen>
-    pkginfo -l -d filename.pkg</screen>
+                <screen>    pkginfo -l -d filename.pkg</screen>
               </informalexample> Run pkgadd as root to install.</para>
 
             <informalexample>
@@ -2483,14 +2461,12 @@
             command-line method which should work with any Linux variant.
             After you download the rpm, you can read about it by running
             <informalexample>
-                <screen>
-    rpm -qip /path/to/file.rpm</screen>
+                <screen>    rpm -qip /path/to/file.rpm</screen>
               </informalexample></para>
 
             <para>Rpms can be installed or upgraded by running
             <informalexample>
-                <screen>
-    rpm -Uvh /path/to/file.rpm</screen>
+                <screen>    rpm -Uvh /path/to/file.rpm</screen>
               </informalexample> as root. Suse users may want to keep Yast
             aware of installed packages by running rpm through Yast:
             <literal>yast2 -i /path/to/file.rpm</literal>.</para>
@@ -2512,8 +2488,7 @@
             in the directory tree somehow.</simpara>
 
             <informalexample>
-              <screen>
-    cd ancestor/of/new/hsqldb/home
+              <screen>    cd ancestor/of/new/hsqldb/home
     unzip /path/to/file.zip</screen>
             </informalexample>
 
@@ -2570,14 +2545,11 @@
           binary version from <link xlink:href="http://ant.apache.org"/>.
           cd to where you want Ant
           to live, and extract from the archive with <informalexample>
-              <screen>
-    unzip /path/to/file.zip</screen>
+              <screen>    unzip /path/to/file.zip</screen>
             </informalexample>or<informalexample>
-              <screen>
-    tar -xzf /path/to/file.tar.gz</screen>
+              <screen>    tar -xzf /path/to/file.tar.gz</screen>
             </informalexample>or<informalexample>
-              <screen>
-    bunzip2 -c /path/to/file.tar.bz2 | tar -xzf -</screen>
+              <screen>    bunzip2 -c /path/to/file.tar.bz2 | tar -xzf -</screen>
             </informalexample> Everything will be installed into a new
           subdirectory named <filename>apache-ant- + version</filename>. You
           can rename the directory after the extraction if you wish.</para>
@@ -2586,8 +2558,7 @@
         <step>
           <para>Set the environmental variable <varname>JAVA_HOME</varname> to
           the base directory of your Java JRE or SDK, like <informalexample>
-              <screen>
-    export JAVA_HOME; JAVA_HOME=/usr/java/j2sdk1.4.0</screen>
+              <screen>    export JAVA_HOME; JAVA_HOME=/usr/java/j2sdk1.4.0</screen>
             </informalexample> The location is entirely dependent upon your
           variety of UNIX. Sun's rpm distributions of Java normally install to
           <filename>/usr/java/something</filename>. Sun's System V package
@@ -2608,8 +2579,7 @@
           <varname>HSQLDB_HOME</varname><filename>/build</filename>. Make sure
           that the bin directory under your Ant home is in your search path.
           Run the following command. <informalexample>
-              <screen>
-    ant hsqldb</screen>
+              <screen>    ant hsqldb</screen>
             </informalexample> This will build a new
           <varname>HSQLDB_HOME</varname><filename>/lib/hsqldb.jar</filename>.</para>
         </step>
@@ -2651,8 +2621,7 @@
           <para>If the account doesn't exist, then create it. On all system-5
           UNIXes and most hybrids (including Linux), you can run (as root)
           something like <informalexample>
-              <screen>
-    useradd -c 'HSQLDB Database Owner' -s /bin/bash -m hsqldb</screen>
+              <screen>    useradd -c 'HSQLDB Database Owner' -s /bin/bash -m hsqldb</screen>
             </informalexample> (BSD-variant users can use a similar
           <literal>pw useradd hsqldb...</literal> command).</para>
         </step>
@@ -2688,14 +2657,12 @@
           <varname>CLASSPATH</varname> to the value of
           <varname>HSQLDB_HOME</varname> (as described above) plus
           "/lib/hsqldb.jar", like <informalexample>
-              <screen>
-    export CLASSPATH; CLASSPATH=/path/to/hsqldb/lib/hsqldb.jar</screen>
+              <screen>    export CLASSPATH; CLASSPATH=/path/to/hsqldb/lib/hsqldb.jar</screen>
             </informalexample> In <varname>HSQLDB_OWNER</varname>'s home
           directory, run</para>
 
           <informalexample>
-            <screen>
-    nohup java org.hsqldb.server.Server &amp;</screen>
+            <screen>    nohup java org.hsqldb.server.Server &amp;</screen>
           </informalexample>
 
           <simpara>This will start the Listener process in the background, and
@@ -2728,15 +2695,13 @@
       with and without listeners in other chapters of this guide.</simpara>
 
       <para>Run <classname>SqlTool</classname>. <informalexample>
-          <screen>
-    java -jar path/to/hsqldb.jar localhost-sa</screen>
+          <screen>    java -jar path/to/hsqldb.jar localhost-sa</screen>
         </informalexample> If you get a prompt, then all is well. If security
       is of any concern to you at all, then you should change the privileged
       password in the database. Use the command
       <literal xlink:href="#set_password-sect">SET PASSWORD</literal>
       command to change SA's password. <informalexample>
-          <programlisting>
-    SET PASSWORD 'newpassword';</programlisting>
+          <programlisting>    SET PASSWORD 'newpassword';</programlisting>
         </informalexample></para>
 
       <simpara>Note that with SQL-conformant databases like HyperSQL 1.9, user
@@ -2817,8 +2782,7 @@
       <para>Do a clean database shutdown when you are finished with the
       database catalog. You need to connect up as SA or some other Admin user,
       of course. With SqlTool, you can run <informalexample>
-          <screen>
-    java -jar path/to/hsqldb.jar --sql 'shutdown;' localhost-sa</screen>
+          <screen>    java -jar path/to/hsqldb.jar --sql 'shutdown;' localhost-sa</screen>
         </informalexample> You don't have to worry about stopping the
       <classname>Listener</classname> because it shuts down automatically when
       all served database catalogs are shut down.</para>
@@ -2946,8 +2910,7 @@
             <example>
               <title>example sqltool.rc stanza</title>
 
-              <programlisting>
-    urlid localhostdb1
+              <programlisting>    urlid localhostdb1
     url jdbc:hsqldb:hsql://localhost
     username SA
     password secret</programlisting>
@@ -2972,13 +2935,12 @@
             works.</emphasis></simpara>
 
             <para>Just run <informalexample>
-                <screen>
-    /path/to/hsqldb</screen>
+                <screen>    /path/to/hsqldb</screen>
               </informalexample> as root to see the arguments you may use.
             Notice that you can run</para>
 
-            <para><screen>
-    /path/to/hsqldb status</screen>at any time to see whether your HSQLDB
+            <para><screen>    /path/to/hsqldb status</screen>at any time to see
+            whether your HSQLDB
             <classname>Listener</classname> is running.</para>
 
             <simpara>Re-run the script with each of the possible arguments to
@@ -3010,8 +2972,9 @@
             <filename>/Library/StartupItems/hsqldb</filename>, your init
             script is active (for portability reasons, it doesn't check for a
             setting in <filename>/etc/hostconfig</filename>). You can run it
-            as a <emphasis>Startup Item</emphasis> by running <screen>
-    SystemStarter {start|stop|restart} Hsqldb</screen> Hsqldb is the service
+            as a <emphasis>Startup Item</emphasis> by running
+            <screen>    SystemStarter {start|stop|restart} Hsqldb</screen>
+            Hsqldb is the service
             name. See the man page for <classname>SystemStarter</classname>.
             To disable the init script, wipe out the
             <filename>/Library/StartupItems/hsqldb</filename> directory. Hard
@@ -3063,8 +3026,8 @@
         what is happening (and perhaps manually run the steps that are
         suspect). To run an init script (in fact, any sh shell script) in
         verbose mode, use <literal>sh</literal> with the <literal>-x</literal>
-        or <literal>-v</literal> switch, like <screen>
-    sh -x path/to/hsqldb start</screen> See the man page for
+        or <literal>-v</literal> switch, like
+        <screen>    sh -x path/to/hsqldb start</screen> See the man page for
         <literal>sh</literal> if you don't know the difference between
         <literal>-v</literal> and <literal>-x</literal>.</para>
 
@@ -3074,8 +3037,9 @@
         If you email me, make sure to include the
         revision number from your <filename>hsqldb</filename> init script
         (it's towards the top in the line that starts like "# $Id:"), and the
-        output of a run of <screen>
-    sh -x path/to/hsqldb start &gt; /tmp/hstart.log 2&gt;&amp;1</screen></para>
+        output of a run of
+        <screen>    sh -x path/to/hsqldb start &gt; /tmp/hstart.log 2&gt;&amp;1</screen>
+        </para>
       </section>
     </section>
 
@@ -3296,8 +3260,8 @@
               is a zero length string. In the example below, the database
               catalog <literal>lists.*</literal> in the
               <literal>/home/dbmaster/</literal> directory is associated with
-              the empty alias:</para> <programlisting>
-    database.3=/home/dbmaster/lists
+              the empty alias:</para>
+            <programlisting>    database.3=/home/dbmaster/lists
     dbname.3=</programlisting></entry>
             </row>
           </tbody>
@@ -3315,8 +3279,7 @@
         <para>Connection properties are specified either by establishing the
         connection via the:</para>
 
-        <programlisting>
-    DriverManager.getConnection (String url, Properties info);</programlisting>
+        <programlisting>    DriverManager.getConnection (String url, Properties info);</programlisting>
 
         <para>method call, or the property can be appended to the full
         Connection URL.</para>
@@ -3347,9 +3310,9 @@
                 c)</methodname> returns the underlying column name</para>
                 <para>When false, the above method returns the same value as
                 <methodname>ResultSet.getColumnLabel(int column)</methodname>
-                Example below:</para> <programlisting>
-    jdbc:hsqldb:hsql://localhost/enrollments;get_column_name=false
-                    </programlisting> <para>When a ResultSet is used inside a
+                Example below:</para>
+                <programlisting>    jdbc:hsqldb:hsql://localhost/enrollments;get_column_name=false</programlisting>
+                <para>When a ResultSet is used inside a
                 user-defined stored procedure, the default, true, is always
                 used for this property.</para></entry>
               </row>
@@ -3371,8 +3334,9 @@
                 <glossterm>file:</glossterm> database will be created if it
                 does not exist.</para> <para>Setting the property to true is
                 useful when troubleshooting as no database is created if the
-                URL is malformed. Example below:</para> <programlisting>
-    jdbc:hsqldb:file:enrollments;ifexists=true</programlisting></entry>
+                URL is malformed. Example below:</para>
+                <programlisting>    jdbc:hsqldb:file:enrollments;ifexists=true</programlisting>
+                </entry>
               </row>
 
               <row>
@@ -4427,8 +4391,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         state. You will run a Java command like this <example>
             <title>Offline Backup Example</title>
 
-            <screen>
-    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
+            <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
     tar/path.tar db/base/path</screen>
           </example>where <filename>tar/path.tar</filename> is a file path to
         the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to be
@@ -4447,8 +4410,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <example>
             <title>Listing a backup with DbBackup</title>
 
-            <screen>
-    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
+            <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
           </example>You can also give regular expressions at the end of the
         command line if you are only interested in some of the file entries in
         the backup. Note that these are real regular expressions, not shell
@@ -4468,8 +4430,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         command line to restore a catalog from a backup. <example>
             <title>Restoring a backup with DbBackup</title>
 
-            <screen>
-    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
+            <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
     tar/path.tar db/dir</screen>
           </example>where <filename>tar/path.tar</filename> is a file path to
         the *.tar or *.tar.gz file to be read, and <filename>db/dir</filename>
@@ -4557,14 +4518,12 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         <para>Text Tables are defined similarly to conventional tables with
         the added TEXT keyword:</para>
 
-        <programlisting>
-    CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
+        <programlisting>    CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
 
         <para>In addition, a SET command specifies the file and the separator
         character that the Text table uses:</para>
 
-        <programlisting>
-    SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
+        <programlisting>   SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
 
         <para>Text Tables cannot be created in <glossterm>mem:</glossterm>
         (all-in-memory) databases (databases that have no script file).</para>
@@ -4640,8 +4599,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         for example:</para>
 
         <informalexample>
-          <programlisting>
-    SET TABLE mytable SOURCE "myfile;fs=|"</programlisting>
+          <programlisting>    SET TABLE mytable SOURCE "myfile;fs=|"</programlisting>
         </informalexample>
 
         <para>Since HSQLDB treats CHAR's, VARCHARs, and LONGVARCHARs the same,
@@ -4653,8 +4611,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         period (.) then the data in the CSV file for a row will look
         like:</para>
 
-        <screen>
-    First field data|Second field data.Third field data</screen>
+        <screen>    First field data|Second field data.Third field data</screen>
 
         <para>The following example shows how to change the default separator
         to the pipe (|), VARCHAR separator to the period (.) and the
@@ -4662,8 +4619,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         SET TABLE SOURCE statement, for example:</para>
 
         <informalexample>
-          <programlisting>
-    SET TABLE mytable SOURCE "myfile;fs=|;vs=.;lvs=~"</programlisting>
+          <programlisting>    SET TABLE mytable SOURCE "myfile;fs=|;vs=.;lvs=~"</programlisting>
         </informalexample>
 
         <para>HSQLDB also recognises the following special indicators for
@@ -4761,8 +4717,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         These options may be specified within the <literal>SET TABLE
         SOURCE</literal> statement:</para>
 
-        <programlisting>
-    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
+        <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
 
         <para>When the default options <literal>all_quoted=</literal>
         <literal>false</literal> and <literal>quoted=true</literal> are in
@@ -4791,8 +4746,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         at the end of the SET TABLE SOURCE statement: *** not supported now
         **</para>
 
-        <programlisting>
-    SET TABLE mytable SOURCE "myfile" DESC</programlisting>
+        <programlisting>    SET TABLE mytable SOURCE "myfile" DESC</programlisting>
 
         <para>This feature provides functionality similar to the Unix tail
         command, by re-reading the file each time a select is executed. Using
@@ -4809,8 +4763,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         translates to 3072 rows for the default textdb.cache_scale setting
         (10). The property can also be set for individual text tables:</para>
 
-        <programlisting>
-    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_scale=12"</programlisting>
+        <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_scale=12"</programlisting>
       </section>
 
       <section xml:id="disconnecting_text_tables">
@@ -4820,11 +4773,13 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         underlying data source, i.e. the text file.</para>
 
         <para>You can explicitly disconnect a text table from its file by
-        issuing the following statement: <programlisting>  SET TABLE mytable SOURCE OFF</programlisting></para>
+        issuing the following statement:
+        <programlisting>    SET TABLE mytable SOURCE OFF</programlisting></para>
 
         <para>Subsequently, <literal>mytable</literal> will be empty and
         read-only. However, the data source description will be preserved, and
-        the table can be re-connected to it with <programlisting>  SET TABLE mytable SOURCE ON</programlisting></para>
+        the table can be re-connected to it with
+        <programlisting>    SET TABLE mytable SOURCE ON</programlisting></para>
 
         <para>When a database is opened, if the source file for an existing
         text table is missing the table remains disconnected from its data
@@ -4856,8 +4811,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
           <para>The file location for a text table created with ** not
           supported now **</para>
 
-          <programlisting>
-    SELECT &lt;select list&gt; INTO TEXT &lt;tablename&gt; FROM</programlisting>
+          <programlisting>    SELECT &lt;select list&gt; INTO TEXT &lt;tablename&gt; FROM</programlisting>
 
           <para>is the directory that contains the database and the file name
           is based on the table name. The table name is converted into the
