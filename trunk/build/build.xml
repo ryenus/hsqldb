@@ -985,6 +985,8 @@ examples:
     <!-- ***********************************************************
     *************   DOCBOOK v.5 BUILD SYSTEM   *********************
     *************************************************************-->
+  <!-- See the file doc-src/readme-docauthors.txt for details about out DocBook
+       build system.  -->
   <import file="build-docbook.xml"/>
 
   <target name="-prep-images">
