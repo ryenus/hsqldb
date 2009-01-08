@@ -83,7 +83,7 @@
 
   <target name="fetch-images"
           description="Fetch stock DocBook image files from Internet">
-          <echo>Copy the images directory from the latest stable version of the
+    <echo>Copy the images directory from the latest stable version of the
 docbook-xsl-ns package to
 '${basedir}/doc-src/images/db'.  docbook-xsl-ns is
 available for download from the DocBook project at
@@ -99,10 +99,6 @@ entire directories of files.</echo>
     value="If you want to automate the antcalls and you don't mind using
 Ant-contrib or Antelope, you can use one of their 'for' tasks with a DirSet."/>
 
-  <target name="-validation-setup">
-    <fail message="Something is wrong.  '-validation-setup' is abstract"/>
-  </target>
-
   <target name="gen-docs">
     <fail>You must implement your own "gen-docs" target by editing
 "build-docbook.xml" or overriding it in your own build file which imports
@@ -114,9 +110,9 @@ ${_for.automation.blurb}</fail>
   </target>
 
   <target name="validate-docs">
-    <fail>You must implement your own "validate-docs" target by editing
-"build-docbook.xml" or overriding it in your own build file which imports
-"build-docbook.xml".
+    <fail>You must implement your own "validate-docs" target
+by editing "build-docbook.xml" or overriding it in your own build file which
+imports "build-docbook.xml".
 Your "validate-docs" target must do an "antcall" of "validate-doc" for each
 doc.name.
 
@@ -127,7 +123,11 @@ ${_for.automation.blurb}</fail>
 
   <target name="-gen-docs-complete">
     <copy todir="${docoutput.path}">
-      <fileset dir="doc-src" excludes="**/.*, */*.xml, */*.txt"/>
+      <fileset dir="doc-src" includes="verbatim/**, images/**"
+               excludes="**/.*"/>
+      <!-- IMPORTANT:  Add new shared resources to the fileset above! -->
+      <fileset dir="doc-src"
+      excludes="**/.*, verbatim/**, images/**, entities/**, */*.txt, */*.xml"/>
     </copy>
   </target>
 
@@ -230,10 +230,8 @@ ${_for.automation.blurb}</fail>
 
     <ivy:cachepath conf="xalan" pathid="xalan.cpref"/>
     <xslt style="${style.path}" basedir="doc-src/${doc.name}"
-          in="doc-src/${doc.name}/${doc.name}.xml" out="${output.base}"
-          classpathref="xalan.cpref" classpath="build/doc-res">
-      <!-- The "doc-res" classpath element loads a file to turn on the Xinclude
-           feature for Xerces -->
+          in="doc-src/${doc.name}/${doc.name}.xml"
+          out="${output.base}" classpathref="xalan.cpref">
       <xmlcatalog classpathref="xalan.cpref" id="cat.ref">
         <!-- WOULD MUCH PREFER TO DEFINE CATALOG EXTERNALLY.
         Unfortunately, Ant's xmlcatalog is not seeing Apache's XML resolver.
@@ -289,13 +287,14 @@ ${_for.automation.blurb}</fail>
       <param name="textdata.default.encoding" expression="ISO-8859-1"/>
       <param name="use.id.as.filename" expression="1"/>
       <param name="variablelist.as.table" expression="1"/>
+      <param name="index.on.type" expression="1"/>
       <param name="body.start.indent" expression="0" if="fop.format"/>
+      <param name="table.cell.border.thickness" expression="1pt"
+             if="fop.format"/>
       <param name="html.cellspacing" expression="0" if="html.format"/>
-      <param name="table.cell.border.thickness"
-             expression="1pt" if="fop.format"/>
 
-      <!-- For tables with unequal column content lengths, this extention
-           displays tables terribly: -->
+      <!-- With this on, formatting is terrible unless column content
+           lengths are symmetical -->
       <param name="tablecolumns.extension" expression="0"/>
 
       <!-- Docbook-supplied png nav icons suck -->
@@ -364,19 +363,18 @@ file.</echo>
           description="Validate specified DocBook source document">
     <fail unless="doc.name"
           message="Ant property 'doc.name' is required by target 'validate'."/>
-    <ivy:cachepath conf="rs-msv" pathid="rs-msv.cpref"/>
-    <java fork="true" classpathref="rs-msv.cpref" failonerror="true"
-          classname="com.admc.msv.ResolvingSchematronDriver"
-          dir="doc-src/${doc.name}">
-      <sysproperty key="org.apache.xerces.xni.parser.XMLParserConfiguration"
-               value="org.apache.xerces.parsers.XIncludeParserConfiguration"/>
+    <ivy:resolve conf="msv"/>
+      <!-- The resolve downloads and makes the 3rd party libs accessed by
+           our admc-rs-msv jar file through its manifests classpath entry. -->
+    <ivy:cachepath conf="admc-rs-msv" pathid="admc-rs-msv.cpref"/>
+    <pathconvert property="jar.file" refid="admc-rs-msv.cpref"/>
+    <java fork="true" failonerror="true"
+          jar="${jar.file}" dir="doc-src/${doc.name}">
       <sysproperty key="xml.catalog.verbosity"
                    value="${xml.catalog.verbosity}"/>
       <sysproperty key="xml.catalog.files" value="${xml.catalog.files}"/>
       <sysproperty key="xml.catalog.prefer" value="${xml.catalog.prefer}"/>
       <sysproperty key="xml.catalog.allowPI" value="${xml.catalog.allowPI}"/>
-      <sysproperty key="xml.catalog.className"
-                   value="org.apache.xml.resolver.Resolver"/>
       <sysproperty key="xml.catalog.staticCatalog"
                    value="${xml.catalog.staticCatalog}"/>
       <jvmarg value="-Xss${java.threadstacksize}"/>
@@ -388,22 +386,19 @@ file.</echo>
 
   <target name="validation-help" depends="-ivy-setup"
           description="Display advice about validating files manually">
-    <ivy:cachepath conf="rs-msv" pathid="rs-msv.cpref"/>
-    <pathconvert property="x" refid="rs-msv.cpref"/>
-    <echo>Copy and paste this to your CLASSPATH (and export it):
-
-${basedir}/tmp/catalogdir:${basedir}/build/doc-res${path.separator}${x}
-
-then 'cd' to the directory containing the failing files, and run
+    <ivy:resolve conf="msv"/>
+      <!-- The resolve downloads and makes the 3rd party libs accessed by
+           our admc-rs-msv jar file through its manifests classpath entry. -->
+    <ivy:cachepath conf="admc-rs-msv" pathid="admc-rs-msv.cpref"/>
+    <pathconvert property="jar.file" refid="admc-rs-msv.cpref"/>
+    <echo>'cd' to the directory containing the XML source files, and run
 something like
+java -Xss${java.threadstacksize} -Dxml.catalog.files=${xml.catalog.files} -jar ${jar.file} -v ${dbxirng.url} file.xml...
 
-java -Xss${java.threadstacksize} com.admc.msv.ResolvingSchematronDriver -v ${dbxirng.url} file.xml...
-
-Unfortunately, since XML catalog usage requires the directory
-'${basedir}/tmp/catalogdir' in the runtime CLASSPATH,
-'java -jar' usage won't work :( .
-(the alternative tactic of using Java System Properties for catalog
-settings would be far more cumbersome than what we suggest above).</echo>
+See the XML Commons docs about the Java System Properties to
+use for XML catalog resolution:
+http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlresolver
+</echo>
   </target>
 
   <target name="refresh-verbatim"
@@ -413,5 +408,9 @@ settings would be far more cumbersome than what we suggest above).</echo>
         <present targetdir="doc-src/verbatim"/>
       </fileset>
     </copy>
+  </target>
+
+  <target name="-validation-setup">
+    <fail message="Something is wrong.  '-validation-setup' is abstract"/>
   </target>
 </project>

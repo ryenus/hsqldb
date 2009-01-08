@@ -2,10 +2,10 @@
   <!-- $Id$ -->
   <info organisation="admc" module="docbook"/>
   <configurations>
-    <conf name="baseconf" visibility="private"/>
-    <conf name="msv" description="Sun MSV" extends="xalan"/>
-    <conf name="rs-msv" extends="msv"
-          description="Runtime path for Catalog-Resolving Schematron-Capable MSV Validator"/>
+    <conf name="baseconf" visibility="private"/> <!-- basic XML -->
+    <conf name="admc-rs-msv"
+       description="Single Catalog-Resolving Schematron-Capable MSV jar file"/>
+    <conf name="msv" description="Sun MSV" extends="baseconf"/>
     <conf name="xalan" description="Xalan Xslt" extends="baseconf"/>
     <conf name="fop" description="FOP"/>
   </configurations>
@@ -39,7 +39,7 @@
     <dependency name="commons-logging" rev="1.1.1"
                 transitive="false" conf="fop->default"/>
     <dependency name="xalan" rev="2.7.1"
-                transitive="false" conf="xalan->default"/>
+                transitive="false" conf="xalan->default; msv->default"/>
     <dependency name="serializer" rev="2.7.1"
                 transitive="false" conf="xalan->default"/>
     <dependency name="docbook-ext-xalan2" rev="1.73.2"
@@ -50,9 +50,11 @@
                 transitive="false" conf="baseconf->default"/>
     <dependency name="resolver" rev="1.2"
                 transitive="false" conf="msv->default"/>
-    <dependency name="admc-rs-msv" rev="1.0a"
-                transitive="false" conf="rs-msv->default"/>
-    <!-- Use if can get XML Commons Resolver working:
+    <dependency name="admc-rs-msv" rev="1.0" transitive="false"
+                conf="admc-rs-msv->default; xalan->default"/>
+    <!-- Primary purpose of this jar is for the MSV validator.
+         It is also added to the XSLT CLASSPATH only to add the XInclude
+         settings file to the CLASSPATH.  Needed by Xalan during XSLT.
     -->
   </dependencies>
 </ivy-module>
