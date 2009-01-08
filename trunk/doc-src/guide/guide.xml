@@ -2163,8 +2163,8 @@
         1.x users, you are on your own (Sun does not provide a JSSE that will
         work with 1.x). Java 2.x and 3.x users continue...</para>
 
-        <para>Go to <link
-        xlink:href="http://java.sun.com/products/jsse/index-103.html"></link>.
+        <para>Go to
+        <link xlink:href="http://java.sun.com/products/jsse/index-103.html"/>
         If you agree to the terms and meet the requirements, download the
         domestic or global JSSE software. All you need from the software
         distro is the three jar files. If you have a JDK installation, then
@@ -2241,8 +2241,8 @@
         Server or WebServer running with encryption, set the
         <varname>system.javax.net.ssl.keyStore</varname> and
         <varname>system.javax.net.ssl.keyStorePassword</varname> properties as
-        instructed above, and follow the instructions in the <link
-        endterm="unix-title" xlink:href="#unix-chapt"></link> chapter, paying
+        instructed above, and follow the instructions in the
+        <link endterm="unix-title" xlink:href="#unix-chapt"/> chapter, paying
         close attention to the TLS-related comments in the template config
         file.</para>
 
@@ -2278,7 +2278,7 @@
       the request until it is approved by the ACL filter code.</simpara>
 
       <para>The sample file
-      <filename xlink:href="acl.txt-link">sample/acl.txt</filename>
+      <filename xlink:href="#acl.txt-link">sample/acl.txt</filename>
       in your HyperSQL distribution explains how to write an
       ACL file. <programlisting><xi:include href="../verbatim/sample/acl.txt"
             parse="text" /></programlisting> You put your file wherever it is
@@ -2410,8 +2410,8 @@
     <section xml:id="unix_install-sect">
       <title>Installation</title>
 
-      <simpara>Go to <link
-      xlink:href="http://sourceforge.net/projects/hsqldb"></link> and click on
+      <simpara>Go to <link xlink:href="http://sourceforge.net/projects/hsqldb"/>
+      and click on
       the "files" link. You want the current version. This will be the highest
       numbered version under the plain black "hsqldb" heading. See if there's
       a distribution for the current HSQLDB version in the format that you
@@ -2419,15 +2419,15 @@
 
       <simpara>If you want a binary package and we either don't provide it, or
       you prefer somebody else's build, you should still find out the current
-      version of HSQLDB as described in the previous paragraph. It's very
+      version of HyperSQL as described in the previous paragraph. It's very
       likely that you can find a binary package for your UNIX variant with
-      your OS distributor, <link xlink:href="http://www.jpackage.org/"></link>
-      <link xlink:href="http://sunfreeware.com/"></link>, etc. Nowadays, most
+      your OS distributor, <link xlink:href="http://www.jpackage.org/"/>,
+      <link xlink:href="http://sunfreeware.com/"/>, etc. Nowadays, most
       UNIXes have software package management systems which check Internet
       repositories. Just search the repositories for "hsqldb" and "hypersql".
       The challenge is to find an <emphasis>up-to-date</emphasis> package. You
       will get better features and support if you work with the current stable
-      release of HyperSQL. (In particular, HSQLDB version 2.0 added tons of
+      release of HyperSQL. (In particular, HyperSQL version 2.0 added tons of
       new features). Pay attention to what JVM versions your binary package
       supports.</simpara>
 
@@ -2538,6 +2538,10 @@
         <filename>/a/b/hsqldb/lib/hsqldb.jar</filename>, then your
         <varname>HSQLDB_HOME</varname> is
         <filename>/a/b/hsqldb</filename>.</simpara>
+        <simpara>
+          Furthermore, unless I state otherwise, all local file paths that I
+          give are relative to the <varname>HSQLDB_HOME</varname>.
+        </simpara>
       </important>
 
       <simpara>If the description of your distribution says that the
@@ -2547,8 +2551,8 @@
 
       <simpara>If you followed the instructions above and you still don't know
       what Java version your <filename>hsqldb.jar</filename> supports, then
-      read <varname>HSQLDB_HOME</varname><filename>/readme.txt</filename> and
-      <varname>HSQLDB_HOME</varname><filename>/index.html</filename>. If that
+      read <filename>readme.txt</filename> and
+      <filename>index.html</filename>. If that
       still doesn't help, then you can just try your
       <filename>hsqldb.jar</filename> and see if it works, or build your
       own.</simpara>
@@ -2563,8 +2567,8 @@
 
         <step>
           <para>If you don't already have Ant, download the latest stable
-          binary version from <link
-          xlink:href="http://ant.apache.org"></link>. cd to where you want Ant
+          binary version from <link xlink:href="http://ant.apache.org"/>.
+          cd to where you want Ant
           to live, and extract from the archive with <informalexample>
               <screen>
     unzip /path/to/file.zip</screen>
@@ -2656,10 +2660,14 @@
         <step>
           <simpara>Become the <varname>HSQLDB_OWNER</varname>. Copy the sample
           file
-          <filename xlink:href="server.properties-link">
+          <filename xlink:href="#server.properties-link">
             sample/server.properties</filename>
           to the <varname>HSQLDB_OWNER</varname>'s home directory and
-          rename it to <filename>server.properties</filename>.</simpara>
+          rename it to <filename>server.properties</filename>.
+          (As a final reminder, "sampleserver.properties" is a relative path,
+          so it is understood to be relative to your
+          <varname>HSQLDB_HOME</varname>).
+          </simpara>
 
           <programlisting><xi:include encoding="ISO-8859-1"
               href="../verbatim/sample/server.properties" parse="text" /></programlisting>
@@ -2704,7 +2712,7 @@
       <title>Accessing your Database</title>
 
       <simpara>Copy the file
-      <filename xlink:href="sqltool.rc-link">/sample/sqltool.rc</filename>
+      <filename xlink:href="#sqltool.rc-link">sample/sqltool.rc</filename>
       to the <varname>HSQLDB_OWNER</varname>'s home directory. Use
       <literal>chmod</literal> to make the file readable and writable only to
       <varname>HSQLDB_OWNER</varname>.</simpara>
@@ -2724,16 +2732,19 @@
     java -jar path/to/hsqldb.jar localhost-sa</screen>
         </informalexample> If you get a prompt, then all is well. If security
       is of any concern to you at all, then you should change the privileged
-      password in the database. Use the command <link
-      xlink:href="#set_password-sect">SET PASSWORD</link> command to change
-      SA's password. <informalexample>
+      password in the database. Use the command
+      <literal xlink:href="#set_password-sect">SET PASSWORD</literal>
+      command to change SA's password. <informalexample>
           <programlisting>
     SET PASSWORD 'newpassword';</programlisting>
         </informalexample></para>
 
       <simpara>Note that with SQL-conformant databases like HyperSQL 1.9, user
       names and passwords are case sensitive. If you don't quote the name, it
-      will be interpreted as upper-case, like any named SQL object.</simpara>
+      will be interpreted as upper-case, like any named SQL object.
+      (Only for backwards compatibility, we do make an exception for the special
+      user name SA, but you should always use upper-case "SA" nevertheless).
+      </simpara>
 
       <simpara>When you're finished playing, exit with the command
       <literal>\q</literal>.</simpara>
@@ -2765,7 +2776,8 @@
       <title>Create additional Accounts</title>
 
       <simpara>Connect to the database as SA (or any other Administrative
-      user) and run <link xlink:href="#create_user-sect">CREATE USER</link> to
+      user) and run
+      <literal xlink:href="#create_user-sect">CREATE USER</literal> to
       create new accounts for your catalog. HSQLDB accounts are
       database-catalog-specific, not
       <classname>Listener</classname>-specific.</simpara>
@@ -2779,9 +2791,9 @@
       you first create a HyperSQL catalog, it has only one database user-- SA,
       a DBA account, with an empty string password. You should set a password
       (as described above). You can create as many additional users as you
-      wish. To make a user a DBA, you can use the "ADMIN" option to the <link
-      xlink:href="#create_user-sect">CREATE USER</link> command, or GRANT the
-      DBA Role to the account after creating it.</simpara>
+      wish. To make a user a DBA, you can use the "ADMIN" option to the
+      <literal xlink:href="#create_user-sect">CREATE USER</literal> command, or
+      GRANT the DBA Role to the account after creating it.</simpara>
 
       <simpara>Once an object is created, the object creator and users with
       the DBA role will have all privileges to work with that object. Other
@@ -2880,7 +2892,7 @@
         <procedure>
           <step>
             <simpara>Copy the init script
-              <filename xlink:href="hsqldb.init-link">
+              <filename xlink:href="#hsqldb.init-link">
               sample/hsqldb.init</filename>
             to <filename>hsqldb</filename> in the directory where init
             scripts live on your variety of UNIX. The most common locations
@@ -2897,7 +2909,7 @@
             <varname>server.database.X</varname> setting. A couple steps down,
             you will need to set up administrative access for each of these
             catalogs. If you are using our sample
-            <filename xlink:href="server.properties-link">
+            <filename xlink:href="#server.properties-link">
             server.properties</filename> file, you just need to know that you
             need to set up access for the catalog specified with
             <literal>file:db0/dbo</literal>.</para>
@@ -2946,7 +2958,7 @@
             <simpara>Look at the comment towards the top of the init script
             which lists recommended locations for the configuration file for
             various UNIX platforms. Copy the sample config file
-            <filename xlink:href="hsqldb.cfg-link">sample/hsqldb.cfg</filename>
+            <filename xlink:href="#hsqldb.cfg-link">sample/hsqldb.cfg</filename>
             to one of the listed locations (your choice). Edit the
             config file according to the instructions in it. For our example,
             you will set the value of <varname>URLIDS</varname> to
@@ -2972,7 +2984,7 @@
             <simpara>Re-run the script with each of the possible arguments to
             really test it good. If anything doesn't work right, then see the
             <link endterm="unix_inittrouble-title"
-            xlink:href="#unix_inittrouble-sect"></link> section.</simpara>
+              xlink:href="#unix_inittrouble-sect"/> section.</simpara>
           </step>
 
           <step>
@@ -3058,8 +3070,8 @@
 
         <para>If you want troubleshooting help, use the HSQLDB lists/forums or
         email me at <link
-        xlink:href="mailto:blaine.simpson@admc.com?Subject=hsqldb-unix">
-        &blaine_addr;</link>. If you email me, make sure to include the
+        xlink:href="mailto:blaine.simpson@admc.com?Subject=hsqldb-unix"/>.
+        If you email me, make sure to include the
         revision number from your <filename>hsqldb</filename> init script
         (it's towards the top in the line that starts like "# $Id:"), and the
         output of a run of <screen>
@@ -3078,11 +3090,10 @@
       configuration file. These users should just overwrite their init script
       with a new one from the HyperSQL installation, and manually merge config
       file settings. First, just copy the file
-      <varname>HSQLDB_HOME</varname><filename>/sample/hsqldb.init</filename>.
+      <filename>/sample/hsqldb.init</filename>
       over top of of your init script (wherever it runs from). Then update
       your old config file according to the instructions in the new config
-      file template at
-      <varname>HSQLDB_HOME</varname><filename>/sample/hsqldb.cfg</filename>.
+      file template at <filename>sample/hsqldb.cfg</filename>.
       You will have to change very few settings. If you are upgrading from a
       pre-1.9 installation to a post-1.9 installation, you will need to add
       the setting <varname>URLIDS</varname>, as described above and in the
@@ -3134,8 +3145,8 @@
 
       <para>The normal method of accessing an HSQLDB database is via the JDBC
       Connection interface. An introduction to different methods of providing
-      database services and accessing them can be found in the <link
-      endterm="sqlissues-title" xlink:href="#sqlissues-chapt"></link> chapter.
+      database services and accessing them can be found in the
+      <link endterm="sqlissues-title" xlink:href="#sqlissues-chapt"/> chapter.
       Details and examples of how to connect via JDBC are provided in our
       JavaDoc for <classname xlink:href="#JDBCConnection.html-link">
         JDBCConnection</classname>.
@@ -5629,9 +5640,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         and will almost certainly result in data inconsistency.</para>
 
         <para>Please refer to the code for
-        <classname xlink:href="Trigger.java-link">
+        <classname xlink:href="#Trigger.java-link">
         org.hsqldb.sample.Trigger</classname> and
-        <classname xlink:href="TriggerSample.java-link">
+        <classname xlink:href="#TriggerSample.java-link">
         org.hsqldb.sample.TriggerSample</classname> for more information on
         how to write a trigger class.</para>
 
