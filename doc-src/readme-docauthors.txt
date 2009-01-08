@@ -10,7 +10,8 @@ Error messages should be self-explanatory.
 
 SYSTEM
 
-See http://pub.admc.com/howtos/ant-docbook-howto/system-chapt.html#N1020E for
+See http://pub.admc.com/howtos/ant-docbook-howto/system-chapt.html#system-features-sect and
+http://pub.admc.com/howtos/ant-docbook-howto/tips-app.html for
 important tips.  This HOWTO document explains the build system used here.
 
 
