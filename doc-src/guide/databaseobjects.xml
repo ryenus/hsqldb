@@ -5,7 +5,7 @@
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
          xmlns:ns="http://docbook.org/ns/docbook">
-  <title xml:id="sqlissues-title">Schemas and Other Database Objects</title>
+  <title xml:id="databaseobjects-title">Schemas and Other Database Objects</title>
 
   <info>
     <authorgroup>
