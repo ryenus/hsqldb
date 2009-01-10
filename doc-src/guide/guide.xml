@@ -9,7 +9,11 @@
 ]>
 <book version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:ns5="http://www.w3.org/1999/xhtml"
+      xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+      xmlns:ns3="http://www.w3.org/2000/svg"
+      xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
@@ -307,9 +311,9 @@
 
       <para>When using relative paths, these paths will be taken relative to
       the directory in which the shell command to start the Java Virtual
-      Machine was executed. Refer to the Javadoc for
-      <classname xlink:href="#JDBCConnection.html-link">
-        JDBCConnection</classname> for more details.</para>
+      Machine was executed. Refer to the Javadoc for <classname
+      xlink:href="#JDBCConnection.html-link"> JDBCConnection</classname> for
+      more details.</para>
 
       <para>A <glossterm>mem:</glossterm> database is specified by the
       <glossterm>mem:</glossterm> protocol. For <glossterm>mem:</glossterm>
@@ -429,10 +433,9 @@
         <filename>Servlet</filename> class, in the HSQLDB jar, should be
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
-        the source file
-        <filename xlink:href="#Servlet.java-link">
-          src/org/hsqldb/server/Servlet.java</filename>
-        to see the details.</para>
+        the source file <filename xlink:href="#Servlet.java-link">
+        src/org/hsqldb/server/Servlet.java</filename> to see the
+        details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
         the JDBC driver at the client end. They do not provide a web front end
@@ -451,12 +454,12 @@
         <para>When a HyperSQL server is running, client programs can connect
         to it using the HSQLDB JDBC Driver contained in
         <filename>hsqldb.jar</filename>. Full information on how to connect to
-        a server is provided in the Java Documentation for
-        <classname xlink:href="#JDBCConnection.html-link">
-        JDBCConnection</classname> (located in the
-        <filename>/doc/src</filename> directory of HSQLDB distribution). A
-        common example is connection to the default port (9001) used for the
-        <glossterm>hsql:</glossterm> protocol on the same machine:</para>
+        a server is provided in the Java Documentation for <classname
+        xlink:href="#JDBCConnection.html-link"> JDBCConnection</classname>
+        (located in the <filename>/doc/src</filename> directory of HSQLDB
+        distribution). A common example is connection to the default port
+        (9001) used for the <glossterm>hsql:</glossterm> protocol on the same
+        machine:</para>
 
         <example>
           <title>Java code to connect to the local hsql Server</title>
@@ -600,20 +603,16 @@
       <literal>ROLLBACK TO SAVEPOINT &lt;name&gt;</literal> SQL
       statement.</para>
 
-      <para>The Javadoc for
-      <classname xlink:href="#JDBCConnection.html-link">
-        JDBCConnection</classname>,
-      <classname xlink:href="#JDBCDriver.html-link">
-        JDBCDriver</classname>,
-      <classname xlink:href="#JDBCDatabaseMetaData.html-link">
-        JDBCDatabaseMetadata</classname>
-      <classname xlink:href="#JDBCResultSet.html-link">
-        JDBCResultSet</classname>,
+      <para>The Javadoc for <classname xlink:href="#JDBCConnection.html-link">
+      JDBCConnection</classname>, <classname
+      xlink:href="#JDBCDriver.html-link"> JDBCDriver</classname>, <classname
+      xlink:href="#JDBCDatabaseMetaData.html-link">
+      JDBCDatabaseMetadata</classname> <classname
+      xlink:href="#JDBCResultSet.html-link"> JDBCResultSet</classname>,
       <classname xlink:href="#JDBCStatement.html-link">
-        JDBCStatement</classname>,
-      <classname xlink:href="#JDBCPreparedStatement.html-link">
-        JDBCPreparedStatement</classname>
-      list all the supported JDBC methods
+      JDBCStatement</classname>, <classname
+      xlink:href="#JDBCPreparedStatement.html-link">
+      JDBCPreparedStatement</classname> list all the supported JDBC methods
       together with information that is specific to HSQLDB.</para>
     </section>
 
@@ -745,9 +744,8 @@
       column name. You should avoid using such names as future versions of
       HyperSQL are likely to support the reserved words and may reject your
       table definitions or queries. The full list of SQL reserved words is in
-      the source of the class
-      <classname xlink:href="#Tokens.java-link">org.hsqldb.Tokens</classname>.
-      </para>
+      the source of the class <classname
+      xlink:href="#Tokens.java-link">org.hsqldb.Tokens</classname>.</para>
 
       <para>If you have to use a reserved keyword as the name of a database
       object, you can enclose it in double quotes.</para>
@@ -770,8 +768,8 @@
       <para>In version 1.9.0, all features of JDBC4 that apply to the
       capabilities of HSQLDB are fully supported. The relevant JDBC classes
       are thoroughly documented with additional clarifications and HyperSQL
-      specific comments. See the
-      <link xlink:href="#javadoc-link">JavaDoc</link> for the
+      specific comments. See the <link
+      xlink:href="#javadoc-link">JavaDoc</link> for the
       <classname>org.hsqldb.jdbc.JDBCXXXX</classname> classes.</para>
     </section>
 
@@ -1600,9 +1598,8 @@
         <filename>Servlet</filename> class, in the HSQLDB jar, should be
         installed on the application server to provide the connection. The
         database is specified using an application server property. Refer to
-        the source file
-        <filename xlink:href="#Servlet.java-link">
-          src/org/hsqldb/server/Servlet.java</filename> to see the
+        the source file <filename xlink:href="#Servlet.java-link">
+        src/org/hsqldb/server/Servlet.java</filename> to see the
         details.</para>
 
         <para>Both HTTP Server and Servlet modes can only be accessed using
@@ -1640,9 +1637,12 @@
         <title>common server and webserver properties</title>
 
         <tgroup align="left" cols="3">
-          <colspec colwidth="4cm"/>
-          <colspec colwidth="4cm"/>
-          <colspec/>
+          <colspec colwidth="4cm" />
+
+          <colspec colwidth="4cm" />
+
+          <colspec />
+
           <thead>
             <row>
               <entry>Value</entry>
@@ -1739,9 +1739,12 @@
         <title>server properties</title>
 
         <tgroup align="left" cols="3">
-          <colspec colwidth="4cm"/>
-          <colspec colwidth="4cm"/>
-          <colspec/>
+          <colspec colwidth="4cm" />
+
+          <colspec colwidth="4cm" />
+
+          <colspec />
+
           <thead>
             <row>
               <entry>Value</entry>
@@ -1782,9 +1785,12 @@
         <title>webserver properties</title>
 
         <tgroup align="left" cols="3">
-          <colspec colwidth="4cm"/>
-          <colspec colwidth="4cm"/>
-          <colspec/>
+          <colspec colwidth="4cm" />
+
+          <colspec colwidth="4cm" />
+
+          <colspec />
+
           <thead>
             <row>
               <entry>Value</entry>
@@ -1876,11 +1882,10 @@
       <para>If you want to start the server from within your application, as
       opposed to the command line or batch files, you should create an
       instance of Server or Web Server, then assign the properties and start
-      the Server. An working example of this can be found in the
-      <classname xlink:href="#TestBase.java-link">
-      org.hsqldb.test.TestBase</classname> source. The
-      example below sets the same properties as in the server.properties file
-      example.</para>
+      the Server. An working example of this can be found in the <classname
+      xlink:href="#TestBase.java-link"> org.hsqldb.test.TestBase</classname>
+      source. The example below sets the same properties as in the
+      server.properties file example.</para>
 
       <programlisting>    HsqlProperties p = new HsqlProperties();
     p.setProperty("server.database.0","file:/opt/db/accounts");
@@ -2145,8 +2150,8 @@
         1.x users, you are on your own (Sun does not provide a JSSE that will
         work with 1.x). Java 2.x and 3.x users continue...</para>
 
-        <para>Go to
-        <link xlink:href="http://java.sun.com/products/jsse/index-103.html"/>
+        <para>Go to <link
+        xlink:href="http://java.sun.com/products/jsse/index-103.html"></link>
         If you agree to the terms and meet the requirements, download the
         domestic or global JSSE software. All you need from the software
         distro is the three jar files. If you have a JDK installation, then
@@ -2222,16 +2227,15 @@
         Server or WebServer running with encryption, set the
         <varname>system.javax.net.ssl.keyStore</varname> and
         <varname>system.javax.net.ssl.keyStorePassword</varname> properties as
-        instructed above, and follow the instructions in the
-        <link endterm="unix-title" xlink:href="#unix-chapt"/> chapter, paying
+        instructed above, and follow the instructions in the <link
+        endterm="unix-title" xlink:href="#unix-chapt"></link> chapter, paying
         close attention to the TLS-related comments in the template config
         file.</para>
 
         <para>If you are using a private server certificate, make sure to also
         set the trust store filepath for relevant urlids in your RC file, as
-        explained in the sample
-        <link xlink:href="#hsqldb.cfg-link">config file</link>.
-        </para>
+        explained in the sample <link xlink:href="#hsqldb.cfg-link">config
+        file</link>.</para>
       </section>
     </section>
 
@@ -2258,14 +2262,14 @@
       request. This is efficient because the database engine never even gets
       the request until it is approved by the ACL filter code.</simpara>
 
-      <para>The sample file
-      <filename xlink:href="#acl.txt-link">sample/acl.txt</filename>
-      in your HyperSQL distribution explains how to write an
-      ACL file. <programlisting><xi:include href="../verbatim/sample/acl.txt"
-            parse="text" /></programlisting> You put your file wherever it is
-      convenient for you, and specify that path with the property
-      <varname>server.acl</varname> or <varname>webserver.acl</varname> in
-      your <filename>server.properties</filename> or
+      <para>The sample file <filename
+      xlink:href="#acl.txt-link">sample/acl.txt</filename> in your HyperSQL
+      distribution explains how to write an ACL file. <programlisting><xi:include
+            href="../verbatim/sample/acl.txt" parse="text" /></programlisting>
+      You put your file wherever it is convenient for you, and specify that
+      path with the property <varname>server.acl</varname> or
+      <varname>webserver.acl</varname> in your
+      <filename>server.properties</filename> or
       <filename>webserver.properties</filename> file (depending on whether
       your listener instance is a <classname>Server</classname> or
       <classname>WebServer</classname>. You can specify the ACL file path with
@@ -2390,8 +2394,8 @@
     <section xml:id="unix_install-sect">
       <title>Installation</title>
 
-      <simpara>Go to <link xlink:href="http://sourceforge.net/projects/hsqldb"/>
-      and click on
+      <simpara>Go to <link
+      xlink:href="http://sourceforge.net/projects/hsqldb"></link> and click on
       the "files" link. You want the current version. This will be the highest
       numbered version under the plain black "hsqldb" heading. See if there's
       a distribution for the current HSQLDB version in the format that you
@@ -2401,9 +2405,10 @@
       you prefer somebody else's build, you should still find out the current
       version of HyperSQL as described in the previous paragraph. It's very
       likely that you can find a binary package for your UNIX variant with
-      your OS distributor, <link xlink:href="http://www.jpackage.org/"/>,
-      <link xlink:href="http://sunfreeware.com/"/>, etc. Nowadays, most
-      UNIXes have software package management systems which check Internet
+      your OS distributor, <link
+      xlink:href="http://www.jpackage.org/"></link>, <link
+      xlink:href="http://sunfreeware.com/"></link>, etc. Nowadays, most UNIXes
+      have software package management systems which check Internet
       repositories. Just search the repositories for "hsqldb" and "hypersql".
       The challenge is to find an <emphasis>up-to-date</emphasis> package. You
       will get better features and support if you work with the current stable
@@ -2513,10 +2518,10 @@
         <filename>/a/b/hsqldb/lib/hsqldb.jar</filename>, then your
         <varname>HSQLDB_HOME</varname> is
         <filename>/a/b/hsqldb</filename>.</simpara>
-        <simpara>
-          Furthermore, unless I state otherwise, all local file paths that I
-          give are relative to the <varname>HSQLDB_HOME</varname>.
-        </simpara>
+
+        <simpara>Furthermore, unless I state otherwise, all local file paths
+        that I give are relative to the
+        <varname>HSQLDB_HOME</varname>.</simpara>
       </important>
 
       <simpara>If the description of your distribution says that the
@@ -2527,10 +2532,9 @@
       <simpara>If you followed the instructions above and you still don't know
       what Java version your <filename>hsqldb.jar</filename> supports, then
       read <filename>readme.txt</filename> and
-      <filename>index.html</filename>. If that
-      still doesn't help, then you can just try your
-      <filename>hsqldb.jar</filename> and see if it works, or build your
-      own.</simpara>
+      <filename>index.html</filename>. If that still doesn't help, then you
+      can just try your <filename>hsqldb.jar</filename> and see if it works,
+      or build your own.</simpara>
 
       <simpara>To use the supplied <filename>hsqldb.jar</filename>, just skip
       to the <link xlink:href="#unix_cat_setup-sect"> next section of this
@@ -2542,8 +2546,8 @@
 
         <step>
           <para>If you don't already have Ant, download the latest stable
-          binary version from <link xlink:href="http://ant.apache.org"/>.
-          cd to where you want Ant
+          binary version from <link
+          xlink:href="http://ant.apache.org"></link>. cd to where you want Ant
           to live, and extract from the archive with <informalexample>
               <screen>    unzip /path/to/file.zip</screen>
             </informalexample>or<informalexample>
@@ -2628,15 +2632,12 @@
 
         <step>
           <simpara>Become the <varname>HSQLDB_OWNER</varname>. Copy the sample
-          file
-          <filename xlink:href="#server.properties-link">
-            sample/server.properties</filename>
-          to the <varname>HSQLDB_OWNER</varname>'s home directory and
-          rename it to <filename>server.properties</filename>.
-          (As a final reminder, "sampleserver.properties" is a relative path,
-          so it is understood to be relative to your
-          <varname>HSQLDB_HOME</varname>).
-          </simpara>
+          file <filename xlink:href="#server.properties-link">
+          sample/server.properties</filename> to the
+          <varname>HSQLDB_OWNER</varname>'s home directory and rename it to
+          <filename>server.properties</filename>. (As a final reminder,
+          "sampleserver.properties" is a relative path, so it is understood to
+          be relative to your <varname>HSQLDB_HOME</varname>).</simpara>
 
           <programlisting><xi:include encoding="ISO-8859-1"
               href="../verbatim/sample/server.properties" parse="text" /></programlisting>
@@ -2678,9 +2679,9 @@
     <section xml:id="unix_access-sect">
       <title>Accessing your Database</title>
 
-      <simpara>Copy the file
-      <filename xlink:href="#sqltool.rc-link">sample/sqltool.rc</filename>
-      to the <varname>HSQLDB_OWNER</varname>'s home directory. Use
+      <simpara>Copy the file <filename
+      xlink:href="#sqltool.rc-link">sample/sqltool.rc</filename> to the
+      <varname>HSQLDB_OWNER</varname>'s home directory. Use
       <literal>chmod</literal> to make the file readable and writable only to
       <varname>HSQLDB_OWNER</varname>.</simpara>
 
@@ -2698,18 +2699,18 @@
           <screen>    java -jar path/to/hsqldb.jar localhost-sa</screen>
         </informalexample> If you get a prompt, then all is well. If security
       is of any concern to you at all, then you should change the privileged
-      password in the database. Use the command
-      <literal xlink:href="#set_password-sect">SET PASSWORD</literal>
-      command to change SA's password. <informalexample>
+      password in the database. Use the command <literal
+      xlink:href="#set_password-sect">SET PASSWORD</literal> command to change
+      SA's password. <informalexample>
           <programlisting>    SET PASSWORD 'newpassword';</programlisting>
         </informalexample></para>
 
       <simpara>Note that with SQL-conformant databases like HyperSQL 1.9, user
       names and passwords are case sensitive. If you don't quote the name, it
-      will be interpreted as upper-case, like any named SQL object.
-      (Only for backwards compatibility, we do make an exception for the special
-      user name SA, but you should always use upper-case "SA" nevertheless).
-      </simpara>
+      will be interpreted as upper-case, like any named SQL object. (Only for
+      backwards compatibility, we do make an exception for the special user
+      name SA, but you should always use upper-case "SA"
+      nevertheless).</simpara>
 
       <simpara>When you're finished playing, exit with the command
       <literal>\q</literal>.</simpara>
@@ -2741,10 +2742,9 @@
       <title>Create additional Accounts</title>
 
       <simpara>Connect to the database as SA (or any other Administrative
-      user) and run
-      <literal xlink:href="#create_user-sect">CREATE USER</literal> to
-      create new accounts for your catalog. HSQLDB accounts are
-      database-catalog-specific, not
+      user) and run <literal xlink:href="#create_user-sect">CREATE
+      USER</literal> to create new accounts for your catalog. HSQLDB accounts
+      are database-catalog-specific, not
       <classname>Listener</classname>-specific.</simpara>
 
       <simpara>In SQL-compliant databases, all database objects are created in
@@ -2757,8 +2757,8 @@
       a DBA account, with an empty string password. You should set a password
       (as described above). You can create as many additional users as you
       wish. To make a user a DBA, you can use the "ADMIN" option to the
-      <literal xlink:href="#create_user-sect">CREATE USER</literal> command, or
-      GRANT the DBA Role to the account after creating it.</simpara>
+      <literal xlink:href="#create_user-sect">CREATE USER</literal> command,
+      or GRANT the DBA Role to the account after creating it.</simpara>
 
       <simpara>Once an object is created, the object creator and users with
       the DBA role will have all privileges to work with that object. Other
@@ -2855,12 +2855,11 @@
 
         <procedure>
           <step>
-            <simpara>Copy the init script
-              <filename xlink:href="#hsqldb.init-link">
-              sample/hsqldb.init</filename>
-            to <filename>hsqldb</filename> in the directory where init
-            scripts live on your variety of UNIX. The most common locations
-            are <filename>/etc/init.d</filename> or
+            <simpara>Copy the init script <filename
+            xlink:href="#hsqldb.init-link"> sample/hsqldb.init</filename> to
+            <filename>hsqldb</filename> in the directory where init scripts
+            live on your variety of UNIX. The most common locations are
+            <filename>/etc/init.d</filename> or
             <filename>/etc/rc.d/init.d</filename> on System V style UNIXes,
             <filename>/usr/local/etc/rc.d</filename> on BSD style UNIXes, and
             <filename>/Library/StartupItems/hsqldb</filename> on OS X (you'll
@@ -2872,11 +2871,10 @@
             a note of every catalog define by a
             <varname>server.database.X</varname> setting. A couple steps down,
             you will need to set up administrative access for each of these
-            catalogs. If you are using our sample
-            <filename xlink:href="#server.properties-link">
-            server.properties</filename> file, you just need to know that you
-            need to set up access for the catalog specified with
-            <literal>file:db0/dbo</literal>.</para>
+            catalogs. If you are using our sample <filename
+            xlink:href="#server.properties-link"> server.properties</filename>
+            file, you just need to know that you need to set up access for the
+            catalog specified with <literal>file:db0/dbo</literal>.</para>
 
             <note>
               <simpara>Pre-1.9 versions of the hsqldb init script required use
@@ -2920,11 +2918,11 @@
           <step>
             <simpara>Look at the comment towards the top of the init script
             which lists recommended locations for the configuration file for
-            various UNIX platforms. Copy the sample config file
-            <filename xlink:href="#hsqldb.cfg-link">sample/hsqldb.cfg</filename>
-            to one of the listed locations (your choice). Edit the
-            config file according to the instructions in it. For our example,
-            you will set the value of <varname>URLIDS</varname> to
+            various UNIX platforms. Copy the sample config file <filename
+            xlink:href="#hsqldb.cfg-link">sample/hsqldb.cfg</filename> to one
+            of the listed locations (your choice). Edit the config file
+            according to the instructions in it. For our example, you will set
+            the value of <varname>URLIDS</varname> to
             <literal>localhostdb1</literal>, since that is the urlid name that
             we used in the <filename>sqltool.rc</filename> file.</simpara>
 
@@ -2939,14 +2937,14 @@
               </informalexample> as root to see the arguments you may use.
             Notice that you can run</para>
 
-            <para><screen>    /path/to/hsqldb status</screen>at any time to see
-            whether your HSQLDB
-            <classname>Listener</classname> is running.</para>
+            <para><screen>    /path/to/hsqldb status</screen>at any time to
+            see whether your HSQLDB <classname>Listener</classname> is
+            running.</para>
 
             <simpara>Re-run the script with each of the possible arguments to
             really test it good. If anything doesn't work right, then see the
             <link endterm="unix_inittrouble-title"
-              xlink:href="#unix_inittrouble-sect"/> section.</simpara>
+            xlink:href="#unix_inittrouble-sect"></link> section.</simpara>
           </step>
 
           <step>
@@ -2972,16 +2970,14 @@
             <filename>/Library/StartupItems/hsqldb</filename>, your init
             script is active (for portability reasons, it doesn't check for a
             setting in <filename>/etc/hostconfig</filename>). You can run it
-            as a <emphasis>Startup Item</emphasis> by running
-            <screen>    SystemStarter {start|stop|restart} Hsqldb</screen>
-            Hsqldb is the service
-            name. See the man page for <classname>SystemStarter</classname>.
-            To disable the init script, wipe out the
-            <filename>/Library/StartupItems/hsqldb</filename> directory. Hard
-            to believe, but the Mac people tell me that during system shutdown
-            the Startup Items don't run at all. Therefore, if you don't want
-            your data corrupted, make sure to run "SystemStarter stop Hsqldb"
-            before shutting down your Mac.</para>
+            as a <emphasis>Startup Item</emphasis> by running <screen>    SystemStarter {start|stop|restart} Hsqldb</screen>
+            Hsqldb is the service name. See the man page for
+            <classname>SystemStarter</classname>. To disable the init script,
+            wipe out the <filename>/Library/StartupItems/hsqldb</filename>
+            directory. Hard to believe, but the Mac people tell me that during
+            system shutdown the Startup Items don't run at all. Therefore, if
+            you don't want your data corrupted, make sure to run
+            "SystemStarter stop Hsqldb" before shutting down your Mac.</para>
           </step>
         </procedure>
 
@@ -3026,20 +3022,17 @@
         what is happening (and perhaps manually run the steps that are
         suspect). To run an init script (in fact, any sh shell script) in
         verbose mode, use <literal>sh</literal> with the <literal>-x</literal>
-        or <literal>-v</literal> switch, like
-        <screen>    sh -x path/to/hsqldb start</screen> See the man page for
-        <literal>sh</literal> if you don't know the difference between
-        <literal>-v</literal> and <literal>-x</literal>.</para>
+        or <literal>-v</literal> switch, like <screen>    sh -x path/to/hsqldb start</screen>
+        See the man page for <literal>sh</literal> if you don't know the
+        difference between <literal>-v</literal> and
+        <literal>-x</literal>.</para>
 
         <para>If you want troubleshooting help, use the HSQLDB lists/forums or
         email me at <link
-        xlink:href="mailto:blaine.simpson@admc.com?Subject=hsqldb-unix"/>.
-        If you email me, make sure to include the
-        revision number from your <filename>hsqldb</filename> init script
-        (it's towards the top in the line that starts like "# $Id:"), and the
-        output of a run of
-        <screen>    sh -x path/to/hsqldb start &gt; /tmp/hstart.log 2&gt;&amp;1</screen>
-        </para>
+        xlink:href="mailto:blaine.simpson@admc.com?Subject=hsqldb-unix"></link>.
+        If you email me, make sure to include the revision number from your
+        <filename>hsqldb</filename> init script (it's towards the top in the
+        line that starts like "# $Id:"), and the output of a run of <screen>    sh -x path/to/hsqldb start &gt; /tmp/hstart.log 2&gt;&amp;1</screen></para>
       </section>
     </section>
 
@@ -3054,14 +3047,14 @@
       configuration file. These users should just overwrite their init script
       with a new one from the HyperSQL installation, and manually merge config
       file settings. First, just copy the file
-      <filename>/sample/hsqldb.init</filename>
-      over top of of your init script (wherever it runs from). Then update
-      your old config file according to the instructions in the new config
-      file template at <filename>sample/hsqldb.cfg</filename>.
-      You will have to change very few settings. If you are upgrading from a
-      pre-1.9 installation to a post-1.9 installation, you will need to add
-      the setting <varname>URLIDS</varname>, as described above and in the
-      inline comments.</simpara>
+      <filename>/sample/hsqldb.init</filename> over top of of your init script
+      (wherever it runs from). Then update your old config file according to
+      the instructions in the new config file template at
+      <filename>sample/hsqldb.cfg</filename>. You will have to change very few
+      settings. If you are upgrading from a pre-1.9 installation to a post-1.9
+      installation, you will need to add the setting
+      <varname>URLIDS</varname>, as described above and in the inline
+      comments.</simpara>
 
       <simpara>Users who customized their init script will need to merge their
       customizations into the new init script.</simpara>
@@ -3109,12 +3102,11 @@
 
       <para>The normal method of accessing an HSQLDB database is via the JDBC
       Connection interface. An introduction to different methods of providing
-      database services and accessing them can be found in the
-      <link endterm="sqlissues-title" xlink:href="#sqlissues-chapt"/> chapter.
+      database services and accessing them can be found in the <link
+      endterm="sqlissues-title" xlink:href="#sqlissues-chapt"></link> chapter.
       Details and examples of how to connect via JDBC are provided in our
       JavaDoc for <classname xlink:href="#JDBCConnection.html-link">
-        JDBCConnection</classname>.
-      </para>
+      JDBCConnection</classname>.</para>
 
       <para>A uniform method is used to distinguish between different types of
       connection. The common driver identifier is
@@ -3260,8 +3252,7 @@
               is a zero length string. In the example below, the database
               catalog <literal>lists.*</literal> in the
               <literal>/home/dbmaster/</literal> directory is associated with
-              the empty alias:</para>
-            <programlisting>    database.3=/home/dbmaster/lists
+              the empty alias:</para> <programlisting>    database.3=/home/dbmaster/lists
     dbname.3=</programlisting></entry>
             </row>
           </tbody>
@@ -3288,9 +3279,9 @@
           <title>Connection Properties</title>
 
           <tgroup align="left" cols="3">
-            <colspec colname="c1" colwidth="7cm"/>
+            <colspec colname="c1" colwidth="7cm" />
 
-            <colspec colname="c2" colwidth="1.5cm"/>
+            <colspec colname="c2" colwidth="1.5cm" />
 
             <colspec colname="c3" />
 
@@ -3310,11 +3301,10 @@
                 c)</methodname> returns the underlying column name</para>
                 <para>When false, the above method returns the same value as
                 <methodname>ResultSet.getColumnLabel(int column)</methodname>
-                Example below:</para>
-                <programlisting>    jdbc:hsqldb:hsql://localhost/enrollments;get_column_name=false</programlisting>
-                <para>When a ResultSet is used inside a
-                user-defined stored procedure, the default, true, is always
-                used for this property.</para></entry>
+                Example below:</para> <programlisting>    jdbc:hsqldb:hsql://localhost/enrollments;get_column_name=false</programlisting>
+                <para>When a ResultSet is used inside a user-defined stored
+                procedure, the default, true, is always used for this
+                property.</para></entry>
               </row>
 
               <row>
@@ -3334,9 +3324,7 @@
                 <glossterm>file:</glossterm> database will be created if it
                 does not exist.</para> <para>Setting the property to true is
                 useful when troubleshooting as no database is created if the
-                URL is malformed. Example below:</para>
-                <programlisting>    jdbc:hsqldb:file:enrollments;ifexists=true</programlisting>
-                </entry>
+                URL is malformed. Example below:</para> <programlisting>    jdbc:hsqldb:file:enrollments;ifexists=true</programlisting></entry>
               </row>
 
               <row>
@@ -3416,9 +3404,9 @@
           <title>Database-specific Property File Properties</title>
 
           <tgroup align="left" cols="3">
-            <colspec colname="c1" colwidth="6.5cm"/>
+            <colspec colname="c1" colwidth="6.5cm" />
 
-            <colspec colname="c2" colwidth="1.5cm"/>
+            <colspec colname="c2" colwidth="1.5cm" />
 
             <colspec colname="c3" />
 
@@ -4742,8 +4730,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         supported encodings can be used.</para>
 
         <para>Finally, HSQLDB provides the ability to read a text file from
-        the bottom up and make it READ ONLY, by placing the keyword "DESC"
-        at the end of the SET TABLE SOURCE statement: *** not supported now
+        the bottom up and make it READ ONLY, by placing the keyword "DESC" at
+        the end of the SET TABLE SOURCE statement: *** not supported now
         **</para>
 
         <programlisting>    SET TABLE mytable SOURCE "myfile" DESC</programlisting>
@@ -4773,13 +4761,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         underlying data source, i.e. the text file.</para>
 
         <para>You can explicitly disconnect a text table from its file by
-        issuing the following statement:
-        <programlisting>    SET TABLE mytable SOURCE OFF</programlisting></para>
+        issuing the following statement: <programlisting>    SET TABLE mytable SOURCE OFF</programlisting></para>
 
         <para>Subsequently, <literal>mytable</literal> will be empty and
         read-only. However, the data source description will be preserved, and
-        the table can be re-connected to it with
-        <programlisting>    SET TABLE mytable SOURCE ON</programlisting></para>
+        the table can be re-connected to it with <programlisting>    SET TABLE mytable SOURCE ON</programlisting></para>
 
         <para>When a database is opened, if the source file for an existing
         text table is missing the table remains disconnected from its data
@@ -5593,10 +5579,9 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         the 'row2' values, these changes may or may not affect the database
         and will almost certainly result in data inconsistency.</para>
 
-        <para>Please refer to the code for
-        <classname xlink:href="#Trigger.java-link">
-        org.hsqldb.sample.Trigger</classname> and
-        <classname xlink:href="#TriggerSample.java-link">
+        <para>Please refer to the code for <classname
+        xlink:href="#Trigger.java-link"> org.hsqldb.sample.Trigger</classname>
+        and <classname xlink:href="#TriggerSample.java-link">
         org.hsqldb.sample.TriggerSample</classname> for more information on
         how to write a trigger class.</para>
 
@@ -7992,13 +7977,15 @@ INTERSECT [DISTINCT] } selectStatement]
     </section>
   </chapter>
 
+  <xi:include href="databaseobjects.xml" />
+
   <chapter>
-    <title>Schemas and Objects</title>
+    <title>Session and Transactions</title>
 
     <section>
       <title>Overview</title>
 
-      <para>A database consists of schemas, users and roles.</para>
+      <para>All SQL statements are executed in sessions.</para>
     </section>
   </chapter>
 
@@ -8014,16 +8001,6 @@ INTERSECT [DISTINCT] } selectStatement]
   </chapter>
 
   <chapter>
-    <title>Session and Transactions</title>
-
-    <section>
-      <title>Overview</title>
-
-      <para>All SQL statements are executed in sessions.</para>
-    </section>
-  </chapter>
-
-  <chapter>
     <title>User Defined Routines</title>
 
     <section>
@@ -8034,7 +8011,7 @@ INTERSECT [DISTINCT] } selectStatement]
       Standard. Routines written in the SQL language are supported in
       conformance to SQL/PSM (Persistent Stored Modules) specification.
       Routines written in Java are supported in conformance to SQL/JRT
-      specification. In addition, HSQLDB’s previous non-standard support for
+      specification. In addition, HSQLDB's previous non-standard support for
       calling Java routines without prior method definition is retained and
       enhanced in the latest version by extending the SQL/JRT
       specification.</para>
@@ -8106,7 +8083,7 @@ INTERSECT [DISTINCT] } selectStatement]
 
       <para>Definition of routine signature and characteristics, name
       resolution and invocation are all implemented uniformly for routines
-      written in SQL or Java. </para>
+      written in SQL or Java.</para>
     </section>
 
     <section>
@@ -8130,14 +8107,14 @@ INTERSECT [DISTINCT] } selectStatement]
       <para><literal>SELECT an_hour_before(event_timestamp) AS
       notification_timestamp, event_name FROM events; </literal></para>
 
-      <para>A simple example of a procedure is given below: </para>
+      <para>A simple example of a procedure is given below:</para>
 
       <para><literal>CREATE PROCEDURE new_customer(firstname VARCHAR(50),
       lastname VARCHAR(50)) MODIFIES SQL DATA INSERT INTO CUSTOMERS VALUES
       (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)</literal></para>
 
       <para>The procedure inserts a row into an existing table with the
-      definition given below: </para>
+      definition given below:</para>
 
       <para><literal>CREATE TABLE customers(id INTEGER GENERATED BY DEFAULT AS
       IDENTITY, firstname VARCHAR(50), lastname VARCHAR(50), added
@@ -8175,7 +8152,7 @@ INTERSECT [DISTINCT] } selectStatement]
         <para><literal>{&lt;SQL procedure statement&gt; &lt;semicolon&gt;} ...
         </literal></para>
 
-        <para><literal>END [ &lt;ending label&gt; ]</literal> </para>
+        <para><literal>END [ &lt;ending label&gt; ]</literal></para>
 
         <para>A <literal>&lt;handler declaration&gt;</literal> defines the
         course of action when an exception or warning is raised during the
@@ -8941,8 +8918,10 @@ INTERSECT [DISTINCT] } selectStatement]
         <title>TO CHAR Values</title>
 
         <tgroup cols="2">
-          <colspec colwidth="5cm"/>
-          <colspec/>
+          <colspec colwidth="5cm" />
+
+          <colspec />
+
           <tbody>
             <row>
               <entry><literal>BC | B.C. | AD | A.D.</literal></entry>
@@ -9182,9 +9161,10 @@ INTERSECT [DISTINCT] } selectStatement]
 
   <xi:include href="filelinks-app.xml" />
 
-  <index xml:id="sql-ind" type="sql">
+  <index type="sql" xml:id="sql-ind">
     <title>SQL Index</title>
   </index>
+
   <index xml:id="book-ind">
     <title>General Index</title>
   </index>
