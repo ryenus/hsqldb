@@ -41,7 +41,7 @@ import javax.naming.spi.ObjectFactory;
 // boucherb@users 20040411 - doc 1.7.2 - javadoc updates toward 1.7.2 final
 
 /**
- * A JNDI ObjectFactory for creating {@link jdbcDataSource jdbcDatasource}
+ * A JNDI ObjectFactory for creating {@link JDBCDataSource jdbcDatasource}
  * object instances.
  *
  * @author deforest@users

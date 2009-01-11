@@ -1075,7 +1075,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      *
      *
      * @see #addBatch
-     * @see DatabaseMetaData#supportsBatchUpdates
+     * @see java.sql.DatabaseMetaData#supportsBatchUpdates
      * @since JDK 1.3 (JDK 1.1.x developers: read the overview for
      * jdbcStatement)
      */
