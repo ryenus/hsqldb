@@ -65,7 +65,6 @@ import org.hsqldb.lib.tar.TarMalformatException;
  *  long-term code flexibility.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
  * @since 1.7.0
  */
 public class Logger {

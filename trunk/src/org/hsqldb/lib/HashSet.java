@@ -37,7 +37,6 @@ import org.hsqldb.store.BaseHashMap;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
  * @since 1.7.2
  */
 public class HashSet extends BaseHashMap implements Set {

@@ -58,7 +58,6 @@ import org.hsqldb.lib.StringConverter;
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Blaine Simpson (unsaved@users dot sourceforge.net)
  *
- * @version 1.7.2
  * @since 1.7.2
  */
 public final class HsqlSocketFactorySecure extends HsqlSocketFactory

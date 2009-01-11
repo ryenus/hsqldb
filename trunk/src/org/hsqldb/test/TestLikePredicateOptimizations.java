@@ -43,7 +43,6 @@ import junit.framework.TestResult;
  * HSQLDB TestLikePredicate Junit test case. <p>
  *
  * @author  boucherb@users
- * @version 1.7.2
  * @since 1.7.2
  */
 public class TestLikePredicateOptimizations extends TestBase {

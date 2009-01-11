@@ -51,7 +51,6 @@ import org.hsqldb.lib.Storage;
  * CACHED table storage.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.8.0
  * @since  1.7.2
  */
 final class ScaledRAFile implements ScaledRAInterface {

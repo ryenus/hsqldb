@@ -73,7 +73,6 @@ import javax.swing.border.EmptyBorder;
  * New class based on Hypersonic original
  *
  * @author dmarshall@users
- * @version 1.7.2
  * @since 1.7.0
  */
 class ConnectionDialogSwing extends JDialog

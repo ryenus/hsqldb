@@ -47,7 +47,6 @@ import org.hsqldb.persist.PersistentStore;
  * data is read from and written to a text format data file.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.8.0
  */
 public class TextTable extends org.hsqldb.Table {
 

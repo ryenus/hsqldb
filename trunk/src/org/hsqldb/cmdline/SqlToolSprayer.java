@@ -53,7 +53,7 @@ import java.util.Date;
  * </UL>
  *
  * @see @main()
- * @version $Revision$
+ * @version $Revision$, $Date$
  * @author Blaine Simpson unsaved@users
  */
 public class SqlToolSprayer {

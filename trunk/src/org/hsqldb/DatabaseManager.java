@@ -56,7 +56,6 @@ import org.hsqldb.store.ValuePool;
  * Maintains a reference to the timer used for file locks and logging.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
  * @since 1.7.2
  */
 public class DatabaseManager {

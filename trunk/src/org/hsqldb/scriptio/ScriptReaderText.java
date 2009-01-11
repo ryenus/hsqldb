@@ -56,8 +56,7 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 1.8.0
- *  @since 1.7.2
+ * @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
 

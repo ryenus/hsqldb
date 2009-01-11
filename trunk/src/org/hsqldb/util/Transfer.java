@@ -113,8 +113,7 @@ import java.awt.image.MemoryImageSource;
  *  databases via JDBC. Understands HSQLDB database particularly well.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
-  * @version 1.7.2
-  * @since Hypersonic SQL
+ * @since Hypersonic SQL
  */
 public class Transfer extends Applet
 implements WindowListener, ActionListener, ItemListener, Traceable {

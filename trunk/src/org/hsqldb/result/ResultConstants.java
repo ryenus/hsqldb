@@ -40,7 +40,6 @@ package org.hsqldb.result;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @since 1.7.2
- * @version 1.7.2
  */
 // fredt@users - the constants from the SQL standards are used freely where a
 // similar function is performed. The Result objects do not necessarily contain

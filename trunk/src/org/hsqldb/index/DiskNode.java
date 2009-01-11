@@ -91,7 +91,6 @@ import org.hsqldb.rowio.RowOutputInterface;
  *  New class derived from the Hypersonic code
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.2
  * @since Hypersonic SQL
  */
 public class DiskNode extends Node {

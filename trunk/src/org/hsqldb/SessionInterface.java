@@ -44,7 +44,6 @@ import org.hsqldb.types.TimestampData;
  * the session level.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
  * @since 1.7.2
  */
 public interface SessionInterface {

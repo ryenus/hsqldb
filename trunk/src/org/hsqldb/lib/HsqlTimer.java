@@ -49,7 +49,6 @@ import java.util.Date;
  * not retain a live background thread during periods when the task queue is
  * empty.
  * @author boucherb@users
- * @version 1.8.0.10
  * @since 1.7.2
  */
 public final class HsqlTimer implements ObjectComparator, ThreadFactory {

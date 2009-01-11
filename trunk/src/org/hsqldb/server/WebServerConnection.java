@@ -80,7 +80,6 @@ import org.hsqldb.rowio.RowOutputBinaryNet;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
  * @since Hypersonic SQL
  */
 class WebServerConnection implements Runnable {

@@ -60,7 +60,7 @@ import org.hsqldb.lib.RCData;
  * Java way.
  *
  * @see #main()
- * @version $Revision$
+ * @version $Revision$, $Date$
  * @author Blaine Simpson unsaved@users
  */
 public class SqlTool {
