@@ -178,44 +178,45 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     <simpara><literal>&lt;loop statement&gt;</literal></simpara>
 
     <simpara><literal>&lt;signal statement&gt;</literal></simpara>
-<section>
-    <title>COMPOUND STATEMENT</title>
 
-    <para>A compound statement is enclosed in a BEGIN / END block with
-    optional labels. It can contain one or more <literal>&lt;SQL variable
-    declaration&gt;</literal> or <literal>&lt;handler
-    declaration&gt;</literal> before at least one SQL statement. The BNF is
-    given below:</para>
+    <section>
+      <title>COMPOUND STATEMENT</title>
 
-    <simpara><literal>&lt;compound statement&gt; ::= [ &lt;beginning label&gt;
-    &lt;colon&gt; ] BEGIN [[NOT] ATOMIC] [{&lt;SQL variable declaration&gt;
-    &lt;semicolon&gt;} ...] [{&lt;handler declaration&gt;
-    &lt;semicolon&gt;}...] {&lt;SQL procedure statement&gt; &lt;semicolon&gt;}
-    ... END [ &lt;ending label&gt; ]</literal></simpara>
+      <para>A compound statement is enclosed in a BEGIN / END block with
+      optional labels. It can contain one or more <literal>&lt;SQL variable
+      declaration&gt;</literal> or <literal>&lt;handler
+      declaration&gt;</literal> before at least one SQL statement. The BNF is
+      given below:</para>
 
-    <para>A <literal>&lt;handler declaration&gt;</literal> defines the course
-    of action when an exception or warning is raised during the execution of
-    the compound statement.</para>
+      <simpara><literal>&lt;compound statement&gt; ::= [ &lt;beginning
+      label&gt; &lt;colon&gt; ] BEGIN [[NOT] ATOMIC] [{&lt;SQL variable
+      declaration&gt; &lt;semicolon&gt;} ...] [{&lt;handler declaration&gt;
+      &lt;semicolon&gt;}...] {&lt;SQL procedure statement&gt;
+      &lt;semicolon&gt;} ... END [ &lt;ending label&gt; ]</literal></simpara>
 
-    <para>An example of a simple compound statement body is given below. A row
-    is inserted in each table. The IDENTITY value that is automatically
-    inserted in the first table is retrieved using the IDENTITY() function and
-    inserted into the second table.</para>
+      <para>A <literal>&lt;handler declaration&gt;</literal> defines the
+      course of action when an exception or warning is raised during the
+      execution of the compound statement.</para>
 
-    <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname  VARCHAR(50), address VARCHAR(100))
+      <para>An example of a simple compound statement body is given below. A
+      row is inserted in each table. The IDENTITY value that is automatically
+      inserted in the first table is retrieved using the IDENTITY() function
+      and inserted into the second table.</para>
+
+      <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname  VARCHAR(50), address VARCHAR(100))
     MODIFIES SQL DATA
     BEGIN ATOMIC
     INSERT INTO customers VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     INSERT INTO addresses VALUES (DEFAULT, IDENTITY(), address);
     END</programlisting>
 
-    <para>A <literal>&lt;variable declaration&gt;</literal> defines the name
-    and data type of the variable and, optionally, its default value. In the
-    next example, a variable is used to hold the IDENTITY value. In addition,
-    the formal parameters of the procedure are identified as input parameters
-    with the use of the optional IN keyword.</para>
+      <para>A <literal>&lt;variable declaration&gt;</literal> defines the name
+      and data type of the variable and, optionally, its default value. In the
+      next example, a variable is used to hold the IDENTITY value. In
+      addition, the formal parameters of the procedure are identified as input
+      parameters with the use of the optional IN keyword.</para>
 
-    <programlisting>CREATE PROCEDURE NEW_CUSTOMER(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
+      <programlisting>CREATE PROCEDURE NEW_CUSTOMER(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
     MODIFIES SQL DATA
     BEGIN ATOMIC
     DECLARE temp_id INTEGER;
@@ -224,41 +225,43 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
     END</programlisting>
 
-    <para>The BNF for variable declaration is given below:</para>
+      <para>The BNF for variable declaration is given below:</para>
 
-    <simpara><literal>&lt;SQL variable declaration&gt; ::= DECLARE
-    &lt;variable name list&gt; &lt;data type&gt; [DEFAULT &lt;default
-    value&gt;]</literal></simpara>
+      <simpara><literal>&lt;SQL variable declaration&gt; ::= DECLARE
+      &lt;variable name list&gt; &lt;data type&gt; [DEFAULT &lt;default
+      value&gt;]</literal></simpara>
 
-    <simpara><literal>&lt;variable name list&gt; ::= &lt;variable name&gt; [ {
-    &lt;comma&gt; &lt;variable name&gt; }... ]</literal></simpara>
-</section> <section>
-    <title>HANDLERS</title>
+      <simpara><literal>&lt;variable name list&gt; ::= &lt;variable name&gt; [
+      { &lt;comma&gt; &lt;variable name&gt; }... ]</literal></simpara>
+    </section>
 
-    <para>A <literal>&lt;handler declaration&gt;</literal> defines the course
-    of action when an exception or warning is raised during the execution of
-    the compound statement. A compound statement may have one or more handler
-    declarations. These handlers become active when code execution enters the
-    compound statement block and remain active in any sub-block and statement
-    within the block. The handlers become inactive when code execution leaves
-    the block.</para>
+    <section>
+      <title>HANDLERS</title>
 
-    <para>In the previous example, if an exception is thrown during the
-    execution of either SQL statement, the execution of the compound statement
-    is terminated and the exception is propagated and thrown by the CALL
-    statement for the procedure. If the exception is thrown by the second
-    statement, then the INSERT in the first table will not be rolled backed. A
-    handler declaration can resolve the thrown exception within the compound
-    statement without propagating it.</para>
+      <para>A <literal>&lt;handler declaration&gt;</literal> defines the
+      course of action when an exception or warning is raised during the
+      execution of the compound statement. A compound statement may have one
+      or more handler declarations. These handlers become active when code
+      execution enters the compound statement block and remain active in any
+      sub-block and statement within the block. The handlers become inactive
+      when code execution leaves the block.</para>
 
-    <para>In the example below, the UNDO handler declaration catches any
-    exception that is thrown during the execution of the compound statement
-    inside the BEGIN / END block. As it is an UNDO handler, all the changes to
-    data performed within the compound statement (BEGIN / END) block are
-    rolled back. The procedure then returns without throwing an
-    exception.</para>
+      <para>In the previous example, if an exception is thrown during the
+      execution of either SQL statement, the execution of the compound
+      statement is terminated and the exception is propagated and thrown by
+      the CALL statement for the procedure. If the exception is thrown by the
+      second statement, then the INSERT in the first table will not be rolled
+      backed. A handler declaration can resolve the thrown exception within
+      the compound statement without propagating it.</para>
 
-    <programlisting>CREATE PROCEDURE NEW_CUSTOMER(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
+      <para>In the example below, the UNDO handler declaration catches any
+      exception that is thrown during the execution of the compound statement
+      inside the BEGIN / END block. As it is an UNDO handler, all the changes
+      to data performed within the compound statement (BEGIN / END) block are
+      rolled back. The procedure then returns without throwing an
+      exception.</para>
+
+      <programlisting>CREATE PROCEDURE NEW_CUSTOMER(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
     MODIFIES SQL DATA
     label_one: BEGIN ATOMIC
     DECLARE temp_id INTEGER;
@@ -268,263 +271,271 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
     END</programlisting>
 
-    <para>Other types of hander are CONTINUE and EXIT handlers. A CONTINUE
-    handler ignores any exception and proceeds to the next statement in the
-    block. An EXIT handler terminates execution without undoing the data
-    changes performed by the previous (successful) statements.</para>
+      <para>Other types of hander are CONTINUE and EXIT handlers. A CONTINUE
+      handler ignores any exception and proceeds to the next statement in the
+      block. An EXIT handler terminates execution without undoing the data
+      changes performed by the previous (successful) statements.</para>
 
-    <para>The conditions can be general conditions, or specific conditions.
-    Among general conditions that can be specified, SQLEXCEPTION covers all
-    exceptions, SQLWARNING covers all warnings, while NOT FOUND covers the
-    not-found condition, which is raised when a DELETE, UPDATE, INSERT or
-    MERGE statement completes without actually affecting any row.
-    Alternatively, one or more specific conditions can be specified (separated
-    with commas) which apply to specific exceptions or warnings or classes or
-    exceptions or warnings. A specific condition is specified with SQLSTATE
-    &lt;value&gt;, for example SQLSTATE 'W_01003' specifies the warning raised
-    after a SQL statement is executed which contains an aggregate function
-    which encounters a null value during execution. An example is given below
-    which activates the handler when either of the two warnings is
-    raised:</para>
+      <para>The conditions can be general conditions, or specific conditions.
+      Among general conditions that can be specified, SQLEXCEPTION covers all
+      exceptions, SQLWARNING covers all warnings, while NOT FOUND covers the
+      not-found condition, which is raised when a DELETE, UPDATE, INSERT or
+      MERGE statement completes without actually affecting any row.
+      Alternatively, one or more specific conditions can be specified
+      (separated with commas) which apply to specific exceptions or warnings
+      or classes or exceptions or warnings. A specific condition is specified
+      with <literal>SQLSTATE &lt;value&gt;</literal>, for example SQLSTATE
+      'W_01003' specifies the warning raised after a SQL statement is executed
+      which contains an aggregate function which encounters a null value
+      during execution. An example is given below which activates the handler
+      when either of the two warnings is raised:</para>
 
-    <programlisting>DECLARE UNDO HANDLER FOR SQLSTATE 'W_01003', 'W_01004' LEAVE label_one;</programlisting>
+      <programlisting>DECLARE UNDO HANDLER FOR SQLSTATE 'W_01003', 'W_01004' LEAVE label_one;</programlisting>
 
-    <para>The BNF for <literal>&lt;handler declaration&gt;</literal> is given
-    below:</para>
+      <para>The BNF for <literal>&lt;handler declaration&gt;</literal> is
+      given below:</para>
 
-    <simpara><literal>&lt;handler declaration&gt; ::= DECLARE {UNDO | CONTINUE
-    | EXIT} HANDLER FOR {SQLEXCEPTION | SQLWARNING | NOT FOUND} | { SQL_STATE
-    &lt;state value&gt; [, …]} [&lt;SQL procedure
-    statement&gt;];</literal></simpara>
+      <simpara><literal>&lt;handler declaration&gt; ::= DECLARE {UNDO |
+      CONTINUE | EXIT} HANDLER FOR {SQLEXCEPTION | SQLWARNING | NOT FOUND} | {
+      SQL_STATE &lt;state value&gt; [, …]} [&lt;SQL procedure
+      statement&gt;];</literal></simpara>
 
-    <para>A handler declaration may specify an SQL procedure statement to be
-    performed when the handler is activated. When an exception occurs, the
-    example below performs the UNDO as in the previous example, then inserts
-    the (invalid) data into a separate table.</para>
+      <para>A handler declaration may specify an SQL procedure statement to be
+      performed when the handler is activated. When an exception occurs, the
+      example below performs the UNDO as in the previous example, then inserts
+      the (invalid) data into a separate table.</para>
 
-    <programlisting>DECLARE UNDO HANDLER FOR SQLEXCEPTION
+      <programlisting>DECLARE UNDO HANDLER FOR SQLEXCEPTION
     INSERT INTO invalid_customers VALUES(firstanme, lastname, address);</programlisting>
 
-    <para>The <literal>&lt;SQL procedure statement&gt;</literal> is required
-    by the SQL Standard but is optional in HSQLDB. If the execution of the
-    <literal>&lt;SQL procedure statement&gt;</literal> specified in the
-    handler declaration throws an exception itself, then it is handled by the
-    handlers that are currently active. The <literal>&lt;SQL procedure
-    statement&gt;</literal> can itself be a compound statement with its own
-    handlers.</para>
-</section><section>
-    <title>ASSIGNMENT STATEMENT</title>
+      <para>The <literal>&lt;SQL procedure statement&gt;</literal> is required
+      by the SQL Standard but is optional in HSQLDB. If the execution of the
+      <literal>&lt;SQL procedure statement&gt;</literal> specified in the
+      handler declaration throws an exception itself, then it is handled by
+      the handlers that are currently active. The <literal>&lt;SQL procedure
+      statement&gt;</literal> can itself be a compound statement with its own
+      handlers.</para>
+    </section>
 
-    <para>The SET command is used for assignment. It can be used flexibly with
-    rows or single values. The BNF is given below:</para>
+    <section>
+      <title>ASSIGNMENT STATEMENT</title>
 
-    <simpara><literal>&lt;assignment statement&gt; ::= &lt;singleton variable
-    assignment&gt; | &lt;multiple variable assignment&gt;</literal></simpara>
+      <para>The SET command is used for assignment. It can be used flexibly
+      with rows or single values. The BNF is given below:</para>
 
-    <simpara><literal>&lt;singleton variable assignment&gt; ::= SET
-    &lt;assignment target&gt; &lt;equals operator&gt; &lt;assignment
-    source&gt;</literal></simpara>
+      <simpara><literal>&lt;assignment statement&gt; ::= &lt;singleton
+      variable assignment&gt; | &lt;multiple variable
+      assignment&gt;</literal></simpara>
 
-    <simpara><literal>&lt;multiple variable assignment&gt; ::= SET
-    (&lt;variable or parameter&gt;, ...) = &lt;row value
-    expression&gt;</literal></simpara>
+      <simpara><literal>&lt;singleton variable assignment&gt; ::= SET
+      &lt;assignment target&gt; &lt;equals operator&gt; &lt;assignment
+      source&gt;</literal></simpara>
 
-    <para>In the example below, the result of the SELECT is assigned to two
-    OUT or INOUT  parameters. The SELECT must return one row. If it returns
-    more than one, an exception is raised. If it returns no row, now change is
-    made to ARG1 and ARG2.</para>
+      <simpara><literal>&lt;multiple variable assignment&gt; ::= SET
+      (&lt;variable or parameter&gt;, ...) = &lt;row value
+      expression&gt;</literal></simpara>
 
-    <programlisting>SET (arg1, arg2) = (SELECT col1, col2 FROM atable WHERE id = 10);</programlisting>
+      <para>In the example below, the result of the SELECT is assigned to two
+      OUT or INOUT  parameters. The SELECT must return one row. If it returns
+      more than one, an exception is raised. If it returns no row, now change
+      is made to ARG1 and ARG2.</para>
 
-    <para>In the example below, the result of a function call is assigned to
-    VAR1.</para>
+      <programlisting>SET (arg1, arg2) = (SELECT col1, col2 FROM atable WHERE id = 10);</programlisting>
 
-    <programlisting>SET var1 = SQRT(var2);</programlisting>
-</section><section>
+      <para>In the example below, the result of a function call is assigned to
+      VAR1.</para>
 
-    <title>PROCEDURE FORMAL PARAMETERS</title>
+      <programlisting>SET var1 = SQRT(var2);</programlisting>
+    </section>
 
-    <para>Each parameter of a procedure can be defined as IN, OUT or INOUT. An
-    IN parameter is an input to the procedure and is passed by value. The
-    value cannot be modified inside the procedure body. An OUT parameter is a
-    reference for output. An INOUT parameter is a reference for both input and
-    output. An OUT or INOUT parameter is passed by reference, therefore only a
-    dynamic parameter argument or a variable within an enclosing procedure can
-    be passed for it. The assignment statement is used to assign a value to an
-    OUT or INOUT parameter.</para>
-</section><section>
+    <section>
+      <title>PROCEDURE FORMAL PARAMETERS</title>
 
-    <title>ITERATED STATEMENTS</title>
+      <para>Each parameter of a procedure can be defined as IN, OUT or INOUT.
+      An IN parameter is an input to the procedure and is passed by value. The
+      value cannot be modified inside the procedure body. An OUT parameter is
+      a reference for output. An INOUT parameter is a reference for both input
+      and output. An OUT or INOUT parameter is passed by reference, therefore
+      only a dynamic parameter argument or a variable within an enclosing
+      procedure can be passed for it. The assignment statement is used to
+      assign a value to an OUT or INOUT parameter.</para>
+    </section>
 
-    <para>Various iterated statements can be used in routines. In these
-    statements, the &lt;SQL statement list&gt; consists of one or more SQL
-    statements. The &lt;search condition&gt; can be any valid SQL expression
-    of BOOLEAN type.</para>
+    <section>
+      <title>ITERATED STATEMENTS</title>
 
-    <simpara><literal>&lt;loop statement&gt; ::= [ &lt;beginning label&gt;
-    &lt;colon&gt; ] LOOP &lt;SQL statement list&gt; END LOOP [ &lt;ending
-    label&gt; ]</literal></simpara>
+      <para>Various iterated statements can be used in routines. In these
+      statements, the <literal>&lt;SQL statement list&gt;</literal> consists
+      of one or more SQL statements. The <literal>&lt;search
+      condition&gt;</literal> can be any valid SQL expression of BOOLEAN
+      type.</para>
 
-    <simpara><literal>&lt;while statement&gt; ::= [ &lt;beginning label&gt;
-    &lt;colon&gt; ] WHILE &lt;search condition&gt; DO &lt;SQL statement
-    list&gt; END WHILE [ &lt;ending label&gt; ]</literal></simpara>
+      <simpara><literal>&lt;loop statement&gt; ::= [ &lt;beginning label&gt;
+      &lt;colon&gt; ] LOOP &lt;SQL statement list&gt; END LOOP [ &lt;ending
+      label&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;repeat statement&gt; ::= [ &lt;beginning label&gt;
-    &lt;colon&gt; ]</literal></simpara>
+      <simpara><literal>&lt;while statement&gt; ::= [ &lt;beginning label&gt;
+      &lt;colon&gt; ] WHILE &lt;search condition&gt; DO &lt;SQL statement
+      list&gt; END WHILE [ &lt;ending label&gt; ]</literal></simpara>
 
-    <simpara><literal>REPEAT &lt;SQL statement list&gt; UNTIL &lt;search
-    condition&gt; END REPEAT [ &lt;ending label&gt;</literal></simpara>
-</section><section>
+      <simpara><literal>&lt;repeat statement&gt; ::= [ &lt;beginning label&gt;
+      &lt;colon&gt; ]</literal></simpara>
 
-    <title>CONDITIONAL STATEMENTS</title>
+      <simpara><literal>REPEAT &lt;SQL statement list&gt; UNTIL &lt;search
+      condition&gt; END REPEAT [ &lt;ending label&gt;</literal></simpara>
+    </section>
 
-    <para>There are two types of CASE ... WHEN statement and the IF ... THEN
-    statement.</para>
+    <section>
+      <title>CONDITIONAL STATEMENTS</title>
 
-    <para>The simple case statement uses a &lt;case operand&gt; as the
-    predicand of one or more predicates. For the right part of each predicate,
-    it specifies one or more SQL statements to execute if the predicate
-    evaluates TRUE. If the ELSE clause is not specified, at least one of the
-    search conditions must be true, otherwise an exception is raised.</para>
+      <para>There are two types of CASE ... WHEN statement and the IF ... THEN
+      statement.</para>
 
-    <simpara><literal>&lt;simple case statement&gt; ::= CASE &lt;case
-    operand&gt; &lt;simple case statement when clause&gt;... [ &lt;case
-    statement else clause&gt; ] END CASE</literal></simpara>
+      <para>The simple case statement uses a <literal>&lt;case
+      operand&gt;</literal> as the predicand of one or more predicates. For
+      the right part of each predicate, it specifies one or more SQL
+      statements to execute if the predicate evaluates TRUE. If the ELSE
+      clause is not specified, at least one of the search conditions must be
+      true, otherwise an exception is raised.</para>
 
-    <simpara><literal>&lt;simple case statement when clause&gt; ::= WHEN
-    &lt;when operand list&gt; THEN &lt;SQL statement
-    list&gt;</literal></simpara>
+      <simpara><literal>&lt;simple case statement&gt; ::= CASE &lt;case
+      operand&gt; &lt;simple case statement when clause&gt;... [ &lt;case
+      statement else clause&gt; ] END CASE</literal></simpara>
 
-    <simpara><literal>&lt;case statement else clause&gt; ::= ELSE &lt;SQL
-    statement list&gt;</literal></simpara>
+      <simpara><literal>&lt;simple case statement when clause&gt; ::= WHEN
+      &lt;when operand list&gt; THEN &lt;SQL statement
+      list&gt;</literal></simpara>
 
-    <para>A skeletal example is given below:</para>
+      <simpara><literal>&lt;case statement else clause&gt; ::= ELSE &lt;SQL
+      statement list&gt;</literal></simpara>
 
-    <programlisting>CASE var_one
+      <para>A skeletal example is given below:</para>
 
+      <programlisting>CASE var_one
    WHEN 22, 23 THEN INSERT INTO t_one ...;
-
    WHEN IN (2, 4, 5) DELETE FROM t_one WHERE ...;
-
    ELSE UPDATE t_one ...;
-
    END CASE</programlisting>
 
-    <para>The searched case statement uses one or more search conditions, and
-    for each search condition, it specifies one or more SQL statements to
-    execute if the search condition evaluates TRUE. An exception is raised if
-    there is no ELSE clause and none of the search conditions evaluates
-    TRUE.</para>
+      <para>The searched case statement uses one or more search conditions,
+      and for each search condition, it specifies one or more SQL statements
+      to execute if the search condition evaluates TRUE. An exception is
+      raised if there is no ELSE clause and none of the search conditions
+      evaluates TRUE.</para>
 
-    <simpara><literal>&lt;searched case statement&gt; ::= CASE &lt;searched
-    case statement when clause&gt;... [ &lt;case statement else clause&gt; ]
-    END CASE</literal></simpara>
+      <simpara><literal>&lt;searched case statement&gt; ::= CASE &lt;searched
+      case statement when clause&gt;... [ &lt;case statement else clause&gt; ]
+      END CASE</literal></simpara>
 
-    <simpara><literal>&lt;searched case statement when clause&gt; ::= WHEN
-    &lt;search condition&gt; THEN &lt;SQL statement
-    list&gt;</literal></simpara>
+      <simpara><literal>&lt;searched case statement when clause&gt; ::= WHEN
+      &lt;search condition&gt; THEN &lt;SQL statement
+      list&gt;</literal></simpara>
 
-    <para>The if statement is very similar to the searched case statement. The
-    difference is that no exception is raised if there is no ELSE clause and
-    no search condition evaluates TRUE.</para>
+      <para>The if statement is very similar to the searched case statement.
+      The difference is that no exception is raised if there is no ELSE clause
+      and no search condition evaluates TRUE.</para>
 
-    <simpara><literal>&lt;if statement&gt; ::= IF &lt;search condition&gt;
-    &lt;if statement then clause&gt; [ &lt;if statement elseif clause&gt;... ]
-    [ &lt;if statement else clause&gt; ] END IF</literal></simpara>
+      <simpara><literal>&lt;if statement&gt; ::= IF &lt;search condition&gt;
+      &lt;if statement then clause&gt; [ &lt;if statement elseif clause&gt;...
+      ] [ &lt;if statement else clause&gt; ] END IF</literal></simpara>
 
-    <simpara><literal>&lt;if statement then clause&gt; ::= THEN &lt;SQL
-    statement list&gt;</literal></simpara>
+      <simpara><literal>&lt;if statement then clause&gt; ::= THEN &lt;SQL
+      statement list&gt;</literal></simpara>
 
-    <simpara><literal>&lt;if statement elseif clause&gt; ::= ELSEIF &lt;search
-    condition&gt; THEN &lt;SQL statement list&gt;</literal></simpara>
+      <simpara><literal>&lt;if statement elseif clause&gt; ::= ELSEIF
+      &lt;search condition&gt; THEN &lt;SQL statement
+      list&gt;</literal></simpara>
 
-    <simpara><literal>&lt;if statement else clause&gt; ::= ELSE &lt;SQL
-    statement list&gt;</literal></simpara>
-</section><section>
+      <simpara><literal>&lt;if statement else clause&gt; ::= ELSE &lt;SQL
+      statement list&gt;</literal></simpara>
+    </section>
 
-    <title>CONTROL STATEMENTS</title>
+    <section>
+      <title>CONTROL STATEMENTS</title>
 
-    <para>These statements can be used in specific contexts.</para>
+      <para>These statements can be used in specific contexts.</para>
 
-    <para>RETURN STATEMENT</para>
+      <para>RETURN STATEMENT</para>
 
-    <para>The RETURN statement is used only in functions to return a
-    value.</para>
+      <para>The RETURN statement is used only in functions to return a
+      value.</para>
 
-    <simpara><literal>&lt;return statement&gt; ::=&gt;RETURN &lt;value
-    expression&gt; | NULL</literal></simpara>
+      <simpara><literal>&lt;return statement&gt; ::= RETURN &lt;value
+      expression&gt; | NULL</literal></simpara>
 
-    <para>ITERATE STATEMENT</para>
+      <para>ITERATE STATEMENT</para>
 
-    <para>The ITERATE statement can be used to cause the next iteration of an
-    iterated statement (a WHILE, REPEAT or LOOP statement). It is similar to
-    the "continue" statement in C and Java.</para>
+      <para>The ITERATE statement can be used to cause the next iteration of a
+      labeled iterated statement (a WHILE, REPEAT or LOOP statement). It is
+      similar to the "continue" statement in C and Java.</para>
 
-    <simpara><literal>&lt;iterate statement&gt; ::= ITERATE &lt;statement
-    label&gt;</literal></simpara>
+      <simpara><literal>&lt;iterate statement&gt; ::= ITERATE &lt;statement
+      label&gt;</literal></simpara>
 
-    <para>LEAVE STATEMENT</para>
+      <para>LEAVE STATEMENT</para>
 
-    <para>The LEAVE statement can be used to leave a labeled block. When used
-    in an iterated statement, it is similar to the "break" statement is C and
-    Java. But it can be used in compound statements as well.</para>
+      <para>The LEAVE statement can be used to leave a labeled block. When
+      used in an iterated statement, it is similar to the "break" statement is
+      C and Java. But it can be used in compound statements as well.</para>
 
-    <simpara><literal>&lt;leave statement&gt; ::= LEAVE &lt;statement
-    label&gt;</literal></simpara>
+      <simpara><literal>&lt;leave statement&gt; ::= LEAVE &lt;statement
+      label&gt;</literal></simpara>
 
-    <simpara>Signal and Resignal Statements</simpara>
+      <simpara>Signal and Resignal Statements</simpara>
 
-    <para>The SIGNAL statement is used to throw an exception. When invoked,
-    any exception handler for the given exception is in turn invoked. If there
-    is no handler, the exception is propagated to the enclosing
-    context.</para>
+      <para>The SIGNAL statement is used to throw an exception. When invoked,
+      any exception handler for the given exception is in turn invoked. If
+      there is no handler, the exception is propagated to the enclosing
+      context.</para>
 
-    <simpara><literal>&lt;signal statement&gt; ::= SIGNAL SQL_STATE &lt;state
-    value&gt;</literal></simpara>
+      <simpara><literal>&lt;signal statement&gt; ::= SIGNAL SQL_STATE
+      &lt;state value&gt;</literal></simpara>
 
-    <para>The RESIGNAL statement is used to throw an exception from an
-    exception handler’s &lt;SQL procedure statement&gt;, in effect propagating
-    the exception to the enclosing context without further action by the
-    currently active handlers.</para>
+      <para>The RESIGNAL statement is used to throw an exception from an
+      exception handler’s <literal>&lt;SQL procedure statement&gt;</literal>,
+      in effect propagating the exception to the enclosing context without
+      further action by the currently active handlers.</para>
 
-    <simpara><literal>&lt;resignal statement&gt; ::= RESIGNAL SQL_STATE
-    &lt;state value&gt;</literal></simpara>
-</section><section>
+      <simpara><literal>&lt;resignal statement&gt; ::= RESIGNAL SQL_STATE
+      &lt;state value&gt;</literal></simpara>
+    </section>
 
-    <title>GENERAL SQL STATEMENTS</title>
+    <section>
+      <title>GENERAL SQL STATEMENTS</title>
 
-    <para>&lt;call statement&gt;</para>
+      <para><literal>&lt;call statement&gt;</literal></para>
 
-    <para>&lt;delete statement&gt;</para>
+      <para><literal>&lt;delete statement&gt;</literal></para>
 
-    <para>&lt;insert statement&gt;</para>
+      <para><literal>&lt;insert statement&gt;</literal></para>
 
-    <para>&lt;update statement&gt;</para>
+      <para><literal>&lt;update statement&gt;</literal></para>
 
-    <para>&lt;merge statement&gt;</para>
+      <para><literal>&lt;merge statement&gt;</literal></para>
 
-    <para>These statements can be used only in procedures and have the same
-    effect as when they are used outside routines.</para>
-</section><section>
+      <para>These statements can be used only in procedures and have the same
+      effect as when they are used outside routines.</para>
+    </section>
 
-    <title>ROUTINE OVERLOADING</title>
+    <section>
+      <title>ROUTINE OVERLOADING</title>
 
-    <para>More than one version of a routine can be created.</para>
+      <para>More than one version of a routine can be created.</para>
 
-    <para>For procedures, the different versions must have different parameter
-    counts.  When the procedure is called, the parameter count determines
-    which version is called.</para>
+      <para>For procedures, the different versions must have different
+      parameter counts.  When the procedure is called, the parameter count
+      determines which version is called.</para>
 
-    <para>For functions, the different versions can have the same or different
-    parameter counts. When the parameter count of two versions of a function
-    is the same, the type of parameters must be different. The best matching
-    version of the function is called, according to both the parameter count
-    and parameter types.</para>
+      <para>For functions, the different versions can have the same or
+      different parameter counts. When the parameter count of two versions of
+      a function is the same, the type of parameters must be different. The
+      best matching version of the function is called, according to both the
+      parameter count and parameter types.</para>
 
-    <para>Two versions of an overloaded function are given below. One version
-    accepts TIMESTAMP while the other accepts TIME arguments.</para>
+      <para>Two versions of an overloaded function are given below. One
+      version accepts TIMESTAMP while the other accepts TIME arguments.</para>
 
-    <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
+      <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     RETURNS TIMESTAMP
     IF t &gt; CURRENT_TIMESTAMP THEN
     RETURN CURRENT_TIMESTAMP;
@@ -543,8 +554,8 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     RETURN CURRENT_TIME;
     END CASE</programlisting>
 
-    <para>more ..</para>
-  </section>
+      <para>more ..</para>
+    </section>
   </section>
 
   <section>
@@ -554,8 +565,9 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     class, specified with a fully qualified method name in the routine
     definition.</para>
 
-    <para>In the example below, the static method named “toZeroPaddedString”
-    is specified to be called when the function is invoked.</para>
+    <para>In the example below, the static method named
+    <methodname>toZeroPaddedString</methodname> is specified to be called when
+    the function is invoked.</para>
 
     <programlisting>CREATE FUNCTION zero_pad(x BIGINT, digits INT, maxsize INT)
    RETURNS CHAR VARYING(100)
@@ -656,17 +668,19 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     parameter and return types is found and registered. If two “equivalent”
     methods exist, the first one is registered. (This situation arises only
     when a parameter is a primitive in one version and an Object in another
-    version, e.g. long and Long.).</para>
+    version, e.g. <classname>long</classname> and
+    <classname>java.lang.Long</classname>.).</para>
 
     <para>When the Java method of an SQL/JRT routine returns a value, it
     should be within the size and precision limits defined in the return type
     of the SQL-invoked routine, otherwise an exception is raised. The scale
     difference are ignored and corrected. For example, in the above example,
-    the RETURNS CHAR VARYING(100) clause limits the length of the strings
-    returned from the Java method to 100. But if the number of digits after
-    the decimal point (scale) of a returned BigDecimal value is larger than
-    the scale specified in the RETURNS clause, the decimal fraction is
-    silently truncated and no exception of warning is raised.</para>
+    the <literal>RETURNS CHAR VARYING(100)</literal> clause limits the length
+    of the strings returned from the Java method to 100. But if the number of
+    digits after the decimal point (scale) of a returned BigDecimal value is
+    larger than the scale specified in the RETURNS clause, the decimal
+    fraction is silently truncated and no exception of warning is
+    raised.</para>
 
     <para>Overloading</para>
 
@@ -712,13 +726,14 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     <title>Routine Definition</title>
 
     <para>As discussed in the previous pages, routine definition has several
-    mandatory or optional clauses. The complete BNF supported by HSQLDB and
+    mandatory or optional clauses. The complete BNF supported by HyperSQL and
     the remaining clauses are documented in this section.</para>
 
     <para>Routine definition is similar for procedures and functions. A
-    function definition has the mandatory &lt;returns clause&gt; which is
-    discussed later. The description given so far covers the essential
-    elements of the specification with the BNF given below.</para>
+    function definition has the mandatory <literal>&lt;returns
+    clause&gt;</literal> which is discussed later. The description given so
+    far covers the essential elements of the specification with the BNF given
+    below.</para>
 
     <simpara><literal>&lt;schema procedure&gt; ::= CREATE PROCEDURE &lt;schema
     qualified routine name&gt; &lt;SQL parameter declaration list&gt;
@@ -729,10 +744,11 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     &lt;returns clause&gt; &lt;routine characteristics&gt; &lt;routine
     body&gt;</literal></simpara>
 
-    <para>Parameter declaration list has been described above.  For SQL/JRT
-    routines, the &lt;SQL parameter name&gt; is optional while for SQL PSM
-    routines, it is required. If the &lt;parameter mode&gt; of a parameter is
-    OUT or INOUT, it must be specified. The BNF is given below:</para>
+    <para>Parameter declaration list has been described above. For SQL/JRT
+    routines, the <literal>&lt;SQL parameter name&gt;</literal> is optional
+    while for SQL/PSM routines, it is required. If the <literal>&lt;parameter
+    mode&gt;</literal> of a parameter is OUT or INOUT, it must be specified.
+    The BNF is given below:</para>
 
     <simpara><literal>&lt;SQL parameter declaration list&gt; ::= &lt;left
     paren&gt; [ &lt;SQL parameter declaration&gt; [ { &lt;comma&gt; &lt;SQL
@@ -750,21 +766,22 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
 
     <para>Return Value and Table Functions</para>
 
-    <para>The  &lt;returns clause&gt;  specifies the type of the return value
-    of a function. For all SQL/PSM functions and ordinary SQL/JRT functions,
-    this is simply a type definition which can be a built-in type, a DOMAIN
-    type or a DISTINCT type. For example, RETURNS INTEGER.</para>
+    <para>The <literal>&lt;returns clause&gt;</literal> specifies the type of
+    the return value of a function. For all SQL/PSM functions and ordinary
+    SQL/JRT functions, this is simply a type definition which can be a
+    built-in type, a DOMAIN type or a DISTINCT type. For example, RETURNS
+    INTEGER.</para>
 
     <para>(feature to be implemented) For a SQL/JRT function, it is possible
-    to define a &lt;returns table type&gt; for a Java method that returns a
-    java.sql.ResultSet object. Such SQL/JRT functions are called “table
-    functions”. Table functions are used differently from normal functions. A
-    table function can be used in an SQL query expression exactly where a
-    normal table or view is allowed. At the time of invocation, the Java
-    method is called and the returned ResultSet is transformed into an SQL
-    table. The column types of the declared TABLE must match those of the
-    ResultSet, otherwise an exception is raised at the time of
-    invocation.</para>
+    to define a <literal>&lt;returns table type&gt;</literal> for a Java
+    method that returns a <classname>java.sql.ResultSet</classname> object.
+    Such SQL/JRT functions are called <glossterm>table functions</glossterm>.
+    Table functions are used differently from normal functions. A table
+    function can be used in an SQL query expression exactly where a normal
+    table or view is allowed. At the time of invocation, the Java method is
+    called and the returned ResultSet is transformed into an SQL table. The
+    column types of the declared TABLE must match those of the ResultSet,
+    otherwise an exception is raised at the time of invocation.</para>
 
     <simpara><literal>&lt;returns clause&gt; ::= RETURNS &lt;returns
     type&gt;</literal></simpara>
@@ -793,11 +810,12 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     CREATE FUNCTION or CREATE SCHEMA command must have the relevant access
     rights to all tables, sequences, routines, etc. that are accessed by the
     routine. If another user is given EXECUTE privilege on the routine, then
-    there are two possibilities, depending on the &lt;rights clause&gt;. This
-    clause refers to the access rights that are checked when a routine is
-    invoked. The default is SQL SECURITY DEFINER, which means access rights of
-    the definer are used; therefore no extra checks are performed when the
-    other user invokes the routine. The alternative SQL SECURITY INVOKER means
+    there are two possibilities, depending on the <literal>&lt;rights
+    clause&gt;</literal>. This clause refers to the access rights that are
+    checked when a routine is invoked. The default is <literal>SQL SECURITY
+    DEFINER</literal>, which means access rights of the definer are used;
+    therefore no extra checks are performed when the other user invokes the
+    routine. The alternative <literal>SQL SECURITY INVOKER</literal> means
     access rights on all the database objects referenced by the routine are
     checked for the invoker. This alternative is not supported by
     HSQLDB.</para>
@@ -836,9 +854,9 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
 
     <para>LANGUAGE</para>
 
-    <para>The &lt;language clause&gt; refers to the language in which the
-    routine body is written. It is either SQL or Java. The default is SQL, so
-    JAVA must be specified for SQL/JRT routines.</para>
+    <para>The <literal>&lt;language clause&gt;</literal> refers to the
+    language in which the routine body is written. It is either SQL or Java.
+    The default is SQL, so JAVA must be specified for SQL/JRT routines.</para>
 
     <simpara><literal>&lt;language clause&gt; ::= LANGUAGE &lt;language
     name&gt;</literal></simpara>
@@ -852,13 +870,14 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
 
     <para>SPECIFIC NAME</para>
 
-    <para>The SPECIFIC &lt;specific name&gt; clause is optional and can be
-    used for making further alterations to overloaded routines. When there are
-    several versions of the same routine, the &lt;specific name&gt; is used in
-    schema manipulation statements to drop or alter a specific version. The
-    <literal>&lt;specific name&gt;</literal> is a user-defined name. In the
-    example below, a specific name is specified in order to distinguish the
-    function that has a TIMESTAMP parameter:</para>
+    <para>The SPECIFIC <literal>&lt;specific name&gt;</literal> clause is
+    optional and can be used for making further alterations to overloaded
+    routines. When there are several versions of the same routine, the
+    <literal>&lt;specific name&gt;</literal> is used in schema manipulation
+    statements to drop or alter a specific version. The <literal>&lt;specific
+    name&gt;</literal> is a user-defined name. In the example below, a
+    specific name is specified in order to distinguish the function that has a
+    TIMESTAMP parameter:</para>
 
     <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     RETURNS TIMESTAMP
@@ -869,54 +888,58 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
 
     <para>Determinism and Data Impact</para>
 
-    <para>The &lt;deterministic characteristic&gt; clause indicates that an
-    SQL/JRT routine is deterministic or not. Deterministic means the routine
-    does not reference random values, external variables, or time of
-    invocation. The default is NOT DETERMINISTIC.</para>
+    <para>The <literal>&lt;deterministic characteristic&gt;</literal> clause
+    indicates that an SQL/JRT routine is deterministic or not. Deterministic
+    means the routine does not reference random values, external variables, or
+    time of invocation. The default is <literal>NOT
+    DETERMINISTIC</literal>.</para>
 
     <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC |
     NOT DETERMINISTIC</literal></simpara>
 
-    <para>The &lt;SQL-data access indication&gt;  clause indicates the extent
-    to which a routine interacts with the database or the data stored in the
-    database tables (SQL data).  NO SQL means no SQL command is issued in the
-    routine body and can be used only for SQL/JRT functions. CONTAINS SQL
-    means some SQL commands are used, but they do not read or modify the SQL
-    data. READS SQL DATA and MODIFIES SQL DATA are self explanatory.</para>
+    <para>The <literal>&lt;SQL-data access indication&gt;</literal>  clause
+    indicates the extent to which a routine interacts with the database or the
+    data stored in the database tables (SQL data).  NO SQL means no SQL
+    command is issued in the routine body and can be used only for SQL/JRT
+    functions. <literal>CONTAINS SQL</literal> means some SQL commands are
+    used, but they do not read or modify the SQL data. <literal>READS SQL
+    DATA</literal> and <literal>MODIFIES SQL DATA</literal> are self
+    explanatory.</para>
 
     <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL | CONTAINS
     SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
 
     <para>Null Arguments</para>
 
-    <para>The &lt;null-call clause&gt; is used only for functions. If a
-    function returns NULL when any of the calling arguments is null, then by
-    specifying RETURNS NULL ON NULL INPUT, calls to the function are known to
-    be redundant and do not take place when an argument is null. This
-    simplifies the coding of the SQL/JRT Java methods and improves performance
-    at the same time.</para>
+    <para>The <literal>&lt;null-call clause&gt;</literal> is used only for
+    functions. If a function returns NULL when any of the calling arguments is
+    null, then by specifying <literal>RETURNS NULL ON NULL INPUT</literal>,
+    calls to the function are known to be redundant and do not take place when
+    an argument is null. This simplifies the coding of the SQL/JRT Java
+    methods and improves performance at the same time.</para>
 
     <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL INPUT
     | CALLED ON NULL INPUT</literal></simpara>
 
     <para>Transaction Impact</para>
 
-    <para>The &lt;savepoint level indication&gt; is used only for procedures
-    and refers to the visibility of existing savepoints within the body of the
-    procedure. If NEW SAVEPOINT LEVEL is specified, savepoints that have been
-    declared prior to calling the procedure become invisible within the body
-    of the procedure. HSQLDB’s implementation accepts only NEW SAVEPOINT
-    LEVEL, which must be specified.</para>
+    <para>The <literal>&lt;savepoint level indication&gt;</literal> is used
+    only for procedures and refers to the visibility of existing savepoints
+    within the body of the procedure. If <literal>NEW SAVEPOINT
+    LEVEL</literal> is specified, savepoints that have been declared prior to
+    calling the procedure become invisible within the body of the procedure.
+    HSQLDB’s implementation accepts only <literal>NEW SAVEPOINT
+    LEVEL</literal>, which must be specified.</para>
 
     <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
     LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
 
     <para>ResultSets</para>
 
-    <para>The &lt;returned result sets characteristic&gt; is used only for
-    SQL/PSM procedures. The maximum number of result sets that a procedure may
-    return can be specified with the clause below. The default is zero.
-    Details are discussed in the next section.</para>
+    <para>The <literal>&lt;returned result sets characteristic&gt;</literal>
+    is used only for SQL/PSM procedures. The maximum number of result sets
+    that a procedure may return can be specified with the clause below. The
+    default is zero. Details are discussed in the next section.</para>
 
     <simpara><literal>&lt;returned result sets characteristic&gt; ::= DYNAMIC
     RESULT SETS &lt;maximum returned result sets&gt;</literal></simpara>
