@@ -202,8 +202,6 @@ class DatabaseManagerCommon {
      *
      *
      * @param s
-     *
-     * @return
      */
     static String random(String[] s) {
         return s[random(s.length)];
@@ -214,8 +212,6 @@ class DatabaseManagerCommon {
      *
      *
      * @param i
-     *
-     * @return
      */
     static int random(int i) {
 
@@ -324,8 +320,8 @@ class DatabaseManagerCommon {
      * Method declaration
      * Redid this file to remove sizing requirements and to make it faster
      * Speeded it up 10 fold.
+     *
      * @param file
-     * @return
      */
     static String readFile(String file) {
 
@@ -377,9 +373,6 @@ class DatabaseManagerCommon {
      *
      * @param sql
      * @param max
-     *
-     * @return
-     *
      * @throws SQLException
      */
     static long testStatement(Statement sStatement, String sql,

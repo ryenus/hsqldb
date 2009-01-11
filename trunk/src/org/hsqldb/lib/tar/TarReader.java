@@ -614,7 +614,7 @@ public class TarReader {
         protected boolean ustar;
 
         /**
-         * @returns a new Absolutized File object generated from this
+         * @return a new Absolutized File object generated from this
          * TarEntryHeader.
          */
         public File generateFile() {
@@ -695,7 +695,7 @@ public class TarReader {
         }
 
         /**
-         * @returns index based at 0 == from
+         * @return index based at 0 == from
          */
         static public int indexOf(byte[] ba, byte val, int from, int to) {
 
@@ -719,7 +719,7 @@ public class TarReader {
         }
 
         /**
-         * @returns null or String with length() > 0.
+         * @return null or String with length() > 0.
          */
         protected String readString(int fieldId) throws TarMalformatException {
 

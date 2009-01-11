@@ -152,8 +152,6 @@ class Like {
      *
      *
      * @param o
-     *
-     * @return
      */
     Boolean compare(Session session, Object o) throws HsqlException {
 
@@ -207,8 +205,6 @@ class Like {
      * @param i
      * @param j
      * @param jLen
-     *
-     * @return
      */
     private boolean compareAt(Object o, int i, int j, int jLen) {
 

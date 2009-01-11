@@ -34,7 +34,7 @@ package org.hsqldb.test;
 /**
  * DB Out of memory test
  * cached tables in non-nio mode
- * @author: Nitin Chauhan
+ * @author Nitin Chauhan
  */
 public class TestNitin {
 

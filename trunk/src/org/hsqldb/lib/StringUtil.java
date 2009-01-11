@@ -286,7 +286,7 @@ public class StringUtil {
 
     /**
      * Checks if text is empty (characters <= space)
-     * @author: Nitin Chauhan
+     * @author Nitin Chauhan
      * @return boolean true if text is null or empty, false otherwise
      * @param s java.lang.String
      */

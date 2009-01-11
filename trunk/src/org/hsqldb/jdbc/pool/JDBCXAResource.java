@@ -266,7 +266,7 @@ public class JDBCXAResource implements XAResource {
      * Stub.  See implementation comment in the method for why this is
      * not implemented yet.
      *
-     * @returns false.
+     * @return false.
      */
     public boolean isSameRM(XAResource xares) throws XAException {
 
@@ -281,7 +281,7 @@ public class JDBCXAResource implements XAResource {
      * Vote on whether to commit the global transaction.
      *
      * @throws XAException to vote negative.
-     * @returns commitType of XA_RDONLY or XA_OK.  (Actually only XA_OK now).
+     * @return commitType of XA_RDONLY or XA_OK.  (Actually only XA_OK now).
      */
     public int prepare(Xid xid) throws XAException {
 

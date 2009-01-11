@@ -149,9 +149,6 @@ class Grid extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     String[] getHead() {
         return sColHead;
@@ -159,9 +156,6 @@ class Grid extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     Vector getData() {
         return vData;
@@ -298,8 +292,6 @@ class Grid extends Panel {
      *
      *
      * @param e
-     *
-     * @return
      */
 
     // fredt@users 20020130 - comment by fredt
@@ -457,8 +449,6 @@ class Grid extends Panel {
      * @param e
      * @param x
      * @param y
-     *
-     * @return
      */
     public boolean mouseMove(Event e, int x, int y) {
 
@@ -500,8 +490,6 @@ class Grid extends Panel {
      * @param e
      * @param x
      * @param y
-     *
-     * @return
      */
     public boolean mouseDrag(Event e, int x, int y) {
 
@@ -528,8 +516,6 @@ class Grid extends Panel {
      * @param e
      * @param x
      * @param y
-     *
-     * @return
      */
     public boolean mouseExit(Event e, int x, int y) {
 
@@ -544,9 +530,6 @@ class Grid extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     public Dimension preferredSize() {
         return dMinimum;
@@ -554,9 +537,6 @@ class Grid extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     public Dimension getPreferredSize() {
         return dMinimum;
@@ -564,9 +544,6 @@ class Grid extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     public Dimension getMinimumSize() {
         return dMinimum;
@@ -574,9 +551,6 @@ class Grid extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     public Dimension minimumSize() {
         return dMinimum;
@@ -609,8 +583,6 @@ class Grid extends Panel {
      *
      * @param x
      * @param y
-     *
-     * @return
      */
     private String getDisplay(int x, int y) {
         return (((String[]) (vData.elementAt(y)))[x]);
@@ -622,8 +594,6 @@ class Grid extends Panel {
      *
      * @param x
      * @param y
-     *
-     * @return
      */
     private String get(int x, int y) {
         return (((String[]) (vData.elementAt(y)))[x]);
@@ -634,8 +604,6 @@ class Grid extends Panel {
      *
      *
      * @param f
-     *
-     * @return
      */
     private static int getMaxHeight(FontMetrics f) {
         return f.getHeight() + 4;

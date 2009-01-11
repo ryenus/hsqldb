@@ -259,7 +259,7 @@ public class TarFileInputStream {
      * readNextHeaderBlock continues working through the Tar File from the
      * current point until it finds a block with a non-0 first byte.
      *
-     * @returns True if a header block was read and place at beginning of the
+     * @return  True if a header block was read and place at beginning of the
      *          readBuffer array.  False if EOF was encountered without finding
      *          any blocks with first byte != 0.  If false is returned, we have
      *          automatically closed the this TarFileInputStream too.

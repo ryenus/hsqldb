@@ -278,8 +278,6 @@ class Tree extends Panel {
      *
      *
      * @param e
-     *
-     * @return
      */
 
 // fredt@users 20020130 - comment by fredt
@@ -420,9 +418,6 @@ class Tree extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     public Dimension preferredSize() {
         return dMinimum;
@@ -430,9 +425,6 @@ class Tree extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     public Dimension getPreferredSize() {
         return dMinimum;
@@ -440,9 +432,6 @@ class Tree extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     public Dimension getMinimumSize() {
         return dMinimum;
@@ -450,9 +439,6 @@ class Tree extends Panel {
 
     /**
      * Method declaration
-     *
-     *
-     * @return
      */
     public Dimension minimumSize() {
         return dMinimum;
@@ -465,8 +451,6 @@ class Tree extends Panel {
      * @param e
      * @param x
      * @param y
-     *
-     * @return
      */
     public boolean mouseDown(Event e, int x, int y) {
 
@@ -541,8 +525,6 @@ class Tree extends Panel {
      *
      *
      * @param f
-     *
-     * @return
      */
     private static int getMaxHeight(FontMetrics f) {
         return f.getHeight() + 2;

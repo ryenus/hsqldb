@@ -896,7 +896,6 @@ public class StatementDML extends StatementDMQL {
      *   do not have to be checked since they have triggered the update and are
      *   valid by definition.
      * @param path HashSet
-     * @short Check or perform and update cascade operation on a single row.
      * @throws HsqlException
      */
     static void checkCascadeUpdate(Session session, Table table,

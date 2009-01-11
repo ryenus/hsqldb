@@ -1760,7 +1760,7 @@ public class SqlFile {
      *
      * @param inString String containing a variable name
      * @param startIndex Index within inString where the variable name begins
-     * @returns Index within inString, 1 past end of the variable name
+     * @return Index within inString, 1 past end of the variable name
      */
     static int pastName(String inString, int startIndex) {
         String workString = inString.substring(startIndex);
@@ -3447,7 +3447,7 @@ public class SqlFile {
     /**
      * Search Command History for a regex match.
      *
-     * @returns Absolute command number, if any match.
+     * @return Absolute command number, if any match.
      */
     private Integer historySearch(String findRegex) throws BadSpecial {
         if (history == null) {

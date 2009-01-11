@@ -82,8 +82,6 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
      * @param user
      * @param password
      *
-     * @return
-     *
      * @throws Exception
      */
     public static Connection createConnection(String driver, String url,
@@ -284,8 +282,6 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
      *
      * @param owner
      * @param title
-     *
-     * @return
      */
     public static Connection createConnection(Frame owner, String title) {
 
@@ -301,8 +297,6 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
      *
      *
      * @param s
-     *
-     * @return
      */
     protected static Label createLabel(String s) {
 
@@ -318,8 +312,6 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
      *
      *
      * @param center
-     *
-     * @return
      */
     protected static Panel createBorderPanel(Component center) {
 

@@ -299,7 +299,7 @@ public final class ServerAcl {
     }
 
     /**
-     * @returns true if access for the candidate address should be permitted,
+     * @return true if access for the candidate address should be permitted,
      *          false if access should be denied.
      * @throws RuntimeException if no rule covers the candidate address.
      *          This would be the case if this class is applied to some
