@@ -603,6 +603,12 @@
       name&gt;.&lt;column name&gt;</literal>, likewise, a fully qualified
       sequence name is in the form <literal>&lt;catalog name&gt;.&lt;schema
       name&gt;.&lt;sequence name&gt;</literal>.</para>
+
+      <para>HyperSQL extends the SQL standard to allow renaming all database
+      objects. The ALTER ... RENAME TO command has slightly different forms
+      depending on the type of object. If an object is referenced in a VIEW
+      definiton or a CHECK constraint, it is not always possible to rename
+      it.</para>
     </section>
 
     <section>
@@ -726,7 +732,9 @@
       <title>Constraints</title>
 
       <simpara>A CONSTRAINT is a child schema object and can belong to a
-      DOMAIN or a TABLE.</simpara>
+      DOMAIN or a TABLE. CONSTRAINT objects can be defined without specifying
+      a name. In this case the system generates a name for the new object
+      beginnint with SYS</simpara>
 
       <simpara>In a DOMAIN, CHECK constraints can be defined that limits the
       value represented by the DOMAIN. These constraints work exactly like a
@@ -859,6 +867,14 @@
     </section>
 
     <section>
+      <title>Indexes</title>
+
+      <para>Indexes are an implementation-defined extension to the SQL
+      Standard. HyperSQL has a dedicated name-space for indexes in each
+      schema.</para>
+    </section>
+
+    <section>
       <title>Statements for Schema Definition and Manipulation</title>
 
       <!-- From Foundation chapt. 11 -->
@@ -884,6 +900,46 @@
       objects are modified or dropped with cascading effect. Whether a
       referencing object is modified or dropped, depends on the kind of schema
       object that is dropped.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>IF EXISTS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IF EXISTS</emphasis></simpara>
+
+      <simpara><emphasis>drop condition (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;if exists clause&gt; ::= IF
+      EXISTS</literal></simpara>
+
+      <simpara>This clause is not part of the SQL standard and is an HyperSQL
+      extension to some commands that drop objects. If it is specified, then
+      the statement does not return an error if the drop statement is issued
+      on a non-existent object.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>RENAME</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">RENAME</emphasis></simpara>
+
+      <simpara><emphasis>rename statement</emphasis></simpara>
+
+      <simpara><literal>&lt;rename statement&gt; ::= ALTER &lt;object type&gt;
+      &lt;name&gt; RENAME TO &lt;new name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;object type&gt; ::= CATALOG | SCHEMA | DOMAIN |
+      TYPE | TABLE | CONSTRAINT | INDEX | ROUTINE | SPECIFIC
+      ROUTINE</literal></simpara>
+
+      <simpara><literal>&lt;column rename statement&gt; ::= ALTER TABLE
+      &lt;table name&gt; ALTER COLUMN &lt;name&gt; RENAME TO &lt;new
+      name&gt;</literal></simpara>
+
+      <simpara>The specified <literal>&lt;name&gt;</literal> is the existing
+      name, which can be qualified with a schema name, while the
+      <literal>&lt;new name&gt;</literal> is the new name for the
+      object.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE SCHEMA</primary>
@@ -942,7 +998,8 @@
       <simpara><emphasis>drop schema statement</emphasis></simpara>
 
       <simpara><literal>&lt;drop schema statement&gt; ::= DROP SCHEMA
-      &lt;schema name&gt; CASCADE | RESTRICT</literal></simpara>
+      &lt;schema name&gt; &lt;drop behavior&gt; [ IF EXISTS
+      ]</literal></simpara>
 
       <simpara>This command destroys an existing schema. If
       <literal>RESTRICT</literal> is specified, the schema must be empty,
@@ -1390,12 +1447,11 @@
 
       <simpara>Destroy a column of a base table. The <literal>&lt;drop
       behavior&gt;</literal> is either <literal>RESTRICT</literal> or
-      <literal>CASCADE</literal>. If it is not specified,
-      <literal>RESTRICT</literal> is implicit. If the column is referenced in
-      a table constraint that references other columns as well as this column,
-      or if the column is referenced in a VIEW, or the column is referenced in
-      a TRIGGER, then the statement will fail if <literal>RESTRICT</literal>
-      is specified. If <literal>CASCADE</literal> is specified, then any
+      <literal>CASCADE</literal>. If the column is referenced in a table
+      constraint that references other columns as well as this column, or if
+      the column is referenced in a VIEW, or the column is referenced in a
+      TRIGGER, then the statement will fail if <literal>RESTRICT</literal> is
+      specified. If <literal>CASCADE</literal> is specified, then any
       CONSTRAINT, VIEW or TRIGGER object that references the column is dropped
       with a cascading effect.</simpara>
 
@@ -1508,11 +1564,12 @@
 
       <simpara>Define a domain. Although a DOMAIN is not a strictly a type in
       the SQL Standard, it can be informally considered as a type. A DOMAIN is
-      based on a &lt;predefined type&gt;, which is a base type defined by the
-      Standard. It can have a &lt;default clause&gt;, similar to a column
-      default clause. It can also have one or more CHECK constraints which
-      limit the values that can be assigned to a column or variable that has
-      the DOMAIN as its type.</simpara>
+      based on a <literal>&lt;predefined type&gt;</literal>, which is a base
+      type defined by the Standard. It can have a <literal>&lt;default
+      clause&gt;</literal>, similar to a column default clause. It can also
+      have one or more CHECK constraints which limit the values that can be
+      assigned to a column or variable that has the DOMAIN as its
+      type.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER DOMAIN</primary>
@@ -1598,7 +1655,8 @@
       <simpara><emphasis>drop domain statement</emphasis></simpara>
 
       <simpara><literal>&lt;drop domain statement&gt; ::= DROP DOMAIN
-      &lt;domain name&gt; &lt;drop behavior&gt;</literal></simpara>
+      &lt;domain name&gt; &lt;drop behavior&gt; [ IF EXISTS
+      ]</literal></simpara>
 
       <simpara>Destroy a domain. If <literal>&lt;drop behavior&gt;</literal>
       is <literal>CASCADE</literal>, it works differently from most other
@@ -2332,8 +2390,8 @@
       statement</emphasis></simpara>
 
       <simpara><literal>&lt;drop sequence generator statement&gt; ::= DROP
-      SEQUENCE &lt;sequence generator name&gt; &lt;drop
-      behavior&gt;</literal></simpara>
+      SEQUENCE &lt;sequence generator name&gt; &lt;drop behavior&gt; [ IF
+      EXISTS ]</literal></simpara>
 
       <simpara>Destroy an external sequence generator. If the
       <literal>&lt;drop behavior&gt;</literal> is <literal>CASCADE</literal>,
@@ -2397,7 +2455,21 @@
 
     <para>The Information Schema is a special schema in each catalog. The SQL
     Standard defines a number of character sets and domains. In addition, all
-    the implementation-defined collations belong to Information Schema</para>
+    the implementation-defined collations belong to Information Schema.</para>
+
+    <para>The SQL Standard defines many of views in the Information Schema.
+    These views show the properties of the database objects that currently
+    exist in the database. When a user accesses one these views, only the
+    properties of database objects that the user can access are
+    included.</para>
+
+    <para>HyperSQL supports all the views defined by the Standard, apart from
+    a few views that report on extended user-defined types and other optional
+    features of the Standard that are not supported by HyperSQL.</para>
+
+    <para>HyperSQL also adds some views to the Information Schema. These views
+    are for features that are not reported in any of the views defined by the
+    </para>
 
     <section>
       <title>Predefined Character Sets, Collations and Domains</title>
