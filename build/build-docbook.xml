@@ -58,7 +58,7 @@
 
   <property name="docoutput.path" value="doc"/>
   <property name="javac.debug" value="true"/>
-  <property name="java.threadstacksize" value="512K"/>
+  <property name="java.threadstacksize" value="1M"/>
   <!-- TODO:  Once our repository is set up, change the repos.url value here -->
   <property name="repos.url" value="http://pub.admc.com/lib-repos"/>
   <property name="dbxirng.url"
