@@ -895,6 +895,13 @@ examples:
            </packageset>
            <link href="${jse.doc.link}"/>
            <link href="${jee.doc.link}"/>
+           <tag name="todo" enabled="false"/>
+           <tag name="revised" enabled="false"/>
+           <tag name="jboss.xmbean" enabled="false"/>
+           <tag name="jmx.mbean" enabled="false"/>
+           <tag name="jmx.managed-attribute" enabled="false"/>
+           <tag name="jmx.managed-operation" enabled="false"/>
+           <tag name="jmx.managed-operation-parameter" enabled="false"/>
      </javadoc>
    </target>
 
@@ -914,6 +921,13 @@ examples:
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2005 HSQL Development Group. All Rights Reserved.&lt;/i&gt;">
            <link href="${jse.doc.link}"/>
            <link href="${jee.doc.link}"/>
+           <tag name="todo"/>
+           <tag name="revised"/>
+           <tag name="jboss.xmbean"/>
+           <tag name="jmx.mbean"/>
+           <tag name="jmx.managed-attribute"/>
+           <tag name="jmx.managed-operation"/>
+           <tag name="jmx.managed-operation-parameter"/>
      </javadoc>
    </target>
 
