@@ -108,6 +108,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.8.0
  * @since Hypersonic SQL
  */
 class ServerConnection implements Runnable {

@@ -58,6 +58,7 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row from the script file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.8.0
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase

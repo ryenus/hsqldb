@@ -45,6 +45,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author  boucherb@users
+ * @version 1.8.x
  * @since 1.7.2
  */
 public class Types {

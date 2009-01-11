@@ -37,6 +37,7 @@ import java.net.Socket;
  * Interface HsqlSocketRequestHandler
  *
  * @author paul-h@users
+ * @version 1.70
  * @since 1.7.0
  * @see HsqlSocketRequestHandlerImplementation
  */

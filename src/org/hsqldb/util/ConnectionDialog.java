@@ -61,6 +61,7 @@ import java.awt.event.ItemListener;
  * Opens a connection to a database
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
+ * @version 1.7.2
  * @since Hypersonic SQL
  */
 class ConnectionDialog extends Dialog implements ActionListener, ItemListener {

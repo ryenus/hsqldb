@@ -105,6 +105,7 @@ import java.util.Vector;
  * </pre>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
+ * @version 1.7.0
  * @since Hypersonic SQL
  */
 public class CodeSwitcher {

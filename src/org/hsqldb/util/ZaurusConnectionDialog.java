@@ -57,6 +57,7 @@ import java.awt.event.WindowEvent;
  *
  *
  * @author ulrivo@users
+ * @version 1.0.0.1
  */
 public class ZaurusConnectionDialog extends ConnectionDialog
 implements ActionListener, ItemListener, KeyListener {

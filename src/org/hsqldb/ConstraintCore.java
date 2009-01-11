@@ -81,6 +81,7 @@ import org.hsqldb.index.Index;
  * New class based on Hypersonic original
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
+ * @version 1.7.1
  * @since 1.7.1
  */
 class ConstraintCore {

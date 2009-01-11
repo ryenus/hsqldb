@@ -64,6 +64,7 @@ import org.hsqldb.persist.HsqlProperties;
  * This test now incorporates the defunct TestTextTables
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.8.0
  * @since 1.7.0
  */
 public class TestCacheSize {

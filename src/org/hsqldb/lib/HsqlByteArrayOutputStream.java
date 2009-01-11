@@ -42,6 +42,7 @@ import java.io.UnsupportedEncodingException;
  * (without synchronization) and java.io.DataOutputStream
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.7.2
  * @since 1.7.0
  */
 public class HsqlByteArrayOutputStream extends java.io.OutputStream

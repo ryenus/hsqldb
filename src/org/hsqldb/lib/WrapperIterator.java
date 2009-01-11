@@ -41,6 +41,7 @@ import java.util.NoSuchElementException;
  *  Based on similar Enumerator code by boucherb@users
  *
  * @author fred@users
+ * @version 1.7.2
  * @since HSQLDB 1.7.2
  */
 public class WrapperIterator implements Iterator {

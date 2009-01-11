@@ -85,6 +85,7 @@ import org.hsqldb.store.ValuePool;
  * Subclass CachedRow implements rows for CACHED and TEXT tables
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
+ * @version 1.8.0
  * @since Hypersonic SQL
  */
 public class Row implements CachedObject {

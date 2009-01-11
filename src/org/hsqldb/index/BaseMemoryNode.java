@@ -79,6 +79,7 @@ import org.hsqldb.persist.*;
  *  New class derived from the Hypersonic code
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
+ * @version    1.7.2
  * @since Hypersonic SQL
  */
 abstract class BaseMemoryNode extends Node {

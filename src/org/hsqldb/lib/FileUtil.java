@@ -47,6 +47,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
+ * @version 1.8.0
  * @since 1.7.2
  */
 public class FileUtil implements FileAccess {

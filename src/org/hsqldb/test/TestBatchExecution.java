@@ -46,6 +46,7 @@ import org.hsqldb.lib.StopWatch;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @since 1.7.2
+ * @version 1.7.2
  */
 
 // fredt@users - modified to do some network connection tests

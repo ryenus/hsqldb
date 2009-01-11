@@ -76,6 +76,7 @@ public class Sort {
      * the comparator. (fredt@users)
      *
      * @author Thomas Mueller (Hypersonic SQL Group)
+     * @version 1.7.2
      * @since 1.7.2
      */
     public static final void sort(Object[] w, ObjectComparator comparator,

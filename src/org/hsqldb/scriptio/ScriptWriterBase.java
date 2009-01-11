@@ -82,6 +82,7 @@ import org.hsqldb.result.Result;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.8.0
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
