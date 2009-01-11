@@ -54,7 +54,6 @@ import org.hsqldb.lib.java.JavaSystem;
  * New class based on Hypersonic original
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.2
  * @since 1.7.0
  */
 class ConnectionDialogCommon {

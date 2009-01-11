@@ -44,7 +44,6 @@ import org.hsqldb.persist.PersistentStore;
  * Base class for all script readers.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
  * @since 1.7.2
  */
 public abstract class ScriptReaderBase {

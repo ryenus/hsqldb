@@ -353,7 +353,6 @@ import org.hsqldb.lib.StringConverter;
  * present. <p>
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
- * @version 1.8.0.3
  * @since 1.7.2
  */
 public class LockFile {

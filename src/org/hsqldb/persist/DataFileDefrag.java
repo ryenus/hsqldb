@@ -64,7 +64,6 @@ import org.hsqldb.rowio.RowOutputInterface;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    1.8.0
  * @since      1.7.2
  */
 final class DataFileDefrag {

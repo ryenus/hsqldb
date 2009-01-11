@@ -42,7 +42,7 @@ import java.util.ArrayList;
  *
  * @author   Blaine Simpson, unsaved@users
  * @since    HSQLDB 1.8.0
- * @version  $Revision$
+ * @version  $Revision$, $Date$
  */
 public class MainInvoker {
 

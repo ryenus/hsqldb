@@ -49,7 +49,6 @@ import org.hsqldb.lib.SimpleLog;
  * closed.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.8.0.5
  * @since 1.8.0.5
  */
 final class ScaledRAFileNIO implements ScaledRAInterface {

@@ -41,7 +41,6 @@ import org.hsqldb.rights.User;
  * Responsible for managing opening and closing of sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
  * @since 1.7.2
  */
 public class SessionManager {

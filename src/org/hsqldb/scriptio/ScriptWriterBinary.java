@@ -46,7 +46,6 @@ import org.hsqldb.lib.DataOutputStream;
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @since 1.8.0
- * @version 1.7.2
  */
 class ScriptWriterBinary extends ScriptWriterBase {
 

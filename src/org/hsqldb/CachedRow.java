@@ -92,7 +92,6 @@ import org.hsqldb.rowio.RowOutputInterface;
  *  New class from the Hypersonic Original
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
  * @since Hypersonic SQL
  */
 public class CachedRow extends Row {

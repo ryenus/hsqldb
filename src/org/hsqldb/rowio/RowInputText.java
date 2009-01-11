@@ -57,7 +57,6 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row in text table format.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.8.0
  * @since 1.7.0
  */
 public class RowInputText extends RowInputBase implements RowInputInterface {

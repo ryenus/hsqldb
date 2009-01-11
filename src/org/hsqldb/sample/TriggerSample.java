@@ -122,7 +122,6 @@ import org.hsqldb.lib.StringUtil;
  *
  * @author Peter Hudson
  * @author boucherb@users
- * @version 1.7.2
  * @since 1.7.0
  */
 public class TriggerSample implements Trigger {

@@ -96,7 +96,6 @@ import org.hsqldb.lib.RCData;
  * Originally in HypersonicSQL. Extended in various versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
  * @since Hypersonic SQL
  */
 public class DatabaseManager extends Applet

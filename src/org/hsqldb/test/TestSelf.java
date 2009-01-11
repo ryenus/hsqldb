@@ -112,8 +112,7 @@ import org.hsqldb.lib.StringComparator;
  *  (fredt@users)
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
-  * @version 1.7.2
-  * @since Hypersonic SQL
+ * @since Hypersonic SQL
  */
 class TestSelf extends TestUtil {
 

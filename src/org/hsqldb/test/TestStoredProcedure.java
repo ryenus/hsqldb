@@ -42,7 +42,6 @@ import junit.framework.TestResult;
  * Tests for stored procedures.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
  * @since 1.7.2
  */
 public class TestStoredProcedure extends TestBase {

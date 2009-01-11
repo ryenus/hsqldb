@@ -51,7 +51,6 @@ import org.hsqldb.scriptio.ScriptReaderBase;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
  * @since 1.7.2
  */
 public class ScriptRunner {

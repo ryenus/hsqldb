@@ -55,9 +55,7 @@ import java.awt.event.TextListener;
 /**
  * Class declaration
  *
- *
  * @author ulrivo@users
- * @version 1.0.0
  */
 
 // an entry panel to input/edit a record of a sql table

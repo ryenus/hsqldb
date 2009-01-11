@@ -51,7 +51,6 @@ import org.hsqldb.persist.PersistentStore;
  * New class based on Hypersonic SQL code.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
  * @since 1.7.1
  */
 public class PointerNode extends BaseMemoryNode {

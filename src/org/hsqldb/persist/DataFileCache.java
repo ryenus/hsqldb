@@ -60,7 +60,6 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 together with Cache.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
  * @since 1.7.2
  */
 public class DataFileCache {

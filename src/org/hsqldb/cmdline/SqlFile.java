@@ -126,7 +126,7 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * on "buffer", and expect it to contain the method specific prefix
  * (if any).
  *
- * @version $Revision$
+ * @version $Revision$, $Date$
  * @author Blaine Simpson unsaved@users.sourceforge.net
  */
 

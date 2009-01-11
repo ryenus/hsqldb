@@ -86,7 +86,6 @@ List compiled by Andrew Knight (quozzbat@users)
  * implements this must have a default constructor.
  *
  * @author Peter Hudson
- * @version 1.7.2
  * @since 1.7.0
  */
 public interface Trigger {
