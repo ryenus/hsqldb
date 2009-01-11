@@ -59,8 +59,8 @@ import java.sql.SQLException;
  * A <code>Blob</code> object is valid for the duration of the
  * transaction in which is was created.
  *
- * <P>Methods in the interfaces {@link ResultSet},
- * {@link CallableStatement}, and {@link PreparedStatement}, such as
+ * <P>Methods in the interfaces {@link JDBCResultSet},
+ * {@link JDBCCallableStatement}, and {@link JDBCPreparedStatement}, such as
  * <code>getBlob</code> and <code>setBlob</code> allow a programmer to
  * access an SQL <code>BLOB</code> value.
  * The <code>Blob</code> interface provides methods for getting the
@@ -89,8 +89,8 @@ import java.sql.SQLException;
  *
  * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
  * SQL BLOB data implementations, meaning that an HSQLDB Blob object <em>may</em>
- * contain a logical pointer to remote SQL BLOB data (see {@link jdbcBlobClient
- * jdbcBlobClient}) or it may directly contain a local representation of the
+ * contain a logical pointer to remote SQL BLOB data (see {@link JDBCBlobClient
+ * JDBCBlobClient}) or it may directly contain a local representation of the
  * data (as implemented in this class).  In particular, when the product is built
  * under JDK 1.6+ and the Blob instance is constructed as a result of calling
  * JDBCConnection.createBlob(), then the resulting Blob instance is initially

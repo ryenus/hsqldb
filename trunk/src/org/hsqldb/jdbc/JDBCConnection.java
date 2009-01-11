@@ -185,7 +185,7 @@ import java.sql.SQLInput;
  *
  * <b>Network Server Database Connections:</b> <p>
  *
- * The {@link org.hsqldb.Server Server} database connection <b>&lt;url&gt;</b>
+ * The {@link org.hsqldb.server.Server Server} database connection <b>&lt;url&gt;</b>
  * takes one of the two following forms: <p>
  *
  * <div class="GeneralExample">
@@ -197,7 +197,7 @@ import java.sql.SQLInput;
  * </ol>
  * </div> <p>
  *
- * The {@link org.hsqldb.WebServer WebServer} database connection <b>&lt;url&gt;</b>
+ * The {@link org.hsqldb.server.WebServer WebServer} database connection <b>&lt;url&gt;</b>
  * takes one of two following forms: <p>
  *
  * <div class="GeneralExample">
@@ -218,7 +218,7 @@ import java.sql.SQLInput;
  *
  * For more information on server configuration regarding mounting multiple
  * databases and assigning them <b>&lt;alias&gt;</b> values, please read the
- * Java API documentation for {@link org.hsqldb.Server Server} and related
+ * Java API documentation for {@link org.hsqldb.server.Server Server} and related
  * chapters in the general documentation, especially the <em>Advanced Users
  * Guide</em>. <p>
  *
@@ -452,9 +452,9 @@ import java.sql.SQLInput;
  * However, in addition to this technique requiring explicit casts to the
  * org.hsqldb.jdbcXXX classes, some of the method calls also require
  * <code>int</code> values that are defined only in the JDBC 2 or greater
- * version of the {@link java.sql.ResultSet ResultSet} interface.  For this
+ * version of the {@link java.sql.jdbc.JDBCResultSet ResultSet} interface.  For this
  * reason, when the product is compiled under JDK 1.1.x, these values are
- * defined in {@link org.hsqldb.jdbc.JDBCResultSet JDBCResultSet}. <p>
+ * defined in {@link JDBCResultSet JDBCResultSet}. <p>
  *
  * In a JRE 1.1.x environment, calling JDBC 2 methods that take or return the
  * JDBC 2+ <code>ResultSet</code> values can be achieved by referring
@@ -504,7 +504,7 @@ import java.sql.SQLInput;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @revised JDK 1.6, HSQLDB 1.9.0
- * @see org.hsqldb.jdbc.JDBCDriver
+ * @see JDBCDriver
  * @see JDBCStatement
  * @see JDBCParameterMetaData
  * @see JDBCCallableStatement
@@ -608,7 +608,7 @@ public class JDBCConnection implements Connection {
      *
      * The support for and behaviour of PreparedStatment complies with SQL and
      * JDBC standards.  Please read the introductory section
-     * of the documentation for ${link JDBCParameterMetaData}. <P>
+     * of the documentation for ${link org.hslqdb.jdbc.JDBCParameterMetaData}. <P>
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -1154,7 +1154,7 @@ public class JDBCConnection implements Connection {
      * @exception  SQLException if a database access error occurs
      * (JDBC4 Clarification)
      * or this method is called on a closed connection
-     * @see jdbcDatabaseMetaData
+     * @see JDBCDatabaseMetaData
      */
     public synchronized DatabaseMetaData getMetaData() throws SQLException {
 
@@ -1355,7 +1355,7 @@ public class JDBCConnection implements Connection {
      * (:JDBC4 End Clarification)
      *            or the given parameter is not one of the <code>Connection</code>
      *            constants
-     * @see jdbcDatabaseMetaData#supportsTransactionIsolationLevel
+     * @see JDBCDatabaseMetaData#supportsTransactionIsolationLevel
      * @see #getTransactionIsolation
      */
     public synchronized void setTransactionIsolation(
@@ -1408,7 +1408,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLException if a database access error occurs
      * (JDBC4 Clarification:)
      * or this method is called on a closed connection
-     * @see jdbcDatabaseMetaData#supportsTransactionIsolationLevel
+     * @see JDBCDatabaseMetaData#supportsTransactionIsolationLevel
      * @see #setTransactionIsolation
      */
     public synchronized int getTransactionIsolation() throws SQLException {
@@ -2771,7 +2771,7 @@ public class JDBCConnection implements Connection {
      * is less then 0
      * @since JDK 1.6, HSQLDB 1.9.0
      * <p>
-     * @see jdbcDatabaseMetaData#getClientInfoProperties
+     * @see JDBCDatabaseMetaData#getClientInfoProperties
      */
 //#ifdef JAVA6
     public boolean isValid(int timeout) throws SQLException {
@@ -3258,8 +3258,11 @@ public class JDBCConnection implements Connection {
      * <p>
      *
      * To read more about this, see
-     * {@link org.hsqldb.Function#getValue(org.hsqldb.Session)
-     * Function.getValue(Session)}. <p>
+     * {@link org.hsqldb.FunctionCustom#getValue(org.hsqldb.Session)
+     * FunctionCustom.getValue(Session)}
+     * {@link org.hsqldb.FunctionSQL#getValue(org.hsqldb.Session)
+     * FunctionSQL.getValue(Session)}
+     * . <p>
      *
      * <B>Notes:</B> <p>
      *
@@ -3278,7 +3281,8 @@ public class JDBCConnection implements Connection {
      * @param c the Session requesting the construction of this
      *     Connection
      * @exception HsqlException never (reserved for future use);
-     * @see org.hsqldb.Function
+     * @see org.hsqldb.FunctionSQL
+     * @see org.hsqldb.FunctionCustom
      */
     public JDBCConnection(SessionInterface c) throws HsqlException {
 

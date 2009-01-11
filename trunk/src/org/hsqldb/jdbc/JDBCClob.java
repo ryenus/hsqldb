@@ -71,8 +71,8 @@ import org.hsqldb.lib.AsciiStringInputStream;
  * for materializing a <code>CLOB</code> value on the client, and for
  * searching for a substring or <code>CLOB</code> object within a
  * <code>CLOB</code> value.
- * Methods in the interfaces {@link ResultSet},
- * {@link CallableStatement}, and {@link PreparedStatement}, such as
+ * Methods in the interfaces {@link JDBCResultSet},
+ * {@link JDBCCallableStatement}, and {@link JDBCPreparedStatement}, such as
  * <code>getClob</code> and <code>setClob</code> allow a programmer to
  * access an SQL <code>CLOB</code> value.  In addition, this interface
  * has methods for updating a <code>CLOB</code> value.
@@ -96,8 +96,8 @@ import org.hsqldb.lib.AsciiStringInputStream;
  *
  * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
  * SQL CLOB data implementations, meaning that an HSQLDB Clob object <em>may</em>
- * contain a logical pointer to remote SQL CLOB data (see {@link jdbcClobClient
- * jdbcClobClient}) or it may directly contain a local representation of the
+ * contain a logical pointer to remote SQL CLOB data (see {@link JDBCClobClient
+ * JDBCClobClient}) or it may directly contain a local representation of the
  * data (as implemented in this class).  In particular, when the product is built
  * under JDK 1.6+ and the Clob instance is constructed as a result of calling
  * JDBCConnection.createClob(), then the resulting Clob instance is initially

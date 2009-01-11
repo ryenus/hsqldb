@@ -288,9 +288,9 @@ import org.hsqldb.FunctionCustom;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @revised JDK 1.6, HSQLDB 1.9.0
- * @see org.hsqldb.DatabaseInformation
- * @see org.hsqldb.DatabaseInformationMain
- * @see org.hsqldb.DatabaseInformationFull
+ * @see org.hsqldb.dbinfo.DatabaseInformation
+ * @see org.hsqldb.dbinfo.DatabaseInformationMain
+ * @see org.hsqldb.dbinfo.DatabaseInformationFull
  */
 
 //#ifdef JAVA6
@@ -393,7 +393,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with 1.7.2, this makes
-     * an SQL call to the new {@link Library#isReadOnlyDatabase} method
+     * an SQL call to the new isReadOnlyDatabase function
      * which provides correct determination of the read-only status for
      * both local and remote database instances.
      * </div>
@@ -508,7 +508,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.7.2, this value is retrieved through an
-     * SQL call to the new {@link Library#getDatabaseProductName} method
+     * SQL call to the new {@link org.hsqldb.Library#getDatabaseProductName} method
      * which allows correct determination of the database product name
      * for both local and remote database instances.
      * </div> <p>
@@ -537,7 +537,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Starting with HSQLDB 1.7.2, this value is retrieved through an
-     * SQL call to the new {@link Library#getDatabaseProductVersion} method
+     * SQL call to the new {@link org.hsqldb.Library#getDatabaseProductVersion} method
      * which allows correct determination of the database product name
      * for both local and remote database instances.
      * </div> <p>
@@ -2859,7 +2859,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3028,7 +3028,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3122,7 +3122,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3251,7 +3251,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3285,7 +3285,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3397,7 +3397,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3474,7 +3474,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3562,7 +3562,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3664,7 +3664,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3780,7 +3780,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3848,7 +3848,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3963,7 +3963,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4078,7 +4078,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4198,7 +4198,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4321,7 +4321,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4392,7 +4392,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5001,7 +5001,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5083,7 +5083,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5199,7 +5199,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5311,7 +5311,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Starting with 1.7.2, the feature is supported under JDK1.4+ builds. <p>
      *
      * This value is retrieved through an SQL call to the new
-     * {@link Library#getDatabaseMajorVersion} method which allows
+     * {@link org.hsqldb.Library#getDatabaseMajorVersion} method which allows
      * correct determination of the database major version for both local
      * and remote database instances.
      * </div>
@@ -5347,7 +5347,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Starting with 1.7.2, the feature is supported under JDK1.4+ builds. <p>
      *
      * This value is retrieved through an SQL call to the new
-     * {@link Library#getDatabaseMinorVersion} method which allows
+     * {@link org.hsqldb.Library#getDatabaseMinorVersion} method which allows
      * correct determination of the database minor version for both local
      * and remote database instances.
      * </div>

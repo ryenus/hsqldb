@@ -59,7 +59,7 @@ import org.hsqldb.lib.RCData;
  * Then programmatic users could use instances of this class in the normal
  * Java way.
  *
- * @see #main()
+ * @see #main(String[])
  * @version $Revision$, $Date$
  * @author Blaine Simpson unsaved@users
  */
@@ -248,7 +248,7 @@ public class SqlTool {
      * If you don't want SqlTool to System.exit(), then use the method
      * objectMain() instead of this method.
      *
-     * @see objectMain(String[])
+     * @see #objectMain(String[])
      */
     public static void main(String[] args) {
         try {
