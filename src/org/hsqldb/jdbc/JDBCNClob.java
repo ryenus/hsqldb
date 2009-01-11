@@ -69,8 +69,8 @@ import java.sql.NClob;
  *
  * @since JDK 1.6, HSQLDB 1.9.0
  * @author boucherb@users
- * @see jdbcClob
- * @see jdbcClobClient
+ * @see JDBCClob
+ * @see JDBCClobClient
  */
 public class JDBCNClob extends JDBCClob implements NClob {
 

@@ -305,8 +305,8 @@ import org.hsqldb.SessionInterface;
  * (boucherb@users)<p>
  *
  * </div>
- * @see jdbcStatement#executeQuery
- * @see jdbcStatement#getResultSet
+ * @see JDBCStatement#executeQuery
+ * @see JDBCStatement#getResultSet
  * @see java.sql.ResultSetMetaData
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
@@ -1458,7 +1458,7 @@ public class JDBCResultSet implements ResultSet {
      * @return the description of this <code>ResultSet</code> object's columns
      * @exception SQLException if a database access error occurs or this method is
      *            called on a closed result set
-     * @see jdbcResultSetMetaData
+     * @see JDBCResultSetMetaData
      */
     public ResultSetMetaData getMetaData() throws SQLException {
 
@@ -2297,7 +2297,7 @@ public class JDBCResultSet implements ResultSet {
      * direction is not <code>FETCH_FORWARD</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *  JDBCResultSet)
-     * @see jdbcStatement#setFetchDirection
+     * @see JDBCStatement#setFetchDirection
      * @see #getFetchDirection
      */
     public void setFetchDirection(int direction) throws SQLException {
@@ -2384,8 +2384,8 @@ public class JDBCResultSet implements ResultSet {
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *   JDBCResultSet)
      * @see #getFetchSize
-     * @see jdbcStatement#setFetchSize
-     * @see jdbcStatement#getFetchSize
+     * @see JDBCStatement#setFetchSize
+     * @see JDBCStatement#getFetchSize
      */
     public void setFetchSize(int rows) throws SQLException {
 
@@ -2415,8 +2415,8 @@ public class JDBCResultSet implements ResultSet {
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *   JDBCResultSet)
      * @see #setFetchSize
-     * @see jdbcStatement#getFetchSize
-     * @see jdbcStatement#setFetchSize
+     * @see JDBCStatement#getFetchSize
+     * @see JDBCStatement#setFetchSize
      */
     public int getFetchSize() throws SQLException {
 
@@ -2513,7 +2513,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @see jdbcDatabaseMetaData#updatesAreDetected
+     * @see JDBCDatabaseMetaData#updatesAreDetected
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *   JDBCResultSet)
      */
@@ -2547,7 +2547,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @see jdbcDatabaseMetaData#insertsAreDetected
+     * @see JDBCDatabaseMetaData#insertsAreDetected
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *   JDBCResultSet)
      */
@@ -2584,7 +2584,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @see jdbcDatabaseMetaData#deletesAreDetected
+     * @see JDBCDatabaseMetaData#deletesAreDetected
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *   JDBCResultSet)
      */
@@ -4465,8 +4465,8 @@ public class JDBCResultSet implements ResultSet {
      * Starting with 1.8.0.x, this feature is supported. <p>
      *
      * Starting with 1.9.0, Blob features and implementation details
-     * have changed, Please see {@link jdbcBlob jdbcBlob} and {@link
-     * jdbcBlobClient jdbcBlobClient}.
+     * have changed, Please see {@link JDBCBlob JDBCBlob} and {@link
+     * JDBCBlobClient JDBCBlobClient}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4524,8 +4524,8 @@ public class JDBCResultSet implements ResultSet {
      * Starting with 1.8.0.x, this feature is supported. <p>
      *
      * Starting with 1.9.0, Clob features and implementation details
-     * have changed, Please see {@link jdbcBlob jdbcBlob} and {@link
-     * jdbcBlobClient jdbcBlobClient}.
+     * have changed, Please see {@link JDBCBlob JDBCBlob} and {@link
+     * JDBCBlobClient JDBCBlobClient}.
      * </div>
      * <!-- end release-specific documentation -->
      *

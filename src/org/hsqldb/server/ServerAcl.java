@@ -79,7 +79,7 @@ import org.hsqldb.store.BitMap;
  * </CODE></PRE>
  * </P>
  *
- * @see #ServerAcl()
+ * @see #ServerAcl(File)
  * @see #permitAccess
  **/
 public final class ServerAcl {

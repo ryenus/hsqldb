@@ -1077,10 +1077,10 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>PreparedStatement</code>
      * or an argument is supplied to this method
-     * @see jdbcStatement#execute
-     * @see jdbcStatement#getResultSet
-     * @see jdbcStatement#getUpdateCount
-     * @see jdbcStatement#getMoreResults
+     * @see JDBCStatement#execute
+     * @see JDBCStatement#getResultSet
+     * @see JDBCStatement#getUpdateCount
+     * @see JDBCStatement#getMoreResults
      *
      */
     public boolean execute() throws SQLException {
@@ -1108,7 +1108,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      *
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @see jdbcStatement#addBatch
+     * @see JDBCStatement#addBatch
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      * JDBCParameterMetaData)
      */
@@ -1862,7 +1862,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      *
      *
      * @see #addBatch
-     * @see DatabaseMetaData#supportsBatchUpdates
+     * @see java.sql.DatabaseMetaData#supportsBatchUpdates()
      * @since JDK 1.3 (JDK 1.1.x developers: read the overview for
      * jdbcStatement)
      */

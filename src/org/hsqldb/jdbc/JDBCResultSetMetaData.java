@@ -95,8 +95,8 @@ import org.hsqldb.types.CharacterType;
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @version 1.9.0
  * @revised JDK 1.6, HSQLDB 1.8.x
- * @see jdbcStatement#executeQuery
- * @see jdbcStatement#getResultSet
+ * @see JDBCStatement#executeQuery
+ * @see JDBCStatement#getResultSet
  * @see java.sql.ResultSetMetaData
  */
 public class JDBCResultSetMetaData implements ResultSetMetaData {
@@ -628,7 +628,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <p>
      *
      * For greater detail, see discussion at:
-     * {@link jdbcDatabaseMetaData}. <p>
+     * {@link JDBCDatabaseMetaData}. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
