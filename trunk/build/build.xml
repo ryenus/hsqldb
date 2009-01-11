@@ -909,18 +909,17 @@ examples:
    </target>
 
     <target name="javadocdev" depends="-preparedoc,-javaversion2,-doclink-1.2"
-            description="Create javadoc for developers">
+            description="Create javadoc for HSQLDB product developers">
       <javadoc packagenames="org.hsqldb.*,org.hsqldb.jdbc.*,org.hsqldb.lib.*,org.hsqldb.util.*,org.hsqldb.cmdline.*"
            sourcepath="src"
            destdir="doc/src"
-           docencoding="UTF-8"
            linksource="true"
            author="true"
            version="true"
            use="true"
            package="true"
-           windowtitle="${hsqldb.title} ${hsqldb.version} API"
-           doctitle="${hsqldb.title} ${hsqldb.version}"
+           windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
+           doctitle="${hsqldb.title} ${hsqldb.version} Product"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
            <classpath>
              <pathelement path="${java.class.path}"/>
