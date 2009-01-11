@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns6="http://www.w3.org/1999/xlink"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
@@ -949,7 +950,8 @@
 
       <simpara><emphasis>schema definition</emphasis></simpara>
 
-      <para>A schema can be created with or without schema objects. Schema
+      <para>The CREATE_SCHEMA or DBA role is required in order to create a
+      schema. A schema can be created with or without schema objects. Schema
       objects can always be added after creating the schema, or existing ones
       can be dropped. Within the <literal>&lt;schema definition&gt;</literal>
       statement, all schema object creation takes place inside the newly
@@ -988,6 +990,16 @@
       definition&gt;</literal></simpara>
 
       <simpara>An example of the command is given below:</simpara>
+
+      <programlisting>    CREATE SCHEMA ACCOUNTS AUTHORIZATION DBA
+        CREATE TABLE AB(A INTEGER, ...)
+        CREATE TABLE CD(C CHAHR, ...)
+        CREATE VIEW VI AS SELECT ...
+        GRANT SELECT TO PUBLIC ON AB
+        GRANT SELECT TO JOE ON CD;
+</programlisting>
+
+      <simpara>More..</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP SCHEMA</primary>
