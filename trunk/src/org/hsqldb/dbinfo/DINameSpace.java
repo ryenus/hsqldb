@@ -63,6 +63,7 @@ import org.hsqldb.rights.Grantee;
  * object. <p>
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @version 1.8.0
  * @since 1.7.2
  */
 final class DINameSpace {

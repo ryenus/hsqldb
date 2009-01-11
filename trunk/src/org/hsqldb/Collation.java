@@ -44,6 +44,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *
  * @author Frand Schoenheit frank.schoenheit@sun.com
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.8.0
  * @since 1.8.0
  */
 public class Collation {

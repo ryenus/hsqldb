@@ -48,6 +48,7 @@ import junit.framework.TestCase;
 /**
  * Test case to demonstrate catastrophic bug in cascade delete code.
  *
+ * @version 1.0
  * @author  David Kopp
  */
 public class TestCascade extends TestCase {

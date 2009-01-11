@@ -88,6 +88,7 @@ import java.util.Random;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
+ * @version 1.8.0
  * @since 1.7.0
  */
 class DatabaseManagerCommon {

@@ -55,6 +55,7 @@ import org.hsqldb.persist.PersistentStore;
  * Reader corresponding to BinaryDatabaseScritReader.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.7.2
  * @since 1.7.2
  */
 class ScriptReaderBinary extends ScriptReaderBase {

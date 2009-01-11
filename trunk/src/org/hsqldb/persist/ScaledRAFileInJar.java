@@ -46,6 +46,7 @@ import org.hsqldb.lib.HsqlByteArrayInputStream;
  * A proof-of-concept prototype was first contributed by winfriedthom@users.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version  1.8.0
  * @since  1.8.0
  */
 final class ScaledRAFileInJar implements ScaledRAInterface {

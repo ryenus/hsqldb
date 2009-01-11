@@ -36,6 +36,7 @@ import java.util.NoSuchElementException;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.7.2
  * @since 1.7.2
  */
 public interface Iterator {

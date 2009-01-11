@@ -59,6 +59,7 @@ import org.hsqldb.types.Type;
  * the DatabaseMetaData getProcedures and getProcedureColumns result sets.
  *
  * @author  boucherb@users
+ * @version 1.8.x
  * @since 1.7.2
  */
 final class DIProcedureInfo {

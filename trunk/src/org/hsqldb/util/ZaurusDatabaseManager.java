@@ -62,7 +62,10 @@ import org.hsqldb.lib.java.JavaSystem;
 /**
  * Class declaration
  *
+ *
+ * @version 1.0.0.1
  * @author ulrivo@users
+ *
  */
 public class ZaurusDatabaseManager extends DatabaseManager
 implements ActionListener, WindowListener, KeyListener {

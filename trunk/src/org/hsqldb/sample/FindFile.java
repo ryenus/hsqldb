@@ -78,6 +78,7 @@ import java.sql.Statement;
  * Extract a directory tree and store in an HSQLDB database.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
+ * @version 1.7.0
  * @since Hypersonic SQL
  */
 class FindFile {

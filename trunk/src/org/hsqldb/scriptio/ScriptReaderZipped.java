@@ -44,6 +44,7 @@ import org.hsqldb.HsqlException;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.8.0
  * @since 1.7.2
  */
 class ScriptReaderZipped extends ScriptReaderBinary {

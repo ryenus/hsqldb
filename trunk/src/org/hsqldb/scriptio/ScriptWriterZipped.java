@@ -45,6 +45,7 @@ import org.hsqldb.lib.FileAccess;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @since 1.7.2
+ * @version 1.7.2
  */
 class ScriptWriterZipped extends ScriptWriterBinary {
 

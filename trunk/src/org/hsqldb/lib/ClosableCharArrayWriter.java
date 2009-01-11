@@ -62,6 +62,7 @@ import java.io.Writer;
  * events and to client invocation of the <tt>Writer.close()</tt> method.
  *
  * @author boucherb@users
+ * @version 1.8.x
  * @since 1.8.x
  */
 
