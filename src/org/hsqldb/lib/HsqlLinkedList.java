@@ -141,7 +141,7 @@ public class HsqlLinkedList extends BaseList implements HsqlList {
 
     /**
      * Gets the element at given position
-     * @throws <code>IndexOutOfBoundsException</code> if index is not valid
+     * @throws IndexOutOfBoundsException if index is not valid
      * index within the list (0 &lt;= <code>index</code> &lt;
      * <code>size</code>).
      */
@@ -151,7 +151,7 @@ public class HsqlLinkedList extends BaseList implements HsqlList {
 
     /**
      * Removes and returns the element at <code>index</code>.
-     * @throws <code>IndexOutOfBoundsException</code> if index is not valid
+     * @throws IndexOutOfBoundsException if index is not valid
      * index within the list (0 &lt;= <code>index</code> &lt;
      * <code>size</code>).
      */
@@ -220,7 +220,7 @@ public class HsqlLinkedList extends BaseList implements HsqlList {
      * Helper method that returns the Node at <code>index</code>.
      * @param index The index of the Node to return.
      * @return The Node at the given index.
-     * @throws <code>IndexOutOfBoundsException</code> if index is not valid
+     * @throws IndexOutOfBoundsException if index is not valid
      * index within the list (0 &lt;= <code>index</code> &lt;
      * <code>size</code>).
      */
