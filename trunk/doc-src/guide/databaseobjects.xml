@@ -5,7 +5,8 @@
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
          xmlns:ns="http://docbook.org/ns/docbook">
-  <title xml:id="databaseobjects-title">Schemas and Other Database Objects</title>
+  <title xml:id="databaseobjects-title">Schemas and Other Database
+  Objects</title>
 
   <info>
     <authorgroup>
@@ -63,13 +64,17 @@
 
   <simpara><emphasis>definition of identifier</emphasis></simpara>
 
-  <simpara><literal>&lt;identifier&gt; ::= &lt;undelimited identifier&gt; |
-  &lt;delimited identifier&gt;</literal></simpara>
+  <simpara><literal>&lt;identifier&gt; ::= &lt;regular identifier&gt; |
+  &lt;delimited identifier&gt; | &lt;SQL language identifier&gt;
+  </literal></simpara>
 
   <simpara><literal>&lt;delimited identifier&gt; ::= &lt;double quote&gt;
   &lt;character sequence&gt; &lt;double quote&gt;</literal></simpara>
 
-  <simpara><literal>&lt;undelimited identifier&gt; ::= &lt;special character
+  <simpara><literal>&lt;regular identifier&gt; ::= &lt;special character
+  sequence&gt;</literal></simpara>
+
+  <simpara><literal>&lt;SQL language identifier&gt; ::= &lt;special character
   sequence&gt;</literal></simpara>
 
   <simpara>A <literal>&lt;delimited identifier&gt;</literal> is a sequence of
@@ -77,17 +82,27 @@
   must be between 1 and 128 characters. All characters are allowed in the
   character sequence.</simpara>
 
-  <simpara>An <literal>&lt;undelimited identifier&gt;</literal> is a special
+  <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
   sequence of characters. It consists of letters, digits and the underscore
-  characters. It should begin with a letter.</simpara>
+  characters. It should begin with a letter. </simpara>
+
+  <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar to
+  <literal>&lt;regular identifier&gt;</literal> but the letters can range only
+  from A-Z in the ASCII character set. This type of identifier is used for
+  names of CHARACTER SET objects.</simpara>
 
   <simpara>If the character sequence of a delimited identifier is the same as
   an undelimited identifier, it represents the same identifier. For example
-  "JOHN" is the same identifier as JOHN.</simpara>
+  "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
+  identifier&gt;</literal> the case-normal form is considered for comparison.
+  This form consists of the upper-case of equivalent of all the letters.
+  </simpara>
 
-  <simpara>A reserved word is similar to an undelimited identifier, but it
-  cannot be used as an identifier. If a reserved word is enclosed in double
-  quote characters, it becomes an identifier.</simpara>
+  <simpara>A reserved word is one that is used by the SQL Standard for special
+  purposes. It is similar to a <literal>&lt;regular identifier&gt;</literal>
+  but it cannot be used as an identifier for user objects. If a reserved word
+  is enclosed in double quote characters, it becomes a quoted identifier and
+  can be used for database objects.</simpara>
 
   <section>
     <title>Authorizations and Access Control</title>
@@ -101,14 +116,14 @@
 
     <para>A ROLE is a collection of zero or more other roles, plus some
     privileges (access rights). A USER is similarly a collection of zero or
-    more roles plus some privileges. USER objects existed in the SQL Standard
-    from the early days, but ROLE objects were introduced in SQL:1999.
-    Originally it was intended that USER objects would normally be the same as
-    the operating system USER objects and their authentication would be
-    handled outside the SQL environment. This duplication of ROLE and USER
-    objects results in complexity. With the addition of ROLE objects, there is
-    no rationale, other than legacy support, for the possibility of granting
-    privileges to USER objects in the current SQL Standard.</para>
+    more roles plus some privileges. USER objects existed in the SQL-92, but
+    ROLE objects were introduced in SQL:1999. Originally it was intended that
+    USER objects would normally be the same as the operating system USER
+    objects and their authentication would be handled outside the SQL
+    environment. The existence of ROLE and USER objects results in complexity.
+    With the addition of ROLE objects, there is no rationale, other than
+    legacy support, for the possibility of granting privileges to USER
+    objects.</para>
 
     <para>The Standard effectively defines a special ROLE, named PUBLIC. All
     authorization have the PUBLIC role, which cannot be removed from them.
@@ -254,7 +269,7 @@
       <literal>&lt;grantor&gt;</literal> is normally the CURRENT_USER of the
       session that issues the statement.</para>
 
-      <para>The user or role that is granted privileges is designated as
+      <para>The user or role that is granted privileges is referred to as
       <literal>&lt;grantee&gt;</literal> for the granted privileges.</para>
 
       <simpara><emphasis role="bold">Table</emphasis></simpara>
@@ -263,8 +278,8 @@
       different degrees of granularity. It is possible to grant a privilege on
       all columns of a table, or on specific columns of the table.</simpara>
 
-      <simpara>The DELETE privilege designates the whole table. It applies to
-      all DELETE statements.</simpara>
+      <simpara>The DELETE privilege applies to the table, rather than its
+      columns. It applies to all DELETE statements.</simpara>
 
       <simpara>The SELECT, INSERT and UPDATE privileges may apply to all
       columns or to individual columns. These privileges determine whether the
@@ -277,16 +292,16 @@
 
       <simpara>The INSERT privilege designates the columns into which explicit
       values can be inserted. To be able to insert a row into the table, the
-      user should therefore have the INSERT privilege on at least all the
-      columns that do not have a default value.</simpara>
+      user should therefore have the INSERT privilege on the table, or at
+      least all the columns that do not have a default value.</simpara>
 
-      <simpara>The UPDATE privilege simply designates the columns that can be
-      updated.</simpara>
+      <simpara>The UPDATE privilege simply designates the table or the
+      specific columns that can be updated.</simpara>
 
       <simpara>The REFERENCES privilege allows the
       <literal>&lt;grantee&gt;</literal> to define a FOREIGN KEY constraint on
-      a different table, which references the columns designated for the
-      REFERENCES privilege.</simpara>
+      a different table, which references the table or the specific columns
+      designated for the REFERENCES privilege.</simpara>
 
       <simpara>The TRIGGER privilege allows adding a trigger to the
       table.</simpara>
@@ -303,6 +318,12 @@
       <simpara>For routines, including procedures or functions, only EXECUTE
       privilege can be granted. This privilege is needed when the routine is
       used directly in an SQL statement.</simpara>
+
+      <simpara><emphasis role="bold">Other Objects</emphasis></simpara>
+
+      <simpara>Other objects such as constraints and assertions are not used
+      directly and there is no grantable privilege that refers to
+      them.</simpara>
     </section>
 
     <section>
@@ -325,11 +346,13 @@
       <simpara><emphasis>user definition (HyperSQL)</emphasis></simpara>
 
       <simpara><literal>&lt;user definition&gt; ::= CREATE USER &lt;user
-      name&gt; PASSWORD &lt;password&gt;</literal></simpara>
+      name&gt; PASSWORD &lt;password&gt; [ ADMIN ]</literal></simpara>
 
       <simpara>Define a new user and its password.
       <literal>&lt;password&gt;</literal> is a string enclosed with single
-      quote characters.</simpara>
+      quote characters. If <literal>ADMIN</literal> is specified, the DBA role
+      is granted to the new user. Only a user with the DBA role can execute
+      this command.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP USER</primary>
@@ -342,7 +365,9 @@
       <simpara><literal>&lt;drop user statement&gt; ::= DROP USER &lt;user
       name&gt;</literal></simpara>
 
-      <simpara>Drop (destroy) an existing user.</simpara>
+      <simpara>Drop (destroy) an existing user. If the specified user is the
+      authorization for an schema, the schema is destroyed. Only a user with
+      the DBA role can execute this command.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET PASSWORD</primary>
@@ -372,7 +397,8 @@
       name&gt; [ WITH ADMIN &lt;grantor&gt; ]</literal></simpara>
 
       <simpara>Defines a new role. Initially the role has no rights, except
-      those of the PUBLIC role.</simpara>
+      those of the PUBLIC role. Only a user with the DBA role can execute this
+      command.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP ROLE</primary>
@@ -385,7 +411,9 @@
       <simpara><literal>&lt;drop role statement&gt; ::= DROP ROLE &lt;role
       name&gt;</literal></simpara>
 
-      <simpara>Drop (destroy) a role.</simpara>
+      <simpara>Drop (destroy) a role. If the specified user is the
+      authorization for an schema, the schema is destroyed. Only a user with
+      the DBA role can execute this command.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>GRANTED BY</primary>
@@ -421,7 +449,7 @@
 
       <simpara>Assign privileges on schema objects to roles or users. Each
       <literal>&lt;grantee&gt;</literal> is a role or a user. If <literal>[
-      WITH GRANT OPTION ]</literal> is specified then the
+      WITH GRANT OPTION ]</literal> is specified, then the
       <literal>&lt;grantee&gt;</literal> can assign the privileges to other
       <literal>&lt;grantee&gt;</literal> objects.</simpara>
 
@@ -456,11 +484,8 @@
       <simpara>The <literal>&lt;object privileges&gt;</literal> that can be
       used depend on the type of the <literal>&lt;object name&gt;</literal>.
       If <literal>&lt;privilege column list&gt;</literal> is not specified,
-      then the privilege is granted on all columns of the table.</simpara>
-
-      <simpara>If a USER or ROLE has a privilege on all columns of a table,
-      this privilege is extended to any new column that may later be added to
-      the table.</simpara>
+      then the privilege is granted on the table, which includes all of its
+      columns and any column that may be added to it in the future.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>GRANT role</primary>
@@ -586,7 +611,7 @@
       <simpara>A CHARACTER SET is the whole or a subset of the UNICODE
       character set.</simpara>
 
-      <simpara>A character set names can only be an <literal>&lt;undelimited
+      <simpara>A character set names can only be an <literal>&lt;regular
       identifier&gt;</literal>. There is a separate name-space for character
       sets.</simpara>
 
@@ -682,6 +707,22 @@
     </section>
 
     <section>
+      <title>Views</title>
+
+      <simpara>A VIEW is similar to a TABLE but it does not permanently
+      contain rows of data. A view is defined as a QUERY EXPRESSION, which is
+      often a SELECT statement that references views and tables, but it can
+      also consist of a TABLE CONSTRUCTOR that does not reference any tables
+      or views.</simpara>
+
+      <simpara>A VIEW that is ultimately based on a single TABLE may be
+      <glossterm>updatable</glossterm>. Some <glossterm>updatable</glossterm>
+      views are <glossterm>insertable-into</glossterm>.</simpara>
+
+      <simpara>Views share a name-space with tables.</simpara>
+    </section>
+
+    <section>
       <title>Constraints</title>
 
       <simpara>A CONSTRAINT is a child schema object and can belong to a
@@ -744,14 +785,15 @@
       <title>Triggers</title>
 
       <simpara>A TRIGGER is a child schema object that always belongs to a
-      table.</simpara>
+      TABLE or a VIEW.</simpara>
 
       <simpara>Trigger functionality first appeared in SQL:1999. Triggers
-      embody the “live database” concept, where changes in SQL data can be
-      monitored and acted upon. SQL Standard triggers are imperative while the
-      relational aspects of SQL are declarative. Triggers allow performing an
-      arbitrary transformation of data that is being updated or inserted, or
-      to prevent deletes, or to perform additional operations.</simpara>
+      embody the <emphasis>live database</emphasis> concept, where changes in
+      SQL data can be monitored and acted upon. SQL Standard triggers are
+      <literal>imperative</literal> while the <literal>relational</literal>
+      aspects of SQL are declarative. Triggers allow performing an arbitrary
+      transformation of data that is being updated or inserted, or to prevent
+      deletes, or to perform additional operations.</simpara>
 
       <simpara>Some bad examples of SQL triggers in effect enforce an
       “integrity constraint” which would better be expressed as a CHECK
@@ -792,21 +834,14 @@
       other actions, such as inserting rows into other tables. Triggers that
       are performed before the action can modify the inserted or updated rows
       but not the deleted rows.</simpara>
-    </section>
 
-    <section>
-      <title>Views</title>
-
-      <simpara>A VIEW is similar to a TABLE but it does not permanently
-      contain rows of data. A view is defined as a QUERY EXPRESSION, which is
-      often a SELECT statement that references views and tables, but it can
-      also consist of a TABLE CONSTRUCTOR that does not reference any tables
-      or views.</simpara>
-
-      <simpara>A VIEW that is ultimately based on a single TABLE may be
-      updatable. Some updatable views are insertable into.</simpara>
-
-      <simpara>Views share a name-space with tables.</simpara>
+      <simpara>A TRIGGER that is declared on a VIEW, is an INSTEAD OF trigger.
+      This term means when an INSERT, UPDATE or DELETE statement is executed,
+      the trigger action is all that is performed, and no further data change
+      takes place on the VIEW. The trigger action can include all the
+      statements that are necessary to change the data in the tables that
+      underlie the VIEW. With the use of INSTEAD OF triggers a read-only view
+      can effectively become updatable or insertable-into.</simpara>
     </section>
 
     <section>
@@ -820,7 +855,7 @@
       <simpara>There is a separate name-space for routines.</simpara>
 
       <simpara>Routines are discussed in detail in a separate
-      section.</simpara>
+      chapter.</simpara>
     </section>
 
     <section>
@@ -909,10 +944,11 @@
       <simpara><literal>&lt;drop schema statement&gt; ::= DROP SCHEMA
       &lt;schema name&gt; CASCADE | RESTRICT</literal></simpara>
 
-      <simpara>This command destroys an existing schema. If RESTRICT is
-      specified, the schema must be empty, otherwise an error is raised. If
-      CASCADE is specified, then all the objects contained in the schema are
-      destroyed with a CASCADE option.</simpara>
+      <simpara>This command destroys an existing schema. If
+      <literal>RESTRICT</literal> is specified, the schema must be empty,
+      otherwise an error is raised. If <literal>CASCADE</literal> is
+      specified, then all the objects contained in the schema are destroyed
+      with a CASCADE option.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE TABLE</primary>
@@ -954,7 +990,8 @@
       definitions are copied or not. The <literal>&lt;like
       clause&gt;</literal> can be used multiple times, allowing the new table
       to have copies of the column definitions of one or more other tables. If
-      an option is not specified, it defaults to EXCLUDING.</simpara>
+      an option is not specified, it defaults to
+      <literal>EXCLUDING</literal>.</simpara>
 
       <simpara><literal>&lt;like clause&gt; ::= LIKE &lt;table name&gt; [
       &lt;like options&gt; ]</literal></simpara>
@@ -984,9 +1021,9 @@
       <simpara>An <literal>&lt;as subquery clause&gt;</literal> used in table
       definition creates a table based on a <literal>&lt;table
       subquery&gt;</literal>. This kind of table definition is similar to a
-      view definition. If WITH DATA is specified, then the new table will
-      contain the rows of data returned by the <literal>&lt;table
-      subquery&gt;</literal>.</simpara>
+      view definition. If <literal>WITH DATA</literal> is specified, then the
+      new table will contain the rows of data returned by the
+      <literal>&lt;table subquery&gt;</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>column definition</primary>
@@ -1124,7 +1161,7 @@
       constraint can be specified. Each column of a PRIMARY KEY constraint has
       an implicit NOT NULL constraint.</simpara>
 
-      <simpara>If <literal>UNIQUE( VALUE )</literal> is specified, the the
+      <simpara>If <literal>UNIQUE( VALUE )</literal> is specified, the
       constraint created on all columns of the table.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -1209,7 +1246,7 @@
       <simpara>A CHECK constraint can exist for a TABLE or for a DOMAIN. The
       <literal>&lt;search condition&gt;</literal> evaluates to an SQL BOOLEAN
       value for each row of the table. Within the <literal>&lt;search
-      consition&gt;</literal> all columns of the table row can be referenced.
+      condition&gt;</literal> all columns of the table row can be referenced.
       The value should not be FALSE for any row.</simpara>
 
       <simpara>A CHECK constraint for a DOMAIN is similar. In its
@@ -1250,10 +1287,10 @@
       definition&gt;</literal> is specified the same way as it is used in
       <literal>&lt;table definition&gt;</literal>. HyperSQL allows the use of
       <literal>[ BEFORE &lt;other column name&gt; ]</literal> to specify at
-      which position the new colum is added to the table.</simpara>
+      which position the new column is added to the table.</simpara>
 
       <simpara>If the table contains rows, the new column must have a
-      &lt;default clause&gt; or use one of the forms of GENERATED. The colum
+      &lt;default clause&gt; or use one of the forms of GENERATED. The column
       values for each row is then filled with the result of the &lt;default
       clause&gt; or the generated value.</simpara>
 
@@ -1394,7 +1431,7 @@
       constraints. If such a constraint is referenced by a FOREIGN KEY
       constraint, the FOREIGN KEY constraint will be dropped if
       <literal>CASCADE</literal> is specified. If the columns of such a
-      constraint are used in a GOURP BY clause in the query expression of a
+      constraint are used in a GROUP BY clause in the query expression of a
       VIEW or another kind of schema object, and a functional dependency
       relationship exists between these columns and the other columns in that
       query expression, then the VIEW or other schema object will be dropped
@@ -1548,8 +1585,8 @@
 
       <simpara>Destroy a constraint on a domain. If the <literal>&lt;drop
       behavior&gt;</literal> is <literal>CASCADE</literal>, and the constraint
-      is a UNIQUE cosntraint which is referenced by a FORIGN KEY constraint on
-      another table, then the FOREIGN KEY constraint is also
+      is a UNIQUE constraint which is referenced by a FOREIGN KEY constraint
+      on another table, then the FOREIGN KEY constraint is also
       dropped.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -1776,7 +1813,37 @@
       <simpara><literal>&lt;new transition variable name&gt; ::=
       &lt;correlation name&gt;</literal></simpara>
 
-      <simpara>Define triggered SQL-statements.</simpara>
+      <simpara>Trigger definition is a relatively complex statement. The
+      combination of <literal>&lt;trigger action time&gt;</literal> and
+      <literal>&lt;trigger event&gt;</literal> determines the type of the
+      trigger. Examples include BEFORE DELETE, AFTER UPDATE, INSTEAD OF
+      INSERT. If the optional <literal>[ OF &lt;trigger column list&gt;
+      ]</literal> is specified for an UPDATE trigger, then the trigger is
+      activated only if one of the columns that is in the <literal>&lt;trigger
+      column list&gt;</literal> is specified in the UPDATE statement that
+      activates the trigger.</simpara>
+
+      <simpara>If a trigger is <literal>FOR EACH ROW</literal>, which is the
+      default option, then the trigger is activated for each row of the table
+      that is affected by the execution of an SQL statement. Otherwise, it is
+      activated once only per statement execution. In the first case, there is
+      a before and after state for each row. For UPDATE triggers, both before
+      and after states exist, representing the row before the update, and
+      after the update. For DELETE, triggers, there is only a before state.
+      For INSERT triggers, there is only an after state. If a trigger is
+      <literal>FOR EACH STATEMENT</literal>, then a transient table is created
+      containing all the rows for the before state and another transient table
+      is created for the after state.</simpara>
+
+      <simpara>The <literal>[ REFERENCING &lt;transition table or variable&gt;
+      ]</literal> is used to give a name to the before and after data row or
+      table. This name can be referenced in the <literal>&lt;SQL procedure
+      statement&gt;</literal> to access the data.</simpara>
+
+      <simpara>The optional <literal>&lt;triggered when clause&gt;</literal>
+      is a search condition, similar to the search condition of a DELETE or
+      UPDATE statement. If the search condition is not TRUE for a row, then
+      the trigger is not activated for that row.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRIGGER</primary>
@@ -1901,91 +1968,8 @@
       characteristic&gt; | &lt;SQL-data access indication&gt; | &lt;null-call
       clause&gt;</literal></simpara>
 
-      <simpara>Define a user-defined type.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>ALTER TYPE</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">ALTER TYPE</emphasis></simpara>
-
-      <simpara><emphasis>alter type statement</emphasis></simpara>
-
-      <simpara><literal>&lt;alter type statement&gt; ::= ALTER TYPE
-      &lt;schema-resolved user-defined type name&gt; &lt;alter type
-      action&gt;</literal></simpara>
-
-      <simpara><literal>&lt;alter type action&gt; ::= &lt;add attribute
-      definition&gt; | &lt;drop attribute definition&gt; | &lt;add original
-      method specification&gt; | &lt;add overriding method specification&gt; |
-      &lt;drop method specification&gt;</literal></simpara>
-
-      <simpara>Change the definition of a user-defined type.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>ADD</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">ADD</emphasis></simpara>
-
-      <simpara><emphasis>add original method
-      specification</emphasis></simpara>
-
-      <simpara><literal>&lt;add original method specification&gt; ::= ADD
-      &lt;original method specification&gt;</literal></simpara>
-
-      <simpara>Add an original method specification to a user-defined
-      type.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>ADD</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">ADD</emphasis></simpara>
-
-      <simpara><emphasis>add overriding method
-      specification</emphasis></simpara>
-
-      <simpara><literal>&lt;add overriding method specification&gt; ::= ADD
-      &lt;overriding method specification&gt;</literal></simpara>
-
-      <simpara>Add an overriding method specification to a user-defined
-      type.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>DROP</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">DROP</emphasis></simpara>
-
-      <simpara><emphasis>drop method specification</emphasis></simpara>
-
-      <simpara><literal>&lt;drop method specification&gt; ::= DROP
-      &lt;specific method specification designator&gt;
-      RESTRICT</literal></simpara>
-
-      <simpara><literal>&lt;specific method specification designator&gt; ::= [
-      INSTANCE | STATIC | CONSTRUCTOR ] METHOD &lt;method name&gt; &lt;data
-      type list&gt;</literal></simpara>
-
-      <simpara>Remove a method specification from a user-defined
-      type.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>DROP TYPE</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">DROP TYPE</emphasis></simpara>
-
-      <simpara><emphasis>drop data type statement</emphasis></simpara>
-
-      <simpara><literal>&lt;drop data type statement&gt; ::= DROP TYPE
-      &lt;schema-resolved user-defined type name&gt; &lt;drop
-      behavior&gt;</literal></simpara>
-
-      <simpara>Destroy a user-defined type.If the <literal>&lt;drop
-      behavior&gt;</literal> is <literal>CASCADE</literal>, then all TABLE
-      columns that are based on the type are dropped.</simpara>
+      <simpara>Define a user-defined type. Currently only simple distinct
+      types can be define without further attributes.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>schema routine</primary>
@@ -2146,10 +2130,10 @@
       <simpara>Define an SQL-invoked routine.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>ALTER</primary>
+        <primary>ALTER routine</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">ALTER</emphasis></simpara>
+      <simpara><emphasis role="bold">ALTER routine</emphasis></simpara>
 
       <simpara><emphasis>alter routine statement</emphasis></simpara>
 
@@ -2172,7 +2156,7 @@
       <simpara>Alter a characteristic of an SQL-invoked routine.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>DROP</primary>
+        <primary>DROP routine</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">DROP</emphasis></simpara>
@@ -2221,189 +2205,6 @@
       &lt;right paren&gt; &lt;drop behavior&gt;</literal></simpara>
 
       <simpara>Destroy a user-defined cast.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>CREATE ORDERING FOR</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">CREATE ORDERING FOR</emphasis></simpara>
-
-      <simpara><emphasis>user-defined ordering definition</emphasis></simpara>
-
-      <simpara><literal>&lt;user-defined ordering definition&gt; ::= CREATE
-      ORDERING FOR &lt;schema-resolved user-defined type name&gt; &lt;ordering
-      form&gt;</literal></simpara>
-
-      <simpara><literal>&lt;ordering form&gt; ::= &lt;equals ordering form&gt;
-      | &lt;full ordering form&gt;</literal></simpara>
-
-      <simpara><literal>&lt;equals ordering form&gt; ::= EQUALS ONLY BY
-      &lt;ordering category&gt;</literal></simpara>
-
-      <simpara><literal>&lt;full ordering form&gt; ::= ORDER FULL BY
-      &lt;ordering category&gt;</literal></simpara>
-
-      <simpara><literal>&lt;ordering category&gt; ::= &lt;relative
-      category&gt; | &lt;map category&gt; | &lt;state
-      category&gt;</literal></simpara>
-
-      <simpara><literal>&lt;relative category&gt; ::= RELATIVE WITH
-      &lt;relative function specification&gt;</literal></simpara>
-
-      <simpara><literal>&lt;map category&gt; ::= MAP WITH &lt;map function
-      specification&gt;</literal></simpara>
-
-      <simpara><literal>&lt;state category&gt; ::= STATE [ &lt;specific
-      name&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;relative function specification&gt; ::=
-      &lt;specific routine designator&gt;</literal></simpara>
-
-      <simpara><literal>&lt;map function specification&gt; ::= &lt;specific
-      routine designator&gt;</literal></simpara>
-
-      <simpara>Define a user-defined ordering for a user-defined
-      type.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>DROP ORDERING FOR</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">DROP ORDERING FOR</emphasis></simpara>
-
-      <simpara><emphasis>drop user-defined ordering
-      statement</emphasis></simpara>
-
-      <simpara><literal>&lt;drop user-defined ordering statement&gt; ::= DROP
-      ORDERING FOR &lt;schema-resolved user-defined type name&gt; &lt;drop
-      behavior&gt;</literal></simpara>
-
-      <simpara>Destroy a user-defined ordering method.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>CREATE { TRANSFORM | TRANSFORMS } FOR</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">CREATE { TRANSFORM | TRANSFORMS }
-      FOR</emphasis></simpara>
-
-      <simpara><emphasis>transform definition</emphasis></simpara>
-
-      <simpara><literal>&lt;transform definition&gt; ::= CREATE { TRANSFORM |
-      TRANSFORMS } FOR &lt;schema-resolved user-defined type name&gt;
-      &lt;transform group&gt;...</literal></simpara>
-
-      <simpara><literal>&lt;transform group&gt; ::= &lt;group name&gt;
-      &lt;left paren&gt; &lt;transform element list&gt; &lt;right
-      paren&gt;</literal></simpara>
-
-      <simpara><literal>&lt;group name&gt; ::=
-      &lt;identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;transform element list&gt; ::= &lt;transform
-      element&gt; [ &lt;comma&gt; &lt;transform element&gt;
-      ]</literal></simpara>
-
-      <simpara><literal>&lt;transform element&gt; ::= &lt;to sql&gt; |
-      &lt;from sql&gt;</literal></simpara>
-
-      <simpara><literal>&lt;to sql&gt; ::= TO SQL WITH &lt;to sql
-      function&gt;</literal></simpara>
-
-      <simpara><literal>&lt;from sql&gt; ::= FROM SQL WITH &lt;from sql
-      function&gt;</literal></simpara>
-
-      <simpara><literal>&lt;to sql function&gt; ::= &lt;specific routine
-      designator&gt;</literal></simpara>
-
-      <simpara><literal>&lt;from sql function&gt; ::= &lt;specific routine
-      designator&gt;</literal></simpara>
-
-      <simpara>Define one or more transform functions for a user-defined
-      type.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>ALTER { TRANSFORM | TRANSFORMS }</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">ALTER { TRANSFORM | TRANSFORMS
-      }</emphasis></simpara>
-
-      <simpara><emphasis>alter transform statement</emphasis></simpara>
-
-      <simpara><literal>&lt;alter transform statement&gt; ::= ALTER {
-      TRANSFORM | TRANSFORMS } FOR &lt;schema-resolved user-defined type
-      name&gt; &lt;alter group&gt;...</literal></simpara>
-
-      <simpara><literal>&lt;alter group&gt; ::= &lt;group name&gt; &lt;left
-      paren&gt; &lt;alter transform action list&gt; &lt;right
-      paren&gt;</literal></simpara>
-
-      <simpara><literal>&lt;alter transform action list&gt; ::= &lt;alter
-      transform action&gt; [ { &lt;comma&gt; &lt;alter transform action&gt;
-      }... ]</literal></simpara>
-
-      <simpara><literal>&lt;alter transform action&gt; ::= &lt;add transform
-      element list&gt; | &lt;drop transform element
-      list&gt;</literal></simpara>
-
-      <simpara>Change the definition of one or more transform
-      groups.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>ADD</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">ADD</emphasis></simpara>
-
-      <simpara><emphasis>add transform element list</emphasis></simpara>
-
-      <simpara><literal>&lt;add transform element list&gt; ::= ADD &lt;left
-      paren&gt; &lt;transform element list&gt; &lt;right
-      paren&gt;</literal></simpara>
-
-      <simpara>Add a transform element (to sql and/or from sql) to an existing
-      transform group.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>DROP</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">DROP</emphasis></simpara>
-
-      <simpara><emphasis>drop transform element list</emphasis></simpara>
-
-      <simpara><literal>&lt;drop transform element list&gt; ::= DROP &lt;left
-      paren&gt; &lt;transform kind&gt; [ &lt;comma&gt; &lt;transform kind&gt;
-      ] &lt;drop behavior&gt; &lt;right paren&gt;</literal></simpara>
-
-      <simpara><literal>&lt;transform kind&gt; ::= TO SQL | FROM
-      SQL</literal></simpara>
-
-      <simpara>Remove a transform element (to sql and/or from sql) from a
-      transform group.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>DROP { TRANSFORM | TRANSFORMS }</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">DROP { TRANSFORM | TRANSFORMS
-      }</emphasis></simpara>
-
-      <simpara><emphasis>drop transform statement</emphasis></simpara>
-
-      <simpara><literal>&lt;drop transform statement&gt; ::= DROP { TRANSFORM
-      | TRANSFORMS } &lt;transforms to be dropped&gt; FOR &lt;schema-resolved
-      user-defined type name&gt; &lt;drop behavior&gt;</literal></simpara>
-
-      <simpara><literal>&lt;transforms to be dropped&gt; ::= ALL |
-      &lt;transform group element&gt;</literal></simpara>
-
-      <simpara><literal>&lt;transform group element&gt; ::= &lt;group
-      name&gt;</literal></simpara>
-
-      <simpara>Remove one or more transform functions associated with a
-      transform.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE SEQUENCE</primary>
@@ -2471,15 +2272,17 @@
       <simpara>Define a named sequence generator. A SEQUENCE object generates
       a sequence of integers according to the specified rules. The simple
       definition without the options defines a sequence of numbers in INTEGER
-      type starting at 1 and incrementing by 1. By default the CYCLE property
-      is set and the minimum and maximum limits are the minimum and maximum
-      limits of the type of returned values. There are self-explanatory
-      options for changing various properties of the sequence. The MAXVALUE
-      and MINVALUE specify the upper and lower limits. If CYCLE is specified,
-      after the sequence returns the highest or lowest value in range, the
-      next value will respectively be the lowest or highest value in range. If
-      CYCLE is not specified, the use of the sequence generator results in an
-      error once the limit has been reached.</simpara>
+      type starting at 1 and incrementing by 1. By default the
+      <literal>CYCLE</literal> property is set and the minimum and maximum
+      limits are the minimum and maximum limits of the type of returned
+      values. There are self-explanatory options for changing various
+      properties of the sequence. The <literal>MAXVALUE</literal> and
+      <literal>MINVALUE</literal> specify the upper and lower limits. If
+      <literal>CYCLE</literal> is specified, after the sequence returns the
+      highest or lowest value in range, the next value will respectively be
+      the lowest or highest value in range. If <literal>NO CYCLE</literal> is
+      specified, the use of the sequence generator results in an error once
+      the limit has been reached.</simpara>
 
       <simpara>The integer types: SMALLINT, INTEGER, BIGINT, DECIMAL and
       NUMERIC can be used as the type of the sequence. DECIMAL and NUMERIC
@@ -2593,15 +2396,14 @@
     <title>The Information Schema</title>
 
     <para>The Information Schema is a special schema in each catalog. The SQL
-    Standard defines a a number of character sets and domains. In addition,
-    all the implementation-defined collations belong to Information
-    Schema</para>
+    Standard defines a number of character sets and domains. In addition, all
+    the implementation-defined collations belong to Information Schema</para>
 
     <section>
       <title>Predefined Character Sets, Collations and Domains</title>
 
-      <para>The SQL Standard defines a a number of character sets and domains
-      in the INFORMATION SCHEMA. The</para>
+      <para>The SQL Standard defines a number of character sets and domains in
+      the INFORMATION SCHEMA. The</para>
     </section>
 
     <section>
