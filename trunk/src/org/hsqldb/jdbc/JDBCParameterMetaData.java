@@ -46,17 +46,6 @@ import org.hsqldb.types.Type;
 // TODO: implement internal support for at least OUT return parameter
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
-/*
- * $Log: JDBCParameterMetaData.java,v $
- * Revision 1.15  2006/07/12 12:21:40  boucherb
- * - correct CVS Id var
- *
- * Revision 1.14  2006/07/12 12:20:49  boucherb
- * patch 1.9.0
- * - remove unused imports
- * - full synch up to Mustang b90
- *
- */
 
 /**
  * An object that can be used to get information about the types

@@ -38,13 +38,6 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
 
 /* $Id$ */
 
-/*
- * $Log: PreprocessorAntTask.java,v $
- * Revision 1.3  2006/07/09 07:51:24  boucherb
- * - minor javadoc update
- *
- */
-
 /**
  * Provides a facility for invoking the Preprocessor from ANT. <p>
  *

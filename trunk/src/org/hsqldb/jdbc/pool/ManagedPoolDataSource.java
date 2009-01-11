@@ -52,13 +52,6 @@ import org.hsqldb.jdbc.Util;
 
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060523 - patch 1.9.0 full synch up to Mustang Build 84
-/*
- * $Log: ManagedPoolDataSource.java,v $
- * Revision 1.23  2006/07/12 12:45:54  boucherb
- * patch 1.9.0
- * - full synch up to Mustang b90
- *
- */
 
 /**
  *

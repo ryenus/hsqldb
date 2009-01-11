@@ -53,13 +53,6 @@ import org.hsqldb.result.Result;
 /* $Id$ */
 
 // boucherb@users - 20060523 - patch 1.9.0 - removed some unused imports
-/*
- * $Log: Util.java,v $
- * Revision 1.16  2006/07/12 11:53:53  boucherb
- * patch 1.9.0
- *  - merging back remaining material overritten by Fred's type-system upgrades
- *
- */
 
 /**
  * Provides driver constants and a gateway from internal HsqlExceptions to

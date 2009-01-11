@@ -45,18 +45,6 @@ import java.sql.SQLException;
 // boucherb@users 2005-12-07 - patch 1.8.0.x - initial JDBC 4.0 support work
 // boucherb@users 2006-05-22 - doc 1.9.0     - full synch up to Mustang Build 84
 //                           - patch 1.9.0   - setBinaryStream improvement
-/*
- * $Log: jdbcBlob.java,v $
- * Revision 1.14  2006/07/12 11:55:45  boucherb
- * patch 1.9.0
- *  - fixed invalid reference to new BinaryStream(...) in getBinaryStream
- *
- * Revision 1.13  2006/07/10 13:36:28  boucherb
- * patch 1.9.0 - full synch up to Mustang b90
- *             - better bounds checking
- *             - added support for clients to decide whether getBinaryStream
- *               uses copy of internal byte buffer
- */
 
 /**
  * The representation (mapping) in

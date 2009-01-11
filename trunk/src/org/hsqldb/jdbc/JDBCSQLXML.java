@@ -106,15 +106,6 @@ import org.xml.sax.SAXException;
 
 /* $Id$ */
 
-/*
-* $Log: JDBCSQLXML.java,v $
-* Revision 1.7  2006/07/12 12:36:20  boucherb
-* patch 1.8.1
-* - full synch up to Mustang b90
-* - more work toward a new working impl after the major Mustang signature changes and corresponding total rewrite
-*
- */
-
 /**
  * <!-- start generic documentation -->
  * The mapping in the JavaTM programming language for the SQL XML type.

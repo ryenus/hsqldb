@@ -65,19 +65,6 @@ import org.hsqldb.FunctionCustom;
 // fredt@users    20080805 - full review and update to doc and method return values
 // todo - 1.9.0 - fredt - revise all selects from system tables to use
 // SQL/SCHEMATA views with column renaming to JDBC spec
-/*
- * $Log: jdbcDatabaseMetaData.java,v $
- * Revision 1.20  2006/07/12 12:06:54  boucherb
- * patch 1.9.0
- * - java.sql.Wrapper implementation section title added
- *
- * Revision 1.19  2006/07/09 07:07:01  boucherb
- * - getting the CVS Log variable ouptut format right
- *
- * Revision 1.18  2006/07/09 07:02:38  boucherb
- * - patch 1.9.0 full synch up to Mustang Build 90
- * - getColumns() (finally!!!) officially includes IS_AUTOINCREMENT
- */
 
 /**
  * Comprehensive information about the database as a whole.

@@ -45,13 +45,6 @@ import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Type;
 
 /* $Id$ */
-/*
- * $Log: DIProcedureInfo.java,v $
- * Revision 1.7  2006/07/12 11:27:53  boucherb
- * patch 1.9.0
- * - JDBC 4.0,  Mustang b87: spec. changed to unquoted values for IS_NULLABLE procedure and function column metadata
- *
- */
 
 /**@todo fredt - move Trace.doAssert() literals to Trace*/
 

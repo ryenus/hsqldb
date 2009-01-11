@@ -57,19 +57,6 @@ import javax.sql.CommonDataSource;
 // boucherb@users 20040411 - doc 1.7.2 - javadoc updates toward 1.7.2 final
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060522 - patch 1.9.0 full synch up to Mustang Build 84
-/*
- * $Log: jdbcDataSource.java,v $
- * Revision 1.14  2006/07/12 12:13:53  boucherb
- * - one more time with the Log var
- *
- * Revision 1.13  2006/07/12 12:12:37  boucherb
- * - forgot to add CVS Id and Log var entries in 1.12 commit
- *
- * Revision 1.12  2006/07/12 12:04:06 boucherb
- * patch 1.9.0
- * - full synch up to Mustang b90
- * - support new createQueryObject signature
- */
 
 /**
  * <p>A factory for connections to the physical data source that this
