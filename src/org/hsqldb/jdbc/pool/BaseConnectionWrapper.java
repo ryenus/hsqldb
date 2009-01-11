@@ -60,13 +60,6 @@ import java.sql.SQLXML;
 
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060523 - patch 1.9.0 full synch up to Mustang Build 84
-/*
- * $Log: BaseConnectionWrapper.java,v $
- * Revision 1.7  2006/07/12 12:45:54  boucherb
- * patch 1.9.0
- * - full synch up to Mustang b90
- *
- */
 
 /**
  * A base class for the two different types of connection wrappers:

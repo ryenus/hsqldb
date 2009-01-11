@@ -102,15 +102,6 @@ import java.sql.SQLInput;
 //              - 20060712               - full synch up to Mustang Build 90
 // fredt@users    20090810 - 1.9.0       - full review and updates
 //
-/*
- * $Log: JDBCConnection.java,v $
- * Revision 1.24  2006/07/12 12:17:14  boucherb
- * - forgot to add CVS Id and Log var entries in 1.23 commit
- *
- * Revision 1.23  2006/07/12 12:02:43 boucherb
- * patch 1.9.0
- * - full synch up to Mustang b90
- */
 
 /**
  * <!-- start generic documentation -->

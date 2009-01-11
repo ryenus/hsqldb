@@ -39,13 +39,6 @@ import java.io.UnsupportedEncodingException;
 
 /* $Id$ */
 
-/*
- * $Log: ClosableByteArrayOutputStream.java,v $
- * Revision 1.4  2006/07/09 07:59:14  boucherb
- * - minor javadoc update
- *
- */
-
 // TODO: finer-grained synchronization to reduce average potential monitor contention
 
 /**

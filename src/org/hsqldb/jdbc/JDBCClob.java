@@ -54,14 +54,6 @@ import org.hsqldb.lib.AsciiStringInputStream;
 // boucherb@users 2006-05-22    - doc   1.9.0 - full synch up to Mustang Build 84
 //                              - patch 1.9.0 - setAsciiStream &
 //                                              setCharacterStream improvement
-/*
- * $Log: jdbcClob.java,v $
- * Revision 1.12  2006/07/10 13:41:25  boucherb
- * patch 1.9.0
- * - full synch up to Mustang b90
- * - better bounds checking
- *
- */
 
 /**
  * The mapping in the Java<sup><font size=-2>TM</font></sup> programming language

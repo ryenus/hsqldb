@@ -35,13 +35,6 @@ import java.sql.SQLException;
 import java.sql.Savepoint;
 
 /* $Id$ */
-/*
- * $Log: JDBCSavepoint.java,v $
- * Revision 1.10  2006/07/12 12:38:22  boucherb
- * doc 1.9.0
- * - full synch up to Mustang b90
- *
- */
 
 /**
  * The representation of a savepoint, which is a point within

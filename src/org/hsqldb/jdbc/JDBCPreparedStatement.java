@@ -127,14 +127,6 @@ import org.hsqldb.types.Type;
 // fredt@users    20061008 - patch 1.9.0 - partial rewrite with enhancements - separated from jdbcStatement
 // boucherb@users 20060424 - patch 1.8.x - Mustang Build 81 JDBC 4.0 support
 // boucherb@users 20060424 - doc   1.9.0 - Full synch up to Mustang Build 84
-/*
- * $Log: JDBCParameterMetaData.java,v $
- * Revision 1.19  2006/07/12 12:24:17  boucherb
- * patch 1.9.0
- * - full synch up to Mustang b90
- * - added new setXXXStream signatures (TODO: implement)
- *
- */
 
 /**
  * <!-- start generic documentation -->

@@ -61,13 +61,6 @@ import org.hsqldb.result.Result;
 // boucherb@users 200404xx - javadoc updates toward 1.7.2 final
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
-/*
- * $Log: jdbcStatement.java,v $
- * Revision 1.16  2006/07/12 12:40:59  boucherb
- * patch 1.9.0
- * - full synch up to Mustang b90
- *
- */
 
 /**
  * <!-- start generic documentation -->

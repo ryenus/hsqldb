@@ -53,15 +53,6 @@ import org.hsqldb.rights.Grantee;
 // -- enumXXX methods to iterateXXX
 // -- simple support for SEQUENCE schema reporting
 // -- report built-in procedures/procedure columns without dependency on user grants;
-/*
- * $Log: DINameSpace.java,v $
- * Revision 1.8  2006/07/12 11:24:05  boucherb
- * patch 1.9.0
- * - merging back remaining material overritten by Fred's type-system upgrades
- * - built-in calc uses more efficient set signature
- * - rework to use grantee (versus user) orientation for certain system table content
- *
- */
 
 /**
  * Provides catalog and schema related definitions and functionality. <p>

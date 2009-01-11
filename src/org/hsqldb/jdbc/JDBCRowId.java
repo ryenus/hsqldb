@@ -49,18 +49,6 @@ import java.util.Arrays;
 
 //boucherb@users 20060522 - doc 1.8.1 full synch up to Mustang Build 84
 
-/*
-* $Log: jdbcRowId.java,v $
-* Revision 1.8  2006/07/12 12:32:46  boucherb
-* - correct misspelled CVS Id var
-*
-* Revision 1.7  2006/07/12 12:31:59  boucherb
-* patch 1.8.1
-* - full synch up to Mustang b90
-* - merge remaining material after Fred's type-system upgrade
-*
- */
-
 /**
  *
  * The representation (mapping) in the Java programming language of an SQL ROWID
