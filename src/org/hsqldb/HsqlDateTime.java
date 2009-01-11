@@ -353,8 +353,8 @@ public class HsqlDateTime {
 
     /**
      * Converts the given format into a pattern accepted by <code>java.text.SimpleDataFormat</code>
+     *
      * @param format
-     * @return
      */
     public static String toJavaDatePattern(String format) {
 
@@ -418,7 +418,6 @@ public class HsqlDateTime {
 
         /**
          * Returns a length of a token to match.
-         * @return
          */
         public int length() {
             return offset;
@@ -426,7 +425,6 @@ public class HsqlDateTime {
 
         /**
          * Returns an index of the last matched token.
-         * @return
          */
         public int getLastMatch() {
             return last;
@@ -434,7 +432,6 @@ public class HsqlDateTime {
 
         /**
          * Indicates whethe the last character has been consumed by the matcher.
-         * @return
          */
         public boolean isConsumed() {
             return consumed;
@@ -442,8 +439,8 @@ public class HsqlDateTime {
 
         /**
          * Checks whether the specified bit is not set.
+         *
          * @param bit
-         * @return
          */
         private boolean isZeroBit(int bit) {
             return (state & (1L << bit)) == 0;
@@ -459,9 +456,9 @@ public class HsqlDateTime {
 
         /**
          * Matches the specified character against tokens.
+         *
          * @param ch
          * @param tokens
-         * @return
          */
         public boolean next(char ch, char[][] tokens) {
 

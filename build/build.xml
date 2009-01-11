@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- $Id -->
-<!-- author fredt@users.sourceforge.net 2001 - 2008 -->
-<!-- additional targets by unsaved@users.sourceforge.net 2004 - 2008 -->
+<!-- author fredt@users.sourceforge.net 2001 - 2009 -->
+<!-- additional targets by unsaved@users.sourceforge.net 2004 - 2009 -->
 <!-- use zip -9 -r hsqldb_1_X_X_X.zip hsqldb for the distro-->
 <project name="hsqldb" default="help" basedir="../">
    <!-- This loads properties in the same exact way as if you ran
@@ -844,7 +844,7 @@ examples:
         <!-- CHANGEME:  use official jdk 1.6 and JEE 5 links
                         when glassfish/mustang are finalized -->
 	<property name="jse.doc.link"
-                  value="http://download.java.net/jdk6/docs/api/"/>
+                  value="http://java.sun.com/javase/6/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://java.sun.com/j2ee/1.4/docs/api/"/>
     </target>
@@ -881,15 +881,18 @@ examples:
                         src/org/hsqldb/test/TestScriptRunner.java,
                         src/org/hsqldb/cmdline/SqlTool.java"
            destdir="doc/src"
-           classpath="${servletapi.lib};${junit38.lib}"
+           docencoding="UTF-8"
            author="true"
            version="false"
            use="true"
            public="true"
-           stylesheetfile="doc/src/hsqldbstylesheet.css"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2005 HSQL Development Group. All Rights Reserved.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
+           <classpath>
+             <pathelement location="${servletapi.lib}"/>
+             <pathelement location="${junit38.lib}"/>
+           </classpath>
            <packageset dir='src'>
                <include name='org/hsqldb/jdbc'/>
            </packageset>
@@ -910,15 +913,20 @@ examples:
       <javadoc packagenames="org.hsqldb.*,org.hsqldb.jdbc.*,org.hsqldb.lib.*,org.hsqldb.util.*,org.hsqldb.cmdline.*"
            sourcepath="src"
            destdir="doc/src"
-           classpath="${servletapi.lib};${junit38.lib}"
+           docencoding="UTF-8"
+           linksource="true"
            author="true"
            version="true"
            use="true"
            package="true"
-           stylesheetfile="doc/src/hsqldbstylesheet.css"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2005 HSQL Development Group. All Rights Reserved.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
+           <classpath>
+             <pathelement path="${java.class.path}"/>
+             <pathelement location="${junit38.lib}"/>
+             <pathelement location="${servletapi.lib}"/>
+           </classpath>
            <link href="${jse.doc.link}"/>
            <link href="${jee.doc.link}"/>
            <tag name="todo"/>

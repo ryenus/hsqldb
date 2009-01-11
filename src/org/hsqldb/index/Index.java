@@ -152,7 +152,7 @@ public class Index implements SchemaObject {
      * @param constraint does this index belonging to a constraint
      * @param forward is this an auto-index for an FK that refers to a table
      *   defined after this table
-     * @id
+     * @param id
      */
     public Index(HsqlName name, long id, TableBase table, int[] columns,
                  boolean[] descending, boolean[] nullsLast, Type[] colTypes,
@@ -816,9 +816,9 @@ public class Index implements SchemaObject {
      * Return the first node equal to the indexdata object. Use visible columns
      * only. The coldata has the same column mapping as this index.
      *
-     * @session session object
+     * @param session session object
      * @param coldata array containing index column data
-     * @match count of columns to match
+     * @param match count of columns to match
      * @return iterator
      * @throws HsqlException
      */
@@ -866,7 +866,7 @@ public class Index implements SchemaObject {
      * Return the first node equal to the rowdata object. Use visible columns
      * only. The rowdata has the same column mapping as this table.
      *
-     * @session session object
+     * @param session session object
      * @param rowdata array containing table row data
      * @return iterator
      * @throws HsqlException

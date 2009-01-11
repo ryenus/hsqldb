@@ -271,8 +271,6 @@ implements ActionListener, ItemListener, KeyListener {
      *
      * @param owner
      * @param title
-     *
-     * @return
      */
     public static Connection createConnection(Frame owner, String title,
             Insets defInsets) {

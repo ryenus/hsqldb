@@ -306,8 +306,6 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
      * It will only rarely result in a usable connection. In that perspective it should be faster
      * to only do the reclaim check when no connections can be created.
      *
-     *
-     * @return
      * @throws SQLException
      */
     public Connection getConnection() throws SQLException {

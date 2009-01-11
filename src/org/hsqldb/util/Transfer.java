@@ -1126,8 +1126,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
      *
      *
      * @param center
-     *
-     * @return
      */
     private Panel createBorderPanel(Component center) {
 
@@ -1149,8 +1147,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
      *
      *
      * @param s
-     *
-     * @return
      */
     private Label createLabel(String s) {
 

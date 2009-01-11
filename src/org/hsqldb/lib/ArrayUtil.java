@@ -176,7 +176,7 @@ public class ArrayUtil {
      * @param array the array
      * @param usedElements count of elements of array in use
      * @param index point at which to add or remove elements
-     * @count number of elements to add or remove
+     * @param count number of elements to add or remove
      */
     public static void adjustArray(int type, Object array, int usedElements,
                                    int index, int count) {
@@ -455,12 +455,8 @@ public class ArrayUtil {
      * </table>
      *
      * @param arra int[]; first column indexes
-     *
      * @param arrb int[]; second column indexes
-     *
      * @return int[] common indexes or <code>null</code> if there is no overlap.
-     *
-     * @short Return the overlap between two arrays of column indexes.
      */
     public static int[] commonElements(int[] arra, int[] arrb) {
 

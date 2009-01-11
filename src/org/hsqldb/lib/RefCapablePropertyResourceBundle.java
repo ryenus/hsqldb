@@ -324,7 +324,7 @@ public class RefCapablePropertyResourceBundle {
     /**
      * @param inString  Input string with \n definitively indicating desired
      *                  position for line separators.
-     * @returns  If platform's line-separator is \n, then just returns inString.
+     * @return  If platform's line-separator is \n, then just returns inString.
      *           Otherwise returns a copy of inString, with all \n's
      *           transformed to the platform's line separators.
      */

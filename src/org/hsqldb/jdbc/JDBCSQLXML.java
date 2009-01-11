@@ -2372,7 +2372,6 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves whether this DOMBuilder is closed.
-         * @return
          */
         public boolean isClosed() {
             return this.closed;
@@ -2391,7 +2390,6 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves the document. <p>
-         * @return
          */
         protected Document getDocument() {
             return this.document;
@@ -2399,7 +2397,6 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retreives the current element. <p>
-         * @return
          */
         protected Element getCurrentElement() {
             return this.currentElement;
@@ -2415,7 +2412,6 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves the current node. <p>
-         * @return
          */
         protected Node getCurrentNode() {
             return this.currentNode;
@@ -2945,7 +2941,6 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves whether this object is closed.
-         * @return
          */
         public boolean isClosed() {
             return this.closed;

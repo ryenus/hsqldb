@@ -112,7 +112,7 @@ public class Waiter {
      * It doesn't matter if the waiter or the waitee runs getWaiter()
      * first.  Whoever requests it first will instantiate it.
      *
-     * @returns A Waiter instance.  Never returns nul.
+     * @return A Waiter instance.  Never returns nul.
      */
     synchronized static public Waiter getWaiter(String key) {
         Waiter waiter = (Waiter) map.get(key);
