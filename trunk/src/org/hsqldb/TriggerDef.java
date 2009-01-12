@@ -87,7 +87,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     Trigger  trigger;
     String   triggerClassName;
     int      triggerType;
-    int      vectorIndex;                                       // index into HsqlArrayList[]
+    int      vectorIndex;                                       // index into TriggerDef[][]
     int[]    updateColumns;
 
     //protected boolean busy;               // firing trigger in progress
@@ -292,11 +292,8 @@ public class TriggerDef implements Runnable, SchemaObject {
                                      "TriggerDef");
         }
 
-        if (when.equals(Tokens.T_BEFORE)) {
+        if (when.equals(Tokens.T_BEFORE) || when.equals(Tokens.T_INSERT)) {
             vectorIndex += NUM_TRIGGER_OPS;    // number of operations
-        } else if (!when.equals(Tokens.T_AFTER)) {
-            throw Error.runtimeError(ErrorCode.U_S0500,
-                                     "TriggerDef");
         }
 
         triggerType = vectorIndex;
