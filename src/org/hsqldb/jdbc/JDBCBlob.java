@@ -59,9 +59,9 @@ import java.sql.SQLException;
  * A <code>Blob</code> object is valid for the duration of the
  * transaction in which is was created.
  *
- * <P>Methods in the interfaces {@link JDBCResultSet},
- * {@link JDBCCallableStatement}, and {@link JDBCPreparedStatement}, such as
- * <code>getBlob</code> and <code>setBlob</code> allow a programmer to
+ * <P>Methods in the interfaces {@link java.sql.ResultSet},
+ * {@link java.sql.CallableStatement}, and {@link java.sql.PreparedStatement},
+ * such as <code>getBlob</code> and <code>setBlob</code> allow a programmer to
  * access an SQL <code>BLOB</code> value.
  * The <code>Blob</code> interface provides methods for getting the
  * length of an SQL <code>BLOB</code> (Binary Large Object) value,

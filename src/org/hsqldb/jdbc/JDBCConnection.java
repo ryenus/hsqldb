@@ -452,7 +452,7 @@ import java.sql.SQLInput;
  * However, in addition to this technique requiring explicit casts to the
  * org.hsqldb.jdbcXXX classes, some of the method calls also require
  * <code>int</code> values that are defined only in the JDBC 2 or greater
- * version of the {@link java.sql.jdbc.JDBCResultSet ResultSet} interface.  For this
+ * version of the {@link java.sql.ResultSet ResultSet} interface.  For this
  * reason, when the product is compiled under JDK 1.1.x, these values are
  * defined in {@link JDBCResultSet JDBCResultSet}. <p>
  *
@@ -608,7 +608,7 @@ public class JDBCConnection implements Connection {
      *
      * The support for and behaviour of PreparedStatment complies with SQL and
      * JDBC standards.  Please read the introductory section
-     * of the documentation for ${link org.hslqdb.jdbc.JDBCParameterMetaData}. <P>
+     * of the documentation for ${link JDBCParameterMetaData}. <P>
      *
      * </div> <!-- end release-specific documentation -->
      *

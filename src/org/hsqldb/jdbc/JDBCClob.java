@@ -72,8 +72,8 @@ import org.hsqldb.lib.AsciiStringInputStream;
  * searching for a substring or <code>CLOB</code> object within a
  * <code>CLOB</code> value.
  * Methods in the interfaces {@link JDBCResultSet},
- * {@link JDBCCallableStatement}, and {@link JDBCPreparedStatement}, such as
- * <code>getClob</code> and <code>setClob</code> allow a programmer to
+ * {@link java.sql.CallableStatement}, and {@link java.sql.PreparedStatement},
+ * such as <code>getClob</code> and <code>setClob</code> allow a programmer to
  * access an SQL <code>CLOB</code> value.  In addition, this interface
  * has methods for updating a <code>CLOB</code> value.
  * <p>
