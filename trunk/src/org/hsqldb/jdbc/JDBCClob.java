@@ -54,6 +54,9 @@ import org.hsqldb.lib.AsciiStringInputStream;
 // boucherb@users 2006-05-22    - doc   1.9.0 - full synch up to Mustang Build 84
 //                              - patch 1.9.0 - setAsciiStream &
 //                                              setCharacterStream improvement
+// patch 1.9.0
+// - full synch up to Mustang b90
+// - better bounds checking
 
 /**
  * The mapping in the Java<sup><font size=-2>TM</font></sup> programming language
@@ -71,9 +74,9 @@ import org.hsqldb.lib.AsciiStringInputStream;
  * for materializing a <code>CLOB</code> value on the client, and for
  * searching for a substring or <code>CLOB</code> object within a
  * <code>CLOB</code> value.
- * Methods in the interfaces {@link JDBCResultSet},
- * {@link java.sql.CallableStatement}, and {@link java.sql.PreparedStatement},
- * such as <code>getClob</code> and <code>setClob</code> allow a programmer to
+ * Methods in the interfaces {@link java.sql.ResultSet},
+ * {@link java.sql.CallableStatement}, and {@link java.sql.PreparedStatement}, such as
+ * <code>getClob</code> and <code>setClob</code> allow a programmer to
  * access an SQL <code>CLOB</code> value.  In addition, this interface
  * has methods for updating a <code>CLOB</code> value.
  * <p>
