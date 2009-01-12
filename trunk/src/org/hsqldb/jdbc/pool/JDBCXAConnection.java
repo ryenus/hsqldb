@@ -47,7 +47,7 @@ import javax.transaction.xa.XAResource;
  * JDBCConnections.
  *
  * @since HSQLDB v. 1.9.0
- * @author Blaine Simpson, blaine.simpson@admc.com
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.sql.XAConnection
  */
 public class JDBCXAConnection extends JDBCPooledConnection implements XAConnection {

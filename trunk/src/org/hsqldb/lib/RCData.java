@@ -47,7 +47,7 @@ import java.util.StringTokenizer;
 /**
  * All the info we need to connect up to a database.
  *
- * @author Blaine Simpson unsaved@users
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class RCData {
 

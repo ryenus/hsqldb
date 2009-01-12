@@ -127,7 +127,7 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * (if any).
  *
  * @version $Revision$, $Date$
- * @author Blaine Simpson unsaved@users.sourceforge.net
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 
 public class SqlFile {

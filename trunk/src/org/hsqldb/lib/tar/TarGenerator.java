@@ -46,7 +46,7 @@ import java.util.List;
 /**
  * Generates a tar archive from specified Files and InputStreams.
  *
- * @author Blaine Simpson
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class TarGenerator {
 
@@ -259,7 +259,7 @@ public class TarGenerator {
      * Slots for supplicant files and input streams to be added to a Tar
      * archive.
      *
-     * @author Blaine Simpson
+     * @author Blaine Simpson (blaine dot simpson at admc dot com)
      */
     static protected class TarEntrySupplicant {
 

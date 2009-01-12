@@ -55,7 +55,7 @@ import javax.sql.XAConnection;
  * For use by XA data source factories, not by end users.
  *
  * @since HSQLDB v. 1.9.0
- * @author Blaine Simpson, blaine.simpson@admc.com
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.sql.XADataSource
  * @see org.hsqldb.jdbc.pool.JDBCXAConnection
  */

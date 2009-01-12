@@ -58,7 +58,7 @@ import java.sql.Savepoint;
  *    javax.sql.XAConnection.</b>
  *
  * @since HSQLDB v. 1.9.0
- * @author Blaine Simpson, blaine.simpson@admc.com
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see org.hsqldb.jdbc.JDBCConnection
  * @see org.hsqldb.jdbc.pool.LifeTimeConnectionWrapper
  */

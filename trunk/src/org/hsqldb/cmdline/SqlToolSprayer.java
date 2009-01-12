@@ -54,7 +54,7 @@ import java.util.Date;
  *
  * @see #main(String[])
  * @version $Revision$, $Date$
- * @author Blaine Simpson unsaved@users
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class SqlToolSprayer {
 

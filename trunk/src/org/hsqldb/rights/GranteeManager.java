@@ -57,7 +57,7 @@ import org.hsqldb.lib.HsqlArrayList;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @author Blaine Simpson (unsaved@users dot sourceforge.net)
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
  * @version 1.8.0
  * @since 1.8.0
