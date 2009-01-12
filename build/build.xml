@@ -880,6 +880,7 @@ examples:
                         src/org/hsqldb/lib/RCData.java,
                         src/org/hsqldb/lib/tar/DbBackup.java,
                         src/org/hsqldb/test/TestScriptRunner.java,
+                        src/org/hsqldb/cmdline/SqlFile.java,
                         src/org/hsqldb/cmdline/SqlTool.java"
            destdir="doc/src"
            docencoding="UTF-8"
