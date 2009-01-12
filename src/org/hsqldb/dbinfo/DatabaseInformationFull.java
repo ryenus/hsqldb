@@ -84,6 +84,10 @@ import org.hsqldb.types.Type;
 // boucherb@users - 1.8.0 - 20050515 - further SQL 2003 metadata support
 // boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
 // fredt@users - 1.9.0 - new tables + renaming + upgrade of some others to SQL/SCHEMATA
+// Revision 1.12  2006/07/12 11:42:09  boucherb
+//  - merging back remaining material overritten by Fred's type-system upgrades
+//  - rework to use grantee (versus user) orientation for certain system table content
+//  - update collation and character set reporting to correctly reflect SQL3 spec
 
 /**
  * Provides definitions for most of the SQL Standard Schemata views that are

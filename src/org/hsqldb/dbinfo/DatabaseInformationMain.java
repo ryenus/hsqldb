@@ -72,6 +72,9 @@ import org.hsqldb.types.Type;
 // boucherb@users - 1.7.2 - 20020304 - bug fixes, refinements, better java docs
 // fredt@users - 1.8.0 - updated to report latest enhancements and changes
 // boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
+// Revision 1.9  2006/07/12 11:36:59  boucherb
+// - JDBC 4.0, Mustang b87: support for new DatabaseMetaData.getColumns() IS_AUTOINCREMENT result column
+// - minor javadoc and code comment updates
 
 /**
  * Provides definitions for a few of the SQL Standard Schemata views that are
