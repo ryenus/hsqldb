@@ -59,8 +59,6 @@ public class CharacterType extends Type {
     Collation        collation;
     boolean          isEqualIdentical;
     final static int sqlDefaultCharPrecision = 1;
-    public static final Collation defaultCollation =
-        Collation.getDefaultInstance();
 
     public CharacterType(Collation collation, int type, long precision) {
 
@@ -71,13 +69,15 @@ public class CharacterType extends Type {
                            && type != Types.VARCHAR_IGNORECASE;
     }
 
+    /**
+     * Always English collation
+     */
     public CharacterType(int type, long precision) {
 
         super(Types.SQL_VARCHAR, type, precision, 0);
 
-        this.collation = defaultCollation;
-        isEqualIdentical = this.collation.isEqualAlwaysIdentical()
-                           && type != Types.VARCHAR_IGNORECASE;
+        this.collation = Collation.getDefaultInstance();
+        isEqualIdentical = type != Types.VARCHAR_IGNORECASE;
     }
 
     public int displaySize() {
