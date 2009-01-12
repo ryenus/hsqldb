@@ -61,7 +61,7 @@ import org.hsqldb.lib.RCData;
  *
  * @see #main(String[])
  * @version $Revision$, $Date$
- * @author Blaine Simpson unsaved@users
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class SqlTool {
     private static SqlFile.ToolLogger logger =

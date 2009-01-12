@@ -67,7 +67,7 @@ import java.util.Map;
  * and using generics with auto-boxing instead of the ugly and non-validating
  * casts.
  *
- * @author Blaine Simpson
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class TarHeaderFields {
 

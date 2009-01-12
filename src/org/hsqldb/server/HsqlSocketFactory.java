@@ -40,7 +40,7 @@ import java.net.Socket;
 /**
  * Base class for producing the Socket objects used by HSQLDB.
  *
- * @author unsaved@users
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @author boucherb@users
  * @version 1.7.2
  * @since 1.7.2

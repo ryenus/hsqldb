@@ -71,7 +71,7 @@ import java.sql.SQLException;
  * methods are XAResource-specific or XADataSource-specific.
  *
  * @since HSQLDB v. 1.9.0
- * @author Blaine Simpson, blaine.simpson@admc.com
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.transaction.xa.XAResource
  */
 public class JDBCXAResource implements XAResource {

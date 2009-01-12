@@ -151,7 +151,7 @@ import java.io.UnsupportedEncodingException;
  *
  * @see java.util.PropertyResourceBundle
  * @see java.util.ResourceBundle
- * @author  blaine.simpson@admc.com
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class RefCapablePropertyResourceBundle {
     private PropertyResourceBundle wrappedBundle;

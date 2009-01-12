@@ -41,7 +41,7 @@ import java.util.HashMap;
  * Runs test scripts against a single database, using persistent connection(s)
  * across multiple test script(s).
  *
- * @author Blaine Simpson
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 class TestScripts extends TestUtil {
 

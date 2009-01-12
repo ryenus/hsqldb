@@ -52,7 +52,7 @@ import java.util.Properties;
  *
  * @see #setOverWrite
  * @see #setAbortUponModify
- * @author Blaine Simpson
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class DbBackup {
 

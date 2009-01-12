@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
  * with 0400 or similar, be aware that they will be extracted with privs such
  * that they can be ready by anybody.
  *
- * @author Blaine Simpson
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class TarReader {
 
@@ -513,7 +513,7 @@ public class TarReader {
     /**
      * A Tar entry header constituted from a header block in a tar file.
      *
-     * @author Blaine Simpson
+     * @author Blaine Simpson (blaine dot simpson at admc dot com)
      */
     static protected class TarEntryHeader {
 
