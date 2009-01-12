@@ -52,12 +52,15 @@ import org.hsqldb.lib.RCData;
  * See JavaDocs for the main method for syntax of how to run from the
  * command-line.
  * <P/>
- * Programmatic users will usuall want to use the objectMain method if they
- * want arguments and behavior to behave exactly like command-line SqlTool.
+ * Programmatic users will usually want to use the objectMain method if they
+ * want arguments and behavior exactly like command-line SqlTool.
  * But in most cases, you would have better control and efficiency by using
  * the SqlFile class directly.  The file <CODE>sample/SqlFileEmbedder</CODE>
  * in the HSQLDB distribution provides an example for this latter strategy.
  *
+ * @see <a href="../../../../util-guide/sqltool-chapt.html" target="guide">
+ *     The SqlTool chapter of the
+ *     HyperSQL Utilities Guide</a>
  * @see #main(String[])
  * @see #objectMain(String[])
  * @see SqlFile
@@ -242,7 +245,7 @@ public class SqlTool {
      * A static wrapper for objectMain, so that that method may be executed
      * as a Java "program".
      * <P/>
-     * Throws only RuntimExceptions or Errors, because this method is intended
+     * Throws only RuntimeExceptions or Errors, because this method is intended
      * to System.exit() for all but disasterous system problems, for which
      * the inconvenience of a a stack trace would be the least of your worries.
      * <P/>

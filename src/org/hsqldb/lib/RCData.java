@@ -45,8 +45,12 @@ import java.util.StringTokenizer;
 /* $Id$ */
 
 /**
- * All the info we need to connect up to a database.
+ * Manages all the details we need to connect up to database(s),
+ * in a declarative way.
  *
+ * @see <a href="../../../../util-guide/sqltool-chapt.html#sqltool_auth-sect"
+ *      target="guide">
+ *     The RC File section of the HyperSQL Utilities Guide</a>
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class RCData {

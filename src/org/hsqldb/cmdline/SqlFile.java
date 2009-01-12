@@ -127,6 +127,9 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * on "buffer", and expect it to contain the method specific prefix
  * (if any).
  *
+ * @see <a href="../../../../util-guide/sqltool-chapt.html" target="guide">
+ *     The SqlTool chapter of the
+ *     HyperSQL Utilities Guide</a>
  * @version $Revision$, $Date$
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
@@ -4892,17 +4895,32 @@ public class SqlFile {
     }
 
     /**
+     * A logging framework wrapper that supports java.util.logger and log4j.
+     * <P/>
      * Logger hierarchies are stored at the Class level.
-     *
+     * <P/>
      * This is pretty safe because for use cases where multiple hierarchies
      * are desired, classloader hierarchies will effectively isolate multiple
      * class-level Logger hierarchies.
-     *
-     * Sad as it is, the java.util.logger facility really sucks.
-     * Besides having a non-scalable disovery system, they didn't comprehend
-     * the need for a level between WARNING and SEVERE!
+     * <P/>
+     * Sad as it is, the java.util.logger facility lacks the most basic
+     * developer-side and configuration-side capabilities.
+     * Besides having a non-scalable discovery system, the designers didn't
+     * comprehend the need for a level between WARNING and SEVERE!
      * Since we don't want to require log4j in Classpath, we have to live
      * with these constraints.
+     * <P/>
+     * As with all the popular logging frameworks, if you want to capture a
+     * stack trace, you must use the two-parameters logging methods.
+     * I.e., you must also pass a String, or only toString() from your
+     * throwable will be captured.
+     * <P/>
+     * Usage example:<CODE><PRE>
+     * private static SqlFile.ToolLogger logger =
+     *        SqlFile.ToolLogger.getLog(SqlTool.class);
+     * ...
+     *   logger.finer("Invoking SqlTool");
+     * </PRE> </CODE>
      */
     static public class ToolLogger {
         static private Map loggerInstances = new HashMap();
@@ -4971,11 +4989,24 @@ public class SqlFile {
 
         /**
          * User's entry-point into this logging system.
+         * <P/>
+         * You normally want to work with static (class-level) pointers to
+         * logger instances, for performance efficiency.
+         * See the class-level JavaDoc for a usage example.
+         *
+         * @see ToolLogger
          */
         public static ToolLogger getLog(Class c) {
             return getLog(c.getName());
         }
 
+        /**
+         * Alternative entry-point into this logging sytem, for cases where
+         * your want to share a single logger instance among multiple classes,
+         * or you want to use multiple logger instances from a single class.
+         *
+         * @see #getLog(Class)
+         */
         public static ToolLogger getLog(String s) {
             if (loggerInstances.containsKey(s))
                 return (ToolLogger) loggerInstances.get(s);
@@ -5025,42 +5056,111 @@ public class SqlFile {
         }
 
         // Wrappers
+        /**
+         * @param level java.util.logging.Level level to filtered and logged at
+         * @param message Message to be logged
+         * @see Logger#log(Level, String)
+         * @see Level
+         */
         public void log(Level level, String message) {
             privlog(level, message, null, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * @param message Message to be logged
+         * @see Logger#finer(String)
+         */
         public void finer(String message) {
             privlog(Level.FINER, message, null, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * @param message Message to be logged
+         * @see Logger#warning(String)
+         */
         public void warning(String message) {
             privlog(Level.WARNING, message, null, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * @param message Message to be logged
+         * @see Logger#severe(String)
+         */
         public void severe(String message) {
             privlog(Level.SEVERE, message, null, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * @param message Message to be logged
+         * @see Logger#info(String)
+         */
         public void info(String message) {
             privlog(Level.INFO, message, null, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * @param message Message to be logged
+         * @see Logger#finest(String)
+         */
         public void finest(String message) {
             privlog(Level.FINEST, message, null, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * This is just a wrapper for ToolLogger.warning(), because
+         * java.util.logging lacks a method for this critical purpose.
+         *
+         * @param message Message to be logged
+         * @see #warning(String)
+         */
         public void error(String message) {
             privlog(Level.WARNING, message, null, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * Just like ToolLogger.finer(String), but also logs a stack trace.
+         *
+         * @param t Throwable whose stack trace will be logged.
+         * @see #finer(String)
+         */
         public void finer(String message, Throwable t) {
             privlog(Level.FINER, message, t, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * Just like ToolLogger.warning(String), but also logs a stack trace.
+         *
+         * @param t Throwable whose stack trace will be logged.
+         * @see #warning(String)
+         */
         public void warning(String message, Throwable t) {
             privlog(Level.WARNING, message, t, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * Just like ToolLogger.severe(String), but also logs a stack trace.
+         *
+         * @param t Throwable whose stack trace will be logged.
+         * @see #severe(String)
+         */
         public void severe(String message, Throwable t) {
             privlog(Level.SEVERE, message, t, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * Just like ToolLogger.info(String), but also logs a stack trace.
+         *
+         * @param t Throwable whose stack trace will be logged.
+         * @see #info(String)
+         */
         public void info(String message, Throwable t) {
             privlog(Level.INFO, message, t, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * Just like ToolLogger.finest(String), but also logs a stack trace.
+         *
+         * @param t Throwable whose stack trace will be logged.
+         * @see #finest(String)
+         */
         public void finest(String message, Throwable t) {
             privlog(Level.FINEST, message, t, 2, SqlFile.ToolLogger.class);
         }
+        /**
+         * Just like ToolLogger.error(String), but also logs a stack trace.
+         *
+         * @param t Throwable whose stack trace will be logged.
+         * @see #error(String)
+         */
         public void error(String message, Throwable t) {
             privlog(Level.WARNING, message, t, 2, SqlFile.ToolLogger.class);
         }
