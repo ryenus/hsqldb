@@ -87,9 +87,10 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * Some implementation comments and variable names use keywords based
  * on the following definitions.  <UL>
  * <LI> COMMAND = Statement || SpecialCommand || BufferCommand
- * Statement = SQL statement like "SQL Statement;"
- * SpecialCommand =  Special Command like "\x arg..."
- * BufferCommand =  Editing/buffer command like ":s/this/that/"
+ * <LI>Statement = SQL statement like "SQL Statement;"
+ * <LI>SpecialCommand =  Special Command like "\x arg..."
+ * <LI>BufferCommand =  Editing/buffer command like ":s/this/that/"
+ * </UL>
  * <P/>
  * When entering SQL statements, you are always "appending" to the
  * "immediate" command (not the "buffer", which is a different thing).
