@@ -43,15 +43,21 @@ import java.util.Properties;
  * <P/>
  * This class provides OO Tar backup-creation control.
  * The extraction and listing features are implemented only in static fashion
- * in the Main method, which provides a consistend interfact for all three
+ * in the Main method, which provides a consistent interface for all three
  * features from the command-line.
  * <P/>
  * For tar creation, the default behavior is to fail if the target archive
  * exists, and to abort if any database change is detected.
  * Use the JavaBean setters to changes this behavior.
+ * <P/>
+ * See the main(String[]) method for details about command-line usage.
  *
- * @see #setOverWrite
- * @see #setAbortUponModify
+ * @see <a href="../../../../../guide/deployment-chapt.html#deployment_backup-sect"
+ *      target="guide">
+ *     The database backup section of the HyperSQL User Guide</a>
+ * @see #main(String[])
+ * @see #setOverWrite(boolean)
+ * @see #setAbortUponModify(boolean)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class DbBackup {

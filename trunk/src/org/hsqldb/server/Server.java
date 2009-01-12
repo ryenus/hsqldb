@@ -107,20 +107,20 @@ import org.hsqldb.result.ResultConstants;
  *
  * From the command line, the options are as follows: <p>
  * <pre>
- * +----------------+-------------+----------+------------------------------+
- * |    OPTION      |    TYPE     | DEFAULT  |         DESCRIPTION          |
- * +----------------+-------------+----------+------------------------------|
- * | -?             | --          | --       | prints this message          |
- * | -address       | name|number | any      | server inet address          |
- * | -port          | number      | 9001/544 | port at which server listens |
- * | -database.i    | [type]spec  | 0=test   | path of database i           |
- * | -dbname.i      | alias       | --       | url alias for database i     |
- * | -silent        | true|false  | true     | false => display all queries |
- * | -trace         | true|false  | false    | display JDBC trace messages  |
- * | -tls           | true|false  | false    | TLS/SSL (secure) sockets     |
- * | -no_system_exit| true|false  | false    | do not issue System.exit()   |
- * | -remote_open   | true|false  | false    | can open databases remotely  |
- * +----------------+-------------+----------+------------------------------+
+ * +-----------------+-------------+----------+------------------------------+
+ * |    OPTION       |    TYPE     | DEFAULT  |         DESCRIPTION          |
+ * +-----------------+-------------+----------+------------------------------|
+ * | --help          |             |          | prints this message          |
+ * | --address       | name|number | any      | server inet address          |
+ * | --port          | number      | 9001/544 | port at which server listens |
+ * | --database.i    | [type]spec  | 0=test   | path of database i           |
+ * | --dbname.i      | alias       |          | url alias for database i     |
+ * | --silent        | true|false  | true     | false => display all queries |
+ * | --trace         | true|false  | false    | display JDBC trace messages  |
+ * | --tls           | true|false  | false    | TLS/SSL (secure) sockets     |
+ * | --no_system_exit| true|false  | false    | do not issue System.exit()  |
+ * | --remote_open   | true|false  | false    | can open databases remotely  |
+ * +-----------------+-------------+----------+------------------------------+
  * </pre>
  *
  * The <em>database.i</em> and <em>dbname.i</em> options need further

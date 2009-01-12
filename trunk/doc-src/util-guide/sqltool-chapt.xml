@@ -2717,7 +2717,7 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                             parse="text"/></programlisting>
           </example>
           This file resides at
-          <filename xlink:href="#sqltool/sqlpsm.sql-link">
+          <filename xlink:href="#sqlpsm.sql-link">
             testrun/sqltool/sqlpsm.sql</filename>
           <example><title>SQL/PSM Example</title>
       <programlisting><xi:include href="../verbatim/testrun/sqltool/sqlpsm.sql"

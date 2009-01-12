@@ -883,7 +883,9 @@ examples:
                         src/org/hsqldb/cmdline/SqlFile.java,
                         src/org/hsqldb/cmdline/SqlTool.java"
            destdir="doc/src"
+           stylesheetfile="doc-src/javadoc.css"
            docencoding="UTF-8"
+           charset="UTF-8"
            author="true"
            version="false"
            use="true"
@@ -914,6 +916,9 @@ examples:
             description="Create javadoc for all HSQLDB code-base classes">
       <javadoc
            destdir="doc/src"
+           docencoding="UTF-8"
+           stylesheetfile="doc-src/javadoc.css"
+           charset="UTF-8"
            linksource="true"
            author="true"
            version="true"
@@ -923,6 +928,10 @@ examples:
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
            <fileset dir="src" includes="**/*.java"/>
+           <!-- Fileset is really good for maintenance and control purposes,
+                but it makes the generator produce an incredible amount of
+                output when there are no errors.  The verbose attribute
+                doesn't help at all. -->
            <classpath>
              <pathelement path="${java.class.path}"/>
              <pathelement location="${junit38.lib}"/>
