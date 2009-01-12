@@ -124,7 +124,7 @@ public class User extends Grantee {
      * This class does not have access to the SchemaManager, therefore
      * caller should verify that the given schemaName exists.
      *
-     * @param schemaName Name of an existing schema.  Null value allowed,
+     * @param schema An existing schema.  Null value allowed,
      *                   which means use the DB default session schema.
      */
     public void setInitialSchema(HsqlName schema) {

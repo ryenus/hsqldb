@@ -98,7 +98,6 @@ public class StatementInsert extends StatementDMQL {
      * Executes an INSERT_SELECT statement.  It is assumed that the argument
      * is of the correct type.
      *
-     * @param cs a CompiledStatement of type CompiledStatement.INSERT_SELECT
      * @throws HsqlException if a database access error occurs
      * @return the result of executing the statement
      */

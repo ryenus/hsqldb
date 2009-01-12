@@ -38,6 +38,7 @@ import java.lang.reflect.Array;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @author Nitin Chauhan
  * @version 1.9.0
  * @since 1.7.0
  */
@@ -286,7 +287,6 @@ public class StringUtil {
 
     /**
      * Checks if text is empty (characters <= space)
-     * @author Nitin Chauhan
      * @return boolean true if text is null or empty, false otherwise
      * @param s java.lang.String
      */

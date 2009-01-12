@@ -324,7 +324,7 @@ public class JDBCParameterMetaData
     /**
      * Creates a new instance of JDBCParameterMetaData. <p>
      *
-     * @param r A Result object describing the statement parameters
+     * @param metaData A Result object describing the statement parameters
      * @throws SQLException never - reserved for future use
      */
     JDBCParameterMetaData(ResultMetaData metaData) throws SQLException {

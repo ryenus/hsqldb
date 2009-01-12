@@ -787,7 +787,7 @@ public final class HsqlTimer implements ObjectComparator, ThreadFactory {
          * a new, equivalent task with the new period is scheduled for
          * immediate first execution and returned to the caller. <p>
          *
-         * @param period the new period
+         * @param newPeriod the new period
          * @return a task reference, as per the rules stated above.
          */
         synchronized Object setPeriod(final long newPeriod) {

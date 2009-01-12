@@ -83,8 +83,6 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     /**
      * fredt@users - comment - in future may use a custom subclasse of
      * InputStream to read the data.
-     *
-     * @author Bob Preston (sqlbob@users dot sourceforge.net)
      */
     public RowInputText(String fieldSep, String varSep, String longvarSep,
                         boolean allQuoted) {

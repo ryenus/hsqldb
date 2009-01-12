@@ -94,7 +94,7 @@ public class TarFileInputStream {
     /**
      * Convenience wrapper to use default readBufferBlocks and compressionType.
      *
-     * @see TarFileInputStream(File, int, int)
+     * @see #TarFileInputStream(File, int, int)
      */
     public TarFileInputStream(File sourceFile) throws IOException {
         this(sourceFile, DEFAULT_COMPRESSION);
@@ -103,7 +103,7 @@ public class TarFileInputStream {
     /**
      * Convenience wrapper to use default readBufferBlocks.
      *
-     * @see TarFileInputStream(File, int, int)
+     * @see #TarFileInputStream(File, int, int)
      */
     public TarFileInputStream(File sourceFile,
                               int compressionType) throws IOException {
@@ -125,8 +125,8 @@ public class TarFileInputStream {
      * If you abort before then, you must call the close() method like for a
      * normal InputStream.
      *
-     * @see #close
-     * @see readNextHeaderBlock
+     * @see #close()
+     * @see #readNextHeaderBlock()
      */
     public TarFileInputStream(File sourceFile, int compressionType,
                               int readBufferBlocks) throws IOException {
@@ -182,7 +182,6 @@ public class TarFileInputStream {
      * @throws IOException for an I/O error on the underlying InputStream
      * @throws TarMalformatException if no I/O error occurred, but we failed to
      *                               read the exact number of bytes requested.
-     * @see #readBlocks(byte[])
      */
     public void readBlocks(int blocks)
     throws IOException, TarMalformatException {

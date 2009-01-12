@@ -1045,7 +1045,7 @@ public class JDBCSQLXML implements SQLXML {
      *   <code>doctype</code> are <code>null</code>, the returned
      *   <code>Document</code> is empty with no document element.
      * @throws java.sql.SQLException wrapping any internal exception that occurs.
-     * @see org.w3c.dom.DOMImplementation.createDocument(String,String,DocumentType)
+     * @see org.w3c.dom.DOMImplementation#createDocument(String,String,DocumentType)
      */
     protected static Document createDocument(String namespaceURI, String qualifiedName, DocumentType docType)
             throws SQLException {

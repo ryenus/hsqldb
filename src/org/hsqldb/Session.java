@@ -615,9 +615,8 @@ public class Session implements SessionInterface {
     }
 
     /**
-     *  Performs a partial transaction ROLLBACK of current savepoint level.
+     * Performs a partial transaction ROLLBACK of current savepoint level.
      *
-     * @param  name name of savepoint
      * @throws  HsqlException
      */
     public void rollbackToSavepoint() {
@@ -755,7 +754,7 @@ public class Session implements SessionInterface {
     /**
      * Getter for admin attribute.
      *
-     * @ return the current value
+     * @return the current value
      */
     public boolean isAdmin() {
         return user.isAdmin();

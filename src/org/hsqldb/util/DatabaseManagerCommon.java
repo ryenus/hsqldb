@@ -197,22 +197,10 @@ class DatabaseManagerCommon {
         + "LEFT OUTER JOIN Invoice i ON a.ID=i.CustomerID GROUP BY a.id, a.firstname, a.lastname"
     };
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param s
-     */
     static String random(String[] s) {
         return s[random(s.length)];
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param i
-     */
     static int random(int i) {
 
         i = rRandom.nextInt() % i;
@@ -221,10 +209,6 @@ class DatabaseManagerCommon {
                      : i;
     }
 
-    /**
-     * Method declaration
-     *
-     */
     static void createTestTables(Statement sStatement) {
 
         String[] demo = {
@@ -256,10 +240,6 @@ class DatabaseManagerCommon {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     */
     static String createTestData(Statement sStatement) throws SQLException {
 
         String[] name = {
@@ -317,7 +297,6 @@ class DatabaseManagerCommon {
     }
 
     /**
-     * Method declaration
      * Redid this file to remove sizing requirements and to make it faster
      * Speeded it up 10 fold.
      *
@@ -348,13 +327,6 @@ class DatabaseManagerCommon {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param file
-     * @param text
-     */
     static void writeFile(String file, String text) {
 
         try {
@@ -368,11 +340,6 @@ class DatabaseManagerCommon {
     }
 
     /**
-     * Method declaration
-     *
-     *
-     * @param sql
-     * @param max
      * @throws SQLException
      */
     static long testStatement(Statement sStatement, String sql,

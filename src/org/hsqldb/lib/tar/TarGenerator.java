@@ -97,7 +97,7 @@ public class TarGenerator {
     }
 
     /**
-     * @see #setPatThreshold()
+     * @see #setPaxThreshold(long)
      */
     public long getPaxThreshold() {
         return paxThreshold;
@@ -107,7 +107,7 @@ public class TarGenerator {
      * Compression is determined directly by the suffix of the file name in
      * the specified path.
      *
-     * @param archiveFile  Absolute or relative (from user.dir) File for
+     * @param inFile  Absolute or relative (from user.dir) File for
      *                     tar file to be created.  getName() Suffix must
      *                     indicate tar file and may indicate a compression
      *                     method.

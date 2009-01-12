@@ -60,7 +60,7 @@ import java.sql.Savepoint;
  * @since HSQLDB v. 1.9.0
  * @author Blaine Simpson, blaine.simpson@admc.com
  * @see org.hsqldb.jdbc.JDBCConnection
- * @see org.hqldb.jdbc.pool.LifeTimeConnectionWrapper;
+ * @see org.hsqldb.jdbc.pool.LifeTimeConnectionWrapper
  */
 public class JDBCXAConnectionWrapper extends LifeTimeConnectionWrapper {
 

@@ -152,7 +152,6 @@ public class Index implements SchemaObject {
      * @param constraint does this index belonging to a constraint
      * @param forward is this an auto-index for an FK that refers to a table
      *   defined after this table
-     * @param id
      */
     public Index(HsqlName name, long id, TableBase table, int[] columns,
                  boolean[] descending, boolean[] nullsLast, Type[] colTypes,

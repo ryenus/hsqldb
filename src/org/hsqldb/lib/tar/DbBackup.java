@@ -386,7 +386,7 @@ public class DbBackup {
     /**
      * Convenience wrapper for generateBufferBlockValue(File[]).
      *
-     * @see #generateBufferBlockValue(File[]).
+     * @see #generateBufferBlockValue(File[])
      */
     static protected int generateBufferBlockValue(File file) {
         return generateBufferBlockValue(new File[]{ file });

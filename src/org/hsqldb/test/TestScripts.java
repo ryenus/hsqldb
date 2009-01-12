@@ -40,6 +40,8 @@ import java.util.HashMap;
 /**
  * Runs test scripts against a single database, using persistent connection(s)
  * across multiple test script(s).
+ *
+ * @author Blaine Simpson
  */
 class TestScripts extends TestUtil {
 
@@ -50,8 +52,6 @@ class TestScripts extends TestUtil {
      * the file name (defaulting to closing).
      * So, by default, for each script file, a new connection will be made
      * and closed immediately after the script runs.
-     *
-     * @author Blaine Simpson
      */
     public static void main(String[] argv) {
 

@@ -431,7 +431,7 @@ public class SqlFile {
     /**
      * Constructor for reading stdin instead of a file for commands.
      *
-     * @see #SqlFile(File,boolean)
+     * @see #SqlFile(File, boolean, Map, Map)
      */
     public SqlFile(boolean interactive, Map userVars, Map macros)
             throws IOException {
@@ -442,7 +442,7 @@ public class SqlFile {
      * Process all the commands on stdin.
      *
      * @param conn The JDBC connection to use for SQL Commands.
-     * @see #execute(Connection,PrintStream,PrintStream,boolean)
+     * @see #execute(Connection, PrintStream, PrintStream, Boolean)
      */
     public void execute(Connection conn,
                         Boolean coeOverride)
@@ -454,7 +454,7 @@ public class SqlFile {
      * Process all the commands on stdin.
      *
      * @param conn The JDBC connection to use for SQL Commands.
-     * @see #execute(Connection,PrintStream,PrintStream,boolean)
+     * @see #execute(Connection, PrintStream, PrintStream, Boolean)
      */
     public void execute(Connection conn, boolean coeOverride)
                         throws SqlToolError, SQLException {
@@ -499,7 +499,7 @@ public class SqlFile {
      * Sets encoding character set to that specified with System Property
      * 'sqlfile.charset'.  Defaults to "US-ASCII".
      *
-     * @param conn The JDBC connection to use for SQL Commands.
+     * @param curConn The JDBC connection to use for SQL Commands.
      * @throws SQLExceptions thrown by JDBC driver.
      *                       Only possible if in "\c false" mode.
      * @throws SqlToolError  all other errors.

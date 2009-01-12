@@ -167,12 +167,6 @@ implements ActionListener, WindowListener, KeyListener {
     static String defScript;
     static String defDirectory;
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param c
-     */
     public void connect(Connection c) {
 
         if (c == null) {
@@ -197,10 +191,6 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     */
     public void init() {
 
         DatabaseManager m = new DatabaseManager();
@@ -355,10 +345,6 @@ implements ActionListener, WindowListener, KeyListener {
             + "    --noexit              do not call system.exit()");
     }
 
-    /**
-     * Method declaration
-     *
-     */
     void insertTestData() {
 
         try {
@@ -379,10 +365,6 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     */
     public void main() {
 
         fMain = new Frame("HSQL Database Manager");
@@ -486,14 +468,6 @@ implements ActionListener, WindowListener, KeyListener {
         txtCommand.requestFocus();
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param b
-     * @param name
-     * @param items
-     */
     void addMenu(MenuBar b, String name, String[] items) {
 
         /* It's a very poor design to encapsulate menu creation this way.
@@ -511,13 +485,6 @@ implements ActionListener, WindowListener, KeyListener {
         b.add(menu);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param f
-     * @param m
-     */
     void addMenuItems(Menu f, String[] m) {
 
         for (int i = 0; i < m.length; i++) {
@@ -533,28 +500,10 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param k
-     */
     public void keyPressed(KeyEvent k) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param k
-     */
     public void keyReleased(KeyEvent k) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param k
-     */
     public void keyTyped(KeyEvent k) {
 
         if (k.getKeyChar() == '\n' && k.isControlDown()) {
@@ -563,12 +512,6 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param ev
-     */
     public void actionPerformed(ActionEvent ev) {
 
         String s = ev.getActionCommand();
@@ -794,13 +737,6 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param s
-     * @param help
-     */
     void showHelp(String[] help) {
 
         txtCommand.setText(help[0]);
@@ -815,36 +751,12 @@ implements ActionListener, WindowListener, KeyListener {
         txtCommand.setCaretPosition(help[0].length());
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowActivated(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowDeactivated(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowClosed(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param ev
-     */
     public void windowClosing(WindowEvent ev) {
 
         try {
@@ -860,32 +772,13 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowDeiconified(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowIconified(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowOpened(WindowEvent e) {}
 
     /**
-     * Method declaration
      * Clear SQL Statements.
      */
     void clear() {
@@ -896,7 +789,6 @@ implements ActionListener, WindowListener, KeyListener {
     }
 
     /**
-     * Method declaration
      * Adjust this method for large strings...ie multi megabtypes.
      */
     void execute() {
@@ -962,10 +854,6 @@ implements ActionListener, WindowListener, KeyListener {
         System.gc();
     }
 
-    /**
-     * Method declaration
-     *
-     */
     void updateResult() {
 
         if (iResult == 0) {
@@ -989,12 +877,6 @@ implements ActionListener, WindowListener, KeyListener {
         txtCommand.requestFocus();
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param r
-     */
     void formatResultSet(ResultSet r) {
 
         if (r == null) {
@@ -1040,10 +922,6 @@ implements ActionListener, WindowListener, KeyListener {
         } catch (SQLException e) {}
     }
 
-    /**
-     * Method declaration
-     *
-     */
     void testPerformance() {
 
         String       all   = txtCommand.getText();
@@ -1162,10 +1040,6 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     */
     void showResultInText() {
 
         String[] col   = gResult.getHead();
@@ -1231,12 +1105,6 @@ implements ActionListener, WindowListener, KeyListener {
         txtResult.setText(b.toString());
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param s
-     */
     private void addToRecent(String s) {
 
         for (int i = 0; i < iMaxRecent; i++) {
@@ -1264,10 +1132,6 @@ implements ActionListener, WindowListener, KeyListener {
         iRecent = (iRecent + 1) % iMaxRecent;
     }
 
-    /**
-     * Method declaration
-     *
-     */
     private void initGUI() {
 
         Panel pQuery   = new Panel();
@@ -1324,10 +1188,6 @@ implements ActionListener, WindowListener, KeyListener {
         fMain.pack();
     }
 
-    /**
-     * Method declaration
-     *
-     */
     protected void refreshTree() {
 
         tTree.removeAll();
