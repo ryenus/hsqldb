@@ -2697,8 +2697,12 @@
           <screen>    java -jar path/to/hsqldb.jar localhost-sa</screen>
         </informalexample> If you get a prompt, then all is well. If security
       is of any concern to you at all, then you should change the privileged
-      password in the database. Use the command <literal
-      xlink:href="#set_password-sect">SET PASSWORD</literal> command to change
+      password in the database. Use the command
+      <remark>Restore 
+      &lt;literal
+      xlink:href="#set_password-sect"&gt;SET PASSWORD&lt;/literal&gt;
+        once the set password description is restored.</remark>
+      command to change
       SA's password. <informalexample>
           <programlisting>    SET PASSWORD 'newpassword';</programlisting>
         </informalexample></para>
@@ -2740,8 +2744,11 @@
       <title>Create additional Accounts</title>
 
       <simpara>Connect to the database as SA (or any other Administrative
-      user) and run <literal xlink:href="#create_user-sect">CREATE
-      USER</literal> to create new accounts for your catalog. HSQLDB accounts
+      user) and run <remark> Restore
+        &lt;literal xlink:href="#create_user-sect"&gt;CREATE
+        USER&lt;/literal&gt; once the create_user description is restored.
+        </remark>
+      to create new accounts for your catalog. HSQLDB accounts
       are database-catalog-specific, not
       <classname>Listener</classname>-specific.</simpara>
 
@@ -2755,7 +2762,11 @@
       a DBA account, with an empty string password. You should set a password
       (as described above). You can create as many additional users as you
       wish. To make a user a DBA, you can use the "ADMIN" option to the
-      <literal xlink:href="#create_user-sect">CREATE USER</literal> command,
+      <remark>Restore
+        &lt;literal xlink:href="#create_user-sect"&gt;CREATE USER&lt;/literal&gt;
+        once we restore the create_user description
+        </remark>
+      command,
       or GRANT the DBA Role to the account after creating it.</simpara>
 
       <simpara>Once an object is created, the object creator and users with
@@ -3706,8 +3717,10 @@
 
         <simpara>The property sql.compare_in_locale=true is no longer
         supported. If the line exists in a .properties file, it will switch
-        the database to the collation for the current default. See the <link
-        endterm="collation-title" xlink:href="#collation-sect"></link>
+        the database to the collation for the current default. See the
+        <remark>Restore the
+          &lt;link endterm="collation-title" xlink:href="#collation-sect"/&gt;
+          link, once we have a collation description again.</remark>
         command.</simpara>
 
         <simpara>When HSQLDB is used in OpenOffice.org, some property values
