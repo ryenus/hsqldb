@@ -45,7 +45,6 @@ import java.util.zip.GZIPOutputStream;
  * Creates a direct, compressed or decompressed copy of a file.
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @author Fred Toussi
  * @version 1.9.0
  * @since 1.9.0
  */
