@@ -46,7 +46,8 @@ import org.hsqldb.lib.RCData;
 /* $Id$ */
 
 /**
- * A command-line and/or interactive SQL tool.
+ * A command-line JDBC SQL tool supporting both interactive and
+ * non-interactive usage.
  *
  * See JavaDocs for the main method for syntax of how to run from the
  * command-line.
