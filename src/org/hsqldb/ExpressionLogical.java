@@ -127,6 +127,8 @@ public class ExpressionLogical extends Expression {
                         && right.opType == OpTypes.COLUMN) {
                     isColumnEqual = true;
                 }
+
+            // fall through
             case OpTypes.GREATER_EQUAL :
             case OpTypes.GREATER :
             case OpTypes.SMALLER :
@@ -1497,6 +1499,8 @@ public class ExpressionLogical extends Expression {
                               == rangeVar ? this
                                           : null;
                 }
+
+            // fall through
             case OpTypes.GREATER :
             case OpTypes.GREATER_EQUAL :
             case OpTypes.SMALLER :
@@ -1525,6 +1529,8 @@ public class ExpressionLogical extends Expression {
 
                     return this;
                 }
+
+            // fall through
             default :
                 return null;
         }

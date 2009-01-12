@@ -590,8 +590,7 @@ public class StatementCommand extends Statement {
                         // Do not enforce this constraint for SCRIPT type
                         // backup.
                         return Result.newErrorResult(
-                            Error.error(ErrorCode.DATABASE_IS_NON_FILE),
-                            null);
+                            Error.error(ErrorCode.DATABASE_IS_NON_FILE), null);
 
                         // If we were to back up res: type DB's, could use
                         // DatabasURL.isFileBasedDataType(), but I see no
@@ -647,14 +646,12 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
 
-                    //
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.getCatalogName().rename(name);
                     session.database.logger.writeToLog(session, sql);
                     session.database.setMetaDirty(false);
 
-                    //
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -671,7 +668,6 @@ public class StatementCommand extends Statement {
                     session.database.logger.writeToLog(session, sql);
                     session.database.setMetaDirty(false);
 
-                    //
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -685,7 +681,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.txManager.setMVCC(mvcc);
 
-
+                    return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }

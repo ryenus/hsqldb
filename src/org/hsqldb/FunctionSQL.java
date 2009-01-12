@@ -1132,6 +1132,8 @@ public class FunctionSQL extends Expression {
                 if (!nodes[0].dataType.isCharacterType()) {
                     throw Error.error(ErrorCode.X_42565);
                 }
+
+            // fall through
             case FUNC_OCTET_LENGTH : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR_MAX_LENGTH;

@@ -172,7 +172,7 @@ public class RangeVariableResolver {
                     && arg2.getType() == OpTypes.ROW) {
                 for (int i = 0; i < arg1.nodes.length; i++) {
                     Expression part = new ExpressionLogical(arg1.nodes[i],
-                                                     arg2.nodes[i]);
+                        arg2.nodes[i]);
 
                     part.resolveTypes(null, null);
                     conditions.add(part);
@@ -425,6 +425,8 @@ public class RangeVariableResolver {
 
                         continue;
                     }
+
+                // fall through
                 case OpTypes.IS_NULL : {
                     int colIndex = e.getLeftNode().getColumnIndex();
 
@@ -433,7 +435,8 @@ public class RangeVariableResolver {
                     break;
                 }
                 case OpTypes.NOT : {
-                    int colIndex = e.getLeftNode().getLeftNode().getColumnIndex();
+                    int colIndex =
+                        e.getLeftNode().getLeftNode().getColumnIndex();
 
                     colIndexSetOther.add(colIndex);
 
@@ -495,8 +498,8 @@ public class RangeVariableResolver {
                 int type = e.getType();
 
                 if (type == OpTypes.EQUAL) {
-                    int offset = ArrayUtil.find(cols,
-                                                e.getLeftNode().getColumnIndex());
+                    int offset =
+                        ArrayUtil.find(cols, e.getLeftNode().getColumnIndex());
 
                     if (offset != -1 && firstRowExpressions[offset] == null) {
                         firstRowExpressions[offset] = e;
@@ -557,12 +560,14 @@ public class RangeVariableResolver {
             boolean isIndexed = false;
 
             if (e.getType() == OpTypes.NOT
-                    && cols[0] == e.getLeftNode().getLeftNode().getColumnIndex()) {
+                    && cols[0]
+                       == e.getLeftNode().getLeftNode().getColumnIndex()) {
                 isIndexed = true;
             }
 
             if (cols[0] == e.getLeftNode().getColumnIndex()) {
-                if (e.getRightNode() != null && !e.getRightNode().isCorrelated()) {
+                if (e.getRightNode() != null
+                        && !e.getRightNode().isCorrelated()) {
                     isIndexed = true;
                 }
 
@@ -594,8 +599,8 @@ public class RangeVariableResolver {
                 Index index = rangeVar.rangeTable.getIndexForColumn(
                     in.getLeftNode().nodes[0].getColumnIndex());
                 RangeVariable newRangeVar =
-                    new RangeVariable(in.getRightNode().subQuery.getTable(), null,
-                                      null, null, compileContext);
+                    new RangeVariable(in.getRightNode().subQuery.getTable(),
+                                      null, null, null, compileContext);
                 RangeVariable[] newList =
                     new RangeVariable[rangeVariables.length + 1];
 
@@ -608,8 +613,8 @@ public class RangeVariableResolver {
                 ColumnSchema left = rangeVar.rangeTable.getColumn(
                     in.getLeftNode().nodes[0].getColumnIndex());
                 ColumnSchema right = newRangeVar.rangeTable.getColumn(0);
-                Expression e = new ExpressionLogical(rangeVar, left, newRangeVar,
-                                              right);
+                Expression e = new ExpressionLogical(rangeVar, left,
+                                                     newRangeVar, right);
 
                 rangeVar.addIndexCondition(e, index, flags[i]);
             }

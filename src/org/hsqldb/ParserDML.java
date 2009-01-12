@@ -157,6 +157,8 @@ public class ParserDML extends ParserDQL {
                     break;
                 }
             }
+
+            // fall through
             case Tokens.OVERRIDING : {
                 if (token.tokenType == Tokens.OVERRIDING) {
                     read();
@@ -177,9 +179,9 @@ public class ParserDML extends ParserDQL {
                 if (token.tokenType != Tokens.VALUES) {
                     break;
                 }
-
-                // fall through
             }
+
+            // fall through
             case Tokens.VALUES : {
                 read();
 

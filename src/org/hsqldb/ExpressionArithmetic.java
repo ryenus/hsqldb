@@ -289,6 +289,8 @@ public class ExpressionArithmetic extends Expression {
 
                     break;
                 }
+
+            // fall through
             case OpTypes.SUBTRACT :
             case OpTypes.MULTIPLY :
             case OpTypes.DIVIDE :

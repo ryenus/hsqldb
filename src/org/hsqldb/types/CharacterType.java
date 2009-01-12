@@ -76,7 +76,7 @@ public class CharacterType extends Type {
 
         super(Types.SQL_VARCHAR, type, precision, 0);
 
-        this.collation = Collation.getDefaultInstance();
+        this.collation   = Collation.getDefaultInstance();
         isEqualIdentical = type != Types.VARCHAR_IGNORECASE;
     }
 
@@ -190,9 +190,10 @@ public class CharacterType extends Type {
             return 0;
         }
 
-        if (!other.isCharacterType() ) {
+        if (!other.isCharacterType()) {
             return Integer.MIN_VALUE;
         }
+
         switch (typeCode) {
 
             case Types.SQL_CHAR :
@@ -207,6 +208,7 @@ public class CharacterType extends Type {
             case Types.SQL_CLOB :
                 return other.typeCode == Types.SQL_CHAR ? -4
                                                         : -2;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
@@ -270,7 +272,7 @@ public class CharacterType extends Type {
 
                 /**
                  * @todo - this seems to be allowed in SQL-92 (is in NIST)
-                 * but is disallowed in SQL:2008
+                 * but is disallowed in SQL:2003
                  * need to make dependent on a database property
                  */
                 int length = other.displaySize();

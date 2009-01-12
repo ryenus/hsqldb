@@ -464,6 +464,8 @@ public final class DateTimeType extends DTIType {
                         return convertToTypeLimits(a);
                     }
                 }
+                break;
+
             case Types.SQL_DATE :
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :

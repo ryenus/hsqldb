@@ -272,6 +272,8 @@ public abstract class DTIType extends Type {
                                               scale);
                     }
                 }
+
+            // fall through
             case Types.SQL_INTERVAL_YEAR :
             case Types.SQL_INTERVAL_MONTH :
             case Types.SQL_INTERVAL_DAY :

@@ -3606,7 +3606,6 @@ public class ParserDDL extends ParserRoutine {
                 }
             }
 
-            // fall through
             default :
         }
 
@@ -3652,6 +3651,8 @@ public class ParserDDL extends ParserRoutine {
 
                     return compileAlterColumnDropGenerated(table, column,
                                                            columnIndex);
+                } else {
+                    throw unexpectedToken();
                 }
             }
             case Tokens.SET : {
@@ -3696,6 +3697,8 @@ public class ParserDDL extends ParserRoutine {
                         break;
                 }
             }
+
+            // fall through
             default :
         }
 
@@ -4280,6 +4283,8 @@ public class ParserDDL extends ParserRoutine {
                     database.schemaManager.removeSchemaObject(name);
 
                     return;
+                } else {
+                    throw unexpectedToken();
                 }
             }
             case Tokens.SET : {
@@ -4349,6 +4354,8 @@ public class ParserDDL extends ParserRoutine {
                     read();
 
                     return compileAlterDomainDropConstraint(domain, name);
+                } else {
+                    throw unexpectedToken();
                 }
             }
             case Tokens.SET : {
@@ -4517,7 +4524,10 @@ public class ParserDDL extends ParserRoutine {
                         if (token.tokenType == Tokens.OPENBRACKET) {
                             columnSet = readColumnNames(false);
                         }
+
+                    // fall through
                     case Tokens.DELETE :
+                    case Tokens.TRIGGER :
                         if (right == null) {
                             right = new Right();
                         }

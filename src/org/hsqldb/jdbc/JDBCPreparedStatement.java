@@ -1651,8 +1651,11 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
             case Types.SQL_TIME :
                 millis     += zoneOffset;
                 zoneOffset = 0;
+
+            // fall through
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 break;
+
             default :
                 throw Util.sqlException(ErrorCode.X_42561);
         }
@@ -1721,6 +1724,8 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
             case Types.SQL_TIMESTAMP :
                 millis     += zoneOffset;
                 zoneOffset = 0;
+
+            // fall through
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 parameterValues[i] = new TimestampData(millis / 1000,
                         x.getNanos(), zoneOffset / 1000);
@@ -1729,6 +1734,8 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
             case Types.SQL_TIME :
                 millis     += zoneOffset;
                 zoneOffset = 0;
+
+            // fall through
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), zoneOffset / 1000);
@@ -3892,6 +3899,8 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
                     Util.throwError(e);
                 }
             }
+
+            // fall through
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :
@@ -3915,6 +3924,8 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
                 } catch (HsqlException e) {
                     Util.throwError(e);
                 }
+
+            // fall through
             default :
                 try {
                     o = outType.convertToDefaultType(connection.sessionProxy,

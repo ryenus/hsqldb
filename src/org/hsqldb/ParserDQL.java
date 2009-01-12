@@ -1516,6 +1516,8 @@ public class ParserDQL extends ParserBase {
                 if (!token.isHostParameter) {
                     return null;
                 }
+
+            // fall through
             case Tokens.QUESTION :
                 e = new ExpressionColumn(OpTypes.DYNAMIC_PARAM);
 
@@ -1976,6 +1978,7 @@ public class ParserDQL extends ParserBase {
 
                         break;
                     }
+                    // fall through
                 default :
                     end = true;
                     break;
@@ -2022,6 +2025,7 @@ public class ParserDQL extends ParserBase {
 
                         break;
                     }
+                    // fall through
                 default :
                     end = true;
                     break;

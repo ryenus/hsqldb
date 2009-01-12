@@ -720,6 +720,8 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
             }
+
+            // fall through
             case FUNC_TRUNCATE : {
                 if (data[0] == null || data[1] == null) {
                     return null;
@@ -1138,6 +1140,8 @@ public class FunctionCustom extends FunctionSQL {
                 nodes[0].valueData = ValuePool.getInt(part);
                 funcType           = FUNC_TIMESTAMPDIFF;
             }
+
+            // fall through
             case FUNC_TIMESTAMPDIFF :
                 if (nodes[1].dataType == null) {
                     nodes[1].dataType = Type.SQL_TIMESTAMP;
