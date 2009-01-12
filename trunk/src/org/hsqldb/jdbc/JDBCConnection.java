@@ -102,6 +102,9 @@ import java.sql.SQLInput;
 //              - 20060712               - full synch up to Mustang Build 90
 // fredt@users    20090810 - 1.9.0       - full review and updates
 //
+// Revision 1.23  2006/07/12 12:02:43 boucherb
+// patch 1.9.0
+// - full synch up to Mustang b90
 
 /**
  * <!-- start generic documentation -->
@@ -3281,8 +3284,7 @@ public class JDBCConnection implements Connection {
      * @param c the Session requesting the construction of this
      *     Connection
      * @exception HsqlException never (reserved for future use);
-     * @see org.hsqldb.FunctionSQL
-     * @see org.hsqldb.FunctionCustom
+     * @see org.hsqldb.Routine
      */
     public JDBCConnection(SessionInterface c) throws HsqlException {
 

@@ -78,6 +78,8 @@ import org.hsqldb.result.ResultConstants;
 // boucherb@users 2004-04-xx - doc 1.7.2 - javadocs added/updated
 // boucherb@users 2005-12-07 - patch 1.8.0.x - initial JDBC 4.0 support work
 // boucherb@users 2006-05-22 - doc 1.9.0 - full synch up to Mustang Build 84
+// Revision 1.14  2006/07/12 11:58:49  boucherb
+//  - full synch up to Mustang b90
 
 /**
  * <!-- start generic documentation -->
