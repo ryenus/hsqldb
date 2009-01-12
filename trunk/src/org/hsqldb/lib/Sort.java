@@ -67,20 +67,18 @@
 package org.hsqldb.lib;
 
 /**
+ * FastQSorts the [l,r] partition (inclusive) of the specfied array of
+ * Rows, using the comparator.
+ *
+ * Modified from the original method in Hypersonic with the addition of
+ * the comparator. (fredt@users)
+ *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 1.7.2
+ * @since 1.7.2
  */
 public class Sort {
 
-    /**
-     * FastQSorts the [l,r] partition (inclusive) of the specfied array of
-     * Rows, using the comparator.
-     *
-     * Modified from the original method in Hypersonic with the addition of
-     * the comparator. (fredt@users)
-     *
-     * @since 1.7.2
-     */
     public static final void sort(Object[] w, ObjectComparator comparator,
                                   int l, int r) {
 
