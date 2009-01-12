@@ -46,6 +46,9 @@ import org.hsqldb.types.Type;
 // TODO: implement internal support for at least OUT return parameter
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
+// Revision 1.14  2006/07/12 12:20:49  boucherb
+// - remove unused imports
+// - full synch up to Mustang b90
 
 /**
  * An object that can be used to get information about the types
@@ -324,7 +327,7 @@ public class JDBCParameterMetaData
     /**
      * Creates a new instance of JDBCParameterMetaData. <p>
      *
-     * @param metaData A Result object describing the statement parameters
+     * @param metaData A ResultMetaData object describing the statement parameters
      * @throws SQLException never - reserved for future use
      */
     JDBCParameterMetaData(ResultMetaData metaData) throws SQLException {

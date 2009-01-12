@@ -51,6 +51,10 @@ import org.hsqldb.types.CharacterType;
 // boucherb@users - 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users - 20060522 - doc   1.9.0 full synch up to Mustang Build 84
 // fredt@users - 1.9.0 usage of types and new ResultMetadata
+// Revision 1.15  2006/07/12 12:29:42  boucherb
+// patch 1.9.0
+// - full synch up to Mustang b90
+// - minor update to toString
 
 /**
  * <!-- start generic documentation -->
@@ -901,7 +905,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *  Initializes this jdbcResultSetMetaData object from the specified
      *  Result and HsqlProperties objects.
      *
-     *  @param meta the Result object from which to initialize this
+     *  @param meta the ResultMetaData object from which to initialize this
      *         jdbcResultSetMetaData object
      *  @param props the HsqlProperties object from which to initialize this
      *         jdbcResultSetMetaData object
