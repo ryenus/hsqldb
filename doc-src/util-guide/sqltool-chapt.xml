@@ -3,7 +3,6 @@
 
 <!DOCTYPE book [
     <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
-    <!ENTITY % dummy23 SYSTEM "../entities/addresses.ent"> %dummy23;
     <!ENTITY % dummy25 SYSTEM "entities/versions.ent"> %dummy25;
 ]>
 
@@ -20,7 +19,6 @@
                 <firstname>Blaine</firstname>
                 <surname>Simpson</surname>
               </personname>
-              <email>&blaine_addr;</email>
               <affiliation>
                 <orgname>HSQLDB Development Group</orgname>
               </affiliation>

@@ -4,8 +4,6 @@
 <!ENTITY COPYRIGHT_YEAR "2008">
 <!ENTITY % dummy22 SYSTEM "../entities/global.ent">
 %dummy22;
-<!ENTITY % dummy23 SYSTEM "../entities/addresses.ent">
-%dummy23;
 ]>
 <book version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -31,8 +29,6 @@
         <personname><firstname>Blaine</firstname>
         <surname>Simpson</surname></personname>
 
-        <email>&blaine_addr;</email>
-
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
         </affiliation>
@@ -41,8 +37,6 @@
       <editor>
         <personname><firstname>Fred</firstname>
         <surname>Toussi</surname></personname>
-
-        <email>&fred_addr;</email>
 
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
@@ -97,8 +91,6 @@
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
           </affiliation>
-
-          <email>ft@cluedup.com</email>
         </author>
       </authorgroup>
 
@@ -690,8 +682,6 @@
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
           </affiliation>
-
-          <email>ft@cluedup.com</email>
         </author>
       </authorgroup>
 
@@ -1507,8 +1497,6 @@
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
           </affiliation>
-
-          <email>ft@cluedup.com</email>
         </author>
       </authorgroup>
 
@@ -1915,8 +1903,6 @@
           <author>
             <personname><firstname>Blaine</firstname>
             <surname>Simpson</surname></personname>
-
-            <email>&blaine_addr;</email>
 
             <affiliation>
               <orgname>HSQLDB Development Group</orgname>
@@ -2338,8 +2324,6 @@
       <author>
         <personname><firstname>Blaine</firstname>
         <surname>Simpson</surname></personname>
-
-        <email>&blaine_addr;</email>
 
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
@@ -3036,10 +3020,8 @@
         difference between <literal>-v</literal> and
         <literal>-x</literal>.</para>
 
-        <para>If you want troubleshooting help, use the HSQLDB lists/forums or
-        email me at <link
-        xlink:href="mailto:blaine.simpson@admc.com?Subject=hsqldb-unix"></link>.
-        If you email me, make sure to include the revision number from your
+        <para>If you want troubleshooting help, use the HSQLDB lists/forums.
+        Make sure to include the revision number from your
         <filename>hsqldb</filename> init script (it's towards the top in the
         line that starts like "# $Id:"), and the output of a run of <screen>    sh -x path/to/hsqldb start &gt; /tmp/hstart.log 2&gt;&amp;1</screen></para>
       </section>
@@ -3082,8 +3064,6 @@
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
           </affiliation>
-
-          <email>ft@cluedup.com</email>
         </author>
       </authorgroup>
 
@@ -3835,8 +3815,6 @@
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
           </affiliation>
-
-          <email>ft@cluedup.com</email>
         </author>
       </authorgroup>
 
@@ -4465,8 +4443,6 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
           <affiliation>
             <orgname>HSQLDB Development Group</orgname>
           </affiliation>
-
-          <email>ft@cluedup.com</email>
         </author>
       </authorgroup>
 
