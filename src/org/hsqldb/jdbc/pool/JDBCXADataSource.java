@@ -29,7 +29,6 @@
  */
 
 
-// @(#)$Id$
 package org.hsqldb.jdbc.pool;
 
 import javax.sql.XADataSource;
@@ -48,6 +47,8 @@ import org.hsqldb.jdbc.JDBCConnection;
 import java.sql.DriverManager;
 
 import javax.sql.XAConnection;
+
+// @(#)$Id$
 
 /**
  * Connection factory for JDBCXAConnections.

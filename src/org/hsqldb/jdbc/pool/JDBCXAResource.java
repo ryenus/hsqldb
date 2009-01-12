@@ -29,7 +29,6 @@
  */
 
 
-// @(#)$Id$
 package org.hsqldb.jdbc.pool;
 
 import javax.transaction.xa.XAResource;
@@ -43,6 +42,8 @@ import javax.transaction.xa.Xid;
 import org.hsqldb.jdbc.JDBCConnection;
 
 import java.sql.SQLException;
+
+// @(#)$Id$
 
 /**
  * Used by a global transaction service to control HSQLDB transactions.
