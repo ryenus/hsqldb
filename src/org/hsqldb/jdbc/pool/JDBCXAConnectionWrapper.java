@@ -29,14 +29,14 @@
  */
 
 
-
-// @(#)$Id$
 package org.hsqldb.jdbc.pool;
 
 import org.hsqldb.jdbc.JDBCConnection;
 
 import java.sql.SQLException;
 import java.sql.Savepoint;
+
+// @(#)$Id$
 
 /**
  * This is a wrapper class for JDBCConnection objects (not XAConnection

@@ -29,8 +29,6 @@
  */
 
 
-
-// @(#)$Id$
 package org.hsqldb.jdbc.pool;
 
 import javax.sql.XAConnection;
@@ -38,6 +36,8 @@ import javax.sql.XAConnection;
 import java.sql.SQLException;
 
 import javax.transaction.xa.XAResource;
+
+// @(#)$Id$
 
 /**
  * HSQLDB Connection objects for use by a global transaction service manager.
