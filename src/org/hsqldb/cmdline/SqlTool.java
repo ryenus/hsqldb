@@ -47,19 +47,19 @@ import org.hsqldb.lib.RCData;
 
 /**
  * Sql Tool.  A command-line and/or interactive SQL tool.
- * (Note:  For every Javadoc block comment, I'm using a single blank line
- *  immediately after the description, just like's Sun's examples in
- *  their Coding Conventions document).
  *
- * See JavaDocs for the main method for syntax of how to run.
- * This class is mostly used in a static (a.o.t. object) way, because most
- * of the work is done in the static main class.
- * This class should be refactored so that the main work is done in an
- * object method, and the static main invokes the object method.
- * Then programmatic users could use instances of this class in the normal
- * Java way.
+ * See JavaDocs for the main method for syntax of how to run from the
+ * command-line.
+ * <P/>
+ * Programmatic users will usuall want to use the objectMain method if they
+ * want arguments and behavior to behave exactly like command-line SqlTool.
+ * But in most cases, you would have better control and efficiency by using
+ * the SqlFile class directly.  The file <CODE>sample/SqlFileEmbedder</CODE>
+ * in the HSQLDB distribution provides an example for this latter strategy.
  *
  * @see #main(String[])
+ * @see #objectMain(String[])
+ * @see SqlFile
  * @version $Revision$, $Date$
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
@@ -240,11 +240,11 @@ public class SqlTool {
     /**
      * A static wrapper for objectMain, so that that method may be executed
      * as a Java "program".
-     *
+     * <P/>
      * Throws only RuntimExceptions or Errors, because this method is intended
      * to System.exit() for all but disasterous system problems, for which
      * the inconvenience of a a stack trace would be the least of your worries.
-     *
+     * <P/>
      * If you don't want SqlTool to System.exit(), then use the method
      * objectMain() instead of this method.
      *
@@ -265,7 +265,7 @@ public class SqlTool {
     /**
      * Connect to a JDBC Database and execute the commands given on
      * stdin or in SQL file(s).
-     *
+     * <P/>
      * This method is changed for HSQLDB 1.8.0.8 and later to never
      * System.exit().
      *
