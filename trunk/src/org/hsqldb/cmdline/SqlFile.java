@@ -80,17 +80,17 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * Encapsulation of a sql text file like 'myscript.sql'.
  * The ultimate goal is to run the execute() method to feed the SQL
  * commands within the file to a jdbc connection.
- *
+ * <P/>
  * The complexities of passing userVars and macros maps are to facilitate
  * strong scoping (among blocks and nested scripts).
- *
+ * <P/>
  * Some implementation comments and variable names use keywords based
  * on the following definitions.  <UL>
  * <LI> COMMAND = Statement || SpecialCommand || BufferCommand
  * Statement = SQL statement like "SQL Statement;"
  * SpecialCommand =  Special Command like "\x arg..."
  * BufferCommand =  Editing/buffer command like ":s/this/that/"
- *
+ * <P/>
  * When entering SQL statements, you are always "appending" to the
  * "immediate" command (not the "buffer", which is a different thing).
  * All you can do to the immediate command is append new lines to it,
@@ -101,27 +101,27 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * The buffer usually contains either an exact copy of the last command
  * executed or sent to buffer by entering a blank line,
  * but BUFFER commands can change the contents of the buffer.
- *
+ * <P/>
  * In general, the special commands mirror those of Postgresql's psql,
  * but SqlFile handles command editing much different from Postgresql
  * because of Java's lack of support for raw tty I/O.
  * The \p special command, in particular, is very different from psql's.
- *
+ * <P/>
  * Buffer commands are unique to SQLFile.  The ":" commands allow
  * you to edit the buffer and to execute the buffer.
- *
+ * <P/>
  * \d commands are very poorly supported for Mysql because
  * (a) Mysql lacks most of the most basic JDBC support elements, and
  * the most basic role and schema features, and
  * (b) to access the Mysql data dictionay, one must change the database
  * instance (to do that would require work to restore the original state
  * and could have disastrous effects upon transactions).
- *
+ * <P/>
  * To make changes to this class less destructive to external callers,
  * the input parameters should be moved to setters (probably JavaBean
  * setters would be best) instead of constructor args and System
  * Properties.
- *
+ * <P/>
  * The process*() methods, other than processBuffHist() ALWAYS execute
  * on "buffer", and expect it to contain the method specific prefix
  * (if any).
