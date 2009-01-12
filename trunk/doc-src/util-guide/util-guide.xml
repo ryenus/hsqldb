@@ -3,7 +3,6 @@
 
 <!DOCTYPE book [
     <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
-    <!ENTITY % dummy23 SYSTEM "../entities/addresses.ent"> %dummy23;
     <!ENTITY % dummy25 SYSTEM "entities/versions.ent"> %dummy25;
 ]>
 
@@ -22,7 +21,6 @@
                 <personname>
                     <firstname>Blaine</firstname><surname>Simpson</surname>
                 </personname>
-                <email>&blaine_addr;</email>
                 <affiliation>
                     <orgname>HSQLDB Development Group</orgname>
                 </affiliation>
@@ -31,7 +29,6 @@
                 <personname>
                     <firstname>Fred</firstname><surname>Toussi</surname>
                 </personname>
-                <email>&fred_addr;</email>
                 <affiliation>
                     <orgname>HSQLDB Development Group</orgname>
                 </affiliation>
@@ -281,8 +278,6 @@
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
         </affiliation>
-
-        <email>&fred_addr;</email>
       </author>
 
       <author>
@@ -293,8 +288,6 @@
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
         </affiliation>
-
-        <email>&blaine_addr;</email>
       </author>
     </authorgroup>
 
@@ -577,8 +570,6 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
         <affiliation>
           <orgname>HSQLDB Development Group</orgname>
         </affiliation>
-
-        <email>&fred_addr;</email>
       </author>
     </authorgroup>
 
