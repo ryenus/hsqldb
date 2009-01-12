@@ -745,6 +745,8 @@ public class Scanner {
                         break;
                     }
                 }
+
+            // fall through
             default :
                 boolean result = scanUndelimitedIdentifier();
 
@@ -1821,6 +1823,8 @@ public class Scanner {
                 if (token.tokenType != Tokens.X_ENDPARSE) {
                     throw Error.error(errorCode);
                 }
+
+            // fall through
             default :
         }
 

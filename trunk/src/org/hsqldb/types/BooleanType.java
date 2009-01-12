@@ -158,7 +158,8 @@ public final class BooleanType extends Type {
             }
             case Types.SQL_CLOB :
                 a = Type.SQL_VARCHAR.convertToType(session, a, otherType);
-                // fall through
+
+            // fall through
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {

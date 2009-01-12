@@ -808,6 +808,8 @@ public final class IntervalType extends DTIType {
 
                     return new IntervalSecondData(seconds, nanos, this, true);
                 }
+
+            // fall through
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
         }
@@ -1049,6 +1051,8 @@ public final class IntervalType extends DTIType {
                 if (precision == DTIType.defaultIntervalPrecision) {
                     return SQL_INTERVAL_DAY;
                 }
+                break;
+
             case Types.SQL_INTERVAL_DAY_TO_HOUR :
                 if (precision == DTIType.defaultIntervalPrecision) {
                     return SQL_INTERVAL_DAY_TO_HOUR;

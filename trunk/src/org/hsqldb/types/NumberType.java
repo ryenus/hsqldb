@@ -551,6 +551,8 @@ public final class NumberType extends Type {
                                              : 1);
                 }
             }
+
+            // fall through
             case Types.SQL_BIGINT : {
                 if (b instanceof Long) {
                     long longa = ((Number) a).longValue();
@@ -578,6 +580,8 @@ public final class NumberType extends Type {
                                              : 1);
                 }
             }
+
+            // fall through
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
             case Types.SQL_DOUBLE : {
@@ -1559,6 +1563,8 @@ public final class NumberType extends Type {
                     throw Error.error(ErrorCode.X_22003);
                 }
             }
+
+            // fall through
             default :
                 return a;
         }
@@ -1592,6 +1598,8 @@ public final class NumberType extends Type {
                     throw Error.error(ErrorCode.X_22003);
                 }
             }
+
+            // fall through
             default :
                 return a;
         }

@@ -118,6 +118,8 @@ public final class NumberSequence implements SchemaObject {
 
                     break;
                 }
+
+            // fall through
             default :
                 throw Error.error(ErrorCode.X_42565);
         }

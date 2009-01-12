@@ -859,6 +859,9 @@ public class ParserCommand extends ParserDDL {
                             StatementTypes.SET_DATABASE_TRANSACTION_CONTROL,
                             args);
                     }
+                    default : {
+                        throw unexpectedToken();
+                    }
                 }
             }
             case Tokens.INITIAL : {

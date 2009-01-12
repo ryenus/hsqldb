@@ -208,6 +208,7 @@ public class Log {
                 }
 
             // continue as non-modified files
+            // fall through
             case HsqlDatabaseProperties.FILES_NOT_MODIFIED :
 
                 /**
