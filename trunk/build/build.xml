@@ -878,6 +878,7 @@ examples:
                         src/org/hsqldb/server/WebServer.java,
                         src/org/hsqldb/sample/TriggerSample.java,
                         src/org/hsqldb/lib/RCData.java,
+                        src/org/hsqldb/lib/tar/DbBackup.java,
                         src/org/hsqldb/test/TestScriptRunner.java,
                         src/org/hsqldb/cmdline/SqlTool.java"
            destdir="doc/src"
@@ -909,9 +910,8 @@ examples:
    </target>
 
     <target name="javadocdev" depends="-preparedoc,-javaversion2,-doclink-1.2"
-            description="Create javadoc for HSQLDB product developers">
-      <javadoc packagenames="org.hsqldb.*,org.hsqldb.jdbc.*,org.hsqldb.lib.*,org.hsqldb.util.*,org.hsqldb.cmdline.*"
-           sourcepath="src"
+            description="Create javadoc for all HSQLDB code-base classes">
+      <javadoc
            destdir="doc/src"
            linksource="true"
            author="true"
@@ -921,6 +921,7 @@ examples:
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
+           <fileset dir="src" includes="**/*.java"/>
            <classpath>
              <pathelement path="${java.class.path}"/>
              <pathelement location="${junit38.lib}"/>
