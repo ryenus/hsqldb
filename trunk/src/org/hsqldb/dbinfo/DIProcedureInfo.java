@@ -49,6 +49,9 @@ import org.hsqldb.types.Type;
 /**@todo fredt - move Trace.doAssert() literals to Trace*/
 
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
+// Revision 1.7  2006/07/12 11:27:53  boucherb
+// patch 1.9.0
+// - JDBC 4.0,  Mustang b87: spec. changed to unquoted values for IS_NULLABLE procedure and function column metadata
 
 /**
  * Provides information about HSQLDB SQL-invoked routines and SQL functions. <p>
@@ -59,7 +62,7 @@ import org.hsqldb.types.Type;
  * the DatabaseMetaData getProcedures and getProcedureColumns result sets.
  *
  * @author  boucherb@users
- * @version 1.8.x
+ * @version 1.9.0
  * @since 1.7.2
  */
 final class DIProcedureInfo {
