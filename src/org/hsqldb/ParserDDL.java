@@ -1815,6 +1815,14 @@ public class ParserDDL extends ParserRoutine {
 
         switch (token.tokenType) {
 
+            case Tokens.INSTEAD :
+                beforeOrAfter     = token.tokenString;
+                beforeOrAfterType = token.tokenType;
+
+                read();
+                readThis(Tokens.OF);
+                break;
+
             case Tokens.BEFORE :
             case Tokens.AFTER :
                 beforeOrAfter     = token.tokenString;
@@ -1843,7 +1851,8 @@ public class ParserDDL extends ParserRoutine {
 
                 read();
 
-                if (token.tokenType == Tokens.OF) {
+                if (token.tokenType == Tokens.OF
+                        && beforeOrAfterType != Tokens.INSTEAD) {
                     read();
 
                     columns = readColumnNames(false);
@@ -1868,8 +1877,16 @@ public class ParserDDL extends ParserRoutine {
         name.setSchemaIfNull(table.getSchemaName());
         checkSchemaUpdateAuthorisation(name.schema);
 
-        if (table.isView()) {
-            throw Error.error(ErrorCode.X_42505, name.schema.name);
+        if (beforeOrAfterType == Tokens.INSTEAD) {
+            if (!table.isView()
+                    || ((View) table).getCheckOption()
+                       == SchemaObject.ViewCheckModes.CHECK_CASCADE) {
+                throw Error.error(ErrorCode.X_42538, name.schema.name);
+            }
+        } else {
+            if (table.isView()) {
+                throw Error.error(ErrorCode.X_42538, name.schema.name);
+            }
         }
 
         if (name.schema != table.getSchemaName()) {
@@ -2087,7 +2104,8 @@ public class ParserDDL extends ParserRoutine {
             hasQueueSize = true;
         }
 
-        if (token.tokenType == Tokens.WHEN) {
+        if (token.tokenType == Tokens.WHEN
+                && beforeOrAfterType != Tokens.INSTEAD) {
             read();
             readThis(Tokens.OPENBRACKET);
 

@@ -502,6 +502,10 @@ public class StatementDML extends StatementDMQL {
             table.enforceRowConstraints(session, data);
         }
 
+        if (table.isView ) {
+            return updateList.size();
+        }
+
         // perform check/cascade operations
         if (session.database.isReferentialIntegrity()) {
             for (int i = 0; i < updateList.size(); i++) {

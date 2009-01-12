@@ -516,6 +516,7 @@ public interface ErrorCode {
     int X_42535 = 5535;                           // not an identity column
     int X_42536 = 5536;                           // column is referenced in
     int X_42537 = 5537;                           // cannot use WITH CHECK option for read-only view
+    int X_42538 = 5538;                           // TRIGGER definition not compatible with table
 
     // DML
     int X_42541 = 5541;                           // requires DEFAULT keyword

@@ -1762,6 +1762,10 @@ public class Table extends TableBase implements SchemaObject {
                                null);
         }
 
+        if (isView) {
+            return;
+        }
+
         checkRowDataInsert(session, data);
         insertNoCheck(session, data);
     }
@@ -2251,6 +2255,11 @@ public class Table extends TableBase implements SchemaObject {
         Object[] data = row.getData();
 
         fireBeforeTriggers(session, Trigger.DELETE_BEFORE, data, null, null);
+
+        if (isView) {
+            return;
+        }
+
         deleteNoCheck(session, row);
     }
 

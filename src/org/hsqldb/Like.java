@@ -201,7 +201,7 @@ class Like {
      * Method declaration
      *
      *
-     * @param s
+     * @param o
      * @param i
      * @param j
      * @param jLen
