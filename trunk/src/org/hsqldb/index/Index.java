@@ -816,6 +816,7 @@ public class Index implements SchemaObject {
      * only. The coldata has the same column mapping as this index.
      *
      * @param session session object
+     * @param store store object
      * @param coldata array containing index column data
      * @param match count of columns to match
      * @return iterator
@@ -866,6 +867,7 @@ public class Index implements SchemaObject {
      * only. The rowdata has the same column mapping as this table.
      *
      * @param session session object
+     * @param store store object
      * @param rowdata array containing table row data
      * @return iterator
      * @throws HsqlException
@@ -929,6 +931,8 @@ public class Index implements SchemaObject {
      * Finds the first node that is larger or equal to the given one based
      * on the first column of the index only.
      *
+     * @param session session object
+     * @param store store object
      * @param value value to match
      * @param compare comparison Expression type
      *

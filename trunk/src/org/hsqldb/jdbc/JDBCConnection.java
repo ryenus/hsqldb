@@ -3261,11 +3261,7 @@ public class JDBCConnection implements Connection {
      * <p>
      *
      * To read more about this, see
-     * {@link org.hsqldb.FunctionCustom#getValue(org.hsqldb.Session)
-     * FunctionCustom.getValue(Session)}
-     * {@link org.hsqldb.FunctionSQL#getValue(org.hsqldb.Session)
-     * FunctionSQL.getValue(Session)}
-     * . <p>
+     * {@link org.hsqldb.Routine Routine}. <p>
      *
      * <B>Notes:</B> <p>
      *

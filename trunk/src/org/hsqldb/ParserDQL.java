@@ -1978,7 +1978,8 @@ public class ParserDQL extends ParserBase {
 
                         break;
                     }
-                    // fall through
+
+                // fall through
                 default :
                     end = true;
                     break;
@@ -2025,7 +2026,8 @@ public class ParserDQL extends ParserBase {
 
                         break;
                     }
-                    // fall through
+
+                // fall through
                 default :
                     end = true;
                     break;
