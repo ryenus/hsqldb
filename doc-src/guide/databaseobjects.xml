@@ -83,7 +83,7 @@
 
   <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
   sequence of characters. It consists of letters, digits and the underscore
-  characters. It should begin with a letter. </simpara>
+  characters. It should begin with a letter.</simpara>
 
   <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar to
   <literal>&lt;regular identifier&gt;</literal> but the letters can range only
@@ -94,8 +94,8 @@
   an undelimited identifier, it represents the same identifier. For example
   "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
   identifier&gt;</literal> the case-normal form is considered for comparison.
-  This form consists of the upper-case of equivalent of all the letters.
-  </simpara>
+  This form consists of the upper-case of equivalent of all the
+  letters.</simpara>
 
   <simpara>A reserved word is one that is used by the SQL Standard for special
   purposes. It is similar to a <literal>&lt;regular identifier&gt;</literal>
@@ -616,7 +616,7 @@
       <simpara>A CHARACTER SET is the whole or a subset of the UNICODE
       character set.</simpara>
 
-      <simpara>A character set names can only be an <literal>&lt;regular
+      <simpara>A character set names can only be a <literal>&lt;regular
       identifier&gt;</literal>. There is a separate name-space for character
       sets.</simpara>
 
@@ -733,7 +733,7 @@
       <simpara>A CONSTRAINT is a child schema object and can belong to a
       DOMAIN or a TABLE. CONSTRAINT objects can be defined without specifying
       a name. In this case the system generates a name for the new object
-      beginnint with SYS</simpara>
+      beginning with SYS_.</simpara>
 
       <simpara>In a DOMAIN, CHECK constraints can be defined that limits the
       value represented by the DOMAIN. These constraints work exactly like a
@@ -797,10 +797,11 @@
       <simpara>Trigger functionality first appeared in SQL:1999. Triggers
       embody the <emphasis>live database</emphasis> concept, where changes in
       SQL data can be monitored and acted upon. SQL Standard triggers are
-      <literal>imperative</literal> while the <literal>relational</literal>
-      aspects of SQL are declarative. Triggers allow performing an arbitrary
-      transformation of data that is being updated or inserted, or to prevent
-      deletes, or to perform additional operations.</simpara>
+      <glossterm>imperative</glossterm> while the
+      <glossterm>relational</glossterm> aspects of SQL are
+      <glossterm>declarative</glossterm>. Triggers allow performing an
+      arbitrary transformation of data that is being updated or inserted, or
+      to prevent deletes, or to perform additional operations.</simpara>
 
       <simpara>Some bad examples of SQL triggers in effect enforce an
       “integrity constraint” which would better be expressed as a CHECK
@@ -825,9 +826,10 @@
       different table.</simpara>
 
       <simpara>A trigger is declared to activate when an UPDATE, INSERT or
-      DELETE action is performed on a table. These actions may be direct, or
-      indirect, arising from CASCADE actions of FOREIGN KEY constraints, or
-      actions performed on a VIEW that is based on the table.</simpara>
+      DELETE action is performed on a table. These actions may be direct or
+      indirect. Indirect actions may arise from CASCADE actions of FOREIGN KEY
+      constraints, or from data change statements performed on a VIEW that is
+      based on the table that in.</simpara>
 
       <simpara>It is possible to declare multiple triggers on a single table.
       The triggers activate one by one according to the order in which they
@@ -922,7 +924,7 @@
 
       <simpara><emphasis role="bold">RENAME</emphasis></simpara>
 
-      <simpara><emphasis>rename statement</emphasis></simpara>
+      <simpara><emphasis>rename statement (HyperSQL)</emphasis></simpara>
 
       <simpara><literal>&lt;rename statement&gt; ::= ALTER &lt;object type&gt;
       &lt;name&gt; RENAME TO &lt;new name&gt;</literal></simpara>
@@ -935,7 +937,8 @@
       &lt;table name&gt; ALTER COLUMN &lt;name&gt; RENAME TO &lt;new
       name&gt;</literal></simpara>
 
-      <simpara>The specified <literal>&lt;name&gt;</literal> is the existing
+      <simpara>This command is not part of the SQL Standard and is an HyperSQL
+      extension. The specified <literal>&lt;name&gt;</literal> is the existing
       name, which can be qualified with a schema name, while the
       <literal>&lt;new name&gt;</literal> is the new name for the
       object.</simpara>
@@ -1288,15 +1291,13 @@
       and has a effect only on multi-column foreign keys and only on rows
       containing at least a NULL in one of the <literal>&lt;referencing
       columns&gt;</literal>. If the clause is not specified, MATCH SIMPLE is
-      the default. If there is a NULL in any of the columns, the row is
-      subject to the <literal>MATCH</literal> specification. If <literal>MATCH
-      SIMPLE</literal> is specified, then any NULL means the row can exist
-      (without a corresponding row in the referenced table). If <literal>MATCH
-      FULL</literal> is specified then either all the column values should be
-      NULL or none of them. <literal>MATCH PARTIAL</literal> allows any NULL
-      but the non NULL values must match those of a row in the referenced
-      table. HyperSQL does not support <literal>MATCH
-      PARTIAL</literal>.</simpara>
+      the default. If <literal>MATCH SIMPLE</literal> is specified, then any
+      NULL means the row can exist (without a corresponding row in the
+      referenced table). If <literal>MATCH FULL</literal> is specified then
+      either all the column values should be NULL or none of them.
+      <literal>MATCH PARTIAL</literal> allows any NULL but the non NULL values
+      must match those of a row in the referenced table. HyperSQL does not
+      support <literal>MATCH PARTIAL</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CHECK constraint</primary>
@@ -1421,7 +1422,8 @@
       Standard allows only changes to type properties such as maximum length,
       precision, or scale, and only changes that cause the property to
       enlarge. HyperSQL allows changing the type if all the existing values
-      can be cast into the new type without truncation.</simpara>
+      can be cast into the new type without string truncation or loss of
+      significant digits.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>alter identity column</primary>
@@ -2478,8 +2480,8 @@
     features of the Standard that are not supported by HyperSQL.</para>
 
     <para>HyperSQL also adds some views to the Information Schema. These views
-    are for features that are not reported in any of the views defined by the
-    </para>
+    are for features that are not reported in any of the views defined by
+    the</para>
 
     <section>
       <title>Predefined Character Sets, Collations and Domains</title>
