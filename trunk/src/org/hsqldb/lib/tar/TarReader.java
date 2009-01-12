@@ -139,7 +139,8 @@ public class TarReader {
      *                a compression method.
      * @param mode    Whether to list, extract-without-overwrite, or
      *                extract-with-overwrite.
-     * @param patterns  List of regular expressions to match against tar entry
+     * @param patternStrings
+     *                  List of regular expressions to match against tar entry
      *                  names.  If null, all entries will be listed or
      *                  extracted.  If non-null, then only entries with names
      *                  which match will be extracted or listed.
@@ -150,7 +151,7 @@ public class TarReader {
      * @throws IllegalArgumentException if any given pattern is an invalid
      *                  regular expression.  Don't have to worry about this if
      *                  you call with null 'patterns' param.
-     * @see java.util.regex.Pattern
+     * @see Pattern
      */
     public TarReader(File inFile, int mode, String[] patternStrings,
                      Integer readBufferBlocks, File inDir) throws IOException {

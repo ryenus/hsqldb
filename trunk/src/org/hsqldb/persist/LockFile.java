@@ -216,7 +216,7 @@ import org.hsqldb.lib.StringConverter;
  *
  * In particular, if {@link #USE_NIO_FILELOCK_PROPERTY} is true and the required
  * classes are available at static initialization, then <tt>newLockFile()</tt>
- * produces {@link org.hsqldb.NIOLockFile NIOLockFile} instances.<p>
+ * produces {@link NIOLockFile NIOLockFile} instances.<p>
  *
  * When <tt>NIOLockFile</tt> instances are produced, then it is possible that
  * true kernel-enforced advisory or manditory file locking is used to protect

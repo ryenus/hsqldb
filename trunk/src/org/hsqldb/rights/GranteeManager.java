@@ -66,17 +66,6 @@ import org.hsqldb.lib.HsqlArrayList;
 public class GranteeManager {
 
     /**
-     * An empty list that is returned from
-     * {@link #listTablePrivileges listTablePrivileges} when
-     * it is detected that neither this <code>User</code> object or
-     * its <code>PUBLIC</code> <code>User</code> object attribute have been
-     * granted any rights on the <code>Table</code> object identified by
-     * the specified <code>HsqlName</code> object.
-     *
-     */
-    static final String[] emptyRightsList = new String[0];
-
-    /**
      * The grantee object for the _SYSTEM role.
      */
     static User systemAuthorisation;

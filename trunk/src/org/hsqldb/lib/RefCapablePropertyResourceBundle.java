@@ -304,7 +304,7 @@ public class RefCapablePropertyResourceBundle {
      * If the value in the .properties file is empty, then this returns
      * the entire contents of the referenced text file.
      *
-     * @see ResourceBundle#get(String)
+     * @see ResourceBundle#getString(String)
      */
     public String getString(String key) {
         String value = wrappedBundle.getString(key);

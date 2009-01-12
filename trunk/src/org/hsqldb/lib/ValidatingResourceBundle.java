@@ -78,20 +78,20 @@ abstract public class ValidatingResourceBundle {
                 new Integer(id)));
     }
 
-    /** @see RefCapablePropertyResourceBundle#getString(String, String[]) */
+    /** @see RefCapablePropertyResourceBundle#getString(String, String[], int) */
     public String getString(int id, String[] sa) {
         return wrappedRCPRB.getString((String) getKeyIdToString().get(
                 new Integer(id)), sa, missingPosValueBehavior);
     }
 
-    /** @see RefCapablePropertyResourceBundle#getExpandedString(String) */
+    /** @see RefCapablePropertyResourceBundle#getExpandedString(String, int) */
     public String getExpandedString(int id) {
         return wrappedRCPRB.getExpandedString(
                 (String) getKeyIdToString().get(new Integer(id)),
                 missingPropertyBehavior);
     }
 
-    /** @see RefCapablePropertyResourceBundle#getExpandedString(String, String[]) */
+    /** @see RefCapablePropertyResourceBundle#getExpandedString(String, String[], int, int) */
     public String getExpandedString(int id, String[] sa) {
         return wrappedRCPRB.getExpandedString(
                 (String) getKeyIdToString().get(new Integer(id)), sa,

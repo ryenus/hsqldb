@@ -207,7 +207,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
 
     /**
      * @return seconds Time, in seconds.
-     * @see #JDBCConnectionPoolDataSource.getLoginTimeout()
+     * @see JDBCConnectionPoolDataSource#getLoginTimeout()
      */
     public synchronized int getLoginTimeout() throws SQLException {
         return connectionPoolDataSource.getLoginTimeout();
@@ -215,21 +215,21 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
 
     /**
      * @param seconds Time, in seconds.
-     * @see #JDBCConnectionPoolDataSource.setLoginTimeout(int)
+     * @see JDBCConnectionPoolDataSource#setLoginTimeout(int)
      */
     public synchronized void setLoginTimeout(int seconds) throws SQLException {
         connectionPoolDataSource.setLoginTimeout(seconds);
     }
 
     /**
-     * @see #JDBCConnectionPoolDataSource.getLoginWriter()
+     * @see JDBCConnectionPoolDataSource#getLogWriter()
      */
     public synchronized PrintWriter getLogWriter() throws SQLException {
         return connectionPoolDataSource.getLogWriter();
     }
 
     /**
-     * @see #JDBCConnectionPoolDataSource.setLoginTimeout(PrintWriter)
+     * @see JDBCConnectionPoolDataSource#setLogWriter(PrintWriter)
      */
     public synchronized void setLogWriter(
             PrintWriter out) throws SQLException {
@@ -854,7 +854,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
     }
 
     /**
-     * @see #JDBCConnectionPoolDataSource.logInfo(String)
+     * @see JDBCConnectionPoolDataSource#logInfo(String)
      */
     private void logInfo(String message) {
 
@@ -863,7 +863,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
     }
 
     /**
-     * @see #JDBCConnectionPoolDataSource.logInfo(Throwable)
+     * @see JDBCConnectionPoolDataSource#logInfo(Throwable)
      */
     private void logInfo(Throwable t) {
 
@@ -872,7 +872,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
     }
 
     /**
-     * @see #JDBCConnectionPoolDataSource.logInfo(String, Throwable)
+     * @see JDBCConnectionPoolDataSource#logInfo(String, Throwable)
      */
     private void logInfo(String message, Throwable t) {
 
@@ -1000,7 +1000,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
      * N.b. that regardless of the initialSize, no physical connections
      * will be established until the first call to getConnection().
      *
-     * @param initialSize.  Pre-initialize this number of physical
+     * @param initialSize  Pre-initialize this number of physical
      *                      connections upon first call to getConnection().
      *                      The default is 0, which means, no pre-allocation.
      * @see #getConnection()
@@ -1136,14 +1136,14 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
     /**
      * Removes JDBC Connection Properties.
      *
-     * @see #addConnectionProperty(String, String);
+     * @see #addConnectionProperty(String, String)
      */
     public void removeConnectionProperty(String name) {
         this.connectionPoolDataSource.removeConnectionProperty(name);
     }
 
     /**
-     * @see #addConnectionProperty(String, String);
+     * @see #addConnectionProperty(String, String)
      */
     public Properties getConnectionProperties() {
         return this.connectionPoolDataSource.getConnectionProperties();

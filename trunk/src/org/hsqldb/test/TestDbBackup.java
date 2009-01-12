@@ -99,7 +99,7 @@ public class TestDbBackup extends junit.framework.TestCase {
     /**
      * Use setupConn() to set up this Connection for just this individual test.
      *
-     * @see #setupConn()
+     * @see #setupConn(String)
      */
     protected Connection conn = null;
     protected boolean alreadyShut = false;

@@ -158,7 +158,6 @@ public class Error {
      *
      * @param errorCode    the error code associated to the error message
      * @return  the error message associated with the error code
-     * @see #sDescription
      */
     public static String getMessage(final int errorCode) {
         return getMessage(errorCode, 0, null);

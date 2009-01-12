@@ -66,6 +66,10 @@
 
 package org.hsqldb.lib;
 
+/**
+ * @author Thomas Mueller (Hypersonic SQL Group)
+ * @version 1.7.2
+ */
 public class Sort {
 
     /**
@@ -75,8 +79,6 @@ public class Sort {
      * Modified from the original method in Hypersonic with the addition of
      * the comparator. (fredt@users)
      *
-     * @author Thomas Mueller (Hypersonic SQL Group)
-     * @version 1.7.2
      * @since 1.7.2
      */
     public static final void sort(Object[] w, ObjectComparator comparator,

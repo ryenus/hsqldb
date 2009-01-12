@@ -143,7 +143,7 @@ class HashIndex {
     /**
      * This looks from a given node, so the parameter is always > -1.
      *
-     * @param valid lookup node to look from
+     * @param lookup A valid node to look from
      * @return either -1 or the next node from this node
      */
     int getNextLookup(int lookup) {

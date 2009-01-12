@@ -109,7 +109,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * N.b. this writes values exactly as either "true" or "false".
      *
      * @see #addRecord(String, String)
-     * @see Boolean.toString(boolean)
+     * @see Boolean#toString(boolean)
      */
     public void addRecord(String key,
                           boolean b)

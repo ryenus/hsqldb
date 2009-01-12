@@ -518,8 +518,6 @@ public class ClientConnection implements SessionInterface {
     /**
      * Converts specified encoded integer to a Network Compatibility Version
      * String.
-     *
-     * @see #toNvcInt
      */
     static public String toNcvString(int i) {
 

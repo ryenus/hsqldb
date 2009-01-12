@@ -139,11 +139,6 @@ class TransferTable implements Serializable {
     }
 
     /**
-     * Method declaration
-     *
-     *
-     * @param t
-     *
      * @throws SQLException
      */
     void transferStructure() throws Exception {
@@ -361,14 +356,6 @@ class TransferTable implements Serializable {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param t
-     *
-     * @throws SQLException
-     */
     void transferAlter() throws Exception {
 
         String Statement = new String("");

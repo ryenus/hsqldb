@@ -431,13 +431,7 @@ final class DINameSpace {
     }
 
     /**
-     * Retrieves a composite <code>Iterator</code> consisting of the elements
-     * from {@link #iterateRoutineMethods} for each Class granted to the
-     * specified session. <p>
-     *
-     * @return a composite <code>Iterator</code> consisting of the elements
-     *      from {@link #iterateRoutineMethods} and
-     *      {@link #iterateAccessibleTriggerMethods}
+     * @return a composite <code>Iterator</code>
      * @param session The context in which to produce the iterator
      * @param andAliases true if the alias lists for the "ROUTINE" type method
      *      elements are to be generated.

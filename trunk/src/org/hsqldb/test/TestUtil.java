@@ -409,7 +409,7 @@ abstract class ParsedSection {
 
     /**
      * Type of this test.
-     * @see isValidCase() for allowed values
+     * @see #isValidCode(char) for allowed values
      */
     protected char type = ' ';
 

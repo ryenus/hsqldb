@@ -145,12 +145,6 @@ class FindFile {
     // Search in the database and list out files like this
 
     /**
-     * Method declaration
-     *
-     *
-     * @param conn
-     * @param name
-     *
      * @throws SQLException
      */
     static void listFiles(Connection conn, String name) throws SQLException {
@@ -185,12 +179,6 @@ class FindFile {
     // Re-create the database and fill the file names in
 
     /**
-     * Method declaration
-     *
-     *
-     * @param conn
-     * @param root
-     *
      * @throws SQLException
      */
     static void fillFileNames(Connection conn,
@@ -230,13 +218,6 @@ class FindFile {
     // Fill the file names, using the PreparedStatement
 
     /**
-     * Method declaration
-     *
-     *
-     * @param path
-     * @param name
-     * @param prep
-     *
      * @throws SQLException
      */
     static void fillPath(String path, String name,

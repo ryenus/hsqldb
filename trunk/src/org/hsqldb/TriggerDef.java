@@ -271,8 +271,6 @@ public class TriggerDef implements Runnable, SchemaObject {
     /**
      *  Given the SQL creating the trigger, set up the index to the
      *  HsqlArrayList[] and the associated GRANT type
-     *
-     * @return  index to the HsqlArrayList[]
      */
     void setUpIndexesAndTypes() {
 

@@ -39,7 +39,7 @@ import java.net.Socket;
  * @author paul-h@users
  * @version 1.70
  * @since 1.7.0
- * @see HsqlSocketRequestHandlerImplementation
+ * @see Server
  */
 
 // fredt@users - patch 461556 by paul-h@users

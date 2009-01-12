@@ -124,7 +124,7 @@ public class JDBCXAResource implements XAResource {
     }
 
     /**
-     * @param JDBCConnection A non-wrapped JDBCConnection which we need in
+     * @param connection A non-wrapped JDBCConnection which we need in
      *        order to do real (non-wrapped) commits, rollbacks, etc.
      *        This is not for the end user.  We need the real thing.
      */
@@ -233,7 +233,7 @@ public class JDBCXAResource implements XAResource {
      * after (a) this method is called, and (b) the tx manager releases its
      * handle to it.
      *
-     * @see javax.transaction.xa.XAResource#forget()
+     * @see javax.transaction.xa.XAResource#forget(Xid)
      */
     public void forget(Xid xid) throws XAException {
 

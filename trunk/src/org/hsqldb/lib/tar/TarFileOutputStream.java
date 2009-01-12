@@ -99,7 +99,7 @@ public class TarFileOutputStream {
     /**
      * Convenience wrapper to use default blocksPerRecord and compressionType.
      *
-     * @see TarFileOutputStream(File, int, int)
+     * @see #TarFileOutputStream(File, int, int)
      */
     public TarFileOutputStream(File targetFile) throws IOException {
         this(targetFile, DEFAULT_COMPRESSION);
@@ -108,7 +108,7 @@ public class TarFileOutputStream {
     /**
      * Convenience wrapper to use default blocksPerRecord.
      *
-     * @see TarFileOutputStream(File, int, int)
+     * @see #TarFileOutputStream(File, int, int)
      */
     public TarFileOutputStream(File targetFile,
                                int compressionType) throws IOException {

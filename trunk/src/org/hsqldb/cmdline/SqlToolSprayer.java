@@ -52,7 +52,7 @@ import java.util.Date;
  *      <LI>sqltoolsprayer.rcfile (filepath)</LI>
  * </UL>
  *
- * @see @main()
+ * @see #main(String[])
  * @version $Revision$, $Date$
  * @author Blaine Simpson unsaved@users
  */

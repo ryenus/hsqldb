@@ -107,8 +107,8 @@ public class JDBCXADataSource extends JDBCConnectionPoolDataSource implements XA
      * (which is not necessarily that associated with that XAResource
      * object).
      *
-     * @see javax.transaction.xa.XAResource#commit()
-     * @see javax.transaction.xa.XAResource#rollback()
+     * @see javax.transaction.xa.XAResource#commit(Xid, boolean)
+     * @see javax.transaction.xa.XAResource#rollback(Xid)
      */
     JDBCXAResource getResource(Xid xid) {
         return (JDBCXAResource) resources.get(xid);

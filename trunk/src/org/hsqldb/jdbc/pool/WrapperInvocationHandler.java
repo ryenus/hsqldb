@@ -435,7 +435,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * Retrieves a numeric classification of the surrogate method type
      * corresponding to the given delegate method.
      *
-     * @param the method to test
+     * @param method the method to test
      * @return the numeric classification
      */
     protected static int _computeSurrogateType(Method method) {
@@ -554,12 +554,11 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * or <code>java.lang.Error</code>.  If a checked exception is
      * thrown by this method that is not assignable to any of the
      * exception types declared in the <code>throws</code> clause of
-     * the interface method, then an
-     * {@link UndeclaredThrowableException} containing the
-     * exception that was thrown by this method will be thrown by the
+     * the interface method, then undeclared {@link Throwable} containing
+     * the exception that was thrown by this method will be thrown by the
      * method invocation on the proxy instance.
      *
-     * @see UndeclaredThrowableException
+     * @see Throwable
      */
     // TODO: - Synchronization can be made more granular if performance suffers.
     //       - Requires some private lock objects and synchronized blocks in

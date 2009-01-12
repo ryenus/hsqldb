@@ -147,12 +147,6 @@ class Like {
                         : sb.toString();
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param o
-     */
     Boolean compare(Session session, Object o) throws HsqlException {
 
         if (o == null) {
@@ -197,15 +191,6 @@ class Like {
         return l;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param o
-     * @param i
-     * @param j
-     * @param jLen
-     */
     private boolean compareAt(Object o, int i, int j, int jLen) {
 
         for (; i < iLen; i++) {
@@ -248,13 +233,6 @@ class Like {
         return true;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param pattern
-     * @param b
-     */
     void setPattern(Session session, Object pattern, Object escape,
                     boolean hasEscape) throws HsqlException {
 

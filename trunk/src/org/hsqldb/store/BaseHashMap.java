@@ -36,8 +36,6 @@ import java.util.NoSuchElementException;
 import org.hsqldb.lib.ArrayCounter;
 import org.hsqldb.lib.Iterator;
 
-public class BaseHashMap {
-
 /**
  * Base class for hash tables or sets. The exact type of the structure is
  * defined by the constructor. Each instance has at least a keyTable array
@@ -50,6 +48,7 @@ public class BaseHashMap {
  * @version 1.9.0
  * @since 1.7.2
  */
+public class BaseHashMap {
 /*
 
     data store:

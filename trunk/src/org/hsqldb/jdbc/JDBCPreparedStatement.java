@@ -4167,13 +4167,6 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
     /** The SQL character sequence that this object represents. */
     protected String sql;
 
-    /**
-     * The id with which this object's corresponding
-     * {@link org.hsqldb.CompiledStatement CompiledStatement}
-     * object is registered in the engine's
-     * {@link org.hsqldb.CompiledStatementManager CompiledStatementManager}
-     * object.
-     */
     protected long statementID;
 
     /**

@@ -101,7 +101,7 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
     /**
      * @return seconds Time, in seconds.
      * @throws SQLException
-     * @see #javax.sql.ConnectionPoolDataSource.getLoginTimeout()
+     * @see javax.sql.ConnectionPoolDataSource#getLoginTimeout()
      */
     public int getLoginTimeout() throws SQLException {
         return this.loginTimeout;
@@ -110,7 +110,7 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
     /**
      * @param seconds Time, in seconds.
      * @throws SQLException
-     * @see #javax.sql.ConnectionPoolDataSource.setLoginTimeout(int)
+     * @see javax.sql.ConnectionPoolDataSource#setLoginTimeout(int)
      */
     public void setLoginTimeout(int seconds) throws SQLException {
         this.loginTimeout = seconds;
@@ -118,7 +118,7 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
 
     /**
      * @throws SQLException
-     * @see #javax.sql.ConnectionPoolDataSource.getLogWriter()
+     * @see javax.sql.ConnectionPoolDataSource#getLogWriter()
      */
     public PrintWriter getLogWriter() throws SQLException {
         return logWriter;
@@ -126,7 +126,7 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
 
     /**
      * @throws SQLException
-     * @see #javax.sql.ConnectionPoolDataSource.setLogWriter(PrintWriter)
+     * @see javax.sql.ConnectionPoolDataSource#setLogWriter(PrintWriter)
      */
     public void setLogWriter(PrintWriter out) throws SQLException {
         logWriter = out;
@@ -234,14 +234,14 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
     /**
      * Removes JDBC Connection Properties.
      *
-     * @see #setConnectionProperty(String, String);
+     * @see #setConnectionProperty(String, String)
      */
     public Object removeConnectionProperty(String name) {
         return connProperties.remove(name);
     }
 
     /**
-     * @see #setConnectionProperty(String, String);
+     * @see #setConnectionProperty(String, String)
      *
      * Beware that this property list will normally contain the password.
      * It is under consideration whether the list should be cloned and

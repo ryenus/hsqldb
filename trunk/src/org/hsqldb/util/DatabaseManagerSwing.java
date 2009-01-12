@@ -1872,10 +1872,6 @@ implements ActionListener, WindowListener, KeyListener {
         lTime = System.currentTimeMillis() - lTime;
     }
 
-    /**
-     * Method declaration
-     *
-     */
     private void showResultInText() {
 
         Object[] col   = gResult.getHead();
