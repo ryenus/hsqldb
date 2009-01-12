@@ -36,6 +36,9 @@ import java.sql.Savepoint;
 
 /* $Id$ */
 
+// Revision 1.10  2006/07/12 12:38:22  boucherb
+// - full synch up to Mustang b90
+
 /**
  * The representation of a savepoint, which is a point within
  * the current transaction that can be referenced from the

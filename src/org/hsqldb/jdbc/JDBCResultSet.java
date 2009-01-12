@@ -88,6 +88,10 @@ import org.hsqldb.SessionInterface;
 //boucherb@users 20051207 - patch 1.8.0.x - initial JDBC 4.0 support work
 //fredt@users    20060431 - patch 1.9.0 rewrite with RowSetNavigator
 //boucherb@users 20060522 - doc   1.9.0 - full synch up to Mustang Build 84
+// Revision 1.21  2006/07/12 12:27:25  boucherb
+// patch 1.9.0
+// - full synch up to Mustang b90
+// - added new updateXXXStream signatures (TODO: implement)
 
 /**
  * <!-- start generic documentation -->
