@@ -304,7 +304,7 @@ public class HsqlDateTime {
 
     /**
      * Returns the indicated part of the given <code>java.util.Date</code> object.
-     * @param m the <code>Date</code> object from which to extract the indicated part
+     * @param m the millisecond time value from which to extract the indicated part
      * @param part an integer code corresponding to the desired date part
      * @return the indicated part of the given <code>java.util.Date</code> object
      */
