@@ -1,3 +1,36 @@
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+package org.hsqldb.sample;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.hsqldb.lib.RCData;
@@ -9,19 +42,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Sample class which embeds SqlFile.
+ * Sample class which executes SQL files, by embedding SqlFile.
+ * <P/>
  * Suitable for using as a template.
+ * <P/>
+ * This class also serves as an example of using RCData to allow your
+ * application users to store JDBC access information in a convenient
+ * text file.
  *
- * @see #main
- * @author blaine.simpson@admc.com
+ * @see #main(String[])
+ * @see SqlFile
+ * @see RCData
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class SqlFileEmbedder {
     private Connection conn;
 
+    /**
+     * For applications that use a persistent JDBC connection, this class can
+     * be used to encapsulate that connection.  (Just strip out the SqlFile
+     * stuff if you don't need that).
+     *
+     * @return The encapsulated JDBC Connection.
+     */
     public Connection getConn() {
         return conn;
     }
-
 
     /**
      * Run<PRE>
@@ -51,7 +97,7 @@ public class SqlFileEmbedder {
 
     /**
      * Instantiates SqlFileEmbedder object and connects to specified database.
-     *
+     * <P/>
      * N.b., you do not need to use RCData to use SqlFile.
      * All SqlFile needs is a live Connection.
      * I'm using RCData because it is a convenient way for a non-contained
@@ -63,6 +109,14 @@ public class SqlFileEmbedder {
         conn.setAutoCommit(false);
     }
 
+    /**
+     * Your own classes can use this method to execute SQL files.
+     * <P/>
+     * See source code for the main(String[]) method for an example of calling
+     * this method.
+     *
+     * @see #main(String[])
+     */
     public void executeFiles(String[] fileStrings)
             throws IOException, SqlToolError, SQLException {
         Map<String, String> sqlVarMap = new HashMap<String, String>();

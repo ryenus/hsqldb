@@ -57,7 +57,7 @@
             As far as I know, SqlTool is the only production-ready, pure
             Java, command-line, generic JDBC client.
             Several databases come with a command-line client with limited
-            JDBC abilities (usually designed for use with their specific
+            JDBC abilities (usually designed for use with just their specific
             database).
       </simpara> <important> <simpara>
           The SqlTool commands and settings are intuitive once you are
@@ -539,6 +539,25 @@
             See the <link xlink:href='#sqltool_altjar-sect' endterm='altjar-title'/>
             section.
         </simpara>
+        <section><title>Embedding</title>
+          <subtitle>Using SqlTool to execute SQL files from your own Java
+            code</subtitle>
+          <simpara>
+            To repeat what is stated in the JavaDoc for the
+            <classname>SqlTool</classname> class itself:
+            <emphasis>
+              Programmatic users will usually want to use the
+              objectMain(String[]) method if they want arguments and behavior
+              exactly like command-line SqlTool. But in most cases, you would
+              have better control and efficiency by using the SqlFile class
+              directly. The file
+              <filename xlink:href="#SqlFileEmbedder.java-link">
+                src/org/hsqldb/sample/SqlFileEmbedder.java</filename>
+              in the HSQLDB distribution provides an example for this latter
+              strategy. 
+            </emphasis>
+          </simpara>
+        </section>
         <section><title>Non-displayable Types</title>
             <simpara>
             There are some SQL types which SqlTool (being a text-based
@@ -676,9 +695,13 @@
             RC files can be used by any JDBC client program that uses the
             org.hsqldb.util.RCData class-- this includes
             SqlTool, DatabaseManager, DatabaseManagerSwing.
-            You can use it for your own JDBC client programs too.
         </simpara><simpara>
-            You sample RC file shown here resides at
+            You can use it for your own JDBC client programs too.
+            There is example code showing how to do this at
+            <filename xlink:href="#SqlFileEmbedder.java-link">
+              src/org/hsqldb/sample/SqlFileEmbedder.java</filename>.
+        </simpara><simpara>
+            The sample RC file shown here resides at
             <filename xlink:href="#sqltool.rc-link">sample/sqltool.rc</filename>
             in your HSQLDB distribution
             <footnoteref linkend='samplelocFn'/>.
