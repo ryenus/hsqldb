@@ -131,7 +131,9 @@ public class RCData {
             } else {
                 try {
                     br.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                    // Can only report on so many errors at one time
+                }
 
                 throw new Exception("Corrupt line " + linenum + " in '" + file
                                     + "':  " + s);
@@ -153,7 +155,9 @@ public class RCData {
                     } else {
                         try {
                             br.close();
-                        } catch (IOException e) {}
+                        } catch (IOException e) {
+                            // Can only report on so many errors at one time
+                        }
 
                         throw new Exception("Key '" + dbKey + " redefined at"
                                             + " line " + linenum + " in '"
@@ -186,7 +190,9 @@ public class RCData {
                 } else {
                     try {
                         br.close();
-                    } catch (IOException e) {}
+                    } catch (IOException e) {
+                        // Can only report on so many errors at one time
+                    }
 
                     throw new Exception("Bad line " + linenum + " in '" + file
                                         + "':  " + s);
@@ -194,9 +200,7 @@ public class RCData {
             }
         }
 
-        try {
-            br.close();
-        } catch (IOException e) {}
+        br.close();
 
         if (dbKey == null) {
             return;
@@ -295,8 +299,7 @@ public class RCData {
      * @return New JDBC Connection
      */
     public Connection getConnection()
-    throws ClassNotFoundException, InstantiationException,
-           IllegalAccessException, SQLException, MalformedURLException {
+    throws ClassNotFoundException, SQLException, MalformedURLException {
         return getConnection(null, null, null);
     }
 
@@ -306,13 +309,16 @@ public class RCData {
      *
      * @return New JDBC Connection
      */
-    public Connection getConnection(String curDriver, String curCharset,
-                                    String curTrustStore)
+    public Connection getConnection(String curDriverIn, String curCharsetIn,
+                                    String curTrustStoreIn)
                                     throws ClassNotFoundException,
-                                           InstantiationException,
-                                           IllegalAccessException,
                                            MalformedURLException,
                                            SQLException {
+
+        // Local vars to satisfy compiler warnings
+        String curDriver = curDriverIn;
+        String curCharset = curCharsetIn;
+        String curTrustStore = curTrustStoreIn;
 
         Properties sysProps = System.getProperties();
 
@@ -470,7 +476,7 @@ public class RCData {
      * Returns null, since DB implementations are free to provide
      * their own transaction isolation levels.
      */
-    static public String tiToString(int ti) throws SQLException {
+    static public String tiToString(int ti) {
         switch (ti) {
             case Connection.TRANSACTION_READ_UNCOMMITTED:
                 return "TRANSACTION_READ_UNCOMMITTED";

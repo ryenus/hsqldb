@@ -120,7 +120,9 @@ public class SqlTool {
     /** Utility nested class for internal use. */
     private static class BadCmdline extends Exception {
         static final long serialVersionUID = -2134764796788108325L;
-        BadCmdline() {}
+        BadCmdline() {
+            // Purposefully empty
+        }
     }
 
     /** Utility object for internal use. */
@@ -484,7 +486,7 @@ public class SqlTool {
                     noinput                    = true;
                 }
             }
-        } catch (BadCmdline bcl) {
+        } catch (BadCmdline bcle) {
             throw new SqlToolException(SYNTAXERR_EXITVAL,
                     rb.getString(SqltoolRB.SQLTOOL_SYNTAX,
                                 revnum, RCData.DEFAULT_JDBC_DRIVER));
@@ -663,7 +665,9 @@ public class SqlTool {
         } catch (IOException ioe) {
             try {
                 conn.close();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                // Can only report on so many errors at one time
+            }
 
             throw new SqlToolException(FILEERR_EXITVAL, ioe.getMessage());
         }
@@ -688,7 +692,9 @@ public class SqlTool {
         } finally {
             try {
                 conn.close();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                // Purposefully doing nothing
+            }
             if ((!debug) && tmpFile != null && !tmpFile.delete()) {
                 // Leave this in final block.
                 // There are plenty of valid use-cases where SqlTool is

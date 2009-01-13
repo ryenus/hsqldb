@@ -313,7 +313,9 @@ public class SqlFile {
      * instances.
      */
     private static class BooleanBucket {
-        BooleanBucket() {}
+        BooleanBucket() {
+            // Purposefully empty
+        }
         private boolean bPriv = false;
 
         public void set(boolean bIn) {
@@ -377,6 +379,7 @@ public class SqlFile {
             logger.privlog(Level.FINER, "<init>ting first SqlFile instance",
                     null, 2, SqlFile.ToolLogger.class);
         }
+
         // Set up ResourceBundle first, so that any other errors may be
         // reported with localized messages.
         try {
@@ -403,12 +406,12 @@ public class SqlFile {
         this.file        = file;
         this.interactive = interactive;
         this.userVars    = userVars;
-        if (userVars == null) {
-            userVars = new HashMap();
-        }
         this.macros    = macros;
-        if (macros == null) {
-            macros = new HashMap();
+        if (this.userVars == null) {
+            this.userVars = new HashMap();
+        }
+        if (this.macros == null) {
+            this.macros = new HashMap();
         }
         updateUserSettings();
 
@@ -582,7 +585,6 @@ public class SqlFile {
 
     public synchronized void scanpass(TokenSource ts)
                                      throws SqlToolError, SQLException {
-        String  deTerminated;
         boolean rollbackUncoms = true;
         String nestingCommand;
         Token token = null;
@@ -712,14 +714,23 @@ public class SqlFile {
                 }
             } catch (BadSpecial bs) {
                 // BadSpecials ALWAYS have non-null getMessage().
-                errprintln(rb.getString(SqltoolRB.ERRORAT,
-                        new String[] {
-                            ((file == null) ? "stdin" : file.toString()),
-                            Integer.toString(token.line),
-                            token.reconstitute(),
-                            bs.getMessage(),
-                        }
-                ));
+                if (token == null) {
+                    errprintln(rb.getString(SqltoolRB.ERRORAT,
+                            new String[] {
+                                ((file == null) ? "stdin" : file.toString()),
+                                "?", "?", bs.getMessage(),
+                            }
+                    ));
+                } else {
+                    errprintln(rb.getString(SqltoolRB.ERRORAT,
+                            new String[] {
+                                ((file == null) ? "stdin" : file.toString()),
+                                Integer.toString(token.line),
+                                token.reconstitute(),
+                                bs.getMessage(),
+                            }
+                    ));
+                }
                 Throwable cause = bs.getCause();
                 if (cause != null) {
                     errprintln(rb.getString(SqltoolRB.CAUSEREPORT,
@@ -734,7 +745,8 @@ public class SqlFile {
                 errprintln("SQL " + rb.getString(SqltoolRB.ERRORAT,
                         new String[] {
                             ((file == null) ? "stdin" : file.toString()),
-                            Integer.toString(token.line),
+                            ((token == null) ? "?"
+                                             : Integer.toString(token.line)),
                             lastSqlStatement,
                             se.getMessage(),
                         }));
@@ -781,14 +793,20 @@ public class SqlFile {
                 throw qn;
             } catch (SqlToolError ste) {
                 StringBuffer sb = new StringBuffer(rb.getString(
-                    SqltoolRB.ERRORAT,
-                        new String[] {
-                                ((file == null) ? "stdin" : file.toString()),
-                            Integer.toString(token.line),
-                            ((token.val == null) ? "" : token.reconstitute()),
-                            ((ste.getMessage() == null)
-                                    ? "" : ste.getMessage())
-                        }
+                    SqltoolRB.ERRORAT, ((token == null)
+                            ? (new String[] {
+                                    ((file == null) ? "stdin" : file.toString()),
+                                "?", "?",
+                                ((ste.getMessage() == null)
+                                        ? "" : ste.getMessage())
+                              })
+                            : (new String[] {
+                                    ((file == null) ? "stdin" : file.toString()),
+                                Integer.toString(token.line),
+                                ((token.val == null) ? "" : token.reconstitute()),
+                                ((ste.getMessage() == null)
+                                        ? "" : ste.getMessage())
+                              }))
                 ));
                 if (ste.getMessage() != null) sb.append(LS);
                 Throwable cause = ste.getCause();
@@ -1580,7 +1598,6 @@ public class SqlFile {
                 return;
             case 'v' :
                 enforce1charSpecial(arg1, 'v');
-                int level;
                 if (other != null) {
                     if (integerPattern.matcher(other).matches()) {
                         curConn.setTransactionIsolation(
@@ -1630,13 +1647,13 @@ public class SqlFile {
                             SqltoolRB.SPECIAL_B_MALFORMAT));
                 }
 
-                File file = new File(other);
+                File otherFile = new File(other);
 
                 try {
                     if (arg1.charAt(1) == 'd') {
-                        dump(file);
+                        dump(otherFile);
                     } else {
-                        binBuffer = SqlFile.loadBinary(file);
+                        binBuffer = SqlFile.loadBinary(otherFile);
                         stdprintln(rb.getString(
                                 SqltoolRB.BINARY_LOADEDBYTESINTO,
                                         binBuffer.length));
@@ -2220,17 +2237,17 @@ public class SqlFile {
             if (varName.indexOf(':') > -1) {
                 throw new BadSpecial(rb.getString(SqltoolRB.PLVAR_NOCOLON));
             }
-            File   file    = new File(tokens[2]);
+            File   dlFile    = new File(tokens[2]);
 
             try {
                 if (tokens[0].equals("dump")) {
-                    dump(varName, file);
+                    dump(varName, dlFile);
                 } else {
-                    load(varName, file, charset);
+                    load(varName, dlFile, charset);
                 }
             } catch (IOException ioe) {
                 throw new BadSpecial(rb.getString(SqltoolRB.DUMPLOAD_FAIL,
-                        varName, file.toString()), ioe);
+                        varName, dlFile.toString()), ioe);
             }
 
             return;
@@ -2790,7 +2807,9 @@ public class SqlFile {
             if (statement != null) {
                 try {
                     statement.close();
-                } catch (SQLException se) {}
+                } catch (SQLException se) {
+                    // Purposefully doing nothing
+                }
             }
         }
     }
@@ -2902,8 +2921,10 @@ public class SqlFile {
         }
         } finally {
             try {
-                statement.close();
-            } catch (SQLException se) {}
+                if (statement != null) statement.close();
+            } catch (SQLException se) {
+                // Purposefully doing nothing
+            }
         }
         lastSqlStatement = null;
     }
@@ -3132,10 +3153,11 @@ public class SqlFile {
                                         try {
                                             val = streamToString(
                                                 r.getAsciiStream(i), charset);
-                                        } catch (Exception e) { }
-                                        // Why not handling this?
-                                        // Perhaps only coding exception for
-                                        // char set we know we have.
+                                        } catch (Exception e) {
+                                            // Why not handling this?
+                                            // Perhaps only coding exception for
+                                            // char set we know we have.
+                                        }
                                     }
                             }
                         }
@@ -3403,7 +3425,6 @@ public class SqlFile {
             throw new BadSpecial(rb.getString(SqltoolRB.HISTORY_NONE));
         }
         Token token;
-        char ltr;
         for (int i = 0; i < history.size(); i++) {
             token = (Token) history.get(i);
             psStd.println("#" + (i + oldestHist) + " or "
@@ -3677,7 +3698,9 @@ public class SqlFile {
                 }
 
                 statement.close();
-            } catch (SQLException se) {}
+            } catch (SQLException se) {
+                // Purposefully doing nothing
+            }
         }
     }
 
@@ -4210,8 +4233,9 @@ public class SqlFile {
             firstDigit = offset + 1;
             radix = (Character.toUpperCase(string.charAt(firstDigit)) == '0')
                     ? 8 : 10;
-            for (post = firstDigit + 1; post < string.length()
-                    && Character.isDigit(string.charAt(post)); post++) ;
+            post = firstDigit + 1;
+            while (post < string.length()
+                    && Character.isDigit(string.charAt(post))) post++;
         }
         return string.substring(0, offset) + ((char)
                 Integer.parseInt(string.substring(firstDigit, post), radix))
@@ -4255,23 +4279,19 @@ public class SqlFile {
          * assume no special characters or escaping in column names. */
         Matcher matcher;
         byte[] bfr  = null;
-        File   file = new File(filePath);
+        File   dsvFile = new File(filePath);
         SortedMap constColMap = null;
         if (dsvConstCols != null) {
             // We trim col. names, but not values.  Must allow users to
             // specify values as spaces, empty string, null.
             constColMap = new TreeMap();
             String[] constPairs = dsvConstCols.split(dsvColSplitter, -1);
-            int firstEq;
-            String n;
             for (int i = 0; i < constPairs.length; i++) {
                 matcher = nameValPairPattern.matcher(constPairs[i]);
                 if (!matcher.matches()) {
                     throw new SqlToolError(
                             rb.getString(SqltoolRB.DSV_CONSTCOLS_NULLCOL));
                 }
-                firstEq = constPairs[i].indexOf('=');
-                n = constPairs[i].substring(0, firstEq).trim().toLowerCase();
                 constColMap.put(matcher.group(1).toLowerCase(),
                         ((matcher.groupCount() < 2 || matcher.group(2) == null)
                         ? "" : matcher.group(2)));
@@ -4286,13 +4306,13 @@ public class SqlFile {
             }
         }
 
-        if (!file.canRead()) {
+        if (!dsvFile.canRead()) {
             throw new SqlToolError(rb.getString(SqltoolRB.FILE_READFAIL,
-                    file.toString()));
+                    dsvFile.toString()));
         }
 
         try {
-            bfr = new byte[(int) file.length()];
+            bfr = new byte[(int) dsvFile.length()];
         } catch (RuntimeException re) {
             throw new SqlToolError(rb.getString(SqltoolRB.READ_TOOBIG), re);
         }
@@ -4302,7 +4322,7 @@ public class SqlFile {
         InputStream is = null;
 
         try {
-            is = new FileInputStream(file);
+            is = new FileInputStream(dsvFile);
             while (bytesread < bfr.length &&
                     (retval = is.read(bfr, bytesread, bfr.length - bytesread))
                     > 0) {
@@ -4347,7 +4367,8 @@ public class SqlFile {
         String trimmedLine = null;
         boolean switching = false;
         int headerOffset = 0;  //  Used to offset read-start of header record
-        String curLine = null;
+        String curLine = "dummy"; // Val will be replaced 4 lines down
+                                  // This is just to quiet compiler warning
 
         while (true) {
             if (lineCount >= lines.length)
@@ -4450,7 +4471,7 @@ public class SqlFile {
         // values may be nulls.
 
         if (tableName == null) {
-            tableName = file.getName();
+            tableName = dsvFile.getName();
 
             int i = tableName.lastIndexOf('.');
 
@@ -4578,7 +4599,7 @@ public class SqlFile {
             rejectReportWriter.println(rb.getString(
                     SqltoolRB.REJECTREPORT_TOP, new String[] {
                         (new java.util.Date()).toString(),
-                        file.getPath(),
+                        dsvFile.getPath(),
                         ((rejectFile == null) ? rb.getString(SqltoolRB.NONE)
                                         : rejectFile.getPath()),
                         ((rejectFile == null) ? null : rejectFile.getPath()),
@@ -4937,13 +4958,12 @@ public class SqlFile {
 
         static {
             Class log4jLoggerClass = null;
-            boolean doLog4j = true;
             try {
                 log4jLoggerClass = Class.forName("org.apache.log4j.Logger");
             } catch (Exception e) {
-                doLog4j = false;
+                log4jLoggerClass = null;
             }
-            if (doLog4j) try {
+            if (log4jLoggerClass != null) try {
                 Method log4jToLevel = Class.forName("org.apache.log4j.Level").
                         getMethod("toLevel", new Class[] { String.class });
                 log4jLogMethod = log4jLoggerClass.getMethod(
@@ -5018,11 +5038,21 @@ public class SqlFile {
             return new ToolLogger(s);
         }
 
-        private void log(Level level, String message, Throwable t) {
+        /**
+         * Just like ToolLogger.log(Level, String),
+         * but also logs a stack trace.
+         *
+         * @param level java.util.logging.Level level to filter and log at
+         * @param message Message to be logged
+         * @param t Throwable whose stack trace will be logged.
+         * @see Logger#log(Level, String)
+         * @see Level
+         */
+        public void log(Level level, String message, Throwable t) {
             privlog(level, message, t, 2, SqlFile.ToolLogger.class);
         }
 
-        private void privlog(Level level, String message, Throwable t,
+        void privlog(Level level, String message, Throwable t,
                 int revertMethods, Class skipClass) {
             if (log4jLogger == null) {
                 StackTraceElement elements[] = new Throwable().getStackTrace();
@@ -5043,9 +5073,8 @@ public class SqlFile {
             }
         }
 
-        private void enduserlog(Level level, String message) {
+        void enduserlog(Level level, String message) {
             if (log4jLogger == null) {
-                StackTraceElement elements[] = new Throwable().getStackTrace();
                 String c = SqlFile.class.getName();
                 String m = "\\l";
                 jdkLogger.logp(level, c, m, message);
@@ -5062,7 +5091,7 @@ public class SqlFile {
 
         // Wrappers
         /**
-         * @param level java.util.logging.Level level to filtered and logged at
+         * @param level java.util.logging.Level level to filter and log at
          * @param message Message to be logged
          * @see Logger#log(Level, String)
          * @see Level
@@ -5267,10 +5296,6 @@ public class SqlFile {
                         newType = Token.SQL_TYPE;
                     }
                 }
-                if (matcher == null)
-                    throw new RuntimeException(
-                    "Internal assertin failed.  "
-                    + "Somehow no Macro def pattern matched.");
                 if (newVal.length() < 1)
                     throw new BadSpecial(rb.getString(
                             SqltoolRB.MACRODEF_EMPTY));

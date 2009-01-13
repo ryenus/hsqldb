@@ -32,7 +32,6 @@
 package org.hsqldb.cmdline;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -137,7 +136,7 @@ public class SqlToolSprayer {
                 sqlToolArgs[sqlToolArgs.length - 1] = (String) urlids.get(i);
 
                 try {
-                    new SqlTool().objectMain(sqlToolArgs);
+                    SqlTool.objectMain(sqlToolArgs);
 
                     status[i] = true;
 
@@ -158,7 +157,9 @@ public class SqlToolSprayer {
 
             try {
                 Thread.sleep(period);
-            } catch (InterruptedException ie) {}
+            } catch (InterruptedException ie) {
+                // Purposefully doing nothing
+            }
         }
 
         ArrayList failedUrlids = new ArrayList();

@@ -47,7 +47,9 @@ public class SqlToolError extends AppendableException {
         super(null, cause);
     }
 
-    public SqlToolError() {}
+    public SqlToolError() {
+        // Purposefully empty
+    }
 
     public SqlToolError(String s) {
         super(s);
