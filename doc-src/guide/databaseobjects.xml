@@ -83,7 +83,7 @@
 
   <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
   sequence of characters. It consists of letters, digits and the underscore
-  characters. It should begin with a letter.</simpara>
+  characters. It must begin with a letter.</simpara>
 
   <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar to
   <literal>&lt;regular identifier&gt;</literal> but the letters can range only
@@ -167,7 +167,7 @@
 
       <simpara><emphasis role="bold">PUBLIC</emphasis></simpara>
 
-      <simpara><emphasis>the PUBLIC role (SQL Standard)</emphasis></simpara>
+      <simpara><emphasis>the PUBLIC role</emphasis></simpara>
 
       <simpara>The role that is assigned to all authorizations (roles and
       users) in the database. This role has access rights to all objects in
@@ -180,7 +180,7 @@
 
       <simpara><emphasis role="bold">_SYSTEM</emphasis></simpara>
 
-      <simpara><emphasis>the _SYSTEM role (SQL Standard)</emphasis></simpara>
+      <simpara><emphasis>the _SYSTEM role</emphasis></simpara>
 
       <simpara>This role is the authorization for the pre-defined (system)
       objects in the database, including the INFORMATION_SCHEMA. This role
@@ -192,7 +192,7 @@
 
       <simpara><emphasis role="bold">DBA</emphasis></simpara>
 
-      <simpara><emphasis>the DBA role (HyperSQL)</emphasis></simpara>
+      <simpara><emphasis>the DBA role (HyperSQL-specific)</emphasis></simpara>
 
       <simpara>This is a special role in HyperSQL. It is the default
       authorization for all the user-defined schemas in the database unless
@@ -212,7 +212,7 @@
       <simpara><emphasis role="bold">CREATE_SCHEMA</emphasis></simpara>
 
       <simpara><emphasis>the CREATE_SCHEMA role
-      (HyperSQL)</emphasis></simpara>
+      (HyperSQL-specific)</emphasis></simpara>
 
       <simpara>An authorization that has this role, can create schemas. The
       DBA authorization has this role and can grant it to other
@@ -225,7 +225,7 @@
       <simpara><emphasis role="bold">CHANGE_AUTHORIZATION</emphasis></simpara>
 
       <simpara><emphasis>the CHANGE_AUTHORIZATION role
-      (HyperSQL)</emphasis></simpara>
+      (HyperSQL-specific)</emphasis></simpara>
 
       <simpara>A user that has this role, can change the authorization for the
       current session to another user. The DBA authorization has this role and
@@ -237,7 +237,7 @@
 
       <simpara><emphasis role="bold">SA</emphasis></simpara>
 
-      <simpara><emphasis>the SA user (HyperSQL)</emphasis></simpara>
+      <simpara><emphasis>the SA user (HyperSQL-specific)</emphasis></simpara>
 
       <simpara>This user is automatically created with a new database and has
       the DBA role. Initially, the password for this user is an empty string.
@@ -291,8 +291,8 @@
 
       <simpara>The INSERT privilege designates the columns into which explicit
       values can be inserted. To be able to insert a row into the table, the
-      user should therefore have the INSERT privilege on the table, or at
-      least all the columns that do not have a default value.</simpara>
+      user must therefore have the INSERT privilege on the table, or at least
+      all the columns that do not have a default value.</simpara>
 
       <simpara>The UPDATE privilege simply designates the table or the
       specific columns that can be updated.</simpara>
@@ -410,7 +410,7 @@
       <simpara><literal>&lt;drop role statement&gt; ::= DROP ROLE &lt;role
       name&gt;</literal></simpara>
 
-      <simpara>Drop (destroy) a role. If the specified user is the
+      <simpara>Drop (destroy) a role. If the specified role is the
       authorization for a schema, the schema is destroyed. Only a user with
       the DBA role can execute this command.</simpara>
 
@@ -460,7 +460,7 @@
       CHARACTER SET &lt;character set name&gt; | TRANSLATION
       &lt;transliteration name&gt; | TYPE &lt;user-defined type name&gt; |
       SEQUENCE &lt;sequence generator name&gt; | &lt;specific routine
-      designator&gt; | &lt;routine name&gt;</literal></simpara>
+      designator&gt; | ROUTINE &lt;routine name&gt;</literal></simpara>
 
       <simpara><literal>&lt;object privileges&gt; ::= ALL PRIVILEGES |
       &lt;action&gt; [ { &lt;comma&gt; &lt;action&gt; }...
@@ -482,9 +482,17 @@
 
       <simpara>The <literal>&lt;object privileges&gt;</literal> that can be
       used depend on the type of the <literal>&lt;object name&gt;</literal>.
-      If <literal>&lt;privilege column list&gt;</literal> is not specified,
-      then the privilege is granted on the table, which includes all of its
-      columns and any column that may be added to it in the future.</simpara>
+      These are discussed in the previous section. If <literal>&lt;privilege
+      column list&gt;</literal> is not specified, then the privilege is
+      granted on the table, which includes all of its columns and any column
+      that may be added to it in the future. For routines, the name of the
+      routine can be specified in two ways. The SQL Standard requires the use
+      of <literal>&lt;specific routine designator&gt;</literal>, but HyperSQL
+      allows referencing all overloaded versions of a routine at the same
+      time, using its name.</simpara>
+
+      <simpara>Each <literal>&lt;grantee&gt;</literal> is the name of a role
+      or a user.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>GRANT role</primary>
@@ -658,8 +666,11 @@
 
       <simpara>There is a separate name-space for collations.</simpara>
 
-      <simpara>The SQL Standard specifies several collations with the same
-      name as the character sets that it specifies.</simpara>
+      <simpara>The SQL Standard specifies several collations for use with its
+      predefined character sets.</simpara>
+
+      <simpara>Collations for a large number of lagnuages are supported by
+      HyperSQL.</simpara>
     </section>
 
     <section>
@@ -734,6 +745,7 @@
       DOMAIN or a TABLE. CONSTRAINT objects can be defined without specifying
       a name. In this case the system generates a name for the new object
       beginning with "SYS_".</simpara>
+
       <!-- For some reason, without the quotes, the _ and . do not appear in
       the HTML output.  Can remove the quotes if this issue is taken care of
       or disappears.  -blaine -->
@@ -866,6 +878,14 @@
 
       <simpara>There is a separate name-space for routines.</simpara>
 
+      <simpara>Because of the possibility of overloading, each routine has
+      more than one name. The name of the routine is the same for all
+      overloaded variants, but each variant has a <glossterm>specific
+      name</glossterm>, different from all other routine names and specific
+      names in the schema. The specific name is used only for schema
+      manipulation statements, which need to reference a specific variant of
+      the routine.</simpara>
+
       <simpara>Routines are discussed in detail in a separate
       chapter.</simpara>
     </section>
@@ -894,16 +914,16 @@
       <simpara><literal>&lt;drop behavior&gt; ::= CASCADE |
       RESTRICT</literal></simpara>
 
-      <simpara>The <literal>&lt;drop behavior&gt;</literal> is specified in
-      statements that drop a SCHEMA or a schema object. If <literal>&lt;drop
-      behavior&gt;</literal> is not specified then <literal>RESTRICT</literal>
-      is implicit. It determines the effect of the statement if there are
-      other objects in the catalog that reference the SCHEMA or the schema
-      object. If RESTRICT is specified, the statement fails if there are
-      referencing objects. If CASCADE is specified, all the referencing
-      objects are modified or dropped with cascading effect. Whether a
-      referencing object is modified or dropped, depends on the kind of schema
-      object that is dropped.</simpara>
+      <simpara>The <literal>&lt;drop behavior&gt;</literal> is a required
+      element of statements that drop a SCHEMA or a schema object. If
+      <literal>&lt;drop behavior&gt;</literal> is not specified then
+      <literal>RESTRICT</literal> is implicit. It determines the effect of the
+      statement if there are other objects in the catalog that reference the
+      SCHEMA or the schema object. If RESTRICT is specified, the statement
+      fails if there are referencing objects. If CASCADE is specified, all the
+      referencing objects are modified or dropped with cascading effect.
+      Whether a referencing object is modified or dropped, depends on the kind
+      of schema object that is dropped.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>IF EXISTS</primary>
@@ -920,6 +940,25 @@
       extension to some commands that drop objects. If it is specified, then
       the statement does not return an error if the drop statement is issued
       on a non-existent object.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SPECIFIC</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SPECIFIC</emphasis></simpara>
+
+      <simpara><emphasis>specific routine designator</emphasis></simpara>
+
+      <simpara><literal>&lt;specific routine designator&gt; ::= SPECIFIC
+      &lt;routine type&gt; &lt;specific name&gt; </literal></simpara>
+
+      <simpara><literal>&lt;routine type&gt; ::= ROUTINE | FUNCTION |
+      PROCEDURE</literal></simpara>
+
+      <simpara>This clause is used in statements that need to specify one of
+      the multiple versions of an overloaded routine. The
+      <literal>&lt;specific name&gt;</literal> is the one specified in the
+      <literal>&lt;routine definition&gt;</literal> statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>RENAME</primary>
@@ -960,7 +999,7 @@
       can be dropped. Within the <literal>&lt;schema definition&gt;</literal>
       statement, all schema object creation takes place inside the newly
       created schema. Therefore, if a schema name is specified for the schema
-      objects, the name should match that of the new schema. In addition to
+      objects, the name must match that of the new schema. In addition to
       statements for creating schema objects, the statement can include
       instances of <literal>&lt;grant statement&gt;</literal> and
       <literal>&lt;role definition&gt;</literal>. This is a curious aspect of
@@ -977,7 +1016,7 @@
 
       <para>If the name of the schema is specified simply as
       <literal>&lt;schema name&gt;</literal>, then the AUTHORIZATION is the
-      special system role, DBA. Otherwise, the specified
+      special system role, DBA (check if correct). Otherwise, the specified
       <literal>&lt;authorization identifier&gt;</literal> is used as the
       AUTHORIZATION for the schema. If <literal>&lt;schema name&gt;</literal>
       is omitted, then the name of the schema is the same as the specified
@@ -1017,9 +1056,9 @@
       &lt;schema name&gt; &lt;drop behavior&gt; [ IF EXISTS
       ]</literal></simpara>
 
-      <simpara>This command destroys an existing schema. If
-      <literal>RESTRICT</literal> is specified, the schema must be empty,
-      otherwise an error is raised. If <literal>CASCADE</literal> is
+      <simpara>This command destroys an existing schema. If <literal>&lt;drop
+      behavior&gt;</literal> is <literal>RESTRICT</literal>, the schema must
+      be empty, otherwise an error is raised. If <literal>CASCADE</literal> is
       specified, then all the objects contained in the schema are destroyed
       with a CASCADE option.</simpara>
 
@@ -1107,8 +1146,8 @@
       <simpara>A column definition consists of a <literal>&lt;column
       name&gt;</literal> and in most cases a <literal>&lt;data
       type&gt;</literal> or <literal>&lt;domain name&gt;</literal> as minimum.
-      Each <literal>&lt;column name&gt;</literal> is unique. The other
-      elements of <literal>&lt;column definition&gt;</literal> are
+      Each <literal>&lt;column name&gt;</literal> in a table is unique. The
+      other elements of <literal>&lt;column definition&gt;</literal> are
       optional.</simpara>
 
       <simpara><literal>&lt;column definition&gt; ::= &lt;column name&gt; [
@@ -1161,7 +1200,8 @@
       SQL-data, and no <literal>&lt;query expression&gt;</literal> is allowed.
       When <literal>&lt;generation clause&gt;</literal> is used,
       <literal>&lt;data type&gt;</literal> or <literal>&lt;domain
-      name&gt;</literal> may be omitted.</simpara>
+      name&gt;</literal> may be omitted. When a row is inserted into a table,
+      no value can be specified for a generated column.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DEFAULT clause</primary>
@@ -1186,6 +1226,37 @@
 
       <simpara>The type of the &lt;default option&gt; must match the type of
       the column.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT name and characteristics</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>constraint name and
+      characteristics</emphasis></simpara>
+
+      <simpara><literal>&lt;constraint name definition&gt; ::= CONSTRAINT
+      &lt;constraint name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
+      check time&gt; [ [ NOT ] DEFERRABLE ] | [ NOT ] DEFERRABLE [
+      &lt;constraint check time&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
+      INITIALLY IMMEDIATE</literal></simpara>
+
+      <simpara>Specify the name of a constraint and its characteristics. By
+      default the constraint is <literal>INITIALLY IMMEDIATE</literal> and
+      <literal>NOT DEFERRABLE</literal>. This means the constraint is enforced
+      as soon as a data change statement is executed. If <literal>INITIALLY
+      DEFERRED</literal> is specified, then the constraint is enforced when
+      the session commits. The (verbose) characteristics must be compatible.
+      The constraint check time can be changed temporarily for an SQL session.
+      HyperSQL does not support deferring constraint enforcement. This feature
+      of SQL standards has been criticised because it allows a session to read
+      uncommitted data that violates database integrity constraints (but has
+      not yet been checked).</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT (table constraint)</primary>
@@ -1297,7 +1368,7 @@
       the default. If <literal>MATCH SIMPLE</literal> is specified, then any
       NULL means the row can exist (without a corresponding row in the
       referenced table). If <literal>MATCH FULL</literal> is specified then
-      either all the column values should be NULL or none of them.
+      either all the column values must be NULL or none of them.
       <literal>MATCH PARTIAL</literal> allows any NULL but the non NULL values
       must match those of a row in the referenced table. HyperSQL does not
       support <literal>MATCH PARTIAL</literal>.</simpara>
@@ -1318,7 +1389,11 @@
       <literal>&lt;search condition&gt;</literal> evaluates to an SQL BOOLEAN
       value for each row of the table. Within the <literal>&lt;search
       condition&gt;</literal> all columns of the table row can be referenced.
-      The value should not be FALSE for any row.</simpara>
+      For all rows of the table, the <literal>&lt;search
+      condition&gt;</literal> evaluates to TRUE or UNKNOWN. When a new row is
+      inserted, or an existing row is updated, the <literal>&lt;search
+      condition&gt;</literal> is evaluated and if it is FALSE, the insert or
+      update fails.</simpara>
 
       <simpara>A CHECK constraint for a DOMAIN is similar. In its
       <literal>&lt;search condition&gt;</literal>, the term VALUE is used to
@@ -1544,7 +1619,26 @@
       <simpara><literal>&lt;view column list&gt; ::= &lt;column name
       list&gt;</literal></simpara>
 
-      <simpara>Define a viewed table.</simpara>
+      <simpara>Define a view. The <literal>&lt;query expression&gt;</literal>
+      is a SELECT or similar statement. The <literal>&lt;view column
+      list&gt;</literal> is list of unique names for the columns of the view.
+      The number of columns in the <literal>&lt;view column list&gt;</literal>
+      must match the number of columns returned by the <literal>&lt;query
+      expression&gt;</literal>. If <literal>&lt;view column list&gt;</literal>
+      is not specified, then the columns of the <literal>&lt;query
+      expression&gt;</literal> should have unique names.</simpara>
+
+      <simpara>Some views are updatable. For updatable views, the optional
+      <literal>CHECK OPTION</literal> clause can be specified. If this option
+      is specified, then if a row of the view is updated or a new row is
+      inserted into the view, then it should contain such values that the row
+      would be included in the view after the change. If <literal>WITH
+      CASCADED CHECK OPTION</literal> is specified, then if the
+      <literal>&lt;query expression&gt;</literal> of the view references
+      another view, then the search condition of the underlying view should
+      also be satisfied by the update or insert operation.</simpara>
+
+      <simpara>More on recursive...</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP VIEW</primary>
@@ -1711,10 +1805,10 @@
       <simpara><literal>&lt;drop character set statement&gt; ::= DROP
       CHARACTER SET &lt;character set name&gt;</literal></simpara>
 
-      <simpara>Destroy a character set. If the <literal>&lt;drop
-      behavior&gt;</literal> is <literal>CASCADE</literal>, then all
-      references to the collation revert to the default collation that would
-      be in force if the dropped collation was not specified.</simpara>
+      <simpara>Destroy a character set. If the character set name is
+      referenced in any database object, the command fails. Note that
+      <literal>CASCADE</literal> or <literal>RESTRICT</literal> cannot be
+      specified for this command.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE COLLATION</primary>
@@ -2359,8 +2453,8 @@
 
       <simpara>The integer types: SMALLINT, INTEGER, BIGINT, DECIMAL and
       NUMERIC can be used as the type of the sequence. DECIMAL and NUMERIC
-      types should be specified with a scale of 0 and a precision not
-      exceeding 18.</simpara>
+      types must be used with a scale of 0 and a precision not exceeding
+      18.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER SEQUENCE</primary>
@@ -2473,11 +2567,10 @@
     the implementation-defined collations belong to the Information
     Schema.</para>
 
-    <para>The SQL Standard defines many views in the Information Schema.
-    These views show the properties of the database objects that currently
-    exist in the database. When a user accesses one these views, only the
-    properties of database objects that the user can access are
-    included.</para>
+    <para>The SQL Standard defines many views in the Information Schema. These
+    views show the properties of the database objects that currently exist in
+    the database. When a user accesses one these views, only the properties of
+    database objects that the user can access are included.</para>
 
     <para>HyperSQL supports all the views defined by the Standard, apart from
     a few views that report on extended user-defined types and other optional
