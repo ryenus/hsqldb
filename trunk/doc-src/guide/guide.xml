@@ -180,7 +180,7 @@
       </itemizedlist>
 
       <para>When a tool is up and running, you can connect to a database (may
-      be a new database) and use SQL commands to access and mofidy the
+      be a new database) and use SQL commands to access and modify the
       data.</para>
 
       <para>Tools can use command line arguments. You can add the command line
