@@ -81,6 +81,10 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * The ultimate goal is to run the execute() method to feed the SQL
  * commands within the file to a jdbc connection.
  * <P/>
+ * The file <CODE>src/org/hsqldb/sample/SqlFileEmbedder.java</CODE>
+ * in the HSQLDB distribution provides an example for using SqlFile to
+ * execute SQL files directly from your own Java classes.
+ * <P/>
  * The complexities of passing userVars and macros maps are to facilitate
  * strong scoping (among blocks and nested scripts).
  * <P/>
@@ -130,6 +134,7 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * @see <a href="../../../../util-guide/sqltool-chapt.html" target="guide">
  *     The SqlTool chapter of the
  *     HyperSQL Utilities Guide</a>
+ * @see org.hsqldb.sample.SqlFileEmbedder
  * @version $Revision$, $Date$
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */

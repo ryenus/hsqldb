@@ -84,6 +84,13 @@
       </simpara> <simpara>
         <link xlink:href="&distro_baseurl;/verbatim/testrun/sqltool/sqlpsm.sql"/>
       </simpara>
+    </listitem> <listitem xml:id="SqlFileEmbedder.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/sample/SqlFileEmbedder.java"/>
+      </simpara> <simpara>
+      <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/sample/SqlFileEmbedder.java"/>
+      </simpara>
     </listitem>
   </itemizedlist>
 </appendix>

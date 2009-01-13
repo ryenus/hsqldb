@@ -52,10 +52,11 @@ import org.hsqldb.lib.RCData;
  * See JavaDocs for the main method for syntax of how to run from the
  * command-line.
  * <P/>
- * Programmatic users will usually want to use the objectMain method if they
- * want arguments and behavior exactly like command-line SqlTool.
+ * Programmatic users will usually want to use the objectMain(String[]) method
+ * if they want arguments and behavior exactly like command-line SqlTool.
  * But in most cases, you would have better control and efficiency by using
- * the SqlFile class directly.  The file <CODE>sample/SqlFileEmbedder</CODE>
+ * the SqlFile class directly.  The file
+ * <CODE>src/org/hsqldb/sample/SqlFileEmbedder.java</CODE>
  * in the HSQLDB distribution provides an example for this latter strategy.
  *
  * @see <a href="../../../../util-guide/sqltool-chapt.html" target="guide">
@@ -64,6 +65,7 @@ import org.hsqldb.lib.RCData;
  * @see #main(String[])
  * @see #objectMain(String[])
  * @see SqlFile
+ * @see org.hsqldb.sample.SqlFileEmbedder
  * @version $Revision$, $Date$
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
