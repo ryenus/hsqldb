@@ -127,7 +127,9 @@ public class TarGenerator {
         if (archiveFile.getName().endsWith(".tgz")
                 || archiveFile.getName().endsWith(".tar.gz")) {
             compression = TarFileOutputStream.GZIP_COMPRESSION;
-        } else if (archiveFile.getName().endsWith(".tar")) {}
+        } else if (archiveFile.getName().endsWith(".tar")) {
+            // purposefully do nothing
+        }
         else {
             throw new IllegalArgumentException(
                 RB.singleton.getString(
@@ -264,7 +266,7 @@ public class TarGenerator {
     static protected class TarEntrySupplicant {
 
         static protected byte[] HEADER_TEMPLATE =
-            (byte[]) TarFileOutputStream.ZERO_BLOCK.clone();
+            TarFileOutputStream.ZERO_BLOCK.clone();
         static Character              swapOutDelim = null;
         final protected static byte[] ustarBytes   = {
             'u', 's', 't', 'a', 'r'
@@ -350,7 +352,7 @@ public class TarGenerator {
                     Long.toOctalString(val), width, '0', false);
         }
 
-        protected byte[] rawHeader = (byte[]) HEADER_TEMPLATE.clone();
+        protected byte[] rawHeader = HEADER_TEMPLATE.clone();
         protected String fileMode  = DEFAULT_FILE_MODES;
 
         // Following fields are always initialized by constructors.

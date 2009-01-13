@@ -67,7 +67,6 @@ public class PIFData extends HashMap {
                 new BufferedReader(new InputStreamReader(stream, "UTF-8"));
             String  s, k, v;
             Matcher m;
-            int     eqAt;
             int     lineNum = 0;
 
             /*

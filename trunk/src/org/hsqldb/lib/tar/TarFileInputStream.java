@@ -212,8 +212,7 @@ public class TarFileInputStream {
      * different algorithms, or use different algorithms for different
      * compression stream.
      */
-    protected void readCompressedBlocks(int blocks)
-    throws IOException, TarMalformatException {
+    protected void readCompressedBlocks(int blocks) throws IOException {
 
         int bytesSoFar    = 0;
         int requiredBytes = 512 * blocks;
