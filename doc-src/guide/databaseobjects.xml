@@ -201,7 +201,7 @@
       user that has this role, can perform all possible administrative tasks
       on the database. The DBA role can also act as a proxy for all the roles
       and users in the database. This means it can do everything the
-      authorization for an schema can do, including dropping the schema or its
+      authorization for a schema can do, including dropping the schema or its
       objects, or granting rights on the schema objects to a
       grantee.</simpara>
 
@@ -365,7 +365,7 @@
       name&gt;</literal></simpara>
 
       <simpara>Drop (destroy) an existing user. If the specified user is the
-      authorization for an schema, the schema is destroyed. Only a user with
+      authorization for a schema, the schema is destroyed. Only a user with
       the DBA role can execute this command.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -411,7 +411,7 @@
       name&gt;</literal></simpara>
 
       <simpara>Drop (destroy) a role. If the specified user is the
-      authorization for an schema, the schema is destroyed. Only a user with
+      authorization for a schema, the schema is destroyed. Only a user with
       the DBA role can execute this command.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -577,7 +577,7 @@
     <section>
       <title>Names and References</title>
 
-      <para>The name of an schema object is an
+      <para>The name of a schema object is an
       <literal>&lt;identifier&gt;</literal>. The name belongs to the
       name-space for the particular kind of schema object within the schema.
       The name is unique within its name-space. For example, each schema has a
@@ -916,7 +916,7 @@
       <simpara><literal>&lt;if exists clause&gt; ::= IF
       EXISTS</literal></simpara>
 
-      <simpara>This clause is not part of the SQL standard and is an HyperSQL
+      <simpara>This clause is not part of the SQL standard and is a HyperSQL
       extension to some commands that drop objects. If it is specified, then
       the statement does not return an error if the drop statement is issued
       on a non-existent object.</simpara>
@@ -940,7 +940,7 @@
       &lt;table name&gt; ALTER COLUMN &lt;name&gt; RENAME TO &lt;new
       name&gt;</literal></simpara>
 
-      <simpara>This command is not part of the SQL Standard and is an HyperSQL
+      <simpara>This command is not part of the SQL Standard and is a HyperSQL
       extension. The specified <literal>&lt;name&gt;</literal> is the existing
       name, which can be qualified with a schema name, while the
       <literal>&lt;new name&gt;</literal> is the new name for the
@@ -959,7 +959,7 @@
       objects can always be added after creating the schema, or existing ones
       can be dropped. Within the <literal>&lt;schema definition&gt;</literal>
       statement, all schema object creation takes place inside the newly
-      created schema. Therefore, if an schema name is specified for the schema
+      created schema. Therefore, if a schema name is specified for the schema
       objects, the name should match that of the new schema. In addition to
       statements for creating schema objects, the statement can include
       instances of <literal>&lt;grant statement&gt;</literal> and
@@ -1291,7 +1291,7 @@
       columns&gt;</literal>.</simpara>
 
       <simpara>The <literal>[ MATCH match type ]</literal> clause is optional
-      and has a effect only on multi-column foreign keys and only on rows
+      and has an effect only on multi-column foreign keys and only on rows
       containing at least a NULL in one of the <literal>&lt;referencing
       columns&gt;</literal>. If the clause is not specified, MATCH SIMPLE is
       the default. If <literal>MATCH SIMPLE</literal> is specified, then any
@@ -2389,7 +2389,7 @@
       <simpara><literal>&lt;sequence generator restart value&gt; ::=
       &lt;signed numeric literal&gt;</literal></simpara>
 
-      <simpara>Change the definition of an named sequence generator. The same
+      <simpara>Change the definition of a named sequence generator. The same
       options that are used in the definition of the SEQUENCE can be used to
       alter it. The exception is the option for the start value which is
       <literal>RESTART WITH</literal> for the ALTER SEQUENCE
