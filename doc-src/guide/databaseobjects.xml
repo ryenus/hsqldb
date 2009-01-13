@@ -107,7 +107,7 @@
     <title>Authorizations and Access Control</title>
 
     <para>In general, ROLE and USER objects simply control access to schema
-    objects. This is the scope of SQL Standard. However, there are special
+    objects. This is the scope of the SQL Standard. However, there are special
     roles that allow the creation of USER and ROLE objects and also allow some
     special operations on the database as a whole. These roles are not defined
     by the Standard, which has left it to implementors to define such roles as
@@ -591,7 +591,7 @@
       name of the schema object that is being referenced in an SQL statement.
       This is done by forming an &lt;<literal>identifier chain&gt;</literal>.
       In some contexts, only a simple <literal>&lt;identifier&gt;</literal>
-      ran be used and the <literal>&lt;identifier chain&gt;</literal> is
+      can be used and the <literal>&lt;identifier chain&gt;</literal> is
       prohibited. While in some other contexts, the use of
       <literal>&lt;identifier chain&gt;</literal> is optional. An identifier
       chain is be formed by qualifying each object with the name of the object
@@ -606,7 +606,7 @@
       <para>HyperSQL extends the SQL standard to allow renaming all database
       objects. The ALTER ... RENAME TO command has slightly different forms
       depending on the type of object. If an object is referenced in a VIEW
-      definiton or a CHECK constraint, it is not always possible to rename
+      definition or a CHECK constraint, it is not always possible to rename
       it.</para>
     </section>
 
@@ -616,7 +616,7 @@
       <simpara>A CHARACTER SET is the whole or a subset of the UNICODE
       character set.</simpara>
 
-      <simpara>A character set names can only be a <literal>&lt;regular
+      <simpara>A character set name can only be a <literal>&lt;regular
       identifier&gt;</literal>. There is a separate name-space for character
       sets.</simpara>
 
@@ -733,7 +733,10 @@
       <simpara>A CONSTRAINT is a child schema object and can belong to a
       DOMAIN or a TABLE. CONSTRAINT objects can be defined without specifying
       a name. In this case the system generates a name for the new object
-      beginning with SYS_.</simpara>
+      beginning with "SYS_".</simpara>
+      <!-- For some reason, without the quotes, the _ and . do not appear in
+      the HTML output.  Can remove the quotes if this issue is taken care of
+      or disappears.  -blaine -->
 
       <simpara>In a DOMAIN, CHECK constraints can be defined that limits the
       value represented by the DOMAIN. These constraints work exactly like a
@@ -768,7 +771,7 @@
       <simpara><emphasis role="bold">FOREIGN KEY</emphasis></simpara>
 
       <simpara>A FOREIGN key constraint is based on an equality comparison
-      between values of specific columns(taken together) of each row with the
+      between values of specific columns (taken together) of each row with the
       values of the columns of a UNIQUE constraint on another table or the
       same table. The result of the comparison must never be false (can be
       unknown). A special form of FOREIGN KEY constraint, based on its CHECK
@@ -1145,7 +1148,7 @@
       and assigned to it.</simpara>
 
       <simpara>The <literal>&lt;identity column specification&gt;</literal> is
-      used for special columns which represent values based on an unanmed
+      used for special columns which represent values based on unnamed
       sequence generators. It is possible to insert a row into the able
       without specifying a value for the column. The value is then generated
       by the sequence generators according to its rules.</simpara>
@@ -1574,7 +1577,7 @@
       definition&gt; ] &lt;check constraint definition&gt; [ &lt;constraint
       characteristics&gt; ]</literal></simpara>
 
-      <simpara>Define a domain. Although a DOMAIN is not a strictly a type in
+      <simpara>Define a domain. Although a DOMAIN is not strictly a type in
       the SQL Standard, it can be informally considered as a type. A DOMAIN is
       based on a <literal>&lt;predefined type&gt;</literal>, which is a base
       type defined by the Standard. It can have a <literal>&lt;default
@@ -2039,7 +2042,7 @@
       clause&gt;</literal></simpara>
 
       <simpara>Define a user-defined type. Currently only simple distinct
-      types can be define without further attributes.</simpara>
+      types can be defined without further attributes.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>schema routine</primary>
@@ -2467,9 +2470,10 @@
 
     <para>The Information Schema is a special schema in each catalog. The SQL
     Standard defines a number of character sets and domains. In addition, all
-    the implementation-defined collations belong to Information Schema.</para>
+    the implementation-defined collations belong to the Information
+    Schema.</para>
 
-    <para>The SQL Standard defines many of views in the Information Schema.
+    <para>The SQL Standard defines many views in the Information Schema.
     These views show the properties of the database objects that currently
     exist in the database. When a user accesses one these views, only the
     properties of database objects that the user can access are

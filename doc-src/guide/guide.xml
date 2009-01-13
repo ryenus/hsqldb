@@ -2256,7 +2256,7 @@
       <filename>server.properties</filename> or
       <filename>webserver.properties</filename> file (depending on whether
       your listener instance is a <classname>Server</classname> or
-      <classname>WebServer</classname>. You can specify the ACL file path with
+      <classname>WebServer</classname>). You can specify the ACL file path with
       an absolute or relative path. If you use a relative path, it must be
       relative to the <filename>.properties</filename> file. It's often
       convenient to name the ACL file <filename>acl.txt</filename>, in the
