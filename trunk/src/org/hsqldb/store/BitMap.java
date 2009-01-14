@@ -553,25 +553,4 @@ public class BitMap {
 
         return newMap;
     }
-
-    public static void main(String[] args) {
-
-        byte[] map = new byte[] {
-            0, 0, (byte) 255, (byte) 255, 0, 0
-        };
-
-        map = leftShift(map, 1);
-        map = leftShift(map, 4);
-        map = leftShift(map, 8);
-
-        and(map, 24, (byte) 0x80, 1);
-        and(map, 8, (byte) 0x80, 1);
-        and(map, 12, (byte) 0xff, 8);
-        or(map, 24, (byte) 0x80, 1);
-        or(map, 8, (byte) 0x80, 1);
-        or(map, 12, (byte) 0xff, 8);
-        and(map, 24, (byte) 0, 1);
-        and(map, 8, (byte) 0, 1);
-        and(map, 12, (byte) 0, 8);
-    }
 }

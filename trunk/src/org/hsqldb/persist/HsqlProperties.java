@@ -518,14 +518,4 @@ public class HsqlProperties {
 
         return sb.toString();
     }
-/*
-    public static void main(String[] argv) {
-
-        HsqlProperties props1 = delimitedArgPairsToProps("-dbname.0", "=",
-            ";", "server");
-        HsqlProperties props2 = delimitedArgPairsToProps(
-            "filename.cvs;a=123 ;  b=\\delta ;c= another; derrorkey;", "=",
-            ";", "textdb");
-    }
-*/
 }

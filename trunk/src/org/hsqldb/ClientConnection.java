@@ -623,41 +623,6 @@ public class ClientConnection implements SessionInterface {
         return -1 * (value + Integer.parseInt(s.substring(offset)));
     }
 
-    /**
-     * Quick & Dirty Unit test of Network Compatibility utility methods.
-     * Move to dedicated Testing class in test package
-     */
-    public static void main(String[] sa) {
-
-        if (!toNcvString(-2030405).equals("2.3.4.5")) {
-            throw new RuntimeException("Test of int -2030405 failed");
-        }
-
-        if (!toNcvString(-23456789).equals("23.45.67.89")) {
-            throw new RuntimeException("Test of int -23456789 failed");
-        }
-
-        if (!toNcvString(-2).equals("0.0.0.2")) {
-            throw new RuntimeException("Test of int -2 failed");
-        }
-
-        if (!toNcvString(-300000).equals("0.30.0.0")) {
-            throw new RuntimeException("Test of int -300000 failed");
-        }
-
-        if (toNcvInt("9.80.76.5") != -9807605) {
-            throw new RuntimeException("Test of String '9.80.76.5' failed");
-        }
-
-        if (toNcvInt("23.45.67.89") != -23456789) {
-            throw new RuntimeException("Test of String '23.45.67.89' failed");
-        }
-
-        if (toNcvInt("0.0.0.2") != -2) {
-            throw new RuntimeException("Test of String '0.0.0.2' failed");
-        }
-    }
-
     protected void handshake() throws IOException {
         dataOutput.writeInt(toNcvInt(NETWORK_COMPATIBILITY_VERSION));
         dataOutput.flush();

@@ -871,34 +871,4 @@ public class JDBCBlob implements Blob {
 
         return ldata;
     }
-
-//    public static void main(String[] args) throws Exception {
-//
-//        System.out.println("--------------------------------");
-//        System.out.println((new jdbcBlob(new byte[0])).position(new byte[]{1}, 1));
-//        System.out.println((new jdbcBlob(new byte[]{1})).position(new byte[0], 1));
-//        System.out.println((new jdbcBlob(new byte[]{1})).position((byte[])null, 1));
-//
-//        System.out.println("--------------------------------");
-//        byte[] data1 = new byte[]{0,1,2,1,2,3,2,3,4,2,3,4,5,2,3,4,5,0,1,2,
-//                                  1,2,3,2,3,4,2,3,4,5,2,3,4};
-//        byte[] pattern = new byte[]{2,3,4,5};
-//
-//        jdbcBlob blob1 = new jdbcBlob(data1);
-//        jdbcBlob blob2 = new jdbcBlob(pattern);
-//
-//        for (int i = -1; i <= data1.length + 1; i++) {
-//            System.out.println(blob1.position(pattern, i));
-//        }
-//
-//        System.out.println("--------------------------------");
-//
-//        for (int i = -1; i <= data1.length + 1; i++) {
-//            System.out.println(blob1.position(blob2, i));
-//        }
-//
-//        System.out.println("--------------------------------");
-//
-//        new jdbcBlob(null);
-//    }
 }

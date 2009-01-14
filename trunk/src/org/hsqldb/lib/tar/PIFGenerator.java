@@ -179,40 +179,4 @@ public class PIFGenerator extends ByteArrayOutputStream {
         writer.write('\n');
         writer.flush();    // Does this do anything with a BAOS?
     }
-
-    /**
-     * This is a Unit Test.  Move it to a proper, dedicated unit test class.
-     */
-    static public void main(String[] sa)
-    throws TarMalformatException, IOException {
-
-        if (sa.length > 1) {
-            throw new IllegalArgumentException("java "
-                                               + PIFGenerator.class.getName()
-                                               + " [xTargetPath]");
-        }
-
-        PIFGenerator pif = (sa.length < 1) ? (new PIFGenerator(1))
-                                           : (new PIFGenerator(
-                                               new File(sa[0])));
-
-        pif.addRecord("o", "n");                                           // Shortest possible
-        pif.addRecord("k1", "23");                                         // total 8.  Impossible to get total of 9.
-        pif.addRecord("k2", "234");                                        // total 10
-        pif.addRecord("k3", "2345");                                       // total 11
-        pif.addRecord("k4",
-                      "2345678901234567890123456789012345678901234567890"
-                      + "123456789012345678901234567890123456789012");     //total 98
-
-        // Impossible to get total of 99.
-        pif.addRecord("k5",
-                      "2345678901234567890123456789012345678901234567890"
-                      + "1234567890123456789012345678901234567890123");    //total 100
-        pif.addRecord("int1234", 1234);
-        pif.addRecord("long1234", 1234);
-        pif.addRecord("boolTrue", true);
-        pif.addRecord("boolFalse", false);
-        System.out.println("Name (" + pif.getName() + ')');
-        System.out.write(pif.toByteArray());
-    }
 }

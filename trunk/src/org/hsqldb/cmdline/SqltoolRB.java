@@ -58,56 +58,6 @@ import org.hsqldb.lib.RefCapablePropertyResourceBundle;
  * like SqltoolRB.NEWKEYID.
  */
 public class SqltoolRB extends ValidatingResourceBundle {
-    /**
-     * Does a quick test of this class.
-     */
-    static public void main(String[] sa) {
-        SqltoolRB rb1 = new SqltoolRB();
-        SqltoolRB rb2 = new SqltoolRB();
-        String[] testParams = { "one", "two", "three" };
-        rb1.validate();
-        rb2.validate();
-        System.err.println("rb1 size = " + rb1.getSize());
-        System.err.println("rb2 size = " + rb2.getSize());
-        rb1.setMissingPosValueBehavior(
-                ValidatingResourceBundle.EMPTYSTRING_BEHAVIOR);
-        rb2.setMissingPosValueBehavior(
-                ValidatingResourceBundle.NOOP_BEHAVIOR);
-
-        /*
-        rb1.setMissingPropertyBehavior(
-                ValidatingResourceBundle.THROW_BEHAVIOR);
-        System.out.println("("
-                + rb1.getExpandedString(SqltoolRB.JDBC_ESTABLISHED) + ')');
-        */
-
-        System.out.println("First, with no positional parameters set...");
-        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED));
-        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
-                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED));
-        System.out.println("Now, with no positional values set...");
-        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
-        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
-                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
-        System.out.println();
-        System.out.println("Now, with positional params set to one/two/three");
-        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
-        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
-                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
-        rb1.setMissingPosValueBehavior(
-             RefCapablePropertyResourceBundle.THROW_BEHAVIOR);
-        System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
-        System.out.println();
-        System.out.println("Now, with no parameters set");
-        System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: ");
-        System.out.println(
-                rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
-    }
-
     static private int keyCounter = 0;
     static public final int SQLTOOL_SYNTAX = keyCounter++;
     static public final int PASSWORDFOR_PROMPT = keyCounter++;
