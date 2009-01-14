@@ -1,6 +1,6 @@
 (SqlFile processor v. %{1})
 Die Weitergabe ist zulässig unter den Bedingungen der HSQLDB Lizenz.
-(c) 2004-2008 Blaine Simpson und die HSQLDB Development Group.
+(c) 2004-2008 Blaine Simpson und die HSQL Development Group.
 
     \q    beenden.
     \?    Sonderbefehle auflisten.
