@@ -1482,9 +1482,9 @@
     </section>
   </chapter>
 
-  <xi:include href="listeners-chapt.xml" />
+  <xi:include href="listeners.xml" />
 
-  <xi:include href="unix-chapt.xml" />
+  <xi:include href="unix.xml" />
 
   <chapter xml:id="advanced-chapt">
     <title xml:id="advanced-title">Advanced Topics</title>
