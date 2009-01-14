@@ -29,58 +29,21 @@
  */
 
 
-package org.hsqldb.lib;
+package org.hsqldb;
 
-public class TestHsqlDeque {
-    public static void main(String[] args) {
-
-        HsqlDeque d = new HsqlDeque();
-
-        for (int i = 0; i < 9; i++) {
-            d.add(new Integer(i));
-        }
-
-        d.removeFirst();
-        d.removeFirst();
-        d.add(new Integer(9));
-        d.add(new Integer(10));
-
-        for (int i = 0; i < d.size(); i++) {
-            System.out.println(d.get(i));
-        }
-
-        System.out.println();
-        d.add(new Integer(11));
-        d.add(new Integer(12));
-
-        for (int i = 0; i < d.size(); i++) {
-            System.out.println(d.get(i));
-        }
-
-        d.addFirst(new Integer(1));
-        d.addFirst(new Integer(0));
-        d.addFirst(new Integer(-1));
-        d.addFirst(new Integer(-2));
-
-        for (int i = 0; i < d.size(); i++) {
-            System.out.println(d.get(i));
-        }
-
-        System.out.println();
-        d.removeFirst();
-        d.removeFirst();
-        d.removeFirst();
-
-        for (int i = 0; i < d.size(); i++) {
-            System.out.println(d.get(i));
-        }
-
-        System.out.println();
-
-        Iterator it = d.iterator();
-
-        for (; it.hasNext(); ) {
-            System.out.println(it.next());
-        }
+public class DatabaseURLTest {
+    public static void main(String[] argv) {
+        DatabaseURL.parseURL(
+            "JDBC:hsqldb:hsql://myhost:1777/mydb;filepath=c:/myfile/database/db",
+            true, false);
+        DatabaseURL.parseURL("JDBC:hsqldb:../data/mydb.db", true, false);
+        DatabaseURL.parseURL("JDBC:hsqldb:../data/mydb.db;ifexists=true", true, false);
+        DatabaseURL.parseURL("JDBC:hsqldb:HSQL://localhost:9000/mydb", true, false);
+        DatabaseURL.parseURL(
+            "JDBC:hsqldb:Http://localhost:8080/servlet/org.hsqldb.Servlet/mydb;ifexists=true",
+            true, false);
+        DatabaseURL.parseURL("JDBC:hsqldb:Http://localhost/servlet/org.hsqldb.Servlet/",
+                 true, false);
+        DatabaseURL.parseURL("JDBC:hsqldb:hsql://myhost", true, false);
     }
 }

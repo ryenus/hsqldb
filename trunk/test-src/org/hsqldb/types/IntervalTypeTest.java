@@ -31,10 +31,7 @@
 
 package org.hsqldb.types;
 
-//import org.hsqldb.HsqlException;
-import org.hsqldb.Types;
-
-public class TestIntervalType {
+public class IntervalTypeTest {
 /*
  * TODO:  Re-implement test coded below as newInterval(String).
  * There is no such method.

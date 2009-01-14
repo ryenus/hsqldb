@@ -31,7 +31,7 @@
 
 package org.hsqldb.lib;
 
-public class TestHsqlTimer {
+public class HsqlTimerTest {
     /**
      * Computes the system-specific average {@link java.io.FileDescriptor#sync()
      * sync} time.
@@ -46,20 +46,20 @@ public class TestHsqlTimer {
         java.io.FileOutputStream fos;
         java.io.FileDescriptor   fd;
         long                     start = System.currentTimeMillis();
- 
+
         try {
             file = java.io.File.createTempFile("SyncTest", ".tmp");
             fos  = new java.io.FileOutputStream(file);
             fd   = fos.getFD();
- 
+
             for (int i = 0; i < runs; i++) {
                 fos.write(buff);
                 fos.flush();
                 fd.sync();
             }
- 
+
             long elapsed = System.currentTimeMillis() - start;
- 
+
             return (elapsed/(double)runs);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -69,7 +69,7 @@ public class TestHsqlTimer {
             }
         }
     }
- 
+
     /**
      * WRITE_DELAY simulation task.
      *
@@ -83,7 +83,7 @@ public class TestHsqlTimer {
         static int          serial;
         /** The data to write. */
         static final byte[] buf = new byte[256];
- 
+
         // instance
         /** Identifes this task. */
         String                   name;
@@ -101,11 +101,11 @@ public class TestHsqlTimer {
         java.io.FileOutputStream fos;
         /** The FileDescriptor to sync. */
         java.io.FileDescriptor   fd;
- 
+
         /** Constructs a new WriteAndSyncTask */
         WriteAndSyncTask() {
             this.name = "Task." + serial++;
- 
+
             try {
                 this.file = java.io.File.createTempFile(name, ".tmp");
                 this.fos  = new java.io.FileOutputStream(file);
@@ -114,7 +114,7 @@ public class TestHsqlTimer {
                 throw new RuntimeException(ioe);
             }
         }
- 
+
         /**
          * Runnable implementation. <p>
          *
@@ -123,20 +123,20 @@ public class TestHsqlTimer {
          */
         public void run() {
             final long now = System.currentTimeMillis();
- 
+
             if (this.firstTime) {
                 this.firstTime = false;
             } else {
                 this.total += (now - this.last);
             }
- 
+
             this.last = now;
- 
+
             writeAndSync();
- 
+
             this.runs++;
         }
- 
+
         /**
          * Writes a given buffer to disk and syncs the associated file
          * descriptor.
@@ -151,7 +151,7 @@ public class TestHsqlTimer {
                 e.printStackTrace();
             }
         }
- 
+
         /**
          * Closes the FileOutputStream, deletes the file
          * and nullifies Object fields.
@@ -167,12 +167,12 @@ public class TestHsqlTimer {
             } catch (Exception e) {
                 e.printStackTrace();
             }
- 
+
             this.fos  = null;
             this.file = null;
             this.fd   = null;
         }
- 
+
         /**
          * Retrieves the computed moment of actual average periodicity
          * experienced by this task.
@@ -181,8 +181,8 @@ public class TestHsqlTimer {
             return (this.runs < 2) ? Float.NaN
                                    : (this.total/(float)(this.runs - 1));
         }
- 
- 
+
+
         /**
          * @return the String representation of this task, indicating
          *      its name, the number of runs so far and the
@@ -197,7 +197,7 @@ public class TestHsqlTimer {
                     +  "]";
         }
     }
- 
+
     static class Stats {
         double  min;
         double  max;
@@ -207,15 +207,15 @@ public class TestHsqlTimer {
         long    n;
         boolean initialized;
         boolean sample;
- 
+
         void addDataPoint(double x) {
- 
+
             double xi;
             double xsi;
             long   nm1;
- 
+
             xi = x;
- 
+
             if (!initialized) {
                 n           = 1;
                 pk          = xi;
@@ -224,61 +224,61 @@ public class TestHsqlTimer {
                 max         = xi;
                 vk          = 0.0;
                 initialized = true;
- 
+
                 return;
             }
- 
+
             n++;
- 
+
             nm1 = (n - 1);
             xsi = (sk - (xi * nm1));
             vk  += ((xsi * xsi) / n) / nm1;
             sk  += xi;
- 
+
             if (xi != 0) {
                 pk  *= xi;
             }
- 
+
             max = Math.max(max, xi);
             min = Math.min(min, xi);
         }
- 
+
         double getMin() {
             return initialized ? min : Double.NaN;
         }
- 
+
         double getMax() {
             return initialized ? max : Double.NaN;
         }
- 
+
         double getGeometricMean() {
             return initialized ? Math.pow(pk, 1/(double)n) : Double.NaN;
         }
- 
+
         double getVariance() {
- 
+
             if (!initialized) {
                 return Double.NaN;
             }
- 
+
             return sample ? (n == 1) ? Double.NaN
                     : (vk / (double) (n - 1))
                     : (vk / (double) (n));
         }
- 
+
         double getStdDev() {
- 
+
             if (!initialized) {
                 return Double.NaN;
             }
- 
+
             return sample ? (n == 1) ? Double.NaN
                     : (Math.sqrt(vk
                     / (double) (n - 1)))
                     : (Math.sqrt(vk / (double) (n)));
         }
     }
- 
+
     /**
      * Runs the HsqlTimer tests.
      * @param args Currently unused
@@ -290,10 +290,10 @@ public class TestHsqlTimer {
         double periodMultiplier  = 1.4D;
         // how long to run the timer, in milliseconds
         long   duration          = 2800;
- 
+
         test(taskCount, periodMultiplier, duration);
     }
- 
+
     /**
      * Runs the HsqlTimer and java.util.Timer tests using the given
      * arguments. <p>
@@ -309,36 +309,36 @@ public class TestHsqlTimer {
     public static void test(final int taskCount,
                             final double periodMultiplier,
                             final long duration) {
- 
+
         System.out.println();
         System.out.println("****************************************");
         System.out.println("*    org.hsqldb.lib.HsqlTimer tests    *");
         System.out.println("****************************************");
         System.out.println();
- 
+
         System.out.println("Computing system-specific avg. sync time.");
         System.out.println("Please wait...");
- 
+
         double avgSyncTime   = avgSyncTime(500, new byte[256]);
         double minAvgPeriod = (taskCount * avgSyncTime);
         long   period        = Math.round(avgSyncTime * periodMultiplier);
- 
+
         System.out.println();
         System.out.println("System-specific avg. sync time : " + avgSyncTime + " ms.");
         System.out.println("Requested task count           : " + taskCount);
         System.out.println("Requested task period          : " + period + " ms." );
         System.out.println("Min. avg. period (0 starved)   : " + minAvgPeriod + " ms." );
         System.out.println("Requested test duration        : " + duration + " ms.");
- 
+
         if (period <= minAvgPeriod || minAvgPeriod >= duration) {
             double idealAvgRuns = (duration / minAvgPeriod);
- 
+
             System.out.println("Idealized avg. runs / task     : " + (float)idealAvgRuns);
         } else {
             double remainingDuration = (duration - minAvgPeriod);
             double remainingRuns     = (remainingDuration / period);
             double idealAvgRuns      = (1D + remainingRuns);
- 
+
             System.out.println("Theoretical first cycle time    : " + minAvgPeriod);
             System.out.println("Remaining duration              : " + remainingDuration);
             System.out.println("Remaining runs                  : " + remainingRuns);
@@ -347,12 +347,12 @@ public class TestHsqlTimer {
             System.out.println("      - theor. first cycle time");
             System.out.println("      ) / requested period)");
         }
- 
+
         testJavaUtilTimer(taskCount, period, duration);
         testHsqlTimer(taskCount, period, duration);
     }
- 
- 
+
+
     /**
      * Runs the java.util.Timer test using the given arguments. <p>
      *
@@ -367,45 +367,45 @@ public class TestHsqlTimer {
     public static void testJavaUtilTimer(final int taskCount,
                                          final long period,
                                          final long duration) {
- 
+
         System.out.println();
         System.out.println("****************************************");
         System.out.println("*            java.util.Timer           *");
         System.out.println("****************************************");
         System.out.println();
- 
+
         WriteAndSyncTask.serial = 0;
- 
+
         final java.util.Timer    timer  = new java.util.Timer();
         final WriteAndSyncTask[] tasks  = new WriteAndSyncTask[taskCount];
- 
+
         for (int i = 0; i < taskCount; i++) {
             tasks[i]  = new WriteAndSyncTask();
             timer.scheduleAtFixedRate(tasks[i], 0, period);
         }
- 
+
         final long start = HsqlTimer.now();
- 
+
         try {
             Thread.sleep(duration);
         } catch (Exception e) {
             e.printStackTrace();
         }
- 
+
         for (int i = 0; i < tasks.length; i++) {
             tasks[i].cancel();
         }
- 
+
         timer.cancel();
- 
+
         final long elapsed = HsqlTimer.now() - start;
- 
+
         System.out.println("Actual test duration: " + elapsed + " ms.");
         System.out.println();
- 
+
         printTaskStats(tasks);
     }
- 
+
     /**
      * Runs the HsqlTimer test using the given arguments. <p>
      *
@@ -420,53 +420,53 @@ public class TestHsqlTimer {
     public static void testHsqlTimer(final int taskCount,
                                      final long period,
                                      final long duration) {
- 
+
         System.out.println();
         System.out.println("****************************************");
         System.out.println("*       org.hsqldb.lib.HsqlTimer       *");
         System.out.println("****************************************");
         System.out.println();
- 
+
         WriteAndSyncTask.serial = 0;
- 
+
         final HsqlTimer          timer  = new HsqlTimer();
         final WriteAndSyncTask[] tasks  = new WriteAndSyncTask[taskCount];
         final Object[]           ttasks = new Object[taskCount];
- 
+
         for (int i = 0; i < taskCount; i++) {
             tasks[i]  = new WriteAndSyncTask();
             ttasks[i] = timer.schedulePeriodicallyAfter(0, period, tasks[i], true);
         }
- 
+
         final long start = HsqlTimer.now();
- 
+
         try {
             Thread.sleep(duration);
         } catch (Exception e) {
             e.printStackTrace();
         }
- 
+
         final Thread timerThread = timer.getThread();
- 
+
         for (int i = 0; i < taskCount; i++) {
             timer.cancel(ttasks[i]);
         }
- 
+
         try {
             timerThread.join();
         } catch (Exception e) {
             e.printStackTrace();
         }
- 
+
         final long elapsed = HsqlTimer.now() - start;
- 
+
         System.out.println("Actual test duration: " + elapsed + " ms.");
         System.out.println();
- 
+
         printTaskStats(tasks);
- 
+
     }
- 
+
     static void printTaskStats(WriteAndSyncTask[] tasks) {
         float avgTotal    = 0;
         int   avgCount    = 0;
@@ -474,7 +474,7 @@ public class TestHsqlTimer {
         int   runs        = 0;
         Stats periodStats = new Stats();
         Stats runStats    = new Stats();
- 
+
         for (int i = 0; i < tasks.length; i++) {
             if (tasks[i].runs > 1) {
                 double avgPeriod = tasks[i].getAveragePeriod();
@@ -489,7 +489,7 @@ public class TestHsqlTimer {
             runStats.addDataPoint(tasks[i].runs);
             tasks[i].release();
         }
- 
+
         float periodAvg      = (avgTotal / avgCount);
         float periodMax      = (float) periodStats.getMax();
         int   periodMaxCnt   = 0;
@@ -499,7 +499,7 @@ public class TestHsqlTimer {
         float periodStddev   = (float)periodStats.getStdDev();
         float periodGMean    = (float)periodStats.getGeometricMean();
         float periodStddevR  = (periodRange / periodStddev);
- 
+
         float runsAvg      = (runs / (float)tasks.length);
         int   runsMin      = Math.round((float)runStats.getMin());
         int   runsMinCnt   = 0;
@@ -509,27 +509,27 @@ public class TestHsqlTimer {
         float runsStddev   = (float) runStats.getStdDev();
         float runsGMean    = (float) runStats.getGeometricMean();
         float runsStddevR  = (runsRange / runsStddev);
- 
+
         for (int i = 0; i < tasks.length; i++) {
             double avgPeriod = tasks[i].getAveragePeriod();
- 
+
             if (avgPeriod == periodMin) {
                 periodMinCnt++;
             }
- 
+
             if (avgPeriod == periodMax) {
                 periodMaxCnt++;
             }
- 
+
             if (tasks[i].runs == runsMin) {
                 runsMinCnt++;
             }
- 
+
             if (tasks[i].runs == runsMax) {
                 runsMaxCnt++;
             }
         }
- 
+
         System.out.println("------------------------");
         System.out.println("Starved tasks (runs = 0): " + starved + " (" + ((100*starved)/tasks.length) + "%)");
         System.out.println("------------------------");

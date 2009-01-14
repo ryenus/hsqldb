@@ -34,7 +34,7 @@ package org.hsqldb;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 
-public class TestScanner {
+public class ScannerTest {
     public static void main(String[] args) {
 
         IntervalType t       = Type.SQL_INTERVAL_DAY;
