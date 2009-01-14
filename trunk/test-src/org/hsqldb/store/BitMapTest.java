@@ -31,7 +31,7 @@
 
 package org.hsqldb.store;
 
-public class TestBitMap {
+public class BitMapTest {
 
     public static void main(String[] args) {
 
