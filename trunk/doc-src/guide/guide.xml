@@ -2132,10 +2132,9 @@
         <simpara>The property sql.compare_in_locale=true is no longer
         supported. If the line exists in a .properties file, it will switch
         the database to the collation for the current default. See the
-        <remark>Restore the
-          &lt;link endterm="collation-title" xlink:href="#collation-sect"/&gt;
-          link, once we have a collation description again.</remark>
-        command.</simpara>
+        <remark>Restore the &lt;link endterm="collation-title"
+        xlink:href="#collation-sect"/&gt; link, once we have a collation
+        description again.</remark> command.</simpara>
 
         <simpara>When HSQLDB is used in OpenOffice.org, some property values
         will have a different default. The properties and values

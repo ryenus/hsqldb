@@ -33,9 +33,9 @@
     <legalnotice>
       <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
       this document without any alteration under the terms of the HSQLDB
-      license. Additional permission is granted to the HSQL Development
-      Group to distribute this document with or without alterations under the
-      terms of the HSQLDB license.</para>
+      license. Additional permission is granted to the HSQL Development Group
+      to distribute this document with or without alterations under the terms
+      of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -194,16 +194,12 @@
 
       <simpara><emphasis>the DBA role (HyperSQL-specific)</emphasis></simpara>
 
-      <simpara>This is a special role in HyperSQL. It is the default
-      authorization for all the user-defined schemas in the database unless
-      the authorization has been otherwise specified in the
-      <literal>&lt;schema definition&gt;</literal> statement. In addition, a
-      user that has this role, can perform all possible administrative tasks
-      on the database. The DBA role can also act as a proxy for all the roles
-      and users in the database. This means it can do everything the
-      authorization for a schema can do, including dropping the schema or its
-      objects, or granting rights on the schema objects to a
-      grantee.</simpara>
+      <simpara>This is a special role in HyperSQL. A user that has this role
+      can perform all possible administrative tasks on the database. The DBA
+      role can also act as a proxy for all the roles and users in the
+      database. This means it can do everything the authorization for a schema
+      can do, including dropping the schema or its objects, or granting rights
+      on the schema objects to a grantee.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE_SCHEMA ROLE</primary>
@@ -650,6 +646,9 @@
       implementation defined. HyperSQL defines SQL_TEXT as the UNICODE
       character set and SQL_IDENTIFIER as the UNICODE character set minus the
       SQL language special characters.</simpara>
+
+      <simpara>Alpha versions of HSQLDB may not enforce the CHARACTER SET that
+      is specified and default to UTF16.</simpara>
     </section>
 
     <section>
@@ -670,7 +669,8 @@
       predefined character sets.</simpara>
 
       <simpara>Collations for a large number of lagnuages are supported by
-      HyperSQL.</simpara>
+      HyperSQL. Alpha versions of HSQLDB may only support a single collation
+      for the whole database.</simpara>
     </section>
 
     <section>
@@ -822,9 +822,9 @@
       “integrity constraint” which would better be expressed as a CHECK
       constraint. A trigger that causes an exception if the value inserted in
       a column is negative is such an example. A check constraint that
-      declares CHECK VALUE &gt;= 0 (declarative) is a better way of expressing
-      an integrity constraint than a trigger that throws an exception if the
-      same condition is false.</simpara>
+      declares <literal>CHECK VALUE &gt;= 0</literal> (declarative) is a
+      better way of expressing an integrity constraint than a trigger that
+      throws an exception if the same condition is false.</simpara>
 
       <simpara>Some constraints cannot be expressed by SQL’s constraint
       statements. Triggers can overcome some of the limitations. For example,
@@ -1016,11 +1016,11 @@
 
       <para>If the name of the schema is specified simply as
       <literal>&lt;schema name&gt;</literal>, then the AUTHORIZATION is the
-      special system role, DBA (check if correct). Otherwise, the specified
-      <literal>&lt;authorization identifier&gt;</literal> is used as the
-      AUTHORIZATION for the schema. If <literal>&lt;schema name&gt;</literal>
-      is omitted, then the name of the schema is the same as the specified
-      <literal>&lt;authorization identifier&gt;</literal>.</para>
+      current user. Otherwise, the specified <literal>&lt;authorization
+      identifier&gt;</literal> is used as the AUTHORIZATION for the schema. If
+      <literal>&lt;schema name&gt;</literal> is omitted, then the name of the
+      schema is the same as the specified <literal>&lt;authorization
+      identifier&gt;</literal>.</para>
 
       <simpara><literal>&lt;schema element&gt; ::= &lt;table definition&gt; |
       &lt;view definition&gt; | &lt;domain definition&gt; | &lt;character set
@@ -1436,9 +1436,10 @@
       which position the new column is added to the table.</simpara>
 
       <simpara>If the table contains rows, the new column must have a
-      &lt;default clause&gt; or use one of the forms of GENERATED. The column
-      values for each row is then filled with the result of the &lt;default
-      clause&gt; or the generated value.</simpara>
+      <literal>&lt;default clause&gt;</literal> or use one of the forms of
+      GENERATED. The column values for each row is then filled with the result
+      of the <literal>&lt;default clause&gt;</literal> or the generated
+      value.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER COLUMN</primary>
@@ -1879,7 +1880,8 @@
       <simpara><literal>&lt;transliteration routine&gt; ::= &lt;specific
       routine designator&gt;</literal></simpara>
 
-      <simpara>Define a character transliteration.</simpara>
+      <simpara>Define a character transliteration. This feature is planned for
+      future versions of HSQLDB.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRANSLATION</primary>
@@ -1954,7 +1956,8 @@
 
       <simpara><literal>&lt;triggered SQL statement&gt; ::= &lt;SQL procedure
       statement&gt; | BEGIN ATOMIC { &lt;SQL procedure statement&gt;
-      &lt;semicolon&gt; }... END</literal></simpara>
+      &lt;semicolon&gt; }... END | CALL &lt;HSQLDB trigger class
+      FQN&gt;</literal></simpara>
 
       <simpara><literal>&lt;transition table or variable list&gt; ::=
       &lt;transition table or variable&gt;...</literal></simpara>
@@ -2012,6 +2015,18 @@
       UPDATE statement. If the search condition is not TRUE for a row, then
       the trigger is not activated for that row.</simpara>
 
+      <simpara>The <literal>&lt;SQL procedure statement&gt;</literal> is
+      limited to INSERT, DELETE, UPDATE and MERGE statements.</simpara>
+
+      <simpara>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
+      delimited identifer that contains the fully qualified name of a Java
+      class that implements the <classname>org.hsqldb.Trigger</classname>
+      interface.</simpara>
+
+      <simpara>Alpha versions of HSQLDB may not support statement level
+      triggers and therefore not allow use of OLD TABLE or NEW
+      TABLE.</simpara>
+
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRIGGER</primary>
       </indexterm>
@@ -2037,103 +2052,11 @@
       &lt;user-defined type body&gt;</literal></simpara>
 
       <simpara><literal>&lt;user-defined type body&gt; ::= &lt;schema-resolved
-      user-defined type name&gt; [ AS &lt;representation&gt; ] [
-      &lt;user-defined type option list&gt; ] [ &lt;method specification
-      list&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;user-defined type option list&gt; ::=
-      &lt;user-defined type option&gt; [ &lt;user-defined type option&gt;...
+      user-defined type name&gt; [ AS &lt;representation&gt;
       ]</literal></simpara>
-
-      <simpara><literal>&lt;user-defined type option&gt; ::= &lt;instantiable
-      clause&gt; | &lt;finality&gt; | &lt;reference type specification&gt; |
-      &lt;cast to ref&gt; | &lt;cast to type&gt; | &lt;cast to distinct&gt; |
-      &lt;cast to source&gt;</literal></simpara>
 
       <simpara><literal>&lt;representation&gt; ::= &lt;predefined
       type&gt;</literal></simpara>
-
-      <simpara><literal>&lt;instantiable clause&gt; ::= INSTANTIABLE | NOT
-      INSTANTIABLE</literal></simpara>
-
-      <simpara><literal>&lt;finality&gt; ::= FINAL | NOT
-      FINAL</literal></simpara>
-
-      <simpara><literal>* &lt;reference type specification&gt; ::=
-      &lt;user-defined representation&gt; | &lt;derived representation&gt; |
-      &lt;system-generated representation&gt;</literal></simpara>
-
-      <simpara><literal>&lt;user-defined representation&gt; ::= REF USING
-      &lt;predefined type&gt;</literal></simpara>
-
-      <simpara><literal>&lt;derived representation&gt; ::= REF FROM &lt;list
-      of attributes&gt;</literal></simpara>
-
-      <simpara><literal>&lt;system-generated representation&gt; ::= REF IS
-      SYSTEM GENERATED</literal></simpara>
-
-      <simpara><literal>&lt;cast to ref&gt; ::= CAST &lt;left paren&gt; SOURCE
-      AS REF &lt;right paren&gt; WITH &lt;cast to ref
-      identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;cast to ref identifier&gt; ::=
-      &lt;identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;cast to type&gt; ::= CAST &lt;left paren&gt; REF
-      AS SOURCE &lt;right paren&gt; WITH &lt;cast to type
-      identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;cast to type identifier&gt; ::=
-      &lt;identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;list of attributes&gt; ::= &lt;left paren&gt;
-      &lt;attribute name&gt; [ { &lt;comma&gt; &lt;attribute name&gt; }... ]
-      &lt;right paren&gt;</literal></simpara>
-
-      <simpara><literal>&lt;cast to distinct&gt; ::= CAST &lt;left paren&gt;
-      SOURCE AS DISTINCT &lt;right paren&gt; WITH &lt;cast to distinct
-      identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;cast to distinct identifier&gt; ::=
-      &lt;identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;cast to source&gt; ::= CAST &lt;left paren&gt;
-      DISTINCT AS SOURCE &lt;right paren&gt; WITH &lt;cast to source
-      identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;cast to source identifier&gt; ::=
-      &lt;identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;method specification list&gt; ::= &lt;method
-      specification&gt; [ { &lt;comma&gt; &lt;method specification&gt; }...
-      ]</literal></simpara>
-
-      <simpara><literal>&lt;method specification&gt; ::= &lt;original method
-      specification&gt; | &lt;overriding method
-      specification&gt;</literal></simpara>
-
-      <simpara><literal>&lt;original method specification&gt; ::= &lt;partial
-      method specification&gt; [ SELF AS RESULT ] [ SELF AS LOCATOR ] [
-      &lt;method characteristics&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;overriding method specification&gt; ::= OVERRIDING
-      &lt;partial method specification&gt;</literal></simpara>
-
-      <simpara><literal>&lt;partial method specification&gt; ::= [ INSTANCE |
-      STATIC | CONSTRUCTOR ] METHOD &lt;method name&gt; &lt;SQL parameter
-      declaration list&gt; &lt;returns clause&gt; [ SPECIFIC &lt;specific
-      method name&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;specific method name&gt; ::= [ &lt;schema name&gt;
-      &lt;period&gt; ]&lt;qualified identifier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;method characteristics&gt; ::= &lt;method
-      characteristic&gt;...</literal></simpara>
-
-      <simpara><literal>&lt;method characteristic&gt; ::= &lt;language
-      clause&gt; | &lt;parameter style clause&gt; | &lt;deterministic
-      characteristic&gt; | &lt;SQL-data access indication&gt; | &lt;null-call
-      clause&gt;</literal></simpara>
 
       <simpara>Define a user-defined type. Currently only simple distinct
       types can be defined without further attributes.</simpara>
@@ -2178,11 +2101,8 @@
       <simpara><literal>&lt;parameter mode&gt; ::= IN | OUT |
       INOUT</literal></simpara>
 
-      <simpara><literal>&lt;parameter type&gt; ::= &lt;data type&gt; [
-      &lt;locator indication&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;locator indication&gt; ::= AS
-      LOCATOR</literal></simpara>
+      <simpara><literal>&lt;parameter type&gt; ::= &lt;data
+      type&gt;</literal></simpara>
 
       <simpara><literal>&lt;function specification&gt; ::= FUNCTION &lt;schema
       qualified routine name&gt; &lt;SQL parameter declaration list&gt;
@@ -2257,13 +2177,8 @@
       statement&gt;</literal></simpara>
 
       <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL [ NAME
-      &lt;external routine name&gt; ] [ &lt;parameter style clause&gt; ] [
-      &lt;transform group specification&gt; ] [ &lt;external security
-      clause&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;external security clause&gt; ::= EXTERNAL SECURITY
-      DEFINER | EXTERNAL SECURITY INVOKER | EXTERNAL SECURITY IMPLEMENTATION
-      DEFINED</literal></simpara>
+      &lt;external routine name&gt; ] [ &lt;parameter style clause&gt;
+      ]</literal></simpara>
 
       <simpara><literal>&lt;parameter style&gt; ::= SQL |
       GENERAL</literal></simpara>
@@ -2279,20 +2194,6 @@
 
       <simpara><literal>&lt;maximum returned result sets&gt; ::= &lt;unsigned
       integer&gt;</literal></simpara>
-
-      <simpara><literal>&lt;transform group specification&gt; ::= TRANSFORM
-      GROUP { &lt;single group specification&gt; | &lt;multiple group
-      specification&gt; }</literal></simpara>
-
-      <simpara><literal>&lt;single group specification&gt; ::= &lt;group
-      name&gt;</literal></simpara>
-
-      <simpara><literal>&lt;multiple group specification&gt; ::= &lt;group
-      specification&gt; [ { &lt;comma&gt; &lt;group specification&gt; }...
-      ]</literal></simpara>
-
-      <simpara><literal>&lt;group specification&gt; ::= &lt;group name&gt; FOR
-      TYPE &lt;path-resolved user-defined type name&gt;</literal></simpara>
 
       <simpara>Define an SQL-invoked routine.</simpara>
 
@@ -2357,7 +2258,8 @@
       <simpara><literal>&lt;target data type&gt; ::= &lt;data
       type&gt;</literal></simpara>
 
-      <simpara>Define a user-defined cast.</simpara>
+      <simpara>Define a user-defined cast. This feature is planned for future
+      versions of HSQLDB.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP CAST</primary>
