@@ -578,7 +578,7 @@ public final class HsqlTimer implements ObjectComparator, ThreadFactory {
      *
      * @return System.currentTimeMillis()
      */
-    private static long now() {
+    static long now() {
 
         nowCount++;
 
