@@ -29,41 +29,58 @@
  */
 
 
-package org.hsqldb;
+package org.hsqldb.lib;
 
-public class TestClientConnection {
-    /**
-     * Quick & Dirty Unit test of Network Compatibility utility methods.
-     * Move to dedicated Testing class in test package
-     */
-    public static void main(String[] sa) {
+public class HsqlDequeTest {
+    public static void main(String[] args) {
 
-        if (!ClientConnection.toNcvString(-2030405).equals("2.3.4.5")) {
-            throw new RuntimeException("Test of int -2030405 failed");
+        HsqlDeque d = new HsqlDeque();
+
+        for (int i = 0; i < 9; i++) {
+            d.add(new Integer(i));
         }
 
-        if (!ClientConnection.toNcvString(-23456789).equals("23.45.67.89")) {
-            throw new RuntimeException("Test of int -23456789 failed");
+        d.removeFirst();
+        d.removeFirst();
+        d.add(new Integer(9));
+        d.add(new Integer(10));
+
+        for (int i = 0; i < d.size(); i++) {
+            System.out.println(d.get(i));
         }
 
-        if (!ClientConnection.toNcvString(-2).equals("0.0.0.2")) {
-            throw new RuntimeException("Test of int -2 failed");
+        System.out.println();
+        d.add(new Integer(11));
+        d.add(new Integer(12));
+
+        for (int i = 0; i < d.size(); i++) {
+            System.out.println(d.get(i));
         }
 
-        if (!ClientConnection.toNcvString(-300000).equals("0.30.0.0")) {
-            throw new RuntimeException("Test of int -300000 failed");
+        d.addFirst(new Integer(1));
+        d.addFirst(new Integer(0));
+        d.addFirst(new Integer(-1));
+        d.addFirst(new Integer(-2));
+
+        for (int i = 0; i < d.size(); i++) {
+            System.out.println(d.get(i));
         }
 
-        if (ClientConnection.toNcvInt("9.80.76.5") != -9807605) {
-            throw new RuntimeException("Test of String '9.80.76.5' failed");
+        System.out.println();
+        d.removeFirst();
+        d.removeFirst();
+        d.removeFirst();
+
+        for (int i = 0; i < d.size(); i++) {
+            System.out.println(d.get(i));
         }
 
-        if (ClientConnection.toNcvInt("23.45.67.89") != -23456789) {
-            throw new RuntimeException("Test of String '23.45.67.89' failed");
-        }
+        System.out.println();
 
-        if (ClientConnection.toNcvInt("0.0.0.2") != -2) {
-            throw new RuntimeException("Test of String '0.0.0.2' failed");
+        Iterator it = d.iterator();
+
+        for (; it.hasNext(); ) {
+            System.out.println(it.next());
         }
     }
 }

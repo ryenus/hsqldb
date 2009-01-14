@@ -29,34 +29,41 @@
  */
 
 
-package org.hsqldb.lib;
+package org.hsqldb;
 
-public class TestArrayUtil {
-    public static void main(String[] args) {
+public class ClientConnectionTest {
+    /**
+     * Quick & Dirty Unit test of Network Compatibility utility methods.
+     * Move to dedicated Testing class in test package
+     */
+    public static void main(String[] sa) {
 
-        int[] a = new int[] {
-            23, 11, 37, 7, 1, 5
-        };
-        int[] b = new int[] {
-            1, 3, 7, 11, 13, 17, 19, 3, 1
-        };
-        int[] c = ArrayUtil.toAdjustedColumnArray(a, 7, -1);
-        int[] d = ArrayUtil.toAdjustedColumnArray(b, 11, 1);
-        int[] e = new int[a.length];
+        if (!ClientConnection.toNcvString(-2030405).equals("2.3.4.5")) {
+            throw new RuntimeException("Test of int -2030405 failed");
+        }
 
-        ArrayUtil.copyArray(a, e, a.length);
-        ArrayUtil.sortArray(e);
+        if (!ClientConnection.toNcvString(-23456789).equals("23.45.67.89")) {
+            throw new RuntimeException("Test of int -23456789 failed");
+        }
 
-        int[] f = new int[b.length];
+        if (!ClientConnection.toNcvString(-2).equals("0.0.0.2")) {
+            throw new RuntimeException("Test of int -2 failed");
+        }
 
-        ArrayUtil.copyArray(b, f, b.length);
-        ArrayUtil.sortArray(f);
+        if (!ClientConnection.toNcvString(-300000).equals("0.30.0.0")) {
+            throw new RuntimeException("Test of int -300000 failed");
+        }
 
-        boolean x = ArrayUtil.haveEqualSets(a, e, a.length);
-        boolean y = ArrayUtil.haveEqualSets(b, f, b.length);
+        if (ClientConnection.toNcvInt("9.80.76.5") != -9807605) {
+            throw new RuntimeException("Test of String '9.80.76.5' failed");
+        }
 
-        System.out.println("test passed: ");
-        System.out.println(x == true && y == true && c.length == a.length - 1
-                         && d.length == b.length);
+        if (ClientConnection.toNcvInt("23.45.67.89") != -23456789) {
+            throw new RuntimeException("Test of String '23.45.67.89' failed");
+        }
+
+        if (ClientConnection.toNcvInt("0.0.0.2") != -2) {
+            throw new RuntimeException("Test of String '0.0.0.2' failed");
+        }
     }
 }

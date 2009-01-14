@@ -31,7 +31,7 @@
 
 package org.hsqldb.store;
 
-public class TestValuePoolHashMap {
+public class ValuePoolHashMapTest {
     public static void main(String[] argv) {
 
         int                      BIGRANGE   = 100000;

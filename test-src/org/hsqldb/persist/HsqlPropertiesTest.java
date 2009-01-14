@@ -31,7 +31,7 @@
 
 package org.hsqldb.persist;
 
-public class TestHsqlProperties {
+public class HsqlPropertiesTest {
     public static void main(String[] argv) {
 
         HsqlProperties props1 = HsqlProperties.delimitedArgPairsToProps("-dbname.0", "=",

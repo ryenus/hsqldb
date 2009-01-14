@@ -34,7 +34,7 @@ package org.hsqldb.lib.tar;
 import java.io.IOException;
 import java.io.File;
 
-public class TestPIFGenerator {
+public class PIFGeneratorTest {
 
     /**
      * This is a Unit Test.  Move it to a proper, dedicated unit test class.

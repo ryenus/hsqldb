@@ -29,21 +29,34 @@
  */
 
 
-package org.hsqldb;
+package org.hsqldb.lib;
 
-public class TestDatabaseURL {
-    public static void main(String[] argv) {
-        DatabaseURL.parseURL(
-            "JDBC:hsqldb:hsql://myhost:1777/mydb;filepath=c:/myfile/database/db",
-            true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:../data/mydb.db", true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:../data/mydb.db;ifexists=true", true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:HSQL://localhost:9000/mydb", true, false);
-        DatabaseURL.parseURL(
-            "JDBC:hsqldb:Http://localhost:8080/servlet/org.hsqldb.Servlet/mydb;ifexists=true",
-            true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:Http://localhost/servlet/org.hsqldb.Servlet/",
-                 true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:hsql://myhost", true, false);
+public class ArrayUtilTest {
+    public static void main(String[] args) {
+
+        int[] a = new int[] {
+            23, 11, 37, 7, 1, 5
+        };
+        int[] b = new int[] {
+            1, 3, 7, 11, 13, 17, 19, 3, 1
+        };
+        int[] c = ArrayUtil.toAdjustedColumnArray(a, 7, -1);
+        int[] d = ArrayUtil.toAdjustedColumnArray(b, 11, 1);
+        int[] e = new int[a.length];
+
+        ArrayUtil.copyArray(a, e, a.length);
+        ArrayUtil.sortArray(e);
+
+        int[] f = new int[b.length];
+
+        ArrayUtil.copyArray(b, f, b.length);
+        ArrayUtil.sortArray(f);
+
+        boolean x = ArrayUtil.haveEqualSets(a, e, a.length);
+        boolean y = ArrayUtil.haveEqualSets(b, f, b.length);
+
+        System.out.println("test passed: ");
+        System.out.println(x == true && y == true && c.length == a.length - 1
+                         && d.length == b.length);
     }
 }

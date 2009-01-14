@@ -31,7 +31,7 @@
 
 package org.hsqldb.lib;
 
-public class TestHsqlArrayHeap {
+public class HsqlArrayHeapTest {
    public static void main(String[] args) {
 
        ObjectComparator oc = new ObjectComparator() {
