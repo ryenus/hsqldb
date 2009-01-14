@@ -1097,33 +1097,4 @@ public class ArrayUtil {
             colindex[i] = i;
         }
     }
-/*
-    public static void main(String[] args) {
-
-        int[] a = new int[] {
-            23, 11, 37, 7, 1, 5
-        };
-        int[] b = new int[] {
-            1, 3, 7, 11, 13, 17, 19, 3, 1
-        };
-        int[] c = toAdjustedColumnArray(a, 7, -1);
-        int[] d = toAdjustedColumnArray(b, 11, 1);
-        int[] e = new int[a.length];
-
-        copyArray(a, e, a.length);
-        sortArray(e);
-
-        int[] f = new int[b.length];
-
-        copyArray(b, f, b.length);
-        sortArray(f);
-
-        boolean x = haveEqualSets(a, e, a.length);
-        boolean y = haveEqualSets(b, f, b.length);
-
-        System.out.println("test passed: ");
-        System.out.println(x == true && y == true && c.length == a.length - 1
-                         && d.length == b.length);
-    }
-*/
 }
