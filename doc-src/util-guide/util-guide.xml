@@ -15,14 +15,14 @@
         <title>HyperSQL Utilities Guide</title>
         <authorgroup>
             <editor>
-                <orgname>The HSQLDB Development Group</orgname>
+                <orgname>The HSQLB Development Group</orgname>
             </editor>
             <editor>
                 <personname>
                     <firstname>Blaine</firstname><surname>Simpson</surname>
                 </personname>
                 <affiliation>
-                    <orgname>HSQLDB Development Group</orgname>
+                    <orgname>The HSQL Development Group</orgname>
                 </affiliation>
             </editor>
             <editor>
@@ -30,7 +30,7 @@
                     <firstname>Fred</firstname><surname>Toussi</surname>
                 </personname>
                 <affiliation>
-                    <orgname>HSQLDB Development Group</orgname>
+                    <orgname>The HSQL Development Group</orgname>
                 </affiliation>
             </editor>
         </authorgroup>
@@ -45,7 +45,7 @@
             <keyword>Java</keyword>
         </keywordset>
         <legalnotice><para>
-            Copyright 2002-2009 HSQLDB Development Group.
+            Copyright 2002-2009 The HSQL Development Group.
             Permission is granted to distribute this document without any
             alteration under the terms of the HSQLDB license.
         </para></legalnotice>
@@ -276,7 +276,7 @@
         </personname>
 
         <affiliation>
-          <orgname>HSQLDB Development Group</orgname>
+          <orgname>The HSQL Development Group</orgname>
         </affiliation>
       </author>
 
@@ -286,7 +286,7 @@
         </personname>
 
         <affiliation>
-          <orgname>HSQLDB Development Group</orgname>
+          <orgname>The HSQL Development Group</orgname>
         </affiliation>
       </author>
     </authorgroup>
@@ -568,7 +568,7 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
         </personname>
 
         <affiliation>
-          <orgname>HSQLDB Development Group</orgname>
+          <orgname>The HSQL Development Group</orgname>
         </affiliation>
       </author>
     </authorgroup>

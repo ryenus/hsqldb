@@ -1,6 +1,6 @@
 (SqlFile processor v. %{1})
 Distribution is permitted under the terms of the HSQLDB license.
-(c) 2004-2008 Blaine Simpson and the HSQLDB Development Group.
+(c) 2004-2008 Blaine Simpson and the HSQL Development Group.
 
     \q    to Quit.
     \?    lists Special Commands.
