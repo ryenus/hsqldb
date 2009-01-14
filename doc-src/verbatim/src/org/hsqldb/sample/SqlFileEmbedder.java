@@ -91,7 +91,11 @@ public class SqlFileEmbedder {
         } finally {
             try {
                 embedder.getConn().close();
-            } catch (SQLException se) {}
+            } catch (SQLException se) {
+                // Purposefully ignoring.
+                // We have done what we want and are now going to exit, so
+                // who cares.
+            }
         }
     }
 
