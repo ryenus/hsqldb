@@ -506,6 +506,7 @@ examples:
         <jar jarfile="lib/hsqldbz.jar"
              basedir="classes"
          >
+         <metainf dir="doc-src" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -556,6 +557,7 @@ examples:
         <jar jarfile="lib/hsqldbtest.jar"
              basedir="classes"
          >
+         <metainf dir="doc-src" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -588,6 +590,7 @@ examples:
         <jar jarfile="lib/hsqldbmain.jar"
              basedir="classes"
          >
+         <metainf dir="doc-src" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -616,6 +619,7 @@ examples:
         <jar jarfile="lib/hsqldbmin.jar"
              basedir="classes"
          >
+         <metainf dir="doc-src" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -670,6 +674,7 @@ examples:
              basedir="classes"
              compress="true"
          >
+         <metainf dir="doc-src" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -786,6 +791,7 @@ examples:
              description="Build the hsqljdbc.jar">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqljdbc.jar" compress="true">
+         <metainf dir="doc-src" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -803,6 +809,7 @@ examples:
             description="Build the hsqltool.jar">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqltool.jar">
+         <metainf dir="doc-src" includes="*_lic.txt"/>
             <manifest>
                 <attribute name='Specification-Title' value='${hsqldb.title}'/>
                 <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -824,6 +831,7 @@ examples:
             description="Build the utility hsqldbutil.jar">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbutil.jar" compress="true">
+         <metainf dir="doc-src" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
