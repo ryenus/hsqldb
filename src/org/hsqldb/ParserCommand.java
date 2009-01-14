@@ -813,21 +813,6 @@ public class ParserCommand extends ParserDDL {
                         return new StatementCommand(
                             StatementTypes.SET_DATABASE_COLLATION, args);
                     }
-                    case Tokens.CATALOG : {
-                        read();
-                        readThis(Tokens.NAME);
-                        checkIsSimpleName();
-
-                        HsqlName catName =
-                            readNewSchemaObjectName(SchemaObject.CATALOG);
-
-                        read();
-
-                        Object[] args = new Object[]{ catName };
-
-                        return new StatementCommand(
-                            StatementTypes.SET_DATABASE_CATALOG, args);
-                    }
                     case Tokens.EVENT : {
                         read();
                         readThis(Tokens.LOG);
@@ -1052,7 +1037,7 @@ public class ParserCommand extends ParserDDL {
             Expression e = XreadValueSpecificationOrNull();
 
             if (e == null) {
-                throw Error.error(ErrorCode.X_42581);
+                throw Error.error(ErrorCode.X_42584);
             }
 
             e.resolveTypes(session, null);

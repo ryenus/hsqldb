@@ -182,11 +182,6 @@ public class StatementCommand extends Statement {
                 metaDataImpact = Statement.META_RESET_VIEWS;
                 break;
 
-            case StatementTypes.SET_DATABASE_CATALOG :
-                metaDataImpact = Statement.META_RESET_VIEWS;
-                group          = StatementTypes.X_HSQLDB_SETTING;
-                break;
-
             case StatementTypes.SET_DATABASE_EVENT_LOG :
             case StatementTypes.SET_DATABASE_COLLATION :
             case StatementTypes.SET_DATABASE_DEFRAG :
@@ -636,21 +631,6 @@ public class StatementCommand extends Statement {
                     session.database.getProperties().setProperty(
                         HsqlDatabaseProperties.hsqldb_applog, value);
                     session.database.logger.appLog.setLevel(value);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-            }
-            case StatementTypes.SET_DATABASE_CATALOG : {
-                try {
-                    HsqlName name = (HsqlName) parameters[0];
-
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-                    session.database.getCatalogName().rename(name);
-                    session.database.logger.writeToLog(session, sql);
-                    session.database.setMetaDirty(false);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

@@ -4134,8 +4134,8 @@ public class ParserDQL extends ParserBase {
             isDelimitedIdentifier(), type);
 
         if (token.namePrefix != null) {
-            if (type == SchemaObject.GRANTEE
-                    || type == SchemaObject.VARIABLE) {
+            if (type == SchemaObject.GRANTEE || type == SchemaObject.VARIABLE
+                    || type == SchemaObject.CATALOG) {
                 throw unexpectedToken();
             }
 

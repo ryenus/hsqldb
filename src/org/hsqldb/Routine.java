@@ -121,7 +121,7 @@ public class Routine implements SchemaObject {
     }
 
     public Grantee getOwner() {
-        return name.owner;
+        return name.schema.owner;
     }
 
     public OrderedHashSet getReferences() {
