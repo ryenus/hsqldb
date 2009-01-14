@@ -482,6 +482,7 @@ public class Tokens {
     static final String        T_INPUT                = "INPUT";
     static final String        T_INSTANCE             = "INSTANCE";
     static final String        T_INSTANTIABLE         = "INSTANTIABLE";
+    static final String        T_INSTEAD              = "INSTEAD";
     static final String        T_INTERFACE            = "INTERFACE";    // SQL/JRT
     static final String        T_INVOKER              = "INVOKER";
     static final String        T_ISOLATION            = "ISOLATION";
@@ -1916,6 +1917,7 @@ public class Tokens {
         commandSet.put(T_INDEX, INDEX);
         commandSet.put(T_INITIAL, INITIAL);
         commandSet.put(T_INPUT, INPUT);
+        commandSet.put(T_INSTEAD, INSTEAD);
         commandSet.put(T_ISOLATION, ISOLATION);
         commandSet.put(T_ISAUTOCOMMIT, ISAUTOCOMMIT);
         commandSet.put(T_ISREADONLYDATABASE, ISREADONLYDATABASE);

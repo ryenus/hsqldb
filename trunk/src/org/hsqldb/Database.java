@@ -686,7 +686,7 @@ public class Database {
         HsqlArrayList list = new HsqlArrayList();
         String        name = getCatalogName().statementName;
 
-        list.add("SET DATABASE CATALOG NAME " + name);
+        list.add("ALTER CATALOG PUBLIC RENAME TO " + name);
 
         if (collation.name != null) {
             name = collation.getName().statementName;

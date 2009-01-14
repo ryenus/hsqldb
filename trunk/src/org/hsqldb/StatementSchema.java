@@ -254,6 +254,19 @@ public class StatementSchema extends Statement {
                 HsqlName     newName = (HsqlName) arguments[1];
                 SchemaObject object;
 
+                if (name.type == SchemaObject.CATALOG) {
+                    try {
+                        session.checkAdmin();
+                        session.checkDDLWrite();
+                        name.rename(newName);
+                        session.database.setMetaDirty(false);
+
+                        return Result.updateZeroResult;
+                    } catch (HsqlException e) {
+                        return Result.newErrorResult(e, sql);
+                    }
+                }
+
                 try {
                     name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
@@ -419,22 +432,6 @@ public class StatementSchema extends Statement {
 
                     switch (type) {
 
-                        case StatementTypes.DROP_ASSERTION :
-                            break;
-
-                        case StatementTypes.DROP_CHARACTER_SET :
-                            dropCharset(session, name, cascade);
-                            break;
-
-                        case StatementTypes.DROP_COLLATION :
-                        case StatementTypes.DROP_TYPE :
-                            dropType(session, name, cascade);
-                            break;
-
-                        case StatementTypes.DROP_DOMAIN :
-                            dropDomain(session, name, cascade);
-                            break;
-
                         case StatementTypes.DROP_ROLE :
                             dropRole(session, name, cascade);
                             break;
@@ -443,36 +440,41 @@ public class StatementSchema extends Statement {
                             dropUser(session, name, cascade);
                             break;
 
-                        case StatementTypes.DROP_ROUTINE :
-                            dropRoutine(session, name, cascade);
-                            break;
-
                         case StatementTypes.DROP_SCHEMA :
                             dropSchema(session, name, cascade);
                             break;
 
+                        case StatementTypes.DROP_ASSERTION :
+                            break;
+
+                        case StatementTypes.DROP_CHARACTER_SET :
+                        case StatementTypes.DROP_COLLATION :
                         case StatementTypes.DROP_SEQUENCE :
-                            dropSequence(session, name, cascade);
+                        case StatementTypes.DROP_TRIGGER :
+                            dropObject(session, name, cascade);
+                            break;
+
+                        case StatementTypes.DROP_TYPE :
+                            dropType(session, name, cascade);
+                            break;
+
+                        case StatementTypes.DROP_DOMAIN :
+                            dropDomain(session, name, cascade);
+                            break;
+
+                        case StatementTypes.DROP_ROUTINE :
+                            dropRoutine(session, name, cascade);
                             break;
 
                         case StatementTypes.DROP_TABLE :
-                            dropTable(session, name, ifExists, cascade);
+                        case StatementTypes.DROP_VIEW :
+                            dropTable(session, name, cascade);
                             break;
 
                         case StatementTypes.DROP_TRANSFORM :
                         case StatementTypes.DROP_TRANSLATION :
-                            break;
-
-                        case StatementTypes.DROP_TRIGGER :
-                            dropTrigger(session, name);
-                            break;
-
                         case StatementTypes.DROP_CAST :
                         case StatementTypes.DROP_ORDERING :
-                            break;
-
-                        case StatementTypes.DROP_VIEW :
-                            dropView(session, name, ifExists, cascade);
                             break;
 
                         case StatementTypes.DROP_INDEX :
@@ -908,6 +910,19 @@ public class StatementSchema extends Statement {
         return Result.updateZeroResult;
     }
 
+    private void dropType(Session session, HsqlName name,
+                          boolean cascade) throws HsqlException {
+
+        checkSchemaUpdateAuthorisation(session, name.schema);
+
+        Type distinct =
+            (Type) session.database.schemaManager.getSchemaObject(name);
+
+        session.database.schemaManager.removeSchemaObject(name, cascade);
+
+        distinct.userTypeModifier = null;
+    }
+
     private static void dropDomain(Session session, HsqlName name,
                                    boolean cascade) throws HsqlException {
 
@@ -916,6 +931,11 @@ public class StatementSchema extends Statement {
         OrderedHashSet set =
             session.database.schemaManager.getReferencingObjects(
                 domain.getName());
+
+        if (!cascade && set.size() > 0) {
+            throw Error.error(ErrorCode.X_42502);
+        }
+
         Constraint[] constraints = domain.userTypeModifier.getConstraints();
 
         set.clear();
@@ -931,15 +951,10 @@ public class StatementSchema extends Statement {
         domain.userTypeModifier = null;
     }
 
-    private static void dropCharset(Session session, HsqlName name,
-                                    boolean cascade) throws HsqlException {
-        session.database.schemaManager.removeSchemaObject(name, cascade);
-    }
-
     private static void dropIndex(Session session,
                                   HsqlName name) throws HsqlException {
         session.database.schemaManager.dropIndex(session, name.name,
-                name.schema.name, true);
+                name.schema.name);
     }
 
     private static void dropRole(Session session, HsqlName name,
@@ -996,69 +1011,23 @@ public class StatementSchema extends Statement {
                 cascade);
     }
 
-    private void dropSequence(Session session, HsqlName name,
-                              boolean cascade) throws HsqlException {
+    private void dropObject(Session session, HsqlName name,
+                            boolean cascade) throws HsqlException {
 
-        NumberSequence sequence =
-            session.database.schemaManager.getSequence(name.name,
-                name.schema.name, true);
-
-        checkSchemaUpdateAuthorisation(session, name.schema);
-        session.database.schemaManager.removeSchemaObject(sequence.getName(),
-                cascade);
-    }
-
-    private void dropTable(Session session, HsqlName name, boolean ifExists,
-                           boolean cascade) throws HsqlException {
-
-        HsqlName schemaHsqlName = session.getSchemaHsqlName(name.schema.name);
-
-        checkSchemaUpdateAuthorisation(session, schemaHsqlName);
-
-        Table table = session.database.schemaManager.findUserTable(session,
-            name.name, name.schema.name);
-
-        session.database.schemaManager.dropTableOrView(session, table,
-                cascade);
-    }
-
-    private void dropView(Session session, HsqlName name, boolean ifExists,
-                          boolean cascade) throws HsqlException {
-
-        HsqlName schemaHsqlName = session.getSchemaHsqlName(name.schema.name);
-
-        checkSchemaUpdateAuthorisation(session, schemaHsqlName);
-
-        Table table = session.database.schemaManager.findUserTable(session,
-            name.name, name.schema.name);
-
-        session.database.schemaManager.dropTableOrView(session, table,
-                cascade);
-    }
-
-    private void dropTrigger(Session session,
-                             HsqlName name) throws HsqlException {
-
-        checkSchemaUpdateAuthorisation(session, name.schema);
-
-        HsqlName triggerName =
-            session.database.schemaManager.getSchemaObjectName(name.schema,
-                name.name, SchemaObject.TRIGGER, true);
-
-        session.database.schemaManager.removeSchemaObject(triggerName);
-    }
-
-    private void dropType(Session session, HsqlName name,
-                          boolean cascade) throws HsqlException {
-
-        checkSchemaUpdateAuthorisation(session, name.schema);
-
-        Type distinct =
-            (Type) session.database.schemaManager.getSchemaObject(name);
+        name = session.database.schemaManager.getSchemaObjectName(name.schema,
+                name.name, name.type, true);
 
         session.database.schemaManager.removeSchemaObject(name, cascade);
+    }
 
-        distinct.userTypeModifier = null;
+    private void dropTable(Session session, HsqlName name,
+                           boolean cascade) throws HsqlException {
+
+        Table table = session.database.schemaManager.findUserTable(session,
+            name.name, name.schema.name);
+
+        session.database.schemaManager.dropTableOrView(session, table,
+                cascade);
     }
 
     void checkSchemaUpdateAuthorisation(Session session,

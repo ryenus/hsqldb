@@ -159,7 +159,6 @@ public interface StatementTypes {
     int DROP_INDEX                         = 1008;
     int EXPLAIN_PLAN                       = 1010;
     int SET_AUTOCOMMIT                     = 1012;
-    int SET_DATABASE_CATALOG               = 1014;
     int SET_DATABASE_COLLATION             = 1016;
     int SET_DATABASE_DEFRAG                = 1018;
     int SET_DATABASE_EVENT_LOG             = 1019;

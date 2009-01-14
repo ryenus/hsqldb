@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
@@ -40,7 +39,6 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
-import org.hsqldb.persist.Logger;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
 
@@ -960,17 +958,12 @@ public class SchemaManager {
     /**
      * Drops the index with the specified name.
      */
-    void dropIndex(Session session, String name, String schema,
-                   boolean ifExists) throws HsqlException {
+    void dropIndex(Session session, String name, String schema) throws HsqlException {
 
         Table t = findUserTableForIndex(session, name, schema);
 
         if (t == null) {
-            if (ifExists) {
-                return;
-            } else {
-                throw Error.error(ErrorCode.X_42501, name);
-            }
+            throw Error.error(ErrorCode.X_42501, name);
         }
 
         session.commit(false);

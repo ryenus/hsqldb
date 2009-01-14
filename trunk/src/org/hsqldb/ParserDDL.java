@@ -205,18 +205,11 @@ public class ParserDDL extends ParserRoutine {
 
         switch (token.tokenType) {
 
-            case Tokens.INDEX : {
-                read();
-                processAlterIndexRename();
+            case Tokens.INDEX :
+            case Tokens.SCHEMA :
+            case Tokens.CATALOG :
+                throw unexpectedToken();
 
-                break;
-            }
-            case Tokens.SCHEMA : {
-                read();
-                processAlterSchemaRename();
-
-                break;
-            }
             case Tokens.SEQUENCE : {
                 read();
                 processAlterSequence();
@@ -273,6 +266,18 @@ public class ParserDDL extends ParserRoutine {
                 readThis(Tokens.TO);
 
                 return compileRenameObject(name, SchemaObject.SCHEMA);
+            }
+            case Tokens.CATALOG : {
+                read();
+                checkIsSimpleName();
+                String name = token.tokenString;
+                checkValidCatalogName(name);
+                read();
+
+                readThis(Tokens.RENAME);
+                readThis(Tokens.TO);
+
+                return compileRenameObject(database.getCatalogName(), SchemaObject.CATALOG);
             }
             case Tokens.SEQUENCE : {
                 read();
@@ -389,6 +394,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_TRIGGER;
                 objectType    = SchemaObject.TRIGGER;
+                canCascade    = false;
 
                 break;
             }
@@ -432,7 +438,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_CHARACTER_SET;
                 objectType    = SchemaObject.CHARSET;
-                canCascade    = true;
+                canCascade    = false;
                 break;
 
             case Tokens.VIEW :
