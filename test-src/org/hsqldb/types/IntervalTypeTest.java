@@ -31,6 +31,8 @@
 
 package org.hsqldb.types;
 
+import org.hsqldb.Types;
+
 public class IntervalTypeTest {
 /*
  * TODO:  Re-implement test coded below as newInterval(String).
