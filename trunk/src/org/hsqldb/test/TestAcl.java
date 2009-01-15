@@ -239,14 +239,20 @@ public class TestAcl extends junit.framework.TestCase {
         }
     }
 
+    /**
+     * This method allows to easily run this unit test independent of the other
+     * unit tests, and without dealing with Ant or unrelated test suites.
+     */
     static public void main(String[] sa) {
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(TestAcl.class);
+        } else {
+            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+            junit.framework.TestResult result =
+                runner.run(runner.getTest(TestAcl.class.getName()));
 
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-
-        System.exit(
-            runner.run(
-                runner.getTest(TestAcl.class.getName())).wasSuccessful() ? 0
-                                                                         : 1);
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 
     public void testDefaultWithNames() {

@@ -1018,15 +1018,20 @@ public class TestSchemaParse extends junit.framework.TestCase {
         super(s);
     }
 
-    public static void main(String[] sa) {
+    /**
+     * This method allows to easily run this unit test independent of the other
+     * unit tests, and without dealing with Ant or unrelated test suites.
+     */
+    static public void main(String[] sa) {
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(TestSchemaParse.class);
+        } else {
+            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+            junit.framework.TestResult result =
+                runner.run(runner.getTest(TestSchemaParse.class.getName()));
 
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-
-        System.exit(
-            runner.run(
-                runner.getTest(
-                    TestSchemaParse.class.getName())).wasSuccessful() ? 0
-                                                                      : 1);
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 
     public static junit.framework.Test suite() {

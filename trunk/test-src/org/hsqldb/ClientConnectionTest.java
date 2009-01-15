@@ -63,7 +63,6 @@ public class ClientConnectionTest extends junit.framework.TestCase {
         assertEquals(-2, ClientConnection.toNcvInt("0.0.0.2"));
     }
 
-
     /**
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
@@ -73,9 +72,10 @@ public class ClientConnectionTest extends junit.framework.TestCase {
             junit.swingui.TestRunner.run(ClientConnectionTest.class);
         } else {
             junit.textui.TestRunner runner = new junit.textui.TestRunner();
-            System.exit(
-                runner.run(runner.getTest(ClientConnectionTest.class.getName())
-                ).wasSuccessful() ? 0 : 1);
+            junit.framework.TestResult result =
+                runner.run(runner.getTest(ClientConnectionTest.class.getName()));
+
+            System.exit(result.wasSuccessful() ? 0 : 1);
         }
     }
 }
