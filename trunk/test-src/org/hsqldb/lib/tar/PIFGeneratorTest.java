@@ -32,30 +32,108 @@
 package org.hsqldb.lib.tar;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.File;
 
-public class PIFGeneratorTest {
+public class PIFGeneratorTest extends junit.framework.TestCase {
+    static protected byte[] loadResByteFile(String resPath) {
+        InputStream is = null;
+        int bytesRead = 0;
+        int retval;
+        byte[] ba = null;
 
-    /**
-     * This is a Unit Test.  Move it to a proper, dedicated unit test class.
-     */
-    static public void main(String[] sa)
-    throws TarMalformatException, IOException {
-
-        if (sa.length > 1) {
-            throw new IllegalArgumentException("java "
-                                               + PIFGenerator.class.getName()
-                                               + " [xTargetPath]");
+        try {
+            is = PIFGeneratorTest.class.getResourceAsStream(resPath);
+            if (is == null) {
+                throw new RuntimeException("CLASSPATH not set properly.  "
+                        + "Res file '" + resPath + "' not accessible");
+            }
+            ba = new byte[is.available()];
+            while (bytesRead < ba.length &&
+                    (retval = is.read(ba, bytesRead, ba.length - bytesRead))
+                    > 0) {
+                bytesRead += retval;
+            }
+        } catch (IOException ioe) {
+            throw new RuntimeException(
+                    "Unexpected resource problem with Res file '"
+                    + resPath + "' not accessible", ioe);
+        } finally {
+            if (is != null) try {
+                is.close();
+            } catch (IOException ioe) {
+                // Intentionally doing nothing
+            }
         }
+        if (bytesRead != ba.length) {
+            throw new RuntimeException("I/O problem reading res file '"
+                    + resPath + "'");
+        }
+        return ba;
+    }
 
-        PIFGenerator pif = (sa.length < 1) ? (new PIFGenerator(1))
-                                           : (new PIFGenerator(
-                                               new File(sa[0])));
+    public void testXrecord() {
+        byte[] expectedHeaderData = PIFGeneratorTest.loadResByteFile(
+                "/org/hsqldb/resources/pif.data");
+        // Would like to load this one time with a JUnit v. 4 @BeforeClass
+        // method
+        File f = new File("build.xml");
+        if (!f.exists()) {
+            throw new RuntimeException(
+                "Test environment misconfigured.  File 'build.xml' inaccessible");
+        }
+        PIFGenerator pif = new PIFGenerator(f);
+        try {
+            populate(pif);
+        } catch (IOException ioe) {
+            fail("Failed to populate PIF:" + ioe);
+        } catch (TarMalformatException tme) {
+            fail("Failed to populate PIF:" + tme);
+        }
+        assertTrue("Bad PIF record name", pif.getName().endsWith("/build.xml"));
 
-        pif.addRecord("o", "n");                                           // Shortest possible
-        pif.addRecord("k1", "23");                                         // total 8.  Impossible to get total of 9.
-        pif.addRecord("k2", "234");                                        // total 10
-        pif.addRecord("k3", "2345");                                       // total 11
+        //assertArrayEquals(expectedHeaderData, pif.toByteArray());
+        // Arg.  All of the following work can be done with the single line
+        // above with JUnit v. 4.
+        byte[] pifBytes = pif.toByteArray();
+        assertEquals(expectedHeaderData.length, pifBytes.length);
+        for (int i = 0; i < expectedHeaderData.length; i++) {
+            assertEquals(expectedHeaderData[i], pifBytes[i]);
+        }
+    }
+
+    public void testGrecord() {
+        byte[] expectedHeaderData = PIFGeneratorTest.loadResByteFile(
+                "/org/hsqldb/resources/pif.data");
+        // Would like to load this one time with a JUnit v. 4 @BeforeClass
+        // method
+        PIFGenerator pif = new PIFGenerator(1);
+        try {
+            populate(pif);
+        } catch (TarMalformatException tme) {
+            fail("Failed to populate PIF:" + tme);
+        } catch (IOException ioe) {
+            fail("Failed to populate PIF:" + ioe);
+        }
+        assertTrue("Bad PIF record name",
+                pif.getName().indexOf("GlobalHead") > 0);
+
+        //assertArrayEquals(expectedHeaderData, pif.toByteArray());
+        // Arg.  All of the following work can be done with the single line
+        // above with JUnit v. 4.
+        byte[] pifBytes = pif.toByteArray();
+        assertEquals(expectedHeaderData.length, pifBytes.length);
+        for (int i = 0; i < expectedHeaderData.length; i++) {
+            assertEquals(expectedHeaderData[i], pifBytes[i]);
+        }
+    }
+
+    protected void populate(PIFGenerator pif)
+            throws TarMalformatException, IOException {
+        pif.addRecord("o", "n");       // Shortest possible
+        pif.addRecord("k1", "23");     // total 8.  Impossible to get total of 9.
+        pif.addRecord("k2", "234");    // total 10
+        pif.addRecord("k3", "2345");   // total 11
         pif.addRecord("k4",
                       "2345678901234567890123456789012345678901234567890"
                       + "123456789012345678901234567890123456789012");     //total 98
@@ -68,7 +146,21 @@ public class PIFGeneratorTest {
         pif.addRecord("long1234", 1234);
         pif.addRecord("boolTrue", true);
         pif.addRecord("boolFalse", false);
-        System.out.println("Name (" + pif.getName() + ')');
-        System.out.write(pif.toByteArray());
+    }
+
+    /**
+     * This method allows to easily run this unit test independent of the other
+     * unit tests, and without dealing with Ant or unrelated test suites.
+     */
+    static public void main(String[] sa) {
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(PIFGeneratorTest.class);
+        } else {
+            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+            junit.framework.TestResult result =
+                runner.run(runner.getTest(PIFGeneratorTest.class.getName()));
+
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }

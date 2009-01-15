@@ -390,7 +390,7 @@ public class RefCapablePropertyResourceBundle {
         // System.err.println("Seeking " + filePath);
         InputStream is = loader.getResourceAsStream(filePath);
         // N.b.  If were using Class.getRes... instead of ClassLoader.getRes...
-        // we would need to previx the path with "/".
+        // we would need to prefix the path with "/".
         return (is == null && l != null)
             ? getMostSpecificStream(key, ((c == null) ? null : l),
                     ((v == null) ? null : c), null)
