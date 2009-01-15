@@ -45,7 +45,6 @@ import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
 
 import junit.framework.Test;
-import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
 public class TestDbBackup extends junit.framework.TestCase {
@@ -208,9 +207,12 @@ public class TestDbBackup extends junit.framework.TestCase {
         return c;
     }
 
+    /**
+     * This method allows to easily run this unit test independent of the other
+     * unit tests, and without dealing with Ant or unrelated test suites.
+     */
     static public void main(String[] sa) {
-
-        if (sa.length > 0) {
+        if (sa.length > 0 && !sa[sa.length - 1].equals("-g")) {
             TestDbBackup.baseDir = new File(sa[0]);
 
             if (baseDir.exists()) {
@@ -223,13 +225,15 @@ public class TestDbBackup extends junit.framework.TestCase {
             System.err.println("Using user-specified base dir: "
                                + baseDir.getAbsolutePath());
         }
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(TestDbBackup.class);
+        } else {
+            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+            junit.framework.TestResult result =
+                runner.run(runner.getTest(TestDbBackup.class.getName()));
 
-        junit.textui.TestRunner runner = new junit.textui.TestRunner();
-        TestResult result =
-            runner.run(runner.getTest(TestDbBackup.class.getName()));
-
-        System.exit(result.wasSuccessful() ? 0
-                                           : 1);
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 
     public void testSanity() throws SQLException {
