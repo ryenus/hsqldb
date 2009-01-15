@@ -34,54 +34,109 @@ package org.hsqldb.cmdline;
 import org.hsqldb.lib.ValidatingResourceBundle;
 import org.hsqldb.lib.RefCapablePropertyResourceBundle;
 
-public class SqltoolRBTest {
+public class SqltoolRBTest extends junit.framework.TestCase {
+    private SqltoolRB rb1 = null;
+    private SqltoolRB rb2 = null;
+    private static final String[] testParams = {"one", "two", "three", "four"};
+
+    public void setUp() {
+        rb1 = new SqltoolRB();
+        rb2 = new SqltoolRB();
+    }
+
+    static private final String RAW_CONN_MSG =
+        "JDBC Connection established to a %{1} v. %{2} database\n"
+        + "as \"%{3}\" with %{4} Isolation.";
+    static private final String SUBSTITUTED_CONN_MSG =
+        ("JDBC Connection established to a %{1} v. %{2} database\n"
+        + "as \"%{3}\" with %{4} Isolation.")
+        .replaceAll("\\Q%{1}", testParams[0])
+        .replaceAll("\\Q%{2}", testParams[1])
+        .replaceAll("\\Q%{3}", testParams[2])
+        .replaceAll("\\Q%{4}", testParams[3]);
+
     /**
-     * Does a quick test of this class.
+     * No positional parameters set...
      */
-    static public void main(String[] sa) {
-        SqltoolRB rb1 = new SqltoolRB();
-        SqltoolRB rb2 = new SqltoolRB();
-        String[] testParams = { "one", "two", "three" };
-        rb1.validate();
-        rb2.validate();
-        System.err.println("rb1 size = " + rb1.getSize());
-        System.err.println("rb2 size = " + rb2.getSize());
-        rb1.setMissingPosValueBehavior(
+    public void testNoPosParams() {
+        try {
+            rb1.validate();
+            rb2.validate();
+            //System.err.println("rb1 size = " + rb1.getSize());
+            //System.err.println("rb2 size = " + rb2.getSize());
+            rb1.setMissingPosValueBehavior(
                 ValidatingResourceBundle.EMPTYSTRING_BEHAVIOR);
-        rb2.setMissingPosValueBehavior(
+            rb2.setMissingPosValueBehavior(
                 ValidatingResourceBundle.NOOP_BEHAVIOR);
 
-        /*
-        rb1.setMissingPropertyBehavior(
-                ValidatingResourceBundle.THROW_BEHAVIOR);
-        System.out.println("("
-                + rb1.getExpandedString(SqltoolRB.JDBC_ESTABLISHED) + ')');
-        */
+            /*
+            rb1.setMissingPropertyBehavior(
+                    ValidatingResourceBundle.THROW_BEHAVIOR);
+            System.out.println("("
+                    + rb1.getExpandedString(SqltoolRB.JDBC_ESTABLISHED) + ')');
+            */
 
-        System.out.println("First, with no positional parameters set...");
-        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED));
-        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
-                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED));
-        System.out.println("Now, with no positional values set...");
-        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
-        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
-                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
-        System.out.println();
-        System.out.println("Now, with positional params set to one/two/three");
-        System.out.println("JDBC_ESTABLISHED String w/ EMPTYSTRING_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
-        System.out.println("JDBC_ESTABLISHED String w/ NOOP_BEHAVIOR: "
-                + rb2.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
-        rb1.setMissingPosValueBehavior(
-             RefCapablePropertyResourceBundle.THROW_BEHAVIOR);
-        System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: "
-                + rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
-        System.out.println();
-        System.out.println("Now, with no parameters set");
-        System.out.println("JDBC_ESTABLISHED String w/ THROW_BEHAVIOR: ");
-        System.out.println(
-                rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
+            // When no substitution parameter at all given to getString(), behavior
+            // settings have no influence, and no subsitution is performed.
+            assertEquals(RAW_CONN_MSG, rb1.getString(SqltoolRB.JDBC_ESTABLISHED));
+            assertEquals(RAW_CONN_MSG, rb2.getString(SqltoolRB.JDBC_ESTABLISHED));
+
+            assertEquals(RAW_CONN_MSG.replaceAll("%\\{\\d+\\}", ""),
+                    rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
+            assertEquals(RAW_CONN_MSG,
+                rb2.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
+        } catch (Exception e) {
+            fail ("RB system choked w/ " + e);
+        }
+
+        try {
+            rb1.setMissingPosValueBehavior(
+                 RefCapablePropertyResourceBundle.THROW_BEHAVIOR);
+            rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {});
+        } catch (RuntimeException ee) {
+            return;  // Unsatisfied %{} should cause throw here
+        } catch (Exception e) {
+            fail ("RB system choked w/ " + e);
+        }
+    }
+
+    /**
+     * With positional params set to one/two/three
+     */
+    public void testWithParams() {
+        try {
+            rb1.validate();
+            rb2.validate();
+            rb1.setMissingPosValueBehavior(
+                    ValidatingResourceBundle.EMPTYSTRING_BEHAVIOR);
+            rb2.setMissingPosValueBehavior(
+                ValidatingResourceBundle.NOOP_BEHAVIOR);
+            assertEquals(SUBSTITUTED_CONN_MSG,
+                    rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
+            assertEquals(SUBSTITUTED_CONN_MSG,
+                    rb2.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
+            rb1.setMissingPosValueBehavior(
+                 RefCapablePropertyResourceBundle.THROW_BEHAVIOR);
+            assertEquals(SUBSTITUTED_CONN_MSG,
+                    rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
+        } catch (Exception e) {
+            fail ("RB system choked w/ " + e);
+        }
+    }
+
+    /**
+     * This method allows to easily run this unit test independent of the other
+     * unit tests, and without dealing with Ant or unrelated test suites.
+     */
+    static public void main(String[] sa) {
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(SqltoolRBTest.class);
+        } else {
+            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+            junit.framework.TestResult result =
+                runner.run(runner.getTest(SqltoolRBTest.class.getName()));
+
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }

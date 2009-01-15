@@ -140,6 +140,10 @@
                   includes="*.*"/>
       </copy>
 
+      <copy todir="${test.classes.dir}/org/hsqldb/resources">
+         <fileset dir="${test.src.dir}/org/hsqldb/resources" includes="*.data"/>
+      </copy>
+
       <!-- Build Jar -->
       <jar jarfile="${test.suite.jar}"
            basedir="${test.classes.dir}">

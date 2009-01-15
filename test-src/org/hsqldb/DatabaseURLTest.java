@@ -31,19 +31,39 @@
 
 package org.hsqldb;
 
-public class DatabaseURLTest {
-    public static void main(String[] argv) {
-        DatabaseURL.parseURL(
-            "JDBC:hsqldb:hsql://myhost:1777/mydb;filepath=c:/myfile/database/db",
-            true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:../data/mydb.db", true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:../data/mydb.db;ifexists=true", true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:HSQL://localhost:9000/mydb", true, false);
-        DatabaseURL.parseURL(
-            "JDBC:hsqldb:Http://localhost:8080/servlet/org.hsqldb.Servlet/mydb;ifexists=true",
-            true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:Http://localhost/servlet/org.hsqldb.Servlet/",
-                 true, false);
-        DatabaseURL.parseURL("JDBC:hsqldb:hsql://myhost", true, false);
+public class DatabaseURLTest extends junit.framework.TestCase {
+    public void testHsqldbUrls() {
+        try {
+            DatabaseURL.parseURL(
+                "JDBC:hsqldb:hsql://myhost:1777/mydb;filepath=c:/myfile/database/db",
+                true, false);
+            DatabaseURL.parseURL("JDBC:hsqldb:../data/mydb.db", true, false);
+            DatabaseURL.parseURL("JDBC:hsqldb:../data/mydb.db;ifexists=true", true, false);
+            DatabaseURL.parseURL("JDBC:hsqldb:HSQL://localhost:9000/mydb", true, false);
+            DatabaseURL.parseURL(
+                "JDBC:hsqldb:Http://localhost:8080/servlet/org.hsqldb.Servlet/mydb;ifexists=true",
+                true, false);
+            DatabaseURL.parseURL("JDBC:hsqldb:Http://localhost/servlet/org.hsqldb.Servlet/",
+                     true, false);
+            DatabaseURL.parseURL("JDBC:hsqldb:hsql://myhost", true, false);
+        } catch (Throwable t) {
+            fail(t.getMessage());
+        }
+    }
+
+    /**
+     * This method allows to easily run this unit test independent of the other
+     * unit tests, and without dealing with Ant or unrelated test suites.
+     */
+    static public void main(String[] sa) {
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(DatabaseURLTest.class);
+        } else {
+            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+            junit.framework.TestResult result =
+                runner.run(runner.getTest(DatabaseURLTest.class.getName()));
+
+            System.exit(result.wasSuccessful() ? 0 : 1);
+        }
     }
 }
