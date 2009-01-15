@@ -91,6 +91,13 @@
       </simpara> <simpara>
       <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/sample/SqlFileEmbedder.java"/>
       </simpara>
+    </listitem> <listitem xml:id="SqlTool.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/cmdline/SqlFile.html"/>
+      </simpara> <simpara>
+      <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jcmdline/SqlFile.html"/>
+      </simpara>
     </listitem>
   </itemizedlist>
 </appendix>

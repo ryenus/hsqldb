@@ -138,7 +138,7 @@ examples:
    </target>
 
    <target name="-preparedoc" depends="init">
-       <mkdir dir="doc/src" />
+       <mkdir dir="doc/apidocs" />
    </target>
 
 
@@ -892,7 +892,7 @@ examples:
                         src/org/hsqldb/test/TestScriptRunner.java,
                         src/org/hsqldb/cmdline/SqlFile.java,
                         src/org/hsqldb/cmdline/SqlTool.java"
-           destdir="doc/src"
+           destdir="doc/apidocs"
            stylesheetfile="doc-src/javadoc.css"
            docencoding="UTF-8"
            charset="UTF-8"
@@ -925,7 +925,7 @@ examples:
     <target name="javadocdev" depends="-preparedoc,-javaversion2,-doclink-1.2"
             description="Create javadoc for all HSQLDB code-base classes">
       <javadoc
-           destdir="doc/src"
+           destdir="doc/apidocs"
            docencoding="UTF-8"
            stylesheetfile="doc-src/javadoc.css"
            charset="UTF-8"

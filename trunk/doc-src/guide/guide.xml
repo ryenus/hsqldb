@@ -447,7 +447,7 @@
         <filename>hsqldb.jar</filename>. Full information on how to connect to
         a server is provided in the Java Documentation for <classname
         xlink:href="#JDBCConnection.html-link"> JDBCConnection</classname>
-        (located in the <filename>/doc/src</filename> directory of HSQLDB
+        (located in the <filename>/doc/apidocs</filename> directory of HSQLDB
         distribution). A common example is connection to the default port
         (9001) used for the <glossterm>hsql:</glossterm> protocol on the same
         machine:</para>
