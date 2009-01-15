@@ -29,51 +29,51 @@
     <listitem xml:id="JDBCConnection.html-link">
       <simpara>
         Local:
-        <link xlink:href="../src/org/hsqldb/jdbc/JDBCConnection.html"/>
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCConnection.html"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCConnection.html"/>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCConnection.html"/>
       </simpara>
     </listitem> <listitem xml:id="JDBCDriver.html-link">
       <simpara>
         Local:
-        <link xlink:href="../src/org/hsqldb/jdbc/JDBCDriver.html"/>
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCDriver.html"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCDriver.html"/>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCDriver.html"/>
       </simpara>
     </listitem> <listitem xml:id="JDBCDatabaseMetaData.html-link">
       <simpara>
         Local:
-        <link xlink:href="../src/org/hsqldb/jdbc/JDBCDatabaseMetaData.html"/>
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCDatabaseMetaData.html"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCDatabaseMetaData.html"/>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCDatabaseMetaData.html"/>
       </simpara>
     </listitem> <listitem xml:id="JDBCResultSet.html-link">
       <simpara>
         Local:
-        <link xlink:href="../src/org/hsqldb/jdbc/JDBCResultSet.html"/>
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCResultSet.html"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCResultSet.html"/>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCResultSet.html"/>
       </simpara>
     </listitem> <listitem xml:id="JDBCStatement.html-link">
       <simpara>
         Local:
-        <link xlink:href="../src/org/hsqldb/jdbc/JDBCStatement.html"/>
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCStatement.html"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCStatement.html"/>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCStatement.html"/>
       </simpara>
     </listitem> <listitem xml:id="JDBCPreparedStatement.html-link">
       <simpara>
         Local:
-        <link xlink:href="../src/org/hsqldb/jdbc/JDBCPreparedStatement.html"/>
+        <link xlink:href="../apidocs/org/hsqldb/jdbc/JDBCPreparedStatement.html"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/src/org/hsqldb/jdbc/JDBCPreparedStatement.html"/>
+        <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCPreparedStatement.html"/>
       </simpara>
     </listitem> <listitem xml:id="javadoc-link">
       <simpara>
         Local:
-        <link xlink:href="../src/index.html"/>
+        <link xlink:href="../apidocs/index.html"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/src/"/>
+        <link xlink:href="&distro_baseurl;/apidocs/"/>
       </simpara>
     </listitem> <listitem xml:id="Servlet.java-link">
       <simpara>

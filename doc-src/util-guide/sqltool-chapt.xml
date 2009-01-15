@@ -544,7 +544,8 @@
             code</subtitle>
           <simpara>
             To repeat what is stated in the JavaDoc for the
-            <classname>SqlTool</classname> class itself:
+            <classname xlink:href="#SqlTool.html-link">SqlTool</classname>
+            class itself:
             <emphasis>
               Programmatic users will usually want to use the
               objectMain(String[]) method if they want arguments and behavior
