@@ -921,7 +921,7 @@ examples:
            <tag name="jmx.managed-operation-parameter" enabled="false"/>
      </javadoc>
      <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
-              srcdir="doc/apidocs" includes="**/*.css, **/*.html"/>
+         srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
    </target>
 
     <target name="javadocdev" depends="-preparedoc,-javaversion2,-doclink-1.2"
@@ -960,7 +960,7 @@ examples:
            <tag name="jmx.managed-operation-parameter"/>
      </javadoc>
      <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
-              srcdir="doc/apidocs" includes="**/*.css, **/*.html"/>
+         srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
    </target>
 
     <target name="sqlfile-scanner"
