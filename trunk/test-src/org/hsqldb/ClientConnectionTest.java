@@ -31,39 +31,51 @@
 
 package org.hsqldb;
 
-public class ClientConnectionTest {
+public class ClientConnectionTest extends junit.framework.TestCase {
+    /* TODO:  Test some ipv6 addresses.
+     *        Only ipv4 addresses are tested at this time. */
+
+    public void testSingleDigitIpv4Int() {
+        assertEquals("2.3.4.5", ClientConnection.toNcvString(-2030405));
+    }
+
+    public void testDoubleDigitIpv4Int() {
+        assertEquals("23.45.67.89", ClientConnection.toNcvString(-23456789));
+    }
+
+    public void test000DigitIpv4Int() {
+        assertEquals("0.0.0.2", ClientConnection.toNcvString(-2));
+    }
+
+    public void testDoubleZeroesDigitIpv4Int() {
+        assertEquals("0.30.0.0", ClientConnection.toNcvString(-300000));
+    }
+
+    public void testMixedDigitIpv4String() {
+        assertEquals(-9807605, ClientConnection.toNcvInt("9.80.76.5"));
+    }
+
+    public void testDoubleDigitIpv4String() {
+        assertEquals(-23456789, ClientConnection.toNcvInt("23.45.67.89"));
+    }
+
+    public void test000DigitIpv4String() {
+        assertEquals(-2, ClientConnection.toNcvInt("0.0.0.2"));
+    }
+
+
     /**
-     * Quick & Dirty Unit test of Network Compatibility utility methods.
-     * Move to dedicated Testing class in test package
+     * This method allows to easily run this unit test independent of the other
+     * unit tests, and without dealing with Ant or unrelated test suites.
      */
-    public static void main(String[] sa) {
-
-        if (!ClientConnection.toNcvString(-2030405).equals("2.3.4.5")) {
-            throw new RuntimeException("Test of int -2030405 failed");
-        }
-
-        if (!ClientConnection.toNcvString(-23456789).equals("23.45.67.89")) {
-            throw new RuntimeException("Test of int -23456789 failed");
-        }
-
-        if (!ClientConnection.toNcvString(-2).equals("0.0.0.2")) {
-            throw new RuntimeException("Test of int -2 failed");
-        }
-
-        if (!ClientConnection.toNcvString(-300000).equals("0.30.0.0")) {
-            throw new RuntimeException("Test of int -300000 failed");
-        }
-
-        if (ClientConnection.toNcvInt("9.80.76.5") != -9807605) {
-            throw new RuntimeException("Test of String '9.80.76.5' failed");
-        }
-
-        if (ClientConnection.toNcvInt("23.45.67.89") != -23456789) {
-            throw new RuntimeException("Test of String '23.45.67.89' failed");
-        }
-
-        if (ClientConnection.toNcvInt("0.0.0.2") != -2) {
-            throw new RuntimeException("Test of String '0.0.0.2' failed");
+    static public void main(String[] sa) {
+        if (sa.length > 0 && sa[0].startsWith("-g")) {
+            junit.swingui.TestRunner.run(ClientConnectionTest.class);
+        } else {
+            junit.textui.TestRunner runner = new junit.textui.TestRunner();
+            System.exit(
+                runner.run(runner.getTest(ClientConnectionTest.class.getName())
+                ).wasSuccessful() ? 0 : 1);
         }
     }
 }
