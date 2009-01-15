@@ -357,9 +357,9 @@ examples:
          <exclude name="org/hsqldb/persist/NIOLockFile.java"/>
          <exclude name="org/hsqldb/persist/NIOScaledRAFile.java"/>
       </javac>
-      <copy todir="classes" preservelastmodified='true'>
-        <fileset dir="src" includes="**/*.properties, **/*.text"/>
-      </copy>
+      <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
+               encoding="ISO-8859-1" srcdir="src"
+               includes="**/*.properties, **/*.text"/>
     </target>
 
    <target name="classes12" depends="classes" if="ant.java.iscjavamodern"
@@ -408,9 +408,9 @@ examples:
 	 <include name="org/hsqldb/jdbc/jdbcRowSet.java"/>
 -->
       </javac>
-      <copy todir="classes/META-INF" preservelastmodified='true'>
-         <fileset dir="src/META-INF"/>
-      </copy>
+      <mkdir dir="classes/META-INF"/>
+      <fixcrlf destdir="classes/META-INF" preservelastmodified='true' eol="lf"
+               encoding="ISO-8859-1" srcdir="src/META-INF"/>
    </target>
 
    <!-- Don't both to use name beginning with - AND supply a 'description'.
@@ -920,6 +920,8 @@ examples:
            <tag name="jmx.managed-operation" enabled="false"/>
            <tag name="jmx.managed-operation-parameter" enabled="false"/>
      </javadoc>
+     <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
+              srcdir="doc/apidocs" includes="**/*.css, **/*.html"/>
    </target>
 
     <target name="javadocdev" depends="-preparedoc,-javaversion2,-doclink-1.2"
@@ -957,6 +959,8 @@ examples:
            <tag name="jmx.managed-operation"/>
            <tag name="jmx.managed-operation-parameter"/>
      </javadoc>
+     <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
+              srcdir="doc/apidocs" includes="**/*.css, **/*.html"/>
    </target>
 
     <target name="sqlfile-scanner"
