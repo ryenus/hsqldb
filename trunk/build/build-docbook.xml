@@ -122,13 +122,43 @@ ${_for.automation.blurb}</fail>
   <target name="-gen-docs-setup" depends="refresh-verbatim"/>
 
   <target name="-gen-docs-complete">
-    <copy todir="${docoutput.path}">
-      <fileset dir="doc-src" includes="verbatim/**, images/**"
-               excludes="**/.*"/>
+    <!-- First, just binareis.  We change EOLs for all others -->
+    <copy todir="${docoutput.path}" preservelastmodified="true">
+      <fileset dir="doc-src" includes="verbatim/**, images/**, apidocs/**"
+               excludes="**/.*, **/*.txt,
+                         */*.xml, **/*.java, **/*.sql, **/*.cfg, **/*.css,
+                         **/*.ent, **/*.rc, **/*.properties"/>
       <!-- IMPORTANT:  Add new shared resources to the fileset above! -->
       <fileset dir="doc-src"
-      excludes="**/.*, verbatim/**, images/**, entities/**, */*.txt, */*.xml"/>
+               excludes="**/.*, **/*.txt, verbatim/**, images/**, entities/**,
+                         */*.xml, **/*.java, **/*.sql, **/*.cfg, **/*.css,
+                         **/*.ent, **/*.rc, **/*.properties"/>
     </copy>
+
+    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="crlf"
+             encoding="UTF-8" srcdir="doc-src"
+             includes="verbatim/**/*.txt, images/**/*.txt, apidocs/**/*.txt"
+             excludes="**/.*"/>
+    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="crlf"
+               encoding="UTF-8" srcdir="doc-src"
+               excludes="**/.*, verbatim/**, images/**, entities/**, */*.txt"
+               includes="**/*.txt"/>
+    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="lf"
+             encoding="UTF-8" srcdir="doc-src"
+             includes="verbatim/**/*.xml, images/**/*.xml, apidocs/**/*.xml"
+             excludes="**/.*"/>
+    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="lf"
+               encoding="UTF-8" srcdir="doc-src"
+               excludes="**/.*, verbatim/**, images/**, entities/**, */*.xml"
+               includes="**/*.xml"/>
+      <!-- the 4 fixcrlfs are for *.txt and *.xml because they are speficially
+           not copied from document base dirs, because we use *.txt and *.xml
+           files there to manage the docs. -->
+    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="lf"
+             encoding="UTF-8" srcdir="doc-src"
+             includes="**/*.java, **/*.sql, **/*.cfg, **/*.css, **/*.ent,
+                       **/*.rc, **/*.properties" excludes="**/.*"/>
+                     <!-- All remaining text files -->
   </target>
 
   <target name="docbook-transform" depends="-fop-setup"
@@ -403,7 +433,7 @@ http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlreso
 
   <target name="refresh-verbatim"
           description="Update files under doc-src/verbatim">
-    <copy todir="doc-src/verbatim">
+    <copy todir="doc-src/verbatim" preservelastmodified="true">
       <fileset dir=".">
         <present targetdir="doc-src/verbatim"/>
       </fileset>
