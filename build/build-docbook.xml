@@ -77,7 +77,7 @@
   <!-- Without setting a default value, some error messages could contain the
        misleading string "${nsstylebase.url}" in cases where user does not set a
        value and resolution fails (not that there will be a resolution failure,
-       since this setting is optional. -->
+       since this setting is optional). -->
   <property name="dbcentx.url" value="UNSET_STYLEBASE"/>
   <!-- ditto about the default value -->
 
