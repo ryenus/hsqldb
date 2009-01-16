@@ -152,14 +152,14 @@ examples:
 
    <target name="clean" depends="-clean, -clean-switch-branch"
            description="Delete the /classes and work directories created by ant tasks">
-        <echo message="Use the 'cleanall' target to also purge generated doc and .jar files"/>
+        <echo message="Use the 'clean-all' target to also purge generated doc and .jar files"/>
    </target>
 
    <target name="-clean">
         <delete dir="classes"/>
    </target>
 
-   <target name="cleanall" depends="-clean, -clean-switch-branch, clean-docs"
+   <target name="clean-all" depends="-clean, -clean-switch-branch, clean-docs"
            description="Same as clean but delete the jar and doc files as well">
       <mkdir dir="lib"/>
       <delete>
@@ -491,7 +491,7 @@ examples:
       <antcall inheritall='true' target='-test14'/>
    </target>
 
-    <target name="hsqldbz" depends="classes16,util"
+    <target name="hsqldbz" depends="classes16, util, -prep-license-files"
             description="Build the hsqldbz.jar for Zaurus">
         <fail if="ant.java.iscjava14"
               message="Zarus jar must be built with JDK 1.3 or previous"/>
@@ -499,7 +499,7 @@ examples:
         <jar jarfile="lib/hsqldbz.jar"
              basedir="classes"
          >
-         <metainf dir="doc-src" includes="*_lic.txt"/>
+         <metainf dir="doc" includes="*_lic.txt"/>
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -545,13 +545,13 @@ examples:
        </jar>
     </target>
 
-    <target name="hsqldbtest" depends="test,swing"
+    <target name="hsqldbtest" depends="test,swing, -prep-license-files"
             description="Build the hsqldbtest.jar (default plus test classes)">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbtest.jar"
              basedir="classes"
          >
-         <metainf dir="doc-src" includes="*_lic.txt"/>
+         <metainf dir="doc" includes="*_lic.txt"/>
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -579,13 +579,13 @@ examples:
 
             description="Build the hsqldbmain.jar (no utilities) (use ant switch '-Dnoswing=true' to exclude swing classes)">
     -->
-    <target name="hsqldbmain" depends="classes16"
+    <target name="hsqldbmain" depends="classes16, -prep-license-files"
             description="Build the hsqldbmain.jar (no utilities)">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbmain.jar"
              basedir="classes"
          >
-         <metainf dir="doc-src" includes="*_lic.txt"/>
+         <metainf dir="doc" includes="*_lic.txt"/>
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -609,13 +609,13 @@ examples:
       </jar>
     </target>
 
-    <target name="hsqldbmin" depends="classes16"
+    <target name="hsqldbmin" depends="classes16, -prep-license-files"
             description="Build the hsqldbmin.jar (no connection pooling or servers)">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbmin.jar"
              basedir="classes"
          >
-         <metainf dir="doc-src" includes="*_lic.txt"/>
+         <metainf dir="doc" includes="*_lic.txt"/>
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -664,14 +664,14 @@ examples:
        </jar>
     </target>
 
-    <target name="hsqldb" depends="classes16,util,swing"
+    <target name="hsqldb" depends="classes16, util, swing, -prep-license-files"
             description="Build the default hsqldb.jar">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldb.jar"
              basedir="classes"
              compress="true"
          >
-         <metainf dir="doc-src" includes="*_lic.txt"/>
+         <metainf dir="doc" includes="*_lic.txt"/>
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -785,12 +785,12 @@ examples:
 <!-- classes referenced by the org.hsqldb.jdbc package classes -->
 <!-- or the org.hsqldb.jdbcDriver class are included here with some -->
 <!-- ommissions where the calling methods are not actually used -->
-    <target name="hsqljdbc" depends="classes16"
+    <target name="hsqljdbc" depends="classes16, -prep-license-files"
              description="Build the hsqljdbc.jar">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqljdbc.jar" compress="true">
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-         <metainf dir="doc-src" includes="*_lic.txt"/>
+         <metainf dir="doc" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -804,11 +804,11 @@ examples:
         </jar>
     </target>
 
-    <target name="hsqldbutil" depends="util,swing"
+    <target name="hsqldbutil" depends="util, swing, -prep-license-files"
             description="Build the utility hsqldbutil.jar">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbutil.jar" compress="true">
-         <metainf dir="doc-src" includes="*_lic.txt"/>
+         <metainf dir="doc" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -1056,5 +1056,11 @@ To speed up XML validations, you should edit this file.</echo>
     <available property="_catalog.present" file="stylesheets/rng-catalog.xml"
                type="file"/>
     <antcall target="-ensure-catalog"/>
+  </target>
+
+  <target name="-prep-license-files">
+    <mkdir dir="doc"/>
+    <fixcrlf destdir="doc" preservelastmodified='true' eol="crlf"
+             srcdir="doc-src" includes="*_lic.txt"/>
   </target>
 </project>
