@@ -33,7 +33,7 @@
    <property name="build.label" value="private-${_tmpstamp}"/>
    <property name="build.vendor" value="${user.name}"/>
    <property name="hsqldb.title" value="HSQLDB"/>
-   <property name="hsqldb.vendor" value="The HSQLDB Development Group"/>
+   <property name="hsqldb.vendor" value="The HSQL Development Group"/>
    <property name="swsrc" value="tmp/switchedsrc"/>
    <condition property="switch.inplace">
      <equals arg1="${swsrc}" arg2="src"/>
