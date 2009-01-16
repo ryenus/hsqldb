@@ -66,9 +66,6 @@ hsqldbmin.jar   ant hsqldbmin   No utility or server programs.
 hsqldbtest.jar  ant hsqldbtest  All, including test classes
 hsqldbz.jar     ant hsqldbz     Min jar plus necessary util classes
                                 for Zaurus
-hsqltool.jar    ant hsqltool    SqlTool client and JDBC driver.
-                                (No direct urls of form
-                                jdbc:hsqldb:mem/file/res:*)
 
 jars built with JDK 1.2 OR 1.3 can now be used with JRE 1.1.</echo>
    </target>
@@ -80,7 +77,6 @@ jars built with JDK 1.2 OR 1.3 can now be used with JRE 1.1.</echo>
    <target name='jarclient' depends='hsqljdbc'/>
    <target name='jarmain' depends='hsqldbmain'/>
    <target name='jarmin' depends='hsqldbmin'/>
-   <target name='jarsqltool' depends='hsqltool'/>
    <target name='jartest' depends='hsqldbtest'/>
    <target name='jarutil' depends='hsqldbutil'/>
    <target name='jarzaurus' depends='hsqldbz'/>
@@ -408,9 +404,6 @@ examples:
 	 <include name="org/hsqldb/jdbc/jdbcRowSet.java"/>
 -->
       </javac>
-      <mkdir dir="classes/META-INF"/>
-      <fixcrlf destdir="classes/META-INF" preservelastmodified='true' eol="lf"
-               encoding="ISO-8859-1" srcdir="src/META-INF"/>
    </target>
 
    <!-- Don't both to use name beginning with - AND supply a 'description'.
@@ -507,6 +500,7 @@ examples:
              basedir="classes"
          >
          <metainf dir="doc-src" includes="*_lic.txt"/>
+         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -558,6 +552,7 @@ examples:
              basedir="classes"
          >
          <metainf dir="doc-src" includes="*_lic.txt"/>
+         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -591,6 +586,7 @@ examples:
              basedir="classes"
          >
          <metainf dir="doc-src" includes="*_lic.txt"/>
+         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -620,6 +616,7 @@ examples:
              basedir="classes"
          >
          <metainf dir="doc-src" includes="*_lic.txt"/>
+         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -675,6 +672,7 @@ examples:
              compress="true"
          >
          <metainf dir="doc-src" includes="*_lic.txt"/>
+         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
              <attribute name='Specification-Version' value='${hsqldb.version}'/>
@@ -707,7 +705,7 @@ examples:
     </target>
 
     <fileset id='jdbcclasses' dir='classes'
-        includes='META-INF/services/java.sql.Driver,
+        includes='
                   org/hsqldb/lib/ArrayUtil*,
                   org/hsqldb/lib/AsciiStringInputStream*,
                   org/hsqldb/lib/CountdownInputStream*,
@@ -791,6 +789,7 @@ examples:
              description="Build the hsqljdbc.jar">
         <mkdir dir='lib'/>
         <jar jarfile="lib/hsqljdbc.jar" compress="true">
+         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <metainf dir="doc-src" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -802,28 +801,6 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>
             <fileset refid='jdbcclasses'/>
-        </jar>
-    </target>
-
-    <target name="hsqltool" depends="classes16, util"
-            description="Build the hsqltool.jar">
-        <mkdir dir='lib'/>
-        <jar jarfile="lib/hsqltool.jar">
-         <metainf dir="doc-src" includes="*_lic.txt"/>
-            <manifest>
-                <attribute name='Specification-Title' value='${hsqldb.title}'/>
-                <attribute name='Specification-Version' value='${hsqldb.version}'/>
-                <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-                <attribute name='Implementation-Title'
-                           value='SqlTool runtime, with JDBC driver'/>
-                <attribute name='Implementation-Version' value='${build.label}'/>
-                <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-                <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
-            </manifest>
-            <!-- including 'org/hsqldb/jdbc*' just to be safe -->
-            <fileset refid='jdbcclasses'/>
-            <fileset refid='sqltoolclasses'/>
-            <fileset refid='sqltoolres'/>
         </jar>
     </target>
 
