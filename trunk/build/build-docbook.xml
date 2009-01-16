@@ -122,7 +122,7 @@ ${_for.automation.blurb}</fail>
   <target name="-gen-docs-setup" depends="refresh-verbatim"/>
 
   <target name="-gen-docs-complete">
-    <!-- First, just binareis.  We change EOLs for all others -->
+    <!-- First, just binaries.  We change EOLs for all others -->
     <copy todir="${docoutput.path}" preservelastmodified="true">
       <fileset dir="doc-src" includes="verbatim/**, images/**, apidocs/**"
                excludes="**/.*, **/*.txt,
@@ -179,7 +179,7 @@ ${_for.automation.blurb}</fail>
       <srcfileset dir="doc-src"
                   includes="*, *.css, entities/**, images/**, verbatim/**"/>
       <targetfileset dir="tmp/doc-work"/>
-      <targetfileset dir="${docoutput.path}"/>
+      <targetfileset dir="${docoutput.path}" excludes="zaurus/**"/>
     </dependset>
     <dependset>
       <srcfileset dir="doc-src/${doc.name}"/>
@@ -350,7 +350,9 @@ ${_for.automation.blurb}</fail>
 
   <target name="clean-docs" description="Remove all derived artifacts">
     <delete dir="tmp/doc-work"/>
-    <delete dir="${docoutput.path}"/>
+    <delete includeemptydirs="true">
+      <fileset dir="${docoutput.path}" excludes="zaurus/**"/>
+    </delete>
   </target>
 
   <target name="-fop-setup" depends="-ivy-setup">
