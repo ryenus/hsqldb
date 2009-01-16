@@ -347,7 +347,7 @@ examples:
          <exclude name="org/hsqldb/jdbc/jdbcDataSetImpl.java"/>
          <exclude name="org/hsqldb/jdbc/jdbcDataSetResolverImpl.java"/>
          <exclude name="org/hsqldb/jdbc/jdbcQueryObjectGeneratorImpl.java"/>
-	 <exclude name="org/hsqldb/jdbc/jdbcRowSet.java"/>
+         <exclude name="org/hsqldb/jdbc/jdbcRowSet.java"/>
 -->
 <!-- end JDBC 4 -->
          <exclude name="org/hsqldb/persist/NIOLockFile.java"/>
@@ -401,7 +401,7 @@ examples:
          <include name="org/hsqldb/jdbc/jdbcDataSetImpl.java"/>
          <include name="org/hsqldb/jdbc/jdbcDataSetResolverImpl.java"/>
          <include name="org/hsqldb/jdbc/jdbcQueryObjectGeneratorImpl.java"/>
-	 <include name="org/hsqldb/jdbc/jdbcRowSet.java"/>
+         <include name="org/hsqldb/jdbc/jdbcRowSet.java"/>
 -->
       </javac>
    </target>
@@ -828,7 +828,7 @@ examples:
     <target name="-doclink-1.6" if="ant.java.iscjava16">
         <!-- CHANGEME:  use official jdk 1.6 and JEE 5 links
                         when glassfish/mustang are finalized -->
-	<property name="jse.doc.link"
+        <property name="jse.doc.link"
                   value="http://java.sun.com/javase/6/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://java.sun.com/j2ee/1.4/docs/api/"/>
@@ -838,7 +838,7 @@ examples:
             depends="-doclink-1.6"
             if="ant.java.iscjava14"
             unless="ant.java.iscjava16">
-	<property name="jse.doc.link"
+        <property name="jse.doc.link"
                   value="http://java.sun.com/j2se/1.4.2/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://java.sun.com/j2ee/1.4/docs/api/"/>
@@ -848,7 +848,7 @@ examples:
             depends="-doclink-1.4"
             if="ant.java.iscjava12"
             unless="ant.java.iscjava14">
-    	<property name="jse.doc.link"
+        <property name="jse.doc.link"
                   value="http://java.sun.com/j2se/1.3/docs/api/"/>
         <property name="jee.doc.link"
                   value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/"/>
@@ -1059,7 +1059,6 @@ To speed up XML validations, you should edit this file.</echo>
   </target>
 
   <target name="-prep-license-files">
-    <mkdir dir="doc"/>
     <fixcrlf destdir="doc" preservelastmodified='true' eol="crlf"
              srcdir="doc-src" includes="*_lic.txt"/>
   </target>
