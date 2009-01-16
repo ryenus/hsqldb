@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<project name="hsqldb" default="dist" basedir="..">
+<!--
+$Id$
+-->
+
+<!-- This build file is separate from the main build.xml file specifically
+     because it is not intended for normal end-user or developer usage.
+     It is only for generating full distributable packages of the app.
+     This build file is NOT necessary to build a distributable jar file:
+     that is the purpose of several targets in the main build file.
+
+     USAGE:
+         1: Set up your desired build environment (Ant in search path,
+            JAVA_HOME set, etc.).
+         2: Do a Subversion export with the release tag to a NEW directory
+         3: Copy or edit your build/build.properties file to specify
+            properties "build.label", "build.vendor", "dbimage.path"
+            (See following section about optional properties).
+            (Save this file off to a permanent location and you can just copy
+            it into place the next time!)
+         4: Run "ant -f build-dist.xml" from the build directory.
+            If you don't have Ivy in your CLASSPATH, you will be instructed
+            how to satisfy that requirement.
+
+     OPTIONAL ANT PROPERTIS
+         To prevent Internet access for DocBook resources, set properties
+           nsstylebase.url, dbxirng.url, dbcentx.url in file
+           "local-docbook.properties" or "build.properties" (just depends on
+           whether you want to manage them separately from the primary
+           properties).  This decreases document build time by about 70%.
+           These values point to DocBook-privided resources that you should
+           be able to figure out between the property name and the usage of
+           them in the "build-docbook.xml" file.
+         Add settings for build.debug and build.optimize to "build.properties"
+           to change the default compilation settings.
+         As noted above, if you will be doing this again in the future, you
+           may want to copy off your properties file(s) once you are satisfied.
+
+     You may add or edit some files without them being added to the
+     distribution that you build:  build/build.properties,
+     build/local*.properties, tmp/*, classes/*, dist/*.
+     If you don't know if something will have an effect on the distribution
+     you are building, then *don't do it*.
+     If you were to add a "todo.txt" file to the main or build directory;
+     or run "ant hsqldbtest", artifacts would be added to the distro.
+ -->
+
+  <import file="build.xml"/>
+  <!-- N.b., we purposefully use same project name as for build.xml.
+       In this case, we don't need namespace separation, and we want to
+       share the ${ant.project.name} variable. -->
+
+  <target name="state-check"
+          description="Verifies that the current directory + Ant build env. are acceptable for building a distribution">
+    <echo>Ignore the warning above.
+We're duplicating the project name on purpose.</echo>
+    <available property="_svn.exists" file=".svn"/>
+    <fail if="_svn.exists"
+          message="You need to 'export' the project to build distro"/>
+
+    <condition property="_label.ok">
+      <equals arg1="${hsqldb.version}" arg2="${build.label}"/>
+    </condition>
+    <fail unless="_label.ok">Ant properties 'build.label' and 'hsqldb.version' must be equal.
+I suggest setting the value(s) in a properties file names 'build.properties'.
+(build.properties will not be included in any distribution).</fail>
+    <condition property="_vendor.ok">
+      <equals arg1="${hsqldb.vendor}" arg2="${build.vendor}"/>
+    </condition>
+    <fail unless="_vendor.ok">Ant properties 'build.vendor' and 'hsqldb.vendor' must be equal.
+I suggest setting the value(s) in a properties file names 'build.properties'.
+(build.properties will not be included in any distribution).</fail>
+
+    <copy file="doc-src/readme-template.txt" tofile="tmp/readme-generated.txt"
+          overwrite="true">
+      <filterchain>
+        <expandproperties/>
+        <tokenfilter>
+          <!-- Intention is to strip out all RCS keywords, since their values
+               would cause false positives for our file comparison below.  -->
+          <replaceregex pattern="\$[A-Z][a-z]+: .+? \$" flags="g"/>
+        </tokenfilter>
+      </filterchain>
+    </copy>
+    <copy file="readme.txt" tofile="tmp/readme-svn.txt" overwrite="true">
+      <filterchain>
+        <tokenfilter>
+          <!-- Intention is to strip out all RCS keywords, since their values
+               would cause false positives for our file comparison below.  -->
+          <replaceregex pattern="\$[A-Z][a-z]+: .+? \$" flags="g"/>
+        </tokenfilter>
+      </filterchain>
+    </copy>
+    <condition property="_readme.ok">
+      <filesmatch textfile="true"
+                  file1="tmp/readme-svn.txt" file2="tmp/readme-generated.txt"/>
+    </condition>
+    <fail unless="_readme.ok">The 'readme.txt' file in your Subversion export contains the wrong product
+version.  You should verify this.  If the version is indeed wrong, you should
+abort this export, commit an updated 'readme.txt' from a work area, then retag
+and re-export.</fail>
+  </target>
+
+  <target name="dist"
+          depends="state-check, clean-all, javadoc, gen-docs, hsqldb"
+          description="Build joint binary + source distribution packages">
+    <mkdir dir="dist"/>
+    <property name="app.basedir"
+          value="${ant.project.name}-${hsqldb.version}"/>
+    
+    <!-- Enforce platform-independent EOL policies on items that will be
+         packed.  Generated docs and everything under classes/ already
+         have EOLs enforced.
+         To make maintenance easier, please order by srcdir, and put that
+         attribute first.  Much easier to find what you are interested this
+         way.
+    -->
+    <fixcrlf srcdir="."
+             preservelastmodified='true' eol="crlf" includes="*.txt"/>
+    <fixcrlf srcdir="bin" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt, **/*.bat, **/*.cmd"/>
+    <fixcrlf srcdir="bin" preservelastmodified='true' eol="lf"
+             encoding="UTF-8" includes="**/*.sh, **/*.bash, **/*.html"/>
+    <fixcrlf srcdir="build" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt, **/*.bat, **/*.cmd"/>
+    <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
+             encoding="ISO-8859-1" includes="**/*.properties"/>
+    <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
+             encoding="UTF-8" includes="**/*.list"/>
+    <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
+             encoding="ISO-8859-1" includes="**/*.properties"/>
+    <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt"/>
+    <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
+             encoding="UTF-8"
+             includes="**/*.cfg, **/*.css, **/*.ent, **/*.java, **/*.rc,
+                       **/*.sql, **/*.xml, **/*.html"/>
+    <fixcrlf srcdir="sample" preservelastmodified='true' eol="lf"
+             encoding="UTF-8" excludes="**/*.txt, **/*.properties"/>
+    <fixcrlf srcdir="sample" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt"/>
+    <fixcrlf srcdir="sample" preservelastmodified='true' eol="lf"
+             encoding="ISO-8859-1" includes="**/*.properties"/>
+    <fixcrlf srcdir="src"
+             preservelastmodified='true' eol="lf" encoding="ISO-8859-1"
+             includes="**/*.properties, **/*.text"/>
+    <fixcrlf srcdir="src" preservelastmodified='true' eol="lf" encoding="UTF-8"
+             includes="**/*.flex, **/*.html, **/*.java"/>
+    <fixcrlf srcdir="stylesheets" preservelastmodified='true' eol="lf"
+             encoding="UTF-8"/>
+    <!-- Exclusing test-src from distros, for now
+    <fixcrlf srcdir="test-src"
+             preservelastmodified='true' eol="lf" encoding="ISO-8859-1"
+             includes="**/*.properties"/>
+    <fixcrlf srcdir="test-src" preservelastmodified='true' eol="lf"
+             encoding="UTF-8"
+             includes="**/*.java, **/*.dtd, **/*.ent, **/*.exp, **/*.inc,
+                       **/*.sql, **/*.src, **/*.xml"/>
+    -->
+
+    <fixcrlf srcdir="testrun" preservelastmodified='true' eol="lf"
+             encoding="UTF-8" includes="**/*.bash"/>
+    <fixcrlf srcdir="testrun" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt"/>
+    <fixcrlf srcdir="testrun"
+             preservelastmodified='true' eol="lf" encoding="UTF-8"
+             includes="**/*.sql, **/*.dsv, **/*.isql, **/*.nsql, **/*.inter"/>
+
+    <mkdir dir="data"/>
+    <zip destfile="dist/${app.basedir}.zip">
+      <zipfileset prefix="${app.basedir}/${ant.project.name}" dir="."
+                  includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh"
+                  filemode="0755"
+                  excludes="**/.*, build/local**, test-src/**
+                  classes/**, dist/**, local*/**, tmp/**, doc-src/images/**"/>
+      <zipfileset prefix="${app.basedir}/${ant.project.name}" dir="."
+                  excludes="**/.*, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
+                  test-src/**
+                  build/build.properties, build/local**, build/ivysettings.xml,
+                  classes/**, dist/**, local*/**, tmp/**, doc-src/images/**,
+                  build/ivysettings.xml, sytlesheets/rng-catalog.xml"/>
+    </zip>
+  </target>
+</project>

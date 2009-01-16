@@ -42,7 +42,7 @@
    <!-- It is safe to override these with settings in your own
         build.properties file. -->
    <property name="build.debug" value="on"/>
-   <property name="servletapi.lib" value="lib/servlet.jar"/>
+   <property name="servletapi.lib" value="lib/servlet-2_3-fcs-classfiles.zip"/>
    <property name="junit38.lib" value="lib/junit.jar"/>
    <property name='jflex.lib' value='lib/JFlex.jar'/>
 
@@ -164,9 +164,8 @@ examples:
 
    <target name="clean-all" depends="-clean, -clean-switch-branch, clean-docs"
            description="Same as clean but delete the jar and doc files as well">
-      <mkdir dir="lib"/>
       <delete>
-         <fileset dir="lib" includes="hsql*.jar"/>
+         <fileset dir="lib" includes="hsql*.jar, testsuite.jar"/>
       </delete>
    </target>
 
@@ -498,7 +497,6 @@ examples:
             description="Build the hsqldbz.jar for Zaurus">
         <fail if="ant.java.iscjava14"
               message="Zarus jar must be built with JDK 1.3 or previous"/>
-        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbz.jar"
              basedir="classes"
          >
@@ -550,7 +548,6 @@ examples:
 
     <target name="hsqldbtest" depends="test,swing, -prep-license-files"
             description="Build the hsqldbtest.jar (default plus test classes)">
-        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbtest.jar"
              basedir="classes"
          >
@@ -584,7 +581,6 @@ examples:
     -->
     <target name="hsqldbmain" depends="classes16, -prep-license-files"
             description="Build the hsqldbmain.jar (no utilities)">
-        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbmain.jar"
              basedir="classes"
          >
@@ -614,7 +610,6 @@ examples:
 
     <target name="hsqldbmin" depends="classes16, -prep-license-files"
             description="Build the hsqldbmin.jar (no connection pooling or servers)">
-        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbmin.jar"
              basedir="classes"
          >
@@ -669,7 +664,6 @@ examples:
 
     <target name="hsqldb" depends="classes16, util, swing, -prep-license-files"
             description="Build the default hsqldb.jar">
-        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldb.jar"
              basedir="classes"
              compress="true"
@@ -790,7 +784,6 @@ examples:
 <!-- ommissions where the calling methods are not actually used -->
     <target name="hsqljdbc" depends="classes16, -prep-license-files"
              description="Build the hsqljdbc.jar">
-        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqljdbc.jar" compress="true">
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <metainf dir="doc" includes="*_lic.txt"/>
@@ -809,7 +802,6 @@ examples:
 
     <target name="hsqldbutil" depends="util, swing, -prep-license-files"
             description="Build the utility hsqldbutil.jar">
-        <mkdir dir='lib'/>
         <jar jarfile="lib/hsqldbutil.jar" compress="true">
          <metainf dir="doc" includes="*_lic.txt"/>
          <manifest>
@@ -883,6 +875,7 @@ examples:
            version="false"
            use="true"
            public="true"
+           failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
@@ -920,6 +913,7 @@ examples:
            version="true"
            use="true"
            package="true"
+           failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
