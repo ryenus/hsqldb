@@ -46,8 +46,7 @@
    <property name="junit38.lib" value="lib/junit.jar"/>
    <property name='jflex.lib' value='lib/JFlex.jar'/>
 
-   <target name="init">
-   </target>
+   <target name="init"/>
 
    <target name='explainjars'
            description="List description of jars that you can build">
@@ -133,8 +132,12 @@ examples:
        <mkdir dir="classes" />
    </target>
 
-   <target name="-preparedoc" depends="init">
-       <mkdir dir="doc/apidocs" />
+   <target name="-prepare-javadoc" depends="init">
+     <copy todir="doc/apidocs">
+       <!-- IMPORTANT:
+            Add a fixcrlf if we add non-binary files to doc-src/apidocs. -->
+       <fileset dir="doc-src/apidocs"/>
+       </copy>
    </target>
 
 
@@ -854,8 +857,11 @@ examples:
                   value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/"/>
     </target>
 
-    <target name="javadoc" depends="-preparedoc,-javaversion2,-doclink-1.2"
+    <target name="javadoc" depends="-prepare-javadoc,-javaversion2,-doclink-1.2"
             description="Create javadoc for the distribution package">
+      <!-- TODO:  Find out why JDBCDriver class is listed twice in the lass
+           list pane, but only when All Classes selected
+           only listed once if jdbc package is selected). -->
       <javadoc
            sourcefiles="src/org/hsqldb/jdbc/JDBCDriver.java,
                         src/org/hsqldb/Trigger.java,
@@ -870,7 +876,7 @@ examples:
                         src/org/hsqldb/cmdline/SqlFile.java,
                         src/org/hsqldb/cmdline/SqlTool.java"
            destdir="doc/apidocs"
-           stylesheetfile="doc-src/javadoc.css"
+           stylesheetfile="doc-src/apidocs/javadoc.css"
            docencoding="UTF-8"
            charset="UTF-8"
            author="true"
@@ -901,12 +907,13 @@ examples:
          srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
    </target>
 
-    <target name="javadocdev" depends="-preparedoc,-javaversion2,-doclink-1.2"
+   <target name="javadocdev"
+            depends="-prepare-javadoc,-javaversion2,-doclink-1.2"
             description="Create javadoc for all HSQLDB code-base classes">
       <javadoc
            destdir="doc/apidocs"
            docencoding="UTF-8"
-           stylesheetfile="doc-src/javadoc.css"
+           stylesheetfile="doc-src/apidocs/javadoc.css"
            charset="UTF-8"
            linksource="true"
            author="true"
@@ -1003,6 +1010,23 @@ examples:
 
     <target name="-clean-switch-branch" unless="switch.inplace">
         <delete dir="${swsrc}"/>
+    </target>
+
+    <target name="update-readme"
+        description="Update the version number in the root readme.txt file">
+      <!-- Want to have this target depended upon by some other target that
+           is always run after changing the version yet before tagging a
+           release.
+           Unfortunately, there is no such target, since somebody could do all
+           testing, then change the version number right before tagging. :(
+           Therefore, instead of automating, we just have the distribution
+           assembly task fail if the readme.txt is not up to date w/ version.
+           (Can't actually change readme.txt when assembling, since tagging
+           must be completed before-hand).
+      -->
+      <copy file="doc-src/readme-template.txt" tofile="readme.txt">
+        <filterchain> <expandproperties/> </filterchain>
+      </copy>
     </target>
 
     <!-- ***********************************************************

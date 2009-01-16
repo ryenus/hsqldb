@@ -92,7 +92,8 @@ We'll do this automatically for you once Ant has a task to transfer
 entire directories of files.</echo>
   </target>
 
-  <target name="regen-docs" description="Clean and regen project DocBook docs"
+  <target name="regen-docs"
+          description="Clean and regen project DocBook docs.  N.b this wipes javadocs too!"
           depends="clean-docs, gen-docs"/>
 
   <property name="_for.automation.blurb"
@@ -122,43 +123,68 @@ ${_for.automation.blurb}</fail>
   <target name="-gen-docs-setup" depends="refresh-verbatim"/>
 
   <target name="-gen-docs-complete">
-    <!-- First, just binaries.  We change EOLs for all others -->
-    <copy todir="${docoutput.path}" preservelastmodified="true">
-      <fileset dir="doc-src" includes="verbatim/**, images/**, apidocs/**"
-               excludes="**/.*, **/*.txt,
-                         */*.xml, **/*.java, **/*.sql, **/*.cfg, **/*.css,
-                         **/*.ent, **/*.rc, **/*.properties"/>
-      <!-- IMPORTANT:  Add new shared resources to the fileset above! -->
+    <!-- This is the highest-maintenance target of this build file.
+         Must update the copy and fixcrlf filesets to copy exactly what
+         needs to go to doc output branch, and enforce EOLs in all text files.
+         The dependsets elsewhere in this file use targetfilesets, not
+         targetfilelists, so shouldn't need maintenance there.
+
+         IMPORTANT:  FOR ALL copys and fixcrlfs, DO NOT USE
+         preservelastmodified, as that will defeat our dependsets.
+
+         Don't do anything with apidocs, since those are handled by
+         javadoc-specific tasks.
+    -->
+
+    <!-- First, just binaries.  We enforce EOLs for all others -->
+    <copy todir="${docoutput.path}">
+      <!-- Fileset pretty simple, since the binaries always need to be
+           served to end users. -->
       <fileset dir="doc-src"
-               excludes="**/.*, **/*.txt, verbatim/**, images/**, entities/**,
-                         */*.xml, **/*.java, **/*.sql, **/*.cfg, **/*.css,
-                         **/*.ent, **/*.rc, **/*.properties"/>
+               excludes="**/.*, **/*.txt, **/entities/**, apidocs/**,
+                         **/*.xml, **/*.java, **/*.sql, **/*.cfg, **/*.css,
+                         **/*.ent, **/*.rc, **/*.html, **/*.properties"/>
     </copy>
 
-    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="crlf"
+    <!-- *.txt and *.xml because *.txt are speficially not copied from document
+         base dirs and *.xml not from root or document base dirs,
+         because these files are used for document authorship and management.-->
+    <fixcrlf destdir="${docoutput.path}" eol="crlf"
              encoding="UTF-8" srcdir="doc-src"
-             includes="verbatim/**/*.txt, images/**/*.txt, apidocs/**/*.txt"
+             includes="verbatim/**/*.txt, images/**/*.txt"
              excludes="**/.*"/>
-    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="crlf"
-               encoding="UTF-8" srcdir="doc-src"
-               excludes="**/.*, verbatim/**, images/**, entities/**, */*.txt"
-               includes="**/*.txt"/>
-    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="lf"
+    <fixcrlf destdir="${docoutput.path}" eol="crlf"
              encoding="UTF-8" srcdir="doc-src"
-             includes="verbatim/**/*.xml, images/**/*.xml, apidocs/**/*.xml"
+             excludes="**/.*, verbatim/**, images/**, **/entities/**,
+                       */*.txt, apidocs/**, readme-template.txt"
+             includes="**/*.txt"/>
+    <fixcrlf destdir="${docoutput.path}" eol="lf"
+             encoding="UTF-8" srcdir="doc-src"
+             includes="verbatim/**/*.xml, images/**/*.xml"
              excludes="**/.*"/>
-    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="lf"
-               encoding="UTF-8" srcdir="doc-src"
-               excludes="**/.*, verbatim/**, images/**, entities/**, */*.xml"
-               includes="**/*.xml"/>
-      <!-- the 4 fixcrlfs are for *.txt and *.xml because they are speficially
-           not copied from document base dirs, because we use *.txt and *.xml
-           files there to manage the docs. -->
-    <fixcrlf destdir="${docoutput.path}" preservelastmodified="true" eol="lf"
+    <fixcrlf destdir="${docoutput.path}" eol="lf"
              encoding="UTF-8" srcdir="doc-src"
-             includes="**/*.java, **/*.sql, **/*.cfg, **/*.css, **/*.ent,
-                       **/*.rc, **/*.properties" excludes="**/.*"/>
-                     <!-- All remaining text files -->
+             excludes="**/.*, verbatim/**, images/**, **/entities/**,
+                       *.xml, */*.xml"
+             includes="**/*.xml"/>
+
+    <!-- All remaining text files -->
+    <fixcrlf destdir="${docoutput.path}" eol="lf"
+             encoding="UTF-8" srcdir="doc-src"
+             excludes="**/.*, **/entities/**, apidocs/**"
+             includes="**/*.java, **/*.sql, **/*.cfg, **/*.css,
+                       **/*.rc, **/*.properties"/>
+    <!-- To allow substitution of ant-variables like ${x} in any of the text
+         files above, just move that file type from the fixcrlf above to the
+         copy below. -->
+    <copy todir="${docoutput.path}">
+      <fileset dir="doc-src" excludes="**/.*, **/entities/**, apidocs/**"
+               includes="**/*.html"/>
+      <filterchain>
+        <expandproperties/>
+        <fixcrlf eol="lf" encoding="UTF-8"/>
+      </filterchain>
+    </copy>
   </target>
 
   <target name="docbook-transform" depends="-fop-setup"
@@ -176,13 +202,13 @@ ${_for.automation.blurb}</fail>
           message="DocBook 5 FO style sheet missing: ${fo.path}"/>
 
     <dependset>
-      <srcfileset dir="doc-src"
-                  includes="*, *.css, entities/**, images/**, verbatim/**"/>
+      <srcfileset dir="doc-src" excludes="**/.*"
+                  includes="*.*, entities/**, images/**, verbatim/**"/>
       <targetfileset dir="tmp/doc-work"/>
       <targetfileset dir="${docoutput.path}" excludes="zaurus/**"/>
     </dependset>
     <dependset>
-      <srcfileset dir="doc-src/${doc.name}"/>
+      <srcfileset dir="doc-src/${doc.name}" excludes="**/.*"/>
       <targetfileset dir="${docoutput.path}/${doc.name}"/>
       <targetfilelist dir="tmp/doc-work/${doc.name}" files="${doc.name}.fo"/>
     </dependset>
@@ -348,7 +374,7 @@ ${_for.automation.blurb}</fail>
     </xslt>
   </target>
 
-  <target name="clean-docs" description="Remove all derived artifacts">
+  <target name="clean-docs" description="Remove all derived doc artifacts">
     <delete dir="tmp/doc-work"/>
     <delete includeemptydirs="true">
       <fileset dir="${docoutput.path}" excludes="zaurus/**"/>
@@ -435,6 +461,9 @@ http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlreso
 
   <target name="refresh-verbatim"
           description="Update files under doc-src/verbatim">
+    <!-- It's good to apply preservelastmodified to stuff under doc-src/,
+         but be very careful if applying it to doc/..., since that could
+         break our dependsets. -->
     <copy todir="doc-src/verbatim" preservelastmodified="true">
       <fileset dir=".">
         <present targetdir="doc-src/verbatim"/>
