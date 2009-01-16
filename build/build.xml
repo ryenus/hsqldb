@@ -406,7 +406,7 @@ examples:
       </javac>
    </target>
 
-   <!-- Don't both to use name beginning with - AND supply a 'description'.
+   <!-- Don't both use name beginning with - AND supply a 'description'.
         If this should be externally callable, then remove the leading -
         and change the following description to a description attribute:
                                                - blaine
