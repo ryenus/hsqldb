@@ -178,7 +178,7 @@ and re-export.</fail>
                   excludes="**/.*, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
                   test-src/**,
                   build/build.properties, build/local**, build/ivysettings.xml,
-                  classes/**, dist/**, local*/**, tmp/**,
+                  classes/**, dist/**, local*/**, tmp/**, doc-src/images/db/**,
                   build/ivysettings.xml, stylesheets/rng-catalog.xml"/>
     </zip>
   </target>
