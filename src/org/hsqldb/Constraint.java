@@ -263,14 +263,17 @@ public final class Constraint implements SchemaObject {
 
     public OrderedHashSet getReferences() {
 
-        if (constType == Constraint.CHECK) {
-            return schemaObjectNames;
-        } else if (constType == Constraint.FOREIGN_KEY) {
-            OrderedHashSet set = new OrderedHashSet();
+        switch (constType) {
 
-            set.add(core.uniqueName);
+            case Constraint.CHECK :
+                return schemaObjectNames;
 
-            return set;
+            case Constraint.FOREIGN_KEY :
+                OrderedHashSet set = new OrderedHashSet();
+
+                set.add(core.uniqueName);
+
+                return set;
         }
 
         return null;

@@ -138,6 +138,8 @@ public class Table extends TableBase implements SchemaObject {
     Constraint[]    constraintList;            // constrainst for the table
     Constraint[]    fkPath;                    //
     Constraint[]    fkConstraints;             //
+    Constraint[]    fkMainConstraints;
+    Constraint[]    checkConstraints;
     TriggerDef[]    triggerList;
     TriggerDef[][]  triggerLists;              // array of trigger lists
     Expression[]    colDefaults;               // fredt - expressions of DEFAULT values
@@ -245,17 +247,19 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         // type may have changed above for CACHED tables
-        tableType       = type;
-        primaryKeyCols  = null;
-        primaryKeyTypes = null;
-        identityColumn  = -1;
-        columnList      = new HashMappedList();
-        indexList       = Index.emptyArray;
-        constraintList  = Constraint.emptyArray;
-        fkPath          = Constraint.emptyArray;
-        fkConstraints   = Constraint.emptyArray;
-        triggerList     = TriggerDef.emptyArray;
-        triggerLists    = new TriggerDef[TriggerDef.NUM_TRIGS][];
+        tableType         = type;
+        primaryKeyCols    = null;
+        primaryKeyTypes   = null;
+        identityColumn    = -1;
+        columnList        = new HashMappedList();
+        indexList         = Index.emptyArray;
+        constraintList    = Constraint.emptyArray;
+        fkPath            = Constraint.emptyArray;
+        fkConstraints     = Constraint.emptyArray;
+        fkMainConstraints = Constraint.emptyArray;
+        checkConstraints = Constraint.emptyArray;
+        triggerList       = TriggerDef.emptyArray;
+        triggerLists      = new TriggerDef[TriggerDef.NUM_TRIGS][];
 
         for (int i = 0; i < TriggerDef.NUM_TRIGS; i++) {
             triggerLists[i] = TriggerDef.emptyArray;
@@ -612,29 +616,109 @@ public class Table extends TableBase implements SchemaObject {
             (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, c, index,
                 1);
 
+        updateConstraintLists();
+    }
+
+    void updateConstraintPath() throws HsqlException {
+
+        if (fkMainConstraints.length == 0) {
+            return;
+        }
+
         OrderedHashSet list = new OrderedHashSet();
 
         getConstraintPath(defaultColumnMap, list);
 
-        if (list.size() > 0) {
-            fkPath = new Constraint[list.size()];
-
-            list.toArray(fkPath);
+        if (list.size() == 0) {
+            return;
         }
 
-        list.clear();
+        fkPath = new Constraint[list.size()];
+
+        list.toArray(fkPath);
+
+        for (int i = 0; i < fkPath.length; i++) {
+            Constraint c         = fkPath[i];
+            HsqlName   tableName = c.getMain().getName();
+
+            if (c.getMain()
+                    != database.schemaManager.getUserTable(null, tableName)) {
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "table constraint");
+            }
+
+            tableName = c.getRef().getName();
+
+            if (c.getRef()
+                    != database.schemaManager.getUserTable(null, tableName)) {
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "table constraint");
+            }
+        }
+    }
+
+    void updateConstraintLists() {
+
+        int fkCount    = 0;
+        int mainCount  = 0;
+        int checkCount = 0;
 
         for (int i = 0; i < constraintList.length; i++) {
-            if (constraintList[i].getConstraintType()
-                    == Constraint.FOREIGN_KEY) {
-                list.add(constraintList[i]);
+            switch (constraintList[i].getConstraintType()) {
+
+                case Constraint.FOREIGN_KEY :
+                    fkCount++;
+                    break;
+
+                case Constraint.MAIN :
+                    mainCount++;
+                    break;
+
+                case Constraint.CHECK :
+                    if (constraintList[i].isNotNull()) {
+                        break;
+                    }
+
+                    checkCount++;
+                    break;
             }
         }
 
-        if (list.size() > 0) {
-            fkConstraints = new Constraint[list.size()];
+        fkConstraints     = fkCount == 0 ? Constraint.emptyArray
+                                         : new Constraint[fkCount];
+        fkCount           = 0;
+        fkMainConstraints = mainCount == 0 ? Constraint.emptyArray
+                                           : new Constraint[mainCount];
+        mainCount         = 0;
+        checkConstraints  = checkCount == 0 ? Constraint.emptyArray
+                                            : new Constraint[checkCount];
+        checkCount        = 0;
 
-            list.toArray(fkConstraints);
+        for (int i = 0; i < constraintList.length; i++) {
+            switch (constraintList[i].getConstraintType()) {
+
+                case Constraint.FOREIGN_KEY :
+                    fkConstraints[fkCount] = constraintList[i];
+
+                    fkCount++;
+                    break;
+
+                case Constraint.MAIN :
+                    fkMainConstraints[mainCount] = constraintList[i];
+
+                    mainCount++;
+                    break;
+
+                case Constraint.CHECK :
+                    if (constraintList[i].isNotNull()) {
+                        break;
+                    }
+
+                    checkConstraints[checkCount] = constraintList[i];
+
+                    checkCount++;
+                    break;
+            }
         }
     }
 
@@ -996,6 +1080,7 @@ public class Table extends TableBase implements SchemaObject {
         tn.constraintList = new Constraint[newList.size()];
 
         newList.toArray(tn.constraintList);
+        tn.updateConstraintLists();
         tn.setBestRowIdentifiers();
 
         tn.triggerList  = triggerList;
@@ -2399,12 +2484,8 @@ public class Table extends TableBase implements SchemaObject {
 
         enforceRowConstraints(session, data);
 
-        for (int j = 0; j < constraintList.length; j++) {
-            Constraint c = constraintList[j];
-
-            if (c.getConstraintType() == Constraint.CHECK && !c.isNotNull()) {
-                c.checkCheckConstraint(session, this, data);
-            }
+        for (int i = 0; i < checkConstraints.length; i++) {
+            checkConstraints[i].checkCheckConstraint(session, this, data);
         }
     }
 
@@ -2479,6 +2560,8 @@ public class Table extends TableBase implements SchemaObject {
         constraintList =
             (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, null,
                 index, -1);
+
+        updateConstraintLists();
     }
 
     void renameColumn(ColumnSchema column, String newName,
