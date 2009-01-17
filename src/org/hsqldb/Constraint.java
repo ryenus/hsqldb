@@ -870,7 +870,8 @@ public final class Constraint implements SchemaObject {
      * returns true If a valid row is found, false if there are null in the data
      * Otherwise a 'INTEGRITY VIOLATION' Exception gets thrown.
      */
-    boolean hasMainRef(Session session, Object[] row) throws HsqlException {
+    boolean checkHasMainRef(Session session,
+                            Object[] row) throws HsqlException {
 
         if (Index.hasNull(row, core.refCols)) {
             return false;
