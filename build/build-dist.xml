@@ -173,13 +173,13 @@ and re-export.</fail>
                   includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh"
                   filemode="0755"
                   excludes="**/.*, build/local**, test-src/**
-                  classes/**, dist/**, local*/**, tmp/**, doc-src/images/**"/>
+                            classes/**, dist/**, local*/**, tmp/**"/>
       <zipfileset prefix="${app.basedir}/${ant.project.name}" dir="."
                   excludes="**/.*, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
-                  test-src/**
+                  test-src/**,
                   build/build.properties, build/local**, build/ivysettings.xml,
-                  classes/**, dist/**, local*/**, tmp/**, doc-src/images/**,
-                  build/ivysettings.xml, sytlesheets/rng-catalog.xml"/>
+                  classes/**, dist/**, local*/**, tmp/**,
+                  build/ivysettings.xml, stylesheets/rng-catalog.xml"/>
     </zip>
   </target>
 </project>
