@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="hsqldb" default="dist" basedir="..">
+<project name="hsqldb-dist" default="dist" basedir="..">
 <!--
 $Id$
 -->
@@ -47,14 +47,9 @@ $Id$
  -->
 
   <import file="build.xml"/>
-  <!-- N.b., we purposefully use same project name as for build.xml.
-       In this case, we don't need namespace separation, and we want to
-       share the ${ant.project.name} variable. -->
 
   <target name="state-check"
           description="Verifies that the current directory + Ant build env. are acceptable for building a distribution">
-    <echo>Ignore the warning above.
-We're duplicating the project name on purpose.</echo>
     <available property="_svn.exists" file=".svn"/>
     <fail if="_svn.exists"
           message="You need to 'export' the project to build distro"/>
@@ -106,8 +101,7 @@ and re-export.</fail>
           depends="state-check, clean-all, javadoc, gen-docs, hsqldb"
           description="Build joint binary + source distribution packages">
     <mkdir dir="dist"/>
-    <property name="app.basedir"
-          value="${ant.project.name}-${hsqldb.version}"/>
+    <property name="app.basedir" value="hsqldb-${hsqldb.version}"/>
     
     <!-- Enforce platform-independent EOL policies on items that will be
          packed.  Generated docs and everything under classes/ already
@@ -169,18 +163,24 @@ and re-export.</fail>
              encoding="UTF-8" includes="**/*.bash"/>
     <fixcrlf srcdir="testrun" preservelastmodified='true' eol="crlf"
              includes="**/*.txt"/>
+    <!-- NOTE:  The file testrun/hsqldb/TestSelf.txt has something in it that
+         causes any Ant filter (on UNIX) to corrupt an umlauted character.
+         The problem is not with the umlauted character, but is the side-effect
+         of something else in the file.  I can pull the umlauted "Zürich"
+         string out of that file and put it into its own UTF-8 file, and Ant
+         can filter that just fine. -->
     <fixcrlf srcdir="testrun"
              preservelastmodified='true' eol="lf" encoding="UTF-8"
              includes="**/*.sql, **/*.dsv, **/*.isql, **/*.nsql, **/*.inter"/>
 
     <mkdir dir="data"/>
     <zip destfile="dist/${app.basedir}.zip">
-      <zipfileset prefix="${app.basedir}/${ant.project.name}" dir="."
+      <zipfileset prefix="${app.basedir}/hsqldb" dir="."
                   includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh"
                   filemode="0755"
                   excludes="**/.*, build/local**, test-src/**
                             classes/**, dist/**, local*/**, tmp/**"/>
-      <zipfileset prefix="${app.basedir}/${ant.project.name}" dir="."
+      <zipfileset prefix="${app.basedir}/hsqldb" dir="."
                   excludes="**/.*, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
                   test-src/**,
                   build/build.properties, build/local**, build/ivysettings.xml,
