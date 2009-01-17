@@ -127,7 +127,7 @@ and re-export.</fail>
     <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
              encoding="ISO-8859-1" includes="**/*.properties"/>
     <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
-             encoding="UTF-8" includes="**/*.list"/>
+             encoding="UTF-8" includes="**/*.xml, **/*.list"/>
     <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
              encoding="ISO-8859-1" includes="**/*.properties"/>
     <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="crlf"
@@ -136,6 +136,10 @@ and re-export.</fail>
              encoding="UTF-8"
              includes="**/*.cfg, **/*.css, **/*.ent, **/*.java, **/*.rc,
                        **/*.sql, **/*.xml, **/*.html"/>
+    <fixcrlf srcdir="doc/zaurus" preservelastmodified='true' eol="lf"
+             encoding="UTF-8" includes="**/*.html"/>
+    <fixcrlf srcdir="doc/zaurus" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt"/>
     <fixcrlf srcdir="sample" preservelastmodified='true' eol="lf"
              encoding="UTF-8" excludes="**/*.txt, **/*.properties"/>
     <fixcrlf srcdir="sample" preservelastmodified='true' eol="crlf"
