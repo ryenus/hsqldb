@@ -502,7 +502,7 @@ public class StatementDML extends StatementDMQL {
             table.enforceRowConstraints(session, data);
         }
 
-        if (table.isView ) {
+        if (table.isView) {
             return updateList.size();
         }
 
@@ -681,14 +681,8 @@ public class StatementDML extends StatementDMQL {
                                    boolean delete,
                                    HashSet path) throws HsqlException {
 
-        for (int i = 0, size = table.constraintList.length; i < size; i++) {
-            Constraint c = table.constraintList[i];
-
-            if (c.getConstraintType() != Constraint.MAIN
-                    || c.getRef() == null) {
-                continue;
-            }
-
+        for (int i = 0, size = table.fkMainConstraints.length; i < size; i++) {
+            Constraint c = table.fkMainConstraints[i];
             RowIterator refiterator = c.findFkRef(session, row.getData(),
                                                   delete);
 
@@ -909,169 +903,165 @@ public class StatementDML extends StatementDMQL {
 
         // -- We iterate through all constraints associated with this table
         // --
-        for (int i = 0, size = table.constraintList.length; i < size; i++) {
-            Constraint c = table.constraintList[i];
+        for (int i = 0, size = table.fkConstraints.length; i < size; i++) {
 
-            if (c.getConstraintType() == Constraint.FOREIGN_KEY
-                    && c.getRef() != null) {
+            // -- (1) If it is a foreign key constraint we have to check if the
+            // --     main table still holds a record which allows the new values
+            // --     to be set in the updated columns. This test however will be
+            // --     skipped if the reference table is the main table since changes
+            // --     in the reference table triggered the update and therefor
+            // --     the referential integrity is guaranteed to be valid.
+            // --
+            Constraint c = table.fkConstraints[i];
 
-                // -- (1) If it is a foreign key constraint we have to check if the
-                // --     main table still holds a record which allows the new values
-                // --     to be set in the updated columns. This test however will be
-                // --     skipped if the reference table is the main table since changes
-                // --     in the reference table triggered the update and therefor
-                // --     the referential integrity is guaranteed to be valid.
-                // --
-                if (ref == null || c.getMain() != ref) {
+            if (ref == null || c.getMain() != ref) {
 
-                    // -- common indexes of the changed columns and the main/ref constraint
-                    if (ArrayUtil.countCommonElements(cols, c.getRefColumns())
-                            == 0) {
+                // -- common indexes of the changed columns and the main/ref constraint
+                if (ArrayUtil.countCommonElements(cols, c.getRefColumns())
+                        == 0) {
 
-                        // -- Table::checkCascadeUpdate -- NO common cols; reiterating
-                        continue;
-                    }
-
-                    c.hasMainRef(session, nrow);
-                }
-            } else if (c.getConstraintType() == Constraint.MAIN
-                       && c.getRef() != null) {
-
-                // -- (2) If it happens to be a main constraint we check if the slave
-                // --     table holds any records refering to the old contents. If so,
-                // --     the constraint has to support an 'on update' action or we
-                // --     throw an exception (all via a call to Constraint.findFkRef).
-                // --
-                // -- If there are no common columns between the reference constraint
-                // -- and the changed columns, we reiterate.
-                int[] common = ArrayUtil.commonElements(cols,
-                    c.getMainColumns());
-
-                if (common == null) {
-
-                    // -- NO common cols between; reiterating
+                    // -- Table::checkCascadeUpdate -- NO common cols; reiterating
                     continue;
                 }
 
-                int[] m_columns = c.getMainColumns();
-                int[] r_columns = c.getRefColumns();
+                c.checkHasMainRef(session, nrow);
+            }
+        }
 
-                // fredt - find out if the FK columns have actually changed
-                boolean nochange = true;
+        for (int i = 0, size = table.fkMainConstraints.length; i < size; i++) {
+            Constraint c = table.fkMainConstraints[i];
 
-                for (int j = 0; j < m_columns.length; j++) {
-                    if (!orow.getData()[m_columns[j]].equals(
-                            nrow[m_columns[j]])) {
-                        nochange = false;
+            // -- (2) If it happens to be a main constraint we check if the slave
+            // --     table holds any records refering to the old contents. If so,
+            // --     the constraint has to support an 'on update' action or we
+            // --     throw an exception (all via a call to Constraint.findFkRef).
+            // --
+            // -- If there are no common columns between the reference constraint
+            // -- and the changed columns, we reiterate.
+            int[] common = ArrayUtil.commonElements(cols, c.getMainColumns());
 
-                        break;
+            if (common == null) {
+
+                // -- NO common cols between; reiterating
+                continue;
+            }
+
+            int[] m_columns = c.getMainColumns();
+            int[] r_columns = c.getRefColumns();
+
+            // fredt - find out if the FK columns have actually changed
+            boolean nochange = true;
+
+            for (int j = 0; j < m_columns.length; j++) {
+                // identity test is enough
+                if (orow.getData()[m_columns[j]] != nrow[m_columns[j]]) {
+                    nochange = false;
+
+                    break;
+                }
+            }
+
+            if (nochange) {
+                continue;
+            }
+
+            // there must be no record in the 'slave' table
+            // sebastian@scienion -- dependent on forDelete | forUpdate
+            RowIterator refiterator = c.findFkRef(session, orow.getData(),
+                                                  false);
+
+            if (refiterator.hasNext()) {
+                if (c.core.updateAction == Constraint.NO_ACTION
+                        || c.core.updateAction == Constraint.RESTRICT) {
+                    int errorCode = c.core.deleteAction
+                                    == Constraint.NO_ACTION ? ErrorCode.X_23501
+                                                            : ErrorCode
+                                                                .X_23001;
+                    String[] info = new String[] {
+                        c.core.refName.name, c.core.refTable.getName().name
+                    };
+
+                    throw Error.error(errorCode, ErrorCode.CONSTRAINT, info);
+                }
+            } else {
+
+                // no referencing row found
+                continue;
+            }
+
+            Table reftable = c.getRef();
+
+            // -- unused shortcut when update table has no imported constraint
+            boolean hasref =
+                reftable.getNextConstraintIndex(0, Constraint.MAIN) != -1;
+            Index refindex = c.getRefIndex();
+
+            // -- walk the index for all the nodes that reference update node
+            HashMappedList rowSet =
+                (HashMappedList) tableUpdateLists.get(reftable);
+
+            if (rowSet == null) {
+                rowSet = new HashMappedList();
+
+                tableUpdateLists.add(reftable, rowSet);
+            }
+
+            for (Row refrow = refiterator.getNextRow(); ;
+                    refrow = refiterator.getNextRow()) {
+                if (refrow == null
+                        || refindex.compareRowNonUnique(
+                            orow.getData(), m_columns,
+                            refrow.getData()) != 0) {
+                    break;
+                }
+
+                Object[] rnd = reftable.getEmptyRowData();
+
+                System.arraycopy(refrow.getData(), 0, rnd, 0, rnd.length);
+
+                // -- Depending on the type constraint we are dealing with we have to
+                // -- fill up the forign key of the current record with different values
+                // -- And handle the insertion procedure differently.
+                if (c.getUpdateAction() == Constraint.SET_NULL) {
+
+                    // -- set null; we do not have to check referential integrity any further
+                    // -- since we are setting <code>null</code> values
+                    for (int j = 0; j < r_columns.length; j++) {
+                        rnd[r_columns[j]] = null;
                     }
-                }
+                } else if (c.getUpdateAction() == Constraint.SET_DEFAULT) {
 
-                if (nochange) {
-                    continue;
-                }
+                    // -- set default; we check referential integrity with ref==null; since we manipulated
+                    // -- the values and referential integrity is no longer guaranteed to be valid
+                    for (int j = 0; j < r_columns.length; j++) {
+                        ColumnSchema col = reftable.getColumn(r_columns[j]);
 
-                // there must be no record in the 'slave' table
-                // sebastian@scienion -- dependent on forDelete | forUpdate
-                RowIterator refiterator = c.findFkRef(session, orow.getData(),
-                                                      false);
+                        rnd[r_columns[j]] = col.getDefaultValue(session);
+                    }
 
-                if (refiterator.hasNext()) {
-                    if (c.core.updateAction == Constraint.NO_ACTION
-                            || c.core.updateAction == Constraint.RESTRICT) {
-                        int errorCode =
-                            c.core.deleteAction == Constraint.NO_ACTION
-                            ? ErrorCode.X_23501
-                            : ErrorCode.X_23001;
-                        String[] info = new String[] {
-                            c.core.refName.name, c.core.refTable.getName().name
-                        };
-
-                        throw Error.error(errorCode, ErrorCode.CONSTRAINT,
-                                          info);
+                    if (path.add(c)) {
+                        checkCascadeUpdate(session, reftable,
+                                           tableUpdateLists, refrow, rnd,
+                                           r_columns, null, path);
+                        path.remove(c);
                     }
                 } else {
 
-                    // no referencing row found
-                    continue;
-                }
-
-                Table reftable = c.getRef();
-
-                // -- unused shortcut when update table has no imported constraint
-                boolean hasref =
-                    reftable.getNextConstraintIndex(0, Constraint.MAIN) != -1;
-                Index refindex = c.getRefIndex();
-
-                // -- walk the index for all the nodes that reference update node
-                HashMappedList rowSet =
-                    (HashMappedList) tableUpdateLists.get(reftable);
-
-                if (rowSet == null) {
-                    rowSet = new HashMappedList();
-
-                    tableUpdateLists.add(reftable, rowSet);
-                }
-
-                for (Row refrow = refiterator.getNextRow(); ;
-                        refrow = refiterator.getNextRow()) {
-                    if (refrow == null
-                            || refindex.compareRowNonUnique(
-                                orow.getData(), m_columns,
-                                refrow.getData()) != 0) {
-                        break;
+                    // -- cascade; standard recursive call. We inherit values from the foreign key
+                    // -- table therefor we set ref==this.
+                    for (int j = 0; j < m_columns.length; j++) {
+                        rnd[r_columns[j]] = nrow[m_columns[j]];
                     }
 
-                    Object[] rnd = reftable.getEmptyRowData();
-
-                    System.arraycopy(refrow.getData(), 0, rnd, 0, rnd.length);
-
-                    // -- Depending on the type constraint we are dealing with we have to
-                    // -- fill up the forign key of the current record with different values
-                    // -- And handle the insertion procedure differently.
-                    if (c.getUpdateAction() == Constraint.SET_NULL) {
-
-                        // -- set null; we do not have to check referential integrity any further
-                        // -- since we are setting <code>null</code> values
-                        for (int j = 0; j < r_columns.length; j++) {
-                            rnd[r_columns[j]] = null;
-                        }
-                    } else if (c.getUpdateAction() == Constraint.SET_DEFAULT) {
-
-                        // -- set default; we check referential integrity with ref==null; since we manipulated
-                        // -- the values and referential integrity is no longer guaranteed to be valid
-                        for (int j = 0; j < r_columns.length; j++) {
-                            ColumnSchema col =
-                                reftable.getColumn(r_columns[j]);
-
-                            rnd[r_columns[j]] = col.getDefaultValue(session);
-                        }
-
-                        if (path.add(c)) {
-                            checkCascadeUpdate(session, reftable,
-                                               tableUpdateLists, refrow, rnd,
-                                               r_columns, null, path);
-                            path.remove(c);
-                        }
-                    } else {
-
-                        // -- cascade; standard recursive call. We inherit values from the foreign key
-                        // -- table therefor we set ref==this.
-                        for (int j = 0; j < m_columns.length; j++) {
-                            rnd[r_columns[j]] = nrow[m_columns[j]];
-                        }
-
-                        if (path.add(c)) {
-                            checkCascadeUpdate(session, reftable,
-                                               tableUpdateLists, refrow, rnd,
-                                               common, table, path);
-                            path.remove(c);
-                        }
+                    if (path.add(c)) {
+                        checkCascadeUpdate(session, reftable,
+                                           tableUpdateLists, refrow, rnd,
+                                           common, table, path);
+                        path.remove(c);
                     }
-
-                    mergeUpdate(rowSet, refrow, rnd, r_columns);
                 }
+
+                mergeUpdate(rowSet, refrow, rnd, r_columns);
             }
         }
     }
