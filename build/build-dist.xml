@@ -130,12 +130,10 @@ and re-export.</fail>
              encoding="UTF-8" includes="**/*.xml, **/*.list"/>
     <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
              encoding="ISO-8859-1" includes="**/*.properties"/>
-    <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="crlf"
-             includes="**/*.txt"/>
     <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
-             encoding="UTF-8"
-             includes="**/*.cfg, **/*.css, **/*.ent, **/*.java, **/*.rc,
-                       **/*.sql, **/*.xml, **/*.html"/>
+             encoding="UTF-8" includes="**/*.xml"/>
+    <!-- To prevent EOL problems with inlined verbatims, Subversion doesn't
+         store text files as native under doc-src, except for XML files. -->
     <fixcrlf srcdir="doc/zaurus" preservelastmodified='true' eol="lf"
              encoding="UTF-8" includes="**/*.html"/>
     <fixcrlf srcdir="doc/zaurus" preservelastmodified='true' eol="crlf"
