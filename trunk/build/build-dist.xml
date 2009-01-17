@@ -128,6 +128,8 @@ and re-export.</fail>
              encoding="ISO-8859-1" includes="**/*.properties"/>
     <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
              encoding="UTF-8" includes="**/*.xml, **/*.list"/>
+    <!-- Docbook or XSLT adds &#13;s on Windows.  Remove them. -->
+    <replace dir="doc" includes="*/*.html" token="&amp;#13;"/>
     <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="lf"
              encoding="ISO-8859-1" includes="**/*.properties"/>
     <fixcrlf srcdir="doc-src" preservelastmodified='true' eol="crlf"
