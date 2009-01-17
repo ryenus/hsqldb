@@ -259,7 +259,6 @@ public class StatementSchema extends Statement {
                         session.checkAdmin();
                         session.checkDDLWrite();
                         name.rename(newName);
-                        session.database.setMetaDirty(false);
 
                         return Result.updateZeroResult;
                     } catch (HsqlException e) {

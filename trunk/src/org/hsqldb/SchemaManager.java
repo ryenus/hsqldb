@@ -747,6 +747,14 @@ public class SchemaManager {
                     break;
             }
         }
+
+        HsqlArrayList list = getAllTables();
+
+        for (int i = 0; i < list.size(); i++) {
+            Table t = (Table) list.get(i);
+
+            t.updateConstraintPath();
+        }
     }
 
     NumberSequence getSequence(String name, String schemaName,
@@ -958,7 +966,8 @@ public class SchemaManager {
     /**
      * Drops the index with the specified name.
      */
-    void dropIndex(Session session, String name, String schema) throws HsqlException {
+    void dropIndex(Session session, String name,
+                   String schema) throws HsqlException {
 
         Table t = findUserTableForIndex(session, name, schema);
 
@@ -1005,9 +1014,7 @@ public class SchemaManager {
                 Table refTable = table.constraintList[j].getRef();
 
                 if (toDrop == refTable) {
-                    table.constraintList =
-                        (Constraint[]) ArrayUtil.toAdjustedArray(
-                            table.constraintList, null, j, -1);
+                    table.removeConstraint(j);
                 }
             }
         }

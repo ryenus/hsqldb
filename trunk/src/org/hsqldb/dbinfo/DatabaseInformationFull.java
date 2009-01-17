@@ -38,6 +38,7 @@ import org.hsqldb.ColumnSchema;
 import org.hsqldb.Constraint;
 import org.hsqldb.Database;
 import org.hsqldb.Expression;
+import org.hsqldb.ExpressionColumn;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
@@ -55,7 +56,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
-import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
@@ -3051,17 +3051,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 switch (constraint.getConstraintType()) {
 
                     case Constraint.CHECK : {
-                        OrderedHashSet names = constraint.getReferences();
+                        OrderedHashSet expressions =
+                            constraint.getCheckColumnExpressions();
 
-                        if (names == null) {
+                        if (expressions == null) {
                             break;
                         }
 
-                        iterator = names.iterator();
+                        iterator = expressions.iterator();
 
                         // calculate distinct column references
                         while (iterator.hasNext()) {
-                            HsqlName name = (HsqlName) iterator.next();
+                            ExpressionColumn expr =
+                                (ExpressionColumn) iterator.next();
+                            HsqlName name = expr.getBaseColumnHsqlName();
 
                             if (name.type != SchemaObject.COLUMN) {
                                 continue;

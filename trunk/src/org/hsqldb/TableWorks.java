@@ -411,9 +411,7 @@ public class TableWorks {
             Constraint c = t.constraintList[i];
 
             if (dropConstraints.contains(c.getName())) {
-                t.constraintList =
-                    (Constraint[]) ArrayUtil.toAdjustedArray(t.constraintList,
-                        null, i, -1);
+                t.removeConstraint(i);
 
                 continue;
             }
@@ -728,8 +726,8 @@ public class TableWorks {
         updateConstraints(tn, emptySet);
         updateConstraints(tableSet, constraintNameSet);
         database.persistentStoreCollection.releaseStore(table);
-        database.schemaManager.recompileDependentObjects(tn);
         database.schemaManager.recompileDependentObjects(tableSet);
+        database.schemaManager.recompileDependentObjects(tn);
 
         table = tn;
     }

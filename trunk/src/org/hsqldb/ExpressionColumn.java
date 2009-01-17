@@ -252,6 +252,10 @@ public class ExpressionColumn extends Expression {
         return null;
     }
 
+    public HsqlName getBaseColumnHsqlName() {
+        return column.getName();
+    }
+
     void collectObjectNames(Set set) {
 
         if (opType == OpTypes.SEQUENCE) {
