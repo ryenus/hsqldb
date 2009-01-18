@@ -112,6 +112,7 @@ and re-export.</fail>
     -->
     <fixcrlf srcdir="."
              preservelastmodified='true' eol="crlf" includes="*.txt"/>
+    <fixcrlf srcdir="." preservelastmodified='true' eol="lf" includes="*.html"/>
     <fixcrlf srcdir="bin" preservelastmodified='true' eol="crlf"
              includes="**/*.txt, **/*.bat, **/*.cmd"/>
     <fixcrlf srcdir="bin" preservelastmodified='true' eol="lf"
