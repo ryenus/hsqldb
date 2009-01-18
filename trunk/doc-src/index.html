@@ -1,37 +1,59 @@
 <html>
 
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>HSQLDB</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>HyperSQL</title>
+  <style>
+    body { background-color:#F5F5F5; }
+    body, table, p { font-family:sans-serif; font-size:14px; }
+    div.dir {
+      font-weight:bold;
+      font-size:16px;
+      text-decoration:underline;
+      cursor:pointer;
+    }
+    div.dir_nolink {
+      font-weight:bold;
+      font-size:16px;
+    }
+    div.title { font:normal small-caps bold 24px serif; text-align:center; }
+    div.subtitle { font:italic 16px serif; text-align:center; }
+  </style>
 </head>
 
 <body>
 
-<h3>HyperSQL version ${hsqldb.version} Distribution</h3>
+<div class="title">HyperSQL version ${hsqldb.version} Distribution</div>
+<div class="subtitle">${build.label} built by ${build.vendor}<BR/>$Date$</div>
 
-<p>HSQLDB is a relational database engine written in Java. Version 1.9.0 is the 
+<p>HyperSQL, aka HSQLDB,
+  is a relational database engine written in Java.
+  Version 1.9.0 is the 
   result of over 3 years develpment since the last major version and has many 
   new features. Please read the documentation for details. Please also check the 
   web site at <a href="http://hsqldb.org/" target="_top">http://hsqldb.org</a>&nbsp;periodically 
   for any release updates.</p>
 <p>This download contains the following files and directories: </p>
 
-<p><b>bin</b></p>
+<div class="dir" onclick='location = "../bin/";'>bin</div>
 
 <p>This directory contains some Windows utility wrapper scripts, and some
 HTML pages with HSQLDB embedded as an applet.</p>
 
-<h4>build</h4>
+<div class="dir" onclick='location = "../build/";'>build</div>
+
 
 <p>This directory contains the ant build.xml script plus MSDOS CMD files for build. 
-  See the <i>Building</i> Appends if the <A href="guide/index.html"> User Guide</A> 
+  See the <i>Building</i> Appendix of the <A href="guide/index.html"> User Guide</A> 
   for details. 
-<h4>classes</h4>
+
+<div class="dir" onclick='location = "../classes/";'>classes</div>
+
 
 <p>When the jar is rebuilt, this directory contains the *.class files generated 
   by the ANT build tool. It does not exist in the distribution zip.</p>
 
-<h4>doc</h4>
+<div class="dir_nolink">doc</div>
 
 <p>A set of HTML , PDF and text documents covering different aspects of HSQLDB 
 and some of its utilities.
@@ -51,19 +73,21 @@ Within these documents are links to other formats of the same <i>books</i>.</p>
 (<a href="doc/hypersonic_lic.txt">hypersonic_lic.txt</a> for modified sources originally from the HypersonicSQL project) 
 (<a href="doc/hsqldb_lic.txt">hsqldb_lic.txt</a> for sources developed entirely by the HSQLDB Development Group).</p>
 
-<p>The /src directory contains the <a href="doc/src/">JavaDoc</a> for public classes,
-including the JDBC documentation. </p>
+<p>The apidocs subdirectory contains the <a href="doc/src/">JavaDoc</a>
+for public classes, including the JDBC documentation. </p>
 
-<h4>lib</h4>
+<div class="dir" onclick='location = "../lib/";'>lib</div>
 
 <p>The jar needed for running HSQLDB (hsqldb.jar) has been prebuild in this directory. 
   The extra zip file is needed only for recompiling hsqldb and is not required 
   for deployment. </p>
 
-<h4>src</h4>
+<div class="dir" onclick='location = "../src/";'>src</div>
 
 <p>All source code is in this directory. </p>
-<h4>testrun</h4>
+
+<div class="dir" onclick='location = "../testrun/";'>testrun</div>
+
 <p>Contains test scripts for the database engine and SqlTool. </p>
 <p>Fred Toussi<br>
   fredt (at) users.sourceforge.net</p>

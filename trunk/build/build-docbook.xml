@@ -202,10 +202,14 @@ ${_for.automation.blurb}</fail>
           message="DocBook 5 FO style sheet missing: ${fo.path}"/>
 
     <dependset>
-      <srcfileset dir="doc-src" excludes="**/.*"
+      <srcfileset dir="doc-src" excludes="**/.*, *_lic.txt, readme*, index.html"
                   includes="*.*, entities/**, images/**, verbatim/**"/>
+          <!-- Remove *_lic.txt from excludes above and below if we add any
+               reference to license files from any of our DocBook documents.
+          -->
       <targetfileset dir="tmp/doc-work"/>
-      <targetfileset dir="${docoutput.path}" excludes="zaurus/**, apidocs/**"/>
+      <targetfileset dir="${docoutput.path}"
+             excludes="zaurus/**, apidocs/**, readme*, index.html, *_lic.txt"/>
     </dependset>
     <dependset>
       <srcfileset dir="doc-src/${doc.name}" excludes="**/.*"/>
