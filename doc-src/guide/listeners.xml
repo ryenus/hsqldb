@@ -10,11 +10,11 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
-  <title xml:id="server-title">HyperSQL Network Listeners</title>
-
-  <subtitle>Server, WebServer, and Servlet</subtitle>
 
   <info>
+    <title xml:id="listeners-title">HyperSQL Network Listeners</title>
+    <subtitle>Server, WebServer, and Servlet</subtitle>
+
     <authorgroup>
       <author>
         <personname><firstname>Fred</firstname>
@@ -33,6 +33,8 @@
     <keywordset>
       <keyword>Hsqldb</keyword>
 
+      <keyword>HyperSQL</keyword>
+
       <keyword>Server</keyword>
 
       <keyword>Listener</keyword>
@@ -50,8 +52,12 @@
   <section xml:id="listeners-sect">
     <title>Listeners</title>
 
-    <para>As described in the **todo** chapter, network listeners or servers
-    provide connectivity to catalogs from different JVM processes.</para>
+    <simpara>As described in the
+      <link xlink:href="#running-chapt" endterm="running-title"/> chapter,
+      network listeners or servers
+      provide connectivity to catalogs from different JVM processes.
+      The HyperSQL listeners support both ipv4 and ipv6 network addressing.
+    </simpara>
 
     <section xml:id="listeners_hsqlserver-sect">
       <title>HyperSQL Server</title>
@@ -420,11 +426,10 @@
   </section>
 
   <section xml:id="listeners_tls-sect">
-    <title xml:id="tls-sect-title">TLS Encryption</title>
-
-    <subtitle>Listener TLS Support (a. k. a. SSL)</subtitle>
-
     <info>
+      <title xml:id="tls-sect-title">TLS Encryption</title>
+      <subtitle>Listener TLS Support (a. k. a. SSL)</subtitle>
+
       <authorgroup>
         <author>
           <personname><firstname>Blaine</firstname>
@@ -455,6 +460,9 @@
         <keyword>Security</keyword>
       </keywordset>
     </info>
+    <indexterm>
+      <primary>security</primary>
+    </indexterm>
 
     <para>This section explains how to encrypt the stream between JDBC
     network clients and HyperSQL Listeners. If you are running an
@@ -750,9 +758,17 @@
   </section>
 
   <section xml:id="listeners_acl-sect">
-    <title>Network Access Control</title>
+    <info>
+      <title>Network Access Control</title>
+      <subtitle>Aka Server ACLs</subtitle>
+    </info>
+    <indexterm>
+      <primary>security</primary>
+    </indexterm>
+    <indexterm>
+      <primary>ACL</primary>
+    </indexterm>
 
-    <subtitle>Aka Server ACLs</subtitle>
 
     <simpara>JDBC connections will always be denied if the supplied user and
     password are not found in the target catalog. But an HyperSQL listener

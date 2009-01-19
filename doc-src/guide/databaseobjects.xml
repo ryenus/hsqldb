@@ -27,6 +27,8 @@
     <keywordset>
       <keyword>Hsqldb</keyword>
 
+      <keyword>HyperSQL</keyword>
+
       <keyword>SQL</keyword>
     </keywordset>
 
@@ -336,7 +338,7 @@
         <primary>CREATE USER</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">CREATE USER</emphasis></simpara>
+      <simpara xml:id="create_user-sql"><emphasis role="bold">CREATE USER</emphasis></simpara>
 
       <simpara><emphasis>user definition (HyperSQL)</emphasis></simpara>
 
@@ -368,7 +370,8 @@
         <primary>SET PASSWORD</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">SET PASSWORD</emphasis></simpara>
+      <simpara xml:id="set_password-sql">
+        <emphasis role="bold">SET PASSWORD</emphasis></simpara>
 
       <simpara><emphasis>set password statement
       (HyperSQL)</emphasis></simpara>

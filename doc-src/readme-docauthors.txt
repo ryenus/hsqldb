@@ -19,6 +19,12 @@ EDITING
 
 Use DocBook v. 5 syntax in your DocBook source XML files.
 
+Because of the amount of extra infrastructure needed for DocBook olinking,
+we are not supporting direct inter-document linking.  If you want to refer
+from one DocBook document to content in another one, then add a link to
+the canonical document (like using a &distro_bseurl;/guide/index.html link)
+and just describe the location referred to.
+
 Top-level DocBook source files for individual DocBook documents reside at
 doc-src/X/X.xml.  Other files may be xincluded into these files, and lots of
 other resources are referenced or pulled in from under doc-src.
