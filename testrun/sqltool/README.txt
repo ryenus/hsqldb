@@ -4,6 +4,13 @@ SqlTool Unit Tests
 since:  HSQLDB 1.8.0.8
 author:  Blaine Simpson (unsaved@users.sourceforge.net)
 
+************************************************************
+Sun Jan 18 21:52:58 EST 2009
+The dsv-constcols.sql and dsv-trimming.sql unit tests are failing
+now, due to known issues with the inability to apply DST (Daylight
+Savings Time) offsets to JDBC DATE objects.
+************************************************************
+
 
 PORTABILITY (or lack thereof)
 
