@@ -31,9 +31,9 @@
 
 package org.hsqldb;
 
-import org.hsqldb.result.Result;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.result.Result;
 
 /**
  * Implementation of Statement for CREATE SCHEMA statements.<p>

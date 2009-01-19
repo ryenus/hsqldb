@@ -1483,7 +1483,7 @@ public class SchemaManager {
         set.rename(name, newName);
     }
 
-    public String[] getDDL() {
+    public String[] getSQLArray() {
 
         OrderedHashSet resolved   = new OrderedHashSet();
         OrderedHashSet unresolved = new OrderedHashSet();
@@ -1497,7 +1497,7 @@ public class SchemaManager {
                 continue;
             }
 
-            list.addAll(schema.getDDLArray(resolved, unresolved));
+            list.addAll(schema.getSQLArray(resolved, unresolved));
         }
 
         while (true) {
@@ -1529,10 +1529,10 @@ public class SchemaManager {
 
                 if (isResolved) {
                     if (object.getType() == SchemaObject.TABLE) {
-                        list.addAll(((Table) object).getDDL(resolved,
+                        list.addAll(((Table) object).getSQL(resolved,
                                                             unresolved));
                     } else {
-                        list.add(object.getDDL());
+                        list.add(object.getSQL());
                         resolved.add(object.getName());
                     }
 
@@ -1550,7 +1550,7 @@ public class SchemaManager {
                 continue;
             }
 
-            list.addAll(schema.getTriggerDDL());
+            list.addAll(schema.getTriggerSQL());
         }
 
         if (defaultSchemaHsqlName != null) {

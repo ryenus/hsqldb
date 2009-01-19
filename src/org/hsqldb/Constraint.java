@@ -285,7 +285,7 @@ public final class Constraint implements SchemaObject {
 
     public void compile(Session session) throws HsqlException {}
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -345,7 +345,7 @@ public final class Constraint implements SchemaObject {
                 }
 
                 sb.append(Tokens.T_CHECK).append('(');
-                sb.append(check.getDDL());
+                sb.append(check.getSQL());
                 sb.append(')');
 
                 // should not throw as it is already tested OK
@@ -553,7 +553,7 @@ public final class Constraint implements SchemaObject {
      * Returns the DDL for the expression in CHECK clause
      */
     public String getCheckDDL() {
-        return check.getDDL();
+        return check.getSQL();
     }
 
     /**
@@ -961,7 +961,7 @@ public final class Constraint implements SchemaObject {
 
     void recompile(Session session, Table newTable) throws HsqlException {
 
-        String    ddl     = check.getDDL();
+        String    ddl     = check.getSQL();
         Scanner   scanner = new Scanner(ddl);
         ParserDQL parser  = new ParserDQL(session, scanner);
 

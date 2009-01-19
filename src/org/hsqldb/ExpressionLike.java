@@ -327,7 +327,7 @@ public final class ExpressionLike extends ExpressionLogical {
         }
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         String       left  = getContextDDL(nodes[LEFT]);
         String       right = getContextDDL(nodes[RIGHT]);
@@ -339,7 +339,7 @@ public final class ExpressionLike extends ExpressionLogical {
         /** @todo fredt - scripting of non-ascii escapes needs changes to general script logging */
         if (nodes[ESCAPE] != null) {
             sb.append(' ').append(Tokens.T_ESCAPE).append(' ');
-            sb.append(nodes[ESCAPE].getDDL());
+            sb.append(nodes[ESCAPE].getSQL());
             sb.append(' ');
         }
 

@@ -296,10 +296,14 @@ public class ParserRoutine extends ParserDML {
                 readThis(Tokens.JAVA);
             }
         } else {
-            int position = getPosition();
+
+            startRecording();
+
             Statement statement = readSQLProcedureStatementOrNull(routine,
                 null);
-            String sql = getLastPart(position);
+            Token[] tokenList = getRecordedStatement();
+            String  sql       = Token.getSQL(tokenList);
+
             statement.setSQL(sql);
             routine.setProcedure(statement);
         }
@@ -706,8 +710,8 @@ public class ParserRoutine extends ParserDML {
             if (e == null) {
                 throw unexpectedToken();
             }
-            readThis(Tokens.SEMICOLON);
 
+            readThis(Tokens.SEMICOLON);
             handler.addStatement(e);
         }
 
@@ -762,6 +766,7 @@ public class ParserRoutine extends ParserDML {
         if (e == null) {
             throw unexpectedToken();
         }
+
         readThis(Tokens.SEMICOLON);
 
         HsqlArrayList list = new HsqlArrayList();
@@ -774,8 +779,8 @@ public class ParserRoutine extends ParserDML {
             if (e == null) {
                 break;
             }
-            readThis(Tokens.SEMICOLON);
 
+            readThis(Tokens.SEMICOLON);
             list.add(e);
         }
 
@@ -807,25 +812,21 @@ public class ParserRoutine extends ParserDML {
             case Tokens.SELECT : {
                 cs = readSelectSingleRowStatement();
 
-
                 break;
             }
 
             // data change
             case Tokens.INSERT :
                 cs = compileInsertStatement(rangeVariables);
-
                 break;
 
             case Tokens.UPDATE :
                 cs = compileUpdateStatement(rangeVariables);
-
                 break;
 
             case Tokens.DELETE :
             case Tokens.TRUNCATE :
                 cs = compileDeleteStatement(rangeVariables);
-
                 break;
 
             case Tokens.MERGE :
@@ -883,6 +884,7 @@ public class ParserRoutine extends ParserDML {
                 }
 
                 cs = readIterate();
+
                 break;
             }
             case Tokens.LEAVE : {

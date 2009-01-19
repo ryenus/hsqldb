@@ -690,7 +690,7 @@ public class GranteeManager {
         return roleMap.containsKey(name);
     }
 
-    public String[] getDDL() {
+    public String[] getSQL() {
 
         HsqlArrayList list = new HsqlArrayList();
 
@@ -702,7 +702,7 @@ public class GranteeManager {
 
             // ADMIN_ROLE_NAME is not persisted
             if (!GranteeManager.isReserved(grantee.getNameString())) {
-                list.add(grantee.getDDL());
+                list.add(grantee.getSQL());
             }
         }
 
@@ -713,7 +713,7 @@ public class GranteeManager {
             Grantee grantee = (Grantee) it.next();
 
             if (grantee instanceof User) {
-                list.add(grantee.getDDL());
+                list.add(grantee.getSQL());
             }
         }
 
@@ -724,7 +724,7 @@ public class GranteeManager {
         return array;
     }
 
-    public String[] getRightstDDL() {
+    public String[] getRightstSQL() {
 
         HsqlArrayList list     = new HsqlArrayList();
         Iterator      grantees = getGrantees().iterator();

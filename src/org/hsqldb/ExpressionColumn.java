@@ -478,7 +478,7 @@ public class ExpressionColumn extends Expression {
         }
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         switch (opType) {
 
@@ -533,7 +533,7 @@ public class ExpressionColumn extends Expression {
                         sb.append(',');
                     }
 
-                    String s = e.getDDL();
+                    String s = e.getSQL();
 
                     sb.append(s);
                 }

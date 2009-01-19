@@ -129,7 +129,7 @@ public class ExpressionOp extends Expression {
         this.alias = e.alias;
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb   = new StringBuffer(64);
         String       left  = getContextDDL(nodes.length > 0 ? nodes[LEFT]
@@ -146,7 +146,7 @@ public class ExpressionOp extends Expression {
 
                 if (dataType == null) {
                     throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "Expression.getDDL()");
+                                             "Expression.getSQL()");
                 }
 
                 return dataType.convertToSQLString(valueData);

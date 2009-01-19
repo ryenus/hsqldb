@@ -210,7 +210,7 @@ public class Index implements SchemaObject {
 
     public void compile(Session session) {}
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 

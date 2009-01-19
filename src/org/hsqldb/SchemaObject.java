@@ -86,7 +86,7 @@ public interface SchemaObject {
 
     void compile(Session session) throws HsqlException;
 
-    String getDDL();
+    String getSQL();
 
     interface ViewCheckModes {
 

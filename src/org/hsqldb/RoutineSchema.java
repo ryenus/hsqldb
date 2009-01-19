@@ -89,16 +89,16 @@ public class RoutineSchema implements SchemaObject {
 
     public void compile(Session session) throws HsqlException {}
 
-    public String getDDL() {
+    public String getSQL() {
         return null;
     }
 
-    public String[] getDDLArray() {
+    public String[] getSQLArray() {
 
         HsqlArrayList list = new HsqlArrayList();
 
         for (int i = 0; i < routines.length; i++) {
-            list.add(routines[i].getDDL());
+            list.add(routines[i].getSQL());
         }
 
         String[] array = new String[list.size()];

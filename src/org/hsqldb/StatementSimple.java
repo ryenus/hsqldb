@@ -31,8 +31,8 @@
 
 package org.hsqldb;
 
-import org.hsqldb.result.Result;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 
 /**
@@ -87,11 +87,50 @@ public class StatementSimple extends Statement {
         variableIndex          = index;
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append(Tokens.STATEMENT);
+        switch (type) {
+
+            case StatementTypes.SIGNAL :
+                sb.append(Tokens.T_SIGNAL);
+                break;
+
+            case StatementTypes.RESIGNAL :
+                sb.append(Tokens.T_RESIGNAL);
+                break;
+
+            // todo
+            case StatementTypes.ITERATE :
+                sb.append(Tokens.T_ITERATE).append(' ').append(label);
+                break;
+
+            case StatementTypes.LEAVE :
+                sb.append(Tokens.T_LEAVE).append(' ').append(label);
+                break;
+
+            case StatementTypes.RETURN :
+/*
+                sb.append(Tokens.T_RETURN);
+
+                if (expression != null) {
+                    sb.append(' ').append(expression.getSQL());
+                }
+                break;
+*/
+                return sql;
+
+            case StatementTypes.CONDITION :
+                sb.append(expression.getSQL());
+                break;
+
+            case StatementTypes.ASSIGNMENT :
+                sb.append(Tokens.T_SET).append(' ');
+                sb.append(variable.getName().statementName).append(' ');
+                sb.append('=').append(' ').append(expression.getSQL());
+                break;
+        }
 
         return sb.toString();
     }

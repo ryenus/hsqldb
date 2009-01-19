@@ -4459,7 +4459,7 @@ public class ParserDQL extends ParserBase {
                 usedRoutines.set(i, function.routine);
             }
 
-            Routine[] array = new Routine[usedSequences.size()];
+            Routine[] array = new Routine[usedRoutines.size()];
 
             usedRoutines.toArray(array);
 

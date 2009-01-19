@@ -337,6 +337,9 @@ public final class HsqlNameManager {
 
     public static final class HsqlName extends SimpleName {
 
+        static HsqlName[] emptyArray = new HsqlName[]{};
+
+        //
         HsqlNameManager   manager;
         public String     statementName;
         public HsqlName   schema;

@@ -31,10 +31,8 @@
 
 package org.hsqldb;
 
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.navigator.RowSetNavigatorLinkedList;

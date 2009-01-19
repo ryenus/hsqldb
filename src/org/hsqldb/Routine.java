@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.lib.Collection;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
@@ -134,7 +135,7 @@ public class Routine implements SchemaObject {
 
     public void compile(Session session) throws HsqlException {}
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -158,7 +159,7 @@ public class Routine implements SchemaObject {
             ColumnSchema param = (ColumnSchema) parameterList.get(i);
 
             // in - out
-            sb.append(param.getDDL());
+            sb.append(param.getSQL());
         }
 
         sb.append(')');
@@ -658,5 +659,23 @@ public class Routine implements SchemaObject {
         routine.resolve();
 
         return routine;
+    }
+
+    public HsqlName[] getTableNamesForRead() {
+
+        if (statement == null) {
+            return HsqlName.emptyArray;
+        }
+
+        return statement.getTableNamesForRead();
+    }
+
+    public HsqlName[] getTableNamesForWrite() {
+
+        if (statement == null) {
+            return HsqlName.emptyArray;
+        }
+
+        return statement.getTableNamesForWrite();
     }
 }

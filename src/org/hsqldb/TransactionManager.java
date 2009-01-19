@@ -810,13 +810,10 @@ public class TransactionManager {
             return true;
         }
 
-        OrderedHashSet nameSet = new OrderedHashSet();
+        HsqlName[] nameList = cs.getTableNamesForWrite();
 
-        cs.getTableNamesForWrite(nameSet);
-
-        for (int i = 0; i < nameSet.size(); i++) {
-            HsqlName name = (HsqlName) nameSet.get(i);
-
+        for (int i = 0; i < nameList.length; i++) {
+            HsqlName name =  nameList[i];
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
             }
@@ -838,11 +835,10 @@ public class TransactionManager {
             }
         }
 
-        nameSet.clear();
-        cs.getTableNamesForRead(nameSet);
+        nameList = cs.getTableNamesForRead();
 
-        for (int i = 0; i < nameSet.size(); i++) {
-            HsqlName name = (HsqlName) nameSet.get(i);
+        for (int i = 0; i < nameList.length; i++) {
+            HsqlName name =  nameList[i];
 
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
@@ -888,12 +884,10 @@ public class TransactionManager {
             return;
         }
 
-        OrderedHashSet nameSet = new OrderedHashSet();
+        HsqlName[] nameList = cs.getTableNamesForWrite();
 
-        cs.getTableNamesForWrite(nameSet);
-
-        for (int i = 0; i < nameSet.size(); i++) {
-            HsqlName name = (HsqlName) nameSet.get(i);
+        for (int i = 0; i < nameList.length; i++) {
+            HsqlName name =  nameList[i];
 
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
@@ -902,11 +896,10 @@ public class TransactionManager {
             tableWriteLocks.put(name, session);
         }
 
-        nameSet.clear();
-        cs.getTableNamesForRead(nameSet);
+        nameList = cs.getTableNamesForRead();
 
-        for (int i = 0; i < nameSet.size(); i++) {
-            HsqlName name = (HsqlName) nameSet.get(i);
+        for (int i = 0; i < nameList.length; i++) {
+            HsqlName name =  nameList[i];
 
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;

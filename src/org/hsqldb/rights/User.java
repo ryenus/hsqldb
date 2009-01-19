@@ -64,7 +64,7 @@ public class User extends Grantee {
         super(name, manager);
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 

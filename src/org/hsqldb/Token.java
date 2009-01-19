@@ -109,7 +109,7 @@ public class Token {
         return token;
     }
 
-    String getDDL() {
+    String getSQL() {
 
         if (namePrefix == null && isUndelimitedIdentifier) {
             return tokenString;
@@ -207,7 +207,7 @@ public class Token {
         }
     }
 */
-    static String getSql(Token[] statement) {
+    static String getSQL(Token[] statement) {
 
         boolean      wasDelimiter = true;
         StringBuffer sb           = new StringBuffer();
@@ -217,7 +217,7 @@ public class Token {
                 sb.append(' ');
             }
 
-            sb.append(statement[i].getDDL());
+            sb.append(statement[i].getSQL());
 
             wasDelimiter = statement[i].isDelimiter;
         }

@@ -346,7 +346,7 @@ public class SchemaObjectSet {
         }
     }
 
-    String[] getDDL(OrderedHashSet resolved, OrderedHashSet unresolved) {
+    String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
 
         HsqlArrayList list = new HsqlArrayList();
 
@@ -417,9 +417,9 @@ public class SchemaObjectSet {
             resolved.add(object.getName());
 
             if (object.getType() == SchemaObject.TABLE) {
-                list.addAll(((Table) object).getDDL(resolved, unresolved));
+                list.addAll(((Table) object).getSQL(resolved, unresolved));
             } else {
-                list.add(object.getDDL());
+                list.add(object.getSQL());
             }
         }
 

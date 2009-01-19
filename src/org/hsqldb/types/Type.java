@@ -152,13 +152,13 @@ public abstract class Type implements SchemaObject, Cloneable {
      * @return the SQL character sequence required to (re)create the
      *  trigger
      */
-    public String getDDL() {
+    public String getSQL() {
 
         if (userTypeModifier == null) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Type");
         }
 
-        return userTypeModifier.getDDL();
+        return userTypeModifier.getSQL();
     }
 
     public Type duplicate() {

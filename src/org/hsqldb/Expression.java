@@ -238,7 +238,7 @@ public class Expression {
             return null;
         }
 
-        String ddl = expression.getDDL();
+        String ddl = expression.getSQL();
 
         switch (expression.opType) {
 
@@ -277,7 +277,7 @@ public class Expression {
      * so that table or column renaming is reflected in the precompiled
      * query.
      */
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer(64);
 
@@ -294,7 +294,7 @@ public class Expression {
                 sb.append('(');
 
                 for (int i = 0; i < nodes.length; i++) {
-                    sb.append(nodes[i].getDDL());
+                    sb.append(nodes[i].getSQL());
 
                     if (i < nodes.length - 1) {
                         sb.append(',');
@@ -308,7 +308,7 @@ public class Expression {
             //
             case OpTypes.TABLE :
                 for (int i = 0; i < nodes.length; i++) {
-                    sb.append(nodes[i].getDDL());
+                    sb.append(nodes[i].getSQL());
 
                     if (i < nodes.length - 1) {
                         sb.append(',');
@@ -324,7 +324,7 @@ public class Expression {
             case OpTypes.TABLE_SUBQUERY :
 /*
                 buf.append('(');
-                buf.append(subSelect.getDDL());
+                buf.append(subSelect.getSQL());
                 buf.append(')');
 */
                 break;

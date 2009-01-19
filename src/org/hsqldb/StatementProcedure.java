@@ -32,10 +32,10 @@
 package org.hsqldb;
 
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Implementation of Statement for callable procedures.<p>
@@ -226,8 +226,8 @@ public class StatementProcedure extends StatementDMQL {
                     "CompiledStatement.getResultMetaData()");
         }
     }
-    public void getTableNamesForRead(OrderedHashSet set) {}
+    void getTableNamesForRead(OrderedHashSet set) {}
 
-    public void getTableNamesForWrite(OrderedHashSet set) {}
+    void getTableNamesForWrite(OrderedHashSet set) {}
 
 }

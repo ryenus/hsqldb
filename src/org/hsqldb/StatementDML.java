@@ -31,12 +31,14 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
@@ -177,6 +179,67 @@ public class StatementDML extends StatementDMQL {
         }
 
         return result;
+    }
+
+    // this fk references -> other  :  other read lock
+    // other fk references this :  if constraint trigger action  : other write lock
+    void getTableNamesForRead(OrderedHashSet set) {
+
+        if (!baseTable.isTemp()) {
+            for (int i = 0; i < baseTable.fkConstraints.length; i++) {
+                set.add(baseTable.fkConstraints[i].getMain().getName());
+            }
+
+            for (int i = 0; i < baseTable.triggerList.length; i++) {
+                TriggerDef td = baseTable.triggerList[i];
+
+                for (int j = 0; j < td.statements.length; j++) {
+                    set.addAll(td.statements[j].getTableNamesForRead());
+                }
+            }
+        }
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            Table    rangeTable = rangeVariables[i].rangeTable;
+            HsqlName name       = rangeTable.getName();
+
+            if (rangeTable.isReadOnly() || rangeTable.isTemp()) {
+                continue;
+            }
+
+            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                continue;
+            }
+
+            set.add(name);
+        }
+
+        for (int i = 0; i < subqueries.length; i++) {
+            if (subqueries[i].queryExpression != null) {
+                subqueries[i].queryExpression.getBaseTableNames(set);
+            }
+        }
+    }
+
+    void getTableNamesForWrite(OrderedHashSet set) {
+
+        if (baseTable.isTemp()) {
+            return;
+        }
+
+        set.add(baseTable.getName());
+
+        for (int i = 0; i < baseTable.fkPath.length; i++) {
+            set.add(baseTable.fkPath[i].getMain().getName());
+        }
+
+        for (int i = 0; i < baseTable.triggerList.length; i++) {
+            TriggerDef td = baseTable.triggerList[i];
+
+            for (int j = 0; j < td.statements.length; j++) {
+                td.statements[j].getTableNamesForRead(set);
+            }
+        }
     }
 
     /**
@@ -953,6 +1016,7 @@ public class StatementDML extends StatementDMQL {
             boolean nochange = true;
 
             for (int j = 0; j < m_columns.length; j++) {
+
                 // identity test is enough
                 if (orow.getData()[m_columns[j]] != nrow[m_columns[j]]) {
                     nochange = false;

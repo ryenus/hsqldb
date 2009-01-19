@@ -734,12 +734,12 @@ public class Database {
 
         addRows(r, list);
 
-        list = getGranteeManager().getDDL();
+        list = getGranteeManager().getSQL();
 
         addRows(r, list);
 
         // schemas and schema objects such as tables, sequences, etc.
-        list = schemaManager.getDDL();
+        list = schemaManager.getSQLArray();
 
         addRows(r, list);
 
@@ -756,7 +756,7 @@ public class Database {
         addRows(r, list);
 
         // grantee rights
-        list = getGranteeManager().getRightstDDL();
+        list = getGranteeManager().getRightstSQL();
 
         addRows(r, list);
 

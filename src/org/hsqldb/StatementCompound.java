@@ -37,7 +37,6 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
-import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Implementation of Statement for PSM compound statements.
@@ -90,6 +89,98 @@ public class StatementCompound extends Statement {
     }
 
     public String getSQL() {
+
+/*
+        StringBuffer sb = new StringBuffer();
+
+        if (label != null) {
+            sb.append(label.getStatementName()).append(':').append(' ');
+        }
+
+        switch (type) {
+
+            case StatementTypes.LOOP :
+                sb.append(Tokens.T_LOOP).append(' ');
+
+                for (int i = 0; i < statements.length; i++) {
+                    sb.append(statements[i].getSQL()).append(';');
+                }
+
+                sb.append(Tokens.T_END).append(' ').append(Tokens.T_LOOP);
+                break;
+
+            case StatementTypes.WHILE :
+                sb.append(Tokens.T_WHILE).append(' ');
+                sb.append(condition.getSQL()).append(' ').append(Tokens.T_DO);
+                sb.append(' ');
+
+                for (int i = 0; i < statements.length; i++) {
+                    sb.append(statements[i].getSQL()).append(';');
+                }
+
+                sb.append(Tokens.T_END).append(' ').append(Tokens.T_WHILE);
+                break;
+
+            case StatementTypes.REPEAT :
+                sb.append(Tokens.T_REPEAT).append(' ');
+
+                for (int i = 0; i < statements.length; i++) {
+                    sb.append(statements[i].getSQL()).append(';');
+                }
+
+                sb.append(Tokens.T_UNTIL).append(' ');
+                sb.append(condition.getSQL()).append(' ');
+                sb.append(Tokens.T_END).append(' ').append(Tokens.T_REPEAT);
+                break;
+
+            case StatementTypes.BEGIN_END :
+                sb.append(Tokens.T_BEGIN).append(' ').append(Tokens.T_ATOMIC);
+                sb.append(' ');
+
+                for (int i = 0; i < handlers.length; i++) {
+                    sb.append(handlers[i].getSQL()).append(';');
+                }
+
+                for (int i = 0; i < variables.length; i++) {
+                    sb.append(Tokens.T_DECLARE).append(' ');
+                    sb.append(variables[i].getSQL());
+
+                    if (variables[i].hasDefault()) {
+                        sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
+                        sb.append(variables[i].getDefaultDDL());
+                    }
+
+                    sb.append(';');
+                }
+
+                for (int i = 0; i < statements.length; i++) {
+                    sb.append(statements[i].getSQL()).append(';');
+                }
+
+                sb.append(Tokens.T_END);
+                break;
+
+            case StatementTypes.IF :
+                for (int i = 0; i < statements.length; i++) {
+                    if (statements[i].type == StatementTypes.CONDITION) {
+                        if (i != 0) {
+                            sb.append(Tokens.T_ELSE).append(' ');
+                        }
+
+                        sb.append(Tokens.T_IF).append(' ');
+                        sb.append(statements[i].getSQL()).append(' ');
+                        sb.append(Tokens.T_THEN).append(' ');
+                    } else {
+                        sb.append(statements[i].getSQL()).append(';');
+                    }
+                }
+
+                sb.append(Tokens.T_END).append(' ').append(Tokens.T_IF);
+                break;
+        }
+
+        return sb.toString();
+*/
         return sql;
     }
 
@@ -570,10 +661,4 @@ public class StatementCompound extends Statement {
     public RangeVariable[] getRangeVariables() {
         return rangeVariables;
     }
-
-    public void getTableNamesForRead(OrderedHashSet set) {}
-
-    public void getTableNamesForWrite(OrderedHashSet set) {}
-
-
 }

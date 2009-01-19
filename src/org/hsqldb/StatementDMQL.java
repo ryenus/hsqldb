@@ -34,7 +34,6 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -387,6 +386,33 @@ public abstract class StatementDMQL extends Statement {
         rangeVariables     = compileContext.getRangeVariables();
         sequences          = compileContext.getSequences();
         routines           = compileContext.getRoutines();
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        getTableNamesForRead(set);
+
+        for (int i = 0; i < routines.length; i++) {
+            set.addAll(routines[i].getTableNamesForRead());
+        }
+
+        if (set.size() > 0) {
+            readTableNames = new HsqlName[set.size()];
+
+            set.toArray(readTableNames);
+            set.clear();
+        }
+
+        getTableNamesForWrite(set);
+
+        for (int i = 0; i < routines.length; i++) {
+            set.addAll(routines[i].getTableNamesForWrite());
+        }
+
+        if (set.size() > 0) {
+            writeTableNames = new HsqlName[set.size()];
+
+            set.toArray(writeTableNames);
+        }
     }
 
     /**
@@ -767,67 +793,6 @@ public abstract class StatementDMQL extends Statement {
 
     public RangeVariable[] getRangeVariables() {
         return rangeVariables;
-    }
-
-    // this fk references -> other  :  other read lock
-    // other fk references this :  if constraint trigger action  : other write lock
-    public void getTableNamesForRead(OrderedHashSet set) {
-
-        if (!baseTable.isTemp()) {
-            for (int i = 0; i < baseTable.fkConstraints.length; i++) {
-                set.add(baseTable.fkConstraints[i].getMain().getName());
-            }
-
-            for (int i = 0; i < baseTable.triggerList.length; i++) {
-                TriggerDef td = baseTable.triggerList[i];
-
-                for (int j = 0; j < td.statements.length; j++) {
-                    td.statements[j].getTableNamesForRead(set);
-                }
-            }
-        }
-
-        for (int i = 0; i < rangeVariables.length; i++) {
-            Table    rangeTable = rangeVariables[i].rangeTable;
-            HsqlName name       = rangeTable.getName();
-
-            if (rangeTable.isReadOnly() || rangeTable.isTemp()) {
-                continue;
-            }
-
-            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                continue;
-            }
-
-            set.add(name);
-        }
-
-        for (int i = 0; i < subqueries.length; i++) {
-            if (subqueries[i].queryExpression != null) {
-                subqueries[i].queryExpression.getBaseTableNames(set);
-            }
-        }
-    }
-
-    public void getTableNamesForWrite(OrderedHashSet set) {
-
-        if (baseTable.isTemp()) {
-            return;
-        }
-
-        set.add(baseTable.getName());
-
-        for (int i = 0; i < baseTable.fkPath.length; i++) {
-            set.add(baseTable.fkPath[i].getMain().getName());
-        }
-
-        for (int i = 0; i < baseTable.triggerList.length; i++) {
-            TriggerDef td = baseTable.triggerList[i];
-
-            for (int j = 0; j < td.statements.length; j++) {
-                td.statements[j].getTableNamesForRead(set);
-            }
-        }
     }
 
     public ResultMetaData generatedResultMetaData() {
