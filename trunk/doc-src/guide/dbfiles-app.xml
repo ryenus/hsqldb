@@ -4,7 +4,7 @@
 
 <title>Hsqldb Database Files and Recovery</title>
 <appendixinfo>
-    <edition>$Revision$</edition>
+    <releaseinfo>$Revision$</releaseinfo>
     <pubdate>$Date$</pubdate>
     <keywordset>
         <keyword>HSQLDB</keyword>

@@ -43,7 +43,7 @@
       </editor>
     </authorgroup>
 
-    <edition>$Revision$</edition>
+    <releaseinfo>$Revision$</releaseinfo>
 
     <pubdate>$Date$</pubdate>
 
@@ -94,9 +94,11 @@
         </author>
       </authorgroup>
 
-      <edition>$Revision$</edition>
+      <!-- No sense for separate stamps while this is in a shared file.
+      <releaseinfo>$Revision$</releaseinfo>
 
       <pubdate>$Date$</pubdate>
+      -->
 
       <keywordset>
         <keyword>Hsqldb</keyword>
@@ -695,9 +697,11 @@
         </author>
       </authorgroup>
 
-      <edition>$Revision$</edition>
+      <!-- No sense for separate stamps while this is in a shared file.
+      <releaseinfo>$Revision$</releaseinfo>
 
       <pubdate>$Date$</pubdate>
+      -->
 
       <keywordset>
         <keyword>Hsqldb</keyword>
@@ -1514,9 +1518,11 @@
         </author>
       </authorgroup>
 
-      <edition>$Revision$</edition>
+      <!-- No sense for separate stamps while this is in a shared file.
+      <releaseinfo>$Revision$</releaseinfo>
 
       <pubdate>$Date$</pubdate>
+      -->
 
       <keywordset>
         <keyword>Hsqldb</keyword>
@@ -2266,9 +2272,11 @@
         </author>
       </authorgroup>
 
-      <edition>$Revision$</edition>
+      <!-- No sense for separate stamps while this is in a shared file.
+      <releaseinfo>$Revision$</releaseinfo>
 
       <pubdate>$Date$</pubdate>
+      -->
 
       <keywordset>
         <keyword>Hsqldb</keyword>
@@ -2899,9 +2907,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         </author>
       </authorgroup>
 
-      <edition>$Revision$</edition>
+      <!-- No sense for separate stamps while this is in a shared file.
+      <releaseinfo>$Revision$</releaseinfo>
 
       <pubdate>$Date$</pubdate>
+      -->
 
       <keywordset>
         <keyword>Text</keyword>
