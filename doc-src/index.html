@@ -1,133 +1,40 @@
 <html>
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>HyperSQL</title>
-  <style>
-    body { background-color:#F5F5F5; }
-    body, table, p { font-family:sans-serif; font-size:14px; }
-    div.dir {
-      font-weight:bold;
-      font-size:16px;
-      text-decoration:underline;
-      cursor:pointer;
-    }
-    div.dir_nolink {
-      font-weight:bold;
-      font-size:16px;
-    }
-    div.section_content {
-      margin:10px;
-    }
-    div.title { font:normal small-caps bold 24px serif; text-align:center; }
-    div.subtitle { font:italic 16px serif; text-align:center; }
-    div.section_title { font-size:20px; }
-    li { margin:0 0 5px 0; }
-  </style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>HSQLDB</title>
 </head>
 
 <body>
 
-<div class="title">HyperSQL version ${hsqldb.version} Distribution</div>
-<div class="subtitle">${build.label} built by ${build.vendor}<BR/>$Date$</div>
+<h3>HyperSQL version ${hsqldb.version} Documentation</h3>
 
-<p>
-  HyperSQL, aka HSQLDB,
-  is a relational database engine written in Java.
-  Version 1.9.0 is the 
-  result of over 3 years develpment since the last major version and has many 
-  new features.
+<p>HSQLDB (HyperSQL) is a relational database engine written in Java. Version 
+  1.9.0 is the result of over 3 years development since the last major version. 
+  It offers many features and adheres closely to the latest SQL and JDBC 4 standards.</p>
+<div class="section_title"> </div>
+<p>A set of HTML, PDF and text documents covering different aspects of HSQLDB 
+  and some of its utilities.</p>
+<p><a href="guide/index.html">HyperSQL User Guide</a> in HTML format. <br>
+  <a href="guide/guide.pdf">HyperSQL User Guide</a> in PDF format. </p>
+<p><a href="util-guide/index.html">HyperSQL Utilities Guide</a> in HTML format.<br>
+  <a href="util-guide/util-guide.html">HyperSQL Utilities Guide</a> in PDF format. 
 </p>
-<div class="section_title">
-  HyperSQL Resources
-</div>
-<div class="section_content">
-  <ul>
-    <li><a href="guide/index.html">HyperSQL User Guide</a></li>
-    <li><a href="util-guide/index.html">HyperSQL Utilities Guide</a></li>
-    <li><a href="http://hsqldb.org/">http://hsqldb.org</a> web site,
-        for updates, announcements, and many other HyperSQL resources</li>
-    <li><a href="http://hsqldb.org/support">HyperSQL Support</a>
-      for help, discussion, community support, and professional support.</li>
-    <li><a href="apidocs/index.html">Public HyperSQL Java API Spec (JavaDoc)</a></li>
-  </ul>
-</div>
-
-<div class="section_title">
-  This download contains the following files and directories.
-</div>
-
-<div class="section_content">
-<div class="dir" onclick='location = "../bin/";'>bin</div>
-
-<p>This directory contains some Windows utility wrapper scripts, and some
-HTML pages with HSQLDB embedded as an applet.</p>
-
-<div class="dir" onclick='location = "../build/";'>build</div>
-
-<p>This directory contains the ant build.xml script plus MSDOS CMD files for build. 
-  See the <a href="guide/building-app.html">Building Appendix</a> of the
-  <a href="guide/index.html"> User Guide</a> 
-  for details. 
-
-<div class="dir" onclick='location = "../classes/";'>classes</div>
-
-
-<p>When the jar is rebuilt, this directory contains the *.class files generated 
-  by the ANT build tool. It does not exist in the distribution zip.</p>
-
-<div class="dir_nolink">doc</div>
-
-<p>A set of HTML , PDF and text documents covering different aspects of HSQLDB 
-and some of its utilities.
-Within these documents are links to other formats of the same <i>books</i>.</p>
-<p>User Guide: <a href="guide/index.html">doc/guide/index.html</a></p>
-<p>Utilities Guide: <a href="util-guide/index.html">doc/util-guide/index.html</a></p>
-<!--  Our Javadoc target is not configged to build the API for this class.
-<p>Sample Find File application: <A HREF="apidocs/org/hsqldb/sample/hsqlFindFile.html">hsqlFindFile.html</A><br>
+<p>The <a href="apidocs/index.html">JavaDoc</a> for public classes, including the JDBC documentation. 
 </p>
--->
-<p>list of changes in version 1.9.0 <a href="changelog_1_9_0.txt">changelog_1_9_0.txt</a> 
+<p> List of changes in 1.9.0 from the previous major version <a href="changelog_1_9_0.txt">changelog_1_9_0.txt</a> 
   <br>
-  chronological list of changes since the release of version 1.9.0 <a href="changelist_1_9_0.txt">changelist_1_9_0.txt</a> 
-</p>
+  Chronological list of minor changes and bug fixes since the release of version 
+  1.9.0 <a href="changelist_1_9_0.txt">changelist_1_9_0.txt</a> </p>
 
-<p>The license texts for the source and binaries  
-(<a href="hypersonic_lic.txt">hypersonic_lic.txt</a> for modified sources originally from the HypersonicSQL project) 
-(<a href="hsqldb_lic.txt">hsqldb_lic.txt</a> for sources developed entirely by the HSQLDB Development Group).</p>
+<p>The license texts for the source and binaries, based on the BSD license. <a href="hsqldb_lic.txt">hsqldb_lic.txt</a> 
+  is for sources developed entirely by the HSQL Development Group. <a href="hypersonic_lic.txt">hypersonic_lic.txt</a> 
+  is for sources that contain code from the original HypersonicSQL project.</p>
 
-<p>The apidocs subdirectory contains the <a href="apidocs/index.html">JavaDoc</a>
-for public classes, including the JDBC documentation. </p>
-
-<div class="dir" onclick='location = "../lib/";'>lib</div>
-
-<p>The jar needed for running HSQLDB (<code>hsqldb.jar</code>) has been prebuild in this directory. 
-</p>
-<p>
-  The supplied <code>hsqldb.jar</code> in this distribution was compiled with
-  Java version ${ant.java.version}.
-  If you need to use this jar with a lower JVM version, you will need to
-  build your own jar, as documented in the
-  <a href="guide/building-app.html">Building Appendix</a> of the
-  <a href="guide/index.html"> User Guide</a> 
-<p>
-  The extra zip file is needed only for recompiling hsqldb and is not required 
-  for deployment. </p>
-
-<div class="dir" onclick='location = "../src/";'>src</div>
-
-<p>All source code is in this directory. </p>
-
-<div class="dir" onclick='location = "../testrun/";'>testrun</div>
-
-<p>Contains test scripts for the database engine and SqlTool. </p>
-</div>
-
-<hr/>
-<p>$Revision$<br>
-<p>Fred Toussi<br>
-&nbsp;&nbsp;fredt (at) users.sourceforge.net</p>
-<p>Blaine Simpson (blaine dot simpson at admc dot com)</p>
-<p><a href="http://hsqldb.org/" target="_top">http://hsqldb.org</a>&nbsp;</p>
+<h4>Additional Resources</h4>
+<p>Support for HyperSQL is available from <a href="http://hsqldb.org/support">http://hsqldb.org/support</a> 
+  in various forms, including a mailing list and user forums. The web site features 
+  the latest bugfix versions of the software, FAQ and other useful resources.</p>
+<p>$Date$</p>
 </body>
 </html>
