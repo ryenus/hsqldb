@@ -168,7 +168,7 @@ public class Grantee implements SchemaObject {
 
     public void compile(Session session) throws HsqlException {}
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 

@@ -260,7 +260,7 @@ public class StatementSchema extends Statement {
                         session.checkDDLWrite();
                         name.rename(newName);
 
-                        return Result.updateZeroResult;
+                        break;
                     } catch (HsqlException e) {
                         return Result.newErrorResult(e, sql);
                     }
@@ -679,7 +679,7 @@ public class StatementSchema extends Statement {
                                          false);
                     session.database.schemaManager.addSchemaObject(routine);
 
-                    return Result.updateZeroResult;
+                    break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }

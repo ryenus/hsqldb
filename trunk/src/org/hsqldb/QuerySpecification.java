@@ -763,7 +763,7 @@ public class QuerySpecification extends QueryExpression {
 
                 if (!tempSet.isEmpty()) {
                     throw Error.error(ErrorCode.X_42572,
-                                      ((Expression) tempSet.get(0)).getDDL());
+                                      ((Expression) tempSet.get(0)).getSQL());
                 }
             }
 
@@ -778,7 +778,7 @@ public class QuerySpecification extends QueryExpression {
 
             if (!tempSet.isEmpty() && !resolveForGroupBy(tempSet)) {
                 throw Error.error(ErrorCode.X_42574,
-                                  ((Expression) tempSet.get(0)).getDDL());
+                                  ((Expression) tempSet.get(0)).getSQL());
             }
         } else if (isAggregated) {
             for (int i = 0; i < indexLimitVisible; i++) {
@@ -788,7 +788,7 @@ public class QuerySpecification extends QueryExpression {
 
                 if (!tempSet.isEmpty()) {
                     throw Error.error(ErrorCode.X_42574,
-                                      ((Expression) tempSet.get(0)).getDDL());
+                                      ((Expression) tempSet.get(0)).getSQL());
                 }
             }
         }
@@ -1369,7 +1369,7 @@ public class QuerySpecification extends QueryExpression {
         } catch (Exception e) {}
     }
 
-    public StringBuffer getDDL() throws HsqlException {
+    public String getSQL() throws HsqlException {
 
         StringBuffer sb = new StringBuffer();
         int          limit;
@@ -1379,11 +1379,11 @@ public class QuerySpecification extends QueryExpression {
         limit = indexLimitVisible;
 
         for (int i = 0; i < limit; i++) {
-            sb.append(exprColumns[i].getDDL());
-
-            if (i < limit - 1) {
+            if (i > 0) {
                 sb.append(',');
             }
+
+            sb.append(exprColumns[i].getSQL());
         }
 
         sb.append(Tokens.T_FROM);
@@ -1415,7 +1415,7 @@ public class QuerySpecification extends QueryExpression {
             limit = indexLimitVisible + groupByColumnCount;
 
             for (int i = indexLimitVisible; i < limit; i++) {
-                sb.append(exprColumns[i].getDDL());
+                sb.append(exprColumns[i].getSQL());
 
                 if (i < limit - 1) {
                     sb.append(',');
@@ -1425,7 +1425,7 @@ public class QuerySpecification extends QueryExpression {
 
         if (havingCondition != null) {
             sb.append(' ').append(Tokens.T_HAVING).append(' ');
-            sb.append(havingCondition.getDDL());
+            sb.append(havingCondition.getSQL());
         }
 
         if (sortAndSlice.hasOrder()) {
@@ -1435,7 +1435,7 @@ public class QuerySpecification extends QueryExpression {
                 ' ');
 
             for (int i = indexStartOrderBy; i < limit; i++) {
-                sb.append(exprColumns[i].getDDL());
+                sb.append(exprColumns[i].getSQL());
 
                 if (i < limit - 1) {
                     sb.append(',');
@@ -1444,10 +1444,10 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (sortAndSlice.hasLimit()) {
-            sb.append(sortAndSlice.limitCondition.getLeftNode().getDDL());
+            sb.append(sortAndSlice.limitCondition.getLeftNode().getSQL());
         }
 
-        return sb;
+        return sb.toString();
     }
 
     public ResultMetaData getMetaData() {
@@ -1804,10 +1804,10 @@ public class QuerySpecification extends QueryExpression {
     void getBaseTableNames(OrderedHashSet set) {
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            Table rangeTable = rangeVariables[i].rangeTable;
-            HsqlName name = rangeTable.getName();
+            Table    rangeTable = rangeVariables[i].rangeTable;
+            HsqlName name       = rangeTable.getName();
 
-            if (rangeTable.isReadOnly() || rangeTable.isTemp() ) {
+            if (rangeTable.isReadOnly() || rangeTable.isTemp()) {
                 continue;
             }
 

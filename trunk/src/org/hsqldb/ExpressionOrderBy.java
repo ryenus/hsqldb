@@ -95,7 +95,7 @@ public class ExpressionOrderBy extends Expression {
         dataType = nodes[LEFT].dataType;
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -104,7 +104,7 @@ public class ExpressionOrderBy extends Expression {
         if (nodes[LEFT].alias != null) {
             sb.append(nodes[LEFT].alias.name);
         } else {
-            sb.append(nodes[LEFT].getDDL());
+            sb.append(nodes[LEFT].getSQL());
         }
 
         if (isDescending) {

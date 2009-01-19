@@ -347,7 +347,7 @@ public class Table extends TableBase implements SchemaObject {
 
     public void compile(Session session) throws HsqlException {}
 
-    String[] getDDL(OrderedHashSet resolved, OrderedHashSet unresolved) {
+    String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
 
         for (int i = 0; i < constraintList.length; i++) {
             Constraint c = constraintList[i];
@@ -362,7 +362,7 @@ public class Table extends TableBase implements SchemaObject {
 
         HsqlArrayList list = new HsqlArrayList();
 
-        list.add(getDDL());
+        list.add(getSQL());
 
         // readonly for TEXT tables only
         if (isText()) {
@@ -398,7 +398,7 @@ public class Table extends TableBase implements SchemaObject {
 
         for (int i = 0; i < indexList.length; i++) {
             if (!indexList[i].isConstraint()) {
-                list.add(indexList[i].getDDL());
+                list.add(indexList[i].getSQL());
             }
         }
 
@@ -414,13 +414,13 @@ public class Table extends TableBase implements SchemaObject {
         String[] array = new String[triggerList.length];
 
         for (int i = 0; i < triggerList.length; i++) {
-            array[i] = triggerList[i].getDDL();
+            array[i] = triggerList[i].getSQL();
         }
 
         return array;
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -466,7 +466,7 @@ public class Table extends TableBase implements SchemaObject {
             }
 
             if (column.isIdentity()) {
-                sb.append(' ').append(column.getIdentitySequence().getDDL());
+                sb.append(' ').append(column.getIdentitySequence().getSQL());
             }
 
             if (!column.isNullable()) {
@@ -494,7 +494,7 @@ public class Table extends TableBase implements SchemaObject {
             Constraint c = constraintList[j];
 
             if (!c.isForward) {
-                String d = c.getDDL();
+                String d = c.getSQL();
 
                 if (d.length() > 0) {
                     sb.append(',');

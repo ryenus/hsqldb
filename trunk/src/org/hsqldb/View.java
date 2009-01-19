@@ -170,7 +170,7 @@ public class View extends TableDerived {
         }
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer(128);
 

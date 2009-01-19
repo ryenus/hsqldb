@@ -55,7 +55,7 @@ public class ExpressionValue extends Expression {
         valueData = o;
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         switch (opType) {
 

@@ -122,7 +122,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
     public void compile(Session session) throws HsqlException {}
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -250,7 +250,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         String ddl = null;
 
         ddl = defaultExpression == null ? null
-                                        : defaultExpression.getDDL();
+                                        : defaultExpression.getSQL();
 
         return ddl;
     }

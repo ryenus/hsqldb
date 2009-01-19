@@ -1597,7 +1597,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             for (int j = 0; j < triggerList.length; j++) {
                 def         = (TriggerDef) triggerList[j];
                 triggerName = def.getName().name;
-                description = def.getDDL();
+                description = def.getSQL();
                 status      = def.isValid() ? "ENABLED"
                                             : "DISABLED";
                 triggerBody = def.getClassName();
@@ -3517,7 +3517,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 domain.userTypeModifier.getDefaultClause();
 
             if (defaultExpression != null) {
-                data[domain_default] = defaultExpression.getDDL();
+                data[domain_default] = defaultExpression.getSQL();
             }
 
             t.insertSys(store, data);

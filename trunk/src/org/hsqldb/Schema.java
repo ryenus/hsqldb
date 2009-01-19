@@ -38,7 +38,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
 
-public final class Schema {
+public final class Schema implements SchemaObject {
 
     HsqlName        name;
     SchemaObjectSet triggerLookup;
@@ -74,6 +74,129 @@ public final class Schema {
         sequenceList     = (HashMappedList) sequenceLookup.map;
         this.owner       = owner;
         name.owner       = owner;
+    }
+
+    public int getType() {
+        return SchemaObject.SCHEMA;
+    }
+
+    public HsqlName getName() {
+        return name;
+    }
+
+    public HsqlName getSchemaName() {
+        return null;
+    }
+
+    public HsqlName getCatalogName() {
+        return null;
+    }
+
+    public Grantee getOwner() {
+        return owner;
+    }
+
+    public OrderedHashSet getReferences() {
+        return null;
+    }
+
+    public OrderedHashSet getComponents() {
+        return null;
+    }
+
+    public void compile(Session session) throws HsqlException {}
+
+    public String getSQL() {
+
+        StringBuffer sb = new StringBuffer(128);
+
+        sb.append(Tokens.T_CREATE).append(' ');
+        sb.append(Tokens.T_SCHEMA).append(' ');
+        sb.append(name.statementName).append(' ');
+        sb.append(Tokens.T_AUTHORIZATION).append(' ');
+        sb.append(owner.getStatementName());
+
+        return sb.toString();
+    }
+
+    public String[] getSQLArray(OrderedHashSet resolved,
+                                OrderedHashSet unresolved) {
+
+        HsqlArrayList list = new HsqlArrayList();
+        StringBuffer  sb   = new StringBuffer(128);
+
+        sb.append(Tokens.T_CREATE).append(' ');
+        sb.append(Tokens.T_SCHEMA).append(' ');
+        sb.append(name.statementName).append(' ');
+        sb.append(Tokens.T_AUTHORIZATION).append(' ');
+        sb.append(owner.getStatementName());
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append(Tokens.T_SET).append(' ');
+        sb.append(Tokens.T_SCHEMA).append(' ');
+        sb.append(name.statementName);
+        list.add(sb.toString());
+
+        //
+        String[] subList;
+
+        subList = charsetLookup.getSQL(resolved, unresolved);
+
+        list.addAll(subList);
+
+        subList = collationLookup.getSQL(resolved, unresolved);
+
+        list.addAll(subList);
+
+        subList = typeLookup.getSQL(resolved, unresolved);
+
+        list.addAll(subList);
+
+        subList = sequenceLookup.getSQL(resolved, unresolved);
+
+        list.addAll(subList);
+
+        subList = tableLookup.getSQL(resolved, unresolved);
+
+        list.addAll(subList);
+
+        subList = functionLookup.getSQL(resolved, unresolved);
+
+        list.addAll(subList);
+
+        subList = procedureLookup.getSQL(resolved, unresolved);
+
+        list.addAll(subList);
+
+        subList = assertionLookup.getSQL(resolved, unresolved);
+
+        list.addAll(subList);
+
+//
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
+    public String[] getTriggerSQL() {
+
+        HsqlArrayList list = new HsqlArrayList();
+        Iterator      it   = tableLookup.map.values().iterator();
+
+        while (it.hasNext()) {
+            Table    table = (Table) it.next();
+            String[] ddl   = table.getTriggerDDL();
+
+            list.addAll(ddl);
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
     }
 
     boolean isEmpty() {
@@ -131,106 +254,5 @@ public final class Schema {
         sequenceLookup   = null;
         tableLookup      = null;
         typeLookup       = null;
-    }
-
-    public HsqlName getName() {
-        return name;
-    }
-
-    public Grantee getOwner() {
-        return owner;
-    }
-
-    public String getDDL() {
-
-        StringBuffer sb = new StringBuffer(128);
-
-        sb.append(Tokens.T_CREATE).append(' ');
-        sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(name.statementName).append(' ');
-        sb.append(Tokens.T_AUTHORIZATION).append(' ');
-        sb.append(owner.getStatementName());
-
-        return sb.toString();
-    }
-
-    public String[] getDDLArray(OrderedHashSet resolved,
-                                OrderedHashSet unresolved) {
-
-        HsqlArrayList list = new HsqlArrayList();
-        StringBuffer  sb   = new StringBuffer(128);
-
-        sb.append(Tokens.T_CREATE).append(' ');
-        sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(name.statementName).append(' ');
-        sb.append(Tokens.T_AUTHORIZATION).append(' ');
-        sb.append(owner.getStatementName());
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append(Tokens.T_SET).append(' ');
-        sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(name.statementName);
-        list.add(sb.toString());
-
-        //
-        String[] subList;
-
-        subList = charsetLookup.getDDL(resolved, unresolved);
-
-        list.addAll(subList);
-
-        subList = collationLookup.getDDL(resolved, unresolved);
-
-        list.addAll(subList);
-
-        subList = typeLookup.getDDL(resolved, unresolved);
-
-        list.addAll(subList);
-
-        subList = sequenceLookup.getDDL(resolved, unresolved);
-
-        list.addAll(subList);
-
-        subList = tableLookup.getDDL(resolved, unresolved);
-
-        list.addAll(subList);
-
-        subList = functionLookup.getDDL(resolved, unresolved);
-
-        list.addAll(subList);
-
-        subList = procedureLookup.getDDL(resolved, unresolved);
-
-        list.addAll(subList);
-
-        subList = assertionLookup.getDDL(resolved, unresolved);
-
-        list.addAll(subList);
-
-//
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
-    }
-
-    public String[] getTriggerDDL() {
-
-        HsqlArrayList list = new HsqlArrayList();
-        Iterator      it   = tableLookup.map.values().iterator();
-
-        while (it.hasNext()) {
-            Table    table = (Table) it.next();
-            String[] ddl   = table.getTriggerDDL();
-
-            list.addAll(ddl);
-        }
-
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
     }
 }

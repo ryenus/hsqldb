@@ -68,7 +68,7 @@ public class ExpressionAggregate extends Expression {
         return true;
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb   = new StringBuffer(64);
         String       left = getContextDDL(nodes.length > 0 ? nodes[LEFT]

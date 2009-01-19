@@ -1603,7 +1603,7 @@ public class ParserDDL extends ParserRoutine {
         checkSchemaUpdateAuthorisation(name.schema);
         database.schemaManager.checkSchemaObjectNotExists(name);
 
-        String statementSQL = Token.getSql(statement);
+        String statementSQL = Token.getSQL(statement);
 
         view.statement = statementSQL;
 
@@ -2859,12 +2859,12 @@ public class ParserDDL extends ParserRoutine {
         Object[] args   = new Object[]{ tokens };
         StatementSchema statement = new StatementSchema(getLastPart(position),
             StatementTypes.CHECK, args);
-        String sql = Token.getSql(tokens);
+        String sql = Token.getSQL(tokens);
 
         readThis(Tokens.CLOSEBRACKET);
 
         c.check          = condition;
-        c.checkStatement = Token.getSql(tokens);
+        c.checkStatement = Token.getSQL(tokens);
     }
 
     /**

@@ -52,9 +52,9 @@ public abstract class Statement {
     final static Statement[] emptyArray = new Statement[]{};
 
     //
-    final int        type;
-    int              group;
-    boolean          isValid = true;
+    final int type;
+    int       group;
+    boolean   isValid = true;
 
     /** the default schema name used to resolve names in the sql */
     HsqlName schemaName;
@@ -74,6 +74,12 @@ public abstract class Statement {
 
     /** id in StatementManager */
     long id;
+
+    /** table names written */
+    HsqlName[] readTableNames = HsqlName.emptyArray;
+
+    /** table names read */
+    HsqlName[] writeTableNames = HsqlName.emptyArray;;
 
     public abstract Result execute(Session session, Object[] args);
 
@@ -150,9 +156,17 @@ public abstract class Statement {
         return RangeVariable.emptyArray;
     }
 
-    public void getTableNamesForRead(OrderedHashSet set) {}
+    void getTableNamesForRead(OrderedHashSet set) {}
 
-    public void getTableNamesForWrite(OrderedHashSet set) {}
+    void getTableNamesForWrite(OrderedHashSet set) {}
+
+    public final HsqlName[] getTableNamesForRead() {
+        return readTableNames;
+    }
+
+    public final HsqlName[] getTableNamesForWrite() {
+        return writeTableNames;
+    }
 
     public void setParent(StatementCompound statement) {
         this.parent = statement;

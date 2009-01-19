@@ -1542,7 +1542,7 @@ public class FunctionSQL extends Expression {
         }
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -1551,9 +1551,9 @@ public class FunctionSQL extends Expression {
             case FUNC_POSITION_CHAR :
             case FUNC_POSITION_BINARY : {
                 sb.append(Tokens.T_POSITION).append('(')                 //
-                    .append(nodes[0].getDDL()).append(' ')               //
+                    .append(nodes[0].getSQL()).append(' ')               //
                     .append(Tokens.T_IN).append(' ')                     //
-                    .append(nodes[1].getDDL());
+                    .append(nodes[1].getSQL());
 
                 if (nodes[2] != null
                         && Boolean.TRUE.equals(nodes[2].valueData)) {
@@ -1580,105 +1580,105 @@ public class FunctionSQL extends Expression {
 
                 sb.append(Tokens.T_EXTRACT).append('(').append(token)    //
                     .append(' ').append(Tokens.T_FROM).append(' ')       //
-                    .append(nodes[1].getDDL()).append(')');
+                    .append(nodes[1].getSQL()).append(')');
 
                 break;
             }
             case FUNC_CHAR_LENGTH : {
                 sb.append(Tokens.T_CHAR_LENGTH).append('(')              //
-                    .append(nodes[0].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             case FUNC_BIT_LENGTH : {
                 sb.append(Tokens.T_BIT_LENGTH).append('(')               //
-                    .append(nodes[0].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             case FUNC_OCTET_LENGTH : {
                 sb.append(Tokens.T_OCTET_LENGTH).append('(')             //
-                    .append(nodes[0].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             /*
             case FUNC_CARDINALITY :{
                 buf.append(Token.T_CARDINALITY).append('(').append(
-                    argList[0].getDDL()).append(')');
+                    argList[0].getSQL()).append(')');
 
                 break;
             }
             */
             case FUNC_ABS : {
                 sb.append(Tokens.T_ABS).append('(')                      //
-                    .append(nodes[0].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             case FUNC_MOD : {
                 sb.append(Tokens.T_MOD).append('(')                      //
-                    .append(nodes[0].getDDL()).append(',')               //
-                    .append(nodes[1].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(',')               //
+                    .append(nodes[1].getSQL()).append(')');
 
                 break;
             }
             case FUNC_LN : {
                 sb.append(Tokens.T_LN).append('(')                       //
-                    .append(nodes[0].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             case FUNC_EXP : {
                 sb.append(Tokens.T_EXP).append('(')                      //
-                    .append(nodes[0].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             case FUNC_POWER : {
                 sb.append(Tokens.T_POWER).append('(')                    //
-                    .append(nodes[0].getDDL()).append(',')               //
-                    .append(nodes[1].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(',')               //
+                    .append(nodes[1].getSQL()).append(')');
 
                 break;
             }
             case FUNC_SQRT : {
                 sb.append(Tokens.T_SQRT).append('(')                     //
-                    .append(nodes[0].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             case FUNC_FLOOR : {
                 sb.append(Tokens.T_FLOOR).append('(')                    //
-                    .append(nodes[0].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             case FUNC_CEILING : {
                 sb.append(Tokens.T_CEILING).append('(').                 //
-                    append(nodes[0].getDDL()).append(')');
+                    append(nodes[0].getSQL()).append(')');
 
                 break;
             }
             case FUNC_WIDTH_BUCKET : {
                 sb.append(Tokens.T_WIDTH_BUCKET).append('(')             //
-                    .append(nodes[0].getDDL()).append(',')               //
-                    .append(nodes[1].getDDL()).append(',')               //
-                    .append(nodes[2].getDDL()).append(',')               //
-                    .append(nodes[3].getDDL()).append(')');
+                    .append(nodes[0].getSQL()).append(',')               //
+                    .append(nodes[1].getSQL()).append(',')               //
+                    .append(nodes[2].getSQL()).append(',')               //
+                    .append(nodes[3].getSQL()).append(')');
 
                 break;
             }
             case FUNC_SUBSTRING_CHAR :
             case FUNC_SUBSTRING_BINARY :
                 sb.append(Tokens.T_SUBSTRING).append('(')                //
-                    .append(nodes[0].getDDL()).append(' ')               //
+                    .append(nodes[0].getSQL()).append(' ')               //
                     .append(Tokens.T_FROM).append(' ')                   //
-                    .append(nodes[1].getDDL());
+                    .append(nodes[1].getSQL());
 
                 if (nodes[2] != null) {
                     sb.append(' ').append(Tokens.T_FOR).append(' ')      //
-                        .append(nodes[2].getDDL());
+                        .append(nodes[2].getSQL());
                 }
 
                 if (nodes[3] != null) {
@@ -1697,12 +1697,12 @@ public class FunctionSQL extends Expression {
             */
             case FUNC_FOLD_LOWER :
                 sb.append(Tokens.T_LOWER).append('(').append(
-                    nodes[0].getDDL()).append(')');
+                    nodes[0].getSQL()).append(')');
                 break;
 
             case FUNC_FOLD_UPPER :
                 sb.append(Tokens.T_UPPER).append('(').append(
-                    nodes[0].getDDL()).append(')');
+                    nodes[0].getSQL()).append(')');
                 break;
 
             /*
@@ -1716,15 +1716,15 @@ public class FunctionSQL extends Expression {
             case FUNC_OVERLAY_CHAR :
             case FUNC_OVERLAY_BINARY :
                 sb.append(Tokens.T_OVERLAY).append('(')                  //
-                    .append(nodes[0].getDDL()).append(' ')               //
+                    .append(nodes[0].getSQL()).append(' ')               //
                     .append(Tokens.T_PLACING).append(' ')                //
-                    .append(nodes[1].getDDL()).append(' ')               //
+                    .append(nodes[1].getSQL()).append(' ')               //
                     .append(Tokens.T_FROM).append(' ')                   //
-                    .append(nodes[2].getDDL());
+                    .append(nodes[2].getSQL());
 
                 if (nodes[3] != null) {
                     sb.append(' ').append(Tokens.T_FOR).append(' ').append(
-                        nodes[3].getDDL());
+                        nodes[3].getSQL());
                 }
 
                 if (nodes[4] != null) {
@@ -1762,9 +1762,9 @@ public class FunctionSQL extends Expression {
 
                 sb.append(Tokens.T_TRIM).append('(')                     //
                     .append(spec).append(' ')                            //
-                    .append(nodes[1].getDDL()).append(' ')               //
+                    .append(nodes[1].getSQL()).append(' ')               //
                     .append(Tokens.T_FROM).append(' ')                   //
-                    .append(nodes[2].getDDL()).append(')');
+                    .append(nodes[2].getSQL()).append(')');
                 break;
 
             case FUNC_CURRENT_CATALOG :

@@ -194,7 +194,7 @@ public class UserTypeModifier {
         }
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -213,7 +213,7 @@ public class UserTypeModifier {
 
             if (defaultExpression != null) {
                 sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
-                sb.append(defaultExpression.getDDL());
+                sb.append(defaultExpression.getSQL());
             }
 
             for (int i = 0; i < constraints.length; i++) {

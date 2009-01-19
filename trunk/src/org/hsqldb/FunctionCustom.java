@@ -1470,14 +1470,14 @@ public class FunctionCustom extends FunctionSQL {
         }
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         switch (funcType) {
 
             case FUNC_EXTRACT :
             case FUNC_TRIM_CHAR :
             case FUNC_OVERLAY_CHAR :
-                return super.getDDL();
+                return super.getSQL();
 
             case FUNC_DATABASE :
             case FUNC_ISAUTOCOMMIT :
@@ -1496,20 +1496,20 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TIMESTAMPADD :
             case FUNC_TIMESTAMPDIFF :
                 return new StringBuffer(Tokens.T_TIMESTAMPADD).append(
-                    Tokens.T_OPENBRACKET).append(nodes[0].getDDL())       //
-                    .append(Tokens.T_COMMA).append(nodes[1].getDDL())     //
-                    .append(Tokens.T_COMMA).append(nodes[2].getDDL())     //
+                    Tokens.T_OPENBRACKET).append(nodes[0].getSQL())       //
+                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())     //
+                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())     //
                     .append(Tokens.T_CLOSEBRACKET).toString();
 
             case FUNC_TRUNCATE : {
                 return new StringBuffer(Tokens.T_TRUNCATE).append('(')    //
-                    .append(nodes[0].getDDL()).append(Tokens.T_COMMA)     //
-                    .append(nodes[1].getDDL()).append(')').toString();
+                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
+                    .append(nodes[1].getSQL()).append(')').toString();
             }
             case FUNC_TO_CHAR : {
                 return new StringBuffer(Tokens.T_TO_CHAR).append('(')     //
-                    .append(nodes[0].getDDL()).append(Tokens.T_COMMA)     //
-                    .append(nodes[1].getDDL()).append(')').toString();
+                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
+                    .append(nodes[1].getSQL()).append(')').toString();
             }
             case FUNC_PI :
             case FUNC_RAND : {
@@ -1530,15 +1530,15 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ROUNDMAGIC :
             case FUNC_SIGN : {
                 return new StringBuffer(name).append('(')                 //
-                    .append(nodes[0].getDDL()).append(')').toString();
+                    .append(nodes[0].getSQL()).append(')').toString();
             }
             case FUNC_ROUND : {
                 return new StringBuffer(Tokens.ROUND).append('(')         //
-                    .append(nodes[0].getDDL()).append(Tokens.T_COMMA)     //
-                    .append(nodes[1].getDDL()).append(')').toString();
+                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
+                    .append(nodes[1].getSQL()).append(')').toString();
             }
             default :
-                return super.getDDL();
+                return super.getSQL();
         }
     }
 }

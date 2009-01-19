@@ -186,7 +186,7 @@ public class FunctionSQLInvoked extends Expression {
         return returnValue;
     }
 
-    public String getDDL() {
+    public String getSQL() {
         return Tokens.T_FUNCTION;
     }
 

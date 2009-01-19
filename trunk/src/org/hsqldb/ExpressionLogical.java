@@ -207,12 +207,12 @@ public class ExpressionLogical extends Expression {
         return new ExpressionLogical(OpTypes.AND, e1, e2);
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer(64);
 
         if (opType == OpTypes.VALUE) {
-            return super.getDDL();
+            return super.getSQL();
         }
 
         String left  = getContextDDL(nodes[LEFT]);

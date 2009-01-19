@@ -33,9 +33,9 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Implementation of Statement for query expressions.<p>
@@ -92,7 +92,7 @@ public class StatementQuery extends StatementDMQL {
         }
     }
 
-    public void getTableNamesForRead(OrderedHashSet set) {
+    void getTableNamesForRead(OrderedHashSet set) {
 
         queryExpression.getBaseTableNames(set);
 
@@ -103,5 +103,5 @@ public class StatementQuery extends StatementDMQL {
         }
     }
 
-    public void getTableNamesForWrite(OrderedHashSet set) {}
+    void getTableNamesForWrite(OrderedHashSet set) {}
 }

@@ -206,7 +206,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      * @return the SQL character sequence required to (re)create the
      *  trigger
      */
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer(256);
 

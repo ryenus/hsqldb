@@ -85,7 +85,7 @@ public class ExpressionArithmetic extends Expression {
         }
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer(64);
 
@@ -98,7 +98,7 @@ public class ExpressionArithmetic extends Expression {
 
                 if (dataType == null) {
                     throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "Expression.getDDL()");
+                                             "Expression.getSQL()");
                 }
 
                 return dataType.convertToSQLString(valueData);

@@ -124,7 +124,7 @@ public class TriggerDefSQL extends TriggerDef {
         }
     }
 
-    public String getDDL() {
+    public String getSQL() {
 
         boolean      isBlock = statements.length > 1;
         StringBuffer sb      = new StringBuffer(256);
