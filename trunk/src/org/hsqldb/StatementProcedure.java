@@ -164,7 +164,7 @@ public class StatementProcedure extends StatementDMQL {
             getResultMetaData();
         }
 
-        // TODO: Now that jdbcResultSet has a RowSetNavigator instead of
+        // TODO: Now that JDBCResultSet has a RowSetNavigator instead of
         // Result, then how to let stored procedure implemented using JDBC
         // to generate result sets for the client?
         // else if (o instanceof JDBCResultSet) {

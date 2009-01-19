@@ -171,7 +171,7 @@ import org.hsqldb.types.Type;
  * Starting with HSQLDB 1.7.2, JDBCParameterMetaData objects are backed by
  * a true compiled parameteric representation. Hence, there are now significant
  * performance gains to be had by using a JDBCParameterMetaData object in
- * preference to a jdbcStatement object when a short-running SQL statement is
+ * preference to a JDBCStatement object when a short-running SQL statement is
  * to be executed more than a small number of times. <p>
  *
  * When it can be otherwise avoided, it should be considered poor practice to
@@ -181,7 +181,7 @@ import org.hsqldb.types.Type;
  * both represent a round-trip to the engine, this practice is likely to be
  * noticably <em>less</em> performant for short-running statements (and
  * possibly even orders of magnitude less performant over network connections
- * for short-running statements) than the equivalent process using jdbcStatement
+ * for short-running statements) than the equivalent process using JDBCStatement
  * objects, albeit far more convenient, less error prone and certainly much
  * less resource-intensive, especially when large binary and character values
  * are involved, due to the optimized parameterization facility. <p>
@@ -219,7 +219,7 @@ import org.hsqldb.types.Type;
  * version 1.1.x
  * <em>Java Runtime Environment</em><sup><font size="-2">TM</font></sup>.
  * However, in addition to this technique requiring explicit casts to the
- * org.hsqldb.jdbcXXX classes, some of these method calls require
+ * org.hsqldb.jdbc.* classes, some of these method calls require
  * <code>int</code> values that are defined only in the JDBC 2 or greater
  * version of the {@link java.sql.ResultSet ResultSet} interface.  For this
  * reason these values are defined in {@link JDBCResultSet JDBCResultSet}.<p>
@@ -1875,7 +1875,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @see #addBatch
      * @see java.sql.DatabaseMetaData#supportsBatchUpdates()
      * @since JDK 1.3 (JDK 1.1.x developers: read the overview for
-     * jdbcStatement)
+     * JDBCStatement)
      */
     public int[] executeBatch() throws SQLException {
 
@@ -3286,7 +3286,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * is not one of <code>ResultSet.FETCH_FORWARD</code>,
      * <code>ResultSet.FETCH_REVERSE</code>, or <code>ResultSet.FETCH_UNKNOWN</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for jdbcStatement)
+     *    for JDBCStatement)
      * @see #getFetchDirection
      */
     public void setFetchDirection(int direction) throws SQLException {
@@ -3329,7 +3329,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for jdbcStatement)
+     *    for JDBCStatement)
      * @see #setFetchDirection
      */
     public int getFetchDirection() throws SQLException {
@@ -3364,7 +3364,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      *        (JDBC4 modified:)
      *        condition  <code>rows >= 0</code> is not satisfied.
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for jdbcStatement)
+     *   for JDBCStatement)
      * @see #getFetchSize
      */
     public void setFetchSize(int rows) throws SQLException {
@@ -3400,7 +3400,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *  for jdbcStatement)
+     *  for JDBCStatement)
      * @see #setFetchSize
      */
     public int getFetchSize() throws SQLException {
@@ -3432,7 +3432,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *  for jdbcStatement)
+     *  for JDBCStatement)
      */
     public int getResultSetConcurrency() throws SQLException {
 
@@ -3462,7 +3462,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for jdbcStatement)
+     *   for JDBCStatement)
      */
     public int getResultSetType() throws SQLException {
 
@@ -3495,7 +3495,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * driver does not support batch updates
      * @see #addBatch
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for jdbcStatement)
+     *   for JDBCStatement)
      */
     public void clearBatch() throws SQLException {
 
@@ -3516,7 +3516,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for jdbcStatement)
+     *    for JDBCStatement)
      */
     public Connection getConnection() throws SQLException {
 
@@ -4108,7 +4108,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
     }
 
     /**
-     * Internal result producer for jdbcStatement (sqlExecDirect mode).
+     * Internal result producer for JDBCStatement (sqlExecDirect mode).
      * <p>
      *
      * @throws SQLException when a database access error occurs

@@ -52,7 +52,7 @@ class StatementBase {
 
     /**
      * Whether this Statement has been explicitly closed.  A JDBCConnection
-     * object now explicitly closes all of its open jdbcXXXStatement objects
+     * object now explicitly closes all of its open JDBC*Statement objects
      * when it is closed.
      */
     volatile boolean isClosed;

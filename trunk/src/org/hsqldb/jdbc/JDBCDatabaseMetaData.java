@@ -2859,7 +2859,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3028,7 +3028,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3115,7 +3115,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3392,7 +3392,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3474,7 +3474,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3562,7 +3562,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3659,7 +3659,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3780,7 +3780,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3848,7 +3848,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -3963,7 +3963,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -4078,7 +4078,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -4198,7 +4198,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -4392,7 +4392,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -4459,7 +4459,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @see JDBCConnection
      * @since  JDK 1.2 (JDK 1.1.x developers: read the overview
-     *      for jdbcDatabaseMetaData)
+     *      for JDBCDatabaseMetaData)
      */
     public boolean supportsResultSetType(int type) throws SQLException {
         return (type == JDBCResultSet.TYPE_FORWARD_ONLY
@@ -4476,7 +4476,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @see JDBCConnection
      * @since  JDK 1.2 (JDK 1.1.x developers: read the overview
-     *      for jdbcDatabaseMetaData)
+     *      for JDBCDatabaseMetaData)
      */
     public boolean supportsResultSetConcurrency(int type,
             int concurrency) throws SQLException {
@@ -4506,7 +4506,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean ownUpdatesAreVisible(int type) throws SQLException {
         return false;
@@ -4531,7 +4531,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean ownDeletesAreVisible(int type) throws SQLException {
         return false;
@@ -4556,7 +4556,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean ownInsertsAreVisible(int type) throws SQLException {
         return false;
@@ -4582,7 +4582,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean othersUpdatesAreVisible(int type) throws SQLException {
         return false;
@@ -4608,7 +4608,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean othersDeletesAreVisible(int type) throws SQLException {
         return false;
@@ -4634,7 +4634,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean othersInsertsAreVisible(int type) throws SQLException {
         return false;
@@ -4660,7 +4660,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean updatesAreDetected(int type) throws SQLException {
         return false;
@@ -4690,7 +4690,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean deletesAreDetected(int type) throws SQLException {
         return false;
@@ -4716,7 +4716,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *         set type; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean insertsAreDetected(int type) throws SQLException {
         return false;
@@ -4737,7 +4737,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public boolean supportsBatchUpdates() throws SQLException {
         return true;
@@ -4781,7 +4781,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -4812,7 +4812,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @see #getSearchStringEscape (JDBC4 clarification)
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for jdbcDatabaseMetaData)
+     *     for JDBCDatabaseMetaData)
      */
     public ResultSet getUDTs(String catalog, String schemaPattern,
                              String typeNamePattern,
@@ -4849,7 +4849,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return the connection that produced this metadata object
      * @exception SQLException if a database access error occurs
      * @since  JDK 1.2 (JDK 1.1.x developers: read the overview
-     *      for jdbcDatabaseMetaData)
+     *      for JDBCDatabaseMetaData)
      */
     public Connection getConnection() throws SQLException {
         return connection;
@@ -4998,7 +4998,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -5083,7 +5083,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -5195,7 +5195,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
      * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All jdbcDatabaseMetaData methods perform
+     * stores them verbatim. All JDBCDatabaseMetaData methods perform
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
@@ -5993,7 +5993,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 //#endif JAVA6
 
     /**
-     * Constructs a new <code>jdbcDatabaseMetaData</code> object using the
+     * Constructs a new <code>JDBCDatabaseMetaData</code> object using the
      * specified connection.  This contructor is used by <code>JDBCConnection</code>
      * when producing a <code>DatabaseMetaData</code> object from a call to
      * {@link JDBCConnection#getMetaData() getMetaData}.
@@ -6132,13 +6132,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     private ResultSet execute(String sql) throws SQLException {
 
         // NOTE:
-        // Need to create a jdbcStatement here so JDBCResultSet can return
+        // Need to create a JDBCStatement here so JDBCResultSet can return
         // its Statement object on call to getStatement().
         // The native JDBCConnection.execute() method does not
         // automatically assign a Statement object for the ResultSet, but
-        // jdbcStatement does.  That is, without this, there is no way for the
+        // JDBCStatement does.  That is, without this, there is no way for the
         // JDBCResultSet to find its way back to its Connection (or Statement)
-        // Also, cannot use single, shared jdbcStatement object, as each
+        // Also, cannot use single, shared JDBCStatement object, as each
         // fetchResult() closes any old JDBCResultSet before fetching the
         // next, causing the JDBCResultSet's Result object to be nullified
         final int scroll = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;

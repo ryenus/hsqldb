@@ -757,7 +757,7 @@
       are thoroughly documented with additional clarifications and HyperSQL
       specific comments. See the <link
       xlink:href="#javadoc-link">JavaDoc</link> for the
-      <classname>org.hsqldb.jdbc.JDBCXXXX</classname> classes.</para>
+      <classname>org.hsqldb.jdbc.*</classname> classes.</para>
     </section>
 
     <section xml:id="sqlissues_tabletypes-sect">

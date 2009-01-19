@@ -725,7 +725,7 @@ public class Util {
 //
 //    static String toResultSetConcurrencyString(int type) {
 //        switch(type) {
-//            case jdbcResultSet.CONCUR_READ_ONLY:
+//            case JDBCResultSet.CONCUR_READ_ONLY:
 //            {
 //                return "CONCUR_READ_ONLY";
 //            }
@@ -789,7 +789,7 @@ public class Util {
 //            {
 //                return "TYPE_SCROLL_INSENSITIVE";
 //            }
-//            case JDBCResultSetjdbcResultSet.TYPE_SCROLL_SENSITIVE:
+//            case JDBCResultSet.TYPE_SCROLL_SENSITIVE:
 //            {
 //                return "TYPE_SCROLL_SENSITIVE";
 //            }

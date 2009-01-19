@@ -98,7 +98,7 @@ import org.hsqldb.result.Result;
  * version 1.1.x
  * <em>Java Runtime Environment</em><sup><font size="-2">TM</font></sup>.
  * However, in addition to this technique requiring explicit casts to the
- * org.hsqldb.jdbcXXX classes, some of these method calls require
+ * org.hsqldb.jdbc.* classes, some of these method calls require
  * <code>int</code> values that are defined only in the JDBC 2 or greater
  * version of the {@link java.sql.ResultSet ResultSet} interface.  For this
  * reason these values are defined in {@link JDBCResultSet JDBCResultSet}.<p>
@@ -750,7 +750,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * is not one of <code>ResultSet.FETCH_FORWARD</code>,
      * <code>ResultSet.FETCH_REVERSE</code>, or <code>ResultSet.FETCH_UNKNOWN</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for jdbcStatement)
+     *    for JDBCStatement)
      * @see #getFetchDirection
      */
     public void setFetchDirection(int direction) throws SQLException {
@@ -788,7 +788,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for jdbcStatement)
+     *    for JDBCStatement)
      * @see #setFetchDirection
      */
     public int getFetchDirection() throws SQLException {
@@ -823,7 +823,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      *        (JDBC4 modified:)
      *        condition  <code>rows >= 0</code> is not satisfied.
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for jdbcStatement)
+     *   for JDBCStatement)
      * @see #getFetchSize
      */
     public void setFetchSize(int rows) throws SQLException {
@@ -859,7 +859,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *  for jdbcStatement)
+     *  for JDBCStatement)
      * @see #setFetchSize
      */
     public int getFetchSize() throws SQLException {
@@ -891,7 +891,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *  for jdbcStatement)
+     *  for JDBCStatement)
      */
     public int getResultSetConcurrency() throws SQLException {
 
@@ -921,7 +921,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for jdbcStatement)
+     *   for JDBCStatement)
      */
     public int getResultSetType() throws SQLException {
 
@@ -957,7 +957,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * driver does not support batch updates
      * @see #executeBatch
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for jdbcStatement)
+     *   for JDBCStatement)
      */
     public void addBatch(String sql) throws SQLException {
 
@@ -995,7 +995,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * driver does not support batch updates
      * @see #addBatch
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for jdbcStatement)
+     *   for JDBCStatement)
      */
     public void clearBatch() throws SQLException {
 
@@ -1080,7 +1080,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @see #addBatch
      * @see java.sql.DatabaseMetaData#supportsBatchUpdates
      * @since JDK 1.3 (JDK 1.1.x developers: read the overview for
-     * jdbcStatement)
+     * JDBCStatement)
      */
     public int[] executeBatch() throws SQLException {
 
@@ -1144,7 +1144,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for jdbcStatement)
+     *    for JDBCStatement)
      */
     public Connection getConnection() throws SQLException {
 
@@ -1768,7 +1768,7 @@ public class JDBCStatement extends StatementBase implements Statement {
     // -------------------- Internal Implementation ----------------------------
 
     /**
-     * Constructs a new jdbcStatement with the specified connection and result
+     * Constructs a new JDBCStatement with the specified connection and result
      * type.
      *
      * @param c the connection on which this statement will execute
@@ -1787,7 +1787,7 @@ public class JDBCStatement extends StatementBase implements Statement {
     }
 
     /**
-     * Internal result producer for jdbcStatement (sqlExecDirect mode).
+     * Internal result producer for JDBCStatement (sqlExecDirect mode).
      *
      * <p>
      *
