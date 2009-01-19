@@ -136,11 +136,18 @@ examples:
    </target>
 
    <target name="-prepare-javadoc" depends="init">
+     <delete dir="doc/apidocs"/>
+     <!-- Must be vigilant about cleaning up from previous runs, since this
+          same directory is used for both public API spec, and the full
+          code-base API spec.
+          There is no performance penalty, since the javadoc task regenerates
+          everything each run.
+      -->
      <copy todir="doc/apidocs">
        <!-- IMPORTANT:
             Add a fixcrlf if we add non-binary files to doc-src/apidocs. -->
        <fileset dir="doc-src/apidocs"/>
-       </copy>
+     </copy>
    </target>
 
 
