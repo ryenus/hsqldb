@@ -402,7 +402,7 @@ public class JDBCBlob implements Blob {
      * invocation of free(). <p>
      *
      * In general, however, if an application may perform concurrent
-     * jdbcBlob modifications and the integrity of the application depends on
+     * JDBCBlob modifications and the integrity of the application depends on
      * total order Blob modification semantics, then such operations
      * should be synchronized on an appropriate monitor.<p>
      *
@@ -480,7 +480,7 @@ public class JDBCBlob implements Blob {
      * invocation of free(). <p>
      *
      * In general, however, if an application may perform concurrent
-     * jdbcBlob modifications and the integrity of the application depends on
+     * JDBCBlob modifications and the integrity of the application depends on
      * total order Blob modification semantics, then such operations
      * should be synchronized on an appropriate monitor.<p>
      *
@@ -604,7 +604,7 @@ public class JDBCBlob implements Blob {
      * invocation of free(). <p>
      *
      * In general, however, if an application may perform concurrent
-     * jdbcBlob modifications and the integrity of the application depends on
+     * JDBCBlob modifications and the integrity of the application depends on
      * total order Blob modification semantics, then such operations
      * should be synchronized on an appropriate monitor.<p>
      *
@@ -824,7 +824,7 @@ public class JDBCBlob implements Blob {
     private boolean          getBinaryStreamUsesCopy;
 
     /**
-     * Constructs a new jdbcBlob instance wrapping the given octet sequence. <p>
+     * Constructs a new JDBCBlob instance wrapping the given octet sequence. <p>
      *
      * This constructor is used internally to retrieve result set values as
      * Blob objects, yet it must be public to allow access from other packages.

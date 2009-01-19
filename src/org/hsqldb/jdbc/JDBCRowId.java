@@ -91,7 +91,7 @@ public final class JDBCRowId implements RowId {
     private final byte[] id;
 
     /**
-     * Constructs a new jdbcRowid instance wrapping the given octet sequence. <p>
+     * Constructs a new JDBCRowId instance wrapping the given octet sequence. <p>
      *
      * This constructor may be used internally to retrieve result set values as
      * RowId objects, yet it also may need to be public to allow access from
@@ -113,7 +113,7 @@ public final class JDBCRowId implements RowId {
     }
 
     /**
-     * Constructs a new jdbcRowId instance whose internal octet sequence is
+     * Constructs a new JDBCRowId instance whose internal octet sequence is
      * is a copy of the octet sequence of the given RowId object. <p>
      *
      * @param id the octet sequence representing the Rowid value
@@ -124,7 +124,7 @@ public final class JDBCRowId implements RowId {
     }
 
     /**
-     * Constructs a new jdbcRowId instance whose internal octet sequence is
+     * Constructs a new JDBCRowId instance whose internal octet sequence is
      * is that represented by the given hexidecimal character sequence. <p>
      * @param hex the hexadecimal character sequence from which to derive
      *        the internal octet sequence

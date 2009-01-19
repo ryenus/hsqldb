@@ -41,7 +41,7 @@ import javax.naming.spi.ObjectFactory;
 // boucherb@users 20040411 - doc 1.7.2 - javadoc updates toward 1.7.2 final
 
 /**
- * A JNDI ObjectFactory for creating {@link JDBCDataSource jdbcDatasource}
+ * A JNDI ObjectFactory for creating {@link JDBCDataSource JDBCDataSource}
  * object instances.
  *
  * @author deforest@users
@@ -50,18 +50,18 @@ import javax.naming.spi.ObjectFactory;
 public class JDBCDataSourceFactory implements ObjectFactory {
 
     /**
-     * Creates a jdbcDatasource object using the location or reference
+     * Creates a JDBCDataSource object using the location or reference
      * information specified.<p>
      *
      * The Reference object should support the properties, database, user,
      * password.
      *
      * @param obj The reference information used in creating a
-     *      jdbcDatasource object.
+     *      JDBCDatasource object.
      * @param name ignored
      * @param nameCtx ignored
      * @param environment ignored
-     * @return A newly created jdbcDataSource object; null if an object
+     * @return A newly created JDBCDataSource object; null if an object
      *      cannot be created.
      * @exception Exception never
      */

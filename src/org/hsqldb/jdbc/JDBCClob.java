@@ -393,7 +393,7 @@ public class JDBCClob implements Clob {
      * invocation of free(). <p>
      *
      * In general, however, if an application may perform concurrent
-     * jdbcClob modifications and the integrity of the application depends on
+     * JDBCClob modifications and the integrity of the application depends on
      * total order Clob modification semantics, then such operations
      * should be synchronized on an appropriate monitor.<p>
      *
@@ -469,7 +469,7 @@ public class JDBCClob implements Clob {
      * invocation of free(). <p>
      *
      * In general, however, if an application may perform concurrent
-     * jdbcClob modifications and the integrity of the application depends on
+     * JDBCClob modifications and the integrity of the application depends on
      * total order Clob modification semantics, then such operations
      * should be synchronized on an appropriate monitor.<p>
      *
@@ -605,7 +605,7 @@ public class JDBCClob implements Clob {
      * invocation of free(). <p>
      *
      * In general, however, if an application may perform concurrent
-     * jdbcClob modifications and the integrity of the application depends on
+     * JDBCClob modifications and the integrity of the application depends on
      * total order Clob modification semantics, then such operations
      * should be synchronized on an appropriate monitor.<p>
      *
@@ -704,7 +704,7 @@ public class JDBCClob implements Clob {
      * invocation of free(). <p>
      *
      * In general, however, if an application may perform concurrent
-     * jdbcClob modifications and the integrity of the application depends on
+     * JDBCClob modifications and the integrity of the application depends on
      * total order Clob modification semantics, then such operations
      * should be synchronized on an appropriate monitor.<p>
      *
@@ -875,7 +875,7 @@ public class JDBCClob implements Clob {
     private final boolean     createdByConnection;
 
     /**
-     * Constructs a new jdbcClob object wrapping the given character
+     * Constructs a new JDBCClob object wrapping the given character
      * sequence. <p>
      *
      * This constructor is used internally to retrieve result set values as

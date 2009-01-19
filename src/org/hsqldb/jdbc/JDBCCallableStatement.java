@@ -124,7 +124,7 @@ import org.hsqldb.result.ResultConstants;
  * With 1.7.2, some of the previously unsupported features of this interface
  * are now supported, such as the parameterName-based setter methods. <p>
  *
- * More importantly, jdbcCallableStatement objects are now backed by a true
+ * More importantly, JDBCCallableStatement objects are now backed by a true
  * compiled parameteric representation. Hence, there are now significant
  * performance gains to be had by using a CallableStatement object instead of
  * a Statement object, if a short-running CALL statement is to be executed more
@@ -135,7 +135,7 @@ import org.hsqldb.result.ResultConstants;
  *
  * For a more in-depth discussion of performance issues regarding HSQLDB
  * prepared and callable statement objects, please see overview section of
- * {@link JDBCParameterMetaData jdbcPreparedStatment}.
+ * {@link JDBCParameterMetaData JDBCPreparedStatment}.
  *
  * <hr>
  *
@@ -4417,7 +4417,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 //  private IntKeyIntValueHashMap outRegistrationMap;
 
     /**
-     * Constructs a new jdbcCallableStatement with the specified connection and
+     * Constructs a new JDBCCallableStatement with the specified connection and
      * result type.
      *
      * @param  c the connection on which this statement will execute

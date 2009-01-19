@@ -326,7 +326,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 //            for user tables and views, meaning that even under highly
 //            constrained use cases where the notion of DatabaseMetaData can
 //            be discarded (i.e. the engine operates in a distribution where
-//            DatabaseInforationMain/Full and jdbcDatabaseMetaData have been
+//            DatabaseInforationMain/Full and JDBCDatabaseMetaData have been
 //            dropped from the JAR), it is still impossible to produce a
 //            database which will be incompatible in terms of system table <=>
 //            user table name clashes, if/when imported into a more
@@ -579,7 +579,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * <b>Notes:</b><p>
      *
-     * <code>jdbcDatabaseMetaData.getBestRowIdentifier</code> uses its
+     * <code>JDBCDatabaseMetaData.getBestRowIdentifier</code> uses its
      * nullable parameter to filter the rows of this table in the following
      * manner: <p>
      *

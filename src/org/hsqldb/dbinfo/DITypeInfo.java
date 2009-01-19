@@ -246,9 +246,9 @@ final class DITypeInfo {
 
 // NOTES:
 // From recent usability testing, this patch and the corresponding patch in
-// jdbcResultSetMetaData together provide better compatibility with existing
+// JDBCResultSetMetaData together provide better compatibility with existing
 // tools than through the previous method of dynamically scanning each result
-// in jdbcResultSetMetaData.  This is especially true given that many tools use
+// in JDBCResultSetMetaData.  This is especially true given that many tools use
 // the display size to set their internal max # of characters reserved for
 // result columns at said position. Also, since adding implementation of
 // ResultSetMetaData retreived from PreparedStatement's getMetaData method,

@@ -887,13 +887,13 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
     private int     columnCount;
 
     /**
-     * Constructs a new jdbcResultSetMetaData object from the specified
+     * Constructs a new JDBCResultSetMetaData object from the specified
      * JDBCResultSet and HsqlProprties objects.
      *
      * @param meta the ResultMetaData object from which to construct a new
-     *        jdbcResultSetMetaData object
+     *        JDBCResultSetMetaData object
      * @param props the HsqlProperties object from which to construct a
-     *        new jdbcResultSetMetaData object
+     *        new JDBCResultSetMetaData object
      * @throws SQLException if a database access error occurs
      */
     JDBCResultSetMetaData(ResultMetaData meta,
@@ -902,13 +902,13 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
     }
 
     /**
-     *  Initializes this jdbcResultSetMetaData object from the specified
+     *  Initializes this JDBCResultSetMetaData object from the specified
      *  Result and HsqlProperties objects.
      *
      *  @param meta the ResultMetaData object from which to initialize this
-     *         jdbcResultSetMetaData object
+     *         JDBCResultSetMetaData object
      *  @param props the HsqlProperties object from which to initialize this
-     *         jdbcResultSetMetaData object
+     *         JDBCResultSetMetaData object
      *  @throws SQLException if a database access error occurs
      */
     void init(ResultMetaData meta, HsqlProperties props) throws SQLException {
@@ -918,7 +918,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         // fredt -  props is null for internal connections, so always use the
         //          default behaviour in this case
-        // jdbcDriver.getPropertyInfo says
+        // JDBCDriver.getPropertyInfo says
         // default is true
         useColumnName = (props == null) ? true
                                         : props.isPropertyTrue(

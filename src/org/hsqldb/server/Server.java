@@ -210,7 +210,7 @@ import org.hsqldb.result.ResultConstants;
  * The 'no_system_exit' property is of particular interest. <p>
  *
  * If a Server instance is to run embedded in, say, an application server,
- * such as when the jdbcDataSource or HsqlServerFactory classes are used, it
+ * such as when the JDBCDataSource or HsqlServerFactory classes are used, it
  * is typically necessary to avoid calling System.exit() when the Server
  * instance shuts down. <p>
  *
