@@ -26,7 +26,7 @@
       </author>
     </authorgroup>
 
-    <edition>$Revision$</edition>
+    <releaseinfo>$Revision$</releaseinfo>
 
     <pubdate>$Date$</pubdate>
 
@@ -441,7 +441,7 @@
         </author>
       </authorgroup>
 
-      <edition>$Revision$</edition>
+      <releaseinfo>$Revision$</releaseinfo>
 
       <pubdate>$Date: 2008-12-04 20:36:53 +0000 (Thu, 04 Dec 2008)
       $</pubdate>

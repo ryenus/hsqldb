@@ -24,7 +24,7 @@
               </affiliation>
             </author>
         </authorgroup>
-        <edition>$Revision$</edition>
+        <releaseinfo>$Revision$</releaseinfo>
         <pubdate>$Date$</pubdate>
         <keywordset>
             <keyword>SqlTool</keyword>
