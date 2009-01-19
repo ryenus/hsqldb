@@ -10,12 +10,11 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
-  <title xml:id="unix-title">HyperSQL on UNIX</title>
-
-  <subtitle>How to quickly get a HyperSQL (aka HSQLDB) Listener up and
-  running on UNIX, including Mac OS X</subtitle>
 
   <info>
+    <title xml:id="unix-title">HyperSQL on UNIX</title>
+    <subtitle>How to quickly get a HyperSQL (aka HSQLDB) Listener up and
+    running on UNIX, including Mac OS X</subtitle>
     <author>
       <personname><firstname>Blaine</firstname>
       <surname>Simpson</surname></personname>
@@ -33,6 +32,8 @@
       <keyword>HyperSQL</keyword>
 
       <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
 
       <keyword>UNIX</keyword>
 
@@ -91,7 +92,16 @@
     will get better features and support if you work with the current stable
     release of HyperSQL. (In particular, HyperSQL version 2.0 added tons of
     new features). Pay attention to what JVM versions your binary package
-    supports.</simpara>
+    supports.  Our builds (version 1.9 and later) document the Java version it
+    was built with in the
+    file <filename>doc/index.html</filename>, but you can't depend on this if
+    somebody else assembled your distribution.
+    Java jar files are generally compatible with the same or greater major
+    versions.
+    For example,if
+    your <filename>hsqldb.jar</filename> was built with Java 1.3.6-11, then
+    it is compatible with Java versions 1.3.* and greater.
+    </simpara>
 
     <note>
       <simpara>It could very well happen that some of the file formats which
@@ -118,7 +128,7 @@
 
           <informalexample>
             <screen>
-  pkgadd -d filename.pkg</screen>
+    pkgadd -d filename.pkg</screen>
           </informalexample>
         </listitem>
       </varlistentry>
@@ -171,7 +181,7 @@
 
           <informalexample>
             <screen>    cd ancestor/of/new/hsqldb/home
-  unzip /path/to/file.zip</screen>
+    unzip /path/to/file.zip</screen>
           </informalexample>
 
           <simpara>All the files in the zip archive will be extracted to
@@ -208,8 +218,11 @@
 
     <simpara>If you followed the instructions above and you still don't know
     what Java version your <filename>hsqldb.jar</filename> supports, then
-    read <filename>readme.txt</filename> and
-    <filename>index.html</filename>. If that still doesn't help, then you
+    try reading documentation files like <filename>readme.txt</filename>,
+    <filename>README.TXT</filename>, <filename>INSTALL.txt</filename> etc.
+    (As I said above, our newer distributions always document the Java version
+    for the build, in the file <filename>doc/index.html</filename>).
+    If that still doesn't help, then you
     can just try your <filename>hsqldb.jar</filename> and see if it works,
     or build your own.</simpara>
 
@@ -266,14 +279,10 @@
       </step>
     </procedure>
 
-    <simpara><remark>Restore building appendix link</remark></simpara>
-
-    <!--
     <simpara>See the <link endterm="building-title"
     xlink:href="#building-app" /> appendix if you want to build anything
     other than <filename>hsqldb.jar</filename> with all default
     settings.</simpara>
-    -->
   </section>
 
   <section xml:id="unix_cat_setup-sect">
@@ -377,10 +386,7 @@
       </informalexample> If you get a prompt, then all is well. If security
     is of any concern to you at all, then you should change the privileged
     password in the database. Use the command
-    <remark>Restore 
-    &lt;literal
-    xlink:href="#set_password-sect"&gt;SET PASSWORD&lt;/literal&gt;
-      once the set password description is restored.</remark>
+    <literal xlink:href="#set_password-sql">SET PASSWORD</literal>
     command to change
     SA's password. <informalexample>
         <programlisting>    SET PASSWORD 'newpassword';</programlisting>
@@ -423,10 +429,8 @@
     <title>Create additional Accounts</title>
 
     <simpara>Connect to the database as SA (or any other Administrative
-    user) and run <remark> Restore
-      &lt;literal xlink:href="#create_user-sect"&gt;CREATE
-      USER&lt;/literal&gt; once the create_user description is restored.
-      </remark>
+    user) and run
+    <literal xlink:href="#create_user-sql">CREATE USER</literal>
     to create new accounts for your catalog. HSQLDB accounts
     are database-catalog-specific, not
     <classname>Listener</classname>-specific.</simpara>
@@ -441,10 +445,7 @@
     a DBA account, with an empty string password. You should set a password
     (as described above). You can create as many additional users as you
     wish. To make a user a DBA, you can use the "ADMIN" option to the
-    <remark>Restore
-      &lt;literal xlink:href="#create_user-sect"&gt;CREATE USER&lt;/literal&gt;
-      once we restore the create_user description
-      </remark>
+    <literal xlink:href="#create_user-sql">CREATE USER</literal> command,
     command,
     or GRANT the DBA Role to the account after creating it.</simpara>
 
@@ -478,6 +479,9 @@
 
   <section xml:id="unix_daemon-sect">
     <title>Running Hsqldb as a System Daemon</title>
+    <indexterm significance="preferred">
+      <primary>init script</primary>
+    </indexterm>
 
     <simpara>You can, of course, run HSQLDB through inittab on System V
     UNIXes, but usually an init script is more convenient and manageable.

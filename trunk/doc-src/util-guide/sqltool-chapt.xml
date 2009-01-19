@@ -787,9 +787,9 @@
             </simpara></listitem></varlistentry>
             <varlistentry><term>truststore</term><listitem><simpara>
                 TLS trust keystore store file path as documented in the
-                <remark>Once get inter-book links working, add link to
-                  tls-chapt using tls-title (or whatever it is now).</remark>
-                TLS chapter.
+                TLS section of the Listeners chapter of the
+                <link xlink:href="&distro_baseurl;/guide/index.html">
+                  HyperSQL User Guide</link>
                 You usually only need to set this if the server is using a
                 non-publicly-certified certificate (like a self-signed
                 self-ca'd cert).
@@ -2780,11 +2780,10 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
         </simpara><simpara>
             These instructions assume that you are capable of running an Ant
             build.
-            See the
-            <remark>Once get inter-book links working, add link to
-              building appendix, w/ title.</remark>
-            Building
-            chapter if you need more details than what you see here.
+            See the Building appendix of the
+            <link xlink:href="&distro_baseurl;/guide/index.html">
+              HyperSQL User Guide</link>
+            if you need more details than what you see here.
         </simpara>
         <procedure>
           <step><simpara>
@@ -2826,10 +2825,10 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
     <section xml:id="sqltool_dsv-sect">
         <title>Delimiter-Separated-Value Imports and Exports</title>
         <note><simpara>
-            This feature is independent of HSQLDB
-            Text Tables
-            <remark>Once get inter-book links working, add link to
-              texttables chapter, w/ title.</remark>
+            This feature is independent of HSQLDB Text Tables.
+            (See the Text Tables chapter of the
+              <link xlink:href="&distro_baseurl;/guide/index.html">
+                HyperSQL User Guide</link> for details about them).
             a server-side feature of HSQLDB.
             It makes no difference to SqlTool whether the source or target
             table of your export/import is a memory, cache, or text table.

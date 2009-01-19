@@ -344,11 +344,9 @@
     <guimenu>Help</guimenu> menu.</simpara>
 
     <simpara>The DatabaseManagers do work with HSQLDB servers serving
-        TLS-encrypted JDBC data. See the
-        TLS chapter and the <link endterm="auth-title"
-          xlink:href="#sqltool_auth-sect" /> section of this Guide.
-        <remark>Once get inter-book links working, add link to
-          tls-chapt using tls-title (or whatever it is now).</remark>
+      TLS-encrypted JDBC data. See the TLS section of the Listeners chapter
+      of the <link xlink:href="&distro_baseurl;/guide/index.html">
+        HyperSQL User Guide</link>
       </simpara>
 
     <tip><simpara>
@@ -444,12 +442,12 @@
     new version of the SqlTool! This procedure works for distros going back to
     1.7.3.3 at least, probably much farther.</simpara>
 
-    <simpara>These instructions assume that you are capable of running an Ant
-    build. See the
-        <remark>Once get inter-book links working, add link to
-          building appendix, w/ title.</remark>
-          Building
-    chapter.</simpara>
+    <simpara>
+      These instructions assume that you are capable of running an Ant
+      build. See the Building Appendix of the
+      <link xlink:href="&distro_baseurl;/guide/index.html">
+                  HyperSQL User Guide</link>.
+    </simpara>
 
     <procedure>
       <step>
