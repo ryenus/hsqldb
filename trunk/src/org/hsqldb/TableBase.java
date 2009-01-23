@@ -102,6 +102,8 @@ public class TableBase {
     boolean           isView;
     public boolean    isSessionBased;
     protected boolean isSchemaBased;
+    protected boolean isLogged;
+
 
     //
     TableBase() {}

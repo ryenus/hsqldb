@@ -109,8 +109,6 @@ import org.hsqldb.types.Type;
 public class Session implements SessionInterface {
 
     //
-    private volatile boolean isAutoCommit;
-    private volatile boolean isReadOnly;
     private volatile boolean isClosed;
 
     //
@@ -118,19 +116,22 @@ public class Session implements SessionInterface {
     private Grantee user;
 
     // transaction support
-    boolean          isReadOnlyDefault;
-    int              isolationMode = SessionInterface.TX_READ_COMMITTED;
-    int              actionIndex;
-    long             actionTimestamp;
-    long             transactionTimestamp;
-    boolean          isTransaction;
-    volatile boolean abortTransaction;
-    volatile boolean redoAction;
-    HsqlArrayList    rowActionList;
-    volatile boolean tempUnlocked;
-    OrderedHashSet   waitingSessions;
-    OrderedHashSet   tempSet;
-    CountUpDownLatch latch = new CountUpDownLatch();
+    private volatile boolean isAutoCommit;
+    private volatile boolean isReadOnly;
+    boolean                  isReadOnlyDefault;
+    int isolationModeDefault = SessionInterface.TX_READ_COMMITTED;
+    int isolationMode        = SessionInterface.TX_READ_COMMITTED;
+    int                      actionIndex;
+    long                     actionTimestamp;
+    long                     transactionTimestamp;
+    boolean                  isTransaction;
+    volatile boolean         abortTransaction;
+    volatile boolean         redoAction;
+    HsqlArrayList            rowActionList;
+    volatile boolean         tempUnlocked;
+    OrderedHashSet           waitingSessions;
+    OrderedHashSet           tempSet;
+    CountUpDownLatch         latch = new CountUpDownLatch();
 
     // current settings
     final int          sessionTimeZoneSeconds;
@@ -189,6 +190,7 @@ public class Session implements SessionInterface {
         tempSet                     = new OrderedHashSet();
         isAutoCommit                = autocommit;
         isReadOnly                  = readonly;
+        isolationMode               = isolationModeDefault;
         sessionContext              = new SessionContext(this);
         parser                      = new ParserCommand(this, new Scanner());
 
@@ -252,6 +254,24 @@ public class Session implements SessionInterface {
         return isClosed;
     }
 
+    public void setIsolationDefault(int level) throws HsqlException {
+
+        if (level == SessionInterface.TX_READ_UNCOMMITTED) {
+            isReadOnlyDefault = true;
+        }
+
+        isolationModeDefault = level;
+
+        if (!isInMidTransaction()) {
+            isolationMode = isolationModeDefault;
+        }
+
+        database.logger.writeToLog(this, getTransactionIsolationSQL());
+    }
+
+    /**
+     * sets ISOLATION for the next transaction only
+     */
     public void setIsolation(int level) throws HsqlException {
 
         if (isInMidTransaction()) {
@@ -442,7 +462,7 @@ public class Session implements SessionInterface {
 
         actionIndex = rowActionList.size();
 
-        database.txManager.beginAction(this, cs, !isTransaction);
+        database.txManager.beginAction(this, cs);
 
 //        tempActionHistory.add("beginAction ends " + actionTimestamp);
     }
@@ -459,6 +479,10 @@ public class Session implements SessionInterface {
         }
 
 //        tempActionHistory.add("endAction ends " + actionTimestamp);
+    }
+
+    public void startTransaction() throws HsqlException {
+        database.txManager.beginTransaction(this);
     }
 
     public void startPhasedTransaction() throws HsqlException {}
@@ -508,21 +532,14 @@ public class Session implements SessionInterface {
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
         rowActionList.clear();
-
-        //* debug 190
-/*
-        if (rowActionList.size() > 2 && rowActionList.size() < 6) {
-            System.out.println("wrong list length " + rowActionList.size());
-        }
-*/
-
-        //* debug 190
-//        database.txManager.commit(this);
         sessionData.persistentStoreCollection.clearTransactionTables();
 
-//        tempActionHistory.add("commit ends " + actionTimestamp);
-//        tempActionHistory.clear();
-        isReadOnly = isReadOnlyDefault;
+/* debug 190
+        tempActionHistory.add("commit ends " + actionTimestamp);
+        tempActionHistory.clear();
+//*/
+        isReadOnly    = isReadOnlyDefault;
+        isolationMode = isolationModeDefault;
     }
 
     /**
@@ -538,27 +555,34 @@ public class Session implements SessionInterface {
         }
 
         if (!isTransaction) {
-            isReadOnly = isReadOnlyDefault;
+            isReadOnly    = isReadOnlyDefault;
+            isolationMode = isolationModeDefault;
 
             return;
         }
 
-        if (!rowActionList.isEmpty()) {
-            try {
-                database.logger.writeToLog(this, Tokens.T_ROLLBACK);
-            } catch (HsqlException e) {}
-        }
+        try {
+            database.logger.writeToLog(this, Tokens.T_ROLLBACK);
+        } catch (HsqlException e) {}
 
         database.txManager.rollback(this);
+        sessionContext.savepoints.clear();
+        sessionContext.savepointTimestamps.clear();
+        rowActionList.clear();
         sessionData.persistentStoreCollection.clearTransactionTables();
 
-        isReadOnly = isReadOnlyDefault;
+        isReadOnly    = isReadOnlyDefault;
+        isolationMode = isolationModeDefault;
 
 //        tempActionHistory.add("rollback ends " + actionTimestamp);
     }
 
+    public void lockTables(Statement cs) throws HsqlException {
+        database.txManager.beginAction(this, cs);
+    }
+
     /**
-     * No-op in this implementation
+     * No-op in this implementation. To be implemented for connection pooling
      */
     public void resetSession() throws HsqlException {
         throw new HsqlException("", "", 0);
@@ -585,7 +609,7 @@ public class Session implements SessionInterface {
         sessionContext.savepointTimestamps.addLast(actionTimestamp);
 
         try {
-            database.logger.writeToLog(this, getSavepointDDL(name));
+            database.logger.writeToLog(this, getSavepointSQL(name));
         } catch (HsqlException e) {}
     }
 
@@ -610,7 +634,7 @@ public class Session implements SessionInterface {
         database.txManager.rollbackSavepoint(this, index);
 
         try {
-            database.logger.writeToLog(this, getSavepointRollbackDDL(name));
+            database.logger.writeToLog(this, getSavepointRollbackSQL(name));
         } catch (HsqlException e) {}
     }
 
@@ -630,7 +654,7 @@ public class Session implements SessionInterface {
         database.txManager.rollbackSavepoint(this, 0);
 
         try {
-            database.logger.writeToLog(this, getSavepointRollbackDDL(name));
+            database.logger.writeToLog(this, getSavepointRollbackSQL(name));
         } catch (HsqlException e) {}
     }
 
@@ -657,7 +681,7 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * Setter for readonly attribute.
+     * sets READ ONLY for next transaction only
      *
      * @param  readonly the new value
      */
@@ -681,6 +705,10 @@ public class Session implements SessionInterface {
         }
 
         isReadOnlyDefault = readonly;
+
+        if (!isInMidTransaction()) {
+            isReadOnly = isReadOnlyDefault;
+        }
     }
 
     /**
@@ -1690,7 +1718,7 @@ public class Session implements SessionInterface {
     }
 
 // session tables
-    Table[] transitionTables = new Table[0];
+    Table[] transitionTables = Table.emptyArray;
 
     public void setSessionTables(Table[] tables) {
         transitionTables = tables;
@@ -1852,7 +1880,7 @@ public class Session implements SessionInterface {
     }
 
     //
-    static String getSavepointDDL(String name) {
+    static String getSavepointSQL(String name) {
 
         StringBuffer sb = new StringBuffer(Tokens.T_SAVEPOINT);
 
@@ -1861,7 +1889,7 @@ public class Session implements SessionInterface {
         return sb.toString();
     }
 
-    static String getSavepointRollbackDDL(String name) {
+    static String getSavepointRollbackSQL(String name) {
 
         StringBuffer sb = new StringBuffer();
 
@@ -1871,5 +1899,62 @@ public class Session implements SessionInterface {
         sb.append('"').append(name).append('"');
 
         return sb.toString();
+    }
+
+    String getStartTransactionSQL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_START).append(' ').append(Tokens.T_TRANSACTION);
+
+        if (isolationMode != isolationModeDefault) {
+            sb.append(' ');
+            appendIsolationSQL(sb, isolationMode);
+        }
+
+        return sb.toString();
+    }
+
+    String getTransactionIsolationSQL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TRANSACTION);
+        sb.append(' ');
+        appendIsolationSQL(sb, isolationModeDefault);
+
+        return sb.toString();
+    }
+
+    String getSessionIsolationSQL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_SESSION);
+        sb.append(' ').append(Tokens.T_CHARACTERISTICS).append(' ');
+        sb.append(Tokens.T_AS).append(' ');
+        appendIsolationSQL(sb, isolationModeDefault);
+
+        return sb.toString();
+    }
+
+    static void appendIsolationSQL(StringBuffer sb, int isolationLevel) {
+
+        sb.append(Tokens.T_ISOLATION).append(' ');
+        sb.append(Tokens.T_LEVEL).append(' ');
+
+        switch (isolationLevel) {
+
+            case SessionInterface.TX_READ_UNCOMMITTED :
+            case SessionInterface.TX_READ_COMMITTED :
+                sb.append(Tokens.T_READ).append(' ');
+                sb.append(Tokens.T_COMMITTED);
+                break;
+
+            case SessionInterface.TX_REPEATABLE_READ :
+            case SessionInterface.TX_SERIALIZABLE :
+                sb.append(Tokens.T_SERIALIZABLE);
+                break;
+        }
     }
 }

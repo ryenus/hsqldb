@@ -38,6 +38,8 @@ import org.hsqldb.lib.HsqlList;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.types.Type;
+import org.hsqldb.store.ValuePool;
+import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Parser for session and management statements
@@ -169,6 +171,10 @@ public class ParserCommand extends ParserDDL {
                 cs = compileSet();
                 break;
 
+            case Tokens.START :
+                cs = compileStartTransaction();
+                break;
+
             case Tokens.COMMIT :
                 cs = compileCommit();
                 break;
@@ -204,6 +210,10 @@ public class ParserCommand extends ParserDDL {
                 break;
 
             // HSQL SESSION
+            case Tokens.LOCK :
+                cs = compileLock();
+                break;
+
             case Tokens.CONNECT :
                 cs = compileConnect();
                 break;
@@ -410,99 +420,10 @@ public class ParserCommand extends ParserDDL {
             case Tokens.TRANSACTION : {
                 read();
 
-                int      level    = 0;
-                boolean  readonly = false;
-                Object[] args     = new Object[2];
+                Object[] args = processTransactionCharacteristics();
 
-                outerloop:
-                while (true) {
-                    switch (token.tokenType) {
-
-                        case Tokens.READ : {
-                            if (args[0] != null) {
-                                throw unexpectedToken();
-                            }
-
-                            read();
-
-                            if (token.tokenType == Tokens.ONLY) {
-                                read();
-
-                                readonly = true;
-                            } else {
-                                readThis(Tokens.WRITE);
-
-                                readonly = false;
-                            }
-
-                            args[0] = Boolean.valueOf(readonly);
-
-                            break;
-                        }
-                        case Tokens.ISOLATION : {
-                            if (args[1] != null) {
-                                throw unexpectedToken();
-                            }
-
-                            read();
-                            readThis(Tokens.LEVEL);
-
-                            switch (token.tokenType) {
-
-                                case Tokens.SERIALIZABLE :
-                                    read();
-
-                                    level = SessionInterface.TX_SERIALIZABLE;
-                                    break;
-
-                                case Tokens.READ :
-                                    read();
-
-                                    if (token.tokenType == Tokens.COMMITTED) {
-                                        read();
-
-                                        level =
-                                            SessionInterface.TX_READ_COMMITTED;
-                                    } else if (token.tokenType
-                                               == Tokens.UNCOMMITTED) {
-                                        read();
-
-                                        level =
-                                            SessionInterface
-                                                .TX_READ_UNCOMMITTED;
-                                    } else {
-                                        throw unexpectedToken();
-                                    }
-                                    break;
-
-                                case Tokens.REPEATABLE :
-                                    read();
-                                    readThis(Tokens.READ);
-
-                                    level =
-                                        SessionInterface.TX_REPEATABLE_READ;
-                                    break;
-
-                                default :
-                                    throw unexpectedToken();
-                            }
-
-                            args[1] = new Integer(level);
-
-                            break;
-                        }
-                        default : {
-                            if (args[0] == null && args[1] == null) {
-                                throw unexpectedToken();
-                            }
-
-                            break outerloop;
-                        }
-                    }
-                }
-
-                if (!readonly && level == 1) {
-                    throw unexpectedToken(Tokens.T_WRITE);
+                if (args[0] == null && args[1] == null) {
+                    throw unexpectedToken();
                 }
 
                 return new StatementCommand(StatementTypes.SET_TRANSACTION,
@@ -877,6 +798,97 @@ public class ParserCommand extends ParserDDL {
         }
     }
 
+    Object[] processTransactionCharacteristics() throws HsqlException {
+
+        int      level    = 0;
+        boolean  readonly = false;
+        Object[] args     = new Object[2];
+
+        outerloop:
+        while (true) {
+            switch (token.tokenType) {
+
+                case Tokens.READ : {
+                    if (args[0] != null) {
+                        throw unexpectedToken();
+                    }
+
+                    read();
+
+                    if (token.tokenType == Tokens.ONLY) {
+                        read();
+
+                        readonly = true;
+                    } else {
+                        readThis(Tokens.WRITE);
+
+                        readonly = false;
+                    }
+
+                    args[0] = Boolean.valueOf(readonly);
+
+                    break;
+                }
+                case Tokens.ISOLATION : {
+                    if (args[1] != null) {
+                        throw unexpectedToken();
+                    }
+
+                    read();
+                    readThis(Tokens.LEVEL);
+
+                    switch (token.tokenType) {
+
+                        case Tokens.SERIALIZABLE :
+                            read();
+
+                            level = SessionInterface.TX_SERIALIZABLE;
+                            break;
+
+                        case Tokens.READ :
+                            read();
+
+                            if (token.tokenType == Tokens.COMMITTED) {
+                                read();
+
+                                level = SessionInterface.TX_READ_COMMITTED;
+                            } else if (token.tokenType == Tokens.UNCOMMITTED) {
+                                read();
+
+                                level = SessionInterface.TX_READ_UNCOMMITTED;
+                            } else {
+                                throw unexpectedToken();
+                            }
+                            break;
+
+                        case Tokens.REPEATABLE :
+                            read();
+                            readThis(Tokens.READ);
+
+                            level = SessionInterface.TX_REPEATABLE_READ;
+                            break;
+
+                        default :
+                            throw unexpectedToken();
+                    }
+
+                    args[1] = new Integer(level);
+
+                    break;
+                }
+                default : {
+                    break outerloop;
+                }
+            }
+        }
+
+        if (!readonly && level == 1) {
+            throw unexpectedToken(Tokens.T_WRITE);
+        }
+
+        return args;
+    }
+
     /**
      * Retrieves boolean value corresponding to the next token.
      *
@@ -925,6 +937,68 @@ public class ParserCommand extends ParserDDL {
         String    sql  = getLastPart();
         Object[]  args = new Object[]{ Boolean.valueOf(chain) };
         Statement cs = new StatementCommand(StatementTypes.COMMIT_WORK, args);
+
+        return cs;
+    }
+
+    private Statement compileStartTransaction() throws HsqlException {
+
+        read();
+        readThis(Tokens.TRANSACTION);
+
+        Object[] args = processTransactionCharacteristics();
+        Statement cs = new StatementCommand(StatementTypes.START_TRANSACTION,
+                                            args);
+
+        return cs;
+    }
+
+    private Statement compileLock() throws HsqlException {
+
+        read();
+        readThis(Tokens.TABLE);
+
+        OrderedHashSet readSet  = new OrderedHashSet();
+        OrderedHashSet writeSet = new OrderedHashSet();
+
+        outerloop:
+        while (true) {
+            Table table = readTableName();
+
+            switch (token.tokenType) {
+
+                case Tokens.READ :
+                    read();
+                    readSet.add(table.getName());
+                    break;
+
+                case Tokens.WRITE :
+                    read();
+                    writeSet.add(table.getName());
+                    break;
+
+                default :
+                    throw unexpectedToken();
+            }
+
+            if (token.tokenType == Tokens.COMMA) {
+                read();
+
+                break;
+            }
+
+            break outerloop;
+        }
+
+        Statement cs = new StatementCommand(StatementTypes.LOCK_TABLE, null);
+
+        cs.readTableNames = new HsqlName[readSet.size()];
+
+        readSet.toArray(cs.readTableNames);
+
+        cs.writeTableNames = new HsqlName[writeSet.size()];
+
+        readSet.toArray(cs.writeTableNames);
 
         return cs;
     }
@@ -1016,18 +1090,8 @@ public class ParserCommand extends ParserDDL {
         if (token.tokenType == Tokens.CHARACTERISTICS) {
             read();
             readThis(Tokens.AS);
-            readThis(Tokens.READ);
 
-            if (token.tokenType == Tokens.ONLY) {
-                read();
-
-                readonly = true;
-            } else {
-                readThis(Tokens.WRITE);
-            }
-
-            String   sql  = getLastPart();
-            Object[] args = new Object[]{ Boolean.valueOf(readonly) };
+            Object[] args = processTransactionCharacteristics();
 
             return new StatementCommand(
                 StatementTypes.SET_SESSION_CHARACTERISTICS, args);

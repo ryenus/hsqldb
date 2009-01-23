@@ -38,6 +38,7 @@ import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.navigator.RowSetNavigatorLinkedList;
 import org.hsqldb.result.Result;
 import org.hsqldb.types.Type;
+import org.hsqldb.persist.PersistentStore;
 
 /**
  * Implementation of Statement for INSERT statements.<p>
@@ -104,6 +105,7 @@ public class StatementInsert extends StatementDMQL {
         Table           table              = baseTable;
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
+        PersistentStore store = session.sessionData.getRowStore(baseTable);
 
         if (generatedIndexes != null) {
             resultOut = Result.newUpdateCountResult(generatedResultMetaData,
@@ -142,7 +144,7 @@ public class StatementInsert extends StatementDMQL {
                 }
             }
 
-            table.insertRow(session, data);
+            table.insertRow(session, store, data);
 
             if (generatedNavigator != null) {
                 Object[] generatedValues = getGeneratedColumns(data);

@@ -44,7 +44,7 @@ import org.hsqldb.types.TimestampData;
  * the session level.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 public interface SessionInterface {
@@ -87,7 +87,7 @@ public interface SessionInterface {
 
     int getIsolation() throws HsqlException;
 
-    void setIsolation(int level) throws HsqlException;
+    void setIsolationDefault(int level) throws HsqlException;
 
     void startPhasedTransaction() throws HsqlException;
 

@@ -126,6 +126,8 @@ import org.hsqldb.types.Type;
  */
 public class Table extends TableBase implements SchemaObject {
 
+    public static final Table[] emptyArray = new Table[]{};
+
     // main properties
     protected HsqlName tableName;
 
@@ -145,9 +147,6 @@ public class Table extends TableBase implements SchemaObject {
     Expression[]    colDefaults;               // fredt - expressions of DEFAULT values
     protected int[] defaultColumnMap;          // fred - holding 0,1,2,3,...
     private boolean hasDefaultValues;          //fredt - shortcut for above
-
-    // properties for subclasses
-    protected boolean isLogged;
 
     public Table(Database database, HsqlName name,
                  int type) throws HsqlException {
@@ -257,7 +256,7 @@ public class Table extends TableBase implements SchemaObject {
         fkPath            = Constraint.emptyArray;
         fkConstraints     = Constraint.emptyArray;
         fkMainConstraints = Constraint.emptyArray;
-        checkConstraints = Constraint.emptyArray;
+        checkConstraints  = Constraint.emptyArray;
         triggerList       = TriggerDef.emptyArray;
         triggerLists      = new TriggerDef[TriggerDef.NUM_TRIGS][];
 
@@ -1838,7 +1837,8 @@ public class Table extends TableBase implements SchemaObject {
      *  Mid level method for inserting rows. Performs constraint checks and
      *  fires row level triggers.
      */
-    void insertRow(Session session, Object[] data) throws HsqlException {
+    void insertRow(Session session, PersistentStore store,
+                   Object[] data) throws HsqlException {
 
         setIdentityColumn(session, data);
 
@@ -1852,51 +1852,24 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         checkRowDataInsert(session, data);
-        insertNoCheck(session, data);
+        insertNoCheck(session, store, data);
     }
 
     /**
-     * Multi-row insert method. Used for SELECT ... INTO tablename queries.
-     * These tables are new, empty tables, with no constraints, triggers
-     * column default values, column size enforcement whatsoever.
-     *
-     * Not used for INSERT INTO .... SELECT ... FROM queries
+     * Multi-row insert method. Used for CREATE TABLE AS ... queries.
      */
     void insertIntoTable(Session session, Result result) throws HsqlException {
 
         PersistentStore store = session.sessionData.getRowStore(this);
-
-        insertResult(store, result);
-
-        if (!isLogged) {
-            return;
-        }
-
-        RowSetNavigator nav = result.initialiseNavigator();
+        RowSetNavigator nav   = result.initialiseNavigator();
 
         while (nav.hasNext()) {
             Object[] data = (Object[]) nav.getNext();
+            Object[] newData =
+                (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
+                    getColumnCount());
 
-            database.logger.writeInsertStatement(session, this, data);
-        }
-    }
-
-    /**
-     *  Low level method for row insert.
-     *  UNIQUE or PRIMARY constraints are enforced by attempting to
-     *  add the row to the indexes.
-     */
-    private void insertNoCheck(Session session,
-                               Object[] data) throws HsqlException {
-
-        PersistentStore store = session.sessionData.getRowStore(this);
-        Row             row   = (Row) store.getNewCachedObject(session, data);
-
-        indexRow(session, row);
-        session.addInsertAction(this, row);
-
-        if (isLogged) {
-            database.logger.writeInsertStatement(session, this, data);
+            insertData(store, newData);
         }
     }
 
@@ -1912,10 +1885,6 @@ public class Table extends TableBase implements SchemaObject {
 
         indexRow(session, row);
         session.addInsertAction(this, row);
-
-        if (isLogged) {
-            database.logger.writeInsertStatement(session, this, data);
-        }
     }
 
     /**
@@ -1956,10 +1925,9 @@ public class Table extends TableBase implements SchemaObject {
      * Used for subquery inserts. No checks. No identity
      * columns.
      */
-    int insertResult(PersistentStore store, Result ins) throws HsqlException {
+    void insertResult(PersistentStore store, Result ins) throws HsqlException {
 
-        int             count = 0;
-        RowSetNavigator nav   = ins.initialiseNavigator();
+        RowSetNavigator nav = ins.initialiseNavigator();
 
         while (nav.hasNext()) {
             Object[] data = (Object[]) nav.getNext();
@@ -1968,11 +1936,7 @@ public class Table extends TableBase implements SchemaObject {
                     getColumnCount());
 
             insertData(store, newData);
-
-            count++;
         }
-
-        return count;
     }
 
     /**
@@ -2358,13 +2322,7 @@ public class Table extends TableBase implements SchemaObject {
             return;
         }
 
-        Object[] data = row.getData();
-
         session.addDeleteAction(this, row);
-
-        if (isLogged) {
-            database.logger.writeDeleteStatement(session, this, data);
-        }
     }
 
     /**

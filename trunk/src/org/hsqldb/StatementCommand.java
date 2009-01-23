@@ -168,6 +168,10 @@ public class StatementCommand extends Statement {
                 group = StatementTypes.X_SQL_TRANSACTION;
                 break;
 
+            case StatementTypes.LOCK_TABLE :
+                group = StatementTypes.X_HSQLDB_TRANSACTION;
+                break;
+
             //
             case StatementTypes.BACKUP :
             case StatementTypes.CHECKPOINT :
@@ -222,6 +226,8 @@ public class StatementCommand extends Statement {
     }
 
     Result getResult(Session session) {
+
+        boolean startTransaction = false;
 
         if (this.isExplain) {
             return Result.newSingleColumnStringResult("OPERATION",
@@ -278,6 +284,16 @@ public class StatementCommand extends Statement {
             case StatementTypes.PREPARABLE_DYNAMIC_UPDATE_CURSOR :
             case StatementTypes.PREPARE :
                 return Result.updateZeroResult;
+
+            case StatementTypes.LOCK_TABLE : {
+                try {
+                    session.lockTables(this);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
 
             //
             case StatementTypes.RELEASE_SAVEPOINT : {
@@ -503,10 +519,19 @@ public class StatementCommand extends Statement {
                 }
             }
             case StatementTypes.SET_SESSION_CHARACTERISTICS : {
-                boolean readonly = ((Boolean) parameters[0]).booleanValue();
-
                 try {
-                    session.setReadOnlyDefault(readonly);
+                    if (parameters[0] != null) {
+                        boolean readonly =
+                            ((Boolean) parameters[0]).booleanValue();
+
+                        session.setReadOnlyDefault(readonly);
+                    }
+
+                    if (parameters[1] != null) {
+                        int level = ((Integer) parameters[1]).intValue();
+
+                        session.setIsolationDefault(level);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -519,17 +544,27 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_TRANSFORM_GROUP :
                 return Result.updateZeroResult;
 
+            case StatementTypes.START_TRANSACTION :
+                startTransaction = true;
+
+            // fall through
             case StatementTypes.SET_TRANSACTION : {
                 try {
-                    if (parameters[0] == null) {
-                        int level = ((Integer) parameters[1]).intValue();
-
-                        session.setIsolation(level);
-                    } else {
+                    if (parameters[0] != null) {
                         boolean readonly =
                             ((Boolean) parameters[0]).booleanValue();
 
                         session.setReadOnly(readonly);
+                    }
+
+                    if (parameters[1] != null) {
+                        int level = ((Integer) parameters[1]).intValue();
+
+                        session.setIsolation(level);
+                    }
+
+                    if (startTransaction) {
+                        session.startTransaction();
                     }
 
                     return Result.updateZeroResult;
@@ -537,8 +572,6 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.START_TRANSACTION :
-                return Result.updateZeroResult;
 
             //
             case StatementTypes.SET_AUTOCOMMIT : {

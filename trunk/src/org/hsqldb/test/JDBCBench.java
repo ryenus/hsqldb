@@ -208,6 +208,8 @@ class JDBCBench {
 
 
             oneRound(url, user, password, transactions, true);
+//            oneRound(url, user, password, transactions, true);
+/*
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
@@ -218,8 +220,8 @@ class JDBCBench {
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
-            oneRound(url, user, password, transactions, true);
-        } catch (Exception E) {
+*/
+      } catch (Exception E) {
             System.out.println(E.getMessage());
             E.printStackTrace();
         } finally {

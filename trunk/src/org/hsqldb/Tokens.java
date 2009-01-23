@@ -646,6 +646,7 @@ public class Tokens {
     static final String T_ISREADONLYDATABASEFILES = "ISREADONLYDATABASEFILES";
     static final String        T_ISREADONLYSESSION   = "ISREADONLYSESSION";
     static final String        T_LIMIT               = "LIMIT";
+    static final String        T_LOCK                = "LOCK";
     static final String        T_LOCKS               = "LOCKS";
     static final String        T_LOGSIZE             = "LOGSIZE";
     static final String        T_MAXROWS             = "MAXROWS";
@@ -1433,10 +1434,10 @@ public class Tokens {
     public static final int SECONDS_MIDNIGHT = 656;
 
     //
-    static final int        CONTROL          = 657;
-    static final int        LOCKS            = 658;
-    static final int        MVCC             = 658;
-
+    static final int CONTROL = 657;
+    static final int LOCK    = 658;
+    static final int LOCKS   = 659;
+    static final int MVCC    = 660;
 
     //
     static final int        ASTERISK         = 661;
@@ -1471,7 +1472,7 @@ public class Tokens {
     static final int SQL_TSI_QUARTER     = 688;
     static final int SQL_TSI_YEAR        = 689;
 
-//
+    //
     static final int SQL_BIGINT        = 701;
     static final int SQL_BINARY        = 702;
     static final int SQL_BIT           = 703;
@@ -1931,6 +1932,7 @@ public class Tokens {
         commandSet.put(T_LEVEL, LEVEL);
         commandSet.put(T_LIMIT, LIMIT);
         commandSet.put(T_LOGSIZE, LOGSIZE);
+        commandSet.put(T_LOCK, LOCK);
         commandSet.put(T_LOCKS, LOCKS);
         commandSet.put(T_M_FACTOR, M);
         commandSet.put(T_MATCHED, MATCHED);
