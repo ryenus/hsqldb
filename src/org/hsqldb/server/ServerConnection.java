@@ -241,6 +241,8 @@ class ServerConnection implements Runnable {
 
             resultOut.write(dataOutput, rowOut);
         } catch (Exception e) {
+// TODO:  This is just for debugging.  REMOVE
+e.printStackTrace();
             server.printWithThread(mThread + ":couldn't connect user '"
                     + user + "': " + e);
         }
@@ -398,16 +400,35 @@ class ServerConnection implements Runnable {
             java.io.DataOutputStream pipeOutput =
                     new java.io.DataOutputStream(outPipe);
 
-            int legacyResultType = dataInput.readByte();
+            byte firstByte = dataInput.readByte();
+            int legacyResultType = firstByte;
             switch (legacyResultType) {
                 case 0:
-                     // Determined empirically.
-                     // Code looks like it should be
-                     // ResultConstants.CONNECT
-                    // TODO:  Send client a 1.8-compatible SQLException
-                    throw Error.error(ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
-                         new String[] { "pre-9.0",
-                         ClientConnection.NETWORK_COMPATIBILITY_VERSION});
+                    // Read 3 more bytest to make an int, to determine PG
+                    // client vs. Legacy HSQL:
+                    int descriminatorInt = ((firstByte & 0xff) << 24)
+                        + ((dataInput.readByte() & 0xff) << 16)
+                        + ((dataInput.readByte() & 0xff) << 8)
+                        + (dataInput.readByte() & 0xff);
+                    switch (descriminatorInt) {
+                        case 34:
+                             // Determined empirically.
+                             // Code looks like it should be
+                             // ResultConstants.CONNECT
+                            // TODO:  Send client a 1.8-compatible SQLException
+                            throw Error.error(
+                                 ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
+                                 new String[] { "pre-9.0",
+                             ClientConnection.NETWORK_COMPATIBILITY_VERSION});
+                        case 296:
+                            pg();
+                            break;
+                        default:
+                            throw Error.error(
+                                    ErrorCode.SERVER_INCOMPLETE_HANDSHAKE_READ);
+                            // TODO:  Better error message, like:
+                            // "Unrecognized Client"
+                    }
                 case 80: // Empirically
                     throw Error.error(ErrorCode.SERVER_HTTP_NOT_HSQL_PROTOCOL);
                 default:
@@ -440,5 +461,12 @@ class ServerConnection implements Runnable {
         throw Error.error(ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
                 new String[] {verString,
                 ClientConnection.NETWORK_COMPATIBILITY_VERSION});
+    }
+
+    private void pg() throws IOException {
+        int major = dataInput.readUnsignedShort();
+        int minor = dataInput.readUnsignedShort();
+        server.printWithThread("PG client connected.  "
+                + "PG Protocol Version " + major + '.' + minor);
     }
 }
