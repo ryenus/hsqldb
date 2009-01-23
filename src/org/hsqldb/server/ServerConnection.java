@@ -391,6 +391,8 @@ class ServerConnection implements Runnable {
         { // This block is only for testing for HSQLDB client < 1.9
             // Need to use a pipe because we need to re-read the data
             // as a different data type after this test.
+            // FilterInputStream's mark/reset capability is definitely not
+            // supported for the stream we are working with here.
             byte[] littleBuffer = new byte[3];
             PipedInputStream inPipe = new PipedInputStream();
             PipedOutputStream outPipe = new PipedOutputStream(inPipe);
