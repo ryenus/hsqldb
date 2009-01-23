@@ -220,7 +220,7 @@ public class UserTypeModifier {
                 sb.append(' ').append(Tokens.T_CONSTRAINT).append(' ');
                 sb.append(constraints[i].getName().statementName).append(' ');
                 sb.append(Tokens.T_CHECK).append('(').append(
-                    constraints[i].getCheckDDL()).append(')');
+                    constraints[i].getCheckSQL()).append(')');
             }
         }
 

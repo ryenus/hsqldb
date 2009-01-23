@@ -243,9 +243,9 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     }
 
     /**
-     *  Returns DDL for default value.
+     *  Returns SQL for default value.
      */
-    public String getDefaultDDL() {
+    public String getDefaultSQL() {
 
         String ddl = null;
 

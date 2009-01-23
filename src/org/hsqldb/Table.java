@@ -392,7 +392,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         if (!isTemp && hasIdentityColumn()) {
-            list.add(identitySequence.getRestartDDL(this));
+            list.add(identitySequence.getRestartSQL(this));
         }
 
         for (int i = 0; i < indexList.length; i++) {
@@ -408,7 +408,7 @@ public class Table extends TableBase implements SchemaObject {
         return array;
     }
 
-    String[] getTriggerDDL() {
+    String[] getTriggerSQL() {
 
         String[] array = new String[triggerList.length];
 
@@ -457,7 +457,7 @@ public class Table extends TableBase implements SchemaObject {
             sb.append(' ');
             sb.append(type.getTypeDefinition());
 
-            String defaultString = column.getDefaultDDL();
+            String defaultString = column.getDefaultSQL();
 
             if (defaultString != null) {
                 sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
@@ -513,7 +513,7 @@ public class Table extends TableBase implements SchemaObject {
         return sb.toString();
     }
 
-    public String getIndexRootsDDL() {
+    public String getIndexRootsSQL() {
 
         StringBuffer sb = new StringBuffer(128);
 

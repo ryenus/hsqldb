@@ -187,7 +187,7 @@ public final class Schema implements SchemaObject {
 
         while (it.hasNext()) {
             Table    table = (Table) it.next();
-            String[] ddl   = table.getTriggerDDL();
+            String[] ddl   = table.getTriggerSQL();
 
             list.addAll(ddl);
         }

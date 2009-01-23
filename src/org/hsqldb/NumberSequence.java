@@ -223,7 +223,7 @@ public final class NumberSequence implements SchemaObject {
         return sb.toString();
     }
 
-    public String getRestartDDL(Table t) {
+    public String getRestartSQL(Table t) {
 
         String colname = t.getColumn(t.identityColumn).getName().statementName;
         NumberSequence seq = t.identitySequence;

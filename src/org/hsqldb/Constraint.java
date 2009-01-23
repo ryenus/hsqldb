@@ -550,9 +550,9 @@ public final class Constraint implements SchemaObject {
     }
 
     /**
-     * Returns the DDL for the expression in CHECK clause
+     * Returns the SQL for the expression in CHECK clause
      */
-    public String getCheckDDL() {
+    public String getCheckSQL() {
         return check.getSQL();
     }
 

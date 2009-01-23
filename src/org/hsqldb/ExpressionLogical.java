@@ -215,15 +215,15 @@ public class ExpressionLogical extends Expression {
             return super.getSQL();
         }
 
-        String left  = getContextDDL(nodes[LEFT]);
-        String right = getContextDDL(nodes.length > 1 ? nodes[RIGHT]
+        String left  = getContextSQL(nodes[LEFT]);
+        String right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
                                                       : null);
 
         switch (opType) {
 
             case OpTypes.NOT :
                 if (nodes[LEFT].opType == OpTypes.IS_NULL) {
-                    sb.append(getContextDDL(nodes[LEFT].nodes[LEFT])).append(
+                    sb.append(getContextSQL(nodes[LEFT].nodes[LEFT])).append(
                         ' ').append(Tokens.T_IS).append(' ').append(
                         Tokens.T_NOT).append(' ').append(Tokens.T_NULL);
 
@@ -231,11 +231,11 @@ public class ExpressionLogical extends Expression {
                 }
 
                 if (nodes[LEFT].opType == OpTypes.NOT_DISTINCT) {
-                    sb.append(getContextDDL(nodes[LEFT].nodes[LEFT])).append(
+                    sb.append(getContextSQL(nodes[LEFT].nodes[LEFT])).append(
                         ' ').append(Tokens.T_IS).append(' ').append(
                         Tokens.T_DISTINCT).append(' ').append(
                         Tokens.T_FROM).append(' ').append(
-                        getContextDDL(nodes[LEFT].nodes[RIGHT]));
+                        getContextSQL(nodes[LEFT].nodes[RIGHT]));
 
                     return sb.toString();
                 }
@@ -246,10 +246,10 @@ public class ExpressionLogical extends Expression {
 
             case OpTypes.NOT_DISTINCT :
                 sb.append(Tokens.T_NOT).append(' ').append(
-                    getContextDDL(nodes[LEFT].nodes[LEFT])).append(' ').append(
+                    getContextSQL(nodes[LEFT].nodes[LEFT])).append(' ').append(
                     Tokens.T_IS).append(' ').append(Tokens.T_DISTINCT).append(
                     ' ').append(Tokens.T_FROM).append(' ').append(
-                    getContextDDL(nodes[LEFT].nodes[RIGHT]));
+                    getContextSQL(nodes[LEFT].nodes[RIGHT]));
 
                 return sb.toString();
 

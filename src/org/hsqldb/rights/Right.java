@@ -681,7 +681,7 @@ public final class Right {
     /**
      * supports column level GRANT
      */
-    String getTableRightsDDL(Table table) {
+    String getTableRightsSQL(Table table) {
 
         StringBuffer sb = new StringBuffer();
 
