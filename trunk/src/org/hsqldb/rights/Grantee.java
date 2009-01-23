@@ -1163,7 +1163,7 @@ public class Grantee implements SchemaObject {
         return false;
     }
 
-    public HsqlArrayList getRightsDDL() {
+    public HsqlArrayList getRightsSQL() {
 
         HsqlArrayList list       = new HsqlArrayList();
         String        roleString = getDirectRolesAsString();
@@ -1195,7 +1195,7 @@ public class Grantee implements SchemaObject {
 
                         if (table != null) {
                             sb.append(Tokens.T_GRANT).append(' ');
-                            sb.append(right.getTableRightsDDL(table));
+                            sb.append(right.getTableRightsSQL(table));
                             sb.append(' ').append(Tokens.T_ON).append(' ');
                             sb.append("TABLE ").append(
                                 hsqlname.getSchemaQualifiedStatementName());

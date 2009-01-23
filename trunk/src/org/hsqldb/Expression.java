@@ -232,7 +232,7 @@ public class Expression {
         return describe(session, 0);
     }
 
-    static String getContextDDL(Expression expression) {
+    static String getContextSQL(Expression expression) {
 
         if (expression == null) {
             return null;

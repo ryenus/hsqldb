@@ -329,8 +329,8 @@ public final class ExpressionLike extends ExpressionLogical {
 
     public String getSQL() {
 
-        String       left  = getContextDDL(nodes[LEFT]);
-        String       right = getContextDDL(nodes[RIGHT]);
+        String       left  = getContextSQL(nodes[LEFT]);
+        String       right = getContextSQL(nodes[RIGHT]);
         StringBuffer sb    = new StringBuffer();
 
         sb.append(left).append(' ').append(Tokens.T_LIKE).append(' ');

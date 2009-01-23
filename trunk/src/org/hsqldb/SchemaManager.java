@@ -1570,7 +1570,7 @@ public class SchemaManager {
         return array;
     }
 
-    public String[] getIndexRootsDDL() {
+    public String[] getIndexRootsSQL() {
 
         Session       sysSession = database.sessionManager.getSysSession();
         HsqlArrayList tableList  = getAllTables();
@@ -1580,7 +1580,7 @@ public class SchemaManager {
             Table t = (Table) tableList.get(i);
 
             if (t.isIndexCached() && !t.isEmpty(sysSession)) {
-                String ddl = ((Table) tableList.get(i)).getIndexRootsDDL();
+                String ddl = ((Table) tableList.get(i)).getIndexRootsSQL();
 
                 if (ddl != null) {
                     list.add(ddl);

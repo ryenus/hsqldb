@@ -312,7 +312,7 @@ final class DITableInfo {
      * @return the declared default value expression for the column
      */
     String getColDefault(int i) {
-        return table.getColumn(i).getDefaultDDL();
+        return table.getColumn(i).getDefaultSQL();
     }
 
     /**

@@ -2423,7 +2423,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[constraint_name]    = constraint.getName().name;
 
                 try {
-                    row[check_clause] = constraint.getCheckDDL();
+                    row[check_clause] = constraint.getCheckSQL();
                 } catch (Exception e) {}
 
                 t.insertSys(store, row);
@@ -2455,7 +2455,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[constraint_name]    = constraint.getName().name;
 
                 try {
-                    row[check_clause] = constraint.getCheckDDL();
+                    row[check_clause] = constraint.getCheckSQL();
                 } catch (Exception e) {}
 
                 t.insertSys(store, row);
@@ -2840,7 +2840,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[table_name]       = table.getName().name;
                 row[column_name]      = column.getName().name;
                 row[ordinal_position] = ValuePool.getInt(i + 1);
-                row[column_default]   = column.getDefaultDDL();
+                row[column_default]   = column.getDefaultSQL();
                 row[is_nullable]      = column.isNullable() ? "YES"
                                                             : "NO";
                 row[data_type] = column.getDataType().getFullNameString();

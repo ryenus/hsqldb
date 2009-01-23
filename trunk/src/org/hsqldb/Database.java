@@ -750,7 +750,7 @@ public class Database {
 
         // index roots
         if (indexRoots) {
-            list = schemaManager.getIndexRootsDDL();
+            list = schemaManager.getIndexRootsSQL();
 
             addRows(r, list);
         }

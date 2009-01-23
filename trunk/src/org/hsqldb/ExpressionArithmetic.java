@@ -104,9 +104,9 @@ public class ExpressionArithmetic extends Expression {
                 return dataType.convertToSQLString(valueData);
         }
 
-        String left  = getContextDDL(nodes.length > 0 ? nodes[LEFT]
+        String left  = getContextSQL(nodes.length > 0 ? nodes[LEFT]
                                                       : null);
-        String right = getContextDDL(nodes.length > 1 ? nodes[RIGHT]
+        String right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
                                                       : null);
 
         switch (opType) {

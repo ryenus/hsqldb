@@ -439,7 +439,7 @@ public class DataFileCache {
     }
 
     /**
-     * Used when a row is deleted as a result of some DML or DDL command.
+     * Used when a row is deleted as a result of some DML or DDL statement.
      * Removes the row from the cache data structures.
      * Adds the file space for the row to the list of free positions.
      */

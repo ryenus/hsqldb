@@ -738,7 +738,7 @@ public class GranteeManager {
                 continue;
             }
 
-            HsqlArrayList subList = grantee.getRightsDDL();
+            HsqlArrayList subList = grantee.getRightsSQL();
 
             list.addAll(subList);
         }

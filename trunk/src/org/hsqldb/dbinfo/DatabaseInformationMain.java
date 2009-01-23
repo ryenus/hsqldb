@@ -988,7 +988,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[inum_prec_radix]    = ti.getColPrecRadix(i);
                 row[inullable]          = column.getNullability();
                 row[iremark]            = ti.getColRemarks(i);
-                row[icolumn_def]        = column.getDefaultDDL();
+                row[icolumn_def]        = column.getDefaultSQL();
                 row[isql_data_type]     = types[i].getJDBCTypeCode();
                 row[isql_datetime_sub]  = ti.getColSqlDateTimeSub(i);
                 row[ichar_octet_length] = ti.getColCharOctLen(i);
