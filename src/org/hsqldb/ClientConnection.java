@@ -339,7 +339,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized void setIsolation(int level) throws HsqlException {
+    public synchronized void setIsolationDefault(int level) throws HsqlException {
         setAttribute(SessionInterface.INFO_ISOLATION, ValuePool.getInt(level));
     }
 

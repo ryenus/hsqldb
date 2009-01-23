@@ -440,6 +440,7 @@ public class Database {
             databaseReadOnly, false, timeZoneSeconds);
 
         logger.logConnectUser(session);
+        logger.writeToLog(session, session.getSessionIsolationSQL());
 
         return session;
     }
@@ -681,15 +682,19 @@ public class Database {
         }
     }
 
-    public String[] getSettingsDDL() {
+    public String[] getSettingsSQL() {
 
         HsqlArrayList list = new HsqlArrayList();
-        String        name = getCatalogName().statementName;
 
-        list.add("ALTER CATALOG PUBLIC RENAME TO " + name);
+        if (!getCatalogName().name.equals(
+                HsqlNameManager.DEFAULT_CATALOG_NAME)) {
+            String name = getCatalogName().statementName;
+
+            list.add("ALTER CATALOG PUBLIC RENAME TO " + name);
+        }
 
         if (collation.name != null) {
-            name = collation.getName().statementName;
+            String name = collation.getName().statementName;
 
             list.add("SET DATABASE COLLATION " + name);
         }
@@ -701,7 +706,7 @@ public class Database {
         return array;
     }
 
-    public String[] getPropertiesDDL() {
+    public String[] getPropertiesSQL() {
 
         if (logger.hasLog()) {
             int     delay  = logger.getWriteDelay();
@@ -730,7 +735,7 @@ public class Database {
     public Result getScript(boolean indexRoots) {
 
         Result   r = Result.newSingleColumnResult("COMMAND", Type.SQL_VARCHAR);
-        String[] list = getSettingsDDL();
+        String[] list = getSettingsSQL();
 
         addRows(r, list);
 
@@ -751,7 +756,7 @@ public class Database {
         }
 
         // user session start schema names
-        list = getUserManager().getInitialSchemaDDL();
+        list = getUserManager().getInitialSchemaSQL();
 
         addRows(r, list);
 
@@ -760,7 +765,7 @@ public class Database {
 
         addRows(r, list);
 
-        list = getPropertiesDDL();
+        list = getPropertiesSQL();
 
         addRows(r, list);
 

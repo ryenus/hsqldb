@@ -109,13 +109,13 @@ public class TransactionManager {
 
     public void completeActions(Session session) {
 
+        Object[] list        = session.rowActionList.getArray();
+        int      limit       = session.rowActionList.size();
+        boolean  canComplete = true;
+
         writeLock.lock();
 
         try {
-            Object[] list        = session.rowActionList.getArray();
-            int      limit       = session.rowActionList.size();
-            boolean  canComplete = true;
-
             for (int i = session.actionIndex; i < limit; i++) {
                 RowAction rowact = (RowAction) list[i];
 
@@ -149,6 +149,43 @@ public class TransactionManager {
 
 //                        waitedSessions.put(current, session);
                         // waitingSessions.put(session, current);
+                    }
+                }
+            }
+
+            if (canComplete) {
+                for (int i = session.actionIndex; i < limit; i++) {
+                    RowAction action = (RowAction) list[i];
+
+                    if (!action.table.isLogged) {
+                        continue;
+                    }
+
+                    Row row = action.memoryRow;
+
+                    if (row == null) {
+                        PersistentStore store =
+                            session.sessionData.getRowStore(action.table);
+
+                        row = (Row) store.get(action.getPos());
+                    }
+
+                    Object[] data = row.getData();
+
+                    try {
+                        RowActionBase last =
+                            action.getAction(session.actionTimestamp);
+
+                        if (last.type == RowActionBase.ACTION_INSERT) {
+                            database.logger.writeInsertStatement(
+                                session, (Table) action.table, data);
+                        } else {
+                            database.logger.writeDeleteStatement(
+                                session, (Table) action.table, data);
+                        }
+                    } catch (HsqlException e) {
+
+                        // can put db in special state
                     }
                 }
             }
@@ -228,7 +265,7 @@ public class TransactionManager {
                 }
             }
 
-            endAction(session, true);
+            endTransaction(session);
 
             if (limit == 0) {
                 if (!mvcc) {
@@ -290,10 +327,7 @@ public class TransactionManager {
 
             try {
                 session.logSequences();
-
-                if (limit != 0) {
-                    database.logger.writeCommitStatement(session);
-                }
+                database.logger.writeCommitStatement(session);
             } catch (HsqlException e) {}
 
             //
@@ -322,14 +356,10 @@ public class TransactionManager {
     public void rollback(Session session) {
 
         session.abortTransaction = false;
-
-        session.sessionContext.savepoints.clear();
-        session.sessionContext.savepointTimestamps.clear();
-
-        session.actionTimestamp = nextChangeTimestamp();
+        session.actionTimestamp  = nextChangeTimestamp();
 
         rollbackPartial(session, 0, session.transactionTimestamp);
-        endAction(session, true);
+        endTransaction(session);
 
         if (!mvcc) {
             try {
@@ -561,7 +591,6 @@ public class TransactionManager {
 
             // get session commit timestamp
             committedTransactionTimestamps.addLast(session.actionTimestamp);
-
 /* debug 190
             if (committedTransactions.size() > 64) {
                 System.out.println("******* excessive transaction queue");
@@ -658,21 +687,41 @@ public class TransactionManager {
         return globalChangeTimestamp.incrementAndGet();
     }
 
+    public void beginTransaction(Session session) {
+
+        synchronized (liveTransactionTimestamps) {
+            session.actionTimestamp      = nextChangeTimestamp();
+            session.transactionTimestamp = session.actionTimestamp;
+            session.isTransaction        = true;
+
+            liveTransactionTimestamps.addLast(session.actionTimestamp);
+
+            try {
+                database.logger.writeToLog(session,
+                                           session.getStartTransactionSQL());
+            } catch (HsqlException e) {}
+        }
+    }
+
     /**
      * add session to the end of queue when a transaction starts
      * (depending on isolation mode)
      */
-    public void beginAction(Session session, Statement cs,
-                            boolean beginTransaction) {
+    public void beginAction(Session session, Statement cs) {
 
         synchronized (liveTransactionTimestamps) {
             session.actionTimestamp = nextChangeTimestamp();
 
-            if (beginTransaction) {
+            if (!session.isTransaction) {
                 session.transactionTimestamp = session.actionTimestamp;
                 session.isTransaction        = true;
 
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
+
+                try {
+                    database.logger.writeToLog(
+                        session, session.getStartTransactionSQL());
+                } catch (HsqlException e) {}
             }
         }
 
@@ -685,13 +734,11 @@ public class TransactionManager {
                 if (!canProceed) {
                     session.abortTransaction = true;
                 }
-
 /* debug 190
                 if (!canProceed) {
                     System.out.println("******* cannot start");
                 }
 // debug 190 */
-
             } finally {
                 writeLock.unlock();
             }
@@ -738,14 +785,12 @@ public class TransactionManager {
         }
 
         if (unlockedCount > 0) {
-
 /* debug 190
 
             if (unlockedCount > 1) {
                 System.out.println("*********** multiple unlocked");
             }
 // debug 190 */
-
             for (int i = 0; i < session.waitingSessions.size(); i++) {
                 Session current = (Session) session.waitingSessions.get(i);
 
@@ -757,7 +802,6 @@ public class TransactionManager {
                     if (!canProceed) {
                         current.abortTransaction = true;
                     }
-
 /* debug 190
                     if (current.tempSet.isEmpty()) {
                         System.out.println("*********** additional unlocked");
@@ -813,7 +857,8 @@ public class TransactionManager {
         HsqlName[] nameList = cs.getTableNamesForWrite();
 
         for (int i = 0; i < nameList.length; i++) {
-            HsqlName name =  nameList[i];
+            HsqlName name = nameList[i];
+
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
             }
@@ -838,7 +883,7 @@ public class TransactionManager {
         nameList = cs.getTableNamesForRead();
 
         for (int i = 0; i < nameList.length; i++) {
-            HsqlName name =  nameList[i];
+            HsqlName name = nameList[i];
 
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
@@ -887,7 +932,7 @@ public class TransactionManager {
         HsqlName[] nameList = cs.getTableNamesForWrite();
 
         for (int i = 0; i < nameList.length; i++) {
-            HsqlName name =  nameList[i];
+            HsqlName name = nameList[i];
 
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
@@ -899,7 +944,7 @@ public class TransactionManager {
         nameList = cs.getTableNamesForRead();
 
         for (int i = 0; i < nameList.length; i++) {
-            HsqlName name =  nameList[i];
+            HsqlName name = nameList[i];
 
             if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
@@ -938,24 +983,22 @@ public class TransactionManager {
      * that are no longer required. remove transactions ended before the first
      * timestamp in liveTransactionsSession queue
      */
-    void endAction(Session session, boolean endTransaction) {
+    void endTransaction(Session session) {
 
         try {
             writeLock.lock();
 
             long timestamp = session.transactionTimestamp;
 
-            if (endTransaction) {
-                synchronized (liveTransactionTimestamps) {
-                    session.isTransaction = false;
+            synchronized (liveTransactionTimestamps) {
+                session.isTransaction = false;
 
-                    int index = liveTransactionTimestamps.indexOf(timestamp);
+                int index = liveTransactionTimestamps.indexOf(timestamp);
 
-                    liveTransactionTimestamps.remove(index);
-                }
-
-                mergeExpiredTransactions();
+                liveTransactionTimestamps.remove(index);
             }
+
+            mergeExpiredTransactions();
         } finally {
             writeLock.unlock();
         }

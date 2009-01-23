@@ -289,7 +289,7 @@ public final class UserManager {
         }
     }
 
-    public String[] getInitialSchemaDDL() {
+    public String[] getInitialSchemaSQL() {
         HsqlArrayList list = new HsqlArrayList(userList.size());
         for (int i = 0; i < userList.size() ; i++) {
             User user = (User) userList.get(i);
@@ -302,7 +302,7 @@ public final class UserManager {
                 continue;
             }
 
-            list.add(user.getInitialSchemaDDL());
+            list.add(user.getInitialSchemaSQL());
         }
 
         String[] array = new String[ list.size() ];

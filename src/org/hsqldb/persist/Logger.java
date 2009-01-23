@@ -245,7 +245,7 @@ public class Logger {
     throws HsqlException {
 
         if (logStatements) {
-            writeToLog(session, session.getUser().getConnectStatement());
+            writeToLog(session, session.getUser().getConnectUserSQL());
         }
     }
 

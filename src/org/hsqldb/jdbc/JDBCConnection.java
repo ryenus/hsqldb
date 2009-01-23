@@ -1338,7 +1338,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 supports all isolation levels. If database transaction 
+     * HSQLDB 2.0 supports all isolation levels. If database transaction
      * control is MVCC, <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
      * is promoted to <code>Connection.TRANSACTION_READ_COMMITED</code>.
      * Calling this method during a transaction always fails.<p>
@@ -1378,7 +1378,7 @@ public class JDBCConnection implements Connection {
         }
 
         try {
-            sessionProxy.setIsolation(level);
+            sessionProxy.setIsolationDefault(level);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -1395,7 +1395,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 supports all isolation levels. If database transaction 
+     * HSQLDB 2.0 supports all isolation levels. If database transaction
      * control is MVCC, <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
      * is promoted to <code>Connection.TRANSACTION_READ_COMMITED</code>.
      *

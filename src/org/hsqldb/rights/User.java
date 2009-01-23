@@ -137,7 +137,7 @@ public class User extends Grantee {
      *
      * @return  the DDL
      */
-    public String getAlterUserDDL() {
+    public String getAlterUserSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -151,7 +151,7 @@ public class User extends Grantee {
         return sb.toString();
     }
 
-    public String getInitialSchemaDDL() {
+    public String getInitialSchemaSQL() {
 
         StringBuffer sb = new StringBuffer();
 
@@ -171,7 +171,7 @@ public class User extends Grantee {
      * sequence that creates this user.
      *
      */
-    public String getCreateUserDDL() {
+    public String getCreateUserSQL() {
 
         StringBuffer sb = new StringBuffer(64);
 
@@ -191,7 +191,7 @@ public class User extends Grantee {
      * @return the redo log character sequence for connecting
      *      this user
      */
-    public String getConnectStatement() {
+    public String getConnectUserSQL() {
 
         StringBuffer sb = new StringBuffer();
 

@@ -158,7 +158,10 @@ public interface StatementTypes {
     int CREATE_INDEX                       = 1005;
     int DROP_INDEX                         = 1008;
     int EXPLAIN_PLAN                       = 1010;
-    int SET_AUTOCOMMIT                     = 1012;
+    int LOCK_TABLE                         = 1011;
+    int RENAME_OBJECT                      = 1012;
+    int SCRIPT                             = 1013;
+    int SET_AUTOCOMMIT                     = 1014;
     int SET_DATABASE_COLLATION             = 1016;
     int SET_DATABASE_DEFRAG                = 1018;
     int SET_DATABASE_EVENT_LOG             = 1019;
@@ -173,15 +176,13 @@ public interface StatementTypes {
     int SET_INITIAL_SCHEMA                 = 1032;
     int SET_PASSWORD                       = 1034;
     int SET_PROPERTY                       = 1036;
-    int RENAME_OBJECT                      = 1037;
     int SET_SESSION_RESULT_MAX_ROWS        = 1038;
     int SET_SESSION_RESULT_MEMORY_ROWS     = 1040;
     int SET_TABLE_INDEX                    = 1042;
     int SET_TABLE_READONLY                 = 1044;
     int SET_TABLE_SOURCE                   = 1046;
     int SET_TABLE_TYPE                     = 1048;
-    int SCRIPT                             = 1050;
-    int SHUTDOWN                           = 1052;
+    int SHUTDOWN                           = 1050;
 
     // hsqldb sql
     int CREATE_USER        = 1071;
@@ -196,19 +197,20 @@ public interface StatementTypes {
 
     //
     int X_SQL_SCHEMA_DEFINITION   = 2001;
-    int X_SQL_SCHEMA_MANIPULATION = 2011;
-    int X_SQL_DATA                = 2002;
-    int X_SQL_DATA_CHANGE         = 2003;
-    int X_SQL_TRANSACTION         = 2004;
-    int X_SQL_CONNECTION          = 2005;
-    int X_SQL_CONTROL             = 2006;
-    int X_SQL_SESSION             = 2007;
-    int X_SQL_DIAGNOSTICS         = 2008;
-    int X_SQL_DYNAMIC             = 2009;
-    int X_HSQLDB_SESSION          = 2040;
-    int X_HSQLDB_SETTING          = 2020;
-    int X_HSQLDB_OPERATION        = 2030;
-    int X_DYNAMIC                 = 2009;
+    int X_SQL_SCHEMA_MANIPULATION = 2002;
+    int X_SQL_DATA                = 2003;
+    int X_SQL_DATA_CHANGE         = 2004;
+    int X_SQL_TRANSACTION         = 2005;
+    int X_SQL_CONNECTION          = 2006;
+    int X_SQL_CONTROL             = 2007;
+    int X_SQL_SESSION             = 2008;
+    int X_SQL_DIAGNOSTICS         = 2009;
+    int X_SQL_DYNAMIC             = 2010;
+    int X_HSQLDB_SESSION          = 2011;
+    int X_HSQLDB_SETTING          = 2012;
+    int X_HSQLDB_OPERATION        = 2013;
+    int X_HSQLDB_TRANSACTION      = 2014;
+    int X_DYNAMIC                 = 2015;
 
     /** Expected types of Result returned for an SQL statement */
     int RETURN_ANY    = 0;

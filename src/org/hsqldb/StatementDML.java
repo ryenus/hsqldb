@@ -417,6 +417,7 @@ public class StatementDML extends StatementDMQL {
 
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
+        PersistentStore store = session.sessionData.getRowStore(baseTable);
 
         if (generatedIndexes != null) {
             resultOut = Result.newUpdateCountResult(generatedResultMetaData,
@@ -492,7 +493,7 @@ public class StatementDML extends StatementDMQL {
         while (newData.hasNext()) {
             Object[] data = (Object[]) newData.getNext();
 
-            baseTable.insertRow(session, data);
+            baseTable.insertRow(session, store, data);
 
             if (generatedNavigator != null) {
                 Object[] generatedValues = getGeneratedColumns(data);

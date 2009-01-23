@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.persist.PersistentStore;
 
 /**
  * Represents the chain of insert / delete / rollback / commit actions on a row.
@@ -44,9 +45,9 @@ import org.hsqldb.lib.OrderedHashSet;
 public class RowAction extends RowActionBase {
 
     //
-    TableBase table;
-    Row       memoryRow;
-    int       rowId;
+    final TableBase table;
+    Row             memoryRow;
+    int             rowId;
 
     public static RowAction addAction(Session session, byte type,
                                       TableBase table, Row row) {
@@ -54,8 +55,7 @@ public class RowAction extends RowActionBase {
         RowAction action = row.rowAction;
 
         if (action == null) {
-            action       = new RowAction(session, type);
-            action.table = table;
+            action = new RowAction(session, table, type);
 
             if (!(row instanceof CachedRow)) {
                 action.memoryRow = row;
@@ -65,8 +65,7 @@ public class RowAction extends RowActionBase {
             row.rowAction = action;
         } else {
             if (action.type == ACTION_DELETE_FINAL) {
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "RowAction");
+                throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
             }
 
             if (action.type == ACTION_NONE) {
@@ -78,7 +77,7 @@ public class RowAction extends RowActionBase {
                     actionItem = actionItem.next;
                 }
 
-                RowActionBase newAction = new RowAction(session, type);
+                RowActionBase newAction = new RowActionBase(session, type);
 
                 actionItem.next = newAction;
             }
@@ -93,8 +92,11 @@ public class RowAction extends RowActionBase {
      * @param session
      * @param type type of action
      */
-    RowAction(Session session, byte type) {
+    RowAction(Session session, TableBase table, byte type) {
+
         super(session, type);
+
+        this.table = table;
     }
 
     synchronized void setAsAction(Session session, byte type) {
@@ -210,8 +212,8 @@ public class RowAction extends RowActionBase {
         RowActionBase action;
         long          timestamp       = session.transactionTimestamp;
         long          commitTimestamp = 0;
-        boolean readCommitted = session.isolationMode
-                                == SessionInterface.TX_READ_COMMITTED;
+        final boolean readCommitted = session.isolationMode
+                                      == SessionInterface.TX_READ_COMMITTED;
 
         action = this;
 
@@ -306,6 +308,24 @@ public class RowAction extends RowActionBase {
         } while (action != null);
 
         return result;
+    }
+
+    synchronized RowActionBase getAction(long timestamp) {
+
+        RowActionBase action = this;
+        RowActionBase last   = null;
+
+        do {
+            if (action.actionTimestamp == timestamp) {
+                last = action;
+
+                break;
+            }
+
+            action = action.next;
+        } while (action != null);
+
+        return last;
     }
 
     synchronized int getPos() {
