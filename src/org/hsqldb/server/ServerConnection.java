@@ -389,16 +389,15 @@ e.printStackTrace();
             }
         }
 
-        java.io.DataInputStream pipeInput = null;
+        DataInputStream pipeInput = null;
         { // This block is only for testing for HSQLDB client < 1.9
             // Need to use a pipe because we need to re-read the data
             // as a different data type after this test.
             byte[] littleBuffer = new byte[3];
             PipedInputStream inPipe = new PipedInputStream();
             PipedOutputStream outPipe = new PipedOutputStream(inPipe);
-            pipeInput = new java.io.DataInputStream(inPipe);
-            java.io.DataOutputStream pipeOutput =
-                    new java.io.DataOutputStream(outPipe);
+            pipeInput = new DataInputStream(inPipe);
+            DataOutputStream pipeOutput = new DataOutputStream(outPipe);
 
             byte firstByte = dataInput.readByte();
             int legacyResultType = firstByte;
@@ -467,6 +466,55 @@ e.printStackTrace();
         int major = dataInput.readUnsignedShort();
         int minor = dataInput.readUnsignedShort();
         server.printWithThread("PG client connected.  "
-                + "PG Protocol Version " + major + '.' + minor);
+                + "PG Protocol Compatibility Version " + major + '.' + minor);
+        server.printWithThread("DB: " + readUTF(ODBC_SM_DATABASE));
+        server.printWithThread("User: " + readUTF(ODBC_SM_USER));
+        server.printWithThread("Opts: " + readUTF(ODBC_SM_OPTIONS));
+        dataInput.skipBytes(ODBC_SM_UNUSED);
+        server.printWithThread("tty: " + readUTF(ODBC_SM_TTY));
     }
+
+    private String readUTF(int length) throws IOException {
+        /* Would be MUCH easier to do this with Java6's String
+         * encoding/decoding operations */
+        int bytesRead = 0;
+        byte[] ba = new byte[length + 2];
+        while (bytesRead < length) {
+            bytesRead += dataInput.read(ba, 2 + bytesRead, length - bytesRead);
+        }
+        // Could read bytes 1-at-a-time then skipBytes() after see null byte.
+        // Reading in chunks like this is probably more efficient even though
+        // it writes nulls for nothing.
+        int firstNull = 1;
+        while (true) {
+            firstNull++;
+            if (firstNull == ba.length) {
+                throw new IOException("Unterminated string on input");
+            }
+            if (ba[firstNull] == (byte) 0) {
+                break;
+            }
+        }
+
+        firstNull -= 2;  // Want length from AFTER the size prefix
+        ba[0] = (byte) (firstNull >>> 8);
+        ba[1] = (byte) firstNull;
+server.print("First byte " + ba[0]);
+server.print("2nd byte " + ba[1]);
+
+        DataInputStream dis =
+            new DataInputStream(new java.io.ByteArrayInputStream(ba));
+        //String s = dis.readUTF();
+        String s = DataInputStream.readUTF(dis);
+        dis.close();
+        server.print("LEN (" + s.length() + ") Val (" + s + ')');
+        return s;
+    }
+
+    // Constants taken from connection.h
+    static private final int ODBC_SM_DATABASE = 64;
+    static private final int ODBC_SM_USER = 32;
+    static private final int ODBC_SM_OPTIONS = 64;
+    static private final int ODBC_SM_UNUSED = 64;
+    static private final int ODBC_SM_TTY = 64;
 }
