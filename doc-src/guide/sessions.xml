@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:ns6="http://www.w3.org/1999/xlink"
+         xmlns:ns5="http://www.w3.org/1999/xhtml"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/2000/svg"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title xml:id="sessions-title">Sessions and Transactions</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision: 734 $</releaseinfo>
+
+    <pubdate>$Date: 2009-01-08 19:19:51 +0000 (Thu, 08 Jan 2009) $</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
+      this document without any alteration under the terms of the HSQLDB
+      license. Additional permission is granted to the HSQL Development Group
+      to distribute this document with or without alterations under the terms
+      of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section>
+    <title>Overview</title>
+
+    <para>All SQL statements are executed in sessions.</para>
+  </section>
+
+  <section>
+    <title>Statements</title>
+
+    <!-- From Foundation chapt. 17 -->
+
+    <indexterm significance="preferred" type="sql">
+      <primary>START TRANSACTION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">START TRANSACTION</emphasis></simpara>
+
+    <simpara><emphasis>start transaction statement</emphasis></simpara>
+
+    <simpara><literal>&lt;start transaction statement&gt; ::= START
+    TRANSACTION [ &lt;transaction characteristics&gt; ]</literal></simpara>
+
+    <simpara>Start an SQL-transaction and set its characteristics. All
+    transactional SQL statements start a transaction automatically, therefore
+    using this statement is not necessary. If the statement is called in the
+    middle of a transaction, an exception is thrown.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET TRANSACTION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET TRANSACTION</emphasis></simpara>
+
+    <simpara><emphasis>set next transaction
+    characteristics</emphasis></simpara>
+
+    <simpara><literal>&lt;set transaction statement&gt; ::= SET [ LOCAL ]
+    TRANSACTION &lt;transaction characteristics&gt;</literal></simpara>
+
+    <simpara>Set the characteristics of the next transaction for the agent.
+    This statement has an effect only on the next transactions and has no
+    effect on the future transactions after the next.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>transaction characteristics</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">transaction
+    characteristics</emphasis></simpara>
+
+    <simpara><emphasis>transaction characteristics</emphasis></simpara>
+
+    <simpara><literal>&lt;transaction characteristics&gt; ::= [
+    &lt;transaction mode&gt; [ { &lt;comma&gt; &lt;transaction mode&gt; }... ]
+    ]</literal></simpara>
+
+    <simpara><literal>&lt;transaction mode&gt; ::= &lt;isolation level&gt; |
+    &lt;transaction access mode&gt; | &lt;diagnostics
+    size&gt;</literal></simpara>
+
+    <simpara><literal>&lt;transaction access mode&gt; ::= READ ONLY | READ
+    WRITE</literal></simpara>
+
+    <simpara><literal>&lt;isolation level&gt; ::= ISOLATION LEVEL &lt;level of
+    isolation&gt;</literal></simpara>
+
+    <simpara><literal>&lt;level of isolation&gt; ::= READ UNCOMMITTED | READ
+    COMMITTED | REPEATABLE READ | SERIALIZABLE</literal></simpara>
+
+    <simpara><literal>&lt;diagnostics size&gt; ::= DIAGNOSTICS SIZE &lt;number
+    of conditions&gt;</literal></simpara>
+
+    <simpara><literal>&lt;number of conditions&gt; ::= &lt;simple value
+    specification&gt;</literal></simpara>
+
+    <simpara>Specify transaction characteristics.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET CONSTRAINTS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET CONSTRAINTS</emphasis></simpara>
+
+    <simpara><emphasis>set constraints mode statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set constraints mode statement&gt; ::= SET
+    CONSTRAINTS &lt;constraint name list&gt; { DEFERRED | IMMEDIATE
+    }</literal></simpara>
+
+    <simpara><literal>&lt;constraint name list&gt; ::= ALL | &lt;constraint
+    name&gt; [ { &lt;comma&gt; &lt;constraint name&gt; }...
+    ]</literal></simpara>
+
+    <simpara>If an SQL-transaction is currently active, then set the
+    constraint mode for that SQL-transaction in the current SQL-session. If no
+    SQL-transaction is currently active, then set the constraint mode for the
+    next SQL-transaction in the current SQL-session for the SQL-agent. NOTE
+    434 This statement has no effect on any SQL-transactions subsequent to
+    this SQL-transaction.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SAVEPOINT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SAVEPOINT</emphasis></simpara>
+
+    <simpara><emphasis>savepoint statement</emphasis></simpara>
+
+    <simpara><literal>&lt;savepoint statement&gt; ::= SAVEPOINT &lt;savepoint
+    specifier&gt;</literal></simpara>
+
+    <simpara><literal>&lt;savepoint specifier&gt; ::= &lt;savepoint
+    name&gt;</literal></simpara>
+
+    <simpara>Establish a savepoint.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RELEASE SAVEPOINT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RELEASE SAVEPOINT</emphasis></simpara>
+
+    <simpara><emphasis>release savepoint statement</emphasis></simpara>
+
+    <simpara><literal>&lt;release savepoint statement&gt; ::= RELEASE
+    SAVEPOINT &lt;savepoint specifier&gt;</literal></simpara>
+
+    <simpara>Destroy a savepoint.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>COMMIT WORK AND NO CHAIN</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">COMMIT WORK</emphasis></simpara>
+
+    <simpara><emphasis>commit statement</emphasis></simpara>
+
+    <simpara><literal>&lt;commit statement&gt; ::= COMMIT [ WORK ] [ AND [ NO
+    ] CHAIN ]</literal></simpara>
+
+    <simpara>Terminate the current SQL-transaction with commit.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ROLLBACK WORK AND NO CHAIN</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ROLLBACK WORK</emphasis></simpara>
+
+    <simpara><emphasis>rollback statement</emphasis></simpara>
+
+    <simpara><literal>&lt;rollback statement&gt; ::= ROLLBACK [ WORK ] [ AND [
+    NO ] CHAIN ] [ &lt;savepoint clause&gt; ]</literal></simpara>
+
+    <simpara><literal>&lt;savepoint clause&gt; ::= TO SAVEPOINT &lt;savepoint
+    specifier&gt;</literal></simpara>
+
+    <simpara>Terminate the current SQL-transaction with rollback, or rollback
+    all actions affecting SQL-data and/or schemas since the establishment of a
+    savepoint.</simpara>
+
+    <!-- From Foundation chapt. 18 -->
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CONNECT TO</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CONNECT TO</emphasis></simpara>
+
+    <simpara><emphasis>connect statement</emphasis></simpara>
+
+    <simpara><literal>&lt;connect statement&gt; ::= CONNECT TO &lt;connection
+    target&gt;</literal></simpara>
+
+    <simpara><literal>&lt;connection target&gt; ::= &lt;SQL-server name&gt; [
+    AS &lt;connection name&gt; ] [ USER &lt;connection user name&gt; ] |
+    DEFAULT</literal></simpara>
+
+    <simpara>Establish an SQL-session.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET CONNECTION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET CONNECTION</emphasis></simpara>
+
+    <simpara><emphasis>set connection statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set connection statement&gt; ::= SET CONNECTION
+    &lt;connection object&gt;</literal></simpara>
+
+    <simpara><literal>&lt;connection object&gt; ::= DEFAULT | &lt;connection
+    name&gt;</literal></simpara>
+
+    <simpara>Select an SQL-connection from the available
+    SQL-connections.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DISCONNECT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DISCONNECT</emphasis></simpara>
+
+    <simpara><emphasis>disconnect statement</emphasis></simpara>
+
+    <simpara><literal>&lt;disconnect statement&gt; ::= DISCONNECT
+    &lt;disconnect object&gt;</literal></simpara>
+
+    <simpara><literal>&lt;disconnect object&gt; ::= &lt;connection object&gt;
+    | ALL | CURRENT</literal></simpara>
+
+    <simpara>Terminate an SQL-connection.</simpara>
+
+    <!-- From Foundation chapt. 19 -->
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET SESSION CHARACTERISTICS AS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET SESSION
+    CHARACTERISTICS</emphasis></simpara>
+
+    <simpara><emphasis>set session characteristics
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set session characteristics statement&gt; ::= SET
+    SESSION CHARACTERISTICS AS &lt;session characteristic
+    list&gt;</literal></simpara>
+
+    <simpara><literal>&lt;session characteristic list&gt; ::= &lt;session
+    characteristic&gt; [ { &lt;comma&gt; &lt;session characteristic&gt; }...
+    ]</literal></simpara>
+
+    <simpara><literal>&lt;session characteristic&gt; ::= &lt;session
+    transaction characteristics&gt;</literal></simpara>
+
+    <simpara><literal>&lt;session transaction characteristics&gt; ::=
+    TRANSACTION &lt;transaction mode&gt; [ { &lt;comma&gt; &lt;transaction
+    mode&gt; }... ]</literal></simpara>
+
+    <simpara>Set one or more characteristics for the current SQL-session. This
+    command is used to set the transaction mode for the session. This endures
+    until the next use of this command.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET SESSION AUTHORIZATION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET SESSION
+    AUTHORIZATION</emphasis></simpara>
+
+    <simpara><emphasis>set session user identifier
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set session user identifier statement&gt; ::= SET
+    SESSION AUTHORIZATION &lt;value specification&gt;</literal></simpara>
+
+    <simpara>Set the SQL-session user identifier and the current user
+    identifier of the current SQL-session context.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET ROLE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET ROLE</emphasis></simpara>
+
+    <simpara><emphasis>set role statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set role statement&gt; ::= SET ROLE &lt;role
+    specification&gt;</literal></simpara>
+
+    <simpara><literal>&lt;role specification&gt; ::= &lt;value
+    specification&gt; | NONE</literal></simpara>
+
+    <simpara>Set the SQL-session role name and the current role name for the
+    current SQL-session context.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET TIME ZONE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET TIME ZONE</emphasis></simpara>
+
+    <simpara><emphasis>set local time zone statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set local time zone statement&gt; ::= SET TIME ZONE
+    &lt;set time zone value&gt;</literal></simpara>
+
+    <simpara><literal>&lt;set time zone value&gt; ::= &lt;interval value
+    expression&gt; | LOCAL</literal></simpara>
+
+    <simpara>Set the current default time zone displacement for the current
+    SQL-session.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET CATALOG</emphasis></simpara>
+
+    <simpara><emphasis>set catalog statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set catalog statement&gt; ::= SET &lt;catalog name
+    characteristic&gt;</literal></simpara>
+
+    <simpara><literal>&lt;catalog name characteristic&gt; ::= CATALOG
+    &lt;value specification&gt;</literal></simpara>
+
+    <simpara>Set the default catalog name for unqualified schema names in
+    preparable statements that are prepared in the current SQL-session by an
+    execute immediate statement or a prepare statement and in direct SQL
+    statements that are invoked directly.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET SCHEMA</emphasis></simpara>
+
+    <simpara><emphasis>set schema statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set schema statement&gt; ::= SET &lt;schema name
+    characteristic&gt;</literal></simpara>
+
+    <simpara><literal>&lt;schema name characteristic&gt; ::= SCHEMA &lt;value
+    specification&gt;</literal></simpara>
+
+    <simpara>Set the default schema name for unqualified schema qualified
+    names in preparable statements that are prepared in the current
+    SQL-session by an execute immediate statement or a prepare statement and
+    in direct SQL statements that are invoked directly.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET NAMES</emphasis></simpara>
+
+    <simpara><emphasis>set names statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set names statement&gt; ::= SET &lt;character set
+    name characteristic&gt;</literal></simpara>
+
+    <simpara><literal>&lt;character set name characteristic&gt; ::= NAMES
+    &lt;value specification&gt;</literal></simpara>
+
+    <simpara>Set the default character set name for character string literals
+    in preparable statements that are prepared in the current SQL-session by
+    an execute immediate statement or a prepare statement and in direct SQL
+    statements that are invoked directly.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET PATH</emphasis></simpara>
+
+    <simpara><emphasis>set path statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set path statement&gt; ::= SET &lt;SQL-path
+    characteristic&gt;</literal></simpara>
+
+    <simpara><literal>&lt;SQL-path characteristic&gt; ::= PATH &lt;value
+    specification&gt;</literal></simpara>
+
+    <simpara>Set the SQL-path used to determine the subject routine of routine
+    invocations with unqualified routine names in preparable statements that
+    are prepared in the current SQL-session by an execute immediate statement
+    or a prepare statement and in direct SQL statements, respectively, that
+    are invoked directly. The SQL-path remains the current SQL-path of the
+    SQL-session until another SQL-path is successfully set.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DEFAULT TRANSFORM
+    GROUP</emphasis></simpara>
+
+    <simpara><emphasis>set transform group statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set transform group statement&gt; ::= SET
+    &lt;transform group characteristic&gt;</literal></simpara>
+
+    <simpara><literal>&lt;transform group characteristic&gt; ::= DEFAULT
+    TRANSFORM GROUP &lt;value specification&gt; | TRANSFORM GROUP FOR TYPE
+    &lt;path-resolved user-defined type name&gt; &lt;value
+    specification&gt;</literal></simpara>
+
+    <simpara>Set the group name that identifies the group of transform
+    functions for mapping values of user-defined types to predefined data
+    types.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET COLLATION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET COLLATION</emphasis></simpara>
+
+    <simpara><emphasis>set session collation statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set session collation statement&gt; ::= SET
+    COLLATION &lt;collation specification&gt; [ FOR &lt;character set
+    specification list&gt; ] | SET NO COLLATION [ FOR &lt;character set
+    specification list&gt; ]</literal></simpara>
+
+    <simpara><literal>&lt;collation specification&gt; ::= &lt;value
+    specification&gt;</literal></simpara>
+
+    <simpara>Set the SQL-session collation of the SQL-session for one or more
+    character sets. An SQL-session collation remains effective until another
+    SQL-session collation for the same character set is successfully
+    set.</simpara>
+  </section>
+</chapter>

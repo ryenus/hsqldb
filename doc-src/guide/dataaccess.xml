@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:ns6="http://www.w3.org/1999/xlink"
+         xmlns:ns5="http://www.w3.org/1999/xhtml"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/2000/svg"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title xml:id="dataaccess-title">Data Access and Change</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision: 734 $</releaseinfo>
+
+    <pubdate>$Date: 2009-01-08 19:19:51 +0000 (Thu, 08 Jan 2009) $</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
+      this document without any alteration under the terms of the HSQLDB
+      license. Additional permission is granted to the HSQL Development Group
+      to distribute this document with or without alterations under the terms
+      of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section>
+    <title>Overview</title>
+
+    <para>All SQL data access and change statements are executed in
+    sessions.</para>
+  </section>
+
+  <section>
+    <title>Statements</title>
+
+    <para>SQL statements used to access the data and to change the
+    data.</para>
+  </section>
+</chapter>
