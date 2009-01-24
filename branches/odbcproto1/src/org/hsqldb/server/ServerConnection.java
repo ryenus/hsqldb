@@ -218,6 +218,9 @@ class ServerConnection implements Runnable {
 
     /**
      * Initializes this connection.
+     * <p>
+     * Will return (not throw) if fail to initialize the connection.
+     * </p>
      */
     private void init() {
 
@@ -229,25 +232,107 @@ class ServerConnection implements Runnable {
 
             dataInput  = new DataInputStream(socket.getInputStream());
             dataOutput = new DataOutputStream(socket.getOutputStream());
-            if (handshake()) {
+            handshake();
+            switch (streamProtocol) {
+                case HSQL_STREAM_PROTOCOL:
 
-                Result resultIn = Result.newResult(dataInput, rowIn);
+                    Result resultIn = Result.newResult(dataInput, rowIn);
 
-                resultIn.readAdditionalResults(session, dataInput, rowIn);
+                    resultIn.readAdditionalResults(session, dataInput, rowIn);
 
-                Result resultOut;
+                    Result resultOut;
 
-                resultOut = setDatabase(resultIn);
+                    resultOut = setDatabase(resultIn);
 
-                resultOut.write(dataOutput, rowOut);
-            } else {
-                pgConnect();
+                    resultOut.write(dataOutput, rowOut);
+                    break;
+                case ODBC_STREAM_PROTOCOL:
+                    odbcConnect();
+                    break;
+                default:
+                    // handshake() is responsible for notifications if it fails
+                    // to detect a valid protocol on the stream.
+                    keepAlive = false;
             }
         } catch (Exception e) {
-// TODO:  This is just for debugging.  REMOVE
-e.printStackTrace();
-            server.printWithThread(mThread + ":couldn't connect user '"
-                    + user + "': " + e);
+            // Only "unexpected" failures are caught here.
+            // Expected failures will have been handled (by sending feedback
+            // to user-- with an output Result for normal protocols), then
+            // continuing.
+            StringBuffer sb =
+                new StringBuffer(mThread + ":Failed to connect client.");
+            if (user != null) {
+                sb.append("  User '" + user + "'.");
+            }
+            server.printWithThread(sb.toString() + "  Stack trace follows.");
+            server.printStackTrace(e);
+            // TODO:  Check this after merging with trunk (in either direction).
+            // Could be either a conflict or duplication here, since I have
+            // applied the same mod both in the odbcproto1 branch in the trunk
+            // branch.
+        }
+    }
+
+    private class CleanExit extends Exception {}
+    private CleanExit cleanExit = new CleanExit();
+
+    private void hsqlResultCycle()
+    throws CleanExit, IOException, HsqlException {
+        Result resultIn = Result.newResult(dataInput, rowIn);
+
+        resultIn.readAdditionalResults(session, dataInput, rowIn);
+        server.printRequest(mThread, resultIn);
+
+        Result resultOut = null;
+        int    type      = resultIn.getType();
+
+        if (type == ResultConstants.CONNECT) {
+            resultOut = setDatabase(resultIn);
+        } else if (type == ResultConstants.DISCONNECT) {
+
+            throw cleanExit;
+        } else if (type == ResultConstants.RESETSESSION) {
+            resetSession();
+
+            return;
+        } else {
+            resultOut = session.execute(resultIn);
+        }
+
+        resultOut.write(dataOutput, rowOut);
+
+        if (resultOut.getNavigator() != null) {
+            resultOut.getNavigator().close();
+        }
+
+        rowOut.setBuffer(mainBuffer);
+        rowIn.resetRow(mainBuffer.length);
+    }
+
+    private void odbcXmitCycle() throws IOException {
+        char op = (char) dataInput.readByte();
+        server.print("Got op (" + op + ')');
+        switch (op) {
+            case 'Q':
+                String sql = readNullTermdUTF();
+                if (server.isTrace()) {
+                    server.printWithThread("Received query (" + sql + ')');
+                }
+                if (sql.trim().length() < 1) {
+                    dataOutput.writeByte('I');
+                    dataOutput.writeByte(0);
+                    dataOutput.writeByte('Z');
+                } else {
+                    warnOdbcClient(
+                            false, "Sorry, only null queries supported so far");
+                }
+                break;
+            default:
+                warnOdbcClient(
+                        false, "Unsupported operation type (" + op + ')');
+                // May be impossible to recover in practice, since every
+                // op. type will probably be followed by data which we will
+                // choke on forthwith.
         }
     }
 
@@ -262,37 +347,21 @@ e.printStackTrace();
         if (session != null) {
             try {
                 while (keepAlive) {
-                    Result resultIn = Result.newResult(dataInput, rowIn);
-
-                    resultIn.readAdditionalResults(session, dataInput, rowIn);
-                    server.printRequest(mThread, resultIn);
-
-                    Result resultOut = null;
-                    int    type      = resultIn.getType();
-
-                    if (type == ResultConstants.CONNECT) {
-                        resultOut = setDatabase(resultIn);
-                    } else if (type == ResultConstants.DISCONNECT) {
-                        keepAlive = false;
-
-                        break;
-                    } else if (type == ResultConstants.RESETSESSION) {
-                        resetSession();
-
-                        continue;
-                    } else {
-                        resultOut = session.execute(resultIn);
+                    switch (streamProtocol) {
+                        case HSQL_STREAM_PROTOCOL:
+                            hsqlResultCycle();
+                            break;
+                        case ODBC_STREAM_PROTOCOL:
+                            odbcXmitCycle();
+                            break;
+                        default:
+                            throw new RuntimeException("Internal problem.  "
+                                    + "Handshake should have unset keepAlive.");
                     }
-
-                    resultOut.write(dataOutput, rowOut);
-
-                    if (resultOut.getNavigator() != null) {
-                        resultOut.getNavigator().close();
-                    }
-
-                    rowOut.setBuffer(mainBuffer);
-                    rowIn.resetRow(mainBuffer.length);
                 }
+            } catch (CleanExit ce) {
+
+                keepAlive = false;
             } catch (IOException e) {
 
                 // fredt - is thrown when connection drops
@@ -319,13 +388,18 @@ e.printStackTrace();
             user    = resultIn.getMainString();
 
             if (!server.isSilent()) {
-                server.printWithThread(mThread + ":trying to connect user "
-                                   + user + " to DB (" + databaseName + ')');
+                server.printWithThread(mThread + ":Trying to connect user '"
+                                   + user + "' to DB (" + databaseName + ')');
             }
 
             session = DatabaseManager.newSession(dbID, user,
                                                  resultIn.getSubString(),
                                                  resultIn.getUpdateCount());
+
+            if (!server.isSilent()) {
+                server.printWithThread(mThread + ":Connected user '"
+                                       + user + "'");
+            }
 
             return Result.newConnectionAcknowledgeResponse(session.getId(),
                     session.getDatabase().getDatabaseID());
@@ -370,10 +444,11 @@ e.printStackTrace();
      * if client connects with hsqls to a https server; or
      * hsql to a http server.
      * All other client X server combinations are handled gracefully.
-     *
-     * @return true for native HSQLDB, false for PG protocol connection
+     * <P/>
+     * If returns (a.o.t. throws), then state variable streamProtocol will
+     * be set.
      */
-    public boolean handshake() throws IOException, HsqlException {
+    public void handshake() throws IOException, HsqlException {
         long clientDataDeadline = new java.util.Date().getTime()
                 + MAX_WAIT_FOR_CLIENT_DATA;
         if (!(socket instanceof javax.net.ssl.SSLSocket)) {
@@ -408,7 +483,7 @@ e.printStackTrace();
             int legacyResultType = firstByte;
             switch (legacyResultType) {
                 case 0:
-                    // Read 3 more bytest to make an int, to determine PG
+                    // Read 3 more bytest to make an int, to determine ODBC
                     // client vs. Legacy HSQL:
                     int descriminatorInt = ((firstByte & 0xff) << 24)
                         + ((dataInput.readByte() & 0xff) << 16)
@@ -425,7 +500,8 @@ e.printStackTrace();
                                  new String[] { "pre-9.0",
                              ClientConnection.NETWORK_COMPATIBILITY_VERSION});
                         case 296:
-                            return false;
+                            streamProtocol = ODBC_STREAM_PROTOCOL;
+                            return;  // Success case
                         default:
                             throw Error.error(
                                     ErrorCode.SERVER_INCOMPLETE_HANDSHAKE_READ);
@@ -457,7 +533,8 @@ e.printStackTrace();
         String verString = ClientConnection.toNcvString(verInt);
         if (verString.equals(
                 ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
-            return true;  // Success case
+            streamProtocol = HSQL_STREAM_PROTOCOL;
+            return;  // Success case
         }
         // Only error handling remains
 
@@ -466,11 +543,11 @@ e.printStackTrace();
                 ClientConnection.NETWORK_COMPATIBILITY_VERSION});
     }
 
-    private void pgConnect() throws IOException, HsqlException {
+    private void odbcConnect() throws IOException, HsqlException {
         int major = dataInput.readUnsignedShort();
         int minor = dataInput.readUnsignedShort();
-        server.print("PG client connected.  "
-                + "PG Protocol Compatibility Version " + major + '.' + minor);
+        server.print("ODBC client connected.  "
+                + "ODBC Protocol Compatibility Version " + major + '.' + minor);
         String databaseName = readNullTermdUTF(ODBC_SM_DATABASE);
         if (databaseName.equals("/")) {
             // Work-around because ODBC doesn't allow "" for Database name
@@ -506,23 +583,55 @@ e.printStackTrace();
             throw new IllegalStateException("Password contain a null?  "
                 + "Expected length " + len
                 + ", but received password has length " + password.length());
-        server.print("Successful ODBC log in for user " +  user);
+
+        dbIndex = server.getDBIndex(databaseName);
+        dbID    = server.dbID[dbIndex];
+
+        if (!server.isSilent()) {
+            server.printWithThread(mThread + ":Trying to connect user '"
+                               + user + "' to DB (" + databaseName + ')');
+        }
+
+        session = DatabaseManager.newSession(dbID, user,
+                                             password, 0);
+        // TODO:  Find out what updateCount, the last para, is for:
+        //                                   resultIn.getUpdateCount());
+        //
+        if (!server.isSilent()) {
+            server.printWithThread(mThread + ":Connected user '" + user + "'");
+        }
 
         dataOutput.writeByte('Z');
+    }
 
+    private String readNullTermdUTF() throws IOException {
+        /* Would be MUCH easier to do this with Java6's String
+         * encoding/decoding operations */
+        java.io.ByteArrayOutputStream baos = 
+            new java.io.ByteArrayOutputStream();
+        baos.write((byte) 'X');
+        baos.write((byte) 'X');
+        // Place-holders to be replaced with short length
 
-            dbIndex = server.getDBIndex(databaseName);
-            dbID    = server.dbID[dbIndex];
+        int i;
+        while ((i = dataInput.readByte()) > 0) {
+            baos.write((byte) i);
+        }
+        byte[] ba = baos.toByteArray();
+        baos.close();
 
-            if (!server.isSilent()) {
-                server.printWithThread(mThread + ":trying to connect user "
-                                       + user);
-            }
+        int len = ba.length - 2;
+        ba[0] = (byte) (len >>> 8);
+        ba[1] = (byte) len;
 
-            session = DatabaseManager.newSession(dbID, user,
-                                                 password, 0);
-            // TODO:  Find out what updateCount, the last para, is for:
-            //                                   resultIn.getUpdateCount());
+        java.io.DataInputStream dis =
+            new java.io.DataInputStream(new java.io.ByteArrayInputStream(ba));
+        String s = dis.readUTF();
+        //String s = java.io.DataInputStream.readUTF(dis);
+        // TODO:  Test the previous two to see if one works better for
+        // high-order characters.
+        dis.close();
+        return s;
     }
 
     private String readNullTermdUTF(int length) throws IOException {
@@ -591,4 +700,21 @@ e.printStackTrace();
     static private final int ODBC_SM_UNUSED = 64;
     static private final int ODBC_SM_TTY = 64;
     static private final int ODBC_AUTH_REQ_PASSWORD = 3;
+
+    // Tentative state variable
+    static private final int UNDEFINED_STREAM_PROTOCOL = 0;
+    static private final int HSQL_STREAM_PROTOCOL = 1;
+    static private final int ODBC_STREAM_PROTOCOL = 2;
+    private int streamProtocol = UNDEFINED_STREAM_PROTOCOL;
+
+    private void warnOdbcClient(boolean disconnect, String message)
+    throws IOException {
+        dataOutput.writeByte('E');
+        writeNullTermdUTF((disconnect ? "FATAL " : "") + message);
+        /*
+         * This method makes more sense from Java, but the "new_format" method
+         * sends 'E', '\0', length, message
+         * where length = int length of message + 4 for the length int itself.
+         */
+    }
 }
