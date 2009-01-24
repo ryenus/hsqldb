@@ -229,17 +229,20 @@ class ServerConnection implements Runnable {
 
             dataInput  = new DataInputStream(socket.getInputStream());
             dataOutput = new DataOutputStream(socket.getOutputStream());
-            handshake();
+            if (handshake()) {
 
-            Result resultIn = Result.newResult(dataInput, rowIn);
+                Result resultIn = Result.newResult(dataInput, rowIn);
 
-            resultIn.readAdditionalResults(session, dataInput, rowIn);
+                resultIn.readAdditionalResults(session, dataInput, rowIn);
 
-            Result resultOut;
+                Result resultOut;
 
-            resultOut = setDatabase(resultIn);
+                resultOut = setDatabase(resultIn);
 
-            resultOut.write(dataOutput, rowOut);
+                resultOut.write(dataOutput, rowOut);
+            } else {
+                pgConnect();
+            }
         } catch (Exception e) {
 // TODO:  This is just for debugging.  REMOVE
 e.printStackTrace();
@@ -317,7 +320,7 @@ e.printStackTrace();
 
             if (!server.isSilent()) {
                 server.printWithThread(mThread + ":trying to connect user "
-                                       + user);
+                                   + user + " to DB (" + databaseName + ')');
             }
 
             session = DatabaseManager.newSession(dbID, user,
@@ -367,8 +370,10 @@ e.printStackTrace();
      * if client connects with hsqls to a https server; or
      * hsql to a http server.
      * All other client X server combinations are handled gracefully.
+     *
+     * @return true for native HSQLDB, false for PG protocol connection
      */
-    public void handshake() throws IOException, HsqlException {
+    public boolean handshake() throws IOException, HsqlException {
         long clientDataDeadline = new java.util.Date().getTime()
                 + MAX_WAIT_FOR_CLIENT_DATA;
         if (!(socket instanceof javax.net.ssl.SSLSocket)) {
@@ -420,8 +425,7 @@ e.printStackTrace();
                                  new String[] { "pre-9.0",
                              ClientConnection.NETWORK_COMPATIBILITY_VERSION});
                         case 296:
-                            pg();
-                            break;
+                            return false;
                         default:
                             throw Error.error(
                                     ErrorCode.SERVER_INCOMPLETE_HANDSHAKE_READ);
@@ -453,7 +457,7 @@ e.printStackTrace();
         String verString = ClientConnection.toNcvString(verInt);
         if (verString.equals(
                 ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
-            return;  // Success case
+            return true;  // Success case
         }
         // Only error handling remains
 
@@ -462,19 +466,66 @@ e.printStackTrace();
                 ClientConnection.NETWORK_COMPATIBILITY_VERSION});
     }
 
-    private void pg() throws IOException {
+    private void pgConnect() throws IOException, HsqlException {
         int major = dataInput.readUnsignedShort();
         int minor = dataInput.readUnsignedShort();
-        server.printWithThread("PG client connected.  "
+        server.print("PG client connected.  "
                 + "PG Protocol Compatibility Version " + major + '.' + minor);
-        server.printWithThread("DB: " + readUTF(ODBC_SM_DATABASE));
-        server.printWithThread("User: " + readUTF(ODBC_SM_USER));
-        server.printWithThread("Opts: " + readUTF(ODBC_SM_OPTIONS));
+        String databaseName = readNullTermdUTF(ODBC_SM_DATABASE);
+        if (databaseName.equals("/")) {
+            // Work-around because ODBC doesn't allow "" for Database name
+            databaseName = "";
+        }
+        server.print("DB: " + databaseName);
+        user = readNullTermdUTF(ODBC_SM_USER);
+        server.print("User: " + user);
+        server.print("Opts: " + readNullTermdUTF(ODBC_SM_OPTIONS));
         dataInput.skipBytes(ODBC_SM_UNUSED);
-        server.printWithThread("tty: " + readUTF(ODBC_SM_TTY));
+        server.print("tty: " + readNullTermdUTF(ODBC_SM_TTY));
+        dataOutput.writeByte('N');
+        writeNullTermdUTF("Hello, you have connected to HyperSQL ODBC Server");
+        /*  Seems that this sequence is equivalent to doing nothing.
+         *  Not required by Postgresql ODBC driver (though it wouldn't hurt).
+         *  I leave this here, commented out, because non-ODBC Postgresql
+         *  clients may expect R behavior, and this may satisfy them.
+        dataOutput.writeByte('R');
+        dataOutput.writeByte(0);
+        */
+
+        /* Unencoded/unsalted authentication */
+        dataOutput.writeByte('R');
+        dataOutput.writeInt(ODBC_AUTH_REQ_PASSWORD);
+        int len = dataInput.readInt() - 5;
+            // Is password len after -4 for count int -1 for null term
+        if (len < 0)
+            throw new IllegalArgumentException(
+                    "Non-empty passwords required.  "
+                    + "User submitted password length " + len);
+        String password = readNullTermdUTF(len + 1);
+        if (password.length() != len)
+            throw new IllegalStateException("Password contain a null?  "
+                + "Expected length " + len
+                + ", but received password has length " + password.length());
+        server.print("Successful ODBC log in for user " +  user);
+
+        dataOutput.writeByte('Z');
+
+
+            dbIndex = server.getDBIndex(databaseName);
+            dbID    = server.dbID[dbIndex];
+
+            if (!server.isSilent()) {
+                server.printWithThread(mThread + ":trying to connect user "
+                                       + user);
+            }
+
+            session = DatabaseManager.newSession(dbID, user,
+                                                 password, 0);
+            // TODO:  Find out what updateCount, the last para, is for:
+            //                                   resultIn.getUpdateCount());
     }
 
-    private String readUTF(int length) throws IOException {
+    private String readNullTermdUTF(int length) throws IOException {
         /* Would be MUCH easier to do this with Java6's String
          * encoding/decoding operations */
         int bytesRead = 0;
@@ -499,16 +550,38 @@ e.printStackTrace();
         firstNull -= 2;  // Want length from AFTER the size prefix
         ba[0] = (byte) (firstNull >>> 8);
         ba[1] = (byte) firstNull;
-server.print("First byte " + ba[0]);
-server.print("2nd byte " + ba[1]);
 
-        DataInputStream dis =
-            new DataInputStream(new java.io.ByteArrayInputStream(ba));
-        //String s = dis.readUTF();
-        String s = DataInputStream.readUTF(dis);
+        java.io.DataInputStream dis =
+            new java.io.DataInputStream(new java.io.ByteArrayInputStream(ba));
+        String s = dis.readUTF();
+        //String s = java.io.DataInputStream.readUTF(dis);
+        // TODO:  Test the previous two to see if one works better for
+        // high-order characters.
         dis.close();
-        server.print("LEN (" + s.length() + ") Val (" + s + ')');
         return s;
+    }
+
+    private void writeNullTermdUTF(String s) throws IOException {
+        /* Would be MUCH easier to do this with Java6's String
+         * encoding/decoding operations */
+        java.io.ByteArrayOutputStream baos = 
+            new java.io.ByteArrayOutputStream();
+        java.io.DataOutputStream dos = new java.io.DataOutputStream(baos);
+        dos.writeUTF(s);
+        byte[] ba = baos.toByteArray();
+        dos.close();
+
+        /* TODO:  Remove this block.
+         * This is just to verify that the count written by DOS.writeUTF()
+         * matches the number of bytes that it writes to the stream. */
+        int len = ((ba[0] & 0xff) << 8) + (ba[1] & 0xff);
+        if (len != ba.length - 2)
+            throw new IOException("DOS.writeUTF count mismatch.  "
+                    + (ba.length - 2)
+                    + " written to stream, yet short val reports " + len);
+        /**********************************************************/
+        dataOutput.write(ba, 2, ba.length - 2);
+        dataOutput.writeByte(0);
     }
 
     // Constants taken from connection.h
@@ -517,4 +590,5 @@ server.print("2nd byte " + ba[1]);
     static private final int ODBC_SM_OPTIONS = 64;
     static private final int ODBC_SM_UNUSED = 64;
     static private final int ODBC_SM_TTY = 64;
+    static private final int ODBC_AUTH_REQ_PASSWORD = 3;
 }
