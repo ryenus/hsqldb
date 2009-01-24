@@ -338,7 +338,8 @@
         <primary>CREATE USER</primary>
       </indexterm>
 
-      <simpara xml:id="create_user-sql"><emphasis role="bold">CREATE USER</emphasis></simpara>
+      <simpara xml:id="create_user-sql"><emphasis role="bold">CREATE
+      USER</emphasis></simpara>
 
       <simpara><emphasis>user definition (HyperSQL)</emphasis></simpara>
 
@@ -367,11 +368,48 @@
       the DBA role can execute this command.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>ALTER USER ... SET PASSWORD</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER USER ... SET
+      PASSWORD</emphasis></simpara>
+
+      <simpara><emphasis>set the password for a user
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;alter user set password statement&gt; ::= ALTER
+      USER &lt;user name&gt; SET PASSWORD &lt;password&gt;</literal></simpara>
+
+      <simpara>Change the password of an existing user. Only a user with the
+      DBA role can execute this command.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER USER ... SET INTITIAL SCHEMA</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER USER ... SET INITIAL
+      SCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>set the initial schema for a user
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;alter user set initial schema statement&gt; ::=
+      ALTER USER &lt;user name&gt; SET INITIAL SCHEMA &lt;schema name&gt; |
+      DEFAULT</literal></simpara>
+
+      <simpara>Change the initial schema for a user. The initial schema is the
+      schema used by default for SQL statements issued during a session. If
+      <literal>DEFAULT</literal> is used, the default initial schema for all
+      users is used as the initial schema for the user. The SET SCHEMA command
+      allows the user to change the schema for the duration of the sesssion.
+      Only a user with the DBA role can execute this command.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>SET PASSWORD</primary>
       </indexterm>
 
-      <simpara xml:id="set_password-sql">
-        <emphasis role="bold">SET PASSWORD</emphasis></simpara>
+      <simpara xml:id="set_password-sql"><emphasis role="bold">SET
+      PASSWORD</emphasis></simpara>
 
       <simpara><emphasis>set password statement
       (HyperSQL)</emphasis></simpara>
@@ -734,9 +772,36 @@
       also consist of a TABLE CONSTRUCTOR that does not reference any tables
       or views.</simpara>
 
-      <simpara>A VIEW that is ultimately based on a single TABLE may be
-      <glossterm>updatable</glossterm>. Some <glossterm>updatable</glossterm>
-      views are <glossterm>insertable-into</glossterm>.</simpara>
+      <simpara>A view has many uses: </simpara>
+
+      <itemizedlist>
+        <listitem>
+          <para>Hide the structure and column names of tables. The view can
+          represent one or more tables or views as a separate table. This can
+          include aggregate data, such as sums and averages, from other
+          tables.</para>
+        </listitem>
+
+        <listitem>
+          <para>Allow access to specific rows in a table. For example, allow
+          access to records that were added since a given date, while hiding
+          older records.</para>
+        </listitem>
+
+        <listitem>
+          <para>Allow access to specific columns. For example allow access to
+          columns that contain non-confidential information. Note that this
+          can also be achieved with the GRANT SELECT statement, using
+          column-level privileges</para>
+        </listitem>
+      </itemizedlist>
+
+      <simpara>A VIEW that returns the columns of a single ordinary TABLE may
+      be <glossterm>updatable</glossterm>. Some
+      <glossterm>updatable</glossterm> views are
+      <glossterm>insertable-into</glossterm>. When rows of an updatable view
+      are updated, or new rows are inserted, these changes are reflected in
+      the base table. More.. on updatability.</simpara>
 
       <simpara>Views share a name-space with tables.</simpara>
     </section>
@@ -2411,6 +2476,36 @@
       <literal>&lt;drop behavior&gt;</literal> is <literal>CASCADE</literal>,
       then all objects that reference the sequence are dropped. These objects
       can be VIEW, ROUTINE or TRIGGER objects.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE INDEX</emphasis></simpara>
+
+      <simpara><emphasis>create index statement</emphasis></simpara>
+
+      <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX
+      &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt; {&lt;column
+      name&gt; [ASC | DESC]}, ... &lt;left paren&gt;</literal></simpara>
+
+      <simpara>Creates an index on a group of columns of a table. The optional
+      [ASC | DESC] specifies if the column is indexed in the ascending or
+      descending order, but has no effect on how the index is
+      created.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP INDEX</emphasis></simpara>
+
+      <simpara><emphasis>drop index statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop index statement&gt; ::= DROP INDEX &lt;index
+      name&gt; [ IF EXISTS ]</literal></simpara>
+
+      <simpara>Destroy an index.</simpara>
 
       <!-- From Foundation chapt. 13 -->
 
