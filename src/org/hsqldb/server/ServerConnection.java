@@ -70,6 +70,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.net.Socket;
 
 import org.hsqldb.ClientConnection;
@@ -319,7 +321,34 @@ class ServerConnection implements Runnable {
                     server.printWithThread("Received query (" + sql + ')');
                 }
                 if (sql.trim().length() < 1) {
-                    dataOutput.writeByte('I');
+                    dataOutput.writeByte('I'); // Empty Resultset
+                    dataOutput.writeByte(0);
+                    dataOutput.writeByte('Z');
+                } else if (sql.trim().toLowerCase().startsWith(
+                            "select version()")) {
+                    server.print("Simulating 'select version()'...");
+                    // N.b., skipping a 'P' xmit here, which Postgresql servers
+                    // transmit.  I haven't figured out the purpose of that yet.
+                    dataOutput.writeByte('T'); // sending a Tuple (row)
+                    write((short) 1);
+                    writeNullTermdUTF("version"); // Col. name
+                    dataOutput.writeInt(25); // Datatype ID  [adtid]
+                    write((short) -1);       // Datatype size  [adtsize]
+                    dataOutput.writeInt(-1); // Var size (always -1 so far)
+                                             // [atttypmod]
+                    dataOutput.writeByte('D'); // text row Data
+                    dataOutput.writeByte(-1);   // bit map of null vals in row
+                    writeUTF("PostgreSQL 8.3.1 on x86_64-unknown-linux-gnu, "
+                            + "compiled by GCC gcc (SUSE Linux) 4.3.1 20080507 "
+                            + "(prerelease) [gcc-4_3-branch revision 135036]",
+                            false);
+                    dataOutput.writeByte('C'); // end of rows
+                    writeNullTermdUTF("SELECT");
+                    dataOutput.writeByte('Z');
+                } else if (sql.trim().toLowerCase().startsWith(
+                            "set datestyle to ")) {
+                    server.print("Stubbing a 'set datestyle to'...");
+                    dataOutput.writeByte('I'); // Empty Resultset
                     dataOutput.writeByte(0);
                     dataOutput.writeByte('Z');
                 } else {
@@ -607,8 +636,7 @@ class ServerConnection implements Runnable {
     private String readNullTermdUTF() throws IOException {
         /* Would be MUCH easier to do this with Java6's String
          * encoding/decoding operations */
-        java.io.ByteArrayOutputStream baos = 
-            new java.io.ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         baos.write((byte) 'X');
         baos.write((byte) 'X');
         // Place-holders to be replaced with short length
@@ -625,7 +653,7 @@ class ServerConnection implements Runnable {
         ba[1] = (byte) len;
 
         java.io.DataInputStream dis =
-            new java.io.DataInputStream(new java.io.ByteArrayInputStream(ba));
+            new java.io.DataInputStream(new ByteArrayInputStream(ba));
         String s = dis.readUTF();
         //String s = java.io.DataInputStream.readUTF(dis);
         // TODO:  Test the previous two to see if one works better for
@@ -661,7 +689,7 @@ class ServerConnection implements Runnable {
         ba[1] = (byte) firstNull;
 
         java.io.DataInputStream dis =
-            new java.io.DataInputStream(new java.io.ByteArrayInputStream(ba));
+            new java.io.DataInputStream(new ByteArrayInputStream(ba));
         String s = dis.readUTF();
         //String s = java.io.DataInputStream.readUTF(dis);
         // TODO:  Test the previous two to see if one works better for
@@ -670,11 +698,41 @@ class ServerConnection implements Runnable {
         return s;
     }
 
+    private void write(short s) throws IOException {
+        dataOutput.writeByte(s >>> 8);
+        dataOutput.writeByte(s);
+    }
+
+    /**
+     * Convenience werapper for writeUTF() method to write null-terminated
+     * Strings.
+     */
     private void writeNullTermdUTF(String s) throws IOException {
+        writeUTF(s, true);
+    }
+
+    /**
+     * With null-term true, writes null-terminated String without any size;
+     * With null-term false, behaves
+     * just like java.io.DataOutput.writeUTF() method, withe the 
+     * exceptions listed below.
+     * <P>
+     * nullTerm false behavior differences from java.io.DataOutput
+     * <OL>
+     *   <LI>We write the size with a 4-byte int intead of a 2-byte short.
+     *   <LI>Our size includes the 4 byte size prefix
+     *       (counter-intuitive, but that's what our client requires).
+     * </OL>
+     *
+     * @param nullTerm boolean switches between null-termination and
+     *                 size-prefixing behavior, as described above.
+     * @see java.io.DataOutput#writeUTF(String)
+     */
+    private void writeUTF(String s, boolean nullTerm)
+    throws IOException {
         /* Would be MUCH easier to do this with Java6's String
          * encoding/decoding operations */
-        java.io.ByteArrayOutputStream baos = 
-            new java.io.ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         java.io.DataOutputStream dos = new java.io.DataOutputStream(baos);
         dos.writeUTF(s);
         byte[] ba = baos.toByteArray();
@@ -689,8 +747,13 @@ class ServerConnection implements Runnable {
                     + (ba.length - 2)
                     + " written to stream, yet short val reports " + len);
         /**********************************************************/
+        if (!nullTerm) {
+            dataOutput.writeInt(ba.length + 2);
+        }
         dataOutput.write(ba, 2, ba.length - 2);
-        dataOutput.writeByte(0);
+        if (nullTerm) {
+            dataOutput.writeByte(0);
+        }
     }
 
     // Constants taken from connection.h
