@@ -241,8 +241,17 @@ class ServerConnection implements Runnable {
 
             resultOut.write(dataOutput, rowOut);
         } catch (Exception e) {
-            server.printWithThread(mThread + ":couldn't connect user '"
-                    + user + "': " + e);
+            // Only "unexpected" failures are caught here.
+            // Expected failures will have been handled (by sending feedback
+            // to user-- with an output Result for normal protocols), then
+            // continuing.
+            StringBuffer sb =
+                new StringBuffer(mThread + ": Failed to connect client.");
+            if (user != null) {
+                sb.append("  User '" + user + "'.");
+            }
+            server.printWithThread(sb.toString() + "  Stack trace follows.");
+            server.printStackTrace(e);
         }
     }
 
