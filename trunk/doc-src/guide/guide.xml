@@ -3336,29 +3336,11 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
     </section>
   </chapter>
 
+  <xi:include href="sessions.xml" />
+
+
   <xi:include href="databaseobjects.xml" />
-
-  <chapter>
-    <title>Session and Transactions</title>
-
-    <section>
-      <title>Overview</title>
-
-      <para>All SQL statements are executed in sessions.</para>
-    </section>
-  </chapter>
-
-  <chapter>
-    <title>Data Access and Change</title>
-
-    <section>
-      <title>Overview</title>
-
-      <para>SQL statements are used to access the data and to change the
-      data.</para>
-    </section>
-  </chapter>
-
+  <xi:include href="dataaccess.xml" />
   <xi:include href="sqlroutines.xml" />
 
   <chapter xml:id="builtin_functions-chapt">
