@@ -47,9 +47,189 @@
   </section>
 
   <section>
-    <title>Statements</title>
+    <title>Data Access Statements</title>
 
-    <para>SQL statements used to access the data and to change the
-    data.</para>
+    <para></para>
+  </section>
+
+  <section>
+    <title>Data Change Statements</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DELETE FROM</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DELETE FROM</emphasis></simpara>
+
+    <simpara><emphasis>delete statement: searched</emphasis></simpara>
+
+    <simpara><literal>&lt;delete statement: searched&gt; ::= DELETE FROM
+    &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] [ WHERE
+    &lt;search condition&gt; ]</literal></simpara>
+
+    <simpara>Delete rows of a table.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRUNCATE TABLE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRUNCATE TABLE</emphasis></simpara>
+
+    <simpara><emphasis>truncate table statement</emphasis></simpara>
+
+    <simpara><literal>&lt;truncate table statement&gt; ::= TRUNCATE TABLE
+    &lt;target table&gt; [ &lt;identity column restart option&gt;
+    ]</literal></simpara>
+
+    <simpara><literal>&lt;identity column restart option&gt; ::= CONTINUE
+    IDENTITY | RESTART IDENTITY</literal></simpara>
+
+    <simpara>Delete all rows of a base table without causing any triggered
+    action.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>INSERT INTO</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">INSERT INTO</emphasis></simpara>
+
+    <simpara><emphasis>insert statement</emphasis></simpara>
+
+    <simpara><literal>&lt;insert statement&gt; ::= INSERT INTO &lt;insertion
+    target&gt; &lt;insert columns and source&gt;</literal></simpara>
+
+    <simpara><literal>&lt;insertion target&gt; ::= &lt;table
+    name&gt;</literal></simpara>
+
+    <simpara><literal>&lt;insert columns and source&gt; ::= &lt;from
+    subquery&gt; | &lt;from constructor&gt; | &lt;from
+    default&gt;</literal></simpara>
+
+    <simpara><literal>&lt;from subquery&gt; ::= [ &lt;left paren&gt;
+    &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override clause&gt;
+    ] &lt;query expression&gt;</literal></simpara>
+
+    <simpara><literal>&lt;from constructor&gt; ::= [ &lt;left paren&gt;
+    &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override clause&gt;
+    ] &lt;contextually typed table value constructor&gt;</literal></simpara>
+
+    <simpara><literal>&lt;override clause&gt; ::= OVERRIDING USER VALUE |
+    OVERRIDING SYSTEM VALUE</literal></simpara>
+
+    <simpara><literal>&lt;from default&gt; ::= DEFAULT
+    VALUES</literal></simpara>
+
+    <simpara><literal>&lt;insert column list&gt; ::= &lt;column name
+    list&gt;</literal></simpara>
+
+    <simpara>Create new rows in a table.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>MERGE INTO</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">MERGE INTO</emphasis></simpara>
+
+    <simpara><emphasis>merge statement</emphasis></simpara>
+
+    <simpara><literal>&lt;merge statement&gt; ::= MERGE INTO &lt;target
+    table&gt; [ [ AS ] &lt;merge correlation name&gt; ] USING &lt;table
+    reference&gt; ON &lt;search condition&gt; &lt;merge operation
+    specification&gt;</literal></simpara>
+
+    <simpara><literal>&lt;merge correlation name&gt; ::= &lt;correlation
+    name&gt;</literal></simpara>
+
+    <simpara><literal>&lt;merge operation specification&gt; ::= &lt;merge when
+    clause&gt;...</literal></simpara>
+
+    <simpara><literal>&lt;merge when clause&gt; ::= &lt;merge when matched
+    clause&gt; | &lt;merge when not matched clause&gt;</literal></simpara>
+
+    <simpara><literal>&lt;merge when matched clause&gt; ::= WHEN MATCHED [ AND
+    &lt;search condition&gt; ] THEN &lt;merge update
+    specification&gt;</literal></simpara>
+
+    <simpara><literal>&lt;merge when not matched clause&gt; ::= WHEN NOT
+    MATCHED [ AND &lt;search condition&gt; ] THEN &lt;merge insert
+    specification&gt;</literal></simpara>
+
+    <simpara><literal>&lt;merge update specification&gt; ::= UPDATE SET
+    &lt;set clause list&gt;</literal></simpara>
+
+    <simpara><literal>&lt;merge insert specification&gt; ::= INSERT [ &lt;left
+    paren&gt; &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override
+    clause&gt; ] VALUES &lt;merge insert value list&gt;</literal></simpara>
+
+    <simpara><literal>&lt;merge insert value list&gt; ::= &lt;left paren&gt;
+    &lt;merge insert value element&gt; [ { &lt;comma&gt; &lt;merge insert
+    value element&gt; }... ] &lt;right paren&gt;</literal></simpara>
+
+    <simpara><literal>&lt;merge insert value element&gt; ::= &lt;value
+    expression&gt; | &lt;contextually typed value
+    specification&gt;</literal></simpara>
+
+    <simpara>Conditionally update rows of a table, or insert new rows into a
+    table, or both.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>UPDATE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">UPDATE</emphasis></simpara>
+
+    <simpara><emphasis>update statement: searched</emphasis></simpara>
+
+    <simpara><literal>&lt;update statement: searched&gt; ::= UPDATE &lt;target
+    table&gt; [ [ AS ] &lt;correlation name&gt; ] SET &lt;set clause list&gt;
+    [ WHERE &lt;search condition&gt; ]</literal></simpara>
+
+    <simpara>Update rows of a table.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>set clause in UPDATE and MERGE statements</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">set clause {</emphasis></simpara>
+
+    <simpara><emphasis>set clause list</emphasis></simpara>
+
+    <simpara><literal>&lt;set clause list&gt; ::= &lt;set clause&gt; [ {
+    &lt;comma&gt; &lt;set clause&gt; }... ]</literal></simpara>
+
+    <simpara><literal>&lt;set clause&gt; ::= &lt;multiple column
+    assignment&gt; | &lt;set target&gt; &lt;equals operator&gt; &lt;update
+    source&gt;</literal></simpara>
+
+    <simpara><literal>&lt;set target&gt; ::= &lt;update target&gt; |
+    &lt;mutated set clause&gt;</literal></simpara>
+
+    <simpara><literal>&lt;multiple column assignment&gt; ::= &lt;set target
+    list&gt; &lt;equals operator&gt; &lt;assigned row&gt;</literal></simpara>
+
+    <simpara><literal>&lt;set target list&gt; ::= &lt;left paren&gt; &lt;set
+    target&gt; [ { &lt;comma&gt; &lt;set target&gt; }... ] &lt;right
+    paren&gt;</literal></simpara>
+
+    <simpara><literal>&lt;assigned row&gt; ::= &lt;contextually typed row
+    value expression&gt;</literal></simpara>
+
+    <simpara><literal>&lt;update target&gt; ::= &lt;object column&gt; |
+    &lt;object column&gt; &lt;left bracket or trigraph&gt; &lt;simple value
+    specification&gt; &lt;right bracket or trigraph&gt;</literal></simpara>
+
+    <simpara><literal>&lt;object column&gt; ::= &lt;column
+    name&gt;</literal></simpara>
+
+    <simpara><literal>&lt;mutated set clause&gt; ::= &lt;mutated target&gt;
+    &lt;period&gt; &lt;method name&gt;</literal></simpara>
+
+    <simpara><literal>&lt;mutated target&gt; ::= &lt;object column&gt; |
+    &lt;mutated set clause&gt;</literal></simpara>
+
+    <simpara><literal>&lt;update source&gt; ::= &lt;value expression&gt; |
+    &lt;contextually typed value specification&gt;</literal></simpara>
+
+    <simpara>Specify a list of updates.</simpara>
   </section>
 </chapter>
