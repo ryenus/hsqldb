@@ -196,44 +196,10 @@
     specifier&gt;</literal></simpara>
 
     <simpara>Terminate the current SQL-transaction with rollback, or rollback
-    all actions affecting SQL-data and/or schemas since the establishment of a
+    all actions affecting SQL-data since the establishment of a
     savepoint.</simpara>
 
     <!-- From Foundation chapt. 18 -->
-
-    <indexterm significance="preferred" type="sql">
-      <primary>CONNECT TO</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">CONNECT TO</emphasis></simpara>
-
-    <simpara><emphasis>connect statement</emphasis></simpara>
-
-    <simpara><literal>&lt;connect statement&gt; ::= CONNECT TO &lt;connection
-    target&gt;</literal></simpara>
-
-    <simpara><literal>&lt;connection target&gt; ::= &lt;SQL-server name&gt; [
-    AS &lt;connection name&gt; ] [ USER &lt;connection user name&gt; ] |
-    DEFAULT</literal></simpara>
-
-    <simpara>Establish an SQL-session.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET CONNECTION</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET CONNECTION</emphasis></simpara>
-
-    <simpara><emphasis>set connection statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set connection statement&gt; ::= SET CONNECTION
-    &lt;connection object&gt;</literal></simpara>
-
-    <simpara><literal>&lt;connection object&gt; ::= DEFAULT | &lt;connection
-    name&gt;</literal></simpara>
-
-    <simpara>Select an SQL-connection from the available
-    SQL-connections.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>DISCONNECT</primary>
@@ -243,13 +209,11 @@
 
     <simpara><emphasis>disconnect statement</emphasis></simpara>
 
-    <simpara><literal>&lt;disconnect statement&gt; ::= DISCONNECT
-    &lt;disconnect object&gt;</literal></simpara>
+    <simpara><literal>&lt;disconnect statement&gt; ::=
+    DISCONNECT</literal></simpara>
 
-    <simpara><literal>&lt;disconnect object&gt; ::= &lt;connection object&gt;
-    | ALL | CURRENT</literal></simpara>
-
-    <simpara>Terminate an SQL-connection.</simpara>
+    <simpara>Terminate the current SQL session. Closing a JDBC connection has
+    the same effect as this command.</simpara>
 
     <!-- From Foundation chapt. 19 -->
 
@@ -295,8 +259,11 @@
     <simpara><literal>&lt;set session user identifier statement&gt; ::= SET
     SESSION AUTHORIZATION &lt;value specification&gt;</literal></simpara>
 
-    <simpara>Set the SQL-session user identifier and the current user
-    identifier of the current SQL-session context.</simpara>
+    <simpara>Set the SQL-session user identifier. This statement changes the
+    current user. The user that executes this command must have the
+    CHANGE_AUTHORIZATION role, or the DBA role. After this statement is
+    executed, all SQL statements are executed with the privileges of the new
+    user.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET ROLE</primary>
@@ -313,7 +280,10 @@
     specification&gt; | NONE</literal></simpara>
 
     <simpara>Set the SQL-session role name and the current role name for the
-    current SQL-session context.</simpara>
+    current SQL-session context. The user that executes this command must have
+    the specifid role. If NONE is specified, then the previous CURRENT_ROLE is
+    elminated. The effect of this lasts for the lifetime of the
+    session.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TIME ZONE</primary>
@@ -330,7 +300,10 @@
     expression&gt; | LOCAL</literal></simpara>
 
     <simpara>Set the current default time zone displacement for the current
-    SQL-session.</simpara>
+    SQL-session. When the session starts, the time zone displacement is set to
+    the time zone of the client. This command changes the time zone
+    displacement. The effect of this lasts for the lifetime of the
+    session.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET</primary>
@@ -346,10 +319,10 @@
     <simpara><literal>&lt;catalog name characteristic&gt; ::= CATALOG
     &lt;value specification&gt;</literal></simpara>
 
-    <simpara>Set the default catalog name for unqualified schema names in
-    preparable statements that are prepared in the current SQL-session by an
-    execute immediate statement or a prepare statement and in direct SQL
-    statements that are invoked directly.</simpara>
+    <simpara>Set the default schema name for unqualified names used in SQL
+    statements that are prepared or executed directly in the current sessions.
+    As there is only one catalog in the database, only the name of this
+    catalog can be used.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET</primary>
@@ -363,12 +336,13 @@
     characteristic&gt;</literal></simpara>
 
     <simpara><literal>&lt;schema name characteristic&gt; ::= SCHEMA &lt;value
-    specification&gt;</literal></simpara>
+    specification&gt; | &lt;schema name&gt;</literal></simpara>
 
-    <simpara>Set the default schema name for unqualified schema qualified
-    names in preparable statements that are prepared in the current
-    SQL-session by an execute immediate statement or a prepare statement and
-    in direct SQL statements that are invoked directly.</simpara>
+    <simpara>Set the default schema name for unqualified names used in SQL
+    statements that are prepared or executed directly in the current sessions.
+    The effect of this lasts for the lifetime of the session. The SQL Standard
+    form requires the schema name as a single-quoted string. HyperSQL also
+    allows the use of the identifier for the schema.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET</primary>
@@ -404,11 +378,9 @@
     specification&gt;</literal></simpara>
 
     <simpara>Set the SQL-path used to determine the subject routine of routine
-    invocations with unqualified routine names in preparable statements that
-    are prepared in the current SQL-session by an execute immediate statement
-    or a prepare statement and in direct SQL statements, respectively, that
-    are invoked directly. The SQL-path remains the current SQL-path of the
-    SQL-session until another SQL-path is successfully set.</simpara>
+    invocations with unqualified routine names used in SQL statements that are
+    prepared or executed directly in the current sessions. The effect of this
+    lasts for the lifetime of the session.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET</primary>
@@ -448,8 +420,7 @@
     specification&gt;</literal></simpara>
 
     <simpara>Set the SQL-session collation of the SQL-session for one or more
-    character sets. An SQL-session collation remains effective until another
-    SQL-session collation for the same character set is successfully
-    set.</simpara>
+    character sets. The effect of this lasts for the lifetime of the
+    session.</simpara>
   </section>
 </chapter>
