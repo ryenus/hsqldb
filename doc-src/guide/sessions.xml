@@ -216,7 +216,7 @@
     statment rolls back all the actions performed during the transaction. If
     NO CHAIN is specified, a new SQL transaction is started just after the
     rollback. The new transaction inherits the properties of the old
-    transaction. </simpara>
+    transaction.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>ROLLBACK TO SAVEPOINT</primary>
@@ -398,5 +398,28 @@
     invocations with unqualified routine names used in SQL statements that are
     prepared or executed directly in the current sessions. The effect of this
     lasts for the lifetime of the session.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET MAXROWS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET MAXROWS</emphasis></simpara>
+
+    <simpara><emphasis>set max rows statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set max rows statement&gt; ::= SET MAXROWS
+    &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Set the maximum number of rows of each result returned by
+    executing queries. This statement has a similar effect to the
+    <methodname>setMaxRows(int max)</methodname> method of the JDBC
+    <classname>Statement</classname> interface, but it affects all the results
+    returned in the lifetime of the session. The normal operation of the
+    session has no limit on the number of rows returned. If <literal>SET
+    MAXROWS 0</literal> is specified, normal operation is restored.</simpara>
+
+    <simpara>This command is not recommended for general use. The only
+    legitimate use of this command is for checking and testing queries that
+    may return very larg numbers of rows.</simpara>
   </section>
 </chapter>
