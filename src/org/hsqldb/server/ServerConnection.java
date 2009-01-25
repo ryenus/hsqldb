@@ -311,12 +311,22 @@ class ServerConnection implements Runnable {
         rowIn.resetRow(mainBuffer.length);
     }
 
-    private void odbcXmitCycle() throws IOException {
+    private boolean inOdbcTrans = false;
+    private void odbcXmitCycle() throws IOException, CleanExit {
         char op = (char) dataInput.readByte();
         server.print("Got op (" + op + ')');
         switch (op) {
+            case 'X':
+                throw cleanExit;
             case 'Q':
                 String sql = readNullTermdUTF();
+                if (sql.startsWith("BEGIN;")) {
+                    sql = sql.substring("BEGIN;".length());
+                    server.printWithThread("ODBC Trans started");
+                    inOdbcTrans = true;
+                    dataOutput.writeByte('C');
+                    writeNullTermdUTF("BEGIN");
+                }
                 String normalized = sql.trim().toLowerCase();
                 if (server.isTrace()) {
                     server.printWithThread("Received query (" + sql + ')');
@@ -387,15 +397,119 @@ class ServerConnection implements Runnable {
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
                 } else if (normalized.startsWith("set datestyle to ")
-                    || normalized.startsWith("set extra_float_digits to ")
-                    || normalized.startsWith("set ksqo to ")) {
+                    || normalized.startsWith("set extra_float_digits to ")) {
+                    //|| normalized.startsWith("set ksqo to ")) {
                     server.print("Stubbing a 'SET command'...");
-                    dataOutput.writeByte('C'); // end of rows
+                    dataOutput.writeByte('C');
                     writeNullTermdUTF("SET");
                     dataOutput.writeByte('Z');
+                } else if (normalized.startsWith("select ")) {
+                    server.print("Performing a real non-prepared SELECT...");
+                    Result r = Result.newExecuteDirectRequest();
+                    // sePrepare...() normally used on client side in
+                    // JDBCStatement.
+                    r.setPrepareOrExecuteProperties(normalized,0, 0,
+                        org.hsqldb.StatementTypes.RETURN_RESULT,
+                        org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
+                        org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
+                        org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+                        java.sql.Statement.NO_GENERATED_KEYS, null, null);
+                    Result rOut = session.execute(r);
+                    if (rOut.getType() != ResultConstants.DATA) {
+                        throw new RuntimeException(
+                                "Output Result from SELECT statement not of "
+                                + "type DATA.  Type (" + rOut.getType()
+                                + ')');
+                    }
+                    // See Result.newDataHeadResult() for what we have here
+                    // .metaData, .navigator
+                    org.hsqldb.navigator.RowSetNavigator navigator =
+                            rOut.getNavigator();
+                    if (!(navigator instanceof
+                        org.hsqldb.navigator.RowSetNavigatorData)) {
+                        throw new RuntimeException(
+                                "Unexpected RowSetNavigator instance type: "
+                                + navigator.getClass().getName());
+                    }
+                    org.hsqldb.navigator.RowSetNavigatorData navData =
+                        (org.hsqldb.navigator.RowSetNavigatorData) navigator;
+                    // N.b., skipping a 'P' xmit here, which Postgresql servers
+                    // transmit.  I haven't figured out the purpose of that yet.
+                    dataOutput.writeByte('T'); // sending a Tuple (row)
+                    int rowNum = 0;
+                    while (navData.next()) {
+                        rowNum++;
+                        Object[] rowData = (Object[]) navData.getCurrent();
+                        if (rowNum == 1) {
+                            //TODO: This isn't going to work for 0 row queries.
+                            //Need to get the metadata before getting any data!
+                            //Just don't know how to do that yet.
+                            write((short) (rowData.length - 1));  // Num cols.
+                            for (int i = 0; i < rowData.length - 1; i++) {
+                                writeNullTermdUTF("C" + (i+1)); // Col. name
+                                dataOutput.writeInt(25); // Datatype ID  [adtid]
+                                write((short) -1);       // Datatype size  [adtsize]
+                                dataOutput.writeInt(-1); // Var size (always -1 so far)
+                                                         // [atttypmod]
+                            }
+                        }
+                        // Row.getData().  Don't know why *Data.getCurrent()
+                        //                 method returns Object instead of O[].
+                        //  TODO:  Remove the assertion here:
+                        if (rowData == null)
+                            throw new RuntimeException("Null row?");
+                        dataOutput.writeByte('D'); // text row Data
+                        dataOutput.writeByte(-1);   // bit map of null vals in row
+                        for (int i = 0; i < rowData.length - 1; i++) {
+                            /*
+                            System.err.println("R" + rowNum + "C" + (i+1)
+                                    + " => (" + rowData[i].getClass().getName()
+                                    + ") [" + rowData[i] + ']');
+                            */
+                            writeUTF(rowData[i].toString(), false);
+                        }
+                    }
+                    dataOutput.writeByte('C'); // end of rows
+                    writeNullTermdUTF("SELECT");
+                    dataOutput.writeByte('Z');
+
+                } else {
+                /*
+                } else if (normalized.startsWith("update ")
+                        || normalized.startsWith("commit ")
+                        || normalized.startsWith("rollback ")
+                        || normalized.equals("commit")
+                        || normalized.equals("rollback")
+                ) {
+                */
+                    // TODO:  ROLLBACK is badly broken.
+                    // I think that when a ROLLBACK of an update is done here,
+                    // it actually inserts new rows!
+                    server.print("Performing a real EXECDIRECT...");
+                    Result r = Result.newExecuteDirectRequest();
+                    // sePrepare...() normally used on client side in
+                    // JDBCStatement.
+                    r.setPrepareOrExecuteProperties(normalized,0, 0,
+                        org.hsqldb.StatementTypes.RETURN_COUNT,
+                        org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
+                        org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
+                        org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+                        java.sql.Statement.NO_GENERATED_KEYS, null, null);
+                    Result rOut = session.execute(r);
+                    if (rOut.getType() != ResultConstants.UPDATECOUNT) {
+                        throw new RuntimeException(
+                                "Output Result from UPDATE statement not of "
+                                + "type UPDATECOUNT.  Type (" + rOut.getType()
+                                + ')');
+                    }
+                    dataOutput.writeByte('C');
+                    writeNullTermdUTF("UPDATE " + rOut.getUpdateCount());
+                    dataOutput.writeByte('Z');
+                /*
                 } else {
                     warnOdbcClient(
                             false, "Sorry, only null queries supported so far");
+                */
                 }
                 break;
             default:
