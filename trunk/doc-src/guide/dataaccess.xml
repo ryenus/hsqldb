@@ -67,7 +67,10 @@
     &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] [ WHERE
     &lt;search condition&gt; ]</literal></simpara>
 
-    <simpara>Delete rows of a table.</simpara>
+    <simpara>Delete rows of a table. The search condition is a &lt;boolean
+    value expression&gt; that is evaluated for each row of the table. If the
+    condition is true, the row is deleted. If the condition is not specified,
+    all the rows of the table are deleted. </simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRUNCATE TABLE</primary>
@@ -85,7 +88,12 @@
     IDENTITY | RESTART IDENTITY</literal></simpara>
 
     <simpara>Delete all rows of a base table without causing any triggered
-    action.</simpara>
+    action. This statement can only be used on base tables (not views). If the
+    table is referenced in a FOREIGN KEY constraint, the statement causes an
+    exception. The default for &lt;identity column restart option&gt; is
+    CONTINUE IDENTITY. This means no change to the IDENTITY sequence of the
+    table. If RESTART IDENTITY is specified, then the sequence is reset to its
+    start value.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>INSERT INTO</primary>
@@ -122,7 +130,7 @@
     <simpara><literal>&lt;insert column list&gt; ::= &lt;column name
     list&gt;</literal></simpara>
 
-    <simpara>Create new rows in a table.</simpara>
+    <simpara>Create new rows in a table. </simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>MERGE INTO</primary>
@@ -201,9 +209,6 @@
     assignment&gt; | &lt;set target&gt; &lt;equals operator&gt; &lt;update
     source&gt;</literal></simpara>
 
-    <simpara><literal>&lt;set target&gt; ::= &lt;update target&gt; |
-    &lt;mutated set clause&gt;</literal></simpara>
-
     <simpara><literal>&lt;multiple column assignment&gt; ::= &lt;set target
     list&gt; &lt;equals operator&gt; &lt;assigned row&gt;</literal></simpara>
 
@@ -214,18 +219,8 @@
     <simpara><literal>&lt;assigned row&gt; ::= &lt;contextually typed row
     value expression&gt;</literal></simpara>
 
-    <simpara><literal>&lt;update target&gt; ::= &lt;object column&gt; |
-    &lt;object column&gt; &lt;left bracket or trigraph&gt; &lt;simple value
-    specification&gt; &lt;right bracket or trigraph&gt;</literal></simpara>
-
-    <simpara><literal>&lt;object column&gt; ::= &lt;column
+    <simpara><literal>&lt;set target&gt; ::= &lt;column
     name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;mutated set clause&gt; ::= &lt;mutated target&gt;
-    &lt;period&gt; &lt;method name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;mutated target&gt; ::= &lt;object column&gt; |
-    &lt;mutated set clause&gt;</literal></simpara>
 
     <simpara><literal>&lt;update source&gt; ::= &lt;value expression&gt; |
     &lt;contextually typed value specification&gt;</literal></simpara>

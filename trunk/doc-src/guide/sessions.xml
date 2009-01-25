@@ -51,6 +51,23 @@
     <!-- From Foundation chapt. 17 -->
 
     <indexterm significance="preferred" type="sql">
+      <primary>SET AUTOCOMMIT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET AUTOCOMMIT</emphasis></simpara>
+
+    <simpara><emphasis>set autocommit command</emphasis></simpara>
+
+    <simpara><literal>&lt;set autocommit statement&gt; ::= SET AUTOCOMMIT {
+    TRUE | FALSE }</literal></simpara>
+
+    <simpara>When an SQL session is started by creating a JDBC connection, it
+    is in AUTOCOMMIT mode. In this mode, after each SQL statement a COMMIT is
+    performed automatically. This statement changes mode. It is equivalent to
+    using the <methodname>setAutoCommit( boolean autoCommit)</methodname>
+    method of the JDBC <classname>Connection</classname> object.</simpara>
+
+    <indexterm significance="preferred" type="sql">
       <primary>START TRANSACTION</primary>
     </indexterm>
 
@@ -61,7 +78,7 @@
     <simpara><literal>&lt;start transaction statement&gt; ::= START
     TRANSACTION [ &lt;transaction characteristics&gt; ]</literal></simpara>
 
-    <simpara>Start an SQL-transaction and set its characteristics. All
+    <simpara>Start an SQL transaction and set its characteristics. All
     transactional SQL statements start a transaction automatically, therefore
     using this statement is not necessary. If the statement is called in the
     middle of a transaction, an exception is thrown.</simpara>
@@ -78,9 +95,9 @@
     <simpara><literal>&lt;set transaction statement&gt; ::= SET [ LOCAL ]
     TRANSACTION &lt;transaction characteristics&gt;</literal></simpara>
 
-    <simpara>Set the characteristics of the next transaction for the agent.
-    This statement has an effect only on the next transactions and has no
-    effect on the future transactions after the next.</simpara>
+    <simpara>Set the characteristics of the next transaction in the current
+    session. This statement has an effect only on the next transactions and
+    has no effect on the future transactions after the next.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>transaction characteristics</primary>
@@ -132,12 +149,10 @@
     name&gt; [ { &lt;comma&gt; &lt;constraint name&gt; }...
     ]</literal></simpara>
 
-    <simpara>If an SQL-transaction is currently active, then set the
-    constraint mode for that SQL-transaction in the current SQL-session. If no
-    SQL-transaction is currently active, then set the constraint mode for the
-    next SQL-transaction in the current SQL-session for the SQL-agent. NOTE
-    434 This statement has no effect on any SQL-transactions subsequent to
-    this SQL-transaction.</simpara>
+    <simpara>If the statement is issued during a transaction, it applies to
+    the rest of the current transaction. If the statement is issued when a
+    transaction is not active then it applies only to the next transaction in
+    the current session.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SAVEPOINT</primary>
@@ -153,7 +168,10 @@
     <simpara><literal>&lt;savepoint specifier&gt; ::= &lt;savepoint
     name&gt;</literal></simpara>
 
-    <simpara>Establish a savepoint.</simpara>
+    <simpara>Establish a savepoint. This command is used during an SQL
+    transaction. It establishes a milestone for the current transaction. The
+    SAVEPOINT can be used at a later point in the transaction to rollback the
+    transaction to the milestone.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>RELEASE SAVEPOINT</primary>
@@ -166,10 +184,12 @@
     <simpara><literal>&lt;release savepoint statement&gt; ::= RELEASE
     SAVEPOINT &lt;savepoint specifier&gt;</literal></simpara>
 
-    <simpara>Destroy a savepoint.</simpara>
+    <simpara>Destroy a savepoint. This command is rarely used as it is not
+    very useful. It removes a SAVEPOINT that has already been
+    defined.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>COMMIT WORK AND NO CHAIN</primary>
+      <primary>COMMIT</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">COMMIT WORK</emphasis></simpara>
@@ -182,22 +202,38 @@
     <simpara>Terminate the current SQL-transaction with commit.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>ROLLBACK WORK AND NO CHAIN</primary>
+      <primary>ROLLBACK</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">ROLLBACK WORK</emphasis></simpara>
+    <simpara><emphasis role="bold">ROLLBACK</emphasis></simpara>
 
     <simpara><emphasis>rollback statement</emphasis></simpara>
 
     <simpara><literal>&lt;rollback statement&gt; ::= ROLLBACK [ WORK ] [ AND [
-    NO ] CHAIN ] [ &lt;savepoint clause&gt; ]</literal></simpara>
+    NO ] CHAIN ]</literal></simpara>
 
-    <simpara><literal>&lt;savepoint clause&gt; ::= TO SAVEPOINT &lt;savepoint
-    specifier&gt;</literal></simpara>
+    <simpara>Rollback the current SQL transaction and terminate it. The
+    statment rolls back all the actions performed during the transaction. If
+    NO CHAIN is specified, a new SQL transaction is started just after the
+    rollback. The new transaction inherits the properties of the old
+    transaction. </simpara>
 
-    <simpara>Terminate the current SQL-transaction with rollback, or rollback
-    all actions affecting SQL-data since the establishment of a
-    savepoint.</simpara>
+    <indexterm significance="preferred" type="sql">
+      <primary>ROLLBACK TO SAVEPOINT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ROLLBACK TO SAVEPOINT</emphasis></simpara>
+
+    <simpara><emphasis>rollback statement</emphasis></simpara>
+
+    <simpara><literal>&lt;rollback statement&gt; ::= ROLLBACK [ WORK ] TO
+    SAVEPOINT &lt;savepoint specifier&gt;</literal></simpara>
+
+    <simpara>Rollback part of the current SQL transaction and continue the
+    transaction. The statement rolls back all the action performed after the
+    specified SAVEPOINT was created. The same effect can be achieved with the
+    <literal>rollback( Savepoint savepoint)</literal> method of the JDBC
+    <classname>Connection</classname> object.</simpara>
 
     <!-- From Foundation chapt. 18 -->
 
@@ -218,7 +254,7 @@
     <!-- From Foundation chapt. 19 -->
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET SESSION CHARACTERISTICS AS</primary>
+      <primary>SET SESSION CHARACTERISTICS</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">SET SESSION
@@ -306,7 +342,7 @@
     session.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET</primary>
+      <primary>SET CATALOG</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">SET CATALOG</emphasis></simpara>
@@ -325,7 +361,7 @@
     catalog can be used.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET</primary>
+      <primary>SET SCHEMA</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">SET SCHEMA</emphasis></simpara>
@@ -345,26 +381,7 @@
     allows the use of the identifier for the schema.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET NAMES</emphasis></simpara>
-
-    <simpara><emphasis>set names statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set names statement&gt; ::= SET &lt;character set
-    name characteristic&gt;</literal></simpara>
-
-    <simpara><literal>&lt;character set name characteristic&gt; ::= NAMES
-    &lt;value specification&gt;</literal></simpara>
-
-    <simpara>Set the default character set name for character string literals
-    in preparable statements that are prepared in the current SQL-session by
-    an execute immediate statement or a prepare statement and in direct SQL
-    statements that are invoked directly.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET</primary>
+      <primary>SET PATH</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">SET PATH</emphasis></simpara>
@@ -381,46 +398,5 @@
     invocations with unqualified routine names used in SQL statements that are
     prepared or executed directly in the current sessions. The effect of this
     lasts for the lifetime of the session.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET DEFAULT TRANSFORM
-    GROUP</emphasis></simpara>
-
-    <simpara><emphasis>set transform group statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set transform group statement&gt; ::= SET
-    &lt;transform group characteristic&gt;</literal></simpara>
-
-    <simpara><literal>&lt;transform group characteristic&gt; ::= DEFAULT
-    TRANSFORM GROUP &lt;value specification&gt; | TRANSFORM GROUP FOR TYPE
-    &lt;path-resolved user-defined type name&gt; &lt;value
-    specification&gt;</literal></simpara>
-
-    <simpara>Set the group name that identifies the group of transform
-    functions for mapping values of user-defined types to predefined data
-    types.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET COLLATION</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET COLLATION</emphasis></simpara>
-
-    <simpara><emphasis>set session collation statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set session collation statement&gt; ::= SET
-    COLLATION &lt;collation specification&gt; [ FOR &lt;character set
-    specification list&gt; ] | SET NO COLLATION [ FOR &lt;character set
-    specification list&gt; ]</literal></simpara>
-
-    <simpara><literal>&lt;collation specification&gt; ::= &lt;value
-    specification&gt;</literal></simpara>
-
-    <simpara>Set the SQL-session collation of the SQL-session for one or more
-    character sets. The effect of this lasts for the lifetime of the
-    session.</simpara>
   </section>
 </chapter>
