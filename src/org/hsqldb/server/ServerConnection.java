@@ -131,22 +131,28 @@ class ServerConnection implements Runnable {
     Thread                   runnerThread;
     protected static String  TEXTBANNER_PART1 = null;
     protected static String  TEXTBANNER_PART2 = null;
+
     static {
         int serverBundleHandle =
             BundleHandler.getBundleHandle("org_hsqldb_Server_messages", null);
+
         if (serverBundleHandle < 0) {
             throw new RuntimeException(
-                    "MISSING Resource Bundle.  See source code");
+                "MISSING Resource Bundle.  See source code");
+
             // This will be caught before prod release.
             // Not necessary to localize message.
         }
+
         TEXTBANNER_PART1 = BundleHandler.getString(serverBundleHandle,
                 "textbanner.part1");
         TEXTBANNER_PART2 = BundleHandler.getString(serverBundleHandle,
                 "textbanner.part2");
+
         if (TEXTBANNER_PART1 == null || TEXTBANNER_PART2 == null) {
             throw new RuntimeException(
-                    "MISSING Resource Bundle msg definition.  See source code");
+                "MISSING Resource Bundle msg definition.  See source code");
+
             // This will be caught before prod release.
             // Not necessary to localize message.
         }
@@ -229,6 +235,7 @@ class ServerConnection implements Runnable {
 
             dataInput  = new DataInputStream(socket.getInputStream());
             dataOutput = new DataOutputStream(socket.getOutputStream());
+
             handshake();
 
             Result resultIn = Result.newResult(dataInput, rowIn);
@@ -241,15 +248,18 @@ class ServerConnection implements Runnable {
 
             resultOut.write(dataOutput, rowOut);
         } catch (Exception e) {
+
             // Only "unexpected" failures are caught here.
             // Expected failures will have been handled (by sending feedback
             // to user-- with an output Result for normal protocols), then
             // continuing.
             StringBuffer sb =
                 new StringBuffer(mThread + ": Failed to connect client.");
+
             if (user != null) {
                 sb.append("  User '" + user + "'.");
             }
+
             server.printWithThread(sb.toString() + "  Stack trace follows.");
             server.printStackTrace(e);
         }
@@ -363,11 +373,13 @@ class ServerConnection implements Runnable {
         return "HSQLDB Connection @" + Integer.toString(hashCode(), 16);
     }
 
-    /** Don't want this too high, or users may give up before seeing the
+    /**
+     * Don't want this too high, or users may give up before seeing the
      *  banner.  Can't be too low or we could close a valid but slow
-     *  client connection. */
-    public static long MAX_WAIT_FOR_CLIENT_DATA = 1000;  // ms.
-    public static long CLIENT_DATA_POLLING_PERIOD = 100;  // ms.
+     *  client connection.
+     */
+    public static long MAX_WAIT_FOR_CLIENT_DATA   = 1000;    // ms.
+    public static long CLIENT_DATA_POLLING_PERIOD = 100;     // ms.
 
     /**
      * The only known case where a connection attempt will get stuck is
@@ -376,80 +388,101 @@ class ServerConnection implements Runnable {
      * All other client X server combinations are handled gracefully.
      */
     public void handshake() throws IOException, HsqlException {
+
         long clientDataDeadline = new java.util.Date().getTime()
-                + MAX_WAIT_FOR_CLIENT_DATA;
+                                  + MAX_WAIT_FOR_CLIENT_DATA;
+
         if (!(socket instanceof javax.net.ssl.SSLSocket)) {
+
             // available() does not work for SSL socket input stream
-            do try {
-                Thread.sleep(CLIENT_DATA_POLLING_PERIOD);
-            } catch (InterruptedException ie) {
+            do {
+                try {
+                    Thread.sleep(CLIENT_DATA_POLLING_PERIOD);
+                } catch (InterruptedException ie) {}
             } while (dataInput.available() < 5
-                    && new java.util.Date().getTime() < clientDataDeadline);
-                // Old HSQLDB clients will send resultType byte + 4 length bytes
-                // New HSQLDB clients will send NCV int + above = 9 bytes
+                     && new java.util.Date().getTime() < clientDataDeadline);
+
+            // Old HSQLDB clients will send resultType byte + 4 length bytes
+            // New HSQLDB clients will send NCV int + above = 9 bytes
             if (dataInput.available() < 1) {
-                dataOutput.write((TEXTBANNER_PART1
-                        + ClientConnection.NETWORK_COMPATIBILITY_VERSION
-                        + TEXTBANNER_PART2 + '\n').getBytes());
+                dataOutput.write(
+                    (TEXTBANNER_PART1
+                     + ClientConnection.NETWORK_COMPATIBILITY_VERSION
+                     + TEXTBANNER_PART2 + '\n').getBytes());
                 dataOutput.flush();
+
                 throw Error.error(ErrorCode.SERVER_UNKNOWN_CLIENT);
             }
         }
 
         java.io.DataInputStream pipeInput = null;
-        { // This block is only for testing for HSQLDB client < 1.9
+
+        {                    // This block is only for testing for HSQLDB client < 1.9
+
             // Need to use a pipe because we need to re-read the data
             // as a different data type after this test.
             // FilterInputStream's mark/reset capability is definitely not
             // supported for the stream we are working with here.
-            byte[] littleBuffer = new byte[3];
-            PipedInputStream inPipe = new PipedInputStream();
-            PipedOutputStream outPipe = new PipedOutputStream(inPipe);
-            pipeInput = new java.io.DataInputStream(inPipe);
-            java.io.DataOutputStream pipeOutput =
-                    new java.io.DataOutputStream(outPipe);
+            byte[]            littleBuffer = new byte[3];
+            PipedInputStream  inPipe       = new PipedInputStream();
+            PipedOutputStream outPipe      = new PipedOutputStream(inPipe);
 
+            pipeInput = new java.io.DataInputStream(inPipe);
+
+            java.io.DataOutputStream pipeOutput =
+                new java.io.DataOutputStream(outPipe);
             int legacyResultType = dataInput.readByte();
+
             switch (legacyResultType) {
-                case 0:
-                     // Determined empirically.
-                     // Code looks like it should be
-                     // ResultConstants.CONNECT
+
+                case 0 :
+
+                    // Determined empirically.
+                    // Code looks like it should be
+                    // ResultConstants.CONNECT
                     // TODO:  Send client a 1.8-compatible SQLException
-                    throw Error.error(ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
-                         new String[] { "pre-9.0",
-                         ClientConnection.NETWORK_COMPATIBILITY_VERSION});
-                case 80: // Empirically
+                    throw Error.error(ErrorCode.SERVER_VERSIONS_INCOMPATIBLE,
+                                      0, new String[] {
+                        "pre-9.0",
+                        ClientConnection.NETWORK_COMPATIBILITY_VERSION
+                    });
+                case 80 :    // Empirically
                     throw Error.error(ErrorCode.SERVER_HTTP_NOT_HSQL_PROTOCOL);
-                default:
-                    // A Ok.
+                default :
+
+                // A Ok.
             }
 
             // Write entire int to the Pipe, since we've already read one
             // byte of the int from dataInput.
             pipeOutput.writeByte(legacyResultType);
+
             if (dataInput.read(littleBuffer) != 3) {
                 throw Error.error(ErrorCode.SERVER_INCOMPLETE_HANDSHAKE_READ);
             }
+
             pipeOutput.write(littleBuffer);
             pipeOutput.close();
         }
 
         int verInt = pipeInput.readInt();
+
         pipeInput.close();
+
         // If we didn't need to read the byte off of dataInput for legacy
         // testing above, we would read like this:
         //int verInt = dataInput.readInt();
         //if (verInt > 0)
         String verString = ClientConnection.toNcvString(verInt);
-        if (verString.equals(
-                ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
-            return;  // Success case
-        }
-        // Only error handling remains
 
+        if (verString.equals(ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
+            return;    // Success case
+        }
+
+        // Only error handling remains
         throw Error.error(ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
-                new String[] {verString,
-                ClientConnection.NETWORK_COMPATIBILITY_VERSION});
+                          new String[] {
+            verString, ClientConnection.NETWORK_COMPATIBILITY_VERSION
+        });
     }
 }
