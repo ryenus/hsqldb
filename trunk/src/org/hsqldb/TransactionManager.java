@@ -272,6 +272,11 @@ public class TransactionManager {
                     endTransactionTPL(session);
                 }
 
+                try {
+                    session.logSequences();
+                    database.logger.writeCommitStatement(session);
+                } catch (HsqlException e) {}
+
                 return true;
             }
 
@@ -377,7 +382,7 @@ public class TransactionManager {
         Integer oi = (Integer) session.sessionContext.savepoints.get(index);
         int     start  = oi.intValue();
 
-        while (session.sessionContext.savepoints.size() > index) {
+        while (session.sessionContext.savepoints.size() > index + 1) {
             session.sessionContext.savepoints.remove(
                 session.sessionContext.savepoints.size() - 1);
             session.sessionContext.savepointTimestamps.removeLast();
@@ -726,6 +731,10 @@ public class TransactionManager {
         }
 
         if (!mvcc) {
+            if (session.hasLocks()) {
+                return;
+            }
+
             try {
                 writeLock.lock();
 

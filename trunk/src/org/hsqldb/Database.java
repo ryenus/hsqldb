@@ -440,7 +440,6 @@ public class Database {
             databaseReadOnly, false, timeZoneSeconds);
 
         logger.logConnectUser(session);
-        logger.writeToLog(session, session.getSessionIsolationSQL());
 
         return session;
     }

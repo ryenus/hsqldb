@@ -132,6 +132,8 @@ public class Session implements SessionInterface {
     OrderedHashSet           waitingSessions;
     OrderedHashSet           tempSet;
     CountUpDownLatch         latch = new CountUpDownLatch();
+    Statement                currentStatement;
+    Statement                lockStatement;
 
     // current settings
     final int          sessionTimeZoneSeconds;
@@ -159,9 +161,6 @@ public class Session implements SessionInterface {
 
     //
     public SessionData sessionData;
-
-    //
-    Statement currentStatement;
 
     /** @todo fredt - clarify in which circumstances Session has to disconnect */
     Session getSession() {
@@ -222,7 +221,6 @@ public class Session implements SessionInterface {
             return;
         }
 
-        database.sessionManager.removeSession(this);
         rollback(false);
 
         try {
@@ -233,6 +231,7 @@ public class Session implements SessionInterface {
         sessionData.persistentStoreCollection.clearAllTables();
         sessionData.closeResultCache();
         database.compiledStatementManager.removeSession(sessionId);
+        database.sessionManager.removeSession(this);
         database.closeIfLast();
 
         database                  = null;
@@ -260,13 +259,17 @@ public class Session implements SessionInterface {
             isReadOnlyDefault = true;
         }
 
+        if (level == isolationModeDefault) {
+            return;
+        }
+
         isolationModeDefault = level;
 
         if (!isInMidTransaction()) {
             isolationMode = isolationModeDefault;
         }
 
-        database.logger.writeToLog(this, getTransactionIsolationSQL());
+        database.logger.writeToLog(this, getSessionIsolationSQL());
     }
 
     /**
@@ -481,6 +484,10 @@ public class Session implements SessionInterface {
 //        tempActionHistory.add("endAction ends " + actionTimestamp);
     }
 
+    public boolean hasLocks() {
+        return currentStatement == lockStatement;
+    }
+
     public void startTransaction() throws HsqlException {
         database.txManager.beginTransaction(this);
     }
@@ -516,7 +523,8 @@ public class Session implements SessionInterface {
         }
 
         if (!isTransaction) {
-            isReadOnly = isReadOnlyDefault;
+            isReadOnly    = isReadOnlyDefault;
+            isolationMode = isolationModeDefault;
 
             return;
         }
@@ -529,17 +537,7 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_40001);
         }
 
-        sessionContext.savepoints.clear();
-        sessionContext.savepointTimestamps.clear();
-        rowActionList.clear();
-        sessionData.persistentStoreCollection.clearTransactionTables();
-
-/* debug 190
-        tempActionHistory.add("commit ends " + actionTimestamp);
-        tempActionHistory.clear();
-//*/
-        isReadOnly    = isReadOnlyDefault;
-        isolationMode = isolationModeDefault;
+        endTransaction();
     }
 
     /**
@@ -549,7 +547,7 @@ public class Session implements SessionInterface {
      */
     public void rollback(boolean chain) {
 
-//        tempActionHistory.add("rollback " + actionTimestamp);
+        //        tempActionHistory.add("rollback " + actionTimestamp);
         if (isClosed) {
             return;
         }
@@ -566,6 +564,11 @@ public class Session implements SessionInterface {
         } catch (HsqlException e) {}
 
         database.txManager.rollback(this);
+        endTransaction();
+    }
+
+    private void endTransaction() {
+
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
         rowActionList.clear();
@@ -573,12 +576,11 @@ public class Session implements SessionInterface {
 
         isReadOnly    = isReadOnlyDefault;
         isolationMode = isolationModeDefault;
-
-//        tempActionHistory.add("rollback ends " + actionTimestamp);
-    }
-
-    public void lockTables(Statement cs) throws HsqlException {
-        database.txManager.beginAction(this, cs);
+        lockStatement = null;
+/* debug 190
+                tempActionHistory.add("commit ends " + actionTimestamp);
+                tempActionHistory.clear();
+//*/
     }
 
     /**
@@ -1141,7 +1143,8 @@ public class Session implements SessionInterface {
             }
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
-            r = cs.execute(this, pvals);
+            r             = cs.execute(this, pvals);
+            lockStatement = currentStatement;
 
             //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
             endAction(r);

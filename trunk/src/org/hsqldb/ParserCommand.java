@@ -990,7 +990,8 @@ public class ParserCommand extends ParserDDL {
             break outerloop;
         }
 
-        Statement cs = new StatementCommand(StatementTypes.LOCK_TABLE, null);
+        Statement cs = new StatementCommand(StatementTypes.LOCK_TABLE,
+                                            ValuePool.emptyObjectArray);
 
         cs.readTableNames = new HsqlName[readSet.size()];
 
