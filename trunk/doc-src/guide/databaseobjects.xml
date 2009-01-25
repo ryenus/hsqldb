@@ -350,7 +350,7 @@
       <literal>&lt;password&gt;</literal> is a string enclosed with single
       quote characters. If <literal>ADMIN</literal> is specified, the DBA role
       is granted to the new user. Only a user with the DBA role can execute
-      this command.</simpara>
+      this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP USER</primary>
@@ -365,7 +365,7 @@
 
       <simpara>Drop (destroy) an existing user. If the specified user is the
       authorization for a schema, the schema is destroyed. Only a user with
-      the DBA role can execute this command.</simpara>
+      the DBA role can execute this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER USER ... SET PASSWORD</primary>
@@ -402,7 +402,7 @@
       <literal>DEFAULT</literal> is used, the default initial schema for all
       users is used as the initial schema for the user. The SET SCHEMA command
       allows the user to change the schema for the duration of the sesssion.
-      Only a user with the DBA role can execute this command.</simpara>
+      Only a user with the DBA role can execute this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET PASSWORD</primary>
@@ -420,6 +420,31 @@
       <simpara>Set the password for the current user.
       <literal>&lt;password&gt;</literal> is a string enclosed with single
       quote characters.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET INITIAL SCHEMA*</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET INITIAL SCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>set the initial schema for the current user
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;set initial schema statement&gt; ::= SET INITIAL
+      SCHEMA &lt;schema name&gt; | DEFAULT</literal></simpara>
+
+      <simpara>Change the initial schema for the current user. The initial
+      schema is the schema used by default for SQL statements issued during a
+      session. If <literal>DEFAULT</literal> is used, the default initial
+      schema for all users is used as the initial schema for the current user.
+      The SET SCHEMA command allows the user to change the schema for the
+      duration of the sesssion.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>*</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">*</emphasis></simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE ROLE</primary>
@@ -449,7 +474,7 @@
 
       <simpara>Drop (destroy) a role. If the specified role is the
       authorization for a schema, the schema is destroyed. Only a user with
-      the DBA role can execute this command.</simpara>
+      the DBA role can execute this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>GRANTED BY</primary>
@@ -772,7 +797,7 @@
       also consist of a TABLE CONSTRUCTOR that does not reference any tables
       or views.</simpara>
 
-      <simpara>A view has many uses: </simpara>
+      <simpara>A view has many uses:</simpara>
 
       <itemizedlist>
         <listitem>
@@ -1466,6 +1491,242 @@
       <simpara>A CHECK constraint for a DOMAIN is similar. In its
       <literal>&lt;search condition&gt;</literal>, the term VALUE is used to
       represents the value to which the DOMAIN applies.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE read-write property</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE
+      writeability</emphasis></simpara>
+
+      <simpara><emphasis>set table write property</emphasis></simpara>
+
+      <simpara><literal>&lt;set table read only statement&gt; ::= SET TABLE
+      &lt;table name&gt; { READ ONLY | READ WRITE }</literal></simpara>
+
+      <simpara>Set the writabality property of a table. Tables are writable by
+      default. This statement can be used to change the property between
+      <literal>READ ONLY</literal> and <literal>READ
+      WRITE</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE</emphasis></simpara>
+
+      <simpara><emphasis>set table source statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source statement&gt; ::= SET TABLE
+      &lt;table name&gt; SOURCE &lt;file and options&gt;
+      [DESC]</literal></simpara>
+
+      <simpara><literal>&lt;file and options&gt;::= &lt;doublequote&gt;
+      &lt;file path&gt; [&lt;semicolon&gt; &lt;&gt;...] &lt;doublequote&gt;
+      </literal></simpara>
+
+      <simpara>Set the text source for a text table</simpara>
+
+      <variablelist>
+        <title>Supported Properties</title>
+
+        <varlistentry>
+          <term>quoted = { true | false }</term>
+
+          <listitem>
+            <para>default is true. If false, treats double quotes as normal
+            characters</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>all_quoted = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true, adds double quotes around all
+            fields.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>encoding = &lt;encoding name&gt;</term>
+
+          <listitem>
+            <para>character encoding for text and character fields, for
+            example, encoding=UTF-8</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>ignore_first = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true ignores the first line of the
+            file</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_scale= &lt;numeric value&gt;</term>
+
+          <listitem>
+            <para>exponent to calculate rows of the text file in cache.
+            Default is 8, equivalent to nearly 800 rows</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_size_scale = &lt;numeric value&gt;r</term>
+
+          <listitem>
+            <para>exponent to calculate average size of each row in cache.
+            Default is 8, equivalent to 256 bytes per row.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>fs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>field separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>vs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>varchar separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>lvs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>long varchar separator</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <variablelist>
+        <title>Special indicators for Hsqldb Text Table separators</title>
+
+        <varlistentry>
+          <term>\semi</term>
+
+          <listitem>
+            <para>semicolon</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\quote</term>
+
+          <listitem>
+            <para>quote</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\space</term>
+
+          <listitem>
+            <para>space character</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\apos</term>
+
+          <listitem>
+            <para>apostrophe</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\n</term>
+
+          <listitem>
+            <para>newline - Used as an end anchor (like $ in regular
+            expressions)</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\r</term>
+
+          <listitem>
+            <para>carriage return</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\t</term>
+
+          <listitem>
+            <para>tab</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\\</term>
+
+          <listitem>
+            <para>backslash</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\u####</term>
+
+          <listitem>
+            <para>a Unicode character specified in hexadecimal</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <simpara>In the example below, the text source of the table is set to
+      "myfile", the field separator to the pipe symbol, and the long varchar
+      separator to the tilde symbol.</simpara>
+
+      <programlisting>    SET TABLE mytable SOURCE 'myfile;fs=|;vs=.;lvs=~'</programlisting>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE HEADER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE
+      HEADER</emphasis></simpara>
+
+      <simpara><emphasis>set table source header
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source header statement&gt; ::= SET
+      TABLE &lt;table name&gt; SOURCE HEADER &lt;header
+      string&gt;</literal></simpara>
+
+      <simpara>Set the header for the text source for a text table. Only a
+      user with the DBA role can execute this statement</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE on-off</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE
+      on-off</emphasis></simpara>
+
+      <simpara><emphasis>set table source on-off
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source on-off statement&gt; ::= SET
+      TABLE &lt;table name&gt; SOURCE { ON | OFF } </literal></simpara>
+
+      <simpara>Attach or detach a text table from its text source. Only a user
+      with the DBA role can execute this statement</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER TABLE</primary>
