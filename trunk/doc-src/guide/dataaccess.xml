@@ -47,16 +47,16 @@
   </section>
 
   <section>
-    <title>Syntax Elements</title>
+    <title>Syntax Element</title>
 
     <para></para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>parenthesized value expression</primary>
+      <primary>value expression primary</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">parenthesized value
-    expression</emphasis></simpara>
+    <simpara><emphasis role="bold">value expression
+    primary</emphasis></simpara>
 
     <simpara><emphasis>value expression primary</emphasis></simpara>
 
@@ -84,10 +84,10 @@
     <simpara>Specify a value that is syntactically self-delimited.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>literal</primary>
+      <primary>value specification</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">literal</emphasis></simpara>
+    <simpara><emphasis role="bold">value specification</emphasis></simpara>
 
     <simpara><emphasis>value specification</emphasis></simpara>
 
@@ -112,8 +112,7 @@
 
     <simpara><literal>&lt;target specification&gt; ::= &lt;host parameter
     specification&gt; | &lt;SQL parameter reference&gt; | &lt;column
-    reference&gt; | &lt;target array element specification&gt; | &lt;dynamic
-    parameter specification&gt; | &lt;embedded variable
+    reference&gt; | &lt;dynamic parameter
     specification&gt;</literal></simpara>
 
     <simpara><literal>&lt;simple target specification&gt; ::= &lt;host
@@ -126,35 +125,14 @@
     <simpara><literal>&lt;dynamic parameter specification&gt; ::= &lt;question
     mark&gt;</literal></simpara>
 
-    <simpara><literal>&lt;embedded variable specification&gt; ::= &lt;embedded
-    variable name&gt; [ &lt;indicator variable&gt; ]</literal></simpara>
-
-    <simpara><literal>&lt;indicator variable&gt; ::= [ INDICATOR ]
-    &lt;embedded variable name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;indicator parameter&gt; ::= [ INDICATOR ] &lt;host
-    parameter name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;target array element specification&gt; ::=
-    &lt;target array reference&gt; &lt;left bracket or trigraph&gt; &lt;simple
-    value specification&gt; &lt;right bracket or
-    trigraph&gt;</literal></simpara>
-
-    <simpara><literal>&lt;target array reference&gt; ::= &lt;SQL parameter
-    reference&gt; | &lt;column reference&gt;</literal></simpara>
-
-    <simpara><literal>&lt;current collation specification&gt; ::= COLLATION
-    FOR &lt;left paren&gt; &lt;string value expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
     <simpara>Specify one or more values, host parameters, SQL parameters,
     dynamic parameters, or host variables.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>implicitly typed value specification</primary>
+      <primary>contextually typed value specification</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">implicitly typed value
+    <simpara><emphasis role="bold">contextually typed value
     specification</emphasis></simpara>
 
     <simpara><emphasis>contextually typed value
@@ -182,10 +160,10 @@
     context.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>identifier {</primary>
+      <primary>identifier chain</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">identifier {</emphasis></simpara>
+    <simpara><emphasis role="bold">identifier chain</emphasis></simpara>
 
     <simpara><emphasis>identifier chain</emphasis></simpara>
 
@@ -198,10 +176,10 @@
     <simpara>Disambiguate a period-separated chain of identifiers.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>basic identifier chain</primary>
+      <primary>column reference</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">basic identifier chain</emphasis></simpara>
+    <simpara><emphasis role="bold">column reference</emphasis></simpara>
 
     <simpara><emphasis>column reference</emphasis></simpara>
 
@@ -212,10 +190,11 @@
     <simpara>Reference a column.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>basic identifier chain</primary>
+      <primary>SQL parameter reference</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">basic identifier chain</emphasis></simpara>
+    <simpara><emphasis role="bold">SQL parameter
+    reference</emphasis></simpara>
 
     <simpara><emphasis>SQL parameter reference</emphasis></simpara>
 
@@ -225,10 +204,11 @@
     <simpara>Reference an SQL parameter.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>aggregate function</primary>
+      <primary>set function specification</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">aggregate function</emphasis></simpara>
+    <simpara><emphasis role="bold">set function
+    specification</emphasis></simpara>
 
     <simpara><emphasis>set function specification</emphasis></simpara>
 
@@ -243,11 +223,10 @@
     argument.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>window function type OVER</primary>
+      <primary>window function</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">window function type
-    OVER</emphasis></simpara>
+    <simpara><emphasis role="bold">window function</emphasis></simpara>
 
     <simpara><emphasis>window function</emphasis></simpara>
 
@@ -316,10 +295,10 @@
     <simpara>Specify a window function.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>case abbreviation</primary>
+      <primary>case expression</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">case abbreviation</emphasis></simpara>
+    <simpara><emphasis role="bold">case expression</emphasis></simpara>
 
     <simpara><emphasis>case expression</emphasis></simpara>
 
@@ -362,11 +341,9 @@
     &lt;in predicate part 2&gt; | &lt;character like predicate part 2&gt; |
     &lt;octet like predicate part 2&gt; | &lt;similar predicate part 2&gt; |
     &lt;regex like predicate part 2&gt; | &lt;null predicate part 2&gt; |
-    &lt;quantified comparison predicate part 2&gt; | &lt;normalized predicate
-    part 2&gt; | &lt;match predicate part 2&gt; | &lt;overlaps predicate part
-    2&gt; | &lt;distinct predicate part 2&gt; | &lt;member predicate part
-    2&gt; | &lt;submultiset predicate part 2&gt; | &lt;set predicate part
-    2&gt; | &lt;type predicate part 2&gt;</literal></simpara>
+    &lt;quantified comparison predicate part 2&gt; | &lt;match predicate part
+    2&gt; | &lt;overlaps predicate part 2&gt; | &lt;distinct predicate part
+    2&gt;</literal></simpara>
 
     <simpara><literal>&lt;result&gt; ::= &lt;result expression&gt; |
     NULL</literal></simpara>
@@ -410,203 +387,10 @@
     <simpara>Return the next value of a sequence generator.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>value expression primary</primary>
+      <primary>value expression</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">value expression
-    primary</emphasis></simpara>
-
-    <simpara><emphasis>field reference</emphasis></simpara>
-
-    <simpara><literal>&lt;field reference&gt; ::= &lt;value expression
-    primary&gt; &lt;period&gt; &lt;field name&gt;</literal></simpara>
-
-    <simpara>Reference a field of a row value.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>TREAT</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">TREAT</emphasis></simpara>
-
-    <simpara><emphasis>subtype treatment</emphasis></simpara>
-
-    <simpara><literal>&lt;subtype treatment&gt; ::= TREAT &lt;left paren&gt;
-    &lt;subtype operand&gt; AS &lt;target subtype&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;subtype operand&gt; ::= &lt;value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;target subtype&gt; ::= &lt;path-resolved
-    user-defined type name&gt; | &lt;reference type&gt;</literal></simpara>
-
-    <simpara>Modify the declared type of an expression.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>direct invocation</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">direct invocation</emphasis></simpara>
-
-    <simpara><emphasis>method invocation</emphasis></simpara>
-
-    <simpara><literal>&lt;method invocation&gt; ::= &lt;direct invocation&gt;
-    | &lt;generalized invocation&gt;</literal></simpara>
-
-    <simpara><literal>&lt;direct invocation&gt; ::= &lt;value expression
-    primary&gt; &lt;period&gt; &lt;method name&gt; [ &lt;SQL argument list&gt;
-    ]</literal></simpara>
-
-    <simpara><literal>&lt;generalized invocation&gt; ::= &lt;left paren&gt;
-    &lt;value expression primary&gt; AS &lt;data type&gt; &lt;right paren&gt;
-    &lt;period&gt; &lt;method name&gt; [ &lt;SQL argument list&gt;
-    ]</literal></simpara>
-
-    <simpara><literal>&lt;method selection&gt; ::= &lt;routine
-    invocation&gt;</literal></simpara>
-
-    <simpara><literal>&lt;constructor method selection&gt; ::= &lt;routine
-    invocation&gt;</literal></simpara>
-
-    <simpara>Reference an SQL-invoked method of a user-defined type
-    value.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>path-resolved user-defined type name</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">path-resolved user-defined type
-    name</emphasis></simpara>
-
-    <simpara><emphasis>static method invocation</emphasis></simpara>
-
-    <simpara><literal>&lt;static method invocation&gt; ::= &lt;path-resolved
-    user-defined type name&gt; &lt;double colon&gt; &lt;method name&gt; [
-    &lt;SQL argument list&gt; ]</literal></simpara>
-
-    <simpara><literal>&lt;static method selection&gt; ::= &lt;routine
-    invocation&gt;</literal></simpara>
-
-    <simpara>Invoke a static method.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>NEW</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">NEW</emphasis></simpara>
-
-    <simpara><emphasis>new specification</emphasis></simpara>
-
-    <simpara><literal>&lt;new specification&gt; ::= NEW &lt;path-resolved
-    user-defined type name&gt; &lt;SQL argument list&gt;</literal></simpara>
-
-    <simpara><literal>&lt;new invocation&gt; ::= &lt;method invocation&gt; |
-    &lt;routine invocation&gt;</literal></simpara>
-
-    <simpara>Invoke a method on a newly-constructed value of a structured
-    type.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>value expression primary</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">value expression
-    primary</emphasis></simpara>
-
-    <simpara><emphasis>attribute or method reference</emphasis></simpara>
-
-    <simpara><literal>&lt;attribute or method reference&gt; ::= &lt;value
-    expression primary&gt; &lt;dereference operator&gt; &lt;qualified
-    identifier&gt; [ &lt;SQL argument list&gt; ]</literal></simpara>
-
-    <simpara><literal>&lt;dereference operator&gt; ::= &lt;right
-    arrow&gt;</literal></simpara>
-
-    <simpara>Return a value acquired by accessing a column of the row
-    identified by a value of a reference type or by invoking an SQL-invoked
-    method.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>reference value expression</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">reference value
-    expression</emphasis></simpara>
-
-    <simpara><emphasis>dereference operation</emphasis></simpara>
-
-    <simpara><literal>&lt;dereference operation&gt; ::= &lt;reference value
-    expression&gt; &lt;dereference operator&gt; &lt;attribute
-    name&gt;</literal></simpara>
-
-    <simpara>Access a column of the row identified by a value of a reference
-    type.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>value expression primary</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">value expression
-    primary</emphasis></simpara>
-
-    <simpara><emphasis>method reference</emphasis></simpara>
-
-    <simpara><literal>&lt;method reference&gt; ::= &lt;value expression
-    primary&gt; &lt;dereference operator&gt; &lt;method name&gt; &lt;SQL
-    argument list&gt;</literal></simpara>
-
-    <simpara>Return a value acquired from invoking an SQL-invoked routine that
-    is a method.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>DEREF</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">DEREF</emphasis></simpara>
-
-    <simpara><emphasis>reference resolution</emphasis></simpara>
-
-    <simpara><literal>&lt;reference resolution&gt; ::= DEREF &lt;left
-    paren&gt; &lt;reference value expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara>Obtain the value referenced by a reference value.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>array value expression</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">array value expression</emphasis></simpara>
-
-    <simpara><emphasis>array element reference</emphasis></simpara>
-
-    <simpara><literal>&lt;array element reference&gt; ::= &lt;array value
-    expression&gt; &lt;left bracket or trigraph&gt; &lt;numeric value
-    expression&gt; &lt;right bracket or trigraph&gt;</literal></simpara>
-
-    <simpara>Return an element of an array.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>ELEMENT</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">ELEMENT</emphasis></simpara>
-
-    <simpara><emphasis>multiset element reference</emphasis></simpara>
-
-    <simpara><literal>&lt;multiset element reference&gt; ::= ELEMENT &lt;left
-    paren&gt; &lt;multiset value expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara>Return the sole element of a multiset of one element.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>common value expression</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">common value
-    expression</emphasis></simpara>
+    <simpara><emphasis role="bold">value expression</emphasis></simpara>
 
     <simpara><emphasis>value expression</emphasis></simpara>
 
@@ -616,26 +400,16 @@
 
     <simpara><literal>&lt;common value expression&gt; ::= &lt;numeric value
     expression&gt; | &lt;string value expression&gt; | &lt;datetime value
-    expression&gt; | &lt;interval value expression&gt; | &lt;user-defined type
-    value expression&gt; | &lt;reference value expression&gt; | &lt;collection
-    value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;user-defined type value expression&gt; ::= &lt;value
-    expression primary&gt;</literal></simpara>
-
-    <simpara><literal>&lt;reference value expression&gt; ::= &lt;value
-    expression primary&gt;</literal></simpara>
-
-    <simpara><literal>&lt;collection value expression&gt; ::= &lt;array value
-    expression&gt; | &lt;multiset value expression&gt;</literal></simpara>
+    expression&gt; | &lt;interval value expression&gt;</literal></simpara>
 
     <simpara>Specify a value.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>term</primary>
+      <primary>numeric value expression</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">term</emphasis></simpara>
+    <simpara><emphasis role="bold">numeric value
+    expression</emphasis></simpara>
 
     <simpara><emphasis>numeric value expression</emphasis></simpara>
 
@@ -657,161 +431,20 @@
     <simpara>Specify a numeric value.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>position expression</primary>
+      <primary>numeric value function</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">position expression</emphasis></simpara>
+    <simpara><emphasis role="bold">numeric value function</emphasis></simpara>
 
     <simpara><emphasis>numeric value function</emphasis></simpara>
 
     <simpara><literal>&lt;numeric value function&gt; ::= &lt;position
-    expression&gt; | &lt;regex occurrences function&gt; | &lt;regex position
-    expression&gt; | &lt;extract expression&gt; | &lt;length expression&gt; |
-    &lt;cardinality expression&gt; | &lt;max cardinality expression&gt; |
-    &lt;absolute value expression&gt; | &lt;modulus expression&gt; |
-    &lt;natural logarithm&gt; | &lt;exponential function&gt; | &lt;power
-    function&gt; | &lt;square root&gt; | &lt;floor function&gt; | &lt;ceiling
-    function&gt; | &lt;width bucket function&gt;</literal></simpara>
+    expression&gt; | &lt;extract expression&gt; | &lt;length expression&gt;
+    ...</literal></simpara>
 
-    <simpara><literal>&lt;position expression&gt; ::= &lt;character position
-    expression&gt; | &lt;binary position expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regex occurrences function&gt; ::= OCCURRENCES_REGEX
-    &lt;left paren&gt; &lt;XQuery pattern&gt; [ FLAG &lt;XQuery option
-    flag&gt; ] IN &lt;regex subject string&gt; [ FROM &lt;start position&gt; ]
-    [ USING &lt;char length units&gt; ] &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;XQuery pattern&gt; ::= &lt;character value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;XQuery option flag&gt; ::= &lt;character value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regex subject string&gt; ::= &lt;character value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regex position expression&gt; ::= POSITION_REGEX
-    &lt;left paren&gt; [ &lt;regex position start or after&gt; ] &lt;XQuery
-    pattern&gt; [ FLAG &lt;XQuery option flag&gt; ] IN &lt;regex subject
-    string&gt; [ FROM &lt;start position&gt; ] [ USING &lt;char length
-    units&gt; ] [ OCCURRENCE &lt;regex occurrence&gt; ] [ GROUP &lt;regex
-    capture group&gt; ] &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regex position start or after&gt; ::= START |
-    AFTER</literal></simpara>
-
-    <simpara><literal>&lt;regex occurrence&gt; ::= &lt;numeric value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regex capture group&gt; ::= &lt;numeric value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;character position expression&gt; ::= POSITION
-    &lt;left paren&gt; &lt;character value expression 1&gt; IN &lt;character
-    value expression 2&gt; [ USING &lt;char length units&gt; ] &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;character value expression 1&gt; ::= &lt;character
-    value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;character value expression 2&gt; ::= &lt;character
-    value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;binary position expression&gt; ::= POSITION &lt;left
-    paren&gt; &lt;binary value expression&gt; IN &lt;binary value
-    expression&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;length expression&gt; ::= &lt;char length
-    expression&gt; | &lt;octet length expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;char length expression&gt; ::= { CHAR_LENGTH |
-    CHARACTER_LENGTH } &lt;left paren&gt; &lt;character value expression&gt; [
-    USING &lt;char length units&gt; ] &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;octet length expression&gt; ::= OCTET_LENGTH
-    &lt;left paren&gt; &lt;string value expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;extract expression&gt; ::= EXTRACT &lt;left
-    paren&gt; &lt;extract field&gt; FROM &lt;extract source&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;extract field&gt; ::= &lt;primary datetime field&gt;
-    | &lt;time zone field&gt;</literal></simpara>
-
-    <simpara><literal>&lt;time zone field&gt; ::= TIMEZONE_HOUR |
-    TIMEZONE_MINUTE</literal></simpara>
-
-    <simpara><literal>&lt;extract source&gt; ::= &lt;datetime value
-    expression&gt; | &lt;interval value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;cardinality expression&gt; ::= CARDINALITY &lt;left
-    paren&gt; &lt;collection value expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;max cardinality expression&gt; ::= MAX_CARDINALITY
-    &lt;left paren&gt; &lt;array value expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;absolute value expression&gt; ::= ABS &lt;left
-    paren&gt; &lt;numeric value expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;modulus expression&gt; ::= MOD &lt;left paren&gt;
-    &lt;numeric value expression dividend&gt; &lt;comma&gt; &lt;numeric value
-    expression divisor&gt;&lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;numeric value expression dividend&gt; ::=
-    &lt;numeric value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;numeric value expression divisor&gt; ::= &lt;numeric
-    value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;natural logarithm&gt; ::= LN &lt;left paren&gt;
-    &lt;numeric value expression&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;exponential function&gt; ::= EXP &lt;left paren&gt;
-    &lt;numeric value expression&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;power function&gt; ::= POWER &lt;left paren&gt;
-    &lt;numeric value expression base&gt; &lt;comma&gt; &lt;numeric value
-    expression exponent&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;numeric value expression base&gt; ::= &lt;numeric
-    value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;numeric value expression exponent&gt; ::=
-    &lt;numeric value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;square root&gt; ::= SQRT &lt;left paren&gt;
-    &lt;numeric value expression&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;floor function&gt; ::= FLOOR &lt;left paren&gt;
-    &lt;numeric value expression&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;ceiling function&gt; ::= { CEIL | CEILING } &lt;left
-    paren&gt; &lt;numeric value expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;width bucket function&gt; ::= WIDTH_BUCKET &lt;left
-    paren&gt; &lt;width bucket operand&gt; &lt;comma&gt; &lt;width bucket
-    bound 1&gt; &lt;comma&gt; &lt;width bucket bound 2&gt; &lt;comma&gt;
-    &lt;width bucket count&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;width bucket operand&gt; ::= &lt;numeric value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;width bucket bound 1&gt; ::= &lt;numeric value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;width bucket bound 2&gt; ::= &lt;numeric value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;width bucket count&gt; ::= &lt;numeric value
-    expression&gt;</literal></simpara>
-
-    <simpara>Specify a function yielding a value of type numeric.</simpara>
+    <simpara>Specify a function yielding a value of type numeric. The
+    supported numeric value functions are listed and described in Built-In
+    Functions chapter.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>character value expression</primary>
@@ -851,6 +484,9 @@
     expression&gt; &lt;concatenation operator&gt; &lt;binary
     factor&gt;</literal></simpara>
 
+    <simpara><literal>&lt;concatenation operator&gt; ::=
+    ||</literal></simpara>
+
     <simpara>Specify a character string value or a binary string
     value.</simpara>
 
@@ -863,134 +499,19 @@
 
     <simpara><emphasis>string value function</emphasis></simpara>
 
-    <simpara><literal>&lt;string value function&gt; ::= &lt;character value
-    function&gt; | &lt;binary value function&gt;</literal></simpara>
-
-    <simpara><literal>&lt;character value function&gt; ::= &lt;character
-    substring function&gt; | &lt;regular expression substring function&gt; |
-    &lt;regex substring function&gt; | &lt;fold&gt; | &lt;transcoding&gt; |
-    &lt;character transliteration&gt; | &lt;regex transliteration&gt; |
-    &lt;trim function&gt; | &lt;character overlay function&gt; | &lt;normalize
-    function&gt; | &lt;specific type method&gt;</literal></simpara>
-
-    <simpara><literal>&lt;character substring function&gt; ::= SUBSTRING
-    &lt;left paren&gt; &lt;character value expression&gt; FROM &lt;start
-    position&gt; [ FOR &lt;string length&gt; ] [ USING &lt;char length
-    units&gt; ] &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regular expression substring function&gt; ::=
-    SUBSTRING &lt;left paren&gt; &lt;character value expression&gt; SIMILAR
-    &lt;character value expression&gt; ESCAPE &lt;escape character&gt;
-    &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regex substring function&gt; ::= SUBSTRING_REGEX
-    &lt;left paren&gt; &lt;XQuery pattern&gt; [ FLAG &lt;XQuery option
-    flag&gt; ] IN &lt;regex subject string&gt; [ FROM &lt;start position&gt; ]
-    [ USING &lt;char length units&gt; ] [ OCCURRENCE &lt;regex occurrence&gt;
-    ] [ GROUP &lt;regex capture group&gt; ] &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;fold&gt; ::= { UPPER | LOWER } &lt;left paren&gt;
-    &lt;character value expression&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;transcoding&gt; ::= CONVERT &lt;left paren&gt;
-    &lt;character value expression&gt; USING &lt;transcoding name&gt;
-    &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;character transliteration&gt; ::= TRANSLATE &lt;left
-    paren&gt; &lt;character value expression&gt; USING &lt;transliteration
-    name&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regex transliteration&gt; ::= TRANSLATE_REGEX
-    &lt;left paren&gt; &lt;XQuery pattern&gt; [ FLAG &lt;XQuery option
-    flag&gt; ] IN &lt;regex subject string&gt; [ WITH &lt;XQuery replacement
-    string&gt; ] [ FROM &lt;start position&gt; ] [ USING &lt;char length
-    units&gt; ] [ OCCURRENCE &lt;regex transliteration occurrence&gt; ]
-    &lt;left paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;XQuery replacement string&gt; ::= &lt;character
-    value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;regex transliteration occurrence&gt; ::= &lt;regex
-    occurrence&gt; | ALL</literal></simpara>
-
-    <simpara><literal>&lt;trim function&gt; ::= TRIM &lt;left paren&gt;
-    &lt;trim operands&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;trim operands&gt; ::= [ [ &lt;trim specification&gt;
-    ] [ &lt;trim character&gt; ] FROM ] &lt;trim
-    source&gt;</literal></simpara>
-
-    <simpara><literal>&lt;trim source&gt; ::= &lt;character value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;trim specification&gt; ::= LEADING | TRAILING |
-    BOTH</literal></simpara>
-
-    <simpara><literal>&lt;trim character&gt; ::= &lt;character value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;character overlay function&gt; ::= OVERLAY &lt;left
-    paren&gt; &lt;character value expression&gt; PLACING &lt;character value
-    expression&gt; FROM &lt;start position&gt; [ FOR &lt;string length&gt; ] [
-    USING &lt;char length units&gt; ] &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;normalize function&gt; ::= NORMALIZE &lt;left
-    paren&gt; &lt;character value expression&gt; [ &lt;comma&gt; &lt;normal
-    form&gt; [ &lt;comma&gt; &lt;normalize function result length&gt; ] ]
-    &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;normal form&gt; ::= NFC | NFD | NFKC |
-    NFKD</literal></simpara>
-
-    <simpara><literal>&lt;normalize function result length&gt; ::=
-    &lt;character length&gt; | &lt;character large object
-    length&gt;</literal></simpara>
-
-    <simpara><literal>&lt;specific type method&gt; ::= &lt;user-defined type
-    value expression&gt; &lt;period&gt; SPECIFICTYPE [ &lt;left paren&gt;
-    &lt;right paren&gt; ]</literal></simpara>
-
-    <simpara><literal>&lt;binary value function&gt; ::= &lt;binary substring
-    function&gt; | &lt;binary trim function&gt; | &lt;binary overlay
-    function&gt;</literal></simpara>
-
-    <simpara><literal>&lt;binary substring function&gt; ::= SUBSTRING &lt;left
-    paren&gt; &lt;binary value expression&gt; FROM &lt;start position&gt; [
-    FOR &lt;string length&gt; ] &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;binary trim function&gt; ::= TRIM &lt;left paren&gt;
-    &lt;binary trim operands&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;binary trim operands&gt; ::= [ [ &lt;trim
-    specification&gt; ] [ &lt;trim octet&gt; ] FROM ] &lt;binary trim
-    source&gt;</literal></simpara>
-
-    <simpara><literal>&lt;binary trim source&gt; ::= &lt;binary value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;trim octet&gt; ::= &lt;binary value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;binary overlay function&gt; ::= OVERLAY &lt;left
-    paren&gt; &lt;binary value expression&gt; PLACING &lt;binary value
-    expression&gt; FROM &lt;start position&gt; [ FOR &lt;string length&gt; ]
-    &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;start position&gt; ::= &lt;numeric value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;string length&gt; ::= &lt;numeric value
-    expression&gt;</literal></simpara>
+    <simpara><literal>&lt;string value function&gt; ::=
+    ...</literal></simpara>
 
     <simpara>Specify a function yielding a value of type character string or
-    binary string.</simpara>
+    binary string. The supported character value functions are listed and
+    described in Built-In Functions chapter.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>datetime term</primary>
+      <primary>datetime value expression</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">datetime term</emphasis></simpara>
+    <simpara><emphasis role="bold">datetime value
+    expression</emphasis></simpara>
 
     <simpara><emphasis>datetime value expression</emphasis></simpara>
 
@@ -1026,31 +547,12 @@
 
     <simpara><emphasis>datetime value function</emphasis></simpara>
 
-    <simpara><literal>&lt;datetime value function&gt; ::= &lt;current date
-    value function&gt; | &lt;current time value function&gt; | &lt;current
-    timestamp value function&gt; | &lt;current local time value function&gt; |
-    &lt;current local timestamp value function&gt;</literal></simpara>
+    <simpara><literal>&lt;datetime value function&gt; ::=
+    ...</literal></simpara>
 
-    <simpara><literal>&lt;current date value function&gt; ::=
-    CURRENT_DATE</literal></simpara>
-
-    <simpara><literal>&lt;current time value function&gt; ::= CURRENT_TIME [
-    &lt;left paren&gt; &lt;time precision&gt; &lt;right paren&gt;
-    ]</literal></simpara>
-
-    <simpara><literal>&lt;current local time value function&gt; ::= LOCALTIME
-    [ &lt;left paren&gt; &lt;time precision&gt; &lt;right paren&gt;
-    ]</literal></simpara>
-
-    <simpara><literal>&lt;current timestamp value function&gt; ::=
-    CURRENT_TIMESTAMP [ &lt;left paren&gt; &lt;timestamp precision&gt;
-    &lt;right paren&gt; ]</literal></simpara>
-
-    <simpara><literal>&lt;current local timestamp value function&gt; ::=
-    LOCALTIMESTAMP [ &lt;left paren&gt; &lt;timestamp precision&gt; &lt;right
-    paren&gt; ]</literal></simpara>
-
-    <simpara>Specify a function yielding a value of type datetime.</simpara>
+    <simpara>Specify a function yielding a value of type datetime. The
+    supported datetime value functions are listed and described in Built-In
+    Functions chapter.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>interval term</primary>
@@ -1145,153 +647,13 @@
 
     <simpara>Specify a boolean value.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>array concatenation</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">array concatenation</emphasis></simpara>
-
-    <simpara><emphasis>array value expression</emphasis></simpara>
-
-    <simpara><literal>&lt;array value expression&gt; ::= &lt;array
-    concatenation&gt; | &lt;array primary&gt;</literal></simpara>
-
-    <simpara><literal>&lt;array concatenation&gt; ::= &lt;array value
-    expression 1&gt; &lt;concatenation operator&gt; &lt;array
-    primary&gt;</literal></simpara>
-
-    <simpara><literal>&lt;array value expression 1&gt; ::= &lt;array value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;array primary&gt; ::= &lt;array value function&gt; |
-    &lt;value expression primary&gt;</literal></simpara>
-
-    <simpara>Specify an array value.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>trim array function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">trim array function</emphasis></simpara>
-
-    <simpara><emphasis>array value function</emphasis></simpara>
-
-    <simpara><literal>&lt;array value function&gt; ::= &lt;trim array
-    function&gt;</literal></simpara>
-
-    <simpara><literal>&lt;trim array function&gt; ::= TRIM_ARRAY &lt;left
-    paren&gt; &lt;array value expression&gt; &lt;comma&gt; &lt;numeric value
-    expression&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara>Specify a function yielding a value of an array type.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>array value constructor by enumeration</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">array value constructor by
-    enumeration</emphasis></simpara>
-
-    <simpara><emphasis>array value constructor</emphasis></simpara>
-
-    <simpara><literal>&lt;array value constructor&gt; ::= &lt;array value
-    constructor by enumeration&gt; | &lt;array value constructor by
-    query&gt;</literal></simpara>
-
-    <simpara><literal>&lt;array value constructor by enumeration&gt; ::= ARRAY
-    &lt;left bracket or trigraph&gt; &lt;array element list&gt; &lt;right
-    bracket or trigraph&gt;</literal></simpara>
-
-    <simpara><literal>&lt;array element list&gt; ::= &lt;array element&gt; [ {
-    &lt;comma&gt; &lt;array element&gt; }... ]</literal></simpara>
-
-    <simpara><literal>&lt;array element&gt; ::= &lt;value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;array value constructor by query&gt; ::= ARRAY
-    &lt;left paren&gt; &lt;query expression&gt; &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara>Specify construction of an array.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>multiset term</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">multiset term</emphasis></simpara>
-
-    <simpara><emphasis>multiset value expression</emphasis></simpara>
-
-    <simpara><literal>&lt;multiset value expression&gt; ::= &lt;multiset
-    term&gt; | &lt;multiset value expression&gt; MULTISET UNION [ ALL |
-    DISTINCT ] &lt;multiset term&gt; | &lt;multiset value expression&gt;
-    MULTISET EXCEPT [ ALL | DISTINCT ] &lt;multiset
-    term&gt;</literal></simpara>
-
-    <simpara><literal>&lt;multiset term&gt; ::= &lt;multiset primary&gt; |
-    &lt;multiset term&gt; MULTISET INTERSECT [ ALL | DISTINCT ] &lt;multiset
-    primary&gt;</literal></simpara>
-
-    <simpara><literal>&lt;multiset primary&gt; ::= &lt;multiset value
-    function&gt; | &lt;value expression primary&gt;</literal></simpara>
-
-    <simpara>Specify a multiset value.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>multiset set function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">multiset set function</emphasis></simpara>
-
-    <simpara><emphasis>multiset value function</emphasis></simpara>
-
-    <simpara><literal>&lt;multiset value function&gt; ::= &lt;multiset set
-    function&gt;</literal></simpara>
-
-    <simpara><literal>&lt;multiset set function&gt; ::= SET &lt;left paren&gt;
-    &lt;multiset value expression&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara>Specify a function yielding a value of a multiset type.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>multiset value constructor by enumeration</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">multiset value constructor by
-    enumeration</emphasis></simpara>
-
-    <simpara><emphasis>multiset value constructor</emphasis></simpara>
-
-    <simpara><literal>&lt;multiset value constructor&gt; ::= &lt;multiset
-    value constructor by enumeration&gt; | &lt;multiset value constructor by
-    query&gt; | &lt;table value constructor by query&gt;</literal></simpara>
-
-    <simpara><literal>&lt;multiset value constructor by enumeration&gt; ::=
-    MULTISET &lt;left bracket or trigraph&gt; &lt;multiset element list&gt;
-    &lt;right bracket or trigraph&gt;</literal></simpara>
-
-    <simpara><literal>&lt;multiset element list&gt; ::= &lt;multiset
-    element&gt; [ { &lt;comma&gt; &lt;multiset element&gt; }...
-    ]</literal></simpara>
-
-    <simpara><literal>&lt;multiset element&gt; ::= &lt;value
-    expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;multiset value constructor by query&gt; ::= MULTISET
-    &lt;table subquery&gt;</literal></simpara>
-
-    <simpara><literal>&lt;table value constructor by query&gt; ::= TABLE
-    &lt;table subquery&gt;</literal></simpara>
-
-    <simpara>Specify construction of a multiset.</simpara>
-
     <!-- From Foundation chapt. 8 -->
 
     <indexterm significance="preferred" type="sql">
-      <primary>comparison predicate</primary>
+      <primary>predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">comparison predicate</emphasis></simpara>
+    <simpara><emphasis role="bold">predicate</emphasis></simpara>
 
     <simpara><emphasis>predicate</emphasis></simpara>
 
@@ -1308,10 +670,10 @@
     value.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
+      <primary>comparison predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
+    <simpara><emphasis role="bold">comparison predicand</emphasis></simpara>
 
     <simpara><emphasis>comparison predicate</emphasis></simpara>
 
@@ -1329,10 +691,10 @@
     <simpara>Specify a comparison of two row values.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
+      <primary>between predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
+    <simpara><emphasis role="bold">between predicate</emphasis></simpara>
 
     <simpara><emphasis>between predicate</emphasis></simpara>
 
@@ -1346,10 +708,10 @@
     <simpara>Specify a range comparison.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
+      <primary>in predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
+    <simpara><emphasis role="bold">in predicate</emphasis></simpara>
 
     <simpara><emphasis>in predicate</emphasis></simpara>
 
@@ -1369,11 +731,10 @@
     <simpara>Specify a quantified comparison.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>character like predicate</primary>
+      <primary>like predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">character like
-    predicate</emphasis></simpara>
+    <simpara><emphasis role="bold">like predicate</emphasis></simpara>
 
     <simpara><emphasis>like predicate</emphasis></simpara>
 
@@ -1408,10 +769,10 @@
     <simpara>Specify a pattern-match comparison.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
+      <primary>similar predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
+    <simpara><emphasis role="bold">similar predicate</emphasis></simpara>
 
     <simpara><emphasis>similar predicate</emphasis></simpara>
 
@@ -1488,10 +849,10 @@
     expression.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
+      <primary>regex like predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
+    <simpara><emphasis role="bold">regex like predicate</emphasis></simpara>
 
     <simpara><emphasis>regex like predicate</emphasis></simpara>
 
@@ -1509,7 +870,7 @@
       <primary>row value predicand</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
+    <simpara><emphasis role="bold">null predicate</emphasis></simpara>
 
     <simpara><emphasis>null predicate</emphasis></simpara>
 
@@ -1522,10 +883,11 @@
     <simpara>Specify a test for a null value.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
+      <primary>quantified comparison predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
+    <simpara><emphasis role="bold">quantified comparison
+    predicate</emphasis></simpara>
 
     <simpara><emphasis>quantified comparison predicate</emphasis></simpara>
 
@@ -1573,27 +935,10 @@
     <simpara>Specify a test for the absence of duplicate rows.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
+      <primary>MATCH predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
-
-    <simpara><emphasis>normalized predicate</emphasis></simpara>
-
-    <simpara><literal>&lt;normalized predicate&gt; ::= &lt;row value
-    predicand&gt; &lt;normalized predicate part 2&gt;</literal></simpara>
-
-    <simpara><literal>&lt;normalized predicate part 2&gt; ::= IS [ NOT ] [
-    &lt;normal form&gt; ] NORMALIZED</literal></simpara>
-
-    <simpara>Determine whether a character string value is
-    normalized.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
+    <simpara><emphasis role="bold">MATCH</emphasis></simpara>
 
     <simpara><emphasis>match predicate</emphasis></simpara>
 
@@ -1606,11 +951,10 @@
     <simpara>Specify a test for matching rows.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>overlaps predicate part 1</primary>
+      <primary>OVERLAPS predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">overlaps predicate part
-    1</emphasis></simpara>
+    <simpara><emphasis role="bold">OVERLAPS predicate</emphasis></simpara>
 
     <simpara><emphasis>overlaps predicate</emphasis></simpara>
 
@@ -1633,10 +977,10 @@
     periods.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand 3</primary>
+      <primary>DISTINCT predicate</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand 3</emphasis></simpara>
+    <simpara><emphasis role="bold">DISTINCT predicate</emphasis></simpara>
 
     <simpara><emphasis>distinct predicate</emphasis></simpara>
 
@@ -1655,92 +999,10 @@
     <simpara>Specify a test of whether two row values are distinct</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
+      <primary>search condition</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
-
-    <simpara><emphasis>member predicate</emphasis></simpara>
-
-    <simpara><literal>&lt;member predicate&gt; ::= &lt;row value predicand&gt;
-    &lt;member predicate part 2&gt;</literal></simpara>
-
-    <simpara><literal>&lt;member predicate part 2&gt; ::= [ NOT ] MEMBER [ OF
-    ] &lt;multiset value expression&gt;</literal></simpara>
-
-    <simpara>Specify a test of whether a value is a member of a
-    multiset.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
-
-    <simpara><emphasis>submultiset predicate</emphasis></simpara>
-
-    <simpara><literal>&lt;submultiset predicate&gt; ::= &lt;row value
-    predicand&gt; &lt;submultiset predicate part 2&gt;</literal></simpara>
-
-    <simpara><literal>&lt;submultiset predicate part 2&gt; ::= [ NOT ]
-    SUBMULTISET [ OF ] &lt;multiset value expression&gt;</literal></simpara>
-
-    <simpara>Specify a test of whether a multiset is a submultiset of another
-    multiset.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
-
-    <simpara><emphasis>set predicate</emphasis></simpara>
-
-    <simpara><literal>&lt;set predicate&gt; ::= &lt;row value predicand&gt;
-    &lt;set predicate part 2&gt;</literal></simpara>
-
-    <simpara><literal>&lt;set predicate part 2&gt; ::= IS [ NOT ] A
-    SET</literal></simpara>
-
-    <simpara>Specify a test of whether a multiset is a set (that is, does not
-    contain any duplicates).</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>row value predicand</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">row value predicand</emphasis></simpara>
-
-    <simpara><emphasis>type predicate</emphasis></simpara>
-
-    <simpara><literal>&lt;type predicate&gt; ::= &lt;row value predicand&gt;
-    &lt;type predicate part 2&gt;</literal></simpara>
-
-    <simpara><literal>&lt;type predicate part 2&gt; ::= IS [ NOT ] OF &lt;left
-    paren&gt; &lt;type list&gt; &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;type list&gt; ::= &lt;user-defined type
-    specification&gt; [ { &lt;comma&gt; &lt;user-defined type
-    specification&gt; }... ]</literal></simpara>
-
-    <simpara><literal>&lt;user-defined type specification&gt; ::=
-    &lt;inclusive user-defined type specification&gt; | &lt;exclusive
-    user-defined type specification&gt;</literal></simpara>
-
-    <simpara><literal>&lt;inclusive user-defined type specification&gt; ::=
-    &lt;path-resolved user-defined type name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;exclusive user-defined type specification&gt; ::=
-    ONLY &lt;path-resolved user-defined type name&gt;</literal></simpara>
-
-    <simpara>Specify a type test.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>boolean value expression</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">boolean value
-    expression</emphasis></simpara>
+    <simpara><emphasis role="bold">search condition</emphasis></simpara>
 
     <simpara><emphasis>search condition</emphasis></simpara>
 
@@ -1753,10 +1015,10 @@
     <!-- From Foundation chapt. 10 -->
 
     <indexterm significance="preferred" type="sql">
-      <primary>start field TO</primary>
+      <primary>interval qualifier</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">start field TO</emphasis></simpara>
+    <simpara><emphasis role="bold">interval qualifier</emphasis></simpara>
 
     <simpara><emphasis>interval qualifier</emphasis></simpara>
 
@@ -1793,22 +1055,6 @@
     <simpara>Specify the precision of an interval data type.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>LANGUAGE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">LANGUAGE</emphasis></simpara>
-
-    <simpara><emphasis>language clause</emphasis></simpara>
-
-    <simpara><literal>&lt;language clause&gt; ::= LANGUAGE &lt;language
-    name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;language name&gt; ::= ADA | C | COBOL | FORTRAN | M
-    | MUMPS | PASCAL | PLI | SQL</literal></simpara>
-
-    <simpara>Specify a programming language.</simpara>
-
-    <indexterm significance="preferred" type="sql">
       <primary>PATH</primary>
     </indexterm>
 
@@ -1826,10 +1072,10 @@
     routine.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>routine name</primary>
+      <primary>routine invocation</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">routine name</emphasis></simpara>
+    <simpara><emphasis role="bold">routine invocation</emphasis></simpara>
 
     <simpara><emphasis>routine invocation</emphasis></simpara>
 
@@ -1844,66 +1090,9 @@
     &lt;right paren&gt;</literal></simpara>
 
     <simpara><literal>&lt;SQL argument&gt; ::= &lt;value expression&gt; |
-    &lt;generalized expression&gt; | &lt;target
-    specification&gt;</literal></simpara>
-
-    <simpara><literal>&lt;generalized expression&gt; ::= &lt;value
-    expression&gt; AS &lt;path-resolved user-defined type
-    name&gt;</literal></simpara>
+    &lt;target specification&gt;</literal></simpara>
 
     <simpara>Invoke an SQL-invoked routine.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>standard character set name</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">standard character set
-    name</emphasis></simpara>
-
-    <simpara><emphasis>character set specification</emphasis></simpara>
-
-    <simpara><literal>&lt;character set specification&gt; ::= &lt;standard
-    character set name&gt; | &lt;implementation-defined character set name&gt;
-    | &lt;user-defined character set name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;standard character set name&gt; ::= &lt;character
-    set name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;implementation-defined character set name&gt; ::=
-    &lt;character set name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;user-defined character set name&gt; ::=
-    &lt;character set name&gt;</literal></simpara>
-
-    <simpara>Identify a character set.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SPECIFIC</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SPECIFIC</emphasis></simpara>
-
-    <simpara><emphasis>specific routine designator</emphasis></simpara>
-
-    <simpara><literal>&lt;specific routine designator&gt; ::= SPECIFIC
-    &lt;routine type&gt; &lt;specific name&gt; | &lt;routine type&gt;
-    &lt;member name&gt; [ FOR &lt;schema-resolved user-defined type name&gt;
-    ]</literal></simpara>
-
-    <simpara><literal>&lt;routine type&gt; ::= ROUTINE | FUNCTION | PROCEDURE
-    | [ INSTANCE | STATIC | CONSTRUCTOR ] METHOD</literal></simpara>
-
-    <simpara><literal>&lt;member name&gt; ::= &lt;member name alternatives&gt;
-    [ &lt;data type list&gt; ]</literal></simpara>
-
-    <simpara><literal>&lt;member name alternatives&gt; ::= &lt;schema
-    qualified routine name&gt; | &lt;method name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;data type list&gt; ::= &lt;left paren&gt; [ &lt;data
-    type&gt; [ { &lt;comma&gt; &lt;data type&gt; }... ] ] &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara>Specify an SQL-invoked routine.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>COLLATE</primary>
@@ -1940,10 +1129,10 @@
     characteristics.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>COUNT</primary>
+      <primary>aggregate function</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">COUNT</emphasis></simpara>
+    <simpara><emphasis role="bold">aggregate function</emphasis></simpara>
 
     <simpara><emphasis>aggregate function</emphasis></simpara>
 
@@ -2020,10 +1209,11 @@
     <simpara>Specify a value computed from a collection of rows.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>sort specification {</primary>
+      <primary>sort specification list</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">sort specification {</emphasis></simpara>
+    <simpara><emphasis role="bold">sort specification
+    list</emphasis></simpara>
 
     <simpara><emphasis>sort specification list</emphasis></simpara>
 
