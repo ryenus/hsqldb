@@ -317,6 +317,7 @@ class ServerConnection implements Runnable {
         switch (op) {
             case 'Q':
                 String sql = readNullTermdUTF();
+                String normalized = sql.trim().toLowerCase();
                 if (server.isTrace()) {
                     server.printWithThread("Received query (" + sql + ')');
                 }
@@ -324,13 +325,13 @@ class ServerConnection implements Runnable {
                     dataOutput.writeByte('I'); // Empty Resultset
                     dataOutput.writeByte(0);
                     dataOutput.writeByte('Z');
-                } else if (sql.trim().toLowerCase().startsWith(
-                            "select version()")) {
+                } else if (normalized.startsWith("select version()")) {
                     server.print("Simulating 'select version()'...");
-                    // N.b., skipping a 'P' xmit here, which Postgresql servers
-                    // transmit.  I haven't figured out the purpose of that yet.
+                    // N.b., skipping 'P' xmit here.
+                    // This sends a portal name, but it is completely ignored
+                    // by the ODBC client.
                     dataOutput.writeByte('T'); // sending a Tuple (row)
-                    write((short) 1);
+                    write((short) 1);          // Num cols.
                     writeNullTermdUTF("version"); // Col. name
                     dataOutput.writeInt(25); // Datatype ID  [adtid]
                     write((short) -1);       // Datatype size  [adtsize]
@@ -345,11 +346,52 @@ class ServerConnection implements Runnable {
                     dataOutput.writeByte('C'); // end of rows
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
-                } else if (sql.trim().toLowerCase().startsWith(
-                            "set datestyle to ")) {
-                    server.print("Stubbing a 'set datestyle to'...");
-                    dataOutput.writeByte('I'); // Empty Resultset
-                    dataOutput.writeByte(0);
+                } else if (normalized.startsWith(
+                    "select pg_client_encoding()")) {
+                    server.print("Simulating 'select pg_client_encoding()'...");
+                    // N.b., skipping 'P' xmit here.
+                    // This sends a portal name, but it is completely ignored
+                    // by the ODBC client.
+                    dataOutput.writeByte('T'); // sending a Tuple (row)
+                    write((short) 1);          // Num cols.
+                    writeNullTermdUTF("pg_client_encoding"); // Col. name
+                    dataOutput.writeInt(19); // Datatype ID  [adtid]
+                    write((short) 64);       // Datatype size  [adtsize]
+                    dataOutput.writeInt(-1); // Var size (always -1 so far)
+                                             // [atttypmod]
+                    dataOutput.writeByte('D'); // text row Data
+                    dataOutput.writeByte(-1);   // bit map of null vals in row
+                    writeUTF("SQL_ASCII", false);
+                    dataOutput.writeByte('C'); // end of rows
+                    writeNullTermdUTF("SELECT");
+                    dataOutput.writeByte('Z');
+                } else if (normalized.startsWith(
+                    "select oid, typbasetype from")) {
+                    server.print("Simulating 'select oid, typbasetype...'");
+                    // N.b., skipping a 'P' xmit here, which Postgresql servers
+                    // transmit.  I haven't figured out the purpose of that yet.
+                    dataOutput.writeByte('T'); // sending a Tuple (row)
+                    write((short) 2);          // Num cols.
+                    writeNullTermdUTF("oid"); // Col. name
+                    dataOutput.writeInt(26); // Datatype ID  [adtid]
+                    write((short) 4);       // Datatype size  [adtsize]
+                    dataOutput.writeInt(-1); // Var size (always -1 so far)
+                                             // [atttypmod]
+                    writeNullTermdUTF("typbasetype"); // Col. name
+                    dataOutput.writeInt(26); // Datatype ID  [adtid]
+                    write((short) 4);       // Datatype size  [adtsize]
+                    dataOutput.writeInt(-1); // Var size (always -1 so far)
+                                             // [atttypmod]
+                    // This query returns no rows.  typenam "lo"??
+                    dataOutput.writeByte('C'); // end of rows
+                    writeNullTermdUTF("SELECT");
+                    dataOutput.writeByte('Z');
+                } else if (normalized.startsWith("set datestyle to ")
+                    || normalized.startsWith("set extra_float_digits to ")
+                    || normalized.startsWith("set ksqo to ")) {
+                    server.print("Stubbing a 'SET command'...");
+                    dataOutput.writeByte('C'); // end of rows
+                    writeNullTermdUTF("SET");
                     dataOutput.writeByte('Z');
                 } else {
                     warnOdbcClient(
@@ -361,7 +403,7 @@ class ServerConnection implements Runnable {
                         false, "Unsupported operation type (" + op + ')');
                 // May be impossible to recover in practice, since every
                 // op. type will probably be followed by data which we will
-                // choke on forthwith.
+                // choke on forthwith.  }
         }
     }
 
