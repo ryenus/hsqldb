@@ -312,17 +312,6 @@
     for the rows that do not conform. After verification, the statement must
     be used again to enable constraint enforcement. Only a user with the DBA
     role can execute this statement.</simpara>
-    <indexterm significance="preferred" type="sql">
-      <primary>*</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">*</emphasis></simpara>
-
-    <simpara><emphasis>*</emphasis></simpara>
-
-    <simpara><literal>&lt;* statement&gt; ::= </literal></simpara>
-
-    <simpara>**.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>*</primary>
@@ -348,5 +337,24 @@
 
     <simpara>**.</simpara>
 
+    <indexterm significance="preferred" type="sql">
+      <primary>*</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">*</emphasis></simpara>
+
+    <simpara><emphasis>*</emphasis></simpara>
+
+    <simpara><literal>&lt;row value expression&gt; ::= &lt;row value special
+    case&gt; | &lt;explicit row value constructor&gt; &lt;table row value
+    expression&gt; ::= &lt;row value special case&gt; | &lt;row value
+    constructor&gt; &lt;contextually typed row value expression&gt; ::=
+    &lt;row value special case&gt; | &lt;contextually typed row value
+    constructor&gt; &lt;row value predicand&gt; ::= &lt;row value special
+    case&gt; | &lt;row value constructor predicand&gt; &lt;row value special
+    case&gt; ::= &lt;nonparenthesized value expression primary&gt;
+    </literal></simpara>
+
+    <simpara>**.</simpara>
   </section>
 </chapter>
