@@ -2845,13 +2845,161 @@
       <title>Predefined Character Sets, Collations and Domains</title>
 
       <para>The SQL Standard defines a number of character sets and domains in
-      the INFORMATION SCHEMA. The</para>
+      the INFORMATION SCHEMA.</para>
+
+      <para>These domains are used in the INFORMATION SCHEMA views:</para>
+
+      <simpara>CARDINAL_NUMBER, YES_OR_NO, CHARACTER_DATA, SQL_IDENTIFIER,
+      TIME_STAMP</simpara>
+
+      <simpara>All available collations are in the INFORMATION
+      SCHMA.</simpara>
     </section>
 
     <section>
       <title>Views in INFORMATION SCHEMA</title>
 
-      <para></para>
+      <para>The following views are defined by the SQL Standard:</para>
+
+      <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
+
+      <para>APPLICABLE_ROLES ASSERTIONS</para>
+
+      <para>AUTHORIZATIONS</para>
+
+      <para>CHARACTER_SETS</para>
+
+      <para>CHECK_CONSTRAINTS</para>
+
+      <para>CHECK_CONSTRAINT_ROUTINE_USAGE</para>
+
+      <para>COLLATIONS</para>
+
+      <para>COLUMNS</para>
+
+      <para>COLUMN_COLUMN_USAGE</para>
+
+      <para>COLUMN_DOMAIN_USAGE</para>
+
+      <para>COLUMN_PRIVILEGES</para>
+
+      <para>COLUMN_UDT_USAGE</para>
+
+      <para>CONSTRAINT_COLUMN_USAGE</para>
+
+      <para>CONSTRAINT_TABLE_USAGE</para>
+
+      <para>DATA_TYPE_PRIVILEGES</para>
+
+      <para>DOMAINS</para>
+
+      <para>DOMAIN_CONSTRAINTS</para>
+
+      <para>ENABLED_ROLES</para>
+
+      <para>INFORMATION_SCHEMA_CATALOG_NAME</para>
+
+      <para>KEY_COLUMN_USAGE</para>
+
+      <para>REFERENTIAL_CONSTRAINTS</para>
+
+      <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
+
+      <para>ROLE_COLUMN_GRANTS</para>
+
+      <para>ROLE_ROUTINE_GRANTS ROLE_TABLE_GRANTS</para>
+
+      <para>ROLE_UDT_GRANTS ROLE_USAGE_GRANTS</para>
+
+      <para>SCHEMATA SEQUENCES SQL_FEATURES</para>
+
+      <para>SQL_IMPLEMENTATION_INFO SQL_PACKAGES</para>
+
+      <para>SQL_PARTS SQL_SIZING</para>
+
+      <para>SQL_SIZING_PROFILES TABLES</para>
+
+      <para>TABLE_CONSTRAINTS</para>
+
+      <para>TABLE_PRIVILEGES TRANSLATIONS</para>
+
+      <para>TRIGGERED_UPDATE_COLUMNS</para>
+
+      <para>TRIGGERS</para>
+
+      <para>TRIGGER_COLUMN_USAGE</para>
+
+      <para>TRIGGER_ROUTINE_USAGE</para>
+
+      <para>TRIGGER_SEQUENCE_USAGE</para>
+
+      <para>TRIGGER_TABLE_USAGE</para>
+
+      <para>USAGE_PRIVILEGES</para>
+
+      <para>USER_DEFINED_TYPES</para>
+
+      <para>VIEWS</para>
+
+      <para>VIEW_COLUMN_USAGE</para>
+
+      <para>VIEW_ROUTINE_USAGE</para>
+
+      <para>VIEW_TABLE_USAGE </para>
+
+      <para>The following views are specific to HyperSQL:</para>
+
+      <para>SYSTEM_ALLTYPEINFO</para>
+
+      <para>SYSTEM_BESTROWIDENTIFIER</para>
+
+      <para>SYSTEM_CACHEINFO</para>
+
+      <para>SYSTEM_CLASSPRIVILEGES</para>
+
+      <para>SYSTEM_COLUMNS</para>
+
+      <para>SYSTEM_CROSSREFERENCE</para>
+
+      <para>SYSTEM_INDEXINFO</para>
+
+      <para>SYSTEM_PRIMARYKEYS</para>
+
+      <para>SYSTEM_PROCEDURECOLUMNS</para>
+
+      <para>SYSTEM_PROCEDURES</para>
+
+      <para>SYSTEM_PROPERTIES</para>
+
+      <para>SYSTEM_SCHEMAS</para>
+
+      <para>SYSTEM_SESSIONINFO</para>
+
+      <para>SYSTEM_SESSIONS</para>
+
+      <para>SYSTEM_SUPERTABLES</para>
+
+      <para>SYSTEM_SUPERTYPES</para>
+
+      <para>SYSTEM_TABLES</para>
+
+      <para>SYSTEM_TABLETYPES</para>
+
+      <para>SYSTEM_TEXTTABLES</para>
+
+      <para>SYSTEM_TRIGGERCOLUMNS</para>
+
+      <para>SYSTEM_TRIGGERS</para>
+
+      <para>SYSTEM_TYPEINFO</para>
+
+      <para>SYSTEM_UDTATTRIBUTES</para>
+
+      <para>SYSTEM_UDTS</para>
+
+      <para>SYSTEM_USERS</para>
+
+      <para>SYSTEM_VERSIONCOLUMNS</para>
     </section>
   </section>
 </chapter>
