@@ -670,11 +670,11 @@ class ServerConnection implements Runnable {
                 case 0:
                     // Read 3 more bytest to make an int, to determine ODBC
                     // client vs. Legacy HSQL:
-                    int descriminatorInt = ((firstByte & 0xff) << 24)
+                    int discriminatorInt = ((firstByte & 0xff) << 24)
                         + ((dataInput.readByte() & 0xff) << 16)
                         + ((dataInput.readByte() & 0xff) << 8)
                         + (dataInput.readByte() & 0xff);
-                    switch (descriminatorInt) {
+                    switch (discriminatorInt) {
                         case 34:
                              // Determined empirically.
                              // Code looks like it should be
@@ -684,10 +684,14 @@ class ServerConnection implements Runnable {
                                  ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
                                  new String[] { "pre-9.0",
                              ClientConnection.NETWORK_COMPATIBILITY_VERSION});
+                        case 32:
+                            // Native Postgresql client.  Why different?
                         case 296:
                             streamProtocol = ODBC_STREAM_PROTOCOL;
                             return;  // Success case
                         default:
+                            server.print("Unrecognized discriminator int: "
+                                    + discriminatorInt);
                             throw Error.error(
                                     ErrorCode.SERVER_INCOMPLETE_HANDSHAKE_READ);
                             // TODO:  Better error message, like:
