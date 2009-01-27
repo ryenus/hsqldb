@@ -337,7 +337,6 @@ class ServerConnection implements Runnable {
                 if (sql.startsWith("BEGIN;")) {
                     sql = sql.substring("BEGIN;".length());
                     server.printWithThread("ODBC Trans started");
-                    newTran = true;
                     inOdbcTrans = true;
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(10); // size
@@ -347,7 +346,41 @@ class ServerConnection implements Runnable {
                 if (server.isTrace()) {
                     server.printWithThread("Received query (" + sql + ')');
                 }
-                if (normalized.startsWith(
+                if (normalized.startsWith("select n.nspname,")) {
+                    server.print("Swallowing 'select n.nspname,...'");
+                    // TODO:  Minimize the junk here.
+                    // The critical thing is to return no rows.
+                    // Probably fine to return one col. def., or none.
+                    dataOutput.writeByte('T'); // sending a Tuple (row)
+                    dataOutput.writeInt(58); // size
+server.print("### Writing size 58");
+                    write((short) 2);          // Num cols.
+                    writeNullTermdUTF("oid"); // Col. name
+                    dataOutput.writeInt(101); // table ID
+                    write((short) 102); // column id
+                    dataOutput.writeInt(26); // Datatype ID  [adtid]
+                    write((short) 4);       // Datatype size  [adtsize]
+                    dataOutput.writeInt(-1); // Var size (always -1 so far)
+                                             // [atttypmod]
+                    write((short) 0);        // client swallows a "format" int?
+                    writeNullTermdUTF("typbasetype"); // Col. name
+                    dataOutput.writeInt(101); // table ID
+                    write((short) 103); // column id
+                    dataOutput.writeInt(26); // Datatype ID  [adtid]
+                    write((short) 4);       // Datatype size  [adtsize]
+                    dataOutput.writeInt(-1); // Var size (always -1 so far)
+                                             // [atttypmod]
+                    write((short) 0);        // client swallows a "format" int?
+
+                    // This query returns no rows.  typenam "lo"??
+                    dataOutput.writeByte('C'); // end of rows
+                    dataOutput.writeInt(11); // size
+                    writeNullTermdUTF("SELECT");
+                    dataOutput.writeByte('Z');
+                    server.print("### Writing size 5");
+                    dataOutput.writeInt(5); //size
+                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+                } else if (normalized.startsWith(
                     "select oid, typbasetype from")) {
                     server.print("Simulating 'select oid, typbasetype...'");
                     /*
@@ -382,10 +415,11 @@ server.print("### Writing size 58");
                     dataOutput.writeByte('Z');
                     server.print("### Writing size 5");
                     dataOutput.writeInt(5); //size
-                    dataOutput.writeByte('I'); // I think this says to inherit transaction,
-                                               // if there is one.  Could be wrong.
+                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else if (normalized.startsWith("select ")) {
                     server.print("Performing a real non-prepared SELECT...");
+                    PacketOutputStream dataWriterPacket =
+                        new PacketOutputStream(new ByteArrayOutputStream());
                     Result r = Result.newExecuteDirectRequest();
                     // sePrepare...() normally used on client side in
                     // JDBCStatement.
@@ -420,17 +454,27 @@ server.print("### Writing size 58");
                         rowNum++;
                         Object[] rowData = (Object[]) navData.getCurrent();
                         if (rowNum == 1) {
+                            PacketOutputStream packet = new PacketOutputStream(
+                                new ByteArrayOutputStream());
                             //TODO: This isn't going to work for 0 row queries.
                             //Need to get the metadata before getting any data!
                             //Just don't know how to do that yet.
-                            write((short) (rowData.length - 1));  // Num cols.
+                            packet.writeShort((rowData.length - 1));  // Num cols.
                             for (int i = 0; i < rowData.length - 1; i++) {
-                                writeNullTermdUTF("C" + (i+1)); // Col. name
-                                dataOutput.writeInt(25); // Datatype ID  [adtid]
-                                write((short) -1);       // Datatype size  [adtsize]
-                                dataOutput.writeInt(-1); // Var size (always -1 so far)
+                                packet.writeUTF("C" + (i+1), true); // Col. name
+                                packet.writeInt(201); // table ID
+                                packet.writeShort(300 + i); // column id
+                                packet.writeInt(1043); // Datatype ID  [adtid]
+                                packet.writeShort(-1); // Datatype size  [adtsize]
+                                packet.writeInt(-1); // Var size (always -1 so far)
                                                          // [atttypmod]
+                                // This is the size constraint integer
+                                // like VARCHAR(12) or DECIMAL(4).
+                                // -1 if none specified for this column.
+                                packet.writeShort(0);  // client swallows a "format" int?
                             }
+                            dataOutput.write(packet.toByteArray());
+                            packet.close();
                         }
                         // Row.getData().  Don't know why *Data.getCurrent()
                         //                 method returns Object instead of O[].
@@ -438,19 +482,29 @@ server.print("### Writing size 58");
                         if (rowData == null)
                             throw new RuntimeException("Null row?");
                         dataOutput.writeByte('D'); // text row Data
-                        dataOutput.writeByte(-1);   // bit map of null vals in row
+                        dataWriterPacket.writeShort(rowNum);
+                         // A cache or key counter that is ignored by client
                         for (int i = 0; i < rowData.length - 1; i++) {
-                            /*
-                            System.err.println("R" + rowNum + "C" + (i+1)
+                            if (rowData[i] == null) {
+                                dataWriterPacket.writeInt(-1);
+                            } else {
+                                dataWriterPacket.writeSized(rowData[i].toString());
+                            }
+                            server.print("R" + rowNum + "C" + (i+1)
                                     + " => (" + rowData[i].getClass().getName()
                                     + ") [" + rowData[i] + ']');
-                            */
-                            writeUTF(rowData[i].toString(), false);
                         }
+                        dataOutput.write(dataWriterPacket.toByteArray());
+                        dataWriterPacket.reset();
                     }
+                    dataWriterPacket.close();
                     dataOutput.writeByte('C'); // end of rows
+                    dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
+                    server.print("### Writing size 5");
+                    dataOutput.writeInt(5); //size
+                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
 
                 } else {
                 /*
@@ -493,7 +547,17 @@ server.print("### Writing size 58");
                     dataOutput.writeByte('Z');
                     server.print("### Writing size 5");
                     dataOutput.writeInt(5); //size
-                    dataOutput.writeByte(newTran ? 'T' : 'I');
+                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+
+                    // A guess about how keeping inOdbcTrans in sync with
+                    // client.  N.b. HSQLDB will need to more liberal with
+                    // resetting, since DDL causes commits.
+                    if (normalized.equals("commit")
+                        || normalized.startsWith("commit ")
+                        || normalized.equals("savepoint")
+                        || normalized.startsWith("savepoint ")) {
+                        inOdbcTrans = false;
+                    }
                 /*
                 } else {
                     warnOdbcClient(
@@ -520,8 +584,26 @@ server.print("### Writing size 58");
         }
         StringBuffer replyString = new StringBuffer(
             command.substring(0, firstWhiteSpace).toUpperCase());
-        if (replyString.equals("update") || replyString.equals("delete")) {
+        if (replyString.equals("update") || replyString.equals("delete")
+            || replyString.equals("drop")) {
             replyString.append(" " + retval);
+        } else if (replyString.equals("create") || replyString.equals("drop")) {
+            // TODO: Add error-checking
+            int wordStart;
+            for (wordStart = firstWhiteSpace; wordStart < command.length();
+                wordStart++) {
+                if (!Character.isWhitespace(command.charAt(wordStart))) {
+                    break;
+                }
+            }
+            int wordEnd;
+            for (wordEnd = wordStart; wordEnd < command.length();
+                wordEnd++) {
+                if (!Character.isWhitespace(command.charAt(wordEnd))) {
+                    break;
+                }
+            }
+            replyString.append(" " + command.substring(wordStart, wordEnd));
         } else if (replyString.equals("insert")) {
             replyString.append(" " + 98765 + ' ' + retval);
             // TODO:  Find out what the first numerical param is.
@@ -775,10 +857,11 @@ server.print("### Writing size 8");
         }
         int len = dataInput.readInt() - 5;
             // Is password len after -4 for count int -1 for null term
-        if (len < 0)
+        if (len < 0) {
             throw new IllegalArgumentException(
                     "Non-empty passwords required.  "
                     + "User submitted password length " + len);
+        }
         String password = readNullTermdUTF(len);
 
         dbIndex = server.getDBIndex(databaseName);
@@ -817,7 +900,6 @@ server.print("### Writing size 5");
 
     private java.util.Map readStringPairs(byte[] inbuf) throws IOException {
         java.util.List lengths = new java.util.ArrayList();
-
         ByteArrayOutputStream dataBaos = new ByteArrayOutputStream();
         int curlen = 0;
 
@@ -1009,6 +1091,63 @@ server.print("### Writing size 5");
      */
     private void writeUTFPacket(String[] strings) throws IOException {
         writeUTFPacket(strings, true);
+    }
+
+    private class PacketOutputStream extends java.io.DataOutputStream {
+        private ByteArrayOutputStream byteArrayOutputStream;
+        private ByteArrayOutputStream stringWriterOS =
+            new ByteArrayOutputStream();
+        private java.io.DataOutputStream stringWriterDos =
+            new java.io.DataOutputStream(stringWriterOS);
+
+        synchronized void writeUTF(String s, boolean nullTerm)
+        throws IOException {
+            stringWriterDos.writeUTF(s);
+            write(stringWriterOS.toByteArray(), 2, stringWriterOS.size() - 2);
+            stringWriterOS.reset();
+            if (nullTerm) {
+                writeByte(0);
+            }
+        }
+
+        synchronized void writeSized(String s) throws IOException {
+            stringWriterDos.writeUTF(s);
+            byte[] ba = stringWriterOS.toByteArray();
+            stringWriterOS.reset();
+
+            writeInt(ba.length - 2);
+            write(ba, 2, ba.length - 2);
+        }
+
+        public void reset() throws IOException {
+            byteArrayOutputStream.reset();
+            write('X'); // length placeholder
+            write('X'); // length placeholder
+            write('X'); // length placeholder
+            write('X'); // length placeholder
+        }
+
+        public PacketOutputStream(ByteArrayOutputStream byteArrayOutputStream)
+        throws IOException {
+            super(byteArrayOutputStream);
+            this.byteArrayOutputStream = byteArrayOutputStream;
+            reset();
+        }
+
+        public byte[] toByteArray() {
+            byte[] ba = byteArrayOutputStream.toByteArray();
+            server.print("Returning byte array with Write size " + ba.length);
+            ba[0] = (byte) (ba.length >>> 24);
+            ba[1] = (byte) (ba.length >>> 16);
+            ba[2] = (byte) (ba.length >>> 8);
+            ba[3] = (byte) ba.length;
+            return ba;
+        }
+
+        public void close() throws IOException {
+            super.close();
+            stringWriterDos.close();
+        }
     }
 
     /**
