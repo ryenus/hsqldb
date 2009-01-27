@@ -325,6 +325,7 @@ class ServerConnection implements Runnable {
     private void odbcXmitCycle() throws IOException, CleanExit {
         char op = (char) dataInput.readByte();
         server.print("Got op (" + op + ')');
+        boolean newTran = false;
         switch (op) {
             case 'X':
                 throw cleanExit;
@@ -336,8 +337,10 @@ class ServerConnection implements Runnable {
                 if (sql.startsWith("BEGIN;")) {
                     sql = sql.substring("BEGIN;".length());
                     server.printWithThread("ODBC Trans started");
+                    newTran = true;
                     inOdbcTrans = true;
-                    dataOutput.writeByte('C');
+                    dataOutput.writeByte('C'); // end of rows
+                    dataOutput.writeInt(10); // size
                     writeNullTermdUTF("BEGIN");
                 }
                 String normalized = sql.trim().toLowerCase();
@@ -478,9 +481,19 @@ server.print("### Writing size 58");
                                 + "type UPDATECOUNT.  Type (" + rOut.getType()
                                 + ')');
                     }
+                    String replyString = execDirectReplyString(normalized,
+                            rOut.getUpdateCount());
                     dataOutput.writeByte('C');
-                    writeNullTermdUTF("UPDATE " + rOut.getUpdateCount());
+                    dataOutput.writeInt(replyString.length() + 5); // size
+                    writeNullTermdUTF(replyString);
+                    // TODO:  Test how specific this is.  Is it always update,
+                    // or does it always mirror the input statement (like
+                    // "DELETE", or is it something inbetween?
+
                     dataOutput.writeByte('Z');
+                    server.print("### Writing size 5");
+                    dataOutput.writeInt(5); //size
+                    dataOutput.writeByte(newTran ? 'T' : 'I');
                 /*
                 } else {
                     warnOdbcClient(
@@ -495,6 +508,26 @@ server.print("### Writing size 58");
                 // op. type will probably be followed by data which we will
                 // choke on forthwith.  }
         }
+    }
+
+    private String execDirectReplyString(String command, int retval) {
+        int firstWhiteSpace;
+        for (firstWhiteSpace = 0; firstWhiteSpace < command.length();
+            firstWhiteSpace++) {
+            if (Character.isWhitespace(command.charAt(firstWhiteSpace))) {
+                break;
+            }
+        }
+        StringBuffer replyString = new StringBuffer(
+            command.substring(0, firstWhiteSpace).toUpperCase());
+        if (replyString.equals("update") || replyString.equals("delete")) {
+            replyString.append(" " + retval);
+        } else if (replyString.equals("insert")) {
+            replyString.append(" " + 98765 + ' ' + retval);
+            // TODO:  Find out what the first numerical param is.
+            // Probably a transaction identifier of some sort.
+        }
+        return replyString.toString();
     }
 
     /**
