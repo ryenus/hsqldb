@@ -234,9 +234,18 @@ class ServerConnection implements Runnable {
 
             dataInput  = new DataInputStream(socket.getInputStream());
             dataOutput = new DataOutputStream(socket.getOutputStream());
-            handshake();
+            int firstInt = handshake();
             switch (streamProtocol) {
+
                 case HSQL_STREAM_PROTOCOL:
+                    String verString = ClientConnection.toNcvString(firstInt);
+                    if (!verString.equals(
+                        ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
+                        throw Error.error(
+                            ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
+                            new String[] {verString,
+                            ClientConnection.NETWORK_COMPATIBILITY_VERSION});
+                    }
 
                     Result resultIn = Result.newResult(dataInput, rowIn);
 
@@ -249,11 +258,11 @@ class ServerConnection implements Runnable {
                     resultOut.write(dataOutput, rowOut);
                     break;
                 case ODBC_STREAM_PROTOCOL:
-                    odbcConnect();
+                    odbcConnect(firstInt);
                     break;
                 default:
-                    // handshake() is responsible for notifications if it fails
-                    // to detect a valid protocol on the stream.
+                    // Protocol detection failures should already have been
+                    // handled.
                     keepAlive = false;
             }
         } catch (Exception e) {
@@ -319,7 +328,10 @@ class ServerConnection implements Runnable {
             case 'X':
                 throw cleanExit;
             case 'Q':
-                String sql = readNullTermdUTF();
+                int len = dataInput.readInt() - 4;
+                server.print("Got query length of " + len);
+                String sql = readNullTermdUTF(len - 1);
+                 // We don't ask for the null terminator
                 if (sql.startsWith("BEGIN;")) {
                     sql = sql.substring("BEGIN;".length());
                     server.printWithThread("ODBC Trans started");
@@ -378,6 +390,10 @@ class ServerConnection implements Runnable {
                 } else if (normalized.startsWith(
                     "select oid, typbasetype from")) {
                     server.print("Simulating 'select oid, typbasetype...'");
+                    /*
+                     * This query is run as "a hack to get the oid of our
+                     * large object oid type.
+                     */
                     // N.b., skipping a 'P' xmit here, which Postgresql servers
                     // transmit.  I haven't figured out the purpose of that yet.
                     dataOutput.writeByte('T'); // sending a Tuple (row)
@@ -632,8 +648,10 @@ class ServerConnection implements Runnable {
      * <P/>
      * If returns (a.o.t. throws), then state variable streamProtocol will
      * be set.
+     *
+     * @return int read as first thing off of stream
      */
-    public void handshake() throws IOException, HsqlException {
+    public int handshake() throws IOException, HsqlException {
         long clientDataDeadline = new java.util.Date().getTime()
                 + MAX_WAIT_FOR_CLIENT_DATA;
         if (!(socket instanceof javax.net.ssl.SSLSocket)) {
@@ -645,6 +663,7 @@ class ServerConnection implements Runnable {
                     && new java.util.Date().getTime() < clientDataDeadline);
                 // Old HSQLDB clients will send resultType byte + 4 length bytes
                 // New HSQLDB clients will send NCV int + above = 9 bytes
+                // ODBC clients will send a much larger StartupPacket
             if (dataInput.available() < 1) {
                 dataOutput.write((TEXTBANNER_PART1
                         + ClientConnection.NETWORK_COMPATIBILITY_VERSION
@@ -654,102 +673,87 @@ class ServerConnection implements Runnable {
             }
         }
 
-        DataInputStream pipeInput = null;
-        { // This block is only for testing for HSQLDB client < 1.9
-            // Need to use a pipe because we need to re-read the data
-            // as a different data type after this test.
-            byte[] littleBuffer = new byte[3];
-            PipedInputStream inPipe = new PipedInputStream();
-            PipedOutputStream outPipe = new PipedOutputStream(inPipe);
-            pipeInput = new DataInputStream(inPipe);
-            DataOutputStream pipeOutput = new DataOutputStream(outPipe);
-
-            byte firstByte = dataInput.readByte();
-            int legacyResultType = firstByte;
-            switch (legacyResultType) {
-                case 0:
-                    // Read 3 more bytest to make an int, to determine ODBC
-                    // client vs. Legacy HSQL:
-                    int discriminatorInt = ((firstByte & 0xff) << 24)
-                        + ((dataInput.readByte() & 0xff) << 16)
-                        + ((dataInput.readByte() & 0xff) << 8)
-                        + (dataInput.readByte() & 0xff);
-                    switch (discriminatorInt) {
-                        case 34:
-                             // Determined empirically.
-                             // Code looks like it should be
-                             // ResultConstants.CONNECT
-                            // TODO:  Send client a 1.8-compatible SQLException
-                            throw Error.error(
-                                 ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
+        int firstInt = dataInput.readInt();
+        switch (firstInt >> 24) {
+            case 80: // Empirically
+                throw Error.error(ErrorCode.SERVER_HTTP_NOT_HSQL_PROTOCOL);
+            case 0:
+                streamProtocol = ODBC_STREAM_PROTOCOL;
+                break;
+                /*
+                    case 34:
+                         // Determined empirically.
+                         // Code looks like it should be
+                         // ResultConstants.CONNECT
+                        // TODO:  Send client a 1.8-compatible SQLException
+                        throw Error.error(
+                             ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
                                  new String[] { "pre-9.0",
                              ClientConnection.NETWORK_COMPATIBILITY_VERSION});
-                        case 32:
-                            // Native Postgresql client.  Why different?
-                        case 296:
-                            streamProtocol = ODBC_STREAM_PROTOCOL;
-                            return;  // Success case
-                        default:
-                            server.print("Unrecognized discriminator int: "
-                                    + discriminatorInt);
                             throw Error.error(
                                     ErrorCode.SERVER_INCOMPLETE_HANDSHAKE_READ);
-                            // TODO:  Better error message, like:
-                            // "Unrecognized Client"
-                    }
-                case 80: // Empirically
-                    throw Error.error(ErrorCode.SERVER_HTTP_NOT_HSQL_PROTOCOL);
-                default:
-                    // A Ok.
-            }
-
-            // Write entire int to the Pipe, since we've already read one
-            // byte of the int from dataInput.
-            pipeOutput.writeByte(legacyResultType);
-            if (dataInput.read(littleBuffer) != 3) {
-                throw Error.error(ErrorCode.SERVER_INCOMPLETE_HANDSHAKE_READ);
-            }
-            pipeOutput.write(littleBuffer);
-            pipeOutput.close();
+                    */
+            default:
+                streamProtocol = HSQL_STREAM_PROTOCOL;
+                // HSQL protocol client
         }
-
-        int verInt = pipeInput.readInt();
-        pipeInput.close();
-        // If we didn't need to read the byte off of dataInput for legacy
-        // testing above, we would read like this:
-        //int verInt = dataInput.readInt();
-        //if (verInt > 0)
-        String verString = ClientConnection.toNcvString(verInt);
-        if (verString.equals(
-                ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
-            streamProtocol = HSQL_STREAM_PROTOCOL;
-            return;  // Success case
-        }
-        // Only error handling remains
-
-        throw Error.error(ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
-                new String[] {verString,
-                ClientConnection.NETWORK_COMPATIBILITY_VERSION});
+        return firstInt;
     }
 
-    private void odbcConnect() throws IOException, HsqlException {
+    /**
+     * Reads a size indicator (which includes the size indicator bytes)
+     * + that amount of bytes.
+     */
+    private byte[] readPacket() throws IOException {
+        return readPacket(-1);
+    }
+    /**
+     * Reads the specified amount of bytes;
+     * if no specified size < 0, then
+     * reads a size indicator (which includes the size indicator bytes)
+     * + that amount of bytes.
+     */
+    private byte[] readPacket(int size) throws IOException {
+        if (size < 0) {
+            size = dataInput.readInt() - 4;
+        }
+        server.print("Reading " + size + " more bytes (after 4)");
+        byte[] ba = new byte[size];
+        dataInput.read(ba);
+        return ba;
+    }
+
+    private void odbcConnect(int firstInt) throws IOException, HsqlException {
         int major = dataInput.readUnsignedShort();
         int minor = dataInput.readUnsignedShort();
         server.print("ODBC client connected.  "
                 + "ODBC Protocol Compatibility Version " + major + '.' + minor);
-        String databaseName = readNullTermdUTF(ODBC_SM_DATABASE);
+        byte[] packet = readPacket(firstInt - 8);
+          // - 4 for size of firstInt - 2 for major - 2 for minor
+        java.util.Map stringPairs = readStringPairs(packet);
+        //server.print("String Pairs: " + stringPairs);
+        if (!stringPairs.containsKey("database")) {
+            throw new IOException("Client did not identify database");
+        }
+        if (!stringPairs.containsKey("user")) {
+            throw new IOException("Client did not identify user");
+        }
+        String databaseName = (String) stringPairs.get("database");
+        user = (String) stringPairs.get("user");
+
         if (databaseName.equals("/")) {
             // Work-around because ODBC doesn't allow "" for Database name
             databaseName = "";
         }
         server.print("DB: " + databaseName);
-        user = readNullTermdUTF(ODBC_SM_USER);
         server.print("User: " + user);
-        server.print("Opts: " + readNullTermdUTF(ODBC_SM_OPTIONS));
-        dataInput.skipBytes(ODBC_SM_UNUSED);
-        server.print("tty: " + readNullTermdUTF(ODBC_SM_TTY));
+        /* psql doesn't like this N before the R:
         dataOutput.writeByte('N');
-        writeNullTermdUTF("Hello, you have connected to HyperSQL ODBC Server");
+        writeUTFPacket(new String[] {
+            "Hello",
+            "You have connected to HyperSQL ODBC Server"
+        });
+        */
         /*  Seems that this sequence is equivalent to doing nothing.
          *  Not required by Postgresql ODBC driver (though it wouldn't hurt).
          *  I leave this here, commented out, because non-ODBC Postgresql
@@ -760,18 +764,20 @@ class ServerConnection implements Runnable {
 
         /* Unencoded/unsalted authentication */
         dataOutput.writeByte('R');
-        dataOutput.writeInt(ODBC_AUTH_REQ_PASSWORD);
+        dataOutput.writeInt(8); //size
+        dataOutput.writeInt(ODBC_AUTH_REQ_PASSWORD); // areq of auth. mode.
+        char c = (char) dataInput.readByte();
+        if (c != 'p') {
+            throw new IOException("Expected password prefix 'p', but got '"
+                    + c + "'");
+        }
         int len = dataInput.readInt() - 5;
             // Is password len after -4 for count int -1 for null term
         if (len < 0)
             throw new IllegalArgumentException(
                     "Non-empty passwords required.  "
                     + "User submitted password length " + len);
-        String password = readNullTermdUTF(len + 1);
-        if (password.length() != len)
-            throw new IllegalStateException("Password contain a null?  "
-                + "Expected length " + len
-                + ", but received password has length " + password.length());
+        String password = readNullTermdUTF(len);
 
         dbIndex = server.getDBIndex(databaseName);
         dbID    = server.dbID[dbIndex];
@@ -791,6 +797,70 @@ class ServerConnection implements Runnable {
         }
 
         dataOutput.writeByte('Z');
+        dataOutput.writeInt(5); //size
+        dataOutput.writeByte('I'); // I think this says to inherit transaction,
+                                   // if there is one.  Could be wrong.
+    }
+
+    private java.util.Map readStringPairs(byte[] inbuf) throws IOException {
+        java.util.List lengths = new java.util.ArrayList();
+
+        ByteArrayOutputStream dataBaos = new ByteArrayOutputStream();
+        int curlen = 0;
+
+        if (inbuf[inbuf.length - 1] != 0) {
+            throw new IOException(
+                    "String-pair packet not terminated with null");
+        }
+        for (int i = 0; i < inbuf.length - 1; i++) {
+            if (curlen == 0) {
+                dataBaos.write((byte) 'X');
+                dataBaos.write((byte) 'X');
+            }
+            if (inbuf[i] == 0) {
+                lengths.add(new Integer(curlen));
+                curlen = 0;
+                continue;
+            }
+            curlen++;
+            dataBaos.write(inbuf[i]);
+        }
+        if (curlen != 0) {
+            throw new IOException(
+                    "String-pair packet did not finish with a complete value");
+        }
+        byte[] data = dataBaos.toByteArray();
+        dataBaos.close();
+        int len;
+        int offset = 0;
+        while (lengths.size() > 0) {
+            len = ((Integer) lengths.remove(0)).intValue();
+            data[offset++] = (byte) (len >>> 8);
+            data[offset++] = (byte) len;
+            offset += len;
+        }
+        String k = null;
+        java.io.DataInputStream dis =
+            new java.io.DataInputStream(new ByteArrayInputStream(data));
+
+        java.util.Map stringPairs = new java.util.HashMap();
+        while (dis.available() > 0) {
+            //String s = java.io.DataInputStream.readUTF(dis);
+            // TODO:  Test the previous two to see if one works better for
+            // high-order characters.
+            if (k == null) {
+                k = dis.readUTF();
+            } else {
+                stringPairs.put(k, dis.readUTF());
+                k = null;
+            }
+        }
+        dis.close();
+        if (k != null) {
+            throw new IOException(
+                    "Value missing for key '" + k + "'");
+        }
+        return stringPairs;
     }
 
     private String readNullTermdUTF() throws IOException {
@@ -822,31 +892,28 @@ class ServerConnection implements Runnable {
         return s;
     }
 
-    private String readNullTermdUTF(int length) throws IOException {
+    /**
+     * @param reqLength Required length
+     */
+    private String readNullTermdUTF(int reqLength) throws IOException {
         /* Would be MUCH easier to do this with Java6's String
          * encoding/decoding operations */
         int bytesRead = 0;
-        byte[] ba = new byte[length + 2];
-        while (bytesRead < length) {
-            bytesRead += dataInput.read(ba, 2 + bytesRead, length - bytesRead);
+        byte[] ba = new byte[reqLength + 3];
+        ba[0] = (byte) (reqLength >>> 8);
+        ba[1] = (byte) reqLength;
+        while (bytesRead < reqLength + 1) {
+            bytesRead += dataInput.read(ba, 2 + bytesRead, reqLength + 1- bytesRead);
         }
-        // Could read bytes 1-at-a-time then skipBytes() after see null byte.
-        // Reading in chunks like this is probably more efficient even though
-        // it writes nulls for nothing.
-        int firstNull = 1;
-        while (true) {
-            firstNull++;
-            if (firstNull == ba.length) {
-                throw new IOException("Unterminated string on input");
-            }
-            if (ba[firstNull] == (byte) 0) {
-                break;
+        if (ba[ba.length - 1] != 0) {
+            throw new IOException("String not null-terminated");
+        }
+        for (int i = 2; i < ba.length - 1; i++) {
+            if (ba[i] == 0) {
+                throw new RuntimeException(
+                        "Null internal to String at offset " + (i - 2));
             }
         }
-
-        firstNull -= 2;  // Want length from AFTER the size prefix
-        ba[0] = (byte) (firstNull >>> 8);
-        ba[1] = (byte) firstNull;
 
         java.io.DataInputStream dis =
             new java.io.DataInputStream(new ByteArrayInputStream(ba));
@@ -914,6 +981,26 @@ class ServerConnection implements Runnable {
         if (nullTerm) {
             dataOutput.writeByte(0);
         }
+    }
+
+    private void writeUTFPacket(String[] strings) throws IOException {
+        /* Would be MUCH easier to do this with Java6's String
+         * encoding/decoding operations */
+        ByteArrayOutputStream accumulator = new ByteArrayOutputStream();
+        // Allocate space for size prefix when done
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        java.io.DataOutputStream dos = new java.io.DataOutputStream(baos);
+        for (int i = 0; i < strings.length; i++) {
+            dos.writeUTF(strings[i]);
+            accumulator.write(baos.toByteArray(), 2, baos.size() - 2);
+            baos.reset();
+            accumulator.write(0);
+        }
+        dos.close();
+        accumulator.write(0);
+        dataOutput.writeInt(accumulator.size() + 4);
+        dataOutput.write(accumulator.toByteArray());
+        accumulator.close();
     }
 
     // Constants taken from connection.h
