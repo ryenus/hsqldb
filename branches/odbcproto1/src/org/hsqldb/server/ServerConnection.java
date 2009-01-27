@@ -68,6 +68,7 @@ package org.hsqldb.server;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.EOFException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -343,82 +344,43 @@ class ServerConnection implements Runnable {
                 if (server.isTrace()) {
                     server.printWithThread("Received query (" + sql + ')');
                 }
-                if (sql.trim().length() < 1) {
-                    dataOutput.writeByte('I'); // Empty Resultset
-                    dataOutput.writeByte(0);
-                    dataOutput.writeByte('Z');
-                } else if (normalized.startsWith("select version()")) {
-                    server.print("Simulating 'select version()'...");
-                    // N.b., skipping 'P' xmit here.
-                    // This sends a portal name, but it is completely ignored
-                    // by the ODBC client.
-                    dataOutput.writeByte('T'); // sending a Tuple (row)
-                    write((short) 1);          // Num cols.
-                    writeNullTermdUTF("version"); // Col. name
-                    dataOutput.writeInt(25); // Datatype ID  [adtid]
-                    write((short) -1);       // Datatype size  [adtsize]
-                    dataOutput.writeInt(-1); // Var size (always -1 so far)
-                                             // [atttypmod]
-                    dataOutput.writeByte('D'); // text row Data
-                    dataOutput.writeByte(-1);   // bit map of null vals in row
-                    writeUTF("PostgreSQL 8.3.1 on x86_64-unknown-linux-gnu, "
-                            + "compiled by GCC gcc (SUSE Linux) 4.3.1 20080507 "
-                            + "(prerelease) [gcc-4_3-branch revision 135036]",
-                            false);
-                    dataOutput.writeByte('C'); // end of rows
-                    writeNullTermdUTF("SELECT");
-                    dataOutput.writeByte('Z');
-                } else if (normalized.startsWith(
-                    "select pg_client_encoding()")) {
-                    server.print("Simulating 'select pg_client_encoding()'...");
-                    // N.b., skipping 'P' xmit here.
-                    // This sends a portal name, but it is completely ignored
-                    // by the ODBC client.
-                    dataOutput.writeByte('T'); // sending a Tuple (row)
-                    write((short) 1);          // Num cols.
-                    writeNullTermdUTF("pg_client_encoding"); // Col. name
-                    dataOutput.writeInt(19); // Datatype ID  [adtid]
-                    write((short) 64);       // Datatype size  [adtsize]
-                    dataOutput.writeInt(-1); // Var size (always -1 so far)
-                                             // [atttypmod]
-                    dataOutput.writeByte('D'); // text row Data
-                    dataOutput.writeByte(-1);   // bit map of null vals in row
-                    writeUTF("SQL_ASCII", false);
-                    dataOutput.writeByte('C'); // end of rows
-                    writeNullTermdUTF("SELECT");
-                    dataOutput.writeByte('Z');
-                } else if (normalized.startsWith(
+                if (normalized.startsWith(
                     "select oid, typbasetype from")) {
                     server.print("Simulating 'select oid, typbasetype...'");
                     /*
                      * This query is run as "a hack to get the oid of our
                      * large object oid type.
                      */
-                    // N.b., skipping a 'P' xmit here, which Postgresql servers
-                    // transmit.  I haven't figured out the purpose of that yet.
                     dataOutput.writeByte('T'); // sending a Tuple (row)
+                    dataOutput.writeInt(58); // size
+server.print("### Writing size 58");
                     write((short) 2);          // Num cols.
                     writeNullTermdUTF("oid"); // Col. name
+                    dataOutput.writeInt(101); // table ID
+                    write((short) 102); // column id
                     dataOutput.writeInt(26); // Datatype ID  [adtid]
                     write((short) 4);       // Datatype size  [adtsize]
                     dataOutput.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
+                    write((short) 0);        // client swallows a "format" int?
                     writeNullTermdUTF("typbasetype"); // Col. name
+                    dataOutput.writeInt(101); // table ID
+                    write((short) 103); // column id
                     dataOutput.writeInt(26); // Datatype ID  [adtid]
                     write((short) 4);       // Datatype size  [adtsize]
                     dataOutput.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
+                    write((short) 0);        // client swallows a "format" int?
+
                     // This query returns no rows.  typenam "lo"??
                     dataOutput.writeByte('C'); // end of rows
+                    dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
-                } else if (normalized.startsWith("set datestyle to ")
-                    || normalized.startsWith("set extra_float_digits to ")) {
-                    //|| normalized.startsWith("set ksqo to ")) {
-                    server.print("Stubbing a 'SET command'...");
-                    dataOutput.writeByte('C');
-                    writeNullTermdUTF("SET");
-                    dataOutput.writeByte('Z');
+                    server.print("### Writing size 5");
+                    dataOutput.writeInt(5); //size
+                    dataOutput.writeByte('I'); // I think this says to inherit transaction,
+                                               // if there is one.  Could be wrong.
                 } else if (normalized.startsWith("select ")) {
                     server.print("Performing a real non-prepared SELECT...");
                     Result r = Result.newExecuteDirectRequest();
@@ -449,8 +411,6 @@ class ServerConnection implements Runnable {
                     }
                     org.hsqldb.navigator.RowSetNavigatorData navData =
                         (org.hsqldb.navigator.RowSetNavigatorData) navigator;
-                    // N.b., skipping a 'P' xmit here, which Postgresql servers
-                    // transmit.  I haven't figured out the purpose of that yet.
                     dataOutput.writeByte('T'); // sending a Tuple (row)
                     int rowNum = 0;
                     while (navData.next()) {
@@ -764,9 +724,18 @@ class ServerConnection implements Runnable {
 
         /* Unencoded/unsalted authentication */
         dataOutput.writeByte('R');
+server.print("### Writing size 8");
         dataOutput.writeInt(8); //size
         dataOutput.writeInt(ODBC_AUTH_REQ_PASSWORD); // areq of auth. mode.
-        char c = (char) dataInput.readByte();
+        char c = '\0';
+        try {
+            c = (char) dataInput.readByte();
+        } catch (EOFException eofe) {
+            server.printWithThread(
+                "Looks like we got a goofy psql no-auth attempt.  "
+                + "Will probably retry properly very shortly");
+            return;
+        }
         if (c != 'p') {
             throw new IOException("Expected password prefix 'p', but got '"
                     + c + "'");
@@ -791,12 +760,23 @@ class ServerConnection implements Runnable {
                                              password, 0);
         // TODO:  Find out what updateCount, the last para, is for:
         //                                   resultIn.getUpdateCount());
-        //
+
+        dataOutput.writeByte('R'); // Notify client of success
+server.print("### Writing size 8");
+        dataOutput.writeInt(8); //size
+        dataOutput.writeInt(ODBC_AUTH_REQ_OK); //success
+
         if (!server.isSilent()) {
             server.printWithThread(mThread + ":Connected user '" + user + "'");
         }
 
+        for (int i = 0; i < hardcodedOdbcParams.length; i++) {
+            writeOdbcParam(hardcodedOdbcParams[i][0],
+                hardcodedOdbcParams[i][1]);
+        }
+
         dataOutput.writeByte('Z');
+server.print("### Writing size 5");
         dataOutput.writeInt(5); //size
         dataOutput.writeByte('I'); // I think this says to inherit transaction,
                                    // if there is one.  Could be wrong.
@@ -925,6 +905,9 @@ class ServerConnection implements Runnable {
         return s;
     }
 
+    /**
+     * Writes unsigned short
+     */
     private void write(short s) throws IOException {
         dataOutput.writeByte(s >>> 8);
         dataOutput.writeByte(s);
@@ -983,7 +966,26 @@ class ServerConnection implements Runnable {
         }
     }
 
+    private void writeOdbcParam(String key, String val) throws IOException {
+        dataOutput.writeByte('S');
+        writeUTFPacket(new String[] { key, val }, false);
+    }
+
+    /**
+     * Wrapper to null-terminate the packet.
+     */
     private void writeUTFPacket(String[] strings) throws IOException {
+        writeUTFPacket(strings, true);
+    }
+
+    /**
+     * Writes size + null-terminated Strings + additional optional
+     * terminating '\0'.
+     *
+     * @param nullTerminate true to terminate packet with an additional '\0'.
+     */
+    private void writeUTFPacket(String[] strings, boolean nullTerminate)
+    throws IOException {
         /* Would be MUCH easier to do this with Java6's String
          * encoding/decoding operations */
         ByteArrayOutputStream accumulator = new ByteArrayOutputStream();
@@ -997,8 +999,11 @@ class ServerConnection implements Runnable {
             accumulator.write(0);
         }
         dos.close();
-        accumulator.write(0);
+        if (nullTerminate) {
+            accumulator.write(0);
+        }
         dataOutput.writeInt(accumulator.size() + 4);
+server.print("### Writing size " + (accumulator.size() + 4));
         dataOutput.write(accumulator.toByteArray());
         accumulator.close();
     }
@@ -1010,6 +1015,7 @@ class ServerConnection implements Runnable {
     static private final int ODBC_SM_UNUSED = 64;
     static private final int ODBC_SM_TTY = 64;
     static private final int ODBC_AUTH_REQ_PASSWORD = 3;
+    static private final int ODBC_AUTH_REQ_OK = 0;
 
     // Tentative state variable
     static private final int UNDEFINED_STREAM_PROTOCOL = 0;
@@ -1027,4 +1033,16 @@ class ServerConnection implements Runnable {
          * where length = int length of message + 4 for the length int itself.
          */
     }
+
+    static String[][] hardcodedOdbcParams = new String[][] {
+        new String[] { "client_encoding", "SQL_ASCII" },
+        new String[] { "DateStyle", "ISO, MDY" },
+        new String[] { "integer_datetimes", "on" },
+        new String[] { "is_superuser", "on" },
+        new String[] { "server_encoding", "SQL_ASCII" },
+        new String[] { "server_version", "8.3.1" },
+        new String[] { "session_authorization", "blaine" },
+        new String[] { "standard_conforming_strings", "off" },
+        new String[] { "TimeZone", "US/Eastern" },
+    };
 }
