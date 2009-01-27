@@ -2945,7 +2945,7 @@
 
       <para>VIEW_ROUTINE_USAGE</para>
 
-      <para>VIEW_TABLE_USAGE </para>
+      <para>VIEW_TABLE_USAGE</para>
 
       <para>The following views are specific to HyperSQL:</para>
 
@@ -2954,8 +2954,6 @@
       <para>SYSTEM_BESTROWIDENTIFIER</para>
 
       <para>SYSTEM_CACHEINFO</para>
-
-      <para>SYSTEM_CLASSPRIVILEGES</para>
 
       <para>SYSTEM_COLUMNS</para>
 
@@ -2977,10 +2975,6 @@
 
       <para>SYSTEM_SESSIONS</para>
 
-      <para>SYSTEM_SUPERTABLES</para>
-
-      <para>SYSTEM_SUPERTYPES</para>
-
       <para>SYSTEM_TABLES</para>
 
       <para>SYSTEM_TABLETYPES</para>
@@ -2992,8 +2986,6 @@
       <para>SYSTEM_TRIGGERS</para>
 
       <para>SYSTEM_TYPEINFO</para>
-
-      <para>SYSTEM_UDTATTRIBUTES</para>
 
       <para>SYSTEM_UDTS</para>
 
