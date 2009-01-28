@@ -760,7 +760,7 @@ public class JDBCResultSetTest extends BaseTestCase {
     }
 
     /**
-     * Test of getArray method, of interface java.sql.ResultSet.
+     * Test of getAsciiStream method, of interface java.sql.ResultSet.
      */
     public void testGetAsciiStream_afterLast() throws Exception {
         println("getGetAsciiStream while after last");
@@ -770,9 +770,9 @@ public class JDBCResultSetTest extends BaseTestCase {
         while (rs.next()){}
 
         try {
-            rs.getArray(1);
+            rs.getAsciiStream(1);
 
-            fail("Allowed getArray(int) while after last");
+            fail("Allowed getAsciiStream while after last");
         } catch (SQLException ex) {
             assertEquals(
                     "error code",

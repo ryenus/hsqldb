@@ -113,7 +113,7 @@ public class JDBCNClobTest extends BaseTestCase {
 
         StringBuffer sb = new StringBuffer();
 
-        for (int i = Character.MAX_VALUE; i <= Character.MAX_VALUE; i++) {
+        for (int i = Character.MIN_VALUE; i <= Character.MAX_VALUE; i++) {
             sb.append((char)i);
         }
 
