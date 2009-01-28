@@ -708,7 +708,7 @@
       &lt;sequence generator name&gt;</literal></simpara>
 
       <simpara>Return the next value of a sequence generator. This expression
-      can be used as a selet list element in queries, or in assignmets to
+      can be used as a select list element in queries, or in assignments to
       table columns in data change statements. If the expression is used more
       than once in a single row that is being evaluated, the same value is
       returned for each invocation. After evaluation of the particular row is
@@ -801,7 +801,7 @@
 
       <simpara>Specify a character string value, a binary string value, or a
       bit string value. The BNF indicates that a string value expression can
-      be formed by contenation of two or more &lt;value expression
+      be formed by concatenation of two or more &lt;value expression
       primary&gt;. The types of the &lt;value expression primary&gt; elements
       must be compatible, that is, all must be string, or binary or bit string
       values.</simpara>
@@ -866,9 +866,9 @@
       <simpara><literal>&lt;datetime value function&gt; ::=
       ...</literal></simpara>
 
-      <simpara>Specify a function yielding a value of type datetime. The
-      supported datetime value functions are listed and described in Built-In
-      Functions chapter.</simpara>
+      <simpara>Specify a function that returns a datetime value. The supported
+      datetime value functions are listed and described in Built-In Functions
+      chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>interval term</primary>
@@ -924,7 +924,7 @@
       &lt;left paren&gt; &lt;interval value expression&gt; &lt;right
       paren&gt;</literal></simpara>
 
-      <simpara>Specify a function yielding a value of type interval.</simpara>
+      <simpara>Specify a function that returns an interval value.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>boolean term</primary>
@@ -976,16 +976,17 @@
       the <literal>&lt;row value predicand&gt;</literal> is part of multiple
       predicates.</simpara>
 
-      <simpara>The number of elements in all <literal>&lt;row value
+      <simpara>The number of fields in all <literal>&lt;row value
       predicand&gt;</literal> used in predicates must be the same and the
-      types of the elements must be compatible for comparison. If either of
-      these conditions does not hold, and exception is raised. The number of
-      elements of a row is called the <glossterm>degree</glossterm>.</simpara>
+      types of the fields in the same position must be compatible for
+      comparison. If either of these conditions does not hold, an exception
+      is raised. The number of fields in a row is called the
+      <glossterm>degree</glossterm>.</simpara>
 
       <simpara>If a <literal>&lt;row value predicand&gt;</literal> in a
       predicate evaluates to NULL, the result of the predicate is UNKNOWN. If
       the <literal>&lt;row value predicand&gt;</literal> has more than one
-      element, and one or more of the elements evaluates to NULL, the result
+      element, and one or more of the fields evaluate to NULL, the result
       depends on the particular predicate.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -1014,41 +1015,55 @@
 
       <simpara>If the <glossterm>degree</glossterm> of <literal>&lt;row value
       predicand&gt;</literal> is larger than one, comparison is performed
-      between each element and the corresponding element in the other
+      between each field and the corresponding field in the other
       <literal>&lt;row value predicand&gt;</literal> from left to right, one
       by one.</simpara>
 
-      <simpara>When comparing two elements, if either element is NULL then the
+      <simpara>When comparing two elements, if either field is NULL then the
       result is UNKNOWN.</simpara>
 
       <simpara>For <literal>&lt;equals operator&gt;</literal>, if the result
-      of comparison is TRUE for all elements, the result of the predicate is
-      TRUE. If there is any NULL value, the result is UNKNOWN. Otherwise the
-      result is FALSE.</simpara>
+      of comparison is TRUE for all field, the result of the predicate is
+      TRUE. If the result of comparison is FALSE for one field, the result of
+      predicate is FALSE. Otherwise the result is UNKNOWN.</simpara>
 
-      <simpara>For <literal>&lt;not equals operator&gt;</literal> if any
-      comparison is between elements that are NOT NULL and not equal then the
-      result of the predicate is TRUE. Otherwise if there is any NULL value,
-      the result is UNKNOWN. Otherwise the result is FALSE.</simpara>
+      <simpara>The <literal>&lt;not equals operator&gt;</literal> is
+      translated to <literal>NOT (&lt;row value predicand&gt; = &lt;row value
+      predicand&gt;)</literal>.</simpara>
 
-      <simpara>For the rest of the operators if two elements at a given
-      position are equal, then comparison continues to the next element.
-      Otherwise, the result of the last comparison is returned as the result
-      of the predicate. If any comparison is between elements that are NOT
-      NULL and are not equal, or either element is NULL, then the result of
-      this comparison is returned as the result of the predicate.</simpara>
+      <simpara>The <literal>&lt;less than or equals operator&gt;</literal> is
+      translated to <literal>(&lt;row value predicand&gt; = &lt;row value
+      predicand&gt;) OR (&lt;row value predicand&gt; &lt; &lt;row value
+      predicand&gt;)</literal>. The <literal>&lt;greater than or equals
+      operator&gt;</literal> is translated similarly.</simpara>
 
-      <simpara>Examples of comparison </simpara>
+      <simpara>For the <literal>&lt;less than operator&gt;</literal> and
+      <literal>&lt;greater than operator&gt;</literal>, if two fields at a
+      given position are equal, then comparison continues to the next field.
+      Otherwise, the result of the last performed comparison is returned as
+      the result of the predicate. This means that if the first field is NULL,
+      the result is always UNKNOWN.</simpara>
 
-      <programlisting>((1, 2, 3, 4) = (1, 2, 3, 4)) = TRUE
-((1, 2, 3, 4) = (1, 2, 3, 5)) = FALSE
-((1, 2, 3, 4) &lt; (1, 2, 3, 4)) = FALSE
-((1, 2, 3, 4) &lt; (1, 2, 3, 5)) = TRUE
-((NULL, 1, ...) &lt;&gt; (NULL, 2, ...)) = TRUE  
-((NULL, 1, 2) &lt;all operators&gt; (NULL, 1, 2)) = UNKNOWN
-((1, NULL, ...) &lt; (1, 2, ...)) = UNKNOWN  
-((1, NULL, ...) &lt; (2, NULL, ...)) = TRUE
-((2, NULL, ...) &lt; (1, NULL, ...)) = FALSE
+      <simpara>The logic that governs NULL values and UNKNOWN result is as
+      follows: Suppose the NULL values were substituted by arbitrary real
+      values. If substitution cannot change the result of the predicate, then
+      the result is TRUE or FALSE, based on the existing non-NULL values,
+      otherwise the result of the predicate is UNKNOWN.</simpara>
+
+      <simpara>The examples of comparison given below use literals, but the
+      literals actually represent the evaluation of some expression.</simpara>
+
+      <programlisting>((1, 2, 3, 4) = (1, 2, 3, 4)) IS TRUE
+((1, 2, 3, 4) = (1, 2, 3, 5)) IS FALSE
+((1, 2, 3, 4) &lt; (1, 2, 3, 4)) IS FALSE
+((1, 2, 3, 4) &lt; (1, 2, 3, 5)) IS TRUE
+((NULL, 1, NULL) == (NULL, 1, NULL)) IS UNKNOWN  
+((NULL, 1, NULL) = (NULL, 2, NULL)) IS FALSE  
+((NULL, 1, NULL) &lt;&gt; (NULL, 2, NULL)) IS TRUE  
+((NULL, 1, 2) &lt;all operators&gt; (NULL, 1, 2)) IS UNKNOWN
+((1, NULL, ...) &lt; (1, 2, ...)) IS UNKNOWN  
+((1, NULL, ...) &lt; (2, NULL, ...)) IS TRUE
+((2, NULL, ...) &lt; (1, NULL, ...)) IS FALSE
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -1070,7 +1085,7 @@
       expression <literal>X BETWEEN Y AND Z</literal> is equivalent to
       <literal>(X &gt;= Y AND X &lt;= Z)</literal>. Therefore if Y &gt; Z, the
       BETWEEN expression is never true. The expression <literal>X BETWEEN
-      SYMMETRIC Y AND Z</literal> is eqivalent to <literal>(X &gt;= Y AND X
+      SYMMETRIC Y AND Z</literal> is equivalent to <literal>(X &gt;= Y AND X
       &lt;= Z) OR (X &gt;= Z AND X &lt;= Y)</literal>. The expression
       <literal>Z NOT BETWEEN ...</literal> is equivalent to <literal>NOT (Z
       BETWEEN ...)</literal>. If any of the three <literal>&lt;row value
@@ -1099,11 +1114,21 @@
       [ { &lt;comma&gt; &lt;row value expression&gt; }...
       ]</literal></simpara>
 
-      <simpara>Specify a quantified comparison. The <literal>&lt;in predicate
-      value&gt;</literal> is a table. The expression <literal>X IN Y</literal>
-      is equivalent to <literal>X = ANY Y</literal>, which is a quantified
-      comparison predicate. The expression <literal>X NOT IN Y is</literal>
-      equivalent to <literal>NOT (X IN Y)</literal>.</simpara>
+      <simpara>Specify a quantified comparison. The expression <literal>X NOT
+      IN Y is</literal> equivalent to <literal>NOT (X IN Y)</literal>. The
+      <literal>( &lt;in value list&gt; )</literal> is converted into a table
+      with one or more rows. The expression <literal>X IN Y</literal> is
+      equivalent to <literal>X = ANY Y</literal>, which is a
+      <literal>&lt;quantified comparison predicate&gt;</literal>. </simpara>
+
+      <simpara>If the <literal>&lt;table subquery&gt;</literal> returns no
+      rows, the result is FALSE. Otherwise the <literal>&lt;row value
+      predicand&gt;</literal> is compared one by one with each row of the
+      <literal>&lt;table subquery&gt;</literal>. </simpara>
+
+      <simpara>If the comparison is TRUE for at least one row, the result is
+      TRUE. If the comparison is FALSE for all rows, the result is FALSE.
+      Otherwise the result is UNKNOWN.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>like predicate</primary>
@@ -1160,8 +1185,14 @@
       NULL</literal></simpara>
 
       <simpara>Specify a test for a null value. The expression <literal>X IS
-      NOT NULL</literal> is equivalent to <literal>NOT (X IS
-      NULL)</literal>.</simpara>
+      NOT NULL</literal> is NOT equivalent to <literal>NOT (X IS
+      NULL)</literal>if the degree of the <literal>&lt;row value
+      predicand&gt;</literal> is larger than 1. The rules are: If all fields
+      are null, <literal>X IS NULL</literal> is TRUE and <literal>X IS NOT
+      NULL</literal> is FALSE. If only some fields are null, both <literal>X
+      IS NULL</literal> and <literal>X IS NOT NULL</literal> are FALSE. If all
+      fields are not null, <literal>X IS NULL</literal> is FALSE and
+      <literal>X IS NOT NULL</literal> is TRUE.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>quantified comparison predicate</primary>
@@ -1187,7 +1218,27 @@
 
       <simpara><literal>&lt;some&gt; ::= SOME | ANY</literal></simpara>
 
-      <simpara>Specify a quantified comparison.</simpara>
+      <simpara>Specify a quantified comparison. For a quantified comparison,
+      the <literal>&lt;row value predicand&gt;</literal> is compared one by
+      one with each row of the <literal>&lt;table sub query&gt;</literal>.
+      </simpara>
+
+      <simpara>If the <literal>&lt;table subquery&gt;</literal> returns no
+      rows, then if <literal>ALL</literal> is specified the result is TRUE,
+      but if <literal>SOME</literal> or <literal>ANY</literal> is specified
+      the result is FALSE.</simpara>
+
+      <simpara>If <literal>ALL</literal> is specified, if the comparison is
+      TRUE for all rows, the result of the predicate is TRUE. If the
+      comparison is FALSE for at least one row, the result is FALSE. Otherwise
+      the result is UNKNOWN.</simpara>
+
+      <simpara>If <literal>SOME</literal> or <literal>ANY</literal> is
+      specified, if the comparison is TRUE for at least one row, the result is
+      TRUE. If the comparison is FALSE for all rows, the result is FALSE.
+      Otherwise the result is UNKNOWN. Note that the IN predicate is
+      equivalent to the SOME or ANY predicate using the <literal>&lt;equals
+      operator&gt;</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>EXISTS</primary>
@@ -1215,12 +1266,13 @@
       <simpara><literal>&lt;unique predicate&gt; ::= UNIQUE &lt;table
       subquery&gt;</literal></simpara>
 
-      <simpara>Specify a test for the absence of duplicate rows. The rows of
-      the <literal>&lt;table subquery&gt;</literal> that contain one or more
-      NULL values are not considered for this test. If the rest of the rows
-      are distinct from each other, the result of the test is TRUE, other wise
-      it is FALSE. The distinctness of rows X and Y is tested with the
-      predicate <literal>X IS DISTINCT FROM Y</literal>.</simpara>
+      <simpara>Specify a test for the absence of duplicate rows. The result of
+      the test is either TRUE or FALSE (never UNKNOWN). The rows of the
+      <literal>&lt;table subquery&gt;</literal> that contain one or more NULL
+      values are not considered for this test. If the rest of the rows are
+      distinct from each other, the result of the test is TRUE, otherwise it
+      is FALSE. The distinctness of rows X and Y is tested with the predicate
+      <literal>X IS DISTINCT FROM Y</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>MATCH predicate</primary>
@@ -1236,7 +1288,38 @@
       <simpara><literal>&lt;match predicate part 2&gt; ::= MATCH [ UNIQUE ] [
       SIMPLE | PARTIAL | FULL ] &lt;table subquery&gt;</literal></simpara>
 
-      <simpara>Specify a test for matching rows.</simpara>
+      <simpara>Specify a test for matching rows. The default is MATCH SIMPLE
+      without UNIQUE. The result of the test is either TRUE or FALSE (never
+      UNKNOWN).</simpara>
+
+      <simpara>The interpretation of NULL values is different from other
+      predicates and quite counter-intuitive. If the <literal>&lt;row value
+      predicand&gt;</literal> is NULL, or all of its fields are NULL, the
+      result is TRUE.</simpara>
+
+      <simpara>Otherwise, the <literal>&lt;row value predicand&gt;</literal>
+      is compared with each row of the <literal>&lt;table
+      subquery&gt;</literal>.</simpara>
+
+      <simpara>If SIMPLE is specified, if some field of <literal>&lt;row value
+      predicate&gt;</literal> is NULL, the result is TRUE. Otherwise if
+      <literal>&lt;row value predicate&gt; </literal>is equal to one or more
+      rows of <literal>&lt;table subquery&gt;</literal> the result is TRUE if
+      UNIQUE is not specified, or if UNIQUE is specified and only one row
+      matches. Otherwise the result is FALSE.</simpara>
+
+      <simpara>If PARTIAL is specified, if the non-null values
+      <literal>&lt;row value predicate&gt; </literal>are equal to those in one
+      or more rows of <literal>&lt;table subquery&gt;</literal> the result is
+      TRUE if UNIQUE is not specified, or if UNIQUE is specified and only one
+      row matches. Otherwise the result is FALSE.</simpara>
+
+      <simpara>If FULL is specified, if some field of <literal>&lt;row value
+      predicate&gt;</literal> is NULL, the result is FALSE. Otherwise if
+      <literal>&lt;row value predicate&gt;</literal> is equal to one or more
+      rows of <literal>&lt;table subquery&gt;</literal> the result is TRUE if
+      UNIQUE is not specified, or if UNIQUE is specified and only one row
+      matches.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>OVERLAPS predicate</primary>
@@ -1262,16 +1345,16 @@
       predicand&gt;</literal></simpara>
 
       <simpara>Specify a test for an overlap between two datetime periods.
-      Each <literal>&lt;row value predicand&gt;</literal> must two elements
-      and the elements together represent a datetime period. So the predicates
-      is in the form <literal>(X1, X2) OVERLAPS (Y1, Y2)</literal>. The first
-      element is always a datetime value, while the second element is either a
-      datetime value or an interval value. If the second value is an interval
-      value, it is replaced with the sum of the datatime value and itself, for
-      example <literal>(X1, X1 + X2) OVERLAPS (Y1, Y1 + Y 2)</literal>. If any
-      of the values is NULL, the result is NULL. The expression is true if
-      there is there is any overlap between the two datetime
-      periods.</simpara>
+      Each <literal>&lt;row value predicand&gt;</literal> must have two fields
+      and the fields together represent a datetime period. So the predicates
+      is always in the form <literal>(X1, X2) OVERLAPS (Y1, Y2)</literal>. The
+      first field is always a datetime value, while the second field is either
+      a datetime value or an interval value. If the second value is an
+      interval value, it is replaced with the sum of the datetime value and
+      itself, for example <literal>(X1, X1 + X2) OVERLAPS (Y1, Y1 + Y
+      2)</literal>. If any of the values is NULL, the result is UNKNOWN. The
+      expression is true if there is there is any overlap between the two
+      datetime periods.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DISTINCT predicate</primary>
@@ -1294,15 +1377,20 @@
       predicand&gt;</literal></simpara>
 
       <simpara>Specify a test of whether two row values are distinct. The
-      number of elements in the two <literal>&lt;row value
-      predicand&gt;</literal> must be the same. Each element of the first
-      &lt;row value predicand&gt; is compared to the elment of the second
-      <literal>&lt;row value predicand&gt;</literal> at the same position. If
-      one element is NULL and the other is not NULL, or if the elements are
-      NOT equal, then the result of the expression is TRUE. If no comparison
-      result is TRUE, then the result of the expression is FALSE. The
-      expression <literal>X IS NOT DISTINCT FROM Y</literal> is equivalent to
-      <literal>NOT (X IS DISTINCT FORM Y)</literal>.</simpara>
+      result of the test is either TRUE or FALSE (never UNKNOWN). The
+      <glossterm>degree</glossterm> the two <literal>&lt;row value
+      predicand&gt;</literal> must be the same. Each field of the first
+      <literal>&lt;row value predicand&gt;</literal> is compared to the field
+      of the second <literal>&lt;row value predicand&gt;</literal> at the same
+      position. If one field is NULL and the other is not NULL, or if the
+      elements are NOT equal, then the result of the expression is TRUE. If no
+      comparison result is TRUE, then the result of the predicate is FALSE.
+      The expression <literal>X IS NOT DISTINCT FROM Y</literal> is equivalent
+      to <literal>NOT (X IS DISTINCT FORM Y)</literal>.</simpara>
+    </section>
+
+    <section>
+      <title></title>
 
       <indexterm significance="preferred" type="sql">
         <primary>search condition</primary>

@@ -2201,7 +2201,7 @@
       99.99999% reliability with an average one system crash per 6
       days.</para>
 
-      <para><programlisting>SET LOG_SIZE &lt;numeric value&gt;</programlisting>The
+      <para><programlisting>SET LOGSIZE &lt;numeric value&gt;</programlisting>The
       engine writes out a log of all the changes to the database as they
       occur. This log is synched to the disk based on the WRITE_DELAY property
       above. The log is never reused unless there is an abnormal termination,
