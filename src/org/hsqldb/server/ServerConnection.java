@@ -505,7 +505,15 @@ server.print("### Writing size 58");
                     server.print("### Writing size 5");
                     dataOutput.writeInt(5); //size
                     dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-
+                } else if (normalized.startsWith("set client_encoding to ")) {
+                    server.print("Stubbing a 'set client_encoding to...'");
+                    dataOutput.writeByte('C');
+                    dataOutput.writeInt("SET".length() + 5); // size
+                    writeNullTermdUTF("SET");
+                    dataOutput.writeByte('Z');
+                    server.print("### Writing size 5");
+                    dataOutput.writeInt(5); //size
+                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else {
                 /*
                 } else if (normalized.startsWith("update ")
@@ -540,9 +548,6 @@ server.print("### Writing size 58");
                     dataOutput.writeByte('C');
                     dataOutput.writeInt(replyString.length() + 5); // size
                     writeNullTermdUTF(replyString);
-                    // TODO:  Test how specific this is.  Is it always update,
-                    // or does it always mirror the input statement (like
-                    // "DELETE", or is it something inbetween?
 
                     dataOutput.writeByte('Z');
                     server.print("### Writing size 5");
