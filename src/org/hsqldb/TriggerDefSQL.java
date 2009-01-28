@@ -42,36 +42,30 @@ import org.hsqldb.lib.OrderedHashSet;
  */
 public class TriggerDefSQL extends TriggerDef {
 
-    Table[]         transitions;
-    RangeVariable[] rangeVars;
-    Expression      condition;
-    boolean         hasTransitionTables;
-    boolean         hasTransitionRanges;
-    String          conditionSQL;
-    String          procedureSQL;
-    OrderedHashSet  references;
+    OrderedHashSet references;
 
     public TriggerDefSQL(HsqlNameManager.HsqlName name, String when,
                          String operation, boolean forEachRow, Table table,
                          Table[] transitions, RangeVariable[] rangeVars,
-                         Expression condition,
+                         Expression condition, String conditionSQL,
+                         OrderedHashSet columns,
                          StatementDMQL[] compiledStatements,
-                         String conditionSQL, String procedureSQL,
+                         String procedureSQL,
                          OrderedHashSet references) throws HsqlException {
 
-        this.name         = name;
-        this.when         = when;
-        this.operation    = operation;
-        this.forEachRow   = forEachRow;
-        this.table        = table;
-        this.transitions  = transitions;
-        this.rangeVars    = rangeVars;
-        this.condition    = condition == null ? Expression.EXPR_TRUE
-                                              : condition;
-        this.statements   = compiledStatements;
-        this.conditionSQL = conditionSQL;
-        this.procedureSQL = procedureSQL;
-        this.references   = references;
+        this.name               = name;
+        this.actionTimingString = when;
+        this.eventTimingString  = operation;
+        this.forEachRow         = forEachRow;
+        this.table              = table;
+        this.transitions        = transitions;
+        this.rangeVars          = rangeVars;
+        this.condition          = condition == null ? Expression.EXPR_TRUE
+                                                    : condition;
+        this.statements         = compiledStatements;
+        this.conditionSQL       = conditionSQL;
+        this.procedureSQL       = procedureSQL;
+        this.references         = references;
         hasTransitionRanges = transitions[OLD_ROW] != null
                               || transitions[NEW_ROW] != null;
         hasTransitionTables = transitions[OLD_TABLE] != null
@@ -132,8 +126,8 @@ public class TriggerDefSQL extends TriggerDef {
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_TRIGGER).append(' ');
         sb.append(name.statementName).append(' ');
-        sb.append(when).append(' ');
-        sb.append(operation).append(' ');
+        sb.append(actionTimingString).append(' ');
+        sb.append(eventTimingString).append(' ');
         sb.append(Tokens.T_ON).append(' ');
         sb.append(table.getName().statementName).append(' ');
 

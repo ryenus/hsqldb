@@ -177,7 +177,7 @@ public class JDBCStatement extends StatementBase implements Statement {
     public ResultSet executeQuery(String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_RESULT,
-                    Statement.NO_GENERATED_KEYS, null, null);
+                    StatementBase.NO_GENERATED_KEYS, null, null);
 
         return getResultSet();
     }
@@ -203,7 +203,7 @@ public class JDBCStatement extends StatementBase implements Statement {
     public int executeUpdate(String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    Statement.NO_GENERATED_KEYS, null, null);
+                    StatementBase.NO_GENERATED_KEYS, null, null);
 
         return resultIn.getUpdateCount();
     }
@@ -629,7 +629,7 @@ public class JDBCStatement extends StatementBase implements Statement {
     public boolean execute(String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_ANY,
-                    Statement.NO_GENERATED_KEYS, null, null);
+                    StatementBase.NO_GENERATED_KEYS, null, null);
 
         return resultIn.isData();
     }
@@ -644,9 +644,6 @@ public class JDBCStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Without an interceding call to executeXXX, each invocation of this
-     * method will produce a new, initialized ResultSet instance referring to
-     * the current result, if any.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -657,10 +654,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @see #execute
      */
     public ResultSet getResultSet() throws SQLException {
-
-        checkClosed();
-
-        return currentResultSet;
+        return super.getResultSet();
     }
 
     /**
@@ -677,11 +671,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @see #execute
      */
     public int getUpdateCount() throws SQLException {
-
-        checkClosed();
-
-        return (resultIn == null || resultIn.isData()) ? -1
-                : resultIn.getUpdateCount();
+        return super.getUpdateCount();
     }
 
     /**
@@ -706,12 +696,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @see #execute
      */
     public boolean getMoreResults() throws SQLException {
-
-        checkClosed();
-
-        resultIn = null;
-
-        return false;
+        return super.getMoreResults();
     }
 
     //--------------------------JDBC 2.0-----------------------------
@@ -1202,7 +1187,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      */
 //#ifdef JAVA4
     public boolean getMoreResults(int current) throws SQLException {
-        throw Util.notSupported();
+        return super.getMoreResults(current);
     }
 
 //#endif JAVA4

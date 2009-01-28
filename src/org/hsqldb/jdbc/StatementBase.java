@@ -105,6 +105,9 @@ class StatementBase {
     /** The first warning in the chain. Null if there are no warnings. */
     protected SQLWarning rootWarning;
 
+    /** Counter for ResultSet in getMoreResults(). */
+    protected int resultSetCounter;
+
     /** Implementation in subclasses **/
     public synchronized void close() throws SQLException {}
 
@@ -165,6 +168,49 @@ class StatementBase {
         }
     }
 
+    int getUpdateCount() throws SQLException {
+
+        checkClosed();
+
+        return (resultIn == null || resultIn.isData()) ? -1
+                : resultIn.getUpdateCount();
+    }
+
+
+    ResultSet getResultSet() throws SQLException {
+
+        checkClosed();
+
+        ResultSet result = currentResultSet;
+        currentResultSet = null;
+        return result;
+    }
+
+    boolean getMoreResults() throws SQLException {
+        return getMoreResults(CLOSE_CURRENT_RESULT);
+    }
+
+    boolean getMoreResults(int current) throws SQLException {
+        checkClosed();
+
+        if (resultIn == null || !resultIn.isData()) {
+            return false;
+        }
+
+        if (resultSetCounter == 0) {
+            resultSetCounter++;
+            return true;
+        }
+
+        if (currentResultSet != null && current != KEEP_CURRENT_RESULT) {
+            currentResultSet.close();
+        }
+
+        resultIn = null;
+
+        return false;
+    }
+
     ResultSet getGeneratedResultSet() throws SQLException {
 
         if (generatedResultSet != null) {
@@ -194,4 +240,16 @@ class StatementBase {
         generatedResult    = null;
         resultIn           = null;
     }
+
+    /**
+     * JDBC 3 constants
+     */
+    static final int CLOSE_CURRENT_RESULT = 1;
+    static final int KEEP_CURRENT_RESULT = 2;
+    static final int CLOSE_ALL_RESULTS = 3;
+    static final int SUCCESS_NO_INFO = -2;
+    static final int EXECUTE_FAILED = -3;
+    static final int RETURN_GENERATED_KEYS = 1;
+    static final int NO_GENERATED_KEYS = 2;
+
 }

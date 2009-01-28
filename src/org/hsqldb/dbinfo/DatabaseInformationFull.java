@@ -133,15 +133,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case SYSTEM_PROCEDURES :
                 return SYSTEM_PROCEDURES();
 
-            case SYSTEM_SUPERTABLES :
-                return SYSTEM_SUPERTABLES();
-
-            case SYSTEM_SUPERTYPES :
-                return SYSTEM_SUPERTYPES();
-
-            case SYSTEM_UDTATTRIBUTES :
-                return SYSTEM_UDTATTRIBUTES();
-
             case SYSTEM_UDTS :
                 return SYSTEM_UDTS();
 
@@ -149,14 +140,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 return SYSTEM_VERSIONCOLUMNS();
 
             // HSQLDB-specific
-            case SYSTEM_ALIASES :
-                return SYSTEM_ALIASES();
-
             case SYSTEM_CACHEINFO :
                 return SYSTEM_CACHEINFO();
-
-            case SYSTEM_CLASSPRIVILEGES :
-                return SYSTEM_CLASSPRIVILEGES();
 
             case SYSTEM_SESSIONINFO :
                 return SYSTEM_SESSIONINFO();
@@ -166,12 +151,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             case SYSTEM_SESSIONS :
                 return SYSTEM_SESSIONS();
-
-            case SYSTEM_TRIGGERCOLUMNS :
-                return SYSTEM_TRIGGERCOLUMNS();
-
-            case SYSTEM_TRIGGERS :
-                return SYSTEM_TRIGGERS();
 
             case SYSTEM_TEXTTABLES :
                 return SYSTEM_TEXTTABLES();
@@ -336,9 +315,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case TRIGGERS :
                 return TRIGGERS();
 
-            case TYPE_JAR_USAGE :
-                return TYPE_JAR_USAGE();
-
             case USAGE_PRIVILEGES :
                 return USAGE_PRIVILEGES();
 
@@ -360,167 +336,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             default :
                 return super.generateTable(tableIndex);
         }
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the aliases defined
-     * within this database. <p>
-     *
-     * Currently two types of alias are reported: DOMAIN alaises (alternate
-     * names for column data types when issuing "CREATE TABLE" DDL) and
-     * ROUTINE aliases (alternate names that can be used when invoking
-     * routines as SQL functions or stored procedures). <p>
-     *
-     * Each row is an alias description with the following columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * OBJECT_TYPE  VARCHAR   type of the aliased object
-     * OBJECT_CAT   VARCHAR   catalog of the aliased object
-     * OBJECT_SCHEM VARCHAR   schema of the aliased object
-     * OBJECT_NAME  CHARACTER_DATA   simple identifier of the aliased object
-     * ALIAS_CAT    VARCHAR   catalog in which alias is defined
-     * ALIAS_SCHEM  VARCHAR   schema in which alias is defined
-     * ALIAS        VARCHAR   alias for the indicated object
-     * </pre> <p>
-     *
-     * <b>Note:</b> Up to and including HSQLDB 1.7.2, user-defined aliases
-     * are supported only for SQL function and stored procedure calls
-     * (indicated by the value "ROUTINE" in the OBJECT_TYPE
-     * column), and there is no syntax for dropping aliases, only for
-     * creating them. <p>
-     * @return a Table object describing the accessisble
-     *      aliases in the context of the calling session
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    Table SYSTEM_ALIASES() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_ALIASES];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_ALIASES]);
-
-            addColumn(t, "OBJECT_TYPE", SQL_IDENTIFIER);    // not null
-            addColumn(t, "OBJECT_CAT", SQL_IDENTIFIER);
-            addColumn(t, "OBJECT_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "OBJECT_NAME", CHARACTER_DATA);    // not null
-            addColumn(t, "ALIAS_CAT", SQL_IDENTIFIER);
-            addColumn(t, "ALIAS_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "ALIAS", SQL_IDENTIFIER);          // not null
-
-            // order: OBJECT_TYPE, OBJECT_NAME, ALIAS.
-            // true PK.
-            t.createPrimaryKey(null, new int[] {
-                0, 3, 6
-            }, true);
-
-            return t;
-        }
-
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
-
-        // Holders for calculated column values
-        String cat;
-        String schem;
-        String alias;
-        String objName;
-        String objType;
-
-        // Intermediate holders
-        String   className;
-        HashMap  aliasMap;
-        Iterator aliases;
-        Object[] row;
-        int      pos;
-
-        // Column number mappings
-        final int ialias_object_type  = 0;
-        final int ialias_object_cat   = 1;
-        final int ialias_object_schem = 2;
-        final int ialias_object_name  = 3;
-        final int ialias_cat          = 4;
-        final int ialias_schem        = 5;
-        final int ialias              = 6;
-
-        // Initialization
-        aliasMap = new HashMap();    //database.aliasManager.getAliasMap();
-        aliases  = aliasMap.keySet().iterator();
-        objType  = "ROUTINE";
-        cat      = database.getCatalogName().name;
-        schem    = database.schemaManager.getDefaultSchemaHsqlName().name;
-
-        // Do it.
-        while (aliases.hasNext()) {
-            row     = t.getEmptyRowData();
-            alias   = (String) aliases.next();
-            objName = (String) aliasMap.get(alias);
-
-            // must have class grant to see method call aliases
-            pos = objName.lastIndexOf('.');
-
-            if (pos <= 0) {
-
-                // should never occur in practice, as this is typically a Java
-                // method name, but there's nothing preventing a user from
-                // creating an alias entry that is not in method FQN form;
-                // such entries are not illegal, only useless.  Probably,
-                // we should eventually try to disallow them.
-                continue;
-            }
-
-            className = objName.substring(0, pos);
-
-// todo 190
-            SchemaObject object =
-                database.schemaManager.findSchemaObject(className, schem,
-                    SchemaObject.FUNCTION);
-
-            if (object == null || !session.getGrantee().isAccessible(object)) {
-                continue;
-            }
-
-            row[ialias_object_type]  = objType;
-            row[ialias_object_cat]   = cat;
-            row[ialias_object_schem] = schem;
-            row[ialias_object_name]  = objName;
-            row[ialias_cat]          = cat;
-            row[ialias_schem]        = schem;
-            row[ialias]              = alias;
-
-            t.insertSys(store, row);
-        }
-
-        // must have create/alter table rights to see domain aliases
-        if (session.isAdmin()) {
-            Iterator typeAliases = Type.typeAliases.keySet().iterator();
-
-            objType = "DOMAIN";
-
-            while (typeAliases.hasNext()) {
-                row   = t.getEmptyRowData();
-                alias = (String) typeAliases.next();
-
-                int tn = Type.typeAliases.get(alias, Integer.MIN_VALUE);
-
-                objName = Type.getDefaultType(tn).getFullNameString();
-
-                if (alias.equals(objName)) {
-                    continue;
-                }
-
-                row[ialias_object_type]  = objType;
-                row[ialias_object_cat]   = cat;
-                row[ialias_object_schem] = schem;
-                row[ialias_object_name]  = objName;
-                row[ialias_cat]          = cat;
-                row[ialias_schem]        = schem;
-                row[ialias]              = alias;
-
-                t.insertSys(store, row);
-            }
-        }
-
-        return t;
     }
 
     /**
@@ -654,135 +469,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[ifree_pos]   = ValuePool.getLong(cache.getFileFreePos());
 
             t.insertSys(store, row);
-        }
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the visible
-     * access rights for all accessible Java Class objects defined
-     * within this database.<p>
-     *
-     * Each row is a Class privilege description with the following
-     * columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * CLASS_CAT    VARCHAR   catalog in which the class is defined
-     * CLASS_SCHEM  VARCHAR   schema in which the class is defined
-     * CLASS_NAME   CHARACTER_DATA   fully qualified name of class
-     * GRANTOR      VARCHAR   grantor of access
-     * GRANTEE      VARCHAR   grantee of access
-     * PRIVILEGE    CHARACTER_DATA   name of access: {"EXECUTE" | "TRIGGER"}
-     * IS_GRANTABLE YES_OR_NO   grantable?: {"YES" | "NO" | NULL (unknown)}
-     * </pre>
-     *
-     * <b>Note:</b> Users with the administrative privilege implicily have
-     * full and unrestricted access to all Classes available to the database
-     * class loader.  However, only explicitly granted rights are reported
-     * in this table.  Explicit Class grants/revokes to admin users have no
-     * effect in reality, but are reported in this table anyway for
-     * completeness. <p>
-     *
-     * @return a <code>Table</code> object describing the visible
-     *        access rights for all accessible Java Class
-     *        objects defined within this database
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    Table SYSTEM_CLASSPRIVILEGES() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_CLASSPRIVILEGES];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_CLASSPRIVILEGES]);
-
-            addColumn(t, "CLASS_CAT", SQL_IDENTIFIER);
-            addColumn(t, "CLASS_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "CLASS_NAME", CHARACTER_DATA);    // not null
-            addColumn(t, "GRANTOR", SQL_IDENTIFIER);       // not null
-            addColumn(t, "GRANTEE", SQL_IDENTIFIER);       // not null
-            addColumn(t, "PRIVILEGE", SQL_IDENTIFIER);     // not null
-            addColumn(t, "IS_GRANTABLE", YES_OR_NO);       // not null
-            t.createPrimaryKey(null, new int[] {
-                2, 4, 5
-            }, true);
-
-            return t;
-        }
-
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
-
-        // calculated column values
-        String clsCat;
-        String clsSchem;
-        String clsName;
-        String grantorName;
-        String granteeName;
-        String privilege;
-        String isGrantable;
-
-        // intermediate holders
-        Grantee  grantee;
-        Iterator grantees;
-        HashSet  classNameSet;
-        Iterator classNames;
-        Object[] row;
-
-        // column number mappings
-        final int icls_cat   = 0;
-        final int icls_schem = 1;
-        final int icls_name  = 2;
-        final int igrantor   = 3;
-        final int igrantee   = 4;
-        final int iprivilege = 5;
-        final int iis_grntbl = 6;
-
-        // Initialization
-        grantorName = SqlInvariants.SYSTEM_AUTHORIZATION_NAME;
-        grantees    = session.getGrantee().nonReservedVisibleGrantees(    /*andPublic*/
-            true).iterator();
-        clsCat   = database.getCatalogName().name;
-        clsSchem = database.schemaManager.getDefaultSchemaHsqlName().name;
-
-        while (grantees.hasNext()) {
-            grantee     = (Grantee) grantees.next();
-            granteeName = grantee.getNameString();
-            isGrantable = grantee.isAdmin() ? Tokens.T_YES
-                                            : Tokens.T_NO;
-            classNames  = grantee.getGrantedClassNamesDirect().iterator();
-            privilege   = "EXECUTE";
-
-            while (classNames.hasNext()) {
-                clsName         = (String) classNames.next();
-                row             = t.getEmptyRowData();
-                row[icls_cat]   = clsCat;
-                row[icls_schem] = clsSchem;
-                row[icls_name]  = clsName;
-                row[igrantor]   = grantorName;
-                row[igrantee]   = granteeName;
-                row[iprivilege] = privilege;
-                row[iis_grntbl] = isGrantable;
-
-                t.insertSys(store, row);
-            }
-
-            classNames = ns.iterateAccessibleTriggerClassNames(grantee);
-            privilege  = "TRIGGER";
-
-            while (classNames.hasNext()) {
-                clsName         = (String) classNames.next();
-                row             = t.getEmptyRowData();
-                row[icls_cat]   = clsCat;
-                row[icls_schem] = clsSchem;
-                row[icls_name]  = clsName;
-                row[igrantor]   = grantorName;
-                row[igrantee]   = granteeName;
-                row[iprivilege] = privilege;
-                row[iis_grntbl] = null;    // can't make a direct grant
-
-                t.insertSys(store, row);
-            }
         }
 
         return t;
@@ -1159,84 +845,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the accessible
-     * direct super table (if any) of each accessible table defined
-     * within this database. <p>
-     *
-     * Each row is a super table description with the following columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * TABLE_CATALOG       VARCHAR   the table's catalog
-     * TABLE_SCHEMA     VARCHAR   table schema
-     * TABLE_NAME      VARCHAR   table name
-     * SUPERTABLE_NAME VARCHAR   the direct super table's name
-     * </pre> <p>
-     * @return a <code>Table</code> object describing the accessible
-     *        direct supertable (if any) of each accessible
-     *        table defined within this database
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    Table SYSTEM_SUPERTABLES() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_SUPERTABLES];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_SUPERTABLES]);
-
-            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
-            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
-            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);         // not null
-            addColumn(t, "SUPERTABLE_NAME", SQL_IDENTIFIER);    // not null
-            t.createPrimaryKey();
-
-            return t;
-        }
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the accessible
-     * direct super type (if any) of each accessible user-defined type (UDT)
-     * defined within this database. <p>
-     *
-     * Each row is a super type description with the following columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * TYPE_CATALOG        VARCHAR   the UDT's catalog
-     * TYPE_SCHEMA      VARCHAR   UDT's schema
-     * TYPE_NAME       VARCHAR   type name of the UDT
-     * SUPERTYPE_CATALOG   VARCHAR   the direct super type's catalog
-     * SUPERTYPE_SCHEMA VARCHAR   the direct super type's schema
-     * SUPERTYPE_NAME  VARCHAR   the direct super type's name
-     * </pre> <p>
-     * @return a <code>Table</code> object describing the accessible
-     *        direct supertype (if any) of each accessible
-     *        user-defined type (UDT) defined within this database
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    Table SYSTEM_SUPERTYPES() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_SUPERTYPES];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_SUPERTYPES]);
-
-            addColumn(t, "USER_DEFINED_TYPE_CATALOG", SQL_IDENTIFIER);
-            addColumn(t, "USER_DEFINED_TYPE_SCHEMA", SQL_IDENTIFIER);
-            addColumn(t, "USER_DEFINED_TYPE_NAME", SQL_IDENTIFIER);    // not null
-            addColumn(t, "SUPERTYPE_CATALOG", SQL_IDENTIFIER);
-            addColumn(t, "SUPERTYPE_SCHEMA", SQL_IDENTIFIER);
-            addColumn(t, "SUPERTYPE_NAME", SQL_IDENTIFIER);            // not null
-            t.createPrimaryKey();
-
-            return t;
-        }
-
-        return t;
-    }
-
-    /**
      * Retrieves a <code>Table</code> object describing the TEXT TABLE objects
      * defined within this database. The table contains one row for each row
      * in the SYSTEM_TABLES table with a HSQLDB_TYPE of  TEXT . <p>
@@ -1360,359 +968,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }
 
             t.insertSys(store, row);
-        }
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the usage
-     * of accessible columns in accessible triggers defined within
-     * the database. <p>
-     *
-     * Each column usage description has the following columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * TRIGGER_CAT   VARCHAR   Trigger catalog.
-     * TRIGGER_SCHEM VARCHAR   Trigger schema.
-     * TRIGGER_NAME  VARCHAR   Trigger name.
-     * TABLE_CAT     VARCHAR   Catalog of table on which the trigger is defined.
-     * TABLE_SCHEM   VARCHAR   Schema of table on which the trigger is defined.
-     * TABLE_NAME    VARCHAR   Table on which the trigger is defined.
-     * COLUMN_NAME   VARCHAR   Name of the column used in the trigger.
-     * COLUMN_LIST   VARCHAR   Specified in UPDATE clause?: ("Y" | "N"}
-     * COLUMN_USAGE  VARCHAR   {"NEW" | "OLD" | "IN" | "OUT" | "IN OUT"}
-     * </pre> <p>
-     * @return a <code>Table</code> object describing of the usage
-     *        of accessible columns in accessible triggers
-     *        defined within this database
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    Table SYSTEM_TRIGGERCOLUMNS() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_TRIGGERCOLUMNS];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_TRIGGERCOLUMNS]);
-
-            addColumn(t, "TRIGGER_CAT", SQL_IDENTIFIER);
-            addColumn(t, "TRIGGER_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "TRIGGER_NAME", SQL_IDENTIFIER);
-            addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
-            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
-            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);
-            addColumn(t, "COLUMN_LIST", CHARACTER_DATA);
-            addColumn(t, "COLUMN_USAGE", CHARACTER_DATA);
-
-            // order:  all columns, in order, as each column
-            // of each table may eventually be listed under various capacities
-            // (when a more comprehensive trugger system is put in place)
-            // false PK, as cat and schem may be null
-            t.createPrimaryKey(null, new int[] {
-                0, 1, 2, 3, 4, 5, 6, 7, 8
-            }, false);
-
-            return t;
-        }
-
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
-        Session sys = database.sessionManager.newSysSession(
-            SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-        Result rs = sys.executeDirectStatement(
-            "select a.TRIGGER_CAT,a.TRIGGER_SCHEM,a.TRIGGER_NAME, "
-            + "a.TABLE_CAT,a.TABLE_SCHEM,a.TABLE_NAME,b.COLUMN_NAME,'Y',"
-            + "'IN' from INFORMATION_SCHEMA.SYSTEM_TRIGGERS a, "
-            + "INFORMATION_SCHEMA.SYSTEM_COLUMNS b where "
-            + "a.TABLE_NAME=b.TABLE_NAME and a.TABLE_SCHEM=b.TABLE_SCHEM");
-
-/*
-            // - used appends to make class file constant pool smaller
-            // - saves ~ 100 bytes jar space
-            (new StringBuffer(185)).append("SELECT").append(' ').append(
-                "a.").append("TRIGGER_CAT").append(',').append("a.").append(
-                "TRIGGER_SCHEM").append(',').append("a.").append(
-                "TRIGGER_NAME").append(',').append("a.").append(
-                "TABLE_CAT").append(',').append("a.").append(
-                "TABLE_SCHEM").append(',').append("a.").append(
-                "TABLE_NAME").append(',').append("b.").append(
-                "COLUMN_NAME").append(',').append("'Y'").append(',').append(
-                "'IN'").append(' ').append("from").append(' ').append(
-                "INFORMATION_SCHEMA").append('.').append(
-                "SYSTEM_TRIGGERS").append(" a,").append(
-                "INFORMATION_SCHEMA").append('.').append(
-                "SYSTEM_COLUMNS").append(" b ").append("where").append(
-                ' ').append("a.").append("TABLE_NAME").append('=').append(
-                "b.").append("TABLE_NAME").toString();
-*/
-        t.insertSys(store, rs);
-        sys.close();
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the accessible
-     * triggers defined within the database. <p>
-     *
-     * Each row is a trigger description with the following columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * TRIGGER_CAT       VARCHAR   Trigger catalog.
-     * TRIGGER_SCHEM     VARCHAR   Trigger Schema.
-     * TRIGGER_NAME      VARCHAR   Trigger Name.
-     * TRIGGER_TYPE      VARCHAR   {("BEFORE" | "AFTER") + [" EACH ROW"] }
-     * TRIGGERING_EVENT  VARCHAR   {"INSERT" | "UPDATE" | "DELETE"}
-     *                             (future?: "INSTEAD OF " + ("SELECT" | ...))
-     * TABLE_CAT         VARCHAR   Table's catalog.
-     * TABLE_SCHEM       VARCHAR   Table's schema.
-     * BASE_OBJECT_TYPE  VARCHAR   "TABLE"
-     *                             (future?: "VIEW" | "SCHEMA" | "DATABASE")
-     * TABLE_NAME        VARCHAR   Table on which trigger is defined
-     * COLUMN_NAME       VARCHAR   NULL (future?: nested table column name)
-     * REFERENCING_NAMES VARCHAR   ROW, OLD, NEW, etc.
-     * WHEN_CLAUSE       VARCHAR   Condition firing trigger (NULL => always)
-     * STATUS            VARCHAR   {"ENABLED" | "DISABLED"}
-     * DESCRIPTION       VARCHAR   typically, the trigger's DDL
-     * ACTION_TYPE       VARCHAR   "CALL" (future?: embedded language name)
-     * TRIGGER_BODY      VARCHAR   Statement(s) executed
-     * </pre> <p>
-     *
-     * @return a <code>Table</code> object describing the accessible
-     *    triggers defined within this database.
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    Table SYSTEM_TRIGGERS() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_TRIGGERS];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_TRIGGERS]);
-
-            addColumn(t, "TRIGGER_CAT", SQL_IDENTIFIER);
-            addColumn(t, "TRIGGER_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "TRIGGER_NAME", SQL_IDENTIFIER);
-            addColumn(t, "TRIGGER_TYPE", CHARACTER_DATA);
-            addColumn(t, "TRIGGERING_EVENT", CHARACTER_DATA);
-            addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
-            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "BASE_OBJECT_TYPE", CHARACTER_DATA);
-            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
-            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);
-            addColumn(t, "REFERENCING_NAMES", CHARACTER_DATA);
-            addColumn(t, "WHEN_CLAUSE", CHARACTER_DATA);
-            addColumn(t, "STATUS", CHARACTER_DATA);
-            addColumn(t, "DESCRIPTION", CHARACTER_DATA);
-            addColumn(t, "ACTION_TYPE", CHARACTER_DATA);
-            addColumn(t, "TRIGGER_BODY", CHARACTER_DATA);
-
-            // order: TRIGGER_TYPE, TRIGGER_SCHEM, TRIGGER_NAME
-            // added for unique: TRIGGER_CAT
-            // false PK, as TRIGGER_SCHEM and/or TRIGGER_CAT may be null
-            t.createPrimaryKey(null, new int[] {
-                3, 1, 2, 0
-            }, false);
-
-            return t;
-        }
-
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
-
-        // calculated column values
-        String triggerCatalog;
-        String triggerSchema;
-        String triggerName;
-        String triggerType;
-        String triggeringEvent;
-        String tableCatalog;
-        String tableSchema;
-        String baseObjectType;
-        String tableName;
-        String columnName;
-        String referencingNames;
-        String whenClause;
-        String status;
-        String description;
-        String actionType;
-        String triggerBody;
-
-        // Intermediate holders
-        Iterator     tables;
-        Table        table;
-        TriggerDef[] triggerList;
-        TriggerDef   def;
-        Object[]     row;
-
-        // column number mappings
-        final int itrigger_cat       = 0;
-        final int itrigger_schem     = 1;
-        final int itrigger_name      = 2;
-        final int itrigger_type      = 3;
-        final int itriggering_event  = 4;
-        final int itable_cat         = 5;
-        final int itable_schem       = 6;
-        final int ibase_object_type  = 7;
-        final int itable_name        = 8;
-        final int icolumn_name       = 9;
-        final int ireferencing_names = 10;
-        final int iwhen_clause       = 11;
-        final int istatus            = 12;
-        final int idescription       = 13;
-        final int iaction_type       = 14;
-        final int itrigger_body      = 15;
-
-        // Initialization
-        tables =
-            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
-
-        // these are the only values supported, currently
-        actionType       = "CALL";
-        baseObjectType   = "TABLE";
-        columnName       = null;
-        referencingNames = "ROW";
-        whenClause       = null;
-
-        // Do it.
-        while (tables.hasNext()) {
-            table       = (Table) tables.next();
-            triggerList = table.getTriggers();
-
-            // faster test first
-            if (triggerList == null) {
-                continue;
-            }
-
-            if (!session.getGrantee().isFullyAccessibleByRole(table)) {
-                continue;
-            }
-
-            tableCatalog   = database.getCatalogName().name;
-            triggerCatalog = tableCatalog;
-            tableSchema    = table.getSchemaName().name;
-            triggerSchema  = tableSchema;
-            tableName      = table.getName().name;
-
-            for (int j = 0; j < triggerList.length; j++) {
-                def         = (TriggerDef) triggerList[j];
-                triggerName = def.getName().name;
-                description = def.getSQL();
-                status      = def.isValid() ? "ENABLED"
-                                            : "DISABLED";
-                triggerBody = def.getClassName();
-                triggerType = def.getWhenClause();
-
-                if (def.isForEachRow()) {
-                    triggerType += " EACH ROW";
-                }
-
-                triggeringEvent         = def.getOperationClause();
-                row                     = t.getEmptyRowData();
-                row[itrigger_cat]       = triggerCatalog;
-                row[itrigger_schem]     = triggerSchema;
-                row[itrigger_name]      = triggerName;
-                row[itrigger_type]      = triggerType;
-                row[itriggering_event]  = triggeringEvent;
-                row[itable_cat]         = tableCatalog;
-                row[itable_schem]       = tableSchema;
-                row[ibase_object_type]  = baseObjectType;
-                row[itable_name]        = tableName;
-                row[icolumn_name]       = columnName;
-                row[ireferencing_names] = referencingNames;
-                row[iwhen_clause]       = whenClause;
-                row[istatus]            = status;
-                row[idescription]       = description;
-                row[iaction_type]       = actionType;
-                row[itrigger_body]      = triggerBody;
-
-                t.insertSys(store, row);
-            }
-        }
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the accessible
-     * attributes of the accessible user-defined type (UDT) objects
-     * defined within this database. <p>
-     *
-     * This description does not contain inherited attributes. <p>
-     *
-     * Each row is a user-defined type attributes description with the
-     * following columns:
-     *
-     * <pre class="SqlCodeExample">
-     * TYPE_CAT          VARCHAR   type catalog
-     * TYPE_SCHEM        VARCHAR   type schema
-     * TYPE_NAME         VARCHAR   type name
-     * ATTR_NAME         VARCHAR   attribute name
-     * DATA_TYPE         SMALLINT  attribute's SQL type from DITypes
-     * ATTR_TYPE_NAME    VARCHAR   UDT: fully qualified type name
-     *                            REF: fully qualified type name of target type of
-     *                            the reference type.
-     * ATTR_SIZE         INTEGER   column size.
-     *                            char or date types => maximum number of characters;
-     *                            numeric or decimal types => precision.
-     * DECIMAL_DIGITS    INTEGER   # of fractional digits (scale) of number type
-     * NUM_PREC_RADIX    INTEGER   Radix of number type
-     * NULLABLE          INTEGER   whether NULL is allowed
-     * REMARKS           VARCHAR   comment describing attribute
-     * ATTR_DEF          VARCHAR   default attribute value
-     * SQL_DATA_TYPE     INTEGER   expected value of SQL CLI SQL_DESC_TYPE in the SQLDA
-     * SQL_DATETIME_SUB  INTEGER   DATETIME/INTERVAL => datetime/interval subcode
-     * CHAR_OCTET_LENGTH INTEGER   for char types:  max bytes in column
-     * ORDINAL_POSITION  INTEGER   index of column in table (starting at 1)
-     * IS_NULLABLE       VARCHAR   "NO" => strictly no NULL values;
-     *                             "YES" => maybe NULL values;
-     *                             "" => unknown.
-     * SCOPE_CATALOG     VARCHAR   catalog of REF attribute scope table or NULL
-     * SCOPE_SCHEMA      VARCHAR   schema of REF attribute scope table or NULL
-     * SCOPE_TABLE       VARCHAR   name of REF attribute scope table or NULL
-     * SOURCE_DATA_TYPE  SMALLINT  For DISTINCT or user-generated REF DATA_TYPE:
-     *                            source SQL type from DITypes
-     *                            For other DATA_TYPE values:  NULL
-     * </pre>
-     *
-     * <B>Note:</B> Currently, neither the HSQLDB engine or the JDBC driver
-     * support UDTs, so an empty table is returned. <p>
-     * @return a <code>Table</code> object describing the accessible
-     *        attrubutes of the accessible user-defined type
-     *        (UDT) objects defined within this database
-     * @throws HsqlException if an error occurs while producing the table
-     */
-    Table SYSTEM_UDTATTRIBUTES() throws HsqlException {
-
-        Table t = sysTables[SYSTEM_UDTATTRIBUTES];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_UDTATTRIBUTES]);
-
-            addColumn(t, "TYPE_CAT", SQL_IDENTIFIER);
-            addColumn(t, "TYPE_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);             // not null
-            addColumn(t, "ATTR_NAME", SQL_IDENTIFIER);             // not null
-            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);          // not null
-            addColumn(t, "ATTR_TYPE_NAME", SQL_IDENTIFIER);        // not null
-            addColumn(t, "ATTR_SIZE", Type.SQL_INTEGER);
-            addColumn(t, "DECIMAL_DIGITS", Type.SQL_INTEGER);
-            addColumn(t, "NUM_PREC_RADIX", Type.SQL_INTEGER);
-            addColumn(t, "NULLABLE", Type.SQL_INTEGER);
-            addColumn(t, "REMARKS", CHARACTER_DATA);
-            addColumn(t, "ATTR_DEF", CHARACTER_DATA);
-            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);
-            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);
-            addColumn(t, "CHAR_OCTET_LENGTH", Type.SQL_INTEGER);
-            addColumn(t, "ORDINAL_POSITION", Type.SQL_INTEGER);    // not null
-            addColumn(t, "IS_NULLABLE", YES_OR_NO);                // not null
-            addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);
-            addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);
-            addColumn(t, "SCOPE_TABLE", SQL_IDENTIFIER);
-            addColumn(t, "SOURCE_DATA_TYPE", Type.SQL_SMALLINT);
-            t.createPrimaryKey();
-
-            return t;
         }
 
         return t;
@@ -2905,11 +2160,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[maximum_cardinality] = null;
                 row[dtd_identifier]      = null;
                 row[is_self_referencing] = null;
+                row[is_identity]         = column.isIdentity() ? "YES"
+                                                               : "NO";
 
                 if (column.isIdentity()) {
                     NumberSequence sequence = column.getIdentitySequence();
 
-                    row[is_identity]         = Boolean.TRUE;
                     row[identity_generation] = sequence.isAlways() ? "ALWAYS"
                                                                    : "BY DEFAULT";
                     row[identity_start] =
@@ -5191,12 +4447,36 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // column number mappings
         final int trigger_catalog = 0;
-        final int trigger_schems  = 1;
+        final int trigger_schema  = 1;
         final int trigger_name    = 2;
         final int table_catalog   = 3;
         final int table_schema    = 4;
         final int table_name      = 5;
         final int column_name     = 6;
+        Iterator  it;
+        Object[]  row;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.TRIGGER);
+
+        while (it.hasNext()) {
+            TriggerDef trigger = (TriggerDef) it.next();
+
+            if (!session.getGrantee().isAccessible(trigger)) {
+                continue;
+            }
+
+            row                  = t.getEmptyRowData();
+            row[trigger_catalog] = database.getCatalogName().name;
+            row[trigger_schema]  = trigger.getSchemaName().name;
+            row[trigger_name]    = trigger.getName().name;
+            row[table_catalog]   = null;
+            row[table_schema]    = null;
+            row[table_name]      = null;
+            row[column_name]     = null;
+
+            t.insertSys(store, row);
+        }
 
         // Initialization
         return t;
@@ -5227,11 +4507,34 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // column number mappings
         final int trigger_catalog  = 0;
-        final int trigger_schems   = 1;
+        final int trigger_schema   = 1;
         final int trigger_name     = 2;
         final int specific_catalog = 3;
         final int specific_schema  = 4;
         final int specific_name    = 5;
+        Iterator  it;
+        Object[]  row;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.TRIGGER);
+
+        while (it.hasNext()) {
+            TriggerDef trigger = (TriggerDef) it.next();
+
+            if (!session.getGrantee().isAccessible(trigger)) {
+                continue;
+            }
+
+            row                   = t.getEmptyRowData();
+            row[trigger_catalog]  = database.getCatalogName().name;
+            row[trigger_schema]   = trigger.getSchemaName().name;
+            row[trigger_name]     = trigger.getName().name;
+            row[specific_catalog] = null;
+            row[specific_schema]  = null;
+            row[specific_name]    = null;
+
+            t.insertSys(store, row);
+        }
 
         // Initialization
         return t;
@@ -5262,11 +4565,34 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // column number mappings
         final int trigger_catalog  = 0;
-        final int trigger_schems   = 1;
+        final int trigger_schema   = 1;
         final int trigger_name     = 2;
         final int sequence_catalog = 3;
         final int sequence_schema  = 4;
         final int sequence_name    = 5;
+        Iterator  it;
+        Object[]  row;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.TRIGGER);
+
+        while (it.hasNext()) {
+            TriggerDef trigger = (TriggerDef) it.next();
+
+            if (!session.getGrantee().isAccessible(trigger)) {
+                continue;
+            }
+
+            row                   = t.getEmptyRowData();
+            row[trigger_catalog]  = database.getCatalogName().name;
+            row[trigger_schema]   = trigger.getSchemaName().name;
+            row[trigger_name]     = trigger.getName().name;
+            row[sequence_catalog] = null;
+            row[sequence_schema]  = null;
+            row[sequence_name]    = null;
+
+            t.insertSys(store, row);
+        }
 
         // Initialization
         return t;
@@ -5297,11 +4623,34 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // column number mappings
         final int trigger_catalog = 0;
-        final int trigger_schems  = 1;
+        final int trigger_schema  = 1;
         final int trigger_name    = 2;
         final int table_catalog   = 3;
         final int table_schema    = 4;
         final int table_name      = 5;
+        Iterator  it;
+        Object[]  row;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.TRIGGER);
+
+        while (it.hasNext()) {
+            TriggerDef trigger = (TriggerDef) it.next();
+
+            if (!session.getGrantee().isAccessible(trigger)) {
+                continue;
+            }
+
+            row                  = t.getEmptyRowData();
+            row[trigger_catalog] = database.getCatalogName().name;
+            row[trigger_schema]  = trigger.getSchemaName().name;
+            row[trigger_name]    = trigger.getName().name;
+            row[table_catalog]   = null;
+            row[table_schema]    = null;
+            row[table_name]      = null;
+
+            t.insertSys(store, row);
+        }
 
         // Initialization
         return t;
@@ -5320,6 +4669,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "EVENT_MANIPULATION", SQL_IDENTIFIER);
             addColumn(t, "EVENT_OBJECT_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "EVENT_OBJECT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "EVENT_OBJECT_TABLE", SQL_IDENTIFIER);
             addColumn(t, "ACTION_ORDER", CHARACTER_DATA);
             addColumn(t, "ACTION_CONDITION", CHARACTER_DATA);
             addColumn(t, "ACTION_STATEMENT", CHARACTER_DATA);
@@ -5327,9 +4677,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "ACTION_TIMING", CHARACTER_DATA);
             addColumn(t, "ACTION_REFERENCE_OLD_TABLE", SQL_IDENTIFIER);
             addColumn(t, "ACTION_REFERENCE_NEW_TABLE", SQL_IDENTIFIER);
+            addColumn(t, "ACTION_REFERENCE_OLD_ROW", SQL_IDENTIFIER);
+            addColumn(t, "ACTION_REFERENCE_NEW_ROW", SQL_IDENTIFIER);
             addColumn(t, "CREATED", TIME_STAMP);
             t.createPrimaryKey(null, new int[] {
-                0, 1, 2, 3, 4, 5
+                0, 1, 2
             }, false);
 
             return t;
@@ -5339,12 +4691,59 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             database.persistentStoreCollection.getStore(t.getPersistenceId());
 
         // column number mappings
-        final int trigger_catalog      = 0;
-        final int trigger_schems       = 1;
-        final int trigger_name         = 2;
-        final int event_manipulation   = 3;
-        final int event_object_catalog = 4;
-        final int event_object_schema  = 5;
+        final int trigger_catalog            = 0;
+        final int trigger_schema             = 1;
+        final int trigger_name               = 2;
+        final int event_manipulation         = 3;
+        final int event_object_catalog       = 4;
+        final int event_object_schema        = 5;
+        final int event_object_table         = 6;
+        final int action_order               = 7;
+        final int action_condition           = 8;
+        final int action_statement           = 9;
+        final int action_orientation         = 10;
+        final int action_timing              = 11;
+        final int action_reference_old_table = 12;
+        final int action_reference_new_table = 13;
+        final int action_reference_old_row   = 14;
+        final int action_reference_new_row   = 15;
+        final int created                    = 16;
+        Iterator  it;
+        Object[]  row;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.TRIGGER);
+
+        while (it.hasNext()) {
+            TriggerDef trigger = (TriggerDef) it.next();
+
+            if (!session.getGrantee().isAccessible(trigger)) {
+                continue;
+            }
+
+            row                       = t.getEmptyRowData();
+            row[trigger_catalog]      = database.getCatalogName().name;
+            row[trigger_schema]       = trigger.getSchemaName().name;
+            row[trigger_name]         = trigger.getName().name;
+            row[event_manipulation]   = trigger.getEventTypeString();
+            row[event_object_catalog] = database.getCatalogName().name;
+            row[event_object_schema] = trigger.getTable().getSchemaName().name;
+            row[event_object_table]   = trigger.getTable().getName().name;
+            row[action_order]         = null;
+            row[action_condition]     = trigger.getConditionSQL();
+            row[action_statement]     = trigger.getProcedureSQL();
+            row[action_orientation]   = trigger.getActionOrientationString();
+            row[action_timing]        = trigger.getActionTimingString();
+            row[action_reference_old_table] =
+                trigger.getOldTransitionTableName();
+            row[action_reference_new_table] =
+                trigger.getNewTransitionTableName();
+            row[action_reference_old_row] = trigger.getOldTransitionRowName();
+            row[action_reference_new_row] = trigger.getNewTransitionRowName();
+            row[created]                  = null;
+
+            t.insertSys(store, row);
+        }
 
         // Initialization
         return t;
@@ -5376,19 +4775,43 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // column number mappings
         final int trigger_catalog      = 0;
-        final int trigger_schems       = 1;
+        final int trigger_schema       = 1;
         final int trigger_name         = 2;
         final int event_object_catalog = 3;
         final int event_object_schema  = 4;
         final int event_object_table   = 5;
         final int event_object_column  = 6;
+        Iterator  it;
+        Object[]  row;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.TRIGGER);
+
+        while (it.hasNext()) {
+            TriggerDef trigger = (TriggerDef) it.next();
+
+            if (!session.getGrantee().isAccessible(trigger)) {
+                continue;
+            }
+
+            if (trigger.getUpdateColumns() == null) {
+                continue;
+            }
+
+            row                       = t.getEmptyRowData();
+            row[trigger_catalog]      = database.getCatalogName().name;
+            row[trigger_schema]       = trigger.getSchemaName().name;
+            row[trigger_name]         = trigger.getName().name;
+            row[event_object_catalog] = database.getCatalogName().name;
+            row[event_object_schema]  = trigger.getTable().getSchemaName();
+            row[event_object_table]   = trigger.getTable().getName().name;
+            row[event_object_column]  = null;
+
+            t.insertSys(store, row);
+        }
 
         // Initialization
         return t;
-    }
-
-    Table TYPE_JAR_USAGE() {
-        return null;
     }
 
     /**

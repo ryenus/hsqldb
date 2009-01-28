@@ -83,7 +83,6 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
-import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -2251,7 +2250,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      */
 //#ifdef JAVA4
     public boolean getMoreResults(int current) throws SQLException {
-        throw Util.notSupported();
+        return super.getMoreResults();
     }
 
 //#endif JAVA4
@@ -3193,10 +3192,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @see #execute
      */
     public ResultSet getResultSet() throws SQLException {
-
-        checkClosed();
-
-        return currentResultSet;
+        return super.getResultSet();
     }
 
     /**
@@ -3213,13 +3209,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @see #execute
      */
     public int getUpdateCount() throws SQLException {
-
-// fredt - omit checkClosed() in order to be able to handle the result of a
-// SHUTDOWN query
-        checkClosed();
-
-        return (resultIn == null || resultIn.isData()) ? -1
-                : resultIn.getUpdateCount();
+        return super.getUpdateCount();
     }
 
     /**
@@ -3244,12 +3234,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @see #execute
      */
     public boolean getMoreResults() throws SQLException {
-
-        checkClosed();
-
-        resultIn = null;
-
-        return false;
+        return super.getMoreResults();
     }
 
     //--------------------------JDBC 2.0-----------------------------
