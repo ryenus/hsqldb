@@ -198,6 +198,9 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
                 fromCode,
                 toCode);
 
+        if (expectedResult != actualResult) {
+            System.out.println("CHECK THE PROPERTY ********");
+        }
         assertEquals(expectedResult, actualResult);
     }
 
