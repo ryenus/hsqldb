@@ -104,7 +104,7 @@ public final class BooleanType extends Type {
                 }
         }
 
-        throw Error.error(ErrorCode.X_42561);
+        throw Error.error(ErrorCode.X_42562);
     }
 
     public int compare(Object a, Object b) {

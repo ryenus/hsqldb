@@ -209,7 +209,6 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.SCHEMA :
             case Tokens.CATALOG :
                 throw unexpectedToken();
-
             case Tokens.SEQUENCE : {
                 read();
                 processAlterSequence();
@@ -270,14 +269,16 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.CATALOG : {
                 read();
                 checkIsSimpleName();
+
                 String name = token.tokenString;
+
                 checkValidCatalogName(name);
                 read();
-
                 readThis(Tokens.RENAME);
                 readThis(Tokens.TO);
 
-                return compileRenameObject(database.getCatalogName(), SchemaObject.CATALOG);
+                return compileRenameObject(database.getCatalogName(),
+                                           SchemaObject.CATALOG);
             }
             case Tokens.SEQUENCE : {
                 read();
@@ -2145,7 +2146,8 @@ public class ParserDDL extends ParserRoutine {
             read();
 
             td = new TriggerDef(name, beforeOrAfter, operation, isForEachRow,
-                                table, className, isNowait, queueSize);
+                                table, transitions, rangeVars, condition,
+                                conditionSQL, columns, className, isNowait, queueSize);
 
             String   sql  = getLastPart();
             Object[] args = new Object[] {
@@ -2289,7 +2291,7 @@ public class ParserDDL extends ParserRoutine {
 
         td = new TriggerDefSQL(name, beforeOrAfter, operation, isForEachRow,
                                table, transitions, rangeVars, condition,
-                               csArray, conditionSQL, procedureSQL,
+                               conditionSQL, columns, csArray, procedureSQL,
                                references);
 
         String   sql  = getLastPart();
@@ -3611,7 +3613,6 @@ public class ParserDDL extends ParserRoutine {
                         break;
                 }
             }
-
             default :
         }
 

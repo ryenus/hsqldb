@@ -233,9 +233,11 @@ public final class Schema implements SchemaObject {
             case SchemaObject.ASSERTION :
                 return assertionLookup.map.values().iterator();
 
+            case SchemaObject.TRIGGER :
+                return triggerLookup.map.values().iterator();
+
             case SchemaObject.INDEX :
             case SchemaObject.CONSTRAINT :
-            case SchemaObject.TRIGGER :
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SchemaManager");
         }

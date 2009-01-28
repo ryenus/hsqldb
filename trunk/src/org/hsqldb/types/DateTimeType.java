@@ -474,7 +474,7 @@ public final class DateTimeType extends DTIType {
                 break;
 
             default :
-                throw Error.error(ErrorCode.X_42562);
+                throw Error.error(ErrorCode.X_42561);
         }
 
         switch (this.typeCode) {
@@ -500,7 +500,7 @@ public final class DateTimeType extends DTIType {
                         return new TimestampData(l / 1000);
                     }
                     default :
-                        throw Error.error(ErrorCode.X_42562);
+                        throw Error.error(ErrorCode.X_42561);
                 }
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 switch (otherType.typeCode) {
@@ -540,7 +540,7 @@ public final class DateTimeType extends DTIType {
                                             session.getZoneSeconds());
                     }
                     default :
-                        throw Error.error(ErrorCode.X_42562);
+                        throw Error.error(ErrorCode.X_42561);
                 }
             case Types.SQL_TIME :
                 switch (otherType.typeCode) {
@@ -575,7 +575,7 @@ public final class DateTimeType extends DTIType {
                                             scaleNanos(ts.getNanos()));
 
                     default :
-                        throw Error.error(ErrorCode.X_42562);
+                        throw Error.error(ErrorCode.X_42561);
                 }
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 switch (otherType.typeCode) {
@@ -618,7 +618,7 @@ public final class DateTimeType extends DTIType {
                                                  session.getZoneSeconds());
                     }
                     default :
-                        throw Error.error(ErrorCode.X_42562);
+                        throw Error.error(ErrorCode.X_42561);
                 }
             case Types.SQL_TIMESTAMP :
                 switch (otherType.typeCode) {
@@ -655,7 +655,7 @@ public final class DateTimeType extends DTIType {
                         return a;
 
                     default :
-                        throw Error.error(ErrorCode.X_42562);
+                        throw Error.error(ErrorCode.X_42561);
                 }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
@@ -664,7 +664,7 @@ public final class DateTimeType extends DTIType {
 
     public Object convertToDefaultType(SessionInterface session,
                                        Object a) throws HsqlException {
-        throw Error.error(ErrorCode.X_42562);
+        throw Error.error(ErrorCode.X_42561);
     }
 
     /** @todo do the time zone */

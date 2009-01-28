@@ -32,6 +32,7 @@
 package org.hsqldb.jdbc;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -62,8 +63,8 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
+import org.hsqldb.SessionInterface;
 import org.hsqldb.Types;
-import org.hsqldb.lib.AsciiStringInputStream;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.navigator.RowSetNavigator;
@@ -81,7 +82,6 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.SessionInterface;
 
 /* $Id$ */
 
@@ -824,8 +824,11 @@ public class JDBCResultSet implements ResultSet {
         if (s == null) {
             return null;
         }
-
-        return new AsciiStringInputStream(s);
+        try {
+            return new ByteArrayInputStream(s.getBytes("US-ASCII"));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     /**
@@ -7170,7 +7173,7 @@ public class JDBCResultSet implements ResultSet {
                              + " to " + targetType.getJDBCClassName()
                              + ", value: " + stringValue;
 
-                Util.throwError(Error.error(ErrorCode.X_42562, msg));
+                Util.throwError(Error.error(ErrorCode.X_42561, msg));
             }
         }
 
