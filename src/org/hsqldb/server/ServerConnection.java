@@ -350,6 +350,7 @@ class ServerConnection implements Runnable {
         char op;
         boolean newTran = false;
         int len = 0;
+        Result errorResult = null;
         try {
             op = (char) dataInput.readByte();
             server.printWithThread("Got op (" + op + ')');
@@ -381,45 +382,41 @@ class ServerConnection implements Runnable {
                     server.printWithThread("Received query (" + sql + ')');
                 }
                 if (normalized.startsWith("select n.nspname,")) {
+                    // Executed by psqlodbc after every user-specified query.
                     server.printWithThread("Swallowing 'select n.nspname,...'");
-                    // TODO:  Minimize the junk here.
-                    // The critical thing is to return no rows.
-                    // Probably fine to return one col. def., or none.
-                    dataOutput.writeByte('T'); // sending a Tuple (row)
-                    dataOutput.writeInt(58); // size
-                    if (server.isTrace()) {
-                        server.printWithThread("### Writing size 58");
-                    }
-                    write((short) 2);          // Num cols.
-                    writeNullTermdUTF("oid"); // Col. name
-                    dataOutput.writeInt(101); // table ID
-                    write((short) 102); // column id
-                    dataOutput.writeInt(26); // Datatype ID  [adtid]
-                    write((short) 4);       // Datatype size  [adtsize]
-                    dataOutput.writeInt(-1); // Var size (always -1 so far)
-                                             // [atttypmod]
-                    write((short) 0);        // text format
-                    writeNullTermdUTF("typbasetype"); // Col. name
-                    dataOutput.writeInt(101); // table ID
-                    write((short) 103); // column id
-                    dataOutput.writeInt(26); // Datatype ID  [adtid]
-                    write((short) 4);       // Datatype size  [adtsize]
-                    dataOutput.writeInt(-1); // Var size (always -1 so far)
-                                             // [atttypmod]
-                    write((short) 0);        // text format
 
+                    PacketOutputStream outPacket =
+                        new PacketOutputStream(new ByteArrayOutputStream());
+                    dataOutput.writeByte('T'); // sending a Tuple (row)
+                    outPacket.writeShort(1);  // Num cols.
+                    outPacket.writeUTF("oid", true);
+                    outPacket.writeInt(201);
+                    outPacket.writeShort(1);
+                    outPacket.writeInt(23);
+                    outPacket.writeShort(4);
+                    outPacket.writeInt(-1);
+                    outPacket.writeShort(0);
+                    dataOutput.write(outPacket.toByteArray());
+                    outPacket.reset();
+                    outPacket.close();
                     // This query returns no rows.  typenam "lo"??
+                    dataOutput.writeByte('C'); // end of rows
+                    dataOutput.writeInt(11); // size
+                    writeNullTermdUTF("SELECT");
+
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
                     if (server.isTrace()) {
-                        server.printWithThread("### Writing size 5");
+                        server.printWithThread("### Writing size 11");
                     }
                     dataOutput.writeInt(5); //size
                     dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+
                 } else if (normalized.startsWith(
                     "select oid, typbasetype from")) {
+                    // Executed by psqlodbc immediately after connecting.
                     server.printWithThread(
                         "Simulating 'select oid, typbasetype...'");
                     /*
@@ -474,11 +471,15 @@ class ServerConnection implements Runnable {
                         org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
                         java.sql.Statement.NO_GENERATED_KEYS, null, null);
                     Result rOut = session.execute(r);
-                    if (rOut.getType() != ResultConstants.DATA) {
-                        throw new RecoverableFailure(
-                                "Output Result from SELECT statement not of "
-                                + "type DATA.  Type (" + rOut.getType()
-                                + ')');
+                    switch (rOut.getType()) {
+                        case ResultConstants.DATA:
+                            break;
+                        case ResultConstants.ERROR:
+                            errorResult = rOut;
+                        default:
+                            throw new RecoverableFailure(
+                                "Output Result from Query execution is of "
+                                + "unexpected type: " + rOut.getType());
                     }
                     // See Result.newDataHeadResult() for what we have here
                     // .metaData, .navigator
@@ -579,8 +580,9 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         server.printWithThread("Row " + rowNum + " has "
                                 + rowData.length + " elements");
                         dataOutput.writeByte('D'); // text row Data
-                        outPacket.writeShort(rowNum);
-                         // A cache or key counter that is ignored by client
+                        outPacket.writeShort(colNames.length);
+                         // This field could is just swallowed by PG ODBC
+                         // client, but validated by psql.
                         for (int i = 0; i < colNames.length; i++) {
                             if (rowData[i] == null) {
                                 outPacket.writeInt(-1);
@@ -599,7 +601,9 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
-                    server.printWithThread("### Writing size 5");
+                    if (server.isTrace()) {
+                        server.printWithThread("### Writing size 5");
+                    }
                     dataOutput.writeInt(5); //size
                     dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else if (normalized.startsWith("set client_encoding to ")) {
@@ -629,11 +633,15 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
                         java.sql.Statement.NO_GENERATED_KEYS, null, null);
                     Result rOut = session.execute(r);
-                    if (rOut.getType() != ResultConstants.UPDATECOUNT) {
-                        throw new RecoverableFailure(
-                                "Output Result from UPDATE statement not of "
-                                + "type UPDATECOUNT.  Type (" + rOut.getType()
-                                + ')');
+                    switch (rOut.getType()) {
+                        case ResultConstants.UPDATECOUNT:
+                            break;
+                        case ResultConstants.ERROR:
+                            errorResult = rOut;
+                        default:
+                            throw new RecoverableFailure(
+                                "Output Result from execution is of "
+                                + "unexpected type: " + rOut.getType());
                     }
                     String replyString = execDirectReplyString(normalized,
                             rOut.getUpdateCount());
@@ -663,11 +671,19 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 throw new RecoverableFailure("Unsupported op type (" + op + ')',
                     "Unsupported operation type (" + op + ')');
         } } catch (RecoverableFailure rf) {
-            server.printWithThread(rf.getMessage());
-            alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage());
+            if (errorResult == null) {
+                server.printWithThread(rf.getMessage());
+                alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage());
+                // We continue on, hoping for client to send us a valid op.
+            } else {
+                alertOdbcClient(ODBC_SEVERITY_ERROR,
+                    errorResult.getMainString(), errorResult.getSubString());
+            }
             // We continue on, hoping for client to send us a valid op.
             dataOutput.writeByte('Z');
-            server.printWithThread("### Writing size 5");
+            if (server.isTrace()) {
+                server.printWithThread("### Writing size 5");
+            }
             dataOutput.writeInt(5); //size
             dataOutput.writeByte('E');
         }
