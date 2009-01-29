@@ -398,7 +398,7 @@ class ServerConnection implements Runnable {
                     write((short) 4);       // Datatype size  [adtsize]
                     dataOutput.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
-                    write((short) 0);        // client swallows a "format" int?
+                    write((short) 0);        // text format
                     writeNullTermdUTF("typbasetype"); // Col. name
                     dataOutput.writeInt(101); // table ID
                     write((short) 103); // column id
@@ -406,7 +406,7 @@ class ServerConnection implements Runnable {
                     write((short) 4);       // Datatype size  [adtsize]
                     dataOutput.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
-                    write((short) 0);        // client swallows a "format" int?
+                    write((short) 0);        // text format
 
                     // This query returns no rows.  typenam "lo"??
                     dataOutput.writeByte('C'); // end of rows
@@ -439,7 +439,7 @@ class ServerConnection implements Runnable {
                     write((short) 4);       // Datatype size  [adtsize]
                     dataOutput.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
-                    write((short) 0);        // client swallows a "format" int?
+                    write((short) 0);        // text format
                     writeNullTermdUTF("typbasetype"); // Col. name
                     dataOutput.writeInt(101); // table ID
                     write((short) 103); // column id
@@ -447,7 +447,7 @@ class ServerConnection implements Runnable {
                     write((short) 4);       // Datatype size  [adtsize]
                     dataOutput.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
-                    write((short) 0);        // client swallows a "format" int?
+                    write((short) 0);        // text format
 
                     // This query returns no rows.  typenam "lo"??
                     dataOutput.writeByte('C'); // end of rows
@@ -512,6 +512,13 @@ class ServerConnection implements Runnable {
                             + colNames.length + " col. names");
                     }
                     org.hsqldb.types.Type[] colTypes = md.getParameterTypes();
+                    boolean[] integers = new boolean[colTypes.length];
+                    for (int i = 0; i < integers.length; i++) {
+                        integers[i] =
+                            colTypes[i] instanceof org.hsqldb.types.NumberType
+                            && ((org.hsqldb.types.NumberType) colTypes[i])
+                            .getPrecision()/8 == 4;
+                    }
 for (int j = 0; j < colTypes.length; j++) server.print("coltype " + j + ": " + colTypes[j].typeCode + " / " + colTypes[j].getNameString());
                     org.hsqldb.ColumnBase[] colDefs = md.columns;
 for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
@@ -538,17 +545,18 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                             // TODO:  FIX This ID does not stick with the
                             // column, but just represents the position in this
                             // query.
-                        // TODO:  Map from colType[i] to PG adtid:
-                        outPacket.writeInt(1043); // Datatype ID  [adtid]
-                        outPacket.writeShort(-1); // Datatype size  [adtsize]
-                            // TODO:  Get from the colType[i]
-                        outPacket.writeInt(-1); // Var size (always -1 so far)
-                                                 // [atttypmod]
+                        // TODO:  Map from colTypes[i] to PG adtid:
+                        outPacket.writeInt(integers[i] ? 23 : 1043);
+                        // Datatype size  [adtsize]
+                        outPacket.writeShort(integers[i] ? 4 : -1);
+                        outPacket.writeInt(-1); // Var size [atttypmod]
                             // TODO:  Get from the colType[i]
                         // This is the size constraint integer
                         // like VARCHAR(12) or DECIMAL(4).
                         // -1 if none specified for this column.
-                        outPacket.writeShort(0);  // client swallows a "format" int?
+                        outPacket.writeShort(0);  // text format 0 for all
+                                                  // "displayable" as text.
+                                                  // 1 for binaries like Objs.
                     }
                     dataOutput.write(outPacket.toByteArray());
                     outPacket.reset();
