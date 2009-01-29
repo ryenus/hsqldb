@@ -2995,6 +2995,7 @@ public class SqlFile {
                 int[]             maxWidth = new int[incCount];
                 int               insi;
                 boolean           skip;
+                boolean           isValNull;
 
                 // STEP 1: GATHER DATA
                 if (!htmlMode) {
@@ -3100,6 +3101,7 @@ public class SqlFile {
                         }
 
                         val = null;
+                        isValNull = true;
 
                         if (!binary) {
                             /*
@@ -3121,6 +3123,7 @@ public class SqlFile {
                                 case java.sql.Types.DATE:
                                 case java.sql.Types.TIME:
                                     ts  = r.getTimestamp(i);
+                                    isValNull = r.wasNull();
                                     val = ((ts == null) ? null : ts.toString());
                                     // Following block truncates non-zero
                                     // sub-seconds from time types OTHER than
@@ -3145,6 +3148,7 @@ public class SqlFile {
                                     break;
                                 default:
                                     val = r.getString(i);
+                                    isValNull = r.wasNull();
 
                                     // If we tried to get a String but it
                                     // failed, try getting it with a String
@@ -3153,16 +3157,18 @@ public class SqlFile {
                                         try {
                                             val = streamToString(
                                                 r.getAsciiStream(i), charset);
+                                            isValNull = r.wasNull();
                                         } catch (Exception e) {
-                                            // Why not handling this?
-                                            // Perhaps only coding exception for
-                                            // char set we know we have.
+                                            // This isn't an error.
+                                            // We are attempting to do a stream
+                                            // fetch if-and-only-if the column
+                                            // supports it.
                                         }
                                     }
                             }
                         }
 
-                        if (binary || (val == null &&!r.wasNull())) {
+                        if (binary || (val == null &&!isValNull)) {
                             if (pwDsv != null) {
                                 throw new SqlToolError(
                                         rb.getString(SqltoolRB.DSV_BINCOL));
@@ -3173,6 +3179,7 @@ public class SqlFile {
                             try {
                                 binBuffer =
                                     SqlFile.streamToBytes(r.getBinaryStream(i));
+                                isValNull = r.wasNull();
                             } catch (IOException ioe) {
                                 throw new SqlToolError(
                                     "Failed to read value using stream",
