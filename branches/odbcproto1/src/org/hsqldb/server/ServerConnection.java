@@ -286,6 +286,30 @@ class ServerConnection implements Runnable {
     }
 
     private class CleanExit extends Exception {}
+    private class ClientFailure extends Exception {
+        private String clientMessage = null;
+        public ClientFailure(String ourMessage, String clientMessage) {
+            super(ourMessage);
+            this.clientMessage = clientMessage;
+        }
+        public String getClientMessage() {
+            return clientMessage;
+        }
+    }
+    private class RecoverableFailure extends Exception {
+        private String clientMessage = null;
+        public RecoverableFailure(String m) {
+            this(m, m);
+        }
+        public RecoverableFailure(String ourMessage, String clientMessage) {
+            super(ourMessage);
+            this.clientMessage = clientMessage;
+        }
+        public String getClientMessage() {
+            return clientMessage;
+        }
+    }
+
     private CleanExit cleanExit = new CleanExit();
 
     private void hsqlResultCycle()
@@ -323,15 +347,25 @@ class ServerConnection implements Runnable {
 
     private boolean inOdbcTrans = false;
     private void odbcXmitCycle() throws IOException, CleanExit {
-        char op = (char) dataInput.readByte();
-        server.print("Got op (" + op + ')');
+        char op;
         boolean newTran = false;
-        switch (op) {
-            case 'X':
+        int len = 0;
+        try {
+            op = (char) dataInput.readByte();
+            server.printWithThread("Got op (" + op + ')');
+            if (op == 'X') { // All other op types will send a length
                 throw cleanExit;
+            }
+            len = dataInput.readInt() - 4;
+            server.printWithThread("Got packet length of " + len);
+        } catch (IOException e) {
+            server.printWithThread("Fatal ODBC protocol failure: " + e);
+            alertOdbcClient(ODBC_SEVERITY_FATAL, e.getMessage());
+            // TODO:  Figure out whether should zend a Z..E packet here.
+            return;
+        }
+        try { switch (op) {
             case 'Q':
-                int len = dataInput.readInt() - 4;
-                server.print("Got query length of " + len);
                 String sql = readNullTermdUTF(len - 1);
                  // We don't ask for the null terminator
                 if (sql.startsWith("BEGIN;")) {
@@ -347,13 +381,15 @@ class ServerConnection implements Runnable {
                     server.printWithThread("Received query (" + sql + ')');
                 }
                 if (normalized.startsWith("select n.nspname,")) {
-                    server.print("Swallowing 'select n.nspname,...'");
+                    server.printWithThread("Swallowing 'select n.nspname,...'");
                     // TODO:  Minimize the junk here.
                     // The critical thing is to return no rows.
                     // Probably fine to return one col. def., or none.
                     dataOutput.writeByte('T'); // sending a Tuple (row)
                     dataOutput.writeInt(58); // size
-server.print("### Writing size 58");
+                    if (server.isTrace()) {
+                        server.printWithThread("### Writing size 58");
+                    }
                     write((short) 2);          // Num cols.
                     writeNullTermdUTF("oid"); // Col. name
                     dataOutput.writeInt(101); // table ID
@@ -377,19 +413,24 @@ server.print("### Writing size 58");
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
-                    server.print("### Writing size 5");
+                    if (server.isTrace()) {
+                        server.printWithThread("### Writing size 5");
+                    }
                     dataOutput.writeInt(5); //size
                     dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else if (normalized.startsWith(
                     "select oid, typbasetype from")) {
-                    server.print("Simulating 'select oid, typbasetype...'");
+                    server.printWithThread(
+                        "Simulating 'select oid, typbasetype...'");
                     /*
                      * This query is run as "a hack to get the oid of our
                      * large object oid type.
                      */
                     dataOutput.writeByte('T'); // sending a Tuple (row)
                     dataOutput.writeInt(58); // size
-server.print("### Writing size 58");
+                    if (server.isTrace()) {
+                        server.printWithThread("### Writing size 58");
+                    }
                     write((short) 2);          // Num cols.
                     writeNullTermdUTF("oid"); // Col. name
                     dataOutput.writeInt(101); // table ID
@@ -413,12 +454,15 @@ server.print("### Writing size 58");
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
-                    server.print("### Writing size 5");
+                    if (server.isTrace()) {
+                        server.printWithThread("### Writing size 5");
+                    }
                     dataOutput.writeInt(5); //size
                     dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else if (normalized.startsWith("select ")) {
-                    server.print("Performing a real non-prepared SELECT...");
-                    PacketOutputStream dataWriterPacket =
+                    server.printWithThread(
+                        "Performing a real non-prepared SELECT...");
+                    PacketOutputStream outPacket =
                         new PacketOutputStream(new ByteArrayOutputStream());
                     Result r = Result.newExecuteDirectRequest();
                     // sePrepare...() normally used on client side in
@@ -431,7 +475,7 @@ server.print("### Writing size 58");
                         java.sql.Statement.NO_GENERATED_KEYS, null, null);
                     Result rOut = session.execute(r);
                     if (rOut.getType() != ResultConstants.DATA) {
-                        throw new RuntimeException(
+                        throw new RecoverableFailure(
                                 "Output Result from SELECT statement not of "
                                 + "type DATA.  Type (" + rOut.getType()
                                 + ')');
@@ -442,91 +486,131 @@ server.print("### Writing size 58");
                             rOut.getNavigator();
                     if (!(navigator instanceof
                         org.hsqldb.navigator.RowSetNavigatorData)) {
-                        throw new RuntimeException(
+                        throw new RecoverableFailure(
                                 "Unexpected RowSetNavigator instance type: "
                                 + navigator.getClass().getName());
                     }
                     org.hsqldb.navigator.RowSetNavigatorData navData =
                         (org.hsqldb.navigator.RowSetNavigatorData) navigator;
+                    org.hsqldb.result.ResultMetaData md = rOut.metaData;
+                    if (md == null) {
+                        throw new RecoverableFailure(
+                            "Failed to get metadata for query results");
+                    }
+                    if (md.getColumnCount() != md.getColumnCount()) {
+                        throw new RecoverableFailure(
+                            "Output column count mismatch: "
+                            + md.getColumnCount() + " cols. and "
+                            + md.getExtendedColumnCount()
+                            + " extended cols. reported");
+                    }
+                    String[] colNames = md.getGeneratedColumnNames();
+                    if (md.getColumnCount() != colNames.length) {
+                        throw new RecoverableFailure(
+                            "Couldn't get all column names: "
+                            + md.getColumnCount() + " cols. but only got "
+                            + colNames.length + " col. names");
+                    }
+                    org.hsqldb.types.Type[] colTypes = md.getParameterTypes();
+for (int j = 0; j < colTypes.length; j++) server.print("coltype " + j + ": " + colTypes[j].typeCode + " / " + colTypes[j].getNameString());
+                    org.hsqldb.ColumnBase[] colDefs = md.columns;
+for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
++ colDefs[j].getNameString() + ") tbl name (" + colDefs[j].getTableNameString()
++ ')');
+                    if (colNames.length != colDefs.length) {
+                        throw new RecoverableFailure("Col data mismatch.  "
+                                + colDefs.length + " col instances but "
+                                + colNames.length + " col names");
+                    }
                     dataOutput.writeByte('T'); // sending a Tuple (row)
+                    outPacket.writeShort(colNames.length);  // Num cols.
+                    for (int i = 0; i < colNames.length; i++) {
+                        outPacket.writeUTF(colNames[i], true); // Col. name
+                        // table ID  [relid]:
+                        outPacket.writeInt((colDefs[i].getNameString() == null)
+                            ? 0
+                            : (colDefs[i].getSchemaNameString() + '.'
+                                + colDefs[i].getTableNameString()).hashCode());
+                        // column id  [attid]
+                        outPacket.writeShort(
+                            (colDefs[i].getTableNameString() == null)
+                            ? 0 : (i + 1));
+                            // TODO:  FIX This ID does not stick with the
+                            // column, but just represents the position in this
+                            // query.
+                        // TODO:  Map from colType[i] to PG adtid:
+                        outPacket.writeInt(1043); // Datatype ID  [adtid]
+                        outPacket.writeShort(-1); // Datatype size  [adtsize]
+                            // TODO:  Get from the colType[i]
+                        outPacket.writeInt(-1); // Var size (always -1 so far)
+                                                 // [atttypmod]
+                            // TODO:  Get from the colType[i]
+                        // This is the size constraint integer
+                        // like VARCHAR(12) or DECIMAL(4).
+                        // -1 if none specified for this column.
+                        outPacket.writeShort(0);  // client swallows a "format" int?
+                    }
+                    dataOutput.write(outPacket.toByteArray());
+                    outPacket.reset();
                     int rowNum = 0;
                     while (navData.next()) {
                         rowNum++;
                         Object[] rowData = (Object[]) navData.getCurrent();
-                        if (rowNum == 1) {
-                            PacketOutputStream packet = new PacketOutputStream(
-                                new ByteArrayOutputStream());
-                            //TODO: This isn't going to work for 0 row queries.
-                            //Need to get the metadata before getting any data!
-                            //Just don't know how to do that yet.
-                            packet.writeShort((rowData.length - 1));  // Num cols.
-                            for (int i = 0; i < rowData.length - 1; i++) {
-                                packet.writeUTF("C" + (i+1), true); // Col. name
-                                packet.writeInt(201); // table ID
-                                packet.writeShort(300 + i); // column id
-                                packet.writeInt(1043); // Datatype ID  [adtid]
-                                packet.writeShort(-1); // Datatype size  [adtsize]
-                                packet.writeInt(-1); // Var size (always -1 so far)
-                                                         // [atttypmod]
-                                // This is the size constraint integer
-                                // like VARCHAR(12) or DECIMAL(4).
-                                // -1 if none specified for this column.
-                                packet.writeShort(0);  // client swallows a "format" int?
-                            }
-                            dataOutput.write(packet.toByteArray());
-                            packet.close();
-                        }
                         // Row.getData().  Don't know why *Data.getCurrent()
                         //                 method returns Object instead of O[].
                         //  TODO:  Remove the assertion here:
                         if (rowData == null)
-                            throw new RuntimeException("Null row?");
+                            throw new RecoverableFailure("Null row?");
+                        if (rowData.length < colNames.length) {
+                            throw new RecoverableFailure(
+                                "Data element mismatch. "
+                                + colNames.length + " metadata cols, yet "
+                                + rowData.length + " data elements for row "
+                                + rowNum);
+                        }
+                        server.printWithThread("Row " + rowNum + " has "
+                                + rowData.length + " elements");
                         dataOutput.writeByte('D'); // text row Data
-                        dataWriterPacket.writeShort(rowNum);
+                        outPacket.writeShort(rowNum);
                          // A cache or key counter that is ignored by client
-                        for (int i = 0; i < rowData.length - 1; i++) {
+                        for (int i = 0; i < colNames.length; i++) {
                             if (rowData[i] == null) {
-                                dataWriterPacket.writeInt(-1);
+                                outPacket.writeInt(-1);
                             } else {
-                                dataWriterPacket.writeSized(rowData[i].toString());
+                                outPacket.writeSized(rowData[i].toString());
                             }
-                            server.print("R" + rowNum + "C" + (i+1)
+                            server.printWithThread("R" + rowNum + "C" + (i+1)
                                     + " => (" + rowData[i].getClass().getName()
                                     + ") [" + rowData[i] + ']');
                         }
-                        dataOutput.write(dataWriterPacket.toByteArray());
-                        dataWriterPacket.reset();
+                        dataOutput.write(outPacket.toByteArray());
+                        outPacket.reset();
                     }
-                    dataWriterPacket.close();
+                    outPacket.close();
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
                     dataOutput.writeByte('Z');
-                    server.print("### Writing size 5");
+                    server.printWithThread("### Writing size 5");
                     dataOutput.writeInt(5); //size
                     dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else if (normalized.startsWith("set client_encoding to ")) {
-                    server.print("Stubbing a 'set client_encoding to...'");
+                    server.printWithThread(
+                        "Stubbing a 'set client_encoding to...'");
                     dataOutput.writeByte('C');
                     dataOutput.writeInt("SET".length() + 5); // size
                     writeNullTermdUTF("SET");
                     dataOutput.writeByte('Z');
-                    server.print("### Writing size 5");
+                    if (server.isTrace()) {
+                        server.printWithThread("### Writing size 5");
+                    }
                     dataOutput.writeInt(5); //size
                     dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else {
-                /*
-                } else if (normalized.startsWith("update ")
-                        || normalized.startsWith("commit ")
-                        || normalized.startsWith("rollback ")
-                        || normalized.equals("commit")
-                        || normalized.equals("rollback")
-                ) {
-                */
                     // TODO:  ROLLBACK is badly broken.
                     // I think that when a ROLLBACK of an update is done here,
                     // it actually inserts new rows!
-                    server.print("Performing a real EXECDIRECT...");
+                    server.printWithThread("Performing a real EXECDIRECT...");
                     Result r = Result.newExecuteDirectRequest();
                     // sePrepare...() normally used on client side in
                     // JDBCStatement.
@@ -538,7 +622,7 @@ server.print("### Writing size 58");
                         java.sql.Statement.NO_GENERATED_KEYS, null, null);
                     Result rOut = session.execute(r);
                     if (rOut.getType() != ResultConstants.UPDATECOUNT) {
-                        throw new RuntimeException(
+                        throw new RecoverableFailure(
                                 "Output Result from UPDATE statement not of "
                                 + "type UPDATECOUNT.  Type (" + rOut.getType()
                                 + ')');
@@ -550,7 +634,9 @@ server.print("### Writing size 58");
                     writeNullTermdUTF(replyString);
 
                     dataOutput.writeByte('Z');
-                    server.print("### Writing size 5");
+                    if (server.isTrace()) {
+                        server.printWithThread("### Writing size 5");
+                    }
                     dataOutput.writeInt(5); //size
                     dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
 
@@ -563,19 +649,19 @@ server.print("### Writing size 58");
                         || normalized.startsWith("savepoint ")) {
                         inOdbcTrans = false;
                     }
-                /*
-                } else {
-                    warnOdbcClient(
-                            false, "Sorry, only null queries supported so far");
-                */
                 }
                 break;
             default:
-                warnOdbcClient(
-                        false, "Unsupported operation type (" + op + ')');
-                // May be impossible to recover in practice, since every
-                // op. type will probably be followed by data which we will
-                // choke on forthwith.  }
+                throw new RecoverableFailure("Unsupported op type (" + op + ')',
+                    "Unsupported operation type (" + op + ')');
+        } } catch (RecoverableFailure rf) {
+            server.printWithThread(rf.getMessage());
+            alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage());
+            // We continue on, hoping for client to send us a valid op.
+            dataOutput.writeByte('Z');
+            server.printWithThread("### Writing size 5");
+            dataOutput.writeInt(5); //size
+            dataOutput.writeByte('E');
         }
     }
 
@@ -797,7 +883,9 @@ server.print("### Writing size 58");
         if (size < 0) {
             size = dataInput.readInt() - 4;
         }
-        server.print("Reading " + size + " more bytes (after 4)");
+        if (server.isTrace()) {
+            server.printWithThread("Reading " + size + " more bytes (after 4)");
+        }
         byte[] ba = new byte[size];
         dataInput.read(ba);
         return ba;
@@ -806,84 +894,81 @@ server.print("### Writing size 58");
     private void odbcConnect(int firstInt) throws IOException, HsqlException {
         int major = dataInput.readUnsignedShort();
         int minor = dataInput.readUnsignedShort();
-        server.print("ODBC client connected.  "
+        server.printWithThread("ODBC client connected.  "
                 + "ODBC Protocol Compatibility Version " + major + '.' + minor);
         byte[] packet = readPacket(firstInt - 8);
           // - 4 for size of firstInt - 2 for major - 2 for minor
         java.util.Map stringPairs = readStringPairs(packet);
         //server.print("String Pairs: " + stringPairs);
-        if (!stringPairs.containsKey("database")) {
-            throw new IOException("Client did not identify database");
-        }
-        if (!stringPairs.containsKey("user")) {
-            throw new IOException("Client did not identify user");
-        }
-        String databaseName = (String) stringPairs.get("database");
-        user = (String) stringPairs.get("user");
-
-        if (databaseName.equals("/")) {
-            // Work-around because ODBC doesn't allow "" for Database name
-            databaseName = "";
-        }
-        server.print("DB: " + databaseName);
-        server.print("User: " + user);
-        /* psql doesn't like this N before the R:
-        dataOutput.writeByte('N');
-        writeUTFPacket(new String[] {
-            "Hello",
-            "You have connected to HyperSQL ODBC Server"
-        });
-        */
-        /*  Seems that this sequence is equivalent to doing nothing.
-         *  Not required by Postgresql ODBC driver (though it wouldn't hurt).
-         *  I leave this here, commented out, because non-ODBC Postgresql
-         *  clients may expect R behavior, and this may satisfy them.
-        dataOutput.writeByte('R');
-        dataOutput.writeByte(0);
-        */
-
-        /* Unencoded/unsalted authentication */
-        dataOutput.writeByte('R');
-server.print("### Writing size 8");
-        dataOutput.writeInt(8); //size
-        dataOutput.writeInt(ODBC_AUTH_REQ_PASSWORD); // areq of auth. mode.
-        char c = '\0';
         try {
-            c = (char) dataInput.readByte();
-        } catch (EOFException eofe) {
-            server.printWithThread(
-                "Looks like we got a goofy psql no-auth attempt.  "
-                + "Will probably retry properly very shortly");
+            if (!stringPairs.containsKey("database")) {
+                throw new ClientFailure("Client did not identify database",
+                        "Target database not identified");
+            }
+            if (!stringPairs.containsKey("user")) {
+                throw new ClientFailure("Client did not identify user",
+                        "Target account not identified");
+            }
+            String databaseName = (String) stringPairs.get("database");
+            user = (String) stringPairs.get("user");
+
+            if (databaseName.equals("/")) {
+                // Work-around because ODBC doesn't allow "" for Database name
+                databaseName = "";
+            }
+            server.printWithThread("DB: " + databaseName);
+            server.printWithThread("User: " + user);
+
+            /* Unencoded/unsalted authentication */
+            dataOutput.writeByte('R');
+            dataOutput.writeInt(8); //size
+            dataOutput.writeInt(ODBC_AUTH_REQ_PASSWORD); // areq of auth. mode.
+            char c = '\0';
+            try {
+                c = (char) dataInput.readByte();
+            } catch (EOFException eofe) {
+                server.printWithThread(
+                    "Looks like we got a goofy psql no-auth attempt.  "
+                    + "Will probably retry properly very shortly");
+                return;
+            }
+            if (c != 'p') {
+                throw new ClientFailure("Expected password prefix 'p', "
+                    + "but got '" + c + "'",
+                    "Password value not prefixed with 'p'");
+            }
+            int len = dataInput.readInt() - 5;
+                // Is password len after -4 for count int -1 for null term
+            if (len < 0) {
+                throw new ClientFailure(
+                    "User submitted password length " + len,
+                    "Empty passwords not allowed");
+            }
+            String password = readNullTermdUTF(len);
+
+            dbIndex = server.getDBIndex(databaseName);
+            dbID    = server.dbID[dbIndex];
+
+            if (!server.isSilent()) {
+                server.printWithThread(mThread + ":Trying to connect user '"
+                                   + user + "' to DB (" + databaseName + ')');
+            }
+
+            try {
+                session = DatabaseManager.newSession(dbID, user, password, 0);
+                // TODO:  Find out what updateCount, the last para, is for:
+                //                                   resultIn.getUpdateCount());
+            } catch (Exception e) {
+                throw new ClientFailure("User name or password denied: " + e,
+                    "Login attempt rejected");
+            }
+        } catch (ClientFailure cf) {
+            server.print(cf.getMessage());
+            alertOdbcClient(ODBC_SEVERITY_FATAL, cf.getClientMessage());
             return;
         }
-        if (c != 'p') {
-            throw new IOException("Expected password prefix 'p', but got '"
-                    + c + "'");
-        }
-        int len = dataInput.readInt() - 5;
-            // Is password len after -4 for count int -1 for null term
-        if (len < 0) {
-            throw new IllegalArgumentException(
-                    "Non-empty passwords required.  "
-                    + "User submitted password length " + len);
-        }
-        String password = readNullTermdUTF(len);
-
-        dbIndex = server.getDBIndex(databaseName);
-        dbID    = server.dbID[dbIndex];
-
-        if (!server.isSilent()) {
-            server.printWithThread(mThread + ":Trying to connect user '"
-                               + user + "' to DB (" + databaseName + ')');
-        }
-
-        session = DatabaseManager.newSession(dbID, user,
-                                             password, 0);
-        // TODO:  Find out what updateCount, the last para, is for:
-        //                                   resultIn.getUpdateCount());
 
         dataOutput.writeByte('R'); // Notify client of success
-server.print("### Writing size 8");
         dataOutput.writeInt(8); //size
         dataOutput.writeInt(ODBC_AUTH_REQ_OK); //success
 
@@ -897,10 +982,18 @@ server.print("### Writing size 8");
         }
 
         dataOutput.writeByte('Z');
-server.print("### Writing size 5");
+        if (server.isTrace()) {
+            server.printWithThread("### Writing size 5");
+        }
         dataOutput.writeInt(5); //size
         dataOutput.writeByte('I'); // I think this says to inherit transaction,
                                    // if there is one.  Could be wrong.
+
+        dataOutput.writeByte('N');
+        writeUTFPacket(new String[] {
+            "MHello",
+            "MYou have connected to HyperSQL ODBC Server"
+        });
     }
 
     private java.util.Map readStringPairs(byte[] inbuf) throws IOException {
@@ -1141,7 +1234,10 @@ server.print("### Writing size 5");
 
         public byte[] toByteArray() {
             byte[] ba = byteArrayOutputStream.toByteArray();
-            server.print("Returning byte array with Write size " + ba.length);
+            if (server.isTrace()) {
+                server.printWithThread("Returning byte array with Write size "
+                    + ba.length);
+            }
             ba[0] = (byte) (ba.length >>> 24);
             ba[1] = (byte) (ba.length >>> 16);
             ba[2] = (byte) (ba.length >>> 8);
@@ -1180,7 +1276,10 @@ server.print("### Writing size 5");
             accumulator.write(0);
         }
         dataOutput.writeInt(accumulator.size() + 4);
-server.print("### Writing size " + (accumulator.size() + 4));
+        if (server.isTrace()) {
+            server.printWithThread("### Writing size " + (accumulator.size()
+                + 4));
+        }
         dataOutput.write(accumulator.toByteArray());
         accumulator.close();
     }
@@ -1200,15 +1299,23 @@ server.print("### Writing size " + (accumulator.size() + 4));
     static private final int ODBC_STREAM_PROTOCOL = 2;
     private int streamProtocol = UNDEFINED_STREAM_PROTOCOL;
 
-    private void warnOdbcClient(boolean disconnect, String message)
+    private void alertOdbcClient(int severity, String message)
     throws IOException {
+        alertOdbcClient(severity, message, "00000");
+    }
+
+    private void alertOdbcClient(int severity, String message, String sqlCode)
+    throws IOException {
+        if (!odbcSeverityMap.containsKey(severity)) {
+            throw new IllegalArgumentException(
+                "Unknown severity value (" + severity + ')');
+        }
         dataOutput.writeByte('E');
-        writeNullTermdUTF((disconnect ? "FATAL " : "") + message);
-        /*
-         * This method makes more sense from Java, but the "new_format" method
-         * sends 'E', '\0', length, message
-         * where length = int length of message + 4 for the length int itself.
-         */
+        writeUTFPacket(new String[] {
+            "S" + odbcSeverityMap.get(severity),
+            "C" + sqlCode,
+            "M" + message,
+        });
     }
 
     static String[][] hardcodedOdbcParams = new String[][] {
@@ -1222,4 +1329,13 @@ server.print("### Writing size " + (accumulator.size() + 4));
         new String[] { "standard_conforming_strings", "off" },
         new String[] { "TimeZone", "US/Eastern" },
     };
+
+    private static final int ODBC_SEVERITY_FATAL = 1;
+    private static final int ODBC_SEVERITY_ERROR = 2;
+    private static org.hsqldb.lib.IntKeyHashMap odbcSeverityMap =
+        new org.hsqldb.lib.IntKeyHashMap();
+    static {
+        odbcSeverityMap.put(ODBC_SEVERITY_FATAL, "FATAL");
+        odbcSeverityMap.put(ODBC_SEVERITY_ERROR, "ERROR");
+    }
 }
