@@ -298,12 +298,21 @@ class ServerConnection implements Runnable {
     }
     private class RecoverableFailure extends Exception {
         private String clientMessage = null;
+        private String sqlCode = null;
+        public String getSqlCode() {
+            return sqlCode;
+        }
         public RecoverableFailure(String m) {
             this(m, m);
         }
         public RecoverableFailure(String ourMessage, String clientMessage) {
             super(ourMessage);
             this.clientMessage = clientMessage;
+        }
+        public RecoverableFailure(
+        String ourMessage, String clientMessage, String sqlCode) {
+            this(ourMessage, clientMessage);
+            this.sqlCode = sqlCode;
         }
         public String getClientMessage() {
             return clientMessage;
@@ -361,7 +370,8 @@ class ServerConnection implements Runnable {
             server.printWithThread("Got packet length of " + len);
         } catch (IOException e) {
             server.printWithThread("Fatal ODBC protocol failure: " + e);
-            alertOdbcClient(ODBC_SEVERITY_FATAL, e.getMessage());
+            alertOdbcClient(ODBC_SEVERITY_FATAL, e.getMessage(), "08P01");
+                                 // Code here means Protocol Violation
             // TODO:  Figure out whether should zend a Z..E packet here.
             return;
         }
@@ -377,11 +387,35 @@ class ServerConnection implements Runnable {
                     dataOutput.writeInt(10); // size
                     writeNullTermdUTF("BEGIN");
                 }
+                if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 8) {
+                    throw new RecoverableFailure(
+                        "SAVEPOINT prefix not supported yet", "0A000");
+                    // TODO:  Implement this in similar fashion to BEGIN; prefix
+                }
+                if (sql.indexOf(";RELEASE ") > 0) {
+                    throw new RecoverableFailure(
+                        "';RELEASE <id>' suffix not supported yet", "0A000");
+                    // TODO:  Implement this in similar fashion to BEGIN; prefix
+                }
                 String normalized = sql.trim().toLowerCase();
                 if (server.isTrace()) {
                     server.printWithThread("Received query (" + sql + ')');
                 }
-                if (normalized.startsWith("select n.nspname,")) {
+
+                // BEWARE:  We aren't supporting multiple result-sets from a
+                // compound statement.  Plus for ODBC only, we have the added
+                // constraint that the SELECT must be the first component
+                // statement so that we can detect the statement type.
+                // If we do parse out the component statement here, the states
+                // set above apply to all executions, and only one Z packet
+                // should be sent at the very end.
+
+                if (normalized.startsWith("select current_schema()")) {
+                    server.printWithThread(
+                            "Implement 'select current_schema() emulation!");
+                    throw new RecoverableFailure(
+                        "current_schema() not supported yet", "0A000");
+                } else if (normalized.startsWith("select n.nspname,")) {
                     // Executed by psqlodbc after every user-specified query.
                     server.printWithThread("Swallowing 'select n.nspname,...'");
 
@@ -407,13 +441,6 @@ class ServerConnection implements Runnable {
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
-                    dataOutput.writeByte('Z');
-                    if (server.isTrace()) {
-                        server.printWithThread("### Writing size 11");
-                    }
-                    dataOutput.writeInt(5); //size
-                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-
                 } else if (normalized.startsWith(
                     "select oid, typbasetype from")) {
                     // Executed by psqlodbc immediately after connecting.
@@ -436,7 +463,7 @@ class ServerConnection implements Runnable {
                     write((short) 4);       // Datatype size  [adtsize]
                     dataOutput.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
-                    write((short) 0);        // text format
+                    write((short) 0);        // text "format code"
                     writeNullTermdUTF("typbasetype"); // Col. name
                     dataOutput.writeInt(101); // table ID
                     write((short) 103); // column id
@@ -444,18 +471,12 @@ class ServerConnection implements Runnable {
                     write((short) 4);       // Datatype size  [adtsize]
                     dataOutput.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
-                    write((short) 0);        // text format
+                    write((short) 0);        // text "format code"
 
                     // This query returns no rows.  typenam "lo"??
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
-                    dataOutput.writeByte('Z');
-                    if (server.isTrace()) {
-                        server.printWithThread("### Writing size 5");
-                    }
-                    dataOutput.writeInt(5); //size
-                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else if (normalized.startsWith("select ")) {
                     server.printWithThread(
                         "Performing a real non-prepared SELECT...");
@@ -555,9 +576,9 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         // This is the size constraint integer
                         // like VARCHAR(12) or DECIMAL(4).
                         // -1 if none specified for this column.
-                        outPacket.writeShort(0);  // text format 0 for all
-                                                  // "displayable" as text.
-                                                  // 1 for binaries like Objs.
+                        outPacket.writeShort(0);
+                        // format code must be 0 if D packets will follow;
+                        // and 1 if B packets will follow.
                     }
                     dataOutput.write(outPacket.toByteArray());
                     outPacket.reset();
@@ -580,44 +601,39 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         server.printWithThread("Row " + rowNum + " has "
                                 + rowData.length + " elements");
                         dataOutput.writeByte('D'); // text row Data
+                          /* Should be 'B' to return binary results like Objs
+                           * or BLOBs.  Otherwise should be 'B'.
+                           * This must corresopnd to the T packet's format
+                           * code. */
                         outPacket.writeShort(colNames.length);
                          // This field could is just swallowed by PG ODBC
                          // client, but validated by psql.
                         for (int i = 0; i < colNames.length; i++) {
                             if (rowData[i] == null) {
+                                server.printWithThread("R" + rowNum + "C"
+                                    + (i+1) + " => [null]");
                                 outPacket.writeInt(-1);
                             } else {
                                 outPacket.writeSized(rowData[i].toString());
-                            }
-                            server.printWithThread("R" + rowNum + "C" + (i+1)
-                                    + " => (" + rowData[i].getClass().getName()
+                                server.printWithThread("R" + rowNum + "C"
+                                    + (i+1) + " => ("
+                                    + rowData[i].getClass().getName()
                                     + ") [" + rowData[i] + ']');
+                            }
                         }
                         dataOutput.write(outPacket.toByteArray());
                         outPacket.reset();
                     }
                     outPacket.close();
-                    dataOutput.writeByte('C'); // end of rows
+                    dataOutput.writeByte('C'); // end of rows (B or D packets)
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
-                    dataOutput.writeByte('Z');
-                    if (server.isTrace()) {
-                        server.printWithThread("### Writing size 5");
-                    }
-                    dataOutput.writeInt(5); //size
-                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else if (normalized.startsWith("set client_encoding to ")) {
                     server.printWithThread(
                         "Stubbing a 'set client_encoding to...'");
                     dataOutput.writeByte('C');
                     dataOutput.writeInt("SET".length() + 5); // size
                     writeNullTermdUTF("SET");
-                    dataOutput.writeByte('Z');
-                    if (server.isTrace()) {
-                        server.printWithThread("### Writing size 5");
-                    }
-                    dataOutput.writeInt(5); //size
-                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 } else {
                     // TODO:  ROLLBACK is badly broken.
                     // I think that when a ROLLBACK of an update is done here,
@@ -649,13 +665,6 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     dataOutput.writeInt(replyString.length() + 5); // size
                     writeNullTermdUTF(replyString);
 
-                    dataOutput.writeByte('Z');
-                    if (server.isTrace()) {
-                        server.printWithThread("### Writing size 5");
-                    }
-                    dataOutput.writeInt(5); //size
-                    dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-
                     // A guess about how keeping inOdbcTrans in sync with
                     // client.  N.b. HSQLDB will need to more liberal with
                     // resetting, since DDL causes commits.
@@ -670,11 +679,23 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
             default:
                 throw new RecoverableFailure("Unsupported op type (" + op + ')',
                     "Unsupported operation type (" + op + ')');
-        } } catch (RecoverableFailure rf) {
+        }
+            dataOutput.writeByte('Z');
+            if (server.isTrace()) {
+                server.printWithThread("### Writing size 5");
+            }
+            dataOutput.writeInt(5); //size
+            dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+        } catch (RecoverableFailure rf) {
             if (errorResult == null) {
                 server.printWithThread(rf.getMessage());
-                alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage());
-                // We continue on, hoping for client to send us a valid op.
+                String errCode = rf.getSqlCode();
+                if (errCode == null) {
+                    alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage());
+                } {
+                    alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage(),
+                        errCode);
+                }
             } else {
                 alertOdbcClient(ODBC_SEVERITY_ERROR,
                     errorResult.getMainString(), errorResult.getSubString());
@@ -685,7 +706,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 server.printWithThread("### Writing size 5");
             }
             dataOutput.writeInt(5); //size
-            dataOutput.writeByte('E');
+            dataOutput.writeByte('E');  /// transaction status = Error
         }
     }
 
@@ -699,10 +720,11 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
         }
         StringBuffer replyString = new StringBuffer(
             command.substring(0, firstWhiteSpace).toUpperCase());
-        if (replyString.equals("update") || replyString.equals("delete")
-            || replyString.equals("drop")) {
+        if (replyString.equals("update") || replyString.equals("delete")) {
             replyString.append(" " + retval);
         } else if (replyString.equals("create") || replyString.equals("drop")) {
+            // This case is significantly missing from the spec., yet
+            // PostgreSQL Server echo's these commands as implemented here.
             // TODO: Add error-checking
             int wordStart;
             for (wordStart = firstWhiteSpace; wordStart < command.length();
@@ -724,6 +746,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
             // TODO:  Find out what the first numerical param is.
             // Probably a transaction identifier of some sort.
         }
+        // If we ever implement following SQL commands, add echo's for these
+        // strings too:  MOVE, FETCH, COPY.
         return replyString.toString();
     }
 
@@ -868,6 +892,9 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
             case 80: // Empirically
                 throw Error.error(ErrorCode.SERVER_HTTP_NOT_HSQL_PROTOCOL);
             case 0:
+                // For ODBC protocol, this is the first byte of a 4-byte int
+                // size.  The size can never be large enough that the first
+                // byte will be non-zero.
                 streamProtocol = ODBC_STREAM_PROTOCOL;
                 break;
                 /*
@@ -916,10 +943,35 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
     }
 
     private void odbcConnect(int firstInt) throws IOException, HsqlException {
+        /* Until client receives teh ReadyForQuery packet at the end of this
+         * method, we (the server) initiate all packet exchanges. */
         int major = dataInput.readUnsignedShort();
         int minor = dataInput.readUnsignedShort();
+
+        if (major == 1234 && minor == 5679) {
+            // No reason to pay any attention to the size header in this case.
+            dataOutput.writeByte('N');  // SSL not supported yet
+            // TODO:  Implement SSL here (and reply with 'S')
+            odbcConnect(dataInput.readInt());
+            return;
+        }
+        if (major == 1234 && minor == 5678) {
+            // No reason to pay any attention to the size header in this case.
+            if (firstInt != 16) {
+                server.print(
+                    "ODBC cancellation request sent wrong packet length: "
+                    + firstInt);
+            }
+            server.print("Got an ODBC cancelation request for thread ID "
+                    + dataInput.readInt() + ", but we don't support "
+                    + "OOB cancellation yet.  "
+                    + "Ignoring this request and closing the connection.");
+            // N.b.,  Spec says to NOT reply to client in this case.
+            return;
+        }
         server.printWithThread("ODBC client connected.  "
                 + "ODBC Protocol Compatibility Version " + major + '.' + minor);
+
         byte[] packet = readPacket(firstInt - 8);
           // - 4 for size of firstInt - 2 for major - 2 for minor
         java.util.Map stringPairs = readStringPairs(packet);
@@ -988,7 +1040,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
             }
         } catch (ClientFailure cf) {
             server.print(cf.getMessage());
-            alertOdbcClient(ODBC_SEVERITY_FATAL, cf.getClientMessage());
+            alertOdbcClient(ODBC_SEVERITY_FATAL, cf.getClientMessage(),
+                    "08006"); // Code means CONNECTION FAILURE
             return;
         }
 
@@ -1005,18 +1058,21 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 hardcodedOdbcParams[i][1]);
         }
 
+        // If/when we implement OOB cancellation, we would send the
+        // Session identifier and key here, with a 'K' packet.
+
         dataOutput.writeByte('Z');
+        // This ReadyForQuery turns over responsibility to initiate packet
+        // exchanges to the client.
         if (server.isTrace()) {
             server.printWithThread("### Writing size 5");
         }
         dataOutput.writeInt(5); //size
-        dataOutput.writeByte('I'); // I think this says to inherit transaction,
-                                   // if there is one.  Could be wrong.
+        dataOutput.writeByte('I'); // Trans. status = Not in transaction
 
         dataOutput.writeByte('N');
         writeUTFPacket(new String[] {
-            "MHello",
-            "MYou have connected to HyperSQL ODBC Server"
+            "MHello\nYou have connected to HyperSQL ODBC Server"
         });
     }
 
@@ -1325,7 +1381,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
 
     private void alertOdbcClient(int severity, String message)
     throws IOException {
-        alertOdbcClient(severity, message, "00000");
+        alertOdbcClient(severity, message, "XX000");
+        // This default code means INTERNAL ERROR
     }
 
     private void alertOdbcClient(int severity, String message, String sqlCode)
@@ -1356,10 +1413,22 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
 
     private static final int ODBC_SEVERITY_FATAL = 1;
     private static final int ODBC_SEVERITY_ERROR = 2;
+    private static final int ODBC_SEVERITY_PANIC = 3;
+    private static final int ODBC_SEVERITY_WARNING = 4;
+    private static final int ODBC_SEVERITY_NOTICE = 5;
+    private static final int ODBC_SEVERITY_DEBUG = 6;
+    private static final int ODBC_SEVERITY_INFO = 7;
+    private static final int ODBC_SEVERITY_LOG = 8;
     private static org.hsqldb.lib.IntKeyHashMap odbcSeverityMap =
         new org.hsqldb.lib.IntKeyHashMap();
     static {
         odbcSeverityMap.put(ODBC_SEVERITY_FATAL, "FATAL");
         odbcSeverityMap.put(ODBC_SEVERITY_ERROR, "ERROR");
+        odbcSeverityMap.put(ODBC_SEVERITY_PANIC, "PANIC");
+        odbcSeverityMap.put(ODBC_SEVERITY_WARNING, "WARNING");
+        odbcSeverityMap.put(ODBC_SEVERITY_NOTICE, "NOTICE");
+        odbcSeverityMap.put(ODBC_SEVERITY_DEBUG, "DEBUG");
+        odbcSeverityMap.put(ODBC_SEVERITY_INFO, "INFO");
+        odbcSeverityMap.put(ODBC_SEVERITY_LOG, "LOG");
     }
 }
