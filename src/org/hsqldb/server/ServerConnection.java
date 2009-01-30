@@ -298,9 +298,9 @@ class ServerConnection implements Runnable {
     }
     private class RecoverableFailure extends Exception {
         private String clientMessage = null;
-        private String sqlCode = null;
-        public String getSqlCode() {
-            return sqlCode;
+        private String sqlStateCode = null;
+        public String getSqlStateCode() {
+            return sqlStateCode;
         }
         public RecoverableFailure(String m) {
             this(m, m);
@@ -310,9 +310,9 @@ class ServerConnection implements Runnable {
             this.clientMessage = clientMessage;
         }
         public RecoverableFailure(
-        String ourMessage, String clientMessage, String sqlCode) {
+        String ourMessage, String clientMessage, String sqlStateCode) {
             this(ourMessage, clientMessage);
-            this.sqlCode = sqlCode;
+            this.sqlStateCode = sqlStateCode;
         }
         public String getClientMessage() {
             return clientMessage;
@@ -369,8 +369,10 @@ class ServerConnection implements Runnable {
             }
             len = dataInput.readInt() - 4;
             server.printWithThread("Got packet length of " + len);
-            if (len < 1 || len >= 1000000000) {
-                throw new IOException("Insane packet length: " + len);
+            if (len < 0 || len >= 1000000000) {
+                throw new IOException("Insane packet length: " + (len + 4));
+                // We work with length not including the size int, but as
+                // this is part of the packet, we report the full size.
             }
             // TODO ASAP:  Read the entire input packet right here!!
         } catch (IOException e) {
@@ -380,7 +382,14 @@ class ServerConnection implements Runnable {
             // TODO:  Figure out whether should zend a Z..E packet here.
             return;
         }
-        try { switch (op) {
+        if (odbcCommMode == ODBC_SIMPLE_MODE && op == 'P') {
+            odbcCommMode = ODBC_EXTENDED_MODE;
+            server.printWithThread("Switching ODBC Comm mode to EXTENDED");
+        }
+        try {
+        switch (odbcCommMode) {
+          case ODBC_SIMPLE_MODE:
+           switch (op) {
             case 'Q':
                 String sql = readNullTermdUTF(len - 1);
                  // We don't ask for the null terminator
@@ -675,6 +684,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     // A guess about how keeping inOdbcTrans in sync with
                     // client.  N.b. HSQLDB will need to more liberal with
                     // resetting, since DDL causes commits.
+                    // TODO:  Consider implicatiosn of autocommit mode.
                     if (normalized.equals("commit")
                         || normalized.startsWith("commit ")
                         || normalized.equals("savepoint")
@@ -685,19 +695,97 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 break;
             default:
                 readPacket(len); // Gobble up packet contents
-                throw new RecoverableFailure("Unsupported op type (" + op + ')',
-                    "Unsupported operation type (" + op + ')');
-        }
-            dataOutput.writeByte('Z');
-            if (server.isTrace()) {
-                server.printWithThread("### Writing size 5");
-            }
-            dataOutput.writeInt(5); //size
-            dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+                throw new RecoverableFailure(
+                    "Unsupported SIMPLE op type (" + op + ')',
+                    "Unsupported SIMPLE operation type (" + op + ')');
+           }
+           dataOutput.writeByte('Z');
+           if (server.isTrace()) {
+               server.printWithThread("### Writing size 5");
+           }
+           dataOutput.writeInt(5); //size
+           dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+           break;
+
+          case ODBC_EXT_RECOVER_MODE:
+           switch (op) {
+            case 'S':
+                if (len != 0) {
+                    server.printWithThread(
+                        "Client supplied bad length for Sync packet ("
+                        + len + ')');
+                    alertOdbcClient(ODBC_SEVERITY_ERROR,
+                        "Client supplied bad length for Sync packet ("
+                        + len + ')', "08P01");
+                    // Code here means Protocol Violation
+                }
+                server.printWithThread("Syncing back to ODBC Simple mode (r)");
+                if (!inOdbcTrans) {
+                    server.printWithThread("Implicit rollback by Sync");
+                    session.rollback(true);
+                    // TODO:  Find out if chain param should be T or F.
+                }
+                dataOutput.writeByte('Z');
+                if (server.isTrace()) {
+                    server.printWithThread("### Writing size 5");
+                }
+                dataOutput.writeInt(5); //size
+                dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+                odbcCommMode = ODBC_SIMPLE_MODE;
+                break;
+            default:
+                readPacket(len); // Gobble up packet contents
+           } // end of EXT_RECOVER_MODE op switch
+           break;
+
+          case ODBC_EXTENDED_MODE:
+           switch (op) {
+            case 'S':
+                if (len != 0) {
+                    server.printWithThread(
+                        "Client supplied bad length for Sync packet ("
+                        + len + ')');
+                    alertOdbcClient(ODBC_SEVERITY_ERROR,
+                        "Client supplied bad length for Sync packet ("
+                        + len + ')', "08P01");
+                    // Code here means Protocol Violation
+                }
+                server.printWithThread("Syncing back to ODBC Simple mode (r)");
+                if (!inOdbcTrans) try {
+                    server.printWithThread("Implicit commit by Sync");
+                    session.commit(true);
+                    // TODO:  Find out if chain param should be T or F.
+                } catch (HsqlException he) {
+                    server.printWithThread("Implicit commit failed: " + he);
+                    alertOdbcClient(ODBC_SEVERITY_ERROR,
+                            "Implicit commit failed", he.getSQLState());
+                }
+                dataOutput.writeByte('Z');
+                if (server.isTrace()) {
+                    server.printWithThread("### Writing size 5");
+                }
+                dataOutput.writeInt(5); //size
+                dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+                odbcCommMode = ODBC_SIMPLE_MODE;
+                break;
+            default:
+                readPacket(len); // Gobble up packet contents
+                throw new RecoverableFailure(
+                    "Unsupported EXTENDED op type (" + op + ')',
+                    "Unsupported EXTENDED operation type (" + op + ')');
+           } // end of EXTENDED_MODE op switch
+           break;
+
+          default:
+           throw new RuntimeException(
+               "Assertion failed.  Unexpected odbcCommMode value: "
+               + odbcCommMode);
+        } // end odbcCommMode switch
+
         } catch (RecoverableFailure rf) {
             if (errorResult == null) {
                 server.printWithThread(rf.getMessage());
-                String errCode = rf.getSqlCode();
+                String errCode = rf.getSqlStateCode();
                 if (errCode == null) {
                     alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage());
                 } {
@@ -708,13 +796,15 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 alertOdbcClient(ODBC_SEVERITY_ERROR,
                     errorResult.getMainString(), errorResult.getSubString());
             }
-            // We continue on, hoping for client to send us a valid op.
-            dataOutput.writeByte('Z');
-            if (server.isTrace()) {
-                server.printWithThread("### Writing size 5");
+            if (odbcCommMode == ODBC_SIMPLE_MODE) {
+                // We continue on, hoping for client to send us a valid op.
+                dataOutput.writeByte('Z');
+                if (server.isTrace()) {
+                    server.printWithThread("### Writing size 5");
+                }
+                dataOutput.writeInt(5); //size
+                dataOutput.writeByte('E');  /// transaction status = Error
             }
-            dataOutput.writeInt(5); //size
-            dataOutput.writeByte('E');  /// transaction status = Error
         }
     }
 
@@ -1393,8 +1483,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
         // This default code means INTERNAL ERROR
     }
 
-    private void alertOdbcClient(int severity, String message, String sqlCode)
-    throws IOException {
+    private void alertOdbcClient(
+    int severity, String message, String sqlStateCode) throws IOException {
         if (!odbcSeverityMap.containsKey(severity)) {
             throw new IllegalArgumentException(
                 "Unknown severity value (" + severity + ')');
@@ -1402,7 +1492,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
         dataOutput.writeByte('E');
         writeUTFPacket(new String[] {
             "S" + odbcSeverityMap.get(severity),
-            "C" + sqlCode,
+            "C" + sqlStateCode,
             "M" + message,
         });
     }
@@ -1419,6 +1509,11 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
         new String[] { "TimeZone", "US/Eastern" },
     };
 
+    private static final int ODBC_SIMPLE_MODE = 0;
+    private static final int ODBC_EXTENDED_MODE = 1;
+    private static final int ODBC_EXT_RECOVER_MODE = 2;
+    private int odbcCommMode = ODBC_SIMPLE_MODE;
+
     private static final int ODBC_SEVERITY_FATAL = 1;
     private static final int ODBC_SEVERITY_ERROR = 2;
     private static final int ODBC_SEVERITY_PANIC = 3;
@@ -1427,8 +1522,10 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
     private static final int ODBC_SEVERITY_DEBUG = 6;
     private static final int ODBC_SEVERITY_INFO = 7;
     private static final int ODBC_SEVERITY_LOG = 8;
+
     private static org.hsqldb.lib.IntKeyHashMap odbcSeverityMap =
         new org.hsqldb.lib.IntKeyHashMap();
+
     static {
         odbcSeverityMap.put(ODBC_SEVERITY_FATAL, "FATAL");
         odbcSeverityMap.put(ODBC_SEVERITY_ERROR, "ERROR");
