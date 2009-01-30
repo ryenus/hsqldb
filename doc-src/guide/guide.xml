@@ -4,7 +4,7 @@
 <!ENTITY % dummy22 SYSTEM "../entities/global.ent">
 %dummy22;
 ]>
-<book version="5.0" xmlns="http://docbook.org/ns/docbook" xml:id="guide"
+<book version="5.0" xml:id="guide" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:ns5="http://www.w3.org/1999/xhtml"
@@ -71,10 +71,17 @@
   <preface xml:id="book-pref">
     <title>Preface</title>
 
+    <para>ALPHA DOCUMENTATION</para>
+
+    <para>This documentation is not complete and is released to acoompany an
+    ALPHA version of HSQLDB 1.9 or 2.0. The latest, updated version of this
+    documentation can be found at http://hsqldb.org/doc/2.0/</para>
+
     <para>If you notice any mistakes in this document, please email the author
-    listed at the beginning of the chapter. If you have problems with the
-    procedures themselves, please use the HSQLDB support facilities which are
-    listed at <link xlink:href="http://hsqldb.org/support"/>.</para>
+    listed at the beginning of the chapter. You can find the emails in the
+    list of developers on the SourceForge project site via http://hsqldb.org.
+    If you have problems with the procedures themselves, please use the HSQLDB
+    support facilities which are listed at http://hsqldb.org/support</para>
 
     <xi:include href="../altformats-sect.xml" />
   </preface>
@@ -483,37 +490,37 @@
         <para>Note in the above connection URL, there is no mention of the
         database file, as this was specified when running the server. Instead,
         the public name defined for dbname.0 is used. Also, see the <link
-        endterm="advanced-title" xlink:href="#advanced-chapt"/>**todo**
+        endterm="advanced-title" xlink:href="#advanced-chapt"></link>**todo**
         chapter for the connection URL when there is more than one database
         per server instance.</para>
       </section>
 
       <section xml:id="running_security-sect">
         <title>Security Considerations</title>
+
         <indexterm significance="preferred">
           <primary>security</primary>
         </indexterm>
 
         <para>When a HyperSQL server is run, network access should be
         adequately protected. Source IP addresses may be restricted by use of
-        our <link
-          xlink:href="#listeners_acl-sect">Access Control List feature</link>,
-        network filtering software, firewall software, or standalone firewalls.
-        Only secure passwords should be used-- most importantly, the password
-        for the default system user should be changed from the default empty
-        string. If you are purposefully providing data to the public, then the
-        wide-open public network connection should be used exclusively to
-        access the public data via read-only accounts. (i.e., neither secure
-        data nor privileged accounts should use this connection). These
-        considerations also apply to HyperSQL servers run with the HTTP
-        protocol.</para>
+        our <link xlink:href="#listeners_acl-sect">Access Control List
+        feature</link>, network filtering software, firewall software, or
+        standalone firewalls. Only secure passwords should be used-- most
+        importantly, the password for the default system user should be
+        changed from the default empty string. If you are purposefully
+        providing data to the public, then the wide-open public network
+        connection should be used exclusively to access the public data via
+        read-only accounts. (i.e., neither secure data nor privileged accounts
+        should use this connection). These considerations also apply to
+        HyperSQL servers run with the HTTP protocol.</para>
 
-        <para>HyperSQL provides two optional security mechanisms. The
-        <link xlink:href="#listeners_tls-sect">encrypted SSL protocol</link>, and
+        <para>HyperSQL provides two optional security mechanisms. The <link
+        xlink:href="#listeners_tls-sect">encrypted SSL protocol</link>, and
         <link xlink:href="#listeners_acl-sect">Access Control Lists</link>.
-        Both mechanisms can
-        be specified when running the Server or WebServer. From the client,
-        the URL's co connect to an SSL server is slightly different:</para>
+        Both mechanisms can be specified when running the Server or WebServer.
+        From the client, the URL's co connect to an SSL server is slightly
+        different:</para>
 
         <para><example>
             <title>Java code to connect to the local secure SSL hsql and http
@@ -522,9 +529,9 @@
             <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:hsqls://localhost/xdb", "SA", "");
     Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "SA", "");
 </programlisting>
-          </example>The security features are discussed in detail in the
-          <link xlink:href="#listeners-chapt" endterm="listeners-title"/>
-          chapter</para>
+          </example>The security features are discussed in detail in the <link
+        endterm="listeners-title" xlink:href="#listeners-chapt"></link>
+        chapter</para>
       </section>
 
       <section xml:id="running_multiple_db-sect">
@@ -534,8 +541,8 @@
         the examples above, more than one set of database names can be
         specified on the command line. It is also possible to specify all the
         databases in a <literal>.properties</literal> file, instead of the
-        command line. These capabilities are covered in the
-        <link xlink:href="#listeners-chapt" endterm="listeners-title"/>
+        command line. These capabilities are covered in the <link
+        endterm="listeners-title" xlink:href="#listeners-chapt"></link>
         chapter</para>
       </section>
     </section>
@@ -769,7 +776,7 @@
       not the other engine (OUTER, OID's, etc.) or used differently
       (IDENTITY/SERIAL, TRIGGER, SEQUENCE, etc.).</para>
 
-      <para>In version 1.9.0, all features of JDBC4 that apply to the
+      <para>In version 2.0, all features of JDBC4 that apply to the
       capabilities of HSQLDB are fully supported. The relevant JDBC classes
       are thoroughly documented with additional clarifications and HyperSQL
       specific comments. See the <link
@@ -824,8 +831,8 @@
       usage as they cache only part of the text data and all of the indexes.
       The Text table data source can always be reassigned to a different file
       if necessary. Two commands are needed to set up a TEXT table as detailed
-      in the <link endterm="texttables-title" xlink:href="#texttables-chapt"/>
-      chapter.</para>
+      in the <link endterm="texttables-title"
+      xlink:href="#texttables-chapt"></link> chapter.</para>
 
       <para>With all-in-memory databases (see above), both MEMORY table and
       CACHED table declarations are treated as declarations for non-persistent
@@ -936,7 +943,7 @@
       <section>
         <title>Unique Indexes</title>
 
-        <para>In 1.9.0, user-defined UNIQUE indexes can still be declared but
+        <para>In 2.0, user-defined UNIQUE indexes can still be declared but
         they are deprecated. You should use a UNIQUE constraint
         instead.</para>
 
@@ -1010,16 +1017,16 @@
         atable(c1);</literal>. So you do not need to specify an extra index if
         you require one on the first column of the list.</para>
 
-        <para>In 1.9.0, a multi-column index will speed up queries that
-        contain joins or values on ALL the columns. You need NOT declare
-        additional individual indexes on those columns unless you use queries
-        that search only on a subset of the columns. For example, rows of a
-        table that has a PRIMARY KEY or UNIQUE constraint on three columns or
-        simply an ordinary index on those columns can be found efficiently
-        when values for all three columns are specified in the WHERE clause.
-        For example, <literal>SELECT ... FROM t1 WHERE t1.c1 = 4 AND t1.c2 = 6
-        AND t1.c3 = 8 </literal>will use an index on
-        <literal>t1(c1,c2,c3)</literal> if it exists.</para>
+        <para>In 2.0, a multi-column index will speed up queries that contain
+        joins or values on ALL the columns. You need NOT declare additional
+        individual indexes on those columns unless you use queries that search
+        only on a subset of the columns. For example, rows of a table that has
+        a PRIMARY KEY or UNIQUE constraint on three columns or simply an
+        ordinary index on those columns can be found efficiently when values
+        for all three columns are specified in the WHERE clause. For example,
+        <literal>SELECT ... FROM t1 WHERE t1.c1 = 4 AND t1.c2 = 6 AND t1.c3 =
+        8 </literal>will use an index on <literal>t1(c1,c2,c3)</literal> if it
+        exists.</para>
 
         <para>As a result of the improvements to multiple key indexes, the
         order of declared columns of the index or constraint has little affect
@@ -1055,7 +1062,7 @@
       <section>
         <title>Where Condition or Join</title>
 
-        <para>Unlike previous versions, HyperSQL 1.9.0 can use any relevant
+        <para>Unlike previous versions, HyperSQL 2.0 can use any relevant
         indexes for query processing, whether the query condition is specified
         in the <literal>WHERE</literal> clause or in a <literal>JOIN</literal>
         condition. It is better to use <literal>JOIN</literal> conditions, as
@@ -1065,7 +1072,7 @@
       <section>
         <title>Subqueries and Inline tables in Joins</title>
 
-        <para>New capabilities in HSQLDB 1.9.0 **todo**...</para>
+        <para>New capabilities in HSQLDB 2.0 **todo**...</para>
 
         <example>
           <title>query example</title>
@@ -1213,7 +1220,7 @@
         <title>Bit and Boolean Types</title>
 
         <para>In previous versions, BIT was simply an alias for BOOLEAN. In
-        1.9.0 BIT is a single-bit bit map, while BIT(n) and BIT VARYING(n) are
+        2.0 BIT is a single-bit bit map, while BIT(n) and BIT VARYING(n) are
         strings of bits..</para>
 
         <para>The primary representation of BOOLEAN column is
@@ -1262,10 +1269,10 @@
 
         <para>In older version of HSQLDB, all table column type definitions
         with a column size, precision or scale qualifier were accepted and
-        ignored. HSQLDB 1.8.0 enforced correctness but included an option to
+        ignored. HSQLDB 1.8 enforced correctness but included an option to
         enforce the size, precision or scale.</para>
 
-        <para>In 1.9.0, size, precision and scale qualifiers are always
+        <para>In 2.0, size, precision and scale qualifiers are always
         enforced.</para>
 
         <para>String types, including all BIT, BINARY and CHAR string types
@@ -1324,9 +1331,9 @@
         BIGINT, DECIMAL or NUMERIC column with its value generated by a
         sequence generator.</para>
 
-        <para>In HyperSQL 1.9.0, an IDENTITY column is not by default treated
-        as the primary key for the table (as a result, multi-column primary
-        keys are possible with an IDENTITY column present).</para>
+        <para>In HyperSQL 2.0, an IDENTITY column is not by default treated as
+        the primary key for the table (as a result, multi-column primary keys
+        are possible with an IDENTITY column present).</para>
 
         <para>The SQL standard syntax is used, which allows the initial value
         and other options to be specified.<programlisting>    &lt;colname&gt; INTEGER GENERATED { BY DEFAULT | ALWAYS} AS IDENTITY [( &lt;options&gt; )] [PRIMARY KEY]</programlisting></para>
@@ -1380,10 +1387,10 @@
           <programlisting>    SELECT NEXT VALUE FOR mysequence, col1, col2 FROM mytable WHERE ...</programlisting>
         </example>
 
-        <para>In version 1.9.0, the semantics of sequences is exactly as
-        defined by SQL 200n. If you use the same sequence twice in the same
-        row in an INSERT statement, you will get the same value as required by
-        the Standard.</para>
+        <para>In version 2.0, the semantics of sequences is exactly as defined
+        by SQL 200n. If you use the same sequence twice in the same row in an
+        INSERT statement, you will get the same value as required by the
+        Standard.</para>
 
         <para>You can query the SEQUENCES table for the next value that will
         be returned from any of the defined sequences. The SEQUENCE_NAME
@@ -1708,7 +1715,7 @@
 
         <para>Each new JDBC Connection to a database can specify connection
         properties. The properties <property>user</property> and
-        <property>password</property> are always required. In 1.9.0 the
+        <property>password</property> are always required. In 2.0 the
         following optional properties can also be used.</para>
 
         <para>Connection properties are specified either by establishing the
@@ -1830,8 +1837,8 @@
         <filename>&lt;dbname&gt;.data</filename>. The properties files contain
         key/value pairs for some important settings.</para>
 
-        <para>In version 1.9.0 an SQL command allows most database properties
-        to be modified as follows:</para>
+        <para>In version 2.0 an SQL command allows most database properties to
+        be modified as follows:</para>
 
         <programlisting>    SET PROPERTY "property_name" property_value</programlisting>
 
@@ -2494,8 +2501,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
       <para>**todo** updates to cover new large result support</para>
 
-      <para>1.9.0 uses a fast cache for immutable objects such as Integer or
-      String that are stored in the database. In most circumstances, this
+      <para>HyperSQL uses a fast cache for immutable objects such as Integer
+      or String that are stored in the database. In most circumstances, this
       reduces the memory footprint still further as fewer copies of the most
       frequently-used objects are kept in memory.</para>
 
@@ -2553,17 +2560,16 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       <itemizedlist>
         <listitem>
           <para>To allow new queries to be performed while a time-consuming
-          query is being performed in the background. This is not possible
-          with HSQLDB 1.9.0 as it blocks while performing the first query and
-          deals with the next query once it has finished it. This capability
-          is under development and will be introduced in a future
-          version.</para>
+          query is being performed in the background. In HyperSQL, if a
+          session is in readonly mode, its queries are never blocked. If the
+          session is in read-write mode, blocking depends on the transaction
+          model and the current activity by other sessions.</para>
         </listitem>
 
         <listitem>
           <para>To limit the maximum number of simultaneous connections to the
-          database for performance reasons. With HSQLDB this can be useful
-          only if your application is designed in a way that opens and closes
+          database for performance reasons. With HSQLDB this can be useful if
+          your application is designed in a way that opens and closes
           connections for each small task.</para>
         </listitem>
 
@@ -2593,7 +2599,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       not necessary since 1.7.2, which does not automatically close an
       <glossterm>in-process</glossterm> database that is opened by
       establishing a connection. An explicit SHUTDOWN command, with or without
-      an argument, is required to close the database. In version 1.9.0 a
+      an argument, is required to close the database. In version 2.0 a
       connection property can be used to revert to the old behaviour.</para>
 
       <para>When using a server database (and to some extent, an
@@ -2608,12 +2614,12 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
       <para>Any database that is not produced with the release version of
       HSQLDB 1.9.0 must be upgraded to this version. Some catalogs created
-      with 1.8.0 can be upgraded simply by opening with HyperSQL 1.9.0. When
+      with 1.8.0 can be upgraded simply by opening with HyperSQL 2.0. When
       this is not possible due to errors, the rest of the procedures below
       should be followed.</para>
 
-      <para>Once a database is upgraded to 1.9.0, it can no longer be used
-      with previous versions of HSQLDB.</para>
+      <para>Once a database is upgraded to 2.0, it can no longer be used with
+      previous versions of HSQLDB.</para>
 
       <section xml:id="upgrade_via_script-sect">
         <title xml:id="upgrade_via_script-title">Upgrading From Older
@@ -2625,22 +2631,22 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
         <itemizedlist>
           <listitem>
-            <para>Version 1.9.0 does not accept duplicate names for table
+            <para>Version 2.0 does not accept duplicate names for table
             columns that were allowed before 1.7.0.</para>
           </listitem>
 
           <listitem>
-            <para>Version 1.9.0 does not accept duplicate names for indexes
-            that were allowed before 1.7.2.</para>
+            <para>Version 2.0 does not accept duplicate names for indexes that
+            were allowed before 1.7.2.</para>
           </listitem>
 
           <listitem>
-            <para>Version 1.9.0 does not create the same type of index for
+            <para>Version 2.0 does not create the same type of index for
             foreign keys as versions before 1.7.2.</para>
           </listitem>
 
           <listitem>
-            <para>Version 1.9.0 does not accept table or column names that are
+            <para>Version 2.0 does not accept table or column names that are
             SQL reserved keywords without double quoting.</para>
           </listitem>
         </itemizedlist>
@@ -2663,7 +2669,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
         (used as an SQL statement) allows you to save a full record of your
         database, including database object definitions and data, to a file of
         your choice. You can export a script file using the old version of the
-        database engine and open the script as a database with 1.9.0.</para>
+        database engine and open the script as a database with 2.0.</para>
 
         <procedure>
           <title>Upgrade Using SCRIPT procedure</title>
@@ -2710,14 +2716,13 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       <section>
         <title>Manual Changes to the .script File</title>
 
-        <para>In 1.9.0 the full range of ALTER TABLE commands is available to
+        <para>In 2.0 the full range of ALTER TABLE commands is available to
         change the data structures and their names. However, if an old
         database cannot be opened due to data inconsistencies, or the use of
-        index or column names that are not compatible with 1.9.0, manual
-        editing of the <literal>.script</literal> file can be performed. Note
-        that the <literal>.script</literal> file must be the result of a
-        SHUTDOWN SCRIPT and must contain the full data for the
-        database.</para>
+        index or column names that are not compatible with 2.0, manual editing
+        of the <literal>.script</literal> file can be performed. Note that the
+        <literal>.script</literal> file must be the result of a SHUTDOWN
+        SCRIPT and must contain the full data for the database.</para>
 
         <para>The following changes can be applied so long as they do not
         affect the integrity of existing data.</para>
@@ -2780,6 +2785,7 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
     <section xml:id="deployment_backup-sect">
       <title>Backing Up Database Catalogs</title>
+
       <indexterm significance="preferred">
         <primary>backup</primary>
       </indexterm>
@@ -2799,8 +2805,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       <literal>*.script</literal>, etc., as detailed in previous chapters
       **todo**</para>
 
-      <simpara>HyperSQL 1.9.0 and later includes commands to backup the
-      database files into a single <literal>.tar</literal> or
+      <simpara>HyperSQL 1.9 and later includes commands to backup the database
+      files into a single <literal>.tar</literal> or
       <literal>.tar.gz</literal> file archive. The backup can be performed by
       a command given in a JDBC session if the target database catalog is
       running, or on the command-line if the target catalog has been
@@ -3207,8 +3213,8 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
       <section xml:id="disconnecting_text_tables">
         <title>Disconnecting Text Tables</title>
 
-        <para>Text tables may be <emphasis>disconnected</emphasis> from their
-        underlying data source, i.e. the text file.</para>
+        <para>Text tables may be <glossterm>disconnected</glossterm> from
+        their underlying data source, i.e. the text file.</para>
 
         <para>You can explicitly disconnect a text table from its file by
         issuing the following statement: <programlisting>    SET TABLE mytable SOURCE OFF</programlisting></para>
@@ -3338,14 +3344,20 @@ SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;va
 
   <xi:include href="sessions.xml" />
 
-
   <xi:include href="databaseobjects.xml" />
+
   <xi:include href="dataaccess.xml" />
+
   <xi:include href="sqlroutines.xml" />
+
   <xi:include href="builtinfunctions.xml" />
+
   <xi:include href="system.xml" />
+
   <xi:include href="building-app.xml" />
+
   <xi:include href="openoffice-app.xml" />
+
   <xi:include href="filelinks-app.xml" />
 
   <index type="sql" xml:id="sql-ind">
