@@ -310,16 +310,35 @@ class ServerConnection implements Runnable {
         public RecoverableFailure(Result errorResult) {
             this.errorResult = errorResult;
         }
+        /**
+         * This constructor purposefully means that both server-side and
+         * client-side message will be set to the specified message.
+         */
         public RecoverableFailure(String m) {
-            this(m, m);
+            super(m);
+            clientMessage = m;
         }
-        public RecoverableFailure(String ourMessage, String clientMessage) {
-            super(ourMessage);
-            this.clientMessage = clientMessage;
+        /**
+         * This constructor purposefully means that both server-side and
+         * client-side message will be set to the specified message.
+         * <P><B>
+         * Note:  The parameters DO NOT SPECIFY server-side and client-side
+         * messages.  Use the 3-parameter constructor for that.
+         * </B></P>
+         *
+         * @see #RecoverableFailure(String, String, String)
+         */
+        public RecoverableFailure(String m, String sqlStateCode) {
+            this(m);
+            this.sqlStateCode = sqlStateCode;
         }
+        /**
+         * Set any parameter to null to skip the specified reporting.
+         */
         public RecoverableFailure(
         String ourMessage, String clientMessage, String sqlStateCode) {
-            this(ourMessage, clientMessage);
+            super(ourMessage);
+            this.clientMessage = clientMessage;
             this.sqlStateCode = sqlStateCode;
         }
         public String getClientMessage() {
@@ -705,9 +724,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 break;
             default:
                 readPacket(len); // Gobble up packet contents
-                throw new RecoverableFailure(
-                    "Unsupported SIMPLE op type (" + op + ')',
-                    "Unsupported SIMPLE operation type (" + op + ')');
+                throw new RecoverableFailure(null,
+                    "Unsupported SIMPLE operation type (" + op + ')', "0A000");
            }
            dataOutput.writeByte('Z');
            if (server.isTrace()) {
@@ -741,7 +759,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 }
                 dataOutput.writeInt(5); //size
                 dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-                odbcCommMode = ODBC_SIMPLE_MODE;
+                odbcToSimple();
                 break;
             default:
                 readPacket(len); // Gobble up packet contents
@@ -776,7 +794,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 }
                 dataOutput.writeInt(5); //size
                 dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-                odbcCommMode = ODBC_SIMPLE_MODE;
+                odbcToSimple();
                 break;
             case 'P':
                 //byte[]inPacket = readPacket(len);
@@ -785,12 +803,16 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 String query = revertMungledPreparedQuery(readNullTermdUTF());
                 int paramCount = dataInput.readUnsignedShort();
                 for (int i = 0; i < paramCount; i++) {
-                    server.printWithThread("Requested specific OID "
-                            + dataInput.readInt() + " for col. " + (i + 1));
+                    if (dataInput.readInt()  != 0) {
+                        throw new RecoverableFailure(null,
+                            "Parameter-type OID specifiers not supported yet",
+                            "0A000");
+                    }
                 }
                 if (server.isTrace()) {
                     server.printWithThread(
-                        "Received Prepare request for query (" + query + ')');
+                        "Received Prepare request for query (" + query +
+                        ") with handle '" + psHandle + "'");
                 }
                 Result r = Result.newPrepareStatementRequest();
                 r.setPrepareOrExecuteProperties(query, 0, 0, 0,
@@ -799,6 +821,13 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
                     java.sql.Statement.NO_GENERATED_KEYS, null, null);
                 Result rOut = session.execute(r);
+                if (psHandle.length() > 0
+                        && sessionOdbcPsMap.containsKey(psHandle)) {
+                    throw new RecoverableFailure(null,
+                        "PS handle '" + psHandle + "' already in use.  "
+                        + "You must close it before recreating", "08P01");
+                }
+                sessionOdbcPsMap.put(psHandle, rOut);
 /* from JDBCPreparedStatement.java
 statementID      = rOut.getStatementID();
 statementRetType = rOut.getStatementType();
@@ -823,15 +852,9 @@ parameterModes   = pmdDescriptor.paramModes;
                 break;
             default:
                 readPacket(len); // Gobble up packet contents
-                throw new RecoverableFailure(
-                    "Unsupported EXTENDED op type (" + op + ')',
-                    "Unsupported EXTENDED operation type (" + op + ')');
-                // TODO:  Need client support here, because even though
-                // psqlodbc does send the Sync then other queries as it
-                // should, this error does not get cleared on the client side.
-                // Perfectly served simple queries generate errors to the end
-                // user.  I don't know if the fault lies with jdbc:odbc or
-                // with psqlodbc.
+                throw new RecoverableFailure(null,
+                    "Unsupported EXTENDED operation type (" + op + ')',
+                    "0A000");
            } // end of EXTENDED_MODE op switch
            break;
 
@@ -844,13 +867,14 @@ parameterModes   = pmdDescriptor.paramModes;
         } catch (RecoverableFailure rf) {
             Result errorResult = rf.getErrorResult();
             if (errorResult == null) {
-                server.printWithThread(rf.getMessage());
-                String errCode = rf.getSqlStateCode();
-                if (errCode == null) {
-                    alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage());
-                } {
-                    alertOdbcClient(ODBC_SEVERITY_ERROR, rf.getClientMessage(),
-                        errCode);
+                String stateCode = rf.getSqlStateCode();
+                String svrMsg = rf.getMessage();
+                String cliMsg = rf.getClientMessage();
+                if (svrMsg != null) {
+                    server.printWithThread(svrMsg);
+                }
+                if (cliMsg != null) {
+                    alertOdbcClient(ODBC_SEVERITY_ERROR, cliMsg, stateCode);
                 }
             } else {
                 // This class of error is not considered a Server proble, so
@@ -1551,22 +1575,32 @@ server.print("*** Error Result string: " + errorResult.getMainString());
 
     private void alertOdbcClient(int severity, String message)
     throws IOException {
-        alertOdbcClient(severity, message, "XX000");
-        // This default code means INTERNAL ERROR
+        alertOdbcClient(severity, message, null);
     }
 
     private void alertOdbcClient(
     int severity, String message, String sqlStateCode) throws IOException {
+        if (sqlStateCode == null) {
+            sqlStateCode = "XX000";
+            // This default code means INTERNAL ERROR
+        }
         if (!odbcSeverityMap.containsKey(severity)) {
             throw new IllegalArgumentException(
                 "Unknown severity value (" + severity + ')');
         }
-        dataOutput.writeByte('E');
-        writeUTFPacket(new String[] {
-            "S" + odbcSeverityMap.get(severity),
-            "C" + sqlStateCode,
-            "M" + message,
-        });
+        dataOutput.writeByte((severity < ODBC_SEVERITY_NOTICE) ? 'E' : 'N');
+        if (severity < ODBC_SEVERITY_NOTICE) {
+            writeUTFPacket(new String[] {
+                "S" + odbcSeverityMap.get(severity),
+                "C" + sqlStateCode,
+                "M" + message,
+            });
+        } else {
+            writeUTFPacket(new String[] {
+                "S" + odbcSeverityMap.get(severity),
+                "M" + message,
+            });
+        }
     }
 
     static String[][] hardcodedOdbcParams = new String[][] {
@@ -1616,7 +1650,23 @@ server.print("*** Error Result string: " + errorResult.getMainString());
      */
     private String revertMungledPreparedQuery(String inQuery) {
         // THIS PURPOSEFULLY USING Java 1.4!
-server.print("Replaced to: " +  inQuery.replaceAll("\\$\\d+", "?"));
         return inQuery.replaceAll("\\$\\d+", "?");
+    }
+
+    private java.util.Map sessionOdbcPsMap = new java.util.HashMap();
+    private java.util.Map sessionOdbcPortalMap = new java.util.HashMap();
+
+    private void odbcToSimple() {
+        odbcCommMode = ODBC_SIMPLE_MODE;
+        if (sessionOdbcPsMap.size() > 0) {
+            server.printWithThread("Purging " + sessionOdbcPsMap.size()
+                    + " unused PS objects");
+        }
+        sessionOdbcPsMap.clear();
+        if (sessionOdbcPortalMap.size() > 0) {
+            server.printWithThread("Purging " + sessionOdbcPortalMap.size()
+                    + " unused Portal objects");
+        }
+        sessionOdbcPortalMap.clear();
     }
 }
