@@ -360,6 +360,7 @@ class ServerConnection implements Runnable {
         boolean newTran = false;
         int len = 0;
         Result errorResult = null;
+        String stringVal;
         try {
             op = (char) dataInput.readByte();
             server.printWithThread("Got op (" + op + ')');
@@ -534,12 +535,9 @@ class ServerConnection implements Runnable {
                             + colNames.length + " col. names");
                     }
                     org.hsqldb.types.Type[] colTypes = md.getParameterTypes();
-                    boolean[] integers = new boolean[colTypes.length];
-                    for (int i = 0; i < integers.length; i++) {
-                        integers[i] =
-                            colTypes[i] instanceof org.hsqldb.types.NumberType
-                            && ((org.hsqldb.types.NumberType) colTypes[i])
-                            .getPrecision()/8 == 4;
+                    PgType[] pgTypes = new PgType[colTypes.length];
+                    for (int i = 0; i < pgTypes.length; i++) {
+                        pgTypes[i] = new PgType(colTypes[i]);
                     }
 for (int j = 0; j < colTypes.length; j++) server.print("coltype " + j + ": " + colTypes[j].typeCode + " / " + colTypes[j].getNameString());
                     org.hsqldb.ColumnBase[] colDefs = md.columns;
@@ -568,9 +566,9 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                             // column, but just represents the position in this
                             // query.
                         // TODO:  Map from colTypes[i] to PG adtid:
-                        outPacket.writeInt(integers[i] ? 23 : 1043);
+                        outPacket.writeInt(pgTypes[i].getOid());
                         // Datatype size  [adtsize]
-                        outPacket.writeShort(integers[i] ? 4 : -1);
+                        outPacket.writeShort(pgTypes[i].getTypeSize());
                         outPacket.writeInt(-1); // Var size [atttypmod]
                             // TODO:  Get from the colType[i]
                         // This is the size constraint integer
@@ -615,6 +613,11 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                                 outPacket.writeInt(-1);
                             } else {
                                 outPacket.writeSized(rowData[i].toString());
+                                // N.b., Postgresql returns "t" and "f",
+                                // not "" and "" like we are returning.
+                                // But that makes no difference, since
+                                // psqlodbc totally mishandles them either
+                                // way.
                                 server.printWithThread("R" + rowNum + "C"
                                     + (i+1) + " => ("
                                     + rowData[i].getClass().getName()
