@@ -369,6 +369,10 @@ class ServerConnection implements Runnable {
             }
             len = dataInput.readInt() - 4;
             server.printWithThread("Got packet length of " + len);
+            if (len < 1 || len >= 1000000000) {
+                throw new IOException("Insane packet length: " + len);
+            }
+            // TODO ASAP:  Read the entire input packet right here!!
         } catch (IOException e) {
             server.printWithThread("Fatal ODBC protocol failure: " + e);
             alertOdbcClient(ODBC_SEVERITY_FATAL, e.getMessage(), "08P01");
@@ -680,6 +684,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 }
                 break;
             default:
+                readPacket(len); // Gobble up packet contents
                 throw new RecoverableFailure("Unsupported op type (" + op + ')',
                     "Unsupported operation type (" + op + ')');
         }
