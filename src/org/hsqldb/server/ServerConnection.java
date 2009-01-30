@@ -387,6 +387,9 @@ class ServerConnection implements Runnable {
         boolean newTran = false;
         int len = 0;
         String stringVal;
+        Result r = null;
+        int paramCount;
+
         try {
             op = (char) dataInput.readByte();
             server.printWithThread("Got op (" + op + ')');
@@ -416,6 +419,11 @@ class ServerConnection implements Runnable {
             throw cleanExit; // not "clean", but handled
         }
         if (odbcCommMode == ODBC_SIMPLE_MODE && op == 'P') {
+            // The spec doesn't specify whether P failures (with E response)
+            // should leave comm. in SIMPLE or EXTENDED mode.
+            // The spirit of the doc seems to imply that clients will be in
+            // EXTENDED mode by this point, so I guess we should remain in
+            // EXTENDED until the client tells us otherwise.
             odbcCommMode = ODBC_EXTENDED_MODE;
             server.printWithThread("Switching ODBC Comm mode to EXTENDED");
         }
@@ -478,7 +486,6 @@ class ServerConnection implements Runnable {
                     outPacket.writeInt(-1);
                     outPacket.writeShort(0);
                     dataOutput.write(outPacket.toByteArray());
-                    outPacket.reset();
                     outPacket.close();
                     // This query returns no rows.  typenam "lo"??
                     dataOutput.writeByte('C'); // end of rows
@@ -527,7 +534,7 @@ class ServerConnection implements Runnable {
                 } else if (normalized.startsWith("select ")) {
                     server.printWithThread(
                         "Performing a real non-prepared SELECT...");
-                    Result r = Result.newExecuteDirectRequest();
+                    r = Result.newExecuteDirectRequest();
                     r.setPrepareOrExecuteProperties(normalized, 0, 0,
                         org.hsqldb.StatementTypes.RETURN_RESULT,
                         org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
@@ -562,7 +569,7 @@ class ServerConnection implements Runnable {
                         throw new RecoverableFailure(
                             "Failed to get metadata for query results");
                     }
-                    if (md.getColumnCount() != md.getColumnCount()) {
+                    if (md.getColumnCount() != md.getExtendedColumnCount()) {
                         throw new RecoverableFailure(
                             "Output column count mismatch: "
                             + md.getColumnCount() + " cols. and "
@@ -675,9 +682,12 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     dataOutput.writeByte('C'); // end of rows (B or D packets)
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
-                } else if (normalized.startsWith("set client_encoding to ")) {
-                    server.printWithThread(
-                        "Stubbing a 'set client_encoding to...'");
+                } else if (normalized.startsWith("set client_encoding to ")
+                    || normalized.startsWith("deallocate ")) {
+                    // No need to deallocate anything in SIMPLE mode, since
+                    // we automatically purge all such objects when exiting
+                    // EXTENDED mode, since they can no longer be used.
+                    server.printWithThread("Stubbing EXECDIR for: " +  sql);
                     dataOutput.writeByte('C');
                     dataOutput.writeInt("SET".length() + 5); // size
                     writeNullTermdUTF("SET");
@@ -686,7 +696,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     // I think that when a ROLLBACK of an update is done here,
                     // it actually inserts new rows!
                     server.printWithThread("Performing a real EXECDIRECT...");
-                    Result r = Result.newExecuteDirectRequest();
+                    r = Result.newExecuteDirectRequest();
                     r.setPrepareOrExecuteProperties(normalized,0, 0,
                         org.hsqldb.StatementTypes.RETURN_COUNT,
                         org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
@@ -738,6 +748,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
           case ODBC_EXT_RECOVER_MODE:
            switch (op) {
             case 'S':
+                // Special case for Sync packets.
+                // To facilitate recovery, we do not abort in case of problems.
                 if (len != 0) {
                     server.printWithThread(
                         "Client supplied bad length for Sync packet ("
@@ -768,7 +780,20 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
 
           case ODBC_EXTENDED_MODE:
            switch (op) {
+            case 'H':
+                // No-op.  It is impossible to cache while supporting multiple
+                // ps and portal objects, so there is nothing for a Flush to
+                // do.  There isn't even a reply to a Flush packet.
+                if (len != 0) {
+                    throw new RecoverableFailure(
+                        "Client supplied bad length for Flush packet ("
+                        + len + ')', "08P01");
+                    // Code here means Protocol Violation
+                }
+                break;
             case 'S':
+                // Special case for Sync packets.
+                // To facilitate recovery, we do not abort in case of problems.
                 if (len != 0) {
                     server.printWithThread(
                         "Client supplied bad length for Sync packet ("
@@ -801,7 +826,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 // TODO:  Read in entire packet and work with that object.
                 String psHandle = readNullTermdUTF();
                 String query = revertMungledPreparedQuery(readNullTermdUTF());
-                int paramCount = dataInput.readUnsignedShort();
+                paramCount = dataInput.readUnsignedShort();
                 for (int i = 0; i < paramCount; i++) {
                     if (dataInput.readInt()  != 0) {
                         throw new RecoverableFailure(null,
@@ -814,7 +839,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         "Received Prepare request for query (" + query +
                         ") with handle '" + psHandle + "'");
                 }
-                Result r = Result.newPrepareStatementRequest();
+                r = Result.newPrepareStatementRequest();
                 r.setPrepareOrExecuteProperties(query, 0, 0, 0,
                     org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
                     org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
@@ -849,6 +874,129 @@ parameterModes   = pmdDescriptor.paramModes;
                             "Output Result from Statement prep is of "
                             + "unexpected type: " + rOut.getType());
                 }
+                dataOutput.writeByte('1');
+                if (server.isTrace()) {
+                    server.printWithThread("### Writing size 5");
+                }
+                dataOutput.writeInt(4); //size
+                break;
+            case 'D':
+                //byte[]inPacket = readPacket(len);
+                // TODO:  Read in entire packet and work with that object.
+                r = null;
+                char c = (char) dataInput.readByte();
+                String handle = readNullTermdUTF();
+                if (c == 'S') {
+                    r = (Result) sessionOdbcPsMap.get(handle);
+                } else if (c == 'P') {
+                    r = (Result) sessionOdbcPortalMap.get(handle);
+                } else {
+                    throw new RecoverableFailure(null,
+                        "Description packet request type invalid: " + c,
+                        "08P01");
+                }
+                if (r == null) {
+                    /*
+                     * Have to make a judgement call here, since the spec
+                     * says to switch to recover mode for all EXTENDED
+                     * mode failures, but also implies to just send an E
+                     * in this case.
+                    throw new RecoverableFailure(null,
+                        "No object present for " + c + " handle: " + handle,
+                        "08P01");
+                    */
+                    alertOdbcClient(ODBC_SEVERITY_ERROR,
+                        "No object present for " + c + " handle: " + handle,
+                        "08P01");
+                    break;
+                }
+                org.hsqldb.result.ResultMetaData pmd = r.parameterMetaData;
+                paramCount = pmd.getColumnCount();
+                org.hsqldb.types.Type[] paramTypes = pmd.getParameterTypes();
+                if (paramCount != paramTypes.length) {
+                    throw new RecoverableFailure(
+                        "Parameter count mismatch.  Count of "
+                        + paramCount + " reported, but there are "
+                        + paramTypes.length + " param md objects");
+                }
+                PacketOutputStream outPacket =
+                    new PacketOutputStream(new ByteArrayOutputStream());
+
+                if (c == 'S') {
+                    dataOutput.writeByte('t'); // ParameterDescription packet
+                    outPacket.writeShort(paramCount);
+                    for (int i = 0; i < paramTypes.length; i++) {
+                        outPacket.writeInt(new PgType(paramTypes[i]).getOid()); }
+                    dataOutput.write(outPacket.toByteArray());
+                    outPacket.reset();
+                }
+
+                org.hsqldb.result.ResultMetaData md = r.metaData;
+                if (md == null) {
+                    // Send NoData packet because no ResultSet output from
+                    // this statement.
+                    dataOutput.writeByte('n');
+                    dataOutput.writeInt(4);
+                    break;
+                }
+                if (md.getColumnCount() != md.getExtendedColumnCount()) {
+                    throw new RecoverableFailure(
+                        "Output column count mismatch: "
+                        + md.getColumnCount() + " cols. and "
+                        + md.getExtendedColumnCount()
+                        + " extended cols. reported");
+                }
+                String[] colNames = md.getGeneratedColumnNames();
+                if (md.getColumnCount() != colNames.length) {
+                    throw new RecoverableFailure(
+                        "Couldn't get all column names: "
+                        + md.getColumnCount() + " cols. but only got "
+                        + colNames.length + " col. names");
+                }
+                org.hsqldb.types.Type[] colTypes = md.getParameterTypes();
+                PgType[] pgTypes = new PgType[colTypes.length];
+                org.hsqldb.ColumnBase[] colDefs = md.columns;
+                for (int i = 0; i < pgTypes.length; i++) {
+                    pgTypes[i] = new PgType(colTypes[i]);
+                }
+                if (colNames.length != colDefs.length) {
+                    throw new RecoverableFailure("Col data mismatch.  "
+                            + colDefs.length + " col instances but "
+                            + colNames.length + " col names");
+                }
+
+                dataOutput.writeByte('T'); // sending a Tuple (row)
+                outPacket.writeShort(colNames.length);  // Num cols.
+                for (int i = 0; i < colNames.length; i++) {
+                    outPacket.writeUTF(colNames[i], true); // Col. name
+                    // table ID  [relid]:
+                    outPacket.writeInt((colDefs[i].getNameString() == null)
+                        ? 0
+                        : (colDefs[i].getSchemaNameString() + '.'
+                            + colDefs[i].getTableNameString()).hashCode());
+                    // column id  [attid]
+                    outPacket.writeShort(
+                        (colDefs[i].getTableNameString() == null)
+                        ? 0 : (i + 1));
+                        // TODO:  FIX This ID does not stick with the
+                        // column, but just represents the position in this
+                        // query.
+                    // TODO:  Map from colTypes[i] to PG adtid:
+                    outPacket.writeInt(pgTypes[i].getOid());
+                    // Datatype size  [adtsize]
+                    outPacket.writeShort(pgTypes[i].getTypeSize());
+                    outPacket.writeInt(-1); // Var size [atttypmod]
+                        // TODO:  Get from the colType[i]
+                    // This is the size constraint integer
+                    // like VARCHAR(12) or DECIMAL(4).
+                    // -1 if none specified for this column.
+                    outPacket.writeShort(0);
+                    // format code must be 0 for describing PS;
+                    // otherwise 0 if D packets will follow;
+                    // and 1 if B packets will follow.
+                }
+                dataOutput.write(outPacket.toByteArray());
+                outPacket.close();
                 break;
             default:
                 readPacket(len); // Gobble up packet contents
