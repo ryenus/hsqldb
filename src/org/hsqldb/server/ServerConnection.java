@@ -74,6 +74,7 @@ import java.io.PipedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.hsqldb.ClientConnection;
 import org.hsqldb.DatabaseManager;
@@ -299,8 +300,15 @@ class ServerConnection implements Runnable {
     private class RecoverableFailure extends Exception {
         private String clientMessage = null;
         private String sqlStateCode = null;
+        private Result errorResult = null;
         public String getSqlStateCode() {
             return sqlStateCode;
+        }
+        public Result getErrorResult() {
+            return errorResult;
+        }
+        public RecoverableFailure(Result errorResult) {
+            this.errorResult = errorResult;
         }
         public RecoverableFailure(String m) {
             this(m, m);
@@ -359,7 +367,6 @@ class ServerConnection implements Runnable {
         char op;
         boolean newTran = false;
         int len = 0;
-        Result errorResult = null;
         String stringVal;
         try {
             op = (char) dataInput.readByte();
@@ -375,12 +382,19 @@ class ServerConnection implements Runnable {
                 // this is part of the packet, we report the full size.
             }
             // TODO ASAP:  Read the entire input packet right here!!
-        } catch (IOException e) {
-            server.printWithThread("Fatal ODBC protocol failure: " + e);
-            alertOdbcClient(ODBC_SEVERITY_FATAL, e.getMessage(), "08P01");
+        } catch (SocketException se) {
+            server.printWithThread("Ungraceful client exit: " + se);
+            throw cleanExit; // not "clean", but handled
+        } catch (IOException ioe) {
+            server.printWithThread("Fatal ODBC protocol failure: " + ioe);
+            try {
+                alertOdbcClient(ODBC_SEVERITY_FATAL, ioe.getMessage(), "08P01");
                                  // Code here means Protocol Violation
-            // TODO:  Figure out whether should zend a Z..E packet here.
-            return;
+                // TODO:  Figure out whether should zend a Z..E packet here.
+            } catch (Exception e) {
+                // We just make an honest effort to notify the client
+            }
+            throw cleanExit; // not "clean", but handled
         }
         if (odbcCommMode == ODBC_SIMPLE_MODE && op == 'P') {
             odbcCommMode = ODBC_EXTENDED_MODE;
@@ -494,12 +508,8 @@ class ServerConnection implements Runnable {
                 } else if (normalized.startsWith("select ")) {
                     server.printWithThread(
                         "Performing a real non-prepared SELECT...");
-                    PacketOutputStream outPacket =
-                        new PacketOutputStream(new ByteArrayOutputStream());
                     Result r = Result.newExecuteDirectRequest();
-                    // sePrepare...() normally used on client side in
-                    // JDBCStatement.
-                    r.setPrepareOrExecuteProperties(normalized,0, 0,
+                    r.setPrepareOrExecuteProperties(normalized, 0, 0,
                         org.hsqldb.StatementTypes.RETURN_RESULT,
                         org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
                         org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
@@ -510,7 +520,7 @@ class ServerConnection implements Runnable {
                         case ResultConstants.DATA:
                             break;
                         case ResultConstants.ERROR:
-                            errorResult = rOut;
+                            throw new RecoverableFailure(rOut);
                         default:
                             throw new RecoverableFailure(
                                 "Output Result from Query execution is of "
@@ -563,6 +573,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                                 + colNames.length + " col names");
                     }
                     dataOutput.writeByte('T'); // sending a Tuple (row)
+                    PacketOutputStream outPacket =
+                        new PacketOutputStream(new ByteArrayOutputStream());
                     outPacket.writeShort(colNames.length);  // Num cols.
                     for (int i = 0; i < colNames.length; i++) {
                         outPacket.writeUTF(colNames[i], true); // Col. name
@@ -656,8 +668,6 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     // it actually inserts new rows!
                     server.printWithThread("Performing a real EXECDIRECT...");
                     Result r = Result.newExecuteDirectRequest();
-                    // sePrepare...() normally used on client side in
-                    // JDBCStatement.
                     r.setPrepareOrExecuteProperties(normalized,0, 0,
                         org.hsqldb.StatementTypes.RETURN_COUNT,
                         org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
@@ -669,7 +679,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         case ResultConstants.UPDATECOUNT:
                             break;
                         case ResultConstants.ERROR:
-                            errorResult = rOut;
+                            throw new RecoverableFailure(rOut);
                         default:
                             throw new RecoverableFailure(
                                 "Output Result from execution is of "
@@ -768,11 +778,60 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
                 odbcCommMode = ODBC_SIMPLE_MODE;
                 break;
+            case 'P':
+                //byte[]inPacket = readPacket(len);
+                // TODO:  Read in entire packet and work with that object.
+                String psHandle = readNullTermdUTF();
+                String query = revertMungledPreparedQuery(readNullTermdUTF());
+                int paramCount = dataInput.readUnsignedShort();
+                for (int i = 0; i < paramCount; i++) {
+                    server.printWithThread("Requested specific OID "
+                            + dataInput.readInt() + " for col. " + (i + 1));
+                }
+                if (server.isTrace()) {
+                    server.printWithThread(
+                        "Received Prepare request for query (" + query + ')');
+                }
+                Result r = Result.newPrepareStatementRequest();
+                r.setPrepareOrExecuteProperties(query, 0, 0, 0,
+                    org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
+                    org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
+                    org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+                    java.sql.Statement.NO_GENERATED_KEYS, null, null);
+                Result rOut = session.execute(r);
+/* from JDBCPreparedStatement.java
+statementID      = rOut.getStatementID();
+statementRetType = rOut.getStatementType();
+rsmdDescriptor   = rOut.metaData;
+pmdDescriptor    = rOut.parameterMetaData;
+paramCount       = pmdDescriptor.getColumnCount();
+parameterTypes   = pmdDescriptor.getParameterTypes();
+parameterValues  = new Object[paramCount];
+parameterSet     = new boolean[paramCount];
+parameterModes   = pmdDescriptor.paramModes;
+*/
+                switch (rOut.getType()) {
+                    case ResultConstants.PREPARE_ACK:
+                        break;
+                    case ResultConstants.ERROR:
+                        throw new RecoverableFailure(rOut);
+                    default:
+                        throw new RecoverableFailure(
+                            "Output Result from Statement prep is of "
+                            + "unexpected type: " + rOut.getType());
+                }
+                break;
             default:
                 readPacket(len); // Gobble up packet contents
                 throw new RecoverableFailure(
                     "Unsupported EXTENDED op type (" + op + ')',
                     "Unsupported EXTENDED operation type (" + op + ')');
+                // TODO:  Need client support here, because even though
+                // psqlodbc does send the Sync then other queries as it
+                // should, this error does not get cleared on the client side.
+                // Perfectly served simple queries generate errors to the end
+                // user.  I don't know if the fault lies with jdbc:odbc or
+                // with psqlodbc.
            } // end of EXTENDED_MODE op switch
            break;
 
@@ -783,6 +842,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
         } // end odbcCommMode switch
 
         } catch (RecoverableFailure rf) {
+            Result errorResult = rf.getErrorResult();
             if (errorResult == null) {
                 server.printWithThread(rf.getMessage());
                 String errCode = rf.getSqlStateCode();
@@ -793,17 +853,29 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         errCode);
                 }
             } else {
+                // This class of error is not considered a Server proble, so
+                // we don't log on the server side.
+server.print("*** Error Result string: " + errorResult.getMainString());
                 alertOdbcClient(ODBC_SEVERITY_ERROR,
                     errorResult.getMainString(), errorResult.getSubString());
             }
-            if (odbcCommMode == ODBC_SIMPLE_MODE) {
-                // We continue on, hoping for client to send us a valid op.
-                dataOutput.writeByte('Z');
-                if (server.isTrace()) {
-                    server.printWithThread("### Writing size 5");
-                }
-                dataOutput.writeInt(5); //size
-                dataOutput.writeByte('E');  /// transaction status = Error
+            switch (odbcCommMode) {
+               case ODBC_SIMPLE_MODE:
+                    // We continue on, hoping for client to send us a valid op.
+                    dataOutput.writeByte('Z');
+                    if (server.isTrace()) {
+                        server.printWithThread("### Writing size 5");
+                    }
+                    dataOutput.writeInt(5); //size
+                    dataOutput.writeByte('E');  /// transaction status = Error
+                    break;
+                case ODBC_EXTENDED_MODE:
+                    // I don't know why we can't try to recover from any
+                    // extended mode problems, but the spec says we must abort
+                    // the whole mode.
+                    odbcCommMode = ODBC_EXT_RECOVER_MODE;
+                    server.printWithThread("Reverting to EXT_RECOVER mode");
+                    break;
             }
         }
     }
@@ -1535,5 +1607,16 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
         odbcSeverityMap.put(ODBC_SEVERITY_DEBUG, "DEBUG");
         odbcSeverityMap.put(ODBC_SEVERITY_INFO, "INFO");
         odbcSeverityMap.put(ODBC_SEVERITY_LOG, "LOG");
+    }
+    
+
+    /**
+     * TODO:  Eliminate the mungling on the client-side instead of
+     * attempting very problematic correction here!
+     */
+    private String revertMungledPreparedQuery(String inQuery) {
+        // THIS PURPOSEFULLY USING Java 1.4!
+server.print("Replaced to: " +  inQuery.replaceAll("\\$\\d+", "?"));
+        return inQuery.replaceAll("\\$\\d+", "?");
     }
 }
