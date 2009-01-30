@@ -153,6 +153,24 @@
       <simpara><literal>&lt;hexit&gt; ::= &lt;digit&gt; | A | B | C | D | E |
       F | a | b | c | d | e | f</literal></simpara>
 
+      <programlisting>X'1abACD34' 'Af'</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>bit literal</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">bit literal</emphasis></simpara>
+
+      <simpara><emphasis>bit literal</emphasis></simpara>
+
+      <simpara><literal>&lt;bit string literal&gt; ::= B &lt;quote&gt; [
+      &lt;bit&gt; ... ] &lt;quote&gt; [ { &lt;separator&gt; &lt;quote&gt; [
+      &lt;bit&gt;... ] &lt;quote&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;bit&gt; ::= 0 | 1</literal></simpara>
+
+      <programlisting>B'10001001' '00010'</programlisting>
+
       <indexterm significance="preferred" type="sql">
         <primary>numeric literal</primary>
       </indexterm>
@@ -189,8 +207,10 @@
       <simpara><literal>&lt;unsigned integer&gt; ::=
       &lt;digit&gt;...</literal></simpara>
 
-      <simpara><literal>&lt;datetime literal&gt; ::= &lt;date literal&gt; |
-      &lt;time literal&gt; | &lt;timestamp literal&gt;</literal></simpara>
+      <programlisting>12
+34.35
++12E-2
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>datetime and interval literal</primary>
@@ -200,6 +220,9 @@
       literal</emphasis></simpara>
 
       <simpara><emphasis>datetime and interval literal</emphasis></simpara>
+
+      <simpara><literal>&lt;datetime literal&gt; ::= &lt;date literal&gt; |
+      &lt;time literal&gt; | &lt;timestamp literal&gt;</literal></simpara>
 
       <simpara><literal>&lt;date literal&gt; ::= DATE &lt;date
       string&gt;</literal></simpara>
@@ -294,6 +317,14 @@
       <simpara><literal>&lt;datetime value&gt; ::= &lt;unsigned
       integer&gt;</literal></simpara>
 
+      <programlisting>DATE '2008-08-08'
+TIME '20:08:08'
+TIMESTAMP '2008-08-08 20:08:08'
+
+INTERVAL '10' DAY
+INTERVAL -'08:08' MINUTE TO SECOND
+</programlisting>
+
       <indexterm significance="preferred" type="sql">
         <primary>boolean literal</primary>
       </indexterm>
@@ -328,10 +359,9 @@
 
       <simpara><literal>&lt;predefined type&gt; ::= &lt;character string
       type&gt; [ CHARACTER SET &lt;character set specification&gt; ] [
-      &lt;collate clause&gt; ] | &lt;national character string type&gt; [
-      &lt;collate clause&gt; ] | &lt;binary string type&gt; | &lt;numeric
-      type&gt; | &lt;boolean type&gt; | &lt;datetime type&gt; | &lt;interval
-      type&gt;</literal></simpara>
+      &lt;collate clause&gt; ] &lt;binary string type&gt; | &lt;bit string
+      type&gt; | &lt;numeric type&gt; | &lt;boolean type&gt; | &lt;datetime
+      type&gt; | &lt;interval type&gt;</literal></simpara>
 
       <simpara><literal>&lt;character string type&gt; ::= CHARACTER [ &lt;left
       paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | CHAR [
@@ -349,23 +379,14 @@
       &lt;left paren&gt; &lt;character large object length&gt; &lt;right
       paren&gt; ]</literal></simpara>
 
-      <simpara><literal>&lt;national character string type&gt; ::= NATIONAL
-      CHARACTER [ &lt;left paren&gt; &lt;character length&gt; &lt;right
-      paren&gt; ] | NATIONAL CHAR [ &lt;left paren&gt; &lt;character
-      length&gt; &lt;right paren&gt; ] | NCHAR [ &lt;left paren&gt;
-      &lt;character length&gt; &lt;right paren&gt; ] | NATIONAL CHARACTER
-      VARYING &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt;
-      | NATIONAL CHAR VARYING &lt;left paren&gt; &lt;character length&gt;
-      &lt;right paren&gt; | NCHAR VARYING &lt;left paren&gt; &lt;character
-      length&gt; &lt;right paren&gt; | &lt;national character large object
-      type&gt;</literal></simpara>
-
-      <simpara><literal>&lt;national character large object type&gt; ::=
-      NATIONAL CHARACTER LARGE OBJECT [ &lt;left paren&gt; &lt;character large
-      object length&gt; &lt;right paren&gt; ] | NCHAR LARGE OBJECT [ &lt;left
-      paren&gt; &lt;character large object length&gt; &lt;right paren&gt; ] |
-      NCLOB [ &lt;left paren&gt; &lt;character large object length&gt;
-      &lt;right paren&gt; ]</literal></simpara>
+      <programlisting>CHAR(10)
+CHARACTER(10)
+VARCHAR(2)
+CHAR VARYING(2)
+CLOB(1000)
+CLOB(30K)
+CHARACTER LARGE OBJECT(1M)
+</programlisting>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -375,6 +396,23 @@
       <simpara><literal>&lt;binary large object string type&gt; ::= { BINARY
       LARGE OBJECT | BLOB } [ &lt;left paren&gt; &lt;large object length&gt;
       &lt;right paren&gt; ]</literal></simpara>
+
+      <programlisting>BINARY(10)
+VARBINARY(2)
+BINARY VARYING(2)
+BLOB(1000)
+BLOB(30K)
+BINARY LARGE OBJECT(1M)
+</programlisting>
+
+      <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
+      &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
+      &lt;length&gt; &lt;right paren&gt;</literal></simpara>
+
+      <programlisting>BIT
+BIT(10)
+BIT VARYING(2)
+</programlisting>
 
       <simpara><literal>&lt;numeric type&gt; ::= &lt;exact numeric type&gt; |
       &lt;approximate numeric type&gt;</literal></simpara>
@@ -434,7 +472,66 @@
       <simpara><literal>&lt;interval type&gt; ::= INTERVAL &lt;interval
       qualifier&gt;</literal></simpara>
 
+      <programlisting>DATE
+TIME(6)
+TIMESTAMP(2) WITH TIME ZOME
+</programlisting>
+
+      <programlisting>INTERVAL YEAR TO MONTH
+INTERVAL YEAR(3)
+INTERVAL DAY(4) TO HOUR
+INTERVAL MINUTE(4) TO SECOND(6)
+INTERVAL SECOND(4,6)
+</programlisting>
+
       <simpara>Specify a data type.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>interval qualifier</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">interval qualifier</emphasis></simpara>
+
+      <simpara><emphasis>interval qualifier</emphasis></simpara>
+
+      <simpara><literal>&lt;interval qualifier&gt; ::= &lt;start field&gt; TO
+      &lt;end field&gt; | &lt;single datetime field&gt;</literal></simpara>
+
+      <simpara><literal>&lt;start field&gt; ::= &lt;non-second primary
+      datetime field&gt; [ &lt;left paren&gt; &lt;interval leading field
+      precision&gt; &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;end field&gt; ::= &lt;non-second primary datetime
+      field&gt; | SECOND [ &lt;left paren&gt; &lt;interval fractional seconds
+      precision&gt; &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;single datetime field&gt; ::= &lt;non-second
+      primary datetime field&gt; [ &lt;left paren&gt; &lt;interval leading
+      field precision&gt; &lt;right paren&gt; ] | SECOND [ &lt;left paren&gt;
+      &lt;interval leading field precision&gt; [ &lt;comma&gt; &lt;interval
+      fractional seconds precision&gt; ] &lt;right paren&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;primary datetime field&gt; ::= &lt;non-second
+      primary datetime field&gt; | SECOND</literal></simpara>
+
+      <simpara><literal>&lt;non-second primary datetime field&gt; ::= YEAR |
+      MONTH | DAY | HOUR | MINUTE</literal></simpara>
+
+      <simpara><literal>&lt;interval fractional seconds precision&gt; ::=
+      &lt;unsigned integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval leading field precision&gt; ::=
+      &lt;unsigned integer&gt;</literal></simpara>
+
+      <simpara>Specify an interval data type. This is used in interval
+      literals and in interval type definitions. Furthermore, it is used in
+      special casts without the use of the the CAST keywords. Examples of this
+      are given below:</simpara>
+
+      <programlisting>CURRENT_DATE - 2 DAY
+(CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2)
+</programlisting>
     </section>
 
     <section>
@@ -818,9 +915,9 @@
       <simpara><literal>&lt;string value function&gt; ::=
       ...</literal></simpara>
 
-      <simpara>Specify a function yielding a value of type character string or
-      binary string. The supported character value functions are listed and
-      described in Built-In Functions chapter.</simpara>
+      <simpara>Specify a function that returns a character string or binary
+      string. The supported character value functions are listed and described
+      in Built-In Functions chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>datetime value expression</primary>
@@ -979,15 +1076,15 @@
       <simpara>The number of fields in all <literal>&lt;row value
       predicand&gt;</literal> used in predicates must be the same and the
       types of the fields in the same position must be compatible for
-      comparison. If either of these conditions does not hold, an exception
-      is raised. The number of fields in a row is called the
+      comparison. If either of these conditions does not hold, an exception is
+      raised. The number of fields in a row is called the
       <glossterm>degree</glossterm>.</simpara>
 
-      <simpara>If a <literal>&lt;row value predicand&gt;</literal> in a
-      predicate evaluates to NULL, the result of the predicate is UNKNOWN. If
-      the <literal>&lt;row value predicand&gt;</literal> has more than one
-      element, and one or more of the fields evaluate to NULL, the result
-      depends on the particular predicate.</simpara>
+      <simpara>In many predicates, if a <literal>&lt;row value
+      predicand&gt;</literal> evaluates to NULL, the result of the predicate
+      is UNKNOWN. If the <literal>&lt;row value predicand&gt;</literal> has
+      more than one element, and one or more of the fields evaluate to NULL,
+      the result depends on the particular predicate.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>comparison predicate</primary>
@@ -1051,7 +1148,8 @@
       otherwise the result of the predicate is UNKNOWN.</simpara>
 
       <simpara>The examples of comparison given below use literals, but the
-      literals actually represent the evaluation of some expression.</simpara>
+      literals actually represent the result of evaluation of some
+      expression.</simpara>
 
       <programlisting>((1, 2, 3, 4) = (1, 2, 3, 4)) IS TRUE
 ((1, 2, 3, 4) = (1, 2, 3, 5)) IS FALSE
@@ -1067,10 +1165,10 @@
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
-        <primary>between predicate</primary>
+        <primary>BETWEEN predicate</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">between predicate</emphasis></simpara>
+      <simpara><emphasis role="bold">BETWEEN</emphasis></simpara>
 
       <simpara><emphasis>between predicate</emphasis></simpara>
 
@@ -1093,10 +1191,10 @@
       UNKNOWN.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>in predicate</primary>
+        <primary>IN predicate</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">in predicate</emphasis></simpara>
+      <simpara><emphasis role="bold">IN</emphasis></simpara>
 
       <simpara><emphasis>in predicate</emphasis></simpara>
 
@@ -1119,22 +1217,22 @@
       <literal>( &lt;in value list&gt; )</literal> is converted into a table
       with one or more rows. The expression <literal>X IN Y</literal> is
       equivalent to <literal>X = ANY Y</literal>, which is a
-      <literal>&lt;quantified comparison predicate&gt;</literal>. </simpara>
+      <literal>&lt;quantified comparison predicate&gt;</literal>.</simpara>
 
       <simpara>If the <literal>&lt;table subquery&gt;</literal> returns no
       rows, the result is FALSE. Otherwise the <literal>&lt;row value
       predicand&gt;</literal> is compared one by one with each row of the
-      <literal>&lt;table subquery&gt;</literal>. </simpara>
+      <literal>&lt;table subquery&gt;</literal>.</simpara>
 
       <simpara>If the comparison is TRUE for at least one row, the result is
       TRUE. If the comparison is FALSE for all rows, the result is FALSE.
       Otherwise the result is UNKNOWN.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>like predicate</primary>
+        <primary>LIKE predicate</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">like predicate</emphasis></simpara>
+      <simpara><emphasis role="bold">LIKE</emphasis></simpara>
 
       <simpara><emphasis>like predicate</emphasis></simpara>
 
@@ -1168,13 +1266,35 @@
       <simpara><literal>&lt;escape octet&gt; ::= &lt;binary value
       expression&gt;</literal></simpara>
 
-      <simpara>Specify a pattern-match comparison.</simpara>
+      <simpara>Specify a pattern-match comparison. The <literal>&lt;row value
+      predicand&gt;</literal> is always a <literal>&lt;string value
+      expression&gt;</literal> of character or binary type. The
+      <literal>&lt;character pattern&gt;</literal> or <literal>&lt;octet
+      pattern&gt;</literal> is a <literal>&lt;string value
+      expression&gt;</literal> in which the underscore and percent characters
+      have special meanings. The underscore means match any one character,
+      while the percent means match a sequence of zero or more characters. The
+      <literal>&lt;escape character&gt;</literal> or <literal>&lt;escape
+      octet&gt;</literal> is also a <literal>&lt;string value
+      expression&gt;</literal> that evaluates to a string of exactly one
+      character length. If the underscore or the percent is required as normal
+      characters in the pattern, the specified <literal>&lt;escape
+      character&gt;</literal> or <literal>&lt;escape octet&gt;</literal> can
+      be used in the pattern before the underscore or the percent. The
+      <literal>&lt;row value predicand&gt;</literal> is compared with the
+      <literal>&lt;character pattern&gt;</literal> and the result of
+      comparison is returned. If any of the expressions in the predicate
+      evaluates to NULL, the result of the predicate is UNKNOWN. The
+      expression <literal>A NOT LIKE B</literal> is equivalent to <literal>NOT
+      (A LIKE B)</literal>. If the length of the escape is not 1 or it is used
+      in the pattern not immediately before an underscore or a percent
+      character, an exception is raised.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>null predicate</primary>
+        <primary>NULL predicate</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">null predicate</emphasis></simpara>
+      <simpara><emphasis role="bold">NULL</emphasis></simpara>
 
       <simpara><emphasis>null predicate</emphasis></simpara>
 
@@ -1195,11 +1315,10 @@
       <literal>X IS NOT NULL</literal> is TRUE.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>quantified comparison predicate</primary>
+        <primary>ALL and ANY predicates</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">quantified comparison
-      predicate</emphasis></simpara>
+      <simpara><emphasis role="bold">ALL and ANY</emphasis></simpara>
 
       <simpara><emphasis>quantified comparison predicate</emphasis></simpara>
 
@@ -1220,8 +1339,8 @@
 
       <simpara>Specify a quantified comparison. For a quantified comparison,
       the <literal>&lt;row value predicand&gt;</literal> is compared one by
-      one with each row of the <literal>&lt;table sub query&gt;</literal>.
-      </simpara>
+      one with each row of the <literal>&lt;table sub
+      query&gt;</literal>.</simpara>
 
       <simpara>If the <literal>&lt;table subquery&gt;</literal> returns no
       rows, then if <literal>ALL</literal> is specified the result is TRUE,
@@ -1241,7 +1360,7 @@
       operator&gt;</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>EXISTS</primary>
+        <primary>EXISTS predicate</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">EXISTS</emphasis></simpara>
@@ -1256,7 +1375,7 @@
       then the expression is TRUE, otherwise FALSE.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>UNIQUE</primary>
+        <primary>UNIQUE predicate</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">UNIQUE</emphasis></simpara>
@@ -1325,7 +1444,7 @@
         <primary>OVERLAPS predicate</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">OVERLAPS predicate</emphasis></simpara>
+      <simpara><emphasis role="bold">OVERLAPS</emphasis></simpara>
 
       <simpara><emphasis>overlaps predicate</emphasis></simpara>
 
@@ -1360,7 +1479,7 @@
         <primary>DISTINCT predicate</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">DISTINCT predicate</emphasis></simpara>
+      <simpara><emphasis role="bold">DISTINCT</emphasis></simpara>
 
       <simpara><emphasis>distinct predicate</emphasis></simpara>
 
@@ -1404,46 +1523,6 @@
       expression&gt;</literal></simpara>
 
       <simpara>Specify a condition that is TRUE, FALSE, or UNKNOWN.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>interval qualifier</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">interval qualifier</emphasis></simpara>
-
-      <simpara><emphasis>interval qualifier</emphasis></simpara>
-
-      <simpara><literal>&lt;interval qualifier&gt; ::= &lt;start field&gt; TO
-      &lt;end field&gt; | &lt;single datetime field&gt;</literal></simpara>
-
-      <simpara><literal>&lt;start field&gt; ::= &lt;non-second primary
-      datetime field&gt; [ &lt;left paren&gt; &lt;interval leading field
-      precision&gt; &lt;right paren&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;end field&gt; ::= &lt;non-second primary datetime
-      field&gt; | SECOND [ &lt;left paren&gt; &lt;interval fractional seconds
-      precision&gt; &lt;right paren&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;single datetime field&gt; ::= &lt;non-second
-      primary datetime field&gt; [ &lt;left paren&gt; &lt;interval leading
-      field precision&gt; &lt;right paren&gt; ] | SECOND [ &lt;left paren&gt;
-      &lt;interval leading field precision&gt; [ &lt;comma&gt; &lt;interval
-      fractional seconds precision&gt; ] &lt;right paren&gt;
-      ]</literal></simpara>
-
-      <simpara><literal>&lt;primary datetime field&gt; ::= &lt;non-second
-      primary datetime field&gt; | SECOND</literal></simpara>
-
-      <simpara><literal>&lt;non-second primary datetime field&gt; ::= YEAR |
-      MONTH | DAY | HOUR | MINUTE</literal></simpara>
-
-      <simpara><literal>&lt;interval fractional seconds precision&gt; ::=
-      &lt;unsigned integer&gt;</literal></simpara>
-
-      <simpara><literal>&lt;interval leading field precision&gt; ::=
-      &lt;unsigned integer&gt;</literal></simpara>
-
-      <simpara>Specify an interval data type.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>PATH</primary>
@@ -1633,7 +1712,144 @@
   <section>
     <title>Data Access Statements</title>
 
-    <para></para>
+    <para>Data access statements access tables and return result tables, which
+    are falsely called result sets, as they are not necessarily sets of rows,
+    but just collections of rows.</para>
+
+    <para>Result tables are formed by performing the following operations on
+    base tables and views:</para>
+
+    <para>joins</para>
+
+    <para>set (and collection) operations</para>
+
+    <para>selection</para>
+
+    <para>projection</para>
+
+    <para>column naming</para>
+
+    <para>JOINS</para>
+
+    <para>JOINS are operators with two table as the operands, resulting in a
+    third table, called joined table. All join operators are evaluated left to
+    right, therefore, with multiple joins, the table resulting from the first
+    join operator becomes an operand of the next join operator. Parentheses
+    can be used to group sequences of joined tables and change the evaluation
+    order. So if more than two tables are joined together with join operators,
+    the end result is also a joined table.</para>
+
+    <para>CROSS JOIN</para>
+
+    <para>The simplest form of join is CROSS JOIN. The CROSS JOIN of two
+    tables is a table that has all the columns of the first table, followed by
+    all the columns of the second table, in the original order. Each row of
+    the first table is combined with each row of the second table to fill the
+    rows of the new table. If the rows of each table form a set, then the rows
+    of the CROSS JOIN table form the cartesian product of the rows of the two
+    table operands.</para>
+
+    <para>The CROSS JOIN can be expressed in two forms. The first form is
+    <literal>A CROSS JOIN B</literal>. The second form is <literal>A,
+    B</literal>.</para>
+
+    <para>UNION JOIN</para>
+
+    <para>The UNION JOIN has limited use in queries. The result table has the
+    same columns as that of CROSS JOIN. Each row of the first table is
+    extended to the right with nulls and added to the new table. Each row of
+    the second table is extended to the left with nulls and added to the new
+    table. The UNION JOIN is expressed as <literal>A UNION JOIN B</literal>.
+    This should not be confused with <literal>A UNION B</literal>, which is a
+    set operation.</para>
+
+    <para>JOIN with condition</para>
+
+    <para>The condition join is similar to CROSS JOIN, but a condition is
+    tested for each row of the new table and the row is created only if the
+    condition is true. This form of join is expressed as <literal>A JOIN B ON
+    (&lt;search condition&gt;)</literal>.</para>
+
+    <para>Equijoin</para>
+
+    <para>Equijoin is a condition join in which the search condition is an
+    equality condition between on or more pairs of columns from the two
+    table.</para>
+
+    <para>NATURAL JOIN and JOIN USING</para>
+
+    <para>These joins are similar to an equijoin but they cannot be expressed
+    simply with an equijoin. The new table is formed with the specified or
+    implied shared columns of the two tables, followed by the rest of the
+    columns from each table. In NATURAL JOIN, the shared columns are all the
+    column pairs that have the same name in the first and second table. In
+    JOIN USING, only columns names that are specified by the USING clause are
+    shared. The joins are expressed as <literal>A NATURAL JOIN B</literal>,
+    and <literal>A JOIN B USING (&lt;comma separated column name
+    list&gt;)</literal>.</para>
+
+    <para>LEFT, RIGHT and FULL OUTER JOINS</para>
+
+    <para>The three qualifiers can be added to all types of JOIN apart from
+    UNION JOIN. First the new table is populated with the rows from the
+    original join. If LEFT is specified, all the rows from the first table
+    that did not make it into the new table are extended to the right with
+    nulls and added to the table. If RIGHT is specified, all the rows from the
+    second table that did not make it into the new table are extended to the
+    left with nulls and added to the table. If FULL is specified, the addition
+    of leftover rows is performed from both the first and the second table.
+    These forms are expressed by prefixing the join specification with the
+    given keyword. For example <literal>A LEFT OUTER JOIN B ON (&lt;search
+    condition&gt;)</literal> or <literal>A NATURAL FULL OUTER JOIN B</literal>
+    or <literal>A FULL OUTER JOIN B USING (&lt;comma separated column name
+    list&gt;)</literal>.</para>
+
+    <para>SELECTION</para>
+
+    <para>Despite the name, selection has nothing to do with the list of
+    columns in a SELECT statement. It in fact refers to the search condition
+    used to limit the rows that from a result table (selection of rows, not
+    columns). In SQL, simple selection is expressed with a WHERE condition
+    appended to a single table or a joined table. In some cases, this method
+    of selection is the only method available. But when it is possible to
+    performed the selection with join conditions, this is the better method,
+    as it results in a clearer expression of the query.</para>
+
+    <para>PROJECTION</para>
+
+    <para>Projection is selection of the columns from a simple or joined table
+    to form a result table. Projection is performed in the SELECT statement by
+    specifying the select column list.</para>
+
+    <para>NAMING</para>
+
+    <para>Naming is used to hide the original names of tables or table columns
+    and to replace them with new names in the scope of the query. Naming is
+    performed by adding a new name after a table's real name and by adding a
+    list of column names after the new table name. The expression A AS X
+    (&lt;comma separated column name list&gt;) means table A is used in the
+    query expression as table X and its columns are named as in the given
+    list. The original name A, or its original column names, are not visible
+    in the scope of the query.</para>
+
+    <para>SET and COLLECTION OPERATIONS</para>
+
+    <para>While join operations generally result in laterally expanded tables,
+    SET and COLLECTION operations are performed on two tables that have the
+    same degree and result in a table of the same degree. The SET operations
+    are UNION, INTERSECT and EXCEPT (difference). When each of these
+    operations is performed on two tables, the collection of rows in each
+    table is reduced to a set of rows, by eliminating duplicates. The set
+    operations are then performed on the two tables, resulting in the new
+    table which itself is a set of rows. Collection operations are similar but
+    the tables are not reduced to sets before the operation and the result is
+    not necessarily a set, but a collection of rows.</para>
+
+    <para><literal>A UNION [DISTINCT] B</literal>, <literal>A INTERSECT
+    [DISTINCT] B</literal>, <literal>A EXCEPT [DISTINCT] B</literal></para>
+
+    <para><literal>A UNION ALL B</literal>, <literal>A INTERSECT ALL
+    B</literal>, <literal>A EXCEPT ALL B</literal></para>
   </section>
 
   <section>
