@@ -386,9 +386,11 @@ class ServerConnection implements Runnable {
         char op;
         boolean newTran = false;
         int len = 0;
-        String stringVal;
-        Result r = null, rOut;
+        String stringVal, psHandle;
+        Result r, rOut;
         int paramCount;
+        OdbcPreparedStatement odbcPs;
+        org.hsqldb.result.ResultMetaData pmd;
 
         try {
             op = (char) dataInput.readByte();
@@ -505,7 +507,6 @@ class ServerConnection implements Runnable {
 
                     PacketOutputStream outPacket =
                         new PacketOutputStream(new ByteArrayOutputStream());
-                    dataOutput.writeByte('T'); // sending a Tuple (row)
                     outPacket.writeShort(1);  // Num cols.
                     outPacket.writeUTF("oid", true);
                     outPacket.writeInt(201);
@@ -514,6 +515,7 @@ class ServerConnection implements Runnable {
                     outPacket.writeShort(4);
                     outPacket.writeInt(-1);
                     outPacket.writeShort(0);
+                    dataOutput.writeByte('T'); // sending a Tuple (row)
                     dataOutput.write(outPacket.toByteArray());
                     outPacket.close();
                     // This query returns no rows.  typenam "lo"??
@@ -631,7 +633,6 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                                 + colDefs.length + " col instances but "
                                 + colNames.length + " col names");
                     }
-                    dataOutput.writeByte('T'); // sending a Tuple (row)
                     PacketOutputStream outPacket =
                         new PacketOutputStream(new ByteArrayOutputStream());
                     outPacket.writeShort(colNames.length);  // Num cols.
@@ -662,6 +663,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         // format code must be 0 if D packets will follow;
                         // and 1 if B packets will follow.
                     }
+                    dataOutput.writeByte('T'); // sending a Tuple (row)
                     dataOutput.write(outPacket.toByteArray());
                     outPacket.reset();
                     int rowNum = 0;
@@ -682,11 +684,6 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         }
                         server.printWithThread("Row " + rowNum + " has "
                                 + rowData.length + " elements");
-                        dataOutput.writeByte('D'); // text row Data
-                          /* Should be 'B' to return binary results like Objs
-                           * or BLOBs.  Otherwise should be 'B'.
-                           * This must corresopnd to the T packet's format
-                           * code. */
                         outPacket.writeShort(colNames.length);
                          // This field could is just swallowed by PG ODBC
                          // client, but validated by psql.
@@ -708,6 +705,11 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                                     + ") [" + rowData[i] + ']');
                             }
                         }
+                        dataOutput.writeByte('D'); // text row Data
+                          /* Should be 'B' to return binary results like Objs
+                           * or BLOBs.  Otherwise should be 'B'.
+                           * This must corresopnd to the T packet's format
+                           * code. */
                         dataOutput.write(outPacket.toByteArray());
                         outPacket.reset();
                     }
@@ -817,7 +819,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
              case 'P':
                 //byte[]inPacket = readPacket(len);
                 // TODO:  Read in entire packet and work with that object.
-                String psHandle = readNullTermdUTF();
+                psHandle = readNullTermdUTF();
                 String query = revertMungledPreparedQuery(readNullTermdUTF());
                 paramCount = dataInput.readUnsignedShort();
                 for (int i = 0; i < paramCount; i++) {
@@ -832,68 +834,43 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         "Received Prepare request for query (" + query +
                         ") with handle '" + psHandle + "'");
                 }
-                r = Result.newPrepareStatementRequest();
-                r.setPrepareOrExecuteProperties(query, 0, 0, 0,
-                    org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
-                    org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
-                    org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
-                    java.sql.Statement.NO_GENERATED_KEYS, null, null);
-                rOut = session.execute(r);
                 if (psHandle.length() > 0
                         && sessionOdbcPsMap.containsKey(psHandle)) {
                     throw new RecoverableFailure(null,
                         "PS handle '" + psHandle + "' already in use.  "
                         + "You must close it before recreating", "08P01");
                 }
-                sessionOdbcPsMap.put(psHandle, rOut);
-/* from JDBCPreparedStatement.java
-statementID      = rOut.getStatementID();
-statementRetType = rOut.getStatementType();
-rsmdDescriptor   = rOut.metaData;
-pmdDescriptor    = rOut.parameterMetaData;
-paramCount       = pmdDescriptor.getColumnCount();
-parameterTypes   = pmdDescriptor.getParameterTypes();
-parameterValues  = new Object[paramCount];
-parameterSet     = new boolean[paramCount];
-parameterModes   = pmdDescriptor.paramModes;
-*/
-                switch (rOut.getType()) {
-                    case ResultConstants.PREPARE_ACK:
-                        break;
-                    case ResultConstants.ERROR:
-                        throw new RecoverableFailure(rOut);
-                    default:
-                        throw new RecoverableFailure(
-                            "Output Result from Statement prep is of "
-                            + "unexpected type: " + rOut.getType());
-                }
+                new OdbcPreparedStatement(psHandle, query);
+
                 dataOutput.writeByte('1');
                 if (server.isTrace()) {
-                    server.printWithThread("### Writing size 5");
+                    server.printWithThread("### Writing size 4");
                 }
                 dataOutput.writeInt(4); //size
                 return;
              case 'D':
                 //byte[]inPacket = readPacket(len);
                 // TODO:  Read in entire packet and work with that object.
-                r = null;
                 char c = (char) dataInput.readByte();
                 String handle = readNullTermdUTF();
+                odbcPs = null;
                 if (c == 'S') {
-                    r = (Result) sessionOdbcPsMap.get(handle);
+                    odbcPs = (OdbcPreparedStatement)
+                        sessionOdbcPsMap.get(handle);
                 } else if (c == 'P') {
-                    r = (Result) sessionOdbcPortalMap.get(handle);
+                    odbcPs = (OdbcPreparedStatement)
+                        sessionOdbcPortalMap.get(handle);
                 } else {
                     throw new RecoverableFailure(null,
                         "Description packet request type invalid: " + c,
                         "08P01");
                 }
-                if (r == null) {
+                if (odbcPs == null) {
                     throw new RecoverableFailure(null,
                         "No object present for " + c + " handle: " + handle,
                         "08P01");
                 }
-                org.hsqldb.result.ResultMetaData pmd = r.parameterMetaData;
+                pmd = odbcPs.ackResult.parameterMetaData;
                 paramCount = pmd.getColumnCount();
                 org.hsqldb.types.Type[] paramTypes = pmd.getParameterTypes();
                 if (paramCount != paramTypes.length) {
@@ -902,21 +879,30 @@ parameterModes   = pmdDescriptor.paramModes;
                         + paramCount + " reported, but there are "
                         + paramTypes.length + " param md objects");
                 }
+                // TODO:  Test that everything above works ok when no
+                // parameters to set.
                 PacketOutputStream outPacket =
                     new PacketOutputStream(new ByteArrayOutputStream());
 
                 if (c == 'S') {
-                    dataOutput.writeByte('t'); // ParameterDescription packet
                     outPacket.writeShort(paramCount);
                     for (int i = 0; i < paramTypes.length; i++) {
-                        outPacket.writeInt(new PgType(paramTypes[i]).getOid()); }
+                        outPacket.writeInt(new PgType(paramTypes[i]).getOid());
+                    }
+                    dataOutput.writeByte('t'); // ParameterDescription packet
                     dataOutput.write(outPacket.toByteArray());
                     outPacket.reset();
                 }
 
-                org.hsqldb.result.ResultMetaData md = r.metaData;
+                org.hsqldb.result.ResultMetaData md = odbcPs.ackResult.metaData;
                 if (md == null) {
-                    // Send NoData packet because no ResultSet output from
+server.print("############################# md == null FOR prepd NON-QRY");
+                    throw new RecoverableFailure(
+                            "No MetaData for the out Result");
+                }
+                if (md.getColumnCount() < 1) {
+server.print("############################# colCount <1 FOR prepd NON-QRY");
+                    // Send NoData packet because no columnar output from
                     // this statement.
                     dataOutput.writeByte('n');
                     dataOutput.writeInt(4);
@@ -948,7 +934,6 @@ parameterModes   = pmdDescriptor.paramModes;
                             + colNames.length + " col names");
                 }
 
-                dataOutput.writeByte('T'); // sending a Tuple (row)
                 outPacket.writeShort(colNames.length);  // Num cols.
                 for (int i = 0; i < colNames.length; i++) {
                     outPacket.writeUTF(colNames[i], true); // Col. name
@@ -978,8 +963,66 @@ parameterModes   = pmdDescriptor.paramModes;
                     // otherwise 0 if D packets will follow;
                     // and 1 if B packets will follow.
                 }
+                dataOutput.writeByte('T'); // sending a Tuple (row)
                 dataOutput.write(outPacket.toByteArray());
                 outPacket.close();
+                return;
+             case 'B':
+                //byte[]inPacket = readPacket(len);
+                // TODO:  Read in entire packet and work with that object.
+                String portalHandle = readNullTermdUTF();
+                psHandle = readNullTermdUTF();
+                int paramFormatCount = dataInput.readUnsignedShort();
+                for (int i = 0; i < paramFormatCount; i++) {
+                    if (dataInput.readUnsignedShort()  != 0) {
+                        throw new RecoverableFailure(null,
+                            "Binary param values not supported yet", "0A000");
+                    }
+                }
+                paramCount = dataInput.readUnsignedShort();
+                String[] paramVals = new String[paramCount];
+                int fieldLen;
+                for (int i = 0; i < paramCount; i++) {
+                    fieldLen = dataInput.readInt();
+                    paramVals[i] = (fieldLen < 0)
+                        ? null : readSizedUTF(fieldLen);
+                }
+                int outFormatCount = dataInput.readUnsignedShort();
+                for (int i = 0; i < outFormatCount; i++) {
+                    if (dataInput.readUnsignedShort()  != 0) {
+                        throw new RecoverableFailure(null,
+                            "Binary output values not supported yet", "0A000");
+                    }
+                }
+                if (server.isTrace()) {
+                    server.printWithThread(
+                        "Received Prepare request to make Portal from ("
+                        + psHandle + ")' with handle '" + portalHandle + "'");
+                }
+                odbcPs = (OdbcPreparedStatement) sessionOdbcPsMap.get(psHandle);
+                if (odbcPs == null) {
+                    throw new RecoverableFailure(null,
+                        "No object present for PS handle: " + psHandle,
+                        "08P01");
+                }
+                if (portalHandle.length() > 0
+                        && sessionOdbcPortalMap.containsKey(portalHandle)) {
+                    throw new RecoverableFailure(null,
+                        "Portal handle '" + portalHandle + "' already in use.  "
+                        + "You must close it before recreating", "08P01");
+                }
+                pmd = odbcPs.ackResult.parameterMetaData;
+                if (paramCount != pmd.getColumnCount()) {
+                    throw new RecoverableFailure(null,
+                        "Client didn't specify all " + pmd.getColumnCount()
+                        + " parameters (" + paramCount + ')', "08P01");
+                }
+                new Portal(odbcPs, paramVals);
+                dataOutput.writeByte('2');
+                if (server.isTrace()) {
+                    server.printWithThread("### Writing size 4");
+                }
+                dataOutput.writeInt(4); //size
                 return;
              default:
                 readPacket(len); // Gobble up packet contents
@@ -994,7 +1037,6 @@ parameterModes   = pmdDescriptor.paramModes;
            }
            dataOutput.writeInt(5); //size
            dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-System.err.println("Done wrote");
         } catch (RecoverableFailure rf) {
             Result errorResult = rf.getErrorResult();
             if (errorResult == null) {
@@ -1489,6 +1531,37 @@ server.print("*** Error Result string: " + errorResult.getMainString());
     /**
      * @param reqLength Required length
      */
+    private String readSizedUTF(int len) throws IOException {
+        /* Would be MUCH easier to do this with Java6's String
+         * encoding/decoding operations */
+        int bytesRead = 0;
+        byte[] ba = new byte[len + 2];
+        ba[0] = (byte) (len >>> 8);
+        ba[1] = (byte) len;
+        while (bytesRead < len) {
+            bytesRead +=
+                dataInput.read(ba, 2 + bytesRead, len - bytesRead);
+        }
+        for (int i = 2; i < ba.length - 1; i++) {
+            if (ba[i] == 0) {
+                throw new RuntimeException(
+                        "Null internal to String at offset " + (i - 2));
+            }
+        }
+
+        java.io.DataInputStream dis =
+            new java.io.DataInputStream(new ByteArrayInputStream(ba));
+        String s = dis.readUTF();
+        //String s = java.io.DataInputStream.readUTF(dis);
+        // TODO:  Test the previous two to see if one works better for
+        // high-order characters.
+        dis.close();
+        return s;
+    }
+
+    /**
+     * @param reqLength Required length
+     */
     private String readNullTermdUTF(int reqLength) throws IOException {
         /* Would be MUCH easier to do this with Java6's String
          * encoding/decoding operations */
@@ -1497,7 +1570,8 @@ server.print("*** Error Result string: " + errorResult.getMainString());
         ba[0] = (byte) (reqLength >>> 8);
         ba[1] = (byte) reqLength;
         while (bytesRead < reqLength + 1) {
-            bytesRead += dataInput.read(ba, 2 + bytesRead, reqLength + 1- bytesRead);
+            bytesRead +=
+                dataInput.read(ba, 2 + bytesRead, reqLength + 1 - bytesRead);
         }
         if (ba[ba.length - 1] != 0) {
             throw new IOException("String not null-terminated");
@@ -1782,4 +1856,72 @@ server.print("*** Error Result string: " + errorResult.getMainString());
 
     private java.util.Map sessionOdbcPsMap = new java.util.HashMap();
     private java.util.Map sessionOdbcPortalMap = new java.util.HashMap();
+
+    private class OdbcPreparedStatement {
+        String handle;
+        Result psResult;
+        Result ackResult;
+        protected OdbcPreparedStatement(OdbcPreparedStatement other) {
+            this.handle = other.handle;
+            this.psResult = other.psResult;
+            this.ackResult = other.ackResult;
+        }
+        public OdbcPreparedStatement(String handle, String query)
+        throws RecoverableFailure {
+            this.handle = handle;
+            psResult = Result.newPrepareStatementRequest();
+            psResult.setPrepareOrExecuteProperties(query, 0, 0, 0,
+                org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
+                org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
+                org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+                java.sql.Statement.NO_GENERATED_KEYS, null, null);
+            ackResult = session.execute(psResult);
+            switch (ackResult.getType()) {
+                case ResultConstants.PREPARE_ACK:
+                    break;
+                case ResultConstants.ERROR:
+                    throw new RecoverableFailure(ackResult);
+                default:
+                    throw new RecoverableFailure(
+                        "Output Result from Statement prep is of "
+                        + "unexpected type: " + ackResult.getType());
+            }
+            sessionOdbcPsMap.put(handle, this);
+        }
+    }
+    private class Portal extends OdbcPreparedStatement {
+        Object[] parameters;
+        public Portal(OdbcPreparedStatement odbcPs) throws RecoverableFailure {
+            this(odbcPs, new String[0]);
+        }
+        public Portal(OdbcPreparedStatement odbcPs, String[] paramStrings)
+        throws RecoverableFailure {
+            super(odbcPs);
+            if (paramStrings.length < 1) {
+                parameters = new Object[0];
+            } else {
+                org.hsqldb.result.ResultMetaData pmd =
+                    ackResult.parameterMetaData;
+                if (pmd == null) {
+                    throw new RecoverableFailure("No metadata for Result ack");
+                }
+                org.hsqldb.types.Type[] paramTypes = pmd.getParameterTypes();
+                if (paramTypes.length != paramStrings.length) {
+                    throw new RecoverableFailure(null,
+                        "Client didn't specify all " + paramTypes.length
+                        + " parameters (" + paramStrings.length + ')', "08P01");
+                }
+                parameters = new Object[paramStrings.length];
+                try {
+                    for (int i = 0; i < parameters.length; i++) {
+                        parameters[i] = new PgType(paramTypes[i])
+                            .getParameter(paramStrings[i], session);
+                    }
+                } catch (java.sql.SQLException se) {
+                    throw new RecoverableFailure("Typing failure: " + se);
+                }
+            }
+            sessionOdbcPortalMap.put(handle, this);
+        }
+    }
 }
