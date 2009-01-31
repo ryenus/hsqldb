@@ -387,13 +387,23 @@ class ServerConnection implements Runnable {
         boolean newTran = false;
         int len = 0;
         String stringVal;
-        Result r = null;
+        Result r = null, rOut;
         int paramCount;
 
         try {
             op = (char) dataInput.readByte();
             server.printWithThread("Got op (" + op + ')');
             if (op == 'X') { // All other op types will send a length
+                sessionOdbcPsMap.remove("");
+                if (sessionOdbcPsMap.size() > 0) {
+                    server.printWithThread("Client left " + 
+                        sessionOdbcPsMap.size() + " PS objects open");
+                }
+                sessionOdbcPortalMap.remove("");
+                if (sessionOdbcPortalMap.size() > 0) {
+                    server.printWithThread("Client left " + 
+                        sessionOdbcPortalMap.size() + " Portal objects open");
+                }
                 throw cleanExit;
             }
             len = dataInput.readInt() - 4;
@@ -418,20 +428,38 @@ class ServerConnection implements Runnable {
             }
             throw cleanExit; // not "clean", but handled
         }
-        if (odbcCommMode == ODBC_SIMPLE_MODE && op == 'P') {
-            // The spec doesn't specify whether P failures (with E response)
-            // should leave comm. in SIMPLE or EXTENDED mode.
-            // The spirit of the doc seems to imply that clients will be in
-            // EXTENDED mode by this point, so I guess we should remain in
-            // EXTENDED until the client tells us otherwise.
-            odbcCommMode = ODBC_EXTENDED_MODE;
-            server.printWithThread("Switching ODBC Comm mode to EXTENDED");
-        }
-        try {
+
         switch (odbcCommMode) {
-          case ODBC_SIMPLE_MODE:
+            case ODBC_EXT_RECOVER_MODE:
+                if (op != 'S') {
+                    readPacket(len); // Gobble up packet contents
+                    if (server.isTrace()) {
+                        server.printWithThread("Swallowing a '" + op + "'");
+                    }
+                    return;
+                }
+                odbcCommMode = ODBC_EXTENDED_MODE;
+                server.printWithThread("EXTENDED comm session being recovered");
+                // Now the main switch will handle the Sync packet carefully
+                // the same as if there were no recovery.
+                break;
+            case ODBC_SIMPLE_MODE:
+                if (op == 'P') {
+                    odbcCommMode = ODBC_EXTENDED_MODE;
+                    server.printWithThread(
+                            "This ODBC session is hereafter EXTENDED");
+                }
+                break;
+        }
+
+        try {
+           // MAIN Comm Switch.
+           // The resolution for each operation is one of:
+           //   throw:  Handling will depend on the Throwable type
+           //   break:  A Z (ReadyForQuery) packet will be sent to client
+           //   return:  Nothing
            switch (op) {
-            case 'Q':
+             case 'Q':
                 String sql = readNullTermdUTF(len - 1);
                  // We don't ask for the null terminator
                 if (sql.startsWith("BEGIN;")) {
@@ -470,7 +498,8 @@ class ServerConnection implements Runnable {
                             "Implement 'select current_schema() emulation!");
                     throw new RecoverableFailure(
                         "current_schema() not supported yet", "0A000");
-                } else if (normalized.startsWith("select n.nspname,")) {
+                }
+                if (normalized.startsWith("select n.nspname,")) {
                     // Executed by psqlodbc after every user-specified query.
                     server.printWithThread("Swallowing 'select n.nspname,...'");
 
@@ -495,7 +524,9 @@ class ServerConnection implements Runnable {
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
-                } else if (normalized.startsWith(
+                    break;
+                }
+                if (normalized.startsWith(
                     "select oid, typbasetype from")) {
                     // Executed by psqlodbc immediately after connecting.
                     server.printWithThread(
@@ -531,7 +562,9 @@ class ServerConnection implements Runnable {
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
-                } else if (normalized.startsWith("select ")) {
+                    break;
+                }
+                if (normalized.startsWith("select ")) {
                     server.printWithThread(
                         "Performing a real non-prepared SELECT...");
                     r = Result.newExecuteDirectRequest();
@@ -541,7 +574,7 @@ class ServerConnection implements Runnable {
                         org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
                         org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
                         java.sql.Statement.NO_GENERATED_KEYS, null, null);
-                    Result rOut = session.execute(r);
+                    rOut = session.execute(r);
                     switch (rOut.getType()) {
                         case ResultConstants.DATA:
                             break;
@@ -682,105 +715,73 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     dataOutput.writeByte('C'); // end of rows (B or D packets)
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
-                } else if (normalized.startsWith("set client_encoding to ")
-                    || normalized.startsWith("deallocate ")) {
-                    // No need to deallocate anything in SIMPLE mode, since
-                    // we automatically purge all such objects when exiting
-                    // EXTENDED mode, since they can no longer be used.
+                    break;
+                }
+                if (normalized.startsWith("deallocate ")) {
+                    String handle =
+                        sql.trim().substring("deallocate ".length()).trim();
+                        // Must use "sql" directly since name is case-sensitive
+                    if (sessionOdbcPsMap.remove(handle) != null
+                        && sessionOdbcPortalMap.remove(handle) != null) {
+                        throw new RecoverableFailure(null,
+                            "No object present for handle: " + handle, "08P01");
+                    }
+                    if (server.isTrace()) {
+                        server.printWithThread("Deallocated PS/Portal '"
+                                + handle + "'");
+                    }
+                    dataOutput.writeByte('C');
+                    dataOutput.writeInt("SET".length() + 5); // size
+                    writeNullTermdUTF("SET");
+                    break;
+                }
+                if (normalized.startsWith("set client_encoding to ")) {
                     server.printWithThread("Stubbing EXECDIR for: " +  sql);
                     dataOutput.writeByte('C');
                     dataOutput.writeInt("SET".length() + 5); // size
                     writeNullTermdUTF("SET");
-                } else {
-                    // TODO:  ROLLBACK is badly broken.
-                    // I think that when a ROLLBACK of an update is done here,
-                    // it actually inserts new rows!
-                    server.printWithThread("Performing a real EXECDIRECT...");
-                    r = Result.newExecuteDirectRequest();
-                    r.setPrepareOrExecuteProperties(normalized,0, 0,
-                        org.hsqldb.StatementTypes.RETURN_COUNT,
-                        org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
-                        org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
-                        org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
-                        java.sql.Statement.NO_GENERATED_KEYS, null, null);
-                    Result rOut = session.execute(r);
-                    switch (rOut.getType()) {
-                        case ResultConstants.UPDATECOUNT:
-                            break;
-                        case ResultConstants.ERROR:
-                            throw new RecoverableFailure(rOut);
-                        default:
-                            throw new RecoverableFailure(
-                                "Output Result from execution is of "
-                                + "unexpected type: " + rOut.getType());
-                    }
-                    String replyString = execDirectReplyString(normalized,
-                            rOut.getUpdateCount());
-                    dataOutput.writeByte('C');
-                    dataOutput.writeInt(replyString.length() + 5); // size
-                    writeNullTermdUTF(replyString);
+                    break;
+                }
+                // TODO:  ROLLBACK is badly broken.
+                // I think that when a ROLLBACK of an update is done here,
+                // it actually inserts new rows!
+                server.printWithThread("Performing a real EXECDIRECT...");
+                r = Result.newExecuteDirectRequest();
+                r.setPrepareOrExecuteProperties(normalized,0, 0,
+                    org.hsqldb.StatementTypes.RETURN_COUNT,
+                    org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
+                    org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
+                    org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+                    java.sql.Statement.NO_GENERATED_KEYS, null, null);
+                rOut = session.execute(r);
+                switch (rOut.getType()) {
+                    case ResultConstants.UPDATECOUNT:
+                        break;
+                    case ResultConstants.ERROR:
+                        throw new RecoverableFailure(rOut);
+                    default:
+                        throw new RecoverableFailure(
+                            "Output Result from execution is of "
+                            + "unexpected type: " + rOut.getType());
+                }
+                String replyString = execDirectReplyString(normalized,
+                        rOut.getUpdateCount());
+                dataOutput.writeByte('C');
+                dataOutput.writeInt(replyString.length() + 5); // size
+                writeNullTermdUTF(replyString);
 
-                    // A guess about how keeping inOdbcTrans in sync with
-                    // client.  N.b. HSQLDB will need to more liberal with
-                    // resetting, since DDL causes commits.
-                    // TODO:  Consider implicatiosn of autocommit mode.
-                    if (normalized.equals("commit")
-                        || normalized.startsWith("commit ")
-                        || normalized.equals("savepoint")
-                        || normalized.startsWith("savepoint ")) {
-                        inOdbcTrans = false;
-                    }
+                // A guess about how keeping inOdbcTrans in sync with
+                // client.  N.b. HSQLDB will need to more liberal with
+                // resetting, since DDL causes commits.
+                // TODO:  Consider implicatiosn of autocommit mode.
+                if (normalized.equals("commit")
+                    || normalized.startsWith("commit ")
+                    || normalized.equals("savepoint")
+                    || normalized.startsWith("savepoint ")) {
+                    inOdbcTrans = false;
                 }
                 break;
-            default:
-                readPacket(len); // Gobble up packet contents
-                throw new RecoverableFailure(null,
-                    "Unsupported SIMPLE operation type (" + op + ')', "0A000");
-           }
-           dataOutput.writeByte('Z');
-           if (server.isTrace()) {
-               server.printWithThread("### Writing size 5");
-           }
-           dataOutput.writeInt(5); //size
-           dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-           break;
-
-          case ODBC_EXT_RECOVER_MODE:
-           switch (op) {
-            case 'S':
-                // Special case for Sync packets.
-                // To facilitate recovery, we do not abort in case of problems.
-                if (len != 0) {
-                    server.printWithThread(
-                        "Client supplied bad length for Sync packet ("
-                        + len + ')');
-                    alertOdbcClient(ODBC_SEVERITY_ERROR,
-                        "Client supplied bad length for Sync packet ("
-                        + len + ')', "08P01");
-                    // Code here means Protocol Violation
-                }
-                server.printWithThread("Syncing back to ODBC Simple mode (r)");
-                if (!inOdbcTrans) {
-                    server.printWithThread("Implicit rollback by Sync");
-                    session.rollback(true);
-                    // TODO:  Find out if chain param should be T or F.
-                }
-                dataOutput.writeByte('Z');
-                if (server.isTrace()) {
-                    server.printWithThread("### Writing size 5");
-                }
-                dataOutput.writeInt(5); //size
-                dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-                odbcToSimple();
-                break;
-            default:
-                readPacket(len); // Gobble up packet contents
-           } // end of EXT_RECOVER_MODE op switch
-           break;
-
-          case ODBC_EXTENDED_MODE:
-           switch (op) {
-            case 'H':
+             case 'H':
                 // No-op.  It is impossible to cache while supporting multiple
                 // ps and portal objects, so there is nothing for a Flush to
                 // do.  There isn't even a reply to a Flush packet.
@@ -790,8 +791,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         + len + ')', "08P01");
                     // Code here means Protocol Violation
                 }
-                break;
-            case 'S':
+                return;
+             case 'S':
                 // Special case for Sync packets.
                 // To facilitate recovery, we do not abort in case of problems.
                 if (len != 0) {
@@ -803,7 +804,6 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         + len + ')', "08P01");
                     // Code here means Protocol Violation
                 }
-                server.printWithThread("Syncing back to ODBC Simple mode (r)");
                 if (!inOdbcTrans) try {
                     server.printWithThread("Implicit commit by Sync");
                     session.commit(true);
@@ -813,15 +813,8 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     alertOdbcClient(ODBC_SEVERITY_ERROR,
                             "Implicit commit failed", he.getSQLState());
                 }
-                dataOutput.writeByte('Z');
-                if (server.isTrace()) {
-                    server.printWithThread("### Writing size 5");
-                }
-                dataOutput.writeInt(5); //size
-                dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
-                odbcToSimple();
                 break;
-            case 'P':
+             case 'P':
                 //byte[]inPacket = readPacket(len);
                 // TODO:  Read in entire packet and work with that object.
                 String psHandle = readNullTermdUTF();
@@ -845,7 +838,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
                     org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
                     java.sql.Statement.NO_GENERATED_KEYS, null, null);
-                Result rOut = session.execute(r);
+                rOut = session.execute(r);
                 if (psHandle.length() > 0
                         && sessionOdbcPsMap.containsKey(psHandle)) {
                     throw new RecoverableFailure(null,
@@ -879,8 +872,8 @@ parameterModes   = pmdDescriptor.paramModes;
                     server.printWithThread("### Writing size 5");
                 }
                 dataOutput.writeInt(4); //size
-                break;
-            case 'D':
+                return;
+             case 'D':
                 //byte[]inPacket = readPacket(len);
                 // TODO:  Read in entire packet and work with that object.
                 r = null;
@@ -896,19 +889,9 @@ parameterModes   = pmdDescriptor.paramModes;
                         "08P01");
                 }
                 if (r == null) {
-                    /*
-                     * Have to make a judgement call here, since the spec
-                     * says to switch to recover mode for all EXTENDED
-                     * mode failures, but also implies to just send an E
-                     * in this case.
                     throw new RecoverableFailure(null,
                         "No object present for " + c + " handle: " + handle,
                         "08P01");
-                    */
-                    alertOdbcClient(ODBC_SEVERITY_ERROR,
-                        "No object present for " + c + " handle: " + handle,
-                        "08P01");
-                    break;
                 }
                 org.hsqldb.result.ResultMetaData pmd = r.parameterMetaData;
                 paramCount = pmd.getColumnCount();
@@ -997,21 +980,21 @@ parameterModes   = pmdDescriptor.paramModes;
                 }
                 dataOutput.write(outPacket.toByteArray());
                 outPacket.close();
-                break;
-            default:
+                return;
+             default:
                 readPacket(len); // Gobble up packet contents
                 throw new RecoverableFailure(null,
-                    "Unsupported EXTENDED operation type (" + op + ')',
-                    "0A000");
-           } // end of EXTENDED_MODE op switch
-           break;
+                    "Unsupported operation type (" + op + ')', "0A000");
+           }
 
-          default:
-           throw new RuntimeException(
-               "Assertion failed.  Unexpected odbcCommMode value: "
-               + odbcCommMode);
-        } // end odbcCommMode switch
-
+           // All switches that "break" get this ReadyForQuery packet:
+           dataOutput.writeByte('Z');
+           if (server.isTrace()) {
+               server.printWithThread("### Writing size 5");
+           }
+           dataOutput.writeInt(5); //size
+           dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+System.err.println("Done wrote");
         } catch (RecoverableFailure rf) {
             Result errorResult = rf.getErrorResult();
             if (errorResult == null) {
@@ -1033,7 +1016,6 @@ server.print("*** Error Result string: " + errorResult.getMainString());
             }
             switch (odbcCommMode) {
                case ODBC_SIMPLE_MODE:
-                    // We continue on, hoping for client to send us a valid op.
                     dataOutput.writeByte('Z');
                     if (server.isTrace()) {
                         server.printWithThread("### Writing size 5");
@@ -1042,9 +1024,6 @@ server.print("*** Error Result string: " + errorResult.getMainString());
                     dataOutput.writeByte('E');  /// transaction status = Error
                     break;
                 case ODBC_EXTENDED_MODE:
-                    // I don't know why we can't try to recover from any
-                    // extended mode problems, but the spec says we must abort
-                    // the whole mode.
                     odbcCommMode = ODBC_EXT_RECOVER_MODE;
                     server.printWithThread("Reverting to EXT_RECOVER mode");
                     break;
@@ -1803,18 +1782,4 @@ server.print("*** Error Result string: " + errorResult.getMainString());
 
     private java.util.Map sessionOdbcPsMap = new java.util.HashMap();
     private java.util.Map sessionOdbcPortalMap = new java.util.HashMap();
-
-    private void odbcToSimple() {
-        odbcCommMode = ODBC_SIMPLE_MODE;
-        if (sessionOdbcPsMap.size() > 0) {
-            server.printWithThread("Purging " + sessionOdbcPsMap.size()
-                    + " unused PS objects");
-        }
-        sessionOdbcPsMap.clear();
-        if (sessionOdbcPortalMap.size() > 0) {
-            server.printWithThread("Purging " + sessionOdbcPortalMap.size()
-                    + " unused Portal objects");
-        }
-        sessionOdbcPortalMap.clear();
-    }
 }
