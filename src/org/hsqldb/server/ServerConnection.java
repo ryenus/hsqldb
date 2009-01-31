@@ -426,7 +426,6 @@ class ServerConnection implements Runnable {
             try {
                 alertOdbcClient(ODBC_SEVERITY_FATAL, ioe.getMessage(), "08P01");
                                  // Code here means Protocol Violation
-                // TODO:  Figure out whether should zend a Z..E packet here.
             } catch (Exception e) {
                 // We just make an honest effort to notify the client
             }
@@ -448,31 +447,70 @@ class ServerConnection implements Runnable {
                 // the same as if there were no recovery.
                 break;
             case ODBC_SIMPLE_MODE:
-                if (op == 'P') {
-                    odbcCommMode = ODBC_EXTENDED_MODE;
-                    server.printWithThread(
-                            "This ODBC session is hereafter EXTENDED");
+                switch (op) {
+                    case 'P':
+                        // This is the only way to make this switch, according
+                        // to docs, but that does not allow for intermixing of
+                        // static and prepared statement (selects or other).
+                        // Therefore we allow all of the following, which works
+                        // great.
+                    case 'H':
+                    case 'S':
+                    case 'D':
+                    case 'B':
+                    case 'E':
+                    case 'C':
+                        odbcCommMode = ODBC_EXTENDED_MODE;
+                        server.printWithThread(
+                                "Switching mode from SIMPLE to EXTENDED");
+                    // Do not detect unexpected ops here.
+                    // In that case, leave the mode as it is, and the main
+                    // switch below will handle appropriately.
                 }
                 break;
+            case ODBC_EXTENDED_MODE:
+                switch (op) {
+                    case 'Q':
+                        odbcCommMode = ODBC_SIMPLE_MODE;
+                        server.printWithThread(
+                                "Switching mode from EXTENDED to SIMPLE");
+                    // Do not detect unexpected ops here.
+                    // In that case, leave the mode as it is, and the main
+                    // switch below will handle appropriately.
+                }
+                break;
+            default:
+                throw new RuntimeException("Unexpected ODBC comm mode value: "
+                        + odbcCommMode);
         }
 
         try {
-           // MAIN Comm Switch.
-           // The resolution for each operation is one of:
-           //   throw:  Handling will depend on the Throwable type
-           //   break:  A Z (ReadyForQuery) packet will be sent to client
-           //   return:  Nothing
-           switch (op) {
-             case 'Q':
+            // MAIN Comm Switch.
+            // The resolution for each operation is one of:
+            //   throw:  Handling will depend on the Throwable type
+            //   break:  A Z (ReadyForQuery) packet will be sent to client
+            //   return:  Nothing
+            switch (op) {
+              case 'Q':
                 String sql = readNullTermdUTF(len - 1);
                  // We don't ask for the null terminator
-                if (sql.startsWith("BEGIN;")) {
-                    sql = sql.substring("BEGIN;".length());
+                if (sql.startsWith("BEGIN;") || sql.equals("BEGIN")) {
+                    sql = sql.equals("BEGIN")
+                        ? null : sql.substring("BEGIN;".length());
                     server.printWithThread("ODBC Trans started");
                     inOdbcTrans = true;
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(10); // size
                     writeNullTermdUTF("BEGIN");
+                    if (sql == null) {
+                       dataOutput.writeByte('Z');
+                       if (server.isTrace()) {
+                           server.printWithThread("### Writing size 5");
+                       }
+                       dataOutput.writeInt(5); //size
+                       dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+                       return;
+                    }
                 }
                 if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 8) {
                     throw new RecoverableFailure(
@@ -625,11 +663,7 @@ class ServerConnection implements Runnable {
                     for (int i = 0; i < pgTypes.length; i++) {
                         pgTypes[i] = new PgType(colTypes[i]);
                     }
-for (int j = 0; j < colTypes.length; j++) server.print("coltype " + j + ": " + colTypes[j].typeCode + " / " + colTypes[j].getNameString());
                     org.hsqldb.ColumnBase[] colDefs = md.columns;
-for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
-+ colDefs[j].getNameString() + ") tbl name (" + colDefs[j].getTableNameString()
-+ ')');
                     if (colNames.length != colDefs.length) {
                         throw new RecoverableFailure("Col data mismatch.  "
                                 + colDefs.length + " col instances but "
@@ -652,7 +686,6 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                             // TODO:  FIX This ID does not stick with the
                             // column, but just represents the position in this
                             // query.
-                        // TODO:  Map from colTypes[i] to PG adtid:
                         outPacket.writeInt(pgTypes[i].getOid());
                         // Datatype size  [adtsize]
                         outPacket.writeShort(pgTypes[i].getTypeSize());
@@ -735,16 +768,25 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         portal.close();
                     }
                     if (odbcPs == null && portal == null) {
+                        /*
                         throw new RecoverableFailure(null,
                             "No object present for handle: " + handle, "08P01");
+                        Driver does not handle state change correctly, so
+                        for now we just issue a warning:
+                        alertOdbcClient(ODBC_SEVERITY_ERROR,
+                            "No object present for handle: " + handle);
+                        TODO:  Retest this.  May have been side-effect of
+                               other problems.
+                        */
+                        server.printWithThread("Ignoring bad 'DEALLOCATE' cmd");
                     }
                     if (server.isTrace()) {
                         server.printWithThread("Deallocated PS/Portal '"
                                 + handle + "'");
                     }
                     dataOutput.writeByte('C');
-                    dataOutput.writeInt("SET".length() + 5); // size
-                    writeNullTermdUTF("SET");
+                    dataOutput.writeInt("DEALLOCATE".length() + 5); // size
+                    writeNullTermdUTF("DEALLOCATE");
                     break;
                 }
                 if (normalized.startsWith("set client_encoding to ")) {
@@ -754,6 +796,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     writeNullTermdUTF("SET");
                     break;
                 }
+                // Case below is non-String-matched Qs:
                 // TODO:  ROLLBACK is badly broken.
                 // I think that when a ROLLBACK of an update is done here,
                 // it actually inserts new rows!
@@ -776,7 +819,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                             "Output Result from execution is of "
                             + "unexpected type: " + rOut.getType());
                 }
-                replyString = execDirectReplyString(
+                replyString = echoBackReplyString(
                     normalized, rOut.getUpdateCount());
                 dataOutput.writeByte('C');
                 dataOutput.writeInt(replyString.length() + 5); // size
@@ -785,7 +828,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 // A guess about how keeping inOdbcTrans in sync with
                 // client.  N.b. HSQLDB will need to more liberal with
                 // resetting, since DDL causes commits.
-                // TODO:  Consider implicatiosn of autocommit mode.
+                // TODO:  Consider implications of autocommit mode.
                 if (normalized.equals("commit")
                     || normalized.startsWith("commit ")
                     || normalized.equals("savepoint")
@@ -793,7 +836,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     inOdbcTrans = false;
                 }
                 break;
-             case 'H':
+              case 'H':
                 // No-op.  It is impossible to cache while supporting multiple
                 // ps and portal objects, so there is nothing for a Flush to
                 // do.  There isn't even a reply to a Flush packet.
@@ -804,7 +847,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     // Code here means Protocol Violation
                 }
                 return;
-             case 'S':
+              case 'S':
                 // Special case for Sync packets.
                 // To facilitate recovery, we do not abort in case of problems.
                 if (len != 0) {
@@ -826,7 +869,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                             "Implicit commit failed", he.getSQLState());
                 }
                 break;
-             case 'P':
+              case 'P':
                 //byte[]inPacket = readPacket(len);
                 // TODO:  Read in entire packet and work with that object.
                 psHandle = readNullTermdUTF();
@@ -858,7 +901,7 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 }
                 dataOutput.writeInt(4); //size
                 return;
-             case 'D':
+              case 'D':
                 //byte[]inPacket = readPacket(len);
                 // TODO:  Read in entire packet and work with that object.
                 c = (char) dataInput.readByte();
@@ -874,6 +917,11 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                     throw new RecoverableFailure(null,
                         "Description packet request type invalid: " + c,
                         "08P01");
+                }
+                if (server.isTrace()) {
+                    server.printWithThread(
+                        "Received Describe request for " + c + " of  handle '"
+                        + handle + "'");
                 }
                 if (odbcPs == null && portal == null) {
                     throw new RecoverableFailure(null,
@@ -891,8 +939,6 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                         + paramCount + " reported, but there are "
                         + paramTypes.length + " param md objects");
                 }
-                // TODO:  Test that everything above works ok when no
-                // parameters to set.
                 outPacket = new PacketOutputStream(new ByteArrayOutputStream());
 
                 if (c == 'S') {
@@ -906,18 +952,16 @@ for (int j = 0; j < colDefs.length; j++) server.print("col def name ("
                 }
 
                 org.hsqldb.result.ResultMetaData md = ackResult.metaData;
-                if (md == null) {
-server.print("############################# md == null FOR prepd NON-QRY");
-                    throw new RecoverableFailure(
-                            "No MetaData for the out Result");
-                }
                 if (md.getColumnCount() < 1) {
-server.print("############################# colCount <1 FOR prepd NON-QRY");
+                    if (server.isTrace()) {
+                        server.printWithThread(
+                            "Non-rowset query so returning NoData packet");
+                    }
                     // Send NoData packet because no columnar output from
                     // this statement.
                     dataOutput.writeByte('n');
                     dataOutput.writeInt(4);
-                    break;
+                    return;
                 }
                 if (md.getColumnCount() != md.getExtendedColumnCount()) {
                     throw new RecoverableFailure(
@@ -960,7 +1004,6 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                         // TODO:  FIX This ID does not stick with the
                         // column, but just represents the position in this
                         // query.
-                    // TODO:  Map from colTypes[i] to PG adtid:
                     outPacket.writeInt(pgTypes[i].getOid());
                     // Datatype size  [adtsize]
                     outPacket.writeShort(pgTypes[i].getTypeSize());
@@ -978,7 +1021,7 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                 dataOutput.write(outPacket.toByteArray());
                 outPacket.close();
                 return;
-             case 'B':
+              case 'B':
                 //byte[]inPacket = readPacket(len);
                 // TODO:  Read in entire packet and work with that object.
                 portalHandle = readNullTermdUTF();
@@ -1035,7 +1078,7 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                 }
                 dataOutput.writeInt(4); //size
                 return;
-             case 'E':
+              case 'E':
                 //byte[]inPacket = readPacket(len);
                 // TODO:  Read in entire packet and work with that object.
                 portalHandle = readNullTermdUTF();
@@ -1058,9 +1101,8 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                 rOut = session.execute(portal.bindResult);
                 switch (rOut.getType()) {
                     case ResultConstants.UPDATECOUNT:
-                        String nQuery = portal.normalizedQuery;
-                        replyString = execDirectReplyString(
-                            nQuery, rOut.getUpdateCount());
+                        replyString = echoBackReplyString(
+                            portal.lcQuery, rOut.getUpdateCount());
                         dataOutput.writeByte('C');
                         dataOutput.writeInt(replyString.length() + 5); // size
                         writeNullTermdUTF(replyString);
@@ -1068,14 +1110,14 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                         // A guess about how keeping inOdbcTrans in sync with
                         // client.  N.b. HSQLDB will need to more liberal with
                         // resetting, since DDL causes commits.
-                        // TODO:  Consider implicatiosn of autocommit mode.
-                        if (nQuery.equals("commit")
-                            || nQuery.startsWith("commit ")
-                            || nQuery.equals("savepoint")
-                            || nQuery.startsWith("savepoint ")) {
+                        // TODO:  Consider implications of autocommit mode.
+                        if (portal.lcQuery.equals("commit")
+                            || portal.lcQuery.startsWith("commit ")
+                            || portal.lcQuery.equals("savepoint")
+                            || portal.lcQuery.startsWith("savepoint ")) {
                             inOdbcTrans = false;
                         }
-                        break;
+                        return;
                     case ResultConstants.DATA:
                         break;
                     case ResultConstants.ERROR:
@@ -1118,7 +1160,7 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                     }
                     server.printWithThread("Row " + rowNum + " has "
                             + rowData.length + " elements");
-                    outPacket.writeShort(rowData.length);
+                    outPacket.writeShort(colCount);
                      // This field is just swallowed by PG ODBC
                      // client, but validated by psql.
                     for (int i = 0; i < colCount; i++) {
@@ -1148,16 +1190,19 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                     outPacket.reset();
                 }
                 outPacket.close();
-                if (navigator.isLast()) {
+                if (navigator.afterLast()) {
                     dataOutput.writeByte('C'); // end of rows (B or D packets)
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
                 } else {
-                    dataOutput.writeByte('C'); // suspend
+                    dataOutput.writeByte('s'); // suspend
                     dataOutput.writeInt(4); // size
                 }
+                // N.b., we return.
+                // You might think that this completion of an EXTENDED sequence
+                // would end in ReadyForQuery/Z, but no.
                 return;
-            case 'C':
+              case 'C':
                 c = (char) dataInput.readByte();
                 handle = readNullTermdUTF();
                 odbcPs = null;
@@ -1165,15 +1210,22 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                 if (c == 'S') {
                     odbcPs = (OdbcPreparedStatement)
                         sessionOdbcPsMap.get(handle);
-                    odbcPs.close();
+                    if (odbcPs != null) {
+                        odbcPs.close();
+                    }
                 } else if (c == 'P') {
                     portal = (Portal) sessionOdbcPortalMap.get(handle);
-                    portal.close();
+                    if (portal != null) {
+                        portal.close();
+                    }
                 } else {
                     throw new RecoverableFailure(null,
                         "Description packet request type invalid: " + c,
                         "08P01");
                 }
+                // TODO:  Try sending a warning to client for both == null.
+                // Broke things earlier, but that may have been due to
+                // other problems.
                 if (server.isTrace()) {
                     server.printWithThread("Closed PS/Portal '"
                             + handle + "'? "
@@ -1203,14 +1255,19 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                 String cliMsg = rf.getClientMessage();
                 if (svrMsg != null) {
                     server.printWithThread(svrMsg);
+                } else if (server.isTrace()) {
+                    server.printWithThread("Client error: " + cliMsg);
                 }
                 if (cliMsg != null) {
                     alertOdbcClient(ODBC_SEVERITY_ERROR, cliMsg, stateCode);
                 }
             } else {
-                // This class of error is not considered a Server proble, so
+                if (server.isTrace()) {
+                    server.printWithThread("Result object error: "
+                        + errorResult.getMainString());
+                }
+                // This class of error is not considered a Server problem, so
                 // we don't log on the server side.
-server.print("*** Error Result string: " + errorResult.getMainString());
                 alertOdbcClient(ODBC_SEVERITY_ERROR,
                     errorResult.getMainString(), errorResult.getSubString());
             }
@@ -1231,38 +1288,40 @@ server.print("*** Error Result string: " + errorResult.getMainString());
         }
     }
 
-    private String execDirectReplyString(String command, int retval) {
+    private String echoBackReplyString(String inCommand, int retval) {
+        String uc = inCommand.trim().toUpperCase();
         int firstWhiteSpace;
-        for (firstWhiteSpace = 0; firstWhiteSpace < command.length();
+        for (firstWhiteSpace = 0; firstWhiteSpace < uc.length();
             firstWhiteSpace++) {
-            if (Character.isWhitespace(command.charAt(firstWhiteSpace))) {
+            if (Character.isWhitespace(uc.charAt(firstWhiteSpace))) {
                 break;
             }
         }
         StringBuffer replyString = new StringBuffer(
-            command.substring(0, firstWhiteSpace).toUpperCase());
-        if (replyString.equals("update") || replyString.equals("delete")) {
+            uc.substring(0, firstWhiteSpace));
+        String keyword = replyString.toString();
+        if (keyword.equals("UPDATE") || keyword.equals("DELETE")) {
             replyString.append(" " + retval);
-        } else if (replyString.equals("create") || replyString.equals("drop")) {
+        } else if (keyword.equals("CREATE") || keyword.equals("DROP")) {
             // This case is significantly missing from the spec., yet
             // PostgreSQL Server echo's these commands as implemented here.
             // TODO: Add error-checking
             int wordStart;
-            for (wordStart = firstWhiteSpace; wordStart < command.length();
+            for (wordStart = firstWhiteSpace; wordStart < uc.length();
                 wordStart++) {
-                if (!Character.isWhitespace(command.charAt(wordStart))) {
+                if (!Character.isWhitespace(uc.charAt(wordStart))) {
                     break;
                 }
             }
             int wordEnd;
-            for (wordEnd = wordStart; wordEnd < command.length();
+            for (wordEnd = wordStart; wordEnd < uc.length();
                 wordEnd++) {
-                if (!Character.isWhitespace(command.charAt(wordEnd))) {
+                if (!Character.isWhitespace(uc.charAt(wordEnd))) {
                     break;
                 }
             }
-            replyString.append(" " + command.substring(wordStart, wordEnd));
-        } else if (replyString.equals("insert")) {
+            replyString.append(" " + uc.substring(wordStart, wordEnd));
+        } else if (keyword.equals("INSERT")) {
             replyString.append(" " + 98765 + ' ' + retval);
             // TODO:  Find out what the first numerical param is.
             // Probably a transaction identifier of some sort.
@@ -2048,7 +2107,7 @@ server.print("*** Error Result string: " + errorResult.getMainString());
         }
         public void close() {
             // TODO:  Free up resources!
-            sessionOdbcPsMap.remove(this);
+            sessionOdbcPsMap.remove(handle);
             while (portals.size() > 0) {
                 ((Portal) portals.remove(1)).close();
             }
@@ -2060,7 +2119,7 @@ server.print("*** Error Result string: " + errorResult.getMainString());
     private class Portal {
         public Object[] parameters;
         public Result bindResult, ackResult;
-        public String normalizedQuery;
+        public String lcQuery;
         public String handle;
         public Portal(String handle,
         OdbcPreparedStatement odbcPs) throws RecoverableFailure {
@@ -2069,7 +2128,7 @@ server.print("*** Error Result string: " + errorResult.getMainString());
         public Portal(String handle, OdbcPreparedStatement odbcPs,
         String[] paramStrings) throws RecoverableFailure {
             this.handle = handle;
-            normalizedQuery = odbcPs.query.trim().toLowerCase();
+            lcQuery = odbcPs.query.toLowerCase();
             ackResult = odbcPs.ackResult;
             bindResult = Result.newPreparedExecuteRequest(
                 odbcPs.ackResult.parameterMetaData.getParameterTypes(),
@@ -2112,7 +2171,7 @@ server.print("*** Error Result string: " + errorResult.getMainString());
         }
         public void close() {
             // TODO:  Free up resources!
-            sessionOdbcPortalMap.remove(this);
+            sessionOdbcPortalMap.remove(handle);
         }
     }
 }
