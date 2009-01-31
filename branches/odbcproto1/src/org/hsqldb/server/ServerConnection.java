@@ -1052,8 +1052,6 @@ server.print("############################# colCount <1 FOR prepd NON-QRY");
                         "08P01");
                 }
 
-server.print("params: " + portal.parameters);
-server.print("params len: " + portal.parameters.length);
                 portal.bindResult.setPreparedExecuteProperties(
                     portal.parameters, fetchRows, 0);
                     // 0 for maxRows means unlimited.  Same for fetchRows.
@@ -1101,6 +1099,8 @@ server.print("params len: " + portal.parameters.length);
                     (org.hsqldb.navigator.RowSetNavigatorData) navigator;
                 outPacket = new PacketOutputStream(new ByteArrayOutputStream());
                 int rowNum = 0;
+                int colCount =
+                    portal.ackResult.metaData.getExtendedColumnCount();
                 while (navData.next()) {
                     rowNum++;
                     Object[] rowData = (Object[]) navData.getCurrent();
@@ -1109,12 +1109,19 @@ server.print("params len: " + portal.parameters.length);
                     //  TODO:  Remove the assertion here:
                     if (rowData == null)
                         throw new RecoverableFailure("Null row?");
+                    if (rowData.length < colCount) {
+                        throw new RecoverableFailure(
+                            "Data element mismatch. "
+                            + colCount + " metadata cols, yet "
+                            + rowData.length + " data elements for row "
+                            + rowNum);
+                    }
                     server.printWithThread("Row " + rowNum + " has "
                             + rowData.length + " elements");
                     outPacket.writeShort(rowData.length);
                      // This field is just swallowed by PG ODBC
                      // client, but validated by psql.
-                    for (int i = 0; i < rowData.length; i++) {
+                    for (int i = 0; i < colCount; i++) {
                         if (rowData[i] == null) {
                             server.printWithThread("R" + rowNum + "C"
                                 + (i+1) + " => [null]");
