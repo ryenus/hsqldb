@@ -46,13 +46,13 @@
     </info>
 
 
-    <section xml:id="advanced_connections-sect">
+    <section xml:id="dbproperties_connections-sect">
       <title>Connections</title>
 
       <para>The normal method of accessing an HSQLDB database is via the JDBC
       Connection interface. An introduction to different methods of providing
       database services and accessing them can be found in the <link
-      endterm="sqlissues-title" xlink:href="#sqlissues-chapt"></link> chapter.
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link> chapter.
       Details and examples of how to connect via JDBC are provided in our
       JavaDoc for <classname xlink:href="#JDBCConnection.html-link">
       JDBCConnection</classname>.</para>
@@ -317,7 +317,7 @@
       </section>
     </section>
 
-    <section xml:id="advanced_dbprops-sect">
+    <section xml:id="dbproperties_dbprops-sect">
       <title>Database Properties</title>
 
       <para>The database engine generates a <literal>.properties</literal>
@@ -672,7 +672,7 @@
       </section>
     </section>
 
-    <section xml:id="advanced_sqlcmd_dbprops-sect">
+    <section xml:id="dbproperties_sqlcmd_dbprops-sect">
       <title>SQL Commands for Database Properties</title>
 
       <para>There are some database properties that are set with dedicated SQL

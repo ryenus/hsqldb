@@ -4,7 +4,7 @@
 <!ENTITY % dummy22 SYSTEM "../entities/global.ent">
 %dummy22;
 ]>
-<chapter version="5.0" xml:id="sqlgeneral-chapt"
+<chapter version="5.0" xml:id="running-chapt"
          xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -404,8 +404,8 @@
 
       <para>Note in the above connection URL, there is no mention of the
       database file, as this was specified when running the server. Instead,
-      the public name defined for dbname.0 is used. Also, see the <link
-      endterm="advanced-title" xlink:href="#advanced-chapt"></link>**todo**
+      the public name defined for dbname.0 is used. Also, see the
+      **todo**
       chapter for the connection URL when there is more than one database per
       server instance.</para>
     </section>
