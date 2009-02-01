@@ -202,7 +202,7 @@
     compile time.</para>
 
     <section>
-      <title>Numeric types</title>
+      <title>Numeric Types</title>
 
       <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without a
       decimal point) are the supported integral types. They correspond
