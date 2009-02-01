@@ -87,7 +87,7 @@
     <para>Details of the statement is described in the next section.</para>
   </section>
 
-  <section xml:id="sqlissues_trans_cc-sect">
+  <section xml:id="sqlgeneral_trans_cc-sect">
     <title>Transactions and Concurrency Control</title>
 
     <para>Before version 1.9, HSQLDB supported READ UNCOMMITTED transaction

@@ -110,6 +110,8 @@
 
   <xi:include href="unix.xml" />
 
+  <xi:include href="texttables.xml" />
+
   <xi:include href="building-app.xml" />
 
   <xi:include href="openoffice-app.xml" />

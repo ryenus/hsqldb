@@ -49,7 +49,7 @@
     </legalnotice>
   </info>
 
-  <section xml:id="sqlissues_standards-sect">
+  <section xml:id="sqlgeneral_standards-sect">
     <title>Standards Support</title>
 
     <para>HSQLDB 1.9.0 supports the dialect of SQL defined by SQL standards
@@ -104,7 +104,7 @@
     <classname>org.hsqldb.jdbc.*</classname> classes.</para>
   </section>
 
-  <section xml:id="sqlissues_tabletypes-sect">
+  <section xml:id="sqlgeneral_tabletypes-sect">
     <title>SQL Data and Tables</title>
 
     <para>In an SQL system, all significant data is stored in tables and
@@ -155,11 +155,11 @@
     they cache only part of the text data and all of the indexes. The Text
     table data source can always be reassigned to a different file if
     necessary. The commands are needed to set up a TEXT table as detailed in
-    the <link endterm="sqlissues-title"
-    xlink:href="#sqlissues-chapt">**todo**</link> chapter.</para>
+    the <link endterm="sqlgeneral-title"
+    xlink:href="#sqlgeneral-chapt">**todo**</link> chapter.</para>
 
-    <para>With all-in-memory databases <link endterm="sqlissues-title"
-    xlink:href="#sqlissues-chapt">**todo**</link> , both MEMORY table and
+    <para>With all-in-memory databases <link endterm="sqlgeneral-title"
+    xlink:href="#sqlgeneral-chapt">**todo**</link> , both MEMORY table and
     CACHED table declarations are treated as declarations for non-persistent
     memory tables. TEXT table declarations are not allowed in this
     mode.</para>
@@ -175,7 +175,7 @@
     statements is needed to access different types of table.</para>
   </section>
 
-  <section xml:id="sqlissues_types_ops-sect">
+  <section xml:id="sqlgeneral_types_ops-sect">
     <title>Basic Types and Operations</title>
 
     <para>HyperSQL supports all the types defined by SQL-92, plus BOOLEAN,
@@ -885,7 +885,7 @@ DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH 
     </section>
   </section>
 
-  <section xml:id="sqlissues_constr_indexes-sect">
+  <section xml:id="sqlgeneral_constr_indexes-sect">
     <title>Indexes and Query Speed</title>
 
     <para>HyperSQL supports PRIMARY KEY, UNIQUE and FOREIGN KEY constraints,
@@ -899,8 +899,8 @@ DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH 
     <para>HyperSQL allows defining indexes on single or multiple columns. You
     should not create duplicate user-defined indexes on the same column sets
     covered by constraints. This would result in unnecessary memory and speed
-    overheads. See the discussion in the <link endterm="sqlissues-title"
-    xlink:href="#sqlissues-chapt">**todo**</link> chapter for more
+    overheads. See the discussion in the <link endterm="sqlgeneral-title"
+    xlink:href="#sqlgeneral-chapt">**todo**</link> chapter for more
     information.</para>
 
     <para>Indexes are crucial for adequate query speed. When range or equality
