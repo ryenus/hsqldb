@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: listeners.xml 847 2009-01-19 22:24:49Z unsaved $ -->
+<!-- $Id$ -->
 <!DOCTYPE book [
 <!ENTITY % dummy22 SYSTEM "../entities/global.ent">
 %dummy22;
@@ -28,9 +28,9 @@
       </author>
     </authorgroup>
 
-    <releaseinfo>$Revision: 734 $</releaseinfo>
+    <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date: 2009-01-08 19:19:51 +0000 (Thu, 08 Jan 2009) $</pubdate>
+    <pubdate>$Date$</pubdate>
 
     <keywordset>
       <keyword>Hsqldb</keyword>

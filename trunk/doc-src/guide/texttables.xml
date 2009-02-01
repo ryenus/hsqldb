@@ -27,9 +27,9 @@
       </affiliation>
     </author>
 
-    <releaseinfo>$Revision: 847 $</releaseinfo>
+    <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date: 2009-01-19 17:24:49 -0500 (Mon, 19 Jan 2009) $</pubdate>
+    <pubdate>$Date$</pubdate>
 
     <keywordset>
       <keyword>HyperSQL</keyword>
