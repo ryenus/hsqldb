@@ -1,0 +1,983 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: listeners.xml 847 2009-01-19 22:24:49Z unsaved $ -->
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<chapter version="5.0" xml:id="sqlgeneral-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1999/xhtml"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/2000/svg"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <title xml:id="sqlgeneral-title">SQL Language</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision: 734 $</releaseinfo>
+
+    <pubdate>$Date: 2009-01-08 19:19:51 +0000 (Thu, 08 Jan 2009) $</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQLDB
+      Development Group to distribute this document with or without
+      alterations under the terms of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section xml:id="sqlissues_standards-sect">
+    <title>Standards Support</title>
+
+    <para>HSQLDB 1.9.0 supports the dialect of SQL defined by SQL standards
+    92, 1999, 2003 and 200n. This means where a feature of the standard is
+    supported, e.g. left outer join, the syntax is that specified by the
+    standard text. Almost all syntactic features of SQL-92 up to Advanced
+    Level are supported, as well as SQL 200n core and many optional features
+    of this standard. Work is in progress for a formal declaration of
+    conformance.</para>
+
+    <para>Various chapters of this guide list the syntax that is supported.
+    When writing or converting existing SQL DDL (Data Definition Language),
+    DML (Data Manipulation Language) or DQL (Data Query Language) statements
+    for HSQLDB, you should consult the supported syntax and modify the
+    statements accordingly. Some statements written for older versions may
+    have to be modified.</para>
+
+    <para>Over 300 words are reserved by the standard and should not be used
+    as table or column names. For example, the word POSITION is reserved as it
+    is a function defined by the Standards with a similar role as
+    <methodname>String.indexOf()</methodname> in Java. HyperSQL does not
+    currently prevent you from using a reserved word if it does not support
+    its use or can distinguish it. For example CUBE is a reserved words that
+    is not currently supported by HyperSQL and is allowed as a table or column
+    name. You should avoid using such names as future versions of HyperSQL are
+    likely to support the reserved words and may reject your table definitions
+    or queries. The full list of SQL reserved words is in the appendix ***
+    reference ***</para>
+
+    <para>If you have to use a reserved keyword as the name of a database
+    object, you can enclose it in double quotes.</para>
+
+    <para>HyperSQL also supports enhancements with keywords and expressions
+    that are not part of the SQL standard. Expressions such as <literal>SELECT
+    TOP 5 FROM ..</literal>, <literal>SELECT LIMIT 0 10 FROM ...</literal> or
+    <literal>DROP TABLE mytable IF EXISTS</literal> are among such
+    constructs.</para>
+
+    <para>For a well-written basic guide to SQL with examples, you can consult
+    <link
+    xlink:href="http://www.postgresql.org/files/documentation/books/aw_pgsql/index.html">PostgreSQL:
+    Introduction and Concepts</link> by Bruce Momjian, which is available on
+    the web. Most of the core SQL coverage in the book applies also to
+    HyperSQL. There are some differences in keywords supported by one and not
+    the other engine (OUTER, OID's, etc.) or used differently
+    (IDENTITY/SERIAL, TRIGGER, SEQUENCE, etc.).</para>
+
+    <para>In version 2.0, all features of JDBC4 that apply to the capabilities
+    of HSQLDB are fully supported. The relevant JDBC classes are thoroughly
+    documented with additional clarifications and HyperSQL specific comments.
+    See the <link xlink:href="#javadoc-link">JavaDoc</link> for the
+    <classname>org.hsqldb.jdbc.*</classname> classes.</para>
+  </section>
+
+  <section xml:id="sqlissues_tabletypes-sect">
+    <title>SQL Data and Tables</title>
+
+    <para>In an SQL system, all significant data is stored in tables and
+    sequence generators. Therefore, the first step in creating a database is
+    defining the tables and their columns. The SQL standard supports temporary
+    tables, which are for temporary data, and permanent base tables, which are
+    for persistent data.</para>
+
+    <para>HSQLDB supports the Standard definition, but defines three types of
+    persistent tables according to the way the data is stored.</para>
+
+    <para>TEMPORARY tables are not saved and last only for the lifetime of the
+    Connection object. The contents of each TEMP table is visible only from
+    the Connection that was used to populate it. The definition of TEMP tables
+    conforms to the GLOBAL TEMPORARY type in the SQL standard. The definition
+    of the table persists but each new connections sees its own copy of the
+    table, which is empty at the beginning. When the connection commits, the
+    contents of the table are cleared by default. If the table definition
+    statements includes ON COMMIT PRESERVE ROWS, then the contents are kept
+    when a commit takes place.</para>
+
+    <para>The three types of persistent tables are MEMORY tables, CACHED
+    tables and TEXT tables.</para>
+
+    <para>Memory tables are the default type when the CREATE TABLE command is
+    used. Their data is held entirely in memory but any change to their
+    structure or contents is written to the <filename>*.log</filename> and
+    <filename>*.script</filename> files. The <filename>*.script</filename>
+    file and the <filename>*.log</filename> file are read the next time the
+    database is opened, and the MEMORY tables are recreated with all their
+    contents. So unlike TEMPORARY tables, MEMORY tables are persistent.</para>
+
+    <para>CACHED tables are created with the CREATE CACHED TABLE command. Only
+    part of their data or indexes is held in memory, allowing large tables
+    that would otherwise take up to several hundred megabytes of memory.
+    Another advantage of cached tables is that the database engine takes less
+    time to start up when a cached table is used for large amounts of data.
+    The disadvantage of cached tables is a reduction in speed. Do not use
+    cached tables if your data set is relatively small. In an application with
+    some small tables and some large ones, it is better to use the default,
+    MEMORY mode for the small tables.</para>
+
+    <para>TEXT tables use a CSV (Comma Separated Value) or other delimited
+    text file as the source of their data. You can specify an existing CSV
+    file, such as a dump from another database or program, as the source of a
+    TEXT table. Alternatively, you can specify an empty file to be filled with
+    data by the database engine. TEXT tables are efficient in memory usage as
+    they cache only part of the text data and all of the indexes. The Text
+    table data source can always be reassigned to a different file if
+    necessary. The commands are needed to set up a TEXT table as detailed in
+    the <link endterm="sqlissues-title"
+    xlink:href="#sqlissues-chapt">**todo**</link> chapter.</para>
+
+    <para>With all-in-memory databases <link endterm="sqlissues-title"
+    xlink:href="#sqlissues-chapt">**todo**</link> , both MEMORY table and
+    CACHED table declarations are treated as declarations for non-persistent
+    memory tables. TEXT table declarations are not allowed in this
+    mode.</para>
+
+    <para>The default type of table resulting from future CREATE TABLE
+    statements can be specified with the SQL command:</para>
+
+    <para><programlisting>    SET DEFAULT TABLE TYPE { CACHED | MEMORY };</programlisting>The
+    type of an existing table can be changed with the SQL command:</para>
+
+    <para><programlisting>    SET TABLE &lt;table name&gt; TYPE { CACHED | MEMORY };</programlisting>SQL
+    statements access different types of tables uniformly. No change to
+    statements is needed to access different types of table.</para>
+  </section>
+
+  <section xml:id="sqlissues_types_ops-sect">
+    <title>Basic Types and Operations</title>
+
+    <para>HyperSQL supports all the types defined by SQL-92, plus BOOLEAN,
+    BINARY and LOB types added later to the SQL Standard. It also supports the
+    non-standard OTHER type to store serializable Java objects.</para>
+
+    <para>SQL is a strongly typed language. All data stored in specific
+    columns of tables and other objects (such as sequence generators) have
+    specific types. Each data item conform to the type limits such as
+    precision and scale for the column. It also conforms to any additional
+    integrity constraints that are defined as CHECK constraints in domains or
+    tables. Types can be explicitly converted using the CAST expression, but
+    in most expressions they are converted automatically.</para>
+
+    <para>Data is returned to the user (or the application program) as a
+    result of executing SQL statements such as query expressions or function
+    calls. All statements are compiled prior to execution and the return type
+    of the data is known after compilation and before execution. Therefore,
+    once a statement is prepared, the data type of each column of the returned
+    result is known, including any precision or scale property.</para>
+
+    <para>Some SQL functions used within SQL statements are polymorphic, but
+    the exact type of the argument and the return value is determined at
+    compile time.</para>
+
+    <section>
+      <title>Numeric types</title>
+
+      <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without a
+      decimal point) are the supported integral types. They correspond
+      respectively to <classname>byte</classname>,
+      <classname>short</classname>, <classname>int</classname>,
+      <classname>long</classname>, <classname>BigDecimal</classname> and
+      <classname>BigDecimal</classname> Java types in the range of values that
+      they can represent (NUMERIC and DECIMAL are equivalent). The SQL type
+      dictates the maximum and minimum values that can be held in a field of
+      each type. For example the value range for TINYINT is -128 to +127,
+      although the actual Java type used for handling TINYINT is
+      <classname>java.lang.Integer</classname>.</para>
+
+      <para>DECIMAL and NUMERIC with decimal fractions are mapped to
+      <classname>java.math.BigDecimal</classname> and can have very large
+      numbers of digits. In HyperSQL the two types are equivalent. These
+      types, together with integral types, are called exact numeric
+      types.</para>
+
+      <para>In HyperSQL, REAL, FLOAT, DOUBLE are equivalent and all mapped to
+      <classname>double</classname> in Java. These types are called
+      approximate numeric types.</para>
+
+      <section>
+        <title>Integral Types</title>
+
+        <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without
+        a decimal point) are fully interchangeable internally, and no data
+        narrowing takes place. Depending on the types of the operands, the
+        result of the operations is returned in a JDBC
+        <classname>ResultSet</classname> in any of related Java types:
+        <classname>Integer</classname>, <classname>Long</classname> or
+        <classname>BigDecimal</classname>. The
+        <methodname>ResultSet.getXXXX()</methodname> methods can be used to
+        retrieve the values so long as the returned value can be represented
+        by the resulting type. This type is deterministically based on the
+        query, not on the actual rows returned. The type does not change when
+        the same query that returned one row, returns many rows as a result of
+        adding more data to the tables.</para>
+
+        <para>If the SELECT statement refers to a simple column or function,
+        then the return type is the type corresponding to the column or the
+        return type of the function. For example:</para>
+
+        <informalexample>
+          <programlisting>    CREATE TABLE t(a INTEGER, b BIGINT);
+    SELECT MAX(a), MAX(b) FROM t;</programlisting>
+        </informalexample>
+
+        <para>will return a <classname>ResultSet</classname> where the type of
+        the first column is <classname>java.lang.Integer</classname> and the
+        second column is <classname>java.lang.Long</classname>.
+        However,</para>
+
+        <informalexample>
+          <programlisting>    SELECT MAX(a) + 1, MAX(b) + 1 FROM t;</programlisting>
+        </informalexample>
+
+        <para>will return <classname>java.lang.Long</classname> and
+        <classname>BigDecimal</classname> values, generated as a result of
+        uniform type promotion for all the return values. Note that type
+        promotion to <classname>BigDecimal</classname> ensures the correct
+        value is returned if <literal>MAX(b)</literal> evaluates to
+        <literal>Long.MAX_VALUE</literal>.</para>
+
+        <para>There is no built-in limit on the size of intermediate integral
+        values in expressions. As a result, you should check for the type of
+        the <classname>ResultSet</classname> column and choose an appropriate
+        <methodname>getXXXX()</methodname> method to retrieve it.
+        Alternatively, you can use the <methodname>getObject()</methodname>
+        method, then cast the result to <classname>java.lang.Number
+        </classname> and use the <methodname>intValue()</methodname> or
+        <methodname>longValue()</methodname> methods on the result.</para>
+
+        <para>When the result of an expression is stored in a column of a
+        database table, it has to fit in the target column, otherwise an error
+        is returned. For example when <literal>1234567890123456789012 /
+        12345687901234567890</literal> is evaluated, the result can be stored
+        in any integral type column, even a TINYINT column, as it is a small
+        value.</para>
+      </section>
+
+      <section>
+        <title>Other Numeric Types</title>
+
+        <para>In SQL statements, numbers with a decimal point are treated as
+        DECIMAL unless they are written with an exponent. Thus
+        <literal>0.2</literal> is considered a DECIMAL value but
+        <literal>0.2E0</literal> is considered a DOUBLE value.</para>
+
+        <para>When <methodname>PreparedStatement.setDouble()</methodname> or
+        <methodname>setFloat()</methodname> is used, the value is treated as a
+        DOUBLE automatically.</para>
+
+        <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
+        expression, the type of the result is DOUBLE.</para>
+
+        <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
+        value is part an expression, the type of the result is DECIMAL. The
+        result can be retrieved from a <classname>ResultSet</classname> in the
+        required type so long as it can be represented. This means DECIMAL
+        values can be converted to DOUBLE unless they are beyond the
+        <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range. Similar
+        to integral values, when the result of an expression is stored in a
+        table column, it has to fit in the target column, otherwise an error
+        is returned.</para>
+
+        <para>The distinction between DOUBLE and DECIMAL is important when a
+        division takes place. When the terms are DECIMAL, the result is a
+        value with a scale (number of digits to the right of the decimal
+        point) equal to the larger of the scales of the two terms. With a
+        DOUBLE term, the scale will reflect the actual result of the
+        operation. For example, <literal>10.0/8.0</literal> (DECIMAL) equals
+        <literal>1.2</literal> but <literal>10.0E0/8.0E0</literal> (DOUBLE)
+        equals <literal>1.25</literal>. Without division operations, DECIMAL
+        values represent exact arithmetic; the resulting scale is the sum of
+        the scales of the two terms when multiplication is performed.</para>
+
+        <para>REAL, FLOAT and DOUBLE values are all stored in the database as
+        <classname>java.lang.Double</classname> objects. Special values such
+        as NaN and +-Infinity are also stored and supported. These values can
+        be submitted to the database via JDBC PreparedStatement methods and
+        are returned in <classname>ResultSet</classname> objects.</para>
+      </section>
+    </section>
+
+    <section>
+      <title>Boolean Type</title>
+
+      <para>The BOOLEAN type represents the values <literal>TRUE</literal>,
+      <literal>FALSE</literal> and <literal>UNKNOWN</literal>. This type of
+      column can be initialised with Java boolean values, or with null for the
+      UNKNOWN value.</para>
+
+      <para>The BOOLEAN type conforms to the SQL standards and supports the
+      UNKNOWN state in addition to TRUE or FALSE. NULL values are treated as
+      unknown. The three-value logic is sometimes misunderstood. For example,
+      x IN (1, 2, NULL) does not return true if x is NULL.</para>
+
+      <para>In previous versions, BIT was simply an alias for BOOLEAN. In 2.0,
+      BIT is a single-bit bit map, while BIT(n) and BIT VARYING(n) are strings
+      of bits. These types are discussed</para>
+    </section>
+
+    <section>
+      <title>Character String Types</title>
+
+      <para>The CHARACTER, CHARACTER VARYING and CLOB types are the supported
+      SQL Standard character string types. CHAR, VARCHAR and CHARACTER LARGE
+      OBJECT are synonyms for these types. HsqlDB also supports LONGVARCHAR as
+      a synonym for VARCHAR. HyperSQL's main character set is Unicode,
+      therefore all possible character strings can be represented by these
+      types. The SQL Standard behaviour of the CHARACTER type is a remanent of
+      legacy systems in which character strings are padded with spaces to fill
+      a fixed width. These spaces are sometimes significant while in other
+      cases they are silently discarded. It would be best to avoid the
+      CHARACTER type altogether. The VARCHAR and CLOB types have length
+      limits, but the strings are not padded by the system.</para>
+    </section>
+
+    <section>
+      <title>Binary and Bit String types</title>
+
+      <para>The BINARY, BINARY VARYING and BLOB types are the supported
+      Standard binary string types, while the BIT and BIT VARYING types are
+      the supported bit string types. VARBINARY and BINARY LARGE OBJECT are
+      synonyms for two of the binary types. HyperSQL also supports
+      LONGVARBINARY as a synonym for VARBINARY. These types are used in the
+      same way as character string types. There are several built-in functions
+      that are overloaded to support character, binary and bit strings. The
+      BINARY type represents a fixed width-string. Each shorter string is
+      padded with zeros to fill the fixed with. Similar to the CHARACTER type,
+      the trailing zeros in the BINARY string are simply discarded in some
+      operations. For the same reason, it is best to avoid this particular
+      type.</para>
+    </section>
+
+    <section>
+      <title>Storage and Handling of Java Objects</title>
+
+      <para>Any serializable JAVA Object can be inserted directly into a
+      column of type OTHER using any variation of
+      <methodname>PreparedStatement.setObject()</methodname> methods.</para>
+
+      <para>For comparison purposes and in indexes, any two Java Objects are
+      considered equal unless one of them is NULL. You cannot search for a
+      specific object or perform a join on a column of type OTHER.</para>
+
+      <para>Please note that HSQLDB is not an object-relational database. Java
+      Objects can simply be stored internally and no operations should be
+      performed on them other than assignment between columns of type OTHER or
+      tests for NULL. Tests such as <literal>WHERE object1 =
+      object2</literal>, or <literal>WHERE object1 = ? </literal>do not mean
+      what you might expect, as any non-null object would satisfy such a
+      tests. But <literal>WHERE object1 IS NOT NULL</literal> is perfectly
+      acceptable.</para>
+
+      <para>The engine does not allow normal column values to be assigned to
+      Java Object columns (for example, assigning an INTEGER or STRING to such
+      a column with an SQL statement such as <literal>UPDATE mytable SET
+      objectcol = intcol WHERE ...</literal>).</para>
+    </section>
+
+    <section>
+      <title>Type Size, Precision and Scale</title>
+
+      <para>In older version of HSQLDB, all table column type definitions with
+      a column size, precision or scale qualifier were accepted and ignored.
+      HSQLDB 1.8 enforced correctness but included an option to enforce the
+      size, precision or scale.</para>
+
+      <para>In 2.0, size, precision and scale qualifiers are always
+      enforced.</para>
+
+      <para>String types, including all BIT, BINARY and CHAR string types plus
+      CLOB and BLOB, are generally defined with a size. If no size is
+      specified, the default size is 1.</para>
+
+      <para>TIME and TIMESTAMP types can be defined with a fractional second
+      precision between 0 and 9. INTERVAL type definition may have precision
+      and, in some cases, fraction second precision. DECIMAL and NUMERIC types
+      may be defined with precision and scale. For all of these types a
+      default precision or scale value is used if one is not specified.</para>
+
+      <para>Values are be changed from one type to another in two different
+      ways: by using explicit CAST expression or by implicit conversion used
+      in assignment, comparison and aggregation.</para>
+
+      <para>String values cannot be assigned to VARCHAR columns if they are
+      longer than the defined type size. For CHARACTER columns, a long string
+      can be inserted (with truncation) only if all the characters after the
+      size are spaces. Shorter strings are padded with the space character
+      when inserted into a CHARACTER column. Similar rules are applied to
+      VARBINARY and BINARY columns. For BINARY columns, the padding and
+      truncation rules are applied with zero bytes, instead of spaces.</para>
+
+      <para>Explicit CAST of a value to a CHARACTER or VARCHAR type will
+      result in forced truncation or padding. So a test such as <literal>CAST
+      (mycol AS VARCHAR(2)) = 'xy'</literal> will find the values beginning
+      with 'xy'. This is the equivalent of <literal>SUBSTRING(mycol FROM 1 FOR
+      2)= 'xy'</literal>.</para>
+
+      <para>For all numeric types, the rules of explicit cast and implicit
+      conversion are the same. If cast or conversion causes any digits to be
+      lost from the fractional part, it can take place. If the non-fractional
+      part of the value cannot be represented in the new type, cast or
+      conversion cannot take place and will result in a data exception.</para>
+
+      <para>There are special rules for DATE, TIME, TIMESTAMP and INTERVAL
+      casts and conversions.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Datetime and Interval Types</title>
+
+    <para>HSQLDB fully supports datetime and interval types and operations,
+    including all relevant optional features, as specified by the SQL Standard
+    since SQL-92. The two groups of types are complementary.</para>
+
+    <section>
+      <title>Datetime types</title>
+
+      <para>The DATE type represents a calendar date with YEAR, MONTH and DAY
+      fields.</para>
+
+      <para>The TIME type represents time of day with HOUR, MINUTE and SECOND
+      fields, plus an optional SECOND FRACTION field.</para>
+
+      <para>The TIMESTAMP type represents the combination of DATE and TIME
+      types.</para>
+
+      <para>TIME and TIMESTAMP types can include WITH TIME ZONE or WITHOUT
+      TIME ZONE (the default) qualifiers. They can have fractional second
+      parts. For example, TIME(6) has six fractional digits for the second
+      field.</para>
+
+      <para>Examples of the string literals used to represent date time
+      values, some with time zone, some without, are below:</para>
+
+      <programlisting>DATE '2008-08-22'
+TIMESTAMP '2008-08-08 20:08:08'
+TIMESTAMP '2008-08-08 20:08:08+8:00' /* Beijing */
+TIME '20:08:08.034900'
+TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>Time Zone</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Time Zone</emphasis></simpara>
+
+      <para>DATE values do not take time zones. For example United Nations
+      designates 5 June as World Environment Day, which was observed on DATE
+      '2008-06-05' in different time zones.</para>
+
+      <para>TIME and TIMESTAMP values without time zone, usually have a
+      context that indicates some local time zone. For example, a database for
+      college course timetables usually stores class dates and times without
+      time zones. This works because the location of the college is fixed and
+      the time zone displacement is the same for all the values. Even when the
+      events take place in different time zones, for example international
+      flight times, it is possible to store all the datetime information as
+      references to a single time zone, usually GMT. For some databases it may
+      be useful to store the time zone displacement together with each
+      datetime value. SQL’s TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE
+      values include a time zone displacement value.</para>
+
+      <para>The time zone displacement is of the type INTERVAL HOUR TO MINUTE.
+      This data type is described in the next section. The legal values are
+      between '–14:00' and   '+14:00'.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>Datetime Operations</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Operations on Datetime
+      Types</emphasis></simpara>
+
+      <para>The expression &lt;datetime expression&gt; AT TIME ZONE &lt;time
+      displacement&gt; evaluates to a datetime value representing exactly the
+      same point of time in the specified &lt;time displacement&gt;. The
+      expression, AT LOCAL is equivalent to AT TIME ZONE &lt;local time
+      displacement&gt;. If AT TIME ZONE is used with a datetime operand of
+      type WITHOUT TIME ZONE, the operand is first converted to a value of
+      type WITH TIME ZONE at the session’s time displacement, then the
+      specified time zone displacement is set for the value. Therefore, in
+      these cases, the final value depends on the time zone of the session in
+      which the statement was used.</para>
+
+      <para>AT TIME ZONE, modifies the field values of the datetime operand.
+      This is done by the following procedure:</para>
+
+      <orderedlist>
+        <listitem>
+          <para>determine the corresponding datetime at UTC.</para>
+        </listitem>
+
+        <listitem>
+          <para>find the datetime value at the given time zone that
+          corresponds with the UTC value from step 1.</para>
+        </listitem>
+      </orderedlist>
+
+      <para>Example a:</para>
+
+      <para>TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE</para>
+
+      <para>If the session’s time zone displacement is -'8:00', then in step
+      1, TIME '12:00:00' is converted to UTC, which is TIME '20:00:00+0:00'.
+      In step 2, this value is expressed as TIME '21:00:00+1:00'. Note that
+      the same expression</para>
+
+      <para>Example b:</para>
+
+      <para>TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO
+      MINUTE</para>
+
+      <para>Because the operand has a time zone, the result is independent of
+      the session  time zone displacement. Step 1 results in TIME
+      '17:00:00+0:00', and step 2 results in TIME '18:00:00+1:00'</para>
+
+      <para>Note that the operand is not limited to datetime literals used in
+      these examples. Any valid expression that evaluates to a datetime value
+      can be the operand.</para>
+
+      <simpara><emphasis role="bold">Type Conversion</emphasis></simpara>
+
+      <para>CAST is used to for all other conversions. Examples:</para>
+
+      <para>CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)</para>
+
+      <para>If &lt;value&gt; has a time zone component, it is simply dropped.
+      For example TIME '12:00:00-5:00' is converted to TIME '12:00:00'</para>
+
+      <para>CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</para>
+
+      <para>If &lt;value&gt; has no time zone component, the current time zone
+      displacement of the session is added. For example TIME '12:00:00' is
+      converted to TIME '12:00:00-8:00' when the session time zone
+      displacement is '-8:00'.</para>
+
+      <para>Conversion between DATE and TIMESTAMP is performed by removing the
+      TIME component of a TIMESTAMP value or by setting the hour, minute and
+      second fields to zero. TIMESTAMP '2008-08-08 20:08:08+8:00' becomes DATE
+      '2008-08-08', while DATE '2008-08-22' becomes TIMESTAMP '2008-08-22
+      00:00:00'.</para>
+
+      <para>Conversion between TIME and TIMESTAMP is performed by removing the
+      DATE field values of a TIMESTAMP value or by appending the fields of the
+      TIME value to the fields of the current session date value.</para>
+
+      <simpara><emphasis role="bold">Assignment</emphasis></simpara>
+
+      <para>When a value is assigned to a datetime target, e.g., a value is
+      used to update a row of a table, the type of the value must be the same
+      as the target, but the WITH TIME ZONE or WITHOUT TIME ZONE
+      characteristics can be different. If the types are not the same, an
+      explicit CAST must be used to convert the value into the target
+      type.</para>
+
+      <simpara><emphasis role="bold">Comparison</emphasis></simpara>
+
+      <para>When values WITH TIME ZONE are compared, they are converted to UTC
+      values before comparison. If a value WITH TIME ZONE is compared to
+      another WITHOUT TIME ZONE, then the WITH TIME ZONE value is converted to
+      AT LOCAL, then converted to WITHOUT TIME ZONE before comparison.</para>
+
+      <para>It is not recommended to design applications that rely on
+      comparisons and conversions between TIME values WITH TIME ZONE. The
+      conversions may involve normalisation of the time value, resulting in
+      unexpected results. For example, the expression: BETWEEN(TIME
+      '12:00:00-8:00', TIME '22:00:00-8:00') is converted to
+      BETWEEN(TIME'20:00:00+0:00', TIME '06:00:00+0:00') when it is evaluated
+      in the UTC zone, which is always FALSE.</para>
+
+      <simpara><emphasis role="bold">Function</emphasis></simpara>
+
+      <para>Several functions return the current session timestamp in
+      different datetime types:</para>
+
+      <informaltable frame="all">
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry><para>CURRENT_DATE</para></entry>
+
+              <entry><para>DATE</para></entry>
+            </row>
+
+            <row>
+              <entry><para>CURRENT_TIME</para></entry>
+
+              <entry><para>TIME WITH TIME ZONE</para></entry>
+            </row>
+
+            <row>
+              <entry><para>CURRENT_TIMESTAMP</para></entry>
+
+              <entry><para>TIMESTAMP WITH TIME ZONE</para></entry>
+            </row>
+
+            <row>
+              <entry><para>LOCALTIME</para></entry>
+
+              <entry><para>TIMESTAMP WITHOUT TIME ZONE</para></entry>
+            </row>
+
+            <row>
+              <entry><para>LOCALTIMESTAMP</para></entry>
+
+              <entry><para>TIMESTAMP WITHOUT TIME ZONE</para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </informaltable>
+
+      <simpara><emphasis role="bold">Session Time Zone
+      Displacement</emphasis></simpara>
+
+      <para>When an SQL session is started (with a JDBC connection) the local
+      time zone of the client JVM (including any seasonal time adjustments
+      such as daylight saving time) is used as the session time zone
+      displacement. Note that the SQL session time displacement is not changed
+      when a seasonal time adjustment takes place while the session is open.
+      To change the SQL session time zone displacement use:</para>
+
+      <para>SET TIME ZONE &lt;time displacement&gt;. Or use SET TIME ZONE
+      LOCAL to change to the original time zone displacement of the
+      session.</para>
+
+      <simpara><emphasis role="bold">Datetime Values and
+      Java</emphasis></simpara>
+
+      <para>When datetime values are sent to the database using the
+      PreparedStatement or CallableStatement interfaces, the Java object is
+      converted to the type of the prepared or callable statement parameter.
+      This type may be DATE, TIME, or TIMESTAMP (with or without time zone).
+      The time zone displacement is the time zone of the JDBC session.</para>
+
+      <para>When datetime values are retrieved from the database using the
+      ResultSet interface,</para>
+
+      <para>there are two representations. The getString(…) methods of the
+      ResultSet interface, return an exact representation of the value in the
+      SQL type as it is stored in the database. This includes the correct
+      number of digits for the fractional second field, and for values with
+      time zone displacement, the time zone displacement. Therefore if TIME
+      '12:00:00' is stored in the database, all users in different time zones
+      will get '12:00:00' when they retrieve the value as a string. The
+      getTime(…) and getTimestamp(…) methods of the ResultSet interface return
+      Java objects that are corrected for the session time zone. The UTC
+      millisecond value contained the java.sql.Time or java.sql.Timestamp
+      objects will be adjusted to the time zone of the session, therefore the
+      toString() method of these objects return the same values in different
+      time zones.</para>
+    </section>
+
+    <section>
+      <title>Interval Types</title>
+
+      <para>Interval types are used to represent differences between date time
+      values. The difference between two date time values can be measured in
+      seconds or in months. For measurements in months, the units YEAR and
+      MONTH are available, while for measurements in seconds, the units DAY,
+      HOUR, MINUTE, SECOND are available. The units can be used individually,
+      or as a range. An interval type can specify the precision of the most
+      significant field and the second fraction digits of the SECOND field (if
+      it has a SECOND field). The default precision is 2. The default second
+      precision is 0. Examples:</para>
+
+      <programlisting>INTERVAL YEAR, INTERVAL YEAR(4) TO MONTH, INTERVAL MONTH
+INTERVAL DAY(6), INTERVAL DAY TO HOUR, INTERVAL DAY TO SECOND(3), INTERVAL HOUR TO MINUTE, INTERVAL SECOND(2, 6),</programlisting>
+
+      <para>The word INTERVAL indicates the general type name. The rest of the
+      definition is called an &lt;interval qualifier&gt;. This designation is
+      important, as in most expressions &lt;interval qualifier&gt; is used
+      without the word INTERVAL.</para>
+
+      <para>An interval value can be negative, positive or zero. An interval
+      type has all the datetime fields in the specified range. These fields
+      are similar to those in the TIMESTAMP type. The differences are as
+      follows:</para>
+
+      <para>The first field of an interval value can hold any numeric value up
+      to the specified precision. For example, the hour field in HOUR(2) TO
+      SECOND can hold values above 23 (up to 99). The year and month fields
+      can hold zero (unlike a TIMESTAMP value) and the maximum value of a
+      month field that is not the most significant field, is 11.</para>
+
+      <para>Some examples of interval literal below:</para>
+
+      <programlisting>INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
+INTERVAL '3503:12:19.345' HOUR TO SECOND(3) /* equal to the first value */
+INTERVAL '19.345' SECOND(4,3) /* maximum number of digits for the second value is 4, and each value is expressed with three fraction digits. */
+INTERVAL '-23-10' YEAR(2) TO MONTH
+</programlisting>
+
+      <para>Interval values of the types that are based on seconds can be cast
+      into one another. Similarly those that are based on months can be cast
+      into one another. It is not possible to cast or convert a value based on
+      seconds to one based on months, or vice versa.</para>
+
+      <para>When a cast is performed to a type with a smaller
+      least-significant field, nothing is lost from the interval value.
+      Otherwise, the values for the missing least-significant fields are
+      discarded. Examples:</para>
+
+      <programlisting>CAST ( INTERVAL '145 23:12:19' DAY TO SECOND AS INTERVAL DAY TO HOUR ) = INTERVAL '145 23' DAY TO HOUR
+CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23:00:00' DAY TO SECOND
+</programlisting>
+
+      <para>A numeric value can be cast to an interval type. In this case the
+      numeric value is first converted to a single-field INTERVAL type with
+      the same field as the least significant field of the target interval
+      type. This value is then converted to the target interval type For
+      example CAST( 22 AS INTERVAL YEAR TO MONTH) evaluates to INTERVAL '22'
+      MONTH and then INTERVAL '1 10' YEAR TO MONTH</para>
+
+      <para>An interval value can be cast to a numeric type. In this case the
+      interval value is first converted to a single-field INTERVAL type with
+      the same field as the least significant filed of the interval value. The
+      value is then converted to the target type. For example CAST (INTERVAL
+      '1-11' YEAR TO MONTH AS INT) evaluates to INTERVAL '23' MONTH, and then
+      23.</para>
+
+      <para>An interval value can be cast into a character type, which results
+      in an INTERVAL literal. A character value can be cast into an INTERVAL
+      type so long as it is a string with a format compatible with an INTERVAL
+      literal.</para>
+
+      <para>Two interval values can be added or subtracted so long as the
+      types of both are based on the same field, i.e., both are based on MONTH
+      or SECOND. The values are both converted to a single-field interval type
+      with same field as the least-significant field between the two types.
+      After addition or subtraction, the result is converted to an interval
+      type that contains all the fields of the two original types.</para>
+
+      <para>An interval value can be multiplied or divided by a numeric value.
+      Again, the value is converted to a numeric, which is then multiplied or
+      divided, before converting back to the original interval type.</para>
+
+      <para>An interval value is negated by simply prefixing with the minus
+      sign.</para>
+
+      <para>Interval values used in expressions are either typed values,
+      including interval literals, or are interval casts. The expression:
+      &lt;expression&gt; &lt;interval qualifier&gt; is a cast of the result of
+      the &lt;expression&gt; into the INTERVAL type specified by the
+      &lt;interval qualifier&gt;</para>
+
+      <programlisting>DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
+DATE '2000-01-01' + '1-10' YEAR TO MONTH /* the string '1-10' is cast into INTERVAL YEAR TO MONTH */
+DATE '2000-01-01' + 22 MONTH /* the integer 22 is cast into INTERVAL MONTH, same value as above */
+DATE '2000-01-01' - 22 DAY /* the integer 22 is cast into INTERVAL DAY */
+DATE '2000-01-01' + COL2 /* the type of COL2 must be an INTERVAL type */
+DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH interval */
+</programlisting>
+
+      <simpara><emphasis role="bold">Datetime and Interval
+      Operations</emphasis></simpara>
+
+      <para>An interval can be added to or subtracted from a datetime value so
+      long as they have some fields in common. For example, an INTERVAL MONTH
+      cannot be added to a TIME value, while an INTERVAL HOUR TO SECOND can.
+      The interval is first converted to a numeric value, then the value is
+      added to, or subtracted from, the corresponding field of the datetime
+      value.</para>
+
+      <para>If the result of addition or subtraction is beyond the permissible
+      range for the field, the field value is normalised and carried over to
+      the next significant field until all the fields are normalised. For
+      example, adding 20 minutes to TIME '23:50:10' will result successively
+      in '23:70:10', '24:10:10' and finally TIME '00:10:10'. Subtracting 20
+      minutes from the result is performed as follows: '00:-10:10',
+      '-1:50:10', finally TIME '23:50:10'. Note that if DATE or TIMESTAMP
+      normalisation results in the YEAR field value out of the range (1,1000),
+      then an exception condition is raised.</para>
+
+      <para>If an interval value based on MONTH is added to, or subtracted
+      from a DATE or TIMESTAMP value, the result may have an invalid day (30
+      or 31) for the given result month. In this case an exception condition
+      is raised.</para>
+
+      <para>The result of subtraction of two datetime expressions is an
+      interval value. The two datetime expressions must be of the same type.
+      The type of the interval value must be specified in the expression,
+      using only the interval field names. The two datetime expressions are
+      enclosed in parentheses, followed by the&lt;interval qualifier&gt;
+      fields. In the first example below, COL1 and COL2 are of the same
+      datetime type, and the result is evaluated in INTERVAL YEAR TO MONTH
+      type.</para>
+
+      <informaltable frame="all">
+        <tgroup cols="2">
+          <tbody>
+            <row>
+              <entry><para>(COL1 – COL2) YEAR TO MONTH</para></entry>
+
+              <entry><para>difference between two DATE or two TIEMSTAMP values
+              in years and months </para></entry>
+            </row>
+
+            <row>
+              <entry><para>(CURRENT_DATE – COL3) DAY</para></entry>
+
+              <entry><para>the number of days between the value of COL3 and
+              the current date</para></entry>
+            </row>
+
+            <row>
+              <entry><para>(CURRENT_DATE - DATE '2000-01-01') YEAR TO
+              MONTH</para></entry>
+
+              <entry><para>the number of years and months since the beginning
+              of this century</para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </informaltable>
+
+      <para>The individual fields of both datetime and interval values can be
+      extracted using the EXTRACT function. The same function can also be used
+      to extract the time zone displacement fields of a datetime value.</para>
+
+      <simpara><literal>EXTRACT ({YEAR | MONTH | DAY | HOUR | MINUTE | SECOND
+      | TIMEZONE_HOUR | TIMEZONE_MINUTE | DAY_OF_WEEK | WEEK_OF_YEAR } FROM
+      {&lt;datetime value&gt; | &lt;interval value&gt;})</literal></simpara>
+
+      <para>The dichotomy between interval types based on seconds, and those
+      based on months, stems from the fact that the different calendar months
+      have different numbers of days. For example, the expression, “nine
+      months and nine days since an event” is not exact when the date of the
+      event is unknown. It can represent a period of around 284 days give or
+      take one. SQL interval values are independent of any start or end dates
+      or times. However, when they are added to or subtracted from certain
+      date or timestamp values, the result may be invalid and cause an
+      exception (e.g. adding one month to January 30 results in February
+      30).</para>
+    </section>
+  </section>
+
+  <section xml:id="sqlissues_constr_indexes-sect">
+    <title>Indexes and Query Speed</title>
+
+    <para>HyperSQL supports PRIMARY KEY, UNIQUE and FOREIGN KEY constraints,
+    which can span multiple columns.</para>
+
+    <para>The engine creates indexes internally to support PRIMARY KEY, UNIQUE
+    and FOREIGN KEY constraints: a unique index is created for each PRIMARY
+    KEY or UNIQUE constraint; an ordinary index is created for each FOREIGN
+    KEY constraint.</para>
+
+    <para>HyperSQL allows defining indexes on single or multiple columns. You
+    should not create duplicate user-defined indexes on the same column sets
+    covered by constraints. This would result in unnecessary memory and speed
+    overheads. See the discussion in the <link endterm="sqlissues-title"
+    xlink:href="#sqlissues-chapt">**todo**</link> chapter for more
+    information.</para>
+
+    <para>Indexes are crucial for adequate query speed. When range or equality
+    conditions are used e.g. <literal>SELECT ... WHERE acol &gt; 10 AND bcol =
+    0</literal>, an index should exist on one of the columns that has a
+    condition. In this example, the <literal>bcol</literal> column is the best
+    candidate. Queries always return results whether indexes exist or not, but
+    they return much faster when an index exists. As a rule of thumb, HSQLDB
+    is capable of internal processing of queries at over 100,000 rows per
+    second. Any query that runs into several seconds should be checked and
+    indexes should be added to the relevant columns of the tables if
+    necessary.</para>
+
+    <para>When executing a DELETE or UPDATE statement, the engine needs to
+    find the rows that are to be deleted or updated. If there is an index on
+    one of the columns in the WHERE clause, it is often possible to start
+    directly from the first candidate row. Otherwise all the rows of the table
+    have to be examined.</para>
+
+    <para>Indexes are even more important in joins between multiple tables.
+    <literal>SELECT ... FROM t1 JOIN t2 ON t1.c1 = t2.c2 </literal> is
+    performed by taking rows of t1 one by one and finding a matching row in
+    t2. If there is no index on t2.c2 then for each row of t1, all the rows of
+    t2 must be checked. Whereas with an index, a matching row can be found in
+    a fraction of the time. If the query also has a condition on t1, e.g.,
+    <literal>SELECT ... FROM t1 JOIN t2 ON t1.c1 = t2.c2 WHERE t1.c3 =
+    4</literal> then an index on t1.c3 would eliminate the need for checking
+    all the rows of t1 one by one, and will reduce query time to less than a
+    millisecond per returned row. So if t1 and t2 each contain 10,000 rows,
+    the query without indexes involves checking 100,000,000 row combinations.
+    With an index on t2.c2, this is reduced to 10,000 row checks and index
+    lookups. With the additional index on t2.c2, only about 4 rows are checked
+    to get the first result row.</para>
+
+    <para>Note that in HSQLDB an index on multiple columns can be used
+    internally as a non-unique index on the first column in the list. For
+    example: <literal>CONSTRAINT name1 UNIQUE (c1, c2, c3); </literal> means
+    there is the equivalent of <literal>CREATE INDEX name2 ON
+    atable(c1);</literal>. So you do not need to specify an extra index if you
+    require one on the first column of the list.</para>
+
+    <para>In 2.0, a multi-column index will speed up queries that contain
+    joins or values on ALL the columns. You need NOT declare additional
+    individual indexes on those columns unless you use queries that search
+    only on a subset of the columns. For example, rows of a table that has a
+    PRIMARY KEY or UNIQUE constraint on three columns or simply an ordinary
+    index on those columns can be found efficiently when values for all three
+    columns are specified in the WHERE clause. For example, <literal>SELECT
+    ... FROM t1 WHERE t1.c1 = 4 AND t1.c2 = 6 AND t1.c3 = 8 </literal>will use
+    an index on <literal>t1(c1,c2,c3)</literal> if it exists.</para>
+
+    <para>A multi-column index will not speed up queries on the second or
+    third column only. The first column must be specified in the JOIN .. ON or
+    WHERE conditions.</para>
+
+    <para>Sometimes query speed depends on the order of the tables in the JOIN
+    .. ON or FROM clauses. For example the second query below should be faster
+    with large tables (provided there is an index on
+    <literal>TB.COL3</literal>). The reason is that <literal>TB.COL3</literal>
+    can be evaluated very quickly if it applies to the first table (and there
+    is an index on <literal>TB.COL3</literal>):</para>
+
+    <informalexample>
+      <programlisting>    (TB is a very large table with only a few rows where TB.COL3 = 4)
+
+    SELECT * FROM TA JOIN TB ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;
+
+    SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;</programlisting>
+    </informalexample>
+
+    <para>The general rule is to put first the table that has a narrowing
+    condition on one of its columns.</para>
+
+    <para>HyperSQL features automatic, on-the-fly indexes for views and
+    subselects that are used in a query.</para>
+
+    <para>Indexes have no effect on ORDER BY clauses or some LIKE
+    conditions.</para>
+  </section>
+</chapter>
