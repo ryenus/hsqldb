@@ -1456,23 +1456,23 @@
       &lt;constraint name&gt;</literal></simpara>
 
       <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
-      check time&gt; [ [ NOT ] DEFERRABLE ] | [ NOT ] DEFERRABLE [
-      &lt;constraint check time&gt; ]</literal></simpara>
+      check time&gt; [ [ NOT ] DEFERRABLE [ &lt;constraint check time&gt; ]
+      ]</literal></simpara>
 
       <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
       INITIALLY IMMEDIATE</literal></simpara>
 
       <simpara>Specify the name of a constraint and its characteristics. By
-      default the constraint is <literal>INITIALLY IMMEDIATE</literal> and
-      <literal>NOT DEFERRABLE</literal>. This means the constraint is enforced
-      as soon as a data change statement is executed. If <literal>INITIALLY
-      DEFERRED</literal> is specified, then the constraint is enforced when
-      the session commits. The (verbose) characteristics must be compatible.
-      The constraint check time can be changed temporarily for an SQL session.
-      HyperSQL does not support deferring constraint enforcement. This feature
-      of SQL standards has been criticised because it allows a session to read
-      uncommitted data that violates database integrity constraints (but has
-      not yet been checked).</simpara>
+      default the constraint is <literal>NOT DEFERRABLE</literal> and
+      <literal>INITIALLY IMMEDIATE</literal>. This means the constraint is
+      enforced as soon as a data change statement is executed. If
+      <literal>INITIALLY DEFERRED</literal> is specified, then the constraint
+      is enforced when the session commits. The characteristics must be
+      compatible. The constraint check time can be changed temporarily for an
+      SQL session. HyperSQL does not support deferring constraint enforcement.
+      This feature of the SQL standard has been criticised because it allows a
+      session to read uncommitted data that violates database integrity
+      constraints but has not yet been checked.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT (table constraint)</primary>
@@ -1490,7 +1490,7 @@
       definition&gt; | &lt;referential constraint definition&gt; | &lt;check
       constraint definition&gt;</literal></simpara>
 
-      <simpara>Four kinds of constraint can be defined on a table. Each kind
+      <simpara>Three kinds of constraint can be defined on a table. Each kind
       has its own rules to limit the values that can be specified for
       different columns in each row of the table.</simpara>
 
@@ -1622,15 +1622,16 @@
       <simpara><emphasis role="bold">SET TABLE
       writeability</emphasis></simpara>
 
-      <simpara><emphasis>set table write property</emphasis></simpara>
+      <simpara><emphasis>set table write property
+      (HyperSQL)</emphasis></simpara>
 
       <simpara><literal>&lt;set table read only statement&gt; ::= SET TABLE
       &lt;table name&gt; { READ ONLY | READ WRITE }</literal></simpara>
 
       <simpara>Set the writabality property of a table. Tables are writable by
       default. This statement can be used to change the property between
-      <literal>READ ONLY</literal> and <literal>READ
-      WRITE</literal>.</simpara>
+      <literal>READ ONLY</literal> and <literal>READ WRITE</literal>. This is
+      a feature of HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET TABLE SOURCE</primary>
