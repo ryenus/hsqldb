@@ -121,6 +121,12 @@ NEVER BE SENT.  I will have a definitive answer about several of these shortly.:
 
     Complex dynamic parsing or genereration code in convert.c:convert_escape().
 
+    SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL *
+
+    show max_identifier_length
+
+    Show Client_Encoding
+
 
 REFERENCES
 
