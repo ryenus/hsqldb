@@ -119,7 +119,7 @@ NEVER BE SENT.  I will have a definitive answer about several of these shortly.:
 
     "select 1 from \"%s\" where ctid = '(%d,%d)'"
 
-    Complex dynamic parsing or genereration code in conver.tc:convert_escape().
+    Complex dynamic parsing or genereration code in convert.c:convert_escape().
 
 
 REFERENCES
