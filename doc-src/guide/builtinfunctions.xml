@@ -71,7 +71,7 @@
           the function names supported by the target database engine. For
           example <literal>SELECT {fn DAYOFMONTH (dateColumn)} FROM
           myTable</literal> can be used in JDBC and is translated to Standard
-          SQL as <literal>SELECT EXTRACT (DAY_OF_MONTH FORM dateColumn) FROM
+          SQL as <literal>SELECT EXTRACT (DAY_OF_MONTH FROM dateColumn) FROM
           myTable</literal> if a database engine supports the Standard syntax.
           If a database engine does not support Standard SQL, then the
           translation will be different. HSQLDB supports all the function
@@ -282,9 +282,9 @@
     <para><literal>RAWTOHEX( &lt;binary value expr&gt; )</literal></para>
 
     <para>Returns a character string composed of hexadecimal digits
-    representing the bytes in the &lt;binary value expr&gt;. Each byte of the
-    &lt;binary value expr&gt; is translated into two hex digits.
-    (HSQLDB)</para>
+    representing the bytes in the <literal>&lt;binary value
+    expr&gt;</literal>. Each byte of the <literal>&lt;binary value
+    expr&gt;</literal> is translated into two hex digits. (HSQLDB)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REPEAT function</primary>
@@ -1464,7 +1464,7 @@
     synthetic names made by prefixing type names with <literal>SQL_</literal>.
     Some of the <literal>&lt;data type&gt;</literal> options represent valid
     SQL types, but some are are based on non-standard type names, namely
-    <literal>{ SQL_LONGNVARCHAR | SQL_LONGVARBINARY |SQL_LONGNVARCHAR |
+    <literal>{ SQL_LONGNVARCHAR | SQL_LONGVARBINARY |SQL_LONGVARCHAR |
     SQL_TINYINT }</literal>. None of the synthetic names can be used in any
     other context than the CONVERT function.</para>
 
