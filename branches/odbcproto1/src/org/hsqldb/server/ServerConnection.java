@@ -1322,9 +1322,11 @@ class ServerConnection implements Runnable {
             }
             replyString.append(" " + uc.substring(wordStart, wordEnd));
         } else if (keyword.equals("INSERT")) {
-            replyString.append(" " + 98765 + ' ' + retval);
-            // TODO:  Find out what the first numerical param is.
-            // Probably a transaction identifier of some sort.
+            replyString.append(" " + 0 + ' ' + retval);
+            // The number is the supposed to be the oid for single-row
+            // inserts into a table that has row oids.
+            // Since the requirement is conditional, it's very likely that the
+            // client will make any use of the value we pass.
         }
         // If we ever implement following SQL commands, add echo's for these
         // strings too:  MOVE, FETCH, COPY.
@@ -1470,26 +1472,15 @@ class ServerConnection implements Runnable {
         int firstInt = dataInput.readInt();
         switch (firstInt >> 24) {
             case 80: // Empirically
-                throw Error.error(ErrorCode.SERVER_HTTP_NOT_HSQL_PROTOCOL);
+                server.print(
+                    "Rejected attempt from client using hsql HTTP protocol");
+                return 0;
             case 0:
                 // For ODBC protocol, this is the first byte of a 4-byte int
                 // size.  The size can never be large enough that the first
                 // byte will be non-zero.
                 streamProtocol = ODBC_STREAM_PROTOCOL;
                 break;
-                /*
-                    case 34:
-                         // Determined empirically.
-                         // Code looks like it should be
-                         // ResultConstants.CONNECT
-                        // TODO:  Send client a 1.8-compatible SQLException
-                        throw Error.error(
-                             ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
-                                 new String[] { "pre-9.0",
-                             ClientConnection.NETWORK_COMPATIBILITY_VERSION});
-                            throw Error.error(
-                                    ErrorCode.SERVER_INCOMPLETE_HANDSHAKE_READ);
-                    */
             default:
                 streamProtocol = HSQL_STREAM_PROTOCOL;
                 // HSQL protocol client
@@ -1528,6 +1519,14 @@ class ServerConnection implements Runnable {
         int major = dataInput.readUnsignedShort();
         int minor = dataInput.readUnsignedShort();
 
+        // Can just return to fail, until the value of "session" is set below.
+        if (major == 1 && minor == 7) {
+            // This is what old HyperSQL versions always send
+            // TODO:  Send client a 1.8-compatible SQLException
+            server.print("A pre-9.0 client attempted to connect.  "
+                    + "We rejected them.");
+            return;
+        }
         if (major == 1234 && minor == 5679) {
             // No reason to pay any attention to the size header in this case.
             dataOutput.writeByte('N');  // SSL not supported yet
