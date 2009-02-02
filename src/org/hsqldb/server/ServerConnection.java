@@ -493,7 +493,11 @@ class ServerConnection implements Runnable {
             switch (op) {
               case 'Q':
                 String sql = readNullTermdUTF(len - 1);
-                 // We don't ask for the null terminator
+                // We don't ask for the null terminator
+
+                /* **********************************************
+                 * These first few cases handle the driver's implicit handling
+                 * of transactions. */
                 if (sql.startsWith("BEGIN;") || sql.equals("BEGIN")) {
                     sql = sql.equals("BEGIN")
                         ? null : sql.substring("BEGIN;".length());
@@ -512,16 +516,22 @@ class ServerConnection implements Runnable {
                        return;
                     }
                 }
-                if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 8) {
+                if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 0) {
                     throw new RecoverableFailure(
                         "SAVEPOINT prefix not supported yet", "0A000");
                     // TODO:  Implement this in similar fashion to BEGIN; prefix
                 }
                 if (sql.indexOf(";RELEASE ") > 0) {
+                    // TODO:  Ensure no semicolons after "RELEASE".
                     throw new RecoverableFailure(
                         "';RELEASE <id>' suffix not supported yet", "0A000");
-                    // TODO:  Implement this in similar fashion to BEGIN; prefix
+                    // TODO:  Issue a RELASE _after_ processing main command,
+                    // but perhaps do not issue a separate reply for it.
+                    // TODO:  Test if Postgresql server sends replies for
+                    // RELEASE commands, both separately and in a compound.
                 }
+                /***********************************************/
+
                 String normalized = sql.trim().toLowerCase();
                 if (server.isTrace()) {
                     server.printWithThread("Received query (" + sql + ')');
