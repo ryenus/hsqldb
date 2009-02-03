@@ -38,12 +38,28 @@ import java.io.IOException;
 
 /**
  * Atomic transmission packet from HyperSQL server to ODBC client.
+ *
+ * Sample usage
+ * <CODE>
+ *     outPacket = OdbcPacketOutputStream.newOdbcPacketOutputStream();
+ *     ...
+ *     // For each packet you need to transmit:
+ *     outPacket.reset();
+ *     outPacket.write(this);
+ *     outPacket.write(that);
+ *     outPacket.xmit('X', hsqlDataOutputStream);
+ * </CODE>
  */
 class OdbcPacketOutputStream extends DataOutputStream {
     private ByteArrayOutputStream byteArrayOutputStream;
     private ByteArrayOutputStream stringWriterOS = new ByteArrayOutputStream();
     private DataOutputStream stringWriterDos =
         new DataOutputStream(stringWriterOS);
+    private int packetStart = 0; // Stream's "written" at start of packet.
+
+    public int getSize() {
+        return written - packetStart;
+    }
 
     synchronized void write(String s, boolean nullTerm)
     throws IOException {
@@ -66,6 +82,7 @@ class OdbcPacketOutputStream extends DataOutputStream {
 
     synchronized void reset() throws IOException {
         byteArrayOutputStream.reset();
+        packetStart = written;
         writeInt(-1); // length placeholder
     }
 
@@ -81,7 +98,10 @@ class OdbcPacketOutputStream extends DataOutputStream {
         reset();
     }
 
-    synchronized void xmit(
+    /**
+     * Returns packet size (which does not count the type byte).
+     */
+    synchronized int xmit(
     char packetType, org.hsqldb.lib.DataOutputStream destinationStream)
     throws IOException {
         byte[] ba = byteArrayOutputStream.toByteArray();
@@ -92,6 +112,7 @@ class OdbcPacketOutputStream extends DataOutputStream {
         reset();
         destinationStream.writeByte(packetType);
         destinationStream.write(ba);
+        return ba.length;
     }
 
     synchronized public void close() throws IOException {
