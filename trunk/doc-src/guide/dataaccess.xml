@@ -61,7 +61,9 @@
     <section>
       <title>Literals</title>
 
-      <para>Literals are used to express constant values.</para>
+      <para>Literals are used to express constant values. The general type of
+      a literal is known by its format. The specific type is based on
+      conventions.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>unicode escape elements</primary>
@@ -135,6 +137,18 @@
       <simpara><literal>&lt;Unicode representation&gt; ::= &lt;character
       representation&gt; | &lt;Unicode escape value&gt;</literal></simpara>
 
+      <simpara>The type of a character literal is CHARACTER. The length of the
+      string literal is the character length of the type. If the quote
+      character is used in a string, it is represented with two quote
+      characters. Long literals can be divided into multiple quoted strings,
+      separated with a space or end-of-line character. Example of character
+      literals are given below:</simpara>
+
+      <programlisting>'a literal'  ' string seperated' ' into parts'
+'a string''s literal form with double quote character'
+U&amp;'Unicode string'
+</programlisting>
+
       <indexterm significance="preferred" type="sql">
         <primary>binary literal</primary>
       </indexterm>
@@ -153,6 +167,13 @@
       <simpara><literal>&lt;hexit&gt; ::= &lt;digit&gt; | A | B | C | D | E |
       F | a | b | c | d | e | f</literal></simpara>
 
+      <simpara>The type of a binary literal is BINARY. The octect length of
+      the binary literal is the length of the type. Case-insensitive
+      hexadecimal charaters are used in the binary string. Each pair of
+      characters in the literal represents a byte in the binary string. Long
+      literals can be divided into multiple quoted strings, separated with a
+      space or end-of-line character.</simpara>
+
       <programlisting>X'1abACD34' 'Af'</programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -168,6 +189,11 @@
       &lt;bit&gt;... ] &lt;quote&gt; }... ]</literal></simpara>
 
       <simpara><literal>&lt;bit&gt; ::= 0 | 1</literal></simpara>
+
+      <simpara>The type of a binary literal is BIT. The bit length of the bit
+      literal is the length of the type. Digits 0 and 1 are used to represent
+      the bits. Long literals can be devided into multiple quoted strings,
+      separated with a space or end-of-line character.</simpara>
 
       <programlisting>B'10001001' '00010'</programlisting>
 
@@ -207,10 +233,31 @@
       <simpara><literal>&lt;unsigned integer&gt; ::=
       &lt;digit&gt;...</literal></simpara>
 
+      <simpara>The type of an exact numeric literal without a decimal point is
+      INTEGER, BIGINT, or DECIMAL, depending on the value of the literal (the
+      smallest type that can represent the value is the type). The precision
+      of a decimal literal is the number of digits of the literal. The type of
+      an exact numeric literal with a decimal piont is DECIMAL. The precision
+      and scale of the literal is used for the type. The type of an
+      approximate numeric literal is DOUBLE.</simpara>
+
       <programlisting>12
 34.35
 +12E-2
 </programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>boolean literal</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">boolean literal</emphasis></simpara>
+
+      <simpara><emphasis>boolean literal</emphasis></simpara>
+
+      <simpara><literal>&lt;boolean literal&gt; ::= TRUE | FALSE |
+      UNKNOWN</literal></simpara>
+
+      <simpara>The boolean literal is one of the specified keywords.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>datetime and interval literal</primary>
@@ -317,220 +364,16 @@
       <simpara><literal>&lt;datetime value&gt; ::= &lt;unsigned
       integer&gt;</literal></simpara>
 
+      <simpara>The type of a datetime or interval type is specified in the
+      literal. The fractional second precision is is number of digits in the
+      fractional part of the literal.</simpara>
+
       <programlisting>DATE '2008-08-08'
 TIME '20:08:08'
 TIMESTAMP '2008-08-08 20:08:08'
 
 INTERVAL '10' DAY
 INTERVAL -'08:08' MINUTE TO SECOND
-</programlisting>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>boolean literal</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">boolean literal</emphasis></simpara>
-
-      <simpara><emphasis>boolean literal</emphasis></simpara>
-
-      <simpara><literal>&lt;boolean literal&gt; ::= TRUE | FALSE |
-      UNKNOWN</literal></simpara>
-
-      <simpara>Specify a non-null value.</simpara>
-
-      <!-- From Foundation chapt. 6 -->
-    </section>
-
-    <section>
-      <title>Data Type</title>
-
-      <simpara>Data type definition. </simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>data type</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">data type</emphasis></simpara>
-
-      <simpara><emphasis>data type</emphasis></simpara>
-
-      <simpara><literal>&lt;data type&gt; ::= &lt;predefined type&gt; |
-      &lt;path-resolved user-defined type name&gt;</literal></simpara>
-
-      <simpara><literal>&lt;predefined type&gt; ::= &lt;character string
-      type&gt; [ CHARACTER SET &lt;character set specification&gt; ] [
-      &lt;collate clause&gt; ] | &lt;binary string type&gt; | &lt;bit string
-      type&gt; | &lt;numeric type&gt; | &lt;boolean type&gt; | &lt;datetime
-      type&gt; | &lt;interval type&gt;</literal></simpara>
-
-      <simpara><literal>&lt;character string type&gt; ::= { CHARACTER | CHAR }
-      [ &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | {
-      CHARACTER VARYING | CHAR VARYING | VARCHAR } &lt;left paren&gt;
-      &lt;character length&gt; &lt;right paren&gt; | &lt;character large
-      object type&gt;</literal></simpara>
-
-      <simpara><literal>&lt;character large object type&gt; ::= { CHARACTER
-      LARGE OBJECT | CHAR LARGE OBJECT | CLOB } [ &lt;left paren&gt;
-      &lt;character large object length&gt; &lt;right paren&gt;
-      ]</literal></simpara>
-
-      <programlisting>CHAR(10)
-CHARACTER(10)
-VARCHAR(2)
-CHAR VARYING(2)
-CLOB(1000)
-CLOB(30K)
-CHARACTER LARGE OBJECT(1M)
-</programlisting>
-
-      <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
-      paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
-      VARBINARY } &lt;left paren&gt; &lt;length&gt; &lt;right paren&gt; |
-      &lt;binary large object string type&gt;</literal></simpara>
-
-      <simpara><literal>&lt;binary large object string type&gt; ::= { BINARY
-      LARGE OBJECT | BLOB } [ &lt;left paren&gt; &lt;large object length&gt;
-      &lt;right paren&gt; ]</literal></simpara>
-
-      <programlisting>BINARY(10)
-VARBINARY(2)
-BINARY VARYING(2)
-BLOB(1000)
-BLOB(30K)
-BINARY LARGE OBJECT(1M)
-</programlisting>
-
-      <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
-      &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
-      &lt;length&gt; &lt;right paren&gt;</literal></simpara>
-
-      <programlisting>BIT
-BIT(10)
-BIT VARYING(2)
-</programlisting>
-
-      <simpara><literal>&lt;numeric type&gt; ::= &lt;exact numeric type&gt; |
-      &lt;approximate numeric type&gt;</literal></simpara>
-
-      <simpara><literal>&lt;exact numeric type&gt; ::= NUMERIC [ &lt;left
-      paren&gt; &lt;precision&gt; [ &lt;comma&gt; &lt;scale&gt; ] &lt;right
-      paren&gt; ] | { DECIMAL | DEC } [ &lt;left paren&gt; &lt;precision&gt; [
-      &lt;comma&gt; &lt;scale&gt; ] &lt;right paren&gt; ] | SMALLINT | INTEGER
-      | INT | BIGINT</literal></simpara>
-
-      <simpara><literal>&lt;approximate numeric type&gt; ::= FLOAT [ &lt;left
-      paren&gt; &lt;precision&gt; &lt;right paren&gt; ] | REAL | DOUBLE
-      PRECISION</literal></simpara>
-
-      <simpara><literal>&lt;length&gt; ::= &lt;unsigned
-      integer&gt;</literal></simpara>
-
-      <simpara><literal>&lt;character length&gt; ::= &lt;unsigned integer&gt;
-      [ &lt;char length units&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;large object length&gt; ::= &lt;length&gt; [
-      &lt;multiplier&gt; ] | &lt;large object length
-      token&gt;</literal></simpara>
-
-      <simpara><literal>&lt;character large object length&gt; ::= &lt;large
-      object length&gt; [ &lt;char length units&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;large object length token&gt; ::= &lt;digit&gt;...
-      &lt;multiplier&gt;</literal></simpara>
-
-      <simpara><literal>&lt;multiplier&gt; ::= K | M | G </literal></simpara>
-
-      <simpara><literal>&lt;char length units&gt; ::= CHARACTERS |
-      OCTETS</literal></simpara>
-
-      <simpara><literal>&lt;precision&gt; ::= &lt;unsigned
-      integer&gt;</literal></simpara>
-
-      <simpara><literal>&lt;scale&gt; ::= &lt;unsigned
-      integer&gt;</literal></simpara>
-
-      <simpara><literal>&lt;boolean type&gt; ::= BOOLEAN</literal></simpara>
-
-      <simpara><literal>&lt;datetime type&gt; ::= DATE | TIME [ &lt;left
-      paren&gt; &lt;time precision&gt; &lt;right paren&gt; ] [ &lt;with or
-      without time zone&gt; ] | TIMESTAMP [ &lt;left paren&gt; &lt;timestamp
-      precision&gt; &lt;right paren&gt; ] [ &lt;with or without time zone&gt;
-      ]</literal></simpara>
-
-      <simpara><literal>&lt;with or without time zone&gt; ::= WITH TIME ZONE |
-      WITHOUT TIME ZONE</literal></simpara>
-
-      <simpara><literal>&lt;time precision&gt; ::= &lt;time fractional seconds
-      precision&gt;</literal></simpara>
-
-      <simpara><literal>&lt;timestamp precision&gt; ::= &lt;time fractional
-      seconds precision&gt;</literal></simpara>
-
-      <simpara><literal>&lt;time fractional seconds precision&gt; ::=
-      &lt;unsigned integer&gt;</literal></simpara>
-
-      <simpara><literal>&lt;interval type&gt; ::= INTERVAL &lt;interval
-      qualifier&gt;</literal></simpara>
-
-      <programlisting>DATE
-TIME(6)
-TIMESTAMP(2) WITH TIME ZOME
-</programlisting>
-
-      <programlisting>INTERVAL YEAR TO MONTH
-INTERVAL YEAR(3)
-INTERVAL DAY(4) TO HOUR
-INTERVAL MINUTE(4) TO SECOND(6)
-INTERVAL SECOND(4,6)
-</programlisting>
-
-      <simpara>Specify a data type.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>interval qualifier</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">interval qualifier</emphasis></simpara>
-
-      <simpara><emphasis>interval qualifier</emphasis></simpara>
-
-      <simpara><literal>&lt;interval qualifier&gt; ::= &lt;start field&gt; TO
-      &lt;end field&gt; | &lt;single datetime field&gt;</literal></simpara>
-
-      <simpara><literal>&lt;start field&gt; ::= &lt;non-second primary
-      datetime field&gt; [ &lt;left paren&gt; &lt;interval leading field
-      precision&gt; &lt;right paren&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;end field&gt; ::= &lt;non-second primary datetime
-      field&gt; | SECOND [ &lt;left paren&gt; &lt;interval fractional seconds
-      precision&gt; &lt;right paren&gt; ]</literal></simpara>
-
-      <simpara><literal>&lt;single datetime field&gt; ::= &lt;non-second
-      primary datetime field&gt; [ &lt;left paren&gt; &lt;interval leading
-      field precision&gt; &lt;right paren&gt; ] | SECOND [ &lt;left paren&gt;
-      &lt;interval leading field precision&gt; [ &lt;comma&gt; &lt;interval
-      fractional seconds precision&gt; ] &lt;right paren&gt;
-      ]</literal></simpara>
-
-      <simpara><literal>&lt;primary datetime field&gt; ::= &lt;non-second
-      primary datetime field&gt; | SECOND</literal></simpara>
-
-      <simpara><literal>&lt;non-second primary datetime field&gt; ::= YEAR |
-      MONTH | DAY | HOUR | MINUTE</literal></simpara>
-
-      <simpara><literal>&lt;interval fractional seconds precision&gt; ::=
-      &lt;unsigned integer&gt;</literal></simpara>
-
-      <simpara><literal>&lt;interval leading field precision&gt; ::=
-      &lt;unsigned integer&gt;</literal></simpara>
-
-      <simpara>Specify an interval data type. This is used in interval
-      literals and in interval type definitions. Furthermore, it is used in
-      special casts without the use of the the CAST keywords. Examples of this
-      are given below:</simpara>
-
-      <programlisting>CURRENT_DATE - 2 DAY
-(CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2)
 </programlisting>
     </section>
 
@@ -553,7 +396,20 @@ INTERVAL SECOND(4,6)
       <simpara><literal>&lt;basic identifier chain&gt; ::= &lt;identifier
       chain&gt;</literal></simpara>
 
-      <simpara>Disambiguate a period-separated chain of identifiers.</simpara>
+      <simpara>A period-separated chain of identifiers. The identifiers in an
+      identifier chain can refer to database objects in a hierarchy. The
+      possible hierarchies ars as follows. In each hierarchy, elements from
+      the start or the end can be missing, but the order of elements cannot be
+      changed.</simpara>
+
+      <simpara>catalog, schema, database object</simpara>
+
+      <simpara>catalog, schema, table, column</simpara>
+
+      <simpara>correlation name, column</simpara>
+
+      <simpara>If the first itentifier specifies a catalog, the negenrallly
+      refer to database objects</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>column reference</primary>
@@ -603,13 +459,13 @@ INTERVAL SECOND(4,6)
       <simpara><literal>&lt;default specification&gt; ::=
       DEFAULT</literal></simpara>
 
-      <simpara>Specify a value whose data type is to be inferred from its
-      context. DEFAULT is used for assignments to table columns that have a
-      default value. NULL can be used only in a context where the type fo the
-      value is known. For example, a NULL can be assigned to a a column of the
-      table in an INSERT or UPDATE statement, because the type of the column
-      is known. But if NULL is used in a SELECT list, it must be used in a
-      CAST statement.</simpara>
+      <simpara>Specify a value whose data type is inferred from its context.
+      DEFAULT is used for assignments to table columns that have a default
+      value. NULL can be used only in a context where the type of the value is
+      known. For example, a NULL can be assigned to a a column of the table in
+      an INSERT or UPDATE statement, because the type of the column is known.
+      But if NULL is used in a SELECT list, it must be used in a CAST
+      statement.</simpara>
     </section>
 
     <section>
@@ -718,21 +574,54 @@ INTERVAL SECOND(4,6)
       argument.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>COALESCE expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">COALESCE</emphasis></simpara>
+
+      <simpara><emphasis>coalesce expression</emphasis></simpara>
+
+      <simpara><literal>&lt;coalesce expression&gt; := COALESCE &lt;left
+      paren&gt; &lt;value expression&gt; { &lt;comma&gt; &lt;value
+      expression&gt; }... &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Replace null values with another value. The coalesce expression
+      has two or more instances of &lt;value expression&gt;. If the first
+      &lt;value expression&gt; evaluates to a non-null value, it is returned
+      as the result of the coalesce expression. If it is null, the next
+      &lt;value expression&gt; is evaluated and if it evaluates to a non-non
+      value, it is returned, and so on.</simpara>
+
+      <simpara>The type of the return value of a COALESCE expression is the
+      aggregate type of the types of all the &lt;value expression&gt;
+      instances. Therefore, any value returned is implicitly cast to this
+      type.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>NULLIF expression</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">NULLIF</emphasis></simpara>
+
+      <simpara><emphasis>nullif expression</emphasis></simpara>
+
+      <simpara><literal>&lt;nullif expression&gt; := NULLIF &lt;left paren&gt;
+      &lt;value expression&gt; &lt;comma&gt; &lt;value expression&gt;
+      &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Return NULL if two values are equal. If the result of the first
+      <literal>&lt;value expression&gt;</literal> is not equal to the result
+      of the second, then it is returned, otherwise NULL is returned. The type
+      of the return value is the type of the first <literal>&lt;value
+      expression&gt;</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>case expression</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">case expression</emphasis></simpara>
+      <simpara><emphasis role="bold">CASE</emphasis></simpara>
 
-      <simpara><emphasis>case expression</emphasis></simpara>
-
-      <simpara><literal>&lt;case expression&gt; ::= &lt;case abbreviation&gt;
-      | &lt;case specification&gt;</literal></simpara>
-
-      <simpara><literal>&lt;case abbreviation&gt; ::= NULLIF &lt;left
-      paren&gt; &lt;value expression&gt; &lt;comma&gt; &lt;value
-      expression&gt; &lt;right paren&gt; | COALESCE &lt;left paren&gt;
-      &lt;value expression&gt; { &lt;comma&gt; &lt;value expression&gt; }...
-      &lt;right paren&gt;</literal></simpara>
+      <simpara><emphasis>case specification</emphasis></simpara>
 
       <simpara><literal>&lt;case specification&gt; ::= &lt;simple case&gt; |
       &lt;searched case&gt;</literal></simpara>
@@ -794,7 +683,27 @@ INTERVAL SECOND(4,6)
       <simpara><literal>&lt;cast target&gt; ::= &lt;domain name&gt; | &lt;data
       type&gt;</literal></simpara>
 
-      <simpara>Specify a data conversion.</simpara>
+      <simpara>Specify a data conversion. Data conversion takes place
+      automatically among variants of a general type. For example numeric
+      values are freely converted from one type to another in
+      expressions.</simpara>
+
+      <simpara>Explicit type conversion is necessary in two cases. One case is
+      to determine the type of a NULL value. The other case is to force
+      conversion for special purposes. Values of data types can be cast to a
+      character type. The exception is BINARY and OTHER types. The result of
+      the cast is the literal expression of the value. Conversely, a value of
+      a character type can be converted to another type if the character value
+      is a literal representation of the value in the target type. Special
+      conversions are possible between numeric and interval types, which are
+      described in the section covering interval types.</simpara>
+
+      <programlisting>CAST (NULL AS TIMESTAMP)
+CAST ('   199  ' AS INTEGER) = 199
+CAST ('tRue ' AS BOOLEAN) = TRUE
+CAST (INTERVAL '2' DAY AS INTEGER) = 2
+CAST ('1987-04-21' AS DATE) = DATE '1992-04-21'
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>NEXT VALUE FOR</primary>
@@ -1637,16 +1546,17 @@ INTERVAL SECOND(4,6)
       WHERE &lt;search condition&gt; &lt;right paren&gt;</literal></simpara>
 
       <simpara>Specify a value computed from a collection of rows. An
-      aggretate function is used exclusively in a &lt;query specification&gt;
-      and its use transforms a normal query into an aggregate query returning
-      a single row instead of the group of multiple rows that the original
-      query returns. For example, <literal>SELECT acolumn &lt;table
-      expression&gt;</literal> is a query that returns the value of acolumn
-      for all the rows the satisfy the given condition. But <literal>SELECT
-      MAX(acolumn) &lt;table expression&gt;</literal> returns only one row,
-      containing the largest value in that column. The query <literal>SELECT
-      COUNT(*) &lt;table expression&gt;</literal> returns the count of rows,
-      while <literal>SELECT COUNT(acolumn) &lt;table expression&gt;</literal>
+      aggretate function is used exclusively in a <literal>&lt;query
+      specification&gt;</literal> and its use transforms a normal query into
+      an aggregate query returning a single row instead of the group of
+      multiple rows that the original query returns. For example,
+      <literal>SELECT acolumn &lt;table expression&gt;</literal> is a query
+      that returns the value of acolumn for all the rows the satisfy the given
+      condition. But <literal>SELECT MAX(acolumn) &lt;table
+      expression&gt;</literal> returns only one row, containing the largest
+      value in that column. The query <literal>SELECT COUNT(*) &lt;table
+      expression&gt;</literal> returns the count of rows, while
+      <literal>SELECT COUNT(acolumn) &lt;table expression&gt;</literal>
       returns the count of rows where <literal>acolumn IS NOT
       NULL</literal>.</simpara>
 
@@ -1657,7 +1567,8 @@ INTERVAL SECOND(4,6)
       same number of rows as the original query. For example <literal>SELECT
       SUM(acolumn) &lt;table expression&gt;</literal> when <literal>&lt;table
       expression&gt;</literal> has a <literal>GROUP BY</literal> clause,
-      returns the sum of values for acolumn in each group.</simpara>
+      returns the sum of values for <literal>acolumn</literal> in each
+      group.</simpara>
 
       <simpara>The AVG and SUM operations can be performed on numeric
       expressions only. AVG returns the average value, while SUM returns the
@@ -1722,18 +1633,19 @@ INTERVAL SECOND(4,6)
     <para>Result tables are formed by performing the following operations on
     base tables and views:</para>
 
-    <para>joins</para>
+    <para><glossterm>JOIN</glossterm> operations</para>
 
-    <para>set (and multiset) operations</para>
+    <para><glossterm>SET</glossterm> and <glossterm>MULTISET</glossterm>
+    operations</para>
 
-    <para>selection</para>
+    <para><glossterm>SELECTION</glossterm></para>
 
-    <para>projection</para>
+    <para><glossterm>PROJECTION</glossterm></para>
 
-    <para>column naming</para>
+    <para><glossterm>COLUMN NAMING</glossterm></para>
 
     <section>
-      <title>Joins</title>
+      <title>Joined Table</title>
 
       <para>Joins are operators with two table as the operands, resulting in a
       third table, called joined table. All join operators are evaluated left
@@ -1812,6 +1724,25 @@ INTERVAL SECOND(4,6)
       B</literal>, and <literal>A JOIN B USING (&lt;comma separated column
       name list&gt;)</literal>.</para>
 
+      <para>The columns of the joined table are formed by the following
+      prodecures: In JOIN ... USING the shared columns are added to the joined
+      table in the same order as they appear in the column name list. In
+      NATURAL JOIN the shared columns are added to the joined table in the
+      same order as they appear in the first table. In bother forms of join,
+      the non-shared columns of the first table are added in the order they
+      appear in the first table, finally the non-shared columns of the second
+      table are added in the order they appear in the second table.</para>
+
+      <para>The type of each shared column of the joined table is based on the
+      type of the columns in the original tables. If the original types are
+      not exactly the same, the type of the shared column is formed by type
+      aggregation. Type aggregations selects a type that can represent values
+      of both aggregated types. Simple type aggregation picks one of the
+      types. For example SMALLINT and INTEGER, results in INTEGER, or
+      VARCHAR(10) and VARCHAR(20) results in VARCHAR(20). More complex type
+      aggregation inherits properties from both types. For example DECIMAL(8)
+      and DECIMAL (6,2) results in DECIMAL (8,2).</para>
+
       <indexterm significance="preferred" type="sql">
         <primary>OUTER JOIN</primary>
       </indexterm>
@@ -1859,16 +1790,17 @@ INTERVAL SECOND(4,6)
       <title>Projection</title>
 
       <para>Projection is selection of the columns from a simple or joined
-      table to form a result table. Projection is performed in the SELECT
-      statement by specifying the select column list.</para>
+      table to form a result table. Explicit projection is performed in the
+      SELECT statement by specifying the select column list. Some form of
+      projection is also performed in JOIN ... USING and NATURAL JOIN.</para>
     </section>
 
     <section>
       <title>Naming</title>
 
       <para>Naming is used to hide the original names of tables or table
-      columns and to replace them with new names in the scope of the
-      query.</para>
+      columns and to replace them with new names in the scope of the query.
+      Naming is also used for defining names for computed columns.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>naming in joined table</primary>
@@ -1924,8 +1856,17 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
 
       <programlisting>SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum, yzsum</programlisting>
 
-      <para>If the names xysum or yzsum are not used, the computed columns
-      cannot be referenced in the ORDER BY list.</para>
+      <para>If the names <literal>xysum</literal> or <literal>yzsum</literal>
+      are not used, the computed columns cannot be referenced in the ORDER BY
+      list.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>name reslution</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Name Resolution</emphasis></simpara>
+
+      <simpara>In a joined table, if a column name appears in</simpara>
     </section>
 
     <section>
