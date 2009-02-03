@@ -382,6 +382,8 @@ class ServerConnection implements Runnable {
     }
 
     private boolean inOdbcTrans = false;
+    private OdbcPacketOutputStream outPacket = null;
+
     private void odbcXmitCycle() throws IOException, CleanExit {
         char op, c;
         boolean newTran = false;
@@ -392,7 +394,6 @@ class ServerConnection implements Runnable {
         OdbcPreparedStatement odbcPs;
         Portal portal;
         org.hsqldb.result.ResultMetaData pmd;
-        PacketOutputStream outPacket;
 
         try {
             op = (char) dataInput.readByte();
@@ -555,19 +556,16 @@ class ServerConnection implements Runnable {
                     // Executed by psqlodbc after every user-specified query.
                     server.printWithThread("Swallowing 'select n.nspname,...'");
 
-                    outPacket =
-                        new PacketOutputStream(new ByteArrayOutputStream());
+                    outPacket.reset();
                     outPacket.writeShort(1);  // Num cols.
-                    outPacket.writeUTF("oid", true);
+                    outPacket.write("oid", true);
                     outPacket.writeInt(201);
                     outPacket.writeShort(1);
                     outPacket.writeInt(23);
                     outPacket.writeShort(4);
                     outPacket.writeInt(-1);
                     outPacket.writeShort(0);
-                    dataOutput.writeByte('T'); // sending a Tuple (row)
-                    dataOutput.write(outPacket.toByteArray());
-                    outPacket.close();
+                    outPacket.xmit('T', dataOutput); // Xmit Row Definition
                     // This query returns no rows.  typenam "lo"??
                     dataOutput.writeByte('C'); // end of rows
                     dataOutput.writeInt(11); // size
@@ -679,11 +677,10 @@ class ServerConnection implements Runnable {
                                 + colDefs.length + " col instances but "
                                 + colNames.length + " col names");
                     }
-                    outPacket =
-                        new PacketOutputStream(new ByteArrayOutputStream());
+                    outPacket.reset();
                     outPacket.writeShort(colNames.length);  // Num cols.
                     for (int i = 0; i < colNames.length; i++) {
-                        outPacket.writeUTF(colNames[i], true); // Col. name
+                        outPacket.write(colNames[i], true); // Col. name
                         // table ID  [relid]:
                         outPacket.writeInt((colDefs[i].getNameString() == null)
                             ? 0
@@ -708,9 +705,7 @@ class ServerConnection implements Runnable {
                         // format code must be 0 if D packets will follow;
                         // and 1 if B packets will follow.
                     }
-                    dataOutput.writeByte('T'); // sending a Tuple (row)
-                    dataOutput.write(outPacket.toByteArray());
-                    outPacket.reset();
+                    outPacket.xmit('T', dataOutput); // Xmit Row Definition
                     int rowNum = 0;
                     while (navData.next()) {
                         rowNum++;
@@ -750,15 +745,12 @@ class ServerConnection implements Runnable {
                                     + ") [" + rowData[i] + ']');
                             }
                         }
-                        dataOutput.writeByte('D'); // text row Data
+                        outPacket.xmit('D', dataOutput); // text row Data
                           /* Should be 'B' to return binary results like Objs
                            * or BLOBs.  Otherwise should be 'B'.
                            * This must corresopnd to the T packet's format
                            * code. */
-                        dataOutput.write(outPacket.toByteArray());
-                        outPacket.reset();
                     }
-                    outPacket.close();
                     dataOutput.writeByte('C'); // end of rows (B or D packets)
                     dataOutput.writeInt(11); // size
                     writeNullTermdUTF("SELECT");
@@ -949,16 +941,15 @@ class ServerConnection implements Runnable {
                         + paramCount + " reported, but there are "
                         + paramTypes.length + " param md objects");
                 }
-                outPacket = new PacketOutputStream(new ByteArrayOutputStream());
 
+                outPacket.reset();
                 if (c == 'S') {
                     outPacket.writeShort(paramCount);
                     for (int i = 0; i < paramTypes.length; i++) {
                         outPacket.writeInt(new PgType(paramTypes[i]).getOid());
                     }
-                    dataOutput.writeByte('t'); // ParameterDescription packet
-                    dataOutput.write(outPacket.toByteArray());
-                    outPacket.reset();
+                    outPacket.xmit('t', dataOutput);
+                      // ParameterDescription packet
                 }
 
                 org.hsqldb.result.ResultMetaData md = ackResult.metaData;
@@ -1001,7 +992,7 @@ class ServerConnection implements Runnable {
 
                 outPacket.writeShort(colNames.length);  // Num cols.
                 for (int i = 0; i < colNames.length; i++) {
-                    outPacket.writeUTF(colNames[i], true); // Col. name
+                    outPacket.write(colNames[i], true); // Col. name
                     // table ID  [relid]:
                     outPacket.writeInt((colDefs[i].getNameString() == null)
                         ? 0
@@ -1027,9 +1018,7 @@ class ServerConnection implements Runnable {
                     // otherwise 0 if D packets will follow;
                     // and 1 if B packets will follow.
                 }
-                dataOutput.writeByte('T'); // sending a Tuple (row)
-                dataOutput.write(outPacket.toByteArray());
-                outPacket.close();
+                outPacket.xmit('T', dataOutput); // Xmit Row Definition
                 return;
               case 'B':
                 //byte[]inPacket = readPacket(len);
@@ -1149,10 +1138,10 @@ class ServerConnection implements Runnable {
                 }
                 org.hsqldb.navigator.RowSetNavigatorData navData =
                     (org.hsqldb.navigator.RowSetNavigatorData) navigator;
-                outPacket = new PacketOutputStream(new ByteArrayOutputStream());
                 int rowNum = 0;
                 int colCount =
                     portal.ackResult.metaData.getExtendedColumnCount();
+                outPacket.reset();
                 while (navData.next()) {
                     rowNum++;
                     Object[] rowData = (Object[]) navData.getCurrent();
@@ -1191,15 +1180,12 @@ class ServerConnection implements Runnable {
                                 + ") [" + rowData[i] + ']');
                         }
                     }
-                    dataOutput.writeByte('D'); // text row Data
+                    outPacket.xmit('D', dataOutput); // text row Data
                       /* Should be 'B' to return binary results like Objs
                        * or BLOBs.  Otherwise should be 'B'.
                        * This must corresopnd to the T packet's format
                        * code. */
-                    dataOutput.write(outPacket.toByteArray());
-                    outPacket.reset();
                 }
-                outPacket.close();
                 if (navigator.afterLast()) {
                     dataOutput.writeByte('C'); // end of rows (B or D packets)
                     dataOutput.writeInt(11); // size
@@ -1633,6 +1619,7 @@ class ServerConnection implements Runnable {
                     "08006"); // Code means CONNECTION FAILURE
             return;
         }
+        outPacket = OdbcPacketOutputStream.newOdbcPacketOutputStream();
 
         dataOutput.writeByte('R'); // Notify client of success
         dataOutput.writeInt(8); //size
@@ -1890,66 +1877,6 @@ class ServerConnection implements Runnable {
      */
     private void writeUTFPacket(String[] strings) throws IOException {
         writeUTFPacket(strings, true);
-    }
-
-    private class PacketOutputStream extends java.io.DataOutputStream {
-        private ByteArrayOutputStream byteArrayOutputStream;
-        private ByteArrayOutputStream stringWriterOS =
-            new ByteArrayOutputStream();
-        private java.io.DataOutputStream stringWriterDos =
-            new java.io.DataOutputStream(stringWriterOS);
-
-        synchronized void writeUTF(String s, boolean nullTerm)
-        throws IOException {
-            stringWriterDos.writeUTF(s);
-            write(stringWriterOS.toByteArray(), 2, stringWriterOS.size() - 2);
-            stringWriterOS.reset();
-            if (nullTerm) {
-                writeByte(0);
-            }
-        }
-
-        synchronized void writeSized(String s) throws IOException {
-            stringWriterDos.writeUTF(s);
-            byte[] ba = stringWriterOS.toByteArray();
-            stringWriterOS.reset();
-
-            writeInt(ba.length - 2);
-            write(ba, 2, ba.length - 2);
-        }
-
-        public void reset() throws IOException {
-            byteArrayOutputStream.reset();
-            write('X'); // length placeholder
-            write('X'); // length placeholder
-            write('X'); // length placeholder
-            write('X'); // length placeholder
-        }
-
-        public PacketOutputStream(ByteArrayOutputStream byteArrayOutputStream)
-        throws IOException {
-            super(byteArrayOutputStream);
-            this.byteArrayOutputStream = byteArrayOutputStream;
-            reset();
-        }
-
-        public byte[] toByteArray() {
-            byte[] ba = byteArrayOutputStream.toByteArray();
-            if (server.isTrace()) {
-                server.printWithThread("Returning byte array with Write size "
-                    + ba.length);
-            }
-            ba[0] = (byte) (ba.length >>> 24);
-            ba[1] = (byte) (ba.length >>> 16);
-            ba[2] = (byte) (ba.length >>> 8);
-            ba[3] = (byte) ba.length;
-            return ba;
-        }
-
-        public void close() throws IOException {
-            super.close();
-            stringWriterDos.close();
-        }
     }
 
     /**
