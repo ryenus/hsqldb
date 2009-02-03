@@ -204,6 +204,10 @@
     <section>
       <title>Numeric Types</title>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>NUMERIC types</primary>
+      </indexterm>
+
       <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without a
       decimal point) are the supported integral types. They correspond
       respectively to <classname>byte</classname>,
@@ -226,111 +230,129 @@
       <classname>double</classname> in Java. These types are called
       approximate numeric types.</para>
 
-      <section>
-        <title>Integral Types</title>
+      <simpara><emphasis role="bold">Integral Types</emphasis></simpara>
 
-        <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without
-        a decimal point) are fully interchangeable internally, and no data
-        narrowing takes place. Depending on the types of the operands, the
-        result of the operations is returned in a JDBC
-        <classname>ResultSet</classname> in any of related Java types:
-        <classname>Integer</classname>, <classname>Long</classname> or
-        <classname>BigDecimal</classname>. The
-        <methodname>ResultSet.getXXXX()</methodname> methods can be used to
-        retrieve the values so long as the returned value can be represented
-        by the resulting type. This type is deterministically based on the
-        query, not on the actual rows returned. The type does not change when
-        the same query that returned one row, returns many rows as a result of
-        adding more data to the tables.</para>
+      <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without a
+      decimal point) are fully interchangeable internally, and no data
+      narrowing takes place. Depending on the types of the operands, the
+      result of the operations is returned in a JDBC
+      <classname>ResultSet</classname> in any of related Java types:
+      <classname>Integer</classname>, <classname>Long</classname> or
+      <classname>BigDecimal</classname>. The
+      <methodname>ResultSet.getXXXX()</methodname> methods can be used to
+      retrieve the values so long as the returned value can be represented by
+      the resulting type. This type is deterministically based on the query,
+      not on the actual rows returned. The type does not change when the same
+      query that returned one row, returns many rows as a result of adding
+      more data to the tables.</para>
 
-        <para>If the SELECT statement refers to a simple column or function,
-        then the return type is the type corresponding to the column or the
-        return type of the function. For example:</para>
+      <para>If the SELECT statement refers to a simple column or function,
+      then the return type is the type corresponding to the column or the
+      return type of the function. For example:</para>
 
-        <informalexample>
-          <programlisting>    CREATE TABLE t(a INTEGER, b BIGINT);
+      <informalexample>
+        <programlisting>    CREATE TABLE t(a INTEGER, b BIGINT);
     SELECT MAX(a), MAX(b) FROM t;</programlisting>
-        </informalexample>
+      </informalexample>
 
-        <para>will return a <classname>ResultSet</classname> where the type of
-        the first column is <classname>java.lang.Integer</classname> and the
-        second column is <classname>java.lang.Long</classname>.
-        However,</para>
+      <para>will return a <classname>ResultSet</classname> where the type of
+      the first column is <classname>java.lang.Integer</classname> and the
+      second column is <classname>java.lang.Long</classname>. However,</para>
 
-        <informalexample>
-          <programlisting>    SELECT MAX(a) + 1, MAX(b) + 1 FROM t;</programlisting>
-        </informalexample>
+      <informalexample>
+        <programlisting>    SELECT MAX(a) + 1, MAX(b) + 1 FROM t;</programlisting>
+      </informalexample>
 
-        <para>will return <classname>java.lang.Long</classname> and
-        <classname>BigDecimal</classname> values, generated as a result of
-        uniform type promotion for all the return values. Note that type
-        promotion to <classname>BigDecimal</classname> ensures the correct
-        value is returned if <literal>MAX(b)</literal> evaluates to
-        <literal>Long.MAX_VALUE</literal>.</para>
+      <para>will return <classname>java.lang.Long</classname> and
+      <classname>BigDecimal</classname> values, generated as a result of
+      uniform type promotion for all the return values. Note that type
+      promotion to <classname>BigDecimal</classname> ensures the correct value
+      is returned if <literal>MAX(b)</literal> evaluates to
+      <literal>Long.MAX_VALUE</literal>.</para>
 
-        <para>There is no built-in limit on the size of intermediate integral
-        values in expressions. As a result, you should check for the type of
-        the <classname>ResultSet</classname> column and choose an appropriate
-        <methodname>getXXXX()</methodname> method to retrieve it.
-        Alternatively, you can use the <methodname>getObject()</methodname>
-        method, then cast the result to <classname>java.lang.Number
-        </classname> and use the <methodname>intValue()</methodname> or
-        <methodname>longValue()</methodname> methods on the result.</para>
+      <para>There is no built-in limit on the size of intermediate integral
+      values in expressions. As a result, you should check for the type of the
+      <classname>ResultSet</classname> column and choose an appropriate
+      <methodname>getXXXX()</methodname> method to retrieve it. Alternatively,
+      you can use the <methodname>getObject()</methodname> method, then cast
+      the result to <classname>java.lang.Number </classname> and use the
+      <methodname>intValue()</methodname> or
+      <methodname>longValue()</methodname> methods on the result.</para>
 
-        <para>When the result of an expression is stored in a column of a
-        database table, it has to fit in the target column, otherwise an error
-        is returned. For example when <literal>1234567890123456789012 /
-        12345687901234567890</literal> is evaluated, the result can be stored
-        in any integral type column, even a TINYINT column, as it is a small
-        value.</para>
-      </section>
+      <para>When the result of an expression is stored in a column of a
+      database table, it has to fit in the target column, otherwise an error
+      is returned. For example when <literal>1234567890123456789012 /
+      12345687901234567890</literal> is evaluated, the result can be stored in
+      any integral type column, even a TINYINT column, as it is a small
+      value.</para>
 
-      <section>
-        <title>Other Numeric Types</title>
+      <simpara><emphasis role="bold">Other Numeric Types</emphasis></simpara>
 
-        <para>In SQL statements, numbers with a decimal point are treated as
-        DECIMAL unless they are written with an exponent. Thus
-        <literal>0.2</literal> is considered a DECIMAL value but
-        <literal>0.2E0</literal> is considered a DOUBLE value.</para>
+      <para>In SQL statements, number literals with a decimal point are
+      treated as DECIMAL unless they are written with an exponent. Thus
+      <literal>0.2</literal> is considered a DECIMAL value but
+      <literal>0.2E0</literal> is considered a DOUBLE value.</para>
 
-        <para>When <methodname>PreparedStatement.setDouble()</methodname> or
-        <methodname>setFloat()</methodname> is used, the value is treated as a
-        DOUBLE automatically.</para>
+      <para>When <methodname>PreparedStatement.setDouble()</methodname> or
+      <methodname>setFloat()</methodname> is used, the value is treated as a
+      DOUBLE automatically.</para>
 
-        <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
-        expression, the type of the result is DOUBLE.</para>
+      <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
+      expression, the type of the result is DOUBLE.</para>
 
-        <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
-        value is part an expression, the type of the result is DECIMAL. The
-        result can be retrieved from a <classname>ResultSet</classname> in the
-        required type so long as it can be represented. This means DECIMAL
-        values can be converted to DOUBLE unless they are beyond the
-        <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range. Similar
-        to integral values, when the result of an expression is stored in a
-        table column, it has to fit in the target column, otherwise an error
-        is returned.</para>
+      <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
+      value is part an expression, the type of the result is DECIMAL. The
+      result can be retrieved from a <classname>ResultSet</classname> in the
+      required type so long as it can be represented. This means DECIMAL
+      values can be converted to DOUBLE unless they are beyond the
+      <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range. Similar to
+      integral values, when the result of an expression is stored in a table
+      column, it has to fit in the target column, otherwise an error is
+      returned.</para>
 
-        <para>The distinction between DOUBLE and DECIMAL is important when a
-        division takes place. When the terms are DECIMAL, the result is a
-        value with a scale (number of digits to the right of the decimal
-        point) equal to the larger of the scales of the two terms. With a
-        DOUBLE term, the scale will reflect the actual result of the
-        operation. For example, <literal>10.0/8.0</literal> (DECIMAL) equals
-        <literal>1.2</literal> but <literal>10.0E0/8.0E0</literal> (DOUBLE)
-        equals <literal>1.25</literal>. Without division operations, DECIMAL
-        values represent exact arithmetic; the resulting scale is the sum of
-        the scales of the two terms when multiplication is performed.</para>
+      <para>The distinction between DOUBLE and DECIMAL is important when a
+      division takes place. When the terms are DECIMAL, the result is a value
+      with a scale (number of digits to the right of the decimal point) equal
+      to the larger of the scales of the two terms. With a DOUBLE term, the
+      scale will reflect the actual result of the operation. For example,
+      <literal>10.0/8.0</literal> (DECIMAL) equals <literal>1.2</literal> but
+      <literal>10.0E0/8.0E0</literal> (DOUBLE) equals <literal>1.25</literal>.
+      Without division operations, DECIMAL values represent exact arithmetic;
+      the resulting scale is the sum of the scales of the two terms when
+      multiplication is performed.</para>
 
-        <para>REAL, FLOAT and DOUBLE values are all stored in the database as
-        <classname>java.lang.Double</classname> objects. Special values such
-        as NaN and +-Infinity are also stored and supported. These values can
-        be submitted to the database via JDBC PreparedStatement methods and
-        are returned in <classname>ResultSet</classname> objects.</para>
-      </section>
+      <para>REAL, FLOAT and DOUBLE values are all stored in the database as
+      <classname>java.lang.Double</classname> objects. Special values such as
+      NaN and +-Infinity are also stored and supported. These values can be
+      submitted to the database via JDBC PreparedStatement methods and are
+      returned in <classname>ResultSet</classname> objects.</para>
+
+      <simpara><literal>&lt;numeric type&gt; ::= &lt;exact numeric type&gt; |
+      &lt;approximate numeric type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;exact numeric type&gt; ::= NUMERIC [ &lt;left
+      paren&gt; &lt;precision&gt; [ &lt;comma&gt; &lt;scale&gt; ] &lt;right
+      paren&gt; ] | { DECIMAL | DEC } [ &lt;left paren&gt; &lt;precision&gt; [
+      &lt;comma&gt; &lt;scale&gt; ] &lt;right paren&gt; ] | SMALLINT | INTEGER
+      | INT | BIGINT</literal></simpara>
+
+      <simpara><literal>&lt;approximate numeric type&gt; ::= FLOAT [ &lt;left
+      paren&gt; &lt;precision&gt; &lt;right paren&gt; ] | REAL | DOUBLE
+      PRECISION</literal></simpara>
+
+      <simpara><literal>&lt;precision&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;scale&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
     </section>
 
     <section>
       <title>Boolean Type</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>BOOLEAN types</primary>
+      </indexterm>
 
       <para>The BOOLEAN type represents the values <literal>TRUE</literal>,
       <literal>FALSE</literal> and <literal>UNKNOWN</literal>. This type of
@@ -345,10 +367,16 @@
       <para>In previous versions, BIT was simply an alias for BOOLEAN. In 2.0,
       BIT is a single-bit bit map, while BIT(n) and BIT VARYING(n) are strings
       of bits. These types are discussed</para>
+
+      <simpara><literal>&lt;boolean type&gt; ::= BOOLEAN</literal></simpara>
     </section>
 
     <section>
       <title>Character String Types</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CHARACTER types</primary>
+      </indexterm>
 
       <para>The CHARACTER, CHARACTER VARYING and CLOB types are the supported
       SQL Standard character string types. CHAR, VARCHAR and CHARACTER LARGE
@@ -361,14 +389,55 @@
       cases they are silently discarded. It would be best to avoid the
       CHARACTER type altogether. The VARCHAR and CLOB types have length
       limits, but the strings are not padded by the system.</para>
+
+      <simpara><literal>&lt;character string type&gt; ::= { CHARACTER | CHAR }
+      [ &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | {
+      CHARACTER VARYING | CHAR VARYING | VARCHAR } &lt;left paren&gt;
+      &lt;character length&gt; &lt;right paren&gt; | &lt;character large
+      object type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;character large object type&gt; ::= { CHARACTER
+      LARGE OBJECT | CHAR LARGE OBJECT | CLOB } [ &lt;left paren&gt;
+      &lt;character large object length&gt; &lt;right paren&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;character length&gt; ::= &lt;unsigned integer&gt;
+      [ &lt;char length units&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;large object length&gt; ::= &lt;length&gt; [
+      &lt;multiplier&gt; ] | &lt;large object length
+      token&gt;</literal></simpara>
+
+      <simpara><literal>&lt;character large object length&gt; ::= &lt;large
+      object length&gt; [ &lt;char length units&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;large object length token&gt; ::= &lt;digit&gt;...
+      &lt;multiplier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;multiplier&gt; ::= K | M | G </literal></simpara>
+
+      <simpara><literal>&lt;char length units&gt; ::= CHARACTERS |
+      OCTETS</literal></simpara>
+
+      <programlisting>CHAR(10)
+CHARACTER(10)
+VARCHAR(2)
+CHAR VARYING(2)
+CLOB(1000)
+CLOB(30K)
+CHARACTER LARGE OBJECT(1M)
+</programlisting>
     </section>
 
     <section>
-      <title>Binary and Bit String types</title>
+      <title>Binary String Types</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>BINARY types</primary>
+      </indexterm>
 
       <para>The BINARY, BINARY VARYING and BLOB types are the supported
-      Standard binary string types, while the BIT and BIT VARYING types are
-      the supported bit string types. VARBINARY and BINARY LARGE OBJECT are
+      Standard binary string types. VARBINARY and BINARY LARGE OBJECT are
       synonyms for two of the binary types. HyperSQL also supports
       LONGVARBINARY as a synonym for VARBINARY. These types are used in the
       same way as character string types. There are several built-in functions
@@ -378,6 +447,47 @@
       the trailing zeros in the BINARY string are simply discarded in some
       operations. For the same reason, it is best to avoid this particular
       type.</para>
+
+      <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
+      paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
+      VARBINARY } &lt;left paren&gt; &lt;length&gt; &lt;right paren&gt; |
+      &lt;binary large object string type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;binary large object string type&gt; ::= { BINARY
+      LARGE OBJECT | BLOB } [ &lt;left paren&gt; &lt;large object length&gt;
+      &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;length&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+
+      <programlisting>BINARY(10)
+VARBINARY(2)
+BINARY VARYING(2)
+BLOB(1000)
+BLOB(30K)
+BINARY LARGE OBJECT(1M)
+</programlisting>
+    </section>
+
+    <section>
+      <title>Bit String Types</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>BIT types</primary>
+      </indexterm>
+
+      <para>The BIT and BIT VARYING types are the supported bit string types.
+      Bit types represent bit maps of given lengths. Each bit is 0 or
+      1.</para>
+
+      <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
+      &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
+      &lt;length&gt; &lt;right paren&gt;</literal></simpara>
+
+      <programlisting>BIT
+BIT(10)
+BIT VARYING(2)
+</programlisting>
     </section>
 
     <section>
@@ -466,6 +576,10 @@
     <section>
       <title>Datetime types</title>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>DATETIME types</primary>
+      </indexterm>
+
       <para>The DATE type represents a calendar date with YEAR, MONTH and DAY
       fields.</para>
 
@@ -479,6 +593,29 @@
       TIME ZONE (the default) qualifiers. They can have fractional second
       parts. For example, TIME(6) has six fractional digits for the second
       field.</para>
+
+      <simpara><literal>&lt;datetime type&gt; ::= DATE | TIME [ &lt;left
+      paren&gt; &lt;time precision&gt; &lt;right paren&gt; ] [ &lt;with or
+      without time zone&gt; ] | TIMESTAMP [ &lt;left paren&gt; &lt;timestamp
+      precision&gt; &lt;right paren&gt; ] [ &lt;with or without time zone&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;with or without time zone&gt; ::= WITH TIME ZONE |
+      WITHOUT TIME ZONE</literal></simpara>
+
+      <simpara><literal>&lt;time precision&gt; ::= &lt;time fractional seconds
+      precision&gt;</literal></simpara>
+
+      <simpara><literal>&lt;timestamp precision&gt; ::= &lt;time fractional
+      seconds precision&gt;</literal></simpara>
+
+      <simpara><literal>&lt;time fractional seconds precision&gt; ::=
+      &lt;unsigned integer&gt;</literal></simpara>
+
+      <programlisting>DATE
+TIME(6)
+TIMESTAMP(2) WITH TIME ZOME
+</programlisting>
 
       <para>Examples of the string literals used to represent date time
       values, some with time zone, some without, are below:</para>
@@ -704,6 +841,10 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
     <section>
       <title>Interval Types</title>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>INTERVAL types</primary>
+      </indexterm>
+
       <para>Interval types are used to represent differences between date time
       values. The difference between two date time values can be measured in
       seconds or in months. For measurements in months, the units YEAR and
@@ -712,10 +853,49 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
       or as a range. An interval type can specify the precision of the most
       significant field and the second fraction digits of the SECOND field (if
       it has a SECOND field). The default precision is 2. The default second
-      precision is 0. Examples:</para>
+      precision is 0.</para>
 
-      <programlisting>INTERVAL YEAR, INTERVAL YEAR(4) TO MONTH, INTERVAL MONTH
-INTERVAL DAY(6), INTERVAL DAY TO HOUR, INTERVAL DAY TO SECOND(3), INTERVAL HOUR TO MINUTE, INTERVAL SECOND(2, 6),</programlisting>
+      <simpara><literal>&lt;interval type&gt; ::= INTERVAL &lt;interval
+      qualifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval qualifier&gt; ::= &lt;start field&gt; TO
+      &lt;end field&gt; | &lt;single datetime field&gt;</literal></simpara>
+
+      <simpara><literal>&lt;start field&gt; ::= &lt;non-second primary
+      datetime field&gt; [ &lt;left paren&gt; &lt;interval leading field
+      precision&gt; &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;end field&gt; ::= &lt;non-second primary datetime
+      field&gt; | SECOND [ &lt;left paren&gt; &lt;interval fractional seconds
+      precision&gt; &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;single datetime field&gt; ::= &lt;non-second
+      primary datetime field&gt; [ &lt;left paren&gt; &lt;interval leading
+      field precision&gt; &lt;right paren&gt; ] | SECOND [ &lt;left paren&gt;
+      &lt;interval leading field precision&gt; [ &lt;comma&gt; &lt;interval
+      fractional seconds precision&gt; ] &lt;right paren&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;primary datetime field&gt; ::= &lt;non-second
+      primary datetime field&gt; | SECOND</literal></simpara>
+
+      <simpara><literal>&lt;non-second primary datetime field&gt; ::= YEAR |
+      MONTH | DAY | HOUR | MINUTE</literal></simpara>
+
+      <simpara><literal>&lt;interval fractional seconds precision&gt; ::=
+      &lt;unsigned integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;interval leading field precision&gt; ::=
+      &lt;unsigned integer&gt;</literal></simpara>
+
+      <para>Examples:</para>
+
+      <programlisting>INTERVAL YEAR TO MONTH
+INTERVAL YEAR(3)
+INTERVAL DAY(4) TO HOUR
+INTERVAL MINUTE(4) TO SECOND(6)
+INTERVAL SECOND(4,6)
+</programlisting>
 
       <para>The word INTERVAL indicates the general type name. The rest of the
       definition is called an &lt;interval qualifier&gt;. This designation is
@@ -863,6 +1043,10 @@ DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH 
           </tbody>
         </tgroup>
       </informaltable>
+
+      <programlisting>CURRENT_DATE - 2 DAY
+(CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2)
+</programlisting>
 
       <para>The individual fields of both datetime and interval values can be
       extracted using the EXTRACT function. The same function can also be used
