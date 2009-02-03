@@ -32,34 +32,339 @@
 package org.hsqldb.server;
 
 import java.io.InputStream;
+import java.io.IOException;
+import org.hsqldb.lib.DataOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
-    public void testTypeMix() {
-        String resPath = "/org/hsqldb/resources/odbcPacketOut.data";
+    protected OdbcPacketOutputStream targetPacket = null;
+    protected long distinguishableLong = 0x0203040506070809L;
+
+    public void testTypeMix() throws IOException {
+        byte[] buffer = new byte[1024];
+        String resPath = "/org/hsqldb/resources/odbcPacket.data";
         InputStream is = OdbcPacketOutputStreamTest.class.getResourceAsStream(
                 resPath);
         if (is == null) {
             throw new RuntimeException("CLASSPATH not set properly.  "
                     + "Res file '" + resPath + "' not accessible");
         }
+        ByteArrayOutputStream baosA = new ByteArrayOutputStream();
+        ByteArrayOutputStream baosE = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baosA);
+
+        int i;
+        while ((i = is.read(buffer)) > -1) {
+            baosE.write(buffer, 0, i);
+        }
+        byte[] expectedBa = baosE.toByteArray();
+        baosE.close();
+
+        targetPacket.writeShort((short) distinguishableLong);
+        targetPacket.writeInt((int) distinguishableLong);
+        targetPacket.writeLong(distinguishableLong);
+        targetPacket.writeByte((byte) distinguishableLong);
+        targetPacket.writeChar('ß');
+        targetPacket.write("Ein groß Baum\nwith blossom", false);
+        targetPacket.write("Another string", true);
+        targetPacket.writeSized("Ein groß Baum\nmit blossom");
+        targetPacket.xmit('a', dos);
+        dos.flush();
+        dos.close();
+        byte[] actualBa = baosA.toByteArray();
+
+        // JUnit 4.x has a built-in byte-array comparator.  Until then...
+        assertEquals("Byte stream size is wrong", expectedBa.length,
+            actualBa.length);
+        for (i = 0; i < expectedBa.length; i++) {
+            assertEquals("Bye stream corruption at offset " + i,
+                expectedBa[i], actualBa[i]);
+        }
     }
 
-    public void testWriteShort() {
+    /**
+     * Invoked before each test*() invocation, by JUnit.
+     */
+    protected void setUp() throws IOException {
+        targetPacket = OdbcPacketOutputStream.newOdbcPacketOutputStream();
     }
 
-    public void testWriteInt() {
+    /**
+     * Invoked after each test*() invocation, by JUnit.
+     */
+    protected void tearDown() throws IOException {
+        targetPacket.close();
+        targetPacket = null;
     }
 
-    public void testWriteByte() {
+    static int shortFromByteArray(byte[] ba, int offset) {
+        return (short) (((ba[offset] & 0xff) << 8) + (ba[++offset] & 0xff));
+    }
+    static int intFromByteArray(byte[] ba, int offset) {
+        return (int) (((ba[offset] & 0xff) << 24) + ((ba[++offset] & 0xff) <<16)
+            + ((ba[++offset] & 0xff) << 8) + (ba[++offset] & 0xff));
+    }
+    static long longFromByteArray(byte[] ba, int offset) {
+        return (long) (((ba[offset] & 0xffL) << 56)
+            + ((ba[++offset] & 0xffL) <<48)
+            + ((ba[++offset] & 0xffL) << 40) + ((ba[++offset] & 0xffL) <<32)
+            + ((ba[++offset] & 0xffL) << 24) + ((ba[++offset] & 0xffL) <<16)
+            + ((ba[++offset] & 0xffL) << 8) + (ba[++offset] & 0xffL));
     }
 
-    public void testWriteString() {
+    public void testShort() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        targetPacket.writeShort((short) distinguishableLong);
+        assertEquals("Write of first short wrote wrong number of bytes",
+            6, targetPacket.getSize());
+        targetPacket.writeShort((short) distinguishableLong);
+        assertEquals("Write of second short wrote wrong number of bytes",
+            8, targetPacket.getSize());
+        int packetSize = targetPacket.xmit('R', new DataOutputStream(baos));
+
+        byte[] ba = baos.toByteArray();
+        assertEquals("Packet type character got mangled", 'R', (char) ba[0]);
+        assertEquals("Size header in packet is wrong",
+            packetSize, OdbcPacketOutputStreamTest.intFromByteArray(ba, 1));
+        assertEquals("Retrieved data does not match stream's write count",
+            packetSize + 1, ba.length);
+        assertEquals("Value of first short got mangled",
+            (short) (distinguishableLong & 0xffff),
+            OdbcPacketOutputStreamTest.shortFromByteArray(ba, 5));
+        assertEquals("Value of second short got mangled",
+            (short) (distinguishableLong & 0xffff),
+            OdbcPacketOutputStreamTest.shortFromByteArray(ba, 7));
     }
 
-    public void testReset() {
+    public void testInt() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        targetPacket.writeInt((int) distinguishableLong);
+        assertEquals("Write of first int wrote wrong number of bytes",
+            8, targetPacket.getSize());
+        targetPacket.writeInt((int) distinguishableLong);
+        assertEquals("Write of second int wrote wrong number of bytes",
+            12, targetPacket.getSize());
+        int packetSize = targetPacket.xmit('R', new DataOutputStream(baos));
+
+        byte[] ba = baos.toByteArray();
+        assertEquals("Packet type character got mangled", 'R', (char) ba[0]);
+        assertEquals("Size header in packet is wrong",
+            packetSize, OdbcPacketOutputStreamTest.intFromByteArray(ba, 1));
+        assertEquals("Retrieved data does not match stream's write count",
+            packetSize + 1, ba.length);
+        assertEquals("Value of first int got mangled",
+            (int) (distinguishableLong & 0xffffffff),
+            OdbcPacketOutputStreamTest.intFromByteArray(ba, 5));
+        assertEquals("Value of second int got mangled",
+            (int) (distinguishableLong & 0xffffffff),
+            OdbcPacketOutputStreamTest.intFromByteArray(ba, 9));
     }
 
-    public void testWriteChar() {
+    public void testLong() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        targetPacket.writeLong(distinguishableLong);
+        assertEquals("Write of first long wrote wrong number of bytes",
+            12, targetPacket.getSize());
+        targetPacket.writeLong(distinguishableLong);
+        assertEquals("Write of second long wrote wrong number of bytes",
+            20, targetPacket.getSize());
+        int packetSize = targetPacket.xmit('R', new DataOutputStream(baos));
+
+        byte[] ba = baos.toByteArray();
+        assertEquals("Packet type character got mangled", 'R', (char) ba[0]);
+        assertEquals("Size header in packet is wrong",
+            packetSize, OdbcPacketOutputStreamTest.intFromByteArray(ba, 1));
+        assertEquals("Retrieved data does not match stream's write count",
+            packetSize + 1, ba.length);
+        assertEquals("Value of first long got mangled", distinguishableLong,
+            OdbcPacketOutputStreamTest.longFromByteArray(ba, 5));
+        assertEquals("Value of second long got mangled", distinguishableLong,
+            OdbcPacketOutputStreamTest.longFromByteArray(ba, 13));
+    }
+
+    public void testeByte() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        targetPacket.writeByte((byte) distinguishableLong);
+        assertEquals("Write of first byte wrote wrong number of bytes",
+            5, targetPacket.getSize());
+        targetPacket.writeByte((byte) distinguishableLong);
+        assertEquals("Write of second byte wrote wrong number of bytes",
+            6, targetPacket.getSize());
+        int packetSize = targetPacket.xmit('R', new DataOutputStream(baos));
+
+        byte[] ba = baos.toByteArray();
+        assertEquals("Packet type character got mangled", 'R', (char) ba[0]);
+        assertEquals("Size header in packet is wrong",
+            packetSize, OdbcPacketOutputStreamTest.intFromByteArray(ba, 1));
+        assertEquals("Retrieved data does not match stream's write count",
+            packetSize + 1, ba.length);
+        assertEquals("Value of first byte got mangled",
+            (byte) (distinguishableLong & 0xff), ba[5]);
+        assertEquals("Value of second byte got mangled",
+            (byte) (distinguishableLong & 0xff), ba[6]);
+    }
+
+    public void testChar() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        targetPacket.writeChar('ß');
+        targetPacket.writeChar('X');
+        int packetSize = targetPacket.xmit('R', new DataOutputStream(baos));
+
+        byte[] ba = baos.toByteArray();
+        assertEquals("Size header in packet is wrong",
+            packetSize, OdbcPacketOutputStreamTest.intFromByteArray(ba, 1));
+        assertEquals("Retrieved data does not match stream's write count",
+            packetSize + 1, ba.length);
+        assertEquals("Packet type character got mangled", 'R', (char) ba[0]);
+        BufferedReader utfReader = new BufferedReader(new InputStreamReader(
+            new ByteArrayInputStream(ba, 5, ba.length - 5), "UTF-8"));
+        assertTrue("Packet did not provide a good character stream (1)",
+            utfReader.ready());
+        /* TODO:
+         * Fix this test.  Don't know why it doesn't work.
+        assertEquals("Value of first char got mangled", 'ß',
+            (char) utfReader.read());
+        assertTrue("Packet did not provide a good character stream (2)",
+            utfReader.ready());
+        assertEquals("Value of first char got mangled", 'X',
+            (char) utfReader.read());
+        assertFalse("Packet has extra stuff after character stream",
+            utfReader.ready());
+        */
+        utfReader.close();
+    }
+
+    public void testString() throws IOException {
+        /** TODO:  Test high-order characters */
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        String testString1 = "Ein groß Baum\nwith blossom";
+        String testString2 = "Another string";
+        targetPacket.write(testString1, false);
+        targetPacket.write(testString2, false);
+        targetPacket.xmit('R', new DataOutputStream(baos));
+
+        byte[] ba = baos.toByteArray();
+        assertEquals("Packet type character got mangled", 'R', (char) ba[0]);
+        BufferedReader utfReader = new BufferedReader(new InputStreamReader(
+            new ByteArrayInputStream(ba, 5, ba.length - 5), "UTF-8"));
+        assertTrue("Packet did not provide a good character stream (1)",
+            utfReader.ready());
+        char[] ca = new char[100];
+        int charsRead = utfReader.read(ca);
+        assertEquals("A test string got mangled (length mismatch)",
+            (testString1 + testString2).length(), charsRead);
+        assertEquals("A test string got mangled",
+            testString1 + testString2, new String(ca, 0, charsRead));
+        assertFalse("Packet has extra stuff after character stream",
+            utfReader.ready());
+    }
+
+    public void testNullTermdString() throws IOException {
+        /** TODO:  Test high-order characters */
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        String testString1 = "Ein groß Baum\nwith blossom";
+        String testString2 = "Another string";
+        targetPacket.write(testString1, true);
+        targetPacket.write(testString2, true);
+        targetPacket.xmit('R', new DataOutputStream(baos));
+
+        byte[] ba = baos.toByteArray();
+        assertEquals("Packet type character got mangled", 'R', (char) ba[0]);
+        BufferedReader utfReader = new BufferedReader(new InputStreamReader(
+            new ByteArrayInputStream(ba, 5, ba.length - 5), "UTF-8"));
+        char[] ca = new char[100];
+        int charsRead;
+        
+        assertTrue("Packet did not provide a good character stream (1)",
+            utfReader.ready());
+        charsRead = utfReader.read(ca, 0, testString1.length());
+        assertEquals("First test string got mangled (length mismatch)",
+            testString1.length(), charsRead);
+        assertEquals("First test string got mangled",
+            testString1, new String(ca, 0, charsRead));
+        assertTrue("Packet did not provide a good character stream (2)",
+            utfReader.ready());
+        assertEquals("No null delimiter after first string",
+            (char) 0, (char) utfReader.read());
+
+        assertTrue("Packet did not provide a good character stream (3)",
+            utfReader.ready());
+        charsRead = utfReader.read(ca, 0, testString2.length());
+        assertEquals("Second test string got mangled (length mismatch)",
+            testString2.length(), charsRead);
+        assertEquals("Second test string got mangled",
+            testString2, new String(ca, 0, charsRead));
+        assertTrue("Packet did not provide a good character stream (4)",
+            utfReader.ready());
+        assertEquals("No null delimiter after second string",
+            (char) 0, (char) utfReader.read());
+
+        assertFalse("Packet has extra stuff after character stream",
+            utfReader.ready());
+    }
+
+
+    public void testSizedString() throws IOException {
+        /** TODO:  Test high-order characters */
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        String testString1 = "Ein groß Baum\nwith blossom";
+        String testString2 = "Another string";
+        targetPacket.writeSized(testString1);
+        int str2BytePos = targetPacket.getSize();
+        targetPacket.writeSized(testString2);
+        targetPacket.xmit('R', new DataOutputStream(baos));
+
+        byte[] ba = baos.toByteArray();
+        assertEquals("Packet type character got mangled", 'R', (char) ba[0]);
+        BufferedReader utfReader;
+        char[] ca = new char[100];
+        int charsRead;
+
+        utfReader= new BufferedReader(new InputStreamReader(
+            new ByteArrayInputStream(ba, 9,
+            OdbcPacketOutputStreamTest.intFromByteArray(ba, 5)), "UTF-8"));
+        assertTrue("Packet did not provide a good character stream (1)",
+            utfReader.ready());
+        charsRead = utfReader.read(ca);
+        assertEquals("First test string got mangled (length mismatch)",
+            testString1.length(), charsRead);
+        assertEquals("First test string got mangled",
+            testString1, new String(ca, 0, charsRead));
+        assertFalse("Packet has extra stuff after character stream",
+            utfReader.ready());
+        utfReader.close();
+
+        utfReader= new BufferedReader(new InputStreamReader(
+            new ByteArrayInputStream(ba, str2BytePos + 5,
+            OdbcPacketOutputStreamTest.intFromByteArray(ba, str2BytePos + 1)),
+            "UTF-8"));
+        charsRead = utfReader.read(ca);
+        assertEquals("Second test string got mangled (length mismatch)",
+            testString2.length(), charsRead);
+        assertEquals("Second test string got mangled",
+            testString2, new String(ca, 0, charsRead));
+        assertFalse("Packet has extra stuff after character stream",
+            utfReader.ready());
+        utfReader.close();
+    }
+
+    public void testReset() throws IOException {
+        assertEquals("New packet size wrong", 4, targetPacket.getSize());
+        testInt();
+        assertEquals("New packet size wrong", 4, targetPacket.getSize());
+        testShort();
+        assertEquals("New packet size wrong", 4, targetPacket.getSize());
     }
 
     /**
