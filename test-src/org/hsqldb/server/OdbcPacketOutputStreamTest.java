@@ -67,14 +67,30 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
         targetPacket.writeInt((int) distinguishableLong);
         targetPacket.writeLong(distinguishableLong);
         targetPacket.writeByte((byte) distinguishableLong);
-        targetPacket.writeChar('ß');
+        targetPacket.writeByteChar('k');
+         // the writeByteChar() method is explicitly not for ext. characters.
+
+        int preLength = targetPacket.getSize();
         targetPacket.write("Ein groß Baum\nwith blossom", false);
+        if (targetPacket.getSize() - preLength != 27) {
+            throw new RuntimeException(
+                 "Assertion failed.  Fix test because encoding size changed");
+        }
         targetPacket.write("Another string", true);
         targetPacket.writeSized("Ein groß Baum\nmit blossom");
         targetPacket.xmit('a', dos);
         dos.flush();
         dos.close();
         byte[] actualBa = baosA.toByteArray();
+
+        /* Use this to regenerate the test data (which is also used to test
+         * the reader).
+        */
+        java.io.FileOutputStream fos =
+            new java.io.FileOutputStream("/tmp/fix.bin");
+        fos.write(actualBa);
+        fos.flush();
+        fos.close();
 
         // JUnit 4.x has a built-in byte-array comparator.  Until then...
         assertEquals("Byte stream size is wrong", expectedBa.length,
@@ -214,8 +230,8 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
     public void testChar() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        targetPacket.writeChar('ß');
-        targetPacket.writeChar('X');
+        targetPacket.writeByteChar('k');
+        targetPacket.writeByteChar('X');
         int packetSize = targetPacket.xmit('R', new DataOutputStream(baos));
 
         byte[] ba = baos.toByteArray();
@@ -228,9 +244,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             new ByteArrayInputStream(ba, 5, ba.length - 5), "UTF-8"));
         assertTrue("Packet did not provide a good character stream (1)",
             utfReader.ready());
-        /* TODO:
-         * Fix this test.  Don't know why it doesn't work.
-        assertEquals("Value of first char got mangled", 'ß',
+        assertEquals("Value of first char got mangled", 'k',
             (char) utfReader.read());
         assertTrue("Packet did not provide a good character stream (2)",
             utfReader.ready());
@@ -238,7 +252,6 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             (char) utfReader.read());
         assertFalse("Packet has extra stuff after character stream",
             utfReader.ready());
-        */
         utfReader.close();
     }
 

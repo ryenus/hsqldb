@@ -99,15 +99,15 @@ class OdbcPacketOutputStream extends DataOutputStream {
     }
 
     /**
-     * Returns packet size (which does not count the type byte).
+     * @return packet size (which does not count the type byte).
      */
     synchronized int xmit(
     char packetType, org.hsqldb.lib.DataOutputStream destinationStream)
     throws IOException {
         byte[] ba = byteArrayOutputStream.toByteArray();
-        ba[0] = (byte) (ba.length >>> 24);
-        ba[1] = (byte) (ba.length >>> 16);
-        ba[2] = (byte) (ba.length >>> 8);
+        ba[0] = (byte) (ba.length >> 24);
+        ba[1] = (byte) (ba.length >> 16);
+        ba[2] = (byte) (ba.length >> 8);
         ba[3] = (byte) ba.length;
         reset();
         destinationStream.writeByte(packetType);
@@ -118,5 +118,16 @@ class OdbcPacketOutputStream extends DataOutputStream {
     synchronized public void close() throws IOException {
         super.close();
         stringWriterDos.close();
+    }
+
+    /**
+     * The behavior here is purposefully different from
+     * java.io.DataOutputStream.writeChar(int), which writes 2 bytes.
+     *
+     * We are supporting only 1-byte characters, or don't care about the
+     * high bits.
+     */
+    synchronized public void writeByteChar(char c) throws IOException {
+        writeByte(c);
     }
 }

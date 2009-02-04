@@ -32,34 +32,46 @@
 package org.hsqldb.server;
 
 import java.io.InputStream;
+import java.io.IOException;
 
 public class OdbcPacketInputStreamTest extends junit.framework.TestCase {
-    public void testTypeMix() {
-        String resPath = "/org/hsqldb/resources/odbcPacketIn.data";
-        InputStream is = OdbcPacketInputStreamTest.class.getResourceAsStream(
+    protected long distinguishableLong = 0x0203040506070809L;
+
+    public void testTypeMix() throws IOException {
+        byte[] buffer = new byte[1024];
+        String resPath = "/org/hsqldb/resources/odbcPacket.data";
+        InputStream is = OdbcPacketOutputStreamTest.class.getResourceAsStream(
                 resPath);
         if (is == null) {
             throw new RuntimeException("CLASSPATH not set properly.  "
                     + "Res file '" + resPath + "' not accessible");
         }
-    }
+        OdbcPacketInputStream inPacket = null;
+        try {
+            inPacket = OdbcPacketInputStream.newOdbcPacketInputStream(is);
+        } catch (IOException ioe) {
+            fail("Failed to instantiate OdbcPacketInputStream object: "
+                    + ioe);
+        }
 
-    public void testReadShort() {
-    }
+        assertEquals("Wrong packet type", 'a', inPacket.packetType);
+        assertEquals("Mungled short", (short) distinguishableLong,
+                inPacket.readShort());
+        assertEquals("Mungled int", (int) distinguishableLong,
+                inPacket.readInt());
+        assertEquals("Mungled long", distinguishableLong, inPacket.readLong());
+        assertEquals("Mungled byte", (byte) distinguishableLong,
+                inPacket.readByte());
+        assertEquals("Mungled char", 'k', inPacket.readByteChar());
+        assertEquals("Mungled String", "Ein groß Baum\nwith blossom",
+                inPacket.readString(27));
+          // I know this length from manual testing when writing the string.
+        assertEquals("Mungled String", "Another string", inPacket.readString());
+        assertEquals("Mungled String", "Ein groß Baum\nmit blossom",
+                inPacket.readSizedString());
 
-    public void testReadInt() {
-    }
-
-    public void testReadByte() {
-    }
-
-    public void testReadString() {
-    }
-
-    public void testReset() {
-    }
-
-    public void testReadChar() {
+        assertEquals("Bytes left over", 0, inPacket.available());
+        inPacket.close();
     }
 
     /**
