@@ -61,6 +61,13 @@ class OdbcPacketOutputStream extends DataOutputStream {
         return written - packetStart;
     }
 
+    /**
+     * Wrapper method to write a null-terminated String.
+     */
+    synchronized void write(String s) throws IOException {
+        write(s, true);
+    }
+
     synchronized void write(String s, boolean nullTerm)
     throws IOException {
         stringWriterDos.writeUTF(s);
