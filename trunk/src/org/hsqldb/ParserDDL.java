@@ -2147,7 +2147,8 @@ public class ParserDDL extends ParserRoutine {
 
             td = new TriggerDef(name, beforeOrAfter, operation, isForEachRow,
                                 table, transitions, rangeVars, condition,
-                                conditionSQL, columns, className, isNowait, queueSize);
+                                conditionSQL, columns, className, isNowait,
+                                queueSize);
 
             String   sql  = getLastPart();
             Object[] args = new Object[] {
@@ -4204,9 +4205,8 @@ public class ParserDDL extends ParserRoutine {
 
             password = readPassword();
 
-            Expression[] args = new Expression[] {
-                new ExpressionValue(userObject, Type.OTHER),
-                new ExpressionValue(password, Type.SQL_VARCHAR)
+            Object[] args = new Object[] {
+                userObject, password
             };
 
             return new StatementCommand(StatementTypes.SET_PASSWORD, args);
