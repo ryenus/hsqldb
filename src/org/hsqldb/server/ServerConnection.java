@@ -488,6 +488,7 @@ class ServerConnection implements Runnable {
                         + odbcCommMode);
         }
 
+        outPacket.reset();
         try {
             // MAIN Comm Switch.
             // The resolution for each operation is one of:
@@ -507,16 +508,11 @@ class ServerConnection implements Runnable {
                         ? null : sql.substring("BEGIN;".length());
                     server.printWithThread("ODBC Trans started");
                     inOdbcTrans = true;
-                    dataOutput.writeByte('C'); // end of rows
-                    dataOutput.writeInt(10); // size
-                    writeNullTermdUTF("BEGIN");
+                    outPacket.write("BEGIN");
+                    outPacket.xmit('C', dataOutput);
                     if (sql == null) {
-                       dataOutput.writeByte('Z');
-                       if (server.isTrace()) {
-                           server.printWithThread("### Writing size 5");
-                       }
-                       dataOutput.writeInt(5); //size
-                       dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+                       outPacket.writeByte(inOdbcTrans ? 'T' : 'I');
+                       outPacket.xmit('Z', dataOutput);
                        validateInputPacketSize(inPacket);
                        return;
                     }
@@ -560,9 +556,8 @@ class ServerConnection implements Runnable {
                     // Executed by psqlodbc after every user-specified query.
                     server.printWithThread("Swallowing 'select n.nspname,...'");
 
-                    outPacket.reset();
                     outPacket.writeShort(1);  // Num cols.
-                    outPacket.write("oid", true);
+                    outPacket.write("oid");
                     outPacket.writeInt(201);
                     outPacket.writeShort(1);
                     outPacket.writeInt(23);
@@ -570,14 +565,10 @@ class ServerConnection implements Runnable {
                     outPacket.writeInt(-1);
                     outPacket.writeShort(0);
                     outPacket.xmit('T', dataOutput); // Xmit Row Definition
-                    // This query returns no rows.  typenam "lo"??
-                    dataOutput.writeByte('C'); // end of rows
-                    dataOutput.writeInt(11); // size
-                    writeNullTermdUTF("SELECT");
 
-                    dataOutput.writeByte('C'); // end of rows
-                    dataOutput.writeInt(11); // size
-                    writeNullTermdUTF("SELECT");
+                    // This query returns no rows.  typenam "lo"??
+                    outPacket.write("SELECT");
+                    outPacket.xmit('C', dataOutput);
                     break;
                 }
                 if (normalized.startsWith(
@@ -589,33 +580,28 @@ class ServerConnection implements Runnable {
                      * This query is run as "a hack to get the oid of our
                      * large object oid type.
                      */
-                    dataOutput.writeByte('T'); // sending a Tuple (row)
-                    dataOutput.writeInt(58); // size
-                    if (server.isTrace()) {
-                        server.printWithThread("### Writing size 58");
-                    }
-                    write((short) 2);          // Num cols.
-                    writeNullTermdUTF("oid"); // Col. name
-                    dataOutput.writeInt(101); // table ID
-                    write((short) 102); // column id
-                    dataOutput.writeInt(26); // Datatype ID  [adtid]
-                    write((short) 4);       // Datatype size  [adtsize]
-                    dataOutput.writeInt(-1); // Var size (always -1 so far)
+                    outPacket.writeShort(2);          // Num cols.
+                    outPacket.write("oid"); // Col. name
+                    outPacket.writeInt(101); // table ID
+                    outPacket.writeShort(102); // column id
+                    outPacket.writeInt(26); // Datatype ID  [adtid]
+                    outPacket.writeShort(4);       // Datatype size  [adtsize]
+                    outPacket.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
-                    write((short) 0);        // text "format code"
-                    writeNullTermdUTF("typbasetype"); // Col. name
-                    dataOutput.writeInt(101); // table ID
-                    write((short) 103); // column id
-                    dataOutput.writeInt(26); // Datatype ID  [adtid]
-                    write((short) 4);       // Datatype size  [adtsize]
-                    dataOutput.writeInt(-1); // Var size (always -1 so far)
+                    outPacket.writeShort(0);        // text "format code"
+                    outPacket.write("typbasetype"); // Col. name
+                    outPacket.writeInt(101); // table ID
+                    outPacket.writeShort(103); // column id
+                    outPacket.writeInt(26); // Datatype ID  [adtid]
+                    outPacket.writeShort(4);       // Datatype size  [adtsize]
+                    outPacket.writeInt(-1); // Var size (always -1 so far)
                                              // [atttypmod]
-                    write((short) 0);        // text "format code"
+                    outPacket.writeShort(0);        // text "format code"
+                    outPacket.xmit('T', dataOutput); // sending a Tuple (row)
 
                     // This query returns no rows.  typenam "lo"??
-                    dataOutput.writeByte('C'); // end of rows
-                    dataOutput.writeInt(11); // size
-                    writeNullTermdUTF("SELECT");
+                    outPacket.write("SELECT");
+                    outPacket.xmit('C', dataOutput);
                     break;
                 }
                 if (normalized.startsWith("select ")) {
@@ -681,10 +667,9 @@ class ServerConnection implements Runnable {
                                 + colDefs.length + " col instances but "
                                 + colNames.length + " col names");
                     }
-                    outPacket.reset();
                     outPacket.writeShort(colNames.length);  // Num cols.
                     for (int i = 0; i < colNames.length; i++) {
-                        outPacket.write(colNames[i], true); // Col. name
+                        outPacket.write(colNames[i]); // Col. name
                         // table ID  [relid]:
                         outPacket.writeInt((colDefs[i].getNameString() == null)
                             ? 0
@@ -726,15 +711,17 @@ class ServerConnection implements Runnable {
                                 + rowData.length + " data elements for row "
                                 + rowNum);
                         }
-                        server.printWithThread("Row " + rowNum + " has "
-                                + rowData.length + " elements");
+                        //server.printWithThread("Row " + rowNum + " has "
+                                //+ rowData.length + " elements");
                         outPacket.writeShort(colNames.length);
                          // This field is just swallowed by PG ODBC
                          // client, but validated by psql.
                         for (int i = 0; i < colNames.length; i++) {
                             if (rowData[i] == null) {
+                                /*
                                 server.printWithThread("R" + rowNum + "C"
                                     + (i+1) + " => [null]");
+                                */
                                 outPacket.writeInt(-1);
                             } else {
                                 outPacket.writeSized(rowData[i].toString());
@@ -743,10 +730,12 @@ class ServerConnection implements Runnable {
                                 // But that makes no difference, since
                                 // psqlodbc totally mishandles them either
                                 // way.
+                                /*
                                 server.printWithThread("R" + rowNum + "C"
                                     + (i+1) + " => ("
                                     + rowData[i].getClass().getName()
                                     + ") [" + rowData[i] + ']');
+                                */
                             }
                         }
                         outPacket.xmit('D', dataOutput); // text row Data
@@ -755,9 +744,8 @@ class ServerConnection implements Runnable {
                            * This must corresopnd to the T packet's format
                            * code. */
                     }
-                    dataOutput.writeByte('C'); // end of rows (B or D packets)
-                    dataOutput.writeInt(11); // size
-                    writeNullTermdUTF("SELECT");
+                    outPacket.write("SELECT");
+                    outPacket.xmit('C', dataOutput);
                     break;
                 }
                 if (normalized.startsWith("deallocate ")) {
@@ -790,16 +778,14 @@ class ServerConnection implements Runnable {
                         server.printWithThread("Deallocated PS/Portal '"
                                 + handle + "'");
                     }
-                    dataOutput.writeByte('C');
-                    dataOutput.writeInt("DEALLOCATE".length() + 5); // size
-                    writeNullTermdUTF("DEALLOCATE");
+                    outPacket.write("DEALLOCATE");
+                    outPacket.xmit('C', dataOutput);
                     break;
                 }
                 if (normalized.startsWith("set client_encoding to ")) {
                     server.printWithThread("Stubbing EXECDIR for: " +  sql);
-                    dataOutput.writeByte('C');
-                    dataOutput.writeInt("SET".length() + 5); // size
-                    writeNullTermdUTF("SET");
+                    outPacket.write("SET");
+                    outPacket.xmit('C', dataOutput);
                     break;
                 }
                 // Case below is non-String-matched Qs:
@@ -827,9 +813,8 @@ class ServerConnection implements Runnable {
                 }
                 replyString = echoBackReplyString(
                     normalized, rOut.getUpdateCount());
-                dataOutput.writeByte('C');
-                dataOutput.writeInt(replyString.length() + 5); // size
-                writeNullTermdUTF(replyString);
+                outPacket.write(replyString);
+                outPacket.xmit('C', dataOutput);
 
                 // A guess about how keeping inOdbcTrans in sync with
                 // client.  N.b. HSQLDB will need to more liberal with
@@ -886,11 +871,7 @@ class ServerConnection implements Runnable {
                 }
                 new OdbcPreparedStatement(psHandle, query);
 
-                dataOutput.writeByte('1');
-                if (server.isTrace()) {
-                    server.printWithThread("### Writing size 4");
-                }
-                dataOutput.writeInt(4); //size
+                outPacket.xmit('1', dataOutput);
                 validateInputPacketSize(inPacket);
                 return;
               case 'D':
@@ -930,7 +911,6 @@ class ServerConnection implements Runnable {
                         + paramTypes.length + " param md objects");
                 }
 
-                outPacket.reset();
                 if (c == 'S') {
                     outPacket.writeShort(paramCount);
                     for (int i = 0; i < paramTypes.length; i++) {
@@ -948,8 +928,7 @@ class ServerConnection implements Runnable {
                     }
                     // Send NoData packet because no columnar output from
                     // this statement.
-                    dataOutput.writeByte('n');
-                    dataOutput.writeInt(4);
+                    outPacket.xmit('n', dataOutput);
                     validateInputPacketSize(inPacket);
                     return;
                 }
@@ -981,7 +960,7 @@ class ServerConnection implements Runnable {
 
                 outPacket.writeShort(colNames.length);  // Num cols.
                 for (int i = 0; i < colNames.length; i++) {
-                    outPacket.write(colNames[i], true); // Col. name
+                    outPacket.write(colNames[i]); // Col. name
                     // table ID  [relid]:
                     outPacket.writeInt((colDefs[i].getNameString() == null)
                         ? 0
@@ -1056,11 +1035,7 @@ class ServerConnection implements Runnable {
                         + " parameters (" + paramCount + ')', "08P01");
                 }
                 new Portal(portalHandle, odbcPs, paramVals);
-                dataOutput.writeByte('2');
-                if (server.isTrace()) {
-                    server.printWithThread("### Writing size 4");
-                }
-                dataOutput.writeInt(4); //size
+                outPacket.xmit('2', dataOutput);
                 validateInputPacketSize(inPacket);
                 return;
               case 'E':
@@ -1086,9 +1061,9 @@ class ServerConnection implements Runnable {
                     case ResultConstants.UPDATECOUNT:
                         replyString = echoBackReplyString(
                             portal.lcQuery, rOut.getUpdateCount());
-                        dataOutput.writeByte('C');
-                        dataOutput.writeInt(replyString.length() + 5); // size
-                        writeNullTermdUTF(replyString);
+                        outPacket.write(replyString);
+                        outPacket.xmit('C', dataOutput);
+                        // end of rows (B or D packets)
 
                         // A guess about how keeping inOdbcTrans in sync with
                         // client.  N.b. HSQLDB will need to more liberal with
@@ -1126,7 +1101,6 @@ class ServerConnection implements Runnable {
                 int rowNum = 0;
                 int colCount =
                     portal.ackResult.metaData.getExtendedColumnCount();
-                outPacket.reset();
                 while (navData.next()) {
                     rowNum++;
                     Object[] rowData = (Object[]) navData.getCurrent();
@@ -1142,15 +1116,17 @@ class ServerConnection implements Runnable {
                             + rowData.length + " data elements for row "
                             + rowNum);
                     }
-                    server.printWithThread("Row " + rowNum + " has "
-                            + rowData.length + " elements");
+                    //server.printWithThread("Row " + rowNum + " has "
+                            //+ rowData.length + " elements");
                     outPacket.writeShort(colCount);
                      // This field is just swallowed by PG ODBC
                      // client, but validated by psql.
                     for (int i = 0; i < colCount; i++) {
                         if (rowData[i] == null) {
+                            /*
                             server.printWithThread("R" + rowNum + "C"
                                 + (i+1) + " => [null]");
+                            */
                             outPacket.writeInt(-1);
                         } else {
                             outPacket.writeSized(rowData[i].toString());
@@ -1159,10 +1135,12 @@ class ServerConnection implements Runnable {
                             // But that makes no difference, since
                             // psqlodbc totally mishandles them either
                             // way.
+                            /*
                             server.printWithThread("R" + rowNum + "C"
                                 + (i+1) + " => ("
                                 + rowData[i].getClass().getName()
                                 + ") [" + rowData[i] + ']');
+                            */
                         }
                     }
                     outPacket.xmit('D', dataOutput); // text row Data
@@ -1172,12 +1150,11 @@ class ServerConnection implements Runnable {
                        * code. */
                 }
                 if (navigator.afterLast()) {
-                    dataOutput.writeByte('C'); // end of rows (B or D packets)
-                    dataOutput.writeInt(11); // size
-                    writeNullTermdUTF("SELECT");
+                    outPacket.write("SELECT");
+                    outPacket.xmit('C', dataOutput);
+                    // end of rows (B or D packets)
                 } else {
-                    dataOutput.writeByte('s'); // suspend
-                    dataOutput.writeInt(4); // size
+                    outPacket.xmit('s', dataOutput);
                 }
                 // N.b., we return.
                 // You might think that this completion of an EXTENDED sequence
@@ -1213,8 +1190,7 @@ class ServerConnection implements Runnable {
                             + handle + "'? "
                             + (odbcPs != null || portal != null));
                 }
-                dataOutput.writeByte('3');
-                dataOutput.writeInt(4); // size
+                outPacket.xmit('3', dataOutput);
                 validateInputPacketSize(inPacket);
                 return;
              default:
@@ -1224,12 +1200,12 @@ class ServerConnection implements Runnable {
                 }
            validateInputPacketSize(inPacket);
            // All switches that "break" get this ReadyForQuery packet:
-           dataOutput.writeByte('Z');
-           if (server.isTrace()) {
-               server.printWithThread("### Writing size 5");
-           }
-           dataOutput.writeInt(5); //size
-           dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+           outPacket.reset();
+           // The reset is unnecessary now.  For safety in case somebody codes
+           // something above which may abort processing of a packet before
+           // xmit.
+           outPacket.writeByte(inOdbcTrans ? 'T' : 'I');
+           outPacket.xmit('Z', dataOutput);
         } catch (RecoverableFailure rf) {
             Result errorResult = rf.getErrorResult();
             if (errorResult == null) {
@@ -1256,12 +1232,9 @@ class ServerConnection implements Runnable {
             }
             switch (odbcCommMode) {
                case ODBC_SIMPLE_MODE:
-                    dataOutput.writeByte('Z');
-                    if (server.isTrace()) {
-                        server.printWithThread("### Writing size 5");
-                    }
-                    dataOutput.writeInt(5); //size
-                    dataOutput.writeByte('E');  /// transaction status = Error
+                    outPacket.reset();  /// transaction status = Error
+                    outPacket.writeByte('E');  /// transaction status = Error
+                    outPacket.xmit('Z', dataOutput);
                     break;
                 case ODBC_EXTENDED_MODE:
                     odbcCommMode = ODBC_EXT_RECOVER_MODE;
@@ -1612,9 +1585,8 @@ class ServerConnection implements Runnable {
         }
         outPacket = OdbcPacketOutputStream.newOdbcPacketOutputStream();
 
-        dataOutput.writeByte('R'); // Notify client of success
-        dataOutput.writeInt(8); //size
-        dataOutput.writeInt(ODBC_AUTH_REQ_OK); //success
+        outPacket.writeInt(ODBC_AUTH_REQ_OK); //success
+        outPacket.xmit('R', dataOutput); // Notify client of success
 
         if (!server.isSilent()) {
             server.printWithThread(mThread + ":Connected user '" + user + "'");
@@ -1628,125 +1600,22 @@ class ServerConnection implements Runnable {
         // If/when we implement OOB cancellation, we would send the
         // Session identifier and key here, with a 'K' packet.
 
-        dataOutput.writeByte('Z');
+        outPacket.writeByte('I'); // Trans. status = Not in transaction
+        outPacket.xmit('Z', dataOutput); // Notify client of success
         // This ReadyForQuery turns over responsibility to initiate packet
         // exchanges to the client.
-        if (server.isTrace()) {
-            server.printWithThread("### Writing size 5");
-        }
-        dataOutput.writeInt(5); //size
-        dataOutput.writeByte('I'); // Trans. status = Not in transaction
 
-        dataOutput.writeByte('N');
-        writeUTFPacket(new String[] {
-            "MHello\nYou have connected to HyperSQL ODBC Server"
-        });
-    }
-
-    /**
-     * Writes unsigned short
-     */
-    private void write(short s) throws IOException {
-        dataOutput.writeByte(s >>> 8);
-        dataOutput.writeByte(s);
-    }
-
-    /**
-     * Convenience werapper for writeUTF() method to write null-terminated
-     * Strings.
-     */
-    private void writeNullTermdUTF(String s) throws IOException {
-        writeUTF(s, true);
-    }
-
-    /**
-     * With null-term true, writes null-terminated String without any size;
-     * With null-term false, behaves
-     * just like java.io.DataOutput.writeUTF() method, withe the 
-     * exceptions listed below.
-     * <P>
-     * nullTerm false behavior differences from java.io.DataOutput
-     * <OL>
-     *   <LI>We write the size with a 4-byte int intead of a 2-byte short.
-     *   <LI>Our size includes the 4 byte size prefix
-     *       (counter-intuitive, but that's what our client requires).
-     * </OL>
-     *
-     * @param nullTerm boolean switches between null-termination and
-     *                 size-prefixing behavior, as described above.
-     * @see java.io.DataOutput#writeUTF(String)
-     */
-    private void writeUTF(String s, boolean nullTerm)
-    throws IOException {
-        /* Would be MUCH easier to do this with Java6's String
-         * encoding/decoding operations */
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        java.io.DataOutputStream dos = new java.io.DataOutputStream(baos);
-        dos.writeUTF(s);
-        byte[] ba = baos.toByteArray();
-        dos.close();
-
-        /* TODO:  Remove this block.
-         * This is just to verify that the count written by DOS.writeUTF()
-         * matches the number of bytes that it writes to the stream. */
-        int len = ((ba[0] & 0xff) << 8) + (ba[1] & 0xff);
-        if (len != ba.length - 2)
-            throw new IOException("DOS.writeUTF count mismatch.  "
-                    + (ba.length - 2)
-                    + " written to stream, yet short val reports " + len);
-        /**********************************************************/
-        if (!nullTerm) {
-            dataOutput.writeInt(ba.length + 2);
-        }
-        dataOutput.write(ba, 2, ba.length - 2);
-        if (nullTerm) {
-            dataOutput.writeByte(0);
-        }
+        alertOdbcClient(ODBC_SEVERITY_INFO,
+            "MHello\nYou have connected to HyperSQL ODBC Server");
     }
 
     private void writeOdbcParam(String key, String val) throws IOException {
-        dataOutput.writeByte('S');
-        writeUTFPacket(new String[] { key, val }, false);
-    }
-
-    /**
-     * Wrapper to null-terminate the packet.
-     */
-    private void writeUTFPacket(String[] strings) throws IOException {
-        writeUTFPacket(strings, true);
-    }
-
-    /**
-     * Writes size + null-terminated Strings + additional optional
-     * terminating '\0'.
-     *
-     * @param nullTerminate true to terminate packet with an additional '\0'.
-     */
-    private void writeUTFPacket(String[] strings, boolean nullTerminate)
-    throws IOException {
-        /* Would be MUCH easier to do this with Java6's String
-         * encoding/decoding operations */
-        ByteArrayOutputStream accumulator = new ByteArrayOutputStream();
-        // Allocate space for size prefix when done
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        java.io.DataOutputStream dos = new java.io.DataOutputStream(baos);
-        for (int i = 0; i < strings.length; i++) {
-            dos.writeUTF(strings[i]);
-            accumulator.write(baos.toByteArray(), 2, baos.size() - 2);
-            baos.reset();
-            accumulator.write(0);
-        }
-        dos.close();
-        if (nullTerminate) {
-            accumulator.write(0);
-        }
-        dataOutput.writeInt(accumulator.size() + 4);
-        if (server.isTrace()) {
-            server.printWithThread("### Writing size " + (accumulator.size()
-                + 4));
-        }
-        dataOutput.write(accumulator.toByteArray());
-        accumulator.close();
+        OdbcPacketOutputStream alertPacket =
+            OdbcPacketOutputStream.newOdbcPacketOutputStream();
+        alertPacket.write(key);
+        alertPacket.write(val);
+        alertPacket.xmit('S', dataOutput);
+        alertPacket.close();
     }
 
     // Constants taken from connection.h
@@ -1779,19 +1648,17 @@ class ServerConnection implements Runnable {
             throw new IllegalArgumentException(
                 "Unknown severity value (" + severity + ')');
         }
-        dataOutput.writeByte((severity < ODBC_SEVERITY_NOTICE) ? 'E' : 'N');
+        OdbcPacketOutputStream alertPacket =
+            OdbcPacketOutputStream.newOdbcPacketOutputStream();
+        alertPacket.write("S" + odbcSeverityMap.get(severity));
         if (severity < ODBC_SEVERITY_NOTICE) {
-            writeUTFPacket(new String[] {
-                "S" + odbcSeverityMap.get(severity),
-                "C" + sqlStateCode,
-                "M" + message,
-            });
-        } else {
-            writeUTFPacket(new String[] {
-                "S" + odbcSeverityMap.get(severity),
-                "M" + message,
-            });
+            alertPacket.write("C" + sqlStateCode);
         }
+        alertPacket.write("M" + message);
+        alertPacket.writeByte(0);
+        alertPacket.xmit((severity < ODBC_SEVERITY_NOTICE) ? 'E' : 'N',
+                dataOutput);
+        alertPacket.close();
     }
 
     static String[][] hardcodedOdbcParams = new String[][] {
