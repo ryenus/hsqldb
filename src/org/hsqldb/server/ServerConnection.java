@@ -1556,8 +1556,8 @@ class ServerConnection implements Runnable {
                 // Is password len after -4 for count int -1 for null term
             if (len < 0) {
                 throw new ClientFailure(
-                    "Client submitted password length " + len,
-                    "Empty passwords not allowed");
+                    "Client submitted invalid password length " + len,
+                    "Invalid password length " + len);
             }
             String password = readNullTermdUTF(len);
 
