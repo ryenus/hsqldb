@@ -50,8 +50,17 @@ import junit.framework.TestSuite;
  * ODBC driver, DSN name "HSQLDB_UTEST", DSN database "/", port "9797".
  * The user name and password don't matter.
  * <P>
+ * We use the word <I>query</i> how it is used in the JDBC API, to mean a
+ * SELECT statement, not in the more general way as used in the ODBC API.
+ * </P> <P>
  * The DSN name and port may be changed from these defaults by setting Java
  * system properties "test.hsqlodbc.dsnname" and/or "test.hsqlodbc.port".
+ * </P> <P>
+ * Standard test methods perform the named test, then perform a simple
+ * (non-prepared) query to verify the state of the server is healthy enough
+ * to successfully serve a query.
+ * (We may or many not add test(s) to verify behavior when no static query
+ * follows).
  * </P>
  */
 public class TestOdbcService extends junit.framework.TestCase {
@@ -186,8 +195,53 @@ public class TestOdbcService extends junit.framework.TestCase {
                 throw new RuntimeException("The most basic query failed.  "
                     + "No row count from 'nullmix'.");
             }
-            assertEquals("Sanity check failed.  Rowcount of 'nullmix'", 3,
+            assertEquals("Sanity check failed.  Rowcount of 'nullmix'", 6,
                 rs.getInt(1));
+            rs.close();
+        } catch (SQLException se) {
+            throw new RuntimeException("The most basic query failed: " + se);
+        }
+    }
+
+    public void testDetailedSimpleQueryOutput() {
+        try {
+            ResultSet rs = netConn.createStatement().executeQuery(
+                "SELECT i, 3, vc, 'str' FROM nullmix WHERE i > 20 ORDER BY i");
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(21, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("twenty one", rs.getString(3));
+
+            assertTrue("Not enough rows fetched", rs.next());
+            assertEquals(3, rs.getInt(2));
+            assertEquals(25, rs.getInt(1));
+            assertNull(rs.getString(3));
+            assertEquals("str", rs.getString(4));
+
+            assertTrue("Not enough rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(3, rs.getInt(2));
+            assertEquals(40, rs.getInt(1));
+            assertEquals("forty", rs.getString(3));
+
+            assertFalse("Too many rows updated", rs.next());
+            rs.close();
+        } catch (SQLException se) {
+            fail(se.getMessage());
+        }
+    }
+
+    public void testSimpleUpdate() {
+        try {
+            Statement st = netConn.createStatement();
+            assertEquals(2, st.executeUpdate(
+                    "UPDATE nullmix SET xtra = 'updated' WHERE i < 12"));
+            ResultSet rs = netConn.createStatement().executeQuery(
+                "SELECT * FROM nullmix WHERE xtra = 'updated'");
+            assertTrue("No rows updated", rs.next());
+            assertTrue("Only one row updated", rs.next());
+            assertFalse("Too many rows updated", rs.next());
             rs.close();
         } catch (SQLException se) {
             throw new RuntimeException("The most basic query failed: " + se);
@@ -222,6 +276,10 @@ public class TestOdbcService extends junit.framework.TestCase {
         // leave feature testing for the actual unit tests.
         st.executeUpdate("INSERT INTO nullmix (i, vc) values(10, 'ten')");
         st.executeUpdate("INSERT INTO nullmix (i, vc) values(5, 'five')");
+        st.executeUpdate("INSERT INTO nullmix (i, vc) values(15, 'fifteen')");
+        st.executeUpdate(
+                "INSERT INTO nullmix (i, vc) values(21, 'twenty one')");
+        st.executeUpdate("INSERT INTO nullmix (i, vc) values(40, 'forty')");
         st.executeUpdate("INSERT INTO nullmix (i) values(25)");
         st.close();
     }
