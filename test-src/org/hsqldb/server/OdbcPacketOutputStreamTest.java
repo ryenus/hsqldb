@@ -85,12 +85,12 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
 
         /* Use this to regenerate the test data (which is also used to test
          * the reader).
-        */
         java.io.FileOutputStream fos =
             new java.io.FileOutputStream("/tmp/fix.bin");
         fos.write(actualBa);
         fos.flush();
         fos.close();
+        */
 
         // JUnit 4.x has a built-in byte-array comparator.  Until then...
         assertEquals("Byte stream size is wrong", expectedBa.length,
