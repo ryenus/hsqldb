@@ -387,18 +387,21 @@ class ServerConnection implements Runnable {
     private void odbcXmitCycle() throws IOException, CleanExit {
         char op, c;
         boolean newTran = false;
-        int len = 0;
         String stringVal, psHandle, portalHandle, replyString, handle;
         Result r, rOut;
         int paramCount;
         OdbcPreparedStatement odbcPs;
         Portal portal;
         org.hsqldb.result.ResultMetaData pmd;
+        OdbcPacketInputStream inPacket = null;
 
         try {
-            op = (char) dataInput.readByte();
-            server.printWithThread("Got op (" + op + ')');
-            if (op == 'X') { // All other op types will send a length
+            inPacket =
+                OdbcPacketInputStream.newOdbcPacketInputStream(dataInput);
+            if (inPacket == null) {
+                // This is an 'X' packet!
+                // All other packet types will send a length, and we will get
+                // a non-null "inPacket".
                 if (sessionOdbcPsMap.size() >
                     (sessionOdbcPsMap.containsKey("") ? 1 : 0)) {
                     server.printWithThread("Client left " + 
@@ -411,14 +414,14 @@ class ServerConnection implements Runnable {
                 }
                 throw cleanExit;
             }
-            len = dataInput.readInt() - 4;
-            server.printWithThread("Got packet length of " + len);
-            if (len < 0 || len >= 1000000000) {
-                throw new IOException("Insane packet length: " + (len + 4));
-                // We work with length not including the size int, but as
-                // this is part of the packet, we report the full size.
+            server.printWithThread("Got op (" + inPacket.packetType + ')');
+            server.printWithThread("Got packet length of "
+                    + inPacket.available() + " + type byte + 4 size header");
+            if (inPacket.available() >= 1000000000) {
+                throw new IOException("Insane packet length: "
+                        + inPacket.available()
+                        + " + type byte + 4 size header");
             }
-            // TODO ASAP:  Read the entire input packet right here!!
         } catch (SocketException se) {
             server.printWithThread("Ungraceful client exit: " + se);
             throw cleanExit; // not "clean", but handled
@@ -435,10 +438,10 @@ class ServerConnection implements Runnable {
 
         switch (odbcCommMode) {
             case ODBC_EXT_RECOVER_MODE:
-                if (op != 'S') {
-                    readPacket(len); // Gobble up packet contents
+                if (inPacket.packetType != 'S') {
                     if (server.isTrace()) {
-                        server.printWithThread("Swallowing a '" + op + "'");
+                        server.printWithThread("Ignoring a '"
+                            + inPacket.packetType + "'");
                     }
                     return;
                 }
@@ -448,7 +451,7 @@ class ServerConnection implements Runnable {
                 // the same as if there were no recovery.
                 break;
             case ODBC_SIMPLE_MODE:
-                switch (op) {
+                switch (inPacket.packetType) {
                     case 'P':
                         // This is the only way to make this switch, according
                         // to docs, but that does not allow for intermixing of
@@ -470,7 +473,7 @@ class ServerConnection implements Runnable {
                 }
                 break;
             case ODBC_EXTENDED_MODE:
-                switch (op) {
+                switch (inPacket.packetType) {
                     case 'Q':
                         odbcCommMode = ODBC_SIMPLE_MODE;
                         server.printWithThread(
@@ -490,10 +493,10 @@ class ServerConnection implements Runnable {
             // The resolution for each operation is one of:
             //   throw:  Handling will depend on the Throwable type
             //   break:  A Z (ReadyForQuery) packet will be sent to client
-            //   return:  Nothing
-            switch (op) {
+            //   run validateInputPacketSize() then return:  Nothing.  
+            switch (inPacket.packetType) {
               case 'Q':
-                String sql = readNullTermdUTF(len - 1);
+                String sql = inPacket.readString();
                 // We don't ask for the null terminator
 
                 /* **********************************************
@@ -514,6 +517,7 @@ class ServerConnection implements Runnable {
                        }
                        dataOutput.writeInt(5); //size
                        dataOutput.writeByte(inOdbcTrans ? 'T' : 'I');
+                       validateInputPacketSize(inPacket);
                        return;
                     }
                 }
@@ -842,25 +846,11 @@ class ServerConnection implements Runnable {
                 // No-op.  It is impossible to cache while supporting multiple
                 // ps and portal objects, so there is nothing for a Flush to
                 // do.  There isn't even a reply to a Flush packet.
-                if (len != 0) {
-                    throw new RecoverableFailure(
-                        "Client supplied bad length for Flush packet ("
-                        + len + ')', "08P01");
-                    // Code here means Protocol Violation
-                }
+                validateInputPacketSize(inPacket);
                 return;
               case 'S':
                 // Special case for Sync packets.
                 // To facilitate recovery, we do not abort in case of problems.
-                if (len != 0) {
-                    server.printWithThread(
-                        "Client supplied bad length for Sync packet ("
-                        + len + ')');
-                    alertOdbcClient(ODBC_SEVERITY_ERROR,
-                        "Client supplied bad length for Sync packet ("
-                        + len + ')', "08P01");
-                    // Code here means Protocol Violation
-                }
                 if (!inOdbcTrans) try {
                     server.printWithThread("Implicit commit by Sync");
                     session.commit(true);
@@ -872,13 +862,12 @@ class ServerConnection implements Runnable {
                 }
                 break;
               case 'P':
-                //byte[]inPacket = readPacket(len);
-                // TODO:  Read in entire packet and work with that object.
-                psHandle = readNullTermdUTF();
-                String query = revertMungledPreparedQuery(readNullTermdUTF());
-                paramCount = dataInput.readUnsignedShort();
+                psHandle = inPacket.readString();
+                String query = revertMungledPreparedQuery(
+                    inPacket.readString());
+                paramCount = inPacket.readUnsignedShort();
                 for (int i = 0; i < paramCount; i++) {
-                    if (dataInput.readInt()  != 0) {
+                    if (inPacket.readInt()  != 0) {
                         throw new RecoverableFailure(null,
                             "Parameter-type OID specifiers not supported yet",
                             "0A000");
@@ -902,12 +891,11 @@ class ServerConnection implements Runnable {
                     server.printWithThread("### Writing size 4");
                 }
                 dataOutput.writeInt(4); //size
+                validateInputPacketSize(inPacket);
                 return;
               case 'D':
-                //byte[]inPacket = readPacket(len);
-                // TODO:  Read in entire packet and work with that object.
-                c = (char) dataInput.readByte();
-                handle = readNullTermdUTF();
+                c = inPacket.readByteChar();
+                handle = inPacket.readString();
                 odbcPs = null;
                 portal = null;
                 if (c == 'S') {
@@ -962,6 +950,7 @@ class ServerConnection implements Runnable {
                     // this statement.
                     dataOutput.writeByte('n');
                     dataOutput.writeInt(4);
+                    validateInputPacketSize(inPacket);
                     return;
                 }
                 if (md.getColumnCount() != md.getExtendedColumnCount()) {
@@ -1019,30 +1008,26 @@ class ServerConnection implements Runnable {
                     // and 1 if B packets will follow.
                 }
                 outPacket.xmit('T', dataOutput); // Xmit Row Definition
+                validateInputPacketSize(inPacket);
                 return;
               case 'B':
-                //byte[]inPacket = readPacket(len);
-                // TODO:  Read in entire packet and work with that object.
-                portalHandle = readNullTermdUTF();
-                psHandle = readNullTermdUTF();
-                int paramFormatCount = dataInput.readUnsignedShort();
+                portalHandle = inPacket.readString();
+                psHandle = inPacket.readString();
+                int paramFormatCount = inPacket.readUnsignedShort();
                 for (int i = 0; i < paramFormatCount; i++) {
-                    if (dataInput.readUnsignedShort()  != 0) {
+                    if (inPacket.readUnsignedShort()  != 0) {
                         throw new RecoverableFailure(null,
                             "Binary param values not supported yet", "0A000");
                     }
                 }
-                paramCount = dataInput.readUnsignedShort();
+                paramCount = inPacket.readUnsignedShort();
                 String[] paramVals = new String[paramCount];
-                int fieldLen;
                 for (int i = 0; i < paramCount; i++) {
-                    fieldLen = dataInput.readInt();
-                    paramVals[i] = (fieldLen < 0)
-                        ? null : readSizedUTF(fieldLen);
+                    paramVals[i] = inPacket.readSizedString();
                 }
-                int outFormatCount = dataInput.readUnsignedShort();
+                int outFormatCount = inPacket.readUnsignedShort();
                 for (int i = 0; i < outFormatCount; i++) {
-                    if (dataInput.readUnsignedShort()  != 0) {
+                    if (inPacket.readUnsignedShort()  != 0) {
                         throw new RecoverableFailure(null,
                             "Binary output values not supported yet", "0A000");
                     }
@@ -1076,12 +1061,11 @@ class ServerConnection implements Runnable {
                     server.printWithThread("### Writing size 4");
                 }
                 dataOutput.writeInt(4); //size
+                validateInputPacketSize(inPacket);
                 return;
               case 'E':
-                //byte[]inPacket = readPacket(len);
-                // TODO:  Read in entire packet and work with that object.
-                portalHandle = readNullTermdUTF();
-                int fetchRows = dataInput.readInt();
+                portalHandle = inPacket.readString();
+                int fetchRows = inPacket.readInt();
                 if (server.isTrace()) {
                     server.printWithThread(
                         "Received Exec request for " + fetchRows
@@ -1116,6 +1100,7 @@ class ServerConnection implements Runnable {
                             || portal.lcQuery.startsWith("savepoint ")) {
                             inOdbcTrans = false;
                         }
+                        validateInputPacketSize(inPacket);
                         return;
                     case ResultConstants.DATA:
                         break;
@@ -1197,10 +1182,11 @@ class ServerConnection implements Runnable {
                 // N.b., we return.
                 // You might think that this completion of an EXTENDED sequence
                 // would end in ReadyForQuery/Z, but no.
+                validateInputPacketSize(inPacket);
                 return;
               case 'C':
-                c = (char) dataInput.readByte();
-                handle = readNullTermdUTF();
+                c = inPacket.readByteChar();
+                handle = inPacket.readString();
                 odbcPs = null;
                 portal = null;
                 if (c == 'S') {
@@ -1229,13 +1215,14 @@ class ServerConnection implements Runnable {
                 }
                 dataOutput.writeByte('3');
                 dataOutput.writeInt(4); // size
+                validateInputPacketSize(inPacket);
                 return;
              default:
-                readPacket(len); // Gobble up packet contents
-                throw new RecoverableFailure(null,
-                    "Unsupported operation type (" + op + ')', "0A000");
-           }
-
+                throw new RecoverableFailure(
+                    null, "Unsupported operation type (" + inPacket.packetType
+                    + ')', "0A000");
+                }
+           validateInputPacketSize(inPacket);
            // All switches that "break" get this ReadyForQuery packet:
            dataOutput.writeByte('Z');
            if (server.isTrace()) {
@@ -1282,6 +1269,27 @@ class ServerConnection implements Runnable {
                     break;
             }
         }
+    }
+
+    private void validateInputPacketSize(OdbcPacketInputStream p)
+    throws RecoverableFailure {
+        int remaining = -1;
+        try {
+            remaining = p.available();
+        } catch (IOException ioe) {
+            // Just ignore here and we will send notifiction below.
+            // If there really is an I/O problem, it will be handled better
+            // on the next read.
+        }
+        if (remaining < 1) {
+            return;
+        }
+        throw new RecoverableFailure(
+            "Client supplied bad length for " + p.packetType
+            + " packet.  " + remaining + " bytes available after processing",
+            "Bad length for " + p.packetType
+            + " packet.  " + remaining + " extra bytes", "08P01");
+        // Code here means Protocol Violation
     }
 
     private String echoBackReplyString(String inCommand, int retval) {
@@ -1484,31 +1492,6 @@ class ServerConnection implements Runnable {
         return firstInt;
     }
 
-    /**
-     * Reads a size indicator (which includes the size indicator bytes)
-     * + that amount of bytes.
-     */
-    private byte[] readPacket() throws IOException {
-        return readPacket(-1);
-    }
-    /**
-     * Reads the specified amount of bytes;
-     * if no specified size < 0, then
-     * reads a size indicator (which includes the size indicator bytes)
-     * + that amount of bytes.
-     */
-    private byte[] readPacket(int size) throws IOException {
-        if (size < 0) {
-            size = dataInput.readInt() - 4;
-        }
-        if (server.isTrace()) {
-            server.printWithThread("Reading " + size + " more bytes (after 4)");
-        }
-        byte[] ba = new byte[size];
-        dataInput.read(ba);
-        return ba;
-    }
-
     private void odbcConnect(int firstInt) throws IOException, HsqlException {
         /* Until client receives teh ReadyForQuery packet at the end of this
          * method, we (the server) initiate all packet exchanges. */
@@ -1546,12 +1529,20 @@ class ServerConnection implements Runnable {
         }
         server.printWithThread("ODBC client connected.  "
                 + "ODBC Protocol Compatibility Version " + major + '.' + minor);
-
-        byte[] packet = readPacket(firstInt - 8);
-          // - 4 for size of firstInt - 2 for major - 2 for minor
-        java.util.Map stringPairs = readStringPairs(packet);
-        //server.print("String Pairs: " + stringPairs);
+        OdbcPacketInputStream inPacket =
+            OdbcPacketInputStream.newOdbcPacketInputStream(
+            dataInput, firstInt - 8);
+            // - 4 for size of firstInt - 2 for major - 2 for minor
+        java.util.Map stringPairs = inPacket.readStringPairs();
+        // server.print("String Pairs: " + stringPairs);
         try {
+            try {
+                validateInputPacketSize(inPacket);
+            } catch (RecoverableFailure rf) {
+                // In this case, we do not treat it as recoverable
+                throw new ClientFailure(rf.getMessage(), rf.getClientMessage());
+            }
+            inPacket.close();
             if (!stringPairs.containsKey("database")) {
                 throw new ClientFailure("Client did not identify database",
                         "Target database not identified");
@@ -1592,7 +1583,7 @@ class ServerConnection implements Runnable {
                 // Is password len after -4 for count int -1 for null term
             if (len < 0) {
                 throw new ClientFailure(
-                    "User submitted password length " + len,
+                    "Client submitted password length " + len,
                     "Empty passwords not allowed");
             }
             String password = readNullTermdUTF(len);
@@ -1650,160 +1641,6 @@ class ServerConnection implements Runnable {
         writeUTFPacket(new String[] {
             "MHello\nYou have connected to HyperSQL ODBC Server"
         });
-    }
-
-    private java.util.Map readStringPairs(byte[] inbuf) throws IOException {
-        java.util.List lengths = new java.util.ArrayList();
-        ByteArrayOutputStream dataBaos = new ByteArrayOutputStream();
-        int curlen = 0;
-
-        if (inbuf[inbuf.length - 1] != 0) {
-            throw new IOException(
-                    "String-pair packet not terminated with null");
-        }
-        for (int i = 0; i < inbuf.length - 1; i++) {
-            if (curlen == 0) {
-                dataBaos.write((byte) 'X');
-                dataBaos.write((byte) 'X');
-            }
-            if (inbuf[i] == 0) {
-                lengths.add(new Integer(curlen));
-                curlen = 0;
-                continue;
-            }
-            curlen++;
-            dataBaos.write(inbuf[i]);
-        }
-        if (curlen != 0) {
-            throw new IOException(
-                    "String-pair packet did not finish with a complete value");
-        }
-        byte[] data = dataBaos.toByteArray();
-        dataBaos.close();
-        int len;
-        int offset = 0;
-        while (lengths.size() > 0) {
-            len = ((Integer) lengths.remove(0)).intValue();
-            data[offset++] = (byte) (len >>> 8);
-            data[offset++] = (byte) len;
-            offset += len;
-        }
-        String k = null;
-        java.io.DataInputStream dis =
-            new java.io.DataInputStream(new ByteArrayInputStream(data));
-
-        java.util.Map stringPairs = new java.util.HashMap();
-        while (dis.available() > 0) {
-            //String s = java.io.DataInputStream.readUTF(dis);
-            // TODO:  Test the previous two to see if one works better for
-            // high-order characters.
-            if (k == null) {
-                k = dis.readUTF();
-            } else {
-                stringPairs.put(k, dis.readUTF());
-                k = null;
-            }
-        }
-        dis.close();
-        if (k != null) {
-            throw new IOException(
-                    "Value missing for key '" + k + "'");
-        }
-        return stringPairs;
-    }
-
-    private String readNullTermdUTF() throws IOException {
-        /* Would be MUCH easier to do this with Java6's String
-         * encoding/decoding operations */
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        baos.write((byte) 'X');
-        baos.write((byte) 'X');
-        // Place-holders to be replaced with short length
-
-        int i;
-        while ((i = dataInput.readByte()) > 0) {
-            baos.write((byte) i);
-        }
-        byte[] ba = baos.toByteArray();
-        baos.close();
-
-        int len = ba.length - 2;
-        ba[0] = (byte) (len >>> 8);
-        ba[1] = (byte) len;
-
-        java.io.DataInputStream dis =
-            new java.io.DataInputStream(new ByteArrayInputStream(ba));
-        String s = dis.readUTF();
-        //String s = java.io.DataInputStream.readUTF(dis);
-        // TODO:  Test the previous two to see if one works better for
-        // high-order characters.
-        dis.close();
-        return s;
-    }
-
-    /**
-     * @param reqLength Required length
-     */
-    private String readSizedUTF(int len) throws IOException {
-        /* Would be MUCH easier to do this with Java6's String
-         * encoding/decoding operations */
-        int bytesRead = 0;
-        byte[] ba = new byte[len + 2];
-        ba[0] = (byte) (len >>> 8);
-        ba[1] = (byte) len;
-        while (bytesRead < len) {
-            bytesRead +=
-                dataInput.read(ba, 2 + bytesRead, len - bytesRead);
-        }
-        for (int i = 2; i < ba.length - 1; i++) {
-            if (ba[i] == 0) {
-                throw new RuntimeException(
-                        "Null internal to String at offset " + (i - 2));
-            }
-        }
-
-        java.io.DataInputStream dis =
-            new java.io.DataInputStream(new ByteArrayInputStream(ba));
-        String s = dis.readUTF();
-        //String s = java.io.DataInputStream.readUTF(dis);
-        // TODO:  Test the previous two to see if one works better for
-        // high-order characters.
-        dis.close();
-        return s;
-    }
-
-    /**
-     * @param reqLength Required length
-     */
-    private String readNullTermdUTF(int reqLength) throws IOException {
-        /* Would be MUCH easier to do this with Java6's String
-         * encoding/decoding operations */
-        int bytesRead = 0;
-        byte[] ba = new byte[reqLength + 3];
-        ba[0] = (byte) (reqLength >>> 8);
-        ba[1] = (byte) reqLength;
-        while (bytesRead < reqLength + 1) {
-            bytesRead +=
-                dataInput.read(ba, 2 + bytesRead, reqLength + 1 - bytesRead);
-        }
-        if (ba[ba.length - 1] != 0) {
-            throw new IOException("String not null-terminated");
-        }
-        for (int i = 2; i < ba.length - 1; i++) {
-            if (ba[i] == 0) {
-                throw new RuntimeException(
-                        "Null internal to String at offset " + (i - 2));
-            }
-        }
-
-        java.io.DataInputStream dis =
-            new java.io.DataInputStream(new ByteArrayInputStream(ba));
-        String s = dis.readUTF();
-        //String s = java.io.DataInputStream.readUTF(dis);
-        // TODO:  Test the previous two to see if one works better for
-        // high-order characters.
-        dis.close();
-        return s;
     }
 
     /**
@@ -2109,5 +1946,41 @@ class ServerConnection implements Runnable {
             // TODO:  Free up resources!
             sessionOdbcPortalMap.remove(handle);
         }
+    }
+
+    /**
+     * Read String directy from dataInput.
+     *
+     * @param reqLength Required length
+     */
+    private String readNullTermdUTF(int reqLength) throws IOException {
+        /* Would be MUCH easier to do this with Java6's String
+         * encoding/decoding operations */
+        int bytesRead = 0;
+        byte[] ba = new byte[reqLength + 3];
+        ba[0] = (byte) (reqLength >>> 8);
+        ba[1] = (byte) reqLength;
+        while (bytesRead < reqLength + 1) {
+            bytesRead +=
+                dataInput.read(ba, 2 + bytesRead, reqLength + 1 - bytesRead);
+        }
+        if (ba[ba.length - 1] != 0) {
+            throw new IOException("String not null-terminated");
+        }
+        for (int i = 2; i < ba.length - 1; i++) {
+            if (ba[i] == 0) {
+                throw new RuntimeException(
+                        "Null internal to String at offset " + (i - 2));
+            }
+        }
+
+        java.io.DataInputStream dis =
+            new java.io.DataInputStream(new ByteArrayInputStream(ba));
+        String s = dis.readUTF();
+        //String s = java.io.DataInputStream.readUTF(dis);
+        // TODO:  Test the previous two to see if one works better for
+        // high-order characters.
+        dis.close();
+        return s;
     }
 }
