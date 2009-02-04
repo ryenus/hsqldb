@@ -37,6 +37,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
@@ -61,6 +62,9 @@ import junit.framework.TestSuite;
  * to successfully serve a query.
  * (We may or many not add test(s) to verify behavior when no static query
  * follows).
+ * </P> <P>
+ * To debug server, network, or connection problems, set Java system property
+ * "VERBOSE" (to anything).
  * </P>
  */
 public class TestOdbcService extends junit.framework.TestCase {
@@ -102,8 +106,8 @@ public class TestOdbcService extends junit.framework.TestCase {
      *
      * Called after each test*() method.
      */
-    protected void tearDown() {
-        if (netConn != null) try {
+    protected void tearDown() throws SQLException {
+        if (netConn != null) {
             netConn.createStatement().executeUpdate("SHUTDOWN");
             netConn.close();
             netConn = null;
@@ -111,8 +115,6 @@ public class TestOdbcService extends junit.framework.TestCase {
                 Thread.sleep(1000);
             } catch (InterruptedException ie) {
             }
-        } catch (SQLException se) {
-            se.printStackTrace();
         }
         if (server != null
             && server.getState() != ServerConstants.SERVER_STATE_SHUTDOWN) {
@@ -168,7 +170,7 @@ public class TestOdbcService extends junit.framework.TestCase {
         try {
             netConn = DriverManager.getConnection(
                 "jdbc:odbc:" + dsnName, "SA", "sapwd");
-            netConn.setAutoCommit(false);
+            //netConn.setAutoCommit(false);
         } catch (SQLException se) {
             if (se.getMessage().indexOf("No suitable driver") > -1) {
                 throw new RuntimeException(
@@ -199,19 +201,204 @@ public class TestOdbcService extends junit.framework.TestCase {
                 rs.getInt(1));
             rs.close();
         } catch (SQLException se) {
-            throw new RuntimeException("The most basic query failed: " + se);
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(
+                "The most basic query failed");
+            ase.initCause(se);
+            throw ase;
+        }
+    }
+
+    /**
+     * Tests with input and output parameters, and rerunning query with
+     * modified input parameters.
+     */
+    public void testFullyPreparedQuery() {
+        try {
+            ResultSet rs;
+            PreparedStatement ps = netConn.prepareStatement(
+                "SELECT i, 3, vc, 'str' FROM nullmix WHERE i < ? OR i > ? "
+                + "ORDER BY i"); 
+            ps.setInt(1, 10);
+            ps.setInt(2, 30);
+            rs = ps.executeQuery(); 
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(5, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("five", rs.getString(3));
+
+            assertTrue("Not enough rows fetched", rs.next());
+            assertEquals(3, rs.getInt(2));
+            assertEquals(40, rs.getInt(1));
+            assertEquals("forty", rs.getString(3));
+            assertEquals("str", rs.getString(4));
+
+            assertFalse("Too many rows fetched", rs.next());
+            rs.close();
+
+            ps.setInt(1, 16);
+            ps.setInt(2, 100);
+            rs = ps.executeQuery(); 
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(5, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("five", rs.getString(3));
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(10, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("ten", rs.getString(3));
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(15, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("fifteen", rs.getString(3));
+
+            assertFalse("Too many rows fetched", rs.next());
+            rs.close();
+
+            verifySimpleQueryOutput(); // Verify server state still good
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
         }
     }
 
     public void testDetailedSimpleQueryOutput() {
         try {
+            verifySimpleQueryOutput();
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        }
+    }
+
+    /**
+     * Assumes none of the records above i=20 have been modified.
+     */
+    public void verifySimpleQueryOutput() throws SQLException {
+        ResultSet rs = netConn.createStatement().executeQuery(
+            "SELECT i, 3, vc, 'str' FROM nullmix WHERE i > 20 ORDER BY i");
+        assertTrue("No rows fetched", rs.next());
+        assertEquals("str", rs.getString(4));
+        assertEquals(21, rs.getInt(1));
+        assertEquals(3, rs.getInt(2));
+        assertEquals("twenty one", rs.getString(3));
+
+        assertTrue("Not enough rows fetched", rs.next());
+        assertEquals(3, rs.getInt(2));
+        assertEquals(25, rs.getInt(1));
+        assertNull(rs.getString(3));
+        assertEquals("str", rs.getString(4));
+
+        assertTrue("Not enough rows fetched", rs.next());
+        assertEquals("str", rs.getString(4));
+        assertEquals(3, rs.getInt(2));
+        assertEquals(40, rs.getInt(1));
+        assertEquals("forty", rs.getString(3));
+
+        assertFalse("Too many rows fetched", rs.next());
+        rs.close();
+    }
+
+    public void testPreparedNonRowStatement() {
+        try {
+            PreparedStatement ps = netConn.prepareStatement(
+                    "UPDATE nullmix set xtra = ? WHERE i < ?"); 
+            ps.setString(1, "first");
+            ps.setInt(2, 25);
+            assertEquals("First update failed", 4, ps.executeUpdate());
+
+            ps.setString(1, "second");
+            ps.setInt(2, 15);
+            assertEquals("Second update failed", 2, ps.executeUpdate());
+            ps.close();
+
+
             ResultSet rs = netConn.createStatement().executeQuery(
-                "SELECT i, 3, vc, 'str' FROM nullmix WHERE i > 20 ORDER BY i");
+                "SELECT i, 3, vc, xtra FROM nullmix ORDER BY i"); 
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("second", rs.getString(4));
+            assertEquals(5, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("five", rs.getString(3));
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("second", rs.getString(4));
+            assertEquals(10, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("ten", rs.getString(3));
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("first", rs.getString(4));
+            assertEquals(15, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("fifteen", rs.getString(3));
+
+            assertTrue("Not enough rows fetched", rs.next());
+            assertEquals(3, rs.getInt(2));
+            assertEquals(21, rs.getInt(1));
+            assertEquals("twenty one", rs.getString(3));
+            assertEquals("first", rs.getString(4));
+
+            assertTrue("Not enough rows fetched", rs.next());
+            assertEquals(3, rs.getInt(2));
+            assertEquals(25, rs.getInt(1));
+            assertNull(rs.getString(3));
+            assertNull(rs.getString(4));
+
+            assertTrue("Not enough rows fetched", rs.next());
+            assertEquals(3, rs.getInt(2));
+            assertEquals(40, rs.getInt(1));
+            assertEquals("forty", rs.getString(3));
+            assertNull(rs.getString(4));
+
+            assertFalse("Too many rows fetched", rs.next());
+            rs.close();
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        }
+    }
+
+    public void testParamlessPreparedQuery() {
+        try {
+            ResultSet rs;
+            PreparedStatement ps = netConn.prepareStatement(
+                "SELECT i, 3, vc, 'str' FROM nullmix WHERE i != 21 "
+                + "ORDER BY i"); 
+            rs = ps.executeQuery(); 
+
             assertTrue("No rows fetched", rs.next());
             assertEquals("str", rs.getString(4));
-            assertEquals(21, rs.getInt(1));
+            assertEquals(5, rs.getInt(1));
             assertEquals(3, rs.getInt(2));
-            assertEquals("twenty one", rs.getString(3));
+            assertEquals("five", rs.getString(3));
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(10, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("ten", rs.getString(3));
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(15, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("fifteen", rs.getString(3));
 
             assertTrue("Not enough rows fetched", rs.next());
             assertEquals(3, rs.getInt(2));
@@ -220,15 +407,55 @@ public class TestOdbcService extends junit.framework.TestCase {
             assertEquals("str", rs.getString(4));
 
             assertTrue("Not enough rows fetched", rs.next());
-            assertEquals("str", rs.getString(4));
             assertEquals(3, rs.getInt(2));
             assertEquals(40, rs.getInt(1));
             assertEquals("forty", rs.getString(3));
+            assertEquals("str", rs.getString(4));
 
-            assertFalse("Too many rows updated", rs.next());
+            assertFalse("Too many rows fetched", rs.next());
             rs.close();
+
+            rs = ps.executeQuery(); 
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(5, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("five", rs.getString(3));
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(10, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("ten", rs.getString(3));
+
+            assertTrue("No rows fetched", rs.next());
+            assertEquals("str", rs.getString(4));
+            assertEquals(15, rs.getInt(1));
+            assertEquals(3, rs.getInt(2));
+            assertEquals("fifteen", rs.getString(3));
+
+            assertTrue("Not enough rows fetched", rs.next());
+            assertEquals(3, rs.getInt(2));
+            assertEquals(25, rs.getInt(1));
+            assertNull(rs.getString(3));
+            assertEquals("str", rs.getString(4));
+
+            assertTrue("Not enough rows fetched", rs.next());
+            assertEquals(3, rs.getInt(2));
+            assertEquals(40, rs.getInt(1));
+            assertEquals("forty", rs.getString(3));
+            assertEquals("str", rs.getString(4));
+
+            assertFalse("Too many rows fetched", rs.next());
+            rs.close();
+
+            verifySimpleQueryOutput(); // Verify server state still good
         } catch (SQLException se) {
-            fail(se.getMessage());
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
         }
     }
 
@@ -244,7 +471,10 @@ public class TestOdbcService extends junit.framework.TestCase {
             assertFalse("Too many rows updated", rs.next());
             rs.close();
         } catch (SQLException se) {
-            throw new RuntimeException("The most basic query failed: " + se);
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
         }
     }
 
