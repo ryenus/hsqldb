@@ -2,10 +2,6 @@
  * $Id$
  */
 
-/**
- * Java port of pgtypes.h
- */
-
 package org.hsqldb.server;
 
 import org.hsqldb.types.Type;
@@ -25,7 +21,16 @@ import org.hsqldb.ErrorCode;
 import org.hsqldb.jdbc.Util;
 
 public class PgType {
-    /* TODO:  Consider designating the binary types in this class */
+    /*
+     * TODO:  Consider designating the binary types in this class
+     *
+     * IMPORTANT:  If column-specific Size or Precision, like VARHAR(12)
+     *             and DECIMAL(4,2) do not need to be maintained by this
+     *             class, then allocate singleton instances for each needed
+     *             class mapping, and return pointers to our singletons.
+     *             That would be much more efficient, but will not work if
+     *             we need to keep track of any column-specific details.
+     */
     private int oid;
     private int typeSize = -1;
     private int constraintSize = -1;
@@ -208,6 +213,9 @@ public class PgType {
         return o;
     }
 
+    /*
+     * The followign settings are a Java port of pgtypes.h
+     */
     public static final int TYPE_BOOL         =  16;
     public static final int TYPE_BYTEA        =  17;
     public static final int TYPE_CHAR         =  18;
