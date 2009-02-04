@@ -98,8 +98,16 @@ public class TestOdbcService extends junit.framework.TestCase {
             netConn.createStatement().executeUpdate("SHUTDOWN");
             netConn.close();
             netConn = null;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+            }
         } catch (SQLException se) {
             se.printStackTrace();
+        }
+        if (server != null
+            && server.getState() != ServerConstants.SERVER_STATE_SHUTDOWN) {
+            throw new RuntimeException("Server failed to shut down");
         }
     }
 
@@ -111,29 +119,34 @@ public class TestOdbcService extends junit.framework.TestCase {
      * Invoked before each test*() invocation by JUnit.
      */
     protected void setUp() {
-        Connection setupConn = null;
         try {
-            setupConn = DriverManager.getConnection(
-                "jdbc:hsqldb:mem:unit", "SA", "");
+            Connection setupConn = DriverManager.getConnection(
+                "jdbc:hsqldb:mem:test", "SA", "");
             setupConn.setAutoCommit(false);
             populate(setupConn);
             setupConn.commit();
+            setupConn.close();
         } catch (SQLException se) {
             throw new RuntimeException(
                 "Failed to set up in-memory database", se);
         }
         try {
             server = new Server();
-            server.setLogWriter(null);
-            server.setErrWriter(null);
             HsqlProperties properties = new HsqlProperties();
+            if (System.getProperty("VERBOSE") == null) {
+                server.setLogWriter(null);
+                server.setErrWriter(null);
+            } else {
+                properties.setProperty("server.silent", "false");
+                properties.setProperty("server.trace", "true");
+            }
             properties.setProperty("server.database.0", "mem:test");
             properties.setProperty("server.dbname.0", "");
             properties.setProperty("server.port", TestOdbcService.portString);
             server.setProperties(properties);
             server.start();
             try {
-                Thread.sleep(10000);
+                Thread.sleep(1000);
             } catch (InterruptedException ie) {
             }
         } catch (Exception e) {
@@ -143,9 +156,42 @@ public class TestOdbcService extends junit.framework.TestCase {
         if (server.getState() != ServerConstants.SERVER_STATE_ONLINE) {
             throw new RuntimeException("Server failed to start up");
         }
+        try {
+            netConn = DriverManager.getConnection(
+                "jdbc:odbc:" + dsnName, "SA", "sapwd");
+            netConn.setAutoCommit(false);
+        } catch (SQLException se) {
+            if (se.getMessage().indexOf("No suitable driver") > -1) {
+                throw new RuntimeException(
+                    "You must install the native library for Sun's jdbc:odbc "
+                    + "JDBC driver");
+            }
+            if (se.getMessage().indexOf("Data source name not found") > -1) {
+                throw new RuntimeException(
+                    "You must configure ODBC DSN '" + dsnName
+                    + "' (you may change the name and/or port by setting Java "
+                    + "system properties 'test.hsqlodbc.port' or "
+                    + "'test.hsqlodbc.dsnname'");
+            }
+            throw new RuntimeException(
+                "Failed to set up JDBC/ODBC network connection", se);
+        }
     }
 
     public void testSanity() {
+        try {
+            ResultSet rs = netConn.createStatement().executeQuery(
+                "SELECT count(*) FROM nullmix");
+            if (!rs.next()) {
+                throw new RuntimeException("The most basic query failed.  "
+                    + "No row count from 'nullmix'.");
+            }
+            assertEquals("Sanity check failed.  Rowcount of 'nullmix'", 3,
+                rs.getInt(1));
+            rs.close();
+        } catch (SQLException se) {
+            throw new RuntimeException("The most basic query failed: " + se);
+        }
     }
 
     /**
@@ -165,28 +211,18 @@ public class TestOdbcService extends junit.framework.TestCase {
     }
 
     protected void populate(Connection c) throws SQLException {
-        if (false) throw new SQLException("helo");
-        /*
-        conn.createStatement().executeUpdate("DELETE FROM t");
-        // For this case, we wipe the data that we so carefully set up,
-        // so that we can call this method repeatedly without worrying
-        // about left-over data from a previous run.
-        st.executeUpdate("CREATE TABLE t(i int);");
-        st.executeUpdate("INSERT INTO t values(34);");
-        conn.createStatement().executeUpdate("INSERT INTO t VALUES(1)");
-        conn.createStatement().executeUpdate("INSERT INTO t VALUES(2)");
-        conn.createStatement().executeUpdate("INSERT INTO t VALUES(3)");
-        conn.commit();
-        conn.createStatement().executeUpdate("INSERT INTO t VALUES(4)");
-        conn.createStatement().executeUpdate("INSERT INTO t VALUES(5)");
-        conn.createStatement().executeUpdate("BACKUP DATABASE TO '"
-                                                 + baseDir.getAbsolutePath()
-                                             + '/' + baseTarName
-                                             + "' BLOCKING"
-                + (compress ? "" : " NOT COMPRESSED"));
-        conn.createStatement().executeUpdate(
-                "INSERT INTO t VALUES(6)");
-        conn.createStatement().executeUpdate("SHUTDOWN");
-        */
+        Statement st = c.createStatement();
+        st.executeUpdate("SET PASSWORD 'sapwd'");
+        st.executeUpdate("DROP TABLE nullmix IF EXISTS");
+        st.executeUpdate("CREATE TABLE nullmix "
+                + "(i INT NOT NULL, vc VARCHAR(20), xtra VARCHAR(20))");
+
+        // Would be more elegant and efficient ot use a prepared statement
+        // here, but our we want this setup to be as simple as possible, and
+        // leave feature testing for the actual unit tests.
+        st.executeUpdate("INSERT INTO nullmix (i, vc) values(10, 'ten')");
+        st.executeUpdate("INSERT INTO nullmix (i, vc) values(5, 'five')");
+        st.executeUpdate("INSERT INTO nullmix (i) values(25)");
+        st.close();
     }
 }
