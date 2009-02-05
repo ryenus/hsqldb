@@ -350,22 +350,6 @@ class ServerConnection implements Runnable {
         try {
             inPacket =
                 OdbcPacketInputStream.newOdbcPacketInputStream(dataInput);
-            if (inPacket == null) {
-                // This is an 'X' packet!
-                // All other packet types will send a length, and we will get
-                // a non-null "inPacket".
-                if (sessionOdbcPsMap.size() >
-                    (sessionOdbcPsMap.containsKey("") ? 1 : 0)) {
-                    server.printWithThread("Client left " + 
-                        sessionOdbcPsMap.size() + " PS objects open");
-                }
-                if (sessionOdbcPortalMap.size() >
-                    (sessionOdbcPortalMap.containsKey("") ? 1 : 0)) {
-                    server.printWithThread("Client left " + 
-                        sessionOdbcPortalMap.size() + " Portal objects open");
-                }
-                throw cleanExit;
-            }
             server.printWithThread("Got op (" + inPacket.packetType + ')');
             server.printWithThread("Got packet length of "
                     + inPacket.available() + " + type byte + 4 size header");
@@ -452,7 +436,7 @@ class ServerConnection implements Runnable {
             //   break:  A Z (ReadyForQuery) packet will be sent to client
             //   run OdbcUtil.validateInputPacketSize() then return:  Nothing.  
             switch (inPacket.packetType) {
-              case 'Q':
+              case 'Q': // Query packet
                 String sql = inPacket.readString();
                 // We don't ask for the null terminator
 
@@ -784,13 +768,26 @@ class ServerConnection implements Runnable {
                     inOdbcTrans = false;
                 }
                 break;
-              case 'H':
+              case 'X': // Terminate packet
+                if (sessionOdbcPsMap.size() >
+                    (sessionOdbcPsMap.containsKey("") ? 1 : 0)) {
+                    server.printWithThread("Client left " + 
+                        sessionOdbcPsMap.size() + " PS objects open");
+                }
+                if (sessionOdbcPortalMap.size() >
+                    (sessionOdbcPortalMap.containsKey("") ? 1 : 0)) {
+                    server.printWithThread("Client left " + 
+                        sessionOdbcPortalMap.size() + " Portal objects open");
+                }
+                OdbcUtil.validateInputPacketSize(inPacket);
+                throw cleanExit;
+              case 'H': // Flush packet
                 // No-op.  It is impossible to cache while supporting multiple
                 // ps and portal objects, so there is nothing for a Flush to
                 // do.  There isn't even a reply to a Flush packet.
                 OdbcUtil.validateInputPacketSize(inPacket);
                 return;
-              case 'S':
+              case 'S': // Sync packet
                 // Special case for Sync packets.
                 // To facilitate recovery, we do not abort in case of problems.
                 if (!inOdbcTrans) try {
@@ -804,7 +801,7 @@ class ServerConnection implements Runnable {
                             dataOutput);
                 }
                 break;
-              case 'P':
+              case 'P': // Parse packet
                 psHandle = inPacket.readString();
                 String query = OdbcUtil.revertMungledPreparedQuery(
                     inPacket.readString());
@@ -833,7 +830,7 @@ class ServerConnection implements Runnable {
                 outPacket.xmit('1', dataOutput);
                 OdbcUtil.validateInputPacketSize(inPacket);
                 return;
-              case 'D':
+              case 'D': // Describe packet
                 c = inPacket.readByteChar();
                 handle = inPacket.readString();
                 odbcPs = null;
@@ -948,7 +945,7 @@ class ServerConnection implements Runnable {
                 outPacket.xmit('T', dataOutput); // Xmit Row Definition
                 OdbcUtil.validateInputPacketSize(inPacket);
                 return;
-              case 'B':
+              case 'B': // Bind packet
                 portalHandle = inPacket.readString();
                 psHandle = inPacket.readString();
                 int paramFormatCount = inPacket.readUnsignedShort();
@@ -998,7 +995,7 @@ class ServerConnection implements Runnable {
                 outPacket.xmit('2', dataOutput);
                 OdbcUtil.validateInputPacketSize(inPacket);
                 return;
-              case 'E':
+              case 'E': // Execute packet
                 portalHandle = inPacket.readString();
                 int fetchRows = inPacket.readInt();
                 if (server.isTrace()) {
@@ -1121,7 +1118,7 @@ class ServerConnection implements Runnable {
                 // would end in ReadyForQuery/Z, but no.
                 OdbcUtil.validateInputPacketSize(inPacket);
                 return;
-              case 'C':
+              case 'C': // Close packet
                 c = inPacket.readByteChar();
                 handle = inPacket.readString();
                 odbcPs = null;
