@@ -66,18 +66,12 @@ class OdbcPacketInputStream extends DataInputStream {
     /**
      * Instantiate a packet constituted entirely from what is read off of the
      * specified stream.
-     *
-     * @return Null if first byte on the given stream is the character 'X'.
      */
     static OdbcPacketInputStream newOdbcPacketInputStream(
     InputStream streamSource) throws IOException {
         return newOdbcPacketInputStream(null, streamSource, null);
     }
 
-    /**
-     * @return null, without reading any more input, for the special case
-     * where the first byte we read is 'X'.
-     */
     static private OdbcPacketInputStream newOdbcPacketInputStream(
     Character packetTypeObj, InputStream streamSource, Integer packetSizeObj)
     throws IOException {
@@ -94,9 +88,6 @@ class OdbcPacketInputStream extends DataInputStream {
             cType = (char) i;
         } else {
             cType = packetTypeObj.charValue();
-        }
-        if (cType == 'X') {
-            return null;
         }
         if (packetSizeObj == null) {
             byte[] fourBytes = new byte[4];
