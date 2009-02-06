@@ -47,8 +47,13 @@ public class OdbcPacketInputStreamTest extends junit.framework.TestCase {
                     + "Res file '" + resPath + "' not accessible");
         }
         OdbcPacketInputStream inPacket = null;
+        int packetType = is.read();
+        if (packetType < 0) {
+            throw new IOException("Failed to read first byte of packet stream");
+        }
         try {
-            inPacket = OdbcPacketInputStream.newOdbcPacketInputStream(is);
+            inPacket = OdbcPacketInputStream.newOdbcPacketInputStream(
+                (char) packetType, is);
         } catch (IOException ioe) {
             fail("Failed to instantiate OdbcPacketInputStream object: "
                     + ioe);
