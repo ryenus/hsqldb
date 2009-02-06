@@ -108,6 +108,10 @@ public class TestOdbcService extends junit.framework.TestCase {
      */
     protected void tearDown() throws SQLException {
         if (netConn != null) {
+            netConn.rollback();
+            // Necessary to prevent the SHUTDOWN command from causing implied
+            // transaction control commands, which will not be able to
+            // complete.
             netConn.createStatement().executeUpdate("SHUTDOWN");
             netConn.close();
             netConn = null;
@@ -476,6 +480,42 @@ public class TestOdbcService extends junit.framework.TestCase {
             ase.initCause(se);
             throw ase;
         }
+    }
+
+    private void enableAutoCommit() {
+        try {
+            netConn.setAutoCommit(false);
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        }
+    }
+
+    public void testTranSanity() {
+        enableAutoCommit();
+        testSanity();
+    }
+    public void testTranFullyPreparedQuery() {
+        enableAutoCommit();
+        testFullyPreparedQuery();
+    }
+    public void testTranDetailedSimpleQueryOutput() {
+        enableAutoCommit();
+        testDetailedSimpleQueryOutput();
+    }
+    public void testTranPreparedNonRowStatement() {
+        enableAutoCommit();
+        testPreparedNonRowStatement();
+    }
+    public void testTranParamlessPreparedQuery() {
+        enableAutoCommit();
+        testParamlessPreparedQuery();
+    }
+    public void testTranSimpleUpdate() {
+        enableAutoCommit();
+        testSimpleUpdate();
     }
 
     /**
