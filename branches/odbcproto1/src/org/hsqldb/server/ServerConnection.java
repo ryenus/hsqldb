@@ -342,7 +342,7 @@ class ServerConnection implements Runnable {
          * autoCommit setting.
          * If the user/app runs in non-autocommit mode and says to run a
          * COMMIT followed by an INSERT, the driver will handle the user/app's
-         * facade of autocommittedness, and will send the server<OL>
+         * facade of autocommittedness, and will send the server <OL>
          *   <LI>COMMIT (which will cause us to set session.setAutoCommit(true)
          *   <LI>BEGIN (which will cause us to set session.setAutoCommit(false)
          *   <LI>INSERT...
@@ -350,9 +350,12 @@ class ServerConnection implements Runnable {
          */
         char op, c;
         boolean sendReadyForQuery = false;
-        String stringVal, psHandle, portalHandle, replyString, handle;
+        String stringVal, psHandle, portalHandle, handle;
+        String interposedStatement = null;
+        // Statement which must be executed after the primary statement, but
+        // before sending the ReadyForQuery Z packet.
         Result r, rOut;
-        int paramCount;
+        int paramCount, lastSemi;
         OdbcPreparedStatement odbcPs;
         StatementPortal portal;
         org.hsqldb.result.ResultMetaData pmd;
@@ -494,19 +497,20 @@ class ServerConnection implements Runnable {
                     }
                 }
                 if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 0) {
-                    server.print("FINISH IMPLEMENTING SAVEPOINT Prefix!");
-                    sql = sql.substring(sql.indexOf(';') + 1);
-                    // No-oping the Savepoint for now, because it is non-trivial
-                    // TODO:  Implement this in similar fashion to BEGIN; prefix
+                    int firstSemi = sql.indexOf(';');
+                    server.printWithThread(
+                        "Interposing BEFORE primary statement: "
+                        + sql.substring(0, firstSemi));
+                    odbcExecDirect(sql.substring(0, firstSemi));
+                    sql = sql.substring(firstSemi + 1);
                 }
-                if (sql.indexOf(";RELEASE ") > 0) {
-                    server.print("FINISH IMPLEMENTING RELEASE Suffix!");
-                    sql = sql.substring(0, sql.indexOf(';'));
-                    // TODO:  Ensure no semicolons after "RELEASE".
-                    // TODO:  Issue a RELASE _after_ processing main command,
-                    // but perhaps do not issue a separate reply for it.
-                    // TODO:  Test if Postgresql server sends replies for
-                    // RELEASE commands, both separately and in a compound.
+                lastSemi = sql.lastIndexOf(';');
+                if (lastSemi > 0) {
+                    String suffix = sql.substring(lastSemi + 1);
+                    if (suffix.startsWith("RELEASE ")) {
+                        interposedStatement = suffix;
+                        sql = sql.substring(0, lastSemi);
+                    }
                 }
                 /***********************************************/
 
@@ -515,16 +519,22 @@ class ServerConnection implements Runnable {
                     server.printWithThread("Received query (" + sql + ')');
                 }
 
-                // BEWARE:  We aren't supporting multiple result-sets from a
-                // compound statement.  Plus, a general requirement is, the
-                // entire compound statement may return just one result set.
-                // I don't have time to check how it works elsewhere, but here,
-                // and for now, the Rowset-generating statement (SELECT, etc.)
-                // must be first in order for us to detect that we need to
-                // return a result set.
-                // If we do parse out the component statement here, the states
-                // set above apply to all executions, and only one Z packet
-                // should be sent at the very end.
+                /*
+                 * BEWARE:  We aren't supporting multiple result-sets from a
+                 * compound statement.  Plus, a general requirement is, the
+                 * entire compound statement may return just one result set.
+                 * I don't have time to check how it works elsewhere, but here,
+                 * and for now, the Rowset-generating statement (SELECT, etc.)
+                 * must be first in order for us to detect that we need to
+                 * return a result set.
+                 / If we do parse out the component statement here, the states
+                 * set above apply to all executions, and only one Z packet
+                 * should be sent at the very end.
+                 *
+                 * I find that the Driver can't handle compound statements
+                 * which mix resultset + non-resultset statements (even In
+                 * SIMPLE mode), so we are more capable than our client is.
+                 */
 
                 if (normalized.startsWith("select current_schema()")) {
                     server.printWithThread(
@@ -775,53 +785,8 @@ class ServerConnection implements Runnable {
                     break;
                 }
                 // Case below is non-String-matched Qs:
-                // TODO:  ROLLBACK is badly broken.
-                // I think that when a ROLLBACK of an update is done here,
-                // it actually inserts new rows!
                 server.printWithThread("Performing a real EXECDIRECT...");
-                if (normalized.startsWith("release ")
-                    && !normalized.startsWith("release savepoint")) {
-                    server.printWithThread(
-                    "Transmogrifying 'RELEASE ...' to 'RELEASE SAVEPOINT...");
-                    sql = sql.trim().substring(0, "release ".length())
-                        + "SAVEPOINT "
-                        + sql.trim().substring("release ".length());
-                }
-                r = Result.newExecuteDirectRequest();
-                r.setPrepareOrExecuteProperties(sql, 0, 0,
-                    org.hsqldb.StatementTypes.RETURN_COUNT,
-                    org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
-                    org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
-                    org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
-                    java.sql.Statement.NO_GENERATED_KEYS, null, null);
-                rOut = session.execute(r);
-                switch (rOut.getType()) {
-                    case ResultConstants.UPDATECOUNT:
-                        break;
-                    case ResultConstants.ERROR:
-                        throw new RecoverableOdbcFailure(rOut);
-                    default:
-                        throw new RecoverableOdbcFailure(
-                            "Output Result from execution is of "
-                            + "unexpected type: " + rOut.getType());
-                }
-                replyString = OdbcUtil.echoBackReplyString(
-                    normalized, rOut.getUpdateCount());
-                outPacket.write(replyString);
-                outPacket.xmit('C', dataOutput);
-
-                // This keeps session.autoUpdate in sync with client's notion
-                // of transaction state.
-                if (normalized.equals("commit")
-                    || normalized.startsWith("commit ")
-                    || normalized.equals("rollback")
-                    || normalized.startsWith("rollback ")) try {
-                    session.setAutoCommit(true);
-                } catch (HsqlException he) {
-                    throw new RecoverableOdbcFailure(
-                        "Failed to change transaction state: "
-                        + he.getMessage(), he.getSQLState());
-                }
+                odbcExecDirect(sql);
                 sendReadyForQuery = true;
                 break;
               case 'X': // Terminate packet
@@ -1072,9 +1037,8 @@ class ServerConnection implements Runnable {
                 rOut = session.execute(portal.bindResult);
                 switch (rOut.getType()) {
                     case ResultConstants.UPDATECOUNT:
-                        replyString = OdbcUtil.echoBackReplyString(
-                            portal.lcQuery, rOut.getUpdateCount());
-                        outPacket.write(replyString);
+                        outPacket.write(OdbcUtil.echoBackReplyString(
+                            portal.lcQuery, rOut.getUpdateCount()));
                         outPacket.xmit('C', dataOutput);
                         // end of rows (B or D packets)
 
@@ -1211,6 +1175,12 @@ class ServerConnection implements Runnable {
                     + ')', "0A000");
             }
             OdbcUtil.validateInputPacketSize(inPacket);
+            if (interposedStatement != null) {
+                server.printWithThread(
+                    "Interposing AFTER primary statement: "
+                    + interposedStatement);
+                odbcExecDirect(interposedStatement);
+            }
             if (sendReadyForQuery) {
                 outPacket.reset();
                 // The reset is unnecessary now.  For safety in case somebody
@@ -1252,7 +1222,7 @@ class ServerConnection implements Runnable {
                     // TODO:  Consider keeping this state until the session
                     // is either committed or rolled back.
                     // (Right now we just return 'E' here, then revert to
-                    // I or T.
+                    // I or T).
                     outPacket.xmit('Z', dataOutput);
                     break;
                 case OdbcUtil.ODBC_EXTENDED_MODE:
@@ -1425,7 +1395,7 @@ class ServerConnection implements Runnable {
         // Can just return to fail, until the value of "session" is set below.
         if (major == 1 && minor == 7) {
             // This is what old HyperSQL versions always send
-            // TODO:  Send client a 1.8-compatible SQLException
+            // TODO:  Consider sending client a 1.8-compatible SQLException
             server.print("A pre-9.0 client attempted to connect.  "
                     + "We rejected them.");
             return;
@@ -1610,4 +1580,51 @@ class ServerConnection implements Runnable {
     static final int ODBC_STREAM_PROTOCOL = 2;
 
     int odbcCommMode = OdbcUtil.ODBC_SIMPLE_MODE;
+
+    private void odbcExecDirect(String inStatement)
+    throws RecoverableOdbcFailure, IOException {
+        String statement = inStatement;
+        String norm = statement.trim().toLowerCase();
+        if (norm.startsWith("release ")
+            && !norm.startsWith("release savepoint")) {
+            server.printWithThread(
+            "Transmogrifying 'RELEASE ...' to 'RELEASE SAVEPOINT...");
+            statement = statement.trim().substring(0, "release ".length())
+                + "SAVEPOINT "
+                + statement.trim().substring("release ".length());
+        }
+        Result r = Result.newExecuteDirectRequest();
+        r.setPrepareOrExecuteProperties(statement, 0, 0,
+            org.hsqldb.StatementTypes.RETURN_COUNT,
+            org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
+            org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
+            org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+            java.sql.Statement.NO_GENERATED_KEYS, null, null);
+        Result rOut = session.execute(r);
+        switch (rOut.getType()) {
+            case ResultConstants.UPDATECOUNT:
+                break;
+            case ResultConstants.ERROR:
+                throw new RecoverableOdbcFailure(rOut);
+            default:
+                throw new RecoverableOdbcFailure(
+                    "Output Result from execution is of "
+                    + "unexpected type: " + rOut.getType());
+        }
+        outPacket.reset();
+        outPacket.write(
+            OdbcUtil.echoBackReplyString(norm, rOut.getUpdateCount()));
+        outPacket.xmit('C', dataOutput);
+
+        // This keeps session.autoUpdate in sync with client's notion
+        // of transaction state.
+        if (norm.equals("commit") || norm.startsWith("commit ")
+            || norm.equals("rollback") || norm.startsWith("rollback ")) try {
+            session.setAutoCommit(true);
+        } catch (HsqlException he) {
+            throw new RecoverableOdbcFailure(
+                "Failed to change transaction state: "
+                + he.getMessage(), he.getSQLState());
+        }
+    }
 }
