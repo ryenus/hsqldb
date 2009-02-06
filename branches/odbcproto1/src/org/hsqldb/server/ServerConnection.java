@@ -300,9 +300,9 @@ class ServerConnection implements Runnable {
 
     private CleanExit cleanExit = new CleanExit();
 
-    private void hsqlResultCycle()
+    private void receiveResult(int resultMode)
     throws CleanExit, IOException, HsqlException {
-        Result resultIn = Result.newResult(dataInput, rowIn);
+        Result resultIn = Result.newResult(resultMode, dataInput, rowIn);
 
         resultIn.readAdditionalResults(session, dataInput, rowIn);
         server.printRequest(mThread, resultIn);
@@ -336,7 +336,7 @@ class ServerConnection implements Runnable {
     private boolean inOdbcTrans = false;
     private OdbcPacketOutputStream outPacket = null;
 
-    private void odbcXmitCycle() throws IOException, CleanExit {
+    private void receiveOdbcPacket(char inC) throws IOException, CleanExit {
         char op, c;
         boolean newTran = false;
         String stringVal, psHandle, portalHandle, replyString, handle;
@@ -349,7 +349,7 @@ class ServerConnection implements Runnable {
 
         try {
             inPacket =
-                OdbcPacketInputStream.newOdbcPacketInputStream(dataInput);
+                OdbcPacketInputStream.newOdbcPacketInputStream(inC, dataInput);
             server.printWithThread("Got op (" + inPacket.packetType + ')');
             server.printWithThread("Got packet length of "
                     + inPacket.available() + " + type byte + 4 size header");
@@ -1217,22 +1217,20 @@ class ServerConnection implements Runnable {
      * loop until closed.
      */
     public void run() {
+        int msgType;
 
         init();
 
         if (session != null) {
             try {
                 while (keepAlive) {
-                    switch (streamProtocol) {
-                        case HSQL_STREAM_PROTOCOL:
-                            hsqlResultCycle();
-                            break;
-                        case ODBC_STREAM_PROTOCOL:
-                            odbcXmitCycle();
-                            break;
-                        default:
-                            throw new RuntimeException("Internal problem.  "
-                                    + "Handshake should have unset keepAlive.");
+                    msgType = dataInput.readByte();
+                    if ((msgType < '0' || msgType > '9')
+                        && (msgType < 'a' || msgType > 'z')
+                        && (msgType < 'A' || msgType > 'Z')) {
+                        receiveResult(msgType);
+                    } else {
+                        receiveOdbcPacket((char) msgType);
                     }
                 }
             } catch (CleanExit ce) {
@@ -1405,7 +1403,7 @@ class ServerConnection implements Runnable {
         server.printWithThread("ODBC client connected.  "
                 + "ODBC Protocol Compatibility Version " + major + '.' + minor);
         OdbcPacketInputStream inPacket =
-            OdbcPacketInputStream.newOdbcPacketInputStream(
+            OdbcPacketInputStream.newOdbcPacketInputStream('\0',
             dataInput, firstInt - 8);
             // - 4 for size of firstInt - 2 for major - 2 for minor
         java.util.Map stringPairs = inPacket.readStringPairs();
