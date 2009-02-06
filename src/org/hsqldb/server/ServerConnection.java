@@ -339,6 +339,7 @@ class ServerConnection implements Runnable {
     private void receiveOdbcPacket(char inC) throws IOException, CleanExit {
         char op, c;
         boolean newTran = false;
+        boolean sendReadyForQuery = false;
         String stringVal, psHandle, portalHandle, replyString, handle;
         Result r, rOut;
         int paramCount;
@@ -430,11 +431,15 @@ class ServerConnection implements Runnable {
 
         outPacket.reset();
         try {
-            // MAIN Comm Switch.
-            // The resolution for each operation is one of:
-            //   throw:  Handling will depend on the Throwable type
-            //   break:  A Z (ReadyForQuery) packet will be sent to client
-            //   run OdbcUtil.validateInputPacketSize() then return:  Nothing.  
+            // Every switch case must either throw or break.
+            // For cases which break
+            //   The packet will always be checked to make sure all bytes have
+            //   been consumed.
+            //   Set boolean sendReadyForQuery to send a Z/ReadyForQuery packet
+            //   to client.
+            // DO NOT return early.  If you need to abort, that is exceptional
+            // behavior and you should throw an Exception.
+            MAIN_ODBC_COMM_SWITCH:
             switch (inPacket.packetType) {
               case 'Q': // Query packet
                 String sql = inPacket.readString();
@@ -444,6 +449,22 @@ class ServerConnection implements Runnable {
                  * These first few cases handle the driver's implicit handling
                  * of transactions. */
                 if (sql.startsWith("BEGIN;") || sql.equals("BEGIN")) {
+                    /*
+                     * We may get here because of Driver client trying to
+                     * manage transactions implicitly; or because user/app.
+                     * has really issued a "BEGIN" command.
+                     * In the first case, we don't need to run the
+                     * corresponding START TRANSACTION command, since the
+                     * HyperSQL engine does this automatically, and can tell
+                     * when it is needed far better than the client; however
+                     * we do use this fact to update our autocommit state to
+                     * match the client's notion.
+                     * For the latter case, we can skip it, because real
+                     * HyperSQL user/apps will use "START TRANSACTION", not
+                     * "BEGIN".
+                     * Therefore, we just update autocommit state and run no
+                     * other command against the engine.
+                     */
                     sql = sql.equals("BEGIN")
                         ? null : sql.substring("BEGIN;".length());
                     server.printWithThread("ODBC Trans started");
@@ -451,10 +472,8 @@ class ServerConnection implements Runnable {
                     outPacket.write("BEGIN");
                     outPacket.xmit('C', dataOutput);
                     if (sql == null) {
-                       outPacket.writeByte(inOdbcTrans ? 'T' : 'I');
-                       outPacket.xmit('Z', dataOutput);
-                       OdbcUtil.validateInputPacketSize(inPacket);
-                       return;
+                        sendReadyForQuery = true;
+                        break;
                     }
                 }
                 if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 0) {
@@ -480,16 +499,19 @@ class ServerConnection implements Runnable {
                 }
 
                 // BEWARE:  We aren't supporting multiple result-sets from a
-                // compound statement.  Plus for ODBC only, we have the added
-                // constraint that the SELECT must be the first component
-                // statement so that we can detect the statement type.
+                // compound statement.  Plus, a general requirement is, the
+                // entire compound statement may return just one result set.
+                // I don't have time to check how it works elsewhere, but here,
+                // and for now, the Rowset-generating statement (SELECT, etc.)
+                // must be first in order for us to detect that we need to
+                // return a result set.
                 // If we do parse out the component statement here, the states
                 // set above apply to all executions, and only one Z packet
                 // should be sent at the very end.
 
                 if (normalized.startsWith("select current_schema()")) {
                     server.printWithThread(
-                            "Implement 'select current_schema() emulation!");
+                        "Implement 'select current_schema() emulation!");
                     throw new RecoverableOdbcFailure(
                         "current_schema() not supported yet", "0A000");
                 }
@@ -510,6 +532,7 @@ class ServerConnection implements Runnable {
                     // This query returns no rows.  typenam "lo"??
                     outPacket.write("SELECT");
                     outPacket.xmit('C', dataOutput);
+                    sendReadyForQuery = true;
                     break;
                 }
                 if (normalized.startsWith(
@@ -543,6 +566,7 @@ class ServerConnection implements Runnable {
                     // This query returns no rows.  typenam "lo"??
                     outPacket.write("SELECT");
                     outPacket.xmit('C', dataOutput);
+                    sendReadyForQuery = true;
                     break;
                 }
                 if (normalized.startsWith("select ")) {
@@ -687,6 +711,7 @@ class ServerConnection implements Runnable {
                     }
                     outPacket.write("SELECT");
                     outPacket.xmit('C', dataOutput);
+                    sendReadyForQuery = true;
                     break;
                 }
                 if (normalized.startsWith("deallocate ")) {
@@ -722,12 +747,14 @@ class ServerConnection implements Runnable {
                     }
                     outPacket.write("DEALLOCATE");
                     outPacket.xmit('C', dataOutput);
+                    sendReadyForQuery = true;
                     break;
                 }
                 if (normalized.startsWith("set client_encoding to ")) {
                     server.printWithThread("Stubbing EXECDIR for: " +  sql);
                     outPacket.write("SET");
                     outPacket.xmit('C', dataOutput);
+                    sendReadyForQuery = true;
                     break;
                 }
                 // Case below is non-String-matched Qs:
@@ -776,6 +803,7 @@ class ServerConnection implements Runnable {
                     || normalized.startsWith("rollback ")) {
                     inOdbcTrans = false;
                 }
+                sendReadyForQuery = true;
                 break;
               case 'X': // Terminate packet
                 if (sessionOdbcPsMap.size() >
@@ -794,8 +822,7 @@ class ServerConnection implements Runnable {
                 // No-op.  It is impossible to cache while supporting multiple
                 // ps and portal objects, so there is nothing for a Flush to
                 // do.  There isn't even a reply to a Flush packet.
-                OdbcUtil.validateInputPacketSize(inPacket);
-                return;
+                break;
               case 'S': // Sync packet
                 // Special case for Sync packets.
                 // To facilitate recovery, we do not abort in case of problems.
@@ -809,6 +836,7 @@ class ServerConnection implements Runnable {
                             "Implicit commit failed", he.getSQLState(),
                             dataOutput);
                 }
+                sendReadyForQuery = true;
                 break;
               case 'P': // Parse packet
                 psHandle = inPacket.readString();
@@ -837,8 +865,7 @@ class ServerConnection implements Runnable {
                         psHandle, query, sessionOdbcPsMap, session);
 
                 outPacket.xmit('1', dataOutput);
-                OdbcUtil.validateInputPacketSize(inPacket);
-                return;
+                break;
               case 'D': // Describe packet
                 c = inPacket.readByteChar();
                 handle = inPacket.readString();
@@ -894,8 +921,7 @@ class ServerConnection implements Runnable {
                     // Send NoData packet because no columnar output from
                     // this statement.
                     outPacket.xmit('n', dataOutput);
-                    OdbcUtil.validateInputPacketSize(inPacket);
-                    return;
+                    break;
                 }
                 if (md.getColumnCount() != md.getExtendedColumnCount()) {
                     throw new RecoverableOdbcFailure(
@@ -952,8 +978,7 @@ class ServerConnection implements Runnable {
                     // and 1 if B packets will follow.
                 }
                 outPacket.xmit('T', dataOutput); // Xmit Row Definition
-                OdbcUtil.validateInputPacketSize(inPacket);
-                return;
+                break;
               case 'B': // Bind packet
                 portalHandle = inPacket.readString();
                 psHandle = inPacket.readString();
@@ -1002,8 +1027,7 @@ class ServerConnection implements Runnable {
                 new StatementPortal(
                     portalHandle, odbcPs, paramVals, sessionOdbcPortalMap);
                 outPacket.xmit('2', dataOutput);
-                OdbcUtil.validateInputPacketSize(inPacket);
-                return;
+                break;
               case 'E': // Execute packet
                 portalHandle = inPacket.readString();
                 int fetchRows = inPacket.readInt();
@@ -1041,8 +1065,7 @@ class ServerConnection implements Runnable {
                             || portal.lcQuery.startsWith("rollback ")) {
                             inOdbcTrans = false;
                         }
-                        OdbcUtil.validateInputPacketSize(inPacket);
-                        return;
+                        break MAIN_ODBC_COMM_SWITCH;
                     case ResultConstants.DATA:
                         break;
                     case ResultConstants.ERROR:
@@ -1125,8 +1148,7 @@ class ServerConnection implements Runnable {
                 // N.b., we return.
                 // You might think that this completion of an EXTENDED sequence
                 // would end in ReadyForQuery/Z, but no.
-                OdbcUtil.validateInputPacketSize(inPacket);
-                return;
+                break;
               case 'C': // Close packet
                 c = inPacket.readByteChar();
                 handle = inPacket.readString();
@@ -1157,21 +1179,21 @@ class ServerConnection implements Runnable {
                             + (odbcPs != null || portal != null));
                 }
                 outPacket.xmit('3', dataOutput);
-                OdbcUtil.validateInputPacketSize(inPacket);
-                return;
-             default:
+                break;
+              default:
                 throw new RecoverableOdbcFailure(
                     null, "Unsupported operation type (" + inPacket.packetType
                     + ')', "0A000");
-                }
-           OdbcUtil.validateInputPacketSize(inPacket);
-           // All switches that "break" get this ReadyForQuery packet:
-           outPacket.reset();
-           // The reset is unnecessary now.  For safety in case somebody codes
-           // something above which may abort processing of a packet before
-           // xmit.
-           outPacket.writeByte(inOdbcTrans ? 'T' : 'I');
-           outPacket.xmit('Z', dataOutput);
+            }
+            OdbcUtil.validateInputPacketSize(inPacket);
+            if (sendReadyForQuery) {
+                outPacket.reset();
+                // The reset is unnecessary now.  For safety in case somebody
+                // codes something above which may abort processing of a
+                // packet before xmit.
+                outPacket.writeByte(inOdbcTrans ? 'T' : 'I');
+                outPacket.xmit('Z', dataOutput);
+            }
         } catch (RecoverableOdbcFailure rf) {
             Result errorResult = rf.getErrorResult();
             if (errorResult == null) {
