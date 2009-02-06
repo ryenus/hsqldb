@@ -458,14 +458,15 @@ class ServerConnection implements Runnable {
                     }
                 }
                 if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 0) {
-                    throw new RecoverableOdbcFailure(
-                        "SAVEPOINT prefix not supported yet", "0A000");
+                    server.print("FINISH IMPLEMENTING SAVEPOINT Prefix!");
+                    sql = sql.substring(sql.indexOf(';') + 1);
+                    // No-oping the Savepoint for now, because it is non-trivial
                     // TODO:  Implement this in similar fashion to BEGIN; prefix
                 }
                 if (sql.indexOf(";RELEASE ") > 0) {
+                    server.print("FINISH IMPLEMENTING RELEASE Suffix!");
+                    sql = sql.substring(0, sql.indexOf(';'));
                     // TODO:  Ensure no semicolons after "RELEASE".
-                    throw new RecoverableOdbcFailure(
-                        "';RELEASE <id>' suffix not supported yet", "0A000");
                     // TODO:  Issue a RELASE _after_ processing main command,
                     // but perhaps do not issue a separate reply for it.
                     // TODO:  Test if Postgresql server sends replies for
@@ -548,7 +549,7 @@ class ServerConnection implements Runnable {
                     server.printWithThread(
                         "Performing a real non-prepared SELECT...");
                     r = Result.newExecuteDirectRequest();
-                    r.setPrepareOrExecuteProperties(normalized, 0, 0,
+                    r.setPrepareOrExecuteProperties(sql, 0, 0,
                         org.hsqldb.StatementTypes.RETURN_RESULT,
                         org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
                         org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
@@ -734,8 +735,16 @@ class ServerConnection implements Runnable {
                 // I think that when a ROLLBACK of an update is done here,
                 // it actually inserts new rows!
                 server.printWithThread("Performing a real EXECDIRECT...");
+                if (normalized.startsWith("release ")
+                    && !normalized.startsWith("release savepoint")) {
+                    server.printWithThread(
+                    "Transmogrifying 'RELEASE ...' to 'RELEASE SAVEPOINT...");
+                    sql = sql.trim().substring(0, "release ".length())
+                        + "SAVEPOINT "
+                        + sql.trim().substring("release ".length());
+                }
                 r = Result.newExecuteDirectRequest();
-                r.setPrepareOrExecuteProperties(normalized,0, 0,
+                r.setPrepareOrExecuteProperties(sql, 0, 0,
                     org.hsqldb.StatementTypes.RETURN_COUNT,
                     org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
                     org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
@@ -763,8 +772,8 @@ class ServerConnection implements Runnable {
                 // TODO:  Consider implications of autocommit mode.
                 if (normalized.equals("commit")
                     || normalized.startsWith("commit ")
-                    || normalized.equals("savepoint")
-                    || normalized.startsWith("savepoint ")) {
+                    || normalized.equals("rollback")
+                    || normalized.startsWith("rollback ")) {
                     inOdbcTrans = false;
                 }
                 break;
@@ -1028,8 +1037,8 @@ class ServerConnection implements Runnable {
                         // TODO:  Consider implications of autocommit mode.
                         if (portal.lcQuery.equals("commit")
                             || portal.lcQuery.startsWith("commit ")
-                            || portal.lcQuery.equals("savepoint")
-                            || portal.lcQuery.startsWith("savepoint ")) {
+                            || portal.lcQuery.equals("rollback")
+                            || portal.lcQuery.startsWith("rollback ")) {
                             inOdbcTrans = false;
                         }
                         OdbcUtil.validateInputPacketSize(inPacket);
