@@ -53,42 +53,29 @@ class OdbcPacketInputStream extends DataInputStream {
     private InputStream bufferStream;
 
     /**
-     * Instantiate a packet of the specified size, with unspecified packet type.
-     *
-     * @return Non-null packet
+     * Instantiate a packet of the specified type and size.
      */
     static OdbcPacketInputStream newOdbcPacketInputStream(
-    InputStream streamSource, int sizeInt) throws IOException {
+    char cType, InputStream streamSource, int sizeInt) throws IOException {
         return newOdbcPacketInputStream(
-            new Character('\0'), streamSource, new Integer(sizeInt));
+            cType, streamSource, new Integer(sizeInt));
     }
 
     /**
-     * Instantiate a packet constituted entirely from what is read off of the
-     * specified stream.
+     * Instantiate a packet of the specified type, with size determined by
+     * the first int read from the given stream.
      */
     static OdbcPacketInputStream newOdbcPacketInputStream(
-    InputStream streamSource) throws IOException {
-        return newOdbcPacketInputStream(null, streamSource, null);
+    char cType, InputStream streamSource) throws IOException {
+        return newOdbcPacketInputStream(cType, streamSource, null);
     }
 
     static private OdbcPacketInputStream newOdbcPacketInputStream(
-    Character packetTypeObj, InputStream streamSource, Integer packetSizeObj)
+    char cType, InputStream streamSource, Integer packetSizeObj)
     throws IOException {
         int bytesRead, i;
         int packetSize = 0;
 
-        char cType = 0;
-        if (packetTypeObj == null) {
-            i = streamSource.read();
-            if (i < 0) {
-                throw new EOFException(
-                        "Failed to read packet type from given stream");
-            }
-            cType = (char) i;
-        } else {
-            cType = packetTypeObj.charValue();
-        }
         if (packetSizeObj == null) {
             byte[] fourBytes = new byte[4];
             bytesRead = 0;
