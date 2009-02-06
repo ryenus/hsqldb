@@ -333,12 +333,21 @@ class ServerConnection implements Runnable {
         rowIn.resetRow(mainBuffer.length);
     }
 
-    private boolean inOdbcTrans = false;
     private OdbcPacketOutputStream outPacket = null;
 
     private void receiveOdbcPacket(char inC) throws IOException, CleanExit {
+        /*
+         * The driver's notion of the transaction state, I (no) or T (yes),
+         * corresponds precisely inversely to our server-side Session
+         * autoCommit setting.
+         * If the user/app runs in non-autocommit mode and says to run a
+         * COMMIT followed by an INSERT, the driver will handle the user/app's
+         * facade of autocommittedness, and will send the server<OL.
+         *   <LI>COMMIT (which will cause us to set session.setAutoCommit(true)
+         *   <LI>BEGIN (which will cause us to set session.setAutoCommit(false)
+         *   <LI>INSERT...
+         */
         char op, c;
-        boolean newTran = false;
         boolean sendReadyForQuery = false;
         String stringVal, psHandle, portalHandle, replyString, handle;
         Result r, rOut;
@@ -457,18 +466,25 @@ class ServerConnection implements Runnable {
                      * corresponding START TRANSACTION command, since the
                      * HyperSQL engine does this automatically, and can tell
                      * when it is needed far better than the client; however
-                     * we do use this fact to update our autocommit state to
-                     * match the client's notion.
-                     * For the latter case, we can skip it, because real
-                     * HyperSQL user/apps will use "START TRANSACTION", not
-                     * "BEGIN".
+                     * we do use this fact to update our Session autocommit
+                     * state to match the client's notion.
+                     * We ignore the latter case, because real HyperSQL
+                     * user/apps will use "START TRANSACTION", not "BEGIN".
                      * Therefore, we just update autocommit state and run no
                      * other command against the engine.
                      */
                     sql = sql.equals("BEGIN")
                         ? null : sql.substring("BEGIN;".length());
-                    server.printWithThread("ODBC Trans started");
-                    inOdbcTrans = true;
+                    server.printWithThread(
+                        "ODBC Trans started.  Session AutoCommit -> F");
+                    try {
+                        session.setAutoCommit(false);
+                    } catch (HsqlException he) {
+                        throw new RecoverableOdbcFailure(
+                            "Failed to change transaction state: "
+                            + he.getMessage(), he.getSQLState());
+                    }
+                    // Now just placate the driver
                     outPacket.write("BEGIN");
                     outPacket.xmit('C', dataOutput);
                     if (sql == null) {
@@ -793,15 +809,17 @@ class ServerConnection implements Runnable {
                 outPacket.write(replyString);
                 outPacket.xmit('C', dataOutput);
 
-                // A guess about how keeping inOdbcTrans in sync with
-                // client.  N.b. HSQLDB will need to more liberal with
-                // resetting, since DDL causes commits.
-                // TODO:  Consider implications of autocommit mode.
+                // This keeps session.autoUpdate in sync with client's notion
+                // of transaction state.
                 if (normalized.equals("commit")
                     || normalized.startsWith("commit ")
                     || normalized.equals("rollback")
-                    || normalized.startsWith("rollback ")) {
-                    inOdbcTrans = false;
+                    || normalized.startsWith("rollback ")) try {
+                    session.setAutoCommit(true);
+                } catch (HsqlException he) {
+                    throw new RecoverableOdbcFailure(
+                        "Failed to change transaction state: "
+                        + he.getMessage(), he.getSQLState());
                 }
                 sendReadyForQuery = true;
                 break;
@@ -826,8 +844,12 @@ class ServerConnection implements Runnable {
               case 'S': // Sync packet
                 // Special case for Sync packets.
                 // To facilitate recovery, we do not abort in case of problems.
-                if (!inOdbcTrans) try {
-                    server.printWithThread("Implicit commit by Sync");
+                if (session.isAutoCommit()) try {
+                    // I don't see how this can be useful.  If we ran DML, it
+                    // will have autocommitted.  If we have just switched to
+                    // autoCommit mode, then according to spec we must have
+                    // executed an implicit commit then.
+                    server.printWithThread("Silly implicit commit by Sync");
                     session.commit(true);
                     // TODO:  Find out if chain param should be T or F.
                 } catch (HsqlException he) {
@@ -1055,15 +1077,17 @@ class ServerConnection implements Runnable {
                         outPacket.xmit('C', dataOutput);
                         // end of rows (B or D packets)
 
-                        // A guess about how keeping inOdbcTrans in sync with
-                        // client.  N.b. HSQLDB will need to more liberal with
-                        // resetting, since DDL causes commits.
-                        // TODO:  Consider implications of autocommit mode.
+                        // This keeps session.autoUpdate in sync with client's
+                        // notion of transaction state.
                         if (portal.lcQuery.equals("commit")
                             || portal.lcQuery.startsWith("commit ")
                             || portal.lcQuery.equals("rollback")
-                            || portal.lcQuery.startsWith("rollback ")) {
-                            inOdbcTrans = false;
+                            || portal.lcQuery.startsWith("rollback ")) try {
+                            session.setAutoCommit(true);
+                        } catch (HsqlException he) {
+                            throw new RecoverableOdbcFailure(
+                                "Failed to change transaction state: "
+                                + he.getMessage(), he.getSQLState());
                         }
                         break MAIN_ODBC_COMM_SWITCH;
                     case ResultConstants.DATA:
@@ -1191,7 +1215,7 @@ class ServerConnection implements Runnable {
                 // The reset is unnecessary now.  For safety in case somebody
                 // codes something above which may abort processing of a
                 // packet before xmit.
-                outPacket.writeByte(inOdbcTrans ? 'T' : 'I');
+                outPacket.writeByte(session.isAutoCommit() ? 'I' : 'T');
                 outPacket.xmit('Z', dataOutput);
             }
         } catch (RecoverableOdbcFailure rf) {
@@ -1224,6 +1248,10 @@ class ServerConnection implements Runnable {
                case OdbcUtil.ODBC_SIMPLE_MODE:
                     outPacket.reset();  /// transaction status = Error
                     outPacket.writeByte('E');  /// transaction status = Error
+                    // TODO:  Consider keeping this state until the session
+                    // is either committed or rolled back.
+                    // (Right now we just return 'E' here, then revert to
+                    // I or T.
                     outPacket.xmit('Z', dataOutput);
                     break;
                 case OdbcUtil.ODBC_EXTENDED_MODE:
