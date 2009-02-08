@@ -30,21 +30,20 @@
 
 package org.hsqldb.test;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
 
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
 import org.hsqldb.server.ServerConstants;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
+/**
+ * Base test class for ODBC testing.
+ *
+ * Provides utility testrunner method, plus sets up and runs a HyperSQL
+ * listener.
+ */
 public abstract class AbstractTestOdbc extends junit.framework.TestCase {
     protected Connection netConn = null;
     protected Server server = null;
@@ -182,10 +181,16 @@ public abstract class AbstractTestOdbc extends junit.framework.TestCase {
         }
     }
 
-
     /**
      * This method allows to easily run this unit test independent of the other
      * unit tests, and without dealing with Ant or unrelated test suites.
+     *
+     * Invoke like this:<PRE><CODE>
+     *  static public void main(String[] sa) {
+     *      staticRunner(TestOdbcService.class, sa);
+     *  }
+     *</CODE></PRE>, but give your subclass name in place of
+     * <CODE>TestOdbcService</CODE>
      */
     static public void staticRunner(Class c, String[] sa) {
         if (sa.length > 0 && sa[0].startsWith("-g")) {
