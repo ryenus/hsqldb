@@ -33,29 +33,19 @@ package org.hsqldb.test;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 
 /**
- * You MUST have a native (non-Java) ODBC DSN configured with the HyperSQL
- * ODBC driver, DSN name "HSQLDB_UTEST", DSN database "/", port "9797".
- * The user name and password don't matter.
- * <P>
- * We use the word <I>query</i> how it is used in the JDBC API, to mean a
- * SELECT statement, not in the more general way as used in the ODBC API.
- * </P> <P>
- * The DSN name and port may be changed from these defaults by setting Java
- * system properties "test.hsqlodbc.dsnname" and/or "test.hsqlodbc.port".
- * </P> <P>
+ * See AbstractTestOdbc for more general ODBC test information.
+ *
  * Standard test methods perform the named test, then perform a simple
  * (non-prepared) query to verify the state of the server is healthy enough
  * to successfully serve a query.
  * (We may or many not add test(s) to verify behavior when no static query
  * follows).
- * </P> <P>
- * To debug server, network, or connection problems, set Java system property
- * "VERBOSE" (to anything).
- * </P>
+ *
+ * @see AbstractTestOdbc
  */
 public class TestOdbcService extends AbstractTestOdbc {
 
@@ -382,14 +372,12 @@ public class TestOdbcService extends AbstractTestOdbc {
         testSimpleUpdate();
     }
 
-    protected void populate(Connection c) throws SQLException {
-        Statement st = c.createStatement();
-        st.executeUpdate("SET PASSWORD 'sapwd'");
+    protected void populate(Statement st) throws SQLException {
         st.executeUpdate("DROP TABLE nullmix IF EXISTS");
         st.executeUpdate("CREATE TABLE nullmix "
                 + "(i INT NOT NULL, vc VARCHAR(20), xtra VARCHAR(20))");
 
-        // Would be more elegant and efficient ot use a prepared statement
+        // Would be more elegant and efficient to use a prepared statement
         // here, but our we want this setup to be as simple as possible, and
         // leave feature testing for the actual unit tests.
         st.executeUpdate("INSERT INTO nullmix (i, vc) values(10, 'ten')");
@@ -399,7 +387,6 @@ public class TestOdbcService extends AbstractTestOdbc {
                 "INSERT INTO nullmix (i, vc) values(21, 'twenty one')");
         st.executeUpdate("INSERT INTO nullmix (i, vc) values(40, 'forty')");
         st.executeUpdate("INSERT INTO nullmix (i) values(25)");
-        st.close();
     }
 
     static public void main(String[] sa) {
