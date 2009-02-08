@@ -18,8 +18,7 @@
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -33,16 +32,27 @@ package org.hsqldb.test;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
 import org.hsqldb.server.ServerConstants;
 
 /**
- * Base test class for ODBC testing.
+ * Base test class for ODBC testing with JUnit 3.x.
  *
  * Provides utility testrunner method, plus sets up and runs a HyperSQL
  * listener.
+ * <P>
+ * You MUST have a native (non-Java) ODBC DSN configured with the HyperSQL
+ * ODBC driver, DSN name "HSQLDB_UTEST", DSN database "/", port "9797".
+ * The user name and password don't matter.
+ * We use the word <I>query</i> how it is used in the JDBC API, to mean a
+ * SELECT statement, not in the more general way as used in the ODBC API.
+ * </P> <P>
+ * The DSN name and port may be changed from these defaults by setting Java
+ * system properties "test.hsqlodbc.dsnname" and/or "test.hsqlodbc.port".
+ * </P>
  */
 public abstract class AbstractTestOdbc extends junit.framework.TestCase {
     protected Connection netConn = null;
@@ -115,7 +125,10 @@ public abstract class AbstractTestOdbc extends junit.framework.TestCase {
             Connection setupConn = DriverManager.getConnection(
                 "jdbc:hsqldb:mem:test", "SA", "");
             setupConn.setAutoCommit(false);
-            populate(setupConn);
+            Statement st = setupConn.createStatement();
+            st.executeUpdate("SET PASSWORD 'sapwd'");
+            populate(st);
+            st.close();
             setupConn.commit();
             setupConn.close();
         } catch (SQLException se) {
@@ -204,5 +217,5 @@ public abstract class AbstractTestOdbc extends junit.framework.TestCase {
         }
     }
 
-    abstract protected void populate(Connection c) throws SQLException;
+    abstract protected void populate(Statement st) throws SQLException;
 }
