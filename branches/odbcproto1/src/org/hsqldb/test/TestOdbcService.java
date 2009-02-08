@@ -30,20 +30,11 @@
 
 package org.hsqldb.test;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
-
-import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.server.Server;
-import org.hsqldb.server.ServerConstants;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * You MUST have a native (non-Java) ODBC DSN configured with the HyperSQL
@@ -412,6 +403,6 @@ public class TestOdbcService extends AbstractTestOdbc {
     }
 
     static public void main(String[] sa) {
-        staticRunner(TestOdbcService.class,sa);
+        staticRunner(TestOdbcService.class, sa);
     }
 }
