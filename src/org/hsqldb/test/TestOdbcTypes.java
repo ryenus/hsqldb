@@ -43,14 +43,54 @@ import java.sql.PreparedStatement;
  */
 public class TestOdbcTypes extends AbstractTestOdbc {
     /* HyperSQL types to be tested:
+     *
      * Exact Numeric
-            TINYINT
-            SMALLINT
-            INTEGER
-            BIGINT
-            NUMERIC(?,?) = DECIMAL(?,?)   (default for decimal literals)
-       Approximate Numeric
-           REAL = FLOAT = DOUBLE    (default for literals with specified exponent)
+     *      TINYINT
+     *      SMALLINT
+     *      INTEGER
+     *      BIGINT
+     *      NUMERIC(p?,s?) = DECIMAL()   (default for decimal literals)
+     * Approximate Numeric
+     *     REAL(p?) = FLOAT() = DOUBLE() (default for literals with exponent)
+     * BOOLEAN
+     * Character Strings
+     *     CHARACTER(1l)* = CHAR()
+     *     CHARACTER VARYING = VARCHAR = LONGVARCHAR
+     *     CLOB(1l) = CHARACTER LARGE OBJECT(1)
+     * Binary Strings
+     *     BINARY(1l)*
+     *     BINARY VARYING = VARBINARY
+     *     BLOB(1l) = BINARY LARGE OBJECT()
+     * Bits
+     *     BIT(1l)
+     *     BIT VARYING(1l)
+     *     ? What is the difference between BIT and BIT VARYING ?
+     * OTHER  (for holding serialized Java objects)
+     * Date/Times
+     *     DATE
+     *     TIME(p?,p?)
+     *     TIMESTAMP(p?,p?)
+     *     INTERVAL...(p2,p0)
+     */
+
+    public TestOdbcTypes() {}
+
+    /**
+     * Accommodate JUnit's test-runner conventions.
+     */
+    public TestOdbcTypes(String s) {
+        super(s);
+    }
+
+    protected void populate(Statement st) throws SQLException {
+        st.executeUpdate("DROP TABLE alltypes IF EXISTS");
+        st.executeUpdate("CREATE TABLE alltypes (\n"
+            "    tint TINYINT,\n"
+            SMALLINT,\n"
+            INTEGER,\n"
+            BIGINT,\n"
+            NUMERIC(?,?),"
+            REAL = FLOAT = DOUBLE    (default for literals with specified exponent)
        BOOLEAN
        Character Strings
            CHARACTER(1)* = CHAR(1)
@@ -70,21 +110,6 @@ public class TestOdbcTypes extends AbstractTestOdbc {
            TIME(?,?)
            TIMESTAMP(?,?)
            INTERVAL...(2,0)
-     */
-
-    public TestOdbcTypes() {}
-
-    /**
-     * Accommodate JUnit's test-runner conventions.
-     */
-    public TestOdbcTypes(String s) {
-        super(s);
-    }
-
-    protected void populate(Statement st) throws SQLException {
-        st.executeUpdate("DROP TABLE nullmix IF EXISTS");
-        st.executeUpdate("CREATE TABLE nullmix "
-                + "(i INT NOT NULL, vc VARCHAR(20), xtra VARCHAR(20))");
 
         // Would be more elegant and efficient to use a prepared statement
         // here, but our we want this setup to be as simple as possible, and
