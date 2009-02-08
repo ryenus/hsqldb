@@ -366,7 +366,7 @@
 
       <para>In previous versions, BIT was simply an alias for BOOLEAN. In 2.0,
       BIT is a single-bit bit map, while BIT(n) and BIT VARYING(n) are strings
-      of bits. These types are discussed</para>
+      of bits. These types are discussed in their own section below.</para>
 
       <simpara><literal>&lt;boolean type&gt; ::= BOOLEAN</literal></simpara>
     </section>
