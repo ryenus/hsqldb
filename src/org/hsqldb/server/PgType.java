@@ -66,7 +66,8 @@ public class PgType {
                         break;
                     default:
                         throw new RuntimeException(
-                                "Unsupported type: " + hType);
+                            "Unsupported integral type: "
+                            + hType.getNameString());
                 }
             } else {
                 switch (typeSize) {
@@ -78,7 +79,8 @@ public class PgType {
                         break;
                     default:
                         throw new RuntimeException(
-                                "Unsupported type: " + hType);
+                            "Unsupported numeric type: "
+                            + hType.getNameString());
                 }
             }
         } else if (hType instanceof BooleanType) {
