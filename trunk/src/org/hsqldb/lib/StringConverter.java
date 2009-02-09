@@ -667,7 +667,7 @@ public class StringConverter {
      * "NULL" it should created it itself<p>
      *
      * @param s Java string
-     * @param quoteChar character used for qutoing
+     * @param quoteChar character used for quoting
      * @param extraQuote true if quoteChar itself should be repeated
      * @return String
      */

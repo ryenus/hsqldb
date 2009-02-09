@@ -276,7 +276,7 @@ public class DatabaseInformation {
     protected boolean withContent = false;
 
     /**
-     * Factory method retuns the fullest system table producer
+     * Factory method returns the fullest system table producer
      * implementation available.  This instantiates implementations beginning
      * with the most complete, finally choosing an empty table producer
      * implemenation (this class) if no better instance can be constructed.
