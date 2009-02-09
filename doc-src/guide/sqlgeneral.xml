@@ -113,9 +113,6 @@
     tables, which are for temporary data, and permanent base tables, which are
     for persistent data.</para>
 
-    <para>HSQLDB supports the Standard definition, but defines three types of
-    persistent tables according to the way the data is stored.</para>
-
     <para>TEMPORARY tables are not saved and last only for the lifetime of the
     Connection object. The contents of each TEMP table is visible only from
     the Connection that was used to populate it. The definition of TEMP tables
@@ -126,8 +123,9 @@
     statements includes ON COMMIT PRESERVE ROWS, then the contents are kept
     when a commit takes place.</para>
 
-    <para>The three types of persistent tables are MEMORY tables, CACHED
-    tables and TEXT tables.</para>
+    <para>HSQLDB supports the Standard definition of persistent base table,
+    but defines three types according to the way the data is stored. These are
+    MEMORY tables, CACHED tables and TEXT tables.</para>
 
     <para>Memory tables are the default type when the CREATE TABLE command is
     used. Their data is held entirely in memory but any change to their
@@ -184,7 +182,7 @@
 
     <para>SQL is a strongly typed language. All data stored in specific
     columns of tables and other objects (such as sequence generators) have
-    specific types. Each data item conform to the type limits such as
+    specific types. Each data item conforms to the type limits such as
     precision and scale for the column. It also conforms to any additional
     integrity constraints that are defined as CHECK constraints in domains or
     tables. Types can be explicitly converted using the CAST expression, but
@@ -195,7 +193,9 @@
     calls. All statements are compiled prior to execution and the return type
     of the data is known after compilation and before execution. Therefore,
     once a statement is prepared, the data type of each column of the returned
-    result is known, including any precision or scale property.</para>
+    result is known, including any precision or scale property. The type does
+    not change when the same query that returned one row, returns many rows as
+    a result of adding more data to the tables.</para>
 
     <para>Some SQL functions used within SQL statements are polymorphic, but
     the exact type of the argument and the return value is determined at
@@ -214,11 +214,13 @@
       <classname>short</classname>, <classname>int</classname>,
       <classname>long</classname>, <classname>BigDecimal</classname> and
       <classname>BigDecimal</classname> Java types in the range of values that
-      they can represent (NUMERIC and DECIMAL are equivalent). The SQL type
-      dictates the maximum and minimum values that can be held in a field of
-      each type. For example the value range for TINYINT is -128 to +127,
-      although the actual Java type used for handling TINYINT is
-      <classname>java.lang.Integer</classname>.</para>
+      they can represent (NUMERIC and DECIMAL are equivalent). The type
+      TINYINT is an HSQLDB extension to the SQL Standard, while the others
+      conform to the Standard definition. The SQL type dictates the maximum
+      and minimum values that can be held in a field of each type. For example
+      the value range for TINYINT is -128 to +127. The bit precision of
+      TINYINT, SMALLINT, INTEGER and BIGINT is respectively 8, 16, 32 and 64.
+      For NUMERIC and DECIMAL, decimal precision is used. </para>
 
       <para>DECIMAL and NUMERIC with decimal fractions are mapped to
       <classname>java.math.BigDecimal</classname> and can have very large
@@ -227,24 +229,23 @@
       types.</para>
 
       <para>In HyperSQL, REAL, FLOAT, DOUBLE are equivalent and all mapped to
-      <classname>double</classname> in Java. These types are called
-      approximate numeric types.</para>
+      <classname>double</classname> in Java. These types are defined by the
+      SQL Standard as approximate numeric types. The bit-precision of all
+      these types is 64 bits.</para>
+
+      <para>The decimal precision and scale of NUMERIC and DECIMAL types can
+      be optionally defined. For example, DECIMAL(10,2) means maximum total
+      number of digits is 10 and there are always 2 digits after the decimal
+      point, while DECIMAL(10) means 10 digits without a decimal point. The
+      bit-precision of FLOAT can also be defined, but in this case, it is
+      ignored and the default bit-precision of 64 is used. The default
+      precision of NUMERIC and DECIMAL (when not defined) is 100.</para>
 
       <simpara><emphasis role="bold">Integral Types</emphasis></simpara>
 
-      <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without a
-      decimal point) are fully interchangeable internally, and no data
-      narrowing takes place. Depending on the types of the operands, the
-      result of the operations is returned in a JDBC
-      <classname>ResultSet</classname> in any of related Java types:
-      <classname>Integer</classname>, <classname>Long</classname> or
-      <classname>BigDecimal</classname>. The
-      <methodname>ResultSet.getXXXX()</methodname> methods can be used to
-      retrieve the values so long as the returned value can be represented by
-      the resulting type. This type is deterministically based on the query,
-      not on the actual rows returned. The type does not change when the same
-      query that returned one row, returns many rows as a result of adding
-      more data to the tables.</para>
+      <para>In expressions, TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and
+      DECIMAL (without a decimal point) are fully interchangeable, and no data
+      narrowing takes place. </para>
 
       <para>If the SELECT statement refers to a simple column or function,
       then the return type is the type corresponding to the column or the
@@ -286,6 +287,19 @@
       any integral type column, even a TINYINT column, as it is a small
       value.</para>
 
+      <para>In SQL Statements, an integer literal is treated as INTEGER,
+      unless its value does not fit. In this case it is treated as BIGINT or
+      DECIMAL, depending on the value.</para>
+
+      <para>Depending on the types of the operands, the result of the
+      operations is returned in a JDBC <classname>ResultSet</classname> in any
+      of related Java types: <classname>Integer</classname>,
+      <classname>Long</classname> or <classname>BigDecimal</classname>. The
+      <methodname>ResultSet.getXXXX()</methodname> methods can be used to
+      retrieve the values so long as the returned value can be represented by
+      the resulting type. This type is deterministically based on the query,
+      not on the actual rows returned. </para>
+
       <simpara><emphasis role="bold">Other Numeric Types</emphasis></simpara>
 
       <para>In SQL statements, number literals with a decimal point are
@@ -293,39 +307,41 @@
       <literal>0.2</literal> is considered a DECIMAL value but
       <literal>0.2E0</literal> is considered a DOUBLE value.</para>
 
-      <para>When <methodname>PreparedStatement.setDouble()</methodname> or
-      <methodname>setFloat()</methodname> is used, the value is treated as a
-      DOUBLE automatically.</para>
-
       <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
-      expression, the type of the result is DOUBLE.</para>
+      expression involving different numeric types, the type of the result is
+      DOUBLE. DECIMAL values can be converted to DOUBLE unless they are beyond
+      the <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range.
+      </para>
 
       <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
-      value is part an expression, the type of the result is DECIMAL. The
-      result can be retrieved from a <classname>ResultSet</classname> in the
-      required type so long as it can be represented. This means DECIMAL
-      values can be converted to DOUBLE unless they are beyond the
-      <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range. Similar to
-      integral values, when the result of an expression is stored in a table
-      column, it has to fit in the target column, otherwise an error is
-      returned.</para>
+      value is part an expression, the type of the result is DECIMAL or
+      NUMERIC. Similar to integral values, when the result of an expression is
+      assgined to a table column, the value has to fit in the target column,
+      otherwise an error is returned. This means a small, 4 digit value of
+      DECIMAL type can be assigned to a column of SMALLINT or INTEGER, but a
+      value with 15 digits cannot.</para>
+
+      <para>When two DECIMAL values are multiplied, the resulting scale is the
+      sum of the scales of the two terms. When they are divided, the result is
+      a value with a scale (number of digits to the right of the decimal
+      point) equal to the larger of the scales of the two terms.</para>
 
       <para>The distinction between DOUBLE and DECIMAL is important when a
-      division takes place. When the terms are DECIMAL, the result is a value
-      with a scale (number of digits to the right of the decimal point) equal
-      to the larger of the scales of the two terms. With a DOUBLE term, the
-      scale will reflect the actual result of the operation. For example,
-      <literal>10.0/8.0</literal> (DECIMAL) equals <literal>1.2</literal> but
-      <literal>10.0E0/8.0E0</literal> (DOUBLE) equals <literal>1.25</literal>.
-      Without division operations, DECIMAL values represent exact arithmetic;
-      the resulting scale is the sum of the scales of the two terms when
-      multiplication is performed.</para>
+      division takes place. For example, <literal>10.0/8.0</literal> (DECIMAL)
+      equals <literal>1.2</literal> but <literal>10.0E0/8.0E0</literal>
+      (DOUBLE) equals <literal>1.25</literal>. Without division operations,
+      DECIMAL values represent exact arithmetic.</para>
 
       <para>REAL, FLOAT and DOUBLE values are all stored in the database as
       <classname>java.lang.Double</classname> objects. Special values such as
       NaN and +-Infinity are also stored and supported. These values can be
       submitted to the database via JDBC PreparedStatement methods and are
-      returned in <classname>ResultSet</classname> objects.</para>
+      returned in <classname>ResultSet</classname> objects. The result can be
+      retrieved from a <classname>ResultSet</classname> in the required type
+      so long as it can be represented. When
+      <methodname>PreparedStatement.setDouble()</methodname> or
+      <methodname>setFloat()</methodname> is used, the value is treated as a
+      DOUBLE automatically.</para>
 
       <simpara><literal>&lt;numeric type&gt; ::= &lt;exact numeric type&gt; |
       &lt;approximate numeric type&gt;</literal></simpara>
@@ -365,8 +381,7 @@
       x IN (1, 2, NULL) does not return true if x is NULL.</para>
 
       <para>In previous versions, BIT was simply an alias for BOOLEAN. In 2.0,
-      BIT is a single-bit bit map, while BIT(n) and BIT VARYING(n) are strings
-      of bits. These types are discussed in their own section below.</para>
+      BIT is a single-bit bit map.</para>
 
       <simpara><literal>&lt;boolean type&gt; ::= BOOLEAN</literal></simpara>
     </section>
@@ -380,15 +395,25 @@
 
       <para>The CHARACTER, CHARACTER VARYING and CLOB types are the supported
       SQL Standard character string types. CHAR, VARCHAR and CHARACTER LARGE
-      OBJECT are synonyms for these types. HsqlDB also supports LONGVARCHAR as
-      a synonym for VARCHAR. HyperSQL's main character set is Unicode,
-      therefore all possible character strings can be represented by these
-      types. The SQL Standard behaviour of the CHARACTER type is a remanent of
+      OBJECT are synonyms for these types. HyperSQL also supports LONGVARCHAR
+      as a synonym for VARCHAR.</para>
+
+      <para>HyperSQL's main character set is Unicode, therefore all possible
+      character strings can be represented by these types.</para>
+
+      <para>The SQL Standard behaviour of the CHARACTER type is a remanent of
       legacy systems in which character strings are padded with spaces to fill
       a fixed width. These spaces are sometimes significant while in other
       cases they are silently discarded. It would be best to avoid the
-      CHARACTER type altogether. The VARCHAR and CLOB types have length
-      limits, but the strings are not padded by the system.</para>
+      CHARACTER type altogether.</para>
+
+      <para>The VARCHAR and CLOB types have length limits, but the strings are
+      not padded by the system.</para>
+
+      <para>If CHARACTER is used without specifying the length, the length
+      defaults to 1. For the CLOB type, the length limit can be defined in
+      units of kilobyte (1024), megabyte (1024 * 1024) or gigabyte (1024 *
+      1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>.</para>
 
       <simpara><literal>&lt;character string type&gt; ::= { CHARACTER | CHAR }
       [ &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | {
@@ -438,15 +463,23 @@ CHARACTER LARGE OBJECT(1M)
 
       <para>The BINARY, BINARY VARYING and BLOB types are the supported
       Standard binary string types. VARBINARY and BINARY LARGE OBJECT are
-      synonyms for two of the binary types. HyperSQL also supports
-      LONGVARBINARY as a synonym for VARBINARY. These types are used in the
-      same way as character string types. There are several built-in functions
-      that are overloaded to support character, binary and bit strings. The
-      BINARY type represents a fixed width-string. Each shorter string is
-      padded with zeros to fill the fixed with. Similar to the CHARACTER type,
-      the trailing zeros in the BINARY string are simply discarded in some
-      operations. For the same reason, it is best to avoid this particular
-      type.</para>
+      synonyms for BINARY VARYING and BLOB types. HyperSQL also supports
+      LONGVARBINARY as a synonym for VARBINARY.</para>
+
+      <para>Binary string types are used in the same way as character string
+      types. There are several built-in functions that are overloaded to
+      support character, binary and bit strings.</para>
+
+      <para>The BINARY type represents a fixed width-string. Each shorter
+      string is padded with zeros to fill the fixed with. Similar to the
+      CHARACTER type, the trailing zeros in the BINARY string are simply
+      discarded in some operations. For the same reason, it is best to avoid
+      this particular type.</para>
+
+      <para>If BINARY is used without specifying the length, the length
+      defaults to 1. For the BLOB type, the length limit can be defined in
+      units of kilobyte (1024), megabyte (1024 * 1024) or gigabyte (1024 *
+      1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -477,8 +510,10 @@ BINARY LARGE OBJECT(1M)
       </indexterm>
 
       <para>The BIT and BIT VARYING types are the supported bit string types.
-      Bit types represent bit maps of given lengths. Each bit is 0 or
-      1.</para>
+      Bit types represent bit maps of given lengths. Each bit is 0 or 1. The
+      BIT type represents a fixed width-string. Each shorter string is padded
+      with zeros to fill the fixed with. If BIT is used without specifying the
+      length, the length defaults to 1. </para>
 
       <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
@@ -493,6 +528,10 @@ BIT VARYING(2)
     <section>
       <title>Storage and Handling of Java Objects</title>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>OTHER type</primary>
+      </indexterm>
+
       <para>Any serializable JAVA Object can be inserted directly into a
       column of type OTHER using any variation of
       <methodname>PreparedStatement.setObject()</methodname> methods.</para>
@@ -504,16 +543,17 @@ BIT VARYING(2)
       <para>Please note that HSQLDB is not an object-relational database. Java
       Objects can simply be stored internally and no operations should be
       performed on them other than assignment between columns of type OTHER or
-      tests for NULL. Tests such as <literal>WHERE object1 =
-      object2</literal>, or <literal>WHERE object1 = ? </literal>do not mean
-      what you might expect, as any non-null object would satisfy such a
-      tests. But <literal>WHERE object1 IS NOT NULL</literal> is perfectly
-      acceptable.</para>
+      tests for NULL. Tests such as <literal>WHERE object1 = object2
+      </literal>do not mean what you might expect, as any non-null object
+      would satisfy such a tests. But <literal>WHERE object1 IS NOT
+      NULL</literal> is perfectly acceptable.</para>
 
       <para>The engine does not allow normal column values to be assigned to
       Java Object columns (for example, assigning an INTEGER or STRING to such
       a column with an SQL statement such as <literal>UPDATE mytable SET
       objectcol = intcol WHERE ...</literal>).</para>
+
+      <simpara><literal>&lt;java object type&gt; ::= OTHER</literal></simpara>
     </section>
 
     <section>
@@ -543,7 +583,7 @@ BIT VARYING(2)
 
       <para>String values cannot be assigned to VARCHAR columns if they are
       longer than the defined type size. For CHARACTER columns, a long string
-      can be inserted (with truncation) only if all the characters after the
+      can be assigned (with truncation) only if all the characters after the
       size are spaces. Shorter strings are padded with the space character
       when inserted into a CHARACTER column. Similar rules are applied to
       VARBINARY and BINARY columns. For BINARY columns, the padding and
@@ -594,6 +634,9 @@ BIT VARYING(2)
       parts. For example, TIME(6) has six fractional digits for the second
       field.</para>
 
+      <para>If fractional second precision is not specified, it defaults to 0
+      for TIME and to 6 for TIMESTAMP.</para>
+
       <simpara><literal>&lt;datetime type&gt; ::= DATE | TIME [ &lt;left
       paren&gt; &lt;time precision&gt; &lt;right paren&gt; ] [ &lt;with or
       without time zone&gt; ] | TIMESTAMP [ &lt;left paren&gt; &lt;timestamp
@@ -614,7 +657,7 @@ BIT VARYING(2)
 
       <programlisting>DATE
 TIME(6)
-TIMESTAMP(2) WITH TIME ZOME
+TIMESTAMP(2) WITH TIME ZONE
 </programlisting>
 
       <para>Examples of the string literals used to represent date time
@@ -686,17 +729,17 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
 
       <para>Example a:</para>
 
-      <para>TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE</para>
+      <programlisting>TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+</programlisting>
 
       <para>If the session’s time zone displacement is -'8:00', then in step
       1, TIME '12:00:00' is converted to UTC, which is TIME '20:00:00+0:00'.
-      In step 2, this value is expressed as TIME '21:00:00+1:00'. Note that
-      the same expression</para>
+      In step 2, this value is expressed as TIME '21:00:00+1:00'.</para>
 
-      <para>Example b:</para>
+      <para>Example b: </para>
 
-      <para>TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO
-      MINUTE</para>
+      <programlisting>TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+</programlisting>
 
       <para>Because the operand has a time zone, the result is independent of
       the session  time zone displacement. Step 1 results in TIME
@@ -710,17 +753,18 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
 
       <para>CAST is used to for all other conversions. Examples:</para>
 
-      <para>CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)</para>
+      <programlisting>CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
+CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
 
-      <para>If &lt;value&gt; has a time zone component, it is simply dropped.
-      For example TIME '12:00:00-5:00' is converted to TIME '12:00:00'</para>
+      <para>In the first example, if <literal>&lt;value&gt;</literal> has a
+      time zone component, it is simply dropped. For example TIME
+      '12:00:00-5:00' is converted to TIME '12:00:00'</para>
 
-      <para>CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</para>
-
-      <para>If &lt;value&gt; has no time zone component, the current time zone
-      displacement of the session is added. For example TIME '12:00:00' is
-      converted to TIME '12:00:00-8:00' when the session time zone
-      displacement is '-8:00'.</para>
+      <para>In the second example, if <literal>&lt;value&gt;</literal> has no
+      time zone component, the current time zone displacement of the session
+      is added. For example TIME '12:00:00' is converted to TIME
+      '12:00:00-8:00' when the session time zone displacement is
+      '-8:00'.</para>
 
       <para>Conversion between DATE and TIMESTAMP is performed by removing the
       TIME component of a TIMESTAMP value or by setting the hour, minute and
@@ -805,37 +849,46 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
       such as daylight saving time) is used as the session time zone
       displacement. Note that the SQL session time displacement is not changed
       when a seasonal time adjustment takes place while the session is open.
-      To change the SQL session time zone displacement use:</para>
+      To change the SQL session time zone displacement use the following
+      commands:</para>
 
-      <para>SET TIME ZONE &lt;time displacement&gt;. Or use SET TIME ZONE
-      LOCAL to change to the original time zone displacement of the
+      <simpara><literal>SET TIME ZONE &lt;time
+      displacement&gt;</literal></simpara>
+
+      <simpara><literal>SET TIME ZONE LOCAL</literal></simpara>
+
+      <para>The first command sets the displacement to the given value. The
+      second command restores the original, real time zone displacement of the
       session.</para>
 
       <simpara><emphasis role="bold">Datetime Values and
       Java</emphasis></simpara>
 
       <para>When datetime values are sent to the database using the
-      PreparedStatement or CallableStatement interfaces, the Java object is
+      <classname>PreparedStatement</classname> or
+      <classname>CallableStatement</classname> interfaces, the Java object is
       converted to the type of the prepared or callable statement parameter.
       This type may be DATE, TIME, or TIMESTAMP (with or without time zone).
       The time zone displacement is the time zone of the JDBC session.</para>
 
       <para>When datetime values are retrieved from the database using the
-      ResultSet interface,</para>
-
-      <para>there are two representations. The getString(…) methods of the
-      ResultSet interface, return an exact representation of the value in the
-      SQL type as it is stored in the database. This includes the correct
-      number of digits for the fractional second field, and for values with
-      time zone displacement, the time zone displacement. Therefore if TIME
-      '12:00:00' is stored in the database, all users in different time zones
-      will get '12:00:00' when they retrieve the value as a string. The
-      getTime(…) and getTimestamp(…) methods of the ResultSet interface return
-      Java objects that are corrected for the session time zone. The UTC
-      millisecond value contained the java.sql.Time or java.sql.Timestamp
-      objects will be adjusted to the time zone of the session, therefore the
-      toString() method of these objects return the same values in different
-      time zones.</para>
+      <literal>ResultSet</literal> interface, there are two representations.
+      The <methodname>getString(…)</methodname> methods of the
+      <classname>ResultSet</classname> interface, return an exact
+      representation of the value in the SQL type as it is stored in the
+      database. This includes the correct number of digits for the fractional
+      second field, and for values with time zone displacement, the time zone
+      displacement. Therefore if TIME '12:00:00' is stored in the database,
+      all users in different time zones will get '12:00:00' when they retrieve
+      the value as a string. The <methodname>getTime(…)</methodname> and
+      <methodname>getTimestamp(…)</methodname> methods of the
+      <classname>ResultSet</classname> interface return Java objects that are
+      corrected for the session time zone. The UTC millisecond value contained
+      the <classname>java.sql.Time</classname> or
+      <classname>java.sql.Timestamp</classname> objects will be adjusted to
+      the time zone of the session, therefore the
+      <methodname>toString()</methodname> method of these objects return the
+      same values in different time zones.</para>
     </section>
 
     <section>
@@ -898,9 +951,10 @@ INTERVAL SECOND(4,6)
 </programlisting>
 
       <para>The word INTERVAL indicates the general type name. The rest of the
-      definition is called an &lt;interval qualifier&gt;. This designation is
-      important, as in most expressions &lt;interval qualifier&gt; is used
-      without the word INTERVAL.</para>
+      definition is called an <literal>&lt;interval qualifier&gt;</literal>.
+      This designation is important, as in most expressions
+      <literal>&lt;interval qualifier&gt;</literal> is used without the word
+      INTERVAL.</para>
 
       <para>An interval value can be negative, positive or zero. An interval
       type has all the datetime fields in the specified range. These fields
@@ -970,9 +1024,10 @@ CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23
 
       <para>Interval values used in expressions are either typed values,
       including interval literals, or are interval casts. The expression:
-      &lt;expression&gt; &lt;interval qualifier&gt; is a cast of the result of
-      the &lt;expression&gt; into the INTERVAL type specified by the
-      &lt;interval qualifier&gt;</para>
+      <literal>&lt;expression&gt; &lt;interval qualifier&gt;</literal> is a
+      cast of the result of the <literal>&lt;expression&gt;</literal> into the
+      INTERVAL type specified by the <literal>&lt;interval
+      qualifier&gt;</literal></para>
 
       <programlisting>DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
 DATE '2000-01-01' + '1-10' YEAR TO MONTH /* the string '1-10' is cast into INTERVAL YEAR TO MONTH */
