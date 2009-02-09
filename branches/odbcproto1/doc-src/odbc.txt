@@ -6,8 +6,6 @@ since those issues will be documented with the dedicated ODBC driver product.
 
 Critical server-side todo items.
 
-    + Test rollbacks.  Good chance that they work correctly now.
-
     + Support passing of size/precision/scale values for columns to the ODBC
       client.  I guess the client uses this for display formatting purposes (I
       don't know any other reason why the client would want the value, since
@@ -21,32 +19,20 @@ Critical server-side todo items.
     + Support TIME and DATETIME database data types (DATEs already supported)
       (May want to postpone *INTERVAL* types for another iteration).
 
-    + Complete implementation of SIMPLE mode BEGIN, SAVEPOINT, RELEASE
-      prefixes and suffixes, according to my source code comments.
-
     + Verify tactic used to generate numeric "object identifiers" for tables
-      is adequate: Java has of String "schema.tablename".
+      is adequate: Java hash of String "schema.tablename".
 
     + Fix column oid (numeric object identifier) generation tactic.  I am
       just returning the sequence in the generated result set.  The problem
       with this tactic is that the number for a column is dependent upon
       the query instead of on the table definition.
 
-    + Check that tracking of inOdbcTrans is adequate.  This is used to keep
-      client informed of transaction state (via Z packets), and whether to
-      perform implicit commits or rollback when processing S (sync) packets.
-      May need to keep track of SQL execution failures in order to
-      implicitly roll back (at same location where we implicitly commit).
-      Probably need to check current AUTOCOMMIT setting and modify behavior
-      accordingly.
-
-
 KNOWN LIMITATIONS
 
     Limitations corresponding to the TODO items above.
 
     No metadata querying ability, other than the ones implicit with setting
-    up prepared statements (including the 'D'
+    up prepared statements (including the 'D').
 
     Don't know if it is a bug with Sun's jdbc:odbc or with psqlodbc, but
     all fetchsize settings are rejected with a message saying that the
@@ -126,6 +112,41 @@ NEVER BE SENT.  I will have a definitive answer about several of these shortly.:
     show max_identifier_length
 
     Show Client_Encoding
+
+
+DATA TYPE SUPPORT MATRIX
+
+    HyperSQL type               wid prec scale |  Driver type oid adtsz atttypm
+    --------------------------- --- ---- ----- -  ----------- --- ---   ---
+    TINYINT                       8    3    0  |
+    SMALLINT                     16    5    0  |  int2         21   2    -1
+    INTEGER                      32   10    0  |  int4         23   4    -1
+    BIGINT                       64   19    0  |  int8         20   8    -1
+    NUMERIC(p?,s?)                  [100]  [0] |  numeric    1700        **
+    FLOAT(p?)                   128  [0]    0  |  float8      701
+    DOUBLE = REAL               128   0     0  |  float8      701
+    BOOLEAN                           0        |  bool         16
+    CHARACTER(1l)* = CHAR()                 0  |  char         18
+    VARCHAR(1l) = LONGVARCHAR()             0  |  varchar    1043  -1     *
+    CLOB(1l)                                0  |
+    BINARY(1l)*                             0  |
+    VARBINARY(1l)                           0  |  bytea        17
+    BLOB(1l)                                0  |
+    BIT(1l)*                                0  |  bit       1560?
+    BIT VARYING(1l)                         0  |  varbit    1562?
+    OTHER                             0?    0? |
+    DATE                              0     0  |  date       1082
+    TIME(p0)                         [0]       |  time       1083
+    TIME_WITH_TIME_ZONE(p0)          [0]       |  time_with_tmzone 1266
+    TIMESTAMP(p0)                    [0]       |  timestamp_no_tmzone 1114
+    TIMESTAMP_WITH_TIME_ZONE(p0)     [0]       |  timestamp  1296
+    INTERVAL...(p2,p0)               [2]   [0] |  tinterval   704
+                                               |  (or interval?)
+* This could be -1 for derived values?
+** atttypmod for numerics determines column size and scale.
+     scale = (atttypmod - 4) & 0xffff
+     column size = (atttypmod - 4) >> 16 & 0xffff
+   I don't know yet if "column size" == precision or if it includes -, ., etc.
 
 
 REFERENCES
