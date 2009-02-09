@@ -651,7 +651,7 @@ class ServerConnection implements Runnable {
                     org.hsqldb.types.Type[] colTypes = md.getParameterTypes();
                     PgType[] pgTypes = new PgType[colTypes.length];
                     for (int i = 0; i < pgTypes.length; i++) {
-                        pgTypes[i] = new PgType(colTypes[i]);
+                        pgTypes[i] = PgType.getPgType(colTypes[i]);
                     }
                     org.hsqldb.ColumnBase[] colDefs = md.columns;
                     if (colNames.length != colDefs.length) {
@@ -676,7 +676,7 @@ class ServerConnection implements Runnable {
                             // query.
                         outPacket.writeInt(pgTypes[i].getOid());
                         // Datatype size  [adtsize]
-                        outPacket.writeShort(pgTypes[i].getTypeSize());
+                        outPacket.writeShort(pgTypes[i].getTypeWidth());
                         outPacket.writeInt(-1); // Var size [atttypmod]
                             // TODO:  Get from the colType[i]
                         // This is the size constraint integer
@@ -894,7 +894,8 @@ class ServerConnection implements Runnable {
                 if (c == 'S') {
                     outPacket.writeShort(paramCount);
                     for (int i = 0; i < paramTypes.length; i++) {
-                        outPacket.writeInt(new PgType(paramTypes[i]).getOid());
+                        outPacket.writeInt(
+                            PgType.getPgType(paramTypes[i]).getOid());
                     }
                     outPacket.xmit('t', dataOutput);
                       // ParameterDescription packet
@@ -929,7 +930,7 @@ class ServerConnection implements Runnable {
                 PgType[] pgTypes = new PgType[colTypes.length];
                 org.hsqldb.ColumnBase[] colDefs = md.columns;
                 for (int i = 0; i < pgTypes.length; i++) {
-                    pgTypes[i] = new PgType(colTypes[i]);
+                    pgTypes[i] = PgType.getPgType(colTypes[i]);
                 }
                 if (colNames.length != colDefs.length) {
                     throw new RecoverableOdbcFailure("Col data mismatch.  "
@@ -954,7 +955,7 @@ class ServerConnection implements Runnable {
                         // query.
                     outPacket.writeInt(pgTypes[i].getOid());
                     // Datatype size  [adtsize]
-                    outPacket.writeShort(pgTypes[i].getTypeSize());
+                    outPacket.writeShort(pgTypes[i].getTypeWidth());
                     outPacket.writeInt(-1); // Var size [atttypmod]
                         // TODO:  Get from the colType[i]
                     // This is the size constraint integer
