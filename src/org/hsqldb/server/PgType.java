@@ -21,91 +21,179 @@ import org.hsqldb.ErrorCode;
 import org.hsqldb.jdbc.Util;
 
 public class PgType {
-    /*
-     * TODO:  Consider designating the binary types in this class
-     *
-     * IMPORTANT:  If column-specific Size or Precision, like VARHAR(12)
-     *             and DECIMAL(4,2) do not need to be maintained by this
-     *             class, then allocate singleton instances for each needed
-     *             class mapping, and return pointers to our singletons.
-     *             That would be much more efficient, but will not work if
-     *             we need to keep track of any column-specific details.
-     */
     private int oid;
-    private int typeSize = -1;
-    private int constraintSize = -1;
+    private int typeWidth = -1;
+    private int lpConstraint = -1; // Length or Precision
     private Type hType;
 
     public int getOid() {
         return oid;
     }
-    public int getTypeSize() {
-        return typeSize;
+    public int getTypeWidth() {
+        return typeWidth;
     }
-    public int getConstraintSize() {
-        return constraintSize;
+    public int getLPConstraint() {
+        return lpConstraint;
     }
 
-    public PgType(Type hType) {
+    /**
+     * Convenience wrapper for PgType constructor, when there is no
+     * length or precision setting for the type.
+     *
+     * @see #PgType(Type, int, Integer, Integer)
+     */
+    protected PgType(Type hType, int oid, int typeWidth) {
+        this(hType, oid, new Integer(typeWidth), null);
+    }
+
+    /**
+     * Convenience wrapper for PgType constructor, when there is no fixed
+     * width for the type.
+     *
+     * @param dummy Normally pass null.  This is a dummy parameter just to make
+     *              a unique method signature.  If non-null, will be treated
+     *              exactly the same as the typeWidthObject from the 3-param
+     *              constructor.
+     * @see #PgType(hType, int, Integer, Integer)
+     */
+    protected PgType(Type hType, int oid, Integer dummy, long lpConstraint) {
+        this(hType, oid, dummy, new Integer((int) lpConstraint));
+        if (lpConstraint < 0) {
+            throw new IllegalArgumentException(
+                "Length/Precision value is below minimum value of 0");
+        }
+        if (lpConstraint > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(
+                "Length/Precision value is above maximum value of "
+                + Integer.MAX_VALUE);
+        }
+    }
+
+    /**
+     * @param hType HyperSQL data type
+     * @param oid Numeric Object ID for the driver-side type.
+     * @param typeWidth Fixed width for the type
+     * @param lpConstraint Either length or Precision setting for this
+     *                     instance of the type
+     */
+    protected PgType(Type hType,
+        int oid, Integer typeWidthObject, Integer lpConstraintObject) {
         this.hType = hType;
-        if (hType instanceof NumberType) {
-            NumberType numType = (NumberType) hType;
-            typeSize = numType.getPrecision() / 8;
-            // TODO:  Figure out how to get decimal precision, etc.
-            //
-            if (numType.isIntegralType()) {
-                switch (typeSize) {
-                    case 2:
-                        oid = TYPE_INT2;
-                        break;
-                    case 4:
-                        oid = TYPE_INT4;
-                        break;
-                    case 8:
-                        oid = TYPE_INT8;
-                        break;
-                    default:
-                        throw new RuntimeException(
-                            "Unsupported integral type: "
-                            + hType.getNameString());
+        this.oid = oid;
+        this.typeWidth = (typeWidthObject == null)
+                       ? -1 : typeWidthObject.intValue();
+        this.lpConstraint = (lpConstraintObject == null)
+                       ? -1 : lpConstraintObject.intValue();
+    }
+
+    static public PgType getPgType(Type hType) {
+        switch (hType.typeCode) {
+            case Types.TINYINT:
+                throw new IllegalArgumentException(
+                    "Driver doesn't support type 'TINYINT' yet");
+            case Types.SQL_SMALLINT:
+                return int2singleton;
+            case Types.SQL_INTEGER:
+                return int4singleton;
+            case Types.SQL_BIGINT:
+                return int8singleton;
+
+            case Types.SQL_NUMERIC:
+            case Types.SQL_DECIMAL:
+                return new PgType(hType, TYPE_NUMERIC, null, hType.precision);
+
+            case Types.SQL_FLOAT:
+                return new PgType(hType, TYPE_FLOAT8, null, hType.precision);
+            case Types.SQL_DOUBLE:
+            case Types.SQL_REAL:
+                return doubleSingleton;
+
+            case Types.BOOLEAN:
+                return boolSingleton;
+
+            case Types.SQL_CHAR: // = CHARACTER
+            case Types.SQL_VARCHAR: // = CHARACTER VARYING = LONGVARCHAR
+            case Types.VARCHAR_IGNORECASE: // Don't know if possible here
+System.err.println("CHAR scale (" + hType.scale + ") precis (" + hType.precision + ')');
+                if (hType.precision < 0) {
+                    throw new IllegalArgumentException(
+                        "Length/Precision value is below minimum value of 0");
                 }
-            } else {
-                switch (typeSize) {
-                    case 4:
-                        oid = TYPE_FLOAT4;
-                        break;
-                    case 8:
-                        oid = TYPE_FLOAT8;
-                        break;
-                    default:
-                        throw new RuntimeException(
-                            "Unsupported numeric type: "
-                            + hType.getNameString());
+                if (hType.precision > Integer.MAX_VALUE) {
+                    throw new IllegalArgumentException(
+                        "Length/Precision value is above maximum value of "
+                        + Integer.MAX_VALUE);
                 }
-            }
-        } else if (hType instanceof BooleanType) {
-            oid = TYPE_BOOL;
-            typeSize = 1;
-        } else if (hType instanceof CharacterType) {
-            CharacterType charType = (CharacterType) hType;
-            oid = charType.requiresPrecision() ? TYPE_VARCHAR : TYPE_BPCHAR;
-        } else if (hType instanceof DateTimeType) {
-            oid = TYPE_DATE;
-            typeSize = 4;
-            // The times are size 8, but I don't know how to differentiate.
-            //TYPE_TIME           1083
-            //TYPE_DATETIME       1184
-            //TYPE_TIMESTAMP_NO_TMZONE 1114  /* since 7.2 */
-            //TYPE_TIME_WITH_TMZONE   1266    /* since 7.1 */
-            //TYPE_TINTERVAL      704
-        /*
-        } else if (hType instanceof BitType) {
-        } else if (hType instanceof BinaryType) {
-        } else if (hType instanceof BlobType) {
-        } else if (hType instanceof ClobType) {
-        */
-        } else {
-            throw new RuntimeException("Unsupported type: " + hType);
+                switch ((int) hType.precision) {
+                    case 0:
+                        return textSingleton;
+                    case 1:
+                        return charSingleton;
+                    default:
+                        return new PgType(
+                            hType, TYPE_VARCHAR, null, hType.precision);
+                }
+            case Types.SQL_CLOB: // = CHARACTER LARGE OBJECT
+                throw new IllegalArgumentException(
+                    "Driver doesn't support type 'CLOB' yet");
+
+            case Types.SQL_BINARY:
+                throw new IllegalArgumentException(
+                    "Driver doesn't support type 'BINARY' yet");
+            case Types.SQL_BLOB: // = BINARY LARGE OBJECT
+                throw new IllegalArgumentException(
+                    "Driver doesn't support type 'BLOB' yet");
+            case Types.SQL_VARBINARY: // = BINARY VARYING
+                return new PgType(hType, TYPE_BYTEA, null, hType.precision);
+
+            case Types.OTHER:
+                throw new IllegalArgumentException(
+                    "Driver doesn't support type 'OTHER' yet");
+
+            case Types.SQL_BIT:
+                return new PgType(hType, TYPE_BIT, null, hType.precision);
+            case Types.SQL_BIT_VARYING:
+                return new PgType(hType, TYPE_VARBIT, null, hType.precision);
+
+            case Types.SQL_DATE:
+                return dateSingleton;
+                // 4 bytes
+            case Types.SQL_TIME:
+                return new PgType(hType, TYPE_TIME, null, hType.precision);
+                // 8 bytes
+            case Types.SQL_TIMESTAMP:
+                return new PgType(
+                    hType, TYPE_TIMESTAMP_NO_TMZONE, null, hType.precision);
+                // 8 bytes
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
+                return new PgType(hType, TYPE_TIMESTAMP, null, hType.precision);
+                // 8 bytes
+            case Types.SQL_TIME_WITH_TIME_ZONE:
+                return new PgType(
+                    hType, TYPE_TIME_WITH_TMZONE, null, hType.precision);
+                // 12 bytes
+
+            case Types.SQL_INTERVAL:
+            case Types.SQL_INTERVAL_YEAR:
+            case Types.SQL_INTERVAL_YEAR_TO_MONTH:
+            case Types.SQL_INTERVAL_MONTH:
+            case Types.SQL_INTERVAL_DAY:
+            case Types.SQL_INTERVAL_DAY_TO_HOUR:
+            case Types.SQL_INTERVAL_DAY_TO_MINUTE:
+            case Types.SQL_INTERVAL_DAY_TO_SECOND:
+            case Types.SQL_INTERVAL_HOUR:
+            case Types.SQL_INTERVAL_HOUR_TO_MINUTE:
+            case Types.SQL_INTERVAL_HOUR_TO_SECOND:
+            case Types.SQL_INTERVAL_MINUTE:
+            case Types.SQL_INTERVAL_MINUTE_TO_SECOND:
+            case Types.SQL_INTERVAL_SECOND:
+                return new PgType(hType, TYPE_TINTERVAL, null, hType.precision);
+                // 12 bytes, if this is the right one.
+                // There is also a "interval" type in Postgresql server code.
+
+            default:
+                throw new IllegalArgumentException(
+                    "Unsupported type: " + hType.getNameString());
         }
     }
 
@@ -128,6 +216,14 @@ public class PgType {
 
         switch (hType.typeCode) {
 
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+            case Types.OTHER :
+            case Types.SQL_BLOB :
+            case Types.SQL_CLOB :
+                throw new IllegalArgumentException(
+                        "Type not supported yet: " + hType.getNameString());
+                /*
             case Types.OTHER :
                 try {
                     if (o instanceof Serializable) {
@@ -157,9 +253,9 @@ public class PgType {
                 //break;
             case Types.SQL_CLOB :
                 //setClobParameter(i, o);
-                throw new RuntimeException("Type not supported yet: " + hType);
 
                 //break;
+            */
             case Types.SQL_DATE :
             case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
@@ -202,10 +298,17 @@ public class PgType {
                     PgType.throwError(e);
                 }
 
-            // fall through
+            /*
             default :
+                throw new IllegalArgumentException(
+                    "Parameter value is of unexpected type: "
+                    + hType.getNameString());
+            */
+            // fall through
                 try {
                     o = hType.convertToDefaultType(session, o);
+                    // TODO:  Is this desirable?
+                    // Probably better to throw.
 
                     break;
                 } catch (HsqlException e) {
@@ -274,11 +377,19 @@ public class PgType {
     public static final int TYPE_VOID         = 2278;
     public static final int TYPE_UUID         = 2950;
 
+    // Apparenly new additions, from Postgresql server file pg_type.h:
+    public static final int TYPE_BIT          = 1560;
+    // Also defined is _bit.  No idea what that is about
+    public static final int TYPE_VARBIT       = 1562;
+    // Also defined is _varbit.  No idea what that is about
+
+    /* Following stuff is to support code copied from
+     * JDBCPreparedStatement.java. */
     static final void throwError(HsqlException e) throws SQLException {
 
 //#ifdef JAVA6
-        throw Util.sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
-                           e);
+        throw Util.sqlException(e.getMessage(), e.getSQLState(),
+            e.getErrorCode(), e);
 
 //#else
 /*
@@ -288,4 +399,21 @@ public class PgType {
 
 //#endif JAVA6
     }
+
+    static protected final PgType int2singleton =
+        new PgType(Type.SQL_SMALLINT, TYPE_INT2, 2);
+    static protected final PgType int4singleton =
+        new PgType(Type.SQL_INTEGER, TYPE_INT4, 4);
+    static protected final PgType int8singleton =
+        new PgType(Type.SQL_BIGINT, TYPE_INT8, 8);
+    static protected final PgType doubleSingleton =
+        new PgType(Type.SQL_DOUBLE, TYPE_FLOAT8, 8);
+    static protected final PgType boolSingleton =
+        new PgType(Type.SQL_BOOLEAN, TYPE_BOOL, 1);
+    static protected final PgType textSingleton =
+        new PgType(Type.SQL_VARCHAR, TYPE_TEXT, -1);
+    static protected final PgType charSingleton = new PgType(
+        CharacterType.getCharacterType(Types.SQL_VARCHAR, 1), TYPE_CHAR, 1);
+    static protected final PgType dateSingleton =
+        new PgType(Type.SQL_DATE, TYPE_DATE, 4);
 }
