@@ -38,6 +38,16 @@ public class PgType {
 
     /**
      * Convenience wrapper for PgType constructor, when there is no
+     * type width, length, or precision setting for the type.
+     *
+     * @see #PgType(Type, int, Integer, Integer)
+     */
+    protected PgType(Type hType, int oid) {
+        this(hType, oid, null, null);
+    }
+
+    /**
+     * Convenience wrapper for PgType constructor, when there is no
      * length or precision setting for the type.
      *
      * @see #PgType(Type, int, Integer, Integer)
@@ -101,13 +111,12 @@ public class PgType {
             case Types.SQL_NUMERIC:
             case Types.SQL_DECIMAL:
                 return new PgType(hType, TYPE_NUMERIC, null,
-                        ((4 + hType.precision) << 16)
-                        + 4 + hType.scale);
-                    // TODO:  This atttypmod definitely needs to be tested.
-                    // See note about this in doc/odbc.txt.
+                        (hType.precision << 16) + hType.scale);
 
             case Types.SQL_FLOAT:
-                return new PgType(hType, TYPE_FLOAT8, null, hType.precision);
+                // TODO:
+                // Improve the driver to make use of the Float precision
+                // return new PgType(hType, TYPE_FLOAT8, null, hType.precision);
             case Types.SQL_DOUBLE:
             case Types.SQL_REAL:
                 return doubleSingleton;
@@ -116,6 +125,9 @@ public class PgType {
                 return boolSingleton;
 
             case Types.SQL_CHAR: // = CHARACTER
+                if (hType.getNameString() == null) { // Non-direct-table-col
+                    return unknownSingleton;  // constant value
+                }
                 return new PgType(hType, TYPE_BPCHAR, null, hType.precision);
 
             case Types.SQL_VARCHAR: // = CHARACTER VARYING = LONGVARCHAR
@@ -129,15 +141,11 @@ public class PgType {
                         "Length/Precision value is above maximum value of "
                         + Integer.MAX_VALUE);
                 }
-                switch ((int) hType.precision) {
-                    case 0:
-                        return textSingleton;
-                    case 1:
-                        return charSingleton;
-                    default:
-                        return new PgType(
-                            hType, TYPE_VARCHAR, null, hType.precision);
-                }
+                return (hType.precision == 0 || hType.getNameString() == null)
+                    ? textSingleton
+                    : new PgType(hType, TYPE_VARCHAR, null, hType.precision);
+                // Return TEXT type for both unlimited VARCHARs, and for
+                // Non-direct-table-col results.
             case Types.SQL_CLOB: // = CHARACTER LARGE OBJECT
                 throw new IllegalArgumentException(
                     "Driver doesn't support type 'CLOB' yet");
@@ -156,27 +164,27 @@ public class PgType {
                     "Driver doesn't support type 'OTHER' yet");
 
             case Types.SQL_BIT:
-                return new PgType(hType, TYPE_BIT, null, hType.precision);
+                return bitSingleton;
             case Types.SQL_BIT_VARYING:
-                return new PgType(hType, TYPE_VARBIT, null, hType.precision);
+                return bitVaryingSingleton;
+                // I have no idea why length contstaint spec is not needed for
+                // BIT_VARYING.
 
             case Types.SQL_DATE:
                 return dateSingleton;
                 // 4 bytes
             case Types.SQL_TIME:
-                return new PgType(hType, TYPE_TIME, null, hType.precision);
-                // 8 bytes
-            case Types.SQL_TIMESTAMP:
-                return new PgType(
-                    hType, TYPE_TIMESTAMP_NO_TMZONE, null, hType.precision);
-                // 8 bytes
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
-                return new PgType(hType, TYPE_TIMESTAMP, null, hType.precision);
-                // 8 bytes
+                return new PgType(hType, TYPE_TIME, 8, hType.precision);
             case Types.SQL_TIME_WITH_TIME_ZONE:
                 return new PgType(
-                    hType, TYPE_TIME_WITH_TMZONE, null, hType.precision);
-                // 12 bytes
+                    hType, TYPE_TIME_WITH_TMZONE, 12, hType.precision);
+            case Types.SQL_TIMESTAMP:
+                return new PgType(
+                    hType, TYPE_TIMESTAMP_NO_TMZONE, 8, hType.precision);
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
+                return new PgType(hType, TYPE_TIMESTAMP, 8, hType.precision);
+                // Postgresql is returning type DATETIME for this case.
+                // It should return TYPE_TIMESTAMP, no?
 
             case Types.SQL_INTERVAL:
             case Types.SQL_INTERVAL_YEAR:
@@ -192,9 +200,12 @@ public class PgType {
             case Types.SQL_INTERVAL_MINUTE:
             case Types.SQL_INTERVAL_MINUTE_TO_SECOND:
             case Types.SQL_INTERVAL_SECOND:
-                return new PgType(hType, TYPE_TINTERVAL, null, hType.precision);
-                // 12 bytes, if this is the right one.
-                // There is also a "interval" type in Postgresql server code.
+                throw new IllegalArgumentException(
+                    "Driver doesn't support type 'INTERVAL' yet");
+                /*  Haven't figured out how the client expects the atttypmod to
+                 *  be calculated for intervals.
+                return new PgType(hType, TYPE_TINTERVAL, 16, ?hType.precision?);
+                */
 
             default:
                 throw new IllegalArgumentException(
@@ -416,9 +427,13 @@ public class PgType {
     static protected final PgType boolSingleton =
         new PgType(Type.SQL_BOOLEAN, TYPE_BOOL, 1);
     static protected final PgType textSingleton =
-        new PgType(Type.SQL_VARCHAR, TYPE_TEXT, -1);
-    static protected final PgType charSingleton = new PgType(
-        CharacterType.getCharacterType(Types.SQL_VARCHAR, 1), TYPE_CHAR, 1);
+        new PgType(Type.SQL_VARCHAR, TYPE_TEXT);
     static protected final PgType dateSingleton =
         new PgType(Type.SQL_DATE, TYPE_DATE, 4);
+    static protected final PgType unknownSingleton =
+        new PgType(Type.SQL_CHAR, TYPE_UNKNOWN, -2);
+    static protected final PgType bitSingleton =
+        new PgType(Type.SQL_BIT, TYPE_BIT);
+    static protected final PgType bitVaryingSingleton =
+        new PgType(Type.SQL_BIT_VARYING, TYPE_VARBIT);
 }
