@@ -51,15 +51,16 @@ public class TestOdbcTypes extends AbstractTestOdbc {
      *      BIGINT
      *      NUMERIC(p?,s?) = DECIMAL()   (default for decimal literals)
      * Approximate Numeric
-     *     REAL(p?) = FLOAT() = DOUBLE() (default for literals with exponent)
+     *     FLOAT(p?) = FLOAT() = DOUBLE() (default for literals with exponent)
+     *     DOUBLE = REAL
      * BOOLEAN
      * Character Strings
      *     CHARACTER(1l)* = CHAR()
-     *     CHARACTER VARYING = VARCHAR = LONGVARCHAR
+     *     CHARACTER VARYING(1l) = VARCHAR() = LONGVARCHAR()
      *     CLOB(1l) = CHARACTER LARGE OBJECT(1)
      * Binary Strings
      *     BINARY(1l)*
-     *     BINARY VARYING = VARBINARY
+     *     BINARY VARYING(1l) = VARBINARY()
      *     BLOB(1l) = BINARY LARGE OBJECT()
      * Bits
      *     BIT(1l)
@@ -85,42 +86,73 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     protected void populate(Statement st) throws SQLException {
         st.executeUpdate("DROP TABLE alltypes IF EXISTS");
         st.executeUpdate("CREATE TABLE alltypes (\n"
-            "    tint TINYINT,\n"
-            SMALLINT,\n"
-            INTEGER,\n"
-            BIGINT,\n"
-            NUMERIC(?,?),"
-            REAL = FLOAT = DOUBLE    (default for literals with specified exponent)
-       BOOLEAN
-       Character Strings
-           CHARACTER(1)* = CHAR(1)
-           CHARACTER VARYING = VARCHAR = LONGVARCHAR
-           CLOB(1) = CHARACTER LARGE OBJECT(1)
-       Binary Strings
-           BINARY(1)*
-           BINARY VARYING = VARBINARY
-           BLOB(1) = BINARY LARGE OBJECT()
-       Bits
-           BIT(1)
-           BIT VARYING
-           ? What is the difference between BIT and BIT VARYING ?  Are they synonyms?
-       OTHER  (for holding serialized Java objects)
-       Date/Times
-           DATE
-           TIME(?,?)
-           TIMESTAMP(?,?)
-           INTERVAL...(2,0)
+            + "    id INTEGER,\n"
+            + "    ti TINYINT,\n"
+            + "    si SMALLINT,\n"
+            + "    i INTEGER,\n"
+            + "    bi BIGINT,\n"
+            + "    n NUMERIC(5,2),\n"
+            + "    f FLOAT(5),\n"
+            + "    r DOUBLE,\n"
+            + "    b BOOLEAN,\n"
+            + "    c CHARACTER(3),\n"
+            + "    cv CHARACTER VARYING(3),\n"
+            + "    cl CLOB(3),\n"
+            + "    bin BINARY(3),\n"
+            + "    bv BINARY VARYING(3),\n"
+            + "    bl BLOB(3),\n"
+            + "    bt BIT(3),\n"
+            + "    btv BIT VARYING(3),\n"
+            + "    o OTHER,\n"
+            + "    d DATE,\n"
+            + "    t TIME(2),\n"
+            + "    ts TIMESTAMP(2),\n"
+            + "    iv INTERVAL SECOND(2,2)\n"
+           + ')');
 
         // Would be more elegant and efficient to use a prepared statement
         // here, but our we want this setup to be as simple as possible, and
         // leave feature testing for the actual unit tests.
-        st.executeUpdate("INSERT INTO nullmix (i, vc) values(10, 'ten')");
-        st.executeUpdate("INSERT INTO nullmix (i, vc) values(5, 'five')");
-        st.executeUpdate("INSERT INTO nullmix (i, vc) values(15, 'fifteen')");
-        st.executeUpdate(
-                "INSERT INTO nullmix (i, vc) values(21, 'twenty one')");
-        st.executeUpdate("INSERT INTO nullmix (i, vc) values(40, 'forty')");
-        st.executeUpdate("INSERT INTO nullmix (i) values(25)");
+        st.executeUpdate("INSERT INTO alltypes VALUES (\n"
+            + "    1, 3, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd', 'ef',\n"
+            + "    'gh', 'ij', null, null, null, null, current_date,\n"
+            + "    current_time, current_timestamp, null\n"
+            + ')'
+        );
+        /*
+         * How to write to BLOB with a text query?...
+         * Can't write integers (smallest ones) to the bit fields.
+         *  How is one to set multiple bits?
+         * I set Object and Internal to null, because I don't want to deal with
+         *  them yet.
+         */
+    }
+
+    public void testInteger() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id = 1");
+            assertTrue("Got no row with id of 1", rs.next());
+            assertEquals(5, rs.getInt("i"));
+System.err.println("Type is " + rs.getInt("i"));
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
     }
 
     static public void main(String[] sa) {
