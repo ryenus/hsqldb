@@ -137,12 +137,11 @@ DATA TYPE SUPPORT MATRIX
     OTHER                              0    0  |
     DATE                               0    0  |  date       1082
     TIME(p0)                           0   [0] |  time       1083
-    TIME_WITH_TIME_ZONE?               0    0  |  time_with_tmzone 1266
+    TIME(p0) WITH TIME ZONE            0   [0] |  time_with_tmzone 1266
     TIMESTAMP(p0)                      0   [6] |  timestamp_no_tmzone 1114
-    TIMESTAMP_WITH_TIME_ZONE?          0    6  |  timestamp  1296
+    TIMESTAMP (p0) WITH TIME ZONE      0   [6] |  timestamp  1296
     INTERVAL...(p2,p0)                [2]  [6] |  tinterval   704
                                                |  (or interval?)
-? I think these should accept precision spec, but they do not.
 * This could be -1 for derived values?
 ** atttypmod for numerics determines column size and scale.
      scale = (atttypmod - 4) & 0xffff
