@@ -100,7 +100,11 @@ public class PgType {
 
             case Types.SQL_NUMERIC:
             case Types.SQL_DECIMAL:
-                return new PgType(hType, TYPE_NUMERIC, null, hType.precision);
+                return new PgType(hType, TYPE_NUMERIC, null,
+                        ((4 + hType.precision) << 16)
+                        + 4 + hType.scale);
+                    // TODO:  This atttypmod definitely needs to be tested.
+                    // See note about this in doc/odbc.txt.
 
             case Types.SQL_FLOAT:
                 return new PgType(hType, TYPE_FLOAT8, null, hType.precision);
@@ -114,7 +118,6 @@ public class PgType {
             case Types.SQL_CHAR: // = CHARACTER
             case Types.SQL_VARCHAR: // = CHARACTER VARYING = LONGVARCHAR
             case Types.VARCHAR_IGNORECASE: // Don't know if possible here
-System.err.println("CHAR scale (" + hType.scale + ") precis (" + hType.precision + ')');
                 if (hType.precision < 0) {
                     throw new IllegalArgumentException(
                         "Length/Precision value is below minimum value of 0");
