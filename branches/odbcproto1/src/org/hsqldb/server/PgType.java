@@ -116,6 +116,8 @@ public class PgType {
                 return boolSingleton;
 
             case Types.SQL_CHAR: // = CHARACTER
+                return new PgType(hType, TYPE_BPCHAR, null, hType.precision);
+
             case Types.SQL_VARCHAR: // = CHARACTER VARYING = LONGVARCHAR
             case Types.VARCHAR_IGNORECASE: // Don't know if possible here
                 if (hType.precision < 0) {
