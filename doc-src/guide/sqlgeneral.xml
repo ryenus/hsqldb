@@ -220,7 +220,7 @@
       and minimum values that can be held in a field of each type. For example
       the value range for TINYINT is -128 to +127. The bit precision of
       TINYINT, SMALLINT, INTEGER and BIGINT is respectively 8, 16, 32 and 64.
-      For NUMERIC and DECIMAL, decimal precision is used. </para>
+      For NUMERIC and DECIMAL, decimal precision is used.</para>
 
       <para>DECIMAL and NUMERIC with decimal fractions are mapped to
       <classname>java.math.BigDecimal</classname> and can have very large
@@ -245,7 +245,7 @@
 
       <para>In expressions, TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and
       DECIMAL (without a decimal point) are fully interchangeable, and no data
-      narrowing takes place. </para>
+      narrowing takes place.</para>
 
       <para>If the SELECT statement refers to a simple column or function,
       then the return type is the type corresponding to the column or the
@@ -298,7 +298,7 @@
       <methodname>ResultSet.getXXXX()</methodname> methods can be used to
       retrieve the values so long as the returned value can be represented by
       the resulting type. This type is deterministically based on the query,
-      not on the actual rows returned. </para>
+      not on the actual rows returned.</para>
 
       <simpara><emphasis role="bold">Other Numeric Types</emphasis></simpara>
 
@@ -310,8 +310,7 @@
       <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
       expression involving different numeric types, the type of the result is
       DOUBLE. DECIMAL values can be converted to DOUBLE unless they are beyond
-      the <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range.
-      </para>
+      the <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range.</para>
 
       <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
       value is part an expression, the type of the result is DECIMAL or
@@ -414,7 +413,9 @@
       <para>If CHARACTER is used without specifying the length, the length
       defaults to 1. For the CLOB type, the length limit can be defined in
       units of kilobyte (1024), megabyte (1024 * 1024) or gigabyte (1024 *
-      1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>.</para>
+      1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If CLOB
+      is used without specifying the length, the length defaults to 1
+      megabyte.</para>
 
       <simpara><literal>&lt;character string type&gt; ::= { CHARACTER | CHAR }
       [ &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | {
@@ -467,7 +468,7 @@ CHARACTER LARGE OBJECT(1M)
       synonyms for BINARY VARYING and BLOB types. HyperSQL also supports
       LONGVARBINARY as a synonym for VARBINARY.</para>
 
-      <para>Binary string types are used in the same way as character string
+      <para>Binary string types are used in a similar way to character string
       types. There are several built-in functions that are overloaded to
       support character, binary and bit strings.</para>
 
@@ -481,7 +482,8 @@ CHARACTER LARGE OBJECT(1M)
       defaults to 1. For the BLOB type, the length limit can be defined in
       units of kilobyte (1024), megabyte (1024 * 1024) or gigabyte (1024 *
       1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If BLOB
-      is used without specifying the length, it </para>
+      is used without specifying the length, the length defaults to 1
+      megabyte.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -515,7 +517,7 @@ BINARY LARGE OBJECT(1M)
       Bit types represent bit maps of given lengths. Each bit is 0 or 1. The
       BIT type represents a fixed width-string. Each shorter string is padded
       with zeros to fill the fixed with. If BIT is used without specifying the
-      length, the length defaults to 1. </para>
+      length, the length defaults to 1.</para>
 
       <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
@@ -559,19 +561,19 @@ BIT VARYING(2)
     </section>
 
     <section>
-      <title>Type Size, Precision and Scale</title>
+      <title>Type Length, Precision and Scale</title>
 
       <para>In older version of HSQLDB, all table column type definitions with
-      a column size, precision or scale qualifier were accepted and ignored.
+      a column length, precision or scale qualifier were accepted and ignored.
       HSQLDB 1.8 enforced correctness but included an option to enforce the
-      size, precision or scale.</para>
+      length, precision or scale.</para>
 
-      <para>In 2.0, size, precision and scale qualifiers are always
+      <para>In 2.0, length, precision and scale qualifiers are always
       enforced.</para>
 
       <para>String types, including all BIT, BINARY and CHAR string types plus
-      CLOB and BLOB, are generally defined with a size. If no size is
-      specified, the default size is 1.</para>
+      CLOB and BLOB, are generally defined with a length. If no length is
+      specified, the default length is 1.</para>
 
       <para>TIME and TIMESTAMP types can be defined with a fractional second
       precision between 0 and 9. INTERVAL type definition may have precision
@@ -584,12 +586,13 @@ BIT VARYING(2)
       in assignment, comparison and aggregation.</para>
 
       <para>String values cannot be assigned to VARCHAR columns if they are
-      longer than the defined type size. For CHARACTER columns, a long string
-      can be assigned (with truncation) only if all the characters after the
-      size are spaces. Shorter strings are padded with the space character
-      when inserted into a CHARACTER column. Similar rules are applied to
-      VARBINARY and BINARY columns. For BINARY columns, the padding and
-      truncation rules are applied with zero bytes, instead of spaces.</para>
+      longer than the defined type length. For CHARACTER columns, a long
+      string can be assigned (with truncation) only if all the characters
+      after the length are spaces. Shorter strings are padded with the space
+      character when inserted into a CHARACTER column. Similar rules are
+      applied to VARBINARY and BINARY columns. For BINARY columns, the padding
+      and truncation rules are applied with zero bytes, instead of
+      spaces.</para>
 
       <para>Explicit CAST of a value to a CHARACTER or VARCHAR type will
       result in forced truncation or padding. So a test such as <literal>CAST
@@ -740,7 +743,7 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
       1, TIME '12:00:00' is converted to UTC, which is TIME '20:00:00+0:00'.
       In step 2, this value is expressed as TIME '21:00:00+1:00'.</para>
 
-      <para>Example b: </para>
+      <para>Example b:</para>
 
       <programlisting>TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
 </programlisting>
