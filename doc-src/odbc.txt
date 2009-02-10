@@ -31,6 +31,10 @@ KNOWN LIMITATIONS
 
     Limitations corresponding to the TODO items above.
 
+    Can't fetch the same column (or virtual column) twice from JDBC, even with
+    different getters like rs.getInt() and rs.getObject().  I don't know what
+    product is responsible for this limitation.
+
     No metadata querying ability, other than the ones implicit with setting
     up prepared statements (including the 'D').
 
@@ -145,7 +149,8 @@ DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
     TIMESTAMP (p0) WITH TIME ZONE      0   [6] |  datetime  ?1184   8 [-1]*****
     INTERVAL...(p2,p0)                [2]  [6] | @tinterval  1186  16  [-1]****
 ** atttypmod for numerics determines column size and scale.
-     atttypmod = (precision << 16) + scale
+     atttypmod = (precision << 16) + scale + 4
+     (but there seems to be a bug in psqlodbc where this still does not work).
 *** Postgresql seems to use the FLOAT(x) precisions specifier just to decide
  whether to create a float4 or float8 column.
 **** I get atttypmod value of 2147418111 for INTERVAL(3)

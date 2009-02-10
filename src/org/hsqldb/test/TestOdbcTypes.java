@@ -35,6 +35,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.math.BigDecimal;
 
 /**
  * See AbstractTestOdbc for more general ODBC test information.
@@ -87,7 +90,6 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         st.executeUpdate("DROP TABLE alltypes IF EXISTS");
         st.executeUpdate("CREATE TABLE alltypes (\n"
             + "    id INTEGER,\n"
-            + "    ti TINYINT,\n"
             + "    si SMALLINT,\n"
             + "    i INTEGER,\n"
             + "    bi BIGINT,\n"
@@ -97,33 +99,41 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    b BOOLEAN,\n"
             + "    c CHARACTER(3),\n"
             + "    cv CHARACTER VARYING(3),\n"
-            + "    cl CLOB(3),\n"
-            + "    bin BINARY(3),\n"
-            + "    bv BINARY VARYING(3),\n"
-            + "    bl BLOB(3),\n"
             + "    bt BIT(3),\n"
             + "    btv BIT VARYING(3),\n"
-            + "    o OTHER,\n"
             + "    d DATE,\n"
             + "    t TIME(2),\n"
+            + "    tw TIME(2) WITH TIME ZONE,\n"
             + "    ts TIMESTAMP(2),\n"
-            + "    iv INTERVAL SECOND(2,2)\n"
+            + "    tsw TIMESTAMP(2) WITH TIME ZONE\n"
            + ')');
+        /** TODO:  This test class can't handle testing unlmited VARCHAR, since
+         * we set up with strict size setting, which prohibits unlimited
+         * VARCHARs.  Need to write a standalone test class to test that.
+         */
 
         // Would be more elegant and efficient to use a prepared statement
         // here, but our we want this setup to be as simple as possible, and
         // leave feature testing for the actual unit tests.
         st.executeUpdate("INSERT INTO alltypes VALUES (\n"
-            + "    1, 3, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd', 'ef',\n"
-            + "    'gh', 'ij', null, null, null, null, current_date,\n"
-            + "    current_time, current_timestamp, null\n"
+            + "    1, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
+            + "    null, null, current_date, '13:14:00',\n"
+            + "    '15:16:00', '2009-02-09 16:17:18',\n"
+            + "    '2009-02-09 17:18:19'\n"
+            + ')'
+        );
+        st.executeUpdate("INSERT INTO alltypes VALUES (\n"
+            + "    2, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
+            + "    null, null, current_date, '13:14:00',\n"
+            + "    '15:16:00', '2009-02-09 16:17:18',\n"
+            + "    '2009-02-09 17:18:19'\n"
             + ')'
         );
         /*
          * How to write to BLOB with a text query?...
          * Can't write integers (smallest ones) to the bit fields.
          *  How is one to set multiple bits?
-         * I set Object and Internal to null, because I don't want to deal with
+         * I set Object and Interval to null, because I don't want to deal with
          *  them yet.
          */
     }
@@ -133,10 +143,462 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         Statement st = null;
         try {
             st = netConn.createStatement();
-            rs = st.executeQuery("SELECT * FROM alltypes WHERE id = 1");
-            assertTrue("Got no row with id of 1", rs.next());
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(Integer.class, rs.getObject("i").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
             assertEquals(5, rs.getInt("i"));
-System.err.println("Type is " + rs.getInt("i"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testSmallInt() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            //assertEquals(Short.class, rs.getObject("si").getClass());
+            // TODO: Ask Fred if this is ok.
+            // I see that server is sending a 2 byte short, but JDBC is serving
+            // an Integer to getObject().
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(4, rs.getShort("si"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testBigInt() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(Long.class, rs.getObject("bi").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(6, rs.getLong("bi"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testNumeric() {
+        /*
+         * This is failing.
+         * Looks like we inherited a real bug with numerics from psqlodbc,
+         * because the problem exists with Postresql-supplied psqlodbc
+         * connecting to a Postgresql server.
+         */
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(BigDecimal.class, rs.getObject("n").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(new BigDecimal(7.8), rs.getBigDecimal("n"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testFloat() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(Double.class, rs.getObject("f").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(8.9D, rs.getDouble("f"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testDouble() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(Double.class, rs.getObject("r").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(9.7D, rs.getDouble("r"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testBoolean() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(Boolean.class, rs.getObject("b").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertTrue(rs.getBoolean("b"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testChar() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(String.class, rs.getObject("c").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals("ab ", rs.getString("c"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testVarChar() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(String.class, rs.getObject("cv").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals("cd", rs.getString("cv"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testFixedString() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT i, 'fixed str' fs, cv\n"
+                    + "FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(String.class, rs.getObject("fs").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals("fixed str", rs.getString("fs"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testDerivedString() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT i, cv || 'appendage' app, 4\n"
+                    + "FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(String.class, rs.getObject("app").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals("cdappendage", rs.getString("app"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testDate() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(java.sql.Date.class, rs.getObject("d").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(
+                new java.sql.Date(new java.util.Date().getTime()).toString(),
+                rs.getDate("d").toString());
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testTime() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(java.sql.Time.class, rs.getObject("t").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(Time.valueOf("13:14:00"), rs.getTime("t"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testTimeW() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(java.sql.Time.class, rs.getObject("tw").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(Time.valueOf("15:16:00"), rs.getTime("tw"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testTimestamp() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(Timestamp.class, rs.getObject("ts").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(Timestamp.valueOf("2009-02-09 16:17:18"),
+                    rs.getTimestamp("ts"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testTimestampW() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(Timestamp.class, rs.getObject("tsw").getClass());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals(Timestamp.valueOf("2009-02-09 17:18:19"),
+                    rs.getTimestamp("tsw"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
                 = new junit.framework.AssertionFailedError(se.getMessage());
@@ -158,4 +620,16 @@ System.err.println("Type is " + rs.getInt("i"));
     static public void main(String[] sa) {
         staticRunner(TestOdbcTypes.class, sa);
     }
+
+    /*
+    static protected boolean closeEnough(Time t1, Time t2, int fudgeMin) {
+        long delta = t1.getTime() - t2.getTime();
+        if (delta < 0) {
+            delta *= -1;
+        }
+        //System.err.println("Delta  " + delta);
+        //System.err.println("exp  " + (fudgeMin * 1000 * 60));
+        return delta < fudgeMin * 1000 * 60;
+    }
+    */
 }
