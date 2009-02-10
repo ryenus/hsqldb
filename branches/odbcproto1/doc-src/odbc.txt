@@ -130,7 +130,7 @@ DATA TYPE SUPPORT MATRIX                      @ = Yet-to-be-Implemented
     FLOAT(p?)                   128   [0]   0  |  float8      701   8    -1**
     DOUBLE = REAL               128    0    0  |  float8      701   8    -1
     BOOLEAN                            0    0  |  bool         16   1    -1
-    CHARACTER(1l)* = CHAR()           [0]   0  |  bpchar     1042  -1    [1]
+    CHARACTER(1l)* = CHAR()           [0]++ 0  |  bpchar     1042  -1    [1]
     VARCHAR(1l) = LONGVARCHAR()       [0]   0  |  varchar    1043  -1   [-1]
                   If precision unlimited/0:    |  text         25  -1    -1
 LITERAL, simple atomic str+:CHARACTER len   0  |  unknown     705  -2    -1
@@ -148,6 +148,8 @@ DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
     TIMESTAMP(p0)                      0   [6] |  timestamp_no_tmzone 1114 8[-1]
     TIMESTAMP (p0) WITH TIME ZONE      0   [6] |  datetime  ?1184   8 [-1]*****
     INTERVAL...(p2,p0)                [2]  [6] | @tinterval  1186  16  [-1]****
+* these types present at least a facade of data values always padded to the
+  specified length.
 ** atttypmod for numerics determines column size and scale.
      atttypmod = (precision << 16) + scale + 4
      (but there seems to be a bug in psqlodbc where this still does not work).
@@ -161,6 +163,7 @@ DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
     not as smart about figuring out when expressions will resolve to a constant.
     When combining a constant and a col., HyperSQL confusingly some really
     crazy lengths.  I haven't figured out the method or intention.
+++: This conflicts with the spec, which says this length should default to 1.
 
 
 REFERENCES
