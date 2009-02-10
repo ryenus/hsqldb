@@ -118,7 +118,7 @@ NEVER BE SENT.  I will have a definitive answer about several of these shortly.:
     Show Client_Encoding
 
 
-DATA TYPE SUPPORT MATRIX                      @ = Yet-to-be-Implemented
+DATA TYPE SUPPORT MATRIX   (type synonyms not listed) @=Yet-to-be-Implemented
 
     HyperSQL type               wid prec scale |  Driver type oid adtsz atttypm
     --------------------------- --- ---- ----- -  ----------- --- ---   ---
@@ -128,10 +128,10 @@ DATA TYPE SUPPORT MATRIX                      @ = Yet-to-be-Implemented
     BIGINT                       64   19    0  |  int8         20   8    -1
     NUMERIC(p?,s?)                  [100]  [0] |  numeric    1700  -1   [-1]**
     FLOAT(p?)                   128   [0]   0  |  float8      701   8    -1**
-    DOUBLE = REAL               128    0    0  |  float8      701   8    -1
+    DOUBLE                      128    0    0  |  float8      701   8    -1
     BOOLEAN                            0    0  |  bool         16   1    -1
-    CHARACTER(1l)* = CHAR()           [0]++ 0  |  bpchar     1042  -1    [1]
-    VARCHAR(1l) = LONGVARCHAR()       [0]   0  |  varchar    1043  -1   [-1]
+    CHAR(1l)* =                       [0]++ 0  |  bpchar     1042  -1    [1]
+    VARCHAR(1l)                       [0]   0  |  varchar    1043  -1   [-1]
                   If precision unlimited/0:    |  text         25  -1    -1
 LITERAL, simple atomic str+:CHARACTER len   0  |  unknown     705  -2    -1
 DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
@@ -167,6 +167,11 @@ DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
 
 
 REFERENCES
+
+    JDBC type mapping tables.  Section "Tables for Type Mapping" of Sun's
+    "Getting STarted with the JDBC API", which is section 9.9 of the current
+    version, but this section number changes with document revisions.
+    http://java.sun.com/javase/6/docs/technotes/guides/jdbc/getstart/mapping.html#1038075
 
     psqlodbc code repository.  Module "psqlodbc" at
       :pserver:anonymous@cvs.pgfoundry.org:/cvsroot/psqlodbc
