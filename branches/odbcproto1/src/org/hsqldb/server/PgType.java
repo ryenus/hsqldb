@@ -114,7 +114,7 @@ public class PgType {
             case Types.SQL_NUMERIC:
             case Types.SQL_DECIMAL:
                 return new PgType(hType, TYPE_NUMERIC, null,
-                        ((hType.precision << 16) + hType.scale + 4);
+                        (hType.precision << 16) + hType.scale + 4);
 
             case Types.SQL_FLOAT:
                 // TODO:
