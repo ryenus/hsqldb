@@ -104,7 +104,8 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    t TIME(2),\n"
             + "    tw TIME(2) WITH TIME ZONE,\n"
             + "    ts TIMESTAMP(2),\n"
-            + "    tsw TIMESTAMP(2) WITH TIME ZONE\n"
+            + "    tsw TIMESTAMP(2) WITH TIME ZONE,\n"
+            + "    vb VARBINARY(4)\n"
            + ')');
         /** TODO:  This test class can't handle testing unlmited VARCHAR, since
          * we set up with strict size setting, which prohibits unlimited
@@ -118,14 +119,14 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    1, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
             + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18',\n"
-            + "    '2009-02-09 17:18:19'\n"
+            + "    '2009-02-09 17:18:19', x'A103'\n"
             + ')'
         );
         st.executeUpdate("INSERT INTO alltypes VALUES (\n"
             + "    2, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
             + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18',\n"
-            + "    '2009-02-09 17:18:19'\n"
+            + "    '2009-02-09 17:18:19', x'A103'\n"
             + ')'
         );
     }
@@ -668,6 +669,42 @@ public class TestOdbcTypes extends AbstractTestOdbc {
                 }
             } catch(Exception e) {
             }
+        }
+    }
+
+    public void testVarBinary() {
+        ResultSet rs = null;
+        Statement st = null;
+        byte[] expectedBytes = new byte[] { (byte) 0xa1, 0x03 };
+        byte[] ba;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals("a103", rs.getString("vb"));
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            ba = rs.getBytes("vb");
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+        assertEquals("Retrieved bye array length wrong",
+            expectedBytes.length, ba.length);
+        for (int i = 0; i < ba.length; i++) {
+            assertEquals("Byte " + i + " wrong", expectedBytes[i], ba[i]);
         }
     }
 
