@@ -316,7 +316,7 @@
       <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
       value is part an expression, the type of the result is DECIMAL or
       NUMERIC. Similar to integral values, when the result of an expression is
-      assgined to a table column, the value has to fit in the target column,
+      assigned to a table column, the value has to fit in the target column,
       otherwise an error is returned. This means a small, 4 digit value of
       DECIMAL type can be assigned to a column of SMALLINT or INTEGER, but a
       value with 15 digits cannot.</para>
@@ -335,10 +335,11 @@
       <para>REAL, FLOAT and DOUBLE values are all stored in the database as
       <classname>java.lang.Double</classname> objects. Special values such as
       NaN and +-Infinity are also stored and supported. These values can be
-      submitted to the database via JDBC PreparedStatement methods and are
-      returned in <classname>ResultSet</classname> objects. The result can be
-      retrieved from a <classname>ResultSet</classname> in the required type
-      so long as it can be represented. When
+      submitted to the database via JDBC
+      <classname>PreparedStatement</classname> methods and are returned in
+      <classname>ResultSet</classname> objects. The result can be retrieved
+      from a <classname>ResultSet</classname> in the required type so long as
+      it can be represented. When
       <methodname>PreparedStatement.setDouble()</methodname> or
       <methodname>setFloat()</methodname> is used, the value is treated as a
       DOUBLE automatically.</para>
@@ -401,7 +402,7 @@
       <para>HyperSQL's main character set is Unicode, therefore all possible
       character strings can be represented by these types.</para>
 
-      <para>The SQL Standard behaviour of the CHARACTER type is a remanent of
+      <para>The SQL Standard behaviour of the CHARACTER type is a remnant of
       legacy systems in which character strings are padded with spaces to fill
       a fixed width. These spaces are sometimes significant while in other
       cases they are silently discarded. It would be best to avoid the
@@ -471,7 +472,7 @@ CHARACTER LARGE OBJECT(1M)
       support character, binary and bit strings.</para>
 
       <para>The BINARY type represents a fixed width-string. Each shorter
-      string is padded with zeros to fill the fixed with. Similar to the
+      string is padded with zeros to fill the fixed width. Similar to the
       CHARACTER type, the trailing zeros in the BINARY string are simply
       discarded in some operations. For the same reason, it is best to avoid
       this particular type.</para>
@@ -479,7 +480,8 @@ CHARACTER LARGE OBJECT(1M)
       <para>If BINARY is used without specifying the length, the length
       defaults to 1. For the BLOB type, the length limit can be defined in
       units of kilobyte (1024), megabyte (1024 * 1024) or gigabyte (1024 *
-      1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>.</para>
+      1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If BLOB
+      is used without specifying the length, it </para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -702,16 +704,18 @@ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
       <simpara><emphasis role="bold">Operations on Datetime
       Types</emphasis></simpara>
 
-      <para>The expression &lt;datetime expression&gt; AT TIME ZONE &lt;time
-      displacement&gt; evaluates to a datetime value representing exactly the
-      same point of time in the specified &lt;time displacement&gt;. The
-      expression, AT LOCAL is equivalent to AT TIME ZONE &lt;local time
-      displacement&gt;. If AT TIME ZONE is used with a datetime operand of
-      type WITHOUT TIME ZONE, the operand is first converted to a value of
-      type WITH TIME ZONE at the session’s time displacement, then the
-      specified time zone displacement is set for the value. Therefore, in
-      these cases, the final value depends on the time zone of the session in
-      which the statement was used.</para>
+      <para>The expression <literal>&lt;datetime expression&gt; AT TIME ZONE
+      &lt;time displacement&gt;</literal> evaluates to a datetime value
+      representing exactly the same point of time in the specified
+      <literal>&lt;time displacement&gt;</literal>. The expression,
+      <literal>AT LOCAL</literal> is equivalent to <literal>AT TIME ZONE
+      &lt;local time displacement&gt;</literal>. If <literal>AT TIME
+      ZONE</literal> is used with a datetime operand of type WITHOUT TIME
+      ZONE, the operand is first converted to a value of type WITH TIME ZONE
+      at the session’s time displacement, then the specified time zone
+      displacement is set for the value. Therefore, in these cases, the final
+      value depends on the time zone of the session in which the statement was
+      used.</para>
 
       <para>AT TIME ZONE, modifies the field values of the datetime operand.
       This is done by the following procedure:</para>
@@ -796,11 +800,11 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
       comparisons and conversions between TIME values WITH TIME ZONE. The
       conversions may involve normalisation of the time value, resulting in
       unexpected results. For example, the expression: BETWEEN(TIME
-      '12:00:00-8:00', TIME '22:00:00-8:00') is converted to
-      BETWEEN(TIME'20:00:00+0:00', TIME '06:00:00+0:00') when it is evaluated
-      in the UTC zone, which is always FALSE.</para>
+      '12:00:00-8:00', TIME '22:00:00-8:00') is converted to BETWEEN(TIME
+      '20:00:00+0:00', TIME '06:00:00+0:00') when it is evaluated in the UTC
+      zone, which is always FALSE.</para>
 
-      <simpara><emphasis role="bold">Function</emphasis></simpara>
+      <simpara><emphasis role="bold">Functions</emphasis></simpara>
 
       <para>Several functions return the current session timestamp in
       different datetime types:</para>
@@ -1066,41 +1070,16 @@ DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH 
       interval value. The two datetime expressions must be of the same type.
       The type of the interval value must be specified in the expression,
       using only the interval field names. The two datetime expressions are
-      enclosed in parentheses, followed by the&lt;interval qualifier&gt;
-      fields. In the first example below, COL1 and COL2 are of the same
-      datetime type, and the result is evaluated in INTERVAL YEAR TO MONTH
-      type.</para>
+      enclosed in parentheses, followed by the <literal>&lt;interval
+      qualifier&gt;</literal> fields. In the first example below, COL1 and
+      COL2 are of the same datetime type, and the result is evaluated in
+      INTERVAL YEAR TO MONTH type.</para>
 
-      <informaltable frame="all">
-        <tgroup cols="2">
-          <tbody>
-            <row>
-              <entry><para>(COL1 – COL2) YEAR TO MONTH</para></entry>
-
-              <entry><para>difference between two DATE or two TIEMSTAMP values
-              in years and months </para></entry>
-            </row>
-
-            <row>
-              <entry><para>(CURRENT_DATE – COL3) DAY</para></entry>
-
-              <entry><para>the number of days between the value of COL3 and
-              the current date</para></entry>
-            </row>
-
-            <row>
-              <entry><para>(CURRENT_DATE - DATE '2000-01-01') YEAR TO
-              MONTH</para></entry>
-
-              <entry><para>the number of years and months since the beginning
-              of this century</para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </informaltable>
-
-      <programlisting>CURRENT_DATE - 2 DAY
-(CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2)
+      <programlisting>(COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
+(CURRENT_DATE – COL3) DAY /* the number of days between the value of COL3 and the current date */
+(CURRENT_DATE - DATE '2000-01-01') YEAR TO MONTH /* the number of years and months since the beginning of this century */
+CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
+(CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2) /* days to seconds since the given date */
 </programlisting>
 
       <para>The individual fields of both datetime and interval values can be
