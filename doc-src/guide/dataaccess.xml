@@ -167,7 +167,7 @@ U&amp;'Unicode string'
       <simpara><literal>&lt;hexit&gt; ::= &lt;digit&gt; | A | B | C | D | E |
       F | a | b | c | d | e | f</literal></simpara>
 
-      <simpara>The type of a binary literal is BINARY. The octect length of
+      <simpara>The type of a binary literal is BINARY. The octet length of
       the binary literal is the length of the type. Case-insensitive
       hexadecimal charaters are used in the binary string. Each pair of
       characters in the literal represents a byte in the binary string. Long
