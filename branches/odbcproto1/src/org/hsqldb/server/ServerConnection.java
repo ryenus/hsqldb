@@ -360,6 +360,7 @@ class ServerConnection implements Runnable {
         StatementPortal portal;
         org.hsqldb.result.ResultMetaData pmd;
         OdbcPacketInputStream inPacket = null;
+        org.hsqldb.types.Type[] colTypes;
 
         try {
             inPacket =
@@ -577,16 +578,14 @@ class ServerConnection implements Runnable {
                     outPacket.writeShort(102); // column id
                     outPacket.writeInt(26); // Datatype ID  [adtid]
                     outPacket.writeShort(4);       // Datatype size  [adtsize]
-                    outPacket.writeInt(-1); // Var size (always -1 so far)
-                                             // [atttypmod]
+                    outPacket.writeInt(-1); // Var size [atttypmod]
                     outPacket.writeShort(0);        // text "format code"
                     outPacket.write("typbasetype"); // Col. name
                     outPacket.writeInt(101); // table ID
                     outPacket.writeShort(103); // column id
                     outPacket.writeInt(26); // Datatype ID  [adtid]
                     outPacket.writeShort(4);       // Datatype size  [adtsize]
-                    outPacket.writeInt(-1); // Var size (always -1 so far)
-                                             // [atttypmod]
+                    outPacket.writeInt(-1); // Var size [atttypmod]
                     outPacket.writeShort(0);        // text "format code"
                     outPacket.xmit('T', dataOutput); // sending a Tuple (row)
 
@@ -618,6 +617,7 @@ class ServerConnection implements Runnable {
                                 + "unexpected type: " + rOut.getType());
                     }
                     // See Result.newDataHeadResult() for what we have here
+                    // See Result.newDataHeadResult() for what we have here
                     // .metaData, .navigator
                     org.hsqldb.navigator.RowSetNavigator navigator =
                             rOut.getNavigator();
@@ -648,10 +648,11 @@ class ServerConnection implements Runnable {
                             + md.getColumnCount() + " cols. but only got "
                             + colNames.length + " col. names");
                     }
-                    org.hsqldb.types.Type[] colTypes = md.getParameterTypes();
-                    PgType[] pgTypes = new PgType[colTypes.length];
+                    colTypes = md.columnTypes;
+                    PgType[] pgTypes = new PgType[colNames.length];
                     for (int i = 0; i < pgTypes.length; i++) {
-                        pgTypes[i] = PgType.getPgType(colTypes[i]);
+                        pgTypes[i] = PgType.getPgType(colTypes[i],
+                            md.isTableColumn(i));
                     }
                     org.hsqldb.ColumnBase[] colDefs = md.columns;
                     if (colNames.length != colDefs.length) {
@@ -663,22 +664,20 @@ class ServerConnection implements Runnable {
                     for (int i = 0; i < colNames.length; i++) {
                         outPacket.write(colNames[i]); // Col. name
                         // table ID  [relid]:
-                        outPacket.writeInt((colDefs[i].getNameString() == null)
-                            ? 0
-                            : (colDefs[i].getSchemaNameString() + '.'
-                                + colDefs[i].getTableNameString()).hashCode());
+                        outPacket.writeInt(md.isTableColumn(i)
+                            ? (colDefs[i].getSchemaNameString() + '.'
+                                + colDefs[i].getTableNameString()).hashCode()
+                            : 0);
                         // column id  [attid]
-                        outPacket.writeShort(
-                            (colDefs[i].getTableNameString() == null)
-                            ? 0 : (i + 1));
+                        outPacket.writeShort(md.isTableColumn(i) ? (i + 1) : 0);
                             // TODO:  FIX This ID does not stick with the
                             // column, but just represents the position in this
                             // query.
                         outPacket.writeInt(pgTypes[i].getOid());
                         // Datatype size  [adtsize]
                         outPacket.writeShort(pgTypes[i].getTypeWidth());
-                        outPacket.writeInt(-1); // Var size [atttypmod]
-                            // TODO:  Get from the colType[i]
+                        outPacket.writeInt(pgTypes[i].getLPConstraint());
+                          // Var size [atttypmod]
                         // This is the size constraint integer
                         // like VARCHAR(12) or DECIMAL(4).
                         // -1 if none specified for this column.
@@ -716,18 +715,13 @@ class ServerConnection implements Runnable {
                                 */
                                 outPacket.writeInt(-1);
                             } else {
-                                outPacket.writeSized(rowData[i].toString());
-                                // N.b., Postgresql returns "t" and "f",
-                                // not "" and "" like we are returning.
-                                // But that makes no difference, since
-                                // psqlodbc totally mishandles them either
-                                // way.
-                                /*
+                                outPacket.writeSized(
+                                    colTypes[i].convertToString(rowData[i]));
+                                //.  replaceFirst("\\..*", ""));
                                 server.printWithThread("R" + rowNum + "C"
                                     + (i+1) + " => ("
                                     + rowData[i].getClass().getName()
                                     + ") [" + rowData[i] + ']');
-                                */
                             }
                         }
                         outPacket.xmit('D', dataOutput); // text row Data
@@ -895,7 +889,10 @@ class ServerConnection implements Runnable {
                     outPacket.writeShort(paramCount);
                     for (int i = 0; i < paramTypes.length; i++) {
                         outPacket.writeInt(
-                            PgType.getPgType(paramTypes[i]).getOid());
+                            PgType.getPgType(paramTypes[i], true).getOid());
+                        // TODO:  Determine whether parameter typing works
+                        // better for Strings when try to match table column
+                        // or not.  2nd param to getPgType().
                     }
                     outPacket.xmit('t', dataOutput);
                       // ParameterDescription packet
@@ -926,11 +923,12 @@ class ServerConnection implements Runnable {
                         + md.getColumnCount() + " cols. but only got "
                         + colNames.length + " col. names");
                 }
-                org.hsqldb.types.Type[] colTypes = md.getParameterTypes();
-                PgType[] pgTypes = new PgType[colTypes.length];
+                colTypes = md.columnTypes;
+                PgType[] pgTypes = new PgType[colNames.length];
                 org.hsqldb.ColumnBase[] colDefs = md.columns;
                 for (int i = 0; i < pgTypes.length; i++) {
-                    pgTypes[i] = PgType.getPgType(colTypes[i]);
+                    pgTypes[i] = PgType.getPgType(colTypes[i],
+                        md.isTableColumn(i));
                 }
                 if (colNames.length != colDefs.length) {
                     throw new RecoverableOdbcFailure("Col data mismatch.  "
@@ -942,22 +940,20 @@ class ServerConnection implements Runnable {
                 for (int i = 0; i < colNames.length; i++) {
                     outPacket.write(colNames[i]); // Col. name
                     // table ID  [relid]:
-                    outPacket.writeInt((colDefs[i].getNameString() == null)
-                        ? 0
-                        : (colDefs[i].getSchemaNameString() + '.'
-                            + colDefs[i].getTableNameString()).hashCode());
+                    outPacket.writeInt(md.isTableColumn(i)
+                        ? (colDefs[i].getSchemaNameString() + '.'
+                            + colDefs[i].getTableNameString()).hashCode()
+                        : 0);
                     // column id  [attid]
-                    outPacket.writeShort(
-                        (colDefs[i].getTableNameString() == null)
-                        ? 0 : (i + 1));
+                    outPacket.writeShort(md.isTableColumn(i) ? (i + 1) : 0);
                         // TODO:  FIX This ID does not stick with the
                         // column, but just represents the position in this
                         // query.
                     outPacket.writeInt(pgTypes[i].getOid());
                     // Datatype size  [adtsize]
                     outPacket.writeShort(pgTypes[i].getTypeWidth());
-                    outPacket.writeInt(-1); // Var size [atttypmod]
-                        // TODO:  Get from the colType[i]
+                    outPacket.writeInt(pgTypes[i].getLPConstraint());
+                      // Var size [atttypmod]
                     // This is the size constraint integer
                     // like VARCHAR(12) or DECIMAL(4).
                     // -1 if none specified for this column.
@@ -1100,6 +1096,7 @@ class ServerConnection implements Runnable {
                     outPacket.writeShort(colCount);
                      // This field is just swallowed by PG ODBC
                      // client, but validated by psql.
+                    colTypes = portal.ackResult.metaData.columnTypes;
                     for (int i = 0; i < colCount; i++) {
                         if (rowData[i] == null) {
                             /*
@@ -1108,18 +1105,12 @@ class ServerConnection implements Runnable {
                             */
                             outPacket.writeInt(-1);
                         } else {
-                            outPacket.writeSized(rowData[i].toString());
-                            // N.b., Postgresql returns "t" and "f",
-                            // not "" and "" like we are returning.
-                            // But that makes no difference, since
-                            // psqlodbc totally mishandles them either
-                            // way.
-                            /*
+                            outPacket.writeSized(
+                                colTypes[i].convertToString(rowData[i]));
                             server.printWithThread("R" + rowNum + "C"
                                 + (i+1) + " => ("
                                 + rowData[i].getClass().getName()
                                 + ") [" + rowData[i] + ']');
-                            */
                         }
                     }
                     outPacket.xmit('D', dataOutput); // text row Data

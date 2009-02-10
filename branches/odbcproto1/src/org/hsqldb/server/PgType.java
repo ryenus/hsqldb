@@ -84,7 +84,10 @@ public class PgType {
      * @param oid Numeric Object ID for the driver-side type.
      * @param typeWidth Fixed width for the type
      * @param lpConstraint Either length or Precision setting for this
-     *                     instance of the type
+     *                     instance of the type.
+     *                     <b>IMPORTANT!</b> for all types with positive
+     *                     lpConstraint other than Timestamps and Times,
+     *                     add an extra 4 to satisy crazy driver protocol.
      */
     protected PgType(Type hType,
         int oid, Integer typeWidthObject, Integer lpConstraintObject) {
@@ -96,7 +99,7 @@ public class PgType {
                        ? -1 : lpConstraintObject.intValue();
     }
 
-    static public PgType getPgType(Type hType) {
+    static public PgType getPgType(Type hType, boolean directColumn) {
         switch (hType.typeCode) {
             case Types.TINYINT:
                 throw new IllegalArgumentException(
@@ -111,7 +114,7 @@ public class PgType {
             case Types.SQL_NUMERIC:
             case Types.SQL_DECIMAL:
                 return new PgType(hType, TYPE_NUMERIC, null,
-                        (hType.precision << 16) + hType.scale);
+                        ((hType.precision << 16) + hType.scale + 4);
 
             case Types.SQL_FLOAT:
                 // TODO:
@@ -125,10 +128,11 @@ public class PgType {
                 return boolSingleton;
 
             case Types.SQL_CHAR: // = CHARACTER
-                if (hType.getNameString() == null) { // Non-direct-table-col
-                    return unknownSingleton;  // constant value
+                if (directColumn) {
+                    return new PgType(hType,
+                        TYPE_BPCHAR, null, hType.precision + 4);
                 }
-                return new PgType(hType, TYPE_BPCHAR, null, hType.precision);
+                return unknownSingleton;  // constant value
 
             case Types.SQL_VARCHAR: // = CHARACTER VARYING = LONGVARCHAR
             case Types.VARCHAR_IGNORECASE: // Don't know if possible here
@@ -141,9 +145,9 @@ public class PgType {
                         "Length/Precision value is above maximum value of "
                         + Integer.MAX_VALUE);
                 }
-                return (hType.precision == 0 || hType.getNameString() == null)
-                    ? textSingleton
-                    : new PgType(hType, TYPE_VARCHAR, null, hType.precision);
+                return (hType.precision != 0 && directColumn)
+                    ? new PgType(hType, TYPE_VARCHAR, null, hType.precision + 4)
+                    : textSingleton;
                 // Return TEXT type for both unlimited VARCHARs, and for
                 // Non-direct-table-col results.
             case Types.SQL_CLOB: // = CHARACTER LARGE OBJECT
@@ -204,7 +208,8 @@ public class PgType {
                     "Driver doesn't support type 'INTERVAL' yet");
                 /*  Haven't figured out how the client expects the atttypmod to
                  *  be calculated for intervals.
-                return new PgType(hType, TYPE_TINTERVAL, 16, ?hType.precision?);
+                return new PgType(hType, TYPE_TINTERVAL, 16,
+                    ?hType.precision - 4?);
                 */
 
             default:

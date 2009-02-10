@@ -96,7 +96,7 @@ class StatementPortal {
             parameters = new Object[paramStrings.length];
             try {
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = PgType.getPgType(paramTypes[i])
+                    parameters[i] = PgType.getPgType(paramTypes[i], true)
                         .getParameter(paramStrings[i], session);
                 }
             } catch (java.sql.SQLException se) {
