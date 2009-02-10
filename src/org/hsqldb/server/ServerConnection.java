@@ -669,10 +669,12 @@ class ServerConnection implements Runnable {
                                 + colDefs[i].getTableNameString()).hashCode()
                             : 0);
                         // column id  [attid]
-                        outPacket.writeShort(md.isTableColumn(i) ? (i + 1) : 0);
-                            // TODO:  FIX This ID does not stick with the
-                            // column, but just represents the position in this
-                            // query.
+                        outPacket.writeShort(md.isTableColumn(i)
+                            ? (colNames[i].hashCode()) : 0);
+                            // TODO:  This ID should stick with the table
+                            // column.  Here, it will change based on user-
+                            // specified column label.  The int has is also
+                            // being truncated into a short.
                         outPacket.writeInt(pgTypes[i].getOid());
                         // Datatype size  [adtsize]
                         outPacket.writeShort(pgTypes[i].getTypeWidth());
@@ -945,10 +947,12 @@ class ServerConnection implements Runnable {
                             + colDefs[i].getTableNameString()).hashCode()
                         : 0);
                     // column id  [attid]
-                    outPacket.writeShort(md.isTableColumn(i) ? (i + 1) : 0);
-                        // TODO:  FIX This ID does not stick with the
-                        // column, but just represents the position in this
-                        // query.
+                    outPacket.writeShort(md.isTableColumn(i)
+                        ? (colNames[i].hashCode()) : 0);
+                        // TODO:  This ID should stick with the table
+                        // column.  Here, it will change based on user-
+                        // specified column label.  The int has is also
+                        // being truncated into a short.
                     outPacket.writeInt(pgTypes[i].getOid());
                     // Datatype size  [adtsize]
                     outPacket.writeShort(pgTypes[i].getTypeWidth());
