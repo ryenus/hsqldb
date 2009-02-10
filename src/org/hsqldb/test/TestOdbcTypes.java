@@ -48,14 +48,14 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     /* HyperSQL types to be tested:
      *
      * Exact Numeric
-     *      TINYINT
-     *      SMALLINT
-     *      INTEGER
-     *      BIGINT
-     *      NUMERIC(p?,s?) = DECIMAL()   (default for decimal literals)
+     *     TINYINT
+     *     SMALLINT
+     *     INTEGER
+     *     BIGINT
+     *     NUMERIC(p?,s?) = DECIMAL()   (default for decimal literals)
      * Approximate Numeric
-     *     FLOAT(p?) = FLOAT() = DOUBLE() (default for literals with exponent)
-     *     DOUBLE = REAL
+     *     FLOAT(p?)
+     *     DOUBLE = REAL (default for literals with exponent)
      * BOOLEAN
      * Character Strings
      *     CHARACTER(1l)* = CHAR()
@@ -68,7 +68,6 @@ public class TestOdbcTypes extends AbstractTestOdbc {
      * Bits
      *     BIT(1l)
      *     BIT VARYING(1l)
-     *     ? What is the difference between BIT and BIT VARYING ?
      * OTHER  (for holding serialized Java objects)
      * Date/Times
      *     DATE
@@ -117,25 +116,18 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         // leave feature testing for the actual unit tests.
         st.executeUpdate("INSERT INTO alltypes VALUES (\n"
             + "    1, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
-            + "    null, null, current_date, '13:14:00',\n"
+            + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18',\n"
             + "    '2009-02-09 17:18:19'\n"
             + ')'
         );
         st.executeUpdate("INSERT INTO alltypes VALUES (\n"
             + "    2, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
-            + "    null, null, current_date, '13:14:00',\n"
+            + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18',\n"
             + "    '2009-02-09 17:18:19'\n"
             + ')'
         );
-        /*
-         * How to write to BLOB with a text query?...
-         * Can't write integers (smallest ones) to the bit fields.
-         *  How is one to set multiple bits?
-         * I set Object and Interval to null, because I don't want to deal with
-         *  them yet.
-         */
     }
 
     public void testInteger() {
@@ -529,6 +521,10 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
 
     public void testTimeW() {
+        /*
+         * This test is failing because the JDBC Driver is returning a
+         * String instead of a Time oject for rs.getTime().
+         */
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -598,6 +594,65 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             assertTrue("Got only one row with id in (1, 2)", rs.next());
             assertEquals(Timestamp.valueOf("2009-02-09 17:18:19"),
                     rs.getTimestamp("tsw"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testBit() {
+        /*
+         * This test is failing because of a BIT padding bug in the engine.
+         */
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals("010", rs.getString("bt"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testBitVarying() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals("10", rs.getString("btv"));
             assertFalse("Got too many rows with id in (1, 2)", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
