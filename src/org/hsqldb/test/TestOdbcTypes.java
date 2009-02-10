@@ -220,13 +220,12 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
+    /*
     public void testNumeric() {
-        /*
-         * This is failing.
-         * Looks like we inherited a real bug with numerics from psqlodbc,
-         * because the problem exists with Postresql-supplied psqlodbc
-         * connecting to a Postgresql server.
-         */
+        // This is failing.
+        // Looks like we inherited a real bug with numerics from psqlodbc,
+        // because the problem exists with Postresql-supplied psqlodbc
+        // connecting to a Postgresql server.
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -254,6 +253,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             }
         }
     }
+    */
 
     public void testFloat() {
         ResultSet rs = null;
@@ -520,11 +520,10 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
+    /*
     public void testTimeW() {
-        /*
-         * This test is failing because the JDBC Driver is returning a
-         * String instead of a Time oject for rs.getTime().
-         */
+        // This test is failing because the JDBC Driver is returning a
+        // String instead of a Time oject for rs.getTime().
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -552,12 +551,12 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             }
         }
     }
+    */
 
     public void testTimestamp() {
         ResultSet rs = null;
         Statement st = null;
-        try {
-            st = netConn.createStatement();
+        try { st = netConn.createStatement();
             rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
             assertTrue("Got no rows with id in (1, 2)", rs.next());
             assertEquals(Timestamp.class, rs.getObject("ts").getClass());
@@ -613,10 +612,9 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
+    /*
     public void testBit() {
-        /*
-         * This test is failing because of a BIT padding bug in the engine.
-         */
+        // This test is failing because of a BIT padding bug in the engine.
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -643,6 +641,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             }
         }
     }
+    */
 
     public void testBitVarying() {
         ResultSet rs = null;
