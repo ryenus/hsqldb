@@ -176,7 +176,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             // I see that server is sending a 2 byte short, but JDBC is serving
             // an Integer to getObject().
             assertTrue("Got only one row with id in (1, 2)", rs.next());
-            assertEquals(4, rs.getShort("si"));
+            assertEquals((short) 4, rs.getShort("si"));
             assertFalse("Got too many rows with id in (1, 2)", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
@@ -798,6 +798,172 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             assertTrue("Got only one row with i = 495", rs.next());
             assertEquals(495, rs.getInt("i"));
             assertFalse("Got too many rows with i = 495", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testSmallIntComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, si) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setShort(2, (short) 395);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE si = ?");
+            ps.setShort(1, (short) 395);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with si = 395", rs.next());
+            //assertEquals(Short.class, rs.getObject("si").getClass());
+            // See note about this test in testSmallIntSimpleRead() {
+            assertTrue("Got only one row with si = 395", rs.next());
+            assertEquals((short) 395, rs.getShort("si"));
+            assertFalse("Got too many rows with si = 395", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testBigIntComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, bi) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setLong(2, 295L);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE bi = ?");
+            ps.setLong(1, 295L);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with bi = 295L", rs.next());
+            assertEquals(Long.class, rs.getObject("bi").getClass());
+            assertTrue("Got only one row with bi = 295L", rs.next());
+            assertEquals(295L, rs.getLong("bi"));
+            assertFalse("Got too many rows with bi = 295L", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+    
+    /* TODO:  Implement this test after get testNumericSimpleRead() working.
+     *        See that method above.
+    public void testNumericComplex() {
+    */
+
+    public void testFloatComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, f) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setFloat(2, 98.765F);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE f = ?");
+            ps.setFloat(1, 98.765F);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with f = 98.765F", rs.next());
+            assertEquals(Double.class, rs.getObject("f").getClass());
+            assertTrue("Got only one row with f = 98.765F", rs.next());
+            assertEquals(98.765D, rs.getDouble("f"), .01D);
+            assertFalse("Got too many rows with f = 98.765F", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testDoubleComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, r) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setDouble(2, 876.54D);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE r = ?");
+            ps.setDouble(1, 876.54D);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with r = 876.54D", rs.next());
+            assertEquals(Double.class, rs.getObject("r").getClass());
+            assertTrue("Got only one row with r = 876.54D", rs.next());
+            assertEquals(876.54D, rs.getDouble("r"));
+            assertFalse("Got too many rows with r = 876.54D", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
                 = new junit.framework.AssertionFailedError(se.getMessage());
