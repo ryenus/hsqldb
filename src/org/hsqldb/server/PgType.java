@@ -256,6 +256,18 @@ public class PgType {
         Object o = inString;
 
         switch (hType.typeCode) {
+            case Types.SQL_BOOLEAN :
+                if (inString.length() == 1) switch (inString.charAt(0)) {
+                    case 'T':
+                    case 't':
+                    case 'Y':
+                    case 'y':
+                    case '1':
+                        return Boolean.TRUE;
+                    default:
+                        return Boolean.FALSE;
+                }
+                return Boolean.valueOf(inString);
 
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
@@ -303,17 +315,11 @@ public class PgType {
             case Types.SQL_TIME :
             case Types.SQL_TIMESTAMP : {
                 try {
-                    if (o instanceof String) {
-                        o = hType.convertToType(session, o, Type.SQL_VARCHAR);
-
-                        break;
-                    }
-                    o = hType.convertJavaToSQL(session, o);
-
-                    break;
+                    o = hType.convertToType(session, o, Type.SQL_VARCHAR);
                 } catch (HsqlException e) {
                     PgType.throwError(e);
                 }
+                break;
             }
 
             // fall through
@@ -327,40 +333,37 @@ public class PgType {
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
                 try {
-                    if (o instanceof String) {
-                        o = hType.convertToType(session, o, Type.SQL_VARCHAR);
-
-                        break;
-                    }
-                    o = hType.convertToDefaultType(session, o);
-
-                    break;
+                    o = hType.convertToType(session, o, Type.SQL_VARCHAR);
                 } catch (HsqlException e) {
                     PgType.throwError(e);
                 }
-
-            /*
+                break;
             default :
+                /*
                 throw new IllegalArgumentException(
                     "Parameter value is of unexpected type: "
                     + hType.getNameString());
-            */
-            // fall through
+                */
                 try {
                     o = hType.convertToDefaultType(session, o);
-                    // TODO:  Is this desirable?
-                    // Probably better to throw.
-
-                    break;
+                    // Supposed to handle String -> SQL_BIT.  Not working.
                 } catch (HsqlException e) {
                     PgType.throwError(e);
                 }
+                break;
         }
         return o;
     }
 
     public String valueString(Object datum) {
         String dataString = hType.convertToString(datum);
+        if (hType.typeCode == org.hsqldb.Types.SQL_BOOLEAN) {
+            return String.valueOf(((Boolean) datum).booleanValue() ? 't' : 'f');
+            // Default would probably work fine, since the Driver looks at
+            // only the first byte, but this why send an extra 3 or 4 bytes
+            // with every data, plus there could be some dependency upon
+            // single-character in the driver code somewhere.
+        }
         if (hType.typeCode == org.hsqldb.Types.SQL_VARBINARY) {
             dataString = OdbcUtil.hexCharsToOctalOctets(dataString);
         }
