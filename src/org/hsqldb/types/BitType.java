@@ -276,7 +276,7 @@ public final class BitType extends BinaryType {
                     byte[] data = b.getBytes(0, bytePrecision);
 
                     b = new BinaryData(data, precision);
-                } else if (b.length() < bytePrecision) {
+                } else if (b.length() <= bytePrecision) {
                     byte[] data = (byte[]) ArrayUtil.resizeArray(b.getBytes(),
                         bytePrecision);
 
