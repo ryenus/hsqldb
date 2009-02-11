@@ -98,7 +98,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    b BOOLEAN,\n"
             + "    c CHARACTER(3),\n"
             + "    cv CHARACTER VARYING(3),\n"
-            + "    bt BIT(3),\n"
+            + "    bt BIT(9),\n"
             + "    btv BIT VARYING(3),\n"
             + "    d DATE,\n"
             + "    t TIME(2),\n"
@@ -613,7 +613,6 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    /*
     public void testBit() {
         // This test is failing because of a BIT padding bug in the engine.
         ResultSet rs = null;
@@ -623,7 +622,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
             assertTrue("Got no rows with id in (1, 2)", rs.next());
             assertTrue("Got only one row with id in (1, 2)", rs.next());
-            assertEquals("010", rs.getString("bt"));
+            assertEquals("100000000", rs.getString("bt"));
             assertFalse("Got too many rows with id in (1, 2)", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
@@ -642,7 +641,6 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             }
         }
     }
-    */
 
     public void testBitVarying() {
         ResultSet rs = null;
