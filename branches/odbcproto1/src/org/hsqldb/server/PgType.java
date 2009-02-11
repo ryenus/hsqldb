@@ -209,9 +209,11 @@ public class PgType {
                 // We get the more specific type here, not just SQL_INTERVAL.
                 if (hType.precision != 0 || hType.scale != 0) {
                     // TODO:  Use logging system!
+                    /*
                     System.err.println(
                             "WARNING:  Not passing INTERVAL precision setting "
                             + "or second precision setting to ODBC client");
+                    */
                 }
                 return secIntervalSingleton;
                 // Support very small subset of HSQLDB INTERVAL abilities
