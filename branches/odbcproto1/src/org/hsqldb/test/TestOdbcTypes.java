@@ -1316,7 +1316,8 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
 
     /*
-     * No idea which Setter one should use when setting BIT fields.
+     * Driver needs to be modified to transfer bits in byte (binary) fashion,
+     * the same as is done for VARBINARY/bytea type.
     public void testBitComplex() {
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -1401,17 +1402,18 @@ public class TestOdbcTypes extends AbstractTestOdbc {
      * NEED SERVER SIDE BINARY INPUT capability to set VarBinaries.
      * Even if setString() is used, the driver converts to binary before
      * transmitting to server.
+     */
     public void testVarBinaryComplex() {
         PreparedStatement ps = null;
         ResultSet rs = null;
         byte[] expectedBytes = new byte[] { (byte) 0xaa, (byte) 0x99 };
-        byte[] ba;
+        byte[] ba1, ba2;
 
         try {
             ps = netConn.prepareStatement(
                 "INSERT INTO alltypes(id, vb) VALUES(?, ?)");
             ps.setInt(1, 3);
-            ps.setString(2, "AA99");
+            ps.setBytes(2, expectedBytes);
             assertEquals(1, ps.executeUpdate());
             ps.setInt(1, 4);
             assertEquals(1, ps.executeUpdate());
@@ -1419,13 +1421,13 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             netConn.commit();
             ps = netConn.prepareStatement(
                 "SELECT * FROM alltypes WHERE vb = ?");
-            ps.setString(1, "AA99");
+            ps.setBytes(1, expectedBytes);
             rs = ps.executeQuery();
-            assertTrue("Got no rows with vb = AA99", rs.next());
-            ba = rs.getBytes("vb");
-            assertTrue("Got only one row with vb = AA99", rs.next());
-            assertEquals("AA99", rs.getBytes("vb"));
-            assertFalse("Got too many rows with vb = AA99", rs.next());
+            assertTrue("Got no rows with vb = b'AA99'", rs.next());
+            ba1 = rs.getBytes("vb");
+            assertTrue("Got only one row with vb = b'AA99'", rs.next());
+            ba2 = rs.getBytes("vb");
+            assertFalse("Got too many rows with vb = b'AA99'", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
                 = new junit.framework.AssertionFailedError(se.getMessage());
@@ -1441,13 +1443,17 @@ public class TestOdbcTypes extends AbstractTestOdbc {
                 } } catch(Exception e) {
             }
         }
-        assertEquals("Retrieved bye array length wrong",
-            expectedBytes.length, ba.length);
-        for (int i = 0; i < ba.length; i++) {
-            assertEquals("Byte " + i + " wrong", expectedBytes[i], ba[i]);
+        assertEquals("Retrieved bye array length wrong (1)",
+            expectedBytes.length, ba1.length);
+        for (int i = 0; i < ba1.length; i++) {
+            assertEquals("Byte " + i + " wrong (1)", expectedBytes[i], ba1[i]);
+        }
+        assertEquals("Retrieved bye array length wrong (2)",
+            expectedBytes.length, ba2.length);
+        for (int i = 0; i < ba2.length; i++) {
+            assertEquals("Byte " + i + " wrong (2)", expectedBytes[i], ba2[i]);
         }
     }
-     */
 
     /*
      * TODO:  Learn how to set input params for INTERVAL types.
