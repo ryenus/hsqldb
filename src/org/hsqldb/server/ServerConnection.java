@@ -723,7 +723,7 @@ class ServerConnection implements Runnable {
                                     server.printWithThread("R" + rowNum + "C"
                                         + (i+1) + " => ("
                                         + rowData[i].getClass().getName()
-                                        + ") [" + rowData[i] + ']');
+                                        + ") [" + dataString + ']');
                                 }
                             }
                         }
@@ -1111,7 +1111,7 @@ class ServerConnection implements Runnable {
                                 server.printWithThread("R" + rowNum + "C"
                                     + (i+1) + " => ("
                                     + rowData[i].getClass().getName()
-                                    + ") [" + rowData[i] + ']');
+                                    + ") [" + dataString + ']');
                             }
                         }
                     }

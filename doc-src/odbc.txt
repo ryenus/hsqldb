@@ -156,6 +156,8 @@ DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
 *** Postgresql seems to use the FLOAT(x) precisions specifier just to decide
  whether to create a float4 or float8 column.
 **** I get atttypmod value of 2147418111 for INTERVAL(3)
+    = short of 32767 + short of -1
+     and 217418110 for INTERVAL(2)
 ***** Seems to be a driver bug here.  Should return 1296 for TIMESTAMP, not
       1184 for DATETIME.
 +:  If HyperSQL determines the output is a known constant size, it sets the
@@ -164,6 +166,29 @@ DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
     When combining a constant and a col., HyperSQL confusingly some really
     crazy lengths.  I haven't figured out the method or intention.
 ++: This defaults to 1 instead of 0 if sql.enforce_strict_size is set.
+
+Interval types seem to be wildly different between PG and HyperSQL.
+I believe that for all interval literals, precisions will automatically be set
+ to preserve the specified value (unless you specify the precisions).
+ Therefore, in practice, precision specs are usually only useful in col. defs.
+PG:  INTERVAL(p);  Where [0] <= p <= 6 (sub-sec. resolution, trunk/round vary!)
+     Resolution years to microsecond.  Literals:
+     '1 12:59:10 ago'  ==  '1 day 12 hours 59 min 10 sec ago'
+     '1.234' = '1.234 sec'
+     '-8 days - 12:59:10.472'
+HS:  Resolution is either in months or (sub)seconds.  Can't mix.
+   p1 [2], p2[0].
+     INTERVAL NON_SECOND(p1) TO NON_SECOND
+   Or
+     INTERVAL NON_SECOND(p1) TO SECOND(p2)
+   Or
+     INTERVAL NON_SECOND(p1)
+   Or
+     INTERVAL SECOND(p1,p2)
+   Literals
+       INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
+         = INTERVAL '3503:12:19.345' HOUR TO SECOND(3)
+       INTERVAL '19.345' SECOND(4,3)
 
 
 REFERENCES
