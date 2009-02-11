@@ -137,7 +137,7 @@ LITERAL, simple atomic str+:CHARACTER len   0  |  unknown     705  -2    -1
 DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
     CLOB(1l)                          [0]   0  |  @
     BINARY(1l)*                       [0]   0  |  @
-    VARBINARY(1l)                     [0]   0  | @bytea        17  -1    -1
+    VARBINARY(1l)                     [0]   0  |  bytea        17  -1    -1
     BLOB(1l)                          [0]   0  |  @
     BIT(1l)*                          [1]   0  |  bit       1560   -1    -1
     BIT VARYING(1l)                   [0]   0  |  varbit    1562   -1    -1
@@ -147,7 +147,7 @@ DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
     TIME(p0) WITH TIME ZONE            0   [0] |  time_with_tmzone 1266 12 [-1]
     TIMESTAMP(p0)                      0   [6] |  timestamp_no_tmzone 1114 8[-1]
     TIMESTAMP (p0) WITH TIME ZONE      0   [6] |  datetime  ?1184   8 [-1]*****
-    INTERVAL...(p2,p0)                [2]  [6] | @tinterval  1186  16  [-1]****
+    INTERVAL...(p2,p0)                [2]  [6] |  tinterval  1186  16  [-1]****
 * these types present at least a facade of data values always padded to the
   specified length.
 ** atttypmod for numerics determines column size and scale.
