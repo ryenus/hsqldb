@@ -106,7 +106,8 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    ts TIMESTAMP(2),\n"
             + "    tsw TIMESTAMP(2) WITH TIME ZONE,\n"
             + "    vb VARBINARY(4),\n"
-            + "    ival INTERVAL DAY(5) TO SECOND(6)\n"
+            + "    dsival INTERVAL DAY(5) TO SECOND(6),\n"
+            + "    sival INTERVAL SECOND(6,4)\n"
            + ')');
         /** TODO:  This test class can't handle testing unlmited VARCHAR, since
          * we set up with strict size setting, which prohibits unlimited
@@ -120,14 +121,16 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    1, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
             + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18', '2009-02-09 17:18:19',\n"
-            + "    x'A103', INTERVAL '145 23:12:19.345' DAY TO SECOND\n"
+            + "    x'A103', INTERVAL '145 23:12:19.345' DAY TO SECOND,\n"
+            + "    INTERVAL '1000.345' SECOND\n"
             + ')'
         );
         st.executeUpdate("INSERT INTO alltypes VALUES (\n"
             + "    2, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
             + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18', '2009-02-09 17:18:19',\n"
-            + "    x'A103', INTERVAL '145 23:12:19.345' DAY TO SECOND\n"
+            + "    x'A103', INTERVAL '145 23:12:19.345' DAY TO SECOND,\n"
+            + "    INTERVAL '1000.345' SECOND\n"
             + ')'
         );
     }
@@ -707,14 +710,50 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testSecInterval() {
+    public void testDaySecInterval() {
+        /* Since our client does not support the INTERVAL precision
+         * constraints, the returned value will always be toString()'d to
+         * precision of microseconds. */
         ResultSet rs = null;
         Statement st = null;
         try {
             st = netConn.createStatement();
             rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
             assertTrue("Got no rows with id in (1, 2)", rs.next());
-            assertEquals("145 23:12:19.345000", rs.getString("ival"));
+            assertEquals("145 23:12:19.345000", rs.getString("dsival"));
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            // Can't test the class, because jdbc:odbc or the driver returns
+            // a String for getObject() for interval values.
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testSecInterval() {
+        /* Since our client does not support the INTERVAL precision
+         * constraints, the returned value will always be toString()'d to
+         * precision of microseconds. */
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals("1000.345000", rs.getString("sival"));
             assertTrue("Got only one row with id in (1, 2)", rs.next());
             // Can't test the class, because jdbc:odbc or the driver returns
             // a String for getObject() for interval values.

@@ -156,8 +156,10 @@ DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
 *** Postgresql seems to use the FLOAT(x) precisions specifier just to decide
  whether to create a float4 or float8 column.
 **** I get atttypmod value of 2147418111 for INTERVAL(3)
-    = short of 32767 + short of -1
-     and 217418110 for INTERVAL(2)
+    = short of 32767 + short of -1 and 217418110 for INTERVAL(2)
+    So far unsuccessful to reverse engineer atttypmods for INTERVALs.
+    As of today, support for following HyperSQL INTERVAL variants:
+      DAY TO SECOND, HOUR TO SECOND, MINUTE TO SECOND, SECOND.
 ***** Seems to be a driver bug here.  Should return 1296 for TIMESTAMP, not
       1184 for DATETIME.
 +:  If HyperSQL determines the output is a known constant size, it sets the
