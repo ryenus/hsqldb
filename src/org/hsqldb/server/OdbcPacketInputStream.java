@@ -31,6 +31,8 @@
 
 package org.hsqldb.server;
 
+import org.hsqldb.types.BinaryData;
+import org.hsqldb.HsqlException;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -164,6 +166,15 @@ class OdbcPacketInputStream extends DataInputStream {
         // high-order characters.
         dis.close();
         return s;
+    }
+
+    BinaryData readSizedBinaryData() throws IOException {
+        int len = readInt();
+        try {
+            return (len < 0) ? null : new BinaryData((long) len, this);
+        } catch (HsqlException he) {
+            throw new IOException(he.getMessage());
+        }
     }
 
     String readSizedString() throws IOException {

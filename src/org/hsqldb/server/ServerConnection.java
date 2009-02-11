@@ -959,22 +959,25 @@ class ServerConnection implements Runnable {
                 portalHandle = inPacket.readString();
                 psHandle = inPacket.readString();
                 int paramFormatCount = inPacket.readUnsignedShort();
+                boolean[] paramBinary = new boolean[paramFormatCount];
                 for (int i = 0; i < paramFormatCount; i++) {
-                    if (inPacket.readUnsignedShort()  != 0) {
-                        throw new RecoverableOdbcFailure(null,
-                            "Binary param values not supported yet", "0A000");
+                    paramBinary[i] = inPacket.readUnsignedShort() != 0;
+                    if (server.isTrace() && paramBinary[i]) {
+                        server.printWithThread("Binary param #" + i);
                     }
                 }
                 paramCount = inPacket.readUnsignedShort();
-                String[] paramVals = new String[paramCount];
-                for (int i = 0; i < paramCount; i++) {
-                    paramVals[i] = inPacket.readSizedString();
+                Object[] paramVals = new Object[paramCount];
+                for (int i = 0; i < paramVals.length; i++) {
+                    paramVals[i] = (i < paramBinary.length && paramBinary[i])
+                        ? inPacket.readSizedBinaryData()
+                        : inPacket.readSizedString();
                 }
                 int outFormatCount = inPacket.readUnsignedShort();
                 for (int i = 0; i < outFormatCount; i++) {
                     if (inPacket.readUnsignedShort()  != 0) {
                         throw new RecoverableOdbcFailure(null,
-                            "Binary output values not supported yet", "0A000");
+                            "Binary output values not supported", "0A000");
                     }
                 }
                 if (server.isTrace()) {

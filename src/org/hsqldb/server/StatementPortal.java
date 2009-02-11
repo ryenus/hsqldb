@@ -52,15 +52,17 @@ class StatementPortal {
     public StatementPortal(String handle,
     OdbcPreparedStatement odbcPs, Map containingMap)
     throws RecoverableOdbcFailure {
-        this(handle, odbcPs, new String[0], containingMap);
+        this(handle, odbcPs, new Object[0], containingMap);
     }
 
     /**
      * Instantiates a proxy ODBC StatementPortal object for the
      * Connection Session, and adds the new instance to the specified map.
+     *
+     * @param paramObjs Param values are either String or BinaryData instances
      */
     public StatementPortal(String handle, OdbcPreparedStatement odbcPs,
-    String[] paramStrings, Map containingMap) throws RecoverableOdbcFailure {
+    Object[] paramObjs, Map containingMap) throws RecoverableOdbcFailure {
         this.handle = handle;
         lcQuery = odbcPs.query.toLowerCase();
         ackResult = odbcPs.ackResult;
@@ -79,7 +81,7 @@ class StatementPortal {
                     "Output Result from seconary Statement prep is of "
                     + "unexpected type: " + bindResult.getType());
         }
-        if (paramStrings.length < 1) {
+        if (paramObjs.length < 1) {
             parameters = new Object[0];
         } else {
             org.hsqldb.result.ResultMetaData pmd =
@@ -88,16 +90,18 @@ class StatementPortal {
                 throw new RecoverableOdbcFailure("No metadata for Result ack");
             }
             org.hsqldb.types.Type[] paramTypes = pmd.getParameterTypes();
-            if (paramTypes.length != paramStrings.length) {
+            if (paramTypes.length != paramObjs.length) {
                 throw new RecoverableOdbcFailure(null,
                     "Client didn't specify all " + paramTypes.length
-                    + " parameters (" + paramStrings.length + ')', "08P01");
+                    + " parameters (" + paramObjs.length + ')', "08P01");
             }
-            parameters = new Object[paramStrings.length];
+            parameters = new Object[paramObjs.length];
             try {
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = PgType.getPgType(paramTypes[i], true)
-                        .getParameter(paramStrings[i], session);
+                    parameters[i] = (paramObjs[i] instanceof String)
+                        ? PgType.getPgType(paramTypes[i], true)
+                            .getParameter((String) paramObjs[i], session)
+                        : paramObjs[i];
                 }
             } catch (java.sql.SQLException se) {
                 throw new RecoverableOdbcFailure("Typing failure: " + se);
