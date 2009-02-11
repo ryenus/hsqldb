@@ -677,7 +677,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     public void testVarBinarySimpleRead() {
         ResultSet rs = null;
         Statement st = null;
-        byte[] expectedBytes = new byte[] { (byte) 0xa1, 0x03 };
+        byte[] expectedBytes = new byte[] { (byte) 0xa1, (byte) 0x03 };
         byte[] ba;
         try {
             st = netConn.createStatement();
@@ -981,6 +981,562 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             }
         }
     }
+
+    public void testBooleanComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, b) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setBoolean(2, false);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE b = ?");
+            ps.setBoolean(1, false);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with b = false", rs.next());
+            assertEquals(Boolean.class, rs.getObject("b").getClass());
+            assertTrue("Got only one row with b = false", rs.next());
+            assertEquals(false, rs.getBoolean("b"));
+            assertFalse("Got too many rows with b = false", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testCharComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, c) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setString(2, "xy");
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE c = ?");
+            ps.setString(1, "xy ");
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with c = 'xy '", rs.next());
+            assertEquals(String.class, rs.getObject("c").getClass());
+            assertTrue("Got only one row with c = 'xy '", rs.next());
+            assertEquals("xy ", rs.getString("c"));
+            assertFalse("Got too many rows with c = 'xy '", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testVarCharComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, cv) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setString(2, "xy");
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE cv = ?");
+            ps.setString(1, "xy");
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with cv = 'xy'", rs.next());
+            assertEquals(String.class, rs.getObject("cv").getClass());
+            assertTrue("Got only one row with cv = 'xy'", rs.next());
+            assertEquals("xy", rs.getString("cv"));
+            assertFalse("Got too many rows with cv = 'xy'", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    /**
+     * TODO:  Find out if there is a way to select based on an expression
+     * using a named derived pseudo-column.
+    public void testDerivedComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "SELECT id, cv || 'app' appendage FROM alltypes\n"
+                + "WHERE appendage = ?");
+            ps.setString(1, "cvapp");
+            rs = ps.executeQuery();
+            assertTrue("Got no rows appendage = 'cvapp'", rs.next());
+            assertEquals(String.class, rs.getObject("r").getClass());
+            assertTrue("Got only one row with appendage = 'cvapp'", rs.next());
+            assertEquals("cvapp", rs.getString("r"));
+            assertFalse("Got too many rows with appendage = 'cvapp'", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+    */
+
+    public void testDateComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        java.sql.Date tomorrow =
+                new java.sql.Date(new java.util.Date().getTime()
+                        + 1000 * 60 * 60 * 24);
+
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, d) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setDate(2, tomorrow);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE d = ?");
+            ps.setDate(1, tomorrow);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with d = tomorrow", rs.next());
+            assertEquals(java.sql.Date.class, rs.getObject("d").getClass());
+            assertTrue("Got only one row with d = tomorrow", rs.next());
+            assertEquals(tomorrow.toString(), rs.getDate("d").toString());
+            // Compare the Strings since "tomorrow" has resolution to
+            // millisecond, but getDate() is probably to the day.
+            assertFalse("Got too many rows with d = tomorrow", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testTimeComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Time aTime = Time.valueOf("21:19:27");
+
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, t) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setTime(2, aTime);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE t = ?");
+            ps.setTime(1, aTime);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with t = aTime", rs.next());
+            assertEquals(Time.class, rs.getObject("t").getClass());
+            assertTrue("Got only one row with t = aTime", rs.next());
+            assertEquals(aTime, rs.getTime("t"));
+            assertFalse("Got too many rows with t = aTime", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    /* TODO:  Implement this test after get testTimeWSimpleRead() working.
+     *        See that method above.
+    public void testTimeWComplex() {
+    */
+
+    public void testTimestampComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Timestamp aTimestamp = Timestamp.valueOf("2009-03-27 17:18:19");
+
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, ts) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setTimestamp(2, aTimestamp);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE ts = ?");
+            ps.setTimestamp(1, aTimestamp);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with ts = aTimestamp", rs.next());
+            assertEquals(Timestamp.class, rs.getObject("ts").getClass());
+            assertTrue("Got only one row with ts = aTimestamp", rs.next());
+            assertEquals(aTimestamp, rs.getTimestamp("ts"));
+            assertFalse("Got too many rows with ts = aTimestamp", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testTimestampWComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Timestamp aTimestamp = Timestamp.valueOf("2009-03-27 17:18:19");
+
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, tsw) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setTimestamp(2, aTimestamp);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE tsw = ?");
+            ps.setTimestamp(1, aTimestamp);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with tsw = aTimestamp", rs.next());
+            assertEquals(Timestamp.class, rs.getObject("tsw").getClass());
+            assertTrue("Got only one row with tsw = aTimestamp", rs.next());
+            assertEquals(aTimestamp, rs.getTimestamp("tsw"));
+            assertFalse("Got too many rows with tsw = aTimestamp", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    /*
+     * No idea which Setter one should use when setting BIT fields.
+    public void testBitComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, bt) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setString(2, "101");
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE bt = ?");
+            ps.setString(1, "101");
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with bt = 101", rs.next());
+            assertEquals(String.class, rs.getObject("bt").getClass());
+            assertTrue("Got only one row with bt = 101", rs.next());
+            assertEquals("101000000", rs.getString("bt"));
+            assertFalse("Got too many rows with bt = 101", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            } }
+    }
+
+    public void testBitVaryingComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, btv) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setString(2, "10101");
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE btv = ?");
+            ps.setString(1, "10101");
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with btv = 10101", rs.next());
+            assertEquals(String.class, rs.getObject("btv").getClass());
+            assertTrue("Got only one row with btv = 10101", rs.next());
+            assertEquals("10101", rs.getString("btv"));
+            assertFalse("Got too many rows with btv = 10101", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+    */
+
+    /**
+     * NEED SERVER SIDE BINARY INPUT capability to set VarBinaries.
+     * Even if setString() is used, the driver converts to binary before
+     * transmitting to server.
+    public void testVarBinaryComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        byte[] expectedBytes = new byte[] { (byte) 0xaa, (byte) 0x99 };
+        byte[] ba;
+
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, vb) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setString(2, "AA99");
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE vb = ?");
+            ps.setString(1, "AA99");
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with vb = AA99", rs.next());
+            ba = rs.getBytes("vb");
+            assertTrue("Got only one row with vb = AA99", rs.next());
+            assertEquals("AA99", rs.getBytes("vb"));
+            assertFalse("Got too many rows with vb = AA99", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                } } catch(Exception e) {
+            }
+        }
+        assertEquals("Retrieved bye array length wrong",
+            expectedBytes.length, ba.length);
+        for (int i = 0; i < ba.length; i++) {
+            assertEquals("Byte " + i + " wrong", expectedBytes[i], ba[i]);
+        }
+    }
+     */
+
+    /*
+     * TODO:  Learn how to set input params for INTERVAL types.
+     *        I don't see how I could set the variant
+     *        (HOUR, ...TO SECOND, etc.) with setString() or anything else.
+    public void testDaySecIntervalComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            assertEquals("145 23:12:19.345000", rs.getString("dsival"));
+
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, dsival) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setString(2, 876.54D);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE dsival = ?");
+            ps.setString(1, 876.54D);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with dsival = 876.54D", rs.next());
+            assertEquals(String.class, rs.getObject("dsival").getClass());
+            assertTrue("Got only one row with dsival = 876.54D", rs.next());
+            assertEquals(876.54D, rs.getString("dsival"));
+            assertFalse("Got too many rows with dsival = 876.54D", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testSecIntervalComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            assertEquals("1000.345000", rs.getString("sival"));
+
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, sival) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setString(2, 876.54D);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE sival = ?");
+            ps.setString(1, 876.54D);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with sival = 876.54D", rs.next());
+            assertEquals(String.class, rs.getObject("sival").getClass());
+            assertTrue("Got only one row with sival = 876.54D", rs.next());
+            assertEquals(876.54D, rs.getString("sival"));
+            assertFalse("Got too many rows with sival = 876.54D", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+    */
 
     static public void main(String[] sa) {
         staticRunner(TestOdbcTypes.class, sa);
