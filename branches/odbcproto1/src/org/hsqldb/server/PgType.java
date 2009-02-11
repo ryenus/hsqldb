@@ -194,6 +194,8 @@ public class PgType {
             case Types.SQL_INTERVAL_YEAR:
             case Types.SQL_INTERVAL_YEAR_TO_MONTH:
             case Types.SQL_INTERVAL_MONTH:
+                throw new IllegalArgumentException(
+                    "Driver doesn't support month-resolution 'INTERVAL's yet");
             case Types.SQL_INTERVAL_DAY:
             case Types.SQL_INTERVAL_DAY_TO_HOUR:
             case Types.SQL_INTERVAL_DAY_TO_MINUTE:
@@ -204,8 +206,19 @@ public class PgType {
             case Types.SQL_INTERVAL_MINUTE:
             case Types.SQL_INTERVAL_MINUTE_TO_SECOND:
             case Types.SQL_INTERVAL_SECOND:
+                // We get the more specific type here, not just SQL_INTERVAL.
+                if (hType.precision != 0 || hType.scale != 0) {
+                    // TODO:  Use logging system!
+                    System.err.println(
+                            "WARNING:  Not passing INTERVAL precision setting "
+                            + "or second precision setting to ODBC client");
+                }
+                return secIntervalSingleton;
+                // Support very small subset of HSQLDB INTERVAL abilities
+                /*
                 throw new IllegalArgumentException(
                     "Driver doesn't support type 'INTERVAL' yet");
+                */
                 /*  Haven't figured out how the client expects the atttypmod to
                  *  be calculated for intervals.
                 return new PgType(hType, TYPE_TINTERVAL, 16,
@@ -441,4 +454,6 @@ public class PgType {
         new PgType(Type.SQL_BIT, TYPE_BIT);
     static protected final PgType bitVaryingSingleton =
         new PgType(Type.SQL_BIT_VARYING, TYPE_VARBIT);
+    static protected final PgType secIntervalSingleton =
+        new PgType(Type.SQL_INTERVAL_SECOND, TYPE_TINTERVAL, 16);
 }
