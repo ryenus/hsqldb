@@ -170,51 +170,51 @@ public final class IntervalType extends DTIType {
     }
 
     public String getNameString() {
-        return getName(typeCode);
+        return "INTERVAL " + getQualifier(typeCode);
     }
 
-    static String getName(int type) {
+    public static String getQualifier(int type) {
 
         switch (type) {
 
             case Types.SQL_INTERVAL_YEAR :
-                return "INTERVAL YEAR";
+                return "YEAR";
 
             case Types.SQL_INTERVAL_YEAR_TO_MONTH :
-                return "INTERVAL YEAR TO MONTH";
+                return "YEAR TO MONTH";
 
             case Types.SQL_INTERVAL_MONTH :
-                return "INTERVAL MONTH";
+                return "MONTH";
 
             case Types.SQL_INTERVAL_DAY :
-                return "INTERVAL DAY";
+                return "DAY";
 
             case Types.SQL_INTERVAL_DAY_TO_HOUR :
-                return "INTERVAL DAY TO HOUR";
+                return "DAY TO HOUR";
 
             case Types.SQL_INTERVAL_DAY_TO_MINUTE :
-                return "INTERVAL DAY TO MINUTE";
+                return "DAY TO MINUTE";
 
             case Types.SQL_INTERVAL_DAY_TO_SECOND :
-                return "INTERVAL DAY TO SECOND";
+                return "DAY TO SECOND";
 
             case Types.SQL_INTERVAL_HOUR :
-                return "INTERVAL HOUR";
+                return "HOUR";
 
             case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
-                return "INTERVAL HOUR TO MINUTE";
+                return "HOUR TO MINUTE";
 
             case Types.SQL_INTERVAL_HOUR_TO_SECOND :
-                return "INTERVAL HOUR TO SECOND";
+                return "HOUR TO SECOND";
 
             case Types.SQL_INTERVAL_MINUTE :
-                return "INTERVAL MINUTE";
+                return "MINUTE";
 
             case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
-                return "INTERVAL MINUTE TO SECOND";
+                return "MINUTE TO SECOND";
 
             case Types.SQL_INTERVAL_SECOND :
-                return "INTERVAL SECOND";
+                return "SECOND";
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
@@ -230,8 +230,8 @@ public final class IntervalType extends DTIType {
         }
 
         StringBuffer sb = new StringBuffer(32);
-
-        sb.append(getName(startIntervalType));
+        sb.append(Tokens.T_INTERVAL).append(' ');
+        sb.append(getQualifier(startIntervalType));
 
         if (typeCode == Types.SQL_INTERVAL_SECOND) {
             sb.append('(');

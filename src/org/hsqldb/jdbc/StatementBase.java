@@ -48,6 +48,29 @@ import org.hsqldb.result.ResultConstants;
  * @version 1.9.0
  * @since 1.9.0
  */
+
+/**
+ * JDBC specification.
+ *
+ * Closing the Statement closes the ResultSet instance returned. But:
+ *
+ * Statement can be executed multiple times and return several results. With
+ * normal Statement objects, each execution can be for a completely different
+ * query. PreparedStatement instances are specifically for multiple use over
+ * multiple transactions.
+ *
+ * ResultSets may be held over commits and span several transactions.
+ *
+ * There is no real relation between the current state fo an Statement instance
+ * and the various ResultSets that it may have returned for different queries.
+ */
+/**
+ * Current todo and implementation info:
+ *
+ * Does not always close ResultSet object directly when closed. Although RS
+ * objects will eventually be closed when accessed, the change is not reflected
+ * to the server, impacting ResultSets that are held.
+ */
 class StatementBase {
 
     /**
@@ -163,8 +186,8 @@ class StatementBase {
 
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection.sessionProxy,
-                    (Statement) this, resultIn, resultIn.metaData,
-                    connection.connProperties, connection.isNetConn);
+                    this, resultIn, resultIn.metaData,
+                    connection.connProperties);
         }
     }
 
@@ -190,6 +213,10 @@ class StatementBase {
         return getMoreResults(CLOSE_CURRENT_RESULT);
     }
 
+    /**
+     * Note yet correct for multiple ResultSets. Should keep track of the
+     * previous ResultSet objects to be able to close them
+     */
     boolean getMoreResults(int current) throws SQLException {
         checkClosed();
 
@@ -222,12 +249,15 @@ class StatementBase {
         }
         generatedResultSet = new JDBCResultSet(connection.sessionProxy, null,
                 generatedResult, generatedResult.metaData,
-                connection.connProperties, connection.isNetConn);
+                connection.connProperties);
 
         return generatedResultSet;
     }
 
-    void clearResultData() throws SQLException {
+    /**
+     * See comment for getMoreResults.
+     */
+    void closeResultData() throws SQLException {
 
         if (currentResultSet != null) {
             currentResultSet.close();

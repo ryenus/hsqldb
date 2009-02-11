@@ -118,7 +118,7 @@ public class Result {
     long sessionID;
 
     // result id
-    long id;
+    private long id;
 
     // database name for new connection
     private String databaseName;
@@ -194,6 +194,10 @@ public class Result {
         switch (type) {
 
             case ResultConstants.EXECUTE :
+                navigator = new RowSetNavigatorClient(1);
+                break;
+
+            case ResultConstants.UPDATE_RESULT :
                 navigator = new RowSetNavigatorClient(1);
                 break;
 
@@ -382,7 +386,7 @@ public class Result {
             case ResultConstants.ENDTRAN : {
                 int type = in.readInt();
 
-                result.setEndTranType(type);                    // endtran type
+                result.setActionType(type);                     // endtran type
 
                 switch (type) {
 
@@ -442,6 +446,19 @@ public class Result {
                 result.navigator.read(in, result.metaData);
                 break;
 
+            case ResultConstants.UPDATE_RESULT : {
+                result.id = in.readLong();
+
+                int type = in.readInt();
+
+                result.setActionType(type);
+
+                result.metaData = new ResultMetaData(in);
+
+                result.navigator.read(in, result.metaData);
+
+                break;
+            }
             case ResultConstants.BATCHEXECRESPONSE :
             case ResultConstants.BATCHEXECUTE :
             case ResultConstants.BATCHEXECDIRECT :
@@ -469,27 +486,13 @@ public class Result {
 
                 break;
             }
+            case ResultConstants.DATAHEAD :
             case ResultConstants.DATA : {
                 result.updateCount     = in.readInt();
                 result.fetchSize       = in.readInt();
                 result.rsScrollability = in.readShort();
                 result.rsConcurrency   = in.readShort();
                 result.rsHoldability   = in.readShort();
-                result.mainString      = in.readString();
-                result.metaData        = new ResultMetaData(in);
-                result.navigator       = new RowSetNavigatorClient();
-
-                result.navigator.read(in, result.metaData);
-
-                break;
-            }
-            case ResultConstants.DATAHEAD : {
-                result.updateCount     = in.readInt();
-                result.fetchSize       = in.readInt();
-                result.rsScrollability = in.readShort();
-                result.rsConcurrency   = in.readShort();
-                result.rsHoldability   = in.readShort();
-                result.mainString      = in.readString();
                 result.metaData        = new ResultMetaData(in);
                 result.navigator       = new RowSetNavigatorClient();
 
@@ -554,7 +557,24 @@ public class Result {
     }
 
     /**
-     * For SQLEXECUTE results
+     * For UPDATE_RESULT
+     * The parameters are set afterwards as the Result is reused
+     */
+    public static Result newUpdateResultRequest(Type[] types,
+            long id) {
+
+        Result result = newResult(ResultConstants.UPDATE_RESULT);
+
+        result.metaData    = ResultMetaData.newUpdateResultMetaData(types);
+        result.id = id;
+
+        result.navigator.add(new Object[]{});
+
+        return result;
+    }
+
+    /**
+     * For SQLEXECUTE and UPDATE_RESULT results
      * The parameters are set by this method as the Result is reused
      */
     public void setPreparedExecuteProperties(Object[] parameterValues,
@@ -1042,7 +1062,7 @@ public class Result {
                 break;
 
             case ResultConstants.ENDTRAN : {
-                int type = getEndTranType();
+                int type = getActionType();
 
                 rowOut.writeInt(type);                     // endtran type
 
@@ -1083,6 +1103,13 @@ public class Result {
                 navigator.write(rowOut, metaData);
                 break;
 
+            case ResultConstants.UPDATE_RESULT :
+                rowOut.writeLong(id);
+                rowOut.writeInt(getActionType());
+                metaData.write(rowOut);
+                navigator.write(rowOut, metaData);
+                break;
+
             case ResultConstants.BATCHEXECRESPONSE :
             case ResultConstants.BATCHEXECUTE :
             case ResultConstants.BATCHEXECDIRECT :
@@ -1104,7 +1131,7 @@ public class Result {
             case ResultConstants.SETCONNECTATTR : {
                 int type = getConnectionAttrType();
 
-                rowOut.writeInt(type);                     // attr type
+                rowOut.writeInt(type);                     // attr type / updateCount
 
                 switch (type) {
 
@@ -1127,29 +1154,18 @@ public class Result {
 
                 break;
             }
-            case ResultConstants.DATAHEAD :
-                rowOut.writeInt(updateCount);
-                rowOut.writeInt(fetchSize);
-                rowOut.writeShort(rsScrollability);
-                rowOut.writeShort(rsConcurrency);
-                rowOut.writeShort(rsHoldability);
-                rowOut.writeString(mainString);
-                metaData.write(rowOut);
-                navigator.write(rowOut, metaData);
-                break;
-
             case ResultConstants.DATAROWS :
                 metaData.write(rowOut);
                 navigator.write(rowOut, metaData);
                 break;
 
+            case ResultConstants.DATAHEAD :
             case ResultConstants.DATA :
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
-                rowOut.writeString(mainString);
                 metaData.write(rowOut);
                 navigator.write(rowOut, metaData);
                 break;
@@ -1234,8 +1250,12 @@ public class Result {
         return errorCode;
     }
 
-    public Object getSimpleValue() {
+    public Object getValueObject() {
         return valueData;
+    }
+
+    public void setValueObject(Object value) {
+        valueData = value;
     }
 
     public String getDatabaseName() {
@@ -1266,11 +1286,11 @@ public class Result {
         updateCount = type;
     }
 
-    public int getEndTranType() {
+    public int getActionType() {
         return updateCount;
     }
 
-    public void setEndTranType(int type) {
+    public void setActionType(int type) {
         updateCount = type;
     }
 
@@ -1429,6 +1449,7 @@ public class Result {
             case ResultConstants.BATCHEXECDIRECT :
             case ResultConstants.BATCHEXECRESPONSE :
             case ResultConstants.EXECUTE :
+            case ResultConstants.UPDATE_RESULT :
             case ResultConstants.SETSESSIONATTR :
             case ResultConstants.PARAM_METADATA :
                 navigator.beforeFirst();

@@ -86,8 +86,10 @@ public class SessionContext {
     HashSet subqueryPopSet;
 
     //
-    RowSetNavigatorClient newInsertData = new RowSetNavigatorClient();
+    RowSetNavigatorClient actionNavigator = new RowSetNavigatorClient();
 
+    //
+    StatementResultUpdate rowUpdateStatement = new StatementResultUpdate();
     /**
      * Creates a new instance of CompiledStatementExecutor.
      *
@@ -155,7 +157,7 @@ public class SessionContext {
         }
 
         if (cs.type == StatementTypes.INSERT) {
-            newInsertData.clear();
+            actionNavigator.clear();
         }
 
         // opportunity to combine the two clearance ops

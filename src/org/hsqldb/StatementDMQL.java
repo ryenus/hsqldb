@@ -158,8 +158,7 @@ public abstract class StatementDMQL extends Statement {
     Routine[]        routines;
     RangeVariable[]  rangeVariables;
 
-    StatementDMQL(int type, int group,
-                  HsqlName schemaName) throws HsqlException {
+    StatementDMQL(int type, int group, HsqlName schemaName) {
 
         super(type, group);
 
@@ -492,7 +491,7 @@ public abstract class StatementDMQL extends Statement {
         try {
             checkAccessRights(session);
         } catch (HsqlException e) {
-            return Result.newErrorResult(e, "");
+            return Result.newErrorResult(e, null);
         }
 
         return null;
@@ -529,6 +528,10 @@ public abstract class StatementDMQL extends Statement {
         boolean        hasReturnValue;
 
         offset = 0;
+
+        if (parameters.length == 0) {
+            return ResultMetaData.emptyParamMetaData;
+        }
 
 // NO:  Not yet
 //        hasReturnValue = (type == CALL && !expression.isProcedureCall());

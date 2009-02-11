@@ -573,6 +573,7 @@ public class Session implements SessionInterface {
         sessionContext.savepointTimestamps.clear();
         rowActionList.clear();
         sessionData.persistentStoreCollection.clearTransactionTables();
+        sessionData.closeAllTransactionNavigators();
 
         isReadOnly    = isReadOnlyDefault;
         isolationMode = isolationModeDefault;
@@ -876,8 +877,7 @@ public class Session implements SessionInterface {
                 Statement cs;
 
                 try {
-                    cs = database.compiledStatementManager.compile(this,
-                            cmd.getMainString());
+                    cs = database.compiledStatementManager.compile(this, cmd);
                 } catch (Throwable t) {
                     String errorString = cmd.getMainString();
 
@@ -903,6 +903,11 @@ public class Session implements SessionInterface {
 
                 return Result.updateZeroResult;
             }
+            case ResultConstants.UPDATE_RESULT : {
+                Result result = this.executeResultUpdate(cmd);
+
+                return result;
+            }
             case ResultConstants.FREESTMT : {
                 database.compiledStatementManager.freeStatement(
                     cmd.getStatementID(), sessionId, false);
@@ -918,7 +923,7 @@ public class Session implements SessionInterface {
                 return setAttributes(cmd);
             }
             case ResultConstants.ENDTRAN : {
-                switch (cmd.getEndTranType()) {
+                switch (cmd.getActionType()) {
 
                     case ResultConstants.TX_COMMIT :
                         try {
@@ -1004,22 +1009,20 @@ public class Session implements SessionInterface {
 
     private Result performPostExecute(Result command, Result result) {
 
-        try {
-            if (result.isData()) {
-                sessionData.getDataResultHead(command, result, isNetwork);
-            }
+        if (result.isData()) {
+            result = sessionData.getDataResultHead(command, result, isNetwork);
+        }
 
-            return result;
-        } finally {
-            if (database != null && database.logger.needsCheckpoint()) {
-                try {
-                    database.logger.checkpoint(false);
-                } catch (HsqlException e) {
-                    database.logger.appLog.logContext(
-                        SimpleLog.LOG_ERROR, "checkpoint did not complete");
-                }
+        if (database != null && database.logger.needsCheckpoint()) {
+            try {
+                database.logger.checkpoint(false);
+            } catch (HsqlException e) {
+                database.logger.appLog.logContext(
+                    SimpleLog.LOG_ERROR, "checkpoint did not complete");
             }
         }
+
+        return result;
     }
 
     public RowSetNavigatorClient getRows(long navigatorId, int offset,
@@ -1033,8 +1036,7 @@ public class Session implements SessionInterface {
 
     public Result executeDirectStatement(Result cmd) {
 
-        String        sql        = cmd.getMainString();
-        String        sqlCommand = null;
+        String        sql = cmd.getMainString();
         HsqlArrayList list;
 
         try {
@@ -1048,8 +1050,7 @@ public class Session implements SessionInterface {
         for (int i = 0; i < list.size(); i++) {
             Statement cs = (Statement) list.get(i);
 
-            sqlCommand = cs.getSQL();
-            result     = executeCompiledStatement(cs, null);
+            result = executeCompiledStatement(cs, null);
 
             if (result.isError()) {
                 break;
@@ -1334,6 +1335,33 @@ public class Session implements SessionInterface {
         Object[] pvals = cmd.getParameterData();
 
         return executeCompiledStatement(cs, pvals);
+    }
+
+    /**
+     * Retrieves the result of inserting, updating or deleting a row
+     * from an updatable result.
+     *
+     * @return the result of executing the statement
+     */
+    private Result executeResultUpdate(Result cmd) {
+
+        long            id         = cmd.getResultId();
+        int             actionType = cmd.getActionType();
+        Result          result     = sessionData.getDataResult(id);
+        Object[]        pvals      = cmd.getParameterData();
+        Type[]          types      = cmd.metaData.columnTypes;
+        StatementQuery  statement  = (StatementQuery) result.getValueObject();
+        QueryExpression qe         = statement.queryExpression;
+        Table           baseTable  = qe.getBaseTable();
+        int[]           columnMap  = qe.getBaseTableColumnMap();
+
+        sessionContext.rowUpdateStatement.setRowActionProperties(actionType,
+                baseTable, types, columnMap);
+
+        Result resultOut = sessionContext.rowUpdateStatement.execute(this,
+            pvals);
+
+        return resultOut;
     }
 
 // session DATETIME functions

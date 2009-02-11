@@ -688,12 +688,12 @@ final class RangeVariable {
 
         public long getRowid() {
             return currentRow == null ? 0
-                                      : currentRow.getPos();
+                                      : currentRow.getId();
         }
 
         public Object getRowidObject() {
             return currentRow == null ? null
-                                      : currentRow.getPos();
+                                      : Long.valueOf(currentRow.getId());
         }
 
         public void remove() {}

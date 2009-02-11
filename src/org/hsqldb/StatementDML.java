@@ -150,6 +150,14 @@ public class StatementDML extends StatementDMQL {
         checkAccessRights(session);
     }
 
+    /**
+     * Instantiate this as a CURSOR operation statement.
+     */
+    StatementDML() {
+        super(StatementTypes.UPDATE_CURSOR, StatementTypes.X_SQL_DATA_CHANGE,
+              null);
+    }
+
     Result getResult(Session session) throws RuntimeException, HsqlException {
 
         Result result = null;
@@ -295,7 +303,7 @@ public class StatementDML extends StatementDMQL {
         }
 
 // debug 190 */
-        count = update(session, baseTable, rowset, updateColumnMap);
+        count = update(session, baseTable, rowset);
 
 /* debug 190
         if (count != 1) {
@@ -484,7 +492,7 @@ public class StatementDML extends StatementDMQL {
         // run the transaction as a whole, updating and inserting where needed
         // update any matched rows
         if (updateRowSet.size() > 0) {
-            count = update(session, baseTable, updateRowSet, updateColumnMap);
+            count = update(session, baseTable, updateRowSet);
         }
 
         // insert any non-matched rows
@@ -542,8 +550,8 @@ public class StatementDML extends StatementDMQL {
      * @throws HsqlException
      * @return int
      */
-    int update(Session session, Table table, HashMappedList updateList,
-               int[] cols) throws HsqlException {
+    int update(Session session, Table table,
+               HashMappedList updateList) throws HsqlException {
 
         HashSet path = session.sessionContext.getConstraintPath();
         HashMappedList tableUpdateList =
@@ -560,7 +568,7 @@ public class StatementDML extends StatementDMQL {
 
             if (table.triggerLists[Trigger.UPDATE_BEFORE].length != 0) {
                 table.fireBeforeTriggers(session, Trigger.UPDATE_BEFORE,
-                                         row.getData(), data, cols);
+                                         row.getData(), data, updateColumnMap);
             }
 
             table.enforceRowConstraints(session, data);
@@ -577,7 +585,7 @@ public class StatementDML extends StatementDMQL {
                 Row      row  = (Row) updateList.getKey(i);
 
                 checkCascadeUpdate(session, table, tableUpdateList, row, data,
-                                   cols, null, path);
+                                   updateColumnMap, null, path);
             }
         }
 
@@ -590,8 +598,8 @@ public class StatementDML extends StatementDMQL {
                 Row      row  = (Row) triggeredList.getKey(i);
                 Object[] data = (Object[]) triggeredList.get(i);
 
-                mergeKeepUpdate(session, updateList, cols, table.colTypes,
-                                row, data);
+                mergeKeepUpdate(session, updateList, updateColumnMap,
+                                table.colTypes, row, data);
             }
 
             triggeredList.clear();
@@ -607,7 +615,7 @@ public class StatementDML extends StatementDMQL {
             updateListT.clear();
         }
 
-        table.updateRowSet(session, updateList, cols, false);
+        table.updateRowSet(session, updateList, updateColumnMap, false);
         path.clear();
 
         return updateList.size();
@@ -629,18 +637,10 @@ public class StatementDML extends StatementDMQL {
         RowSetNavigatorLinkedList oldRows = new RowSetNavigatorLinkedList();
         RangeIterator it = RangeVariable.getIterator(session,
             targetRangeVariables);
-        PersistentStore store = session.sessionData.getRowStore(baseTable);
 
         while (it.next()) {
             Row currentRow = it.getCurrentRow();
 
-            /*
-                        if (cs.targetTable != cs.baseTable) {
-                            long id = it.getRowid();
-
-                            currentRow = (Row) store.get((int) id);
-                        }
-            */
             oldRows.add(currentRow);
         }
 
