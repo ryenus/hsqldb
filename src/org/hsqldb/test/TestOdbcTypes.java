@@ -777,22 +777,22 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
 
     public void testIntegerComplex() {
-        PreparedStatement psI = null, psQ = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            psI = netConn.prepareStatement(
+            ps = netConn.prepareStatement(
                 "INSERT INTO alltypes(id, i) VALUES(?, ?)");
-            psI.setInt(1, 3);
-            psI.setInt(2, 495);
-            assertEquals(1, psI.executeUpdate());
-            psI.setInt(1, 4);
-            assertEquals(1, psI.executeUpdate());
-            psI.close();
+            ps.setInt(1, 3);
+            ps.setInt(2, 495);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
             netConn.commit();
-            psQ = netConn.prepareStatement(
+            ps = netConn.prepareStatement(
                 "SELECT * FROM alltypes WHERE i = ?");
-            psQ.setInt(1, 495);
-            rs = psQ.executeQuery();
+            ps.setInt(1, 495);
+            rs = ps.executeQuery();
             assertTrue("Got no rows with i = 495", rs.next());
             assertEquals(Integer.class, rs.getObject("i").getClass());
             assertTrue("Got only one row with i = 495", rs.next());
@@ -808,11 +808,8 @@ public class TestOdbcTypes extends AbstractTestOdbc {
                 if (rs != null) {
                     rs.close();
                 }
-                if (psI != null) {
-                    psI.close();
-                }
-                if (psQ != null) {
-                    psQ.close();
+                if (ps != null) {
+                    ps.close();
                 }
             } catch(Exception e) {
             }
