@@ -54,7 +54,6 @@ import org.hsqldb.Types;
 import org.hsqldb.View;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileUtil;
-import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
@@ -71,6 +70,7 @@ import org.hsqldb.rights.Right;
 import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
+import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
@@ -2107,6 +2107,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         ValuePool.getLong(column.getDataType().precision * 2);
                 }
 
+                if (column.getDataType().isBinaryType()) {
+                    row[character_maximum_length] =
+                        ValuePool.getLong(column.getDataType().precision);
+                    row[character_octet_length] =
+                        ValuePool.getLong(column.getDataType().precision);
+                }
+
                 if (column.getDataType().isNumberType()) {
                     row[numeric_precision] =
                         ValuePool.getLong(column.getDataType().precision);
@@ -2121,8 +2128,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 }
 
                 if (column.getDataType().isIntervalType()) {
-                    row[interval_type] =
-                        column.getDataType().getFullNameString();
+                    row[interval_type] = IntervalType.getQualifier(
+                        column.getDataType().typeCode);
                     row[interval_precision] =
                         ValuePool.getLong(column.getDataType().precision);
                     row[datetime_precision] =

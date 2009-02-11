@@ -1568,6 +1568,13 @@ public class Server implements HsqlSocketRequestHandler {
 */
                 break;
             }
+            case ResultConstants.UPDATE_RESULT : {
+                sb.append("SQLCLI:RESULTUPDATE:");
+
+                sb.append(r.getStatementID());
+
+                break;
+            }
             case ResultConstants.FREESTMT : {
                 sb.append("SQLCLI:SQLFREESTMT:");
                 sb.append(r.getStatementID());
@@ -1587,7 +1594,7 @@ public class Server implements HsqlSocketRequestHandler {
             case ResultConstants.ENDTRAN : {
                 sb.append("SQLCLI:SQLENDTRAN:");
 
-                switch (r.getEndTranType()) {
+                switch (r.getActionType()) {
 
                     case ResultConstants.TX_COMMIT :
                         sb.append("COMMIT");
@@ -1608,7 +1615,7 @@ public class Server implements HsqlSocketRequestHandler {
                         break;
 
                     default :
-                        sb.append(r.getEndTranType());
+                        sb.append(r.getActionType());
                 }
 
                 break;

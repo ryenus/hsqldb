@@ -234,7 +234,7 @@ public class JDBCStatement extends StatementBase implements Statement {
         if (isClosed) {
             return;
         }
-        clearResultData();
+        closeResultData();
 
         batchResultOut = null;
         connection     = null;
@@ -1789,7 +1789,7 @@ public class JDBCStatement extends StatementBase implements Statement {
 
         checkClosed();
         connection.clearWarningsNoCheck();
-        clearResultData();
+        closeResultData();
 
         if (isEscapeProcessing) {
             sql = connection.nativeSQL(sql);

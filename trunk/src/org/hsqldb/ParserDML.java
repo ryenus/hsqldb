@@ -190,13 +190,13 @@ public class ParserDML extends ParserDQL {
                 Expression insertExpressions =
                     XreadContextuallyTypedTable(colCount);
 
-                if (outerRanges.length != 0) {
+//                if (outerRanges.length != 0) {
                     HsqlList unresolved =
                         insertExpressions.resolveColumnReferences(outerRanges,
                             null);
 
                     ExpressionColumn.checkColumnsResolved(unresolved);
-                }
+//                }
 
                 insertExpressions.resolveTypes(session, null);
                 setParameterTypes(insertExpressions, table, columnMap);

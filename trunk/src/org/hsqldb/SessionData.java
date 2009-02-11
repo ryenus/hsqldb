@@ -48,6 +48,7 @@ import org.hsqldb.persist.PersistentStoreCollectionSession;
 import org.hsqldb.persist.RowStoreHybrid;
 import org.hsqldb.persist.RowStoreMemory;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
@@ -142,6 +143,10 @@ public class SessionData {
         boolean hold = false;
         boolean copy = false;
 
+        if (result.rsConcurrency != ResultConstants.CONCUR_READ_ONLY) {
+            hold = true;
+        }
+
         if (isNetwork) {
             if (fetchSize != 0
                     && result.getNavigator().getSize() > fetchSize) {
@@ -176,6 +181,11 @@ public class SessionData {
         return Result.newDataRowsResult(navigator);
     }
 
+    Result getDataResult(long id) {
+        Result          result = (Result) resultMap.get(id);
+        return result;
+    }
+
     RowSetNavigatorClient getRowSetSlice(long id, int offset, int count) {
 
         Result          result = (Result) resultMap.get(id);
@@ -207,6 +217,27 @@ public class SessionData {
             Result result = (Result) it.next();
 
             result.getNavigator().close();
+        }
+
+        resultMap.clear();
+    }
+
+    public void closeAllTransactionNavigators() {
+
+        if (resultMap == null) {
+            return;
+        }
+
+        Iterator it = resultMap.values().iterator();
+
+        while (it.hasNext()) {
+            Result result = (Result) it.next();
+
+            if (result.rsHoldability
+                    == ResultConstants.CLOSE_CURSORS_AT_COMMIT) {
+                result.getNavigator().close();
+                it.remove();
+            }
         }
 
         resultMap.clear();

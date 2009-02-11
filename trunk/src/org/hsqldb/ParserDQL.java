@@ -40,6 +40,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.BlobType;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalType;
@@ -277,13 +278,16 @@ public class ParserDQL extends ParserBase {
                 }
 
                 readThis(Tokens.CLOSEBRACKET);
-            } else if (database.sqlEnforceStrictSize
-                       || typeNumber == Types.SQL_BIT) {
+            } else if (typeNumber == Types.SQL_BIT) {
+                length = 1;
+            } else if (typeNumber == Types.SQL_BLOB
+                       || typeNumber == Types.SQL_CLOB) {
+                length = BlobType.defaultBlobSize;
+            } else if (database.sqlEnforceStrictSize) {
 
                 // BIT is always BIT(1), regardless of sqlEnforceStringSize
                 if (typeNumber == Types.SQL_CHAR
-                        || typeNumber == Types.SQL_BINARY
-                        || typeNumber == Types.SQL_BIT) {
+                        || typeNumber == Types.SQL_BINARY) {
                     length = 1;
                 }
             }

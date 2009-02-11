@@ -679,8 +679,6 @@ public class Types {
 
         switch (type) {
 
-            case Types.SQL_DECIMAL :
-            case Types.SQL_NUMERIC :
             case Types.SQL_TIME :
             case Types.SQL_TIMESTAMP :
                 return true;
@@ -695,8 +693,6 @@ public class Types {
         switch (type) {
 
             case Types.SQL_BIT_VARYING :
-            case Types.SQL_BLOB :
-            case Types.SQL_CLOB :
             case Types.NCLOB :
             case Types.SQL_VARBINARY :
             case Types.SQL_VARCHAR :

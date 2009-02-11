@@ -37,6 +37,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyIntValueHashMap;
 import org.hsqldb.lib.LongValueHashMap;
+import org.hsqldb.result.Result;
 
 /**
  * This class manages the reuse of Statement objects for prepared
@@ -331,8 +332,7 @@ final class StatementManager {
 
                 // statement already removed due to invalidation
             } else if (usecount == 1) {
-                Statement cs =
-                    (Statement) csidMap.remove(csid);
+                Statement cs = (Statement) csidMap.remove(csid);
 
                 if (cs != null) {
                     int schemaid = cs.getSchemalName().hashCode();
@@ -379,8 +379,7 @@ final class StatementManager {
             int usecount = useMap.get(csid, 1) - 1;
 
             if (usecount == 0) {
-                Statement cs =
-                    (Statement) csidMap.remove(csid);
+                Statement cs = (Statement) csidMap.remove(csid);
 
                 if (cs != null) {
                     int schemaid = cs.getSchemalName().hashCode();
@@ -407,9 +406,10 @@ final class StatementManager {
      * @return CompiledStatement
      */
     synchronized Statement compile(Session session,
-                                           String sql) throws Throwable {
+                                   Result cmd) throws Throwable {
 
-        long              csid = getStatementID(session.currentSchema, sql);
+        String    sql  = cmd.getMainString();
+        long      csid = getStatementID(session.currentSchema, sql);
         Statement cs   = (Statement) csidMap.get(csid);
 
         if (cs == null || !cs.isValid() || !session.isAdmin()) {

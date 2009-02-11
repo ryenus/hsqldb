@@ -1269,7 +1269,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         resultMetaData = ResultMetaData.newResultMetaData(columnTypes,
-                indexLimitVisible, indexLimitRowId);
+                columnMap, indexLimitVisible, indexLimitRowId);
 
         for (int i = 0; i < indexLimitVisible; i++) {
             Expression e = exprColumns[i];

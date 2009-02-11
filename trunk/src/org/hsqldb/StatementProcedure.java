@@ -226,8 +226,17 @@ public class StatementProcedure extends StatementDMQL {
                     "CompiledStatement.getResultMetaData()");
         }
     }
+
+    /**
+     * Returns the metadata for the placeholder parameters.
+     */
+    public ResultMetaData getParametersMetaData() {
+
+        // todo - change the auto-names to the names of params
+        return super.getParametersMetaData();
+    }
+
     void getTableNamesForRead(OrderedHashSet set) {}
 
     void getTableNamesForWrite(OrderedHashSet set) {}
-
 }
