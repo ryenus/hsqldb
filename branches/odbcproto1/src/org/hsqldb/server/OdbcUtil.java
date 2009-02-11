@@ -34,6 +34,8 @@ package org.hsqldb.server;
 import java.io.IOException;
 
 import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.ColumnBase;
 
 /**
  * Static values and methods to facilitate servicing ODBC clients.
@@ -200,5 +202,89 @@ public class OdbcUtil {
     static String revertMungledPreparedQuery(String inQuery) {
         // THIS PURPOSEFULLY USING Java 1.4!
         return inQuery.replaceAll("\\$\\d+", "?");
+    }
+
+    static public int getTableOidForColumn(int colIndex, ResultMetaData md) {
+        if (!md.isTableColumn(colIndex)) {
+            return 0;
+        }
+        ColumnBase col = md.columns[colIndex];
+        int hashCode = (col.getSchemaNameString() + '.'
+            + col.getTableNameString()).hashCode();
+        if (hashCode < 0) {
+            hashCode *= -1;
+        }
+        return hashCode;
+    }
+
+    /**
+     * Temporary hack.
+     *
+     * This ID should stick with the table
+     * column.  Here, it will change based on user-specified column label.
+     * The int has is also being truncated into a short.
+     */
+    static public short getIdForColumn(int colIndex, ResultMetaData md) {
+        if (!md.isTableColumn(colIndex)) {
+            return 0;
+        }
+        short hashCode =
+            (short) md.getGeneratedColumnNames()[colIndex].hashCode();
+        if (hashCode < 0) {
+            hashCode *= -1;
+        }
+        return hashCode;
+        //return (short) (colIndex + 1);
+    }
+
+    /**
+     * @param hexChars A String containing an EVEN number of hex
+     *                      characters.
+     */
+    static public String hexCharsToOctalOctets(String hexChars) {
+        int chars = hexChars.length();
+        if (chars != (chars / 2) * 2) {
+            throw new IllegalArgumentException("Hex character lists contains "
+                + "an odd number of characters: " + chars);
+        }
+        StringBuffer sb = new StringBuffer();
+        char c;
+        int octet;
+        for (int i = 0; i < chars; i++) {
+            octet = 0;
+            c = hexChars.charAt(i);
+            if (c >= 'a' && c <= 'f') {
+                octet += 10 + c - 'a';
+            } else if (c >= 'A' && c <= 'F') {
+                octet += 10 + c - 'A';
+            } else if (c >= '0' && c <= '9') {
+                octet += c - '0';
+            } else {
+                throw new IllegalArgumentException(
+                    "Non-hex character in input at offset " + i + ": " + c);
+            }
+            octet = octet << 4;
+            c = hexChars.charAt(++i);
+            if (c >= 'a' && c <= 'f') {
+                octet += 10 + c - 'a';
+            } else if (c >= 'A' && c <= 'F') {
+                octet += 10 + c - 'A';
+            } else if (c >= '0' && c <= '9') {
+                octet += c - '0';
+            } else {
+                throw new IllegalArgumentException(
+                    "Non-hex character in input at offset " + i + ": " + c);
+            }
+
+            sb.append('\\');
+            sb.append((char) ('0' + (octet >> 6)));
+            sb.append((char) ('0' + ((octet >> 3) & 7)));
+            sb.append((char) ('0' + (octet & 7)));
+        }
+        return sb.toString();
+    }
+
+    static public void main(String[] sa) {
+        System.out.println("(" + OdbcUtil.hexCharsToOctalOctets(sa[0]) + ')');
     }
 }
