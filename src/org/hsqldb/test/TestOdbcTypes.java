@@ -681,7 +681,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             st = netConn.createStatement();
             rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
             assertTrue("Got no rows with id in (1, 2)", rs.next());
-            assertEquals("a103", rs.getString("vb"));
+            assertEquals("A103", rs.getString("vb"));
             assertTrue("Got only one row with id in (1, 2)", rs.next());
             ba = rs.getBytes("vb");
             assertFalse("Got too many rows with id in (1, 2)", rs.next());

@@ -350,7 +350,7 @@ class ServerConnection implements Runnable {
          */
         char op, c;
         boolean sendReadyForQuery = false;
-        String stringVal, psHandle, portalHandle, handle;
+        String stringVal, psHandle, portalHandle, handle, dataString;
         String interposedStatement = null;
         // Statement which must be executed after the primary statement, but
         // before sending the ReadyForQuery Z packet.
@@ -664,17 +664,10 @@ class ServerConnection implements Runnable {
                     for (int i = 0; i < colNames.length; i++) {
                         outPacket.write(colNames[i]); // Col. name
                         // table ID  [relid]:
-                        outPacket.writeInt(md.isTableColumn(i)
-                            ? (colDefs[i].getSchemaNameString() + '.'
-                                + colDefs[i].getTableNameString()).hashCode()
-                            : 0);
+                        outPacket.writeInt(
+                            OdbcUtil.getTableOidForColumn(i, md));
                         // column id  [attid]
-                        outPacket.writeShort(md.isTableColumn(i)
-                            ? (colNames[i].hashCode()) : 0);
-                            // TODO:  This ID should stick with the table
-                            // column.  Here, it will change based on user-
-                            // specified column label.  The int has is also
-                            // being truncated into a short.
+                        outPacket.writeShort(OdbcUtil.getIdForColumn(i, md));
                         outPacket.writeInt(pgTypes[i].getOid());
                         // Datatype size  [adtsize]
                         outPacket.writeShort(pgTypes[i].getTypeWidth());
@@ -684,8 +677,9 @@ class ServerConnection implements Runnable {
                         // like VARCHAR(12) or DECIMAL(4).
                         // -1 if none specified for this column.
                         outPacket.writeShort(0);
-                        // format code must be 0 if D packets will follow;
-                        // and 1 if B packets will follow.
+                        // format code, 0 = text column, 1 = binary column,
+                        // but entirely ignored by our driver.
+                        // Would only be non-0 if a 'B' command requested it.
                     }
                     outPacket.xmit('T', dataOutput); // Xmit Row Definition
                     int rowNum = 0;
@@ -717,20 +711,23 @@ class ServerConnection implements Runnable {
                                 */
                                 outPacket.writeInt(-1);
                             } else {
-                                outPacket.writeSized(
-                                    colTypes[i].convertToString(rowData[i]));
-                                //.  replaceFirst("\\..*", ""));
-                                server.printWithThread("R" + rowNum + "C"
-                                    + (i+1) + " => ("
-                                    + rowData[i].getClass().getName()
-                                    + ") [" + rowData[i] + ']');
+                                dataString =
+                                    colTypes[i].convertToString(rowData[i]);
+                                if (colTypes[i].typeCode
+                                    == org.hsqldb.Types.SQL_VARBINARY) {
+                                    dataString = OdbcUtil
+                                        .hexCharsToOctalOctets(dataString);
+                                }
+                                outPacket.writeSized(dataString);
+                                if (server.isTrace()) {
+                                    server.printWithThread("R" + rowNum + "C"
+                                        + (i+1) + " => ("
+                                        + rowData[i].getClass().getName()
+                                        + ") [" + rowData[i] + ']');
+                                }
                             }
                         }
-                        outPacket.xmit('D', dataOutput); // text row Data
-                          /* Should be 'B' to return binary results like Objs
-                           * or BLOBs.  Otherwise should be 'B'.
-                           * This must corresopnd to the T packet's format
-                           * code. */
+                        outPacket.xmit('D', dataOutput);
                     }
                     outPacket.write("SELECT");
                     outPacket.xmit('C', dataOutput);
@@ -942,17 +939,10 @@ class ServerConnection implements Runnable {
                 for (int i = 0; i < colNames.length; i++) {
                     outPacket.write(colNames[i]); // Col. name
                     // table ID  [relid]:
-                    outPacket.writeInt(md.isTableColumn(i)
-                        ? (colDefs[i].getSchemaNameString() + '.'
-                            + colDefs[i].getTableNameString()).hashCode()
-                        : 0);
+                    outPacket.writeInt(
+                        OdbcUtil.getTableOidForColumn(i, md));
                     // column id  [attid]
-                    outPacket.writeShort(md.isTableColumn(i)
-                        ? (colNames[i].hashCode()) : 0);
-                        // TODO:  This ID should stick with the table
-                        // column.  Here, it will change based on user-
-                        // specified column label.  The int has is also
-                        // being truncated into a short.
+                    outPacket.writeShort(OdbcUtil.getIdForColumn(i, md));
                     outPacket.writeInt(pgTypes[i].getOid());
                     // Datatype size  [adtsize]
                     outPacket.writeShort(pgTypes[i].getTypeWidth());
@@ -962,9 +952,9 @@ class ServerConnection implements Runnable {
                     // like VARCHAR(12) or DECIMAL(4).
                     // -1 if none specified for this column.
                     outPacket.writeShort(0);
-                    // format code must be 0 for describing PS;
-                    // otherwise 0 if D packets will follow;
-                    // and 1 if B packets will follow.
+                    // format code, 0 = text column, 1 = binary column,
+                    // but entirely ignored by our driver.
+                    // Would only be non-0 if a 'B' command requested it.
                 }
                 outPacket.xmit('T', dataOutput); // Xmit Row Definition
                 break;
@@ -1109,19 +1099,23 @@ class ServerConnection implements Runnable {
                             */
                             outPacket.writeInt(-1);
                         } else {
-                            outPacket.writeSized(
-                                colTypes[i].convertToString(rowData[i]));
-                            server.printWithThread("R" + rowNum + "C"
-                                + (i+1) + " => ("
-                                + rowData[i].getClass().getName()
-                                + ") [" + rowData[i] + ']');
+                            dataString =
+                                colTypes[i].convertToString(rowData[i]);
+                            if (colTypes[i].typeCode
+                                == org.hsqldb.Types.SQL_VARBINARY) {
+                                dataString = OdbcUtil
+                                    .hexCharsToOctalOctets(dataString);
+                            }
+                            outPacket.writeSized(dataString);
+                            if (server.isTrace()) {
+                                server.printWithThread("R" + rowNum + "C"
+                                    + (i+1) + " => ("
+                                    + rowData[i].getClass().getName()
+                                    + ") [" + rowData[i] + ']');
+                            }
                         }
                     }
-                    outPacket.xmit('D', dataOutput); // text row Data
-                      /* Should be 'B' to return binary results like Objs
-                       * or BLOBs.  Otherwise should be 'B'.
-                       * This must corresopnd to the T packet's format
-                       * code. */
+                    outPacket.xmit('D', dataOutput);
                 }
                 if (navigator.afterLast()) {
                     outPacket.write("SELECT");
