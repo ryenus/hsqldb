@@ -135,7 +135,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         );
     }
 
-    public void testInteger() {
+    public void testIntegerSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -164,7 +164,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testSmallInt() {
+    public void testSmallIntSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -196,7 +196,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testBigInt() {
+    public void testBigIntSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -226,7 +226,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
 
     /*
-    public void testNumeric() {
+    public void testNumericSimpleRead() {
         // This is failing.
         // Looks like we inherited a real bug with numerics from psqlodbc,
         // because the problem exists with Postresql-supplied psqlodbc
@@ -260,7 +260,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
     */
 
-    public void testFloat() {
+    public void testFloatSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -289,7 +289,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testDouble() {
+    public void testDoubleSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -318,7 +318,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testBoolean() {
+    public void testBooleanSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -347,7 +347,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testChar() {
+    public void testCharSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -376,7 +376,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testVarChar() {
+    public void testVarCharSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -405,7 +405,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testFixedString() {
+    public void testFixedStringSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -435,7 +435,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testDerivedString() {
+    public void testDerivedStringSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -465,7 +465,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testDate() {
+    public void testDateSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -496,7 +496,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testTime() {
+    public void testTimeSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -526,7 +526,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
 
     /*
-    public void testTimeW() {
+    public void testTimeWSimpleRead() {
         // This test is failing because the JDBC Driver is returning a
         // String instead of a Time oject for rs.getTime().
         ResultSet rs = null;
@@ -558,7 +558,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
     */
 
-    public void testTimestamp() {
+    public void testTimestampSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try { st = netConn.createStatement();
@@ -587,7 +587,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testTimestampW() {
+    public void testTimestampWSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -617,7 +617,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testBit() {
+    public void testBitSimpleRead() {
         // This test is failing because of a BIT padding bug in the engine.
         ResultSet rs = null;
         Statement st = null;
@@ -646,7 +646,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testBitVarying() {
+    public void testBitVaryingSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         try {
@@ -674,7 +674,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testVarBinary() {
+    public void testVarBinarySimpleRead() {
         ResultSet rs = null;
         Statement st = null;
         byte[] expectedBytes = new byte[] { (byte) 0xa1, 0x03 };
@@ -710,7 +710,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testDaySecInterval() {
+    public void testDaySecIntervalSimpleRead() {
         /* Since our client does not support the INTERVAL precision
          * constraints, the returned value will always be toString()'d to
          * precision of microseconds. */
@@ -743,7 +743,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
-    public void testSecInterval() {
+    public void testSecIntervalSimpleRead() {
         /* Since our client does not support the INTERVAL precision
          * constraints, the returned value will always be toString()'d to
          * precision of microseconds. */
@@ -770,6 +770,49 @@ public class TestOdbcTypes extends AbstractTestOdbc {
                 }
                 if (st != null) {
                     st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
+    public void testIntegerComplex() {
+        PreparedStatement psI = null, psQ = null;
+        ResultSet rs = null;
+        try {
+            psI = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, i) VALUES(?, ?)");
+            psI.setInt(1, 3);
+            psI.setInt(2, 495);
+            assertEquals(1, psI.executeUpdate());
+            psI.setInt(1, 4);
+            assertEquals(1, psI.executeUpdate());
+            psI.close();
+            netConn.commit();
+            psQ = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE i = ?");
+            psQ.setInt(1, 495);
+            rs = psQ.executeQuery();
+            assertTrue("Got no rows with i = 495", rs.next());
+            assertEquals(Integer.class, rs.getObject("i").getClass());
+            assertTrue("Got only one row with i = 495", rs.next());
+            assertEquals(495, rs.getInt("i"));
+            assertFalse("Got too many rows with i = 495", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (psI != null) {
+                    psI.close();
+                }
+                if (psQ != null) {
+                    psQ.close();
                 }
             } catch(Exception e) {
             }
