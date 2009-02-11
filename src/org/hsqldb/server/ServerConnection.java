@@ -350,7 +350,7 @@ class ServerConnection implements Runnable {
          */
         char op, c;
         boolean sendReadyForQuery = false;
-        String stringVal, psHandle, portalHandle, handle, dataString;
+        String stringVal, psHandle, portalHandle, handle, dataString, tmpStr;
         String interposedStatement = null;
         // Statement which must be executed after the primary statement, but
         // before sending the ReadyForQuery Z packet.
@@ -729,10 +729,12 @@ class ServerConnection implements Runnable {
                     sendReadyForQuery = true;
                     break;
                 }
-                if (normalized.startsWith("deallocate ")) {
-                    handle =
-                        sql.trim().substring("deallocate ".length()).trim();
+                if (normalized.startsWith("deallocate \"")
+                        && normalized.charAt(normalized.length() - 1) == '"') {
+                    tmpStr =
+                        sql.trim().substring("deallocate \"".length()).trim();
                         // Must use "sql" directly since name is case-sensitive
+                    handle = tmpStr.substring(0, tmpStr.length() - 1);
                     odbcPs = (OdbcPreparedStatement)
                         sessionOdbcPsMap.get(handle);
                     if (odbcPs != null) {
@@ -1147,7 +1149,7 @@ class ServerConnection implements Runnable {
                 // Broke things earlier, but that may have been due to
                 // other problems.
                 if (server.isTrace()) {
-                    server.printWithThread("Closed PS/Portal '"
+                    server.printWithThread("Closed " + c + " '"
                             + handle + "'? "
                             + (odbcPs != null || portal != null));
                 }

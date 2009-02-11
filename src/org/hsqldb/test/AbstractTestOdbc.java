@@ -53,6 +53,12 @@ import org.hsqldb.server.ServerConstants;
  * </P> <P>
  * The DSN name and port may be changed from these defaults by setting Java
  * system properties "test.hsqlodbc.dsnname" and/or "test.hsqlodbc.port".
+ * </P> <P>
+ *   <B>This class badly needs JUnit 4.x.
+ *   Test runs take about 50x as long as they should because JUnit 3.x does
+ *   not have a way to do one-time-per-class setUp and tearDown.</B>
+ *   We should instantiate and start up the Server one time, and repopulate
+ *   the catalog contents in the traditional setUp().
  * </P>
  */
 public abstract class AbstractTestOdbc extends junit.framework.TestCase {
