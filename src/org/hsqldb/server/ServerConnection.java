@@ -361,6 +361,7 @@ class ServerConnection implements Runnable {
         org.hsqldb.result.ResultMetaData pmd;
         OdbcPacketInputStream inPacket = null;
         org.hsqldb.types.Type[] colTypes;
+        PgType[] pgTypes;
 
         try {
             inPacket =
@@ -649,7 +650,7 @@ class ServerConnection implements Runnable {
                             + colNames.length + " col. names");
                     }
                     colTypes = md.columnTypes;
-                    PgType[] pgTypes = new PgType[colNames.length];
+                    pgTypes = new PgType[colNames.length];
                     for (int i = 0; i < pgTypes.length; i++) {
                         pgTypes[i] = PgType.getPgType(colTypes[i],
                             md.isTableColumn(i));
@@ -711,13 +712,7 @@ class ServerConnection implements Runnable {
                                 */
                                 outPacket.writeInt(-1);
                             } else {
-                                dataString =
-                                    colTypes[i].convertToString(rowData[i]);
-                                if (colTypes[i].typeCode
-                                    == org.hsqldb.Types.SQL_VARBINARY) {
-                                    dataString = OdbcUtil
-                                        .hexCharsToOctalOctets(dataString);
-                                }
+                                dataString = pgTypes[i].valueString(rowData[i]);
                                 outPacket.writeSized(dataString);
                                 if (server.isTrace()) {
                                     server.printWithThread("R" + rowNum + "C"
@@ -923,7 +918,7 @@ class ServerConnection implements Runnable {
                         + colNames.length + " col. names");
                 }
                 colTypes = md.columnTypes;
-                PgType[] pgTypes = new PgType[colNames.length];
+                pgTypes = new PgType[colNames.length];
                 org.hsqldb.ColumnBase[] colDefs = md.columns;
                 for (int i = 0; i < pgTypes.length; i++) {
                     pgTypes[i] = PgType.getPgType(colTypes[i],
@@ -1091,6 +1086,11 @@ class ServerConnection implements Runnable {
                      // This field is just swallowed by PG ODBC
                      // client, but validated by psql.
                     colTypes = portal.ackResult.metaData.columnTypes;
+                    pgTypes = new PgType[colCount];
+                    for (int i = 0; i < pgTypes.length; i++) {
+                        pgTypes[i] = PgType.getPgType(colTypes[i],
+                            portal.ackResult.metaData.isTableColumn(i));
+                    }
                     for (int i = 0; i < colCount; i++) {
                         if (rowData[i] == null) {
                             /*
@@ -1099,13 +1099,7 @@ class ServerConnection implements Runnable {
                             */
                             outPacket.writeInt(-1);
                         } else {
-                            dataString =
-                                colTypes[i].convertToString(rowData[i]);
-                            if (colTypes[i].typeCode
-                                == org.hsqldb.Types.SQL_VARBINARY) {
-                                dataString = OdbcUtil
-                                    .hexCharsToOctalOctets(dataString);
-                            }
+                            dataString = pgTypes[i].valueString(rowData[i]);
                             outPacket.writeSized(dataString);
                             if (server.isTrace()) {
                                 server.printWithThread("R" + rowNum + "C"

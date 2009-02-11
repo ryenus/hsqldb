@@ -190,42 +190,49 @@ public class PgType {
                 // Postgresql is returning type DATETIME for this case.
                 // It should return TYPE_TIMESTAMP, no?
 
+            /* *********************************************************
+             * For INTERVALs, we get the more specific type here, not just
+             * SQL_INTERVAL.
             case Types.SQL_INTERVAL:
+             *
+             * The reason no precisions are passed to the ODBC client is that I
+             * have so far been unsuccessful at figuring out exactly how the
+             * driver wants the atttypmod formatted.  See doc/odbc.txt for
+             * notes about this.
+             */
             case Types.SQL_INTERVAL_YEAR:
             case Types.SQL_INTERVAL_YEAR_TO_MONTH:
             case Types.SQL_INTERVAL_MONTH:
+                // Need to test these, since the driver Interval type is
+                // intended for second-resolution only, not month resolution.
                 throw new IllegalArgumentException(
                     "Driver doesn't support month-resolution 'INTERVAL's yet");
             case Types.SQL_INTERVAL_DAY:
             case Types.SQL_INTERVAL_DAY_TO_HOUR:
             case Types.SQL_INTERVAL_DAY_TO_MINUTE:
-            case Types.SQL_INTERVAL_DAY_TO_SECOND:
             case Types.SQL_INTERVAL_HOUR:
             case Types.SQL_INTERVAL_HOUR_TO_MINUTE:
-            case Types.SQL_INTERVAL_HOUR_TO_SECOND:
             case Types.SQL_INTERVAL_MINUTE:
-            case Types.SQL_INTERVAL_MINUTE_TO_SECOND:
-            case Types.SQL_INTERVAL_SECOND:
-                // We get the more specific type here, not just SQL_INTERVAL.
-                if (hType.precision != 0 || hType.scale != 0) {
-                    // TODO:  Use logging system!
-                    /*
-                    System.err.println(
-                            "WARNING:  Not passing INTERVAL precision setting "
-                            + "or second precision setting to ODBC client");
-                    */
-                }
-                return secIntervalSingleton;
-                // Support very small subset of HSQLDB INTERVAL abilities
-                /*
+                // Our server uses the type to distinguish the resolution here.
+                // The driver expects these types to be distinguished in the
+                // value itself, like "99 days".
+                // Therefore, these types are incompatible until driver is
+                // enhanced.
                 throw new IllegalArgumentException(
-                    "Driver doesn't support type 'INTERVAL' yet");
-                */
-                /*  Haven't figured out how the client expects the atttypmod to
-                 *  be calculated for intervals.
-                return new PgType(hType, TYPE_TINTERVAL, 16,
-                    ?hType.precision - 4?);
-                */
+                    "Driver doesn't support non-second-resolution 'INTERVAL's "
+                    + "yet");
+            case Types.SQL_INTERVAL_DAY_TO_SECOND:
+                PgType.ignoredConstraintWarning(hType);
+                return daySecIntervalSingleton;
+            case Types.SQL_INTERVAL_HOUR_TO_SECOND:
+                PgType.ignoredConstraintWarning(hType);
+                return hourSecIntervalSingleton;
+            case Types.SQL_INTERVAL_MINUTE_TO_SECOND:
+                PgType.ignoredConstraintWarning(hType);
+                return minSecIntervalSingleton;
+            case Types.SQL_INTERVAL_SECOND:
+                PgType.ignoredConstraintWarning(hType);
+                return secIntervalSingleton;
 
             default:
                 throw new IllegalArgumentException(
@@ -239,8 +246,6 @@ public class PgType {
      * The internal parameter value setter always converts the parameter to
      * the Java type required for data transmission.
      *
-     * @param i parameter index
-     * @param o object
      * @throws SQLException if either argument is not acceptable.
      */
     public Object getParameter(String inString, Session session)
@@ -354,6 +359,14 @@ public class PgType {
         return o;
     }
 
+    public String valueString(Object datum) {
+        String dataString = hType.convertToString(datum);
+        if (hType.typeCode == org.hsqldb.Types.SQL_VARBINARY) {
+            dataString = OdbcUtil.hexCharsToOctalOctets(dataString);
+        }
+        return dataString;
+    }
+
     /*
      * The followign settings are a Java port of pgtypes.h
      */
@@ -456,6 +469,24 @@ public class PgType {
         new PgType(Type.SQL_BIT, TYPE_BIT);
     static protected final PgType bitVaryingSingleton =
         new PgType(Type.SQL_BIT_VARYING, TYPE_VARBIT);
+    static protected final PgType daySecIntervalSingleton =
+        new PgType(Type.SQL_INTERVAL_DAY_TO_SECOND, TYPE_TINTERVAL, 16);
+    static protected final PgType hourSecIntervalSingleton =
+        new PgType(Type.SQL_INTERVAL_HOUR_TO_SECOND, TYPE_TINTERVAL, 16);
+    static protected final PgType minSecIntervalSingleton =
+        new PgType(Type.SQL_INTERVAL_MINUTE_TO_SECOND, TYPE_TINTERVAL, 16);
     static protected final PgType secIntervalSingleton =
         new PgType(Type.SQL_INTERVAL_SECOND, TYPE_TINTERVAL, 16);
+
+    static private void ignoredConstraintWarning(Type hsqldbType) {
+        if (hsqldbType.precision == 0 && hsqldbType.scale == 0) {
+            return;
+        }
+        // TODO:  Use logging system!
+        /*
+        System.err.println(
+                "WARNING:  Not passing INTERVAL precision setting "
+                + "or second precision setting to ODBC client");
+        */
+    }
 }
