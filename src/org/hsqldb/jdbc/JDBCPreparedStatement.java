@@ -256,7 +256,7 @@ import org.hsqldb.types.Type;
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
  */
-public class JDBCPreparedStatement extends StatementBase implements PreparedStatement {
+public class JDBCPreparedStatement extends JDBCStatementBase implements PreparedStatement {
 
     /**
      * <!-- start generic documentation -->
@@ -4109,8 +4109,13 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
         checkParametersSet();
 
         //
-        resultOut.setPreparedExecuteProperties(parameterValues, maxRows,
-                fetchSize);
+
+        if (isResult) {
+            resultOut.setResultUpdateProperties(parameterValues);
+        } else {
+            resultOut.setPreparedExecuteProperties(parameterValues, maxRows,
+                                                   fetchSize);
+        }
 
         try {
             performPreExecute();

@@ -7066,7 +7066,7 @@ public class JDBCResultSet implements ResultSet {
      * The Statement that generated this result. Null if the result is
      * from DatabaseMetaData<p>
      */
-    StatementBase        statement;
+    JDBCStatementBase        statement;
     SessionInterface session;
 
     /**
@@ -7334,6 +7334,10 @@ public class JDBCResultSet implements ResultSet {
 
         checkUpdatable();
 
+        preparedStatement.parameterValues[columnCount] = getCurrent()[columnCount];
+        preparedStatement.resultOut.metaData.columnTypes[columnCount] =
+            resultMetaData.columnTypes[columnCount];
+
         for(int i =0 ; i <columnCount; i++) {
             boolean set = preparedStatement.parameterSet[i] ||
                 preparedStatement.parameterStream[i];
@@ -7390,7 +7394,7 @@ public class JDBCResultSet implements ResultSet {
      * @throws SQLException when the supplied Result is of type
      *   org.hsqldb.Result.ERROR
      */
-    JDBCResultSet(SessionInterface session, StatementBase s, Result r,
+    JDBCResultSet(SessionInterface session, JDBCStatementBase s, Result r,
                   ResultMetaData metaData, HsqlProperties props
                   ) throws SQLException {
 
