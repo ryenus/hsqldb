@@ -1761,12 +1761,12 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @param resultSetConcurrency int
      * @param resultSetHoldability int
      */
-    JDBCStatement(JDBCConnection c, int resultSetType,
+    JDBCStatement(JDBCConnection c, int resultSetScrollability,
                   int resultSetConcurrency, int resultSetHoldability) {
 
         resultOut       = Result.newExecuteDirectRequest();
         connection      = c;
-        rsScrollability = resultSetType;
+        rsScrollability = resultSetScrollability;
         rsConcurrency   = resultSetConcurrency;
         rsHoldability   = resultSetHoldability;
     }

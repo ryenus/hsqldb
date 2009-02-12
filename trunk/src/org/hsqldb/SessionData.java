@@ -139,6 +139,9 @@ public class SessionData {
         int fetchSize = command.getFetchSize();
 
         result.setResultId(session.actionTimestamp);
+        result.setDataResultConcurrency(command.rsConcurrency);
+        result.setDataResultHoldability(command.rsHoldability);
+        result.setDataResultScrollability(command.rsScrollability);
 
         boolean hold = false;
         boolean copy = false;
@@ -182,7 +185,9 @@ public class SessionData {
     }
 
     Result getDataResult(long id) {
-        Result          result = (Result) resultMap.get(id);
+
+        Result result = (Result) resultMap.get(id);
+
         return result;
     }
 
