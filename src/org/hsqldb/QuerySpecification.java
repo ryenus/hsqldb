@@ -31,8 +31,9 @@
 
 package org.hsqldb;
 
-import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.HsqlNameManager.SimpleName;
+import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.RangeVariable.RangeIteratorMain;
 import org.hsqldb.index.Index;
@@ -42,6 +43,7 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
@@ -50,8 +52,6 @@ import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
-import org.hsqldb.lib.IntValueHashMap;
-import org.hsqldb.HsqlNameManager.SimpleName;
 
 /**
  * Implementation of an SQL query specification, including SELECT.
@@ -1071,6 +1071,8 @@ public class QuerySpecification extends QueryExpression {
         Result result = Result.newResult(navigator);
 
         result.metaData = resultMetaData;
+
+        result.setDataResultConcurrency(isUpdatable);
 
         int fullJoinIndex = 0;
         RangeIterator[] rangeIterators =

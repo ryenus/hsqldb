@@ -561,13 +561,12 @@ public class Result {
      * For UPDATE_RESULT
      * The parameters are set afterwards as the Result is reused
      */
-    public static Result newUpdateResultRequest(Type[] types,
-            long id) {
+    public static Result newUpdateResultRequest(Type[] types, long id) {
 
         Result result = newResult(ResultConstants.UPDATE_RESULT);
 
-        result.metaData    = ResultMetaData.newUpdateResultMetaData(types);
-        result.id = id;
+        result.metaData = ResultMetaData.newUpdateResultMetaData(types);
+        result.id       = id;
 
         result.navigator.add(new Object[]{});
 
@@ -594,6 +593,7 @@ public class Result {
         updateCount    = maxRows;
         this.fetchSize = fetchSize;
     }
+
     /**
      * For BATCHEXECUTE
      */
@@ -862,17 +862,33 @@ public class Result {
         return result;
     }
 
+    public void setDataResultConcurrency(boolean isUpdatable) {
+        rsConcurrency = isUpdatable ? ResultConstants.CONCUR_UPDATABLE
+                                    : ResultConstants.CONCUR_READ_ONLY;
+    }
+
+    public void setDataResultConcurrency(int resultSetConcurrency) {
+        rsConcurrency = resultSetConcurrency;
+    }
+
+    public void setDataResultHoldability(int resultSetHoldability) {
+        rsHoldability = resultSetHoldability;
+    }
+
+    public void setDataResultScrollability(int resultSetScrollability) {
+        rsScrollability = resultSetScrollability;
+    }
     /**
      * For DATA
      */
     public void setDataResultProperties(int maxRows, int fetchSize,
-                                        int resultSetType,
+                                        int resultSetScrollability,
                                         int resultSetConcurrency,
                                         int resultSetHoldability) {
 
         updateCount     = maxRows;
         this.fetchSize  = fetchSize;
-        rsScrollability = resultSetType;
+        rsScrollability = resultSetScrollability;
         rsConcurrency   = resultSetConcurrency;
         rsHoldability   = resultSetHoldability;
     }
