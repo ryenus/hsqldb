@@ -488,6 +488,7 @@ public class Result {
             }
             case ResultConstants.DATAHEAD :
             case ResultConstants.DATA : {
+                result.id              = in.readLong();
                 result.updateCount     = in.readInt();
                 result.fetchSize       = in.readInt();
                 result.rsScrollability = in.readShort();
@@ -574,7 +575,15 @@ public class Result {
     }
 
     /**
-     * For SQLEXECUTE and UPDATE_RESULT results
+     * For UPDATE_RESULT results
+     * The parameters are set by this method as the Result is reused
+     */
+    public void setResultUpdateProperties(Object[] parameterValues) {
+        ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
+    }
+
+    /**
+     * For SQLEXECUTE results
      * The parameters are set by this method as the Result is reused
      */
     public void setPreparedExecuteProperties(Object[] parameterValues,
@@ -585,7 +594,6 @@ public class Result {
         updateCount    = maxRows;
         this.fetchSize = fetchSize;
     }
-
     /**
      * For BATCHEXECUTE
      */
@@ -1161,6 +1169,7 @@ public class Result {
 
             case ResultConstants.DATAHEAD :
             case ResultConstants.DATA :
+                rowOut.writeLong(id);
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
                 rowOut.writeShort(rsScrollability);

@@ -138,7 +138,7 @@ import org.hsqldb.result.Result;
  */
 
 //#ifdef JAVA6
-public class JDBCStatement extends StatementBase implements Statement,
+public class JDBCStatement extends JDBCStatementBase implements Statement,
         java.sql.Wrapper {
 
 //#else
@@ -177,7 +177,7 @@ public class JDBCStatement extends StatementBase implements Statement {
     public ResultSet executeQuery(String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_RESULT,
-                    StatementBase.NO_GENERATED_KEYS, null, null);
+                    JDBCStatementBase.NO_GENERATED_KEYS, null, null);
 
         return getResultSet();
     }
@@ -203,7 +203,7 @@ public class JDBCStatement extends StatementBase implements Statement {
     public int executeUpdate(String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    StatementBase.NO_GENERATED_KEYS, null, null);
+                    JDBCStatementBase.NO_GENERATED_KEYS, null, null);
 
         return resultIn.getUpdateCount();
     }
@@ -629,7 +629,7 @@ public class JDBCStatement extends StatementBase implements Statement {
     public boolean execute(String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_ANY,
-                    StatementBase.NO_GENERATED_KEYS, null, null);
+                    JDBCStatementBase.NO_GENERATED_KEYS, null, null);
 
         return resultIn.isData();
     }

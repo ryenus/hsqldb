@@ -34,7 +34,6 @@ package org.hsqldb.jdbc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Statement;
 
 import org.hsqldb.ErrorCode;
 import org.hsqldb.result.Result;
@@ -71,7 +70,7 @@ import org.hsqldb.result.ResultConstants;
  * objects will eventually be closed when accessed, the change is not reflected
  * to the server, impacting ResultSets that are held.
  */
-class StatementBase {
+class JDBCStatementBase {
 
     /**
      * Whether this Statement has been explicitly closed.  A JDBCConnection

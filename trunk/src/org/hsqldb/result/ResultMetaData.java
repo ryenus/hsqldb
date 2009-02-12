@@ -189,7 +189,7 @@ public final class ResultMetaData {
     }
 
     public int getExtendedColumnCount() {
-        return columnCount;
+        return extendedColumnCount;
     }
 
     public Type[] getParameterTypes() {
@@ -297,14 +297,21 @@ public final class ResultMetaData {
             }
             case RESULT_METADATA : {
                 extendedColumnCount = in.readInt();
+                columnTypes         = new Type[extendedColumnCount];
                 columnLabels        = new String[columnCount];
-                columnTypes         = new Type[columnCount];
                 columns             = new ColumnBase[columnCount];
 
-                for (int i = 0; i < columnCount; i++) {
+                if (columnCount != extendedColumnCount) {
+                    colIndexes = new int[columnCount];
+                }
+
+                for (int i = 0; i < extendedColumnCount; i++) {
                     Type type = readDataType(in);
 
-                    columnTypes[i]  = type;
+                    columnTypes[i] = type;
+                }
+
+                for (int i = 0; i < columnCount; i++) {
                     columnLabels[i] = in.readString();
 
                     String catalog = in.readString();
@@ -314,17 +321,13 @@ public final class ResultMetaData {
                     ColumnBase column = new ColumnBase(catalog, schema, table,
                                                        name);
 
-                    column.setType(type);
+                    column.setType(columnTypes[i]);
                     decodeTableColumnAttrs(in.readByte(), column);
 
                     columns[i] = column;
                 }
 
-                int colIndexesLength = in.readInt();
-
-                if (colIndexesLength > 0) {
-                    colIndexes = new int[colIndexesLength];
-
+                if (columnCount != extendedColumnCount) {
                     for (int i = 0; i < columnCount; i++) {
                         colIndexes[i] = in.readInt();
                     }
@@ -395,14 +398,19 @@ public final class ResultMetaData {
             case RESULT_METADATA : {
                 out.writeInt(extendedColumnCount);
 
-                for (int i = 0; i < columnCount; i++) {
-                    ColumnBase column = columns[i];
-
+                for (int i = 0; i < extendedColumnCount; i++) {
                     if (columnTypes[i] == null) {
+                        ColumnBase column = columns[i];
+
                         columnTypes[i] = column.getDataType();
                     }
 
                     writeDataType(out, columnTypes[i]);
+                }
+
+                for (int i = 0; i < columnCount; i++) {
+                    ColumnBase column = columns[i];
+
                     out.writeString(columnLabels[i]);
                     out.writeString(column.getCatalogNameString());
                     out.writeString(column.getSchemaNameString());
@@ -411,11 +419,7 @@ public final class ResultMetaData {
                     out.writeByte(encodeTableColumnAttrs(column));
                 }
 
-                if (colIndexes == null) {
-                    out.writeInt(0);
-                } else {
-                    out.writeInt(colIndexes.length);
-
+                if (columnCount != extendedColumnCount) {
                     for (int i = 0; i < colIndexes.length; i++) {
                         out.writeInt(colIndexes[i]);
                     }
