@@ -4,7 +4,7 @@
 
 # Sample Perl script accessing HyperSQL through the Perl DBI module.
 
-# This test HyperSQL client uses the OBC DSN "tstdsn" to connect up to a
+# This test HyperSQL client uses the ODBC DSN "tstdsn" to connect up to a
 # HyperSQL server.  Just configure your own DSN to use the HyperSQL ODBC
 # driver, specifying the HyperSQL server host name, database name, user,
 # password, etc.
