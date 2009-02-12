@@ -9,15 +9,20 @@
 # driver, specifying the HyperSQL server host name, database name, user,
 # password, etc.
 
+# Author:  Blaine Simpson  (blaine dot simpson at admc dot com)
+
 
 use strict;
 use DBI;
 
-use vars qw:$dsn $dbh $sth $row $retval:;
+use vars qw:$dsn $dbh $sth $row $retval %conAttr:;
+
+$conAttr{AutoCommit} = 0;
 
 $dsn = "dbi:ODBC:dsn=tstdsn";
 
-$dbh = DBI->connect($dsn)
+#$dbh = DBI->connect($dsn, undef, undef)
+$dbh = DBI->connect($dsn, undef, undef, \%conAttr)
     or die("Failed to connect: ($DBI::err) $DBI::errstr\n");
 
 $dbh->do("DROP TABLE tsttbl IF EXISTS");
@@ -50,6 +55,7 @@ $retval = $sth->execute(4, 'four');
 $retval = $sth->execute(5, 'five');
     #or die("5th insertion failed: ($DBI::err) $DBI::errstr\n");
 #die "5th insertion inserted $retval rows instead of 1\n" unless $retval eq 1;
+$dbh->commit;
 
 # Now a simple/non-parameterized Query
 $sth = $dbh->prepare("SELECT * FROM tsttbl WHERE id < 3")
@@ -62,6 +68,8 @@ while ($row = $sth->fetch()) {
     print("\n");
 }
 $sth->finish();
+
+$dbh->do('rollback');
 
 # Now a parameterized Query
 $sth = $dbh->prepare("SELECT * FROM tsttbl WHERE id > ?")
