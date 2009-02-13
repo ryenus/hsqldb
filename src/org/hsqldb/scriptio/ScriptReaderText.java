@@ -100,7 +100,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                 cs     = session.compileStatement(statement);
                 result = session.executeCompiledStatement(cs, null);
             } catch (HsqlException e) {
-                result = Result.newErrorResult(e, null);
+                result = Result.newErrorResult(e);
             }
 
             if (result.isError()) {

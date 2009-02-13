@@ -959,6 +959,10 @@ public class Result {
         return result;
     }
 
+    public static Result newErrorResult(Throwable t) {
+        return newErrorResult(t, null);
+    }
+
     /** @todo fredt - move the messages to Error.java */
     public static Result newErrorResult(Throwable t, String statement) {
 
