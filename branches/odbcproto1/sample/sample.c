@@ -115,19 +115,36 @@ int main(int argc, char** argv) {
 
 
     // III. INSERT DATA
-
     // Non-parameter INSERT
     cp = "INSERT INTO tsttbl (id, vc) values (1, 'one')";
     detect = detectOdbcFailure(SQLExecDirect(stmt, cp, SQL_NTS), conn,
             "1st Insertion failed");
     if (detect) return detect;
 
+#ifdef _WINDOWS
+    // TODO:  PROBLEM with Parameterized INPUT in Windows (works fine on UNIX).
+    // For some reason, even if we are do a Prepare/Execute (and our
+    // driver is set to always use server-side Preparation), the client side
+    // is doing the substitution... and doing a bad Lob of it too.
+    // Therefore, we do all INSERTs statically for Windows here:
+    cp = "INSERT INTO tsttbl (id, vc) values (2, 'two')";
+    detect = detectOdbcFailure(SQLExecDirect(stmt, cp, SQL_NTS), conn,
+            "2nd Insertion failed");
+    if (detect) return detect;
+    cp = "INSERT INTO tsttbl (id, vc) values (3, 'three')";
+    detect = detectOdbcFailure(SQLExecDirect(stmt, cp, SQL_NTS), conn,
+            "3rd Insertion failed");
+    if (detect) return detect;
+    cp = "INSERT INTO tsttbl (id, vc) values (4, 'four')";
+    detect = detectOdbcFailure(SQLExecDirect(stmt, cp, SQL_NTS), conn,
+            "4th Insertion failed");
+    if (detect) return detect;
+    cp = "INSERT INTO tsttbl (id, vc) values (5, 'five')";
+    detect = detectOdbcFailure(SQLExecDirect(stmt, cp, SQL_NTS), conn,
+            "5th Insertion failed");
+    if (detect) return detect;
+#else
     // Parameterized INSERT
-    // TODO:  PROBLEM HERE in Windows (works fine on UNIX).
-    // For some reason, even though we are doing a Prepare/Execute and our
-    // driver is set to always use server-side Preparation, in the case right
-    // here, the client side side is doing the substitution... and doing a bad
-    // job of it too.
     cp = "INSERT INTO tsttbl (id, vc) values (?, ?)";
     detect = detectOdbcFailure(SQLPrepare(stmt, (SQLCHAR*) cp, SQL_NTS), conn,
         "Preparation of Insertion stmt failed");
@@ -163,6 +180,7 @@ int main(int argc, char** argv) {
     detect = detectOdbcFailure(SQLExecute(stmt), conn,
             "Insertion of 5th row failed");
     if (detect) return detect;
+#endif
 
     detect = detectOdbcFailure(SQLEndTran(SQL_HANDLE_DBC, conn, SQL_COMMIT),
             conn, "COMMIT failed");
@@ -203,6 +221,33 @@ int main(int argc, char** argv) {
             "Failed to close Cursor for re-use");
     if (detect) return detect;
 
+#if _WINDOWS
+    // Input parameters not working on Windows.  See comment above.
+    cp = "SELECT * FROM tsttbl WHERE id > 3";
+    detect = detectOdbcFailure(SQLExecDirect(stmt, cp, SQL_NTS), conn,
+            "Non-parameter query failed");
+    // Would return SQL_NO_DATA if no rows inserted.
+    // Don't need to bind until before fetches are performed.
+    if (detect) return detect;
+    detect = detectOdbcFailure(
+            SQLBindCol(stmt, 1, SQL_C_SLONG, &out_idval, 0, NULL), conn,
+            "Bind of 'id' output failed");
+    if (detect) return detect;
+    detect = detectOdbcFailure(
+            SQLBindCol(stmt, 2, SQL_C_CHAR, out_vcval, cstrmax, &ntsval),
+            conn, "Bind of 'vc' output failed");
+    if (detect) return detect;
+    detect = detectOdbcFailure(
+            SQLBindCol(stmt, 3, SQL_C_CHAR, out_etimeval, cstrmax, &ntsval),
+            conn, "Bind of 'entrytime' output failed");
+    if (detect) return detect;
+
+    while ((odbcret = SQLFetch(stmt)) != SQL_NO_DATA) {
+        if (detectOdbcFailure(odbcret, conn, "Fetch failed")) return detect;
+        printf("%dl|%s|%s\n", out_idval, out_vcval, out_etimeval);
+    }
+#else
+
     // Parameterized QUERY
     cp = "SELECT * FROM tsttbl WHERE id > ?";
     detect = detectOdbcFailure(SQLPrepare(stmt, (SQLCHAR*) cp, SQL_NTS), conn,
@@ -231,6 +276,7 @@ int main(int argc, char** argv) {
             SQLBindCol(stmt, 3, SQL_C_CHAR, out_etimeval, cstrmax, &ntsval),
             conn, "Bind of 'entrytime' output failed");
     if (detect) return detect;
+#endif
 
     while ((odbcret = SQLFetch(stmt)) != SQL_NO_DATA) {
         if (detectOdbcFailure(odbcret, conn, "Fetch failed")) return detect;
@@ -244,7 +290,8 @@ int main(int argc, char** argv) {
     SQLDisconnect(conn);
     SQLFreeHandle(SQL_HANDLE_DBC, conn);
     SQLFreeHandle(SQL_HANDLE_ENV, sqlhenv);
-    return print_ret("Success", 0);
+    //return print_ret("Success", 0);
+    return 0;
 }
 
 /**
