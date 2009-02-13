@@ -828,7 +828,7 @@ public class Session implements SessionInterface {
 
         if (isClosed) {
             return Result.newErrorResult(
-                Error.error(ErrorCode.ACCESS_IS_DENIED, null), null);
+                Error.error(ErrorCode.ACCESS_IS_DENIED));
         }
 
 //        synchronized (database) {
@@ -929,7 +929,7 @@ public class Session implements SessionInterface {
                         try {
                             commit(false);
                         } catch (Throwable t) {
-                            return Result.newErrorResult(t, null);
+                            return Result.newErrorResult(t);
                         }
                         break;
 
@@ -937,7 +937,7 @@ public class Session implements SessionInterface {
                         try {
                             commit(true);
                         } catch (Throwable t) {
-                            return Result.newErrorResult(t, null);
+                            return Result.newErrorResult(t);
                         }
                         break;
 
@@ -955,7 +955,7 @@ public class Session implements SessionInterface {
 
                             releaseSavepoint(name);
                         } catch (Throwable t) {
-                            return Result.newErrorResult(t, null);
+                            return Result.newErrorResult(t);
                         }
                         break;
 
@@ -963,7 +963,7 @@ public class Session implements SessionInterface {
                         try {
                             rollbackToSavepoint(cmd.getMainString());
                         } catch (Throwable t) {
-                            return Result.newErrorResult(t, null);
+                            return Result.newErrorResult(t);
                         }
                         break;
                 }
@@ -977,7 +977,7 @@ public class Session implements SessionInterface {
                         try {
                             savepoint(cmd.getMainString());
                         } catch (Throwable t) {
-                            return Result.newErrorResult(t, null);
+                            return Result.newErrorResult(t);
                         }
 
                     // case ResultConstants.SQL_ATTR_AUTO_IPD
@@ -1000,7 +1000,7 @@ public class Session implements SessionInterface {
             default : {
                 return Result.newErrorResult(
                     Error.runtimeError(
-                        ErrorCode.U_S0500, "Session.execute()"), null);
+                        ErrorCode.U_S0500, "Session.execute()"));
             }
         }
 
@@ -1042,7 +1042,7 @@ public class Session implements SessionInterface {
         try {
             list = parser.compileStatements(sql, cmd.getStatementType());
         } catch (HsqlException e) {
-            return Result.newErrorResult(e, null);
+            return Result.newErrorResult(e);
         }
 
         Result result = null;
@@ -1069,7 +1069,7 @@ public class Session implements SessionInterface {
         try {
             cs = parser.compileStatement();
         } catch (HsqlException e) {
-            return Result.newErrorResult(e, null);
+            return Result.newErrorResult(e);
         }
 
         Result result = executeCompiledStatement(cs, null);
@@ -1086,7 +1086,7 @@ public class Session implements SessionInterface {
 //            tempActionHistory.add("beginAction aborts" + actionTimestamp);
             rollback(false);
 
-            return Result.newErrorResult(Error.error(ErrorCode.X_40001), null);
+            return Result.newErrorResult(Error.error(ErrorCode.X_40001));
         }
 
         currentStatement = cs;
@@ -1122,8 +1122,7 @@ public class Session implements SessionInterface {
 
                 currentStatement = null;
 
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001),
-                                             null);
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
 
             try {
@@ -1139,8 +1138,7 @@ public class Session implements SessionInterface {
 
                 currentStatement = null;
 
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001),
-                                             null);
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
@@ -1155,8 +1153,7 @@ public class Session implements SessionInterface {
 
                 currentStatement = null;
 
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001),
-                                             null);
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
 
             if (redoAction) {
@@ -1174,14 +1171,13 @@ public class Session implements SessionInterface {
             }
         }
 
-        if (isAutoCommit && cs.type != StatementTypes.UPDATE_CURSOR) {
+        if (isAutoCommit) {
             try {
                 commit(false);
             } catch (Exception e) {
                 currentStatement = null;
 
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001),
-                                             null);
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
         }
 
@@ -1204,7 +1200,7 @@ public class Session implements SessionInterface {
 
             // invalid sql has been removed already
             return Result.newErrorResult(
-                Error.runtimeError(ErrorCode.X_07501, null), null);
+                Error.error(ErrorCode.X_07501));
         }
 
         count = 0;
@@ -1280,7 +1276,7 @@ public class Session implements SessionInterface {
             try {
                 in = executeDirectStatement(sql);
             } catch (Throwable t) {
-                in = Result.newErrorResult(t, null);
+                in = Result.newErrorResult(t);
 
                 // if (t instanceof OutOfMemoryError) {
                 // System.gc();
@@ -1328,8 +1324,7 @@ public class Session implements SessionInterface {
         if (cs == null) {
 
             // invalid sql has been removed already
-            return Result.newErrorResult(Error.error(ErrorCode.X_07502, null),
-                                         null);
+            return Result.newErrorResult(Error.error(ErrorCode.X_07502));
         }
 
         Object[] pvals = cmd.getParameterData();
@@ -1345,15 +1340,20 @@ public class Session implements SessionInterface {
      */
     private Result executeResultUpdate(Result cmd) {
 
-        long            id         = cmd.getResultId();
-        int             actionType = cmd.getActionType();
-        Result          result     = sessionData.getDataResult(id);
-        Object[]        pvals      = cmd.getParameterData();
-        Type[]          types      = cmd.metaData.columnTypes;
-        StatementQuery  statement  = (StatementQuery) result.getValueObject();
-        QueryExpression qe         = statement.queryExpression;
-        Table           baseTable  = qe.getBaseTable();
-        int[]           columnMap  = qe.getBaseTableColumnMap();
+        long   id         = cmd.getResultId();
+        int    actionType = cmd.getActionType();
+        Result result     = sessionData.getDataResult(id);
+
+        if (result == null) {
+            return Result.newErrorResult(Error.error(ErrorCode.X_24501));
+        }
+
+        Object[]        pvals     = cmd.getParameterData();
+        Type[]          types     = cmd.metaData.columnTypes;
+        StatementQuery  statement = (StatementQuery) result.getValueObject();
+        QueryExpression qe        = statement.queryExpression;
+        Table           baseTable = qe.getBaseTable();
+        int[]           columnMap = qe.getBaseTableColumnMap();
 
         sessionContext.rowUpdateStatement.setRowActionProperties(actionType,
                 baseTable, types, columnMap);
@@ -1557,7 +1557,7 @@ public class Session implements SessionInterface {
                 }
             }
         } catch (HsqlException e) {
-            return Result.newErrorResult(e, null);
+            return Result.newErrorResult(e);
         }
 
         return Result.updateZeroResult;
@@ -1635,7 +1635,7 @@ public class Session implements SessionInterface {
 
         if (lob == null) {
             return Result.newErrorResult(
-                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID), null);
+                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
         }
 
         switch (operation) {
@@ -1652,7 +1652,7 @@ public class Session implements SessionInterface {
                     return ResultLob.newLobGetBytesResponse(id,
                             cmd.getOffset(), bytes);
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, null);
+                    return Result.newErrorResult(e);
                 }
             }
             case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
@@ -1662,7 +1662,7 @@ public class Session implements SessionInterface {
 
                     return ResultLob.newLobSetBytesResponse(id);
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, null);
+                    return Result.newErrorResult(e);
                 }
             }
             case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
@@ -1673,7 +1673,7 @@ public class Session implements SessionInterface {
                     return ResultLob.newLobGetCharsResponse(id,
                             cmd.getOffset(), chars);
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, null);
+                    return Result.newErrorResult(e);
                 }
             }
             case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
@@ -1685,7 +1685,7 @@ public class Session implements SessionInterface {
 
                     return ResultLob.newLobSetCharsResponse(id);
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, null);
+                    return Result.newErrorResult(e);
                 }
             }
             case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :

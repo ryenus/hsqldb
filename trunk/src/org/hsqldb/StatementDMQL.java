@@ -491,7 +491,7 @@ public abstract class StatementDMQL extends Statement {
         try {
             checkAccessRights(session);
         } catch (HsqlException e) {
-            return Result.newErrorResult(e, null);
+            return Result.newErrorResult(e);
         }
 
         return null;

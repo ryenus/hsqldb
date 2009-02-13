@@ -271,7 +271,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                             session.getId(),
                             session.getDatabase().getDatabaseID());
                     } catch (HsqlException e) {
-                        resultOut = Result.newErrorResult(e, null);
+                        resultOut = Result.newErrorResult(e);
                     }
                 } else {
                     int  dbId      = resultIn.getDatabaseId();

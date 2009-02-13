@@ -139,14 +139,34 @@ public class SessionData {
         int fetchSize = command.getFetchSize();
 
         result.setResultId(session.actionTimestamp);
-        result.setDataResultConcurrency(command.rsConcurrency);
-        result.setDataResultHoldability(command.rsHoldability);
+
+        if (command.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
+            result.setDataResultConcurrency(ResultConstants.CONCUR_READ_ONLY);
+            result.setDataResultHoldability(command.rsHoldability);
+        } else {
+            if (result.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
+                result.setDataResultHoldability(command.rsHoldability);
+
+                // add warning for concurrency conflict
+            } else {
+                if (session.isAutoCommit()) {
+                    result.setDataResultConcurrency(
+                        ResultConstants.CONCUR_READ_ONLY);
+                    result.setDataResultHoldability(
+                        ResultConstants.HOLD_CURSORS_OVER_COMMIT);
+                } else {
+                    result.setDataResultHoldability(
+                        ResultConstants.CLOSE_CURSORS_AT_COMMIT);
+                }
+            }
+        }
+
         result.setDataResultScrollability(command.rsScrollability);
 
         boolean hold = false;
         boolean copy = false;
 
-        if (result.rsConcurrency != ResultConstants.CONCUR_READ_ONLY) {
+        if (result.rsConcurrency == ResultConstants.CONCUR_UPDATABLE) {
             hold = true;
         }
 
