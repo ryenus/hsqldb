@@ -1417,7 +1417,9 @@ class ServerConnection implements Runnable {
             dataInput, firstInt - 8);
             // - 4 for size of firstInt - 2 for major - 2 for minor
         java.util.Map stringPairs = inPacket.readStringPairs();
-        // server.print("String Pairs: " + stringPairs);
+        if (server.isTrace()) {
+            server.print("String Pairs from ODBC client: " + stringPairs);
+        }
         try {
             try {
                 OdbcUtil.validateInputPacketSize(inPacket);
@@ -1441,8 +1443,6 @@ class ServerConnection implements Runnable {
                 // Work-around because ODBC doesn't allow "" for Database name
                 databaseName = "";
             }
-            server.printWithThread("DB: " + databaseName);
-            server.printWithThread("User: " + user);
 
             /* Unencoded/unsalted authentication */
             dataOutput.writeByte('R');
@@ -1499,10 +1499,6 @@ class ServerConnection implements Runnable {
 
         outPacket.writeInt(OdbcUtil.ODBC_AUTH_REQ_OK); //success
         outPacket.xmit('R', dataOutput); // Notify client of success
-
-        if (!server.isSilent()) {
-            server.printWithThread(mThread + ":Connected user '" + user + "'");
-        }
 
         for (int i = 0; i < OdbcUtil.hardcodedParams.length; i++) {
             OdbcUtil.writeParam(OdbcUtil.hardcodedParams[i][0],
