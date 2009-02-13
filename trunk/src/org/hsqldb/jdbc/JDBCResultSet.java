@@ -7332,18 +7332,14 @@ public class JDBCResultSet implements ResultSet {
 
     private void performUpdate() throws SQLException {
 
-        checkUpdatable();
-
         preparedStatement.parameterValues[columnCount] = getCurrent()[columnCount];
-        preparedStatement.resultOut.metaData.columnTypes[columnCount] =
-            resultMetaData.columnTypes[columnCount];
 
         for(int i =0 ; i <columnCount; i++) {
             boolean set = preparedStatement.parameterSet[i] ||
                 preparedStatement.parameterStream[i];
 
             preparedStatement.resultOut.metaData.columnTypes[i] =
-                set ? this.resultMetaData.columnTypes[i] : Type.SQL_ALL_TYPES;
+                set ? preparedStatement.parameterTypes[i] : Type.SQL_ALL_TYPES;
         }
         preparedStatement.resultOut.setActionType(ResultConstants.UPDATE_CURSOR);
         preparedStatement.fetchResult();
@@ -7351,7 +7347,19 @@ public class JDBCResultSet implements ResultSet {
     }
 
     private void performInsert() throws SQLException {
+        checkUpdatable();
 
+        for(int i =0 ; i <columnCount; i++) {
+            boolean set = preparedStatement.parameterSet[i] ||
+                preparedStatement.parameterStream[i];
+
+            if (!set) {
+                // todo - correct exception  messary
+                throw Util.invalidArgument();
+            }
+            preparedStatement.resultOut.metaData.columnTypes[i] =
+                preparedStatement.parameterTypes[i];
+        }
 
 
         preparedStatement.resultOut.setActionType(ResultConstants.INSERT_CURSOR);
@@ -7361,6 +7369,10 @@ public class JDBCResultSet implements ResultSet {
 
     private void performDelete() throws SQLException {
         checkUpdatable();
+
+        preparedStatement.parameterValues[columnCount] = getCurrent()[columnCount];
+        preparedStatement.resultOut.metaData.columnTypes[columnCount] =
+            resultMetaData.columnTypes[columnCount];
 
         preparedStatement.resultOut.setActionType(ResultConstants.DELETE_CURSOR);
         preparedStatement.fetchResult();
