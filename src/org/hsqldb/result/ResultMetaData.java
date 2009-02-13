@@ -94,6 +94,7 @@ public final class ResultMetaData {
         md.columnCount         = types.length;
         md.extendedColumnCount = types.length;
 
+        ArrayUtil.copyArray(types, md.columnTypes, types.length);
         return md;
     }
 

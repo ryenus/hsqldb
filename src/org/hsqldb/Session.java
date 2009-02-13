@@ -1174,7 +1174,7 @@ public class Session implements SessionInterface {
             }
         }
 
-        if (isAutoCommit) {
+        if (isAutoCommit && cs.type != StatementTypes.UPDATE_CURSOR) {
             try {
                 commit(false);
             } catch (Exception e) {
@@ -1358,8 +1358,8 @@ public class Session implements SessionInterface {
         sessionContext.rowUpdateStatement.setRowActionProperties(actionType,
                 baseTable, types, columnMap);
 
-        Result resultOut = sessionContext.rowUpdateStatement.execute(this,
-            pvals);
+        Result resultOut =
+            executeCompiledStatement(sessionContext.rowUpdateStatement, pvals);
 
         return resultOut;
     }
