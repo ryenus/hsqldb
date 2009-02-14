@@ -562,9 +562,9 @@ public class SqlTool {
             return;
         }
 
-        if (debug) {
-            conData.report();
-        }
+        //if (debug) {
+            //conData.report();
+        //}
 
         Connection conn = null;
         try {
