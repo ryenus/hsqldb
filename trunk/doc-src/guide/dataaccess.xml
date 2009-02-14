@@ -51,6 +51,201 @@
   </section>
 
   <section>
+    <title>Cursors And Result Sets</title>
+
+    <para>In SQL, when a query expression (SELECT or similar SQL statement) is
+    executed, an ephemeral table is created. When this table is returned to
+    the application program, it is returned as a result set, which is accessed
+    row-by-row by a cursor. A JDBC <classname>ResultSet</classname> represents
+    an SQL result set and its cursor.</para>
+
+    <para>An SQL statement can executed in two ways. One way is to use the
+    <classname>java.sql.Statement</classname> interface. The Statement object
+    can be reused to execute completely different SQL statements.
+    Alternatively a <classname>PreparedStatment</classname> can be used to
+    execute an SQL statement repeatedly, and the statements can be
+    parameterized. Using either form, if the SQL statement is a query
+    expression, a <classname>ResultSet</classname> is returned.</para>
+
+    <para>An SQL cursor has several attributes. These attributes depend on the
+    query expression. Some of these attributes can be overridden by specifying
+    qualifiers in the SQL statement or by specifying values for the parameters
+    of the JDBC <classname>Statement</classname> or
+    <classname>PreparedStatement</classname>.</para>
+
+    <section>
+      <title>Columns and Rows</title>
+
+      <para>The columns of the rows of the result set are determined by the
+      query expression. The number of columns and the type and name
+      characteristics of each column are known when the query expression is
+      compiled and before its execution. This metadata information remains
+      constant regardless of changes to the contents of the tables used in the
+      query expression. The metadata for the JDBC
+      <classname>ResultSet</classname> is in the form of a
+      <classname>ResultSetMetaData</classname> object. Various methods of the
+      <classname>ResultSetMetaData</classname> interface return different
+      properties of each column of the
+      <classname>ResultSet</classname>.</para>
+
+      <para>A result set may contain 0 or more rows. The rows are determined
+      by the execution of the query expression.</para>
+
+      <para>The <methodname>setMaxRows(int)</methodname> method of JDBC
+      <classname>Statement</classname> allows limiting the number of rows
+      returned by the statement. This limit is conceptually applied after the
+      result has been built, and the excess rows are discarded.</para>
+    </section>
+
+    <section>
+      <title>Navigation</title>
+
+      <para>A cursor is either scrollable or not. Scrollable cursors allow
+      accessing rows by absolute or relative positioning. No-scroll cursors
+      only allow moving the next row. The cursor can be optionally declared
+      with the SQL qualifiers SCROLL, or NO SCROLL. The JDBC statement
+      parameter can be specified as: TYPE_FORWARD_ONLY and
+      TYPE_SCROLL_INSENSITIVE. The JDBC type TYPE_SCROLL_SENSITIVE is not
+      supported by HSQLDB.</para>
+
+      <para>The default is NO SCROLL or TYPE_FORWARD_ONLY.</para>
+
+      <para>When a JDBC <classname>ResultSet</classname> is opened, it is
+      positioned before the first row. Using the
+      <methodname>next()</methodname> method the position is moved to the
+      first row. While the <classname>ResultSet</classname> is positioned on a
+      row, various getter methods can be used to access the columns of the
+      row.</para>
+    </section>
+
+    <section>
+      <title>Updatability</title>
+
+      <para>The result returned by some query expressions is updatable. HSQLDB
+      supports core SQL core updatability features, plus some enhancements
+      from the SQL optional features.</para>
+
+      <para>A query expression is updatable if it is a SELECT from a single
+      underlying base table (or updatable view) either directly or indirectly.
+      A SELECT statement featuring DISTINCT or GROUP BY or FETCH, LIMIT,
+      OFFSET is not updatable. In an updatable query expression, one or more
+      columns are updatable. An updatable column is a column that can be
+      traced directly to the underlying table. Therefore, columns that contain
+      expressions are not updatable. Examples of updatable query expressions
+      are given below:</para>
+
+      <programlisting>SELECT A, B FROM T WHERE C = 5
+SELECT A, B FROM (SELECT * FROM T WHERE C &gt; 10) WHERE ...
+CREATE VIEW V(X,Y) AS SELECT A, B FROM T WHERE ...
+SELECT X FROM V WHERE ...
+</programlisting>
+
+      <para>If a cursor is declared with the SQL qualifier, <literal>FOR
+      UPDATE OF &lt;column name list&gt;</literal>, then only the stated
+      columns in the result set become updatable. If any of the stated columns
+      is not actually updatable, then the cursor declaration will not
+      succeed.</para>
+
+      <para>If the SQL qualifier, FOR UPDATE is used, then all the updatable
+      columns of the result set become updatable.</para>
+
+      <para>If a cursor is declared with FOR READ ONLY, then it is not
+      updatable.</para>
+
+      <para>In HSQLDB, if FOR READ ONLY or FOR UPDATE is not used then all the
+      updatable columns of the result set become updatable. This relaxes the
+      SQL standard rule that in this case limits updatability to only simply
+      updatable SELECT statements (where all columns are updatable).</para>
+
+      <para>In JDBC, CONCUR_READ_ONLY or CONCUR_UPDATABLE can be specified for
+      the <classname>Statement</classname> parameter. CONCUR_UPDATABLE is
+      required if the returning ResultSet is to be updatable. If
+      CONCUR_READ_ONLY, which is the default, is used, then even an updatable
+      ResultSet becomes read-only.</para>
+
+      <para>When a <classname>ResultSet</classname> is updatable, various
+      setter methods can be used to modify the column values. The names of the
+      setter methods begin with "update". After all the updates on a row are
+      done, the <methodname>updateRow()</methodname> method must be called to
+      finalise the row update.</para>
+
+      <para>An updatable <classname>ResultSet</classname> may or may not be
+      insertable-into. In an insertable <classname>ResultSet</classname>, all
+      columns of the result are updatable and any column of the base table
+      that is not in the result must be a generated column or have a default
+      value.</para>
+
+      <para>In the <classname>ResultSet</classname> object, a special
+      pseudo-row, called the insert row, is used to populate values for
+      insertion into the <classname>ResultSet</classname> (and consequently,
+      into the base table). The setter methods must be used on all the
+      columns, followed by a call to
+      <methodname>insertRow()</methodname>.</para>
+
+      <para>Individual rows from all updatable result sets can be deleted one
+      at a time. The <methodname>deleteRow()</methodname> is called when the
+      <classname>ResultSet</classname> is positioned on a row.</para>
+
+      <para>While using an updatabale ResultSet to modify data, it is
+      recommended not to change the same data using more than another
+      ResultSet and not to execute SQL data change statements that modify the
+      same data.</para>
+    </section>
+
+    <section>
+      <title>Sensitivity</title>
+
+      <para>The sensitivity of the cursor relates to visibility of changes
+      made to the data by the same transaction but without using the given
+      cursor. While the result set is open, the same transaction may use
+      statements such as INSERT, DELETE, UPDATE and change the data of the
+      tables from which the result set data is derived. A cursor is SENSITIVE
+      if it reflects those changes. It is INSENSITIVE if it ignores such
+      changes. It is ASENSITIVE if behaviour is implementation
+      dependent.</para>
+
+      <para>The SQL default is ASENSITIVE, i.e., implantation
+      dependent.</para>
+
+      <para>In HSQLDB all cursors are INSENSITIVE. They do not reflect changes
+      to the data made by other transactions.</para>
+    </section>
+
+    <section>
+      <title>Holdability</title>
+
+      <para>A cursor is holdable if the result set is not automatically closed
+      when the current transaction is committed. Holdability can be specified
+      in the cursor declaration using the SQL qualifiers WITH HOLD or WITHOUT
+      HOLD.</para>
+
+      <para>In JDBC, hodability is specified either of the following values
+      for the Statement parameter: HOLD_CURSORS_OVER_COMMIT, or
+      CLOSE_CURSORS_AT_COMMIT.</para>
+
+      <para>The SQL default is WITHOUT HOLD.</para>
+
+      <para>The JDBC default for HSQLDB result sets is WITH HOLD for read-only
+      result sets and WITHOUT HOLD for others.</para>
+
+      <para>If the holdability of a <classname>ResultSet</classname> is
+      specified in a conflicting manner in the SQL statement and the JDBC
+      <classname>Statement</classname> object, the JDBC setting takes
+      precedence.</para>
+    </section>
+
+    <section>
+      <title>Autocommit</title>
+
+      <para>The autocommit property of a connection is a feature of JDBC and
+      ODBC and is not part of the SQL Standard. In autocommit mode, all
+      transactional statements are followed by an implicit commit. In
+      autocommit mode, all <classname>ResultSet</classname> objects are
+      read-only and holdable.</para>
+    </section>
+  </section>
+
+  <section>
     <title>Syntax Elements</title>
 
     <para>The syntax elements that can be used in data access and data change
@@ -167,7 +362,7 @@ U&amp;'Unicode string'
       <simpara><literal>&lt;hexit&gt; ::= &lt;digit&gt; | A | B | C | D | E |
       F | a | b | c | d | e | f</literal></simpara>
 
-      <simpara>The type of a binary literal is BINARY. The octet length of
+      <simpara>The type of a binary literal is BINARY. The octect length of
       the binary literal is the length of the type. Case-insensitive
       hexadecimal charaters are used in the binary string. Each pair of
       characters in the literal represents a byte in the binary string. Long
@@ -1426,7 +1621,7 @@ CAST ('1987-04-21' AS DATE) = DATE '1992-04-21'
     </section>
 
     <section>
-      <title></title>
+      <title>Other Syntax Elements</title>
 
       <indexterm significance="preferred" type="sql">
         <primary>search condition</primary>
