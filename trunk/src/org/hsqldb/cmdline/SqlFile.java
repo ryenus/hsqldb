@@ -1377,7 +1377,7 @@ public class SqlFile {
                             // dsvColSplitter.  Going with former, since the
                             // latter should not need to be set for eXporting
                             // (only importing).
-                                for (int i = 0; i < skipColsArray.length; i++) {
+                            for (int i = 0; i < skipColsArray.length; i++) {
                                 skipCols.add(skipColsArray[i].trim().toLowerCase());
                             }
                             ResultSetMetaData rsmd = rs.getMetaData();
