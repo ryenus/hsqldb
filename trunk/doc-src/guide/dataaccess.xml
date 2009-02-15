@@ -122,8 +122,8 @@
       <title>Updatability</title>
 
       <para>The result returned by some query expressions is updatable. HSQLDB
-      supports core SQL core updatability features, plus some enhancements
-      from the SQL optional features.</para>
+      supports core SQL updatability features, plus some enhancements from the
+      SQL optional features.</para>
 
       <para>A query expression is updatable if it is a SELECT from a single
       underlying base table (or updatable view) either directly or indirectly.
@@ -188,9 +188,8 @@ SELECT X FROM V WHERE Y = 5
       <classname>ResultSet</classname> is positioned on a row.</para>
 
       <para>While using an updatabale ResultSet to modify data, it is
-      recommended not to change the same data using more than another
-      ResultSet and not to execute SQL data change statements that modify the
-      same data.</para>
+      recommended not to change the same data using another ResultSet and not
+      to execute SQL data change statements that modify the same data.</para>
     </section>
 
     <section>
@@ -199,17 +198,16 @@ SELECT X FROM V WHERE Y = 5
       <para>The sensitivity of the cursor relates to visibility of changes
       made to the data by the same transaction but without using the given
       cursor. While the result set is open, the same transaction may use
-      statements such as INSERT, DELETE, UPDATE and change the data of the
-      tables from which the result set data is derived. A cursor is SENSITIVE
-      if it reflects those changes. It is INSENSITIVE if it ignores such
-      changes. It is ASENSITIVE if behaviour is implementation
-      dependent.</para>
+      statements such as INSERT or UPDATE, and change the data of the tables
+      from which the result set data is derived. A cursor is SENSITIVE if it
+      reflects those changes. It is INSENSITIVE if it ignores such changes. It
+      is ASENSITIVE if behaviour is implementation dependent.</para>
 
       <para>The SQL default is ASENSITIVE, i.e., implantation
       dependent.</para>
 
       <para>In HSQLDB all cursors are INSENSITIVE. They do not reflect changes
-      to the data made by other transactions.</para>
+      to the data made by other statements.</para>
     </section>
 
     <section>
@@ -220,8 +218,8 @@ SELECT X FROM V WHERE Y = 5
       in the cursor declaration using the SQL qualifiers WITH HOLD or WITHOUT
       HOLD.</para>
 
-      <para>In JDBC, hodability is specified either of the following values
-      for the Statement parameter: HOLD_CURSORS_OVER_COMMIT, or
+      <para>In JDBC, hodability is specified using either of the following
+      values for the Statement parameter: HOLD_CURSORS_OVER_COMMIT, or
       CLOSE_CURSORS_AT_COMMIT.</para>
 
       <para>The SQL default is WITHOUT HOLD.</para>
@@ -2221,7 +2219,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
     <simpara>The rows that are inserted into the table are checked against all
     the constraints that have been declared on the table. The whole INSERT
     operation fails if any row fails to inserted due to constraint violation.
-    Expamples </simpara>
+    Expamples</simpara>
 
     <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
 INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */

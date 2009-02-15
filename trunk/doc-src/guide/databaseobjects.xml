@@ -40,69 +40,78 @@
     </legalnotice>
   </info>
 
-  <para>The persistent elements of an SQL environment are database objects.
-  The database consists of catalogs plus authorizations. In HyperSQL, there is
-  only one catalog per database.</para>
+  <section>
+    <title>Overview</title>
 
-  <para>A catalog contains only schemas while schemas contain database objects
-  that contain data or govern the data. Separate from catalogs, there are USER
-  and ROLE objects, collectively called <emphasis>authorizations</emphasis>.
-  Each AUTHORIZATION has some access rights on some of the schemas or the
-  objects they contain.</para>
+    <para>The persistent elements of an SQL environment are database objects.
+    The database consists of catalogs plus authorizations. In HyperSQL, there
+    is only one catalog per database.</para>
 
-  <para>Each catalog contains a special schema called INFORMATION_SCHEMA. This
-  schema is read-only and contains some views and other schema objects. The
-  views contain lists of all the database objects that exist within the
-  database.</para>
+    <para>A catalog contains only schemas while schemas contain database
+    objects that contain data or govern the data. Separate from catalogs,
+    there are USER and ROLE objects, collectively called
+    <emphasis>authorizations</emphasis>. Each AUTHORIZATION has some access
+    rights on some of the schemas or the objects they contain.</para>
 
-  <para>Each database object has a name. A name is an identifier and is unique
-  within its name-space.</para>
+    <para>Each catalog contains a special schema called INFORMATION_SCHEMA.
+    This schema is read-only and contains some views and other schema objects.
+    The views contain lists of all the database objects that exist within the
+    database.</para>
 
-  <indexterm significance="preferred" type="sql">
-    <primary>identifier definition</primary>
-  </indexterm>
+    <para>Each database object has a name. A name is an identifier and is
+    unique within its name-space.</para>
 
-  <simpara><emphasis>definition of identifier</emphasis></simpara>
+    <indexterm significance="preferred" type="sql">
+      <primary>identifier definition</primary>
+    </indexterm>
 
-  <simpara><literal>&lt;identifier&gt; ::= &lt;regular identifier&gt; |
-  &lt;delimited identifier&gt; | &lt;SQL language identifier&gt;
-  </literal></simpara>
+    <simpara><emphasis role="bold">identifier</emphasis></simpara>
 
-  <simpara><literal>&lt;delimited identifier&gt; ::= &lt;double quote&gt;
-  &lt;character sequence&gt; &lt;double quote&gt;</literal></simpara>
+    <simpara><emphasis>definition of identifier</emphasis></simpara>
 
-  <simpara><literal>&lt;regular identifier&gt; ::= &lt;special character
-  sequence&gt;</literal></simpara>
+    <simpara><literal>&lt;identifier&gt; ::= &lt;regular identifier&gt; |
+    &lt;delimited identifier&gt; | &lt;SQL language identifier&gt;
+    </literal></simpara>
 
-  <simpara><literal>&lt;SQL language identifier&gt; ::= &lt;special character
-  sequence&gt;</literal></simpara>
+    <simpara><literal>&lt;delimited identifier&gt; ::= &lt;double quote&gt;
+    &lt;character sequence&gt; &lt;double quote&gt;</literal></simpara>
 
-  <simpara>A <literal>&lt;delimited identifier&gt;</literal> is a sequence of
-  characters enclosed with double-quote symbols. The character sequence length
-  must be between 1 and 128 characters. All characters are allowed in the
-  character sequence.</simpara>
+    <simpara><literal>&lt;regular identifier&gt; ::= &lt;special character
+    sequence&gt;</literal></simpara>
 
-  <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
-  sequence of characters. It consists of letters, digits and the underscore
-  characters. It must begin with a letter.</simpara>
+    <simpara><literal>&lt;SQL language identifier&gt; ::= &lt;special
+    character sequence&gt;</literal></simpara>
 
-  <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar to
-  <literal>&lt;regular identifier&gt;</literal> but the letters can range only
-  from A-Z in the ASCII character set. This type of identifier is used for
-  names of CHARACTER SET objects.</simpara>
+    <simpara>A <literal>&lt;delimited identifier&gt;</literal> is a sequence
+    of characters enclosed with double-quote symbols. All characters are
+    allowed in the character sequence.</simpara>
 
-  <simpara>If the character sequence of a delimited identifier is the same as
-  an undelimited identifier, it represents the same identifier. For example
-  "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
-  identifier&gt;</literal> the case-normal form is considered for comparison.
-  This form consists of the upper-case of equivalent of all the
-  letters.</simpara>
+    <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
+    sequence of characters. It consists of letters, digits and the underscore
+    characters. It must begin with a letter.</simpara>
 
-  <simpara>A reserved word is one that is used by the SQL Standard for special
-  purposes. It is similar to a <literal>&lt;regular identifier&gt;</literal>
-  but it cannot be used as an identifier for user objects. If a reserved word
-  is enclosed in double quote characters, it becomes a quoted identifier and
-  can be used for database objects.</simpara>
+    <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar
+    to <literal>&lt;regular identifier&gt;</literal> but the letters can range
+    only from A-Z in the ASCII character set. This type of identifier is used
+    for names of CHARACTER SET objects.</simpara>
+
+    <simpara>If the character sequence of a delimited identifier is the same
+    as an undelimited identifier, it represents the same identifier. For
+    example "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
+    identifier&gt;</literal> the case-normal form is considered for
+    comparison. This form consists of the upper-case of equivalent of all the
+    letters.</simpara>
+
+    <simpara>The character sequence length of all identifiers must be between
+    1 and 128 characters.</simpara>
+
+    <simpara>A reserved word is one that is used by the SQL Standard for
+    special purposes. It is similar to a <literal>&lt;regular
+    identifier&gt;</literal> but it cannot be used as an identifier for user
+    objects. If a reserved word is enclosed in double quote characters, it
+    becomes a quoted identifier and can be used for database
+    objects.</simpara>
+  </section>
 
   <section>
     <title>Authorizations and Access Control</title>
@@ -145,6 +154,9 @@
     <indexterm significance="preferred" type="sql">
       <primary>AUTHORIZATION IDENTIFIER</primary>
     </indexterm>
+
+    <simpara><emphasis role="bold">authorization
+    identifier</emphasis></simpara>
 
     <simpara><emphasis>authorization identifier</emphasis></simpara>
 
@@ -330,8 +342,6 @@
       assigned to other roles or to users. The same statements are also used
       in a different form to assign privileges on schema objects to users and
       roles.</para>
-
-      <!-- From Foundation chapt. 12 -->
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE USER</primary>
@@ -1116,8 +1126,6 @@
 
     <section>
       <title>Statements for Schema Definition and Manipulation</title>
-
-      <!-- From Foundation chapt. 11 -->
 
       <indexterm significance="preferred" type="sql">
         <primary>CASCADE or RESTRICT</primary>
