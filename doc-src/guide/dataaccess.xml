@@ -132,12 +132,13 @@
       columns are updatable. An updatable column is a column that can be
       traced directly to the underlying table. Therefore, columns that contain
       expressions are not updatable. Examples of updatable query expressions
-      are given below:</para>
+      are given below. The view V is updatable because its query expression is
+      updatable. The SELECT statement from this view is also updatable:</para>
 
-      <programlisting>SELECT A, B FROM T WHERE C = 5
-SELECT A, B FROM (SELECT * FROM T WHERE C &gt; 10) WHERE ...
-CREATE VIEW V(X,Y) AS SELECT A, B FROM T WHERE ...
-SELECT X FROM V WHERE ...
+      <programlisting>SELECT A, B FROM T WHERE C &gt; 5
+SELECT A, B FROM (SELECT * FROM T WHERE C &gt; 10) AS TT WHERE TT.B &lt;10
+CREATE VIEW V(X,Y) AS SELECT A, B FROM T WHERE C &gt; 0 AND B &lt; 10
+SELECT X FROM V WHERE Y = 5
 </programlisting>
 
       <para>If a cursor is declared with the SQL qualifier, <literal>FOR
@@ -897,7 +898,7 @@ INTERVAL -'08:08' MINUTE TO SECOND
 CAST ('   199  ' AS INTEGER) = 199
 CAST ('tRue ' AS BOOLEAN) = TRUE
 CAST (INTERVAL '2' DAY AS INTEGER) = 2
-CAST ('1987-04-21' AS DATE) = DATE '1992-04-21'
+CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -1267,7 +1268,7 @@ CAST ('1987-04-21' AS DATE) = DATE '1992-04-21'
 ((1, 2, 3, 4) = (1, 2, 3, 5)) IS FALSE
 ((1, 2, 3, 4) &lt; (1, 2, 3, 4)) IS FALSE
 ((1, 2, 3, 4) &lt; (1, 2, 3, 5)) IS TRUE
-((NULL, 1, NULL) == (NULL, 1, NULL)) IS UNKNOWN  
+((NULL, 1, NULL) = (NULL, 1, NULL)) IS UNKNOWN  
 ((NULL, 1, NULL) = (NULL, 2, NULL)) IS FALSE  
 ((NULL, 1, NULL) &lt;&gt; (NULL, 2, NULL)) IS TRUE  
 ((NULL, 1, 2) &lt;all operators&gt; (NULL, 1, 2)) IS UNKNOWN
@@ -2128,8 +2129,13 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <simpara>Delete rows of a table. The search condition is a
     <literal>&lt;boolean value expression&gt;</literal> that is evaluated for
     each row of the table. If the condition is true, the row is deleted. If
-    the condition is not specified, all the rows of the table are
-    deleted.</simpara>
+    the condition is not specified, all the rows of the table are deleted. In
+    the second example below the rows that have the maximum value for column A
+    are deleted;</simpara>
+
+    <programlisting>DELETE FROM T WHERE C &gt; 5
+DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
+</programlisting>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRUNCATE TABLE</primary>
@@ -2146,13 +2152,13 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <simpara><literal>&lt;identity column restart option&gt; ::= CONTINUE
     IDENTITY | RESTART IDENTITY</literal></simpara>
 
-    <simpara>Delete all rows of a base table without causing any triggered
-    action. This statement can only be used on base tables (not views). If the
-    table is referenced in a FOREIGN KEY constraint, the statement causes an
-    exception. The default for <literal>&lt;identity column restart
-    option&gt;</literal> is CONTINUE IDENTITY. This means no change to the
-    IDENTITY sequence of the table. If RESTART IDENTITY is specified, then the
-    sequence is reset to its start value.</simpara>
+    <simpara>Delete all rows of a base table without firing its triggers. This
+    statement can only be used on base tables (not views). If the table is
+    referenced in a FOREIGN KEY constraint, the statement causes an exception.
+    The default for <literal>&lt;identity column restart option&gt;</literal>
+    is <literal>CONTINUE IDENTITY</literal>. This means no change to the
+    IDENTITY sequence of the table. If <literal>RESTART IDENTITY</literal> is
+    specified, then the sequence is reset to its start value.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>INSERT INTO</primary>
@@ -2162,11 +2168,8 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
 
     <simpara><emphasis>insert statement</emphasis></simpara>
 
-    <simpara><literal>&lt;insert statement&gt; ::= INSERT INTO &lt;insertion
-    target&gt; &lt;insert columns and source&gt;</literal></simpara>
-
-    <simpara><literal>&lt;insertion target&gt; ::= &lt;table
-    name&gt;</literal></simpara>
+    <simpara><literal>&lt;insert statement&gt; ::= INSERT INTO &lt;target
+    table&gt; &lt;insert columns and source&gt;</literal></simpara>
 
     <simpara><literal>&lt;insert columns and source&gt; ::= &lt;from
     subquery&gt; | &lt;from constructor&gt; | &lt;from
@@ -2189,7 +2192,41 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <simpara><literal>&lt;insert column list&gt; ::= &lt;column name
     list&gt;</literal></simpara>
 
-    <simpara>Create new rows in a table.</simpara>
+    <simpara>Insert new rows in a table. An INSERT statement inserts one or
+    more rows into the table.</simpara>
+
+    <simpara>The special form, <literal>INSERT INTO &lt;target table&gt;
+    DEFAULT VALUES</literal> can be used with tables which have a default
+    value for each column.</simpara>
+
+    <simpara>With the other forms of INSERT, the optional <literal>(&lt;insert
+    column list&gt;)</literal> specifies to which columns of the table the new
+    values are assgined.</simpara>
+
+    <simpara>In one form, the inserted values are from a <literal>&lt;query
+    expression&gt;</literal> and all the rows that are returned by the
+    <literal>&lt;query expression&gt;</literal> are inserted into the table.
+    If the <literal>&lt;query expression&gt;</literal> returns no rows,
+    nothing is inserted.</simpara>
+
+    <simpara>In the other form, a comma separated list of values called
+    <literal>&lt;contextually typed table value constructor&gt;</literal> is
+    used to insert one or more rows into the table. This list is contextually
+    typed, because the keywords NULL and DEFAULT can be used for the values
+    that are assigned to each column of the table. The keyword DEFAULT means
+    the default value of the column and can be used only if the target column
+    has a default value or is an IDENTITY or GENERATED column of the
+    table.</simpara>
+
+    <simpara>The rows that are inserted into the table are checked against all
+    the constraints that have been declared on the table. The whole INSERT
+    operation fails if any row fails to inserted due to constraint violation.
+    Expamples </simpara>
+
+    <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
+INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
+INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inserted into table T */
+</programlisting>
 
     <indexterm significance="preferred" type="sql">
       <primary>MERGE INTO</primary>
@@ -2213,13 +2250,11 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <simpara><literal>&lt;merge when clause&gt; ::= &lt;merge when matched
     clause&gt; | &lt;merge when not matched clause&gt;</literal></simpara>
 
-    <simpara><literal>&lt;merge when matched clause&gt; ::= WHEN MATCHED [ AND
-    &lt;search condition&gt; ] THEN &lt;merge update
-    specification&gt;</literal></simpara>
+    <simpara><literal>&lt;merge when matched clause&gt; ::= WHEN MATCHED THEN
+    &lt;merge update specification&gt;</literal></simpara>
 
     <simpara><literal>&lt;merge when not matched clause&gt; ::= WHEN NOT
-    MATCHED [ AND &lt;search condition&gt; ] THEN &lt;merge insert
-    specification&gt;</literal></simpara>
+    MATCHED THEN &lt;merge insert specification&gt;</literal></simpara>
 
     <simpara><literal>&lt;merge update specification&gt; ::= UPDATE SET
     &lt;set clause list&gt;</literal></simpara>
@@ -2236,8 +2271,26 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     expression&gt; | &lt;contextually typed value
     specification&gt;</literal></simpara>
 
-    <simpara>Conditionally update rows of a table, or insert new rows into a
-    table, or both.</simpara>
+    <simpara>Update rows, or insert new rows into the <literal>&lt;target
+    table&gt;</literal>. The MERGE command uses a second table, specified by
+    <literal>&lt;table reference&gt;</literal>, to determine the rows to be
+    updated or inserted. It is possible to use the command only to update rows
+    or to insert rows, but usually both update and insert are
+    intended.</simpara>
+
+    <simpara>The <literal>&lt;search condition&gt;</literal> matches a row of
+    the <literal>&lt;table reference&gt;</literal> with each row of the
+    <literal>&lt;target table&gt;</literal>. If two rows match then the UPDATE
+    clause is used to update the matching rows of the target table. Those rows
+    of <literal>&lt;table reference&gt;</literal> that have no matching rows
+    are then used to insert new rows into the <literal>&lt;target
+    table&gt;</literal>. Therefore, a MERGE statement can update between 0 and
+    all the rows of the <literal>&lt;target table&gt;</literal> and can insert
+    between 0 an the number of the rows in <literal>&lt;table
+    reference&gt;</literal> into the <literal>&lt;target
+    table&gt;</literal>.</simpara>
+
+    <simpara></simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>UPDATE</primary>
@@ -2251,7 +2304,29 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     table&gt; [ [ AS ] &lt;correlation name&gt; ] SET &lt;set clause list&gt;
     [ WHERE &lt;search condition&gt; ]</literal></simpara>
 
-    <simpara>Update rows of a table.</simpara>
+    <simpara>Update rows of a table. An UPDATE statement selects rows from the
+    <literal>&lt;target table&gt;</literal> using an implicit SELECT statement
+    formed in the following manner:</simpara>
+
+    <simpara><literal>SELECT * FROM &lt;target table&gt; [ [ AS ]
+    &lt;correlation name&gt; ] [ WHERE &lt;search condition&gt;
+    ]</literal></simpara>
+
+    <simpara>The it applies the <literal>SET &lt;set clause list&gt;</literal>
+    expression to each selected row.</simpara>
+
+    <simpara>If the implicit SELECT returns no rows, no update takes place.
+    When used in JDBC, the number of rows returned by the implicit SELECT is
+    returned as the update count.</simpara>
+
+    <simpara>The rows that are updated are checked against all the constraints
+    that have been declared on the table. The whole UPDATE operation fails if
+    any row violates any constraint.</simpara>
+
+    <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
+INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
+INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* 3 rows are inserted */
+</programlisting>
 
     <indexterm significance="preferred" type="sql">
       <primary>set clause in UPDATE and MERGE statements</primary>
@@ -2284,6 +2359,20 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <simpara><literal>&lt;update source&gt; ::= &lt;value expression&gt; |
     &lt;contextually typed value specification&gt;</literal></simpara>
 
-    <simpara>Specify a list of updates.</simpara>
+    <simpara>Specify a list of assignments. This is used in UPDATE, MERGE and
+    SET statements to assign values to a scalar or row target.</simpara>
+
+    <simpara>In the examples given below, UPDATE statements with single and
+    multiple assignments are shown. Note in the third example, a SELECT
+    statement is used to provide the update values for columns A and C, while
+    the update value for column B is given separately. The SELECT statement
+    must return exactly one row . In this example the SELECT statement refers
+    to the existing value for column C in its search condition.</simpara>
+
+    <programlisting>UPDATE T SET A = 5 WHERE ...
+UPDATE T SET (A, B) = (1, NULL) WHERE ...
+UPDATE T SET (A, C) = (SELECT X, Y FROM U WHERE Z = C), B = 10 WHERE ...</programlisting>
+
+    <simpara></simpara>
   </section>
 </chapter>
