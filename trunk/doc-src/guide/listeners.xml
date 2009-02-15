@@ -364,13 +364,13 @@
     <filename>server.properties</filename> file is given below:</para>
 
     <programlisting>    server.database.0=file:/opt/db/accounts
-  server.dbname.0=accounts
+    server.dbname.0=accounts
 
-  server.database.1=file:/opt/db/mydb
-  server.dbname.1=enrollments
+    server.database.1=file:/opt/db/mydb
+    server.dbname.1=enrollments
 
-  server.database.2=mem:adatabase
-  server.dbname.2=quickdb</programlisting>
+    server.database.2=mem:adatabase
+    server.dbname.2=quickdb</programlisting>
 
     <para>In the above example, the <filename>server.properties</filename>
     file indicates that the server provides access to 3 different databases.
@@ -406,14 +406,14 @@
     server.properties file example.</para>
 
     <programlisting>    HsqlProperties p = new HsqlProperties();
-  p.setProperty("server.database.0","file:/opt/db/accounts");
-  p.setProperty("server.dbname.0","an_alias");
-  // set up the rest of properties
-  Server server = new Server();
-  server.setProperties(p);
-  server.setLogWriter(null); // can use custom writer
-  server.setErrWriter(null); // can use custom writer
-  server.start();
+    p.setProperty("server.database.0","file:/opt/db/accounts");
+    p.setProperty("server.dbname.0","an_alias");
+    // set up the rest of properties
+    Server server = new Server();
+    server.setProperties(p);
+    server.setLogWriter(null); // can use custom writer
+    server.setErrWriter(null); // can use custom writer
+    server.start();
 </programlisting>
 
     <para>The Server object has several alternative methods for setting
@@ -710,9 +710,9 @@
 
           <screen>    openssl pkcs8 -topk8 -outform DER -in Xpvk.pem -inform PEM -out Xpvk.pk8 -nocrypt
 
-  openssl x509 -in Xcert.pem -out Xcert.der -outform DER
+    openssl x509 -in Xcert.pem -out Xcert.der -outform DER
 
-  java DERImport new.keystore NEWALIAS Xpvk.pk8 Xcert.der</screen>
+    java DERImport new.keystore NEWALIAS Xpvk.pk8 Xcert.der</screen>
         </example>
 
         <important>
