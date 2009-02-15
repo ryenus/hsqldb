@@ -69,6 +69,8 @@ public class QueryExpression {
                             EXCEPT_ALL    = 5,
                             EXCEPT        = 6,
                             UNION_TERM    = 7;
+
+    //
     int                     columnCount;
     private QueryExpression leftQueryExpression;
     private QueryExpression rightQueryExpression;
@@ -111,9 +113,6 @@ public class QueryExpression {
     //
     CompileContext compileContext;
 
-    //
-//    boolean isUpdatable;
-//    boolean isInsertable;
     QueryExpression(CompileContext compileContext) {
         this.compileContext = compileContext;
         sortAndSlice        = SortAndSlice.noSort;

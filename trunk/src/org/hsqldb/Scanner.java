@@ -1780,6 +1780,37 @@ public class Scanner {
         return data;
     }
 
+    public BinaryData convertToBit(String s) throws HsqlException {
+
+        BitMap map      = new BitMap(32);
+        int    bitIndex = map.size();
+
+        reset(s);
+        resetState();
+        byteOutputStream.reset(byteBuffer);
+
+        for (; currentPosition < limit; currentPosition++) {
+            int c = sqlString.charAt(currentPosition);
+
+            if (c == '0') {
+                bitIndex++;
+            } else if (c == '1') {
+                map.set(bitIndex);
+
+                bitIndex++;
+            } else {
+                token.tokenType   = Tokens.X_MALFORMED_BIT_STRING;
+                token.isMalformed = true;
+
+                throw Error.error(ErrorCode.X_22018);
+            }
+        }
+
+        map.setSize(bitIndex);
+
+        return new BinaryData(map.getBytes(), map.size());
+    }
+
     // should perform range checks etc.
     public Object convertToDatetimeInterval(String s,
             DTIType type) throws HsqlException {
