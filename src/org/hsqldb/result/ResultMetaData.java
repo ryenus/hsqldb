@@ -95,6 +95,7 @@ public final class ResultMetaData {
         md.extendedColumnCount = types.length;
 
         ArrayUtil.copyArray(types, md.columnTypes, types.length);
+
         return md;
     }
 
@@ -191,6 +192,10 @@ public final class ResultMetaData {
 
     public int getExtendedColumnCount() {
         return extendedColumnCount;
+    }
+
+    public void resetExtendedColumnCount() {
+        extendedColumnCount = columnCount;
     }
 
     public Type[] getParameterTypes() {

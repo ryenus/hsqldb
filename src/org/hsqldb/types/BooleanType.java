@@ -214,7 +214,7 @@ public final class BooleanType extends Type {
         if (a instanceof Boolean) {
             return a;
         } else if (a instanceof String) {
-            convertToType(session, a, Type.SQL_VARCHAR);
+            return convertToType(session, a, Type.SQL_VARCHAR);
         }
 
         throw Error.error(ErrorCode.X_42561);
