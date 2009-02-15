@@ -50,8 +50,8 @@ import org.hsqldb.jdbc.testbase.BaseTestCase;
 public class JDBCResultSetTest extends BaseTestCase {
 
     public static final int DEFAULT_RESULT_SET_CLOSED_ERROR_CODE = -ErrorCode.X_24501;
-    public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE = -ErrorCode.NO_DATA_IS_AVAILABLE;
-    public static final int DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE = -ErrorCode.NO_DATA_IS_AVAILABLE;
+    public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE = -ErrorCode.RS_BEFORE_FIRST;
+    public static final int DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE = -ErrorCode.RS_AFTER_LAST;
     private List<ResultSet> m_resultSetList;
 
     public JDBCResultSetTest(String testName) {
@@ -210,6 +210,7 @@ public class JDBCResultSetTest extends BaseTestCase {
     protected ResultSet newJdbcResultSet(int type, int concur) throws Exception {
 
         JDBCConnection conn = (JDBCConnection) newConnection();
+        conn.setAutoCommit(false);
         JDBCStatement stmt = (JDBCStatement) conn.createStatement(type, concur);
 
         ResultSet rs = stmt.executeQuery(m_select);
@@ -1810,7 +1811,7 @@ public class JDBCResultSetTest extends BaseTestCase {
                 newFOROJdbcResultSet().getConcurrency());
 
         assertEquals(
-                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CONCUR_UPDATABLE,
                 newJdbcResultSet(
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_UPDATABLE).getConcurrency());
@@ -2070,7 +2071,6 @@ public class JDBCResultSetTest extends BaseTestCase {
             rs.next();
 
             rs.updateBigDecimal("decimal_column", new BigDecimal("1.0"));
-            rs.updateBigDecimal("numeric_column", new BigDecimal("1.0"));
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -2113,7 +2113,6 @@ public class JDBCResultSetTest extends BaseTestCase {
             rs.updateString("float_column", "1.7976931348623157E308");
             rs.updateString("double_column", "1.7976931348623157E308");
             rs.updateString("decimal_column", "9223372036854775807000.1234567890");
-            rs.updateString("numeric_column", "9223372036854775807000.1234567890");
         } catch (Exception e) {
             fail(e.getMessage());
         }
