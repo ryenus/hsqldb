@@ -385,7 +385,7 @@
         <programlisting>    try {
         Class.forName("org.hsqldb.jdbc.JDBCDriver" );
     } catch (Exception e) {
-        System.out.println("ERROR: failed to load HSQLDB JDBC driver.");
+        System.err.println("ERROR: failed to load HSQLDB JDBC driver.");
         e.printStackTrace();
         return;
     }
@@ -567,7 +567,8 @@
         <title>specifying a connection property to shutdown the database when
         the last connection is closed</title>
 
-        <programlisting>Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
+      <programlisting>    Connection c = DriverManager.getConnection(
+            "jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
       </example>This feature is useful for running tests, where it may not be
     practical to shutdown the database after each test. But it is not
     recommended for application programs.</para>
@@ -594,7 +595,8 @@
         <title>specifying a connection property to disallow creating a new
         database</title>
 
-        <programlisting>Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
+        <programlisting>    Connection c = DriverManager.getConnection(
+            "jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
       </example></para>
   </section>
 </chapter>
