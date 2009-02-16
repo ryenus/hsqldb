@@ -275,10 +275,13 @@ public class CharacterType extends Type {
                  * but is disallowed in SQL:2003
                  * need to make dependent on a database property
                  */
+/*
                 int length = other.displaySize();
 
                 return getCharacterType(Types.SQL_VARCHAR,
                                         length).getAggregateType(this);
+*/
+                throw Error.error(ErrorCode.X_42562);
         }
     }
 

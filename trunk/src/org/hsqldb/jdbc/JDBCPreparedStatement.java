@@ -3857,6 +3857,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 }
+                try {
+                    if (o instanceof String) {
+
+                        o = outType.convertToDefaultType(connection.
+                            sessionProxy, o);
+                        break;
+                    }
+                } catch (HsqlException e) {
+                    Util.throwError(e);
+                }
                 Util.throwError(Error.error(ErrorCode.X_42565));
 
                 break;
@@ -4130,6 +4140,15 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (resultIn.isError()) {
             throw Util.sqlException(resultIn);
         }
+    }
+
+    boolean isAnyParameterSet() {
+        for (int i = 0; i < parameterValues.length ; i++) {
+            if (parameterSet[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** The parameter values for the next non-batch execution. */
