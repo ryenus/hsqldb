@@ -189,7 +189,7 @@ public class StatementSimple extends Statement {
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, "");
+                    return Result.newErrorResult(e);
                 }
             }
             default :
@@ -297,7 +297,7 @@ public class StatementSimple extends Statement {
                                                            : label
                                                            .name, value);
         } catch (HsqlException e) {
-            return Result.newErrorResult(e, "");
+            return Result.newErrorResult(e);
         }
     }
 }

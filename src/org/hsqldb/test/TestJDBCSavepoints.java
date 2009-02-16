@@ -41,6 +41,7 @@ import java.sql.Statement;
 import org.hsqldb.server.WebServer;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
+import org.hsqldb.server.Server;
 
 /**
  * Tests JDBC java.sql.Savepoint support in context of new engine SQL-savepoint
@@ -56,8 +57,8 @@ public class TestJDBCSavepoints extends TestCase {
     // String serverProps = "database.0=mem:test;dbname.0=;silent=false;trace=true" // debugging
     String serverProps = "database.0=mem:test;dbname.0=;silent=true;trace=false";
 
-    //String     url         = "jdbc:hsqldb:hsql://localhost";
-    String     url = "jdbc:hsqldb:http://localhost";
+    String     url         = "jdbc:hsqldb:hsql://localhost";
+    // String     url = "jdbc:hsqldb:http://localhost";
     String     user;
     String     password;
     Statement  stmt;
@@ -68,7 +69,7 @@ public class TestJDBCSavepoints extends TestCase {
     // this exercises everything:
     // the engine and JDBC savepoint support,
     // the new HSQL protocol and tunneling HSQL protocol over HTTP
-    WebServer server;
+    Server server;
 
     public TestJDBCSavepoints(String name) {
         super(name);
@@ -82,11 +83,10 @@ public class TestJDBCSavepoints extends TestCase {
         conn1    = null;
         conn2    = null;
 
-        // server   = new Server();
-        server = new WebServer();
+        server   = new Server();
+//        server = new WebServer();
 
         server.putPropertiesFromString(serverProps);
-        server.setLogWriter(null);
         server.start();
 
         try {

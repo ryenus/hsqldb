@@ -158,10 +158,12 @@ public class StatementInsert extends StatementDMQL {
                                 newDataNavigator);
 
         if (resultOut == null) {
-            resultOut = Result.getUpdateCountResult(newDataNavigator.getSize());
+            resultOut =
+                Result.getUpdateCountResult(newDataNavigator.getSize());
         } else {
             resultOut.setUpdateCount(newDataNavigator.getSize());
         }
+
         newDataNavigator.clear();
 
         return resultOut;
@@ -204,8 +206,9 @@ public class StatementInsert extends StatementDMQL {
         int[]  columnMap = insertColumnMap;
 
         //
-        Expression[]          list    = insertExpression.nodes;
-        RowSetNavigatorClient newData = session.sessionContext.newInsertData;
+        Expression[] list = insertExpression.nodes;
+        RowSetNavigatorClient newData =
+            session.sessionContext.actionNavigator;
 
         newData.setData(new Object[list.length][]);
 

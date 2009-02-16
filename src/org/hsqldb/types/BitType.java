@@ -236,6 +236,14 @@ public final class BitType extends BinaryType {
 
         switch (otherType.typeCode) {
 
+            case Types.SQL_VARCHAR :
+            case Types.SQL_CHAR : {
+                b         = session.getScanner().convertToBit((String) a);
+                otherType = getBitType(Types.SQL_BIT_VARYING, b.length());
+
+                break;
+            }
+
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
             case Types.SQL_BINARY :
@@ -276,7 +284,7 @@ public final class BitType extends BinaryType {
                     byte[] data = b.getBytes(0, bytePrecision);
 
                     b = new BinaryData(data, precision);
-                } else if (b.length() < bytePrecision) {
+                } else if (b.length() <= bytePrecision) {
                     byte[] data = (byte[]) ArrayUtil.resizeArray(b.getBytes(),
                         bytePrecision);
 
@@ -316,6 +324,10 @@ public final class BitType extends BinaryType {
 
         if (a == null) {
             return a;
+        }
+
+        if (a instanceof String) {
+            return convertToType(session, a, Type.SQL_VARCHAR);
         }
 
         throw Error.error(ErrorCode.X_22501);
@@ -443,7 +455,8 @@ public final class BitType extends BinaryType {
                     (byte[]) ArrayUtil.duplicateArray(value.getBytes());
                 byte[] overlaydata = overlay.getBytes();
 
-                for (int i = 0, pos = (int) offset; i < length; pos += 8, i++) {
+                for (int i = 0, pos = (int) offset; i < length;
+                        pos += 8, i++) {
                     int count = 8;
 
                     if (length - pos < 8) {

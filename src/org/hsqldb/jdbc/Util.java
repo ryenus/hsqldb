@@ -190,7 +190,7 @@ public class Util {
 
 // TODO: Needs review.
 //
-//  Connection exception subclass may be an insufficient descriminator
+//  Connection exception subclass may be an insufficient discriminator
 //  regarding the choice of throwing transient or non-transient
 //  connection exception.
 //

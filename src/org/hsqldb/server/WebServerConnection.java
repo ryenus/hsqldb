@@ -329,9 +329,9 @@ class WebServerConnection implements Runnable {
                     resultOut = Result.newConnectionAcknowledgeResponse(
                         session.getId(), dbID);
                 } catch (HsqlException e) {
-                    resultOut = Result.newErrorResult(e, null);
+                    resultOut = Result.newErrorResult(e);
                 } catch (RuntimeException e) {
-                    resultOut = Result.newErrorResult(e, null);
+                    resultOut = Result.newErrorResult(e);
                 }
             } else {
                 int dbID = resultIn.getDatabaseId();
@@ -340,7 +340,7 @@ class WebServerConnection implements Runnable {
 
                 if (session == null) {
                     resultOut = Result.newErrorResult(
-                        Error.error(ErrorCode.SERVER_DATABASE_DISCONNECTED), null);
+                        Error.error(ErrorCode.SERVER_DATABASE_DISCONNECTED));
                 } else {
                     resultIn.setSession(session);
                     resultIn.readAdditionalResults(session, dataIn, rowIn);

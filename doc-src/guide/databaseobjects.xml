@@ -6,8 +6,7 @@
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
          xmlns:ns="http://docbook.org/ns/docbook">
-  <title xml:id="databaseobjects-title">Schemas and Other Database
-  Objects</title>
+  <title xml:id="databaseobjects-title">Schemas and Database Objects</title>
 
   <info>
     <authorgroup>
@@ -20,9 +19,9 @@
       </author>
     </authorgroup>
 
-    <releaseinfo>$Revision: 734 $</releaseinfo>
+    <releaseinfo>$Revision$</releaseinfo>
 
-    <pubdate>$Date: 2009-01-08 19:19:51 +0000 (Thu, 08 Jan 2009) $</pubdate>
+    <pubdate>$Date$</pubdate>
 
     <keywordset>
       <keyword>Hsqldb</keyword>
@@ -41,69 +40,78 @@
     </legalnotice>
   </info>
 
-  <para>The persistent elements of an SQL environment are database objects.
-  The database consists of catalogs plus authorizations. In HyperSQL, there is
-  only one catalog per database.</para>
+  <section>
+    <title>Overview</title>
 
-  <para>A catalog contains only schemas while schemas contain database objects
-  that contain data or govern the data. Separate from catalogs, there are USER
-  and ROLE objects, collectively called <emphasis>authorizations</emphasis>.
-  Each AUTHORIZATION has some access rights on some of the schemas or the
-  objects they contain.</para>
+    <para>The persistent elements of an SQL environment are database objects.
+    The database consists of catalogs plus authorizations. In HyperSQL, there
+    is only one catalog per database.</para>
 
-  <para>Each catalog contains a special schema called INFORMATION_SCHEMA. This
-  schema is read-only and contains some views and other schema objects. The
-  views contain lists of all the database objects that exist within the
-  database.</para>
+    <para>A catalog contains only schemas while schemas contain database
+    objects that contain data or govern the data. Separate from catalogs,
+    there are USER and ROLE objects, collectively called
+    <emphasis>authorizations</emphasis>. Each AUTHORIZATION has some access
+    rights on some of the schemas or the objects they contain.</para>
 
-  <para>Each database object has a name. A name is an identifier and is unique
-  within its name-space.</para>
+    <para>Each catalog contains a special schema called INFORMATION_SCHEMA.
+    This schema is read-only and contains some views and other schema objects.
+    The views contain lists of all the database objects that exist within the
+    database.</para>
 
-  <indexterm significance="preferred" type="sql">
-    <primary>identifier definition</primary>
-  </indexterm>
+    <para>Each database object has a name. A name is an identifier and is
+    unique within its name-space.</para>
 
-  <simpara><emphasis>definition of identifier</emphasis></simpara>
+    <indexterm significance="preferred" type="sql">
+      <primary>identifier definition</primary>
+    </indexterm>
 
-  <simpara><literal>&lt;identifier&gt; ::= &lt;regular identifier&gt; |
-  &lt;delimited identifier&gt; | &lt;SQL language identifier&gt;
-  </literal></simpara>
+    <simpara><emphasis role="bold">identifier</emphasis></simpara>
 
-  <simpara><literal>&lt;delimited identifier&gt; ::= &lt;double quote&gt;
-  &lt;character sequence&gt; &lt;double quote&gt;</literal></simpara>
+    <simpara><emphasis>definition of identifier</emphasis></simpara>
 
-  <simpara><literal>&lt;regular identifier&gt; ::= &lt;special character
-  sequence&gt;</literal></simpara>
+    <simpara><literal>&lt;identifier&gt; ::= &lt;regular identifier&gt; |
+    &lt;delimited identifier&gt; | &lt;SQL language identifier&gt;
+    </literal></simpara>
 
-  <simpara><literal>&lt;SQL language identifier&gt; ::= &lt;special character
-  sequence&gt;</literal></simpara>
+    <simpara><literal>&lt;delimited identifier&gt; ::= &lt;double quote&gt;
+    &lt;character sequence&gt; &lt;double quote&gt;</literal></simpara>
 
-  <simpara>A <literal>&lt;delimited identifier&gt;</literal> is a sequence of
-  characters enclosed with double-quote symbols. The character sequence length
-  must be between 1 and 128 characters. All characters are allowed in the
-  character sequence.</simpara>
+    <simpara><literal>&lt;regular identifier&gt; ::= &lt;special character
+    sequence&gt;</literal></simpara>
 
-  <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
-  sequence of characters. It consists of letters, digits and the underscore
-  characters. It must begin with a letter.</simpara>
+    <simpara><literal>&lt;SQL language identifier&gt; ::= &lt;special
+    character sequence&gt;</literal></simpara>
 
-  <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar to
-  <literal>&lt;regular identifier&gt;</literal> but the letters can range only
-  from A-Z in the ASCII character set. This type of identifier is used for
-  names of CHARACTER SET objects.</simpara>
+    <simpara>A <literal>&lt;delimited identifier&gt;</literal> is a sequence
+    of characters enclosed with double-quote symbols. All characters are
+    allowed in the character sequence.</simpara>
 
-  <simpara>If the character sequence of a delimited identifier is the same as
-  an undelimited identifier, it represents the same identifier. For example
-  "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
-  identifier&gt;</literal> the case-normal form is considered for comparison.
-  This form consists of the upper-case of equivalent of all the
-  letters.</simpara>
+    <simpara>A <literal>&lt;regular identifier&gt;</literal> is a special
+    sequence of characters. It consists of letters, digits and the underscore
+    characters. It must begin with a letter.</simpara>
 
-  <simpara>A reserved word is one that is used by the SQL Standard for special
-  purposes. It is similar to a <literal>&lt;regular identifier&gt;</literal>
-  but it cannot be used as an identifier for user objects. If a reserved word
-  is enclosed in double quote characters, it becomes a quoted identifier and
-  can be used for database objects.</simpara>
+    <simpara>A <literal>&lt;SQL language identifier&gt;</literal> is similar
+    to <literal>&lt;regular identifier&gt;</literal> but the letters can range
+    only from A-Z in the ASCII character set. This type of identifier is used
+    for names of CHARACTER SET objects.</simpara>
+
+    <simpara>If the character sequence of a delimited identifier is the same
+    as an undelimited identifier, it represents the same identifier. For
+    example "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
+    identifier&gt;</literal> the case-normal form is considered for
+    comparison. This form consists of the upper-case of equivalent of all the
+    letters.</simpara>
+
+    <simpara>The character sequence length of all identifiers must be between
+    1 and 128 characters.</simpara>
+
+    <simpara>A reserved word is one that is used by the SQL Standard for
+    special purposes. It is similar to a <literal>&lt;regular
+    identifier&gt;</literal> but it cannot be used as an identifier for user
+    objects. If a reserved word is enclosed in double quote characters, it
+    becomes a quoted identifier and can be used for database
+    objects.</simpara>
+  </section>
 
   <section>
     <title>Authorizations and Access Control</title>
@@ -146,6 +154,9 @@
     <indexterm significance="preferred" type="sql">
       <primary>AUTHORIZATION IDENTIFIER</primary>
     </indexterm>
+
+    <simpara><emphasis role="bold">authorization
+    identifier</emphasis></simpara>
 
     <simpara><emphasis>authorization identifier</emphasis></simpara>
 
@@ -332,13 +343,12 @@
       in a different form to assign privileges on schema objects to users and
       roles.</para>
 
-      <!-- From Foundation chapt. 12 -->
-
       <indexterm significance="preferred" type="sql">
         <primary>CREATE USER</primary>
       </indexterm>
 
-      <simpara xml:id="create_user-sql"><emphasis role="bold">CREATE USER</emphasis></simpara>
+      <simpara xml:id="create_user-sql"><emphasis role="bold">CREATE
+      USER</emphasis></simpara>
 
       <simpara><emphasis>user definition (HyperSQL)</emphasis></simpara>
 
@@ -349,7 +359,7 @@
       <literal>&lt;password&gt;</literal> is a string enclosed with single
       quote characters. If <literal>ADMIN</literal> is specified, the DBA role
       is granted to the new user. Only a user with the DBA role can execute
-      this command.</simpara>
+      this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP USER</primary>
@@ -364,14 +374,51 @@
 
       <simpara>Drop (destroy) an existing user. If the specified user is the
       authorization for a schema, the schema is destroyed. Only a user with
-      the DBA role can execute this command.</simpara>
+      the DBA role can execute this statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER USER ... SET PASSWORD</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER USER ... SET
+      PASSWORD</emphasis></simpara>
+
+      <simpara><emphasis>set the password for a user
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;alter user set password statement&gt; ::= ALTER
+      USER &lt;user name&gt; SET PASSWORD &lt;password&gt;</literal></simpara>
+
+      <simpara>Change the password of an existing user. Only a user with the
+      DBA role can execute this command.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER USER ... SET INTITIAL SCHEMA</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER USER ... SET INITIAL
+      SCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>set the initial schema for a user
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;alter user set initial schema statement&gt; ::=
+      ALTER USER &lt;user name&gt; SET INITIAL SCHEMA &lt;schema name&gt; |
+      DEFAULT</literal></simpara>
+
+      <simpara>Change the initial schema for a user. The initial schema is the
+      schema used by default for SQL statements issued during a session. If
+      <literal>DEFAULT</literal> is used, the default initial schema for all
+      users is used as the initial schema for the user. The SET SCHEMA command
+      allows the user to change the schema for the duration of the sesssion.
+      Only a user with the DBA role can execute this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET PASSWORD</primary>
       </indexterm>
 
-      <simpara xml:id="set_password-sql">
-        <emphasis role="bold">SET PASSWORD</emphasis></simpara>
+      <simpara xml:id="set_password-sql"><emphasis role="bold">SET
+      PASSWORD</emphasis></simpara>
 
       <simpara><emphasis>set password statement
       (HyperSQL)</emphasis></simpara>
@@ -382,6 +429,31 @@
       <simpara>Set the password for the current user.
       <literal>&lt;password&gt;</literal> is a string enclosed with single
       quote characters.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET INITIAL SCHEMA*</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET INITIAL SCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>set the initial schema for the current user
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;set initial schema statement&gt; ::= SET INITIAL
+      SCHEMA &lt;schema name&gt; | DEFAULT</literal></simpara>
+
+      <simpara>Change the initial schema for the current user. The initial
+      schema is the schema used by default for SQL statements issued during a
+      session. If <literal>DEFAULT</literal> is used, the default initial
+      schema for all users is used as the initial schema for the current user.
+      The SET SCHEMA command allows the user to change the schema for the
+      duration of the sesssion.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>*</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">*</emphasis></simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE ROLE</primary>
@@ -411,7 +483,7 @@
 
       <simpara>Drop (destroy) a role. If the specified role is the
       authorization for a schema, the schema is destroyed. Only a user with
-      the DBA role can execute this command.</simpara>
+      the DBA role can execute this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>GRANTED BY</primary>
@@ -702,9 +774,87 @@
 
       <simpara>A SEQUENCE object produces INTEGER values in sequence. The
       SEQUENCE can be referenced in special contexts only within certain SQL
-      statements.</simpara>
+      statements. Each time the object is referenced, its value is
+      incremented.</simpara>
 
-      <simpara>There is a separate name-space for sequence objects.</simpara>
+      <simpara>There is a separate name-space for SEQUENCE objects.</simpara>
+
+      <simpara>IDENTITY columns are columns of tables which have an internal,
+      unnamed SEQUENCE object.</simpara>
+
+      <simpara>SEQUENCE objects and IDENTITY columns are supported fully
+      according to the latest SQL 200n Standard syntax.</simpara>
+
+      <simpara><emphasis role="bold">Sequences</emphasis></simpara>
+
+      <para>The SQL 200n syntax and usage is different from what is supported
+      by many existing database engines. Sequences are created with the
+      <literal>CREATE SEQUENCE</literal> command and their current value can
+      be modified at any time with <literal>ALTER SEQUENCE</literal>. The next
+      value for a sequence is retrieved with the <literal>NEXT VALUE FOR
+      &lt;name&gt;</literal> expression. This expression can be used for
+      inserting and updating table rows.</para>
+
+      <example>
+        <title>inserting the next sequence value into a table row</title>
+
+        <programlisting>    INSERT INTO mytable VALUES 2, 'John', NEXT VALUE FOR mysequence;</programlisting>
+      </example>
+
+      <para>You can also use it in select statements. For example, if you want
+      to number the returned rows of a SELECT in sequential order, you can
+      use:</para>
+
+      <example>
+        <title>numbering returned rows of a SELECT in sequential order</title>
+
+        <programlisting>    SELECT NEXT VALUE FOR mysequence, col1, col2 FROM mytable WHERE ...</programlisting>
+      </example>
+
+      <para>In version 2.0, the semantics of sequences is exactly as defined
+      by SQL 200n. If you use the same sequence twice in the same row in an
+      INSERT statement, you will get the same value as required by the
+      Standard.</para>
+
+      <para>You can query the SEQUENCES table for the next value that will be
+      returned from any of the defined sequences. The SEQUENCE_NAME column
+      contains the name and the NEXT_VALUE column contains the next value to
+      be returned. Note that this is only for getting information and you
+      should not do this for using the sequence value.</para>
+
+      <simpara><emphasis role="bold">Identity Auto-Increment
+      Columns</emphasis></simpara>
+
+      <para>Each table can contain a single auto-increment column, known as
+      the IDENTITY column. An IDENTITY column is a SMALLINT, INTEGER, BIGINT,
+      DECIMAL or NUMERIC column with its value generated by a sequence
+      generator.</para>
+
+      <para>In HyperSQL 2.0, an IDENTITY column is not by default treated as
+      the primary key for the table (as a result, multi-column primary keys
+      are possible with an IDENTITY column present).</para>
+
+      <para>The SQL standard syntax is used, which allows the initial value
+      and other options to be specified.<programlisting>    &lt;colname&gt; INTEGER GENERATED { BY DEFAULT | ALWAYS} AS IDENTITY [( &lt;options&gt; )] [PRIMARY KEY]</programlisting></para>
+
+      <para>When you add a new row to such a table using an <literal>INSERT
+      INTO &lt;tablename&gt; ...; </literal>statement, you can use the NULL
+      value for the IDENTITY column, which results in an auto-generated value
+      for the column. The <literal>IDENTITY() </literal>function returns the
+      last value inserted into any IDENTITY column by this connection. Use
+      <literal>CALL IDENTITY(); </literal>as an SQL statement to retrieve this
+      value. If you want to use the value for a field in a child table, you
+      can use <literal>INSERT INTO &lt;childtable&gt; VALUES
+      (...,IDENTITY(),...);</literal>. Both types of call to<literal>
+      IDENTITY()</literal> must be made before any additional update or insert
+      statements are issued on the database.</para>
+
+      <para>The next IDENTITY value to be used can be set with following
+      command: <programlisting>    ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting>For
+      backward compatibility, support has been retained for <literal>CREATE
+      TABLE &lt;tablename&gt;(&lt;colname&gt; IDENTITY, ...)</literal> as a
+      shortcut which defines the column both as an IDENTITY column and a
+      PRIMARY KEY column.</para>
     </section>
 
     <section>
@@ -734,9 +884,36 @@
       also consist of a TABLE CONSTRUCTOR that does not reference any tables
       or views.</simpara>
 
-      <simpara>A VIEW that is ultimately based on a single TABLE may be
-      <glossterm>updatable</glossterm>. Some <glossterm>updatable</glossterm>
-      views are <glossterm>insertable-into</glossterm>.</simpara>
+      <simpara>A view has many uses:</simpara>
+
+      <itemizedlist>
+        <listitem>
+          <para>Hide the structure and column names of tables. The view can
+          represent one or more tables or views as a separate table. This can
+          include aggregate data, such as sums and averages, from other
+          tables.</para>
+        </listitem>
+
+        <listitem>
+          <para>Allow access to specific rows in a table. For example, allow
+          access to records that were added since a given date, while hiding
+          older records.</para>
+        </listitem>
+
+        <listitem>
+          <para>Allow access to specific columns. For example allow access to
+          columns that contain non-confidential information. Note that this
+          can also be achieved with the GRANT SELECT statement, using
+          column-level privileges</para>
+        </listitem>
+      </itemizedlist>
+
+      <simpara>A VIEW that returns the columns of a single ordinary TABLE may
+      be <glossterm>updatable</glossterm>. Some
+      <glossterm>updatable</glossterm> views are
+      <glossterm>insertable-into</glossterm>. When rows of an updatable view
+      are updated, or new rows are inserted, these changes are reflected in
+      the base table. More.. on updatability.</simpara>
 
       <simpara>Views share a name-space with tables.</simpara>
     </section>
@@ -776,8 +953,53 @@
       values of specific columns (taken together) of one row with the same
       values from each of the other rows. The result of the comparison must
       never be true (can be false or unknown). If a row of the table has NULL
-      in any of the columns of the constraint, it conforms to the
-      constraint.</simpara>
+      in any of the columns of the constraint, it conforms to the constraint.
+      A unique constraint on multiple columns (c1, c2, c3, ..) means that in
+      no two rows, the sets of values for the columns can be equal unless at
+      lease one of them is NULL. Each single column taken by itself can have
+      repeat values in different rows. The following example satisfies a
+      UNIQUE constraint on the two columns</simpara>
+
+      <example>
+        <title>Column values which satisfy a 2-column UNIQUE
+        constraint</title>
+
+        <simplelist columns="2" type="horiz">
+          <member>1,</member>
+
+          <member>2</member>
+
+          <member>2,</member>
+
+          <member>1</member>
+
+          <member>2,</member>
+
+          <member>2</member>
+
+          <member>NULL,</member>
+
+          <member>1</member>
+
+          <member>NULL,</member>
+
+          <member>1</member>
+
+          <member>1,</member>
+
+          <member>NULL</member>
+
+          <member>NULL,</member>
+
+          <member>NULL</member>
+
+          <member>NULL,</member>
+
+          <member>NULL</member>
+        </simplelist>
+      </example>
+
+      <simpara><emphasis role="bold">PRIMARY KEY</emphasis></simpara>
 
       <simpara>A PRIMARY KEY constraint is equivalent to a UNIQUE constraint
       on one or more NOT NULL columns. Only one PRIMARY KEY can be defined in
@@ -791,7 +1013,8 @@
       same table. The result of the comparison must never be false (can be
       unknown). A special form of FOREIGN KEY constraint, based on its CHECK
       clause, allows the result to be unknown only if the values for all
-      columns are NULL.</simpara>
+      columns are NULL. A FOREIGN key can be declared only if a UNIQUE
+      constraint exists on the referenced columns.</simpara>
 
       <simpara>Constraints share a name space with assertions.</simpara>
     </section>
@@ -903,8 +1126,6 @@
 
     <section>
       <title>Statements for Schema Definition and Manipulation</title>
-
-      <!-- From Foundation chapt. 11 -->
 
       <indexterm significance="preferred" type="sql">
         <primary>CASCADE or RESTRICT</primary>
@@ -1243,23 +1464,23 @@
       &lt;constraint name&gt;</literal></simpara>
 
       <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
-      check time&gt; [ [ NOT ] DEFERRABLE ] | [ NOT ] DEFERRABLE [
-      &lt;constraint check time&gt; ]</literal></simpara>
+      check time&gt; [ [ NOT ] DEFERRABLE [ &lt;constraint check time&gt; ]
+      ]</literal></simpara>
 
       <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
       INITIALLY IMMEDIATE</literal></simpara>
 
       <simpara>Specify the name of a constraint and its characteristics. By
-      default the constraint is <literal>INITIALLY IMMEDIATE</literal> and
-      <literal>NOT DEFERRABLE</literal>. This means the constraint is enforced
-      as soon as a data change statement is executed. If <literal>INITIALLY
-      DEFERRED</literal> is specified, then the constraint is enforced when
-      the session commits. The (verbose) characteristics must be compatible.
-      The constraint check time can be changed temporarily for an SQL session.
-      HyperSQL does not support deferring constraint enforcement. This feature
-      of SQL standards has been criticised because it allows a session to read
-      uncommitted data that violates database integrity constraints (but has
-      not yet been checked).</simpara>
+      default the constraint is <literal>NOT DEFERRABLE</literal> and
+      <literal>INITIALLY IMMEDIATE</literal>. This means the constraint is
+      enforced as soon as a data change statement is executed. If
+      <literal>INITIALLY DEFERRED</literal> is specified, then the constraint
+      is enforced when the session commits. The characteristics must be
+      compatible. The constraint check time can be changed temporarily for an
+      SQL session. HyperSQL does not support deferring constraint enforcement.
+      This feature of the SQL standard has been criticised because it allows a
+      session to read uncommitted data that violates database integrity
+      constraints but has not yet been checked.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT (table constraint)</primary>
@@ -1277,7 +1498,7 @@
       definition&gt; | &lt;referential constraint definition&gt; | &lt;check
       constraint definition&gt;</literal></simpara>
 
-      <simpara>Four kinds of constraint can be defined on a table. Each kind
+      <simpara>Three kinds of constraint can be defined on a table. Each kind
       has its own rules to limit the values that can be specified for
       different columns in each row of the table.</simpara>
 
@@ -1401,6 +1622,243 @@
       <simpara>A CHECK constraint for a DOMAIN is similar. In its
       <literal>&lt;search condition&gt;</literal>, the term VALUE is used to
       represents the value to which the DOMAIN applies.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE read-write property</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE
+      writeability</emphasis></simpara>
+
+      <simpara><emphasis>set table write property
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;set table read only statement&gt; ::= SET TABLE
+      &lt;table name&gt; { READ ONLY | READ WRITE }</literal></simpara>
+
+      <simpara>Set the writabality property of a table. Tables are writable by
+      default. This statement can be used to change the property between
+      <literal>READ ONLY</literal> and <literal>READ WRITE</literal>. This is
+      a feature of HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE</emphasis></simpara>
+
+      <simpara><emphasis>set table source statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source statement&gt; ::= SET TABLE
+      &lt;table name&gt; SOURCE &lt;file and options&gt;
+      [DESC]</literal></simpara>
+
+      <simpara><literal>&lt;file and options&gt;::= &lt;doublequote&gt;
+      &lt;file path&gt; [&lt;semicolon&gt; &lt;&gt;...] &lt;doublequote&gt;
+      </literal></simpara>
+
+      <simpara>Set the text source for a text table</simpara>
+
+      <variablelist>
+        <title>Supported Properties</title>
+
+        <varlistentry>
+          <term>quoted = { true | false }</term>
+
+          <listitem>
+            <para>default is true. If false, treats double quotes as normal
+            characters</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>all_quoted = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true, adds double quotes around all
+            fields.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>encoding = &lt;encoding name&gt;</term>
+
+          <listitem>
+            <para>character encoding for text and character fields, for
+            example, encoding=UTF-8</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>ignore_first = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true ignores the first line of the
+            file</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_scale= &lt;numeric value&gt;</term>
+
+          <listitem>
+            <para>exponent to calculate rows of the text file in cache.
+            Default is 8, equivalent to nearly 800 rows</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_size_scale = &lt;numeric value&gt;r</term>
+
+          <listitem>
+            <para>exponent to calculate average size of each row in cache.
+            Default is 8, equivalent to 256 bytes per row.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>fs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>field separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>vs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>varchar separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>lvs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>long varchar separator</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <variablelist>
+        <title>Special indicators for Hsqldb Text Table separators</title>
+
+        <varlistentry>
+          <term>\semi</term>
+
+          <listitem>
+            <para>semicolon</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\quote</term>
+
+          <listitem>
+            <para>quote</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\space</term>
+
+          <listitem>
+            <para>space character</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\apos</term>
+
+          <listitem>
+            <para>apostrophe</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\n</term>
+
+          <listitem>
+            <para>newline - Used as an end anchor (like $ in regular
+            expressions)</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\r</term>
+
+          <listitem>
+            <para>carriage return</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\t</term>
+
+          <listitem>
+            <para>tab</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\\</term>
+
+          <listitem>
+            <para>backslash</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\u####</term>
+
+          <listitem>
+            <para>a Unicode character specified in hexadecimal</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <simpara>In the example below, the text source of the table is set to
+      "myfile", the field separator to the pipe symbol, and the long varchar
+      separator to the tilde symbol.</simpara>
+
+      <programlisting>    SET TABLE mytable SOURCE 'myfile;fs=|;vs=.;lvs=~'</programlisting>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE HEADER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE
+      HEADER</emphasis></simpara>
+
+      <simpara><emphasis>set table source header
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source header statement&gt; ::= SET
+      TABLE &lt;table name&gt; SOURCE HEADER &lt;header
+      string&gt;</literal></simpara>
+
+      <simpara>Set the header for the text source for a text table. Only a
+      user with the DBA role can execute this statement</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE on-off</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE
+      on-off</emphasis></simpara>
+
+      <simpara><emphasis>set table source on-off
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source on-off statement&gt; ::= SET
+      TABLE &lt;table name&gt; SOURCE { ON | OFF } </literal></simpara>
+
+      <simpara>Attach or detach a text table from its text source. Only a user
+      with the DBA role can execute this statement</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER TABLE</primary>
@@ -2412,6 +2870,36 @@
       then all objects that reference the sequence are dropped. These objects
       can be VIEW, ROUTINE or TRIGGER objects.</simpara>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE INDEX</emphasis></simpara>
+
+      <simpara><emphasis>create index statement</emphasis></simpara>
+
+      <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX
+      &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt; {&lt;column
+      name&gt; [ASC | DESC]}, ... &lt;left paren&gt;</literal></simpara>
+
+      <simpara>Creates an index on a group of columns of a table. The optional
+      [ASC | DESC] specifies if the column is indexed in the ascending or
+      descending order, but has no effect on how the index is
+      created.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP INDEX</emphasis></simpara>
+
+      <simpara><emphasis>drop index statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop index statement&gt; ::= DROP INDEX &lt;index
+      name&gt; [ IF EXISTS ]</literal></simpara>
+
+      <simpara>Destroy an index.</simpara>
+
       <!-- From Foundation chapt. 13 -->
 
       <indexterm significance="preferred" type="sql">
@@ -2489,13 +2977,153 @@
       <title>Predefined Character Sets, Collations and Domains</title>
 
       <para>The SQL Standard defines a number of character sets and domains in
-      the INFORMATION SCHEMA. The</para>
+      the INFORMATION SCHEMA.</para>
+
+      <para>These domains are used in the INFORMATION SCHEMA views:</para>
+
+      <simpara>CARDINAL_NUMBER, YES_OR_NO, CHARACTER_DATA, SQL_IDENTIFIER,
+      TIME_STAMP</simpara>
+
+      <simpara>All available collations are in the INFORMATION
+      SCHMA.</simpara>
     </section>
 
     <section>
       <title>Views in INFORMATION SCHEMA</title>
 
-      <para></para>
+      <para>The following views are defined by the SQL Standard:</para>
+
+      <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
+
+      <para>APPLICABLE_ROLES ASSERTIONS</para>
+
+      <para>AUTHORIZATIONS</para>
+
+      <para>CHARACTER_SETS</para>
+
+      <para>CHECK_CONSTRAINTS</para>
+
+      <para>CHECK_CONSTRAINT_ROUTINE_USAGE</para>
+
+      <para>COLLATIONS</para>
+
+      <para>COLUMNS</para>
+
+      <para>COLUMN_COLUMN_USAGE</para>
+
+      <para>COLUMN_DOMAIN_USAGE</para>
+
+      <para>COLUMN_PRIVILEGES</para>
+
+      <para>COLUMN_UDT_USAGE</para>
+
+      <para>CONSTRAINT_COLUMN_USAGE</para>
+
+      <para>CONSTRAINT_TABLE_USAGE</para>
+
+      <para>DATA_TYPE_PRIVILEGES</para>
+
+      <para>DOMAINS</para>
+
+      <para>DOMAIN_CONSTRAINTS</para>
+
+      <para>ENABLED_ROLES</para>
+
+      <para>INFORMATION_SCHEMA_CATALOG_NAME</para>
+
+      <para>KEY_COLUMN_USAGE</para>
+
+      <para>REFERENTIAL_CONSTRAINTS</para>
+
+      <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
+
+      <para>ROLE_COLUMN_GRANTS</para>
+
+      <para>ROLE_ROUTINE_GRANTS ROLE_TABLE_GRANTS</para>
+
+      <para>ROLE_UDT_GRANTS ROLE_USAGE_GRANTS</para>
+
+      <para>SCHEMATA SEQUENCES SQL_FEATURES</para>
+
+      <para>SQL_IMPLEMENTATION_INFO SQL_PACKAGES</para>
+
+      <para>SQL_PARTS SQL_SIZING</para>
+
+      <para>SQL_SIZING_PROFILES TABLES</para>
+
+      <para>TABLE_CONSTRAINTS</para>
+
+      <para>TABLE_PRIVILEGES TRANSLATIONS</para>
+
+      <para>TRIGGERED_UPDATE_COLUMNS</para>
+
+      <para>TRIGGERS</para>
+
+      <para>TRIGGER_COLUMN_USAGE</para>
+
+      <para>TRIGGER_ROUTINE_USAGE</para>
+
+      <para>TRIGGER_SEQUENCE_USAGE</para>
+
+      <para>TRIGGER_TABLE_USAGE</para>
+
+      <para>USAGE_PRIVILEGES</para>
+
+      <para>USER_DEFINED_TYPES</para>
+
+      <para>VIEWS</para>
+
+      <para>VIEW_COLUMN_USAGE</para>
+
+      <para>VIEW_ROUTINE_USAGE</para>
+
+      <para>VIEW_TABLE_USAGE</para>
+
+      <para>The following views are specific to HyperSQL:</para>
+
+      <para>SYSTEM_ALLTYPEINFO</para>
+
+      <para>SYSTEM_BESTROWIDENTIFIER</para>
+
+      <para>SYSTEM_CACHEINFO</para>
+
+      <para>SYSTEM_COLUMNS</para>
+
+      <para>SYSTEM_CROSSREFERENCE</para>
+
+      <para>SYSTEM_INDEXINFO</para>
+
+      <para>SYSTEM_PRIMARYKEYS</para>
+
+      <para>SYSTEM_PROCEDURECOLUMNS</para>
+
+      <para>SYSTEM_PROCEDURES</para>
+
+      <para>SYSTEM_PROPERTIES</para>
+
+      <para>SYSTEM_SCHEMAS</para>
+
+      <para>SYSTEM_SESSIONINFO</para>
+
+      <para>SYSTEM_SESSIONS</para>
+
+      <para>SYSTEM_TABLES</para>
+
+      <para>SYSTEM_TABLETYPES</para>
+
+      <para>SYSTEM_TEXTTABLES</para>
+
+      <para>SYSTEM_TRIGGERCOLUMNS</para>
+
+      <para>SYSTEM_TRIGGERS</para>
+
+      <para>SYSTEM_TYPEINFO</para>
+
+      <para>SYSTEM_UDTS</para>
+
+      <para>SYSTEM_USERS</para>
+
+      <para>SYSTEM_VERSIONCOLUMNS</para>
     </section>
   </section>
 </chapter>

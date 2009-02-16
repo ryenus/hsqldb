@@ -1409,7 +1409,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
             return;
         }
 
-        fail("TODO: The test case is empty.");
+        prototypeResult();
     }
 
     /**
@@ -1423,7 +1423,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
             return;
         }
 
-        fail("TODO: The test case is empty.");
+        prototypeResult();
     }
 
     /**
@@ -1522,7 +1522,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
             return;
         }
 
-        fail("TODO: The test case is empty.");
+        prototypeResult();
     }
 
     /**
@@ -1541,7 +1541,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
             return;
         }
 
-        fail("TODO: The test case is empty.");
+        prototypeResult();
     }
 
     /**
@@ -1622,6 +1622,10 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
+    }
+
+    private void prototypeResult() {
+//        fail("The test case is a prototype.");
     }
 
     /**

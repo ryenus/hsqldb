@@ -69,6 +69,8 @@ public class QueryExpression {
                             EXCEPT_ALL    = 5,
                             EXCEPT        = 6,
                             UNION_TERM    = 7;
+
+    //
     int                     columnCount;
     private QueryExpression leftQueryExpression;
     private QueryExpression rightQueryExpression;
@@ -101,6 +103,7 @@ public class QueryExpression {
     boolean isUpdatable;
     boolean isInsertable;
     boolean isCheckable;
+    boolean isTopLevel;
 
     //
     public TableBase resultTable;
@@ -111,9 +114,6 @@ public class QueryExpression {
     //
     CompileContext compileContext;
 
-    //
-//    boolean isUpdatable;
-//    boolean isInsertable;
     QueryExpression(CompileContext compileContext) {
         this.compileContext = compileContext;
         sortAndSlice        = SortAndSlice.noSort;
@@ -648,6 +648,8 @@ public class QueryExpression {
         if (compileContext.getSequences().length > 0) {
             throw Error.error(ErrorCode.X_42598);
         }
+
+        isTopLevel = true;
 
         setReturningResultSet();
     }

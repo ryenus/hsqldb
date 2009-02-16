@@ -398,7 +398,7 @@ public class StatementCompound extends Statement {
                     break;
                 }
 
-                if (!Boolean.TRUE.equals(result.getSimpleValue())) {
+                if (!Boolean.TRUE.equals(result.getValueObject())) {
                     result = Result.updateZeroResult;
 
                     break;
@@ -456,7 +456,7 @@ public class StatementCompound extends Statement {
                     break;
                 }
 
-                if (Boolean.TRUE.equals(result.getSimpleValue())) {
+                if (Boolean.TRUE.equals(result.getValueObject())) {
                     result = Result.updateZeroResult;
 
                     break;
@@ -484,7 +484,7 @@ public class StatementCompound extends Statement {
                     break;
                 }
 
-                Object value = result.getSimpleValue();
+                Object value = result.getValueObject();
 
                 execute = Boolean.TRUE.equals(value);
 

@@ -32,6 +32,7 @@
 package org.hsqldb.jdbc;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -62,13 +63,14 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
+import org.hsqldb.SessionInterface;
 import org.hsqldb.Types;
-import org.hsqldb.lib.AsciiStringInputStream;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
@@ -81,7 +83,6 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.SessionInterface;
 
 /* $Id$ */
 
@@ -824,8 +825,11 @@ public class JDBCResultSet implements ResultSet {
         if (s == null) {
             return null;
         }
-
-        return new AsciiStringInputStream(s);
+        try {
+            return new ByteArrayInputStream(s.getBytes("US-ASCII"));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     /**
@@ -2628,7 +2632,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateNull(int columnIndex) throws SQLException {
-        setParameter(columnIndex, null);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, null);
     }
 
     /**
@@ -2667,10 +2672,11 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateBoolean(int columnIndex, boolean x) throws SQLException {
 
-        Boolean b = x ? Boolean.TRUE
+        Boolean value = x ? Boolean.TRUE
                       : Boolean.FALSE;
 
-        setParameter(columnIndex, null);
+                  startUpdate(columnIndex);
+                  preparedStatement.setParameter(columnIndex, value);
     }
 
     /**
@@ -2708,7 +2714,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateByte(int columnIndex, byte x) throws SQLException {
-        setIntParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setIntParameter(columnIndex, x);
     }
 
     /**
@@ -2746,7 +2753,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateShort(int columnIndex, short x) throws SQLException {
-        setIntParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setIntParameter(columnIndex, x);
     }
 
     /**
@@ -2784,7 +2792,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateInt(int columnIndex, int x) throws SQLException {
-        setIntParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setIntParameter(columnIndex, x);
     }
 
     /**
@@ -2822,7 +2831,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateLong(int columnIndex, long x) throws SQLException {
-        setLongParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setLongParameter(columnIndex, x);
     }
 
     /**
@@ -2861,9 +2871,10 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateFloat(int columnIndex, float x) throws SQLException {
 
-        Double d = new Double(x);
+        Double value = new Double(x);
 
-        setParameter(columnIndex, d);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, value);
     }
 
     /**
@@ -2902,9 +2913,10 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateDouble(int columnIndex, double x) throws SQLException {
 
-        Double d = new Double(x);
+        Double value = new Double(x);
 
-        setParameter(columnIndex, d);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, value);
     }
 
     /**
@@ -2944,7 +2956,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateBigDecimal(int columnIndex,
                                  BigDecimal x) throws SQLException {
-        setParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, x);
     }
 
     /**
@@ -2982,7 +2995,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateString(int columnIndex, String x) throws SQLException {
-        setParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, x);
     }
 
     /**
@@ -3020,7 +3034,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateBytes(int columnIndex, byte[] x) throws SQLException {
-        setParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, x);
     }
 
     /**
@@ -3058,7 +3073,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateDate(int columnIndex, Date x) throws SQLException {
-        setParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, x);
     }
 
     /**
@@ -3096,7 +3112,8 @@ public class JDBCResultSet implements ResultSet {
      * JDBCResultSet)
      */
     public void updateTime(int columnIndex, Time x) throws SQLException {
-        setParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, x);
     }
 
     /**
@@ -3136,7 +3153,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateTimestamp(int columnIndex,
                                 Timestamp x) throws SQLException {
-        setParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, x);
     }
 
     /**
@@ -3355,7 +3373,8 @@ public class JDBCResultSet implements ResultSet {
      *  JDBCResultSet)
      */
     public void updateObject(int columnIndex, Object x) throws SQLException {
-        setParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, x);
     }
 
     /**
@@ -4164,14 +4183,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to 1.8.0.x, HSQLDB does not support updateable results; this method
-     * always throws an SQLException, stating that the operation is not
-     * supported. <p>
-     *
-     * Starting with 1.9.0, HSQLDB may not build and return a result set as a
-     * whole; support for result set update is determined by support for
-     * engine-side cursor update rather than by support implemented directly in
-     * the JDBC driver.
+     * Since 1.9.0, HSQLDB supports updateable results.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4198,9 +4210,8 @@ public class JDBCResultSet implements ResultSet {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
-     * Since 1.9.0, HSQLDB supports updateable results.
-     * <p>
      *
+     * Since 1.9.0, HSQLDB supports updateable results.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4243,6 +4254,7 @@ public class JDBCResultSet implements ResultSet {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
      * Since 1.9.0, HSQLDB supports updateable results.
      * </div>
      * <!-- end release-specific documentation -->
@@ -4276,6 +4288,7 @@ public class JDBCResultSet implements ResultSet {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
      * Since 1.9.0, HSQLDB supports updateable results.
      * </div>
      * <!-- end release-specific documentation -->
@@ -4316,6 +4329,7 @@ public class JDBCResultSet implements ResultSet {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
      * Since 1.9.0, HSQLDB supports updateable results.
      * </div>
      * <!-- end release-specific documentation -->
@@ -4385,7 +4399,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkClosed();
 
-        return statement;
+        return (Statement) statement;
     }
 
     /**
@@ -4404,7 +4418,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0does supports this feature.  <p>
+     * HSQLDB 1.9.0 supports this feature, but ignores the map.  <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5212,7 +5226,9 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateBlob(int columnIndex,
                            java.sql.Blob x) throws SQLException {
-        setBlobParameter(columnIndex, x);
+
+        startUpdate(columnIndex);
+        preparedStatement.setBlobParameter(columnIndex, x);
     }
 
 //#endif JAVA4
@@ -5253,7 +5269,9 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateBlob(String columnLabel,
                            java.sql.Blob x) throws SQLException {
-        setBlobParameter(findColumn(columnLabel), x);
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setBlobParameter(columnIndex, x);
     }
 
 //#endif JAVA4
@@ -5294,7 +5312,8 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateClob(int columnIndex,
                            java.sql.Clob x) throws SQLException {
-        setClobParameter(columnIndex, x);
+        startUpdate(columnIndex);
+        preparedStatement.setClobParameter(columnIndex, x);
     }
 
 //#endif JAVA4
@@ -5337,7 +5356,9 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateClob(String columnLabel,
                            java.sql.Clob x) throws SQLException {
-        setClobParameter(findColumn(columnLabel), x);
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setClobParameter(columnIndex, x);
     }
 
 //#endif JAVA4
@@ -5517,6 +5538,9 @@ public class JDBCResultSet implements ResultSet {
      * @since JDK 1.6, HSQLDB 1.9.0
      */
     public int getHoldability() throws SQLException {
+
+        checkClosed();
+
         return rsHoldability;
     }
 
@@ -6060,7 +6084,8 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateNCharacterStream(int columnIndex, java.io.Reader x,
                                        long length) throws SQLException {
-        updateCharacterStream(columnIndex, x, length);
+        startUpdate(columnIndex);
+        preparedStatement.setCharacterStream(columnIndex, x, length);
     }
 
 //#endif JAVA6
@@ -6150,7 +6175,8 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateBinaryStream(int columnIndex, java.io.InputStream x,
                                    long length) throws SQLException {
-        throw Util.notSupported();
+        startUpdate(columnIndex);
+        preparedStatement.setBinaryStream(columnIndex, x, length);
     }
 
 //#endif JAVA6
@@ -6176,7 +6202,8 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateCharacterStream(int columnIndex, java.io.Reader x,
                                       long length) throws SQLException {
-        throw Util.notSupported();
+        startUpdate(columnIndex);
+        preparedStatement.setCharacterStream(columnIndex, x, length);
     }
 
 //#endif JAVA6
@@ -6204,6 +6231,9 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateAsciiStream(String columnLabel, java.io.InputStream x,
                                   long length) throws SQLException {
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setAsciiStream(columnIndex, x, length);
     }
 
 //#endif JAVA6
@@ -6231,7 +6261,9 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateBinaryStream(String columnLabel, java.io.InputStream x,
                                    long length) throws SQLException {
-        throw Util.notSupported();
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setBinaryStream(columnIndex, x, length);
     }
 
 //#endif JAVA6
@@ -6261,7 +6293,9 @@ public class JDBCResultSet implements ResultSet {
     public void updateCharacterStream(String columnLabel,
                                       java.io.Reader reader,
                                       long length) throws SQLException {
-        throw Util.notSupported();
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setCharacterStream(columnIndex, reader, length);
     }
 
 //#endif JAVA6
@@ -6298,7 +6332,8 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateBlob(int columnIndex, InputStream inputStream,
                            long length) throws SQLException {
-        throw Util.notSupported();
+        startUpdate(columnIndex);
+        preparedStatement.setBlob(columnIndex, inputStream, length);
     }
 
 //#endif JAVA6
@@ -6337,7 +6372,9 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateBlob(String columnLabel, InputStream inputStream,
                            long length) throws SQLException {
-        throw Util.notSupported();
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setBlob(columnIndex, inputStream, length);
     }
 
 //#endif JAVA6
@@ -6373,7 +6410,8 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateClob(int columnIndex, Reader reader,
                            long length) throws SQLException {
-        throw Util.notSupported();
+        startUpdate(columnIndex);
+        preparedStatement.setClob(columnIndex, reader, length);
     }
 
 //#endif JAVA6
@@ -6411,7 +6449,9 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateClob(String columnLabel, Reader reader,
                            long length) throws SQLException {
-        throw Util.notSupported();
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setClob(columnIndex, reader, length);
     }
 
 //#endif JAVA6
@@ -6449,7 +6489,8 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateNClob(int columnIndex, Reader reader,
                             long length) throws SQLException {
-        throw Util.notSupported();
+        startUpdate(columnIndex);
+        preparedStatement.setClob(columnIndex, reader, length);
     }
 
 //#endif JAVA6
@@ -6489,7 +6530,9 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA6
     public void updateNClob(String columnLabel, Reader reader,
                             long length) throws SQLException {
-        throw Util.notSupported();
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setClob(columnIndex, reader, length);
     }
 
 //#endif JAVA6
@@ -6514,7 +6557,7 @@ public class JDBCResultSet implements ResultSet {
      * <code>updateNCharacterStream</code> which takes a length parameter.
      *
      * @param columnIndex the first column is 1, the second is 2, ...
-     * @param x the new column value
+     * @param reader the new column value
      * @exception SQLException if the columnIndex is not valid;
      * if a database access error occurs;
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
@@ -6523,7 +6566,9 @@ public class JDBCResultSet implements ResultSet {
      * @since 1.6
      */
     public void updateNCharacterStream(int columnIndex,
-                                       java.io.Reader x) throws SQLException {
+                                       java.io.Reader reader) throws SQLException {
+        startUpdate(columnIndex);
+        preparedStatement.setCharacterStream(columnIndex, reader);
     }
 
     /**
@@ -6557,6 +6602,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateNCharacterStream(
             String columnLabel, java.io.Reader reader) throws SQLException {
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setCharacterStream(columnIndex, reader);
     }
 
     /**
@@ -6585,6 +6633,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateAsciiStream(int columnIndex,
                                   java.io.InputStream x) throws SQLException {
+        startUpdate(columnIndex);
+        preparedStatement.setAsciiStream(columnIndex, x);
     }
 
     /**
@@ -6613,6 +6663,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateBinaryStream(int columnIndex,
                                    java.io.InputStream x) throws SQLException {
+        startUpdate(columnIndex);
+        preparedStatement.setBinaryStream(columnIndex, x);
     }
 
     /**
@@ -6641,6 +6693,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateCharacterStream(int columnIndex,
                                       java.io.Reader x) throws SQLException {
+        startUpdate(columnIndex);
+        preparedStatement.setCharacterStream(columnIndex, x);
     }
 
     /**
@@ -6669,6 +6723,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateAsciiStream(String columnLabel,
                                   java.io.InputStream x) throws SQLException {
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setAsciiStream(columnIndex, x);
     }
 
     /**
@@ -6697,6 +6754,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateBinaryStream(String columnLabel,
                                    java.io.InputStream x) throws SQLException {
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setBinaryStream(columnIndex, x);
     }
 
     /**
@@ -6725,6 +6785,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateCharacterStream(
             String columnLabel, java.io.Reader reader) throws SQLException {
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setCharacterStream(columnIndex, reader);
     }
 
     /**
@@ -6752,6 +6815,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateBlob(int columnIndex,
                            InputStream inputStream) throws SQLException {
+        startUpdate(columnIndex);
+        preparedStatement.setBlob(columnIndex, inputStream);
     }
 
     /**
@@ -6779,6 +6844,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateBlob(String columnLabel,
                            InputStream inputStream) throws SQLException {
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setBlob(columnIndex, inputStream);
     }
 
     /**
@@ -6810,6 +6878,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateClob(int columnIndex,
                            Reader reader) throws SQLException {
+        startUpdate(columnIndex);
+        preparedStatement.setClob(columnIndex, reader);
     }
 
     /**
@@ -6840,6 +6910,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateClob(String columnLabel,
                            Reader reader) throws SQLException {
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setClob(columnIndex, reader);
     }
 
     /**
@@ -6873,6 +6946,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateNClob(int columnIndex,
                             Reader reader) throws SQLException {
+        startUpdate(columnIndex);
+        preparedStatement.setClob(columnIndex, reader);
     }
 
     /**
@@ -6905,6 +6980,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateNClob(String columnLabel,
                             Reader reader) throws SQLException {
+        int columnIndex = findColumn(columnLabel);
+        startUpdate(columnIndex);
+        preparedStatement.setClob(columnIndex, reader);
     }
 
     // --------------------- java.sql.Wrapper implementation -------------------
@@ -6991,7 +7069,7 @@ public class JDBCResultSet implements ResultSet {
      * The Statement that generated this result. Null if the result is
      * from DatabaseMetaData<p>
      */
-    Statement        statement;
+    JDBCStatementBase        statement;
     SessionInterface session;
 
     /**
@@ -7170,7 +7248,7 @@ public class JDBCResultSet implements ResultSet {
                              + " to " + targetType.getJDBCClassName()
                              + ", value: " + stringValue;
 
-                Util.throwError(Error.error(ErrorCode.X_42562, msg));
+                Util.throwError(Error.error(ErrorCode.X_42561, msg));
             }
         }
 
@@ -7215,7 +7293,7 @@ public class JDBCResultSet implements ResultSet {
             throw Util.notUpdatableColumn();
         }
 
-        if (!resultMetaData.columns[--columnIndex].isWriteable()) {
+        if (resultMetaData.colIndexes[--columnIndex] == -1) {
             throw Util.notUpdatableColumn();
         }
     }
@@ -7228,37 +7306,10 @@ public class JDBCResultSet implements ResultSet {
             preparedStatement.clearParameters();
         }
         currentUpdateRowNumber = navigator.getRowNumber();
+
+        isRowUpdated = true;
     }
 
-    private void setParameter(int columnIndex,
-                              Object value) throws SQLException {
-        startUpdate(columnIndex);
-        preparedStatement.setParameter(columnIndex, value);
-    }
-
-    private void setIntParameter(int columnIndex,
-                                 int value) throws SQLException {
-        startUpdate(columnIndex);
-        preparedStatement.setIntParameter(columnIndex, value);
-    }
-
-    private void setLongParameter(int columnIndex,
-                                  long value) throws SQLException {
-        startUpdate(columnIndex);
-        preparedStatement.setLongParameter(columnIndex, value);
-    }
-
-    private void setClobParameter(int columnIndex,
-                                  Clob value) throws SQLException {
-        startUpdate(columnIndex);
-        preparedStatement.setClobParameter(columnIndex, value);
-    }
-
-    private void setBlobParameter(int columnIndex,
-                                  Blob value) throws SQLException {
-        startUpdate(columnIndex);
-        preparedStatement.setBlobParameter(columnIndex, value);
-    }
 
     private void clearUpdates() throws SQLException {
 
@@ -7286,20 +7337,51 @@ public class JDBCResultSet implements ResultSet {
 
     private void performUpdate() throws SQLException {
 
-        checkUpdatable();
+        preparedStatement.parameterValues[columnCount] = getCurrent()[columnCount];
 
-        //just return if no updateXX has been called
-        //perform the update
+        for(int i =0 ; i <columnCount; i++) {
+            boolean set = preparedStatement.parameterSet[i] ||
+                preparedStatement.parameterStream[i];
+
+            preparedStatement.resultOut.metaData.columnTypes[i] =
+                set ? preparedStatement.parameterTypes[i] : Type.SQL_ALL_TYPES;
+        }
+        preparedStatement.resultOut.setActionType(ResultConstants.UPDATE_CURSOR);
+        preparedStatement.fetchResult();
         preparedStatement.clearParameters();
     }
 
     private void performInsert() throws SQLException {
+        checkUpdatable();
 
-//
+        for(int i =0 ; i <columnCount; i++) {
+            boolean set = preparedStatement.parameterSet[i] ||
+                preparedStatement.parameterStream[i];
+
+            if (!set) {
+                // todo - correct exception  messary
+                throw Util.invalidArgument();
+            }
+            preparedStatement.resultOut.metaData.columnTypes[i] =
+                preparedStatement.parameterTypes[i];
+        }
+
+
+        preparedStatement.resultOut.setActionType(ResultConstants.INSERT_CURSOR);
+        preparedStatement.fetchResult();
         preparedStatement.clearParameters();
     }
 
     private void performDelete() throws SQLException {
+        checkUpdatable();
+
+        preparedStatement.parameterValues[columnCount] = getCurrent()[columnCount];
+        preparedStatement.resultOut.metaData.columnTypes[columnCount] =
+            resultMetaData.columnTypes[columnCount];
+
+        preparedStatement.resultOut.setActionType(ResultConstants.DELETE_CURSOR);
+        preparedStatement.fetchResult();
+        preparedStatement.clearParameters();
     }
 
     //-------------------------- Other Methods --------------------------------
@@ -7329,9 +7411,9 @@ public class JDBCResultSet implements ResultSet {
      * @throws SQLException when the supplied Result is of type
      *   org.hsqldb.Result.ERROR
      */
-    JDBCResultSet(SessionInterface session, Statement s, Result r,
-                  ResultMetaData metaData, HsqlProperties props,
-                  boolean isNetConnection) throws SQLException {
+    JDBCResultSet(SessionInterface session, JDBCStatementBase s, Result r,
+                  ResultMetaData metaData, HsqlProperties props
+                  ) throws SQLException {
 
         this.session   = session;
         this.statement = s;
@@ -7344,8 +7426,8 @@ public class JDBCResultSet implements ResultSet {
         resultMetaData = metaData;
         columnCount    = resultMetaData.getColumnCount();
 
-        if (rsConcurrency == ResultSet.CONCUR_UPDATABLE) {
-            preparedStatement = new JDBCPreparedStatement(result);
+        if (rsConcurrency != ResultSet.CONCUR_READ_ONLY) {
+            preparedStatement = new JDBCPreparedStatement(s.connection, result);
         }
     }
 }

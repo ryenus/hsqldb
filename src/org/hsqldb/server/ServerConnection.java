@@ -135,22 +135,28 @@ class ServerConnection implements Runnable {
     Thread                   runnerThread;
     protected static String  TEXTBANNER_PART1 = null;
     protected static String  TEXTBANNER_PART2 = null;
+
     static {
         int serverBundleHandle =
             BundleHandler.getBundleHandle("org_hsqldb_Server_messages", null);
+
         if (serverBundleHandle < 0) {
             throw new RuntimeException(
-                    "MISSING Resource Bundle.  See source code");
+                "MISSING Resource Bundle.  See source code");
+
             // This will be caught before prod release.
             // Not necessary to localize message.
         }
+
         TEXTBANNER_PART1 = BundleHandler.getString(serverBundleHandle,
                 "textbanner.part1");
         TEXTBANNER_PART2 = BundleHandler.getString(serverBundleHandle,
                 "textbanner.part2");
+
         if (TEXTBANNER_PART1 == null || TEXTBANNER_PART2 == null) {
             throw new RuntimeException(
-                    "MISSING Resource Bundle msg definition.  See source code");
+                "MISSING Resource Bundle msg definition.  See source code");
+
             // This will be caught before prod release.
             // Not necessary to localize message.
         }
@@ -268,21 +274,20 @@ class ServerConnection implements Runnable {
                     keepAlive = false;
             }
         } catch (Exception e) {
+
             // Only "unexpected" failures are caught here.
             // Expected failures will have been handled (by sending feedback
             // to user-- with an output Result for normal protocols), then
             // continuing.
             StringBuffer sb =
                 new StringBuffer(mThread + ":Failed to connect client.");
+
             if (user != null) {
                 sb.append("  User '" + user + "'.");
             }
+
             server.printWithThread(sb.toString() + "  Stack trace follows.");
             server.printStackTrace(e);
-            // TODO:  Check this after merging with trunk (in either direction).
-            // Could be either a conflict or duplication here, since I have
-            // applied the same mod both in the odbcproto1 branch in the trunk
-            // branch.
         }
     }
 
@@ -635,13 +640,6 @@ class ServerConnection implements Runnable {
                         throw new RecoverableOdbcFailure(
                             "Failed to get metadata for query results");
                     }
-                    if (md.getColumnCount() != md.getExtendedColumnCount()) {
-                        throw new RecoverableOdbcFailure(
-                            "Output column count mismatch: "
-                            + md.getColumnCount() + " cols. and "
-                            + md.getExtendedColumnCount()
-                            + " extended cols. reported");
-                    }
                     String[] colNames = md.getGeneratedColumnNames();
                     if (md.getColumnCount() != colNames.length) {
                         throw new RecoverableOdbcFailure(
@@ -905,13 +903,10 @@ class ServerConnection implements Runnable {
                     outPacket.xmit('n', dataOutput);
                     break;
                 }
-                if (md.getColumnCount() != md.getExtendedColumnCount()) {
-                    throw new RecoverableOdbcFailure(
-                        "Output column count mismatch: "
-                        + md.getColumnCount() + " cols. and "
-                        + md.getExtendedColumnCount()
-                        + " extended cols. reported");
-                }
+                // TODO:
+                // May need to pass the extra BIGINT pseudo-colun for
+                // updatable-row or other purposes.  In that case, it may
+                // make sense to use getExtededColumnCount(), etc.
                 String[] colNames = md.getGeneratedColumnNames();
                 if (md.getColumnCount() != colNames.length) {
                     throw new RecoverableOdbcFailure(
@@ -1068,8 +1063,7 @@ class ServerConnection implements Runnable {
                 org.hsqldb.navigator.RowSetNavigatorData navData =
                     (org.hsqldb.navigator.RowSetNavigatorData) navigator;
                 int rowNum = 0;
-                int colCount =
-                    portal.ackResult.metaData.getExtendedColumnCount();
+                int colCount = portal.ackResult.metaData.getColumnCount();
                 while (navData.next()) {
                     rowNum++;
                     Object[] rowData = (Object[]) navData.getCurrent();
@@ -1317,11 +1311,13 @@ class ServerConnection implements Runnable {
         return "HSQLDB Connection @" + Integer.toString(hashCode(), 16);
     }
 
-    /** Don't want this too high, or users may give up before seeing the
-     *  banner.  Can't be too low or we could close a valid but slow
-     *  client connection. */
-    public static long MAX_WAIT_FOR_CLIENT_DATA = 1000;  // ms.
-    public static long CLIENT_DATA_POLLING_PERIOD = 100;  // ms.
+    /**
+     * Don't want this too high, or users may give up before seeing the
+     * banner.  Can't be too low or we could close a valid but slow
+     * client connection.
+     */
+    public static long MAX_WAIT_FOR_CLIENT_DATA   = 1000;    // ms.
+    public static long CLIENT_DATA_POLLING_PERIOD = 100;     // ms.
 
     /**
      * The only known case where a connection attempt will get stuck is
@@ -1335,23 +1331,30 @@ class ServerConnection implements Runnable {
      * @return int read as first thing off of stream
      */
     public int handshake() throws IOException, HsqlException {
+
         long clientDataDeadline = new java.util.Date().getTime()
-                + MAX_WAIT_FOR_CLIENT_DATA;
+                                  + MAX_WAIT_FOR_CLIENT_DATA;
+
         if (!(socket instanceof javax.net.ssl.SSLSocket)) {
+
             // available() does not work for SSL socket input stream
-            do try {
-                Thread.sleep(CLIENT_DATA_POLLING_PERIOD);
-            } catch (InterruptedException ie) {
+            do {
+                try {
+                    Thread.sleep(CLIENT_DATA_POLLING_PERIOD);
+                } catch (InterruptedException ie) {}
             } while (dataInput.available() < 5
-                    && new java.util.Date().getTime() < clientDataDeadline);
-                // Old HSQLDB clients will send resultType byte + 4 length bytes
-                // New HSQLDB clients will send NCV int + above = 9 bytes
-                // ODBC clients will send a much larger StartupPacket
+                     && new java.util.Date().getTime() < clientDataDeadline);
+
+            // Old HSQLDB clients will send resultType byte + 4 length bytes
+            // New HSQLDB clients will send NCV int + above = 9 bytes
+            // ODBC clients will send a much larger StartupPacket
             if (dataInput.available() < 1) {
-                dataOutput.write((TEXTBANNER_PART1
-                        + ClientConnection.NETWORK_COMPATIBILITY_VERSION
-                        + TEXTBANNER_PART2 + '\n').getBytes());
+                dataOutput.write(
+                    (TEXTBANNER_PART1
+                     + ClientConnection.NETWORK_COMPATIBILITY_VERSION
+                     + TEXTBANNER_PART2 + '\n').getBytes());
                 dataOutput.flush();
+
                 throw Error.error(ErrorCode.SERVER_UNKNOWN_CLIENT);
             }
         }
@@ -1374,7 +1377,6 @@ class ServerConnection implements Runnable {
         }
         return firstInt;
     }
-
     private void odbcConnect(int firstInt) throws IOException, HsqlException {
         /* Until client receives teh ReadyForQuery packet at the end of this
          * method, we (the server) initiate all packet exchanges. */
@@ -1504,7 +1506,6 @@ class ServerConnection implements Runnable {
             OdbcUtil.writeParam(OdbcUtil.hardcodedParams[i][0],
                 OdbcUtil.hardcodedParams[i][1], dataOutput);
         }
-
         // If/when we implement OOB cancellation, we would send the
         // Session identifier and key here, with a 'K' packet.
 

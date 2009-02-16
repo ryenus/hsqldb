@@ -31,7 +31,7 @@
 
 package org.hsqldb.result;
 
-// This can probably just be merged with Result.
+import org.hsqldb.StatementTypes;
 
 /**
  * An enumeration of the request and response mode values used to communicate
@@ -39,9 +39,10 @@ package org.hsqldb.result;
  * and forth.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @since 1.7.2
+ * @since 1.9.0
  * @version 1.7.2
  */
+
 // fredt@users - the constants from the SQL standards are used freely where a
 // similar function is performed. The Result objects do not necessarily contain
 // the same information as stated in SQL standard for CLI.
@@ -219,9 +220,15 @@ public interface ResultConstants {
     int CLOSE_RESULT = HSQL_API_BASE + 40;
 
     /**
+     * Indicates that the Result encapsulates a request to update or insert into a result set
+     */
+    int UPDATE_RESULT = HSQL_API_BASE + 41;
+
+    /**
      * Indicates that the Result encapsulates a simple value for internal use
      */
-    int VALUE = HSQL_API_BASE + 41;
+    int VALUE = HSQL_API_BASE + 42;
+
 //    /** The offset at which the standard SQL API Result mode values start. */
 //    int SQL_API_BASE = 0x00010000;
 //
@@ -611,17 +618,17 @@ public interface ResultConstants {
 //     * tables described by the Information Schema of the connected data source.
 //     */
 //    int SQLTABLEPRIVILEGES  = SQL_API_BASE + 70;
-    /*
-     Codes for transaction termination:
+/*
+ Codes for transaction termination:
 
-     COMMIT 0
-     ROLLBACK 1
-     SAVEPOINT NAME ROLLBACK 2
-     SAVEPOINT NAME RELEASE 4
-     COMMIT AND CHAIN 6
-     ROLLBACK AND CHAIN 7
-     Implementation-defined termination type <0
-     */
+ COMMIT 0
+ ROLLBACK 1
+ SAVEPOINT NAME ROLLBACK 2
+ SAVEPOINT NAME RELEASE 4
+ COMMIT AND CHAIN 6
+ ROLLBACK AND CHAIN 7
+ Implementation-defined termination type <0
+ */
     int TX_COMMIT                  = 0;
     int TX_ROLLBACK                = 1;
     int TX_SAVEPOINT_NAME_ROLLBACK = 2;
@@ -629,6 +636,11 @@ public interface ResultConstants {
     int TX_COMMIT_AND_CHAIN        = 6;
     int TX_ROLLBACK_AND_CHAIN      = 7;
 
+/* StatementType codes duplicated for cursor operations */
+
+    int UPDATE_CURSOR = StatementTypes.UPDATE_CURSOR;
+    int DELETE_CURSOR = StatementTypes.DELETE_CURSOR;
+    int INSERT_CURSOR = StatementTypes.INSERT;
 /* Environment attributes */
 
 //#define SQL_ATTR_OUTPUT_NTS 10001

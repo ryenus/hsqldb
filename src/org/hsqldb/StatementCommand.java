@@ -169,7 +169,8 @@ public class StatementCommand extends Statement {
                 break;
 
             case StatementTypes.LOCK_TABLE :
-                group = StatementTypes.X_HSQLDB_TRANSACTION;
+                isTransactionStatement = true;
+                group                  = StatementTypes.X_HSQLDB_TRANSACTION;
                 break;
 
             //
@@ -286,13 +287,7 @@ public class StatementCommand extends Statement {
                 return Result.updateZeroResult;
 
             case StatementTypes.LOCK_TABLE : {
-                try {
-                    session.lockTables(this);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
+                return Result.updateZeroResult;
             }
 
             //
@@ -618,7 +613,7 @@ public class StatementCommand extends Statement {
                         // Do not enforce this constraint for SCRIPT type
                         // backup.
                         return Result.newErrorResult(
-                            Error.error(ErrorCode.DATABASE_IS_NON_FILE), null);
+                            Error.error(ErrorCode.DATABASE_IS_NON_FILE));
 
                         // If we were to back up res: type DB's, could use
                         // DatabasURL.isFileBasedDataType(), but I see no

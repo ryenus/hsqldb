@@ -75,10 +75,10 @@ public abstract class Statement {
     /** id in StatementManager */
     long id;
 
-    /** table names written */
+    /** table names read - for concurrency control */
     HsqlName[] readTableNames = HsqlName.emptyArray;
 
-    /** table names read */
+    /** table names written - for concurrency control */
     HsqlName[] writeTableNames = HsqlName.emptyArray;;
 
     public abstract Result execute(Session session, Object[] args);

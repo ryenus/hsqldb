@@ -1572,7 +1572,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
         //instance.setBlob(parameterName, inputStream, length);
 
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        prototypeResult();
     }
 
     /**
@@ -1589,7 +1589,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
 
 
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        prototypeResult();
     }
 
     /**
@@ -1606,7 +1606,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
         //instance.setSQLXML(parameterName, xmlObject);
 
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        prototypeResult();
     }
 
     /**
@@ -1624,7 +1624,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
 //        assertEquals(expResult, result);
 
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        prototypeResult();
     }
 
     /**
@@ -1642,7 +1642,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
 //        assertEquals(expResult, result);
 
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        prototypeResult();
     }
 
     /**
@@ -1660,7 +1660,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
 //        assertEquals(expResult, result);
 
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        prototypeResult();
     }
 
     /**
@@ -1678,7 +1678,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
 //        assertEquals(expResult, result);
 
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        prototypeResult();
     }
 
     /**
@@ -1693,6 +1693,10 @@ public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
 //        instance.close();
 
         // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+    }
+
+    private void prototypeResult() {
 //        fail("The test case is a prototype.");
     }
 

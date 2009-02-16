@@ -72,20 +72,22 @@ public class RCData {
     }
 
     /**
+     * DISABLED DUE TO SECURITY CONCERNS.
      * Just for testing and debugging.
      *
      * N.b. this echoes passwords!
-     */
     public void report() {
         System.err.println("urlid: " + id + ", url: " + url + ", username: "
                            + username + ", password: " + password);
     }
+     */
 
     /**
      * Creates a RCDataObject by looking up the given key in the
      * given authentication file.
      *
      * @param dbKey Key to look up in the file.
+     *              If null, then will echo all urlids in the file to stdout.
      * @param file File containing the authentication information.
      */
     public RCData(File file, String dbKey) throws Exception {
@@ -206,10 +208,9 @@ public class RCData {
             return;
         }
 
-        if (url == null || username == null || password == null) {
-            throw new Exception("url or username or password not set "
-                                + "for '" + dbKey + "' in file '" + file
-                                + "'");
+        if (url == null) {
+            throw new Exception("url not set " + "for '" + dbKey
+                                + "' in file '" + file + "'");
         }
 
         if (libpath != null) {
@@ -275,9 +276,8 @@ public class RCData {
                 "Sorry, 'libpath' not supported yet");
         }
 
-        if (id == null || url == null || username == null
-                || password == null) {
-            throw new Exception("id, url, username, or password was not set");
+        if (id == null || url == null) {
+            throw new Exception("id or url was not set");
         }
     }
 
@@ -360,7 +360,7 @@ public class RCData {
 
         String userString = null;
 
-        try {
+        if (username != null) try {
             userString = expandSysPropVars(username);
         } catch (IllegalArgumentException iae) {
             throw new MalformedURLException(iae.getMessage()
@@ -370,32 +370,21 @@ public class RCData {
 
         String passwordString = null;
 
-        try {
+        if (password != null) try {
             passwordString = expandSysPropVars(password);
         } catch (IllegalArgumentException iae) {
             throw new MalformedURLException(iae.getMessage()
                                             + " for password");
         }
 
-        // As described in the JDBC FAQ:
-        // http://java.sun.com/products/jdbc/jdbc-frequent.html;
-        // Why doesn't calling class.forName() load my JDBC driver?
-        // There is a bug in the JDK 1.1.x that can cause Class.forName()
-        // to fail. // new org.hsqldb.jdbc.JDBCDriver();
-        /* This does register the new driver instance, as can be shown by
-         * DriverManager.getDrivers(), but somehow the registered driver
-         * does not pick up the URL, and the result is always:
-         *     No suitable driver
-        DriverManager.registerDriver((Driver)
-        ((libpath == null) ? Class.forName(curDriver)
-                           : (new URLClassLoader(new URL[] {
-                                  new URL("file:///" + libpath)
-                              })).loadClass(curDriver)).newInstance());
-        */
         Class.forName(curDriver);
+        // This is not necessary for jdbc:odbc or if class loaded by a
+        // service resource file.  Consider checking for that.
 
-        Connection c = DriverManager.getConnection(urlString, userString,
-                                           passwordString);
+        Connection c = (userString == null)
+                     ? DriverManager.getConnection(urlString)
+                     : DriverManager.getConnection(urlString, userString,
+                                                   passwordString);
         if (ti != null) RCData.setTI(c, ti);
         // Would like to verify the setting made by checking
         // c.getTransactionIsolation().  Unfortunately, the spec allows for

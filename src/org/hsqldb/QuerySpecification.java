@@ -31,8 +31,9 @@
 
 package org.hsqldb;
 
-import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.HsqlNameManager.SimpleName;
+import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.RangeVariable.RangeIteratorMain;
 import org.hsqldb.index.Index;
@@ -42,6 +43,7 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
@@ -50,8 +52,6 @@ import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
-import org.hsqldb.lib.IntValueHashMap;
-import org.hsqldb.HsqlNameManager.SimpleName;
 
 /**
  * Implementation of an SQL query specification, including SELECT.
@@ -685,9 +685,9 @@ public class QuerySpecification extends QueryExpression {
         resolveAggregates();
 
         for (int i = 0; i < unionColumnMap.length; i++) {
-            unionColumnTypes[unionColumnMap[i]] = Type.getAggregateType(
+            unionColumnTypes[i] = Type.getAggregateType(
                 unionColumnTypes[i],
-                exprColumns[unionColumnMap[i]].getDataType());
+                exprColumns[i].getDataType());
         }
     }
 
@@ -1072,6 +1072,8 @@ public class QuerySpecification extends QueryExpression {
 
         result.metaData = resultMetaData;
 
+        result.setDataResultConcurrency(isUpdatable);
+
         int fullJoinIndex = 0;
         RangeIterator[] rangeIterators =
             new RangeIterator[rangeVariables.length];
@@ -1269,7 +1271,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         resultMetaData = ResultMetaData.newResultMetaData(columnTypes,
-                indexLimitVisible, indexLimitRowId);
+                columnMap, indexLimitVisible, indexLimitRowId);
 
         for (int i = 0; i < indexLimitVisible; i++) {
             Expression e = exprColumns[i];
@@ -1521,7 +1523,7 @@ public class QuerySpecification extends QueryExpression {
 
     void setUpdatability() {
 
-        if (isAggregated || isGrouped || isDistinctSelect) {
+        if (isAggregated || isGrouped || isDistinctSelect || !isTopLevel) {
             return;
         }
 
@@ -1754,6 +1756,7 @@ public class QuerySpecification extends QueryExpression {
         setReturningResultSet();
 
         acceptsSequences = true;
+        isTopLevel       = true;
     }
 
     void setReturningResultSet() {

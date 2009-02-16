@@ -83,7 +83,6 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
-import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -257,7 +256,7 @@ import org.hsqldb.types.Type;
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
  */
-public class JDBCPreparedStatement extends StatementBase implements PreparedStatement {
+public class JDBCPreparedStatement extends JDBCStatementBase implements PreparedStatement {
 
     /**
      * <!-- start generic documentation -->
@@ -885,10 +884,8 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN, parameterSet, 0,
                              parameterSet.length);
 
-        if (parameterStream != null) {
-            ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN,
-                                 parameterStream, 0, parameterStream.length);
-        }
+        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN,
+                             parameterStream, 0, parameterStream.length);
     }
 
     //----------------------------------------------------------------------
@@ -2013,7 +2010,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
         if (isClosed()) {
             return;
         }
-        clearResultData();
+        closeResultData();
 
         HsqlException he = null;
 
@@ -2251,7 +2248,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      */
 //#ifdef JAVA4
     public boolean getMoreResults(int current) throws SQLException {
-        throw Util.notSupported();
+        return super.getMoreResults();
     }
 
 //#endif JAVA4
@@ -3193,10 +3190,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @see #execute
      */
     public ResultSet getResultSet() throws SQLException {
-
-        checkClosed();
-
-        return currentResultSet;
+        return super.getResultSet();
     }
 
     /**
@@ -3213,13 +3207,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @see #execute
      */
     public int getUpdateCount() throws SQLException {
-
-// fredt - omit checkClosed() in order to be able to handle the result of a
-// SHUTDOWN query
-        checkClosed();
-
-        return (resultIn == null || resultIn.isData()) ? -1
-                : resultIn.getUpdateCount();
+        return super.getUpdateCount();
     }
 
     /**
@@ -3244,12 +3232,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @see #execute
      */
     public boolean getMoreResults() throws SQLException {
-
-        checkClosed();
-
-        resultIn = null;
-
-        return false;
+        return super.getMoreResults();
     }
 
     //--------------------------JDBC 2.0-----------------------------
@@ -3656,12 +3639,11 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
                           int generatedKeys, int[] generatedIndexes,
                           String[] generatedNames) throws HsqlException,
                               SQLException {
-
+        isResult = false;
         connection = c;
         sql        = c.nativeSQL(sql);
 
         int[] keyIndexes = null;
-        int   paramCount;
 
         if (generatedIndexes != null) {
             keyIndexes = new int[generatedIndexes.length];
@@ -3685,16 +3667,19 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
         statementRetType = in.getStatementType();
         rsmdDescriptor   = in.metaData;
         pmdDescriptor    = in.parameterMetaData;
-        paramCount       = pmdDescriptor.getColumnCount();
         parameterTypes   = pmdDescriptor.getParameterTypes();
-        parameterValues  = new Object[paramCount];
-        parameterSet     = new boolean[paramCount];
         parameterModes   = pmdDescriptor.paramModes;
 
-        //
         rsScrollability = resultSetType;
         rsConcurrency   = resultSetConcurrency;
         rsHoldability   = resultSetHoldability;
+        //
+        int paramCount       = pmdDescriptor.getColumnCount();
+        parameterValues  = new Object[paramCount];
+        parameterSet     = new boolean[paramCount];
+        parameterStream  = new boolean[paramCount];
+
+        //
 
         //
         for (int i = 0; i < paramCount; i++) {
@@ -3713,14 +3698,33 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
         this.sql = sql;
     }
 
-    JDBCPreparedStatement(Result result) {
+    /**
+     * Constructor for updatable ResultSet
+     */
+    JDBCPreparedStatement(JDBCConnection c, Result result) {
 
-        ResultMetaData metaData = result.metaData;
+        isResult = true;
+        connection = c;
+        int paramCount = result.metaData.getExtendedColumnCount();
 
-        pmdDescriptor   = metaData;
-        parameterTypes  = metaData.columnTypes;
-        parameterValues = new Object[metaData.getExtendedColumnCount()];
-        parameterSet    = new boolean[metaData.getExtendedColumnCount()];
+        pmdDescriptor   = result.metaData;
+        parameterTypes  = result.metaData.columnTypes;
+        parameterValues = new Object[paramCount];
+        parameterSet    = new boolean[paramCount];
+        parameterStream = new boolean[paramCount];
+
+        //
+        for (int i = 0; i < paramCount; i++) {
+            if (parameterTypes[i].isLobType()) {
+                hasLOBs = true;
+
+                break;
+            }
+        }
+
+        //
+        resultOut = Result.newUpdateResultRequest(parameterTypes,
+                result.getResultId());
     }
 
     /**
@@ -3762,22 +3766,12 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
 
             throw Util.outOfRangeArgument(msg);
         }
-        checkSetParameterIndex2(i, isStream);
-    }
-
-    protected void checkSetParameterIndex2(int i,
-            boolean isStream) throws SQLException {
 
         if (isStream) {
-            if (parameterStream == null) {
-                parameterStream = new boolean[parameterTypes.length];
-            }
             parameterStream[i - 1] = true;
             parameterSet[i - 1]    = false;
         } else {
-            if (parameterStream != null) {
-                parameterStream[i - 1] = false;
-            }
+            parameterStream[i - 1] = false;
             parameterSet[i - 1] = true;
         }
 /*
@@ -3807,22 +3801,16 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
      * @throws SQLException
      */
     private void checkParametersSet() throws SQLException {
-
-        if (parameterStream == null) {
-            for (int i = 0; i < parameterSet.length; i++) {
-                if (!parameterSet[i]) {
-                    throw Util.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
-                }
-            }
-        } else {
-            for (int i = 0; i < parameterSet.length; i++) {
-                if (!parameterSet[i] && !parameterStream[i]) {
-                    throw Util.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
-                }
-            }
-            ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN,
-                                 parameterStream, 0, parameterStream.length);
+        if (isResult) {
+            return;
         }
+        for (int i = 0; i < parameterSet.length; i++) {
+            if (!parameterSet[i] && !parameterStream[i]) {
+                throw Util.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
+            }
+        }
+        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN,
+                             parameterStream, 0, parameterStream.length);
     }
 
     /**
@@ -3868,6 +3856,16 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
                     o = new BinaryData((byte[]) o, !connection.isNetConn);
 
                     break;
+                }
+                try {
+                    if (o instanceof String) {
+
+                        o = outType.convertToDefaultType(connection.
+                            sessionProxy, o);
+                        break;
+                    }
+                } catch (HsqlException e) {
+                    Util.throwError(e);
                 }
                 Util.throwError(Error.error(ErrorCode.X_42565));
 
@@ -4117,12 +4115,17 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
 
         checkClosed();
         connection.clearWarningsNoCheck();
-        clearResultData();
+        closeResultData();
         checkParametersSet();
 
         //
-        resultOut.setPreparedExecuteProperties(parameterValues, maxRows,
-                fetchSize);
+
+        if (isResult) {
+            resultOut.setResultUpdateProperties(parameterValues);
+        } else {
+            resultOut.setPreparedExecuteProperties(parameterValues, maxRows,
+                                                   fetchSize);
+        }
 
         try {
             performPreExecute();
@@ -4137,6 +4140,15 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
         if (resultIn.isError()) {
             throw Util.sqlException(resultIn);
         }
+    }
+
+    boolean isAnyParameterSet() {
+        for (int i = 0; i < parameterValues.length ; i++) {
+            if (parameterSet[i]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** The parameter values for the next non-batch execution. */
@@ -4163,9 +4175,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
     /** Has one or more CLOB / BLOB type parameters. */
     protected boolean hasLOBs;
 
-    /**
-     * Description of result set metadata. <p>
-     */
+    /** Description of result set metadata. */
     protected ResultMetaData rsmdDescriptor;
 
     /** Description of parameter metadata. */
@@ -4174,7 +4184,7 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
     /** This object's one and one ResultSetMetaData object. */
     protected JDBCResultSetMetaData rsmd;
 
-// NOTE:  pmd is declared as Object to avoid yet another #ifdef.
+    // NOTE:  pmd is declared as Object to avoid yet another #ifdef.
 
     /** This object's one and only ParameterMetaData object. */
     protected Object pmd;
@@ -4182,11 +4192,12 @@ public class JDBCPreparedStatement extends StatementBase implements PreparedStat
     /** The SQL character sequence that this object represents. */
     protected String sql;
 
+    /** ID of the statement. */
     protected long statementID;
 
-    /**
-     * Type of statement - whether it generates a row update count or
-     * a result set.
-     */
+    /** Statement type - whether it generates a row update count or a result set. */
     protected int statementRetType;
+
+    /** Is part of a Result. */
+    protected final boolean isResult;
 }

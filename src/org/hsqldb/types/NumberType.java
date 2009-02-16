@@ -131,7 +131,7 @@ public final class NumberType extends Type {
     }
 
     /**
-     * Returns decimal precision for NUMERIC/DECIMAL. Retuns binary precision
+     * Returns decimal precision for NUMERIC/DECIMAL. Returns binary precision
      * for other parts.
      */
     public int getPrecision() {
