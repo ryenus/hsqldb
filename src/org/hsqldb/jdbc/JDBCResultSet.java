@@ -5538,6 +5538,9 @@ public class JDBCResultSet implements ResultSet {
      * @since JDK 1.6, HSQLDB 1.9.0
      */
     public int getHoldability() throws SQLException {
+
+        checkClosed();
+
         return rsHoldability;
     }
 
@@ -7303,6 +7306,8 @@ public class JDBCResultSet implements ResultSet {
             preparedStatement.clearParameters();
         }
         currentUpdateRowNumber = navigator.getRowNumber();
+
+        isRowUpdated = true;
     }
 
 

@@ -685,9 +685,9 @@ public class QuerySpecification extends QueryExpression {
         resolveAggregates();
 
         for (int i = 0; i < unionColumnMap.length; i++) {
-            unionColumnTypes[unionColumnMap[i]] = Type.getAggregateType(
+            unionColumnTypes[i] = Type.getAggregateType(
                 unionColumnTypes[i],
-                exprColumns[unionColumnMap[i]].getDataType());
+                exprColumns[i].getDataType());
         }
     }
 
@@ -1523,7 +1523,7 @@ public class QuerySpecification extends QueryExpression {
 
     void setUpdatability() {
 
-        if (isAggregated || isGrouped || isDistinctSelect) {
+        if (isAggregated || isGrouped || isDistinctSelect || !isTopLevel) {
             return;
         }
 
@@ -1756,6 +1756,7 @@ public class QuerySpecification extends QueryExpression {
         setReturningResultSet();
 
         acceptsSequences = true;
+        isTopLevel       = true;
     }
 
     void setReturningResultSet() {
