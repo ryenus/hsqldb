@@ -235,10 +235,15 @@ public class Result {
     public static Result newResult(DataInput dataInput,
                                    RowInputBinary in)
                                    throws IOException, HsqlException {
+        return newResult(dataInput.readByte(), dataInput, in);
+    }
+
+    public static Result newResult(int mode,
+                                   DataInput dataInput,
+                                   RowInputBinary in)
+                                   throws IOException, HsqlException {
 
         try {
-            int mode = dataInput.readByte();
-
             if (mode == ResultConstants.LARGE_OBJECT_OP) {
                 return ResultLob.newLob(dataInput, false);
             }
