@@ -94,7 +94,7 @@ public class WrapperIterator implements Iterator {
     }
 
     /**
-     * Constructor for a chained iterator that retuns the elements of the two
+     * Constructor for a chained iterator that returns the elements of the two
      * specified iterators.
      */
     public WrapperIterator(Iterator it1, Iterator it2) {

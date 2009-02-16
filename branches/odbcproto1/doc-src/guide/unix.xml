@@ -29,8 +29,6 @@
     <pubdate>$Date$</pubdate>
 
     <keywordset>
-      <keyword>HyperSQL</keyword>
-
       <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
@@ -601,9 +599,9 @@
             <title>example sqltool.rc stanza</title>
 
             <programlisting>    urlid localhostdb1
-  url jdbc:hsqldb:hsql://localhost
-  username SA
-  password secret</programlisting>
+    url jdbc:hsqldb:hsql://localhost
+    username SA
+    password secret</programlisting>
           </example>
         </step>
 

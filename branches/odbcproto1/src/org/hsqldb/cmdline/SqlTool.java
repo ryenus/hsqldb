@@ -515,9 +515,8 @@ public class SqlTool {
             if (rcUrl == null || rcUrl.length() < 1)
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_INLINEURL_MISSING));
-            if (rcUsername == null || rcUsername.length() < 1)
-                throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.RCDATA_INLINEUSERNAME_MISSING));
+            // We now allow both null and "" user name, but we require password
+            // if the user name != null.
             if (rcPassword != null && rcPassword.length() > 0)
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_PASSWORD_VISIBLE));
@@ -527,7 +526,7 @@ public class SqlTool {
                                 rcFields.keySet().toString()));
             }
 
-            if (rcPassword == null) try {
+            if (rcUsername != null && rcPassword == null) try {
                 rcPassword   = promptForPassword(rcUsername);
             } catch (PrivateException e) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
@@ -562,9 +561,9 @@ public class SqlTool {
             return;
         }
 
-        if (debug) {
-            conData.report();
-        }
+        //if (debug) {
+            //conData.report();
+        //}
 
         Connection conn = null;
         try {
@@ -592,9 +591,11 @@ public class SqlTool {
             if (debug) logger.error(e.getClass().getName(), e);
 
             // Let's not continue as if nothing is wrong.
+            String reportUser = (conData.username == null)
+                    ? "<DFLTUSER>" : conData.username;
             throw new SqlToolException(CONNECTERR_EXITVAL,
-                    rb.getString(SqltoolRB.CONNECTION_FAIL,
-                            conData.url, conData.username, e.getMessage()));
+                    rb.getString(SqltoolRB.CONNECTION_FAIL, conData.url,
+                    reportUser, e.getMessage()));
         }
 
         File[] emptyFileArray      = {};

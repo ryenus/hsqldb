@@ -57,7 +57,7 @@ public class HsqlException extends Exception {
 
     /**
      * @param message String
-     * @param state XOPEN / SQL code for exceptoin
+     * @param state XOPEN / SQL code for exception
      * @param code number code in HSQLDB
      */
     public HsqlException(String message, String state, int code) {

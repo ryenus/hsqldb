@@ -34,17 +34,13 @@ package org.hsqldb.jdbc.pool;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.sql.Array;
-import java.sql.BaseQuery;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
-import java.sql.ConflictingRow;
 import java.sql.Connection;
-import java.sql.DataSet;
 import java.sql.DatabaseMetaData;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
-import java.sql.QueryObjectGenerator;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -119,10 +115,6 @@ public class TestWrapperInvocationHandler {
             SQLXML.class,
             Statement.class,
             Struct.class,
-            BaseQuery.class,
-            ConflictingRow.class,
-            DataSet.class,
-            QueryObjectGenerator.class,
             SQLData.class,
             SQLInput.class,
             SQLOutput.class,

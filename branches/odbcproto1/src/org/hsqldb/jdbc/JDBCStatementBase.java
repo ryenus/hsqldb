@@ -34,7 +34,6 @@ package org.hsqldb.jdbc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Statement;
 
 import org.hsqldb.ErrorCode;
 import org.hsqldb.result.Result;
@@ -48,7 +47,30 @@ import org.hsqldb.result.ResultConstants;
  * @version 1.9.0
  * @since 1.9.0
  */
-class StatementBase {
+
+/**
+ * JDBC specification.
+ *
+ * Closing the Statement closes the ResultSet instance returned. But:
+ *
+ * Statement can be executed multiple times and return several results. With
+ * normal Statement objects, each execution can be for a completely different
+ * query. PreparedStatement instances are specifically for multiple use over
+ * multiple transactions.
+ *
+ * ResultSets may be held over commits and span several transactions.
+ *
+ * There is no real relation between the current state fo an Statement instance
+ * and the various ResultSets that it may have returned for different queries.
+ */
+/**
+ * Current todo and implementation info:
+ *
+ * Does not always close ResultSet object directly when closed. Although RS
+ * objects will eventually be closed when accessed, the change is not reflected
+ * to the server, impacting ResultSets that are held.
+ */
+class JDBCStatementBase {
 
     /**
      * Whether this Statement has been explicitly closed.  A JDBCConnection
@@ -105,6 +127,9 @@ class StatementBase {
     /** The first warning in the chain. Null if there are no warnings. */
     protected SQLWarning rootWarning;
 
+    /** Counter for ResultSet in getMoreResults(). */
+    protected int resultSetCounter;
+
     /** Implementation in subclasses **/
     public synchronized void close() throws SQLException {}
 
@@ -160,9 +185,56 @@ class StatementBase {
 
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection.sessionProxy,
-                    (Statement) this, resultIn, resultIn.metaData,
-                    connection.connProperties, connection.isNetConn);
+                    this, resultIn, resultIn.metaData,
+                    connection.connProperties);
         }
+    }
+
+    int getUpdateCount() throws SQLException {
+
+        checkClosed();
+
+        return (resultIn == null || resultIn.isData()) ? -1
+                : resultIn.getUpdateCount();
+    }
+
+
+    ResultSet getResultSet() throws SQLException {
+
+        checkClosed();
+
+        ResultSet result = currentResultSet;
+        currentResultSet = null;
+        return result;
+    }
+
+    boolean getMoreResults() throws SQLException {
+        return getMoreResults(CLOSE_CURRENT_RESULT);
+    }
+
+    /**
+     * Note yet correct for multiple ResultSets. Should keep track of the
+     * previous ResultSet objects to be able to close them
+     */
+    boolean getMoreResults(int current) throws SQLException {
+        checkClosed();
+
+        if (resultIn == null || !resultIn.isData()) {
+            return false;
+        }
+
+        if (resultSetCounter == 0) {
+            resultSetCounter++;
+            return true;
+        }
+
+        if (currentResultSet != null && current != KEEP_CURRENT_RESULT) {
+            currentResultSet.close();
+        }
+
+        resultIn = null;
+
+        return false;
     }
 
     ResultSet getGeneratedResultSet() throws SQLException {
@@ -176,12 +248,15 @@ class StatementBase {
         }
         generatedResultSet = new JDBCResultSet(connection.sessionProxy, null,
                 generatedResult, generatedResult.metaData,
-                connection.connProperties, connection.isNetConn);
+                connection.connProperties);
 
         return generatedResultSet;
     }
 
-    void clearResultData() throws SQLException {
+    /**
+     * See comment for getMoreResults.
+     */
+    void closeResultData() throws SQLException {
 
         if (currentResultSet != null) {
             currentResultSet.close();
@@ -194,4 +269,16 @@ class StatementBase {
         generatedResult    = null;
         resultIn           = null;
     }
+
+    /**
+     * JDBC 3 constants
+     */
+    static final int CLOSE_CURRENT_RESULT = 1;
+    static final int KEEP_CURRENT_RESULT = 2;
+    static final int CLOSE_ALL_RESULTS = 3;
+    static final int SUCCESS_NO_INFO = -2;
+    static final int EXECUTE_FAILED = -3;
+    static final int RETURN_GENERATED_KEYS = 1;
+    static final int NO_GENERATED_KEYS = 2;
+
 }

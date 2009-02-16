@@ -5080,19 +5080,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
-     * case insensitive in SQL and stores
-     * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All JDBCDatabaseMetaData methods perform
-     * case-sensitive comparison between name (pattern) arguments and the
-     * corresponding identifier values as they are stored in the database.
-     * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
+     * This method is intended for tables of structured types.
+     * From 1.9.0 this method returns an empty ResultSet.
      * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
@@ -5113,16 +5102,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             String catalog, String schemaPattern,
             String tableNamePattern) throws SQLException {
 
-        if (wantsIsNull(tableNamePattern)) {
-            return executeSelect("SYSTEM_SUPERTABLES", "0=1");
-        }
-        schemaPattern = translateSchema(schemaPattern);
-
-        StringBuffer select =
-            toQueryPrefix("SYSTEM_SUPERTABLES").append(and("TABLE_CAT", "=",
-                catalog)).append(and("TABLE_SCHEM", "LIKE",
-                                     schemaPattern)).append(and("TABLE_NAME",
-                                         "LIKE", tableNamePattern));
+        // query with no result
+        StringBuffer select = toQueryPrefixNoSelect(
+            "SELECT TABLE_NAME AS TABLE_CAT, TABLE_NAME AS TABLE_SCHEM, TABLE_NAME, TABLE_NAME AS SUPERTABLE_NAME "
+            + "FROM INFORMATION_SCHEMA.TABLES ").append(
+                and("TABLE_NAME", "=", ""));
 
         return execute(select.toString());
     }
@@ -5192,24 +5176,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
-     * case insensitive in SQL and stores
-     * them in upper case; it treats quoted identifiers as case sensitive and
-     * stores them verbatim. All JDBCDatabaseMetaData methods perform
-     * case-sensitive comparison between name (pattern) arguments and the
-     * corresponding identifier values as they are stored in the database.
-     * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Including 1.7.1, this JDBC feature is not supported; calling
-     * this method throws a SQLException stating that the operation
-     * is not supported. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * This method is intended for attributes of structured types.
+     * From 1.9.0 this method returns an empty ResultSet.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5236,17 +5204,18 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             String catalog, String schemaPattern, String typeNamePattern,
             String attributeNamePattern) throws SQLException {
 
-        if (wantsIsNull(typeNamePattern)
-                || wantsIsNull(attributeNamePattern)) {
-            return executeSelect("SYSTEM_UDTATTRIBUTES", "0=1");
-        }
-        schemaPattern = translateSchema(schemaPattern);
-
-        StringBuffer select = toQueryPrefix("SYSTEM_UDTATTRIBUTES").append(
-            and("TYPE_CAT", "=", catalog)).append(
-            and("TYPE_SCHEM", "LIKE", schemaPattern)).append(
-            and("TYPE_NAME", "LIKE", typeNamePattern)).append(
-            and("ATTR_NAME", "LIKE", attributeNamePattern));
+        StringBuffer select = toQueryPrefixNoSelect(
+            "SELECT TABLE_NAME AS TYPE_CAT, TABLE_NAME AS TYPE_SCHME, TABLE_NAME AS TYPE_NAME, "
+            + "TABLE_NAME AS ATTR_NAME, CAST(0 AS INTEGER) AS DATA_TYPE, TABLE_NAME AS ATTR_TYPE_NAME, "
+            + "CAST(0 AS INTEGER) AS ATTR_SIZE, CAST(0 AS INTEGER) AS DECIMAL_DIGITS, "
+            + "CAST(0 AS INTEGER) AS NUM_PREC_RADIX, CAST(0 AS INTEGER) AS NULLABLE, "
+            + "'' AS REMARK, '' AS ATTR_DEF, CAST(0 AS INTEGER) AS SQL_DATA_TYPE, "
+            +"CAST(0 AS INTEGER) AS SQL_DATETIME_SUB, CAST(0 AS INTEGER) AS CHAR_OCTECT_LENGTH, "
+            +"CAST(0 AS INTEGER) AS ORDINAL_POSITION, '' AS NULLABLE, "
+            +"'' AS SCOPE_CATALOG, '' AS SCOPE_SCHEMA, '' AS SCOPE_TABLE, "
+            +"CAST(0 AS SMALLINT) AS SCOPE_DATA_TYPE "
+            + "FROM INFORMATION_SCHEMA.TABLES ").append(
+                and("TABLE_NAME", "=", ""));
 
         return execute(select.toString());
     }

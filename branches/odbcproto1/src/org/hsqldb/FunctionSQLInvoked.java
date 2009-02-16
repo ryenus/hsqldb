@@ -137,7 +137,7 @@ public class FunctionSQLInvoked extends Expression {
 
             if (result.isError()) {}
             else if (result.isSimpleValue()) {
-                returnValue = result.getSimpleValue();
+                returnValue = result.getValueObject();
             } else {
                 result = Result.newErrorResult(
                     Error.error(ErrorCode.X_2F005, routine.getName().name),

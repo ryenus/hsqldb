@@ -114,21 +114,18 @@ public class RowSetNavigatorData extends RowSetNavigator {
         fullIndex          = queryExpression.fullIndex;
     }
 
-
-    public RowSetNavigatorData(Session session, TableBase table)
-                               throws HsqlException {
+    public RowSetNavigatorData(Session session,
+                               TableBase table) throws HsqlException {
 
         this.session       = session;
         maxMemoryRowCount  = session.getResultMemoryRowCount();
-        this.table              = table;
+        this.table         = table;
         visibleColumnCount = table.getColumnCount();
-        store = session.sessionData.getRowStore(table);
+        store              = session.sessionData.getRowStore(table);
         mainIndex          = table.getPrimaryIndex();
         fullIndex          = table.getFullIndex();
-
-        this.size = mainIndex.size(store);
+        this.size          = mainIndex.size(store);
     }
-
 
     public void sortFull() throws HsqlException {
 
@@ -275,8 +272,8 @@ public class RowSetNavigatorData extends RowSetNavigator {
         while (hasNext()) {
             Object[] data = (Object[]) getNext();
 
-            out.writeData(meta.getColumnCount(), meta.columnTypes, data, null,
-                          null);
+            out.writeData(meta.getExtendedColumnCount(), meta.columnTypes,
+                          data, null, null);
         }
 
         reset();

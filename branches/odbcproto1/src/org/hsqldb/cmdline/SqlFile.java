@@ -1377,7 +1377,7 @@ public class SqlFile {
                             // dsvColSplitter.  Going with former, since the
                             // latter should not need to be set for eXporting
                             // (only importing).
-                                for (int i = 0; i < skipColsArray.length; i++) {
+                            for (int i = 0; i < skipColsArray.length; i++) {
                                 skipCols.add(skipColsArray[i].trim().toLowerCase());
                             }
                             ResultSetMetaData rsmd = rs.getMetaData();
@@ -2995,6 +2995,7 @@ public class SqlFile {
                 int[]             maxWidth = new int[incCount];
                 int               insi;
                 boolean           skip;
+                boolean           isValNull;
 
                 // STEP 1: GATHER DATA
                 if (!htmlMode) {
@@ -3100,6 +3101,7 @@ public class SqlFile {
                         }
 
                         val = null;
+                        isValNull = true;
 
                         if (!binary) {
                             /*
@@ -3121,6 +3123,7 @@ public class SqlFile {
                                 case java.sql.Types.DATE:
                                 case java.sql.Types.TIME:
                                     ts  = r.getTimestamp(i);
+                                    isValNull = r.wasNull();
                                     val = ((ts == null) ? null : ts.toString());
                                     // Following block truncates non-zero
                                     // sub-seconds from time types OTHER than
@@ -3145,6 +3148,7 @@ public class SqlFile {
                                     break;
                                 default:
                                     val = r.getString(i);
+                                    isValNull = r.wasNull();
 
                                     // If we tried to get a String but it
                                     // failed, try getting it with a String
@@ -3153,16 +3157,18 @@ public class SqlFile {
                                         try {
                                             val = streamToString(
                                                 r.getAsciiStream(i), charset);
+                                            isValNull = r.wasNull();
                                         } catch (Exception e) {
-                                            // Why not handling this?
-                                            // Perhaps only coding exception for
-                                            // char set we know we have.
+                                            // This isn't an error.
+                                            // We are attempting to do a stream
+                                            // fetch if-and-only-if the column
+                                            // supports it.
                                         }
                                     }
                             }
                         }
 
-                        if (binary || (val == null &&!r.wasNull())) {
+                        if (binary || (val == null &&!isValNull)) {
                             if (pwDsv != null) {
                                 throw new SqlToolError(
                                         rb.getString(SqltoolRB.DSV_BINCOL));
@@ -3173,6 +3179,7 @@ public class SqlFile {
                             try {
                                 binBuffer =
                                     SqlFile.streamToBytes(r.getBinaryStream(i));
+                                isValNull = r.wasNull();
                             } catch (IOException ioe) {
                                 throw new SqlToolError(
                                     "Failed to read value using stream",
@@ -4499,6 +4506,7 @@ public class SqlFile {
         boolean[] autonulls = new boolean[headers.length - skippers];
         boolean[] parseDate = new boolean[autonulls.length];
         boolean[] parseBool = new boolean[autonulls.length];
+        char[] readFormat = new char[autonulls.length];
         String[] insertFieldName = (String[]) tmpList.toArray(new String[] {});
         // Remember that the headers array has all columns in DSV file,
         // even skipped columns.
@@ -4527,17 +4535,26 @@ public class SqlFile {
                 autonulls[i] = true;
                 parseDate[i] = false;
                 parseBool[i] = false;
+                readFormat[i] = 's'; // regular Strings
                 switch(rsmd.getColumnType(i + 1)) {
+                    case java.sql.Types.BIT :
+                        autonulls[i] = true;
+                        readFormat[i] = 'b';
+                        break;
+                    case java.sql.Types.LONGVARBINARY :
+                    case java.sql.Types.VARBINARY :
+                    case java.sql.Types.BINARY :
+                        autonulls[i] = true;
+                        readFormat[i] = 'x';
+                        break;
                     case java.sql.Types.BOOLEAN:
                         parseBool[i] = true;
                         break;
-                    case java.sql.Types.VARBINARY :
                     case java.sql.Types.VARCHAR :
                     case java.sql.Types.ARRAY :
                         // Guessing at how to handle ARRAY.
                     case java.sql.Types.BLOB :
                     case java.sql.Types.CLOB :
-                    case java.sql.Types.LONGVARBINARY :
                     case java.sql.Types.LONGVARCHAR :
                         autonulls[i] = false;
                         // This means to preserve white space and to insert
@@ -4750,12 +4767,29 @@ public class SqlFile {
                             }
                         }
                     } else {
-                        ps.setString(
-                            i + 1,
-                            (((dataVals[i].length() < 1 && autonulls[i])
-                              || dataVals[i].equals(nullRepToken))
-                             ? null
-                             : dataVals[i]));
+                        switch (readFormat[i]) {
+                            case 'b':
+                                ps.setBytes(
+                                    i + 1,
+                                    (dataVals[i].length() < 1) ? null
+                                    : SqlFile.bitCharsToBytes(
+                                        dataVals[i]));
+                                break;
+                            case 'x':
+                                ps.setBytes(
+                                    i + 1,
+                                    (dataVals[i].length() < 1) ? null
+                                    : SqlFile.hexCharOctetsToBytes(
+                                        dataVals[i]));
+                                break;
+                            default:
+                                ps.setString(
+                                    i + 1,
+                                    (((dataVals[i].length() < 1 && autonulls[i])
+                                      || dataVals[i].equals(nullRepToken))
+                                     ? null
+                                     : dataVals[i]));
+                        }
                     }
                     currentFieldName = null;
                 }
@@ -4774,6 +4808,8 @@ public class SqlFile {
                 } else {
                     possiblyUncommitteds.set(true);
                 }
+            } catch (NumberFormatException nfe) {
+                throw new RowError(null, nfe);
             } catch (SQLException se) {
                 throw new RowError(null, se);
             } } catch (RowError re) {
@@ -5321,5 +5357,57 @@ public class SqlFile {
                     buffer.val += matcher.group(2);
                 preempt = matcher.group(matcher.groupCount()).equals(";");
         }
+    }
+
+    static public byte[] hexCharOctetsToBytes(String hexChars) {
+        int chars = hexChars.length();
+        if (chars != (chars / 2) * 2) {
+            throw new NumberFormatException("Hex character lists contains "
+                + "an odd number of characters: " + chars);
+        }
+        byte[] ba = new byte[chars/2];
+        int offset = 0;
+        char c;
+        int octet;
+        for (int i = 0; i < chars; i++) {
+            octet = 0;
+            c = hexChars.charAt(i);
+            if (c >= 'a' && c <= 'f') {
+                octet += 10 + c - 'a';
+            } else if (c >= 'A' && c <= 'F') {
+                octet += 10 + c - 'A';
+            } else if (c >= '0' && c <= '9') {
+                octet += c - '0';
+            } else {
+                throw new NumberFormatException(
+                    "Non-hex character in input at offset " + i + ": " + c);
+            }
+            octet = octet << 4;
+            c = hexChars.charAt(++i);
+            if (c >= 'a' && c <= 'f') {
+                octet += 10 + c - 'a';
+            } else if (c >= 'A' && c <= 'F') {
+                octet += 10 + c - 'A';
+            } else if (c >= '0' && c <= '9') {
+                octet += c - '0';
+            } else {
+                throw new NumberFormatException(
+                    "Non-hex character in input at offset " + i + ": " + c);
+            }
+
+            ba[offset++] = (byte) octet;
+        }
+        if (ba.length != offset) {
+            throw new RuntimeException(
+                    "Internal accounting problem.  Expected to fill buffer of "
+                    + "size "+ ba.length + ", but wrote only " + offset
+                    + " bytes");
+        }
+        return ba;
+    }
+
+    static public byte[] bitCharsToBytes(String hexChars) {
+        throw new NumberFormatException(
+                "Sorry.  Bit exporting not supported yet");
     }
 }

@@ -429,6 +429,7 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(StatementTypes.SET_TRANSACTION,
                                             args);
             }
+            // deprecated
             case Tokens.READONLY : {
                 read();
 
@@ -616,6 +617,7 @@ public class ParserCommand extends ParserDDL {
                         return new StatementCommand(
                             StatementTypes.SET_TABLE_READONLY, args);
                     }
+                    // deprecated
                     case Tokens.READONLY : {
                         read();
 
@@ -990,7 +992,8 @@ public class ParserCommand extends ParserDDL {
             break outerloop;
         }
 
-        Statement cs = new StatementCommand(StatementTypes.LOCK_TABLE, null);
+        Statement cs = new StatementCommand(StatementTypes.LOCK_TABLE,
+                                            ValuePool.emptyObjectArray);
 
         cs.readTableNames = new HsqlName[readSet.size()];
 

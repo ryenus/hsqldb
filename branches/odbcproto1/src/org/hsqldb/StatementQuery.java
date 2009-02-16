@@ -72,7 +72,13 @@ public class StatementQuery extends StatementDMQL {
     }
 
     Result getResult(Session session) throws HsqlException {
-        return queryExpression.getResult(session, session.getMaxRows());
+
+        Result result = queryExpression.getResult(session,
+            session.getMaxRows());
+
+        result.setValueObject(this);
+
+        return result;
     }
 
     public ResultMetaData getResultMetaData() {

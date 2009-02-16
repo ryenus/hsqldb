@@ -31,13 +31,12 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.Iterator;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HashMap;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.store.ValuePool;
 
 /**
@@ -69,12 +68,12 @@ public class SchemaObjectSet {
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION :
             case SchemaObject.ASSERTION :
+            case SchemaObject.TRIGGER :
                 map = new HashMappedList();
                 break;
 
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
-            case SchemaObject.TRIGGER :
                 map = new HashMap();
                 break;
         }
@@ -94,14 +93,14 @@ public class SchemaObjectSet {
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION :
             case SchemaObject.ASSERTION :
+            case SchemaObject.TRIGGER :
                 SchemaObject object = ((SchemaObject) map.get(name));
 
                 return object == null ? null
                                       : object.getName();
 
             case SchemaObject.CONSTRAINT :
-            case SchemaObject.INDEX :
-            case SchemaObject.TRIGGER : {
+            case SchemaObject.INDEX : {
                 return (HsqlName) map.get(name);
             }
             default :
@@ -123,6 +122,7 @@ public class SchemaObjectSet {
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION :
             case SchemaObject.ASSERTION :
+            case SchemaObject.TRIGGER :
                 return (SchemaObject) map.get(name);
 
             default :
@@ -168,7 +168,6 @@ public class SchemaObjectSet {
 
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
-            case SchemaObject.TRIGGER :
                 value = name;
         }
 
@@ -184,10 +183,18 @@ public class SchemaObjectSet {
         Iterator it = map.values().iterator();
 
         while (it.hasNext()) {
-            HsqlName name = (HsqlName) it.next();
+            if (type == SchemaObject.TRIGGER) {
+                SchemaObject trigger = (SchemaObject) it.next();
 
-            if (name.parent == parent) {
-                it.remove();
+                if (trigger.getName().parent == parent) {
+                    it.remove();
+                }
+            } else {
+                HsqlName name = (HsqlName) it.next();
+
+                if (name.parent == parent) {
+                    it.remove();
+                }
             }
         }
     }
@@ -211,7 +218,8 @@ public class SchemaObjectSet {
             case SchemaObject.FUNCTION :
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
-            case SchemaObject.ASSERTION : {
+            case SchemaObject.ASSERTION :
+            case SchemaObject.TRIGGER : {
                 int i = ((HashMappedList) map).getIndex(name.name);
 
                 if (i == -1) {
@@ -229,8 +237,7 @@ public class SchemaObjectSet {
                 break;
             }
             case SchemaObject.CONSTRAINT :
-            case SchemaObject.INDEX :
-            case SchemaObject.TRIGGER : {
+            case SchemaObject.INDEX : {
                 map.remove(name.name);
                 name.rename(newName);
                 map.put(name.name, name);
@@ -392,7 +399,7 @@ public class SchemaObjectSet {
                         name = name.parent;
                     }
 
-                    if (name.type == SchemaObject.CHARSET ) {
+                    if (name.type == SchemaObject.CHARSET) {
 
                         // some built-in character sets have no schema
                         if (name.schema == null) {
