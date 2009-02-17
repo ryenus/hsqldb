@@ -62,6 +62,10 @@ public class User extends Grantee {
      */
     User(HsqlName name, GranteeManager manager) {
         super(name, manager);
+
+        if (manager != null) {
+            updateAllRights();
+        }
     }
 
     public String getSQL() {
