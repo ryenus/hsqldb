@@ -1,4 +1,5 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group * All rights reserved.
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,10 +88,10 @@ public class TestOdbcService extends AbstractTestOdbc {
             ResultSet rs;
             PreparedStatement ps = netConn.prepareStatement(
                 "SELECT i, 3, vc, 'str' FROM nullmix WHERE i < ? OR i > ? "
-                + "ORDER BY i"); 
+                + "ORDER BY i");
             ps.setInt(1, 10);
             ps.setInt(2, 30);
-            rs = ps.executeQuery(); 
+            rs = ps.executeQuery();
 
             assertTrue("No rows fetched", rs.next());
             assertEquals("str", rs.getString(4));
@@ -109,7 +110,7 @@ public class TestOdbcService extends AbstractTestOdbc {
 
             ps.setInt(1, 16);
             ps.setInt(2, 100);
-            rs = ps.executeQuery(); 
+            rs = ps.executeQuery();
 
             assertTrue("No rows fetched", rs.next());
             assertEquals("str", rs.getString(4));
@@ -183,7 +184,7 @@ public class TestOdbcService extends AbstractTestOdbc {
     public void testPreparedNonRowStatement() {
         try {
             PreparedStatement ps = netConn.prepareStatement(
-                    "UPDATE nullmix set xtra = ? WHERE i < ?"); 
+                    "UPDATE nullmix set xtra = ? WHERE i < ?");
             ps.setString(1, "first");
             ps.setInt(2, 25);
             assertEquals("First update failed", 4, ps.executeUpdate());
@@ -195,7 +196,7 @@ public class TestOdbcService extends AbstractTestOdbc {
 
 
             ResultSet rs = netConn.createStatement().executeQuery(
-                "SELECT i, 3, vc, xtra FROM nullmix ORDER BY i"); 
+                "SELECT i, 3, vc, xtra FROM nullmix ORDER BY i");
 
             assertTrue("No rows fetched", rs.next());
             assertEquals("second", rs.getString(4));
@@ -248,8 +249,8 @@ public class TestOdbcService extends AbstractTestOdbc {
             ResultSet rs;
             PreparedStatement ps = netConn.prepareStatement(
                 "SELECT i, 3, vc, 'str' FROM nullmix WHERE i != 21 "
-                + "ORDER BY i"); 
-            rs = ps.executeQuery(); 
+                + "ORDER BY i");
+            rs = ps.executeQuery();
 
             assertTrue("No rows fetched", rs.next());
             assertEquals("str", rs.getString(4));
@@ -284,7 +285,7 @@ public class TestOdbcService extends AbstractTestOdbc {
             assertFalse("Too many rows fetched", rs.next());
             rs.close();
 
-            rs = ps.executeQuery(); 
+            rs = ps.executeQuery();
 
             assertTrue("No rows fetched", rs.next());
             assertEquals("str", rs.getString(4));

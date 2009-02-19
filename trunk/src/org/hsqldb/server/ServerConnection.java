@@ -66,13 +66,10 @@
 
 package org.hsqldb.server;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.EOFException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -780,12 +777,12 @@ class ServerConnection implements Runnable {
               case 'X': // Terminate packet
                 if (sessionOdbcPsMap.size() >
                     (sessionOdbcPsMap.containsKey("") ? 1 : 0)) {
-                    server.printWithThread("Client left " + 
+                    server.printWithThread("Client left " +
                         sessionOdbcPsMap.size() + " PS objects open");
                 }
                 if (sessionOdbcPortalMap.size() >
                     (sessionOdbcPortalMap.containsKey("") ? 1 : 0)) {
-                    server.printWithThread("Client left " + 
+                    server.printWithThread("Client left " +
                         sessionOdbcPortalMap.size() + " Portal objects open");
                 }
                 OdbcUtil.validateInputPacketSize(inPacket);

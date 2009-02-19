@@ -33,7 +33,6 @@ package org.hsqldb.server;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.OutputStream;
 import java.io.IOException;
 
 /**

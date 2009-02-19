@@ -1,4 +1,5 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group * All rights reserved.
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -896,7 +897,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             }
         }
     }
-    
+
     /* TODO:  Implement this test after get testNumericSimpleRead() working.
      *        See that method above.
     public void testNumericComplex() {

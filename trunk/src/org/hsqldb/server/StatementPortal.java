@@ -32,9 +32,10 @@
 package org.hsqldb.server;
 
 import java.util.Map;
+
+import org.hsqldb.Session;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
-import org.hsqldb.Session;
 
 class StatementPortal {
     public Object[] parameters;

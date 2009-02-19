@@ -33,9 +33,9 @@ package org.hsqldb.server;
 
 import java.io.IOException;
 
+import org.hsqldb.ColumnBase;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.ColumnBase;
 
 /**
  * Static values and methods to facilitate servicing ODBC clients.
@@ -193,7 +193,7 @@ public class OdbcUtil {
         odbcSeverityMap.put(ODBC_SEVERITY_INFO, "INFO");
         odbcSeverityMap.put(ODBC_SEVERITY_LOG, "LOG");
     }
-    
+
 
     /**
      * TODO:  Eliminate the mungling on the client-side instead of
