@@ -7426,7 +7426,7 @@ public class JDBCResultSet implements ResultSet {
         resultMetaData = metaData;
         columnCount    = resultMetaData.getColumnCount();
 
-        if (rsConcurrency != ResultSet.CONCUR_READ_ONLY) {
+        if (rsConcurrency == ResultSet.CONCUR_UPDATABLE) {
             preparedStatement = new JDBCPreparedStatement(s.connection, result);
         }
     }

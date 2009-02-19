@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import java.lang.reflect.Method;
+
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.HsqlArrayList;
@@ -1761,7 +1763,7 @@ public class ParserDDL extends ParserRoutine {
         HsqlName  name     = null;
         Routine[] routines = null;
         String    alias;
-        String    methodFQN = token.tokenString;
+        String    methodFQN = null;
 
         if (!session.isProcessingScript()) {
             throw super.unsupportedFeature();
@@ -1788,7 +1790,8 @@ public class ParserDDL extends ParserRoutine {
 
             name = database.nameManager.newHsqlName(schema, alias,
                     SchemaObject.FUNCTION);
-            routines = Routine.newRoutines(Routine.getMethods(methodFQN));
+            Method[] methods = Routine.getMethods(methodFQN);
+            routines = Routine.newRoutines(methods);
         }
 
         String   sql  = getLastPart();

@@ -35,16 +35,10 @@ import java.lang.reflect.Method;
 
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
-import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
-import org.hsqldb.Table;
-import org.hsqldb.TriggerDef;
-import org.hsqldb.TriggerDefSQL;
-import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.WrapperIterator;
-import org.hsqldb.rights.Grantee;
 
 /* $Id$ */
 
@@ -87,11 +81,6 @@ final class DINameSpace {
      * HSQLDB SQL functions and stored procedures. <p>
      */
     private static HashSet builtin = new HashSet();
-
-    /**
-     * cached copy of inverse alias map
-     */
-    private HashMap inverseAliasMap;
 
     // procedure columns
     // make temporary ad-hoc spec a little more "official"
