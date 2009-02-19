@@ -31,16 +31,17 @@
 
 package org.hsqldb.server;
 
-import org.hsqldb.types.BinaryData;
-import org.hsqldb.HsqlException;
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.EOFException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Map;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
+
+import org.hsqldb.HsqlException;
+import org.hsqldb.types.BinaryData;
 
 /**
  * An atomic transfer packet received from a HyperSQL client.
@@ -88,7 +89,7 @@ class OdbcPacketInputStream extends DataInputStream {
             if (bytesRead != fourBytes.length) {
                 throw new EOFException("Failed to read size header int");
             }
-            packetSize = 
+            packetSize =
                 ((fourBytes[0] & 0xff) << 24) + ((fourBytes[1] & 0xff) <<16)
                 + ((fourBytes[2] & 0xff) << 8) + (fourBytes[3] & 0xff) - 4;
             // Minus 4 because this counts the size int itself.

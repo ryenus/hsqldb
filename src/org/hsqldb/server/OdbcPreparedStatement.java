@@ -31,13 +31,14 @@
 
 package org.hsqldb.server;
 
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.hsqldb.Session;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
-import org.hsqldb.Session;
 
 class OdbcPreparedStatement {
     public String handle, query;
