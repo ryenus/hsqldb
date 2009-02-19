@@ -435,6 +435,10 @@ public abstract class StatementDMQL extends Statement {
         }
 
         for (int i = 0; i < routines.length; i++) {
+            if (routines[i].isLibraryRoutine()) {
+                continue;
+            }
+
             session.getGrantee().checkAccess(routines[i]);
         }
 

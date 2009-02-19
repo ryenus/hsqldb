@@ -93,9 +93,9 @@ public class TestMultiInsert extends TestBase {
 
             // create table T and insert two rows simultaneously
             stmnt.execute("DROP TABLE T IF EXISTS;");
-            stmnt.executeQuery(
+            stmnt.execute(
                 "CREATE TABLE T (I IDENTITY, A CHAR(10), B CHAR(10));");
-            stmnt.executeQuery(
+            stmnt.execute(
                 "INSERT INTO T VALUES (NULL, 'A', 'a'),(NULL, 'B', 'b');");
 
             // print table out - should have two rows
@@ -103,9 +103,9 @@ public class TestMultiInsert extends TestBase {
 
             // 3 inserts - a normal standard syntax, multi-row syntax for
             //             single row, and multi-row syntax for two rows
-            stmnt.executeQuery("INSERT INTO T VALUES(NULL,'single1','s1');");
-            stmnt.executeQuery("INSERT INTO T VALUES((NULL,'single2','s2'));");
-            stmnt.executeQuery(
+            stmnt.execute("INSERT INTO T VALUES(NULL,'single1','s1');");
+            stmnt.execute("INSERT INTO T VALUES((NULL,'single2','s2'));");
+            stmnt.execute(
                 "INSERT INTO T VALUES((NULL,'double1','d1'),(NULL,'double2','d2'));");
 
             // print table out - should have 6 rows

@@ -309,7 +309,7 @@ public class StringUtil {
      * @param s the string
      * @return trimmed size
      */
-    public static int rTrimSize(String s) {
+    public static int rightTrimSize(String s) {
 
         int i = s.length();
 

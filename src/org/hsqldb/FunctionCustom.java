@@ -37,6 +37,7 @@ import java.util.Date;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.ClobData;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalMonthData;
@@ -45,7 +46,6 @@ import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.ClobData;
 
 /**
  * Implementation of calls to HSQLDB functions with reserved names or functions
@@ -843,7 +843,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(org.hsqldb.Library.log10(d));
+                return Double.valueOf(java.lang.Math.log10(d));
             }
             case FUNC_RADIANS : {
                 if (data[0] == null) {

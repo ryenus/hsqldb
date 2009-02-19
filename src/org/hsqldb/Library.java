@@ -106,18 +106,6 @@ public class Library {
 
     private Library() {}
 
-    // this magic number works for 100000000000000; but not for 0.1 and 0.01
-    private static final double LOG10_FACTOR = 0.43429448190325183;
-
-    /**
-     * Returns the base 10 logarithm of the given <code>double</code> value.
-     * @param x the value for which to calculate the base 10 logarithm
-     * @return the base 10 logarithm of <code>x</code>, as a <code>double</code>
-     */
-    public static double log10(double x) {
-        return roundMagic(Math.log(x) * LOG10_FACTOR);
-    }
-
     /**
      * Retrieves a <em>magically</em> rounded </code>double</code> value produced
      * from the given <code>double</code> value.  This method provides special
@@ -258,70 +246,6 @@ public class Library {
     }
 
     /**
-     * Returns a character sequence which is the result of writing the
-     * first <code>length</code> number of characters from the second
-     * given <code>String</code> over the first string. The start position
-     * in the first string where the characters are overwritten is given by
-     * <code>start</code>.<p>
-     *
-     * <b>Note:</b> In order of precedence, boundry conditions are handled as
-     * follows:<p>
-     *
-     * <UL>
-     * <LI>if either supplied <code>String</code> is null, then the other is
-     *      returned; the check starts with the first given <code>String</code>.
-     * <LI>if <code>start</code> is less than one, <code>s1</code> is returned
-     * <LI>if <code>length</code> is less than or equal to zero,
-     *     <code>s1</code> is returned
-     * <LI>if the length of <code>s2</code> is zero, <code>s1</code> is returned
-     * <LI>if <code>start</code> is greater than the length of <code>s1</code>,
-     *      <code>s1</code> is returned
-     * <LI>if <code>length</code> is such that, taken together with
-     *      <code>start</code>, the indicated interval extends
-     *      beyond the end of <code>s1</code>, then the insertion is performed
-     *      precisely as if upon a copy of <code>s1</code> extended in length
-     *      to just include the indicated interval
-     * </UL>
-     * @param s1 the <code>String</code> into which to insert <code>s2</code>
-     * @param start the position, with origin one, at which to start the insertion
-     * @param length the number of characters in <code>s1</code> to replace
-     * @param s2 the <code>String</code> to insert into <code>s1</code>
-     * @return <code>s2</code> inserted into <code>s1</code>, as indicated
-     *      by <code>start</code> and <code>length</code> and adjusted for
-     *      boundry conditions
-     */
-    public static String insert(String s1, int start, int length, String s2) {
-
-        if (s1 == null) {
-            return s2;
-        }
-
-        if (s2 == null) {
-            return s1;
-        }
-
-        int len1 = s1.length();
-        int len2 = s2.length();
-
-        start--;
-
-        if (start < 0 || length <= 0 || len2 == 0 || start > len1) {
-            return s1;
-        }
-
-        if (length > len2) {
-            length = len2;
-        }
-
-        if (start + length > len1) {
-            length = len1 - start;
-        }
-
-        return s1.substring(0, start) + s2.substring(0, length)
-               + s1.substring(start + length);
-    }
-
-    /**
      * Returns the starting position of the first occurrence of
      * the given <code>search</code> <code>String</code> object within
      * the given <code>String</code> object, <code>s</code>.
@@ -356,31 +280,6 @@ public class Library {
     }
 
     /**
-     * Returns the characters of the given <code>String</code>, with the
-     * leading spaces removed. Characters such as TAB are not removed.
-     *
-     * @param s the <code>String</code> from which to remove the leading blanks
-     * @return the characters of the given <code>String</code>, with the leading
-     *      spaces removed
-     */
-    public static String ltrim(String s) {
-
-        if (s == null) {
-            return s;
-        }
-
-        int len = s.length(),
-            i   = 0;
-
-        while (i < len && s.charAt(i) <= ' ') {
-            i++;
-        }
-
-        return (i == 0) ? s
-                        : s.substring(i);
-    }
-
-    /**
      * Returns a <code>String</code> composed of the given <code>String</code>,
      * repeated  <code>count</code> times.
      *
@@ -394,7 +293,7 @@ public class Library {
             return null;
         }
 
-        int          i = count.intValue();
+        int          i  = count.intValue();
         StringBuffer sb = new StringBuffer(s.length() * i);
 
         while (i-- > 0) {
@@ -445,91 +344,6 @@ public class Library {
         }
 
         return b.toString();
-    }
-
-// fredt@users 20020530 - patch 1.7.0 fredt - trim only the space character
-
-    /**
-     * Returns the characters of the given <code>String</code>, with trailing
-     * spaces removed.
-     * @param s the <code>String</code> from which to remove the trailing blanks
-     * @return the characters of the given <code>String</code>, with the
-     * trailing spaces removed
-     */
-    public static String rtrim(String s) {
-
-        if (s == null) {
-            return s;
-        }
-
-        int endindex = s.length() - 1;
-        int i        = endindex;
-
-        for (; i >= 0 && s.charAt(i) == ' '; i--) {}
-
-        return i == endindex ? s
-                             : s.substring(0, i + 1);
-    }
-
-    /**
-     * Returns the character sequence <code>s</code>, with the leading,
-     * trailing or both the leading and trailing occurences of the first
-     * character of the character sequence <code>trimstr</code> removed. <p>
-     *
-     * This method is in support of the standard SQL String function TRIM.
-     * Ordinarily, the functionality of this method is accessed from SQL using
-     * the following syntax: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * &lt;trim function&gt; ::= TRIM &lt;left paren&gt; &lt;trim operands&gt; &lt;right paren&gt;
-     * &lt;trim operands&gt; ::= [ [ &lt;trim specification&gt; ] [ &lt;trim character&gt; ] FROM ] &lt;trim source&gt;
-     * &lt;trim source&gt; ::= &lt;character value expression&gt;
-     * &lt;trim specification&gt; ::= LEADING | TRAILING | BOTH
-     * &lt;trim character&gt; ::= &lt;character value expression&gt;
-     * </pre>
-     *
-     * @param s the string to trim
-     * @param trimstr the character whose occurences will be removed
-     * @param leading if true, remove leading occurences
-     * @param trailing if true, remove trailing occurences
-     * @return s, with the leading, trailing or both the leading and trailing
-     *      occurences of the first character of <code>trimstr</code> removed
-     * @since 1.7.2
-     */
-    public static String trim(String s, String trimstr, boolean leading,
-                              boolean trailing) {
-
-        if (s == null) {
-            return s;
-        }
-
-        int trim     = trimstr.charAt(0);
-        int endindex = s.length();
-
-        if (trailing) {
-            for (--endindex; endindex >= 0 && s.charAt(endindex) == trim;
-                    endindex--) {}
-
-            endindex++;
-        }
-
-        if (endindex == 0) {
-            return "";
-        }
-
-        int startindex = 0;
-
-        if (leading) {
-            while (startindex < endindex && s.charAt(startindex) == trim) {
-                startindex++;
-            }
-        }
-
-        if (startindex == 0 && endindex == s.length()) {
-            return s;
-        } else {
-            return s.substring(startindex, endindex);
-        }
     }
 
 // fredt@users 20011010 - patch 460907 by fredt - soundex

@@ -88,11 +88,16 @@ public class Routine implements SchemaObject {
     boolean          isPSM;
     boolean          returnsTable;
     Statement        statement;
-    String           methodName;
-    Method           javaMethod;
-    boolean          javaMethodWithConnection;
-    HashMappedList   parameterList = new HashMappedList();
-    int              scopeVariableCount;
+
+    //
+    private String  methodName;
+    Method          javaMethod;
+    boolean         javaMethodWithConnection;
+    private boolean isLibraryRoutine;
+
+    //
+    HashMappedList parameterList = new HashMappedList();
+    int            scopeVariableCount;
     RangeVariable[] ranges = new RangeVariable[]{
         new RangeVariable(parameterList, false) };
 
@@ -620,10 +625,11 @@ public class Routine implements SchemaObject {
      */
     public static Routine newRoutine(Method method) throws HsqlException {
 
-        Routine      routine = new Routine(SchemaObject.FUNCTION);
-        int          offset  = 0;
-        Class[]      params  = method.getParameterTypes();
-        StringBuffer sb      = new StringBuffer();
+        Routine      routine   = new Routine(SchemaObject.FUNCTION);
+        int          offset    = 0;
+        Class[]      params    = method.getParameterTypes();
+        String       className = method.getDeclaringClass().getName();
+        StringBuffer sb        = new StringBuffer();
 
         sb.append("CLASSPATH:");
         sb.append(method.getDeclaringClass().getName()).append('.');
@@ -634,6 +640,11 @@ public class Routine implements SchemaObject {
         }
 
         String name = sb.toString();
+
+        if (className.equals("org.hsqldb.Library")
+                || className.equals("java.lang.Math")) {
+            routine.isLibraryRoutine = true;
+        }
 
         for (int j = offset; j < params.length; j++) {
             Type methodParamType = Type.getDefaultTypeWithSize(
@@ -659,6 +670,10 @@ public class Routine implements SchemaObject {
         routine.resolve();
 
         return routine;
+    }
+
+    public boolean isLibraryRoutine() {
+        return isLibraryRoutine;
     }
 
     public HsqlName[] getTableNamesForRead() {

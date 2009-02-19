@@ -60,8 +60,11 @@ public class LobManager {
         lobs.put(clob.getId(), clob);
     }
 
+    public void addLob(Object lob, long id) {
+        lobs.put(id, lob);
+    }
+
     public long getNewLobId() {
         return lobIdSequence++;
     }
-
 }

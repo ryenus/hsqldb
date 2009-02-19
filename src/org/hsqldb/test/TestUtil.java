@@ -142,7 +142,7 @@ public class TestUtil {
                 }
 
                 line = line.substring(
-                    0, org.hsqldb.lib.StringUtil.rTrimSize(line));
+                    0, org.hsqldb.lib.StringUtil.rightTrimSize(line));
 
                 //if the line is blank or a comment, then ignore it
                 if ((line.length() == 0) || line.startsWith("--")) {

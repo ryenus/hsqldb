@@ -82,8 +82,11 @@ public class RoutineSchema implements SchemaObject {
     }
 
     public OrderedHashSet getComponents() {
+
         OrderedHashSet set = new OrderedHashSet();
+
         set.addAll(routines);
+
         return set;
     }
 
