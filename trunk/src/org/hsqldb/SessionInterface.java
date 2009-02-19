@@ -117,6 +117,8 @@ public interface SessionInterface {
 
     long getLobId();
 
+    void addLob(Object lob, long id);
+
     void allocateResultLob(ResultLob result,
                            DataInput dataInput) throws HsqlException;
 

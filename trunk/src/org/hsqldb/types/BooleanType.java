@@ -34,7 +34,6 @@ package org.hsqldb.types;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Library;
 import org.hsqldb.OpTypes;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
@@ -163,15 +162,13 @@ public final class BooleanType extends Type {
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {
-                a = Library.trim((String) a, " ", true, true);
+                a = ((CharacterType) otherType).trim(session, a, (int) ' ', true, true);
 
                 if (((String) a).equalsIgnoreCase("TRUE")) {
                     return Boolean.TRUE;
                 } else if (((String) a).equalsIgnoreCase("FALSE")) {
                     return Boolean.FALSE;
                 } else if (((String) a).equalsIgnoreCase("UNKNOWN")) {
-                    return null;
-                } else if (((String) a).equalsIgnoreCase("NULL")) {
                     return null;
                 }
 

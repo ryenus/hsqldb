@@ -1829,6 +1829,10 @@ public class Session implements SessionInterface {
         return database.lobManager.getNewLobId();
     }
 
+    public void addLob(Object lob, long id) {
+        database.lobManager.addLob(lob, id);
+    }
+
     public void registerResultLobs(Result result) throws HsqlException {
         sessionData.registerLobForResult(result);
     }

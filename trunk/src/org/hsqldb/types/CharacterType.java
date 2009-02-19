@@ -37,13 +37,13 @@ import org.hsqldb.Collation;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.Library;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.ValuePool;
 
@@ -447,7 +447,7 @@ public class CharacterType extends Type {
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
                 if (precision != 0 && ((String) a).length() > precision) {
-                    if (Library.rtrim((String) a).length() <= precision) {
+                    if (StringUtil.rightTrimSize((String) a) > precision) {
                         session.addWarning(Error.error(ErrorCode.W_01004));
                     }
 
@@ -654,7 +654,7 @@ public class CharacterType extends Type {
         }
     }
 
-    public Object substring(Session session, Object data, long offset,
+    public Object substring(SessionInterface session, Object data, long offset,
                             long length, boolean hasLength,
                             boolean trailing) throws HsqlException {
 
@@ -711,7 +711,7 @@ public class CharacterType extends Type {
             ClobData clob = new ClobDataMemory(result);
 
             clob.setId(session.getLobId());
-            session.database.lobManager.addClob(clob);
+            session.addLob(clob, clob.getId());
 
             return clob;
         } else {
@@ -768,7 +768,7 @@ public class CharacterType extends Type {
         return collation.toLowerCase((String) data);
     }
 
-    public Object trim(Session session, Object data, int trim,
+    public Object trim(SessionInterface session, Object data, int trim,
                        boolean leading,
                        boolean trailing) throws HsqlException {
 
@@ -811,7 +811,7 @@ public class CharacterType extends Type {
             ClobData clob = new ClobDataMemory(s);
 
             clob.setId(session.getLobId());
-            session.database.lobManager.addClob(clob);
+            session.addLob(clob, clob.getId());
 
             return clob;
         } else {
@@ -819,7 +819,7 @@ public class CharacterType extends Type {
         }
     }
 
-    public Object overlay(Session session, Object data, Object overlay,
+    public Object overlay(SessionInterface session, Object data, Object overlay,
                           long offset, long length,
                           boolean hasLength) throws HsqlException {
 

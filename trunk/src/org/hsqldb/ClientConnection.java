@@ -489,6 +489,10 @@ public class ClientConnection implements SessionInterface {
         return lobIDSequence++;
     }
 
+    public void addLob(Object lob, long id) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClientConnection");
+    }
+
     /**
      * Does nothing here
      */
