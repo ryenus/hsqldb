@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import java.lang.reflect.Method;
+
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.lib.ArrayUtil;
@@ -3785,23 +3787,31 @@ public class ParserDQL extends ParserBase {
                 prefix, SchemaObject.FUNCTION);
 
         if (routineSchema == null && isSimpleQuoted) {
-            Routine[] routines;
+
             HsqlName schema =
                 database.schemaManager.getDefaultSchemaHsqlName();
 
-            routines = Routine.newRoutines(Routine.getMethods(name));
-
-            HsqlName routineName = database.nameManager.newHsqlName(schema,
-                name, true, SchemaObject.FUNCTION);
-
-            for (int i = 0; i < routines.length; i++) {
-                routines[i].setName(routineName);
-                session.database.schemaManager.addSchemaObject(routines[i]);
-            }
-
             routineSchema =
                 (RoutineSchema) database.schemaManager.findSchemaObject(name,
-                    prefix, SchemaObject.FUNCTION);
+                    schema.name, SchemaObject.FUNCTION);
+
+            if (routineSchema == null) {
+
+                Method[] methods = Routine.getMethods(name);
+                Routine[] routines = Routine.newRoutines(methods);
+
+                HsqlName routineName = database.nameManager.newHsqlName(schema,
+                    name, true, SchemaObject.FUNCTION);
+
+                for (int i = 0; i < routines.length; i++) {
+                    routines[i].setName(routineName);
+                    session.database.schemaManager.addSchemaObject(routines[i]);
+                }
+
+                routineSchema =
+                    (RoutineSchema) database.schemaManager.findSchemaObject(name,
+                    schema.name, SchemaObject.FUNCTION);
+            }
         }
 
         if (routineSchema == null) {
