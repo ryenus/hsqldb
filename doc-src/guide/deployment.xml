@@ -5,7 +5,7 @@
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
          xmlns:ns="http://docbook.org/ns/docbook">
-    <title xml:id="deploymnet-title">Deployment Issues</title>
+  <title xml:id="deploymnet-title">Deployment Issues</title>
 
   <info>
     <authorgroup>
@@ -30,597 +30,570 @@
       <keyword>SQL</keyword>
     </keywordset>
 
-      <legalnotice>
-        <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
-        distribute this document without any alteration under the terms of the
-        HSQLDB license. Additional permission is granted to the HSQLDB
-        Development Group to distribute this document with or without
-        alterations under the terms of the HSQLDB license.</para>
-      </legalnotice>
-    </info>
+    <legalnotice>
+      <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQLDB
+      Development Group to distribute this document with or without
+      alterations under the terms of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
 
-    <section xml:id="deploymen_modes-sect">
-      <title>Mode of Operation and Tables</title>
+  <section xml:id="deploymen_modes-sect">
+    <title>Mode of Operation and Tables</title>
 
-      <para>HSQLDB has many modes of operation and features that allow it to
-      be used in very different scenarios. Levels of memory usage, speed and
-      accessibility by different applications are influenced by how HSQLDB is
-      deployed.</para>
+    <para>HyperSQL has many modes of operation and features that allow it to
+    be used in very different scenarios. Levels of memory usage, speed and
+    accessibility by different applications are influenced by how HyperSQL is
+    deployed.</para>
 
-      <section>
-        <title>Mode of Operation</title>
+    <section>
+      <title>Mode of Operation</title>
 
-        <para>The decision to run HSQLDB as a separate server process or as an
-        <glossterm>in-process</glossterm> database should be based on the
-        following:</para>
+      <para>The decision to run HyperSQL as a separate server process or as an
+      <glossterm>in-process</glossterm> database should be based on the
+      following:</para>
 
-        <para><itemizedlist>
-            <listitem>
-              <para>When HSQLDB is run as a server on a separate machine, it
-              is isolated from hardware failures and crashes on the hosts
-              running the application.</para>
-            </listitem>
+      <para><itemizedlist>
+          <listitem>
+            <para>When HyperSQL is run as a server on a separate machine, it
+            is isolated from hardware failures and crashes on the hosts
+            running the application.</para>
+          </listitem>
 
-            <listitem>
-              <para>When HSQLDB is run as a server on the same machine, it is
-              isolated from application crashes and memory leaks.</para>
-            </listitem>
+          <listitem>
+            <para>When HyperSQL is run as a server on the same machine, it is
+            isolated from application crashes and memory leaks.</para>
+          </listitem>
 
-            <listitem>
-              <para>Server connections are slower than
-              <glossterm>in-process</glossterm> connections due to the
-              overhead of streaming the data for each JDBC call.</para>
-            </listitem>
-          </itemizedlist></para>
-      </section>
+          <listitem>
+            <para>Server connections are slower than
+            <glossterm>in-process</glossterm> connections due to the overhead
+            of streaming the data for each JDBC call.</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
 
-      <section>
-        <title>Tables</title>
+    <section>
+      <title>Tables</title>
 
-        <para>TEXT tables are designed for special applications where the data
-        has to be in an interchangeable format, such as CSV. TEXT tables
-        should not be used for routine storage of data.</para>
+      <para>TEXT tables are designed for special applications where the data
+      has to be in an interchangeable format, such as CSV. TEXT tables should
+      not be used for routine storage of data.</para>
 
-        <para>MEMORY tables and CACHED tables are generally used for data
-        storage. The difference between the two is as follows:</para>
+      <para>MEMORY tables and CACHED tables are generally used for data
+      storage. The difference between the two is as follows:</para>
 
-        <para><itemizedlist>
-            <listitem>
-              <para>The data for all MEMORY tables is read from the .script
-              file when the database is started and stored in memory. In
-              contrast the data for cached tables is not read into memory
-              until the table is accessed. Furthermore, only part of the data
-              for each CACHED table is held in memory, allowing tables with
-              more data than can be held in memory.</para>
-            </listitem>
+      <para><itemizedlist>
+          <listitem>
+            <para>The data for all MEMORY tables is read from the *.script
+            file when the database is started and stored in memory. In
+            contrast the data for cached tables is not read into memory until
+            the table is accessed. Furthermore, only part of the data for each
+            CACHED table is held in memory, allowing tables with more data
+            than can be held in memory.</para>
+          </listitem>
 
-            <listitem>
-              <para>When the database is shutdown in the normal way, all the
-              data for MEMORY tables is written out to the disk. In
-              comparison, the data in CACHED tables that has changed is
-              written out at shutdown, plus a compressed backup of all the
-              data in all cached tables.</para>
-            </listitem>
+          <listitem>
+            <para>When the database is shutdown in the normal way, all the
+            data for MEMORY tables is written out to the disk. In comparison,
+            the data in CACHED tables that has changed is written out at
+            shutdown, plus a compressed backup of all the data in all cached
+            tables.</para>
+          </listitem>
 
-            <listitem>
-              <para>The size and capacity of the data cache for all the CACHED
-              tables is configurable. This makes it possible to allow all the
-              data in CACHED tables to be cached in memory. In this case,
-              speed of access is good, but slightly slower than MEMORY
-              tables.</para>
-            </listitem>
+          <listitem>
+            <para>The size and capacity of the data cache for all the CACHED
+            tables is configurable. This makes it possible to allow all the
+            data in CACHED tables to be cached in memory. In this case, speed
+            of access is good, but slightly slower than MEMORY tables.</para>
+          </listitem>
 
-            <listitem>
-              <para>For normal applications it is recommended that MEMORY
-              tables are used for small amounts of data, leaving CACHED tables
-              for large data sets. For special applications in which speed is
-              paramount and a large amount of free memory is available, MEMORY
-              tables can be used for large tables as well.</para>
-            </listitem>
-          </itemizedlist></para>
-      </section>
+          <listitem>
+            <para>For normal applications it is recommended that MEMORY tables
+            are used for small amounts of data, leaving CACHED tables for
+            large data sets. For special applications in which speed is
+            paramount and a large amount of free memory is available, MEMORY
+            tables can be used for large tables as well.</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
 
-      <section>
-        <title>Large Objects</title>
+    <section>
+      <title>Large Objects</title>
 
-        <para>JDBC clobs are supported as columns of the type LONGVARCHAR.
-        JDBC Blobs are supported as columns of the type LONGVARBINARY. When
-        large objects (LONGVARCHAR, LONGVARBINARY, OBJECT) are stored with
-        table definitions that contain several normal fields, it is better to
-        use two tables instead. The first table to contain the normal fields
-        and the second table to contain the large object plus an identity
-        field. Using this method has two benefits. (a) The first table can
-        usually be created as a MEMORY table while only the second table is a
-        CACHED table. (b) The large objects can be retrieved individually
-        using their identity, instead of getting loaded into memory for
-        finding the rows during query processing. An example of two tables and
-        a select query that exploits the separation between the two
-        follows:</para>
+      <para>JDBC clobs are supported as columns of the type LONGVARCHAR. JDBC
+      Blobs are supported as columns of the type LONGVARBINARY. When large
+      objects (LONGVARCHAR, LONGVARBINARY, OBJECT) are stored with table
+      definitions that contain several normal fields, it is better to use two
+      tables instead. The first table to contain the normal fields and the
+      second table to contain the large object plus an identity field. Using
+      this method has two benefits. (a) The first table can usually be created
+      as a MEMORY table while only the second table is a CACHED table. (b) The
+      large objects can be retrieved individually using their identity,
+      instead of getting loaded into memory for finding the rows during query
+      processing. An example of two tables and a select query that exploits
+      the separation between the two follows:</para>
 
-        <informalexample>
-          <programlisting>CREATE MEMORY TABLE MAINTABLE(MAINID INTEGER, ......);
+      <informalexample>
+        <programlisting>CREATE MEMORY TABLE MAINTABLE(MAINID INTEGER, ......);
 CREATE CACHED TABLE LOBTABLE(LOBID INTEGER, LOBDATA LONGVARBINARY);
 SELECT * FROM (SELECT * FROM MAINTABLE &lt;join any other table&gt; WHERE &lt;various conditions apply&gt;) JOIN LOBTABLE ON MAINID=LOBID;</programlisting>
-        </informalexample>
+      </informalexample>
 
-        <para>The inner SELECT finds the required rows without reference to
-        the LOBTABLE and when it has found all the rows, retrieves the
-        required large objects from the LOBTABLE.</para>
-      </section>
-
-      <section>
-        <title>Deployment context</title>
-
-        <para>The files used for storing HSQLDB database data are all in the
-        same directory. New files are always created and deleted by the
-        database engine. Two simple principles must be observed:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>The Java process running HSQLDB must have full privileges on
-            the directory where the files are stored. This include create and
-            delete privileges.</para>
-          </listitem>
-
-          <listitem>
-            <para>The file system must have enough spare room both for the
-            'permanent' and 'temporary' files. The default maximum size of the
-            .log file is 200MB. The .data file can grow to up to 8GB. The
-            .backup file can be up to 50% of the .data file. The temporary
-            files created at the time of a SHUTDOWN can be equal in size to
-            the .script file and the .data file.</para>
-          </listitem>
-        </itemizedlist>
-      </section>
+      <para>The inner SELECT finds the required rows without reference to the
+      LOBTABLE and when it has found all the rows, retrieves the required
+      large objects from the LOBTABLE.</para>
     </section>
 
-    <section xml:id="deployment_mem_disk-sect">
-      <title>Memory and Disk Use</title>
+    <section>
+      <title>Deployment context</title>
 
-      <para>Memory used by the program can be thought of as two distinct
-      pools: memory used for table data, and memory used for building result
-      sets and other internal operations. In addition, when transactions are
-      used, memory is utilised for storing the information needed for a
-      rollback.</para>
-
-      <para>The memory used for a MEMORY table is the sum of memory used by
-      each row. Each MEMORY table row is a Java object that has 2 int or
-      reference variables. It contains an array of objects for the fields in
-      the row. Each field is an object such as <classname>Integer</classname>,
-      <classname>Long</classname>, <classname>String</classname>, etc. In
-      addition each index on the table adds a node object to the row. Each
-      node object has 6 int or reference variables. As a result, a table with
-      just one column of type INTEGER will have four objects per row, with a
-      total of 10 variables of 4 bytes each - currently taking up 80 bytes per
-      row. Beyond this, each extra column in the table adds at least a few
-      bytes to the size of each row.</para>
-
-      <para>All the rows in the result set are built in memory, so very large
-      result sets may not be possible. In server mode databases, the result
-      set memory is released from the server once the database server has
-      returned the result set. <glossterm>in-process</glossterm> databases
-      release the memory when the application program releases the
-      <classname>java.sql.ResultSet</classname> object. Server modes require
-      additional memory for returning result sets, as they convert the full
-      result set into an array of bytes which is then transmitted to the
-      client.</para>
-
-      <para>When UPDATE and DELETE queries are performed on CACHED tables, the
-      full set of rows that are affected, including those affected due to ON
-      UPDATE actions, is held in memory for the duration of the operation.
-      This means it may not be possible to perform deletes or updates
-      involving very large numbers of rows of CACHED tables. Such operations
-      should be performed in smaller sets.</para>
-
-      <para>When transactions support is enabled with SET AUTOCOMMIT OFF,
-      lists of all insert, delete or update operations are stored in memory so
-      that they can be undone when ROLLBACK is issued. Transactions that span
-      hundreds of modification to data will take up a lot of memory until the
-      next COMMIT or ROLLBACK clears the list.</para>
-
-      <para>Most JVM implementations allocate up to a maximum amount of memory
-      (usually 64 MB by default). This amount is generally not adequate when
-      large memory tables are used, or when the average size of rows in cached
-      tables is larger than a few hundred bytes. The maximum amount of
-      allocated memory can be set on the java ... command line that is used
-      for running HSQLDB. For example, with Sun JVM version 1.3.0 the
-      parameter -Xmx256m increases the amount to 256 MB.</para>
-
-      <para>By default, all the rows in the result set are built in memory, so
-      very large result sets may not be possible. In server mode databases,
-      the result set memory is released from the server once the database
-      server has returned the result set. <glossterm>in-process</glossterm>
-      databases release the memory when the application program releases the
-      <classname>java.sql.ResultSet</classname> object. Server modes require
-      additional memory for returning result sets, as they convert the full
-      result set into an array of bytes which is then transmitted to the
-      client.</para>
-
-      <para>**todo** updates to cover new large result support</para>
-
-      <para>HyperSQL uses a fast cache for immutable objects such as Integer
-      or String that are stored in the database. In most circumstances, this
-      reduces the memory footprint still further as fewer copies of the most
-      frequently-used objects are kept in memory.</para>
-
-      <section>
-        <title>Cache Memory Allocation</title>
-
-        <para>With CACHED tables, the data is stored on disk and only up to a
-        maximum number of rows are held in memory at any time. The default is
-        up to 3*16384 rows. The <property>hsqldb.cache_scale</property>
-        database property can be set to alter this amount. As any random
-        subset of the rows in any of the CACHED tables can be held in the
-        cache, the amount of memory needed by cached rows can reach the sum of
-        the rows containing the largest field data. For example if a table
-        with 100,000 rows contains 40,000 rows with 1,000 bytes of data in
-        each row and 60,000 rows with 100 bytes in each, the cache can grow to
-        contain nearly 50,000 rows, including all the 40,000 larger
-        rows.</para>
-
-        <para>An additional property,
-        <property>hsqldb.cache_size_scale</property> can be used in
-        conjunction with the <property>hsqldb.cache_scale</property> property.
-        This puts a limit in bytes on the total size of rows that are cached.
-        When the default values is used for both properties, the limit on the
-        total size of rows is approximately 50MB. (This is the size of binary
-        images of the rows and indexes. It translates to more actual memory,
-        typically 2-4 times, used for the cache because the data is
-        represented by Java objects.)</para>
-
-        <para>If memory is limited, the
-        <property>hsqldb.cache_scale</property> or
-        <property>hsqldb.cache_size_scale</property> database properties can
-        be reduced. In the example above, if the
-        <property>hsqldb.cache_size_scale</property> is reduced from 10 to 8,
-        then the total binary size limit is reduced from 50MB to 12.5 MB. This
-        will allow the number of cached rows to reach 50,000 small rows, but
-        only 12,500 of the larger rows.</para>
-      </section>
-    </section>
-
-    <section xml:id="deployment_conns-sect">
-      <title>Managing Database Connections</title>
-
-      <para>In all running modes (server or <glossterm>in-process</glossterm>)
-      multiple connections to the database engine are supported.
-      <glossterm>in-process</glossterm> (standalone) mode supports connections
-      from the client in the same Java Virtual Machine, while server modes
-      support connections over the network from several different
-      clients.</para>
-
-      <para>Connection pooling software can be used to connect to the database
-      but it is not generally necessary. With other database engines,
-      connection pools are used for reasons that may not apply to
-      HSQLDB.</para>
+      <para>The files used for storing HSQLDB database data are all in the
+      same directory. New files are always created and deleted by the database
+      engine. Two simple principles must be observed:</para>
 
       <itemizedlist>
         <listitem>
-          <para>To allow new queries to be performed while a time-consuming
-          query is being performed in the background. In HyperSQL, if a
-          session is in readonly mode, its queries are never blocked. If the
-          session is in read-write mode, blocking depends on the transaction
-          model and the current activity by other sessions.</para>
+          <para>The Java process running HSQLDB must have full privileges on
+          the directory where the files are stored. This include create and
+          delete privileges.</para>
         </listitem>
 
         <listitem>
-          <para>To limit the maximum number of simultaneous connections to the
-          database for performance reasons. With HSQLDB this can be useful if
-          your application is designed in a way that opens and closes
-          connections for each small task.</para>
+          <para>The file system must have enough spare room both for the
+          'permanent' and 'temporary' files. The default maximum size of the
+          *.log file is 200MB. The *.data file can grow to up to 8GB. The
+          .backup file can be up to 50% of the *.data file. The temporary
+          files created at the time of a SHUTDOWN can be equal in size to the
+          *.script file and the .data file.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+
+  <section xml:id="deployment_mem_disk-sect">
+    <title>Memory and Disk Use</title>
+
+    <para>Memory used by the program can be thought of as two distinct pools:
+    memory used for table data, and memory used for building result sets and
+    other internal operations. In addition, when transactions are used, memory
+    is utilised for storing the information needed for a rollback.</para>
+
+    <para>The memory used for a MEMORY table is the sum of memory used by each
+    row. Each MEMORY table row is a Java object that has 2 int or reference
+    variables. It contains an array of objects for the fields in the row. Each
+    field is an object such as <classname>Integer</classname>,
+    <classname>Long</classname>, <classname>String</classname>, etc. In
+    addition each index on the table adds a node object to the row. Each node
+    object has 6 int or reference variables. As a result, a table with just
+    one column of type INTEGER will have four objects per row, with a total of
+    10 variables of 4 bytes each - currently taking up 80 bytes per row.
+    Beyond this, each extra column in the table adds at least a few bytes to
+    the size of each row.</para>
+
+    <para>All the rows in the result set are built in memory, so very large
+    result sets may not be possible. In server mode databases, the result set
+    memory is released from the server once the database server has returned
+    the result set. <glossterm>in-process</glossterm> databases release the
+    memory when the application program releases the
+    <classname>java.sql.ResultSet</classname> object. Server modes require
+    additional memory for returning result sets, as they convert the full
+    result set into an array of bytes which is then transmitted to the
+    client.</para>
+
+    <para>When UPDATE and DELETE queries are performed on CACHED tables, the
+    full set of rows that are affected, including those affected due to ON
+    UPDATE actions, is held in memory for the duration of the operation. This
+    means it may not be possible to perform deletes or updates involving very
+    large numbers of rows of CACHED tables. Such operations should be
+    performed in smaller sets.</para>
+
+    <para>When transactions support is enabled with SET AUTOCOMMIT OFF, lists
+    of all insert, delete or update operations are stored in memory so that
+    they can be undone when ROLLBACK is issued. Transactions that span
+    hundreds of modification to data will take up a lot of memory until the
+    next COMMIT or ROLLBACK clears the list.</para>
+
+    <para>Most JVM implementations allocate up to a maximum amount of memory
+    (usually 64 MB by default). This amount is generally not adequate when
+    large memory tables are used, or when the average size of rows in cached
+    tables is larger than a few hundred bytes. The maximum amount of allocated
+    memory can be set on the java command line that is used for running
+    HyperSQL. For example, with Sun JVM version 1.3.0 the parameter -Xmx256m
+    increases the amount to 256 MB.</para>
+
+    <para>By default, all the rows in the result set are built in memory, so
+    very large result sets may not be possible. In server mode databases, the
+    result set memory is released from the server once the database server has
+    returned the result set. <glossterm>in-process</glossterm> databases
+    release the memory when the application program releases the
+    <classname>java.sql.ResultSet</classname> object. Server modes require
+    additional memory for returning result sets, as they convert the full
+    result set into an array of bytes which is then transmitted to the
+    client.</para>
+
+    <para>**todo** updates to cover new large result support</para>
+
+    <para>HyperSQL uses a fast cache for immutable objects such as Integer or
+    String that are stored in the database. In most circumstances, this
+    reduces the memory footprint still further as fewer copies of the most
+    frequently-used objects are kept in memory.</para>
+
+    <section>
+      <title>Cache Memory Allocation</title>
+
+      <para>With CACHED tables, the data is stored on disk and only up to a
+      maximum number of rows are held in memory at any time. The default is up
+      to 3*16384 rows. The <property>hsqldb.cache_scale</property> database
+      property can be set to alter this amount. As any random subset of the
+      rows in any of the CACHED tables can be held in the cache, the amount of
+      memory needed by cached rows can reach the sum of the rows containing
+      the largest field data. For example if a table with 100,000 rows
+      contains 40,000 rows with 1,000 bytes of data in each row and 60,000
+      rows with 100 bytes in each, the cache can grow to contain nearly 50,000
+      rows, including all the 40,000 larger rows.</para>
+
+      <para>An additional property,
+      <property>hsqldb.cache_size_scale</property> can be used in conjunction
+      with the <property>hsqldb.cache_scale</property> property. This puts a
+      limit in bytes on the total size of rows that are cached. When the
+      default values is used for both properties, the limit on the total size
+      of rows is approximately 50MB. (This is the size of binary images of the
+      rows and indexes. It translates to more actual memory, typically 2-4
+      times, used for the cache because the data is represented by Java
+      objects.)</para>
+
+      <para>If memory is limited, the <property>hsqldb.cache_scale</property>
+      or <property>hsqldb.cache_size_scale</property> database properties can
+      be reduced. In the example above, if the
+      <property>hsqldb.cache_size_scale</property> is reduced from 10 to 8,
+      then the total binary size limit is reduced from 50MB to 12.5 MB. This
+      will allow the number of cached rows to reach 50,000 small rows, but
+      only 12,500 of the larger rows.</para>
+    </section>
+  </section>
+
+  <section xml:id="deployment_conns-sect">
+    <title>Managing Database Connections</title>
+
+    <para>In all running modes (server or <glossterm>in-process</glossterm>)
+    multiple connections to the database engine are supported.
+    <glossterm>in-process</glossterm> (standalone) mode supports connections
+    from the client in the same Java Virtual Machine, while server modes
+    support connections over the network from several different
+    clients.</para>
+
+    <para>Connection pooling software can be used to connect to the database
+    but it is not generally necessary. With other database engines, connection
+    pools are used for reasons that may not apply to HyperSQL.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>To allow new queries to be performed while a time-consuming
+        query is being performed in the background. In HyperSQL, if a session
+        is in readonly mode, its queries are never blocked. If the session is
+        in read-write mode, blocking depends on the transaction model and the
+        current activity by other sessions.</para>
+      </listitem>
+
+      <listitem>
+        <para>To limit the maximum number of simultaneous connections to the
+        database for performance reasons. With HSQLDB this can be useful if
+        your application is designed in a way that opens and closes
+        connections for each small task.</para>
+      </listitem>
+
+      <listitem>
+        <para>To control transactions in a multi-threaded application. This
+        can be useful with HSQLDB as well. For example, in a web application,
+        a transaction may involve some processing between the queries or user
+        action across web pages. A separate connection should be used for each
+        HTTP session so that the work can be committed when completed or
+        rolled back otherwise. Although this usage cannot be applied to most
+        other database engines, HyperSQL is perfectly capable of handling over
+        100 simultaneous HTTP sessions as individual JDBC connections.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>An application that is not both multi-threaded and transactional,
+    such as an application for recording user login and logout actions, does
+    not need more than one connection. The connection can stay open
+    indefinitely and reopened only when it is dropped due to network
+    problems.</para>
+
+    <para>When using an <glossterm>in-process</glossterm> database with
+    versions prior to 1.7.2 the application program had to keep at least one
+    connection to the database open, otherwise the database would have been
+    closed and further attempts to create connections could fail. This is not
+    necessary since 1.7.2, which does not automatically close an
+    <glossterm>in-process</glossterm> database that is opened by establishing
+    a connection. An explicit SHUTDOWN command, with or without an argument,
+    is required to close the database. In version 2.0 a connection property
+    can be used to revert to the old behaviour.</para>
+
+    <para>When using a server database (and to some extent, an
+    <glossterm>in-process</glossterm> database), care must be taken to avoid
+    creating and dropping JDBC Connections too frequently. Failure to observe
+    this will result in unsuccessful connection attempts when the application
+    is under heavy load.</para>
+  </section>
+
+  <section xml:id="deployment_upgrade-sect">
+    <title>Upgrading Databases</title>
+
+    <para>Any database that is not produced with the release version of HSQLDB
+    2.0 must be upgraded to this version. Some catalogs created with 1.8.0 can
+    be upgraded simply by opening with HyperSQL 2.0. When this is not possible
+    due to errors, the rest of the procedures below should be followed.</para>
+
+    <para>Once a database is upgraded to 2.0, it can no longer be used with
+    previous versions of HyperSQL.</para>
+
+    <section xml:id="upgrade_via_script-sect">
+      <title xml:id="upgrade_via_script-title">Upgrading From Older
+      Versions</title>
+
+      <para>To upgrade from the more recent versions, 1.7.2, 1.7.3 or 1.8.0
+      simply issue the SET SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with
+      the old version, then open with the new version of the engine. The
+      upgrade is then complete.</para>
+
+      <para>To upgrade from older version database files (1.7.1 and older)
+      that do not contain CACHED tables, simply SHUTDOWN with the older
+      version and open with the new version. If there is any error in the
+      <literal>*.logs</literal> or <literal>*.script</literal> file, try again
+      after editing the <literal>*.logs</literal> or
+      <literal>*.script</literal> file.</para>
+
+      <para>To upgrade from older version database files (1.7.1 and older)
+      that contain CACHED tables, use the SCRIPT procedure below. In all
+      versions of HSQLDB, the <literal>SCRIPT 'filename'</literal> command
+      (used as an SQL statement) allows you to save a full record of your
+      database, including database object definitions and data, to a file of
+      your choice. You can export a script file using the old version of the
+      database engine and open the script as a database with 2.0.</para>
+
+      <procedure>
+        <title>Upgrade Using the SCRIPT Procedure for Old Versions</title>
+
+        <step>
+          <para>Open the original database in the old version of
+          DatabaseManager</para>
+        </step>
+
+        <step>
+          <para>Issue the SCRIPT command, for example <literal>SCRIPT
+          'newversion.script'</literal> to create a script file containing a
+          copy of the database.</para>
+        </step>
+
+        <step>
+          <para>SHUTDOWN this database.</para>
+        </step>
+
+        <step>
+          <para>Copy the original <literal>*.properties</literal> file into
+          <filename>newversion.properties</filename> in the same directory as
+          <filename>newversion.script</filename></para>
+        </step>
+
+        <step>
+          <para>Try to open the new database <filename>newversion</filename>
+          using DatabaseManager.</para>
+        </step>
+
+        <step>
+          <para>If there is any inconsistency in the data, the script line
+          number is reported on the console and the opening process is
+          aborted. Edit and correct any problems in the
+          <filename>newversion.script</filename> before attempting to open
+          again. Use the guidelines in the next section (Manual Changes to the
+          <literal>.script</literal> File). Use a programming editor that is
+          capable of handling very large files and does not wrap long lines of
+          text.</para>
+        </step>
+      </procedure>
+    </section>
+
+    <section>
+      <title>Manual Changes to the *.script File</title>
+
+      <para>In 2.0 the full range of ALTER TABLE commands is available to
+      change the data structures and their names. However, if an old database
+      cannot be opened due to data inconsistencies, or the use of index or
+      column names that are not compatible with 2.0, manual editing of the
+      <literal>*.script</literal> file can be performed.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Version 2.0 does not accept duplicate names for indexes that
+          were allowed before 1.7.2.</para>
         </listitem>
 
         <listitem>
-          <para>To control transactions in a multi-threaded application. This
-          can be useful with HSQLDB as well. For example, in a web
-          application, a transaction may involve some processing between the
-          queries or user action across web pages. A separate connection
-          should be used for each HTTP session so that the work can be
-          committed when completed or rolled back otherwise. Although this
-          usage cannot be applied to most other database engines, HSQLDB is
-          perfectly capable of handling over 100 simultaneous HTTP sessions as
-          individual JDBC connections.</para>
+          <para>Version 2.0 does not accept table or column names that are SQL
+          reserved keywords without double quoting.</para>
         </listitem>
       </itemizedlist>
 
-      <para>An application that is not both multi-threaded and transactional,
-      such as an application for recording user login and logout actions, does
-      not need more than one connection. The connection can stay open
-      indefinitely and reopened only when it is dropped due to network
-      problems.</para>
+      <para>Note that the <literal>*.script</literal> file must be the result
+      of a SHUTDOWN SCRIPT and must contain the full data for the database.The
+      following changes can be applied so long as they do not affect the
+      integrity of existing data.</para>
 
-      <para>When using an <glossterm>in-process</glossterm> database with
-      versions prior to 1.7.2 the application program had to keep at least one
-      connection to the database open, otherwise the database would have been
-      closed and further attempts to create connections could fail. This is
-      not necessary since 1.7.2, which does not automatically close an
-      <glossterm>in-process</glossterm> database that is opened by
-      establishing a connection. An explicit SHUTDOWN command, with or without
-      an argument, is required to close the database. In version 2.0 a
-      connection property can be used to revert to the old behaviour.</para>
+      <itemizedlist>
+        <listitem>
+          <para>Names of tables, columns and indexes can be changed.</para>
+        </listitem>
 
-      <para>When using a server database (and to some extent, an
-      <glossterm>in-process</glossterm> database), care must be taken to avoid
-      creating and dropping JDBC Connections too frequently. Failure to
-      observe this will result in unsuccessful connection attempts when the
-      application is under heavy load.</para>
+        <listitem>
+          <para><literal>CREATE UNIQUE INDEX ...</literal> to <literal>CREATE
+          INDEX ...</literal> and vice versa</para>
+
+          <para>A unique index can always be converted into a normal index. A
+          non-unique index can only be converted into a unique index if the
+          table data for the column(s) is unique in each row.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>NOT NULL</literal></para>
+
+          <para>A not-null constraint can always be removed.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>PRIMARY KEY</literal></para>
+
+          <para>A primary key constraint can be removed. It cannot be removed
+          if there is a foreign key referencing the column(s).</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>UNIQUE</literal></para>
+
+          <para>A UNIQUE constraint can be removed if there is no foreign key
+          referencing the column(s).</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>FOREIGN KEY</literal></para>
+
+          <para>A FOREIGN KEY constraint can always be removed.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>COLUMN TYPES</literal></para>
+
+          <para>Some changes to column types are possible. For example an
+          INTEGER column can be changed to BIGINT, or DATE, TIME and TIMESTAMP
+          columns can be changed to VARCHAR.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>After completing the changes and saving the modified
+      <literal>.script</literal> file, you can open the database as
+      normal.</para>
+    </section>
+  </section>
+
+  <section xml:id="deployment_backup-sect">
+    <title>Backing Up Database Catalogs</title>
+
+    <indexterm significance="preferred">
+      <primary>backup</primary>
+    </indexterm>
+
+    <para>The database engine saves the files containing all the data in a
+    file catalog when a shutdown takes place. It automatically recovers from
+    an abnormal termination and preserves the data when the catalog is opened
+    next time. In an ideal operating environment, where there is no OS crash,
+    disk failure, bugs in code, etc. there would be no need regularly to
+    backup a database. This is meant to say, the engine performs the routine
+    shutdown procedure internally, therefore backing up catalogs is an
+    insurance policy against all sorts of misadventure that are not under the
+    control of the database engine.</para>
+
+    <para>The data for each catalog consists of up to 5 files in the same
+    directory with the endings such as <literal>*.properties</literal>,
+    <literal>*.script</literal>, etc., as detailed in previous chapters
+    **todo**</para>
+
+    <simpara>HyperSQL 1.9 and later includes commands to backup the database
+    files into a single <literal>.tar</literal> or <literal>.tar.gz</literal>
+    file archive. The backup can be performed by a command given in a JDBC
+    session if the target database catalog is running, or on the command-line
+    if the target catalog has been shutdown.</simpara>
+
+    <section>
+      <title>Making Online Backups</title>
+
+      <simpara>To back up a running catalog, obtain a JDBC connection and
+      issue a <literal>BACKUP DATABASE</literal> command in SQL. In its most
+      simple form, the command format below will backup the database as a
+      single <literal>.tar.gz</literal> file to the given directory.</simpara>
+
+      <programlisting>BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
+
+      <simpara>See the <remark>Add link to sqlsyntax_backup-sect</remark> SQL
+      Syntax Chapter for details about the command and its options. See the
+      sections below about restoring a backup.</simpara>
     </section>
 
-    <section xml:id="deployment_upgrade-sect">
-      <title>Upgrading Databases</title>
+    <section>
+      <title>Making Offline Backups</title>
 
-      <para>Any database that is not produced with the release version of
-      HSQLDB 1.9.0 must be upgraded to this version. Some catalogs created
-      with 1.8.0 can be upgraded simply by opening with HyperSQL 2.0. When
-      this is not possible due to errors, the rest of the procedures below
-      should be followed.</para>
+      <para>To back up an offline catalog, the catalog must be in shut down
+      state. You will run a Java command like this <example>
+          <title>Offline Backup Example</title>
 
-      <para>Once a database is upgraded to 2.0, it can no longer be used with
-      previous versions of HSQLDB.</para>
-
-      <section xml:id="upgrade_via_script-sect">
-        <title xml:id="upgrade_via_script-title">Upgrading From Older
-        Versions</title>
-
-        <para>There may be some potential legacy issues in the upgrade from
-        very old versions which should be resolved by editing the
-        <literal>.script</literal> file:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Version 2.0 does not accept duplicate names for table
-            columns that were allowed before 1.7.0.</para>
-          </listitem>
-
-          <listitem>
-            <para>Version 2.0 does not accept duplicate names for indexes that
-            were allowed before 1.7.2.</para>
-          </listitem>
-
-          <listitem>
-            <para>Version 2.0 does not create the same type of index for
-            foreign keys as versions before 1.7.2.</para>
-          </listitem>
-
-          <listitem>
-            <para>Version 2.0 does not accept table or column names that are
-            SQL reserved keywords without double quoting.</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>To upgrade from 1.7.2, 1.7.3 or 1.8.0 simply issue the SET
-        SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with the old version,
-        then open with the new version of the engine. The upgrade is then
-        complete.</para>
-
-        <para>To upgrade from older version database files (1.7.1 and older)
-        that do not contain CACHED tables, simply SHUTDOWN with the older
-        version and open with the new version. If there is any error in the
-        <literal>.logs</literal> or <literal>.script</literal> file, try again
-        after editing the <literal>.logs</literal> or
-        <literal>.script</literal> file.</para>
-
-        <para>To upgrade from older version database files (1.7.1 and older)
-        that contain CACHED tables, use the SCRIPT procedure below. In all
-        versions of HSQLDB, the <literal>SCRIPT 'filename'</literal> command
-        (used as an SQL statement) allows you to save a full record of your
-        database, including database object definitions and data, to a file of
-        your choice. You can export a script file using the old version of the
-        database engine and open the script as a database with 2.0.</para>
-
-        <procedure>
-          <title>Upgrade Using SCRIPT procedure</title>
-
-          <step>
-            <para>Open the original database in the old version of
-            DatabaseManager</para>
-          </step>
-
-          <step>
-            <para>Issue the SCRIPT command, for example <literal>SCRIPT
-            'newversion.script'</literal> to create a script file containing a
-            copy of the database.</para>
-          </step>
-
-          <step>
-            <para>SHUTDOWN this database.</para>
-          </step>
-
-          <step>
-            <para>Copy the original <literal>.properties</literal> file into
-            <filename>newversion.properties</filename> in the same directory
-            as <filename>newversion.script</filename></para>
-          </step>
-
-          <step>
-            <para>Try to open the new database <filename>newversion</filename>
-            using DatabaseManager.</para>
-          </step>
-
-          <step>
-            <para>If there is any inconsistency in the data, the script line
-            number is reported on the console and the opening process is
-            aborted. Edit and correct any problems in the
-            <filename>newversion.script</filename> before attempting to open
-            again. Use the guidelines in the next section (Manual Changes to
-            the <literal>.script</literal> File). Use a programming editor
-            that is capable of handling very large files and does not wrap
-            long lines of text.</para>
-          </step>
-        </procedure>
-      </section>
-
-      <section>
-        <title>Manual Changes to the .script File</title>
-
-        <para>In 2.0 the full range of ALTER TABLE commands is available to
-        change the data structures and their names. However, if an old
-        database cannot be opened due to data inconsistencies, or the use of
-        index or column names that are not compatible with 2.0, manual editing
-        of the <literal>.script</literal> file can be performed. Note that the
-        <literal>.script</literal> file must be the result of a SHUTDOWN
-        SCRIPT and must contain the full data for the database.</para>
-
-        <para>The following changes can be applied so long as they do not
-        affect the integrity of existing data.</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Names of tables, columns and indexes can be changed.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>CREATE UNIQUE INDEX ...</literal> to
-            <literal>CREATE INDEX ...</literal> and vice versa</para>
-
-            <para>A unique index can always be converted into a normal index.
-            A non-unique index can only be converted into a unique index if
-            the table data for the column(s) is unique in each row.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>NOT NULL</literal></para>
-
-            <para>A not-null constraint can always be removed.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>PRIMARY KEY</literal></para>
-
-            <para>A primary key constraint can be removed. It cannot be
-            removed if there is a foreign key referencing the
-            column(s).</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>UNIQUE</literal></para>
-
-            <para>A UNIQUE constraint can be removed if there is no foreign
-            key referencing the column(s).</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>FOREIGN KEY</literal></para>
-
-            <para>A FOREIGN KEY constraint can always be removed.</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>COLUMN TYPES</literal></para>
-
-            <para>Some changes to column types are possible. For example an
-            INTEGER column can be changed to BIGINT, or DATE, TIME and
-            TIMESTAMP columns can be changed to VARCHAR.</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>After completing the changes and saving the modified
-        <literal>.script</literal> file, you can open the database as
-        normal.</para>
-      </section>
-    </section>
-
-    <section xml:id="deployment_backup-sect">
-      <title>Backing Up Database Catalogs</title>
-
-      <indexterm significance="preferred">
-        <primary>backup</primary>
-      </indexterm>
-
-      <para>The database engine saves the files containing all the data in a
-      file catalog when a shutdown takes place. It automatically recovers from
-      an abnormal termination and preserves the data when the catalog is
-      opened next time. In an ideal operating environment, where there is no
-      OS crash, disk failure, bugs in code, etc. there would be no need
-      regularly to backup a database. This is meant to say, the engine
-      performs the routine shutdown procedure internally, therefore backing up
-      catalogs is an insurance policy against all sorts of misadventure that
-      are not under the control of the database engine.</para>
-
-      <para>The data for each catalog consists of up to 5 files in the same
-      directory with the endings such as <literal>*.properties</literal>,
-      <literal>*.script</literal>, etc., as detailed in previous chapters
-      **todo**</para>
-
-      <simpara>HyperSQL 1.9 and later includes commands to backup the database
-      files into a single <literal>.tar</literal> or
-      <literal>.tar.gz</literal> file archive. The backup can be performed by
-      a command given in a JDBC session if the target database catalog is
-      running, or on the command-line if the target catalog has been
-      shutdown.</simpara>
-
-      <section>
-        <title>Making Online Backups</title>
-
-        <simpara>To back up a running catalog, obtain a JDBC connection and
-        issue a <literal>BACKUP DATABASE</literal> command in SQL. In its most
-        simple form, the command format below will backup the database as a
-        single <literal>.tar.gz</literal> file to the given
-        directory.</simpara>
-
-        <programlisting>BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
-
-        <simpara>See the <remark>Add link to sqlsyntax_backup-sect</remark>
-        SQL Syntax Chapter for details about the command and its options. See
-        the sections below about restoring a backup.</simpara>
-      </section>
-
-      <section>
-        <title>Making Offline Backups</title>
-
-        <para>To back up an offline catalog, the catalog must be in shut down
-        state. You will run a Java command like this <example>
-            <title>Offline Backup Example</title>
-
-            <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
+          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
     tar/path.tar db/base/path</screen>
-          </example>where <filename>tar/path.tar</filename> is a file path to
-        the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to be
-        created, and <filename>db/base/path</filename> is the file path to the
-        catalog file base name (in same fashion as in
-        <varname>server.database.*</varname> settings and JDBC URLs with
-        catalog type <glossterm>file:</glossterm>.</para>
-      </section>
-
-      <section>
-        <title>Examining Backups</title>
-
-        <para>You can list the contents of backup tar files with
-        <classname>DbBackup</classname> on your operating system command line,
-        or with any Pax-compliant tar or pax client (this includes GNU tar),
-        <example>
-            <title>Listing a backup with DbBackup</title>
-
-            <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
-          </example>You can also give regular expressions at the end of the
-        command line if you are only interested in some of the file entries in
-        the backup. Note that these are real regular expressions, not shell
-        globbing patterns, so you would use <literal>.+script</literal> to
-        match entries ending in "script", not
-        <literal>*script</literal>.</para>
-
-        <simpara>You can examine the contents of the backup in their entirety
-        by restoring the backup, as explained in the following section, to a
-        temporary directory.</simpara>
-      </section>
-
-      <section>
-        <title>Restoring a Backup</title>
-
-        <para>You use <classname>DbBackup</classname> on your operating system
-        command line to restore a catalog from a backup. <example>
-            <title>Restoring a backup with DbBackup</title>
-
-            <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
-    tar/path.tar db/dir</screen>
-          </example>where <filename>tar/path.tar</filename> is a file path to
-        the *.tar or *.tar.gz file to be read, and <filename>db/dir</filename>
-        is the target directory to extract the catalog files into. Note that
-        <filename>db/dir</filename> specifies a directory path, without the
-        catalog file base name. The files will be created with the names
-        stored in the tar file (and which you can see as described in the
-        preceding section).</para>
-      </section>
+        </example>where <filename>tar/path.tar</filename> is a file path to
+      the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to be
+      created, and <filename>db/base/path</filename> is the file path to the
+      catalog file base name (in same fashion as in
+      <varname>server.database.*</varname> settings and JDBC URLs with catalog
+      type <glossterm>file:</glossterm>.</para>
     </section>
-  </chapter>
 
+    <section>
+      <title>Examining Backups</title>
+
+      <para>You can list the contents of backup tar files with
+      <classname>DbBackup</classname> on your operating system command line,
+      or with any Pax-compliant tar or pax client (this includes GNU tar),
+      <example>
+          <title>Listing a Backup with DbBackup</title>
+
+          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
+        </example>You can also give regular expressions at the end of the
+      command line if you are only interested in some of the file entries in
+      the backup. Note that these are real regular expressions, not shell
+      globbing patterns, so you would use <literal>.+script</literal> to match
+      entries ending in "script", not <literal>*script</literal>.</para>
+
+      <simpara>You can examine the contents of the backup in their entirety by
+      restoring the backup, as explained in the following section, to a
+      temporary directory.</simpara>
+    </section>
+
+    <section>
+      <title>Restoring a Backup</title>
+
+      <para>You use <classname>DbBackup</classname> on your operating system
+      command line to restore a catalog from a backup. <example>
+          <title>Restoring a Backup with DbBackup</title>
+
+          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
+    tar/path.tar db/dir</screen>
+        </example>where <filename>tar/path.tar</filename> is a file path to
+      the *.tar or *.tar.gz file to be read, and <filename>db/dir</filename>
+      is the target directory to extract the catalog files into. Note that
+      <filename>db/dir</filename> specifies a directory path, without the
+      catalog file base name. The files will be created with the names stored
+      in the tar file (and which you can see as described in the preceding
+      section).</para>
+    </section>
+  </section>
+</chapter>

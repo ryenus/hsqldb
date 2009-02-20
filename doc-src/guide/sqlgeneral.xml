@@ -53,10 +53,10 @@
     <title>Standards Support</title>
 
     <para>HSQLDB 1.9.0 supports the dialect of SQL defined by SQL standards
-    92, 1999, 2003 and 200n. This means where a feature of the standard is
+    92, 1999, 2003 and 2008. This means where a feature of the standard is
     supported, e.g. left outer join, the syntax is that specified by the
     standard text. Almost all syntactic features of SQL-92 up to Advanced
-    Level are supported, as well as SQL 200n core and many optional features
+    Level are supported, as well as SQL 2008 core and many optional features
     of this standard. Work is in progress for a formal declaration of
     conformance.</para>
 
@@ -1001,7 +1001,9 @@ CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23
       the same field as the least significant field of the target interval
       type. This value is then converted to the target interval type For
       example CAST( 22 AS INTERVAL YEAR TO MONTH) evaluates to INTERVAL '22'
-      MONTH and then INTERVAL '1 10' YEAR TO MONTH</para>
+      MONTH and then INTERVAL '1 10' YEAR TO MONTH. Note that SQL Standard
+      only supports casts to single-field INTERVAL types, while HyperSQL
+      allows casting to multi-field types as well.</para>
 
       <para>An interval value can be cast to a numeric type. In this case the
       interval value is first converted to a single-field INTERVAL type with
