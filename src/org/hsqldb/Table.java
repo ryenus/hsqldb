@@ -2326,7 +2326,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * For log statements.
+     * For log statements. Delete a single row.
      */
     public void deleteNoCheckFromLog(Session session,
                                      Object[] data) throws HsqlException {

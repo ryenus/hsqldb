@@ -1790,7 +1790,9 @@ public class ParserDDL extends ParserRoutine {
 
             name = database.nameManager.newHsqlName(schema, alias,
                     SchemaObject.FUNCTION);
+
             Method[] methods = Routine.getMethods(methodFQN);
+
             routines = Routine.newRoutines(methods);
         }
 
@@ -2959,6 +2961,10 @@ public class ParserDDL extends ParserRoutine {
 
                 SqlInvariants.checkSchemaNameNotSystem(token.tokenString);
             }
+        }
+
+        if (SqlInvariants.PUBLIC_ROLE_NAME.equals(authorisation)) {
+            throw Error.error(ErrorCode.X_28502, authorisation);
         }
 
         Grantee owner = authorisation == null ? session.getGrantee()
