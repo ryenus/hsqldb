@@ -43,12 +43,54 @@
     <title>Overview</title>
 
     <para>HyperSQL supports a set of commands for managing the database and
-    its properties. These statements not defined by the SQL standard and are
-    specific to HyperSQL.</para>
+    its properties. These statements are not defined by the SQL standard and
+    are specific to HyperSQL.</para>
   </section>
 
   <section>
     <title>Statements</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BACKUP DATABASE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BACKUP DATABASE</emphasis></simpara>
+
+    <simpara><emphasis>backup database statement</emphasis></simpara>
+
+    <simpara><literal>&lt;backup database statement&gt; ::= BACKUP DATABASE TO
+    &lt;file path&gt; {SCRIPT | [NOT] COMPRESSED} BLOCKING</literal></simpara>
+
+    <simpara>Backup the database to specified <literal>&lt;file
+    path&gt;</literal>. The qualifier, BLOCKING, means all database operations
+    are suspended during backup.</simpara>
+
+    <simpara>If SCRIPT is specified, the backup will consist of two files, a
+    <literal>*.properties</literal> file and a <literal>*.script</literal>
+    file, which contain all the data and settings of the database. These files
+    are not compressed. The <literal>&lt;file path&gt;</literal> specifies an
+    existing directory and must end with a forward slash. The files are
+    written to this directory.</simpara>
+
+    <simpara>If COMPRESSED or NOT COMPRESSED is specified, the backup consists
+    of the current snapshot of database files. During backup, a CHECKPOINT
+    command is silently executed. The <literal>&lt;file path&gt;</literal> can
+    be in two forms. If the <literal>&lt;file path&gt;</literal> ends with a
+    forward slash, it specifies a directory. In this case, an automatic name
+    for the archive is generated that includes the date, time and the base
+    name of the database. The database is backed up to this archive file in
+    the specified directory. If the <literal>&lt;file path&gt;</literal> does
+    not end with a forward slash, it specifies a user-defined file name for
+    the backup archive. The archive is in tar, gzip format depending on
+    whether it is compressed or not. </simpara>
+
+    <simpara>The HSQLDB jar also contains a program that creates an archive of
+    an offline database. It also contains a program to expand an archive into
+    database files. These programs are documented in ***todo Backing up
+    Database Catalog section of Deployment Chapter.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>CHECKPOINT</primary>
@@ -63,8 +105,8 @@
 
     <simpara>Closes the database files, rewrites the script file, deletes the
     log file and opens the database. If <literal>DEFRAG</literal> is
-    specified, also shrinks the *.data file to its minumum size. Only a user
-    with the DBA role can execute this statement.</simpara>
+    specified, also shrinks the <literal>*.data</literal> file to its minumum
+    size. Only a user with the DBA role can execute this statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SCRIPT</primary>
@@ -84,8 +126,10 @@
     included in this form. The optional file name is a single-quoted string.
     If <literal>&lt;file name&gt;</literal> is specified, then the script is
     written to the named file. In this case, all the data in all tables of the
-    database is included in the script as INSERT statements. Only a user with
-    the DBA role can execute this statement.</simpara>
+    database is included in the script as INSERT statements.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET CHECKPOINT DEFRAG</primary>
@@ -100,12 +144,15 @@
 
     <simpara>Sets the threshold for perfoming a DEFRAG during a checkpoint.
     The <literal>&lt;unsigned integer literal&gt;</literal> is the megabytes
-    of abandoned space in the *.data file. When a CHECKPOINT is performed
-    either as a result of the .log file reaching the limit set by "SET LOGSIZE
-    m", or by the user issuing a CHECKPOINT command, the amount of space
-    abandoned since the database was opened is checked and if it is larger
-    than n, a CHECKPOINT DEFRAG is performed instead of a checkpoint. Only a
-    user with the DBA role can execute this statement.</simpara>
+    of abandoned space in the <literal>*.data</literal> file. When a
+    CHECKPOINT is performed either as a result of the <literal>.log</literal>
+    file reaching the limit set by <literal>SET LOGSIZE m</literal>, or by the
+    user issuing a CHECKPOINT command, the amount of space abandoned since the
+    database was opened is checked and if it is larger than n, a CHECKPOINT
+    DEFRAG is performed instead of a CHECKPOINT.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET LOGSIZE</primary>
@@ -118,11 +165,12 @@
     <simpara><literal>&lt;log size statement&gt; ::= SET LOGSIZE &lt;unsigned
     integer literal&gt;</literal></simpara>
 
-    <simpara>Sets the maximum size in MB of the *.log file to the specified
-    value. The default maximum size is 200 MB. If the value is zero, no limit
-    is used for the size of the file. When the size of the file reaches this
-    value, a CHECKPOINT is performed and the the *.log file is cleared to size
-    0. Only a user with the DBA role can execute this statement.</simpara>
+    <simpara>Sets the maximum size in MB of the <literal>*.log</literal> file
+    to the specified value. The default maximum size is 200 MB. If the value
+    is zero, no limit is used for the size of the file. When the size of the
+    file reaches this value, a CHECKPOINT is performed and the the
+    <literal>*.log</literal> file is cleared to size 0. Only a user with the
+    DBA role can execute this statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET PROPERTY</primary>
@@ -151,12 +199,13 @@
     <simpara><literal>&lt;set script format statement&gt; ::= SET SCRIPTFORMAT
     {TEXT | BINARY | COMPRESSED};</literal></simpara>
 
-    <simpara>Changes the format of the *.script file. The default format of
-    the *.script file is TEXT. This has the advantage that the SQL statements
-    can be viewed, and in some cases, edited . BINARY and COMPRESSED formats
-    are slightly faster and more compact than the default TEXT. Recommended
-    only for very large script files. This command performs a CHECKPOINT. Only
-    a user with the DBA role can execute this statement.</simpara>
+    <simpara>Changes the format of the <literal>*.script</literal> file. The
+    default format of the <literal>*.script</literal> file is TEXT. This has
+    the advantage that the SQL statements can be viewed, and in some cases,
+    edited . BINARY and COMPRESSED formats are slightly faster and more
+    compact than the default TEXT. Recommended only for very large script
+    files. This command performs a CHECKPOINT. Only a user with the DBA role
+    can execute this statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET WRITE DELAY</primary>
@@ -190,6 +239,74 @@
     <para>Each time the SET WRITE_DELAY statement is executed with any value,
     a sync is immediately performed. Only a user with the DBA role can execute
     this statement.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE COLLATION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE COLLATION</emphasis></simpara>
+
+    <simpara><emphasis>set database collation</emphasis></simpara>
+
+    <simpara><literal>&lt;set database collation statement&gt; ::= SET
+    DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
+
+    <simpara>Each database can have its own collation. Sets the collation from
+    the set of collations supported by HyperSQL. Once this command has been
+    issued, the database can be opened in any JVM and will retain its
+    collation. Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET IGNORECASE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET IGNORECASE</emphasis></simpara>
+
+    <simpara><emphasis>set ignore case command</emphasis></simpara>
+
+    <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE
+    {TRUE | FALSE}</literal></simpara>
+
+    <simpara>Set the type used for VARCHAR table columns. By default,
+    character columns in new databases are case sensitive. If <literal>SET
+    IGNORECASE TRUE</literal> is specified, all VARCHAR columns in new table
+    are set to <literal>VARCHAR_IGNORECASE</literal>. It is possible to
+    specify the <literal>VARCHAR_IGNORECASE</literal> type for the definition
+    of individual columns. So it is possible to have some columns case
+    sensitive and some not, even in the same table. This statement must be
+    switched before creating tables. Existing tables and their data are not
+    affected.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET REFERENTIAL INTEGRITY</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET REFERENTIAL
+    INTEGRITY</emphasis></simpara>
+
+    <simpara><emphasis>set referential integrity
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set referential integrity statement&gt; ::= SET
+    REFERENTIAL INTEGRITY {TRUE | FALSE}</literal></simpara>
+
+    <simpara>This commands enables or disables the enforcement of referential
+    integrity constraints (foreign key constraints). By default, referential
+    integrity constraints are checked.</simpara>
+
+    <simpara>The only legitimate use of this statement is before importing
+    large amounts of external data into tables that have existing FOREIGN KEY
+    constraints. After importing the data, queries must be run to verify all
+    rows conform to the FOREIGN KEY constraints and take appropriate actions
+    for the rows that do not conform. After verification, the statement must
+    be used again to enable constraint enforcement.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SHUTDOWN</primary>
@@ -233,12 +350,13 @@
 
         <listitem>
           <para>This is similar to SHUTDOWN COMPACT, but it does not rewrite
-          the *.data and text table files. After SHUTDOWN SCRIPT, only the
-          *.script and *.properties files remain. At the next startup, these
-          files are processed and the .data and .backup files are created.
-          This command in effect performs part of the job of SHUTDOWN COMPACT,
-          leaving the other part to be performed automatically at the next
-          startup.</para>
+          the <literal>*.data</literal> and text table files. After SHUTDOWN
+          SCRIPT, only the <literal>*.script</literal> and
+          <literal>*.properties</literal> files remain. At the next startup,
+          these files are processed and the <literal>*.data</literal> and
+          <literal>*.backup</literal> files are created. This command in
+          effect performs part of the job of SHUTDOWN COMPACT, leaving the
+          other part to be performed automatically at the next startup.</para>
 
           <para>This command produces a full script of the database which can
           be edited for special purposes prior to the next startup.</para>
@@ -248,70 +366,6 @@
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE COLLATION</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET DATABASE COLLATION</emphasis></simpara>
-
-    <simpara><emphasis>set database collation</emphasis></simpara>
-
-    <simpara><literal>&lt;set database collation statement&gt; ::= SET
-    DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
-
-    <simpara>Each database can have its own collation. Sets the collation from
-    the set of collations supported by HyperSQL. Once this command has been
-    issued, the database can be opened in any JVM and will retain its
-    collation. Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET IGNORECASE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET IGNORECASE</emphasis></simpara>
-
-    <simpara><emphasis>set ignore case command</emphasis></simpara>
-
-    <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE
-    {TRUE | FALSE}</literal></simpara>
-
-    <simpara>Set the type used for VARCHAR table columns. By default,
-    character columns in new databases are case sensitive. If <literal>SET
-    IGNORECASE TRUE</literal> is specified, all VARCHAR columns in new table
-    are set to <literal>VARCHAR_IGNORECASE</literal>. It is possible to
-    specify the <literal>VARCHAR_IGNORECASE</literal> type for the definition
-    of individual columns. So it is possible to have some columns case
-    sensitive and some not, even in the same table. This statement must be
-    switched before creating tables. Existing tables and their data are not
-    affected. Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET REFERENTIAL INTEGRITY</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET REFERENTIAL
-    INTEGRITY</emphasis></simpara>
-
-    <simpara><emphasis>set referential integrity
-    statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set referential integrity statement&gt; ::= SET
-    REFERENTIAL INTEGRITY {TRUE | FALSE}</literal></simpara>
-
-    <simpara>This commands enables or disables the enforcement of referential
-    integrity constraints (foreign key constraints). By default, referential
-    integrity constraints are checked.</simpara>
-
-    <simpara>The only legitimate use of this statement is before importing
-    large amounts of external data into tables that have existing FOREIGN KEY
-    constraints. After importing the data, queries must be run to verify all
-    rows conform to the FOREIGN KEY constraints and take appropriate actions
-    for the rows that do not conform. After verification, the statement must
-    be used again to enable constraint enforcement. Only a user with the DBA
-    role can execute this statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>*</primary>
