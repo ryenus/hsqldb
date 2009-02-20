@@ -252,6 +252,10 @@ public class Scanner {
 
 //            token.tokenType = Token.X_UNKNOWN_TOKEN;
         }
+
+        if (token.isMalformed) {
+            token.fullString = getPart(tokenPosition, currentPosition);
+        }
     }
 
     public void scanEnd() {
@@ -967,6 +971,9 @@ public class Scanner {
                         token.tokenType = Tokens.X_LOB_SIZE;
 
                         currentPosition++;
+
+                        token.fullString = getPart(tokenPosition,
+                                                   currentPosition);
                     } catch (NumberFormatException e) {
                         token.tokenType   = Tokens.X_MALFORMED_NUMERIC;
                         token.isMalformed = true;

@@ -31,10 +31,7 @@
 
 package org.hsqldb;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.types.Type;
-import org.hsqldb.HsqlNameManager.HsqlName;
 
 public class Token {
 
@@ -46,6 +43,7 @@ public class Token {
     String  namePrePrefix;
     String  charsetSchema;
     String  charsetName;
+    String  fullString;
     int     lobMultiplierType = Tokens.X_UNKNOWN_TOKEN;
     boolean isDelimiter;
     boolean isDelimitedIdentifier;
