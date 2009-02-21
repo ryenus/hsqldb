@@ -1370,9 +1370,9 @@
       <simpara>A column definition consists of a <literal>&lt;column
       name&gt;</literal> and in most cases a <literal>&lt;data
       type&gt;</literal> or <literal>&lt;domain name&gt;</literal> as minimum.
-      Each <literal>&lt;column name&gt;</literal> in a table is unique. The
-      other elements of <literal>&lt;column definition&gt;</literal> are
-      optional.</simpara>
+      The other elements of <literal>&lt;column definition&gt;</literal> are
+      optional. Each <literal>&lt;column name&gt;</literal> in a table is
+      unique.</simpara>
 
       <simpara><literal>&lt;column definition&gt; ::= &lt;column name&gt; [
       &lt;data type or domain name&gt; ] [ &lt;default clause&gt; |
@@ -1448,8 +1448,8 @@
       SESSION_USER | SYSTEM_USER | CURRENT_CATALOG | CURRENT_SCHEMA |
       CURRENT_PATH | NULL</literal></simpara>
 
-      <simpara>The type of the &lt;default option&gt; must match the type of
-      the column.</simpara>
+      <simpara>The type of the <literal>&lt;default option&gt;</literal> must
+      match the type of the column.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT name and characteristics</primary>
@@ -1498,9 +1498,10 @@
       definition&gt; | &lt;referential constraint definition&gt; | &lt;check
       constraint definition&gt;</literal></simpara>
 
-      <simpara>Three kinds of constraint can be defined on a table. Each kind
-      has its own rules to limit the values that can be specified for
-      different columns in each row of the table.</simpara>
+      <simpara>Three kinds of constraint can be defined on a table: UNIQUE
+      (including PRIMARY KEY), FOREIGN KEY and CHECK. Each kind has its own
+      rules to limit the values that can be specified for different columns in
+      each row of the table.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>UNIQUE constraint</primary>
@@ -1657,7 +1658,8 @@
       &lt;file path&gt; [&lt;semicolon&gt; &lt;&gt;...] &lt;doublequote&gt;
       </literal></simpara>
 
-      <simpara>Set the text source for a text table</simpara>
+      <simpara>Set the text source for a text table. This statement cannot be
+      used for tables that are not defined as TEXT TABLE.</simpara>
 
       <variablelist>
         <title>Supported Properties</title>
@@ -1841,8 +1843,11 @@
       TABLE &lt;table name&gt; SOURCE HEADER &lt;header
       string&gt;</literal></simpara>
 
-      <simpara>Set the header for the text source for a text table. Only a
-      user with the DBA role can execute this statement</simpara>
+      <simpara>Set the header for the text source for a text table. If this
+      command is used, the <literal>&lt;header string&gt;</literal> is used as
+      the first line of the source file of the text table. This line is not
+      part of the table data. Only a user with the DBA role can execute this
+      statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET TABLE SOURCE on-off</primary>
@@ -1857,8 +1862,14 @@
       <simpara><literal>&lt;set table source on-off statement&gt; ::= SET
       TABLE &lt;table name&gt; SOURCE { ON | OFF } </literal></simpara>
 
-      <simpara>Attach or detach a text table from its text source. Only a user
-      with the DBA role can execute this statement</simpara>
+      <simpara>Attach or detach a text table from its text source. This
+      command does not change the properties or the name of the file that is
+      the source of a text table. When OFF is specified, the command detaches
+      the table from its source and closes the file for the source. In this
+      state, it is not possible to read or write to the table. This allows the
+      user to replace the file with a different file, or delete it. When ON is
+      specified, the source file is read. Only a user with the DBA role can
+      execute this statement</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER TABLE</primary>
