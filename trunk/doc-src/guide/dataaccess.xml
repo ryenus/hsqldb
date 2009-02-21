@@ -2150,7 +2150,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
     <simpara><literal>&lt;identity column restart option&gt; ::= CONTINUE
     IDENTITY | RESTART IDENTITY</literal></simpara>
 
-    <simpara>Delete all rows of a base table without firing its triggers. This
+    <simpara>Delete all rows of a table without firing its triggers. This
     statement can only be used on base tables (not views). If the table is
     referenced in a FOREIGN KEY constraint, the statement causes an exception.
     The default for <literal>&lt;identity column restart option&gt;</literal>
@@ -2285,8 +2285,22 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     table&gt;</literal>. Therefore, a MERGE statement can update between 0 and
     all the rows of the <literal>&lt;target table&gt;</literal> and can insert
     between 0 an the number of the rows in <literal>&lt;table
-    reference&gt;</literal> into the <literal>&lt;target
-    table&gt;</literal>.</simpara>
+    reference&gt;</literal> into the <literal>&lt;target table&gt;</literal>.
+    The total number of inserted and unpdated rows is always the same as the
+    number of rows in <literal>&lt;table reference&gt;</literal> .</simpara>
+
+    <simpara>In the example below, the <literal>&lt;table
+    reference&gt;</literal> is the subquery <literal>(SELECT X FROM U WHERE Y
+    = 2)</literal>. Suppose this subquery returns two rows. If some rows of T
+    match either of these two rows, then those rows of T are updated according
+    to the UPDATE clause. If any of the rows returned by the subquery is not
+    matched, then for each unmatched row, the INSERT statement is
+    executed.</simpara>
+
+    <programlisting>MERGE INTO T USING (SELECT X FROM U WHERE Y = 2) AS U ON T.A = U.X
+   WHEN MATCHED THEN UPDATE SET T.B = U.X
+   WHEN NOT MATCHED THEN INSERT INTO T (A, B) VALUES (1, U.X)
+</programlisting>
 
     <simpara></simpara>
 
