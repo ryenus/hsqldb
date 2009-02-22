@@ -51,6 +51,7 @@ public class RowInputBinaryNet extends RowInputBinary {
 
     protected BlobData readBlob() throws IOException, HsqlException {
 
+        byte type     = super.readByte();
         long id     = super.readLong();
         long length = super.readLong();
 
@@ -59,6 +60,7 @@ public class RowInputBinaryNet extends RowInputBinary {
 
     protected ClobData readClob() throws IOException, HsqlException {
 
+        byte type     = super.readByte();
         long id     = super.readLong();
         long length = super.readLong();
 

@@ -57,7 +57,7 @@ public class AllTests extends TestCase {
         suite.addTestSuite(org.hsqldb.test.TestJDBCGeneratedColumns.class);
         suite.addTestSuite(org.hsqldb.test.TestJDBCSavepoints.class);
         suite.addTestSuite(org.hsqldb.test.TestLikePredicateOptimizations.class);
-//        suite.addTestSuite(org.hsqldb.test.TestLobs.class);
+        suite.addTestSuite(org.hsqldb.test.TestLobs.class);
         suite.addTestSuite(org.hsqldb.test.TestMerge.class);
         suite.addTestSuite(org.hsqldb.test.TestMultiInsert.class);
         suite.addTestSuite(org.hsqldb.test.TestSql.class);

@@ -49,14 +49,16 @@ public class RowOutputBinaryNet
 
 
 
-    protected void writeBlob(BlobData o, Type type) {
-
-        super.writeLong(o.getId());
-        super.writeLong(o.length());
-    }
-
     protected void writeClob(ClobData o, Type type) {
-        super.writeLong(o.getId());
-        super.writeLong(o.length());
+        writeByte(o.getClobType());
+        writeLong(o.getId());
+        writeLong(o.length());
     }
+
+    protected void writeBlob(BlobData o, Type type) {
+        writeByte(o.getBlobType());
+        writeLong(o.getId());
+        writeLong(o.length());
+    }
+
 }

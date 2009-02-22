@@ -126,4 +126,8 @@ public class BlobDataID implements BlobData {
     public void setSession(SessionInterface session) {}
 
     public void truncate(long len) throws HsqlException {}
+
+    public byte getBlobType() {
+        return 0;
+    }
 }

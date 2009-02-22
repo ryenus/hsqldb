@@ -245,10 +245,16 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     protected void writeClob(ClobData o, Type type) {
+        writeByte(o.getClobType());
+        writeLong(o.getId());
+        writeLong(o.length());
         writeString(type.convertToString(o));
     }
 
     protected void writeBlob(BlobData o, Type type) {
+        writeByte(o.getBlobType());
+        writeLong(o.getId());
+        writeLong(o.length());
         writeByteArray(o.getBytes());
     }
 

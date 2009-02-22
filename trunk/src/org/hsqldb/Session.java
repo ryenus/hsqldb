@@ -98,6 +98,7 @@ import org.hsqldb.types.ClobData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.BlobDataID;
 
 /**
  * Implementation of SQL sessions.
@@ -1617,6 +1618,28 @@ public class Session implements SessionInterface {
         }
     }
 
+    // lobs
+    public long getLobId() {
+        return database.lobManager.getNewLobId();
+    }
+
+    public BlobData createBlob() {
+        return database.lobManager.createBlob();
+    }
+
+    public ClobData createClob() {
+        return database.lobManager.createClob();
+    }
+
+    public void registerResultLobs(Result result) throws HsqlException {
+        sessionData.registerLobForResult(result);
+    }
+
+    public void allocateResultLob(ResultLob result,
+                                  DataInput dataInput) throws HsqlException {
+        sessionData.allocateLobForResult(result, dataInput);
+    }
+
     Result performLOBOperation(ResultLob cmd) {
 
         long id        = cmd.getLobID();
@@ -1822,24 +1845,6 @@ public class Session implements SessionInterface {
         if (sqlWarnings != null) {
             sqlWarnings.clear();
         }
-    }
-
-    // lobs
-    public long getLobId() {
-        return database.lobManager.getNewLobId();
-    }
-
-    public void addLob(Object lob, long id) {
-        database.lobManager.addLob(lob, id);
-    }
-
-    public void registerResultLobs(Result result) throws HsqlException {
-        sessionData.registerLobForResult(result);
-    }
-
-    public void allocateResultLob(ResultLob result,
-                                  DataInput dataInput) throws HsqlException {
-        sessionData.allocateLobForResult(result, dataInput);
     }
 
     // services
