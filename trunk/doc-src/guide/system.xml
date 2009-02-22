@@ -246,7 +246,7 @@
 
     <simpara><emphasis role="bold">SET DATABASE COLLATION</emphasis></simpara>
 
-    <simpara><emphasis>set database collation</emphasis></simpara>
+    <simpara><emphasis>set database collation statement</emphasis></simpara>
 
     <simpara><literal>&lt;set database collation statement&gt; ::= SET
     DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
@@ -263,7 +263,7 @@
 
     <simpara><emphasis role="bold">SET IGNORECASE</emphasis></simpara>
 
-    <simpara><emphasis>set ignore case command</emphasis></simpara>
+    <simpara><emphasis>set ignore case statement</emphasis></simpara>
 
     <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE
     {TRUE | FALSE}</literal></simpara>
