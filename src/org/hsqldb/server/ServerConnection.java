@@ -239,17 +239,22 @@ class ServerConnection implements Runnable {
 
             dataInput  = new DataInputStream(socket.getInputStream());
             dataOutput = new DataOutputStream(socket.getOutputStream());
+
             int firstInt = handshake();
+
             switch (streamProtocol) {
 
-                case HSQL_STREAM_PROTOCOL:
+                case HSQL_STREAM_PROTOCOL :
                     String verString = ClientConnection.toNcvString(firstInt);
+
                     if (!verString.equals(
-                        ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
+                            ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
                         throw Error.error(
                             ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
-                            new String[] {verString,
-                            ClientConnection.NETWORK_COMPATIBILITY_VERSION});
+                            new String[] {
+                            verString,
+                            ClientConnection.NETWORK_COMPATIBILITY_VERSION
+                        });
                     }
 
                     Result resultIn = Result.newResult(dataInput, rowIn);
@@ -262,10 +267,13 @@ class ServerConnection implements Runnable {
 
                     resultOut.write(dataOutput, rowOut);
                     break;
-                case ODBC_STREAM_PROTOCOL:
+
+                case ODBC_STREAM_PROTOCOL :
                     odbcConnect(firstInt);
                     break;
-                default:
+
+                default :
+
                     // Protocol detection failures should already have been
                     // handled.
                     keepAlive = false;
@@ -276,8 +284,8 @@ class ServerConnection implements Runnable {
             // Expected failures will have been handled (by sending feedback
             // to user-- with an output Result for normal protocols), then
             // continuing.
-            StringBuffer sb =
-                new StringBuffer(mThread + ":Failed to connect client.");
+            StringBuffer sb = new StringBuffer(mThread
+                                               + ":Failed to connect client.");
 
             if (user != null) {
                 sb.append("  User '" + user + "'.");
@@ -289,12 +297,18 @@ class ServerConnection implements Runnable {
     }
 
     private class CleanExit extends Exception {}
+
     private class ClientFailure extends Exception {
+
         private String clientMessage = null;
+
         public ClientFailure(String ourMessage, String clientMessage) {
+
             super(ourMessage);
+
             this.clientMessage = clientMessage;
         }
+
         public String getClientMessage() {
             return clientMessage;
         }
@@ -304,6 +318,7 @@ class ServerConnection implements Runnable {
 
     private void receiveResult(int resultMode)
     throws CleanExit, IOException, HsqlException {
+
         Result resultIn = Result.newResult(resultMode, dataInput, rowIn);
 
         resultIn.readAdditionalResults(session, dataInput, rowIn);
@@ -315,7 +330,6 @@ class ServerConnection implements Runnable {
         if (type == ResultConstants.CONNECT) {
             resultOut = setDatabase(resultIn);
         } else if (type == ResultConstants.DISCONNECT) {
-
             throw cleanExit;
         } else if (type == ResultConstants.RESETSESSION) {
             resetSession();
@@ -338,6 +352,7 @@ class ServerConnection implements Runnable {
     private OdbcPacketOutputStream outPacket = null;
 
     private void receiveOdbcPacket(char inC) throws IOException, CleanExit {
+
         /*
          * The driver's notion of the transaction state, I (no) or T (yes),
          * corresponds precisely inversely to our server-side Session
@@ -350,104 +365,131 @@ class ServerConnection implements Runnable {
          *   <LI>INSERT...
          * </OL>
          */
-        char op, c;
+        char    op, c;
         boolean sendReadyForQuery = false;
-        String stringVal, psHandle, portalHandle, handle, dataString, tmpStr;
-        String interposedStatement = null;
+        String  stringVal, psHandle, portalHandle, handle, dataString, tmpStr;
+        String  interposedStatement = null;
+
         // Statement which must be executed after the primary statement, but
         // before sending the ReadyForQuery Z packet.
-        Result r, rOut;
-        int paramCount, lastSemi;
-        OdbcPreparedStatement odbcPs;
-        StatementPortal portal;
+        Result                           r, rOut;
+        int                              paramCount, lastSemi;
+        OdbcPreparedStatement            odbcPs;
+        StatementPortal                  portal;
         org.hsqldb.result.ResultMetaData pmd;
-        OdbcPacketInputStream inPacket = null;
-        org.hsqldb.types.Type[] colTypes;
-        PgType[] pgTypes;
+        OdbcPacketInputStream            inPacket = null;
+        org.hsqldb.types.Type[]          colTypes;
+        PgType[]                         pgTypes;
 
         try {
-            inPacket =
-                OdbcPacketInputStream.newOdbcPacketInputStream(inC, dataInput);
+            inPacket = OdbcPacketInputStream.newOdbcPacketInputStream(inC,
+                    dataInput);
+
             server.printWithThread("Got op (" + inPacket.packetType + ')');
             server.printWithThread("Got packet length of "
-                    + inPacket.available() + " + type byte + 4 size header");
+                                   + inPacket.available()
+                                   + " + type byte + 4 size header");
+
             if (inPacket.available() >= 1000000000) {
                 throw new IOException("Insane packet length: "
-                        + inPacket.available()
-                        + " + type byte + 4 size header");
+                                      + inPacket.available()
+                                      + " + type byte + 4 size header");
             }
         } catch (SocketException se) {
             server.printWithThread("Ungraceful client exit: " + se);
-            throw cleanExit; // not "clean", but handled
+
+            throw cleanExit;    // not "clean", but handled
         } catch (IOException ioe) {
             server.printWithThread("Fatal ODBC protocol failure: " + ioe);
+
             try {
                 OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_FATAL,
-                    ioe.getMessage(), "08P01", dataOutput);
-                    // Code here means Protocol Violation
+                                     ioe.getMessage(), "08P01", dataOutput);
+
+                // Code here means Protocol Violation
             } catch (Exception e) {
+
                 // We just make an honest effort to notify the client
             }
-            throw cleanExit; // not "clean", but handled
+
+            throw cleanExit;    // not "clean", but handled
         }
 
-        /******************************************************************
+        /**
          * ODBC Service State Machine  (the remainder of this method)
-         ******************************************************************/
+         */
         switch (odbcCommMode) {
-            case OdbcUtil.ODBC_EXT_RECOVER_MODE:
+
+            case OdbcUtil.ODBC_EXT_RECOVER_MODE :
                 if (inPacket.packetType != 'S') {
                     if (server.isTrace()) {
                         server.printWithThread("Ignoring a '"
-                            + inPacket.packetType + "'");
+                                               + inPacket.packetType + "'");
                     }
+
                     return;
                 }
+
                 odbcCommMode = OdbcUtil.ODBC_EXTENDED_MODE;
-                server.printWithThread("EXTENDED comm session being recovered");
+
+                server.printWithThread(
+                    "EXTENDED comm session being recovered");
+
                 // Now the main switch will handle the Sync packet carefully
                 // the same as if there were no recovery.
                 break;
-            case OdbcUtil.ODBC_SIMPLE_MODE:
+
+            case OdbcUtil.ODBC_SIMPLE_MODE :
                 switch (inPacket.packetType) {
-                    case 'P':
-                        // This is the only way to make this switch, according
-                        // to docs, but that does not allow for intermixing of
-                        // static and prepared statement (selects or other).
-                        // Therefore we allow all of the following, which works
-                        // great.
-                    case 'H':
-                    case 'S':
-                    case 'D':
-                    case 'B':
-                    case 'E':
-                    case 'C':
+
+                    case 'P' :
+
+                    // This is the only way to make this switch, according
+                    // to docs, but that does not allow for intermixing of
+                    // static and prepared statement (selects or other).
+                    // Therefore we allow all of the following, which works
+                    // great.
+                    case 'H' :
+                    case 'S' :
+                    case 'D' :
+                    case 'B' :
+                    case 'E' :
+                    case 'C' :
                         odbcCommMode = OdbcUtil.ODBC_EXTENDED_MODE;
+
                         server.printWithThread(
-                                "Switching mode from SIMPLE to EXTENDED");
+                            "Switching mode from SIMPLE to EXTENDED");
+
                     // Do not detect unexpected ops here.
                     // In that case, leave the mode as it is, and the main
                     // switch below will handle appropriately.
                 }
                 break;
-            case OdbcUtil.ODBC_EXTENDED_MODE:
+
+            case OdbcUtil.ODBC_EXTENDED_MODE :
                 switch (inPacket.packetType) {
-                    case 'Q':
+
+                    case 'Q' :
                         odbcCommMode = OdbcUtil.ODBC_SIMPLE_MODE;
+
                         server.printWithThread(
-                                "Switching mode from EXTENDED to SIMPLE");
+                            "Switching mode from EXTENDED to SIMPLE");
+
                     // Do not detect unexpected ops here.
                     // In that case, leave the mode as it is, and the main
                     // switch below will handle appropriately.
                 }
                 break;
-            default:
+
+            default :
                 throw new RuntimeException("Unexpected ODBC comm mode value: "
-                        + odbcCommMode);
+                                           + odbcCommMode);
         }
 
         outPacket.reset();
+
         try {
+
             // Every switch case must either throw or break.
             // For cases which break
             //   The packet will always be checked to make sure all bytes have
@@ -458,248 +500,837 @@ class ServerConnection implements Runnable {
             // behavior and you should throw an Exception.
             MAIN_ODBC_COMM_SWITCH:
             switch (inPacket.packetType) {
-              case 'Q': // Query packet
-                String sql = inPacket.readString();
-                // We don't ask for the null terminator
 
-                /* **********************************************
-                 * These first few cases handle the driver's implicit handling
-                 * of transactions. */
-                if (sql.startsWith("BEGIN;") || sql.equals("BEGIN")) {
-                    /*
-                     * We may get here because of Driver client trying to
-                     * manage transactions implicitly; or because user/app.
-                     * has really issued a "BEGIN" command.
-                     * In the first case, we don't need to run the
-                     * corresponding START TRANSACTION command, since the
-                     * HyperSQL engine does this automatically, and can tell
-                     * when it is needed far better than the client; however
-                     * we do use this fact to update our Session autocommit
-                     * state to match the client's notion.
-                     * We ignore the latter case, because real HyperSQL
-                     * user/apps will use "START TRANSACTION", not "BEGIN".
-                     * Therefore, we just update autocommit state and run no
-                     * other command against the engine.
-                     */
-                    sql = sql.equals("BEGIN")
-                        ? null : sql.substring("BEGIN;".length());
-                    server.printWithThread(
-                        "ODBC Trans started.  Session AutoCommit -> F");
-                    try {
-                        session.setAutoCommit(false);
-                    } catch (HsqlException he) {
-                        throw new RecoverableOdbcFailure(
-                            "Failed to change transaction state: "
-                            + he.getMessage(), he.getSQLState());
+                case 'Q' :                                        // Query packet
+                    String sql = inPacket.readString();
+
+                    // We don't ask for the null terminator
+                    /* **********************************************
+                     * These first few cases handle the driver's implicit handling
+                     * of transactions. */
+                    if (sql.startsWith("BEGIN;") || sql.equals("BEGIN")) {
+                        /*
+                         * We may get here because of Driver client trying to
+                         * manage transactions implicitly; or because user/app.
+                         * has really issued a "BEGIN" command.
+                         * In the first case, we don't need to run the
+                         * corresponding START TRANSACTION command, since the
+                         * HyperSQL engine does this automatically, and can tell
+                         * when it is needed far better than the client; however
+                         * we do use this fact to update our Session autocommit
+                         * state to match the client's notion.
+                         * We ignore the latter case, because real HyperSQL
+                         * user/apps will use "START TRANSACTION", not "BEGIN".
+                         * Therefore, we just update autocommit state and run no
+                         * other command against the engine.
+                         */
+                        sql = sql.equals("BEGIN") ? null
+                                                  : sql.substring(
+                                                      "BEGIN;".length());
+
+                        server.printWithThread(
+                            "ODBC Trans started.  Session AutoCommit -> F");
+
+                        try {
+                            session.setAutoCommit(false);
+                        } catch (HsqlException he) {
+                            throw new RecoverableOdbcFailure(
+                                "Failed to change transaction state: "
+                                + he.getMessage(), he.getSQLState());
+                        }
+
+                        // Now just placate the driver
+                        outPacket.write("BEGIN");
+                        outPacket.xmit('C', dataOutput);
+
+                        if (sql == null) {
+                            sendReadyForQuery = true;
+
+                            break;
+                        }
                     }
-                    // Now just placate the driver
-                    outPacket.write("BEGIN");
-                    outPacket.xmit('C', dataOutput);
-                    if (sql == null) {
+
+                    if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 0) {
+                        int firstSemi = sql.indexOf(';');
+
+                        server.printWithThread(
+                            "Interposing BEFORE primary statement: "
+                            + sql.substring(0, firstSemi));
+                        odbcExecDirect(sql.substring(0, firstSemi));
+
+                        sql = sql.substring(firstSemi + 1);
+                    }
+
+                    lastSemi = sql.lastIndexOf(';');
+
+                    if (lastSemi > 0) {
+                        String suffix = sql.substring(lastSemi + 1);
+
+                        if (suffix.startsWith("RELEASE ")) {
+                            interposedStatement = suffix;
+                            sql                 = sql.substring(0, lastSemi);
+                        }
+                    }
+
+                    /** ******************************************* */
+                    String normalized = sql.trim().toLowerCase();
+
+                    if (server.isTrace()) {
+                        server.printWithThread("Received query (" + sql + ')');
+                    }
+
+                    /*
+                     * BEWARE:  We aren't supporting multiple result-sets from a
+                     * compound statement.  Plus, a general requirement is, the
+                     * entire compound statement may return just one result set.
+                     * I don't have time to check how it works elsewhere, but here,
+                     * and for now, the Rowset-generating statement (SELECT, etc.)
+                     * must be first in order for us to detect that we need to
+                     * return a result set.
+                     / If we do parse out the component statement here, the states
+                     * set above apply to all executions, and only one Z packet
+                     * should be sent at the very end.
+                     *
+                     * I find that the Driver can't handle compound statements
+                     * which mix resultset + non-resultset statements (even In
+                     * SIMPLE mode), so we are more capable than our client is.
+                     */
+                    if (normalized.startsWith("select current_schema()")) {
+                        server.printWithThread(
+                            "Implement 'select current_schema() emulation!");
+
+                        throw new RecoverableOdbcFailure(
+                            "current_schema() not supported yet", "0A000");
+                    }
+
+                    if (normalized.startsWith("select n.nspname,")) {
+
+                        // Executed by psqlodbc after every user-specified query.
+                        server.printWithThread(
+                            "Swallowing 'select n.nspname,...'");
+                        outPacket.writeShort(1);                  // Num cols.
+                        outPacket.write("oid");
+                        outPacket.writeInt(201);
+                        outPacket.writeShort(1);
+                        outPacket.writeInt(23);
+                        outPacket.writeShort(4);
+                        outPacket.writeInt(-1);
+                        outPacket.writeShort(0);
+                        outPacket.xmit('T', dataOutput);          // Xmit Row Definition
+
+                        // This query returns no rows.  typenam "lo"??
+                        outPacket.write("SELECT");
+                        outPacket.xmit('C', dataOutput);
+
                         sendReadyForQuery = true;
+
                         break;
                     }
-                }
-                if (sql.startsWith("SAVEPOINT ") && sql.indexOf(';') > 0) {
-                    int firstSemi = sql.indexOf(';');
-                    server.printWithThread(
-                        "Interposing BEFORE primary statement: "
-                        + sql.substring(0, firstSemi));
-                    odbcExecDirect(sql.substring(0, firstSemi));
-                    sql = sql.substring(firstSemi + 1);
-                }
-                lastSemi = sql.lastIndexOf(';');
-                if (lastSemi > 0) {
-                    String suffix = sql.substring(lastSemi + 1);
-                    if (suffix.startsWith("RELEASE ")) {
-                        interposedStatement = suffix;
-                        sql = sql.substring(0, lastSemi);
+
+                    if (normalized.startsWith(
+                            "select oid, typbasetype from")) {
+
+                        // Executed by psqlodbc immediately after connecting.
+                        server.printWithThread(
+                            "Simulating 'select oid, typbasetype...'");
+                        /*
+                         * This query is run as "a hack to get the oid of our
+                         * large object oid type.
+                         */
+                        outPacket.writeShort(2);                  // Num cols.
+                        outPacket.write("oid");                   // Col. name
+                        outPacket.writeInt(101);                  // table ID
+                        outPacket.writeShort(102);                // column id
+                        outPacket.writeInt(26);                   // Datatype ID  [adtid]
+                        outPacket.writeShort(4);                  // Datatype size  [adtsize]
+                        outPacket.writeInt(-1);                   // Var size [atttypmod]
+                        outPacket.writeShort(0);                  // text "format code"
+                        outPacket.write("typbasetype");           // Col. name
+                        outPacket.writeInt(101);                  // table ID
+                        outPacket.writeShort(103);                // column id
+                        outPacket.writeInt(26);                   // Datatype ID  [adtid]
+                        outPacket.writeShort(4);                  // Datatype size  [adtsize]
+                        outPacket.writeInt(-1);                   // Var size [atttypmod]
+                        outPacket.writeShort(0);                  // text "format code"
+                        outPacket.xmit('T', dataOutput);          // sending a Tuple (row)
+
+                        // This query returns no rows.  typenam "lo"??
+                        outPacket.write("SELECT");
+                        outPacket.xmit('C', dataOutput);
+
+                        sendReadyForQuery = true;
+
+                        break;
                     }
-                }
-                /***********************************************/
 
-                String normalized = sql.trim().toLowerCase();
-                if (server.isTrace()) {
-                    server.printWithThread("Received query (" + sql + ')');
-                }
+                    if (normalized.startsWith("select ")) {
+                        server.printWithThread(
+                            "Performing a real non-prepared SELECT...");
 
-                /*
-                 * BEWARE:  We aren't supporting multiple result-sets from a
-                 * compound statement.  Plus, a general requirement is, the
-                 * entire compound statement may return just one result set.
-                 * I don't have time to check how it works elsewhere, but here,
-                 * and for now, the Rowset-generating statement (SELECT, etc.)
-                 * must be first in order for us to detect that we need to
-                 * return a result set.
-                 / If we do parse out the component statement here, the states
-                 * set above apply to all executions, and only one Z packet
-                 * should be sent at the very end.
-                 *
-                 * I find that the Driver can't handle compound statements
-                 * which mix resultset + non-resultset statements (even In
-                 * SIMPLE mode), so we are more capable than our client is.
-                 */
+                        r = Result.newExecuteDirectRequest();
 
-                if (normalized.startsWith("select current_schema()")) {
-                    server.printWithThread(
-                        "Implement 'select current_schema() emulation!");
-                    throw new RecoverableOdbcFailure(
-                        "current_schema() not supported yet", "0A000");
-                }
-                if (normalized.startsWith("select n.nspname,")) {
-                    // Executed by psqlodbc after every user-specified query.
-                    server.printWithThread("Swallowing 'select n.nspname,...'");
+                        r.setPrepareOrExecuteProperties(sql, 0, 0, org.hsqldb
+                            .StatementTypes.RETURN_RESULT, org.hsqldb.jdbc
+                            .JDBCResultSet.TYPE_FORWARD_ONLY, org.hsqldb.jdbc
+                            .JDBCResultSet.CONCUR_READ_ONLY, org.hsqldb.jdbc
+                            .JDBCResultSet.HOLD_CURSORS_OVER_COMMIT, java.sql
+                            .Statement.NO_GENERATED_KEYS, null, null);
 
-                    outPacket.writeShort(1);  // Num cols.
-                    outPacket.write("oid");
-                    outPacket.writeInt(201);
-                    outPacket.writeShort(1);
-                    outPacket.writeInt(23);
-                    outPacket.writeShort(4);
-                    outPacket.writeInt(-1);
-                    outPacket.writeShort(0);
-                    outPacket.xmit('T', dataOutput); // Xmit Row Definition
+                        rOut = session.execute(r);
 
-                    // This query returns no rows.  typenam "lo"??
-                    outPacket.write("SELECT");
-                    outPacket.xmit('C', dataOutput);
-                    sendReadyForQuery = true;
-                    break;
-                }
-                if (normalized.startsWith(
-                    "select oid, typbasetype from")) {
-                    // Executed by psqlodbc immediately after connecting.
-                    server.printWithThread(
-                        "Simulating 'select oid, typbasetype...'");
-                    /*
-                     * This query is run as "a hack to get the oid of our
-                     * large object oid type.
-                     */
-                    outPacket.writeShort(2);          // Num cols.
-                    outPacket.write("oid"); // Col. name
-                    outPacket.writeInt(101); // table ID
-                    outPacket.writeShort(102); // column id
-                    outPacket.writeInt(26); // Datatype ID  [adtid]
-                    outPacket.writeShort(4);       // Datatype size  [adtsize]
-                    outPacket.writeInt(-1); // Var size [atttypmod]
-                    outPacket.writeShort(0);        // text "format code"
-                    outPacket.write("typbasetype"); // Col. name
-                    outPacket.writeInt(101); // table ID
-                    outPacket.writeShort(103); // column id
-                    outPacket.writeInt(26); // Datatype ID  [adtid]
-                    outPacket.writeShort(4);       // Datatype size  [adtsize]
-                    outPacket.writeInt(-1); // Var size [atttypmod]
-                    outPacket.writeShort(0);        // text "format code"
-                    outPacket.xmit('T', dataOutput); // sending a Tuple (row)
+                        switch (rOut.getType()) {
 
-                    // This query returns no rows.  typenam "lo"??
-                    outPacket.write("SELECT");
-                    outPacket.xmit('C', dataOutput);
-                    sendReadyForQuery = true;
-                    break;
-                }
-                if (normalized.startsWith("select ")) {
-                    server.printWithThread(
-                        "Performing a real non-prepared SELECT...");
-                    r = Result.newExecuteDirectRequest();
-                    r.setPrepareOrExecuteProperties(sql, 0, 0,
-                        org.hsqldb.StatementTypes.RETURN_RESULT,
-                        org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
-                        org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
-                        org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
-                        java.sql.Statement.NO_GENERATED_KEYS, null, null);
-                    rOut = session.execute(r);
-                    switch (rOut.getType()) {
-                        case ResultConstants.DATA:
-                            break;
-                        case ResultConstants.ERROR:
-                            throw new RecoverableOdbcFailure(rOut);
-                        default:
-                            throw new RecoverableOdbcFailure(
-                                "Output Result from Query execution is of "
-                                + "unexpected type: " + rOut.getType());
-                    }
-                    // See Result.newDataHeadResult() for what we have here
-                    // See Result.newDataHeadResult() for what we have here
-                    // .metaData, .navigator
-                    org.hsqldb.navigator.RowSetNavigator navigator =
+                            case ResultConstants.DATA :
+                                break;
+
+                            case ResultConstants.ERROR :
+                                throw new RecoverableOdbcFailure(rOut);
+                            default :
+                                throw new RecoverableOdbcFailure(
+                                    "Output Result from Query execution is of "
+                                    + "unexpected type: " + rOut.getType());
+                        }
+
+                        // See Result.newDataHeadResult() for what we have here
+                        // See Result.newDataHeadResult() for what we have here
+                        // .metaData, .navigator
+                        org.hsqldb.navigator.RowSetNavigator navigator =
                             rOut.getNavigator();
-                    if (!(navigator instanceof
-                        org.hsqldb.navigator.RowSetNavigatorData)) {
-                        throw new RecoverableOdbcFailure(
+
+                        if (!(navigator
+                                instanceof org.hsqldb.navigator
+                                    .RowSetNavigatorData)) {
+                            throw new RecoverableOdbcFailure(
                                 "Unexpected RowSetNavigator instance type: "
                                 + navigator.getClass().getName());
+                        }
+
+                        org.hsqldb.navigator.RowSetNavigatorData navData =
+                            (org.hsqldb.navigator
+                                .RowSetNavigatorData) navigator;
+                        org.hsqldb.result.ResultMetaData md = rOut.metaData;
+
+                        if (md == null) {
+                            throw new RecoverableOdbcFailure(
+                                "Failed to get metadata for query results");
+                        }
+
+                        String[] colNames = md.getGeneratedColumnNames();
+
+                        if (md.getColumnCount() != colNames.length) {
+                            throw new RecoverableOdbcFailure(
+                                "Couldn't get all column names: "
+                                + md.getColumnCount() + " cols. but only got "
+                                + colNames.length + " col. names");
+                        }
+
+                        colTypes = md.columnTypes;
+                        pgTypes  = new PgType[colNames.length];
+
+                        for (int i = 0; i < pgTypes.length; i++) {
+                            pgTypes[i] = PgType.getPgType(colTypes[i],
+                                                          md.isTableColumn(i));
+                        }
+
+                        org.hsqldb.ColumnBase[] colDefs = md.columns;
+
+                        if (colNames.length != colDefs.length) {
+                            throw new RecoverableOdbcFailure(
+                                "Col data mismatch.  " + colDefs.length
+                                + " col instances but " + colNames.length
+                                + " col names");
+                        }
+
+                        outPacket.writeShort(colNames.length);    // Num cols.
+
+                        for (int i = 0; i < colNames.length; i++) {
+                            outPacket.write(colNames[i]);         // Col. name
+
+                            // table ID  [relid]:
+                            outPacket.writeInt(OdbcUtil.getTableOidForColumn(i,
+                                    md));
+
+                            // column id  [attid]
+                            outPacket.writeShort(OdbcUtil.getIdForColumn(i,
+                                    md));
+                            outPacket.writeInt(pgTypes[i].getOid());
+
+                            // Datatype size  [adtsize]
+                            outPacket.writeShort(pgTypes[i].getTypeWidth());
+                            outPacket.writeInt(pgTypes[i].getLPConstraint());
+
+                            // Var size [atttypmod]
+                            // This is the size constraint integer
+                            // like VARCHAR(12) or DECIMAL(4).
+                            // -1 if none specified for this column.
+                            outPacket.writeShort(0);
+
+                            // format code, 0 = text column, 1 = binary column,
+                            // but entirely ignored by our driver.
+                            // Would only be non-0 if a 'B' command requested it.
+                        }
+
+                        outPacket.xmit('T', dataOutput);          // Xmit Row Definition
+
+                        int rowNum = 0;
+
+                        while (navData.next()) {
+                            rowNum++;
+
+                            Object[] rowData = (Object[]) navData.getCurrent();
+
+                            // Row.getData().  Don't know why *Data.getCurrent()
+                            //                 method returns Object instead of O[].
+                            //  TODO:  Remove the assertion here:
+                            if (rowData == null) {
+                                throw new RecoverableOdbcFailure("Null row?");
+                            }
+
+                            if (rowData.length < colNames.length) {
+                                throw new RecoverableOdbcFailure(
+                                    "Data element mismatch. "
+                                    + colNames.length + " metadata cols, yet "
+                                    + rowData.length
+                                    + " data elements for row " + rowNum);
+                            }
+
+                            //server.printWithThread("Row " + rowNum + " has "
+                            //+ rowData.length + " elements");
+                            outPacket.writeShort(colNames.length);
+
+                            // This field is just swallowed by PG ODBC
+                            // client, but OdbcUtil.validated by psql.
+                            for (int i = 0; i < colNames.length; i++) {
+                                if (rowData[i] == null) {
+                                    /*
+                                    server.printWithThread("R" + rowNum + "C"
+                                        + (i+1) + " => [null]");
+                                    */
+                                    outPacket.writeInt(-1);
+                                } else {
+                                    dataString =
+                                        pgTypes[i].valueString(rowData[i]);
+
+                                    outPacket.writeSized(dataString);
+
+                                    if (server.isTrace()) {
+                                        server.printWithThread(
+                                            "R" + rowNum + "C" + (i + 1)
+                                            + " => ("
+                                            + rowData[i].getClass().getName()
+                                            + ") [" + dataString + ']');
+                                    }
+                                }
+                            }
+
+                            outPacket.xmit('D', dataOutput);
+                        }
+
+                        outPacket.write("SELECT");
+                        outPacket.xmit('C', dataOutput);
+
+                        sendReadyForQuery = true;
+
+                        break;
                     }
-                    org.hsqldb.navigator.RowSetNavigatorData navData =
-                        (org.hsqldb.navigator.RowSetNavigatorData) navigator;
-                    org.hsqldb.result.ResultMetaData md = rOut.metaData;
-                    if (md == null) {
+
+                    if (normalized.startsWith("deallocate \"")
+                            && normalized.charAt(normalized.length() - 1)
+                               == '"') {
+                        tmpStr = sql.trim().substring(
+                            "deallocate \"".length()).trim();
+
+                        // Must use "sql" directly since name is case-sensitive
+                        handle = tmpStr.substring(0, tmpStr.length() - 1);
+                        odbcPs = (OdbcPreparedStatement) sessionOdbcPsMap.get(
+                            handle);
+
+                        if (odbcPs != null) {
+                            odbcPs.close();
+                        }
+
+                        portal =
+                            (StatementPortal) sessionOdbcPortalMap.get(handle);
+
+                        if (portal != null) {
+                            portal.close();
+                        }
+
+                        if (odbcPs == null && portal == null) {
+                            /*
+                            throw new RecoverableOdbcFailure(null,
+                                "No object present for handle: " + handle, "08P01");
+                            Driver does not handle state change correctly, so
+                            for now we just issue a warning:
+                            OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_ERROR,
+                                "No object present for handle: " + handle,
+                                dataOutput);
+                            TODO:  Retest this.  May have been side-effect of
+                                   other problems.
+                            */
+                            server.printWithThread(
+                                "Ignoring bad 'DEALLOCATE' cmd");
+                        }
+
+                        if (server.isTrace()) {
+                            server.printWithThread("Deallocated PS/Portal '"
+                                                   + handle + "'");
+                        }
+
+                        outPacket.write("DEALLOCATE");
+                        outPacket.xmit('C', dataOutput);
+
+                        sendReadyForQuery = true;
+
+                        break;
+                    }
+
+                    if (normalized.startsWith("set client_encoding to ")) {
+                        server.printWithThread("Stubbing EXECDIR for: " + sql);
+                        outPacket.write("SET");
+                        outPacket.xmit('C', dataOutput);
+
+                        sendReadyForQuery = true;
+
+                        break;
+                    }
+
+                    // Case below is non-String-matched Qs:
+                    server.printWithThread("Performing a real EXECDIRECT...");
+                    odbcExecDirect(sql);
+
+                    sendReadyForQuery = true;
+                    break;
+
+                case 'X' :                                        // Terminate packet
+                    if (sessionOdbcPsMap.size()
+                            > (sessionOdbcPsMap.containsKey("") ? 1
+                                                                : 0)) {
+                        server.printWithThread("Client left "
+                                               + sessionOdbcPsMap.size()
+                                               + " PS objects open");
+                    }
+
+                    if (sessionOdbcPortalMap.size()
+                            > (sessionOdbcPortalMap.containsKey("") ? 1
+                                                                    : 0)) {
+                        server.printWithThread("Client left "
+                                               + sessionOdbcPortalMap.size()
+                                               + " Portal objects open");
+                    }
+
+                    OdbcUtil.validateInputPacketSize(inPacket);
+
+                    throw cleanExit;
+                case 'H' :                                        // Flush packet
+
+                    // No-op.  It is impossible to cache while supporting multiple
+                    // ps and portal objects, so there is nothing for a Flush to
+                    // do.  There isn't even a reply to a Flush packet.
+                    break;
+
+                case 'S' :                                        // Sync packet
+
+                    // Special case for Sync packets.
+                    // To facilitate recovery, we do not abort in case of problems.
+                    if (session.isAutoCommit()) {
+                        try {
+
+                            // I don't see how this can be useful.  If we ran DML, it
+                            // will have autocommitted.  If we have just switched to
+                            // autoCommit mode, then according to spec we must have
+                            // executed an implicit commit then.
+                            server.printWithThread(
+                                "Silly implicit commit by Sync");
+                            session.commit(true);
+
+                            // TODO:  Find out if chain param should be T or F.
+                        } catch (HsqlException he) {
+                            server.printWithThread("Implicit commit failed: "
+                                                   + he);
+                            OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_ERROR,
+                                                 "Implicit commit failed",
+                                                 he.getSQLState(), dataOutput);
+                        }
+                    }
+
+                    sendReadyForQuery = true;
+                    break;
+
+                case 'P' :                                        // Parse packet
+                    psHandle = inPacket.readString();
+
+                    String query = OdbcUtil.revertMungledPreparedQuery(
+                        inPacket.readString());
+
+                    paramCount = inPacket.readUnsignedShort();
+
+                    for (int i = 0; i < paramCount; i++) {
+                        if (inPacket.readInt() != 0) {
+                            throw new RecoverableOdbcFailure(
+                                null,
+                                "Parameter-type OID specifiers not supported yet",
+                                "0A000");
+                        }
+                    }
+
+                    if (server.isTrace()) {
+                        server.printWithThread(
+                            "Received Prepare request for query (" + query
+                            + ") with handle '" + psHandle + "'");
+                    }
+
+                    if (psHandle.length() > 0
+                            && sessionOdbcPsMap.containsKey(psHandle)) {
                         throw new RecoverableOdbcFailure(
-                            "Failed to get metadata for query results");
+                            null,
+                            "PS handle '" + psHandle + "' already in use.  "
+                            + "You must close it before recreating", "08P01");
                     }
+
+                    new OdbcPreparedStatement(psHandle, query,
+                                              sessionOdbcPsMap, session);
+                    outPacket.xmit('1', dataOutput);
+                    break;
+
+                case 'D' :                                        // Describe packet
+                    c      = inPacket.readByteChar();
+                    handle = inPacket.readString();
+                    odbcPs = null;
+                    portal = null;
+
+                    if (c == 'S') {
+                        odbcPs = (OdbcPreparedStatement) sessionOdbcPsMap.get(
+                            handle);
+                    } else if (c == 'P') {
+                        portal =
+                            (StatementPortal) sessionOdbcPortalMap.get(handle);
+                    } else {
+                        throw new RecoverableOdbcFailure(
+                            null,
+                            "Description packet request type invalid: " + c,
+                            "08P01");
+                    }
+
+                    if (server.isTrace()) {
+                        server.printWithThread("Received Describe request for "
+                                               + c + " of  handle '" + handle
+                                               + "'");
+                    }
+
+                    if (odbcPs == null && portal == null) {
+                        throw new RecoverableOdbcFailure(
+                            null,
+                            "No object present for " + c + " handle: "
+                            + handle, "08P01");
+                    }
+
+                    Result ackResult = (odbcPs == null) ? portal.ackResult
+                                                        : odbcPs.ackResult;
+
+                    pmd        = ackResult.parameterMetaData;
+                    paramCount = pmd.getColumnCount();
+
+                    org.hsqldb.types.Type[] paramTypes =
+                        pmd.getParameterTypes();
+
+                    if (paramCount != paramTypes.length) {
+                        throw new RecoverableOdbcFailure(
+                            "Parameter count mismatch.  Count of "
+                            + paramCount + " reported, but there are "
+                            + paramTypes.length + " param md objects");
+                    }
+
+                    if (c == 'S') {
+                        outPacket.writeShort(paramCount);
+
+                        for (int i = 0; i < paramTypes.length; i++) {
+                            outPacket.writeInt(
+                                PgType.getPgType(
+                                    paramTypes[i], true).getOid());
+
+                            // TODO:  Determine whether parameter typing works
+                            // better for Strings when try to match table column
+                            // or not.  2nd param to getPgType().
+                        }
+
+                        outPacket.xmit('t', dataOutput);
+
+                        // ParameterDescription packet
+                    }
+
+                    org.hsqldb.result.ResultMetaData md = ackResult.metaData;
+
+                    if (md.getColumnCount() < 1) {
+                        if (server.isTrace()) {
+                            server.printWithThread(
+                                "Non-rowset query so returning NoData packet");
+                        }
+
+                        // Send NoData packet because no columnar output from
+                        // this statement.
+                        outPacket.xmit('n', dataOutput);
+
+                        break;
+                    }
+
+                    // TODO:
+                    // May need to pass the extra BIGINT pseudo-colun for
+                    // updatable-row or other purposes.  In that case, it may
+                    // make sense to use getExtededColumnCount(), etc.
                     String[] colNames = md.getGeneratedColumnNames();
+
                     if (md.getColumnCount() != colNames.length) {
                         throw new RecoverableOdbcFailure(
                             "Couldn't get all column names: "
                             + md.getColumnCount() + " cols. but only got "
                             + colNames.length + " col. names");
                     }
+
                     colTypes = md.columnTypes;
-                    pgTypes = new PgType[colNames.length];
+                    pgTypes  = new PgType[colNames.length];
+
+                    org.hsqldb.ColumnBase[] colDefs = md.columns;
+
                     for (int i = 0; i < pgTypes.length; i++) {
                         pgTypes[i] = PgType.getPgType(colTypes[i],
-                            md.isTableColumn(i));
+                                                      md.isTableColumn(i));
                     }
-                    org.hsqldb.ColumnBase[] colDefs = md.columns;
+
                     if (colNames.length != colDefs.length) {
-                        throw new RecoverableOdbcFailure("Col data mismatch.  "
-                                + colDefs.length + " col instances but "
-                                + colNames.length + " col names");
+                        throw new RecoverableOdbcFailure(
+                            "Col data mismatch.  " + colDefs.length
+                            + " col instances but " + colNames.length
+                            + " col names");
                     }
-                    outPacket.writeShort(colNames.length);  // Num cols.
+
+                    outPacket.writeShort(colNames.length);        // Num cols.
+
                     for (int i = 0; i < colNames.length; i++) {
-                        outPacket.write(colNames[i]); // Col. name
+                        outPacket.write(colNames[i]);             // Col. name
+
                         // table ID  [relid]:
-                        outPacket.writeInt(
-                            OdbcUtil.getTableOidForColumn(i, md));
+                        outPacket.writeInt(OdbcUtil.getTableOidForColumn(i,
+                                md));
+
                         // column id  [attid]
                         outPacket.writeShort(OdbcUtil.getIdForColumn(i, md));
                         outPacket.writeInt(pgTypes[i].getOid());
+
                         // Datatype size  [adtsize]
                         outPacket.writeShort(pgTypes[i].getTypeWidth());
                         outPacket.writeInt(pgTypes[i].getLPConstraint());
-                          // Var size [atttypmod]
+
+                        // Var size [atttypmod]
                         // This is the size constraint integer
                         // like VARCHAR(12) or DECIMAL(4).
                         // -1 if none specified for this column.
                         outPacket.writeShort(0);
+
                         // format code, 0 = text column, 1 = binary column,
                         // but entirely ignored by our driver.
                         // Would only be non-0 if a 'B' command requested it.
                     }
-                    outPacket.xmit('T', dataOutput); // Xmit Row Definition
-                    int rowNum = 0;
+
+                    outPacket.xmit('T', dataOutput);              // Xmit Row Definition
+                    break;
+
+                case 'B' :                                        // Bind packet
+                    portalHandle = inPacket.readString();
+                    psHandle     = inPacket.readString();
+
+                    int       paramFormatCount = inPacket.readUnsignedShort();
+                    boolean[] paramBinary      = new boolean[paramFormatCount];
+
+                    for (int i = 0; i < paramFormatCount; i++) {
+                        paramBinary[i] = inPacket.readUnsignedShort() != 0;
+
+                        if (server.isTrace() && paramBinary[i]) {
+                            server.printWithThread("Binary param #" + i);
+                        }
+                    }
+
+                    paramCount = inPacket.readUnsignedShort();
+
+                    Object[] paramVals = new Object[paramCount];
+
+                    for (int i = 0; i < paramVals.length; i++) {
+                        paramVals[i] =
+                            (i < paramBinary.length && paramBinary[i])
+                            ? inPacket.readSizedBinaryData()
+                            : inPacket.readSizedString();
+                    }
+
+                    int outFormatCount = inPacket.readUnsignedShort();
+
+                    for (int i = 0; i < outFormatCount; i++) {
+                        if (inPacket.readUnsignedShort() != 0) {
+                            throw new RecoverableOdbcFailure(
+                                null, "Binary output values not supported",
+                                "0A000");
+                        }
+                    }
+
+                    if (server.isTrace()) {
+                        server.printWithThread(
+                            "Received Bind request to make Portal from ("
+                            + psHandle + ")' with handle '" + portalHandle
+                            + "'");
+                    }
+
+                    odbcPs =
+                        (OdbcPreparedStatement) sessionOdbcPsMap.get(psHandle);
+
+                    if (odbcPs == null) {
+                        throw new RecoverableOdbcFailure(
+                            null,
+                            "No object present for PS handle: " + psHandle,
+                            "08P01");
+                    }
+
+                    if (portalHandle.length() > 0
+                            && sessionOdbcPortalMap.containsKey(
+                                portalHandle)) {
+                        throw new RecoverableOdbcFailure(
+                            null,
+                            "Portal handle '" + portalHandle
+                            + "' already in use.  "
+                            + "You must close it before recreating", "08P01");
+                    }
+
+                    pmd = odbcPs.ackResult.parameterMetaData;
+
+                    if (paramCount != pmd.getColumnCount()) {
+                        throw new RecoverableOdbcFailure(
+                            null,
+                            "Client didn't specify all "
+                            + pmd.getColumnCount() + " parameters ("
+                            + paramCount + ')', "08P01");
+                    }
+
+                    new StatementPortal(portalHandle, odbcPs, paramVals,
+                                        sessionOdbcPortalMap);
+                    outPacket.xmit('2', dataOutput);
+                    break;
+
+                case 'E' :                                        // Execute packet
+                    portalHandle = inPacket.readString();
+
+                    int fetchRows = inPacket.readInt();
+
+                    if (server.isTrace()) {
+                        server.printWithThread("Received Exec request for "
+                                               + fetchRows
+                                               + " rows from portal handle '"
+                                               + portalHandle + "'");
+                    }
+
+                    portal = (StatementPortal) sessionOdbcPortalMap.get(
+                        portalHandle);
+
+                    if (portal == null) {
+                        throw new RecoverableOdbcFailure(
+                            null,
+                            "No object present for Portal handle: "
+                            + portalHandle, "08P01");
+                    }
+
+                    portal.bindResult.setPreparedExecuteProperties(
+                        portal.parameters, fetchRows, 0);
+
+                    // 0 for maxRows means unlimited.  Same for fetchRows.
+                    rOut = session.execute(portal.bindResult);
+
+                    switch (rOut.getType()) {
+
+                        case ResultConstants.UPDATECOUNT :
+                            outPacket.write(
+                                OdbcUtil.echoBackReplyString(
+                                    portal.lcQuery, rOut.getUpdateCount()));
+                            outPacket.xmit('C', dataOutput);
+
+                            // end of rows (B or D packets)
+                            // This keeps session.autoUpdate in sync with client's
+                            // notion of transaction state.
+                            if (portal.lcQuery.equals("commit")
+                                    || portal.lcQuery.startsWith("commit ")
+                                    || portal.lcQuery.equals("rollback")
+                                    || portal.lcQuery.startsWith(
+                                        "rollback ")) {
+                                try {
+                                    session.setAutoCommit(true);
+                                } catch (HsqlException he) {
+                                    throw new RecoverableOdbcFailure(
+                                        "Failed to change transaction state: "
+                                        + he.getMessage(), he.getSQLState());
+                                }
+                            }
+                            break MAIN_ODBC_COMM_SWITCH;
+
+                        case ResultConstants.DATA :
+                            break;
+
+                        case ResultConstants.ERROR :
+                            throw new RecoverableOdbcFailure(rOut);
+                        default :
+                            throw new RecoverableOdbcFailure(
+                                "Output Result from Portal execution is of "
+                                + "unexpected type: " + rOut.getType());
+                    }
+
+                    // See Result.newDataHeadResult() for what we have here
+                    // .metaData, .navigator
+                    org.hsqldb.navigator.RowSetNavigator navigator =
+                        rOut.getNavigator();
+
+                    if (!(navigator
+                            instanceof org.hsqldb.navigator
+                                .RowSetNavigatorData)) {
+                        throw new RecoverableOdbcFailure(
+                            "Unexpected RowSetNavigator instance type: "
+                            + navigator.getClass().getName());
+                    }
+
+                    org.hsqldb.navigator.RowSetNavigatorData navData =
+                        (org.hsqldb.navigator.RowSetNavigatorData) navigator;
+                    int rowNum   = 0;
+                    int colCount = portal.ackResult.metaData.getColumnCount();
+
                     while (navData.next()) {
                         rowNum++;
+
                         Object[] rowData = (Object[]) navData.getCurrent();
+
                         // Row.getData().  Don't know why *Data.getCurrent()
                         //                 method returns Object instead of O[].
                         //  TODO:  Remove the assertion here:
-                        if (rowData == null)
+                        if (rowData == null) {
                             throw new RecoverableOdbcFailure("Null row?");
-                        if (rowData.length < colNames.length) {
-                            throw new RecoverableOdbcFailure(
-                                "Data element mismatch. "
-                                + colNames.length + " metadata cols, yet "
-                                + rowData.length + " data elements for row "
-                                + rowNum);
                         }
+
+                        if (rowData.length < colCount) {
+                            throw new RecoverableOdbcFailure(
+                                "Data element mismatch. " + colCount
+                                + " metadata cols, yet " + rowData.length
+                                + " data elements for row " + rowNum);
+                        }
+
                         //server.printWithThread("Row " + rowNum + " has "
-                                //+ rowData.length + " elements");
-                        outPacket.writeShort(colNames.length);
-                         // This field is just swallowed by PG ODBC
-                         // client, but OdbcUtil.validated by psql.
-                        for (int i = 0; i < colNames.length; i++) {
+                        //+ rowData.length + " elements");
+                        outPacket.writeShort(colCount);
+
+                        // This field is just swallowed by PG ODBC
+                        // client, but validated by psql.
+                        colTypes = portal.ackResult.metaData.columnTypes;
+                        pgTypes  = new PgType[colCount];
+
+                        for (int i = 0; i < pgTypes.length; i++) {
+                            pgTypes[i] = PgType.getPgType(
+                                colTypes[i],
+                                portal.ackResult.metaData.isTableColumn(i));
+                        }
+
+                        for (int i = 0; i < colCount; i++) {
                             if (rowData[i] == null) {
                                 /*
                                 server.printWithThread("R" + rowNum + "C"
@@ -707,506 +1338,149 @@ class ServerConnection implements Runnable {
                                 */
                                 outPacket.writeInt(-1);
                             } else {
-                                dataString = pgTypes[i].valueString(rowData[i]);
+                                dataString =
+                                    pgTypes[i].valueString(rowData[i]);
+
                                 outPacket.writeSized(dataString);
+
                                 if (server.isTrace()) {
-                                    server.printWithThread("R" + rowNum + "C"
-                                        + (i+1) + " => ("
+                                    server.printWithThread(
+                                        "R" + rowNum + "C" + (i + 1) + " => ("
                                         + rowData[i].getClass().getName()
                                         + ") [" + dataString + ']');
                                 }
                             }
                         }
+
                         outPacket.xmit('D', dataOutput);
                     }
-                    outPacket.write("SELECT");
-                    outPacket.xmit('C', dataOutput);
-                    sendReadyForQuery = true;
-                    break;
-                }
-                if (normalized.startsWith("deallocate \"")
-                        && normalized.charAt(normalized.length() - 1) == '"') {
-                    tmpStr =
-                        sql.trim().substring("deallocate \"".length()).trim();
-                        // Must use "sql" directly since name is case-sensitive
-                    handle = tmpStr.substring(0, tmpStr.length() - 1);
-                    odbcPs = (OdbcPreparedStatement)
-                        sessionOdbcPsMap.get(handle);
-                    if (odbcPs != null) {
-                        odbcPs.close();
-                    }
-                    portal = (StatementPortal) sessionOdbcPortalMap.get(handle);
-                    if (portal != null) {
-                        portal.close();
-                    }
-                    if (odbcPs == null && portal == null) {
-                        /*
-                        throw new RecoverableOdbcFailure(null,
-                            "No object present for handle: " + handle, "08P01");
-                        Driver does not handle state change correctly, so
-                        for now we just issue a warning:
-                        OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_ERROR,
-                            "No object present for handle: " + handle,
-                            dataOutput);
-                        TODO:  Retest this.  May have been side-effect of
-                               other problems.
-                        */
-                        server.printWithThread("Ignoring bad 'DEALLOCATE' cmd");
-                    }
-                    if (server.isTrace()) {
-                        server.printWithThread("Deallocated PS/Portal '"
-                                + handle + "'");
-                    }
-                    outPacket.write("DEALLOCATE");
-                    outPacket.xmit('C', dataOutput);
-                    sendReadyForQuery = true;
-                    break;
-                }
-                if (normalized.startsWith("set client_encoding to ")) {
-                    server.printWithThread("Stubbing EXECDIR for: " +  sql);
-                    outPacket.write("SET");
-                    outPacket.xmit('C', dataOutput);
-                    sendReadyForQuery = true;
-                    break;
-                }
-                // Case below is non-String-matched Qs:
-                server.printWithThread("Performing a real EXECDIRECT...");
-                odbcExecDirect(sql);
-                sendReadyForQuery = true;
-                break;
-              case 'X': // Terminate packet
-                if (sessionOdbcPsMap.size() >
-                    (sessionOdbcPsMap.containsKey("") ? 1 : 0)) {
-                    server.printWithThread("Client left " +
-                        sessionOdbcPsMap.size() + " PS objects open");
-                }
-                if (sessionOdbcPortalMap.size() >
-                    (sessionOdbcPortalMap.containsKey("") ? 1 : 0)) {
-                    server.printWithThread("Client left " +
-                        sessionOdbcPortalMap.size() + " Portal objects open");
-                }
-                OdbcUtil.validateInputPacketSize(inPacket);
-                throw cleanExit;
-              case 'H': // Flush packet
-                // No-op.  It is impossible to cache while supporting multiple
-                // ps and portal objects, so there is nothing for a Flush to
-                // do.  There isn't even a reply to a Flush packet.
-                break;
-              case 'S': // Sync packet
-                // Special case for Sync packets.
-                // To facilitate recovery, we do not abort in case of problems.
-                if (session.isAutoCommit()) try {
-                    // I don't see how this can be useful.  If we ran DML, it
-                    // will have autocommitted.  If we have just switched to
-                    // autoCommit mode, then according to spec we must have
-                    // executed an implicit commit then.
-                    server.printWithThread("Silly implicit commit by Sync");
-                    session.commit(true);
-                    // TODO:  Find out if chain param should be T or F.
-                } catch (HsqlException he) {
-                    server.printWithThread("Implicit commit failed: " + he);
-                    OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_ERROR,
-                            "Implicit commit failed", he.getSQLState(),
-                            dataOutput);
-                }
-                sendReadyForQuery = true;
-                break;
-              case 'P': // Parse packet
-                psHandle = inPacket.readString();
-                String query = OdbcUtil.revertMungledPreparedQuery(
-                    inPacket.readString());
-                paramCount = inPacket.readUnsignedShort();
-                for (int i = 0; i < paramCount; i++) {
-                    if (inPacket.readInt()  != 0) {
-                        throw new RecoverableOdbcFailure(null,
-                            "Parameter-type OID specifiers not supported yet",
-                            "0A000");
-                    }
-                }
-                if (server.isTrace()) {
-                    server.printWithThread(
-                        "Received Prepare request for query (" + query +
-                        ") with handle '" + psHandle + "'");
-                }
-                if (psHandle.length() > 0
-                        && sessionOdbcPsMap.containsKey(psHandle)) {
-                    throw new RecoverableOdbcFailure(null,
-                        "PS handle '" + psHandle + "' already in use.  "
-                        + "You must close it before recreating", "08P01");
-                }
-                new OdbcPreparedStatement(
-                        psHandle, query, sessionOdbcPsMap, session);
 
-                outPacket.xmit('1', dataOutput);
-                break;
-              case 'D': // Describe packet
-                c = inPacket.readByteChar();
-                handle = inPacket.readString();
-                odbcPs = null;
-                portal = null;
-                if (c == 'S') {
-                    odbcPs = (OdbcPreparedStatement)
-                        sessionOdbcPsMap.get(handle);
-                } else if (c == 'P') {
-                    portal = (StatementPortal) sessionOdbcPortalMap.get(handle);
-                } else {
-                    throw new RecoverableOdbcFailure(null,
-                        "Description packet request type invalid: " + c,
-                        "08P01");
-                }
-                if (server.isTrace()) {
-                    server.printWithThread(
-                        "Received Describe request for " + c + " of  handle '"
-                        + handle + "'");
-                }
-                if (odbcPs == null && portal == null) {
-                    throw new RecoverableOdbcFailure(null,
-                        "No object present for " + c + " handle: " + handle,
-                        "08P01");
-                }
-                Result ackResult = (odbcPs == null)
-                    ? portal.ackResult : odbcPs.ackResult;
-                pmd = ackResult.parameterMetaData;
-                paramCount = pmd.getColumnCount();
-                org.hsqldb.types.Type[] paramTypes = pmd.getParameterTypes();
-                if (paramCount != paramTypes.length) {
-                    throw new RecoverableOdbcFailure(
-                        "Parameter count mismatch.  Count of "
-                        + paramCount + " reported, but there are "
-                        + paramTypes.length + " param md objects");
-                }
-
-                if (c == 'S') {
-                    outPacket.writeShort(paramCount);
-                    for (int i = 0; i < paramTypes.length; i++) {
-                        outPacket.writeInt(
-                            PgType.getPgType(paramTypes[i], true).getOid());
-                        // TODO:  Determine whether parameter typing works
-                        // better for Strings when try to match table column
-                        // or not.  2nd param to getPgType().
-                    }
-                    outPacket.xmit('t', dataOutput);
-                      // ParameterDescription packet
-                }
-
-                org.hsqldb.result.ResultMetaData md = ackResult.metaData;
-                if (md.getColumnCount() < 1) {
-                    if (server.isTrace()) {
-                        server.printWithThread(
-                            "Non-rowset query so returning NoData packet");
-                    }
-                    // Send NoData packet because no columnar output from
-                    // this statement.
-                    outPacket.xmit('n', dataOutput);
-                    break;
-                }
-                // TODO:
-                // May need to pass the extra BIGINT pseudo-colun for
-                // updatable-row or other purposes.  In that case, it may
-                // make sense to use getExtededColumnCount(), etc.
-                String[] colNames = md.getGeneratedColumnNames();
-                if (md.getColumnCount() != colNames.length) {
-                    throw new RecoverableOdbcFailure(
-                        "Couldn't get all column names: "
-                        + md.getColumnCount() + " cols. but only got "
-                        + colNames.length + " col. names");
-                }
-                colTypes = md.columnTypes;
-                pgTypes = new PgType[colNames.length];
-                org.hsqldb.ColumnBase[] colDefs = md.columns;
-                for (int i = 0; i < pgTypes.length; i++) {
-                    pgTypes[i] = PgType.getPgType(colTypes[i],
-                        md.isTableColumn(i));
-                }
-                if (colNames.length != colDefs.length) {
-                    throw new RecoverableOdbcFailure("Col data mismatch.  "
-                            + colDefs.length + " col instances but "
-                            + colNames.length + " col names");
-                }
-
-                outPacket.writeShort(colNames.length);  // Num cols.
-                for (int i = 0; i < colNames.length; i++) {
-                    outPacket.write(colNames[i]); // Col. name
-                    // table ID  [relid]:
-                    outPacket.writeInt(
-                        OdbcUtil.getTableOidForColumn(i, md));
-                    // column id  [attid]
-                    outPacket.writeShort(OdbcUtil.getIdForColumn(i, md));
-                    outPacket.writeInt(pgTypes[i].getOid());
-                    // Datatype size  [adtsize]
-                    outPacket.writeShort(pgTypes[i].getTypeWidth());
-                    outPacket.writeInt(pgTypes[i].getLPConstraint());
-                      // Var size [atttypmod]
-                    // This is the size constraint integer
-                    // like VARCHAR(12) or DECIMAL(4).
-                    // -1 if none specified for this column.
-                    outPacket.writeShort(0);
-                    // format code, 0 = text column, 1 = binary column,
-                    // but entirely ignored by our driver.
-                    // Would only be non-0 if a 'B' command requested it.
-                }
-                outPacket.xmit('T', dataOutput); // Xmit Row Definition
-                break;
-              case 'B': // Bind packet
-                portalHandle = inPacket.readString();
-                psHandle = inPacket.readString();
-                int paramFormatCount = inPacket.readUnsignedShort();
-                boolean[] paramBinary = new boolean[paramFormatCount];
-                for (int i = 0; i < paramFormatCount; i++) {
-                    paramBinary[i] = inPacket.readUnsignedShort() != 0;
-                    if (server.isTrace() && paramBinary[i]) {
-                        server.printWithThread("Binary param #" + i);
-                    }
-                }
-                paramCount = inPacket.readUnsignedShort();
-                Object[] paramVals = new Object[paramCount];
-                for (int i = 0; i < paramVals.length; i++) {
-                    paramVals[i] = (i < paramBinary.length && paramBinary[i])
-                        ? inPacket.readSizedBinaryData()
-                        : inPacket.readSizedString();
-                }
-                int outFormatCount = inPacket.readUnsignedShort();
-                for (int i = 0; i < outFormatCount; i++) {
-                    if (inPacket.readUnsignedShort()  != 0) {
-                        throw new RecoverableOdbcFailure(null,
-                            "Binary output values not supported", "0A000");
-                    }
-                }
-                if (server.isTrace()) {
-                    server.printWithThread(
-                        "Received Bind request to make Portal from ("
-                        + psHandle + ")' with handle '" + portalHandle + "'");
-                }
-                odbcPs = (OdbcPreparedStatement) sessionOdbcPsMap.get(psHandle);
-                if (odbcPs == null) {
-                    throw new RecoverableOdbcFailure(null,
-                        "No object present for PS handle: " + psHandle,
-                        "08P01");
-                }
-                if (portalHandle.length() > 0
-                        && sessionOdbcPortalMap.containsKey(portalHandle)) {
-                    throw new RecoverableOdbcFailure(null,
-                        "Portal handle '" + portalHandle + "' already in use.  "
-                        + "You must close it before recreating", "08P01");
-                }
-                pmd = odbcPs.ackResult.parameterMetaData;
-                if (paramCount != pmd.getColumnCount()) {
-                    throw new RecoverableOdbcFailure(null,
-                        "Client didn't specify all " + pmd.getColumnCount()
-                        + " parameters (" + paramCount + ')', "08P01");
-                }
-                new StatementPortal(
-                    portalHandle, odbcPs, paramVals, sessionOdbcPortalMap);
-                outPacket.xmit('2', dataOutput);
-                break;
-              case 'E': // Execute packet
-                portalHandle = inPacket.readString();
-                int fetchRows = inPacket.readInt();
-                if (server.isTrace()) {
-                    server.printWithThread(
-                        "Received Exec request for " + fetchRows
-                        + " rows from portal handle '" + portalHandle + "'");
-                }
-                portal = (StatementPortal) sessionOdbcPortalMap.get(portalHandle);
-                if (portal == null) {
-                    throw new RecoverableOdbcFailure(null,
-                        "No object present for Portal handle: " + portalHandle,
-                        "08P01");
-                }
-
-                portal.bindResult.setPreparedExecuteProperties(
-                    portal.parameters, fetchRows, 0);
-                    // 0 for maxRows means unlimited.  Same for fetchRows.
-                rOut = session.execute(portal.bindResult);
-                switch (rOut.getType()) {
-                    case ResultConstants.UPDATECOUNT:
-                        outPacket.write(OdbcUtil.echoBackReplyString(
-                            portal.lcQuery, rOut.getUpdateCount()));
+                    if (navigator.afterLast()) {
+                        outPacket.write("SELECT");
                         outPacket.xmit('C', dataOutput);
-                        // end of rows (B or D packets)
 
-                        // This keeps session.autoUpdate in sync with client's
-                        // notion of transaction state.
-                        if (portal.lcQuery.equals("commit")
-                            || portal.lcQuery.startsWith("commit ")
-                            || portal.lcQuery.equals("rollback")
-                            || portal.lcQuery.startsWith("rollback ")) try {
-                            session.setAutoCommit(true);
-                        } catch (HsqlException he) {
-                            throw new RecoverableOdbcFailure(
-                                "Failed to change transaction state: "
-                                + he.getMessage(), he.getSQLState());
+                        // end of rows (B or D packets)
+                    } else {
+                        outPacket.xmit('s', dataOutput);
+                    }
+
+                    // N.b., we return.
+                    // You might think that this completion of an EXTENDED sequence
+                    // would end in ReadyForQuery/Z, but no.
+                    break;
+
+                case 'C' :                                        // Close packet
+                    c      = inPacket.readByteChar();
+                    handle = inPacket.readString();
+                    odbcPs = null;
+                    portal = null;
+
+                    if (c == 'S') {
+                        odbcPs = (OdbcPreparedStatement) sessionOdbcPsMap.get(
+                            handle);
+
+                        if (odbcPs != null) {
+                            odbcPs.close();
                         }
-                        break MAIN_ODBC_COMM_SWITCH;
-                    case ResultConstants.DATA:
-                        break;
-                    case ResultConstants.ERROR:
-                        throw new RecoverableOdbcFailure(rOut);
-                    default:
+                    } else if (c == 'P') {
+                        portal =
+                            (StatementPortal) sessionOdbcPortalMap.get(handle);
+
+                        if (portal != null) {
+                            portal.close();
+                        }
+                    } else {
                         throw new RecoverableOdbcFailure(
-                            "Output Result from Portal execution is of "
-                            + "unexpected type: " + rOut.getType());
-                }
-                // See Result.newDataHeadResult() for what we have here
-                // .metaData, .navigator
-                org.hsqldb.navigator.RowSetNavigator navigator =
-                        rOut.getNavigator();
-                if (!(navigator instanceof
-                    org.hsqldb.navigator.RowSetNavigatorData)) {
+                            null,
+                            "Description packet request type invalid: " + c,
+                            "08P01");
+                    }
+
+                    // TODO:  Try sending a warning to client for both == null.
+                    // Broke things earlier, but that may have been due to
+                    // other problems.
+                    if (server.isTrace()) {
+                        server.printWithThread("Closed " + c + " '" + handle
+                                               + "'? "
+                                               + (odbcPs != null
+                                                  || portal != null));
+                    }
+
+                    outPacket.xmit('3', dataOutput);
+                    break;
+
+                default :
                     throw new RecoverableOdbcFailure(
-                            "Unexpected RowSetNavigator instance type: "
-                            + navigator.getClass().getName());
-                }
-                org.hsqldb.navigator.RowSetNavigatorData navData =
-                    (org.hsqldb.navigator.RowSetNavigatorData) navigator;
-                int rowNum = 0;
-                int colCount = portal.ackResult.metaData.getColumnCount();
-                while (navData.next()) {
-                    rowNum++;
-                    Object[] rowData = (Object[]) navData.getCurrent();
-                    // Row.getData().  Don't know why *Data.getCurrent()
-                    //                 method returns Object instead of O[].
-                    //  TODO:  Remove the assertion here:
-                    if (rowData == null)
-                        throw new RecoverableOdbcFailure("Null row?");
-                    if (rowData.length < colCount) {
-                        throw new RecoverableOdbcFailure(
-                            "Data element mismatch. "
-                            + colCount + " metadata cols, yet "
-                            + rowData.length + " data elements for row "
-                            + rowNum);
-                    }
-                    //server.printWithThread("Row " + rowNum + " has "
-                            //+ rowData.length + " elements");
-                    outPacket.writeShort(colCount);
-                     // This field is just swallowed by PG ODBC
-                     // client, but validated by psql.
-                    colTypes = portal.ackResult.metaData.columnTypes;
-                    pgTypes = new PgType[colCount];
-                    for (int i = 0; i < pgTypes.length; i++) {
-                        pgTypes[i] = PgType.getPgType(colTypes[i],
-                            portal.ackResult.metaData.isTableColumn(i));
-                    }
-                    for (int i = 0; i < colCount; i++) {
-                        if (rowData[i] == null) {
-                            /*
-                            server.printWithThread("R" + rowNum + "C"
-                                + (i+1) + " => [null]");
-                            */
-                            outPacket.writeInt(-1);
-                        } else {
-                            dataString = pgTypes[i].valueString(rowData[i]);
-                            outPacket.writeSized(dataString);
-                            if (server.isTrace()) {
-                                server.printWithThread("R" + rowNum + "C"
-                                    + (i+1) + " => ("
-                                    + rowData[i].getClass().getName()
-                                    + ") [" + dataString + ']');
-                            }
-                        }
-                    }
-                    outPacket.xmit('D', dataOutput);
-                }
-                if (navigator.afterLast()) {
-                    outPacket.write("SELECT");
-                    outPacket.xmit('C', dataOutput);
-                    // end of rows (B or D packets)
-                } else {
-                    outPacket.xmit('s', dataOutput);
-                }
-                // N.b., we return.
-                // You might think that this completion of an EXTENDED sequence
-                // would end in ReadyForQuery/Z, but no.
-                break;
-              case 'C': // Close packet
-                c = inPacket.readByteChar();
-                handle = inPacket.readString();
-                odbcPs = null;
-                portal = null;
-                if (c == 'S') {
-                    odbcPs = (OdbcPreparedStatement)
-                        sessionOdbcPsMap.get(handle);
-                    if (odbcPs != null) {
-                        odbcPs.close();
-                    }
-                } else if (c == 'P') {
-                    portal = (StatementPortal) sessionOdbcPortalMap.get(handle);
-                    if (portal != null) {
-                        portal.close();
-                    }
-                } else {
-                    throw new RecoverableOdbcFailure(null,
-                        "Description packet request type invalid: " + c,
-                        "08P01");
-                }
-                // TODO:  Try sending a warning to client for both == null.
-                // Broke things earlier, but that may have been due to
-                // other problems.
-                if (server.isTrace()) {
-                    server.printWithThread("Closed " + c + " '"
-                            + handle + "'? "
-                            + (odbcPs != null || portal != null));
-                }
-                outPacket.xmit('3', dataOutput);
-                break;
-              default:
-                throw new RecoverableOdbcFailure(
-                    null, "Unsupported operation type (" + inPacket.packetType
-                    + ')', "0A000");
+                        null,
+                        "Unsupported operation type (" + inPacket.packetType
+                        + ')', "0A000");
             }
+
             OdbcUtil.validateInputPacketSize(inPacket);
+
             if (interposedStatement != null) {
-                server.printWithThread(
-                    "Interposing AFTER primary statement: "
-                    + interposedStatement);
+                server.printWithThread("Interposing AFTER primary statement: "
+                                       + interposedStatement);
                 odbcExecDirect(interposedStatement);
             }
+
             if (sendReadyForQuery) {
                 outPacket.reset();
+
                 // The reset is unnecessary now.  For safety in case somebody
                 // codes something above which may abort processing of a
                 // packet before xmit.
-                outPacket.writeByte(session.isAutoCommit() ? 'I' : 'T');
+                outPacket.writeByte(session.isAutoCommit() ? 'I'
+                                                           : 'T');
                 outPacket.xmit('Z', dataOutput);
             }
         } catch (RecoverableOdbcFailure rf) {
             Result errorResult = rf.getErrorResult();
+
             if (errorResult == null) {
                 String stateCode = rf.getSqlStateCode();
-                String svrMsg = rf.getMessage();
-                String cliMsg = rf.getClientMessage();
+                String svrMsg    = rf.getMessage();
+                String cliMsg    = rf.getClientMessage();
+
                 if (svrMsg != null) {
                     server.printWithThread(svrMsg);
                 } else if (server.isTrace()) {
                     server.printWithThread("Client error: " + cliMsg);
                 }
+
                 if (cliMsg != null) {
-                    OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_ERROR,
-                        cliMsg, stateCode, dataOutput);
+                    OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_ERROR, cliMsg,
+                                         stateCode, dataOutput);
                 }
             } else {
                 if (server.isTrace()) {
                     server.printWithThread("Result object error: "
-                        + errorResult.getMainString());
+                                           + errorResult.getMainString());
                 }
+
                 // This class of error is not considered a Server problem, so
                 // we don't log on the server side.
                 OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_ERROR,
-                    errorResult.getMainString(), errorResult.getSubString(),
-                    dataOutput);
+                                     errorResult.getMainString(),
+                                     errorResult.getSubString(), dataOutput);
             }
+
             switch (odbcCommMode) {
-               case OdbcUtil.ODBC_SIMPLE_MODE:
-                    outPacket.reset();  /// transaction status = Error
-                    outPacket.writeByte('E');  /// transaction status = Error
+
+                case OdbcUtil.ODBC_SIMPLE_MODE :
+                    outPacket.reset();                            /// transaction status = Error
+                    outPacket.writeByte('E');                     /// transaction status = Error
+
                     // TODO:  Consider keeping this state until the session
                     // is either committed or rolled back.
                     // (Right now we just return 'E' here, then revert to
                     // I or T).
                     outPacket.xmit('Z', dataOutput);
                     break;
-                case OdbcUtil.ODBC_EXTENDED_MODE:
+
+                case OdbcUtil.ODBC_EXTENDED_MODE :
                     odbcCommMode = OdbcUtil.ODBC_EXT_RECOVER_MODE;
+
                     server.printWithThread("Reverting to EXT_RECOVER mode");
                     break;
             }
@@ -1218,6 +1492,7 @@ class ServerConnection implements Runnable {
      * loop until closed.
      */
     public void run() {
+
         int msgType;
 
         init();
@@ -1226,16 +1501,16 @@ class ServerConnection implements Runnable {
             try {
                 while (keepAlive) {
                     msgType = dataInput.readByte();
+
                     if ((msgType < '0' || msgType > '9')
-                        && (msgType < 'a' || msgType > 'z')
-                        && (msgType < 'A' || msgType > 'Z')) {
+                            && (msgType < 'a' || msgType > 'z')
+                            && (msgType < 'A' || msgType > 'Z')) {
                         receiveResult(msgType);
                     } else {
                         receiveOdbcPacket((char) msgType);
                     }
                 }
             } catch (CleanExit ce) {
-
                 keepAlive = false;
             } catch (IOException e) {
 
@@ -1264,7 +1539,8 @@ class ServerConnection implements Runnable {
 
             if (!server.isSilent()) {
                 server.printWithThread(mThread + ":Trying to connect user '"
-                                   + user + "' to DB (" + databaseName + ')');
+                                       + user + "' to DB (" + databaseName
+                                       + ')');
             }
 
             session = DatabaseManager.newSession(dbID, user,
@@ -1272,8 +1548,8 @@ class ServerConnection implements Runnable {
                                                  resultIn.getUpdateCount());
 
             if (!server.isSilent()) {
-                server.printWithThread(mThread + ":Connected user '"
-                                       + user + "'");
+                server.printWithThread(mThread + ":Connected user '" + user
+                                       + "'");
             }
 
             return Result.newConnectionAcknowledgeResponse(session.getId(),
@@ -1357,24 +1633,34 @@ class ServerConnection implements Runnable {
         }
 
         int firstInt = dataInput.readInt();
+
         switch (firstInt >> 24) {
-            case 80: // Empirically
+
+            case 80 :    // Empirically
                 server.print(
                     "Rejected attempt from client using hsql HTTP protocol");
+
                 return 0;
-            case 0:
+
+            case 0 :
+
                 // For ODBC protocol, this is the first byte of a 4-byte int
                 // size.  The size can never be large enough that the first
                 // byte will be non-zero.
                 streamProtocol = ODBC_STREAM_PROTOCOL;
                 break;
-            default:
+
+            default :
                 streamProtocol = HSQL_STREAM_PROTOCOL;
-                // HSQL protocol client
+
+            // HSQL protocol client
         }
+
         return firstInt;
     }
+
     private void odbcConnect(int firstInt) throws IOException, HsqlException {
+
         /* Until client receives teh ReadyForQuery packet at the end of this
          * method, we (the server) initiate all packet exchanges. */
         int major = dataInput.readUnsignedShort();
@@ -1382,140 +1668,177 @@ class ServerConnection implements Runnable {
 
         // Can just return to fail, until the value of "session" is set below.
         if (major == 1 && minor == 7) {
+
             // This is what old HyperSQL versions always send
             // TODO:  Consider sending client a 1.8-compatible SQLException
             server.print("A pre-9.0 client attempted to connect.  "
-                    + "We rejected them.");
+                         + "We rejected them.");
+
             return;
         }
+
         if (major == 1234 && minor == 5679) {
+
             // No reason to pay any attention to the size header in this case.
-            dataOutput.writeByte('N');  // SSL not supported yet
+            dataOutput.writeByte('N');    // SSL not supported yet
+
             // TODO:  Implement SSL here (and reply with 'S')
             odbcConnect(dataInput.readInt());
+
             return;
         }
+
         if (major == 1234 && minor == 5678) {
+
             // No reason to pay any attention to the size header in this case.
             if (firstInt != 16) {
                 server.print(
                     "ODBC cancellation request sent wrong packet length: "
                     + firstInt);
             }
-            server.print("Got an ODBC cancelation request for thread ID "
-                    + dataInput.readInt() + ", but we don't support "
-                    + "OOB cancellation yet.  "
-                    + "Ignoring this request and closing the connection.");
+
+            server.print(
+                "Got an ODBC cancelation request for thread ID "
+                + dataInput.readInt() + ", but we don't support "
+                + "OOB cancellation yet.  "
+                + "Ignoring this request and closing the connection.");
+
             // N.b.,  Spec says to NOT reply to client in this case.
             return;
         }
+
         server.printWithThread("ODBC client connected.  "
-                + "ODBC Protocol Compatibility Version " + major + '.' + minor);
+                               + "ODBC Protocol Compatibility Version "
+                               + major + '.' + minor);
+
         OdbcPacketInputStream inPacket =
-            OdbcPacketInputStream.newOdbcPacketInputStream('\0',
-            dataInput, firstInt - 8);
-            // - 4 for size of firstInt - 2 for major - 2 for minor
+            OdbcPacketInputStream.newOdbcPacketInputStream('\0', dataInput,
+                firstInt - 8);
+
+        // - 4 for size of firstInt - 2 for major - 2 for minor
         java.util.Map stringPairs = inPacket.readStringPairs();
+
         if (server.isTrace()) {
             server.print("String Pairs from ODBC client: " + stringPairs);
         }
+
         try {
             try {
                 OdbcUtil.validateInputPacketSize(inPacket);
             } catch (RecoverableOdbcFailure rf) {
+
                 // In this case, we do not treat it as recoverable
-                throw new ClientFailure(rf.getMessage(), rf.getClientMessage());
+                throw new ClientFailure(rf.getMessage(),
+                                        rf.getClientMessage());
             }
+
             inPacket.close();
+
             if (!stringPairs.containsKey("database")) {
                 throw new ClientFailure("Client did not identify database",
-                        "Target database not identified");
+                                        "Target database not identified");
             }
+
             if (!stringPairs.containsKey("user")) {
                 throw new ClientFailure("Client did not identify user",
-                        "Target account not identified");
+                                        "Target account not identified");
             }
+
             String databaseName = (String) stringPairs.get("database");
+
             user = (String) stringPairs.get("user");
 
             if (databaseName.equals("/")) {
+
                 // Work-around because ODBC doesn't allow "" for Database name
                 databaseName = "";
             }
 
             /* Unencoded/unsalted authentication */
             dataOutput.writeByte('R');
-            dataOutput.writeInt(8); //size
+            dataOutput.writeInt(8);                                              //size
             dataOutput.writeInt(OdbcUtil.ODBC_AUTH_REQ_PASSWORD);
+
             // areq of auth. mode.
             char c = '\0';
+
             try {
                 c = (char) dataInput.readByte();
             } catch (EOFException eofe) {
                 server.printWithThread(
                     "Looks like we got a goofy psql no-auth attempt.  "
                     + "Will probably retry properly very shortly");
+
                 return;
             }
+
             if (c != 'p') {
-                throw new ClientFailure("Expected password prefix 'p', "
-                    + "but got '" + c + "'",
+                throw new ClientFailure(
+                    "Expected password prefix 'p', " + "but got '" + c + "'",
                     "Password value not prefixed with 'p'");
             }
+
             int len = dataInput.readInt() - 5;
-                // Is password len after -4 for count int -1 for null term
+
+            // Is password len after -4 for count int -1 for null term
             if (len < 0) {
                 throw new ClientFailure(
                     "Client submitted invalid password length " + len,
                     "Invalid password length " + len);
             }
-            String password = ServerConnection.readNullTermdUTF(len, dataInput);
+
+            String password = ServerConnection.readNullTermdUTF(len,
+                dataInput);
 
             dbIndex = server.getDBIndex(databaseName);
             dbID    = server.dbID[dbIndex];
 
             if (!server.isSilent()) {
                 server.printWithThread(mThread + ":Trying to connect user '"
-                                   + user + "' to DB (" + databaseName + ')');
+                                       + user + "' to DB (" + databaseName
+                                       + ')');
             }
 
             try {
                 session = DatabaseManager.newSession(dbID, user, password, 0);
+
                 // TODO:  Find out what updateCount, the last para, is for:
                 //                                   resultIn.getUpdateCount());
             } catch (Exception e) {
                 throw new ClientFailure("User name or password denied: " + e,
-                    "Login attempt rejected");
+                                        "Login attempt rejected");
             }
         } catch (ClientFailure cf) {
             server.print(cf.getMessage());
-            OdbcUtil.alertClient(
-                OdbcUtil.ODBC_SEVERITY_FATAL, cf.getClientMessage(),
-                "08006", dataOutput); // Code means CONNECTION FAILURE
+            OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_FATAL,
+                                 cf.getClientMessage(), "08006", dataOutput);    // Code means CONNECTION FAILURE
+
             return;
         }
+
         outPacket = OdbcPacketOutputStream.newOdbcPacketOutputStream();
 
-        outPacket.writeInt(OdbcUtil.ODBC_AUTH_REQ_OK); //success
-        outPacket.xmit('R', dataOutput); // Notify client of success
+        outPacket.writeInt(OdbcUtil.ODBC_AUTH_REQ_OK);    //success
+        outPacket.xmit('R', dataOutput);                  // Notify client of success
 
         for (int i = 0; i < OdbcUtil.hardcodedParams.length; i++) {
             OdbcUtil.writeParam(OdbcUtil.hardcodedParams[i][0],
-                OdbcUtil.hardcodedParams[i][1], dataOutput);
+                                OdbcUtil.hardcodedParams[i][1], dataOutput);
         }
+
         // If/when we implement OOB cancellation, we would send the
         // Session identifier and key here, with a 'K' packet.
+        outPacket.writeByte('I');           // Trans. status = Not in transaction
+        outPacket.xmit('Z', dataOutput);    // Notify client of success
 
-        outPacket.writeByte('I'); // Trans. status = Not in transaction
-        outPacket.xmit('Z', dataOutput); // Notify client of success
         // This ReadyForQuery turns over responsibility to initiate packet
         // exchanges to the client.
-
-        OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_INFO,
+        OdbcUtil.alertClient(
+            OdbcUtil.ODBC_SEVERITY_INFO,
             "MHello\nYou have connected to HyperSQL ODBC Server", dataOutput);
     }
 
-    private java.util.Map sessionOdbcPsMap = new java.util.HashMap();
+    private java.util.Map sessionOdbcPsMap     = new java.util.HashMap();
     private java.util.Map sessionOdbcPortalMap = new java.util.HashMap();
 
     /**
@@ -1523,35 +1846,43 @@ class ServerConnection implements Runnable {
      *
      * @param reqLength Required length
      */
-    private static String readNullTermdUTF(
-    int reqLength, java.io.InputStream istream) throws IOException {
+    private static String readNullTermdUTF(int reqLength,
+                                           java.io.InputStream istream)
+                                           throws IOException {
+
         /* Would be MUCH easier to do this with Java6's String
          * encoding/decoding operations */
-        int bytesRead = 0;
-        byte[] ba = new byte[reqLength + 3];
+        int    bytesRead = 0;
+        byte[] ba        = new byte[reqLength + 3];
+
         ba[0] = (byte) (reqLength >>> 8);
         ba[1] = (byte) reqLength;
+
         while (bytesRead < reqLength + 1) {
-            bytesRead +=
-                istream.read(ba, 2 + bytesRead, reqLength + 1 - bytesRead);
+            bytesRead += istream.read(ba, 2 + bytesRead,
+                                      reqLength + 1 - bytesRead);
         }
+
         if (ba[ba.length - 1] != 0) {
             throw new IOException("String not null-terminated");
         }
+
         for (int i = 2; i < ba.length - 1; i++) {
             if (ba[i] == 0) {
-                throw new RuntimeException(
-                        "Null internal to String at offset " + (i - 2));
+                throw new RuntimeException("Null internal to String at offset "
+                                           + (i - 2));
             }
         }
 
         java.io.DataInputStream dis =
             new java.io.DataInputStream(new ByteArrayInputStream(ba));
         String s = dis.readUTF();
+
         //String s = java.io.DataInputStream.readUTF(dis);
         // TODO:  Test the previous two to see if one works better for
         // high-order characters.
         dis.close();
+
         return s;
     }
 
@@ -1559,55 +1890,66 @@ class ServerConnection implements Runnable {
 
     // Tentative state variable
     static final int UNDEFINED_STREAM_PROTOCOL = 0;
-    static final int HSQL_STREAM_PROTOCOL = 1;
-    static final int ODBC_STREAM_PROTOCOL = 2;
-
-    int odbcCommMode = OdbcUtil.ODBC_SIMPLE_MODE;
+    static final int HSQL_STREAM_PROTOCOL      = 1;
+    static final int ODBC_STREAM_PROTOCOL      = 2;
+    int              odbcCommMode              = OdbcUtil.ODBC_SIMPLE_MODE;
 
     private void odbcExecDirect(String inStatement)
     throws RecoverableOdbcFailure, IOException {
+
         String statement = inStatement;
-        String norm = statement.trim().toLowerCase();
+        String norm      = statement.trim().toLowerCase();
+
         if (norm.startsWith("release ")
-            && !norm.startsWith("release savepoint")) {
+                && !norm.startsWith("release savepoint")) {
             server.printWithThread(
-            "Transmogrifying 'RELEASE ...' to 'RELEASE SAVEPOINT...");
+                "Transmogrifying 'RELEASE ...' to 'RELEASE SAVEPOINT...");
+
             statement = statement.trim().substring(0, "release ".length())
-                + "SAVEPOINT "
-                + statement.trim().substring("release ".length());
+                        + "SAVEPOINT "
+                        + statement.trim().substring("release ".length());
         }
+
         Result r = Result.newExecuteDirectRequest();
-        r.setPrepareOrExecuteProperties(statement, 0, 0,
-            org.hsqldb.StatementTypes.RETURN_COUNT,
+
+        r.setPrepareOrExecuteProperties(
+            statement, 0, 0, org.hsqldb.StatementTypes.RETURN_COUNT,
             org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
             org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
             org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
             java.sql.Statement.NO_GENERATED_KEYS, null, null);
+
         Result rOut = session.execute(r);
+
         switch (rOut.getType()) {
-            case ResultConstants.UPDATECOUNT:
+
+            case ResultConstants.UPDATECOUNT :
                 break;
-            case ResultConstants.ERROR:
+
+            case ResultConstants.ERROR :
                 throw new RecoverableOdbcFailure(rOut);
-            default:
+            default :
                 throw new RecoverableOdbcFailure(
                     "Output Result from execution is of "
                     + "unexpected type: " + rOut.getType());
         }
+
         outPacket.reset();
-        outPacket.write(
-            OdbcUtil.echoBackReplyString(norm, rOut.getUpdateCount()));
+        outPacket.write(OdbcUtil.echoBackReplyString(norm,
+                rOut.getUpdateCount()));
         outPacket.xmit('C', dataOutput);
 
         // This keeps session.autoUpdate in sync with client's notion
         // of transaction state.
         if (norm.equals("commit") || norm.startsWith("commit ")
-            || norm.equals("rollback") || norm.startsWith("rollback ")) try {
-            session.setAutoCommit(true);
-        } catch (HsqlException he) {
-            throw new RecoverableOdbcFailure(
-                "Failed to change transaction state: "
-                + he.getMessage(), he.getSQLState());
+                || norm.equals("rollback") || norm.startsWith("rollback ")) {
+            try {
+                session.setAutoCommit(true);
+            } catch (HsqlException he) {
+                throw new RecoverableOdbcFailure(
+                    "Failed to change transaction state: " + he.getMessage(),
+                    he.getSQLState());
+            }
         }
     }
 }
