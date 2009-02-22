@@ -2681,7 +2681,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        return new JDBCClob();
+        return new JDBCClobClient(null);
     }
 
     /**
@@ -2702,7 +2702,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        return new JDBCBlob();
+        return new JDBCBlobClient(this, 0);
     }
 
     /**

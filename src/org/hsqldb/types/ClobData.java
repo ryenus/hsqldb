@@ -95,4 +95,6 @@ public interface ClobData {
     int getStreamBlockSize();
 
     long getRightTrimSize();
+
+    byte getClobType();
 }

@@ -92,4 +92,6 @@ public interface BlobData {
     void setSession(SessionInterface session);
 
     int getStreamBlockSize();
+
+    byte getBlobType();
 }

@@ -245,10 +245,12 @@ class ServerConnection implements Runnable {
             switch (streamProtocol) {
 
                 case HSQL_STREAM_PROTOCOL :
-                    String verString = ClientConnection.toNcvString(firstInt);
+                    if (firstInt
+                            != ClientConnection
+                                .NETWORK_COMPATIBILITY_VERSION_INT) {
+                        String verString =
+                            ClientConnection.toNetCompVersionString(firstInt);
 
-                    if (!verString.equals(
-                            ClientConnection.NETWORK_COMPATIBILITY_VERSION)) {
                         throw Error.error(
                             ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
                             new String[] {
@@ -1557,11 +1559,11 @@ class ServerConnection implements Runnable {
         } catch (HsqlException e) {
             session = null;
 
-            return Result.newErrorResult(e, null);
+            return Result.newErrorResult(e);
         } catch (RuntimeException e) {
             session = null;
 
-            return Result.newErrorResult(e, null);
+            return Result.newErrorResult(e);
         }
     }
 

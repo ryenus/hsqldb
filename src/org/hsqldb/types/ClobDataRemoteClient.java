@@ -122,8 +122,7 @@ public final class ClobDataRemoteClient implements ClobData {
     }
 
     public long nonSpaceLength() {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "ClobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClobDataClient");
     }
 
     public OutputStream setAsciiStream(long pos) {
@@ -135,25 +134,21 @@ public final class ClobDataRemoteClient implements ClobData {
     }
 
     public int setString(long pos, String str) throws HsqlException {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "ClobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClobDataClient");
     }
 
     public int setString(long pos, String str, int offset,
                          int len) throws HsqlException {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "ClobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClobDataClient");
     }
 
     public int setChars(long pos, char[] chars, int offset,
                         int len) throws HsqlException {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "ClobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClobDataClient");
     }
 
     public void truncate(long len) throws HsqlException {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "ClobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClobDataClient");
     }
 
     public int getStreamBlockSize() {
@@ -161,6 +156,10 @@ public final class ClobDataRemoteClient implements ClobData {
     }
 
     public long getRightTrimSize() {
+        return 0;
+    }
+
+    public byte getClobType() {
         return 0;
     }
 

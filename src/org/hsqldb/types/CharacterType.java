@@ -654,8 +654,8 @@ public class CharacterType extends Type {
         }
     }
 
-    public Object substring(SessionInterface session, Object data, long offset,
-                            long length, boolean hasLength,
+    public Object substring(SessionInterface session, Object data,
+                            long offset, long length, boolean hasLength,
                             boolean trailing) throws HsqlException {
 
         long end;
@@ -704,14 +704,13 @@ public class CharacterType extends Type {
             return ((String) data).substring((int) offset,
                                              (int) (offset + length));
         } else if (data instanceof ClobData) {
+            ClobData clob = session.createClob();
 
-            // change method signature to take long
+            // todo - change to support long strings
             String result = ((ClobData) data).getSubString(offset,
                 (int) length);
-            ClobData clob = new ClobDataMemory(result);
 
-            clob.setId(session.getLobId());
-            session.addLob(clob, clob.getId());
+            clob.setString(0, result);
 
             return clob;
         } else {
@@ -734,10 +733,9 @@ public class CharacterType extends Type {
 
             result = collation.toUpperCase(result);
 
-            ClobData clob = new ClobDataMemory(result);
+            ClobData clob = session.createClob();
 
-            clob.setId(session.getLobId());
-            session.database.lobManager.addClob(clob);
+            clob.setString(0, result);
 
             return clob;
         }
@@ -757,10 +755,9 @@ public class CharacterType extends Type {
 
             result = collation.toLowerCase(result);
 
-            ClobData clob = new ClobDataMemory(result);
+            ClobData clob = session.createClob();
 
-            clob.setId(session.getLobId());
-            session.database.lobManager.addClob(clob);
+            clob.setString(0, result);
 
             return clob;
         }
@@ -802,16 +799,16 @@ public class CharacterType extends Type {
             }
         }
 
+        // todo - change to support long strings
         if (startindex == 0 && endindex == s.length()) {}
         else {
             s = s.substring(startindex, endindex);
         }
 
         if (typeCode == Types.SQL_CLOB) {
-            ClobData clob = new ClobDataMemory(s);
+            ClobData clob = session.createClob();
 
-            clob.setId(session.getLobId());
-            session.addLob(clob, clob.getId());
+            clob.setString(0, s);
 
             return clob;
         } else {
@@ -819,8 +816,8 @@ public class CharacterType extends Type {
         }
     }
 
-    public Object overlay(SessionInterface session, Object data, Object overlay,
-                          long offset, long length,
+    public Object overlay(SessionInterface session, Object data,
+                          Object overlay, long offset, long length,
                           boolean hasLength) throws HsqlException {
 
         if (data == null || overlay == null) {
@@ -866,10 +863,10 @@ public class CharacterType extends Type {
         }
 
         if (typeCode == Types.SQL_CLOB) {
-            ClobData clob = new ClobDataMemory(left + right);
+            ClobData clob = session.createClob();
 
-            clob.setId(session.getLobId());
-            session.database.lobManager.addClob(clob);
+            clob.setString(0, left);
+            clob.setString(left.length(), right);
 
             return clob;
         } else {

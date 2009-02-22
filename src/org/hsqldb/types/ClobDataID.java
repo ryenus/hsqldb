@@ -149,4 +149,7 @@ public class ClobDataID
         return 0;
     }
 
+    public byte getClobType() {
+        return 0;
+    }
 }

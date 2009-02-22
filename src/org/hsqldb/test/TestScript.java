@@ -35,12 +35,14 @@ import java.sql.Connection;
 
 public class TestScript extends TestBase {
 
+//    String path = "TestSelf01Function.txt";
+//    String path = "TestSelf01Procedure.txt";
 //    String path = "TestSelf02UpdatableViews.txt";
-//    String path = "TestSelf04UnionCorresponding.txt";
+    String path = "TestSelf04UnionCorresponding.txt";
 //    String path = "TestSelf.txt";
 //    String path = "TestSelf3PartNames.txt";
 //    String path = "TestSelfArithmetic.txt";
-    String path = "TestSelfAlterColumn.txt";
+//    String path = "TestSelfAlterColumn.txt";
 //    String path = "TestSelfCaseWhen.txt";
 //    String path = "TestSelfCheckConstraints.txt";
 //    String path = "TestSelfColGrant.txt";
@@ -86,6 +88,8 @@ public class TestScript extends TestBase {
         Connection conn = newConnection();
 
         TestUtil.testScript(conn, path);
+
+        conn.createStatement().execute("SHUTDOWN IMMEDIATELY");
     }
 
     public static void main(String[] Args) throws Exception {

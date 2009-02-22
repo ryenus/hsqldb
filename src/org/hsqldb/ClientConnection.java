@@ -47,6 +47,8 @@ import org.hsqldb.rowio.RowOutputBinaryNet;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.server.HsqlSocketFactory;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.BlobData;
+import org.hsqldb.types.ClobData;
 import org.hsqldb.types.TimestampData;
 
 /**
@@ -70,11 +72,16 @@ public class ClientConnection implements SessionInterface {
      * the previous HSQLDB version.
      *
      * Must specify all 4 version segments (any segment may be the value 0,
-     * however).
+     * however). The string elements at (position p from right counted from 0)
+     * are multiplied by 100 to power p and added up, then negated, to form the
+     * integer representation of version string.
      */
-    public static final String   NETWORK_COMPATIBILITY_VERSION = "1.9.0.0";
-    static final int             BUFFER_SIZE                   = 0x1000;
-    final byte[]                 mainBuffer = new byte[BUFFER_SIZE];
+    public static final String NETWORK_COMPATIBILITY_VERSION     = "1.9.0.0";
+    public static final int    NETWORK_COMPATIBILITY_VERSION_INT = -1090000;
+
+    //
+    static final int             BUFFER_SIZE = 0x1000;
+    final byte[]                 mainBuffer  = new byte[BUFFER_SIZE];
     private boolean              isClosed;
     private Socket               socket;
     protected DataOutputStream   dataOutput;
@@ -339,7 +346,8 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized void setIsolationDefault(int level) throws HsqlException {
+    public synchronized void setIsolationDefault(int level)
+    throws HsqlException {
         setAttribute(SessionInterface.INFO_ISOLATION, ValuePool.getInt(level));
     }
 
@@ -489,6 +497,14 @@ public class ClientConnection implements SessionInterface {
         return lobIDSequence++;
     }
 
+    public BlobData createBlob() {
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClientConnection");
+    }
+
+    public ClobData createClob() {
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClientConnection");
+    }
+
     public void addLob(Object lob, long id) {
         throw Error.runtimeError(ErrorCode.U_S0500, "ClientConnection");
     }
@@ -521,9 +537,10 @@ public class ClientConnection implements SessionInterface {
 
     /**
      * Converts specified encoded integer to a Network Compatibility Version
-     * String.
+     * String. The tranmitted integer is negative to distinguish it from
+     * 7 bit ASCII characters.
      */
-    static public String toNcvString(int i) {
+    static public String toNetCompVersionString(int i) {
 
         StringBuffer sb = new StringBuffer();
 
@@ -549,86 +566,8 @@ public class ClientConnection implements SessionInterface {
         return sb.toString();
     }
 
-    /**
-     * Encodes the specified Network Compatibility Version String to an int.
-     *
-     * The negation is applied to distinguish all generated codes from any
-     * possible text input bytes (and from the many applications which send
-     * text values over the TCP/IP pipe).
-     *
-     * @throws NumberFormatException
-     *             A numerical segement of input NCV String malformatted
-     * @throws IllegalArgumentException  Malformatted input NCV String
-     */
-    static public int toNcvInt(String s) {
-
-        // This would be much more concise with Java 1.4's java.util.regex
-        // or StringBuffer.indexOf().
-        int totalLen = s.length();
-        int value    = 0;
-        int offset   = 0;
-        int nextDot  = -1;
-
-        // SEG 1
-        nextDot = s.indexOf('.', offset + 1);
-
-        if (nextDot < 1) {
-            throw new IllegalArgumentException();
-        }
-
-        value  += Integer.parseInt(s.substring(offset, nextDot));
-        offset = nextDot + 1;
-
-        if (offset == totalLen) {
-            throw new IllegalArgumentException();
-        }
-
-        value *= 100;
-
-        // SEG 2
-        nextDot = s.indexOf('.', offset + 1);
-
-        if (nextDot < 1) {
-            throw new IllegalArgumentException();
-        }
-
-        value  += Integer.parseInt(s.substring(offset, nextDot));
-        offset = nextDot + 1;
-
-        if (offset == totalLen) {
-            throw new IllegalArgumentException();
-        }
-
-        value *= 100;
-
-        // SEG 3
-        nextDot = s.indexOf('.', offset + 1);
-
-        if (nextDot < 1) {
-            throw new IllegalArgumentException();
-        }
-
-        value  += Integer.parseInt(s.substring(offset, nextDot));
-        offset = nextDot + 1;
-
-        if (offset == totalLen) {
-            throw new IllegalArgumentException();
-        }
-
-        value *= 100;
-
-        // SEG 4
-        nextDot = s.indexOf('.', offset + 1);
-
-        if (nextDot > -1) {
-            throw new IllegalArgumentException();
-        }
-
-        return -1 * (value + Integer.parseInt(s.substring(offset)));
-    }
-
     protected void handshake() throws IOException {
-        dataOutput.writeInt(toNcvInt(NETWORK_COMPATIBILITY_VERSION));
+        dataOutput.writeInt(NETWORK_COMPATIBILITY_VERSION_INT);
         dataOutput.flush();
     }
 }

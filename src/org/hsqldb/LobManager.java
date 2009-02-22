@@ -33,7 +33,9 @@ package org.hsqldb;
 
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.types.BlobData;
+import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
+import org.hsqldb.types.ClobDataID;
 
 public class LobManager {
 
@@ -62,6 +64,14 @@ public class LobManager {
 
     public void addLob(Object lob, long id) {
         lobs.put(id, lob);
+    }
+
+    public BlobData createBlob() {
+        return new BlobDataID(getNewLobId(), 0);
+    }
+
+    public ClobData createClob() {
+        return new ClobDataID(getNewLobId(), 0);
     }
 
     public long getNewLobId() {

@@ -208,16 +208,20 @@ implements org.hsqldb.rowio.RowInputInterface {
 
     protected ClobData readClob() throws IOException, HsqlException {
 
-        String s = readString();
+        byte type     = super.readByte();
+        long id     = super.readLong();
+        long length = super.readLong();
 
-        if (s == null) {
-            return null;
-        }
+        String s = readString();
 
         return new ClobDataMemory(s.toCharArray(), false);
     }
 
     protected BlobData readBlob() throws IOException, HsqlException {
+
+        byte type     = super.readByte();
+        long id     = super.readLong();
+        long length = super.readLong();
 
         byte[] bytes = readByteArray();
 

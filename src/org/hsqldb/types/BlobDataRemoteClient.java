@@ -42,6 +42,7 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+
 /**
  * Implementation of BlobData for the client. No binary data is contained
  * here.<p>
@@ -55,13 +56,13 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public class BlobDataRemoteClient implements BlobData {
 
-    long       id;
+    long             id;
     final long       length;
     SessionInterface session;
     boolean          hasWriter;
 
     public BlobDataRemoteClient(long id, long length) {
-        this.id         = id;
+        this.id     = id;
         this.length = length;
     }
 
@@ -91,10 +92,8 @@ public class BlobDataRemoteClient implements BlobData {
             throw new IndexOutOfBoundsException();
         }
 
-        ResultLob resultOut =
-            ResultLob.newLobGetBytesRequest(id, pos, length);
-        ResultLob resultIn =
-            (ResultLob) session.execute(resultOut);
+        ResultLob resultOut = ResultLob.newLobGetBytesRequest(id, pos, length);
+        ResultLob resultIn  = (ResultLob) session.execute(resultOut);
 
         return resultIn.getByteArray();
     }
@@ -103,43 +102,52 @@ public class BlobDataRemoteClient implements BlobData {
         return new BlobInputStream(this, 0, length());
     }
 
-    public InputStream getBinaryStream(long pos, long length) throws HsqlException {
+    public InputStream getBinaryStream(long pos,
+                                       long length) throws HsqlException {
         return new BlobInputStream(this, pos, length);
     }
 
     public int setBytes(long pos, byte[] bytes, int offset,
                         int len) throws HsqlException {
-        throw Error.runtimeError(
-            ErrorCode.U_S0500, "BlobDataClient");
+
+        if (offset != 0 || len != bytes.length) {
+            byte[] newBytes = new byte[len];
+
+            System.arraycopy(bytes, (int) offset, newBytes, 0, len);
+
+            bytes = newBytes;
+        }
+
+        return setBytes(pos, bytes);
     }
 
-    public int setBytes(long pos, byte[] bytes) {
-        throw Error.runtimeError(
-            ErrorCode.U_S0500, "BlobDataClient");
+    public int setBytes(long pos, byte[] bytes) throws HsqlException {
+
+        ResultLob resultOut = ResultLob.newLobSetBytesRequest(id, pos, bytes);
+        ResultLob resultIn  = (ResultLob) session.execute(resultOut);
+
+        this.id = resultIn.getLobID();
+
+        return (int) resultIn.getBlockLength();
     }
 
     public OutputStream setBinaryStream(long pos) {
-        throw Error.runtimeError(
-            ErrorCode.U_S0500, "BlobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public BlobData duplicate() {
-        throw Error.runtimeError(
-            ErrorCode.U_S0500, "BlobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public void truncate(long len) {
-        throw Error.runtimeError(
-            ErrorCode.U_S0500, "BlobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public long position(byte[] pattern, long start) throws HsqlException {
 
-        ResultLob resultOut =
-            ResultLob.newLobGetPatternPositionRequest(id, pattern,
-                start);
-        ResultLob resultIn =
-            (ResultLob) session.execute(resultOut);
+        ResultLob resultOut = ResultLob.newLobGetPatternPositionRequest(id,
+            pattern, start);
+        ResultLob resultIn = (ResultLob) session.execute(resultOut);
 
         return resultIn.getOffset();
     }
@@ -152,8 +160,7 @@ public class BlobDataRemoteClient implements BlobData {
     }
 
     public long nonZeroLength() {
-        throw Error.runtimeError(
-            ErrorCode.U_S0500, "BlobDataClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public long getId() {
@@ -165,7 +172,11 @@ public class BlobDataRemoteClient implements BlobData {
     }
 
     public int getStreamBlockSize() {
-        return 256 * 1024;
+        return 512 * 1024;
+    }
+
+    public byte getBlobType() {
+        return 0;
     }
 
     public static BlobDataRemoteClient readBlobDataClient(RowInputInterface in)
@@ -181,7 +192,8 @@ public class BlobDataRemoteClient implements BlobData {
         }
     }
 
-    public void write(RowOutputInterface out) throws IOException, HsqlException {
+    public void write(RowOutputInterface out)
+    throws IOException, HsqlException {
         out.writeLong(id);
         out.writeLong(length);
     }
