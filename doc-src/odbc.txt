@@ -196,7 +196,7 @@ HS:  Resolution is either in months or (sub)seconds.  Can't mix.
 REFERENCES
 
     JDBC type mapping tables.  Section "Tables for Type Mapping" of Sun's
-    "Getting STarted with the JDBC API", which is section 9.9 of the current
+    "Getting Started with the JDBC API", which is section 9.9 of the current
     version, but this section number changes with document revisions.
     http://java.sun.com/javase/6/docs/technotes/guides/jdbc/getstart/mapping.html#1038075
 
