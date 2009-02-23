@@ -90,6 +90,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         st.executeUpdate("DROP TABLE alltypes IF EXISTS");
         st.executeUpdate("CREATE TABLE alltypes (\n"
             + "    id INTEGER,\n"
+            + "    ti TINYINT,\n"
             + "    si SMALLINT,\n"
             + "    i INTEGER,\n"
             + "    bi BIGINT,\n"
@@ -119,7 +120,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         // here, but our we want this setup to be as simple as possible, and
         // leave feature testing for the actual unit tests.
         st.executeUpdate("INSERT INTO alltypes VALUES (\n"
-            + "    1, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
+            + "    1, 3, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
             + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18', '2009-02-09 17:18:19',\n"
             + "    x'A103', INTERVAL '145 23:12:19.345' DAY TO SECOND,\n"
@@ -127,7 +128,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + ')'
         );
         st.executeUpdate("INSERT INTO alltypes VALUES (\n"
-            + "    2, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
+            + "    2, 3, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
             + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18', '2009-02-09 17:18:19',\n"
             + "    x'A103', INTERVAL '145 23:12:19.345' DAY TO SECOND,\n"
@@ -165,6 +166,36 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
+    public void testTinyIntSimpleRead() {
+        ResultSet rs = null;
+        Statement st = null;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals(Integer.class, rs.getObject("ti").getClass());
+            // Nb. HyperSQL purposefully returns an Integer for this type
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            assertEquals((byte) 3, rs.getByte("ti"));
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
     public void testSmallIntSimpleRead() {
         ResultSet rs = null;
         Statement st = null;
@@ -172,10 +203,8 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             st = netConn.createStatement();
             rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
             assertTrue("Got no rows with id in (1, 2)", rs.next());
-            //assertEquals(Short.class, rs.getObject("si").getClass());
-            // TODO: Ask Fred if this is ok.
-            // I see that server is sending a 2 byte short, but JDBC is serving
-            // an Integer to getObject().
+            assertEquals(Integer.class, rs.getObject("si").getClass());
+            // Nb. HyperSQL purposefully returns an Integer for this type
             assertTrue("Got only one row with id in (1, 2)", rs.next());
             assertEquals((short) 4, rs.getShort("si"));
             assertFalse("Got too many rows with id in (1, 2)", rs.next());
@@ -817,6 +846,46 @@ public class TestOdbcTypes extends AbstractTestOdbc {
         }
     }
 
+    public void testTinyIntComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, ti) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setByte(2, (byte) 200);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE ti = ?");
+            ps.setByte(1, (byte) 200);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with ti = 200", rs.next());
+            assertEquals(Integer.class, rs.getObject("ti").getClass());
+            assertTrue("Got only one row with ti = 200", rs.next());
+            assertEquals((byte) 200, rs.getByte("ti"));
+            assertFalse("Got too many rows with ti = 200", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+    }
+
     public void testSmallIntComplex() {
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -835,8 +904,8 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             ps.setShort(1, (short) 395);
             rs = ps.executeQuery();
             assertTrue("Got no rows with si = 395", rs.next());
-            //assertEquals(Short.class, rs.getObject("si").getClass());
-            // See note about this test in testSmallIntSimpleRead() {
+            assertEquals(Integer.class, rs.getObject("si").getClass());
+            // Nb. HyperSQL purposefully returns an Integer for this type
             assertTrue("Got only one row with si = 395", rs.next());
             assertEquals((short) 395, rs.getShort("si"));
             assertFalse("Got too many rows with si = 395", rs.next());

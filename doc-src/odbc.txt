@@ -122,7 +122,7 @@ DATA TYPE SUPPORT MATRIX   (type synonyms not listed) @=Yet-to-be-Implemented
 
     HyperSQL type               wid prec scale |  Driver type oid adtsz atttypm
     --------------------------- --- ---- ----- -  ----------- --- ---   ---
-    TINYINT                       8    3    0  |  @
+    TINYINT                       8    3    0  |  HSQL_TINYINT 9999 1    -1
     SMALLINT                     16    5    0  |  int2         21   2    -1
     INTEGER                      32   10    0  |  int4         23   4    -1
     BIGINT                       64   19    0  |  int8         20   8    -1
