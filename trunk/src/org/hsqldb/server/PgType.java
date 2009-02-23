@@ -97,14 +97,15 @@ public class PgType {
      *              constructor.
      * @see #PgType(hType, int, Integer, Integer)
      */
-    protected PgType(Type hType, int oid, Integer dummy, long lpConstraint) {
+    protected PgType(Type hType, int oid, Integer dummy, long lpConstraint)
+    throws RecoverableOdbcFailure {
         this(hType, oid, dummy, new Integer((int) lpConstraint));
         if (lpConstraint < 0) {
-            throw new IllegalArgumentException(
+            throw new RecoverableOdbcFailure(
                 "Length/Precision value is below minimum value of 0");
         }
         if (lpConstraint > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException(
+            throw new RecoverableOdbcFailure(
                 "Length/Precision value is above maximum value of "
                 + Integer.MAX_VALUE);
         }
@@ -130,7 +131,8 @@ public class PgType {
                        ? -1 : lpConstraintObject.intValue();
     }
 
-    static public PgType getPgType(Type hType, boolean directColumn) {
+    static public PgType getPgType(Type hType, boolean directColumn)
+    throws RecoverableOdbcFailure {
         switch (hType.typeCode) {
             case Types.TINYINT:
                 return tinyIntSingleton;
@@ -167,11 +169,11 @@ public class PgType {
             case Types.SQL_VARCHAR: // = CHARACTER VARYING = LONGVARCHAR
             case Types.VARCHAR_IGNORECASE: // Don't know if possible here
                 if (hType.precision < 0) {
-                    throw new IllegalArgumentException(
+                    throw new RecoverableOdbcFailure (
                         "Length/Precision value is below minimum value of 0");
                 }
                 if (hType.precision > Integer.MAX_VALUE) {
-                    throw new IllegalArgumentException(
+                    throw new RecoverableOdbcFailure (
                         "Length/Precision value is above maximum value of "
                         + Integer.MAX_VALUE);
                 }
@@ -181,20 +183,20 @@ public class PgType {
                 // Return TEXT type for both unlimited VARCHARs, and for
                 // Non-direct-table-col results.
             case Types.SQL_CLOB: // = CHARACTER LARGE OBJECT
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure (
                     "Driver doesn't support type 'CLOB' yet");
 
             case Types.SQL_BINARY:
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure (
                     "Driver doesn't support type 'BINARY' yet");
             case Types.SQL_BLOB: // = BINARY LARGE OBJECT
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure (
                     "Driver doesn't support type 'BLOB' yet");
             case Types.SQL_VARBINARY: // = BINARY VARYING
                 return new PgType(hType, TYPE_BYTEA, null, hType.precision);
 
             case Types.OTHER:
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure (
                     "Driver doesn't support type 'OTHER' yet");
 
             case Types.SQL_BIT:
@@ -235,7 +237,7 @@ public class PgType {
             case Types.SQL_INTERVAL_MONTH:
                 // Need to test these, since the driver Interval type is
                 // intended for second-resolution only, not month resolution.
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure (
                     "Driver doesn't support month-resolution 'INTERVAL's yet");
             case Types.SQL_INTERVAL_DAY:
             case Types.SQL_INTERVAL_DAY_TO_HOUR:
@@ -248,7 +250,7 @@ public class PgType {
                 // value itself, like "99 days".
                 // Therefore, these types are incompatible until driver is
                 // enhanced.
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure (
                     "Driver doesn't support non-second-resolution 'INTERVAL's "
                     + "yet");
             case Types.SQL_INTERVAL_DAY_TO_SECOND:
@@ -265,7 +267,7 @@ public class PgType {
                 return secIntervalSingleton;
 
             default:
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure (
                     "Unsupported type: " + hType.getNameString());
         }
     }
@@ -279,7 +281,7 @@ public class PgType {
      * @throws SQLException if either argument is not acceptable.
      */
     public Object getParameter(String inString, Session session)
-    throws SQLException {
+    throws SQLException, RecoverableOdbcFailure {
         if (inString == null) {
             return null;
         }
@@ -304,7 +306,7 @@ public class PgType {
             case Types.OTHER :
             case Types.SQL_BLOB :
             case Types.SQL_CLOB :
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure(
                         "Type not supported yet: " + hType.getNameString());
                 /*
             case Types.OTHER :
@@ -370,7 +372,7 @@ public class PgType {
                 break;
             default :
                 /*
-                throw new IllegalArgumentException(
+                throw new RecoverableOdbcFailure(
                     "Parameter value is of unexpected type: "
                     + hType.getNameString());
                 */
