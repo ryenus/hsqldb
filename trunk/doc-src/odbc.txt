@@ -136,7 +136,7 @@ DATA TYPE SUPPORT MATRIX   (type synonyms not listed) @=Yet-to-be-Implemented
 LITERAL, simple atomic str+:CHARACTER len   0  |  unknown     705  -2    -1
 DERIVED, compound str+:   VARCHAR  prtlen   0  |  text         25  -1    -1
     CLOB(1l)                          [0]   0  |  @
-    BINARY(1l)*                       [0]   0  |  @
+    BINARY(1l)*                       [0]   0  |  bytea        17  -1    -1
     VARBINARY(1l)                     [0]   0  |  bytea        17  -1    -1
     BLOB(1l)                          [0]   0  |  @
     BIT(1l)*                          [1]   0  |  bit       1560   -1    -1

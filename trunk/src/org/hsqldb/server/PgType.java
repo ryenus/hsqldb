@@ -186,14 +186,18 @@ public class PgType {
                 throw new RecoverableOdbcFailure (
                     "Driver doesn't support type 'CLOB' yet");
 
-            case Types.SQL_BINARY:
-                throw new RecoverableOdbcFailure (
-                    "Driver doesn't support type 'BINARY' yet");
             case Types.SQL_BLOB: // = BINARY LARGE OBJECT
                 throw new RecoverableOdbcFailure (
                     "Driver doesn't support type 'BLOB' yet");
+            case Types.SQL_BINARY:
             case Types.SQL_VARBINARY: // = BINARY VARYING
                 return new PgType(hType, TYPE_BYTEA, null, hType.precision);
+                // Note that we are returning SQL_BINARY data as if they were
+                // variable.  I don't think the unnecessary variability will
+                // have any side-effects.
+                // No reason to differentiate here, since the client's
+                // atttypm parameter is where we would communicate the length
+                // in both cases.
 
             case Types.OTHER:
                 throw new RecoverableOdbcFailure (
@@ -277,6 +281,10 @@ public class PgType {
      *
      * The internal parameter value setter always converts the parameter to
      * the Java type required for data transmission.
+     * <P>
+     * This method will not be called for binary types.  Binary values are
+     * just loaded directly into the Object parameter array.
+     * </P>
      *
      * @throws SQLException if either argument is not acceptable.
      */
@@ -303,8 +311,12 @@ public class PgType {
 
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
-            case Types.OTHER :
             case Types.SQL_BLOB :
+                throw new RecoverableOdbcFailure(
+                    "This data type should be transmitted to server in binary "
+                    + "format: " + hType.getNameString());
+
+            case Types.OTHER :
             case Types.SQL_CLOB :
                 throw new RecoverableOdbcFailure(
                         "Type not supported yet: " + hType.getNameString());
@@ -318,16 +330,6 @@ public class PgType {
                     }
                 } catch (HsqlException e) {
                     PgType.throwError(e);
-                }
-                PgType.throwError(Error.error(ErrorCode.X_42565));
-
-                break;
-            case Types.SQL_BINARY :
-            case Types.SQL_VARBINARY :
-                if (o instanceof byte[]) {
-                    o = new BinaryData((byte[]) o, false);
-
-                    break;
                 }
                 PgType.throwError(Error.error(ErrorCode.X_42565));
 
@@ -354,7 +356,6 @@ public class PgType {
                 break;
             }
 
-            // fall through
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :
@@ -389,15 +390,18 @@ public class PgType {
 
     public String valueString(Object datum) {
         String dataString = hType.convertToString(datum);
-        if (hType.typeCode == org.hsqldb.Types.SQL_BOOLEAN) {
-            return String.valueOf(((Boolean) datum).booleanValue() ? 't' : 'f');
-            // Default would probably work fine, since the Driver looks at
-            // only the first byte, but this why send an extra 3 or 4 bytes
-            // with every data, plus there could be some dependency upon
-            // single-character in the driver code somewhere.
-        }
-        if (hType.typeCode == org.hsqldb.Types.SQL_VARBINARY) {
-            dataString = OdbcUtil.hexCharsToOctalOctets(dataString);
+        switch (hType.typeCode) {
+            case (org.hsqldb.Types.SQL_BOOLEAN) :
+                return String.valueOf(((Boolean) datum).booleanValue()
+                    ? 't' : 'f');
+                // Default would probably work fine, since the Driver looks at
+                // only the first byte, but this why send an extra 3 or 4 bytes
+                // with every data, plus there could be some dependency upon
+                // single-character in the driver code somewhere.
+            case org.hsqldb.Types.SQL_VARBINARY :
+            case org.hsqldb.Types.SQL_BINARY :
+                dataString = OdbcUtil.hexCharsToOctalOctets(dataString);
+                break;
         }
         return dataString;
     }
