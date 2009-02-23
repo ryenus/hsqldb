@@ -107,6 +107,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    tw TIME(2) WITH TIME ZONE,\n"
             + "    ts TIMESTAMP(2),\n"
             + "    tsw TIMESTAMP(2) WITH TIME ZONE,\n"
+            + "    bin BINARY(4),\n"
             + "    vb VARBINARY(4),\n"
             + "    dsival INTERVAL DAY(5) TO SECOND(6),\n"
             + "    sival INTERVAL SECOND(6,4)\n"
@@ -123,7 +124,8 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    1, 3, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
             + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18', '2009-02-09 17:18:19',\n"
-            + "    x'A103', INTERVAL '145 23:12:19.345' DAY TO SECOND,\n"
+            + "    x'A103', x'A103', "
+            + "INTERVAL '145 23:12:19.345' DAY TO SECOND,\n"
             + "    INTERVAL '1000.345' SECOND\n"
             + ')'
         );
@@ -131,7 +133,8 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             + "    2, 3, 4, 5, 6, 7.8, 8.9, 9.7, true, 'ab', 'cd',\n"
             + "    b'10', b'10', current_date, '13:14:00',\n"
             + "    '15:16:00', '2009-02-09 16:17:18', '2009-02-09 17:18:19',\n"
-            + "    x'A103', INTERVAL '145 23:12:19.345' DAY TO SECOND,\n"
+            + "    x'A103', x'A103', "
+            + "    INTERVAL '145 23:12:19.345' DAY TO SECOND,\n"
             + "    INTERVAL '1000.345' SECOND\n"
             + ')'
         );
@@ -701,6 +704,43 @@ public class TestOdbcTypes extends AbstractTestOdbc {
                 }
             } catch(Exception e) {
             }
+        }
+    }
+
+    public void testBinarySimpleRead() {
+        ResultSet rs = null;
+        Statement st = null;
+        byte[] expectedBytes = new byte[] {
+            (byte) 0xa1, (byte) 0x03, (byte) 0, (byte) 0
+        };
+        byte[] ba;
+        try {
+            st = netConn.createStatement();
+            rs = st.executeQuery("SELECT * FROM alltypes WHERE id in (1, 2)");
+            assertTrue("Got no rows with id in (1, 2)", rs.next());
+            assertEquals("A1030000", rs.getString("bin"));
+            assertTrue("Got only one row with id in (1, 2)", rs.next());
+            ba = rs.getBytes("bin");
+            assertFalse("Got too many rows with id in (1, 2)", rs.next());
+        } catch (SQLException se) { junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (st != null) {
+                    st.close();
+                }
+            } catch(Exception e) {
+            }
+        }
+        assertEquals("Retrieved bye array length wrong",
+            expectedBytes.length, ba.length);
+        for (int i = 0; i < ba.length; i++) {
+            assertEquals("Byte " + i + " wrong", expectedBytes[i], ba[i]);
         }
     }
 
@@ -1468,11 +1508,60 @@ public class TestOdbcTypes extends AbstractTestOdbc {
     }
     */
 
-    /**
-     * NEED SERVER SIDE BINARY INPUT capability to set VarBinaries.
-     * Even if setString() is used, the driver converts to binary before
-     * transmitting to server.
-     */
+    public void testBinaryComplex() {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        byte[] expectedBytes = new byte[] {
+            (byte) 0xaa, (byte) 0x99, (byte) 0, (byte) 0
+        };
+        byte[] ba1, ba2;
+
+        try {
+            ps = netConn.prepareStatement(
+                "INSERT INTO alltypes(id, bin) VALUES(?, ?)");
+            ps.setInt(1, 3);
+            ps.setBytes(2, expectedBytes);
+            assertEquals(1, ps.executeUpdate());
+            ps.setInt(1, 4);
+            assertEquals(1, ps.executeUpdate());
+            ps.close();
+            netConn.commit();
+            ps = netConn.prepareStatement(
+                "SELECT * FROM alltypes WHERE bin = ?");
+            ps.setBytes(1, expectedBytes);
+            rs = ps.executeQuery();
+            assertTrue("Got no rows with bin = b'AA99'", rs.next());
+            ba1 = rs.getBytes("bin");
+            assertTrue("Got only one row with bin = b'AA99'", rs.next());
+            ba2 = rs.getBytes("bin");
+            assertFalse("Got too many rows with bin = b'AA99'", rs.next());
+        } catch (SQLException se) {
+            junit.framework.AssertionFailedError ase
+                = new junit.framework.AssertionFailedError(se.getMessage());
+            ase.initCause(se);
+            throw ase;
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                } } catch(Exception e) {
+            }
+        }
+        assertEquals("Retrieved bye array length wrong (1)",
+            expectedBytes.length, ba1.length);
+        for (int i = 0; i < ba1.length; i++) {
+            assertEquals("Byte " + i + " wrong (1)", expectedBytes[i], ba1[i]);
+        }
+        assertEquals("Retrieved bye array length wrong (2)",
+            expectedBytes.length, ba2.length);
+        for (int i = 0; i < ba2.length; i++) {
+            assertEquals("Byte " + i + " wrong (2)", expectedBytes[i], ba2[i]);
+        }
+    }
+
     public void testVarBinaryComplex() {
         PreparedStatement ps = null;
         ResultSet rs = null;
