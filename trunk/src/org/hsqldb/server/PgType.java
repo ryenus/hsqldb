@@ -133,8 +133,7 @@ public class PgType {
     static public PgType getPgType(Type hType, boolean directColumn) {
         switch (hType.typeCode) {
             case Types.TINYINT:
-                throw new IllegalArgumentException(
-                    "Driver doesn't support type 'TINYINT' yet");
+                return tinyIntSingleton;
             case Types.SQL_SMALLINT:
                 return int2singleton;
             case Types.SQL_INTEGER:
@@ -460,6 +459,10 @@ public class PgType {
     public static final int TYPE_VOID         = 2278;
     public static final int TYPE_UUID         = 2950;
 
+    // Numbering new HyperSQL-only client-side types beginning with 9999 and
+    // getting lower, to reduce chance of conflict with future PostreSQL types.
+    public static final int TYPE_TINYINT      = 9999;
+
     // Apparenly new additions, from Postgresql server file pg_type.h:
     public static final int TYPE_BIT          = 1560;
     // Also defined is _bit.  No idea what that is about
@@ -483,6 +486,8 @@ public class PgType {
 //#endif JAVA6
     }
 
+    static protected final PgType tinyIntSingleton =
+        new PgType(Type.TINYINT, TYPE_TINYINT, 1);
     static protected final PgType int2singleton =
         new PgType(Type.SQL_SMALLINT, TYPE_INT2, 2);
     static protected final PgType int4singleton =
