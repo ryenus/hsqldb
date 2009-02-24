@@ -76,16 +76,12 @@ public class ClobDataID
     public void truncate(long len) throws HsqlException {
     }
 
-    public InputStream getAsciiStream() throws HsqlException {
-        return null;
-    }
-
-    public OutputStream setAsciiStream(long pos) {
-        return null;
-    }
-
     public Reader getCharacterStream() throws HsqlException {
         return null;
+    }
+
+    public long setCharacterStream(long pos, Reader in) {
+        return 0;
     }
 
     public Writer setCharacterStream(long pos) throws HsqlException {

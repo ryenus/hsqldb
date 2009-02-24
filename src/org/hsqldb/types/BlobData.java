@@ -50,13 +50,12 @@ public interface BlobData {
 
     byte[] getBytes();
 
-           // todo - new method to return BlobData with long length arg
+    // todo - new method to return BlobData with long length arg
     byte[] getBytes(long pos, int length) throws HsqlException;
 
     InputStream getBinaryStream() throws HsqlException;
 
-    InputStream getBinaryStream(long pos,
-                                       long length) throws HsqlException;
+    InputStream getBinaryStream(long pos, long length) throws HsqlException;
 
     long length();
 
@@ -65,9 +64,11 @@ public interface BlobData {
     boolean isBits();
 
     int setBytes(long pos, byte[] bytes, int offset,
-                        int len) throws HsqlException;
+                 int len) throws HsqlException;
 
     int setBytes(long pos, byte[] bytes) throws HsqlException;
+
+    public long setBinaryStream(long pos, InputStream in) throws HsqlException;
 
     OutputStream setBinaryStream(long pos) throws HsqlException;
 

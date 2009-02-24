@@ -54,10 +54,10 @@ public class BinaryData implements BlobData {
 
     public final static BinaryData zeroLengthBinary =
         new BinaryData(new byte[0], false);
-    long               id;
-    protected byte[]   data;
-    private boolean    isBits;
-    private final long bitLength;
+    long             id;
+    protected byte[] data;
+    private boolean  isBits;
+    private long     bitLength;
 
     /**
      * This constructor is used inside the engine when an already serialized
@@ -178,6 +178,10 @@ public class BinaryData implements BlobData {
         return bytes.length;
     }
 
+    public long setBinaryStream(long pos, InputStream in) {
+        return 0;
+    }
+
     public OutputStream setBinaryStream(long pos) {
         return null;
     }
@@ -185,7 +189,8 @@ public class BinaryData implements BlobData {
     public void truncate(long len) {
 
         if (data.length > len) {
-            data = (byte[]) ArrayUtil.resizeArray(data, (int) len);
+            data      = (byte[]) ArrayUtil.resizeArray(data, (int) len);
+            bitLength = data.length * 8;
         }
     }
 
@@ -246,6 +251,7 @@ public class BinaryData implements BlobData {
     public byte getBlobType() {
         return 1;
     }
+
     //---
     static boolean isInLimits(long fullLength, long pos, long len) {
         return pos >= 0 && len >= 0 && pos + len <= fullLength;

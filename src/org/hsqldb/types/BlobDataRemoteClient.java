@@ -42,6 +42,7 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.result.Result;
 
 /**
  * Implementation of BlobData for the client. No binary data is contained
@@ -93,9 +94,13 @@ public class BlobDataRemoteClient implements BlobData {
         }
 
         ResultLob resultOut = ResultLob.newLobGetBytesRequest(id, pos, length);
-        ResultLob resultIn  = (ResultLob) session.execute(resultOut);
+        Result    resultIn  = session.execute(resultOut);
 
-        return resultIn.getByteArray();
+        if (resultIn.isError()) {
+            throw Error.error(resultIn);
+        }
+
+        return ((ResultLob) resultIn).getByteArray();
     }
 
     public InputStream getBinaryStream() throws HsqlException {
@@ -129,6 +134,10 @@ public class BlobDataRemoteClient implements BlobData {
         this.id = resultIn.getLobID();
 
         return (int) resultIn.getBlockLength();
+    }
+
+    public long setBinaryStream(long pos, InputStream in) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "BlobDataClient");
     }
 
     public OutputStream setBinaryStream(long pos) {

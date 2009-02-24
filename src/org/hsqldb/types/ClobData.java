@@ -31,8 +31,6 @@
 
 package org.hsqldb.types;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -58,10 +56,6 @@ public interface ClobData {
 
     void truncate(long len) throws HsqlException;
 
-    InputStream getAsciiStream() throws HsqlException;
-
-    OutputStream setAsciiStream(long pos);
-
     Reader getCharacterStream() throws HsqlException;
 
     Writer setCharacterStream(long pos) throws HsqlException;
@@ -73,6 +67,8 @@ public interface ClobData {
 
     int setChars(long pos, char[] chars, int offset,
                  int len) throws HsqlException;
+
+    public long setCharacterStream(long pos, Reader in);
 
     long position(String searchstr, long start) throws HsqlException;
 

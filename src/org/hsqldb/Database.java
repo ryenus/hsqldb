@@ -128,7 +128,7 @@ import org.hsqldb.types.Type;
 public class Database {
 
     int    databaseID;
-    String sType;
+    String databaseType;
     String sName;
 
 // loosecannon1@users 1.7.2 patch properties on the JDBC URL
@@ -205,11 +205,11 @@ public class Database {
 
         setState(Database.DATABASE_SHUTDOWN);
 
-        sName = name;
-        sType = type;
-        sPath = path;
+        sName        = name;
+        databaseType = type;
+        sPath        = path;
 
-        if (sType == DatabaseURL.S_RES) {
+        if (databaseType == DatabaseURL.S_RES) {
             filesInJar    = true;
             filesReadOnly = true;
         }
@@ -247,7 +247,7 @@ public class Database {
                 "false").equals("true");
         logger                   = new Logger();
         compiledStatementManager = new StatementManager(this);
-        lobManager               = new LobManager();
+        lobManager               = new LobManager(this);
     }
 
     /**
@@ -275,7 +275,7 @@ public class Database {
 
         try {
             databaseProperties = new HsqlDatabaseProperties(this);
-            isNew = !DatabaseURL.isFileBasedDatabaseType(sType)
+            isNew = !DatabaseURL.isFileBasedDatabaseType(databaseType)
                     || !databaseProperties.checkFileExists();
 
             if (isNew && urlProperties.isPropertyTrue(
@@ -309,7 +309,7 @@ public class Database {
                 schemaManager.createPublicSchema();
             }
 
-            if (DatabaseURL.isFileBasedDatabaseType(sType)) {
+            if (DatabaseURL.isFileBasedDatabaseType(databaseType)) {
                 logger.openLog(this);
             }
 
@@ -334,6 +334,7 @@ public class Database {
                 logger.synchLogForce();
             }
 
+            lobManager.initialise();
             dbInfo.setWithContent(true);
         } catch (Throwable e) {
             logger.closeLog(Database.CLOSEMODE_IMMEDIATELY);
@@ -380,7 +381,7 @@ public class Database {
      *  Returns the type of the database: "mem", "file", "res"
      */
     public String getType() {
-        return sType;
+        return databaseType;
     }
 
     /**
@@ -819,7 +820,7 @@ public class Database {
     public String getTempDirectoryPath() {
 
         if (tempDirectoryPath == null) {
-            if (sType == DatabaseURL.S_FILE) {
+            if (databaseType == DatabaseURL.S_FILE) {
                 String path = sPath + ".tmp";
 
                 tempDirectoryPath = FileUtil.makeDirectories(path);
