@@ -44,6 +44,7 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.result.Result;
 
 /**
  * Implementation of CLOB for client side.<p>
@@ -66,10 +67,6 @@ public final class ClobDataRemoteClient implements ClobData {
 
     public void free() {}
 
-    public InputStream getAsciiStream() {
-        return null;
-    }
-
     public Reader getCharacterStream(long pos, long length) {
         return null;
     }
@@ -87,9 +84,13 @@ public final class ClobDataRemoteClient implements ClobData {
 
         ResultLob resultOut = ResultLob.newLobGetCharsRequest(id, position,
             length);
-        ResultLob resultIn = (ResultLob) session.execute(resultOut);
+        Result resultIn = (Result) session.execute(resultOut);
 
-        return resultIn.getCharArray();
+        if (resultIn.isError()) {
+            throw Error.error(resultIn);
+        }
+
+        return ((ResultLob) resultIn).getCharArray();
     }
 
     public char[] getClonedChars() {
@@ -125,10 +126,6 @@ public final class ClobDataRemoteClient implements ClobData {
         throw Error.runtimeError(ErrorCode.U_S0500, "ClobDataClient");
     }
 
-    public OutputStream setAsciiStream(long pos) {
-        return null;
-    }
-
     public Writer setCharacterStream(long pos) {
         return null;
     }
@@ -144,6 +141,10 @@ public final class ClobDataRemoteClient implements ClobData {
 
     public int setChars(long pos, char[] chars, int offset,
                         int len) throws HsqlException {
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClobDataClient");
+    }
+
+    public long setCharacterStream(long pos, Reader in) {
         throw Error.runtimeError(ErrorCode.U_S0500, "ClobDataClient");
     }
 

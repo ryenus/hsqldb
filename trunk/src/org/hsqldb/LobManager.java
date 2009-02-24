@@ -36,8 +36,18 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.ClobDataMemory;
 
 public class LobManager {
+
+    Database database;
+
+    public LobManager(Database database) {
+        this.database = database;
+    }
+
+    void initialise() {}
 
     long           lobIdSequence = 1;
     LongKeyHashMap lobs          = new LongKeyHashMap();
@@ -62,16 +72,22 @@ public class LobManager {
         lobs.put(clob.getId(), clob);
     }
 
-    public void addLob(Object lob, long id) {
-        lobs.put(id, lob);
-    }
-
     public BlobData createBlob() {
-        return new BlobDataID(getNewLobId(), 0);
+
+        BlobData blob = new BinaryData(new byte[0], 0);
+
+        blob.setId(getNewLobId());
+
+        return blob;
     }
 
     public ClobData createClob() {
-        return new ClobDataID(getNewLobId(), 0);
+
+        ClobData clob = new ClobDataMemory("");
+
+        clob.setId(getNewLobId());
+
+        return clob;
     }
 
     public long getNewLobId() {

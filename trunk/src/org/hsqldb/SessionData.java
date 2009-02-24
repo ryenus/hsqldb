@@ -312,6 +312,8 @@ public class SessionData {
                                      DataInput dataInput)
                                      throws HsqlException {
 
+        long resultLobId = result.getLobID();
+
         switch (result.getSubType()) {
 
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES : {
@@ -319,33 +321,33 @@ public class SessionData {
                     dataInput = new DataInputStream(result.getInputStream());
                 }
 
-                BlobData blob = new BinaryData(result.getBlockLength(),
-                                               dataInput);
-                long resultLobId = result.getLobID();
+                BlobData blob   = database.lobManager.createBlob();
+                long     blobId = blob.getId();
 
-                blob.setId(database.lobManager.getNewLobId());
-                lobs.put(resultLobId, blob.getId());
-                database.lobManager.addBlob(blob);
+                // temp code makes memory lob
+                BlobData blobData = new BinaryData(result.getBlockLength(),
+                                                   dataInput);
+
+                blob.setBytes(0, blobData.getBytes());
+                lobs.put(resultLobId, blobId);
 
                 break;
             }
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
-                ClobData clob;
-
                 if (dataInput == null) {
                     dataInput = new DataInputStream(result.getInputStream());
-                    clob = new ClobDataMemory(result.getBlockLength(),
-                                              result.getReader());
-                } else {
-                    clob = new ClobDataMemory(result.getBlockLength(),
-                                              dataInput);
                 }
 
-                long resultLobId = result.getLobID();
+                ClobData clob   = database.lobManager.createClob();
+                long     clobId = clob.getId();
 
-                clob.setId(database.lobManager.getNewLobId());
-                lobs.put(resultLobId, clob.getId());
-                database.lobManager.addClob(clob);
+                // temp code makes memory lob
+                ClobData clobData = new ClobDataMemory(result.getBlockLength(),
+                                                       dataInput);
+
+                clob.setString(0, clobData.getSubString(0L,
+                        (int) clobData.length()));
+                lobs.put(resultLobId, clobId);
 
                 break;
             }

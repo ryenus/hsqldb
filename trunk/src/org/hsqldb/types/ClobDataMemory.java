@@ -146,20 +146,16 @@ public final class ClobDataMemory implements ClobData {
 
     public void truncate(long len) {}
 
-    public InputStream getAsciiStream() {
-        return null;
-    }
-
-    public OutputStream setAsciiStream(long pos) {
-        return null;
-    }
-
     public Reader getCharacterStream() {
         return null;
     }
 
     public Reader getCharacterStream(long pos, long length) {
         return null;
+    }
+
+    public long setCharacterStream(long pos, Reader in) {
+        return 0;
     }
 
     public Writer setCharacterStream(long pos) {

@@ -39,7 +39,7 @@ import org.hsqldb.SessionInterface;
 
 public class BlobDataID implements BlobData {
 
-    long id;
+    long       id;
     final long length;
 
     public BlobDataID(long id, long length) {
@@ -120,6 +120,10 @@ public class BlobDataID implements BlobData {
     }
 
     public int setBytes(long pos, byte[] bytes) throws HsqlException {
+        return 0;
+    }
+
+    public long setBinaryStream(long pos, InputStream in) {
         return 0;
     }
 
