@@ -467,6 +467,7 @@ public class PgType {
 
     // Numbering new HyperSQL-only client-side types beginning with 9999 and
     // getting lower, to reduce chance of conflict with future PostreSQL types.
+    public static final int TYPE_BLOB         = 9998;
     public static final int TYPE_TINYINT      = 9999;
 
     // Apparenly new additions, from Postgresql server file pg_type.h:
