@@ -1594,7 +1594,7 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
           <title>? Variable</title>
           <para>
             You don't set the ? variable.
-            It is just like the Bourne shell variable ? in that it is always
+            It is just like the Bourne shell variable $? in that it is always
             automatically set to the first value of a result set (or the
             return value of other SQL commands).
             It works just like the <literal>* VARNAME ~</literal>
