@@ -39,10 +39,10 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.result.Result;
 
 /**
  * Implementation of BlobData for the client. No binary data is contained
@@ -55,14 +55,14 @@ import org.hsqldb.result.Result;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class BlobDataRemoteClient implements BlobData {
+public class BlobDataClient implements BlobData {
 
     long             id;
-    final long       length;
+    long             length;
     SessionInterface session;
     boolean          hasWriter;
 
-    public BlobDataRemoteClient(long id, long length) {
+    public BlobDataClient(long id, long length) {
         this.id     = id;
         this.length = length;
     }
@@ -188,14 +188,14 @@ public class BlobDataRemoteClient implements BlobData {
         return 0;
     }
 
-    public static BlobDataRemoteClient readBlobDataClient(RowInputInterface in)
+    public static BlobDataClient readBlobDataClient(RowInputInterface in)
     throws HsqlException {
 
         try {
             long id     = in.readLong();
             long length = in.readLong();
 
-            return new BlobDataRemoteClient(id, length);
+            return new BlobDataClient(id, length);
         } catch (IOException e) {
             throw Error.error(ErrorCode.SERVER_TRANSFER_CORRUPTED);
         }
@@ -227,5 +227,9 @@ public class BlobDataRemoteClient implements BlobData {
 
     static boolean isInLimits(long fullLength, long pos, long len) {
         return pos >= 0 && len >= 0 && pos + len <= fullLength;
+    }
+
+    public void setLength(long length) {
+        this.length = length;
     }
 }

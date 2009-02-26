@@ -168,6 +168,8 @@ public class BinaryData implements BlobData {
 
         System.arraycopy(bytes, offset, data, (int) pos, length);
 
+        bitLength = data.length * 8;
+
         return length;
     }
 

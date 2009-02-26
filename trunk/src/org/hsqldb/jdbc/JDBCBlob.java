@@ -182,7 +182,7 @@ public class JDBCBlob implements Blob {
 
         final int dlen = ldata.length;
 
-        if (pos < MIN_POS || pos > dlen) {
+        if (pos < MIN_POS || pos > MIN_POS + dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
         pos--;

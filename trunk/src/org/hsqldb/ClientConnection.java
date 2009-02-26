@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import java.io.BufferedInputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -41,15 +40,18 @@ import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
-import org.hsqldb.result.ResultLob;
 import org.hsqldb.rowio.RowInputBinaryNet;
 import org.hsqldb.rowio.RowOutputBinaryNet;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.server.HsqlSocketFactory;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BlobData;
+import org.hsqldb.types.BlobDataClient;
 import org.hsqldb.types.ClobData;
+import org.hsqldb.types.ClobDataClient;
 import org.hsqldb.types.TimestampData;
+import org.hsqldb.result.ResultLob;
+import java.io.DataInput;
 
 /**
  * Base remote session proxy implementation. Uses instances of Result to
@@ -498,15 +500,17 @@ public class ClientConnection implements SessionInterface {
     }
 
     public BlobData createBlob() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "ClientConnection");
+
+        BlobData blob = new BlobDataClient(getLobId(),0);
+
+        return blob;
     }
 
     public ClobData createClob() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "ClientConnection");
-    }
 
-    public void addLob(Object lob, long id) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "ClientConnection");
+        ClobData clob = new ClobDataClient(getLobId(), 0);
+
+        return clob;
     }
 
     /**

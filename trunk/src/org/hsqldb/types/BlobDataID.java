@@ -40,12 +40,9 @@ import org.hsqldb.SessionInterface;
 public class BlobDataID implements BlobData {
 
     long       id;
-    final long length;
+    long length;
 
-    public BlobDataID(long id, long length) {
-        this.id     = id;
-        this.length = length;
-    }
+    public BlobDataID() {    }
 
     public BlobData duplicate() throws HsqlException {
         return null;
@@ -133,5 +130,9 @@ public class BlobDataID implements BlobData {
 
     public byte getBlobType() {
         return 0;
+    }
+
+    public void setLength(long length) {
+        this.length = length;
     }
 }

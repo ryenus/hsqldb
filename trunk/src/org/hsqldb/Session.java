@@ -98,7 +98,6 @@ import org.hsqldb.types.ClobData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.BlobDataID;
 
 /**
  * Implementation of SQL sessions.
@@ -844,7 +843,7 @@ public class Session implements SessionInterface {
         switch (type) {
 
             case ResultConstants.LARGE_OBJECT_OP : {
-                return performLOBOperation((ResultLob) cmd);
+                return database.lobManager.performLOBOperation((ResultLob) cmd);
             }
             case ResultConstants.EXECUTE : {
                 Result result = executeCompiledStatement(cmd);
@@ -1640,86 +1639,6 @@ public class Session implements SessionInterface {
         sessionData.allocateLobForResult(result, dataInput);
     }
 
-    Result performLOBOperation(ResultLob cmd) {
-
-        long id        = cmd.getLobID();
-        int  operation = cmd.getSubType();
-
-        switch (operation) {
-
-            case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
-                return ResultLob.newLobCreateBlobResponse(id);
-
-            case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS :
-                return ResultLob.newLobCreateClobResponse(id);
-        }
-
-        Object lob = database.lobManager.getLob(id);
-
-        if (lob == null) {
-            return Result.newErrorResult(
-                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
-        }
-
-        switch (operation) {
-
-            case ResultLob.LobResultTypes.REQUEST_OPEN :
-            case ResultLob.LobResultTypes.REQUEST_CLOSE : {
-                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
-            }
-            case ResultLob.LobResultTypes.REQUEST_GET_BYTES : {
-                try {
-                    byte[] bytes = ((BlobData) lob).getBytes(cmd.getOffset(),
-                        (int) cmd.getBlockLength());
-
-                    return ResultLob.newLobGetBytesResponse(id,
-                            cmd.getOffset(), bytes);
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e);
-                }
-            }
-            case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
-                try {
-                    ((BlobData) lob).setBytes(cmd.getOffset(),
-                                              cmd.getByteArray());
-
-                    return ResultLob.newLobSetBytesResponse(id);
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e);
-                }
-            }
-            case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
-                try {
-                    char[] chars = ((ClobData) lob).getChars(cmd.getOffset(),
-                        (int) cmd.getBlockLength());
-
-                    return ResultLob.newLobGetCharsResponse(id,
-                            cmd.getOffset(), chars);
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e);
-                }
-            }
-            case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
-                try {
-                    char[] chars = cmd.getCharArray();
-
-                    ((ClobData) lob).setChars(cmd.getOffset(), chars, 0,
-                                              chars.length);
-
-                    return ResultLob.newLobSetCharsResponse(id);
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e);
-                }
-            }
-            case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :
-            case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION : {
-                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
-            }
-            default : {
-                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
-            }
-        }
-    }
 
     // DatabaseMetaData.getURL should work as specified for
     // internal connections too.
