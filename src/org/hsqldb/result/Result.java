@@ -272,7 +272,9 @@ public class Result {
             if (addedResultMode == ResultConstants.LARGE_OBJECT_OP) {
                 ResultLob resultLob = ResultLob.newLob(dataInput, false);
 
-                session.allocateResultLob(resultLob, dataInput);
+                if (session instanceof Session) {
+                    ((Session)session).allocateResultLob(resultLob, dataInput);
+                }
                 currentResult.addLobResult(resultLob);
 
                 hasLob = true;

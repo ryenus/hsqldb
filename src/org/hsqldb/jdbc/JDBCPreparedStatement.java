@@ -80,13 +80,12 @@ import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
-import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.Session;
 
 /* $Id$ */
 
@@ -4060,45 +4059,43 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             if (parameterTypes[i].typeCode == Types.SQL_BLOB) {
                 long     id;
                 BlobData blob = null;
-                long     length;
 
                 if (value instanceof JDBCBlobClient) {
                     blob   = ((JDBCBlobClient) value).blob;
                     id     = blob.getId();
-                    length = blob.length();
                 } else {
-                    id     = connection.sessionProxy.getLobId();
-                    length = ((Blob) value).length();
-                    blob   = new BlobDataID(id, length);
+                    blob     = connection.sessionProxy.createBlob();
+                    id     = blob.getId();
+                    long length = ((Blob) value).length();
 
                     InputStream stream = ((Blob) value).getBinaryStream();
                     ResultLob resultLob = ResultLob.newLobCreateBlobRequest(
                         connection.sessionProxy.getId(), id, stream, length);
 
-                    resultOut.addLobResult(resultLob);
                     connection.sessionProxy.allocateResultLob(resultLob, null);
+
+                    resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = blob;
             } else if (parameterTypes[i].typeCode == Types.SQL_CLOB) {
                 long     id;
                 ClobData clob = null;
-                long     length;
 
                 if (value instanceof JDBCClobClient) {
                     clob   = ((JDBCClobClient) value).clob;
                     id     = clob.getId();
-                    length = clob.length();
                 } else {
-                    id     = connection.sessionProxy.getLobId();
-                    length = ((Clob) value).length();
-                    clob   = new ClobDataID(id, length);
+                    clob     = connection.sessionProxy.createClob();
+                    id     = clob.getId();
+                    long length = ((Clob) value).length();
 
                     Reader reader = ((Clob) value).getCharacterStream();
                     ResultLob resultLob = ResultLob.newLobCreateClobRequest(
                         connection.sessionProxy.getId(), id, reader, length);
 
-                    resultOut.addLobResult(resultLob);
                     connection.sessionProxy.allocateResultLob(resultLob, null);
+
+                    resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = clob;
             }

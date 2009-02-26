@@ -53,14 +53,14 @@ import org.hsqldb.result.Result;
  * @version 1.9.0
  * @since 1.9.0
  */
-public final class ClobDataRemoteClient implements ClobData {
+public final class ClobDataClient implements ClobData {
 
     long             id;
-    final long       length;
+    long             length;
     SessionInterface session;
     boolean          hasWriter;
 
-    public ClobDataRemoteClient(long id, long length) {
+    public ClobDataClient(long id, long length) {
         this.id     = id;
         this.length = length;
     }
@@ -168,14 +168,14 @@ public final class ClobDataRemoteClient implements ClobData {
         this.session = session;
     }
 
-    public static ClobDataRemoteClient readClobDataClient(RowInputInterface in)
+    public static ClobDataClient readClobDataClient(RowInputInterface in)
     throws HsqlException {
 
         try {
             long id     = in.readLong();
             long length = in.readLong();
 
-            return new ClobDataRemoteClient(id, length);
+            return new ClobDataClient(id, length);
         } catch (IOException e) {
             throw Error.error(ErrorCode.SERVER_TRANSFER_CORRUPTED);
         }
@@ -202,4 +202,9 @@ public final class ClobDataRemoteClient implements ClobData {
             throw Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID);
         }
     }
+
+    public void setLength(long length) {
+        this.length = length;
+    }
+
 }

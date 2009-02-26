@@ -40,7 +40,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 
 /**
- * Implementation of CLOB for client side.<p>
+ * Implementation of CLOB for client and server.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
@@ -50,11 +50,9 @@ public class ClobDataID
     implements ClobData {
 
     long id;
-    final long length;
+    long length;
 
-    public ClobDataID(long id, long length) {
-        this.id = id;
-        this.length = length;
+    public ClobDataID() {
     }
 
     public char[] getChars(long position, int length) throws HsqlException {
@@ -147,5 +145,9 @@ public class ClobDataID
 
     public byte getClobType() {
         return 0;
+    }
+
+    public void setLength(long length) {
+        this.length = length;
     }
 }

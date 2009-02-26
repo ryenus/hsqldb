@@ -33,24 +33,28 @@ package org.hsqldb;
 
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.BlobDataClient;
 import org.hsqldb.types.ClobData;
-import org.hsqldb.types.ClobDataID;
-import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.ClobDataClient;
+import org.hsqldb.result.ResultLob;
+import org.hsqldb.result.Result;
 import org.hsqldb.types.ClobDataMemory;
+import org.hsqldb.types.BinaryData;
 
 public class LobManager {
 
-    Database database;
-
+    Database  database;
     public LobManager(Database database) {
         this.database = database;
     }
 
-    void initialise() {}
+    void initialise() {
+    }
 
     long           lobIdSequence = 1;
     LongKeyHashMap lobs          = new LongKeyHashMap();
+
+    LongKeyHashMap dataLobs      = new LongKeyHashMap();
 
     ClobData getClob(long id) {
         return (ClobData) lobs.get(id);
@@ -60,32 +64,34 @@ public class LobManager {
         return (BlobData) lobs.get(id);
     }
 
-    public Object getLob(long id) {
-        return lobs.get(id);
+    // temp stuff
+    ClobData getClobData(long id) {
+        return (ClobData) dataLobs.get(id);
     }
 
-    public void addBlob(BlobData blob) {
-        lobs.put(blob.getId(), blob);
+    BlobData getBlobData(long id) {
+        return (BlobData) dataLobs.get(id);
     }
-
-    public void addClob(ClobData clob) {
-        lobs.put(clob.getId(), clob);
-    }
-
     public BlobData createBlob() {
 
-        BlobData blob = new BinaryData(new byte[0], 0);
+        BlobData blob = new BlobDataClient(getNewLobId(), 0L);
 
-        blob.setId(getNewLobId());
+        BlobData blobData = new BinaryData(new byte[0 ], false);
+        blobData.setId(blob.getId());
+        dataLobs.put(blob.getId(), blobData);
+        lobs.put(blob.getId(), blob);
 
         return blob;
     }
 
     public ClobData createClob() {
 
-        ClobData clob = new ClobDataMemory("");
+        ClobDataClient clob = new ClobDataClient(getNewLobId(), 0L);
 
-        clob.setId(getNewLobId());
+        ClobData clobData = new ClobDataMemory("");
+        clobData.setId(clob.getId());
+        dataLobs.put(clob.getId(), clobData);
+        lobs.put(clob.getId(), clob);
 
         return clob;
     }
@@ -93,4 +99,90 @@ public class LobManager {
     public long getNewLobId() {
         return lobIdSequence++;
     }
+
+    Result performLOBOperation(ResultLob cmd) {
+
+        long id        = cmd.getLobID();
+        int  operation = cmd.getSubType();
+
+
+
+        switch (operation) {
+
+            case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
+                return ResultLob.newLobCreateBlobResponse(id);
+
+            case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS :
+                return ResultLob.newLobCreateClobResponse(id);
+        }
+
+        // temp code using data lob
+
+        Object lob = dataLobs.get(id);
+
+        if (lob == null) {
+            return Result.newErrorResult(
+                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
+        }
+
+        switch (operation) {
+
+            case ResultLob.LobResultTypes.REQUEST_OPEN :
+            case ResultLob.LobResultTypes.REQUEST_CLOSE : {
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
+            }
+            case ResultLob.LobResultTypes.REQUEST_GET_BYTES : {
+                try {
+                    byte[] bytes = ((BlobData) lob).getBytes(cmd.getOffset(),
+                        (int) cmd.getBlockLength());
+
+                    return ResultLob.newLobGetBytesResponse(id,
+                            cmd.getOffset(), bytes);
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e);
+                }
+            }
+            case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
+                try {
+                    ((BlobData) lob).setBytes(cmd.getOffset(),
+                                              cmd.getByteArray());
+
+                    return ResultLob.newLobSetBytesResponse(id);
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e);
+                }
+            }
+            case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
+                try {
+                    char[] chars = ((ClobData) lob).getChars(cmd.getOffset(),
+                        (int) cmd.getBlockLength());
+
+                    return ResultLob.newLobGetCharsResponse(id,
+                            cmd.getOffset(), chars);
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e);
+                }
+            }
+            case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
+                try {
+                    char[] chars = cmd.getCharArray();
+
+                    ((ClobData) lob).setChars(cmd.getOffset(), chars, 0,
+                                              chars.length);
+
+                    return ResultLob.newLobSetCharsResponse(id);
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e);
+                }
+            }
+            case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :
+            case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION : {
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
+            }
+            default : {
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
+            }
+        }
+    }
+
 }

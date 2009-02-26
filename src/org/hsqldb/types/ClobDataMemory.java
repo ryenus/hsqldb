@@ -163,15 +163,29 @@ public final class ClobDataMemory implements ClobData {
     }
 
     public int setString(long pos, String str) {
-        return 0;
+        return setString(0, str, 0, str.length());
     }
 
-    public int setChars(long pos, char[] chars, int offset, int len) {
-        return 0;
+    public int setChars(long pos, char[] chars, int offset, int length) {
+
+        if (!isInLimits(data.length, pos, 0)) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (!isInLimits(data.length, pos, length)) {
+            data = (char[]) ArrayUtil.resizeArray(data, (int) pos + length);
+        }
+
+        System.arraycopy(chars, offset, data, (int) pos, length);
+
+        return length;
     }
 
-    public int setString(long pos, String str, int offset, int len) {
-        return 0;
+    public int setString(long pos, String str, int offset, int length) {
+
+        char[] chars = str.toCharArray();
+
+        return setChars(pos, chars, offset, length);
     }
 
     public long position(String searchstr, long start) {
@@ -194,6 +208,7 @@ public final class ClobDataMemory implements ClobData {
     }
 
     public long getRightTrimSize() {
+
         // todo
         return 0;
     }

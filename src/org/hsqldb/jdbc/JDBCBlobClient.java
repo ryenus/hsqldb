@@ -297,7 +297,7 @@ public class JDBCBlobClient implements Blob {
         if (connection instanceof JDBCConnection) {
             long id = ((JDBCConnection) connection).sessionProxy.getLobId();
 
-            this.blob = new org.hsqldb.types.BlobDataRemoteClient(id, length);
+            this.blob = new org.hsqldb.types.BlobDataClient(id, length);
 
             return;
         }

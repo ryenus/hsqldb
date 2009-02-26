@@ -42,6 +42,8 @@ import org.hsqldb.jdbc.JDBCBlob;
 import org.hsqldb.jdbc.JDBCClob;
 
 import java.sql.Clob;
+import javax.sql.rowset.serial.SerialBlob;
+import java.sql.DriverManager;
 
 public class TestLobs extends TestBase {
 
@@ -178,4 +180,74 @@ public class TestLobs extends TestBase {
 
         super.tearDown();
     }
+
+    static public void main(String[] sa) throws Exception {
+        ResultSet rs;
+        byte[] ba;
+        byte[] baR1 = new byte[] {
+            (byte) 0xF1, (byte) 0xF2, (byte) 0xF3, (byte) 0xF4, (byte) 0xF5,
+            (byte) 0xF6, (byte) 0xF7, (byte) 0xF8, (byte) 0xF9, (byte) 0xFA
+        };
+        byte[] baR2 = new byte[] {
+            (byte) 0xE1, (byte) 0xE2, (byte) 0xE3, (byte) 0xE4, (byte) 0xE5,
+            (byte) 0xE6, (byte) 0xE7, (byte) 0xE8, (byte) 0xE9, (byte) 0xEA
+        };
+
+        Class.forName("org.hsqldb.jdbc.JDBCDriver");
+        Connection dbConn = DriverManager.getConnection(
+                "jdbc:hsqldb:mem:m", "SA", "");
+                //"jdbc:odbc:hsql_trunk", "BLAINE", "losung1");
+        dbConn.setAutoCommit(false);
+        Statement st = dbConn.createStatement();
+        st = dbConn.createStatement();
+        st.executeUpdate("CREATE TABLE blo (id INTEGER, b blob( 100))");
+        PreparedStatement ps = dbConn.prepareStatement(
+                "INSERT INTO blo(id, b) values(2, ?)");
+        //st.executeUpdate("INSERT INTO blo (id, b) VALUES (1, x'A003')");
+        ps.setBlob(1, new SerialBlob(baR1));
+        ps.executeUpdate();
+
+        rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
+        if (!rs.next())
+            throw new Exception("No row with id 2");
+        java.sql.Blob blob1 = rs.getBlob("b");
+        System.out.println("Size of retrieved blob: " + blob1.length());
+        //System.out.println("Value = (" + rs.getString("b") + ')');
+        byte[] baOut = blob1.getBytes(1, (int) blob1.length());
+        if (baOut.length != baR1.length)
+            throw new Exception("Expected array len " + baR1.length
+                    + ", got len " + baOut.length);
+        for (int i = 0; i < baOut.length; i++)
+            if (baOut[i] != baR1[i])
+                throw new Exception("Byte " + i + " is wrong");
+        rs.close();
+
+        /*
+        rs = st.executeQuery("SELECT b FROM blo WHERE id = 1");
+        if (!rs.next())
+            throw new Exception("No row with id 1");
+        ba = rs.getBytes("b");
+        if (ba.length != baR1.length)
+            throw new Exception("row1 byte length differs");
+        for (int i = 0; i < ba.length; i++)
+            if (ba[i] != baR1[i])
+                throw new Exception("row1 byte " + i + " differs");
+        rs.close();
+
+        rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
+        if (!rs.next())
+            throw new Exception("No row with id 2");
+        ba = rs.getBytes("b");
+        if (ba.length != baR2.length)
+            throw new Exception("row2 byte length differs");
+        for (int i = 0; i < ba.length; i++)
+            if (ba[i] != baR2[i])
+                throw new Exception("row2 byte " + i + " differs");
+        */
+        rs.close();
+
+        st.close();
+        dbConn.close();
+    }
+
 }

@@ -74,11 +74,10 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobDataID;
-import org.hsqldb.types.BlobDataRemoteClient;
+import org.hsqldb.types.BlobDataClient;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
-import org.hsqldb.types.ClobDataRemoteClient;
+import org.hsqldb.types.ClobDataClient;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -4505,18 +4504,10 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        if (o instanceof BlobDataRemoteClient) {
-            ((BlobData) o).setSession(navigator.getSession());
+        if (o instanceof BlobDataClient) {
+            ((BlobData) o).setSession(session);
 
             return new JDBCBlobClient((BlobData) o);
-        } else if (o instanceof BlobDataID) {
-            long     id     = ((BlobData) o).getId();
-            long     length = ((BlobData) o).length();
-            BlobData blob   = new BlobDataRemoteClient(id, length);
-
-            blob.setSession(navigator.getSession());
-
-            return new JDBCBlobClient(blob);
         } else if (o instanceof Blob) {
             return (Blob) o;
         } else if (o instanceof BinaryData) {
@@ -4564,14 +4555,14 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        if (o instanceof ClobDataRemoteClient) {
+        if (o instanceof ClobDataClient) {
             ((ClobData) o).setSession(navigator.getSession());
 
             return new JDBCClobClient((ClobData) o);
         } else if (o instanceof ClobDataID) {
             long     id     = ((ClobData) o).getId();
             long     length = ((ClobData) o).length();
-            ClobData clob   = new ClobDataRemoteClient(id, length);
+            ClobData clob   = new ClobDataClient(id, length);
 
             clob.setSession(navigator.getSession());
 
