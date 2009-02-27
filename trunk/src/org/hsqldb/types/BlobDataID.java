@@ -44,6 +44,11 @@ public class BlobDataID implements BlobData {
 
     public BlobDataID() {    }
 
+    public BlobDataID(long id, long length) {
+        this.id = id;
+        this.length = length;
+    }
+
     public BlobData duplicate() throws HsqlException {
         return null;
     }

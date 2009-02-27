@@ -36,10 +36,13 @@ import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
+import org.hsqldb.Error;
 import org.hsqldb.HsqlException;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobData;
-
-import java.sql.Connection;
+import org.hsqldb.types.BlobInputStream;
 
 /**
  * A wrapper for HSQLDB BlobData objecsts.
@@ -78,12 +81,23 @@ public class JDBCBlobClient implements Blob {
      *   <code>pos</code>
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
-     * @todo Implement this java.sql.Blob method
      */
     public byte[] getBytes(long pos, int length) throws SQLException {
 
         try {
-            return blob.getBytes(pos - 1, length);
+            if (!isInLimits(blob.length(), pos - 1, length)) {
+                throw new IndexOutOfBoundsException();
+            }
+
+            ResultLob resultOut = ResultLob.newLobGetBytesRequest(blob.getId(),
+                pos - 1, length);
+            Result resultIn = session.execute(resultOut);
+
+            if (resultIn.isError()) {
+                throw Error.error(resultIn);
+            }
+
+            return ((ResultLob) resultIn).getByteArray();
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -96,12 +110,11 @@ public class JDBCBlobClient implements Blob {
      * @return a stream containing the <code>BLOB</code> data
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
-     * @todo Implement this java.sql.Blob method
      */
     public InputStream getBinaryStream() throws SQLException {
 
         try {
-            return blob.getBinaryStream();
+            return new BlobInputStream(blob, 0, length());
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -118,12 +131,16 @@ public class JDBCBlobClient implements Blob {
      * @return the position at which the pattern appears, else -1
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code>
-     * @todo Implement this java.sql.Blob method
      */
     public long position(byte[] pattern, long start) throws SQLException {
 
         try {
-            return blob.position(pattern, start - 1);
+            ResultLob resultOut =
+                ResultLob.newLobGetPatternPositionRequest(blob.getId(),
+                    pattern, start - 1);
+            ResultLob resultIn = (ResultLob) session.execute(resultOut);
+
+            return resultIn.getOffset();
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -140,10 +157,12 @@ public class JDBCBlobClient implements Blob {
      * @return the position at which the pattern begins, else -1
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
-     * @todo Implement this java.sql.Blob method
      */
     public long position(Blob pattern, long start) throws SQLException {
-        throw Util.notSupported();
+
+        byte[] bytePattern = pattern.getBytes(1, (int) pattern.length());
+
+        return position(bytePattern, start);
     }
 
     /**
@@ -159,12 +178,20 @@ public class JDBCBlobClient implements Blob {
      * @return the number of bytes written
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
-     * @todo Implement this java.sql.Blob method
      */
     public int setBytes(long pos, byte[] bytes) throws SQLException {
 
+        ResultLob resultOut = ResultLob.newLobSetBytesRequest(blob.getId(),
+            pos, bytes);
+
         try {
-            return blob.setBytes(pos - 1, bytes);
+            ResultLob resultIn = (ResultLob) session.execute(resultOut);
+
+            if (resultIn.isError()) {
+                Util.throwError(resultIn);
+            }
+
+            return bytes.length;
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -186,16 +213,19 @@ public class JDBCBlobClient implements Blob {
      * @return the number of bytes written
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
-     * @todo Implement this java.sql.Blob method
      */
     public int setBytes(long pos, byte[] bytes, int offset,
                         int len) throws SQLException {
 
-        try {
-            return blob.setBytes(pos - 1, bytes, offset, len);
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
+        if (offset != 0 || len != bytes.length) {
+            byte[] newBytes = new byte[len];
+
+            System.arraycopy(bytes, (int) offset, newBytes, 0, len);
+
+            bytes = newBytes;
         }
+
+        return setBytes(pos, bytes);
     }
 
     /**
@@ -208,15 +238,9 @@ public class JDBCBlobClient implements Blob {
      *   be written
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
-     * @todo Implement this java.sql.Blob method
      */
     public OutputStream setBinaryStream(long pos) throws SQLException {
-
-        try {
-            return blob.setBinaryStream(pos - 1);
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
-        }
+        throw Util.notSupported();
     }
 
     /**
@@ -227,15 +251,9 @@ public class JDBCBlobClient implements Blob {
      *   that this <code>Blob</code> object represents should be truncated
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
-     * @todo Implement this java.sql.Blob method
      */
     public void truncate(long len) throws SQLException {
-
-        try {
-            blob.truncate(len);
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
-        }
+        throw Util.notSupported();
     }
 
     /**
@@ -279,29 +297,22 @@ public class JDBCBlobClient implements Blob {
                                        long length) throws SQLException {
 
         try {
-            return blob.getBinaryStream(pos - 1, length);
+            return new BlobInputStream(blob, pos - 1, length);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
     }
 
     //--
-    BlobData blob;
+    BlobData         blob;
+    SessionInterface session;
 
-    JDBCBlobClient(BlobData blob) {
-        this.blob = blob;
+    JDBCBlobClient(SessionInterface session, BlobData blob) {
+        this.session = session;
+        this.blob    = blob;
     }
 
-    JDBCBlobClient(Connection connection, long length) throws SQLException {
-
-        if (connection instanceof JDBCConnection) {
-            long id = ((JDBCConnection) connection).sessionProxy.getLobId();
-
-            this.blob = new org.hsqldb.types.BlobDataClient(id, length);
-
-            return;
-        }
-
-        throw Util.invalidArgument();
+    static boolean isInLimits(long fullLength, long pos, long len) {
+        return pos >= 0 && len >= 0 && pos + len <= fullLength;
     }
 }

@@ -55,8 +55,7 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.ClobDataMemory;
-import org.hsqldb.types.BlobDataClient;
-import org.hsqldb.types.ClobDataClient;
+import org.hsqldb.types.BlobDataID;
 
 /*
  * Session semi-persistent data structures
@@ -336,7 +335,7 @@ public class SessionData {
                 BlobData blobData = new BinaryData(result.getBlockLength(),
                                                    dataInput);
 
-                ((BlobDataClient) blob).setLength(blobData.length());
+                ((BlobDataID) blob).setLength(blobData.length());
 
                 blob = database.lobManager.getBlobData(blobId);
 
@@ -363,7 +362,7 @@ public class SessionData {
                 ClobData clobData = new ClobDataMemory(result.getBlockLength(),
                                                        dataInput);
 
-                ((ClobDataClient) clob).setLength(clobData.length());
+                ((ClobDataID) clob).setLength(clobData.length());
 
                 clob = database.lobManager.getClobData(clobId);
 
