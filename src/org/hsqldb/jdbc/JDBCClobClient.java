@@ -39,6 +39,9 @@ import java.sql.Clob;
 import java.sql.SQLException;
 
 import org.hsqldb.HsqlException;
+import org.hsqldb.SessionInterface;
+import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.ClobData;
 
 public class JDBCClobClient implements Clob {
@@ -88,12 +91,7 @@ public class JDBCClobClient implements Clob {
      *   <code>CLOB</code> value
      */
     public String getSubString(long pos, int length) throws SQLException {
-
-        try {
-            return clob.getSubString(pos - 1, length);
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
-        }
+        return new String(getChars(pos, length));
     }
 
     /**
@@ -274,9 +272,38 @@ public class JDBCClobClient implements Clob {
     }
 
     //
-    ClobData clob;
+    ClobData         clob;
+    SessionInterface session;
 
-    JDBCClobClient(ClobData clob) {
+    JDBCClobClient(SessionInterface session, ClobData clob) {
+        this.session = session;
         this.clob = clob;
+    }
+
+    public char[] getChars(final long position,
+                           int length) throws SQLException {
+
+        if (!isInLimits(clob.length(), position, length)) {
+            throw Util.outOfRangeArgument();
+        }
+
+        ResultLob resultOut = ResultLob.newLobGetCharsRequest(clob.getId(),
+            position, length);
+
+        try {
+            Result resultIn = session.execute(resultOut);
+
+            if (resultIn.isError()) {
+                throw Util.sqlException(resultIn);
+            }
+
+            return ((ResultLob) resultIn).getCharArray();
+        } catch (HsqlException e) {
+            throw Util.sqlException(e);
+        }
+    }
+
+    static boolean isInLimits(long fullLength, long pos, long len) {
+        return pos >= 0 && len >= 0 && pos + len <= fullLength;
     }
 }

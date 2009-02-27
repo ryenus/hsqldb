@@ -35,9 +35,9 @@ import java.io.IOException;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobDataClient;
+import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
-import org.hsqldb.types.ClobDataClient;
+import org.hsqldb.types.ClobDataID;
 
 public class RowInputBinaryNet extends RowInputBinary {
 
@@ -55,7 +55,7 @@ public class RowInputBinaryNet extends RowInputBinary {
         long id     = super.readLong();
         long length = super.readLong();
 
-        BlobData blob = new BlobDataClient(id, length);
+        BlobData blob = new BlobDataID(id, length);
         return blob;
 
     }
@@ -66,7 +66,7 @@ public class RowInputBinaryNet extends RowInputBinary {
         long id     = super.readLong();
         long length = super.readLong();
 
-        ClobDataClient clob = new ClobDataClient(id, length);
+        ClobData clob = new ClobDataID(id, length);
         return clob;
     }
 }

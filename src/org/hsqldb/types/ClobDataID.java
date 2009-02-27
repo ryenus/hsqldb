@@ -55,6 +55,11 @@ public class ClobDataID
     public ClobDataID() {
     }
 
+    public ClobDataID(long id, long length) {
+        this.id = id;
+        this.length = length;
+    }
+
     public char[] getChars(long position, int length) throws HsqlException {
         return null;
     }

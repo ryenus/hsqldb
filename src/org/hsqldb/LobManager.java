@@ -32,18 +32,19 @@
 package org.hsqldb;
 
 import org.hsqldb.lib.LongKeyHashMap;
-import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobDataClient;
-import org.hsqldb.types.ClobData;
-import org.hsqldb.types.ClobDataClient;
-import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.Result;
-import org.hsqldb.types.ClobDataMemory;
+import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.BlobData;
+import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.ClobData;
+import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.ClobDataMemory;
 
 public class LobManager {
 
     Database  database;
+
     public LobManager(Database database) {
         this.database = database;
     }
@@ -53,7 +54,6 @@ public class LobManager {
 
     long           lobIdSequence = 1;
     LongKeyHashMap lobs          = new LongKeyHashMap();
-
     LongKeyHashMap dataLobs      = new LongKeyHashMap();
 
     ClobData getClob(long id) {
@@ -72,11 +72,13 @@ public class LobManager {
     BlobData getBlobData(long id) {
         return (BlobData) dataLobs.get(id);
     }
+
     public BlobData createBlob() {
 
-        BlobData blob = new BlobDataClient(getNewLobId(), 0L);
+        BlobData blob = new BlobDataID(getNewLobId(), 0);
 
-        BlobData blobData = new BinaryData(new byte[0 ], false);
+        BlobData blobData = new BinaryData(new byte[0], false);
+
         blobData.setId(blob.getId());
         dataLobs.put(blob.getId(), blobData);
         lobs.put(blob.getId(), blob);
@@ -86,9 +88,10 @@ public class LobManager {
 
     public ClobData createClob() {
 
-        ClobDataClient clob = new ClobDataClient(getNewLobId(), 0L);
+        ClobData clob = new ClobDataID(getNewLobId(), 0);
 
         ClobData clobData = new ClobDataMemory("");
+
         clobData.setId(clob.getId());
         dataLobs.put(clob.getId(), clobData);
         lobs.put(clob.getId(), clob);
@@ -105,8 +108,6 @@ public class LobManager {
         long id        = cmd.getLobID();
         int  operation = cmd.getSubType();
 
-
-
         switch (operation) {
 
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
@@ -117,7 +118,6 @@ public class LobManager {
         }
 
         // temp code using data lob
-
         Object lob = dataLobs.get(id);
 
         if (lob == null) {
@@ -184,5 +184,4 @@ public class LobManager {
             }
         }
     }
-
 }
