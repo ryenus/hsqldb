@@ -45,6 +45,7 @@ import java.text.SimpleDateFormat;
 
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.lib.LineGroupReader;
 
 /**
  * Utility class providing methodes for submitting test statements or
@@ -59,6 +60,7 @@ import org.hsqldb.lib.StringUtil;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
 public class TestUtil {
+
     /* This class writes \n's as line delimiters.
      * It should write System.getProperty("line.separateor").
      *
@@ -66,36 +68,43 @@ public class TestUtil {
      * redesigned with OOD.
      */
     static private final SimpleDateFormat sdfYMDHMS =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    static private boolean abortOnErr = false;
-
+        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    static private boolean      abortOnErr        = false;
     static final private String TIMESTAMP_VAR_STR = "${timestamp}";
+    static final String LS = System.getProperty("line.separator", "\n");
 
     /**
      * Expand occurrences of "${timestamp}" in input to time stamps.
      */
     static protected void expandStamps(StringBuffer sb) {
+
         int i = sb.indexOf(TIMESTAMP_VAR_STR);
+
         if (i < 1) {
             return;
         }
+
         String timestamp = sdfYMDHMS.format(new java.util.Date());
+
         while (i > -1) {
             sb.replace(i, i + TIMESTAMP_VAR_STR.length(), timestamp);
+
             i = sb.indexOf(TIMESTAMP_VAR_STR);
         }
     }
 
     static void testScript(Connection aConnection, String aPath) {
+
         /*
          * This is a legacy wrapper method which purposefully inherits the sins
          * of the original.
          * No indication is given to the invoker of even RuntimeExceptions.
          */
         File file = new File(aPath);
+
         try {
             TestUtil.testScript(aConnection, file.getAbsolutePath(),
-                    new FileReader(file));
+                                new FileReader(file));
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("test script file error: " + e.getMessage());
@@ -115,10 +124,69 @@ public class TestUtil {
      * @param inReader Source of commands to be tested
      */
     public static void testScript(Connection aConnection, String sourceName,
-            Reader inReader) throws SQLException, IOException {
-        Statement statement = aConnection.createStatement();
-        LineNumberReader reader = new LineNumberReader(inReader);
-        HsqlArrayList section = null;
+                                  Reader inReader)
+                                  throws SQLException, IOException {
+
+        Statement        statement = aConnection.createStatement();
+        LineNumberReader reader    = new LineNumberReader(inReader);
+        LineGroupReader        sqlReader = new LineGroupReader(reader);
+        int              startLine = 0;
+
+        System.out.println("Opened test script file: " + sourceName);
+
+        /**
+         * we read the lines from the start of one section of the script "/*"
+         *  until the start of the next section, collecting the lines in the
+         *  list.
+         *  When a new section starts, we pass the list of lines
+         *  to the test method to be processed.
+         */
+        try {
+            while (true) {
+                HsqlArrayList section = sqlReader.getSection();
+
+                startLine = sqlReader.getStartLineNumber();
+
+                if (section.size() == 0) {
+                    break;
+                }
+
+                testSection(statement, section, sourceName, startLine);
+            }
+
+            statement.close();
+
+            // The following catch blocks are just to report the source location
+            // of the failure.
+        } catch (IOException ioe) {
+            System.out.println("Error encountered at command beginning at "
+                               + sourceName + ':' + startLine);
+
+            throw ioe;
+        } catch (SQLException se) {
+            System.out.println("Error encountered at command beginning at "
+                               + sourceName + ':' + startLine);
+
+            throw se;
+        } catch (RuntimeException re) {
+            System.out.println("Error encountered at command beginning at "
+                               + sourceName + ':' + startLine);
+
+            throw re;
+        }
+
+        System.out.println("Processed " + reader.getLineNumber()
+                           + " lines from " + sourceName);
+    }
+
+    public static void testScriptOld(Connection aConnection,
+                                     String sourceName,
+                                     Reader inReader)
+                                     throws SQLException, IOException {
+
+        Statement        statement = aConnection.createStatement();
+        LineNumberReader reader    = new LineNumberReader(inReader);
+        HsqlArrayList    section   = null;
 
         System.out.println("Opened test script file: " + sourceName);
 
@@ -132,7 +200,6 @@ public class TestUtil {
         int startLine = 1;
 
         try {
-
             while (true) {
                 boolean startSection = false;
                 String  line         = reader.readLine();
@@ -180,23 +247,27 @@ public class TestUtil {
 
             statement.close();
 
-        // The following catch blocks are just to report the source location
-        // of the failure.
+            // The following catch blocks are just to report the source location
+            // of the failure.
         } catch (IOException ioe) {
             System.out.println("Error encountered at command beginning at "
-                    + sourceName + ':' + startLine);
+                               + sourceName + ':' + startLine);
+
             throw ioe;
         } catch (SQLException se) {
             System.out.println("Error encountered at command beginning at "
-                    + sourceName + ':' + startLine);
+                               + sourceName + ':' + startLine);
+
             throw se;
         } catch (RuntimeException re) {
             System.out.println("Error encountered at command beginning at "
-                    + sourceName + ':' + startLine);
+                               + sourceName + ':' + startLine);
+
             throw re;
         }
+
         System.out.println("Processed " + reader.getLineNumber()
-                + " lines from " + sourceName);
+                           + " lines from " + sourceName);
     }
 
     /** Legacy wrapper */
@@ -251,33 +322,44 @@ public class TestUtil {
         ParsedSection pSection = parsedSectionFactory(section);
 
         if (pSection == null) {    //it was not possible to sucessfully parse the section
-            System.out.println("The section starting at " + scriptName + ':'
-                + line + " could not be parsed, and so was not processed.\n");
+            System.out.println(
+                "The section starting at " + scriptName + ':' + line
+                + " could not be parsed, and so was not processed." + LS);
+
             return;
         }
+
         if (pSection instanceof IgnoreParsedSection) {
             System.out.println("At " + scriptName + ':' + line + ": "
-                    + pSection.getResultString());
+                               + pSection.getResultString());
+
             return;
         }
+
         if (pSection instanceof DisplaySection
                 || pSection instanceof WaitSection
                 || pSection instanceof ProceedSection) {
             String s = pSection.getResultString();
+
             if (s != null) {
+
                 // May or may not want to report line number for these sections?
                 System.out.println(pSection.getResultString());
             }
         }
+
         if (pSection instanceof DisplaySection) {
-            return; // Do not run test method for DisplaySections.
+            return;    // Do not run test method for DisplaySections.
         }
+
         if (!pSection.test(stat)) {
             System.out.println("Section starting at " + scriptName + ':'
-                    + line + " returned an unexpected result: " + pSection);
+                               + line + " returned an unexpected result: "
+                               + pSection);
+
             if (TestUtil.abortOnErr) {
                 throw new TestRuntimeException(scriptName + ": " + line
-                        + "pSection");
+                                               + "pSection");
             }
         }
     }
@@ -287,8 +369,7 @@ public class TestUtil {
      * @param aSection Vector containing the section of script
      * @return a ParesedSection object
      */
-    private static ParsedSection parsedSectionFactory(
-            HsqlArrayList aSection) {
+    private static ParsedSection parsedSectionFactory(HsqlArrayList aSection) {
 
         //type of the section
         char type = ' ';
@@ -389,12 +470,15 @@ public class TestUtil {
     }
 
     static class TestRuntimeException extends RuntimeException {
+
         public TestRuntimeException(String s) {
             super(s);
         }
+
         public TestRuntimeException(Throwable t) {
             super(t);
         }
+
         public TestRuntimeException(String s, Throwable t) {
             super(s, t);
         }
@@ -406,6 +490,8 @@ public class TestUtil {
  * The specific ParsedSections for each type of test should inherit from this.
  */
 abstract class ParsedSection {
+
+    static final String LS = System.getProperty("line.separator", "\n");
 
     /**
      * Type of this test.
@@ -482,29 +568,29 @@ abstract class ParsedSection {
 
         StringBuffer b = new StringBuffer();
 
-        b.append("\n******\n");
-        b.append("contents of lines array:\n");
+        b.append(LS + "******" + LS);
+        b.append("contents of lines array:" + LS);
 
         for (int i = 0; i < lines.length; i++) {
             if (lines[i].trim().length() > 0) {
                 b.append("line ").append(i).append(": ").append(
-                    lines[i]).append("\n");
+                    lines[i]).append(LS);
             }
         }
 
         b.append("Type: ");
-        b.append(getType()).append("\n");
-        b.append("SQL: ").append(getSql()).append("\n");
-        b.append("results:\n");
+        b.append(getType()).append(LS);
+        b.append("SQL: ").append(getSql()).append(LS);
+        b.append("results:").append(LS);
         b.append(getResultString());
 
         //check to see if the message field has been populated
         if (getMessage() != null) {
-            b.append("\nmessage:\n");
+            b.append("\nmessage:").append(LS);
             b.append(getMessage());
         }
 
-        b.append("\n******\n");
+        b.append(LS + "******" + LS);
 
         return b.toString();
     }
@@ -579,7 +665,6 @@ abstract class ParsedSection {
          * 'd' - display   (No reason to use upper-case).
          * ' ' - not a test
          */
-
         switch (aCode) {
 
             case ' ' :
@@ -601,7 +686,7 @@ abstract class ParsedSection {
 /** Represents a ParsedSection for a ResultSet test */
 class ResultSetParsedSection extends ParsedSection {
 
-    private String delim = System.getProperty("TestUtilFieldDelimiter", ",");
+    private String   delim = System.getProperty("TestUtilFieldDelimiter", ",");
     private String[] expectedRows = null;
 
     /**
@@ -630,7 +715,7 @@ class ResultSetParsedSection extends ParsedSection {
         StringBuffer printVal = new StringBuffer();
 
         for (int i = 0; i < getExpectedRows().length; i++) {
-            printVal.append(getExpectedRows()[i]).append("\n");
+            printVal.append(getExpectedRows()[i]).append(LS);
         }
 
         return printVal.toString();
@@ -644,9 +729,8 @@ class ResultSetParsedSection extends ParsedSection {
                 //execute the SQL
                 aStatement.execute(getSql());
             } catch (SQLException s) {
-                throw new Exception(
-                    "Expected a ResultSet, but got the error: "
-                    + s.getMessage());
+                throw new Exception("Expected a ResultSet, but got the error: "
+                                    + s.getMessage());
             }
 
             //check that update count != -1
@@ -687,9 +771,9 @@ class ResultSetParsedSection extends ParsedSection {
                                         "NULL")) {
                                     throw new Exception(
                                         "Expected row " + count
-                                        + " of the ResultSet to contain:\n"
-                                        + getExpectedRows()[count]
-                                        + "\nbut field " + j
+                                        + " of the ResultSet to contain:" + LS
+                                        + getExpectedRows()[count] + LS
+                                        + "but field " + j
                                         + " contained NULL");
                                 }
                             } else if (!actual.equals(expectedFields[i])) {
@@ -697,9 +781,9 @@ class ResultSetParsedSection extends ParsedSection {
                                 //then the results are different
                                 throw new Exception(
                                     "Expected row " + (count + 1)
-                                    + " of the ResultSet to contain:\n"
-                                    + getExpectedRows()[count]
-                                    + "\nbut field " + j + " contained "
+                                    + " of the ResultSet to contain:" + LS
+                                    + getExpectedRows()[count] + LS
+                                    + "but field " + j + " contained "
                                     + results.getString(j));
                             }
                         }
@@ -794,105 +878,141 @@ class UpdateParsedSection extends ParsedSection {
 }
 
 class WaitSection extends ParsedSection {
+
     /* Would love to have a setting to say whether multi-thread mode,
      * but the static design of TestUtil prevents that.
      * a W command will cause a non-threaded execution to wait forever.
      */
-static private String W_SYNTAX_MSG =
-    "Syntax of Wait commands:\n"
- + "    /*w 123*/     To Wait 123 milliseconds\n"
- + "    /*w false x*/ Wait until /*p*/ command in another script has executed\n"
- + "    /*w true x*/  Same, but the /*p*/ must not have executed yet";
+    static private String W_SYNTAX_MSG =
+        "Syntax of Wait commands:" + LS
+        + "    /*w 123*/     To Wait 123 milliseconds" + LS
+        + "    /*w false x*/ Wait until /*p*/ command in another script has executed"
+        + LS
+        + "    /*w true x*/  Same, but the /*p*/ must not have executed yet";
 
 /** Represents a ParsedSection for wait execution */
-    long sleepTime = -1;
-    Waiter waiter = null;
+    long    sleepTime       = -1;
+    Waiter  waiter          = null;
     boolean enforceSequence = false;
 
     protected WaitSection(String[] inLines) {
+
         /* Can't user the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
         lines = inLines;
-        int closeCmd = lines[0].indexOf("*/");
-        String cmd = lines[0].substring(0, closeCmd);
+
+        int    closeCmd = lines[0].indexOf("*/");
+        String cmd      = lines[0].substring(0, closeCmd);
+
         lines[0] = lines[0].substring(closeCmd + 2).trim();
+
         String trimmed = cmd.trim();
+
         if (trimmed.indexOf('e') < 0 && trimmed.indexOf('E') < 0) {
+
             // Does not contain "true" or "false"
             sleepTime = Long.parseLong(trimmed);
-        } else try {
-            // Would like to use String.split(), but don't know if Java 4
-            // is allowed here.
-            // Until we can use Java 4, prohibit tabs as white space.
-            int index = trimmed.indexOf(' ');
-            if (index < 0) throw new IllegalArgumentException();
-            enforceSequence =
-                    Boolean.valueOf(trimmed.substring(0, index)).booleanValue();
-            waiter = Waiter.getWaiter(trimmed.substring(index).trim());
-        } catch (IllegalArgumentException ie) {
-            throw new IllegalArgumentException(W_SYNTAX_MSG);
+        } else {
+            try {
+
+                // Would like to use String.split(), but don't know if Java 4
+                // is allowed here.
+                // Until we can use Java 4, prohibit tabs as white space.
+                int index = trimmed.indexOf(' ');
+
+                if (index < 0) {
+                    throw new IllegalArgumentException();
+                }
+
+                enforceSequence = Boolean.valueOf(trimmed.substring(0,
+                        index)).booleanValue();
+                waiter = Waiter.getWaiter(trimmed.substring(index).trim());
+            } catch (IllegalArgumentException ie) {
+                throw new IllegalArgumentException(W_SYNTAX_MSG);
+            }
         }
 
         type = 'w';
     }
 
     protected String getResultString() {
+
         StringBuffer sb = new StringBuffer();
+
         if (lines.length == 1 && lines[0].trim().length() < 1) {
             return null;
         }
 
         for (int i = 0; i < lines.length; i++) {
             if (i > 0) {
-                sb.append('\n');
+                sb.append(LS);
             }
+
             sb.append("+ " + lines[i]);
         }
+
         TestUtil.expandStamps(sb);
+
         return sb.toString().trim();
     }
 
     protected boolean test(Statement aStatement) {
-        if (waiter == null) try {
-            //System.err.println("Sleeping for " + sleepTime + " ms.");
-            Thread.sleep(sleepTime);
-        } catch (InterruptedException ie) {
-            throw new RuntimeException("Test sleep interrupted", ie);
+
+        if (waiter == null) {
+            try {
+
+                //System.err.println("Sleeping for " + sleepTime + " ms.");
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException ie) {
+                throw new RuntimeException("Test sleep interrupted", ie);
+            }
         } else {
             waiter.waitFor(enforceSequence);
         }
+
         return true;
     }
 }
 
 class ProceedSection extends ParsedSection {
+
     /* See comment above for WaitSection */
-static private String P_SYNTAX_MSG =
-    "Syntax of Proceed commands:\n"
- + "    /*p false x*/ /*p*/ command in another script may Proceed\n"
- + "    /*p true x*/  Same, but the /*w*/ must be waiting when we execute /*p*/"
-;
+    static private String P_SYNTAX_MSG =
+        "Syntax of Proceed commands:" + LS
+        + "    /*p false x*/ /*p*/ command in another script may Proceed" + LS
+        + "    /*p true x*/  Same, but the /*w*/ must be waiting when we execute /*p*/"
+    ;
 
 /** Represents a ParsedSection for wait execution */
-    Waiter waiter = null;
+    Waiter  waiter          = null;
     boolean enforceSequence = false;
 
     protected ProceedSection(String[] inLines) {
+
         /* Can't use the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
         lines = inLines;
-        int closeCmd = lines[0].indexOf("*/");
-        String cmd = lines[0].substring(0, closeCmd);
+
+        int    closeCmd = lines[0].indexOf("*/");
+        String cmd      = lines[0].substring(0, closeCmd);
+
         lines[0] = lines[0].substring(closeCmd + 2).trim();
+
         String trimmed = cmd.trim();
+
         try {
+
             // Would like to use String.split(), but don't know if Java 4
             // is allowed here.
             // Until we can use Java 4, prohibit tabs as white space.
             int index = trimmed.indexOf(' ');
-            if (index < 0) throw new IllegalArgumentException();
-            enforceSequence =
-                    Boolean.valueOf(trimmed.substring(0, index)).booleanValue();
+
+            if (index < 0) {
+                throw new IllegalArgumentException();
+            }
+
+            enforceSequence = Boolean.valueOf(trimmed.substring(0,
+                    index)).booleanValue();
             waiter = Waiter.getWaiter(trimmed.substring(index).trim());
         } catch (IllegalArgumentException ie) {
             throw new IllegalArgumentException(P_SYNTAX_MSG);
@@ -902,23 +1022,30 @@ static private String P_SYNTAX_MSG =
     }
 
     protected String getResultString() {
+
         StringBuffer sb = new StringBuffer();
+
         if (lines.length == 1 && lines[0].trim().length() < 1) {
             return null;
         }
 
         for (int i = 0; i < lines.length; i++) {
             if (i > 0) {
-                sb.append('\n');
+                sb.append(LS);
             }
+
             sb.append("+ " + lines[i]);
         }
+
         TestUtil.expandStamps(sb);
+
         return sb.toString().trim();
     }
 
     protected boolean test(Statement aStatement) {
+
         waiter.resume(enforceSequence);
+
         return true;
     }
 }
@@ -1019,13 +1146,16 @@ class CountParsedSection extends ParsedSection {
 
 /** Represents a ParsedSection for an Exception test */
 class ExceptionParsedSection extends ParsedSection {
-    private String expectedState = null;
-    private Throwable caught = null;
+
+    private String    expectedState = null;
+    private Throwable caught        = null;
 
     protected ExceptionParsedSection(String[] lines) {
 
         super(lines);
+
         expectedState = lines[0].trim();
+
         if (expectedState.length() < 1) {
             expectedState = null;
         }
@@ -1034,7 +1164,8 @@ class ExceptionParsedSection extends ParsedSection {
     }
 
     protected String getResultString() {
-        return (caught == null) ? "Nothing thrown" : caught.toString();
+        return (caught == null) ? "Nothing thrown"
+                                : caught.toString();
     }
 
     protected boolean test(Statement aStatement) {
@@ -1043,14 +1174,16 @@ class ExceptionParsedSection extends ParsedSection {
             aStatement.execute(getSql());
         } catch (SQLException sqlX) {
             caught = sqlX;
+
             if (expectedState == null
                     || expectedState.equalsIgnoreCase(sqlX.getSQLState())) {
                 return true;
             }
+
             message = "SQLState '" + sqlX.getSQLState() + "' instead of '"
-                + expectedState + "': " + sqlX.getMessage();
+                      + expectedState + "': " + sqlX.getMessage();
         } catch (Exception x) {
-            caught = x;
+            caught  = x;
             message = x.getMessage();
         }
 
@@ -1110,18 +1243,23 @@ class DisplaySection extends ParsedSection {
     }
 
     protected String getResultString() {
+
         StringBuffer sb = new StringBuffer();
+
         if (lines.length == 1 && lines[0].trim().length() < 1) {
             return null;
         }
 
         for (int i = 0; i < lines.length; i++) {
             if (i > 0) {
-                sb.append('\n');
+                sb.append(LS);
             }
+
             sb.append("+ " + lines[i]);
         }
+
         TestUtil.expandStamps(sb);
+
         return sb.toString().trim();
     }
 }
