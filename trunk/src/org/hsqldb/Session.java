@@ -98,6 +98,7 @@ import org.hsqldb.types.ClobData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.BlobDataID;
 
 /**
  * Implementation of SQL sessions.
@@ -843,7 +844,7 @@ public class Session implements SessionInterface {
         switch (type) {
 
             case ResultConstants.LARGE_OBJECT_OP : {
-                return database.lobManager.performLOBOperation((ResultLob) cmd);
+                return performLOBOperation((ResultLob) cmd);
             }
             case ResultConstants.EXECUTE : {
                 Result result = executeCompiledStatement(cmd);
@@ -1199,8 +1200,7 @@ public class Session implements SessionInterface {
         if (cs == null) {
 
             // invalid sql has been removed already
-            return Result.newErrorResult(
-                Error.error(ErrorCode.X_07501));
+            return Result.newErrorResult(Error.error(ErrorCode.X_07501));
         }
 
         count = 0;
@@ -1639,6 +1639,42 @@ public class Session implements SessionInterface {
         sessionData.allocateLobForResult(result, dataInput);
     }
 
+    Result performLOBOperation(ResultLob cmd) {
+
+        long id        = cmd.getLobID();
+        int  operation = cmd.getSubType();
+
+        switch (operation) {
+
+            case ResultLob.LobResultTypes.REQUEST_GET_BYTES : {
+                return database.lobManager.getBytes(
+                    this, id, cmd.getOffset(), (int) cmd.getBlockLength());
+            }
+            case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
+                return database.lobManager.setBytes(this, id, cmd.getOffset(),
+                                                    cmd.getByteArray());
+            }
+            case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
+                return database.lobManager.getChars(
+                    this, id, cmd.getOffset(), (int) cmd.getBlockLength());
+            }
+            case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
+                return database.lobManager.setChars(this, id, cmd.getOffset(),
+                                                    cmd.getCharArray());
+            }
+            case ResultLob.LobResultTypes.REQUEST_TRUNCATE : {
+                return database.lobManager.truncate(this, id, cmd.getOffset());
+            }
+
+            case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
+            case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS :
+            case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :
+            case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION :
+            default : {
+                throw Error.runtimeError(ErrorCode.U_S0500, "Session");
+            }
+        }
+    }
 
     // DatabaseMetaData.getURL should work as specified for
     // internal connections too.

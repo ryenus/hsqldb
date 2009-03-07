@@ -214,6 +214,7 @@ public class StatementSchema extends Statement {
 
             case StatementTypes.CREATE_INDEX :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
+                order = 4;
                 break;
 
             case StatementTypes.CHECK :

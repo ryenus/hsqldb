@@ -53,25 +53,24 @@ public final class ResultLob extends Result {
 
     public static interface LobResultTypes {
 
-        int REQUEST_OPEN                       = 1;
-        int REQUEST_CLOSE                      = 2;
-        int REQUEST_GET_BYTES                  = 3;
-        int REQUEST_SET_BYTES                  = 4;
+        int REQUEST_GET_BYTES                  = 1;
+        int REQUEST_SET_BYTES                  = 2;
+        int REQUEST_GET_CHARS                  = 3;
+        int REQUEST_SET_CHARS                  = 4;
         int REQUEST_GET_BYTE_PATTERN_POSITION  = 5;
-        int REQUEST_GET_CHARS                  = 6;
-        int REQUEST_SET_CHARS                  = 7;
-        int REQUEST_GET_CHAR_PATTERN_POSITION  = 8;
-        int REQUEST_CREATE_BYTES               = 9;
-        int REQUEST_CREATE_CHARS               = 10;
-        int RESPONSE_OPEN                      = 11;
-        int RESPONSE_GET_BYTES                 = 13;
-        int RESPONSE_SET_BYTES                 = 14;
+        int REQUEST_GET_CHAR_PATTERN_POSITION  = 6;
+        int REQUEST_CREATE_BYTES               = 7;
+        int REQUEST_CREATE_CHARS               = 8;
+        int REQUEST_TRUNCATE                   = 9;
+        int RESPONSE_GET_BYTES                 = 11;
+        int RESPONSE_SET_BYTES                 = 12;
+        int RESPONSE_GET_CHARS                 = 13;
+        int RESPONSE_SET_CHARS                 = 14;
         int RESPONSE_GET_BYTE_PATTERN_POSITION = 15;
-        int RESPONSE_GET_CHARS                 = 16;
-        int RESPONSE_SET_CHARS                 = 17;
-        int RESPONSE_GET_CHAR_PATTERN_POSITION = 18;
-        int RESPONSE_CREATE_BYTES              = 19;
-        int RESPONSE_CREATE_CHARS              = 20;
+        int RESPONSE_GET_CHAR_PATTERN_POSITION = 16;
+        int RESPONSE_CREATE_BYTES              = 17;
+        int RESPONSE_CREATE_CHARS              = 18;
+        int RESPONSE_TRUNCATE                  = 19;
     }
 
     long        lobID;
@@ -141,6 +140,17 @@ public final class ResultLob extends Result {
         return result;
     }
 
+    public static ResultLob newLobTruncateRequest(long id, long offset) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType     = LobResultTypes.REQUEST_TRUNCATE;
+        result.lobID       = id;
+        result.blockOffset = offset;
+
+        return result;
+    }
+
     public static ResultLob newLobGetBytesResponse(long id, long offset,
             byte block[]) {
 
@@ -155,7 +165,7 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static Result newLobGetCharsResponse(long id, long offset,
+    public static ResultLob newLobGetCharsResponse(long id, long offset,
             char[] chars) {
 
         ResultLob result = new ResultLob();
@@ -189,7 +199,7 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobGetPatternPositionRequest(long id,
+    public static ResultLob newLobGetBytePatternPositionRequest(long id,
             byte[] pattern, long offset) {
 
         ResultLob result = new ResultLob();
@@ -198,6 +208,20 @@ public final class ResultLob extends Result {
         result.lobID       = id;
         result.blockOffset = offset;
         result.byteBlock   = pattern;
+        result.blockLength = pattern.length;
+
+        return result;
+    }
+
+    public static ResultLob newLobGetCharPatternPositionRequest(long id,
+            char[] pattern, long offset) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType     = LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION;
+        result.lobID       = id;
+        result.blockOffset = offset;
+        result.charBlock   = pattern;
         result.blockLength = pattern.length;
 
         return result;
@@ -249,6 +273,16 @@ public final class ResultLob extends Result {
         return result;
     }
 
+    public static ResultLob newLobTruncateResponse(long id) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType = LobResultTypes.RESPONSE_TRUNCATE;
+        result.lobID   = id;
+
+        return result;
+    }
+
     public static ResultLob newLob(DataInput dataInput,
                                    boolean readTerminate)
                                    throws IOException, HsqlException {
@@ -261,10 +295,6 @@ public final class ResultLob extends Result {
         result.subType    = dataInput.readInt();
 
         switch (result.subType) {
-
-            case LobResultTypes.REQUEST_OPEN :
-            case LobResultTypes.REQUEST_CLOSE :
-                break;
 
             case LobResultTypes.REQUEST_CREATE_BYTES :
             case LobResultTypes.REQUEST_CREATE_CHARS :
@@ -298,7 +328,7 @@ public final class ResultLob extends Result {
                 }
                 break;
 
-            case LobResultTypes.RESPONSE_OPEN :
+            case LobResultTypes.REQUEST_TRUNCATE :
                 result.blockOffset = dataInput.readLong();
                 break;
 
@@ -323,18 +353,15 @@ public final class ResultLob extends Result {
             case LobResultTypes.RESPONSE_SET_BYTES :
             case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_BYTES :
-
-            //
             case LobResultTypes.RESPONSE_SET_CHARS :
             case LobResultTypes.RESPONSE_GET_CHAR_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_CHARS :
+            case LobResultTypes.RESPONSE_TRUNCATE :
                 result.blockOffset = dataInput.readLong();
-                result.blockLength = dataInput.readLong();
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "ResultLob");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ResultLob");
         }
 
         if (readTerminate) {
@@ -392,6 +419,16 @@ public final class ResultLob extends Result {
                 dataOut.writeChars(charBlock);
                 break;
 
+            case LobResultTypes.REQUEST_GET_BYTES :
+            case LobResultTypes.REQUEST_GET_CHARS :
+                dataOut.writeLong(blockOffset);
+                dataOut.writeLong(blockLength);
+                break;
+
+            case LobResultTypes.REQUEST_TRUNCATE :
+                dataOut.writeLong(blockOffset);
+                break;
+
             case LobResultTypes.RESPONSE_GET_BYTES :
                 dataOut.writeLong(blockOffset);
                 dataOut.writeLong(blockLength);
@@ -404,23 +441,18 @@ public final class ResultLob extends Result {
                 dataOut.writeChars(charBlock);
                 break;
 
-            case LobResultTypes.REQUEST_GET_BYTES :
             case LobResultTypes.RESPONSE_SET_BYTES :
             case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_BYTES :
-
-            //
-            case LobResultTypes.REQUEST_GET_CHARS :
             case LobResultTypes.RESPONSE_SET_CHARS :
             case LobResultTypes.RESPONSE_GET_CHAR_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_CHARS :
+            case LobResultTypes.RESPONSE_TRUNCATE :
                 dataOut.writeLong(blockOffset);
-                dataOut.writeLong(blockLength);
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "ResultLob");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ResultLob");
         }
     }
 

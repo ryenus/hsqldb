@@ -417,6 +417,10 @@ public class StatementCompound extends Statement {
                 }
             }
 
+            if (result.isError()) {
+                break;
+            }
+
             if (result.getType() == ResultConstants.VALUE) {
                 if (result.getErrorCode() == StatementTypes.ITERATE) {
                     if (result.getMainString() == null) {
@@ -517,7 +521,9 @@ public class StatementCompound extends Statement {
             if (statements[i].getType() == StatementTypes.LEAVE
                     || statements[i].getType() == StatementTypes.ITERATE) {
                 if (!findLabel((StatementSimple) statements[i])) {
-                    throw Error.error(ErrorCode.X_42508);
+                    throw Error.error(
+                        ErrorCode.X_42508,
+                        ((StatementSimple) statements[i]).label.name);
                 }
 
                 continue;
@@ -584,11 +590,11 @@ public class StatementCompound extends Statement {
             boolean added = list.add(name, variables[i]);
 
             if (!added) {
-                throw Error.error(ErrorCode.X_2F501);
+                throw Error.error(ErrorCode.X_42606, name);
             }
 
             if (root.getParameterIndex(name) != -1) {
-                throw Error.error(ErrorCode.X_2F501);
+                throw Error.error(ErrorCode.X_42606, name);
             }
         }
 
@@ -630,7 +636,7 @@ public class StatementCompound extends Statement {
 
     private boolean findLabel(StatementSimple statement) {
 
-        if (statement.label.equals(label.name)) {
+        if (label != null && statement.label.name.equals(label.name)) {
             if (!isLoop && statement.getType() == StatementTypes.ITERATE) {
                 return false;
             }

@@ -36,6 +36,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.types.Type;
+import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Parser for SQL stored procedures and functions - PSM
@@ -172,37 +173,62 @@ public class ParserRoutine extends ParserDML {
 
         read();
 
-        ColumnSchema variable = null;
-        int          index    = -1;
-        HsqlName name = readNewSchemaObjectNameNoCheck(SchemaObject.VARIABLE);
+        OrderedHashSet colNames = new OrderedHashSet();
+        HsqlArrayList  exprList = new HsqlArrayList();
 
-        // todo check is simple
-        readThis(Tokens.EQUALS);
+        readSetClauseList(rangeVars, colNames, exprList);
 
-        for (int i = 0; i < rangeVars.length; i++) {
-            index    = rangeVars[i].variables.getIndex(name.name);
-            variable = (ColumnSchema) rangeVars[i].variables.get(name.name);
-
-            if (variable != null) {
-                break;
-            }
+        if (exprList.size() > 1) {
+            throw Error.error(ErrorCode.X_42602);
         }
 
-        if (variable == null) {
-            throw Error.error(ErrorCode.X_42501, name.name);
+        Expression expression = (Expression) exprList.get(0);
+
+        if (expression.getDegree() != colNames.size()) {
+
+//            throw Error.error(ErrorCode.X_42546);
         }
 
-        Expression expression = XreadValueExpression();
+        int[]          indexes   = new int[colNames.size()];
+        ColumnSchema[] variables = new ColumnSchema[colNames.size()];
+
+        setVariables(rangeVars, colNames, indexes, variables);
+
         HsqlList unresolved = expression.resolveColumnReferences(rangeVars,
             rangeVars.length, null, false);
+
+        unresolved = Expression.resolveColumnSet(rangeVars, unresolved, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         expression.resolveTypes(session, null);
 
         StatementSimple cs = new StatementSimple(StatementTypes.ASSIGNMENT,
-            variable, expression, index);
+            variables, expression, indexes);
 
         return cs;
+    }
+
+    private static void setVariables(RangeVariable[] rangeVars,
+                                     OrderedHashSet colNames, int[] indexes,
+                                     ColumnSchema[] variables)
+                                     throws IndexOutOfBoundsException {
+
+        int index = -1;
+
+        for (int i = 0; i < variables.length; i++) {
+            String colName = (String) colNames.get(i);
+
+            for (int j = 0; j < rangeVars.length; j++) {
+                index = rangeVars[j].variables.getIndex(colName);
+
+                if (index > -1) {
+                    indexes[i]   = index;
+                    variables[i] = rangeVars[j].getColumn(index);
+
+                    break;
+                }
+            }
+        }
     }
 
     // SQL-invokded routine
@@ -296,7 +322,6 @@ public class ParserRoutine extends ParserDML {
                 readThis(Tokens.JAVA);
             }
         } else {
-
             startRecording();
 
             Statement statement = readSQLProcedureStatementOrNull(routine,
@@ -561,8 +586,7 @@ public class ParserRoutine extends ParserDML {
         return declarations;
     }
 
-    private ColumnSchema readLocalVariableDeclarationOrNull()
-    throws HsqlException {
+    ColumnSchema readLocalVariableDeclarationOrNull() throws HsqlException {
 
         int position = super.getPosition();
 
@@ -810,7 +834,7 @@ public class ParserRoutine extends ParserDML {
 
             // data
             case Tokens.SELECT : {
-                cs = readSelectSingleRowStatement();
+                cs = readSelectSingleRowStatement(rangeVariables);
 
                 break;
             }
@@ -953,38 +977,22 @@ public class ParserRoutine extends ParserDML {
         return new StatementSimple(StatementTypes.RETURN, e);
     }
 
-    StatementDMQL readCallStatement(RangeVariable[] rangeVars,
-                                    boolean isProcedure) throws HsqlException {
-        return super.readCallStatement(rangeVars, isProcedure);
-    }
+    private Statement readSelectSingleRowStatement(RangeVariable[] rangeVars)
+    throws HsqlException {
 
-    private Statement readSelectSingleRowStatement() throws HsqlException {
-
-        HsqlArrayList      list   = new HsqlArrayList();
-        QuerySpecification select = XreadSelect();
+        OrderedHashSet     variableNames = new OrderedHashSet();
+        QuerySpecification select        = XreadSelect();
 
         readThis(Tokens.INTO);
-
-        while (true) {
-            HsqlName name = readNewSchemaObjectName(SchemaObject.VARIABLE);
-
-            list.add(name);
-
-            if (token.tokenType == Tokens.COMMA) {
-                read();
-            } else {
-                break;
-            }
-        }
-
+        readColumnNamesForSelectInto(variableNames, rangeVars);
         XreadTableExpression(select);
+        select.setAsTopLevel();
+        select.resolve(session);
 
-        HsqlName[] names = new HsqlName[list.size()];
-
-        list.toArray(names);
-
-        Statement statement = new StatementQuery(session, select,
-            compileContext, names);
+        int[]          indexes   = new int[variableNames.size()];
+        ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
+        Statement statement = new StatementSimple(StatementTypes.ASSIGNMENT,
+            variables, null, indexes);
 
         return statement;
     }

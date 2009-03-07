@@ -363,6 +363,51 @@ public class ParserDQL extends ParserBase {
         }
     }
 
+    void readColumnNames(OrderedHashSet columns,
+                         RangeVariable[] rangeVars) throws HsqlException {
+
+        while (true) {
+            ColumnSchema col = readColumnName(rangeVars);
+
+            if (!columns.add(col.getName().name)) {
+                throw Error.error(ErrorCode.X_42579, col.getName().name);
+            }
+
+            if (readIfThis(Tokens.COMMA)) {
+                continue;
+            }
+
+            if (token.tokenType == Tokens.CLOSEBRACKET) {
+                break;
+            }
+
+            throw unexpectedToken();
+        }
+    }
+
+    void readColumnNamesForSelectInto(OrderedHashSet columns,
+                                      RangeVariable[] rangeVars)
+                                      throws HsqlException {
+
+        while (true) {
+            ColumnSchema col = readColumnName(rangeVars);
+
+            if (!columns.add(col.getName().name)) {
+                throw Error.error(ErrorCode.X_42579, col.getName().name);
+            }
+
+            if (readIfThis(Tokens.COMMA)) {
+                continue;
+            }
+
+            if (token.tokenType == Tokens.FROM) {
+                break;
+            }
+
+            throw unexpectedToken();
+        }
+    }
+
     void readSimpleColumnNames(OrderedHashSet columns,
                                Table table) throws HsqlException {
 
@@ -3787,7 +3832,6 @@ public class ParserDQL extends ParserBase {
                 prefix, SchemaObject.FUNCTION);
 
         if (routineSchema == null && isSimpleQuoted) {
-
             HsqlName schema =
                 database.schemaManager.getDefaultSchemaHsqlName();
 
@@ -3796,21 +3840,20 @@ public class ParserDQL extends ParserBase {
                     schema.name, SchemaObject.FUNCTION);
 
             if (routineSchema == null) {
-
-                Method[] methods = Routine.getMethods(name);
+                Method[]  methods  = Routine.getMethods(name);
                 Routine[] routines = Routine.newRoutines(methods);
-
                 HsqlName routineName = database.nameManager.newHsqlName(schema,
                     name, true, SchemaObject.FUNCTION);
 
                 for (int i = 0; i < routines.length; i++) {
                     routines[i].setName(routineName);
-                    session.database.schemaManager.addSchemaObject(routines[i]);
+                    session.database.schemaManager.addSchemaObject(
+                        routines[i]);
                 }
 
                 routineSchema =
-                    (RoutineSchema) database.schemaManager.findSchemaObject(name,
-                    schema.name, SchemaObject.FUNCTION);
+                    (RoutineSchema) database.schemaManager.findSchemaObject(
+                        name, schema.name, SchemaObject.FUNCTION);
             }
         }
 
@@ -4211,24 +4254,26 @@ public class ParserDQL extends ParserBase {
     ColumnSchema readSimpleColumnName(RangeVariable rangeVar)
     throws HsqlException {
 
+        ColumnSchema column = null;
+
         checkIsIdentifier();
 
-        if (strictSQLIdentifierParts && token.namePrefix != null) {
+        if (token.namePrefix != null) {
             throw Error.error(ErrorCode.X_42551, token.tokenString);
         }
 
-        int i = rangeVar.findColumn(token.tokenString);
+        int index = rangeVar.findColumn(token.tokenString);
 
-        if (i == -1 || !rangeVar.resolvesTableName(token.namePrefix)
-                || !rangeVar.resolvesSchemaName(token.namePrePrefix)) {
-            throw Error.error(ErrorCode.X_42501, token.tokenString);
+        if (index > -1 && rangeVar.resolvesTableName(token.namePrefix)
+                && rangeVar.resolvesSchemaName(token.namePrePrefix)) {
+            column = rangeVar.getTable().getColumn(index);
+
+            read();
+
+            return column;
         }
 
-        ColumnSchema column = rangeVar.getTable().getColumn(i);
-
-        read();
-
-        return column;
+        throw Error.error(ErrorCode.X_42501, token.tokenString);
     }
 
     ColumnSchema readSimpleColumnName(Table table) throws HsqlException {
@@ -4239,17 +4284,44 @@ public class ParserDQL extends ParserBase {
             throw Error.error(ErrorCode.X_42551, token.tokenString);
         }
 
-        int i = table.findColumn(token.tokenString);
+        int index = table.findColumn(token.tokenString);
 
-        if (i == -1) {
+        if (index == -1) {
             throw Error.error(ErrorCode.X_42501, token.tokenString);
         }
 
-        ColumnSchema column = table.getColumn(i);
+        ColumnSchema column = table.getColumn(index);
 
         read();
 
         return column;
+    }
+
+    ColumnSchema readColumnName(RangeVariable[] rangeVars)
+    throws HsqlException {
+
+        ColumnSchema column = null;
+
+        checkIsIdentifier();
+
+        if (strictSQLIdentifierParts && token.namePrefix != null) {
+            throw Error.error(ErrorCode.X_42551, token.tokenString);
+        }
+
+        for (int i = 0; i < rangeVars.length; i++) {
+            int index = rangeVars[i].findColumn(token.tokenString);
+
+            if (index > -1 && rangeVars[i].resolvesTableName(token.namePrefix)
+                    && rangeVars[i].resolvesSchemaName(token.namePrePrefix)) {
+                column = rangeVars[i].getColumn(index);
+
+                read();
+
+                return column;
+            }
+        }
+
+        throw Error.error(ErrorCode.X_42501, token.tokenString);
     }
 
     StatementDMQL compileDeclareCursor() throws HsqlException {

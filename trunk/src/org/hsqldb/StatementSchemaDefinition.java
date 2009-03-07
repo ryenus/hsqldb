@@ -100,11 +100,11 @@ public class StatementSchemaDefinition extends StatementSchema {
                 session, getSetSchemaStatement(schemaName));
         } catch (HsqlException e) {}
 
-        try {
-            session.setSchema(schemaName.name);
-        } catch (HsqlException e) {}
-
         for (int i = 1; i < statements.length; i++) {
+            try {
+                session.setSchema(schemaName.name);
+            } catch (HsqlException e) {}
+
             statements[i].setSchemaHsqlName(schemaName);
 
 //            statements[i].isSchemaDefinition = true;
@@ -145,22 +145,10 @@ public class StatementSchemaDefinition extends StatementSchema {
                         result = statements[i].execute(session, null);
                         break;
 
+                    case StatementTypes.CREATE_INDEX :
                     case StatementTypes.CREATE_TRIGGER :
                     case StatementTypes.CREATE_VIEW :
                     case StatementTypes.CREATE_DOMAIN :
-                        cs                    = session.parser.compileCreate();
-                        cs.isSchemaDefinition = true;
-
-                        cs.setSchemaHsqlName(schemaName);
-
-                        if (session.parser.token.tokenType
-                                != Tokens.X_ENDPARSE) {
-                            throw session.parser.unexpectedToken();
-                        }
-
-                        result = cs.execute(session, null);
-                        break;
-
                     case StatementTypes.CREATE_ROUTINE :
                         cs                    = session.parser.compileCreate();
                         cs.isSchemaDefinition = true;

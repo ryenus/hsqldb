@@ -158,6 +158,11 @@ public class StatementCommand extends Statement {
                 group = StatementTypes.X_HSQLDB_SESSION;
                 break;
 
+            case StatementTypes.DECLARE_VARIABLE :
+                isTransactionStatement = false;
+                group                  = StatementTypes.X_HSQLDB_SESSION;
+                break;
+
             case StatementTypes.COMMIT_WORK :
             case StatementTypes.RELEASE_SAVEPOINT :
             case StatementTypes.ROLLBACK_SAVEPOINT :
@@ -574,6 +579,17 @@ public class StatementCommand extends Statement {
 
                 try {
                     session.setAutoCommit(mode);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.DECLARE_VARIABLE : {
+                ColumnSchema variable = (ColumnSchema) parameters[0];
+
+                try {
+                    session.sessionContext.addSessionVariable(variable);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

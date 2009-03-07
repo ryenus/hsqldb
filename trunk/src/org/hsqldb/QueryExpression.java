@@ -169,6 +169,23 @@ public class QueryExpression {
         resolveTypes(session);
     }
 
+    public void resolve(Session session,
+                        RangeVariable[] outerRanges) throws HsqlException {
+
+        resolveReferences(session);
+
+        if (unresolvedExpressions != null) {
+            for (int i = 0; i < unresolvedExpressions.size(); i++) {
+                Expression e    = (Expression) unresolvedExpressions.get(i);
+                HsqlList   list = e.resolveColumnReferences(outerRanges, null);
+
+                ExpressionColumn.checkColumnsResolved(list);
+            }
+        }
+
+        resolveTypes(session);
+    }
+
     public void resolveReferences(Session session) throws HsqlException {
 
         leftQueryExpression.resolveReferences(session);
@@ -381,6 +398,20 @@ public class QueryExpression {
 
         if (size == 0) {
             return new Object[r.metaData.getColumnCount()];
+        } else if (size == 1) {
+            return r.getSingleRowData();
+        } else {
+            throw Error.error(ErrorCode.X_21000);
+        }
+    }
+
+    public Object[] getSingleRowValues(Session session) throws HsqlException {
+
+        Result r    = getResult(session, 2);
+        int    size = r.getNavigator().getSize();
+
+        if (size == 0) {
+            return null;
         } else if (size == 1) {
             return r.getSingleRowData();
         } else {

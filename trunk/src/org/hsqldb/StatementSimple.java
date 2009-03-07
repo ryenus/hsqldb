@@ -34,6 +34,8 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.types.Type;
+import org.hsqldb.store.ValuePool;
 
 /**
  * Implementation of Statement for simple PSM control statements.
@@ -44,11 +46,13 @@ import org.hsqldb.result.ResultMetaData;
  */
 public class StatementSimple extends Statement {
 
-    String       sqlState;
-    HsqlName     label;
-    Expression   expression;
-    ColumnSchema variable;
-    int          variableIndex;
+    String     sqlState;
+    HsqlName   label;
+    Expression expression;
+
+    //
+    ColumnSchema[] variables;
+    int[]          variableIndexes;
 
     /**
      * for RETURN and flow control
@@ -77,14 +81,15 @@ public class StatementSimple extends Statement {
         this.sqlState          = sqlState;
     }
 
-    StatementSimple(int type, ColumnSchema variable, Expression e, int index) {
+    StatementSimple(int type, ColumnSchema[] variables, Expression e,
+                    int[] indexes) {
 
         super(type, StatementTypes.X_SQL_CONTROL);
 
         isTransactionStatement = false;
         this.expression        = e;
-        this.variable          = variable;
-        variableIndex          = index;
+        this.variables         = variables;
+        variableIndexes        = indexes;
     }
 
     public String getSQL() {
@@ -126,8 +131,10 @@ public class StatementSimple extends Statement {
                 break;
 
             case StatementTypes.ASSIGNMENT :
+
+                // todo - row assignment
                 sb.append(Tokens.T_SET).append(' ');
-                sb.append(variable.getName().statementName).append(' ');
+                sb.append(variables[0].getName().statementName).append(' ');
                 sb.append('=').append(' ').append(expression.getSQL());
                 break;
         }
@@ -176,16 +183,8 @@ public class StatementSimple extends Statement {
                 return this.getResultValue(session);
 
             case StatementTypes.ASSIGNMENT : {
-                Object[] variables =
-                    variable.getType() == SchemaObject.PARAMETER
-                    ? session.sessionContext.routineArguments
-                    : session.sessionContext.routineVariables;
-
                 try {
-                    Object o = expression.getValue(session,
-                                                   variable.getDataType());
-
-                    variables[variableIndex] = o;
+                    performAssignment(session);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -194,6 +193,47 @@ public class StatementSimple extends Statement {
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "");
+        }
+    }
+
+    void performAssignment(Session session) throws HsqlException {
+
+        Object[] values;
+
+        if (expression.getType() == OpTypes.ROW) {
+            values = expression.getRowValue(session);
+        } else if (expression.getType() == OpTypes.TABLE_SUBQUERY) {
+            values = expression.subQuery.queryExpression.getSingleRowValues(
+                session);
+
+            if (values == null) {
+                return;
+            }
+        } else {
+            values = new Object[1];
+            values[0] = expression.getValue(session,
+                                            variables[0].getDataType());
+        }
+
+        for (int j = 0; j < values.length; j++) {
+            Object[] data = ValuePool.emptyObjectArray;
+
+            switch (variables[j].getType()) {
+
+                case SchemaObject.PARAMETER :
+                    data = session.sessionContext.routineArguments;
+                    break;
+
+                case SchemaObject.VARIABLE :
+                    data = session.sessionContext.routineVariables;
+                    break;
+            }
+
+            int colIndex = variableIndexes[j];
+
+            data[colIndex] =
+                variables[j].getDataType().convertToDefaultType(session,
+                    values[j]);
         }
     }
 
@@ -209,9 +249,7 @@ public class StatementSimple extends Statement {
 
             case StatementTypes.RETURN :
                 if (root.isProcedure()) {
-
-                    // todo better message
-                    throw Error.error(ErrorCode.X_2F501);
+                    throw Error.error(ErrorCode.X_42602);
                 }
 
                 resolved = true;
@@ -258,9 +296,7 @@ public class StatementSimple extends Statement {
         }
 
         if (!resolved) {
-
-            // todo better message
-            throw Error.error(ErrorCode.X_2F501);
+            throw Error.error(ErrorCode.X_42602);
         }
     }
 

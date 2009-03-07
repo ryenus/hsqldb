@@ -119,7 +119,7 @@ public class RoutineSchema implements SchemaObject {
         for (int i = 0; i < this.routines.length; i++) {
             if (routines[i].parameterTypes.length == types.length) {
                 if (routineType == SchemaObject.PROCEDURE) {
-                    throw Error.error(ErrorCode.X_2F502);
+                    throw Error.error(ErrorCode.X_42605);
                 }
 
                 boolean match = true;
@@ -133,7 +133,7 @@ public class RoutineSchema implements SchemaObject {
                 }
 
                 if (match) {
-                    throw Error.error(ErrorCode.X_2F502);
+                    throw Error.error(ErrorCode.X_42605);
                 }
             }
         }
