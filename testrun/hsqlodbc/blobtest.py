@@ -1,13 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python -t
 
 # $Id$
 
-# Sample Python script accessing HyperSQL through the Python pyodbc module.
-
-# This test HyperSQL client uses the ODBC DSN "tstdsn-a" to connect up to a
-# HyperSQL server.  Just configure your own DSN to use the HyperSQL ODBC
-# driver, specifying the HyperSQL server host name, database name, user,
-# password, etc.
+# Test BLOB transactions through the ODBC driver.
+# Can't perform these tests with our Java unit tests, since Sun's jdbc:odbc
+# driver does not support BLOB or CLOB type.
 
 # N.b. there is some dependency or bug which requires pyodbc to use the
 # ANSI variant of the HyperSQL ODBC Driver.  Using the normal Unicode
@@ -21,10 +18,6 @@
 
 import pyodbc
 
-# Get a connection handle.
-# In addition to the DSN name, you can override or supply additional DSN
-# settings, such as "Uid" and "Pwd"; or define the DSN from scratch, starting
-# with Driver.  These settings are delimited with "; ".  See pyodbc docs.
 conn = pyodbc.connect("DSN=tstdsn-a")
 try:
     conn.autocommit = 0
