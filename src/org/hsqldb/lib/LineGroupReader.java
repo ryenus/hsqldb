@@ -34,12 +34,23 @@ package org.hsqldb.lib;
 import java.io.IOException;
 import java.io.LineNumberReader;
 
+import org.hsqldb.store.ValuePool;
+
+/**
+ * Uses a LineNumberReader and returns multiple consecutive lines which conform
+ * to the specified group demarcation characteristics.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class LineGroupReader {
 
     private final static String[] defaultContinuations = new String[] {
         " ", "*"
     };
     private final static String[] defaultIgnoredStarts = new String[]{ "--" };
+    static final String LS = System.getProperty("line.separator", "\n");
 
     //
     LineNumberReader reader;
@@ -54,13 +65,13 @@ public class LineGroupReader {
 
     /**
      * Default constructor for TestUtil usage.
-     * Sections start at any non-space character.
+     * Sections start at lines beginning with any non-space character.
      * SQL comment lines are ignored.
      */
     public LineGroupReader(LineNumberReader reader) {
 
         this.sectionContinuations = defaultContinuations;
-        this.sectionStarts        = null;
+        this.sectionStarts        = ValuePool.emptyStringArray;
         this.ignoredStarts        = defaultIgnoredStarts;
         this.reader               = reader;
 
@@ -69,11 +80,14 @@ public class LineGroupReader {
         } catch (Exception e) {}
     }
 
+    /**
+     * Constructor for sections starting with specified strings.
+     */
     public LineGroupReader(LineNumberReader reader, String[] sectionStarts) {
 
         this.sectionStarts        = sectionStarts;
-        this.sectionContinuations = null;
-        this.ignoredStarts        = null;
+        this.sectionContinuations = ValuePool.emptyStringArray;
+        this.ignoredStarts        = ValuePool.emptyStringArray;
         this.reader               = reader;
 
         try {
@@ -126,9 +140,33 @@ public class LineGroupReader {
         }
     }
 
+    /**
+     * Returns a map/list which contains the first line of each line group
+     * as key and the rest of the lines as a String value.
+     */
+    public HashMappedList getAsMap() throws IOException {
+
+        HashMappedList map = new HashMappedList();
+
+        while (true) {
+            HsqlArrayList list = getSection();
+
+            if (list.size() < 1) {
+                break;
+            }
+
+            String key   = (String) list.get(0);
+            String value = LineGroupReader.convertToString(list, 1);
+
+            map.put(key, value);
+        }
+
+        return map;
+    }
+
     private boolean isNewSectionLine(String line) {
 
-        if (sectionStarts == null) {
+        if (sectionStarts.length == 0) {
             for (int i = 0; i < sectionContinuations.length; i++) {
                 if (line.startsWith(sectionContinuations[i])) {
                     return false;
@@ -160,5 +198,16 @@ public class LineGroupReader {
 
     public int getStartLineNumber() {
         return startLineNumber;
+    }
+
+    public static String convertToString(HsqlArrayList list, int offset) {
+
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = offset; i < list.size(); i++) {
+            sb.append(list.get(i)).append(LS);
+        }
+
+        return sb.toString();
     }
 }
