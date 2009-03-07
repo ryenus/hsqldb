@@ -35,11 +35,11 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.scriptio.ScriptWriterBase;
-import org.hsqldb.types.Type;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.types.Type;
 
 /**
  * Parser for session and management statements
@@ -160,9 +160,9 @@ public class ParserCommand extends ParserDDL {
 
             // PROCEDURE
             case Tokens.CALL : {
-                cs = readCallStatement(RangeVariable.emptyArray, false);
+                cs = readCallStatement(
+                    session.sessionContext.sessionVariablesRange, false);
 
-//                    cs.setSQL(getLastPart(getParsePosition()));
                 break;
             }
 
@@ -243,6 +243,10 @@ public class ParserCommand extends ParserDDL {
                 cs = compileExplainPlan();
                 break;
 
+            case Tokens.DECLARE :
+                cs = compileSessionVariableDeclaration();
+                break;
+
             default :
                 throw unexpectedToken();
         }
@@ -252,6 +256,17 @@ public class ParserCommand extends ParserDDL {
         if (token.tokenType == Tokens.SEMICOLON) {
             read();
         } else if (token.tokenType == Tokens.X_ENDPARSE) {}
+
+        return cs;
+    }
+
+    private Statement compileSessionVariableDeclaration()
+    throws HsqlException {
+
+        ColumnSchema variable = readLocalVariableDeclarationOrNull();
+        Object[]     args     = new Object[]{ variable };
+        Statement cs = new StatementCommand(StatementTypes.DECLARE_VARIABLE,
+                                            args);
 
         return cs;
     }
@@ -306,6 +321,8 @@ public class ParserCommand extends ParserDDL {
     }
 
     private Statement compileSet() throws HsqlException {
+
+        int position = super.getPosition();
 
         session.setScripting(false);
         read();
@@ -429,6 +446,7 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(StatementTypes.SET_TRANSACTION,
                                             args);
             }
+
             // deprecated
             case Tokens.READONLY : {
                 read();
@@ -617,6 +635,7 @@ public class ParserCommand extends ParserDDL {
                         return new StatementCommand(
                             StatementTypes.SET_TABLE_READONLY, args);
                     }
+
                     // deprecated
                     case Tokens.READONLY : {
                         read();
@@ -795,7 +814,10 @@ public class ParserCommand extends ParserDDL {
                                             args);
             }
             default : {
-                throw unexpectedToken();
+                rewind(position);
+
+                return compileSetStatement(
+                    session.sessionContext.sessionVariablesRange);
             }
         }
     }

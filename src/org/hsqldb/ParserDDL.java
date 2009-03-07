@@ -56,15 +56,14 @@ import org.hsqldb.types.UserTypeModifier;
  */
 public class ParserDDL extends ParserRoutine {
 
-    final static int[]   schemaCommands     = new int[] {
+    final static int[]   schemaCommands           = new int[] {
         Tokens.CREATE, Tokens.GRANT
     };
-    final static short[] endStatementTokens = new short[] {
-        Tokens.X_ENDPARSE, Tokens.SEMICOLON, Tokens.CREATE, Tokens.GRANT,
-        Tokens.ALTER, Tokens.DROP
+    final static short[] endStatementTokens       = new short[] {
+        Tokens.CREATE, Tokens.GRANT, Tokens.ALTER, Tokens.DROP
     };
     final static short[] endStatementTokensSchema = new short[] {
-        Tokens.X_ENDPARSE, Tokens.SEMICOLON, Tokens.CREATE, Tokens.GRANT,
+        Tokens.CREATE, Tokens.GRANT,
     };
 
     ParserDDL(Session session, Scanner scanner) {
@@ -2320,8 +2319,10 @@ public class ParserDDL extends ParserRoutine {
         int[]          columnMap;
         OrderedHashSet colNames = new OrderedHashSet();
         HsqlArrayList  exprList = new HsqlArrayList();
+        RangeVariable[] targetRangeVars = new RangeVariable[]{
+            rangeVars[TriggerDef.NEW_ROW] };
 
-        readSetClauseList(rangeVars[TriggerDef.NEW_ROW], colNames, exprList);
+        readSetClauseList(targetRangeVars, colNames, exprList);
 
         columnMap         = table.getColumnIndexes(colNames);
         updateExpressions = new Expression[exprList.size()];
@@ -3024,7 +3025,6 @@ public class ParserDDL extends ParserRoutine {
         int    position;
         String sql;
         int    statementType;
-        int    objectType;
 
         for (boolean end = false; !end; ) {
             StatementSchema cs = null;
@@ -3039,12 +3039,17 @@ public class ParserDDL extends ParserRoutine {
                     switch (token.tokenType) {
 
                         // not in schema definition
-                        case Tokens.ALIAS :
                         case Tokens.SCHEMA :
                         case Tokens.USER :
                         case Tokens.UNIQUE :
-                        case Tokens.INDEX :
                             throw unexpectedToken();
+                        case Tokens.INDEX :
+                            statementType = StatementTypes.CREATE_INDEX;
+                            sql = getStatement(position,
+                                               endStatementTokensSchema);
+                            cs = new StatementSchema(sql, statementType, null);
+                            break;
+
                         case Tokens.SEQUENCE :
                             cs     = compileCreateSequence();
                             cs.sql = getLastPart(position);
@@ -3097,6 +3102,20 @@ public class ParserDDL extends ParserRoutine {
 
                         case Tokens.VIEW :
                             statementType = StatementTypes.CREATE_VIEW;
+                            sql = getStatement(position,
+                                               endStatementTokensSchema);
+                            cs = new StatementSchema(sql, statementType, null);
+                            break;
+
+                        case Tokens.FUNCTION :
+                            statementType = StatementTypes.CREATE_ROUTINE;
+                            sql = getStatement(position,
+                                               endStatementTokensSchema);
+                            cs = new StatementSchema(sql, statementType, null);
+                            break;
+
+                        case Tokens.PROCEDURE :
+                            statementType = StatementTypes.CREATE_ROUTINE;
                             sql = getStatement(position,
                                                endStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);

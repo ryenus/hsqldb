@@ -1665,6 +1665,16 @@ public class Table extends TableBase implements SchemaObject {
         return cols;
     }
 
+    int[] getColumnIndexes(HashMappedList list) throws HsqlException {
+
+        int[] cols = new int[list.size()];
+
+        for (int i = 0; i < cols.length; i++) {
+            cols[i] = ((Integer) list.get(i)).intValue();
+        }
+
+        return cols;
+    }
     /**
      *  Returns the Column object at the given index
      */

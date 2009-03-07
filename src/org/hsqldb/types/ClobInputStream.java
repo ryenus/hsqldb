@@ -57,8 +57,7 @@ public final class ClobInputStream extends Reader {
 
     public ClobInputStream(ClobData clob, long offset, long length) {
 
-        if (offset < 0 || length < 0 || offset >= clob.length()
-                || offset + length > clob.length()) {
+        if (!isInLimits(clob.length(), offset, length)) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -91,6 +90,8 @@ public final class ClobInputStream extends Reader {
     }
 
     public int read(char[] cbuf, int off, int len) throws IOException {
+
+        checkClosed();
 
         if (currentPosition + len >= availableLength) {
             return -1;
@@ -126,10 +127,11 @@ public final class ClobInputStream extends Reader {
         isClosed = true;
     }
 
-    private void checkClosed() throws HsqlException {
+    private void checkClosed() throws IOException {
 
         if (isClosed || clob.isClosed()) {
-            throw Error.error(ErrorCode.BLOB_STREAM_IS_CLOSED);
+            throw new IOException(
+                Error.getMessage(ErrorCode.BLOB_STREAM_IS_CLOSED));
         }
     }
 
@@ -145,5 +147,9 @@ public final class ClobInputStream extends Reader {
 
         buffer       = clob.getChars(currentPosition, (int) readLength);
         bufferOffset = currentPosition;
+    }
+
+    static boolean isInLimits(long fullLength, long pos, long len) {
+        return pos >= 0 && len >= 0 && pos + len <= fullLength;
     }
 }

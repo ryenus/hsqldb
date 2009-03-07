@@ -420,10 +420,6 @@ public interface ErrorCode {
     int X_2F004 = 4604;                           // SQL routine exception: reading SQL-data not permitted
     int X_2F005 = 4605;                           // SQL routine exception: function did not execute return statement
 
-    // HSQLDB SQL routine exceptions
-    int X_2F501 = 4611;                           // SQL routine exception: incompatible declaration attributes
-    int X_2F502 = 4612;                           // SQL routine exception: routine signature already exists
-
     // invalid collation name
     int X_2H000 = 4650;                           // invalid collation name
 
@@ -575,10 +571,13 @@ public interface ErrorCode {
     int X_42597 = 5597;                           // number out of the valid range for sequence generator
     int X_42598 = 5598;                           // sequence expression cannot be specified in this context
 
-    // HSQLDB - PSM definition and calls
+    // HSQLDB - PSM definition
     int X_42601 = 5601;                           // repeat handler declaration
-    int X_42602 = 5602;                           // invalid statement
+    int X_42602 = 5602;                           // invalid statement in routine
     int X_42603 = 5603;                           // dynamic parameter or variable required as INOUT or OUT argument
+    int X_42604 = 5604;                           // incompatible declaration attributes
+    int X_42605 = 5605;                           // routine signature already exists
+    int X_42606 = 5606;                           // routine variable name already exists
 
     // with check option violation - 200x
     int X_44000 = 5700;                           // with check option violation

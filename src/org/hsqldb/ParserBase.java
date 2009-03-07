@@ -149,9 +149,25 @@ public class ParserBase {
     String getStatement(int startPosition,
                         short[] startTokens) throws HsqlException {
 
+        int semiPosition = 0;
+
         while (true) {
-            if (ArrayUtil.find(startTokens, token.tokenType) != -1) {
-                break;
+            if (token.tokenType == Tokens.SEMICOLON) {
+                semiPosition = scanner.getPosition();
+            } else if (token.tokenType == Tokens.X_ENDPARSE) {
+                if (semiPosition == 0) {
+                    break;
+                } else {
+                    rewind(semiPosition);
+
+                    break;
+                }
+            } else {
+                semiPosition = 0;
+
+                if (ArrayUtil.find(startTokens, token.tokenType) != -1) {
+                    break;
+                }
             }
 
             read();
@@ -492,8 +508,8 @@ public class ParserBase {
 
                 read();
 
-                TimeData value = scanner.newTime(s);
-                Type     dataType  = scanner.dateTimeType;
+                TimeData value    = scanner.newTime(s);
+                Type     dataType = scanner.dateTimeType;
 
                 return new ExpressionValue(value, dataType);
             }
@@ -509,7 +525,7 @@ public class ParserBase {
 
                 read();
 
-                Object date = scanner.newTimestamp(s);
+                Object date     = scanner.newTimestamp(s);
                 Type   dataType = scanner.dateTimeType;
 
                 return new ExpressionValue(date, dataType);
@@ -536,7 +552,7 @@ public class ParserBase {
 
                 read();
 
-                IntervalType dataType     = readIntervalType();
+                IntervalType dataType = readIntervalType();
                 Object       interval = scanner.newInterval(s, dataType);
 
                 dataType = (IntervalType) scanner.dateTimeType;
@@ -678,10 +694,19 @@ public class ParserBase {
             });
         }
 
-        String tokenS = token.namePrePrefix != null ? token.namePrePrefix
-                                                    : token.namePrefix != null
-                                                      ? token.namePrefix
-                                                      : token.tokenString;
+        String tokenS;
+
+        if (token.charsetSchema != null) {
+            tokenS = token.charsetSchema;
+        } else if (token.charsetName != null) {
+            tokenS = token.charsetName;
+        } else if (token.namePrePrefix != null) {
+            tokenS = token.namePrePrefix;
+        } else if (token.namePrefix != null) {
+            tokenS = token.namePrefix;
+        } else {
+            tokenS = token.tokenString;
+        }
 
         return Error.error(ErrorCode.X_42581, ErrorCode.TOKEN_REQUIRED,
                            new Object[] {
@@ -695,20 +720,34 @@ public class ParserBase {
             return Error.error(ErrorCode.X_42590);
         }
 
-        String tokenS = token.namePrePrefix != null ? token.namePrePrefix
-                                                    : token.namePrefix != null
-                                                      ? token.namePrefix
-                                                      : token.tokenString;
+        String tokenS;
+
+        if (token.charsetSchema != null) {
+            tokenS = token.charsetSchema;
+        } else if (token.charsetName != null) {
+            tokenS = token.charsetName;
+        } else if (token.namePrePrefix != null) {
+            tokenS = token.namePrePrefix;
+        } else if (token.namePrefix != null) {
+            tokenS = token.namePrefix;
+        } else {
+            tokenS = token.tokenString;
+        }
 
         return Error.error(ErrorCode.X_42581, tokenS);
     }
 
     HsqlException tooManyIdentifiers() {
 
-        String tokenS = token.namePrePrefix != null ? token.namePrePrefix
-                                                    : token.namePrefix != null
-                                                      ? token.namePrefix
-                                                      : token.tokenString;
+        String tokenS;
+
+        if (token.namePrePrefix != null) {
+            tokenS = token.namePrePrefix;
+        } else if (token.namePrefix != null) {
+            tokenS = token.namePrefix;
+        } else {
+            tokenS = token.tokenString;
+        }
 
         return Error.error(ErrorCode.X_42551, tokenS);
     }

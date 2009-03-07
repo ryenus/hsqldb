@@ -183,6 +183,7 @@ public interface StatementTypes {
     int SET_TABLE_SOURCE                   = 1046;
     int SET_TABLE_TYPE                     = 1048;
     int SHUTDOWN                           = 1050;
+    int DECLARE_VARIABLE                   = 1052;
 
     // hsqldb sql
     int CREATE_USER        = 1071;

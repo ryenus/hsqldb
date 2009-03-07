@@ -331,15 +331,8 @@ public class SessionData {
                     lobs.put(resultLobId, blobId);
                 }
 
-                // temp code makes memory lob
-                BlobData blobData = new BinaryData(result.getBlockLength(),
-                                                   dataInput);
-
-                ((BlobDataID) blob).setLength(blobData.length());
-
-                blob = database.lobManager.getBlobData(blobId);
-
-                blob.setBytes(0, blobData.getBytes());
+                database.lobManager.setBytes(session, blobId, 0, dataInput,
+                                             result.getBlockLength());
 
                 break;
             }
@@ -358,16 +351,8 @@ public class SessionData {
                     lobs.put(resultLobId, clobId);
                 }
 
-                // temp code makes memory lob
-                ClobData clobData = new ClobDataMemory(result.getBlockLength(),
-                                                       dataInput);
-
-                ((ClobDataID) clob).setLength(clobData.length());
-
-                clob = database.lobManager.getClobData(clobId);
-
-                clob.setString(0, clobData.getSubString(0L,
-                        (int) clobData.length()));
+                database.lobManager.setChars(session, clobId, 0, dataInput,
+                                             result.getBlockLength());
 
                 break;
             }

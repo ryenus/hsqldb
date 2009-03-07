@@ -369,24 +369,24 @@ public class Routine implements SchemaObject {
 
         if (this.routineType == SchemaObject.PROCEDURE && isNewSavepointLevel
                 && dataImpact != MODIFIES_SQL) {
-            throw Error.error(ErrorCode.X_2F501);
+            throw Error.error(ErrorCode.X_42604);
         }
 
         setLanguage(language);
 
         if (language == Routine.LANGUAGE_SQL) {
             if (dataImpact == NO_SQL) {
-                throw Error.error(ErrorCode.X_2F501);
+                throw Error.error(ErrorCode.X_42604);
             }
 
             if (parameterStyle == PARAM_STYLE_JAVA) {
-                throw Error.error(ErrorCode.X_2F501);
+                throw Error.error(ErrorCode.X_42604);
             }
         }
 
         if (language == Routine.LANGUAGE_SQL) {
             if (parameterStyle != 0 && parameterStyle != PARAM_STYLE_SQL) {
-                throw Error.error(ErrorCode.X_2F501);
+                throw Error.error(ErrorCode.X_42604);
             }
         }
 

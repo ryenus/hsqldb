@@ -51,7 +51,13 @@ import org.hsqldb.store.ValuePool;
  */
 public class SessionContext {
 
-    Session               session;
+    Session session;
+
+    //
+    HashMappedList  sessionVariables;
+    RangeVariable[] sessionVariablesRange;
+
+    //
     private HsqlArrayList stack;
     public Object[]       routineArguments = ValuePool.emptyObjectArray;
     public Object[]       routineVariables = ValuePool.emptyObjectArray;
@@ -90,6 +96,7 @@ public class SessionContext {
 
     //
     StatementResultUpdate rowUpdateStatement = new StatementResultUpdate();
+
     /**
      * Creates a new instance of CompiledStatementExecutor.
      *
@@ -97,11 +104,14 @@ public class SessionContext {
      */
     SessionContext(Session session) {
 
-        this.session        = session;
-        rangeIterators      = new RangeIterator[4];
-        subqueryPopSet      = new HashSet();
-        savepoints          = new HashMappedList(4);
-        savepointTimestamps = new LongDeque();
+        this.session             = session;
+        rangeIterators           = new RangeIterator[4];
+        subqueryPopSet           = new HashSet();
+        savepoints               = new HashMappedList(4);
+        savepointTimestamps      = new LongDeque();
+        sessionVariables         = new HashMappedList();
+        sessionVariablesRange    = new RangeVariable[1];
+        sessionVariablesRange[0] = new RangeVariable(sessionVariables, true);
     }
 
     public void push() {
@@ -243,5 +253,20 @@ public class SessionContext {
         }
 
         updatedIterators.add(it);
+    }
+
+    public void addSessionVariable(ColumnSchema variable)
+    throws HsqlException {
+
+        int index = sessionVariables.size();
+
+        sessionVariables.add(variable.getName().name, variable);
+
+        Object[] vars = new Object[sessionVariables.size()];
+
+        ArrayUtil.copyArray(routineVariables, vars, routineVariables.length);
+
+        routineVariables        = vars;
+        routineVariables[index] = variable.getDefaultValue(session);
     }
 }

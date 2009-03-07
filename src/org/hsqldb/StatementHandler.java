@@ -81,7 +81,7 @@ public class StatementHandler extends Statement {
         result &= conditionGroups.isEmpty();
 
         if (!result) {
-            throw Error.error(ErrorCode.X_2F501);
+            throw Error.error(ErrorCode.X_42604);
         }
     }
 
@@ -92,7 +92,7 @@ public class StatementHandler extends Statement {
         result &= conditionStates.isEmpty();
 
         if (!result) {
-            throw Error.error(ErrorCode.X_2F501);
+            throw Error.error(ErrorCode.X_42604);
         }
     }
 

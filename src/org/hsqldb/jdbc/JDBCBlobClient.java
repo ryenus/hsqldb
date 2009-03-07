@@ -42,10 +42,9 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobData;
-import org.hsqldb.types.BlobInputStream;
 
 /**
- * A wrapper for HSQLDB BlobData objecsts.
+ * A wrapper for HSQLDB BlobData objects.
  *
  * Instances of this class are returnd by calls to ResultSet methods.
  *
@@ -112,12 +111,8 @@ public class JDBCBlobClient implements Blob {
      *   <code>BLOB</code> value
      */
     public InputStream getBinaryStream() throws SQLException {
-
-        try {
-            return new BlobInputStream(blob, 0, length());
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
-        }
+        return new BlobInputStream(this, 0, length(),
+                                   blob.getStreamBlockSize());
     }
 
     /**
@@ -136,7 +131,7 @@ public class JDBCBlobClient implements Blob {
 
         try {
             ResultLob resultOut =
-                ResultLob.newLobGetPatternPositionRequest(blob.getId(),
+                ResultLob.newLobGetBytePatternPositionRequest(blob.getId(),
                     pattern, start - 1);
             ResultLob resultIn = (ResultLob) session.execute(resultOut);
 
@@ -253,7 +248,17 @@ public class JDBCBlobClient implements Blob {
      *   <code>BLOB</code> value
      */
     public void truncate(long len) throws SQLException {
-        throw Util.notSupported();
+        ResultLob resultOut = ResultLob.newLobTruncateRequest(blob.getId(), len);
+
+        try {
+            Result resultIn = session.execute(resultOut);
+
+            if (resultIn.isError()) {
+                throw Util.sqlException(resultIn);
+            }
+        } catch (HsqlException e) {
+            throw Util.sqlException(e);
+        }
     }
 
     /**
@@ -274,7 +279,7 @@ public class JDBCBlobClient implements Blob {
      * @since JDK 1.6, HSQLDB 1.9.0
      */
     public void free() throws SQLException {
-        blob.free();
+        isClosed = true;
     }
 
     /**
@@ -295,21 +300,22 @@ public class JDBCBlobClient implements Blob {
      */
     public InputStream getBinaryStream(long pos,
                                        long length) throws SQLException {
-
-        try {
-            return new BlobInputStream(blob, pos - 1, length);
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
-        }
+        return new BlobInputStream(this, pos - 1, length,
+                                   blob.getStreamBlockSize());
     }
 
     //--
     BlobData         blob;
     SessionInterface session;
+    boolean          isClosed;
 
     JDBCBlobClient(SessionInterface session, BlobData blob) {
         this.session = session;
         this.blob    = blob;
+    }
+
+    public boolean isClosed() {
+        return isClosed;
     }
 
     static boolean isInLimits(long fullLength, long pos, long len) {
