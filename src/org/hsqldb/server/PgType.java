@@ -187,8 +187,7 @@ public class PgType {
                     "Driver doesn't support type 'CLOB' yet");
 
             case Types.SQL_BLOB: // = BINARY LARGE OBJECT
-                throw new RecoverableOdbcFailure (
-                    "Driver doesn't support type 'BLOB' yet");
+                return new PgType(hType, TYPE_BLOB, null, hType.precision);
             case Types.SQL_BINARY:
             case Types.SQL_VARBINARY: // = BINARY VARYING
                 return new PgType(hType, TYPE_BYTEA, null, hType.precision);
