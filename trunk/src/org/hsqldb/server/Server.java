@@ -1750,7 +1750,7 @@ public class Server implements HsqlSocketRequestHandler {
 
             return i;
         } catch (HsqlException e) {
-            printError("Database [index=" + i + " db=" + dbType[i] + dbPath[i]
+            printError("Database [index=" + i + ", db=" + dbType[i] + dbPath[i]
                        + ", alias=" + dbAlias[i] + "] did not open: "
                        + e.toString());
             setServerError(e);
@@ -1804,7 +1804,7 @@ public class Server implements HsqlSocketRequestHandler {
                 dbID[i] = id;
                 success = true;
             } catch (HsqlException e) {
-                printError("Database [index=" + i + "db=" + dbType[i]
+                printError("Database [index=" + i + ", db=" + dbType[i]
                            + dbPath[i] + ", alias=" + dbAlias[i]
                            + "] did not open: " + e.toString());
                 setServerError(e);
@@ -1819,7 +1819,7 @@ public class Server implements HsqlSocketRequestHandler {
 
             sw.stop();
 
-            String msg = "Database [index=" + i + ", id=" + id + ", " + "db="
+            String msg = "Database [index=" + i + ", id=" + id + ", db="
                          + dbType[i] + dbPath[i] + ", alias=" + dbAlias[i]
                          + "] opened sucessfully";
 
