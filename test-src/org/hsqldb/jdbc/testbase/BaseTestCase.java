@@ -62,6 +62,7 @@ import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
+import org.hsqldb.resources.BundleHandler;
 
 /**
  * Abstract JDBC-focused Junit test case. <p>
@@ -71,25 +72,29 @@ import org.hsqldb.lib.Set;
  * @since 1.7.2
  */
 public abstract class BaseTestCase extends TestCase {
-    
+
+    //
+    public static final int testBundleHandle;
+    public static final int testConvertBundleHandle;
+
     // static fields
-    
+
     public static final String DEFAULT_DRIVER   = "org.hsqldb.jdbcDriver";
     public static final String DEFAULT_URL      = "jdbc:hsqldb:mem:testcase";
     public static final String DEFAULT_USER     = "SA";
     public static final String DEFAULT_PASSWORD = "";
-    
+
     // We need a way of confirming compliance with
     // Tables B5 and B6 of JDBC 4.0 spec., outlining
     // the minimum conversions to be supported
     // by JDBC getXXX and setObject methods.
-    
+
     private static final HashMap               jdbcGetXXXMap;
     private static final IntKeyHashMap         jdbcInverseGetXXXMap;
     private static final HashMap               jdbcSetObjectMap;
     private static final IntKeyHashMap         jdbcInverseSetObjectMap;
     private static final IntKeyIntValueHashMap dataTypeMap;
-    
+
     private static final int[] tableB5AndB6ColumnDataTypes = new int[] {
         java.sql.Types.TINYINT, // ........................................... 0
         java.sql.Types.SMALLINT,
@@ -126,7 +131,7 @@ public abstract class BaseTestCase extends TestCase {
         java.sql.Types.SQLXML,
         java.sql.Types.OTHER
     };
-    
+
     private static final String[] typeNames = new String[] {
         "TINYINT", // ........................................................ 0
         "SMALLINT",
@@ -163,12 +168,12 @@ public abstract class BaseTestCase extends TestCase {
         "SQLXML",
         "OTHER"
     };
-    
+
     private static final int typeCount = tableB5AndB6ColumnDataTypes.length;
-    
+
     // JDBC 4.0, Table B6, Use of ResultSet getter Methods to Retrieve
     // JDBC Data Types
-    
+
     // NOTE: Spec is missing for Types.OTHER
     //       We store Serializable, so we should support getXXX where XXX is
     //       serializable or the underlying data is a character or octet
@@ -212,10 +217,10 @@ public abstract class BaseTestCase extends TestCase {
         {"getRowId",           "0000000000000000000000000001000000"},
         {"getSQLXML",          "0000000000000000000000000000000010"}
     };
-    
+
     // JDBC 4.0, Table B5, Conversions Performed by setObject Between
     // Java Object Types and Target JDBC Types
-    
+
     // NOTE:     Spec is missing for Types.OTHER
     //           We store Serializable, so we should support setObject where
     //           object is serializable or the underlying data is a character
@@ -253,76 +258,79 @@ public abstract class BaseTestCase extends TestCase {
         {java.sql.NClob.class,     "0000000000000000000000000000000101"},
         {java.sql.SQLXML.class,    "0000000000000000000000000000000010"}
     };
-    
+
     static {
+        testBundleHandle        = BundleHandler.getBundleHandle("test", null);
+        testConvertBundleHandle = BundleHandler.getBundleHandle("test-dbmd-convert", null);
+        //
         jdbcGetXXXMap           = new HashMap();
         jdbcInverseGetXXXMap    = new IntKeyHashMap();
         jdbcSetObjectMap        = new HashMap();
         jdbcInverseSetObjectMap = new IntKeyHashMap();
         dataTypeMap             = new IntKeyIntValueHashMap();
-        
+
         for (int i = 0; i < typeCount; i++) {
             dataTypeMap.put(tableB5AndB6ColumnDataTypes[i], i);
         }
-        
+
         for (int i = (requiredGetXXX.length - 1); i >= 0; i--) {
-            
+
             Object   key         = requiredGetXXX[i][0];
             String   bits        = requiredGetXXX[i][1];
             String[] requiredGet = new String[typeCount];
-            
+
             jdbcGetXXXMap.put(key, requiredGet);
-            
+
             for (int j = (typeCount - 1); j >= 0; j--) {
-                
+
                 if (bits.charAt(j) == '1') {
-                    
+
                     requiredGet[j] = typeNames[j];
-                    
+
                     int dataType = tableB5AndB6ColumnDataTypes[j];
                     Set set      = (Set) jdbcInverseGetXXXMap.get(dataType);
-                    
+
                     if (set == null) {
                         set = new HashSet();
-                        
+
                         jdbcInverseGetXXXMap.put(dataType, set);
                     }
-                    
+
                     set.add(key);
                 }
             }
         }
-        
+
         for (int i = requiredSetObject.length - 1; i >= 0; i--) {
-            
+
             Object   key         = requiredSetObject[i][0];
             String   bits        = (String) requiredSetObject[i][1];
             String[] requiredSet = new String[typeCount];
-            
+
             jdbcSetObjectMap.put(key, requiredSet);
-            
+
             for (int j = (typeCount - 1); j >= 0; j--) {
                 if (bits.charAt(j) == '1') {
-                    
+
                     requiredSet[j] = typeNames[j];
-                    
+
                     int dataType = tableB5AndB6ColumnDataTypes[j];
                     Set set      = (Set) jdbcInverseSetObjectMap.get(dataType);
-                    
+
                     if (set == null) {
                         set = new HashSet();
-                        
+
                         jdbcInverseSetObjectMap.put(dataType, set);
                     }
-                    
+
                     set.add(key);
                 }
             }
         }
     }
-    
+
     private ConnectionFactory m_connectionFactory;
-    
+
     /**
      * Retrieves whether a JDBC 4 compliant driver implementation is required
      * to support the given getter method for result columns with the given
@@ -337,10 +345,10 @@ public abstract class BaseTestCase extends TestCase {
     protected static boolean isRequiredGetXXX(String methodName, int dataType) {
         String[] requiredGet = (String[]) jdbcGetXXXMap.get(methodName);
         int      pos         = dataTypeMap.get(dataType, -1);
-        
+
         return (pos >= 0) && (requiredGet != null) && (requiredGet[pos] != null);
     }
-    
+
     /**
      * containing the names of the getter methods that a JDBC 4 compliant
      * driver implementation is required to support for result columns with
@@ -355,7 +363,7 @@ public abstract class BaseTestCase extends TestCase {
     protected static Set getRequiredGetXXX(int dataType) {
         return (Set) jdbcInverseGetXXXMap.get(dataType);
     }
-    
+
     /**
      * Retrieves whether a JDBC 4 compliant driver's PreparedStatement setObject
      * method is required to accept instances of the given class when the target
@@ -370,10 +378,10 @@ public abstract class BaseTestCase extends TestCase {
     protected static boolean isRequiredSetObject(Class clazz, int dataType) {
         String[] requiredSet = (String[]) jdbcSetObjectMap.get(clazz);
         int      pos         = dataTypeMap.get(dataType);
-        
+
         return (pos >= 0) && (requiredSet != null) && (requiredSet[pos] != null);
     }
-    
+
     /**
      * containing the fully qualified names of the classes whose instances a
      * JDBC 4 compliant driver's PreparedStatement setObject method is required
@@ -386,7 +394,7 @@ public abstract class BaseTestCase extends TestCase {
     protected static Set getRequiredSetObject(int dataType) {
         return (Set) jdbcInverseSetObjectMap.get(dataType);
     }
-    
+
     /**
      * Constructs a new JdbcTestCase.
      *
@@ -395,7 +403,7 @@ public abstract class BaseTestCase extends TestCase {
     public BaseTestCase(String name) {
         super(name);
     }
-    
+
     /**
      *
      * that produces, tracks and closes the JDBC
@@ -406,10 +414,10 @@ public abstract class BaseTestCase extends TestCase {
         if (m_connectionFactory == null) {
             m_connectionFactory = new ConnectionFactory();
         }
-        
+
         return m_connectionFactory;
     }
-    
+
     /**
      * Performs test setup.
      *
@@ -419,7 +427,7 @@ public abstract class BaseTestCase extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
     }
-    
+
     /**
      * Performs test teardown.
      *
@@ -427,12 +435,12 @@ public abstract class BaseTestCase extends TestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        
+
         connectionFactory().closeRegisteredObjects();
-        
+
         super.tearDown();
     }
-    
+
     /**
      * with the driver, url, user and password
      * specifed by the corresponding protected
@@ -443,17 +451,17 @@ public abstract class BaseTestCase extends TestCase {
      */
     protected Connection newConnection() throws Exception {
         final String driver = getDriver();
-        
+
         // not actually needed under JDBC4, as long as jar has META-INF service entry
         Class.forName(driver);
-        
+
         final String url      = getUrl();
         final String user     = getUser();
         final String password = getPassword();
-        
+
         return connectionFactory().newConnection(driver, url, user, password);
     }
-    
+
     /**
      * using the default connection.
      *
@@ -465,19 +473,19 @@ public abstract class BaseTestCase extends TestCase {
         ScriptIterator it   = new ScriptIterator(url);
         Connection     conn = newConnection();
         Statement      stmt = conn.createStatement();
-        
+
         while(it.hasNext()) {
             String sql = (String) it.next();
             //System.out.println("sql:");
             //System.out.println(sql);
             stmt.execute(sql);
         }
-        
+
         conn.commit();
         stmt.close();
         conn.close();
     }
-    
+
     /**
      * indicating the given object's component type. <p>
      *
@@ -506,22 +514,22 @@ public abstract class BaseTestCase extends TestCase {
      * @param o for which to produce the component descriptor.
      */
     protected static char getComponentDescriptor(Object o) {
-        
+
         if (o == null) {
             return 'X'; // the unknown value
         }
-        
+
         Class cls = o.getClass();
-        
+
         if (cls.isArray()) {
             Class comp = cls.getComponentType();
-            
+
             String className = cls.getName();
-            
+
             int count = 0;
-            
+
             for(;className.charAt(count) == '['; count++){}
-            
+
             if (count > 1) {
                 return 'N';
             } else if (comp.isPrimitive()) {
@@ -534,7 +542,7 @@ public abstract class BaseTestCase extends TestCase {
             return 'O';
         }
     }
-    
+
     /**
      * by computing a shallow string representation
      * of the given array. <p>
@@ -545,26 +553,26 @@ public abstract class BaseTestCase extends TestCase {
         if (array == null) {
             return "null";
         }
-        
+
         int length = Array.getLength(array);
-        
+
         StringBuffer sb = new StringBuffer(2 + 3*length);
-        
+
         sb.append('[');
-        
+
         for(int i = 0; i < length; i++) {
             if (i > 0) {
                 sb.append(',');
             }
-            
+
             sb.append(Array.get(array,i));
         }
-        
+
         sb.append(']');
-        
+
         return sb.toString();
     }
-    
+
     /**
      * for the given array objects.
      * @param expected array
@@ -579,7 +587,7 @@ public abstract class BaseTestCase extends TestCase {
                 + arrayToString(actual)
                 + ">";
     }
-    
+
     /**
      * with special handling for Java array objects.
      * @param expected object
@@ -588,7 +596,7 @@ public abstract class BaseTestCase extends TestCase {
      */
     protected static void assertJavaArrayEquals(
             Object expected, Object actual) throws Exception {
-        
+
         switch(getComponentDescriptor(expected)) {
             case 'X' : {
                 if (actual != null) {
@@ -671,9 +679,9 @@ public abstract class BaseTestCase extends TestCase {
                             "Array Length",
                             Array.getLength(expected),
                             Array.getLength(actual));
-                    
+
                     int len = Array.getLength(expected);
-                    
+
                     for (int i = 0; i < len; i++) {
                         assertJavaArrayEquals(
                                 Array.get(expected, i),
@@ -689,7 +697,7 @@ public abstract class BaseTestCase extends TestCase {
             }
         }
     }
-    
+
     /**
      * in terms of producing the same octet sequence. <p>
      * @param expected octet sequence, as an InputStream; must not be null
@@ -701,22 +709,22 @@ public abstract class BaseTestCase extends TestCase {
         if (expected == actual) {
             return;
         }
-        
+
         assertTrue("expected != null", expected != null);
         assertTrue("actual != null", actual != null);
-        
+
         int count = 0;
-        
+
         String sexp = expected.getClass().getName()
         + Integer.toHexString(System.identityHashCode(expected));
         String sact = actual.getClass().getName()
         + Integer.toHexString(System.identityHashCode(actual));
-        
+
         while (true) {
-            
+
             int expByte = expected.read();
             int actByte = actual.read();
-            
+
             // More efficient than generating the message for every
             // stream element.
             if (expByte != actByte) {
@@ -724,17 +732,17 @@ public abstract class BaseTestCase extends TestCase {
                         sact + "(" + count + ")";
                 assertEquals(msg, expByte, actByte);
             }
-            
+
             if (expByte == -1) {
                 // Assert that the actual stream is also at the end
                 assertEquals("End of expected stream", -1, actual.read());
                 break;
             }
-            
+
             count++;
         }
     }
-    
+
     /**
      * in terms of producing the same character sequence. <p>
      * @param expected reader; must not be null.
@@ -745,22 +753,22 @@ public abstract class BaseTestCase extends TestCase {
         if (expected == actual) {
             return;
         }
-        
+
         assertTrue("expected != null", expected != null);
         assertTrue("actual != null", actual != null);
-        
+
         int count = 0;
-        
+
         String sexp = expected.getClass().getName()
         + Integer.toHexString(System.identityHashCode(expected));
         String sact = actual.getClass().getName()
         + Integer.toHexString(System.identityHashCode(actual));
-        
+
         while (true) {
-            
+
             int expChar = expected.read();
             int actChar = actual.read();
-            
+
             // More efficient than generating the message for every
             // stream element.
             if (expChar != actChar) {
@@ -768,16 +776,16 @@ public abstract class BaseTestCase extends TestCase {
                         sact + "(" + count + ")";
                 assertEquals(msg, expChar, actChar);
             }
-            
+
             if (expChar == -1) {
                 assertEquals("End of expected sequence", -1, actual.read());
                 break;
             }
-            
+
             count++;
         }
     }
-    
+
     /**
      * in terms of column count and order-sensitive row content.
      *
@@ -789,42 +797,42 @@ public abstract class BaseTestCase extends TestCase {
         if (expected == actual) {
             return;
         }
-        
+
         assertTrue("expected != null", expected != null);
         assertTrue("actual != null", actual != null);
-        
+
         ResultSetMetaData expRsmd = expected.getMetaData();
         ResultSetMetaData actRsmd = actual.getMetaData();
-        
+
         assertEquals("expRsmd.getColumnCount() == actRsmd.getColumnCount()",
                 expRsmd.getColumnCount(),
                 actRsmd.getColumnCount());
-        
+
         int columnCount = actRsmd.getColumnCount();
         int rowCount    = 0;
-        
+
         while(expected.next()) {
             rowCount++;
-            
+
             assertTrue("actual.next() [row: " + rowCount + "]", actual.next());
-            
+
             for (int i = 1; i <= columnCount; i++) {
                 Object expObject = expected.getObject(i);
                 Object actObject = actual.getObject(i);
-                
+
                 if (expObject != null && expObject.getClass().isArray()) {
                     assertJavaArrayEquals(expObject, actObject);
                 } else if (expObject instanceof Blob) {
                     Blob expBlob = (Blob) expObject;
                     Blob actBlob = (Blob) actObject;
-                    
+
                     assertEquals("expBlob.length(), actBlob.length()", expBlob.length(), actBlob.length());
                     assertEquals("expBlob.position(actBlob, 1L), 1L", expBlob.position(actBlob, 1L), 1L);
-                    
+
                 } else if (expObject instanceof Clob) {
                     Clob expClob = (Clob) expObject;
                     Clob actClob = (Clob) actObject;
-                    
+
                     assertEquals("expClob.length(), actClob.length()", expClob.length(), actClob.length());
                     assertEquals("expClob.position(actClob, 1L), 1L", expClob.position(actClob, 1L), 1L);
                 } else {
@@ -834,7 +842,7 @@ public abstract class BaseTestCase extends TestCase {
             }
         }
     }
-    
+
     /**
      * by prepending the test suite property prefix.
      *
@@ -844,7 +852,7 @@ public abstract class BaseTestCase extends TestCase {
     protected String translatePropertyKey(final String key) {
         return "hsqldb.test.suite." + key;
     }
-    
+
     /**
      * for the given key.
      *
@@ -854,12 +862,20 @@ public abstract class BaseTestCase extends TestCase {
      */
     public String getProperty(final String key, final String defaultValue) {
         try {
-            return System.getProperty(translatePropertyKey(key), defaultValue);
+            String value = BundleHandler.getString(testBundleHandle, key);
+
+            if (value == null) {
+                value = BundleHandler.getString(testConvertBundleHandle, key);
+            }
+
+            return value == null ? defaultValue : value;
+
+//            return System.getProperty(translatePropertyKey(key), defaultValue);
         } catch(SecurityException se) {
             return defaultValue;
         }
     }
-    
+
     /**
      * for the given key.
      *
@@ -874,7 +890,7 @@ public abstract class BaseTestCase extends TestCase {
             return defaultValue;
         }
     }
-    
+
     /**
      * for the given key.
      *
@@ -885,7 +901,7 @@ public abstract class BaseTestCase extends TestCase {
     public boolean getBooleanProperty(final String key, final boolean defaultValue) {
         try {
             String value = getProperty(key, String.valueOf(defaultValue));
-            
+
             if (
                     value.equalsIgnoreCase("true")
                     || value.equalsIgnoreCase("on")
@@ -903,7 +919,7 @@ public abstract class BaseTestCase extends TestCase {
             return defaultValue;
         }
     }
-    
+
     /**
      * as defined in system properties.
      * @return defined value.
@@ -911,8 +927,8 @@ public abstract class BaseTestCase extends TestCase {
     public String getDriver() {
         return getProperty("driver", DEFAULT_DRIVER);
     }
-    
-    
+
+
     /**
      * as defined in system properties.
      * @return defined value.
@@ -920,8 +936,8 @@ public abstract class BaseTestCase extends TestCase {
     public String getUrl() {
         return getProperty("url", DEFAULT_URL);
     }
-    
-    
+
+
     /**
      * as defined in system properties.
      * @return defined value.
@@ -929,8 +945,8 @@ public abstract class BaseTestCase extends TestCase {
     public String getUser() {
         return getProperty("user", DEFAULT_USER);
     }
-    
-    
+
+
     /**
      * as defined in system properties.
      * @return defined value.
@@ -938,7 +954,7 @@ public abstract class BaseTestCase extends TestCase {
     public String getPassword() {
         return getProperty("password", DEFAULT_PASSWORD);
     }
-    
+
     /**
      * to standard output.
      * @param msg to print
@@ -946,7 +962,7 @@ public abstract class BaseTestCase extends TestCase {
     protected void print(Object msg) {
         System.out.print(msg);
     }
-    
+
     /**
      * to standard output.
      * @param msg to print
@@ -954,83 +970,83 @@ public abstract class BaseTestCase extends TestCase {
     protected void println(Object msg) {
         System.out.println(getClass().getName() + ":" + msg);
     }
-    
+
     /**
-     * 
-     * @param packageName 
-     * @throws java.io.IOException 
+     *
+     * @param packageName
+     * @throws java.io.IOException
      * @return fully expe
      */
     protected static String[] getResoucesInPackage(
             final String packageName) throws IOException {
-        
+
         String packagePath = packageName.replace('.','/');
-        
-        if (!packagePath.endsWith("/")) { 
+
+        if (!packagePath.endsWith("/")) {
             packagePath = packagePath + '/';
         }
-        
+
         //Enumeration resources = ClassLoader.getSystemResources(packagePath);
         Enumeration resources = BaseTestCase.class.getClassLoader().getResources(packagePath);
         OrderedHashSet set = new OrderedHashSet();
-        
+
         while (resources.hasMoreElements()) {
             URL resource = (URL)resources.nextElement();
             String protocol = resource.getProtocol();
-            
+
             if ("file".equals(protocol)) {
                 try {
                     File[] files = new File(
                             new URI(resource.toString()).getPath())
                             .listFiles();
-                    
+
                     if (files == null) {
                         continue;
                     }
-                    
+
                     for (int i = 0; i < files.length; i++) {
                         File file = files[i];
-                        
+
                         if (file.isDirectory()) {
                             continue;
                         }
-                        
+
                         set.add('/' + packagePath + file.getName());
                     }
-                    
+
                 } catch (Exception ex) {}
             } else  if ("jar".equals(protocol)) {
                 Enumeration entries = ((JarURLConnection)resource
                         .openConnection()).getJarFile().entries();
-                
+
                 while (entries.hasMoreElements()) {
                     JarEntry entry = (JarEntry)entries.nextElement();
                     String entryName = entry.getName();
-                    
+
                     if (entryName.equals(packagePath)) {
                         continue;
                     }
-                    
+
                     int slashPos = entryName.lastIndexOf('/');
-                    
+
                     String directoryPath = entryName.substring(0, slashPos + 1);
-                    
+
                     if (!directoryPath.equals(packagePath)) {
                         continue;
                     }
-                    
+
                     set.add(entryName);
                 }
             }
         }
-        
+
         String[] names = new String[set.size()];
-        
+
         set.toArray(names);
-        
+
         return names;
     }
-    
+
     /**
      * with which named public static int field is initialized.
      *
@@ -1039,27 +1055,27 @@ public abstract class BaseTestCase extends TestCase {
      * @return value with which field is initialized.
      */
     protected int getFieldValue(final String fieldName) throws Exception {
-        
+
         int fieldValue = fieldValueMap.get(fieldName, Integer.MIN_VALUE);
-        
+
         if (fieldValue > Integer.MIN_VALUE) {
             return fieldValue;
         }
-        
+
         final int    lastIndexofDot = fieldName.lastIndexOf('.');
         final String className = fieldName.substring(0, lastIndexofDot);
         final Class  clazz = Class.forName(className);
         final String bareFieldName = fieldName.substring(lastIndexofDot + 1);
-        
+
         fieldValue = clazz.getField(bareFieldName).getInt(null);
-        
+
         fieldValueMap.put(fieldName, fieldValue);
-        
+
         return fieldValue;
     }
 
     protected static final IntValueHashMap fieldValueMap = new IntValueHashMap();
-    
+
     protected static final String[][] rsconcurrency = new String[][]    {
         {"concur_read_only", "java.sql.ResultSet.CONCUR_READ_ONLY"},
         {"concur_updatable", "java.sql.ResultSet.CONCUR_UPDATABLE"}
