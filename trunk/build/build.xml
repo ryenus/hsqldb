@@ -367,7 +367,7 @@ examples:
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
                encoding="ISO-8859-1" srcdir="src"
-               includes="**/*.properties, **/*.text"/>
+               includes="**/*.properties, **/*.text, **/*.sql"/>
     </target>
 
    <target name="classes12" depends="classes" if="ant.java.iscjavamodern"
