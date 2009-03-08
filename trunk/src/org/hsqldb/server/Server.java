@@ -1750,7 +1750,7 @@ public class Server implements HsqlSocketRequestHandler {
 
             return i;
         } catch (HsqlException e) {
-            printError("Database [index=" + i + "db=" + dbType[i] + dbPath[i]
+            printError("Database [index=" + i + " db=" + dbType[i] + dbPath[i]
                        + ", alias=" + dbAlias[i] + "] did not open: "
                        + e.toString());
             setServerError(e);
