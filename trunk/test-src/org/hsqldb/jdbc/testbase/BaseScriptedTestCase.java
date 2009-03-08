@@ -123,7 +123,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
                 break;
             }
 
-            line = line.substring(0, StringUtil.rTrimSize(line));
+            line = line.substring(0, StringUtil.rightTrimSize(line));
 
             if ((line.length() == 0) || line.startsWith("--")) {
                 continue;
