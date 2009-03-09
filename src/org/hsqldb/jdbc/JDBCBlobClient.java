@@ -248,7 +248,9 @@ public class JDBCBlobClient implements Blob {
      *   <code>BLOB</code> value
      */
     public void truncate(long len) throws SQLException {
-        ResultLob resultOut = ResultLob.newLobTruncateRequest(blob.getId(), len);
+
+        ResultLob resultOut = ResultLob.newLobTruncateRequest(blob.getId(),
+            len);
 
         try {
             Result resultIn = session.execute(resultOut);

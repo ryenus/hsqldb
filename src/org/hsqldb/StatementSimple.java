@@ -34,7 +34,6 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.types.Type;
 import org.hsqldb.store.ValuePool;
 
 /**

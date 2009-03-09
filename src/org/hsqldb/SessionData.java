@@ -331,7 +331,7 @@ public class SessionData {
                     lobs.put(resultLobId, blobId);
                 }
 
-                database.lobManager.setBytes(session, blobId, 0, dataInput,
+                database.lobManager.setBytes(session, blobId, dataInput,
                                              result.getBlockLength());
 
                 break;

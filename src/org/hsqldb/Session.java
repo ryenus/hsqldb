@@ -98,7 +98,6 @@ import org.hsqldb.types.ClobData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.BlobDataID;
 
 /**
  * Implementation of SQL sessions.
@@ -1651,8 +1650,8 @@ public class Session implements SessionInterface {
                     this, id, cmd.getOffset(), (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
-                return database.lobManager.setBytes(this, id, cmd.getOffset(),
-                                                    cmd.getByteArray());
+                return database.lobManager.setBytes(this, id, cmd.getByteArray(), cmd.getOffset(),
+                                                    cmd.getByteArray().length);
             }
             case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
                 return database.lobManager.getChars(
