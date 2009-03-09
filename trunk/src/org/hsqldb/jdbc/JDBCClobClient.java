@@ -223,7 +223,8 @@ public class JDBCClobClient implements Clob {
     public int setString(long pos, String str, int offset,
                          int len) throws SQLException {
 
-        setChars(pos, str.substring(offset, len).toCharArray() );
+        setChars(pos, str.substring(offset, len).toCharArray());
+
         return len;
     }
 
@@ -237,7 +238,9 @@ public class JDBCClobClient implements Clob {
      *   <code>CLOB</code> value
      */
     public void truncate(long len) throws SQLException {
-        ResultLob resultOut = ResultLob.newLobTruncateRequest(clob.getId(), len);
+
+        ResultLob resultOut = ResultLob.newLobTruncateRequest(clob.getId(),
+            len);
 
         try {
             Result resultIn = session.execute(resultOut);
@@ -328,7 +331,7 @@ public class JDBCClobClient implements Clob {
     }
 
     public void setChars(final long position,
-                            char[] chars) throws SQLException {
+                         char[] chars) throws SQLException {
 
         if (!isInLimits(clob.length(), position - 1, 0)) {
             throw Util.outOfRangeArgument();
