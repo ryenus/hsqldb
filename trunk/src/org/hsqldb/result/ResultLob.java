@@ -63,9 +63,8 @@ public final class ResultLob extends Result {
         int REQUEST_CREATE_CHARS               = 8;
         int REQUEST_TRUNCATE                   = 9;
         int RESPONSE_GET_BYTES                 = 11;
-        int RESPONSE_SET_BYTES                 = 12;
+        int RESPONSE_SET                       = 12;
         int RESPONSE_GET_CHARS                 = 13;
-        int RESPONSE_SET_CHARS                 = 14;
         int RESPONSE_GET_BYTE_PATTERN_POSITION = 15;
         int RESPONSE_GET_CHAR_PATTERN_POSITION = 16;
         int RESPONSE_CREATE_BYTES              = 17;
@@ -179,21 +178,11 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobSetBytesResponse(long id) {
+    public static ResultLob newLobSetResponse(long id) {
 
         ResultLob result = new ResultLob();
 
-        result.subType = LobResultTypes.RESPONSE_SET_BYTES;
-        result.lobID   = id;
-
-        return result;
-    }
-
-    public static ResultLob newLobSetCharsResponse(long id) {
-
-        ResultLob result = new ResultLob();
-
-        result.subType = LobResultTypes.RESPONSE_SET_CHARS;
+        result.subType = LobResultTypes.RESPONSE_SET;
         result.lobID   = id;
 
         return result;
@@ -350,10 +339,9 @@ public final class ResultLob extends Result {
                 }
                 break;
 
-            case LobResultTypes.RESPONSE_SET_BYTES :
+            case LobResultTypes.RESPONSE_SET :
             case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_BYTES :
-            case LobResultTypes.RESPONSE_SET_CHARS :
             case LobResultTypes.RESPONSE_GET_CHAR_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_CHARS :
             case LobResultTypes.RESPONSE_TRUNCATE :
@@ -441,10 +429,9 @@ public final class ResultLob extends Result {
                 dataOut.writeChars(charBlock);
                 break;
 
-            case LobResultTypes.RESPONSE_SET_BYTES :
+            case LobResultTypes.RESPONSE_SET :
             case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_BYTES :
-            case LobResultTypes.RESPONSE_SET_CHARS :
             case LobResultTypes.RESPONSE_GET_CHAR_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_CHARS :
             case LobResultTypes.RESPONSE_TRUNCATE :

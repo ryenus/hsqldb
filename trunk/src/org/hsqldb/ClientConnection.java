@@ -47,9 +47,7 @@ import org.hsqldb.rowio.RowOutputBinaryNet;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.server.HsqlSocketFactory;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
-import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.TimestampData;
 
@@ -499,16 +497,16 @@ public class ClientConnection implements SessionInterface {
         return lobIDSequence++;
     }
 
-    public BlobData createBlob() {
+    public BlobDataID createBlob() {
 
-        BlobData blob = new BlobDataID(getLobId(), 0);
+        BlobDataID blob = new BlobDataID(getLobId(), 0);
 
         return blob;
     }
 
-    public ClobData createClob() {
+    public ClobDataID createClob() {
 
-        ClobData clob = new ClobDataID(getLobId(), 0);
+        ClobDataID clob = new ClobDataID(getLobId(), 0);
 
         return clob;
     }

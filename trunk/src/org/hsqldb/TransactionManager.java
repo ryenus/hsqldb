@@ -429,6 +429,16 @@ public class TransactionManager {
 
     public RowAction addDeleteAction(Session session, Table table, Row row) {
 
+        if (!table.isTransactional()) {
+            PersistentStore store = session.sessionData.getRowStore(table);
+
+            try {
+                table.delete(store, row);
+            } catch (Exception e) {}
+
+            return null;
+        }
+
         RowAction action;
 
         synchronized (row) {
@@ -446,6 +456,10 @@ public class TransactionManager {
     }
 
     public void addInsertAction(Session session, Table table, Row row) {
+
+        if (!table.isTransactional()) {
+            return;
+        }
 
         RowAction action = row.rowAction;
 

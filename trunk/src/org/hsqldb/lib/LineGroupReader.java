@@ -31,14 +31,14 @@
 
 package org.hsqldb.lib;
 
-import java.io.IOException;
 import java.io.LineNumberReader;
 
 import org.hsqldb.store.ValuePool;
 
 /**
  * Uses a LineNumberReader and returns multiple consecutive lines which conform
- * to the specified group demarcation characteristics.
+ * to the specified group demarcation characteristics. Any IOException
+ * thrown while reading from the reader is handled internally.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
@@ -95,7 +95,7 @@ public class LineGroupReader {
         } catch (Exception e) {}
     }
 
-    public HsqlArrayList getSection() throws IOException {
+    public HsqlArrayList getSection() {
 
         String        line;
         HsqlArrayList list = new HsqlArrayList();
@@ -109,7 +109,11 @@ public class LineGroupReader {
         while (true) {
             boolean newSection = false;
 
-            line = reader.readLine();
+            line = null;
+
+            try {
+                line = reader.readLine();
+            } catch (Exception e) {}
 
             if (line == null) {
                 nextStartLine = null;
@@ -144,7 +148,7 @@ public class LineGroupReader {
      * Returns a map/list which contains the first line of each line group
      * as key and the rest of the lines as a String value.
      */
-    public HashMappedList getAsMap() throws IOException {
+    public HashMappedList getAsMap() {
 
         HashMappedList map = new HashMappedList();
 

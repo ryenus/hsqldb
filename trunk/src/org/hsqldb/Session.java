@@ -93,8 +93,8 @@ import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.types.BlobData;
-import org.hsqldb.types.ClobData;
+import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
@@ -1621,12 +1621,14 @@ public class Session implements SessionInterface {
         return database.lobManager.getNewLobId();
     }
 
-    public BlobData createBlob() {
-        return database.lobManager.createBlob();
+    public BlobDataID createBlob() {
+        long lobID = database.lobManager.createBlob(this);
+        return new BlobDataID(lobID, 0);
     }
 
-    public ClobData createClob() {
-        return database.lobManager.createClob();
+    public ClobDataID createClob() {
+        long lobID = database.lobManager.createClob(this);
+        return new ClobDataID(lobID, 0);
     }
 
     public void registerResultLobs(Result result) throws HsqlException {
@@ -1650,8 +1652,7 @@ public class Session implements SessionInterface {
                     this, id, cmd.getOffset(), (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
-                return database.lobManager.setBytes(this, id, cmd.getByteArray(), cmd.getOffset(),
-                                                    cmd.getByteArray().length);
+                return database.lobManager.setBytes(this, id, cmd.getByteArray(), cmd.getOffset());
             }
             case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
                 return database.lobManager.getChars(
