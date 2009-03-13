@@ -50,12 +50,8 @@ import org.hsqldb.persist.RowStoreMemory;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
-import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
-import org.hsqldb.types.ClobDataID;
-import org.hsqldb.types.ClobDataMemory;
-import org.hsqldb.types.BlobDataID;
 
 /*
  * Session semi-persistent data structures
@@ -317,16 +313,13 @@ public class SessionData {
         switch (result.getSubType()) {
 
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES : {
-                BlobData blob;
                 long     blobId;
 
                 if (dataInput == null) {
                     blobId    = resultLobId;
-                    blob      = database.lobManager.getBlob(blobId);
                     dataInput = new DataInputStream(result.getInputStream());
                 } else {
-                    blob   = database.lobManager.createBlob();
-                    blobId = blob.getId();
+                    blobId   = database.lobManager.createBlob(session);
 
                     lobs.put(resultLobId, blobId);
                 }
@@ -337,16 +330,13 @@ public class SessionData {
                 break;
             }
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
-                ClobData clob;
                 long     clobId;
 
                 if (dataInput == null) {
                     clobId    = resultLobId;
-                    clob      = database.lobManager.getClob(clobId);
                     dataInput = new DataInputStream(result.getInputStream());
                 } else {
-                    clob   = database.lobManager.createClob();
-                    clobId = clob.getId();
+                    clobId   = database.lobManager.createClob(session);
 
                     lobs.put(resultLobId, clobId);
                 }
@@ -371,12 +361,12 @@ public class SessionData {
                     BlobData blob = (BlobData) data[i];
                     long     id   = lobs.get(blob.getId());
 
-                    data[i] = database.lobManager.getBlob(id);
+                    data[i] = database.lobManager.getBlob(session, id);
                 } else if (data[i] instanceof ClobData) {
                     ClobData clob = (ClobData) data[i];
                     long     id   = lobs.get(clob.getId());
 
-                    data[i] = database.lobManager.getClob(id);
+                    data[i] = database.lobManager.getClob(session, id);
                 }
             }
         }

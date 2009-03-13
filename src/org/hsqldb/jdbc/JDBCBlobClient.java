@@ -41,7 +41,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
-import org.hsqldb.types.BlobData;
+import org.hsqldb.types.BlobDataID;
 
 /**
  * A wrapper for HSQLDB BlobData objects.
@@ -307,11 +307,11 @@ public class JDBCBlobClient implements Blob {
     }
 
     //--
-    BlobData         blob;
+    BlobDataID         blob;
     SessionInterface session;
     boolean          isClosed;
 
-    JDBCBlobClient(SessionInterface session, BlobData blob) {
+    JDBCBlobClient(SessionInterface session, BlobDataID blob) {
         this.session = session;
         this.blob    = blob;
     }

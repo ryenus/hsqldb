@@ -79,13 +79,12 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.BinaryData;
-import org.hsqldb.types.BlobData;
-import org.hsqldb.types.ClobData;
+import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.Session;
 
 /* $Id$ */
 
@@ -4058,7 +4057,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             if (parameterTypes[i].typeCode == Types.SQL_BLOB) {
                 long     id;
-                BlobData blob = null;
+                BlobDataID blob = null;
 
                 if (value instanceof JDBCBlobClient) {
                     blob   = ((JDBCBlobClient) value).blob;
@@ -4074,12 +4073,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     connection.sessionProxy.allocateResultLob(resultLob, null);
 
+                    blob.setLength(length);
                     resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = blob;
             } else if (parameterTypes[i].typeCode == Types.SQL_CLOB) {
                 long     id;
-                ClobData clob = null;
+                ClobDataID clob = null;
 
                 if (value instanceof JDBCClobClient) {
                     clob   = ((JDBCClobClient) value).clob;
@@ -4095,6 +4095,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     connection.sessionProxy.allocateResultLob(resultLob, null);
 
+                    clob.setLength(length);
                     resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = clob;

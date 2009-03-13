@@ -103,7 +103,7 @@ public class TableBase {
     public boolean    isSessionBased;
     protected boolean isSchemaBased;
     protected boolean isLogged;
-
+    public boolean    isTransactional = true;
 
     //
     TableBase() {}
@@ -233,6 +233,10 @@ public class TableBase {
         return colTypes.length;
     }
 
+    public boolean isTransactional() {
+        return isTransactional;
+    }
+
     /**
      * This method is called whenever there is a change to table structure and
      * serves two porposes: (a) to reset the best set of columns that identify
@@ -273,7 +277,7 @@ public class TableBase {
             int[] cols      = index.getColumns();
             int   colsCount = index.getVisibleColumns();
 
-            if ( colsCount == 0 ) {
+            if (colsCount == 0) {
                 continue;
             }
 
@@ -466,8 +470,7 @@ public class TableBase {
                                      boolean constraint, boolean forward) {
 
         if (primaryKeyCols == null) {
-            throw Error.runtimeError(ErrorCode.U_S0500,
-                                     "createIndex");
+            throw Error.runtimeError(ErrorCode.U_S0500, "createIndex");
         }
 
         int    s     = columns.length;

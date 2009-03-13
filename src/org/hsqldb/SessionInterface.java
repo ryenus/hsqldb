@@ -36,9 +36,9 @@ import java.io.DataInput;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
+import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.TimestampData;
-import org.hsqldb.types.BlobData;
-import org.hsqldb.types.ClobData;
 
 /**
  * Interface to Session and its remote proxy objects. Used by the
@@ -119,9 +119,9 @@ public interface SessionInterface {
 
     long getLobId();
 
-    public BlobData createBlob();
+    public BlobDataID createBlob();
 
-    public ClobData createClob();
+    public ClobDataID createClob();
 
     void allocateResultLob(ResultLob result,
                            DataInput dataInput) throws HsqlException;

@@ -158,11 +158,6 @@ public class TestUtil {
 
             // The following catch blocks are just to report the source location
             // of the failure.
-        } catch (IOException ioe) {
-            System.out.println("Error encountered at command beginning at "
-                               + sourceName + ':' + startLine);
-
-            throw ioe;
         } catch (SQLException se) {
             System.out.println("Error encountered at command beginning at "
                                + sourceName + ':' + startLine);

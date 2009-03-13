@@ -42,7 +42,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
-import org.hsqldb.types.ClobData;
+import org.hsqldb.types.ClobDataID;
 
 public class JDBCClobClient implements Clob {
 
@@ -298,11 +298,11 @@ public class JDBCClobClient implements Clob {
     }
 
     //
-    ClobData         clob;
+    ClobDataID         clob;
     SessionInterface session;
     boolean          isClosed;
 
-    JDBCClobClient(SessionInterface session, ClobData clob) {
+    JDBCClobClient(SessionInterface session, ClobDataID clob) {
         this.session = session;
         this.clob    = clob;
     }

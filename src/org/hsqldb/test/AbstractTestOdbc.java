@@ -60,9 +60,6 @@ import org.hsqldb.server.ServerConstants;
  *   not have a way to do one-time-per-class setUp and tearDown.</B>
  *   We should instantiate and start up the Server one time, and repopulate
  *   the catalog contents in the traditional setUp().
- * </P> <P>
- *   <B>The Java ODBC tests can not test BLOB or CLOB types at all, since
- *   the JDBC driver used (Sun's jdbc:odbc) does not support these types.</B>
  * </P>
  */
 public abstract class AbstractTestOdbc extends junit.framework.TestCase {

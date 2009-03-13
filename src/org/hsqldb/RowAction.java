@@ -52,6 +52,10 @@ public class RowAction extends RowActionBase {
     public static RowAction addAction(Session session, byte type,
                                       TableBase table, Row row) {
 
+        if (!table.isTransactional()) {
+            return null;
+        }
+
         RowAction action = row.rowAction;
 
         if (action == null) {

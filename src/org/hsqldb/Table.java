@@ -148,6 +148,7 @@ public class Table extends TableBase implements SchemaObject {
     protected int[] defaultColumnMap;          // fred - holding 0,1,2,3,...
     private boolean hasDefaultValues;          //fredt - shortcut for above
 
+    //
     public Table(Database database, HsqlName name,
                  int type) throws HsqlException {
 
@@ -1675,6 +1676,7 @@ public class Table extends TableBase implements SchemaObject {
 
         return cols;
     }
+
     /**
      *  Returns the Column object at the given index
      */

@@ -229,8 +229,13 @@ implements DataOutput {
         return count;
     }
 
-    public void setSize(int newSize) {
-        count = newSize;
+    public void setPosition(int newPos) {
+
+        if (newPos > buf.length) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+
+        count = newPos;
     }
 
     public String toString() {

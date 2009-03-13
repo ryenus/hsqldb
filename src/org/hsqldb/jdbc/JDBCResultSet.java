@@ -73,9 +73,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.BinaryData;
-import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
-import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
@@ -4504,7 +4502,7 @@ public class JDBCResultSet implements ResultSet {
         }
 
         if (o instanceof BlobDataID) {
-            return new JDBCBlobClient(session, (BlobData) o);
+            return new JDBCBlobClient(session, (BlobDataID) o);
         } else if (o instanceof Blob) {
             return (Blob) o;
         } else if (o instanceof BinaryData) {
@@ -4553,7 +4551,7 @@ public class JDBCResultSet implements ResultSet {
         }
 
         if (o instanceof ClobDataID) {
-            return new JDBCClobClient(session, (ClobData) o);
+            return new JDBCClobClient(session, (ClobDataID) o);
         } else if (o instanceof Clob) {
             return (Clob) o;
         } else if (o instanceof String) {
