@@ -248,6 +248,8 @@ public class JDBCClobClient implements Clob {
             if (resultIn.isError()) {
                 throw Util.sqlException(resultIn);
             }
+
+            clob.setLength(((ResultLob) resultIn).getBlockLength());
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -298,7 +300,7 @@ public class JDBCClobClient implements Clob {
     }
 
     //
-    ClobDataID         clob;
+    ClobDataID       clob;
     SessionInterface session;
     boolean          isClosed;
 
@@ -346,6 +348,8 @@ public class JDBCClobClient implements Clob {
             if (resultIn.isError()) {
                 throw Util.sqlException(resultIn);
             }
+
+            clob.setLength(((ResultLob) resultIn).getBlockLength());
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }

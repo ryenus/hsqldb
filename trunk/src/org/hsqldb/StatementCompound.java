@@ -50,6 +50,7 @@ public class StatementCompound extends Statement {
     final boolean      isLoop;
     HsqlName           label;
     StatementHandler[] handlers = StatementHandler.emptyExceptionHandlerArray;
+    Statement          loopCursor;
     Statement[]        statements;
     StatementSimple    condition;
     boolean            isAtomic;
@@ -232,6 +233,10 @@ public class StatementCompound extends Statement {
 
         setVariables();
         setHandlers();
+    }
+
+    public void setLoopStatement(Statement cursorStatement) {
+        loopCursor = cursorStatement;
     }
 
     void setStatements(Statement[] statements) {
@@ -667,4 +672,5 @@ public class StatementCompound extends Statement {
     public RangeVariable[] getRangeVariables() {
         return rangeVariables;
     }
+
 }

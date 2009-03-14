@@ -178,13 +178,13 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLobSetResponse(long id) {
+    public static ResultLob newLobSetResponse(long id, long length) {
 
         ResultLob result = new ResultLob();
 
         result.subType = LobResultTypes.RESPONSE_SET;
         result.lobID   = id;
-
+        result.blockLength = length;
         return result;
     }
 
@@ -340,11 +340,14 @@ public final class ResultLob extends Result {
                 break;
 
             case LobResultTypes.RESPONSE_SET :
-            case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_BYTES :
-            case LobResultTypes.RESPONSE_GET_CHAR_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_CHARS :
             case LobResultTypes.RESPONSE_TRUNCATE :
+                result.blockLength = dataInput.readLong();
+                break;
+
+            case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
+            case LobResultTypes.RESPONSE_GET_CHAR_PATTERN_POSITION :
                 result.blockOffset = dataInput.readLong();
                 break;
 
@@ -430,11 +433,14 @@ public final class ResultLob extends Result {
                 break;
 
             case LobResultTypes.RESPONSE_SET :
-            case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_BYTES :
-            case LobResultTypes.RESPONSE_GET_CHAR_PATTERN_POSITION :
             case LobResultTypes.RESPONSE_CREATE_CHARS :
             case LobResultTypes.RESPONSE_TRUNCATE :
+                dataOut.writeLong(blockLength);
+                break;
+
+            case LobResultTypes.RESPONSE_GET_BYTE_PATTERN_POSITION :
+            case LobResultTypes.RESPONSE_GET_CHAR_PATTERN_POSITION :
                 dataOut.writeLong(blockOffset);
                 break;
 

@@ -173,6 +173,7 @@ public class StatementSimple extends Statement {
 
             case StatementTypes.SIGNAL :
             case StatementTypes.RESIGNAL :
+                return Result.newErrorResult(null, sqlState, 0);
 
             // todo
             case StatementTypes.ITERATE :
@@ -244,6 +245,7 @@ public class StatementSimple extends Statement {
 
             case StatementTypes.SIGNAL :
             case StatementTypes.RESIGNAL :
+                resolved = true;
                 break;
 
             case StatementTypes.RETURN :

@@ -702,12 +702,8 @@ public class ParserRoutine extends ParserDML {
                     if (conditionType == StatementHandler.SQL_NOT_FOUND) {
                         readThis(Tokens.FOUND);
                     } else if (conditionType == StatementHandler.SQL_STATE) {
-                        readIfThis(Tokens.VALUE);
-                        checkIsValue(Types.SQL_CHAR);
+                        String sqlState = parseSQLStateValue();
 
-                        String sqlState = token.tokenString;
-
-                        read();
                         handler.addConditionState(sqlState);
 
                         break;
@@ -740,6 +736,22 @@ public class ParserRoutine extends ParserDML {
         }
 
         return handler;
+    }
+
+    String parseSQLStateValue() throws HsqlException {
+
+        readIfThis(Tokens.VALUE);
+        checkIsValue(Types.SQL_CHAR);
+
+        String sqlState = token.tokenString;
+
+        if (token.tokenString.length() != 5) {
+            throw Error.error(ErrorCode.X_07000);
+        }
+
+        read();
+
+        return sqlState;
     }
 
     private Statement readCompoundStatement(Routine routine,
@@ -902,6 +914,11 @@ public class ParserRoutine extends ParserDML {
 
                 break;
             }
+            case Tokens.FOR : {
+                cs = readFor(routine, context, label);
+
+                break;
+            }
             case Tokens.ITERATE : {
                 if (label != null) {
                     throw unexpectedToken();
@@ -935,6 +952,16 @@ public class ParserRoutine extends ParserDML {
                 }
 
                 cs = readCase(routine, context);
+
+                break;
+            }
+            case Tokens.SIGNAL : {
+                cs = readSignal(routine, context, label);
+
+                break;
+            }
+            case Tokens.RESIGNAL : {
+                cs = readResignal(routine, context, label);
 
                 break;
             }
@@ -1119,6 +1146,42 @@ public class ParserRoutine extends ParserDML {
         StatementCompound result = new StatementCompound(StatementTypes.LOOP,
             label);
 
+        result.setStatements(statements);
+
+        return result;
+    }
+
+    private Statement readFor(Routine routine, StatementCompound context,
+                              HsqlName label) throws HsqlException {
+
+        readThis(Tokens.FOR);
+
+        Statement cursorStatement = compileCursorSpecification();
+
+        readThis(Tokens.DO);
+
+        Statement[] statements = readSQLProcedureStatementList(routine,
+            context);
+
+        readThis(Tokens.END);
+        readThis(Tokens.FOR);
+
+        if (isSimpleName() && !isReservedKey()) {
+            if (label == null) {
+                throw unexpectedToken();
+            }
+
+            if (!label.name.equals(token.tokenString)) {
+                throw Error.error(ErrorCode.X_42508, token.tokenString);
+            }
+
+            read();
+        }
+
+        StatementCompound result = new StatementCompound(StatementTypes.FOR,
+            label);
+
+        result.setLoopStatement(cursorStatement);
         result.setStatements(statements);
 
         return result;
@@ -1377,6 +1440,36 @@ public class ParserRoutine extends ParserDML {
         } while (true);
 
         return list;
+    }
+
+    private Statement readSignal(Routine routine, StatementCompound context,
+                                 HsqlName label) throws HsqlException {
+
+        readThis(Tokens.SIGNAL);
+        readThis(Tokens.SQLSTATE);
+
+        String sqlState = parseSQLStateValue();
+        StatementSimple cs = new StatementSimple(StatementTypes.SIGNAL,
+            sqlState);
+
+        return cs;
+    }
+
+    private Statement readResignal(Routine routine, StatementCompound context,
+                                   HsqlName label) throws HsqlException {
+
+        String sqlState = null;
+
+        readThis(Tokens.RESIGNAL);
+
+        if (readIfThis(Tokens.SQLSTATE)) {
+            sqlState = parseSQLStateValue();
+        }
+
+        StatementSimple cs = new StatementSimple(StatementTypes.RESIGNAL,
+            sqlState);
+
+        return cs;
     }
 
     private ColumnSchema readRoutineParameter(Routine routine)
