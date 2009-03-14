@@ -454,18 +454,24 @@ public class ParserDQL extends ParserBase {
     OrderedHashSet readColumnNames(BitMap quotedFlags,
                                    boolean readAscDesc) throws HsqlException {
 
-        int i = 0;
-
         readThis(Tokens.OPENBRACKET);
 
+        OrderedHashSet set = readColumnNameList(quotedFlags, readAscDesc);
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return set;
+    }
+
+    OrderedHashSet readColumnNameList(BitMap quotedFlags,
+                                      boolean readAscDesc)
+                                      throws HsqlException {
+
+        int            i   = 0;
         OrderedHashSet set = new OrderedHashSet();
 
         while (true) {
             checkIsSimpleName();
-
-            if (token.namePrefix != null) {
-                throw unexpectedToken();
-            }
 
             if (!set.add(token.tokenString)) {
                 throw Error.error(ErrorCode.X_42577, token.tokenString);
@@ -490,11 +496,7 @@ public class ParserDQL extends ParserBase {
                 continue;
             }
 
-            if (readIfThis(Tokens.CLOSEBRACKET)) {
-                break;
-            }
-
-            throw unexpectedToken();
+            break;
         }
 
         return set;
@@ -4410,8 +4412,19 @@ public class ParserDQL extends ParserBase {
 
         if (token.tokenType == Tokens.FOR) {
             read();
-            readThis(Tokens.READ);
-            readThis(Tokens.ONLY);
+
+            if (token.tokenType == Tokens.READ) {
+                read();
+                readThis(Tokens.ONLY);
+            } else {
+                readThis(Tokens.UPDATE);
+
+                if (token.tokenType == Tokens.OF) {
+                    readThis(Tokens.OF);
+
+                    OrderedHashSet colNames = readColumnNameList(null, false);
+                }
+            }
         }
 
         StatementDMQL cs = new StatementQuery(session, queryExpression,

@@ -180,11 +180,13 @@ public class JDBCBlobClient implements Blob {
             pos, bytes);
 
         try {
-            ResultLob resultIn = (ResultLob) session.execute(resultOut);
+            Result resultIn = (ResultLob) session.execute(resultOut);
 
             if (resultIn.isError()) {
                 Util.throwError(resultIn);
             }
+
+            blob.setLength(((ResultLob) resultIn).getBlockLength());
 
             return bytes.length;
         } catch (HsqlException e) {
@@ -258,6 +260,8 @@ public class JDBCBlobClient implements Blob {
             if (resultIn.isError()) {
                 throw Util.sqlException(resultIn);
             }
+
+            blob.setLength(((ResultLob) resultIn).getBlockLength());
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -307,7 +311,7 @@ public class JDBCBlobClient implements Blob {
     }
 
     //--
-    BlobDataID         blob;
+    BlobDataID       blob;
     SessionInterface session;
     boolean          isClosed;
 
