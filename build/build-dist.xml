@@ -177,13 +177,14 @@ and re-export.</fail>
     <mkdir dir="data"/>
     <zip destfile="dist/${app.basedir}.zip">
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
-                  includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh"
+                  includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh, **/*.pl,
+                            **/*.php, **/*.init, **/*.py"
                   filemode="0755"
                   excludes="**/.*, build/local**, test-src/**
                             classes/**, dist/**, local*/**, tmp/**"/>
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
                   excludes="**/.*, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
-                  test-src/**,
+                  test-src/**, **/*.pl, **/*.php, **/*.init, **/*.py
                   build/build.properties, build/local**, build/ivysettings.xml,
                   classes/**, dist/**, local*/**, tmp/**, doc-src/images/db/**,
                   build/ivysettings.xml, stylesheets/rng-catalog.xml"/>
