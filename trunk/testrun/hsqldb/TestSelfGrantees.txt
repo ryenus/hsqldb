@@ -88,7 +88,8 @@ CONNECT USER blaine PASSWORD blaine;
 /*u1*/INSERT INTO public.t1 VALUES(1);
 /*u0*/CREATE USER user1 password user1;
 /*u0*/GRANT dba TO debbie;
-CONNECT USER sa PASSWORD "";
+--CONNECT USER sa PASSWORD "";
+SET SESSION AUTHORIZATION 'SA'
 /*u0*/REVOKE dba FROM blaine RESTRICT;
 CONNECT USER blaine PASSWORD blaine;
 /*e*/SET TABLE public.t1 READONLY true;
