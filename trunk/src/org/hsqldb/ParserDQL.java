@@ -238,7 +238,7 @@ public class ParserDQL extends ParserBase {
 
                             break;
                         } else {
-                            throw unexpectedToken(token.fullString);
+                            throw unexpectedToken(token.getFullString());
                         }
                     default :
                         throw unexpectedToken();

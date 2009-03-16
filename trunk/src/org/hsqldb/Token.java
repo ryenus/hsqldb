@@ -69,6 +69,7 @@ public class Token {
         namePrePrefix            = null;
         charsetSchema            = null;
         charsetName              = null;
+         fullString              = null;
         lobMultiplierType        = Tokens.X_UNKNOWN_TOKEN;
         isDelimiter              = false;
         isDelimitedIdentifier    = false;
@@ -93,6 +94,7 @@ public class Token {
         token.namePrePrefix            = namePrePrefix;
         token.charsetSchema            = charsetSchema;
         token.charsetName              = charsetName;
+        token.fullString               = fullString;
         token.lobMultiplierType        = lobMultiplierType;
         token.isDelimiter              = isDelimiter;
         token.isDelimitedIdentifier    = isDelimitedIdentifier;
@@ -106,6 +108,11 @@ public class Token {
 
         return token;
     }
+
+    public String getFullString() {
+        return fullString;
+    }
+
 
     String getSQL() {
 

@@ -61,8 +61,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
                         boolean isPrimaryKey, Expression defaultExpression) {
 
         columnName             = name;
-        nullability            = isNullable ? ExpressionColumn.NULLABLE
-                                            : ExpressionColumn.NO_NULLS;
+        nullability = isNullable ? SchemaObject.Nullability.NULLABLE
+                                 : SchemaObject.Nullability.NO_NULLS;
         this.dataType          = type;
         this.isPrimaryKey      = isPrimaryKey;
         this.defaultExpression = defaultExpression;
@@ -176,8 +176,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         return isNullable;
     }
 
-    public int getNullability() {
-        return super.getNullability();
+    public byte getNullability() {
+        return isPrimaryKey ? SchemaObject.Nullability.NO_NULLS : super.getNullability();
     }
 
     public boolean isGenerated() {

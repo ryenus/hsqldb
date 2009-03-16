@@ -48,18 +48,6 @@ import org.hsqldb.types.Type;
  */
 public class ExpressionColumn extends Expression {
 
-    // parameter modes
-    public static final int PARAM_UNKNOWN = 0;    // java.sql.ParameterMetaData.parameterModeUnknown
-    public static final int PARAM_IN = 1;         // java.sql.ParameterMetaData.parameterModeIn
-    public static final int PARAM_IN_OUT = 2;     // java.sql.ParameterMetaData.parameterModeInOut
-    public static final int PARAM_OUT = 4;        // java.sql.ParameterMetaData.parameterModeOut
-
-    // result set (output column value) or parameter expression nullability
-    static final byte NO_NULLS         = 0;       // java.sql.ResultSetMetaData.columnNoNulls
-    static final byte NULLABLE         = 1;       // java.sql.ResultSetMetaData.columnNullable
-    static final byte NULLABLE_UNKNOWN = 2;       // java.sql.ResultSetMetaData.columnNullableUnknown
-
-    //
     public final static ExpressionColumn[] emptyArray =
         new ExpressionColumn[]{};
 
@@ -73,11 +61,7 @@ public class ExpressionColumn extends Expression {
     //
     NumberSequence sequence;
 
-    //
-    // output column and parameter expression metadata values
-    byte    nullability = NULLABLE_UNKNOWN;
-    boolean isWritable;                           // = false; true if column of writable table
-    byte    paramMode = PARAM_UNKNOWN;
+    boolean isWritable;    // = false; true if column of writable table
 
     /**
      * Creates a OpCodes.COLUMN expression
@@ -139,7 +123,6 @@ public class ExpressionColumn extends Expression {
 
         if (type == OpTypes.DYNAMIC_PARAM) {
             isParam   = true;
-            paramMode = PARAM_IN;
         }
     }
 
@@ -202,10 +185,9 @@ public class ExpressionColumn extends Expression {
 
     void setAttributesAsColumn(ColumnSchema column, boolean isWritable) {
 
+        this.column = column;
         dataType        = column.getDataType();
         this.isWritable = isWritable;
-        nullability = column.isNullable() && !column.isPrimaryKey() ? NULLABLE
-                                                                    : NO_NULLS;
     }
 
     SimpleName getSimpleName() {

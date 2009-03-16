@@ -61,8 +61,8 @@ public class LobManager {
     Database database;
 
     //
-    int lobBlockSize         = 2;
-    int blocksInLargeBlock   = 2;
+    int lobBlockSize         = 1024 * 8;
+    int blocksInLargeBlock   = 128;
     int largeBlockSize       = lobBlockSize * blocksInLargeBlock;
     int totalBlockLimitCount = 1024 * 1024;
 

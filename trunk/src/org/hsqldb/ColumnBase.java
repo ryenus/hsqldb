@@ -48,9 +48,9 @@ public class ColumnBase {
     private String    catalog;
     private boolean   isWriteable;
     private boolean   isSearchable;
-    protected int     parameterMode;
+    protected byte     parameterMode;
     protected boolean isIdentity;
-    protected int     nullability;
+    protected byte     nullability;
     protected Type    dataType;
 
     ColumnBase() {}
@@ -98,20 +98,20 @@ public class ColumnBase {
     }
 
     public boolean isNullable() {
-        return !isIdentity && nullability == ExpressionColumn.NULLABLE;
+        return !isIdentity && nullability == SchemaObject.Nullability.NULLABLE;
     }
 
     protected void setNullable(boolean value) {
-        nullability = value ? ExpressionColumn.NULLABLE
-                            : ExpressionColumn.NO_NULLS;
+        nullability = value ? SchemaObject.Nullability.NULLABLE
+                            : SchemaObject.Nullability.NO_NULLS;
     }
 
-    public int getNullability() {
-        return isIdentity ? ExpressionColumn.NO_NULLS
+    public byte getNullability() {
+        return isIdentity ? SchemaObject.Nullability.NO_NULLS
                           : nullability;
     }
 
-    public void setNullability(int value) {
+    public void setNullability(byte value) {
         nullability = value;
     }
 
@@ -131,11 +131,11 @@ public class ColumnBase {
         return dataType;
     }
 
-    public int getParameterMode() {
+    public byte getParameterMode() {
         return parameterMode;
     }
 
-    public void setParameterMode(int mode) {
+    public void setParameterMode(byte mode) {
         this.parameterMode = mode;
     }
 }
