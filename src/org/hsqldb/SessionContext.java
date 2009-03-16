@@ -147,8 +147,6 @@ public class SessionContext {
 
     void clearStructures(StatementDMQL cs) {
 
-        dynamicArguments = null;
-
         if (cs.type == StatementTypes.UPDATE_WHERE
                 || cs.type == StatementTypes.DELETE_WHERE
                 || cs.type == StatementTypes.MERGE) {

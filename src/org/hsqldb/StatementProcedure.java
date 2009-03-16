@@ -121,7 +121,11 @@ public class StatementProcedure extends StatementDMQL {
                 new Object[variableCount];
         }
 
-        Result result = procedure.statement.execute(session, null);
+        // temp until assignment of dynamicArguments in materialiseSubqueries is fixed
+        Object[] args   = session.sessionContext.dynamicArguments;
+        Result   result = procedure.statement.execute(session, null);
+
+        session.sessionContext.dynamicArguments = args;
 
         if (!result.isError()) {
             result = Result.updateZeroResult;
@@ -135,16 +139,32 @@ public class StatementProcedure extends StatementDMQL {
             return result;
         }
 
+        boolean returnParams = false;
+
         for (int i = 0; i < procedure.getParameterCount(); i++) {
             ColumnSchema param = procedure.getParameter(i);
             int          mode  = param.getParameterMode();
 
             if (mode != SchemaObject.ParameterModes.PARAM_IN) {
-                int varIndex = arguments[i].getColumnIndex();
+                if (this.arguments[i].isParam) {
+                    int paramIndex = arguments[i].parameterIndex;
 
-                session.sessionContext.routineVariables[varIndex] =
-                    callArguments[i];
+                    session.sessionContext.dynamicArguments[paramIndex] =
+                        callArguments[i];
+                    returnParams = true;
+                } else {
+                    int varIndex = arguments[i].getColumnIndex();
+
+                    session.sessionContext.routineVariables[varIndex] =
+                        callArguments[i];
+                }
             }
+        }
+
+        if (returnParams) {
+            result = Result.newCallResponse(
+                this.getParametersMetaData().getParameterTypes(), this.id,
+                session.sessionContext.dynamicArguments);
         }
 
         return result;
@@ -190,6 +210,9 @@ public class StatementProcedure extends StatementDMQL {
         switch (type) {
 
             case StatementTypes.CALL : {
+                if (expression == null) {
+                    return ResultMetaData.emptyResultMetaData;
+                }
 
                 // TODO:
                 //

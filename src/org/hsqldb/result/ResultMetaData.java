@@ -220,7 +220,7 @@ public final class ResultMetaData {
     }
 
     private static void decodeTableColumnAttrs(int in, ColumnBase column) {
-        column.setNullability(in & 0x0000000f);
+        column.setNullability((byte) (in & 0x0000000f));
         column.setIdentity((in & 0x00000010) != 0);
     }
 

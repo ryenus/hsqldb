@@ -124,6 +124,11 @@ public abstract class StatementDMQL extends Statement {
     ResultMetaData generatedResultMetaData;
 
     /**
+     * ResultMetaData for parameters
+     */
+    ResultMetaData parameterMetaData;
+
+    /**
      * Subqueries inverse usage depth order
      */
     SubQuery[] subqueries;
@@ -521,6 +526,7 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
+    // todo build this once for reuse
     /**
      * Returns the metadata for the placeholder parameters.
      */
@@ -578,8 +584,14 @@ public abstract class StatementDMQL extends Statement {
             //                              routine parameter explicitly
             //                              declared not null.
             // currently will always be Expression.PARAM_IN
-            metaData.paramModes[idx]    = parameters[i].paramMode;
-            metaData.paramNullable[idx] = parameters[i].nullability;
+            metaData.paramModes[idx] =
+                parameters[i].column == null
+                ? SchemaObject.ParameterModes.PARAM_UNKNOWN
+                : parameters[i].column.getParameterMode();
+            metaData.paramNullable[idx] = parameters[i].column == null
+                                          ? SchemaObject.Nullability.NULLABLE
+                                          : parameters[i].column
+                                              .getNullability();
         }
 
         return metaData;

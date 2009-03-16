@@ -879,7 +879,7 @@ public class ParserRoutine extends ParserDML {
                     throw unexpectedToken();
                 }
 
-                cs = readCallStatement(rangeVariables, true);
+                cs = compileCallStatement(rangeVariables, true);
 
                 break;
             }
@@ -1476,7 +1476,7 @@ public class ParserRoutine extends ParserDML {
     throws HsqlException {
 
         HsqlName hsqlName      = null;
-        int      parameterMode = SchemaObject.ParameterModes.PARAM_IN;
+        byte      parameterMode = SchemaObject.ParameterModes.PARAM_IN;
 
         if (routine.getType() == SchemaObject.PROCEDURE) {
             switch (token.tokenType) {

@@ -962,8 +962,9 @@ public class ParserDML extends ParserDQL {
      */
 
     // to do call argument name and type resolution
-    StatementDMQL readCallStatement(RangeVariable[] outerRanges,
-                                    boolean isProcedure) throws HsqlException {
+    StatementDMQL compileCallStatement(RangeVariable[] outerRanges,
+                                       boolean isStrictlyProcedure)
+                                       throws HsqlException {
 
         read();
 
@@ -1046,8 +1047,9 @@ public class ParserDML extends ParserDQL {
             }
         }
 
-        if (isProcedure) {
-            throw unexpectedToken();
+        if (isStrictlyProcedure) {
+            throw Error.error(ErrorCode.X_42501,
+                              token.tokenString);
         }
 
         Expression expression = this.XreadValueExpression();

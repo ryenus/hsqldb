@@ -160,7 +160,7 @@ public class ParserCommand extends ParserDDL {
 
             // PROCEDURE
             case Tokens.CALL : {
-                cs = readCallStatement(
+                cs = compileCallStatement(
                     session.sessionContext.sessionVariablesRange, false);
 
                 break;

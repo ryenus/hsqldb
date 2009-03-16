@@ -229,6 +229,12 @@ public interface ResultConstants {
      */
     int VALUE = HSQL_API_BASE + 42;
 
+
+    /**
+     * Indicates that the Result encapsulates a response to a procedure call via CallableStatement
+     */
+    int CALL_RESPONSE = HSQL_API_BASE + 43;
+
 //    /** The offset at which the standard SQL API Result mode values start. */
 //    int SQL_API_BASE = 0x00010000;
 //

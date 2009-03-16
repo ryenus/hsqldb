@@ -85,6 +85,9 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.Expression;
+import org.hsqldb.ExpressionColumn;
+import org.hsqldb.SchemaObject;
 
 /* $Id$ */
 
@@ -3772,21 +3775,61 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             parameterStream[i - 1] = false;
             parameterSet[i - 1] = true;
         }
-/*
-        mode = parameterModes[i - 1];
+
+        int mode = parameterModes[i - 1];
 
         switch (mode) {
 
+            case SchemaObject.ParameterModes.PARAM_UNKNOWN :
+            case SchemaObject.ParameterModes.PARAM_IN :
+            case SchemaObject.ParameterModes.PARAM_INOUT :
+                break;
+
+            case SchemaObject.ParameterModes.PARAM_OUT :
             default :
-                msg = "Not IN or IN OUT mode: " + mode + " for parameter: "
+                msg = "Not IN or INOUT mode: " + mode + " for parameter: "
                       + i;
 
-                throw Util.sqlException(ErrorCode.INVALID_JDBC_ARGUMENT, msg);
-            case Expression.PARAM_IN :
-            case Expression.PARAM_IN_OUT :
-                break;
+                throw Util.invalidArgument(msg);
         }
- */
+
+    }
+
+    /**
+     * Checks if the specified parameter index value is valid in terms of
+     * getting an OUT or INOUT parameter value. <p>
+     *
+     * @param i The parameter index to check
+     * @throws SQLException if the specified parameter index is invalid
+     */
+    protected void checkGetParameterIndex(int i) throws SQLException {
+
+        String msg;
+
+        checkClosed();
+
+        if (i < 1 || i > parameterValues.length) {
+            msg = "parameter index out of range: " + i;
+
+            throw Util.outOfRangeArgument(msg);
+        }
+
+        int mode = parameterModes[i - 1];
+
+        switch (mode) {
+
+            case SchemaObject.ParameterModes.PARAM_UNKNOWN :
+            case SchemaObject.ParameterModes.PARAM_OUT :
+            case SchemaObject.ParameterModes.PARAM_INOUT :
+                break;
+
+            case SchemaObject.ParameterModes.PARAM_IN :
+            default :
+                  msg = "Not OUT or INOUT mode: " + mode + " for parameter: "
+                        + i;
+
+                  throw Util.invalidArgument(msg);
+        }
     }
 
     /**
@@ -3803,8 +3846,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return;
         }
         for (int i = 0; i < parameterSet.length; i++) {
-            if (!parameterSet[i] && !parameterStream[i]) {
-                throw Util.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
+            if (parameterModes[i] != SchemaObject.ParameterModes.PARAM_OUT        ) {
+                if (!parameterSet[i] && !parameterStream[i]) {
+                    throw Util.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
+                }
             }
         }
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN,

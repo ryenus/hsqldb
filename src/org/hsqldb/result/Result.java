@@ -193,6 +193,7 @@ public class Result {
 
         switch (type) {
 
+            case ResultConstants.CALL_RESPONSE :
             case ResultConstants.EXECUTE :
                 navigator = new RowSetNavigatorClient(1);
                 break;
@@ -441,6 +442,7 @@ public class Result {
                 result.parameterMetaData   = new ResultMetaData(in);
                 break;
 
+            case ResultConstants.CALL_RESPONSE :
             case ResultConstants.EXECUTE :
                 result.updateCount     = in.readInt();
                 result.fetchSize       = in.readInt();
@@ -560,6 +562,23 @@ public class Result {
         result.statementID = statementId;
 
         result.navigator.add(new Object[]{});
+
+        return result;
+    }
+
+    /**
+     * For CALL_RESPONSE
+     * For execution of SQL callable statements.
+     */
+    public static Result newCallResponse(Type[] types,
+            long statementId, Object[] values) {
+
+        Result result = newResult(ResultConstants.CALL_RESPONSE);
+
+        result.metaData    = ResultMetaData.newSimpleResultMetaData(types);
+        result.statementID = statementId;
+
+        result.navigator.add(values);
 
         return result;
     }
@@ -1127,6 +1146,7 @@ public class Result {
                 parameterMetaData.write(rowOut);
                 break;
 
+            case ResultConstants.CALL_RESPONSE :
             case ResultConstants.EXECUTE :
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);

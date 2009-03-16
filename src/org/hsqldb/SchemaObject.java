@@ -97,8 +97,16 @@ public interface SchemaObject {
 
     interface ParameterModes {
 
-        int PARAM_IN    = 0;
-        int PARAM_OUT   = 1;
-        int PARAM_INOUT = 2;
+        byte PARAM_UNKNOWN = 0;    // java.sql.ParameterMetaData.parameterModeUnknown
+        byte PARAM_IN    = 1;      // java.sql.ParameterMetaData.parameterModeIn
+        byte PARAM_OUT   = 4;      // java.sql.ParameterMetaData.parameterModeInOut
+        byte PARAM_INOUT = 2;      // java.sql.ParameterMetaData.parameterModeOut
+    }
+
+    interface Nullability {
+
+        byte NO_NULLS         = 0;    // java.sql.ResultSetMetaData.columnNoNulls
+        byte NULLABLE         = 1;    // java.sql.ResultSetMetaData.columnNullable
+        byte NULLABLE_UNKNOWN = 2;    // java.sql.ResultSetMetaData.columnNullableUnknown
     }
 }
