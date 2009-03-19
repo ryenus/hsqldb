@@ -236,7 +236,7 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     protected void writeBit(BinaryData o) {
-        writeInt((int) o.bitLength());
+        writeInt((int) o.bitLength(null));
         write(o.getBytes(), 0, o.getBytes().length);
     }
 
@@ -367,14 +367,20 @@ public class RowOutputBinary extends RowOutputBase {
                     case Types.SQL_BINARY :
                     case Types.SQL_VARBINARY :
                         s += 4;
-                        s += ((BinaryData) o).length();
+                        s += ((BinaryData) o).length(null);
                         break;
 
                     case Types.SQL_BIT :
                     case Types.SQL_BIT_VARYING :
                         s += 4;
-                        s += ((BinaryData) o).length();
+                        s += ((BinaryData) o).length(null);
                         break;
+
+                    case Types.SQL_CLOB :
+                    case Types.SQL_BLOB :
+                        s += 8;
+                        break;
+
 
                     case Types.OTHER :
                         JavaObjectData jo = (JavaObjectData) o;

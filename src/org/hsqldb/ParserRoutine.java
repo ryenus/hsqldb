@@ -1476,29 +1476,35 @@ public class ParserRoutine extends ParserDML {
     throws HsqlException {
 
         HsqlName hsqlName      = null;
-        byte      parameterMode = SchemaObject.ParameterModes.PARAM_IN;
+        byte     parameterMode = SchemaObject.ParameterModes.PARAM_IN;
 
-        if (routine.getType() == SchemaObject.PROCEDURE) {
-            switch (token.tokenType) {
+        switch (token.tokenType) {
 
-                case Tokens.IN :
-                    read();
-                    break;
+            case Tokens.IN :
+                read();
+                break;
 
-                case Tokens.OUT :
-                    read();
+            case Tokens.OUT :
+                if (routine.getType() != SchemaObject.PROCEDURE) {
+                    throw unexpectedToken();
+                }
 
-                    parameterMode = SchemaObject.ParameterModes.PARAM_OUT;
-                    break;
+                read();
 
-                case Tokens.INOUT :
-                    read();
+                parameterMode = SchemaObject.ParameterModes.PARAM_OUT;
+                break;
 
-                    parameterMode = SchemaObject.ParameterModes.PARAM_INOUT;
-                    break;
+            case Tokens.INOUT :
+                if (routine.getType() != SchemaObject.PROCEDURE) {
+                    throw unexpectedToken();
+                }
 
-                default :
-            }
+                read();
+
+                parameterMode = SchemaObject.ParameterModes.PARAM_INOUT;
+                break;
+
+            default :
         }
 
         if (!isReservedKey()) {

@@ -334,7 +334,7 @@ public class RowOutputText extends RowOutputBase {
     protected void writeBit(BinaryData o) {
 
         String s = StringConverter.byteArrayToBitString(o.getBytes(),
-            (int) o.bitLength());
+            (int) o.bitLength(null));
 
         writeString(s);
     }

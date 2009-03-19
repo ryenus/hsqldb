@@ -77,9 +77,10 @@ public class BinaryData implements BlobData {
         this.bitLength = data.length * 8;
     }
 
-    public BinaryData(BlobData b1, BlobData b2) throws HsqlException {
+    public BinaryData(SessionInterface session, BlobData b1,
+                      BlobData b2) throws HsqlException {
 
-        long length = (b1.length() + b2.length());
+        long length = (b1.length(session) + b2.length(session));
 
         if (length > Integer.MAX_VALUE) {
             throw Error.error(ErrorCode.X_22001);
@@ -87,11 +88,11 @@ public class BinaryData implements BlobData {
 
         data = new byte[(int) length];
 
-        System.arraycopy(b1.getBytes(), 0, data, 0, (int) b1.length());
-        System.arraycopy(b2.getBytes(), 0, data, (int) b1.length(),
-                         (int) b2.length());
+        System.arraycopy(b1.getBytes(), 0, data, 0, (int) b1.length(session));
+        System.arraycopy(b2.getBytes(), 0, data, (int) b1.length(session),
+                         (int) b2.length(session));
 
-        this.bitLength = (b1.length() + b2.length()) * 8;
+        this.bitLength = (b1.length(session) + b2.length(session)) * 8;
     }
 
     public BinaryData(byte[] data, long bitLength) {
@@ -117,11 +118,11 @@ public class BinaryData implements BlobData {
         return data;
     }
 
-    public long length() {
+    public long length(SessionInterface session) {
         return data.length;
     }
 
-    public long bitLength() {
+    public long bitLength(SessionInterface session) {
         return bitLength;
     }
 
@@ -129,7 +130,7 @@ public class BinaryData implements BlobData {
         return isBits;
     }
 
-    public byte[] getBytes(long pos, int length) {
+    public byte[] getBytes(SessionInterface session, long pos, int length) {
 
         if (!isInLimits(data.length, pos, length)) {
             throw new IndexOutOfBoundsException();
@@ -142,21 +143,23 @@ public class BinaryData implements BlobData {
         return bytes;
     }
 
-    public InputStream getBinaryStream() throws HsqlException {
-        return new BlobInputStream(this, 0L, length());
+    public InputStream getBinaryStream(SessionInterface session)
+    throws HsqlException {
+        return new BlobInputStream(session, this, 0L, length(session));
     }
 
-    public InputStream getBinaryStream(long pos,
+    public InputStream getBinaryStream(SessionInterface session, long pos,
                                        long length) throws HsqlException {
 
         if (!isInLimits(data.length, pos, length)) {
             throw new IndexOutOfBoundsException();
         }
 
-        return new BlobInputStream(this, pos, length());
+        return new BlobInputStream(session, this, pos, length(session));
     }
 
-    public int setBytes(long pos, byte[] bytes, int offset, int length) {
+    public int setBytes(SessionInterface session, long pos, byte[] bytes,
+                        int offset, int length) {
 
         if (!isInLimits(data.length, pos, 0)) {
             throw new IndexOutOfBoundsException();
@@ -173,22 +176,23 @@ public class BinaryData implements BlobData {
         return length;
     }
 
-    public int setBytes(long pos, byte[] bytes) {
+    public int setBytes(SessionInterface session, long pos, byte[] bytes) {
 
-        setBytes(pos, bytes, 0, bytes.length);
+        setBytes(session, pos, bytes, 0, bytes.length);
 
         return bytes.length;
     }
 
-    public long setBinaryStream(long pos, InputStream in) {
+    public long setBinaryStream(SessionInterface session, long pos,
+                                InputStream in) {
         return 0;
     }
 
-    public OutputStream setBinaryStream(long pos) {
+    public OutputStream setBinaryStream(SessionInterface session, long pos) {
         return null;
     }
 
-    public void truncate(long len) {
+    public void truncate(SessionInterface session, long len) {
 
         if (data.length > len) {
             data      = (byte[]) ArrayUtil.resizeArray(data, (int) len);
@@ -196,11 +200,12 @@ public class BinaryData implements BlobData {
         }
     }
 
-    public BlobData duplicate() throws HsqlException {
+    public BlobData duplicate(SessionInterface session) throws HsqlException {
         return new BinaryData(data, true);
     }
 
-    public long position(byte[] pattern, long start) {
+    public long position(SessionInterface session, byte[] pattern,
+                         long start) {
 
         if (pattern.length > data.length) {
             return -1;
@@ -213,18 +218,19 @@ public class BinaryData implements BlobData {
         return ArrayUtil.find(data, (int) start, data.length, pattern);
     }
 
-    public long position(BlobData pattern, long start) {
+    public long position(SessionInterface session, BlobData pattern,
+                         long start) throws HsqlException {
 
-        if (pattern.length() > data.length) {
+        if (pattern.length(session) > data.length) {
             return -1;
         }
 
         byte[] bytes = pattern.getBytes();
 
-        return position(bytes, start);
+        return position(session, bytes, start);
     }
 
-    public long nonZeroLength() {
+    public long nonZeroLength(SessionInterface session) {
 
         // temp
         return data.length;

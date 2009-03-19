@@ -371,13 +371,13 @@ public class BinaryType extends Type {
             case Types.SQL_VARCHAR :
             case Types.SQL_CHAR : {
                 b         = session.getScanner().convertToBinary((String) a);
-                otherType = getBinaryType(Types.SQL_VARBINARY, b.length());
+                otherType = getBinaryType(Types.SQL_VARBINARY, b.length(session));
 
                 break;
             }
             case Types.SQL_BIT : {
                 b         = (BlobData) a;
-                otherType = getBinaryType(Types.SQL_VARBINARY, b.length());
+                otherType = getBinaryType(Types.SQL_VARBINARY, b.length(session));
 
                 break;
             }
@@ -395,7 +395,7 @@ public class BinaryType extends Type {
             return b;    // never a blob
         }
 
-        if (b.length() > precision && b.nonZeroLength() > precision) {
+        if (b.length(session) > precision && b.nonZeroLength(session) > precision) {
             if (!cast) {
                 throw Error.error(ErrorCode.X_22001);
             }
@@ -404,7 +404,7 @@ public class BinaryType extends Type {
         }
 
         if (otherType.typeCode == Types.SQL_BLOB) {
-            byte[] bytes = b.getBytes(0, (int) precision);
+            byte[] bytes = b.getBytes(session, 0, (int) precision);
 
             b = new BinaryData(bytes, false);
         }
@@ -412,11 +412,11 @@ public class BinaryType extends Type {
         switch (typeCode) {
 
             case Types.SQL_BINARY : {
-                if (b.length() > precision) {
-                    byte[] data = b.getBytes(0, (int) precision);
+                if (b.length(session) > precision) {
+                    byte[] data = b.getBytes(session, 0, (int) precision);
 
                     b = new BinaryData(data, false);
-                } else if (b.length() < precision) {
+                } else if (b.length(session) < precision) {
                     byte[] data = (byte[]) ArrayUtil.resizeArray(b.getBytes(),
                         (int) precision);
 
@@ -426,8 +426,8 @@ public class BinaryType extends Type {
                 return b;
             }
             case Types.SQL_VARBINARY : {
-                if (b.length() > precision) {
-                    byte[] data = b.getBytes(0, (int) precision);
+                if (b.length(session) > precision) {
+                    byte[] data = b.getBytes(session, 0, (int) precision);
 
                     b = new BinaryData(data, false);
                 }
@@ -482,27 +482,27 @@ public class BinaryType extends Type {
                || otherType.isBinaryType() || otherType.isCharacterType();
     }
 
-    public long position(BlobData data, BlobData otherData, Type otherType,
-                         long offset) throws HsqlException {
+    public long position(SessionInterface session, BlobData data, BlobData otherData,
+                         Type otherType, long offset) throws HsqlException {
 
         if (data == null || otherData == null) {
             return -1L;
         }
 
-        long otherLength = ((BlobData) data).length();
+        long otherLength = ((BlobData) data).length(session);
 
-        if (offset + otherLength > data.length()) {
+        if (offset + otherLength > data.length(session)) {
             return -1;
         }
 
-        return data.position(otherData, offset);
+        return data.position(session, otherData, offset);
     }
 
-    public BlobData substring(BlobData data, long offset, long length,
-                              boolean hasLength) throws HsqlException {
+    public BlobData substring(SessionInterface session, BlobData data, long offset,
+                              long length, boolean hasLength) throws HsqlException {
 
         long end;
-        long dataLength = data.length();
+        long dataLength = data.length(session);
 
         if (hasLength) {
             end = offset + length;
@@ -533,7 +533,7 @@ public class BinaryType extends Type {
         length = end - offset;
 
         // change method signature to take long
-        byte[] bytes = ((BlobData) data).getBytes(offset, (int) length);
+        byte[] bytes = ((BlobData) data).getBytes(session, offset, (int) length);
 
         return new BinaryData(bytes, false);
     }
@@ -586,7 +586,7 @@ public class BinaryType extends Type {
         if (typeCode == Types.SQL_BLOB) {
             BlobData blob = session.createBlob();
 
-            blob.setBytes(0, newBytes);
+            blob.setBytes(session, 0, newBytes);
 
             return blob;
         } else {
@@ -603,7 +603,7 @@ public class BinaryType extends Type {
         }
 
         if (!hasLength) {
-            length = ((BlobData) overlay).length();
+            length = ((BlobData) overlay).length(session);
         }
 
         switch (typeCode) {
@@ -611,24 +611,23 @@ public class BinaryType extends Type {
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY : {
                 BinaryData binary =
-                    new BinaryData(substring(data, 0, offset, true), overlay);
+                    new BinaryData(session, substring(session, data, 0, offset, true), overlay);
 
-                binary = new BinaryData(binary,
-                                        substring(data, offset + length, 0,
-                                                  false));
+                binary = new BinaryData(session, binary, substring(session, data, offset + length,
+                                                  0, false));
 
                 return binary;
             }
             case Types.SQL_BLOB : {
                 BlobData blob  = session.createBlob();
-                byte[]   bytes = substring(data, 0, offset, false).getBytes();
+                byte[]   bytes = substring(session, data, 0, offset, false).getBytes();
 
-                blob.setBytes(0, bytes);
-                blob.setBytes(blob.length(), overlay.getBytes());
+                blob.setBytes(session, 0, bytes);
+                blob.setBytes(session, blob.length(session), overlay.getBytes());
 
-                bytes = substring(data, offset + length, 0, false).getBytes();
+                bytes = substring(session, data, offset + length, 0, false).getBytes();
 
-                blob.setBytes(blob.length(), bytes);
+                blob.setBytes(session, blob.length(session), bytes);
 
                 return blob;
             }
@@ -644,28 +643,19 @@ public class BinaryType extends Type {
             return null;
         }
 
-        if (((BlobData) a).length() + ((BlobData) b).length() > precision) {
+        if (((BlobData) a).length(session) + ((BlobData) b).length(session) > precision) {
             throw Error.error(ErrorCode.X_22001);
         }
 
         if (typeCode == Types.SQL_BLOB) {
             BlobData blob = session.createBlob();
 
-            blob.setBytes(blob.length(), ((BlobData) b).getBytes());
+            blob.setBytes(session, blob.length(session), ((BlobData) b).getBytes());
 
             return blob;
         } else {
-            return new BinaryData((BlobData) a, (BlobData) b);
+            return new BinaryData(session, (BlobData) a, (BlobData) b);
         }
-    }
-
-    public long size(Object a) {
-
-        if (a == null) {
-            return -1;
-        }
-
-        return ((BlobData) a).length();
     }
 
     /**

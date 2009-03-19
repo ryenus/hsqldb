@@ -701,8 +701,7 @@ public final class NumberType extends Type {
         switch (otherType.typeCode) {
 
             case Types.SQL_CLOB :
-                a = ((ClobData) a).getSubString(0L,
-                                                (int) ((ClobData) a).length());
+                a = ((ClobData) a).getSubString(session, 0L, (int) ((ClobData) a).length(session));
 
             // fall through
             case Types.SQL_CHAR :

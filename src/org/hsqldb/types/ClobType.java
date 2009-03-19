@@ -203,13 +203,13 @@ public final class ClobType extends CharacterType {
         return StringConverter.toQuotedString(s, '\'', true);
     }
 
-    public long position(Object data, Object otherData, Type otherType,
-                         long start) throws HsqlException {
+    public long position(SessionInterface session, Object data, Object otherData,
+                         Type otherType, long start) throws HsqlException {
 
         if (otherType.typeCode == Types.SQL_CLOB) {
-            return ((ClobData) data).position((ClobData) otherData, start);
+            return ((ClobData) data).position(session, (ClobData) otherData, start);
         } else if (otherType.isCharacterType()) {
-            return ((ClobData) data).position((String) otherData, start);
+            return ((ClobData) data).position(session, (String) otherData, start);
         } else {
             throw Error.runtimeError(
                 ErrorCode.U_S0500,  "ClobType");

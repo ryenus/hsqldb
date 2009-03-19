@@ -158,7 +158,7 @@ public final class ExpressionLike extends ExpressionLogical {
                         case Types.SQL_VARBINARY :
                             length =
                                 ((BinaryData) nodes[ESCAPE].valueData)
-                                    .length();
+                                    .length(session);
                             break;
 
                         default :
