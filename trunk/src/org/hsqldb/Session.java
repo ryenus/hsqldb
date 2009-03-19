@@ -113,7 +113,7 @@ public class Session implements SessionInterface {
 
     //
     public Database database;
-    private Grantee user;
+    private User    user;
 
     // transaction support
     private volatile boolean isAutoCommit;
@@ -734,6 +734,10 @@ public class Session implements SessionInterface {
      */
     public boolean isAutoCommit() {
         return isAutoCommit;
+    }
+
+    public int getStreamBlockSize() {
+        return 512 * 1024;
     }
 
     public boolean isInMidTransaction() {
@@ -1617,18 +1621,25 @@ public class Session implements SessionInterface {
     }
 
     // lobs
-    public long getLobId() {
-        return database.lobManager.getNewLobId();
-    }
+    public BlobDataID createBlob() throws HsqlException {
 
-    public BlobDataID createBlob() {
         long lobID = database.lobManager.createBlob(this);
+
+        if (lobID == 0) {
+            throw Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID);
+        }
         return new BlobDataID(lobID, 0);
     }
 
-    public ClobDataID createClob() {
+    public ClobDataID createClob() throws HsqlException {
+
         long lobID = database.lobManager.createClob(this);
-        return new ClobDataID(lobID, 0);
+
+        if (lobID == 0) {
+            throw Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID);
+        }
+
+        return new ClobDataID(lobID);
     }
 
     public void registerResultLobs(Result result) throws HsqlException {
@@ -1647,12 +1658,17 @@ public class Session implements SessionInterface {
 
         switch (operation) {
 
+            case ResultLob.LobResultTypes.REQUEST_GET_LENGTH : {
+                return database.lobManager.getLength(this, id);
+            }
             case ResultLob.LobResultTypes.REQUEST_GET_BYTES : {
                 return database.lobManager.getBytes(
                     this, id, cmd.getOffset(), (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
-                return database.lobManager.setBytes(this, id, cmd.getByteArray(), cmd.getOffset());
+                return database.lobManager.setBytes(this, id,
+                                                    cmd.getByteArray(),
+                                                    cmd.getOffset());
             }
             case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
                 return database.lobManager.getChars(
@@ -1665,7 +1681,6 @@ public class Session implements SessionInterface {
             case ResultLob.LobResultTypes.REQUEST_TRUNCATE : {
                 return database.lobManager.truncate(this, id, cmd.getOffset());
             }
-
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS :
             case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :

@@ -227,13 +227,11 @@ public class RowOutputText extends RowOutputBase {
     }
 
     public void writeIntData(int i, int position) {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "RowInputText");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowInputText");
     }
 
     public void writeLong(long i) {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "RowInputText");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowInputText");
     }
 
 // fredt@users - comment - methods used for writing each SQL type
@@ -346,11 +344,11 @@ public class RowOutputText extends RowOutputBase {
     }
 
     protected void writeClob(ClobData o, Type type) {
-        writeString(type.convertToString(o));
+        writeString(Long.toString(o.getId()));
     }
 
     protected void writeBlob(BlobData o, Type type) {
-        writeString(type.convertToString(o));
+        writeString(Long.toString(o.getId()));
     }
 
     public int getSize(CachedRow r) {

@@ -42,8 +42,9 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
+import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
-import org.hsqldb.types.ClobDataMemory;
+import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
@@ -59,7 +60,7 @@ import org.hsqldb.types.Type;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.0
  */
 public class RowInputBinary extends RowInputBase
@@ -208,24 +209,14 @@ implements org.hsqldb.rowio.RowInputInterface {
 
     protected ClobData readClob() throws IOException, HsqlException {
 
-        byte type     = super.readByte();
         long id     = super.readLong();
-        long length = super.readLong();
-
-        String s = readString();
-
-        return new ClobDataMemory(s.toCharArray(), false);
+        return new ClobDataID(id);
     }
 
     protected BlobData readBlob() throws IOException, HsqlException {
 
-        byte type     = super.readByte();
         long id     = super.readLong();
-        long length = super.readLong();
-
-        byte[] bytes = readByteArray();
-
-        return new BinaryData(bytes, false);
+        return new BlobDataID(id, 0);
     }
 
     // helper methods

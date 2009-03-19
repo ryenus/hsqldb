@@ -620,8 +620,6 @@ public class Routine implements SchemaObject {
 
     /**
      * Returns a new function Routine object based solely on a Java Method object.
-     *
-     * Rejects Method objects with Connection parameters
      */
     public static Routine newRoutine(Method method) throws HsqlException {
 

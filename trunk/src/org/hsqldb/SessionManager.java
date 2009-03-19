@@ -117,7 +117,6 @@ public class SessionManager {
         Session session = new Session(db, db.getUserManager().getSysUser(),
                                       false, false, 0, 0);
 
-        session.currentSchema      = db.schemaManager.getSchemaHsqlName(null);
         session.isProcessingScript = true;
 
         return session;

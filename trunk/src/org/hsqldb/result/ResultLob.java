@@ -62,6 +62,7 @@ public final class ResultLob extends Result {
         int REQUEST_CREATE_BYTES               = 7;
         int REQUEST_CREATE_CHARS               = 8;
         int REQUEST_TRUNCATE                   = 9;
+        int REQUEST_GET_LENGTH                 = 10;
         int RESPONSE_GET_BYTES                 = 11;
         int RESPONSE_SET                       = 12;
         int RESPONSE_GET_CHARS                 = 13;
@@ -83,6 +84,16 @@ public final class ResultLob extends Result {
 
     private ResultLob() {
         mode = ResultConstants.LARGE_OBJECT_OP;
+    }
+
+    public static ResultLob newLobGetLengthRequest(long id) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType     = LobResultTypes.REQUEST_GET_LENGTH;
+        result.lobID       = id;
+
+        return result;
     }
 
     public static ResultLob newLobGetBytesRequest(long id, long offset,
@@ -317,6 +328,7 @@ public final class ResultLob extends Result {
                 }
                 break;
 
+            case LobResultTypes.REQUEST_GET_LENGTH :
             case LobResultTypes.REQUEST_TRUNCATE :
                 result.blockOffset = dataInput.readLong();
                 break;
@@ -416,6 +428,7 @@ public final class ResultLob extends Result {
                 dataOut.writeLong(blockLength);
                 break;
 
+            case LobResultTypes.REQUEST_GET_LENGTH :
             case LobResultTypes.REQUEST_TRUNCATE :
                 dataOut.writeLong(blockOffset);
                 break;

@@ -4118,7 +4118,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     connection.sessionProxy.allocateResultLob(resultLob, null);
 
-                    blob.setLength(length);
+//                    blob.setLength(length);
                     resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = blob;
@@ -4127,8 +4127,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 ClobDataID clob = null;
 
                 if (value instanceof JDBCClobClient) {
-                    clob   = ((JDBCClobClient) value).clob;
-                    id     = clob.getId();
+                    // fix id mismatch
+//                    clob   = ((JDBCClobClient) value).clob;
+//                    id     = clob.getId();
                 } else {
                     clob     = connection.sessionProxy.createClob();
                     id     = clob.getId();
@@ -4140,7 +4141,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     connection.sessionProxy.allocateResultLob(resultLob, null);
 
-                    clob.setLength(length);
+//                    clob.setLength(length);
                     resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = clob;

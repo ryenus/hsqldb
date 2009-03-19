@@ -210,7 +210,7 @@ public class StatementSchemaDefinition extends StatementSchema {
             session.setSchema(oldSessionSchema.name);
             session.database.logger.writeToLog(
                 session, getSetSchemaStatement(oldSessionSchema));
-        } catch (HsqlException e) {}
+        } catch (Exception e) {}
 
         return result;
     }

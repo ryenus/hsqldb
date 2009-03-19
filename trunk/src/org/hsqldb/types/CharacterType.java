@@ -511,6 +511,11 @@ public class CharacterType extends Type {
 
                 return convertToTypeLimits(s);
             }
+
+            case Types.SQL_BLOB : {
+                throw Error.error(ErrorCode.X_42561);
+            }
+
             default : {
                 String s = otherType.convertToString(a);
 

@@ -268,6 +268,7 @@ implements ActionListener, WindowListener, KeyListener {
                 i--;
             } else if (lowerArg.equals("-help")) {
                 showUsage();
+
                 return;
             } else {
                 /* Syntax ERRORS should either throw or exit with non-0 status.
@@ -275,10 +276,10 @@ implements ActionListener, WindowListener, KeyListener {
                  * (I.e. should provide easy way for caller to programmatically
                  * determine that there was an invocation problem).
                  */
-
                 throw new IllegalArgumentException(
-                        "Try:  java... " + DatabaseManagerSwing.class.getName()
-                        + " --help");
+                    "Try:  java... " + DatabaseManagerSwing.class.getName()
+                    + " --help");
+
                 // No reason to localize, since the main syntax message is
                 // not localized.
             }
@@ -1190,9 +1191,15 @@ implements ActionListener, WindowListener, KeyListener {
 
     protected void refreshTree() {
 
+        boolean wasAutoCommit = false;
+
         tTree.removeAll();
 
         try {
+            wasAutoCommit = cConn.getAutoCommit();
+
+            cConn.setAutoCommit(false);
+
             int color_table  = Color.yellow.getRGB();
             int color_column = Color.orange.getRGB();
             int color_index  = Color.red.getRGB();
@@ -1301,6 +1308,10 @@ implements ActionListener, WindowListener, KeyListener {
             tTree.addRow("", "Error getting metadata:", "-", 0);
             tTree.addRow("-", e.getMessage());
             tTree.addRow("-", e.getSQLState());
+        } finally {
+            try {
+                cConn.setAutoCommit(wasAutoCommit);
+            } catch (SQLException e) {}
         }
 
         tTree.update();

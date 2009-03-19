@@ -471,7 +471,14 @@ public class ParserDQL extends ParserBase {
         OrderedHashSet set = new OrderedHashSet();
 
         while (true) {
-            checkIsSimpleName();
+            if (session.isProcessingScript) {
+                // for old scripts
+                if (!isSimpleName()) {
+                    token.isDelimitedIdentifier = true;
+                }
+            } else {
+                checkIsSimpleName();
+            }
 
             if (!set.add(token.tokenString)) {
                 throw Error.error(ErrorCode.X_42577, token.tokenString);
@@ -3969,6 +3976,7 @@ public class ParserDQL extends ParserBase {
 
         read();
 
+        int position = getPosition();
         short[] parseList = function.parseList;
 
         if (parseList.length == 0) {
@@ -3977,8 +3985,19 @@ public class ParserDQL extends ParserBase {
 
         HsqlArrayList exprList = new HsqlArrayList();
 
-        readExpression(exprList, parseList, 0, parseList.length, false);
+        try {
+            readExpression(exprList, parseList, 0, parseList.length, false);
+        } catch (HsqlException e) {
+            if (function.parseListAlt == null) {
+                throw e;
+            }
 
+            rewind(position);
+            parseList = function.parseListAlt;
+            exprList = new HsqlArrayList();
+            readExpression(exprList, parseList, 0, parseList.length, false);
+
+        }
         Expression[] expr = new Expression[exprList.size()];
 
         exprList.toArray(expr);

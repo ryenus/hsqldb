@@ -506,7 +506,7 @@ public class ClientConnection implements SessionInterface {
 
     public ClobDataID createClob() {
 
-        ClobDataID clob = new ClobDataID(getLobId(), 0);
+        ClobDataID clob = new ClobDataID(getLobId());
 
         return clob;
     }
@@ -535,6 +535,10 @@ public class ClientConnection implements SessionInterface {
 
     public int getZoneSeconds() {
         return zoneSeconds;
+    }
+
+    public int getStreamBlockSize() {
+        return 512 * 1024;
     }
 
     /**

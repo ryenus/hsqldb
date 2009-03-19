@@ -43,8 +43,9 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
+import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
-import org.hsqldb.types.ClobDataMemory;
+import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
@@ -214,8 +215,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     }
 
     public long readLong() throws IOException {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "RowInputText");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowInputText");
     }
 
     public int readType() throws IOException {
@@ -347,7 +347,8 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         return scanner.newTime(s);
     }
 
-    protected TimestampData readDate(Type type) throws IOException, HsqlException {
+    protected TimestampData readDate(Type type)
+    throws IOException, HsqlException {
 
         String s = readString();
 
@@ -507,7 +508,9 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return new ClobDataMemory(s.toCharArray(), false);
+        long id = Long.parseLong(s);
+
+        return new ClobDataID(id);
     }
 
     protected BlobData readBlob() throws IOException, HsqlException {
@@ -524,9 +527,9 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        byte[] bytes = StringConverter.hexStringToByteArray(s);
+        long id = Long.parseLong(s);
 
-        return new BinaryData(bytes, false);
+        return new BlobDataID(id, 0);
     }
 
     public int getLineNumber() {

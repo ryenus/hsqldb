@@ -42,7 +42,7 @@ import org.hsqldb.lib.StringConverter;
 public final class BlobType extends BinaryType {
 
     public static final long maxBlobPrecision = 1024L * 1024 * 1024 * 1024;
-    public static final int  defaultBlobSize  = 1024 * 1024;
+    public static final int  defaultBlobSize  = 1024 * 1024 * 16;
 
     public BlobType() {
         super(Types.SQL_BLOB, defaultBlobSize);

@@ -455,8 +455,9 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final Type SQL_CHAR = new CharacterType(Types.SQL_CHAR, 0);
     public static final Type SQL_VARCHAR = new CharacterType(Types.SQL_VARCHAR,
         0);
-    public static final Type SQL_VARCHAR_MAX_LENGTH =
-        new CharacterType(Types.SQL_VARCHAR, 0);    // todo - needs max implementation defined length. used for parameters
+    public static final Type SQL_CHAR_DEFAULT = new CharacterType(Types.SQL_CHAR, 32*1024);
+    public static final Type SQL_VARCHAR_DEFAULT =
+        new CharacterType(Types.SQL_VARCHAR, 32*1024);
     public static final ClobType SQL_CLOB = new ClobType();
     public static final Type VARCHAR_IGNORECASE =
         new CharacterType(Types.VARCHAR_IGNORECASE, 0);
@@ -471,8 +472,12 @@ public abstract class Type implements SchemaObject, Cloneable {
     // binary types
     public static final BinaryType SQL_BINARY =
         new BinaryType(Types.SQL_BINARY, 0);
+    public static final BinaryType SQL_BINARY_DEFAULT =
+        new BinaryType(Types.SQL_BINARY, 32*1024);
     public static final BinaryType SQL_VARBINARY =
         new BinaryType(Types.SQL_VARBINARY, 0);
+    public static final BinaryType SQL_VARBINARY_DEFAULT =
+        new BinaryType(Types.SQL_VARBINARY, 32*1024);
     public static final BlobType SQL_BLOB = new BlobType();
 
     // other type
@@ -582,13 +587,105 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     public static Type getDefaultTypeWithSize(int type) {
+        switch (type) {
 
-        try {
-            return getType(type, 0, 0, 0);
-        } catch (Exception e) {
-            return null;
+            case Types.SQL_ALL_TYPES :
+                return SQL_ALL_TYPES;
+
+//                return SQL_ALL_TYPES; // needs changes to Expression type resolution
+            case Types.SQL_CHAR :
+                return SQL_CHAR_DEFAULT;
+            case Types.SQL_VARCHAR :
+                return SQL_VARCHAR_DEFAULT;
+            case Types.VARCHAR_IGNORECASE :
+                return VARCHAR_IGNORECASE;
+            case Types.SQL_CLOB :
+                return SQL_CLOB;
+
+            case Types.SQL_INTEGER :
+                return SQL_INTEGER;
+
+            case Types.SQL_SMALLINT :
+                return SQL_SMALLINT;
+
+            case Types.SQL_BIGINT :
+                return SQL_BIGINT;
+
+            case Types.TINYINT :
+                return TINYINT;
+
+            case Types.SQL_FLOAT :
+            case Types.SQL_REAL :
+            case Types.SQL_DOUBLE :
+                return SQL_DOUBLE;
+
+            case Types.SQL_NUMERIC :
+                return SQL_NUMERIC;
+
+            case Types.SQL_DECIMAL :
+                return SQL_DECIMAL;
+
+            case Types.SQL_BOOLEAN :
+                return SQL_BOOLEAN;
+
+            case Types.SQL_BINARY :
+                return SQL_BINARY_DEFAULT;
+            case Types.SQL_VARBINARY :
+                return SQL_VARBINARY_DEFAULT;
+            case Types.SQL_BLOB :
+                return SQL_BLOB;
+
+            case Types.SQL_BIT :
+                return SQL_BIT;
+            case Types.SQL_BIT_VARYING :
+                return SQL_BIT_VARYING;
+
+            case Types.SQL_DATE :
+                return SQL_DATE;
+            case Types.SQL_TIME :
+                return SQL_TIME;
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return SQL_TIME_WITH_TIME_ZONE ;
+            case Types.SQL_TIMESTAMP :
+                return SQL_TIMESTAMP;
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                return SQL_TIMESTAMP_WITH_TIME_ZONE;
+
+            case Types.SQL_INTERVAL_YEAR :
+                return SQL_INTERVAL_YEAR;
+            case Types.SQL_INTERVAL_YEAR_TO_MONTH :
+                return SQL_INTERVAL_YEAR_TO_MONTH;
+            case Types.SQL_INTERVAL_MONTH :
+                return SQL_INTERVAL_MONTH;
+            case Types.SQL_INTERVAL_DAY :
+                return SQL_INTERVAL_DAY;
+            case Types.SQL_INTERVAL_DAY_TO_HOUR :
+                return SQL_INTERVAL_DAY_TO_HOUR;
+            case Types.SQL_INTERVAL_DAY_TO_MINUTE :
+                return SQL_INTERVAL_DAY_TO_MINUTE;
+            case Types.SQL_INTERVAL_DAY_TO_SECOND :
+                return SQL_INTERVAL_DAY_TO_SECOND ;
+            case Types.SQL_INTERVAL_HOUR :
+                return SQL_INTERVAL_HOUR;
+            case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
+                return SQL_INTERVAL_HOUR_TO_MINUTE;
+            case Types.SQL_INTERVAL_HOUR_TO_SECOND :
+                return SQL_INTERVAL_HOUR_TO_SECOND;
+            case Types.SQL_INTERVAL_MINUTE :
+                return SQL_INTERVAL_MINUTE;
+            case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
+                return SQL_INTERVAL_MINUTE_TO_SECOND;
+            case Types.SQL_INTERVAL_SECOND :
+                return SQL_INTERVAL_SECOND;
+
+            case Types.OTHER :
+                return OTHER;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "Type");
         }
     }
+
 
     public static int getHSQLDBTypeCode(int jdbcTypeNumber) {
 

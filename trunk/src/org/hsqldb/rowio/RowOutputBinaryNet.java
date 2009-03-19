@@ -50,15 +50,11 @@ public class RowOutputBinaryNet
 
 
     protected void writeClob(ClobData o, Type type) {
-        writeByte(o.getClobType());
         writeLong(o.getId());
-        writeLong(o.length());
     }
 
     protected void writeBlob(BlobData o, Type type) {
-        writeByte(o.getBlobType());
         writeLong(o.getId());
-        writeLong(o.length());
     }
 
 }

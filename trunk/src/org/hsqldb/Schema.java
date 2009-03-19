@@ -180,6 +180,25 @@ public final class Schema implements SchemaObject {
         return array;
     }
 
+    public String[] getSequenceRestartSQL() {
+
+        HsqlArrayList list = new HsqlArrayList();
+        Iterator      it   = sequenceLookup.map.values().iterator();
+
+        while (it.hasNext()) {
+            NumberSequence sequence = (NumberSequence) it.next();
+            String         ddl      = sequence.getRestartSQL();
+
+            list.add(ddl);
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
     public String[] getTriggerSQL() {
 
         HsqlArrayList list = new HsqlArrayList();

@@ -117,11 +117,9 @@ public interface SessionInterface {
 
     String getInternalConnectionURL();
 
-    long getLobId();
+    public BlobDataID createBlob() throws HsqlException;
 
-    public BlobDataID createBlob();
-
-    public ClobDataID createClob();
+    public ClobDataID createClob() throws HsqlException;
 
     void allocateResultLob(ResultLob result,
                            DataInput dataInput) throws HsqlException;
@@ -131,4 +129,6 @@ public interface SessionInterface {
     TimestampData getCurrentDate();
 
     int getZoneSeconds();
+
+    int getStreamBlockSize();
 }

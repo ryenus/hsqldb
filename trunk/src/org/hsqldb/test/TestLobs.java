@@ -42,7 +42,9 @@ import org.hsqldb.jdbc.JDBCBlob;
 import org.hsqldb.jdbc.JDBCClob;
 
 import java.sql.Clob;
+
 import javax.sql.rowset.serial.SerialBlob;
+
 import java.sql.DriverManager;
 
 public class TestLobs extends TestBase {
@@ -51,7 +53,9 @@ public class TestLobs extends TestBase {
     Statement  statement;
 
     public TestLobs(String name) {
+
         super(name);
+//        super(name, "jdbc:hsqldb:file:test3", false, false);
     }
 
     protected void setUp() {
@@ -157,10 +161,8 @@ public class TestLobs extends TestBase {
             rs.next();
 
             Clob clob2 = rs.getClob(2);
-            int data1 =
-                clob1.getSubString(1, data.length()).indexOf("insert");
-            int data2 =
-                clob2.getSubString(1, data.length()).indexOf("INSERT");
+            int data1 = clob1.getSubString(1, data.length()).indexOf("insert");
+            int data2 = clob2.getSubString(1, data.length()).indexOf("INSERT");
 
             assertTrue(data1 == data2 && data1 > 0);
         } catch (SQLException e) {
@@ -182,9 +184,10 @@ public class TestLobs extends TestBase {
     }
 
     static public void main(String[] sa) throws Exception {
+
         ResultSet rs;
-        byte[] ba;
-        byte[] baR1 = new byte[] {
+        byte[]    ba;
+        byte[]    baR1 = new byte[] {
             (byte) 0xF1, (byte) 0xF2, (byte) 0xF3, (byte) 0xF4, (byte) 0xF5,
             (byte) 0xF6, (byte) 0xF7, (byte) 0xF8, (byte) 0xF9, (byte) 0xFA
         };
@@ -194,34 +197,51 @@ public class TestLobs extends TestBase {
         };
 
         Class.forName("org.hsqldb.jdbc.JDBCDriver");
-        Connection dbConn = DriverManager.getConnection(
-                "jdbc:hsqldb:mem:m", "SA", "");
-                //"jdbc:odbc:hsql_trunk", "BLAINE", "losung1");
+
+        Connection dbConn = DriverManager.getConnection("jdbc:hsqldb:test3",
+            "SA", "");
+
+        //"jdbc:odbc:hsql_trunk", "BLAINE", "losung1");
         dbConn.setAutoCommit(false);
+
         Statement st = dbConn.createStatement();
+
         st = dbConn.createStatement();
+
         st.executeUpdate("CREATE TABLE blo (id INTEGER, b blob( 100))");
-        PreparedStatement ps = dbConn.prepareStatement(
-                "INSERT INTO blo(id, b) values(2, ?)");
+
+        PreparedStatement ps =
+            dbConn.prepareStatement("INSERT INTO blo(id, b) values(2, ?)");
+
         //st.executeUpdate("INSERT INTO blo (id, b) VALUES (1, x'A003')");
         ps.setBlob(1, new SerialBlob(baR1));
         ps.executeUpdate();
 
         rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
-        if (!rs.next())
+
+        if (!rs.next()) {
             throw new Exception("No row with id 2");
+        }
+
         java.sql.Blob blob1 = rs.getBlob("b");
+
         System.out.println("Size of retrieved blob: " + blob1.length());
+
         //System.out.println("Value = (" + rs.getString("b") + ')');
         byte[] baOut = blob1.getBytes(1, (int) blob1.length());
-        if (baOut.length != baR1.length)
-            throw new Exception("Expected array len " + baR1.length
-                    + ", got len " + baOut.length);
-        for (int i = 0; i < baOut.length; i++)
-            if (baOut[i] != baR1[i])
-                throw new Exception("Byte " + i + " is wrong");
-        rs.close();
 
+        if (baOut.length != baR1.length) {
+            throw new Exception("Expected array len " + baR1.length
+                                + ", got len " + baOut.length);
+        }
+
+        for (int i = 0; i < baOut.length; i++) {
+            if (baOut[i] != baR1[i]) {
+                throw new Exception("Byte " + i + " is wrong");
+            }
+        }
+
+        rs.close();
         /*
         rs = st.executeQuery("SELECT b FROM blo WHERE id = 1");
         if (!rs.next())
@@ -245,9 +265,8 @@ public class TestLobs extends TestBase {
                 throw new Exception("row2 byte " + i + " differs");
         */
         rs.close();
-
         st.close();
+        dbConn.commit();
         dbConn.close();
     }
-
 }

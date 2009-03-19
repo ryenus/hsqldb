@@ -701,7 +701,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: SCOPE
             // for unique:  TABLE_CAT, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME
             // false PK, as TABLE_CAT and/or TABLE_SCHEM may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_BESTROWIDENTIFIER].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 8, 9, 10, 1
             }, false);
 
@@ -896,7 +900,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION
             // added for unique: TABLE_CAT
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_COLUMNS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 1, 2, 16, 0
             }, false);
 
@@ -1068,7 +1076,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // added for unique: FK_NAME
             // false PK, as FKTABLE_CAT, FKTABLE_SCHEM and/or FK_NAME
             // may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_CROSSREFERENCE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 4, 5, 6, 8, 11
             }, false);
 
@@ -1278,7 +1290,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: NON_UNIQUE, TYPE, INDEX_NAME, and ORDINAL_POSITION.
             // added for unique: INDEX_QUALIFIER, TABLE_NAME
             // false PK, as INDEX_QUALIFIER may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_INDEXINFO].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 3, 6, 5, 7, 4, 2, 1
             }, false);
 
@@ -1442,7 +1458,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: COLUMN_NAME
             // added for unique: TABLE_NAME, TABLE_SCHEM, TABLE_CAT
             // false PK, as  TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_PRIMARYKEYS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 3, 2, 1, 0
             }, false);
 
@@ -1637,7 +1657,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME, SEQ
             // added for unique: PROCEDURE_CAT
             // false PK, as PROCEDURE_SCHEM and/or PROCEDURE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_PROCEDURECOLUMNS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 1, 2, 19, 20, 0
             }, false);
 
@@ -1900,7 +1924,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order: PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME
             // added for uniqe: PROCEDURE_CAT
             // false PK, as PROCEDURE_SCHEM and/or PROCEDURE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_PROCEDURES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 1, 2, 8, 0
             }, false);
 
@@ -2142,7 +2170,11 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             // order: TABLE_SCHEM
             // true PK, as rows never have null TABLE_SCHEM
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_SCHEMAS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -2243,7 +2275,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order TABLE_TYPE, TABLE_SCHEM and TABLE_NAME
             // added for unique: TABLE_CAT
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_TABLES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 3, 1, 2, 0
             }, false);
 
@@ -2358,7 +2394,11 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             // order: TABLE_TYPE
             // true PK
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_TABLETYPES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -2461,7 +2501,11 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             // order: DATA_TYPE, TYPE_SUB
             // true PK
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_TYPEINFO].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 1, 18
             }, true);
 
@@ -2661,7 +2705,11 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             // order:  DATA_TYPE, TYPE_SUB
             // true primary key
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_ALLTYPEINFO].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 1, 34
             }, true);
 
@@ -2837,7 +2885,11 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             // order: USER
             // true PK
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_USERS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -2917,7 +2969,12 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);       // not null
             addColumn(t, "PRIVILEGE_TYPE", CHARACTER_DATA);    // not null
             addColumn(t, "IS_GRANTABLE", YES_OR_NO);           // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[COLUMN_PRIVILEGES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 2, 3, 4, 5, 6, 1, 0
             }, false);
 
@@ -3118,7 +3175,10 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             // order SEQUENCE_CATALOG, SEQUENCE_SCHEMA, SEQUENCE_NAME
             // false PK, as CATALOG may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SEQUENCES].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -3239,7 +3299,12 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "PRIVILEGE_TYPE", CHARACTER_DATA);    // not null
             addColumn(t, "IS_GRANTABLE", YES_OR_NO);           // not null
             addColumn(t, "WITH_HIERARCHY", YES_OR_NO);
-            t.createPrimaryKey(null, new int[] {
+
+            //
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SEQUENCES].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -3351,7 +3416,10 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "COMMIT_ACTION", CHARACTER_DATA);
 
             //
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TABLES].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2,
             }, false);
 
@@ -3461,7 +3529,11 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             // order:  TABLE_CAT
             // true PK
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[INFORMATION_SCHEMA_CATALOG_NAME].name,
+                false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }

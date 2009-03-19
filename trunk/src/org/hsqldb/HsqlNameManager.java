@@ -82,7 +82,7 @@ public final class HsqlNameManager {
     }
 
     private int      serialNumber = 1;    // 0 is reserved in lookups
-    private int      sysNumber    = 0;
+    private int      sysNumber    = 1000; // avoid name clash in older scripts
     private HsqlName catalogName;
 
     public HsqlNameManager(Database database) {
@@ -189,19 +189,6 @@ public final class HsqlNameManager {
      * Same name string but different objects and serial number
      */
     public HsqlName getSubqueryTableName() throws HsqlException {
-
-        HsqlName hsqlName = new HsqlName(this, SqlInvariants.SYSTEM_SUBQUERY,
-                                         false, SchemaObject.TABLE);
-
-        hsqlName.schema = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
-
-        return hsqlName;
-    }
-
-    /**
-     * Same name string but different objects and serial number
-     */
-    public HsqlName nnewSubqueryTableName() throws HsqlException {
 
         HsqlName hsqlName = new HsqlName(this, SqlInvariants.SYSTEM_SUBQUERY,
                                          false, SchemaObject.TABLE);

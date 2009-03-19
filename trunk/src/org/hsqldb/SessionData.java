@@ -40,6 +40,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.ReaderDataInput;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.DataFileCacheSession;
@@ -334,7 +335,11 @@ public class SessionData {
 
                 if (dataInput == null) {
                     clobId    = resultLobId;
-                    dataInput = new DataInputStream(result.getInputStream());
+                    if(result.getReader() != null) {
+                        dataInput = new ReaderDataInput(result.getReader());
+                    } else {
+                        dataInput = new DataInputStream(result.getInputStream());
+                    }
                 } else {
                     clobId   = database.lobManager.createClob(session);
 

@@ -83,6 +83,7 @@ public class Logger {
      */
     private LockFile lockFile;
     boolean          needsCheckpoint;
+    private boolean  logsStatements;
     private boolean  logStatements;
     private boolean  syncFile = false;
 
@@ -129,7 +130,7 @@ public class Logger {
 
         log.open();
 
-        logStatements = !db.isFilesReadOnly();
+        logsStatements = logStatements = !db.isFilesReadOnly();
     }
 
 // fredt@users 20020130 - patch 495484 by boucherb@users
@@ -424,6 +425,14 @@ public class Logger {
 
     public boolean needsCheckpoint() {
         return needsCheckpoint;
+    }
+
+    public void stopLogging() {
+        logStatements = false;
+    }
+
+    public void restartLogging() {
+        logStatements = logsStatements;
     }
 
     /**
