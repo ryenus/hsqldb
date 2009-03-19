@@ -2364,8 +2364,7 @@ public class Scanner {
         int currentValue  = 0;
         int currentDigits = 0;
 
-        for (; intervalPosition < intervalString.length();
-                intervalPosition++) {
+        for (; intervalPosition < intervalString.length();) {
             int character = intervalString.charAt(intervalPosition);
 
             if (character >= '0' && character <= '9') {
@@ -2374,6 +2373,7 @@ public class Scanner {
                 currentValue *= 10;
                 currentValue += digit;
 
+                intervalPosition++;
                 currentDigits++;
 
                 if (currentDigits == DTIType.maxFractionPrecision) {

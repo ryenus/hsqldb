@@ -173,7 +173,10 @@ public class StatementSimple extends Statement {
 
             case StatementTypes.SIGNAL :
             case StatementTypes.RESIGNAL :
-                return Result.newErrorResult(null, sqlState, 0);
+                HsqlException ex = Error.error("sql routine error", sqlState,
+                                               -1);
+
+                return Result.newErrorResult(ex);
 
             // todo
             case StatementTypes.ITERATE :

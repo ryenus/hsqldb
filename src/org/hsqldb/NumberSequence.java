@@ -223,7 +223,20 @@ public final class NumberSequence implements SchemaObject {
         return sb.toString();
     }
 
-    public String getRestartSQL(Table t) {
+    public String getRestartSQL() {
+
+        StringBuffer   sb  = new StringBuffer(128);
+
+        sb.append(Tokens.T_ALTER).append(' ');
+        sb.append(Tokens.T_SEQUENCE);
+        sb.append(' ').append(name.getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_RESTART);
+        sb.append(' ').append(Tokens.T_WITH).append(' ').append(peek());
+
+        return sb.toString();
+    }
+
+    public static String getRestartSQL(Table t) {
 
         String colname = t.getColumn(t.identityColumn).getName().statementName;
         NumberSequence seq = t.identitySequence;

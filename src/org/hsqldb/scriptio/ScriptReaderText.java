@@ -49,6 +49,7 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputTextLog;
 import org.hsqldb.types.Type;
+import org.hsqldb.HsqlNameManager.HsqlName;
 
 /**
  * Handles operations involving reading back a script or log file written
@@ -88,7 +89,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         for (; readLoggedStatement(session); ) {
             Statement cs     = null;
-            Result                     result = null;
+            Result    result = null;
 
             if (rowIn.getStatementType() == INSERT_STATEMENT) {
                 isInsert = true;
@@ -99,6 +100,12 @@ public class ScriptReaderText extends ScriptReaderBase {
             try {
                 cs     = session.compileStatement(statement);
                 result = session.executeCompiledStatement(cs, null);
+
+                if (cs.getType() == StatementTypes.CREATE_SCHEMA) {
+                    HsqlName name = cs.getSchemalName();
+
+                    session.setSchema(name.name);
+                }
             } catch (HsqlException e) {
                 result = Result.newErrorResult(e);
             }
@@ -242,7 +249,11 @@ public class ScriptReaderText extends ScriptReaderBase {
                 colTypes = currentTable.getColumnTypes();
             }
 
-            rowData = rowIn.readData(colTypes);
+            try {
+                rowData = rowIn.readData(colTypes);
+            } catch (Exception e) {
+                throw e;
+            }
         } catch (Exception e) {
             throw new IOException(e.toString());
         }

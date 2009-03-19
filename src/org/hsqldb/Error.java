@@ -31,8 +31,8 @@
 
 package org.hsqldb;
 
-import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.result.Result;
 
 /**
@@ -107,6 +107,22 @@ public class Error {
 
     public static HsqlException error(int code, int code2) {
         return error(code, getMessage(code2));
+    }
+
+    /**
+     * Compose error
+     * in placeholders within the error message. The message string contains
+     * $$ markers for each context variable. Context variables are supplied in
+     * the add parameters.
+     *
+     * @param code      main error code
+     * @param subCode   sub error code (if 0 => no subMessage!)
+     * @param   add     optional parameters
+     *
+     * @return an <code>HsqlException</code>
+     */
+    public static HsqlException error(String message, String sqlState, int i) {
+        return new HsqlException(message, sqlState, i);
     }
 
     /**

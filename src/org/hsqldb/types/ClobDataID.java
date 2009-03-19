@@ -48,14 +48,12 @@ public class ClobDataID
     implements ClobData {
 
     long id;
-    long length;
 
     public ClobDataID() {
     }
 
-    public ClobDataID(long id, long length) {
+    public ClobDataID(long id) {
         this.id = id;
-        this.length = length;
     }
 
     public char[] getChars(long position, int length) throws HsqlException {
@@ -67,11 +65,11 @@ public class ClobDataID
     }
 
     public long length() {
-        return length;
+        return 0;
     }
 
     public String getSubString(long pos, int length) throws HsqlException {
-        return "";
+        return null;
     }
 
     public void truncate(long len) throws HsqlException {
@@ -112,7 +110,7 @@ public class ClobDataID
     }
 
     public long nonSpaceLength() {
-        return length;
+        return 0;
     }
 
     public Reader getCharacterStream(long pos, long length) {
@@ -148,9 +146,5 @@ public class ClobDataID
 
     public byte getClobType() {
         return 0;
-    }
-
-    public void setLength(long length) {
-        this.length = length;
     }
 }

@@ -765,16 +765,6 @@ public class Grantee implements SchemaObject {
         return isPublic;
     }
 
-    public HsqlName getInitialSchema() {
-        return null;
-    }
-
-    public HsqlName getInitialOrDefaultSchema() {
-        return null;
-    }
-
-    public void setInitialSchema(HsqlName schema) {}
-
     /**
      * Retrieves the distinct set of Java <code>Class</code> FQNs
      * for which this <code>User</code> object has been

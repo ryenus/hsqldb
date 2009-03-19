@@ -63,7 +63,19 @@ public class JDBCBlobClient implements Blob {
      *   <code>BLOB</code>
      */
     public long length() throws SQLException {
-        return blob.length();
+        ResultLob resultOut = ResultLob.newLobGetLengthRequest(blob.getId());
+
+        try {
+            Result resultIn = session.execute(resultOut);
+
+            if (resultIn.isError()) {
+                throw Util.sqlException(resultIn);
+            }
+
+            return ((ResultLob) resultIn).getBlockLength();
+        } catch (HsqlException e) {
+            throw Util.sqlException(e);
+        }
     }
 
     /**
@@ -84,10 +96,6 @@ public class JDBCBlobClient implements Blob {
     public byte[] getBytes(long pos, int length) throws SQLException {
 
         try {
-            if (!isInLimits(blob.length(), pos - 1, length)) {
-                throw new IndexOutOfBoundsException();
-            }
-
             ResultLob resultOut = ResultLob.newLobGetBytesRequest(blob.getId(),
                 pos - 1, length);
             Result resultIn = session.execute(resultOut);
@@ -112,7 +120,7 @@ public class JDBCBlobClient implements Blob {
      */
     public InputStream getBinaryStream() throws SQLException {
         return new BlobInputStream(this, 0, length(),
-                                   blob.getStreamBlockSize());
+                                   session.getStreamBlockSize());
     }
 
     /**
@@ -186,7 +194,7 @@ public class JDBCBlobClient implements Blob {
                 Util.throwError(resultIn);
             }
 
-            blob.setLength(((ResultLob) resultIn).getBlockLength());
+//            blob.setLength(((ResultLob) resultIn).getBlockLength());
 
             return bytes.length;
         } catch (HsqlException e) {
@@ -261,7 +269,7 @@ public class JDBCBlobClient implements Blob {
                 throw Util.sqlException(resultIn);
             }
 
-            blob.setLength(((ResultLob) resultIn).getBlockLength());
+//            blob.setLength(((ResultLob) resultIn).getBlockLength());
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -307,7 +315,7 @@ public class JDBCBlobClient implements Blob {
     public InputStream getBinaryStream(long pos,
                                        long length) throws SQLException {
         return new BlobInputStream(this, pos - 1, length,
-                                   blob.getStreamBlockSize());
+                                   session.getStreamBlockSize());
     }
 
     //--

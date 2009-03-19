@@ -43,8 +43,9 @@ import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
+import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
-import org.hsqldb.types.ClobDataMemory;
+import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
@@ -278,7 +279,8 @@ implements RowInputInterface {
         return scanner.newTime((String) value);
     }
 
-    protected TimestampData readDate(Type type) throws IOException, HsqlException {
+    protected TimestampData readDate(Type type)
+    throws IOException, HsqlException {
 
         readField();
 
@@ -381,27 +383,27 @@ implements RowInputInterface {
 
     protected ClobData readClob() throws IOException, HsqlException {
 
-        readField();
+        readNumberField(Type.SQL_BIGINT);
 
         if (value == null) {
             return null;
         }
 
-        return new ClobDataMemory(((String) value).toCharArray(), false);
+        long id = ((Number) value).longValue();
+
+        return new ClobDataID(id);
     }
 
     protected BlobData readBlob() throws IOException, HsqlException {
 
-        readFieldPrefix();
+        readNumberField(Type.SQL_BIGINT);
 
-        if (scanner.scanNull()) {
+        if (value == null) {
             return null;
         }
 
-        scanner.scanBinaryString();
+        long id = ((Number) value).longValue();
 
-        value = scanner.getValue();
-
-        return new BinaryData(((BinaryData) value).getBytes(), false);
+        return new BlobDataID(id, 0);
     }
 }

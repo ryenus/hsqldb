@@ -245,17 +245,11 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     protected void writeClob(ClobData o, Type type) {
-        writeByte(o.getClobType());
         writeLong(o.getId());
-        writeLong(o.length());
-        writeString(type.convertToString(o));
     }
 
     protected void writeBlob(BlobData o, Type type) {
-        writeByte(o.getBlobType());
         writeLong(o.getId());
-        writeLong(o.length());
-        writeByteArray(o.getBytes());
     }
 
 // fredt@users - comment - helper and conversion methods
@@ -291,9 +285,8 @@ public class RowOutputBinary extends RowOutputBase {
                 switch (types[i].typeCode) {
 
                     case Types.SQL_ALL_TYPES :
-                        throw Error.runtimeError(
-                            ErrorCode.U_S0500,
-                            "RowOutputBinary");
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "RowOutputBinary");
                     case Types.SQL_CHAR :
                     case Types.SQL_VARCHAR :
                     case Types.VARCHAR_IGNORECASE :
@@ -391,9 +384,8 @@ public class RowOutputBinary extends RowOutputBase {
                         break;
 
                     default :
-                        throw Error.runtimeError(
-                            ErrorCode.U_S0500,
-                            "RowOutputBinary");
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "RowOutputBinary");
                 }
             }
         }

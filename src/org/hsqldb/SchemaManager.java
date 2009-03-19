@@ -59,7 +59,7 @@ public class SchemaManager {
     SchemaManager(Database database) {
 
         this.database = database;
-
+        defaultSchemaHsqlName = SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
         Schema schema =
             new Schema(SqlInvariants.INFORMATION_SCHEMA_HSQLNAME,
                        SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner);
@@ -297,6 +297,10 @@ public class SchemaManager {
         return SqlInvariants.INFORMATION_SCHEMA.equals(schema)
                || SqlInvariants.DEFINITION_SCHEMA.equals(schema)
                || SqlInvariants.SYSTEM_SCHEMA.equals(schema);
+    }
+
+    public boolean isLobsSchema(String schema) {
+        return "SYSTEM_LOBS".equals(schema);
     }
 
     /**
@@ -1493,8 +1497,12 @@ public class SchemaManager {
         while (schemas.hasNext()) {
             Schema schema = (Schema) schemas.next();
 
-            if (database.schemaManager.isSystemSchema(schema.name.name)) {
+            if (isSystemSchema(schema.name.name)) {
                 continue;
+            }
+
+            if (isLobsSchema(schema.name.name)) {
+//                continue;
             }
 
             list.addAll(schema.getSQLArray(resolved, unresolved));
@@ -1550,7 +1558,13 @@ public class SchemaManager {
                 continue;
             }
 
+            if (database.schemaManager.isLobsSchema(schema.name.name)) {
+//                continue;
+            }
+
             list.addAll(schema.getTriggerSQL());
+
+            list.addAll(schema.getSequenceRestartSQL());
         }
 
         if (defaultSchemaHsqlName != null) {

@@ -393,7 +393,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         if (!isTemp && hasIdentityColumn()) {
-            list.add(identitySequence.getRestartSQL(this));
+            list.add(NumberSequence.getRestartSQL(this));
         }
 
         for (int i = 0; i < indexList.length; i++) {

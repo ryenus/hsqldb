@@ -40,13 +40,11 @@ import org.hsqldb.SessionInterface;
 public class BlobDataID implements BlobData {
 
     long       id;
-    long length;
 
     public BlobDataID() {    }
 
     public BlobDataID(long id, long length) {
         this.id = id;
-        this.length = length;
     }
 
     public BlobData duplicate() throws HsqlException {
@@ -89,11 +87,11 @@ public class BlobDataID implements BlobData {
     }
 
     public long length() {
-        return length;
+        return 0;
     }
 
     public long bitLength() {
-        return length * 8;
+        return 0;
     }
 
     public boolean isBits() {
@@ -109,7 +107,7 @@ public class BlobDataID implements BlobData {
     }
 
     public long nonZeroLength() {
-        return length;
+        return 0;
     }
 
     public OutputStream setBinaryStream(long pos) throws HsqlException {
@@ -135,9 +133,5 @@ public class BlobDataID implements BlobData {
 
     public byte getBlobType() {
         return 0;
-    }
-
-    public void setLength(long length) {
-        this.length = length;
     }
 }

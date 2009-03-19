@@ -209,6 +209,7 @@ public class FunctionSQL extends Expression {
     int     funcType;
     String  name;
     short[] parseList;
+    short[] parseListAlt;
     boolean isValueFunction;
 
     public static FunctionSQL newSQLFunction(String token,
@@ -369,6 +370,11 @@ public class FunctionSQL extends Expression {
                     Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.FOR,
                     Tokens.QUESTION, Tokens.X_OPTION, 5, Tokens.USING,
                     Tokens.X_KEYSET, 2, Tokens.CHARACTERS, Tokens.OCTETS,
+                    Tokens.CLOSEBRACKET
+                };
+                parseListAlt = new short[] {
+                    Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
                     Tokens.CLOSEBRACKET
                 };
                 break;
@@ -1060,7 +1066,7 @@ public class FunctionSQL extends Expression {
                             || nodes[1].dataType.isBinaryType()) {
                         nodes[0].dataType = nodes[1].dataType;
                     } else {
-                        nodes[0].dataType = Type.SQL_VARCHAR_MAX_LENGTH;
+                        nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                     }
                 }
 
@@ -1069,7 +1075,7 @@ public class FunctionSQL extends Expression {
                             || nodes[0].dataType.isBinaryType()) {
                         nodes[1].dataType = nodes[0].dataType;
                     } else {
-                        nodes[1].dataType = Type.SQL_VARCHAR_MAX_LENGTH;
+                        nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
                     }
                 }
 
@@ -1136,7 +1142,7 @@ public class FunctionSQL extends Expression {
             // fall through
             case FUNC_OCTET_LENGTH : {
                 if (nodes[0].dataType == null) {
-                    nodes[0].dataType = Type.SQL_VARCHAR_MAX_LENGTH;
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
 
                 if (!nodes[0].dataType.isCharacterType()
@@ -1305,7 +1311,7 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_42565);
                 }
 
-                if (nodes[3] != null) {
+                if (nodes.length > 3 && nodes[3] != null) {
 
                     // always boolean constant if defined
                 }
@@ -1389,7 +1395,7 @@ public class FunctionSQL extends Expression {
                             || nodes[1].dataType.isBinaryType()) {
                         nodes[0].dataType = nodes[1].dataType;
                     } else {
-                        nodes[0].dataType = Type.SQL_VARCHAR_MAX_LENGTH;
+                        nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                     }
                 }
 
@@ -1398,7 +1404,7 @@ public class FunctionSQL extends Expression {
                             || nodes[0].dataType.isBinaryType()) {
                         nodes[1].dataType = nodes[0].dataType;
                     } else {
-                        nodes[1].dataType = Type.SQL_VARCHAR_MAX_LENGTH;
+                        nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
                     }
                 }
 
@@ -1681,7 +1687,7 @@ public class FunctionSQL extends Expression {
                         .append(nodes[2].getSQL());
                 }
 
-                if (nodes[3] != null) {
+                if (nodes.length > 3 && nodes[3] != null) {
                     if (Boolean.TRUE.equals(nodes[3].valueData)) {
                         sb.append(' ').append(Tokens.T_USING).append(
                             ' ').append(Tokens.T_OCTETS);

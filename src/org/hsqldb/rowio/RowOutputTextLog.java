@@ -114,11 +114,11 @@ public class RowOutputTextLog extends RowOutputBase {
     }
 
     protected void writeClob(ClobData o, Type type) {
-        writeString(type.convertToSQLString(o));
+        writeString(Long.toString(o.getId()));
     }
 
     protected void writeBlob(BlobData o, Type type) {
-        writeString(type.convertToSQLString(o));
+        writeString(Long.toString(o.getId()));
     }
 
     public void writeType(int type) {}
@@ -193,30 +193,35 @@ public class RowOutputTextLog extends RowOutputBase {
     public void writeIntData(int i, int position) {}
 
     protected void writeTime(TimeData o, Type type) {
+
         write('\'');
         writeBytes(type.convertToString(o));
         write('\'');
     }
 
     protected void writeDate(TimestampData o, Type type) {
+
         write('\'');
         writeBytes(type.convertToString(o));
         write('\'');
     }
 
     protected void writeTimestamp(TimestampData o, Type type) {
+
         write('\'');
         writeBytes(type.convertToString(o));
         write('\'');
     }
 
     protected void writeYearMonthInterval(IntervalMonthData o, Type type) {
+
         write('\'');
         writeBytes(type.convertToString(o));
         write('\'');
     }
 
     protected void writeDaySecondInterval(IntervalSecondData o, Type type) {
+
         write('\'');
         writeBytes(type.convertToString(o));
         write('\'');

@@ -74,6 +74,7 @@ import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.HsqlNameManager;
 
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
 // boucherb@users - 1.7.2 - 20020225
@@ -398,7 +399,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "FILE_FREE_BYTES", CARDINAL_NUMBER);    // not null
             addColumn(t, "FILE_FREE_COUNT", CARDINAL_NUMBER);    // not null
             addColumn(t, "FILE_FREE_POS", CARDINAL_NUMBER);      // not null
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_CACHEINFO].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -541,7 +547,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // order PROPERTY_SCOPE, PROPERTY_NAMESPACE, PROPERTY_NAME
             // true PK
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_PROPERTIES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, true);
 
@@ -678,7 +688,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             addColumn(t, "KEY", CHARACTER_DATA);      // not null
             addColumn(t, "VALUE", CHARACTER_DATA);    // not null
-            t.createPrimaryKey();
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_SESSIONINFO].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -794,7 +809,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // order:  SESSION_ID
             // true primary key
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_SESSIONS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -896,7 +915,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "IS_DESC", Type.SQL_BOOLEAN);
 
             // ------------------------------------------------------------
-            t.createPrimaryKey();
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_TEXTTABLES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
+                0, 1, 2,
+            }, false);
 
             return t;
         }
@@ -1021,7 +1046,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "DATA_TYPE", SQL_IDENTIFIER);     // not null
             addColumn(t, "REMARKS", CHARACTER_DATA);
             addColumn(t, "BASE_TYPE", Type.SQL_SMALLINT);
-            t.createPrimaryKey();
+
+            //
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_UDTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, null, false);
 
             return t;
         }
@@ -1093,7 +1124,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);          // not null
 
             // -----------------------------------------------------------------
-            t.createPrimaryKey();
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_VERSIONCOLUMNS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, null, false);
 
             return t;
         }
@@ -1122,7 +1157,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "GRANTEE", SQL_IDENTIFIER);
             addColumn(t, "ROLE_NAME", SQL_IDENTIFIER);
             addColumn(t, "IS_GRANTABLE", SQL_IDENTIFIER);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ADMINISTRABLE_ROLE_AUTHORIZATIONS].name,
+                false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1152,7 +1192,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "GRANTEE", SQL_IDENTIFIER);
             addColumn(t, "ROLE_NAME", SQL_IDENTIFIER);
             addColumn(t, "IS_GRANTABLE", SQL_IDENTIFIER);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[APPLICABLE_ROLES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1219,7 +1264,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "CONSTRAINT_NAME", SQL_IDENTIFIER);    // not null
             addColumn(t, "IS_DEFERRABLE", YES_OR_NO);
             addColumn(t, "INITIALLY_DEFERRED", YES_OR_NO);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ASSERTIONS].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1295,7 +1344,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "AUTHORIZATION_TYPE", SQL_IDENTIFIER);    // not null
 
             // true PK
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[AUTHORIZATIONS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -1340,7 +1393,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "DEFAULT_COLLATE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "DEFAULT_COLLATE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "DEFAULT_COLLATE_NAME", SQL_IDENTIFIER);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[CHARACTER_SETS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1452,7 +1510,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SPECIFIC_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "SPECIFIC_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);      // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[CHECK_CONSTRAINT_ROUTINE_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -1626,7 +1689,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "CONSTRAINT_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "CONSTRAINT_NAME", SQL_IDENTIFIER);    // not null
             addColumn(t, "CHECK_CLAUSE", CHARACTER_DATA);       // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[CHECK_CONSTRAINTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 2, 1, 0
             }, false);
 
@@ -1782,7 +1850,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "PAD_ATTRIBUTE", CHARACTER_DATA);
 
             // false PK, as rows may have NULL COLLATION_CATALOG
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[COLLATIONS].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1834,7 +1905,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
             addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);
             addColumn(t, "DEPENDENT_COLUMN", SQL_IDENTIFIER);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[COLUMN_COLUMN_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4
             }, false);
 
@@ -1873,7 +1949,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);     // not null
             addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);    // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[COLUMN_DOMAIN_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -1918,7 +1999,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);     // not null
             addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);    // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[COLUMN_UDT_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -1998,7 +2084,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             // order: TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION
             // added for unique: TABLE_CAT
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[COLUMNS].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 3, 2, 1, 4
             }, false);
 
@@ -2255,7 +2344,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "CONSTRAINT_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "CONSTRAINT_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "CONSTRAINT_NAME", SQL_IDENTIFIER);    // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[CONSTRAINT_COLUMN_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -2466,7 +2560,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);         // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[CONSTRAINT_TABLE_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -2502,7 +2601,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "OBJECT_NAME", SQL_IDENTIFIER);    // not null
             addColumn(t, "OBJECT_TYPE", SQL_IDENTIFIER);
             addColumn(t, "DTD_IDENTIFIER", SQL_IDENTIFIER);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[DATA_TYPE_PRIVILEGES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4
             }, false);
 
@@ -2585,7 +2689,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "DOMAIN_NAME", SQL_IDENTIFIER);
             addColumn(t, "IS_DEFERRABLE", YES_OR_NO);
             addColumn(t, "INITIALLY_DEFERRED", YES_OR_NO);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[DOMAIN_CONSTRAINTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -2680,7 +2789,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
             addColumn(t, "DECLARED_NUMERIC_SCLAE", CARDINAL_NUMBER);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[DOMAINS].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -2799,7 +2912,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "ROLE_NAME", SQL_IDENTIFIER);
 
             // true PK
-            t.createPrimaryKey(null, new int[]{ 0 }, true);
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ENABLED_ROLES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -2875,7 +2992,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);                       // not null
             addColumn(t, "ORDINAL_POSITION", CARDINAL_NUMBER);                 // not null
             addColumn(t, "POSITION_IN_UNIQUE_CONSTRAINT", CARDINAL_NUMBER);    // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[KEY_COLUMN_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 2, 1, 0, 6, 7
             }, false);
 
@@ -3024,7 +3146,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "MATCH_OPTION", CHARACTER_DATA);                 // not null
             addColumn(t, "UPDATE_RULE", CHARACTER_DATA);                  // not null
             addColumn(t, "DELETE_RULE", CHARACTER_DATA);                  // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[REFERENTIAL_CONSTRAINTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2,
             }, false);
 
@@ -3165,7 +3292,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             // order: COLUMN_NAME, PRIVILEGE
             // for unique: GRANTEE, GRANTOR, TABLE_NAME, TABLE_SCHEMA, TABLE_CAT
             // false PK, as TABLE_SCHEMA and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ROLE_COLUMN_GRANTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 5, 6, 1, 0, 4, 3, 2
             }, false);
 
@@ -3207,7 +3338,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // false PK, as VIEW_CATALOG, VIEW_SCHEMA, TABLE_CATALOG, and/or
             // TABLE_SCHEMA may be NULL
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ROLE_ROUTINE_GRANTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
             }, false);
 
@@ -3252,7 +3387,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             // order:  TABLE_SCHEM, TABLE_NAME, and PRIVILEGE,
             // added for unique:  GRANTEE, GRANTOR,
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ROLE_TABLE_GRANTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 3, 4, 5, 0, 1
             }, false);
 
@@ -3288,7 +3427,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "UDT_NAME", SQL_IDENTIFIER);    // not null
             addColumn(t, "PRIVILEGE_TYPE", CHARACTER_DATA);
             addColumn(t, "IS_GRANTABLE", YES_OR_NO);     // not null
-            t.createPrimaryKey();
+
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ROLE_TABLE_GRANTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, null, false);
+
 
             return t;
         }
@@ -3327,7 +3473,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             // order: COLUMN_NAME, PRIVILEGE
             // for unique: GRANTEE, GRANTOR, TABLE_NAME, TABLE_SCHEM, TABLE_CAT
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ROLE_USAGE_GRANTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -3446,7 +3596,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // order: CATALOG_NAME, SCHEMA_NAME
             // false PK, as rows may have NULL CATALOG_NAME
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SCHEMATA].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1
             }, false);
 
@@ -3516,7 +3669,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "IS_SUPPORTED", YES_OR_NO);
             addColumn(t, "IS_VERIFIED_BY", CHARACTER_DATA);
             addColumn(t, "COMMENTS", CHARACTER_DATA);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SQL_FEATURES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 2
             }, false);
 
@@ -4000,7 +4158,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "INTEGER_VALUE", CARDINAL_NUMBER);
             addColumn(t, "CHARACTER_VALUE", CHARACTER_DATA);
             addColumn(t, "COMMENTS", CHARACTER_DATA);
-            t.createPrimaryKey(null, new int[]{ 0 }, false);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SQL_IMPLEMENTATION_INFO].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -4032,7 +4195,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "IS_SUPPORTED", YES_OR_NO);
             addColumn(t, "IS_VERIFIED_BY", CHARACTER_DATA);
             addColumn(t, "COMMENTS", CHARACTER_DATA);
-            t.createPrimaryKey(null, new int[]{ 0 }, false);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SQL_PACKAGES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -4068,7 +4236,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "IS_SUPPORTED", YES_OR_NO);
             addColumn(t, "IS_VERIFIED_BY", CHARACTER_DATA);
             addColumn(t, "COMMENTS", CHARACTER_DATA);
-            t.createPrimaryKey(null, new int[]{ 0 }, false);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SQL_PARTS].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -4105,7 +4277,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SIZING_NAME", CHARACTER_DATA);
             addColumn(t, "SUPPORTED_VALUE", CARDINAL_NUMBER);
             addColumn(t, "COMMENTS", CHARACTER_DATA);
-            t.createPrimaryKey(null, new int[]{ 0 }, false);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SQL_SIZING].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -4157,7 +4333,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "PROFILE_NAME", CHARACTER_DATA);
             addColumn(t, "REQUIRED_VALUE", CARDINAL_NUMBER);
             addColumn(t, "COMMENTS", CHARACTER_DATA);
-            t.createPrimaryKey(null, new int[]{ 0 }, false);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SQL_SIZING_PROFILES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -4300,7 +4481,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // false PK, as CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA,
             // TABLE_CATALOG and/or TABLE_SCHEMA may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TABLE_CONSTRAINTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -4418,7 +4603,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TRANSLATION_SOURCE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "TRANSLATION_SOURCE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TRANSLATION_SOURCE_NAME", SQL_IDENTIFIER);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TRANSLATIONS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -4442,7 +4632,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);      // not null
             addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);     // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TRIGGER_COLUMN_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -4502,7 +4697,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SPECIFIC_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "SPECIFIC_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);    // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TRIGGER_ROUTINE_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -4560,7 +4760,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SEQUENCE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "SEQUENCE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "SEQUENCE_NAME", SQL_IDENTIFIER);    // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TRIGGER_SEQUENCE_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -4618,7 +4823,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);      // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TRIGGER_TABLE_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -4687,7 +4897,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "ACTION_REFERENCE_OLD_ROW", SQL_IDENTIFIER);
             addColumn(t, "ACTION_REFERENCE_NEW_ROW", SQL_IDENTIFIER);
             addColumn(t, "CREATED", TIME_STAMP);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TRIGGERS].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -4770,7 +4984,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "EVENT_OBJECT_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "EVENT_OBJECT_TABLE", SQL_IDENTIFIER);
             addColumn(t, "EVENT_OBJECT_COLUMN", SQL_IDENTIFIER);     // not null
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TRIGGERED_UPDATE_COLUMNS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -4940,7 +5159,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             // order: COLUMN_NAME, PRIVILEGE
             // for unique: GRANTEE, GRANTOR, TABLE_NAME, TABLE_SCHEM, TABLE_CAT
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[USAGE_PRIVILEGES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6, 7
             }, false);
 
@@ -5069,7 +5292,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "EXTERNAL_NAME", CHARACTER_DATA);
             addColumn(t, "EXTERNAL_LANGUAGE", CHARACTER_DATA);
             addColumn(t, "JAVA_INTERFACE", CHARACTER_DATA);
-            t.createPrimaryKey(null, new int[] {
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[USER_DEFINED_TYPES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -5236,7 +5464,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // false PK, as VIEW_CATALOG, VIEW_SCHEMA, TABLE_CATALOG, and/or
             // TABLE_SCHEMA may be NULL
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[VIEW_COLUMN_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -5367,7 +5599,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // false PK, as VIEW_CATALOG, VIEW_SCHEMA, TABLE_CATALOG, and/or
             // TABLE_SCHEMA may be NULL
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[VIEW_ROUTINE_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -5526,7 +5762,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // false PK, as VIEW_CATALOG, VIEW_SCHEMA, TABLE_CATALOG, and/or
             // TABLE_SCHEMA may be NULL
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[VIEW_TABLE_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -5597,7 +5837,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             // order TABLE_NAME
             // added for unique: TABLE_SCHEMA, TABLE_CATALOG
             // false PK, as TABLE_SCHEMA and/or TABLE_CATALOG may be null
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[VIEWS].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 1, 2, 0
             }, false);
 
@@ -5758,7 +6001,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "IS_GRANTABLE", YES_OR_NO);      // not null
 
             // true PK
-            t.createPrimaryKey(null, new int[] {
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ROLE_AUTHORIZATION_DESCRIPTORS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
                 0, 1
             }, true);
 

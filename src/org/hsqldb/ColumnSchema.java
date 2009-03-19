@@ -126,6 +126,21 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
 
         StringBuffer sb = new StringBuffer();
 
+        switch (parameterMode) {
+
+            case SchemaObject.ParameterModes.PARAM_IN :
+                sb.append(Tokens.T_IN).append(' ');
+                break;
+
+            case SchemaObject.ParameterModes.PARAM_OUT :
+                sb.append(Tokens.T_OUT).append(' ');
+                break;
+
+            case SchemaObject.ParameterModes.PARAM_INOUT :
+                sb.append(Tokens.T_INOUT).append(' ');
+                break;
+        }
+
         if (columnName != null) {
             sb.append(columnName.statementName);
             sb.append(' ');
@@ -177,7 +192,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     }
 
     public byte getNullability() {
-        return isPrimaryKey ? SchemaObject.Nullability.NO_NULLS : super.getNullability();
+        return isPrimaryKey ? SchemaObject.Nullability.NO_NULLS
+                            : super.getNullability();
     }
 
     public boolean isGenerated() {
