@@ -398,12 +398,13 @@ public class LobManager {
     public Result setBytesBA(Session session, long lobID, byte[] dataBytes,
                              long offset, int length) {
 
-        BlobData blob = getBlob(session, lobID);
+        Object[] data = getLobHeader(session, lobID);
 
-        if (blob == null) {
+        if (data == null) {
             return Result.newErrorResult(
                 Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
         }
+        long oldLength = ((Long) data[1]).longValue();
 
         int blockOffset     = (int) (offset / lobBlockSize);
         int byteBlockOffset = (int) (offset % lobBlockSize);
@@ -438,12 +439,11 @@ public class LobManager {
                           blockAddresses[i][1]);
         }
 
-        long newLength = blob.length();
 
-        if (offset + length > newLength) {
-            newLength = offset + length;
+        if (offset + length > oldLength) {
+            oldLength = offset + length;
 
-            setLength(session, lobID, newLength);
+            setLength(session, lobID, oldLength);
         }
 
         return ResultLob.newLobSetResponse(lobID, 0);

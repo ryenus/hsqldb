@@ -881,7 +881,7 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (nodes[0].dataType.isLobType()) {
-                    arg = ((ClobData) data[0]).getSubString(0, 1);
+                    arg = ((ClobData) data[0]).getSubString(session, 0, 1);
                 } else {
                     arg = (String) data[0];
                 }

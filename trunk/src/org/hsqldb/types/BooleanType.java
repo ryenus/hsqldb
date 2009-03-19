@@ -148,7 +148,7 @@ public final class BooleanType extends Type {
             case Types.SQL_BIT_VARYING : {
                 BinaryData b = (BinaryData) a;
 
-                if (b.length() == 1) {
+                if (b.length(session) == 1) {
                     return BitMap.isSet(b.getBytes(), 0) ? Boolean.TRUE
                                                          : Boolean.FALSE;
                 }

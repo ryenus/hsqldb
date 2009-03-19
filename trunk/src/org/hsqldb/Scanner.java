@@ -1522,7 +1522,7 @@ public class Scanner {
 
                     token.dataType = BinaryType.getBinaryType(
                         Types.SQL_VARBINARY,
-                        ((BinaryData) token.tokenValue).length());
+                        ((BinaryData) token.tokenValue).length(null));
                     token.tokenType = Tokens.X_VALUE;
 
                     return;
@@ -1542,7 +1542,7 @@ public class Scanner {
 
                     token.dataType = BitType.getBitType(
                         Types.SQL_BIT,
-                        ((BinaryData) token.tokenValue).bitLength());
+                        ((BinaryData) token.tokenValue).bitLength(null));
                     token.tokenType = Tokens.X_VALUE;
 
                     return;

@@ -36,6 +36,9 @@ import java.io.Writer;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.result.ResultLob;
+import org.hsqldb.jdbc.Util;
+import org.hsqldb.result.Result;
 
 /**
  * Implementation of CLOB for client and server.<p>
@@ -44,76 +47,109 @@ import org.hsqldb.SessionInterface;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class ClobDataID
-    implements ClobData {
+public class ClobDataID implements ClobData {
 
     long id;
 
-    public ClobDataID() {
-    }
+    public ClobDataID() {}
 
     public ClobDataID(long id) {
         this.id = id;
     }
 
-    public char[] getChars(long position, int length) throws HsqlException {
-        return null;
+    public char[] getChars(SessionInterface session, long position,
+                           int length) throws HsqlException {
+
+        ResultLob resultOut = ResultLob.newLobGetCharsRequest(id, position,
+            length);
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return ((ResultLob) resultIn).getCharArray();
     }
 
-    public char[] getClonedChars() {
-        return null;
-    }
-
-    public long length() {
+    public long length(SessionInterface session) throws HsqlException {
         return 0;
     }
 
-    public String getSubString(long pos, int length) throws HsqlException {
+    public String getSubString(SessionInterface session, long pos,
+                               int length) throws HsqlException {
+
+        char[] chars = getChars(session, pos, length);
+
+        return new String(chars);
+    }
+
+    public void truncate(SessionInterface session,
+                         long len) throws HsqlException {}
+
+    public Reader getCharacterStream(SessionInterface session)
+    throws HsqlException {
         return null;
     }
 
-    public void truncate(long len) throws HsqlException {
+    public long setCharacterStream(SessionInterface session, long pos,
+                                   Reader in) throws HsqlException {
+        return 0;
     }
 
-    public Reader getCharacterStream() throws HsqlException {
+    public Writer setCharacterStream(SessionInterface session,
+                                     long pos) throws HsqlException {
         return null;
     }
 
-    public long setCharacterStream(long pos, Reader in) {
+    public int setString(SessionInterface session, long pos,
+                         String str) throws HsqlException {
+        return str.length();
+    }
+
+    public int setString(SessionInterface session, long pos, String str,
+                         int offset, int len) throws HsqlException {
         return 0;
     }
 
-    public Writer setCharacterStream(long pos) throws HsqlException {
-        return null;
+    public int setChars(SessionInterface session, long pos, char[] chars,
+                        int offset, int len) throws HsqlException {
+
+        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos - 1,
+            chars);
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return len;
     }
 
-    public int setString(long pos, String str) throws HsqlException {
-        return 0;
+    public long position(SessionInterface session, String searchstr,
+                         long start) throws HsqlException {
+
+        ResultLob resultOut = ResultLob.newLobGetCharPatternPositionRequest(id,
+            searchstr.toCharArray(), start);
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return ((ResultLob) resultIn).getOffset();
     }
 
-    public int setString(long pos, String str, int offset, int len) throws
-        HsqlException {
-        return 0;
-    }
-
-    public int setChars(long pos, char[] chars, int offset, int len) throws
-        HsqlException {
-        return 0;
-    }
-
-    public long position(String searchstr, long start) throws HsqlException {
+    public long position(SessionInterface session, ClobData searchstr,
+                         long start) throws HsqlException {
         return 0L;
     }
 
-    public long position(ClobData searchstr, long start) throws HsqlException {
-        return 0L;
-    }
-
-    public long nonSpaceLength() {
+    public long nonSpaceLength(SessionInterface session) throws HsqlException {
         return 0;
     }
 
-    public Reader getCharacterStream(long pos, long length) {
+    public Reader getCharacterStream(SessionInterface session, long pos,
+                                     long length) throws HsqlException {
         return null;
     }
 
@@ -125,22 +161,7 @@ public class ClobDataID
         this.id = id;
     }
 
-
-    public void free() {
-    }
-
-    public boolean isClosed() {
-        return false;
-    }
-
-    public void setSession(SessionInterface session) {
-    }
-
-    public int getStreamBlockSize() {
-        return 0;
-    }
-
-    public long getRightTrimSize() {
+    public long getRightTrimSize(SessionInterface session) {
         return 0;
     }
 

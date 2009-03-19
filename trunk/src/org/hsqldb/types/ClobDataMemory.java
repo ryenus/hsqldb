@@ -107,7 +107,8 @@ public final class ClobDataMemory implements ClobData {
         }
     }
 
-    public char[] getChars(final long position, int length) {
+    public char[] getChars(SessionInterface sessionInterface,
+                           final long position, int length) {
 
         if (!isInLimits(data.length, position, length)) {
             throw new IndexOutOfBoundsException();
@@ -120,15 +121,12 @@ public final class ClobDataMemory implements ClobData {
         return c;
     }
 
-    public char[] getClonedChars() {
-        return (char[]) data.clone();
-    }
-
-    public long length() {
+    public long length(SessionInterface session) {
         return data.length;
     }
 
-    public String getSubString(long offset, int length) {
+    public String getSubString(SessionInterface session, long offset,
+                               int length) {
         return new String(data, (int) offset, length);
     }
 
@@ -144,29 +142,32 @@ public final class ClobDataMemory implements ClobData {
         this.id = id;
     }
 
-    public void truncate(long len) {}
+    public void truncate(SessionInterface session, long len) {}
 
-    public Reader getCharacterStream() {
+    public Reader getCharacterStream(SessionInterface session) {
         return null;
     }
 
-    public Reader getCharacterStream(long pos, long length) {
+    public Reader getCharacterStream(SessionInterface session, long pos,
+                                     long length) {
         return null;
     }
 
-    public long setCharacterStream(long pos, Reader in) {
+    public long setCharacterStream(SessionInterface session, long pos,
+                                   Reader in) {
         return 0;
     }
 
-    public Writer setCharacterStream(long pos) {
+    public Writer setCharacterStream(SessionInterface session, long pos) {
         return null;
     }
 
-    public int setString(long pos, String str) {
-        return setString(0, str, 0, str.length());
+    public int setString(SessionInterface session, long pos, String str) {
+        return setString(session, 0, str, 0, str.length());
     }
 
-    public int setChars(long pos, char[] chars, int offset, int length) {
+    public int setChars(SessionInterface session, long pos, char[] chars,
+                        int offset, int length) {
 
         if (!isInLimits(data.length, pos, 0)) {
             throw new IndexOutOfBoundsException();
@@ -181,43 +182,34 @@ public final class ClobDataMemory implements ClobData {
         return length;
     }
 
-    public int setString(long pos, String str, int offset, int length) {
+    public int setString(SessionInterface session, long pos, String str,
+                         int offset, int length) {
 
         char[] chars = str.toCharArray();
 
-        return setChars(pos, chars, offset, length);
+        return setChars(session, pos, chars, offset, length);
     }
 
-    public long position(String searchstr, long start) {
+    public long position(SessionInterface session, String searchstr,
+                         long start) {
         return 0L;
     }
 
-    public long position(ClobData searchstr, long start) {
+    public long position(SessionInterface session, ClobData searchstr,
+                         long start) {
         return 0L;
     }
 
     // temp
-    public long nonSpaceLength() {
+    public long nonSpaceLength(SessionInterface session) {
         return data.length;
     }
 
-    public void free() {}
-
-    public int getStreamBlockSize() {
-        return 256 * 1024;
-    }
-
-    public long getRightTrimSize() {
+    public long getRightTrimSize(SessionInterface session) {
 
         // todo
         return 0;
     }
-
-    public boolean isClosed() {
-        return false;
-    }
-
-    public void setSession(SessionInterface session) {}
 
     public byte getClobType() {
         return 2;

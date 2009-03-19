@@ -51,36 +51,36 @@ public interface BlobData {
     byte[] getBytes();
 
     // todo - new method to return BlobData with long length arg
-    byte[] getBytes(long pos, int length) throws HsqlException;
+    byte[] getBytes(SessionInterface session, long pos, int length) throws HsqlException;
 
-    InputStream getBinaryStream() throws HsqlException;
+    InputStream getBinaryStream(SessionInterface session) throws HsqlException;
 
-    InputStream getBinaryStream(long pos, long length) throws HsqlException;
+    InputStream getBinaryStream(SessionInterface session, long pos, long length) throws HsqlException;
 
-    long length();
+    long length(SessionInterface session) throws HsqlException;
 
-    long bitLength();
+    long bitLength(SessionInterface session);
 
     boolean isBits();
 
-    int setBytes(long pos, byte[] bytes, int offset,
-                 int len) throws HsqlException;
+    int setBytes(SessionInterface session, long pos, byte[] bytes,
+                 int offset, int len) throws HsqlException;
 
-    int setBytes(long pos, byte[] bytes) throws HsqlException;
+    int setBytes(SessionInterface session, long pos, byte[] bytes) throws HsqlException;
 
-    public long setBinaryStream(long pos, InputStream in) throws HsqlException;
+    public long setBinaryStream(SessionInterface session, long pos, InputStream in) throws HsqlException;
 
-    OutputStream setBinaryStream(long pos) throws HsqlException;
+    OutputStream setBinaryStream(SessionInterface session, long pos) throws HsqlException;
 
-    void truncate(long len) throws HsqlException;
+    void truncate(SessionInterface session, long len) throws HsqlException;
 
-    BlobData duplicate() throws HsqlException;
+    BlobData duplicate(SessionInterface session) throws HsqlException;
 
-    long position(byte[] pattern, long start) throws HsqlException;
+    long position(SessionInterface session, byte[] pattern, long start) throws HsqlException;
 
-    long position(BlobData pattern, long start) throws HsqlException;
+    long position(SessionInterface session, BlobData pattern, long start) throws HsqlException;
 
-    long nonZeroLength();
+    long nonZeroLength(SessionInterface session);
 
     long getId();
 

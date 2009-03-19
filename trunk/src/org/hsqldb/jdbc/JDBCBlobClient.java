@@ -36,11 +36,8 @@ import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
-import org.hsqldb.Error;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobDataID;
 
 /**
@@ -63,16 +60,9 @@ public class JDBCBlobClient implements Blob {
      *   <code>BLOB</code>
      */
     public long length() throws SQLException {
-        ResultLob resultOut = ResultLob.newLobGetLengthRequest(blob.getId());
 
         try {
-            Result resultIn = session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                throw Util.sqlException(resultIn);
-            }
-
-            return ((ResultLob) resultIn).getBlockLength();
+            return blob.length(session);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -96,15 +86,7 @@ public class JDBCBlobClient implements Blob {
     public byte[] getBytes(long pos, int length) throws SQLException {
 
         try {
-            ResultLob resultOut = ResultLob.newLobGetBytesRequest(blob.getId(),
-                pos - 1, length);
-            Result resultIn = session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                throw Error.error(resultIn);
-            }
-
-            return ((ResultLob) resultIn).getByteArray();
+            return blob.getBytes(session, pos - 1, length);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -138,12 +120,7 @@ public class JDBCBlobClient implements Blob {
     public long position(byte[] pattern, long start) throws SQLException {
 
         try {
-            ResultLob resultOut =
-                ResultLob.newLobGetBytePatternPositionRequest(blob.getId(),
-                    pattern, start - 1);
-            ResultLob resultIn = (ResultLob) session.execute(resultOut);
-
-            return resultIn.getOffset();
+            return blob.position(session, pattern, start - 1);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -184,19 +161,8 @@ public class JDBCBlobClient implements Blob {
      */
     public int setBytes(long pos, byte[] bytes) throws SQLException {
 
-        ResultLob resultOut = ResultLob.newLobSetBytesRequest(blob.getId(),
-            pos, bytes);
-
         try {
-            Result resultIn = (ResultLob) session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                Util.throwError(resultIn);
-            }
-
-//            blob.setLength(((ResultLob) resultIn).getBlockLength());
-
-            return bytes.length;
+            return blob.setBytes(session, pos - 1, bytes);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -259,17 +225,8 @@ public class JDBCBlobClient implements Blob {
      */
     public void truncate(long len) throws SQLException {
 
-        ResultLob resultOut = ResultLob.newLobTruncateRequest(blob.getId(),
-            len);
-
         try {
-            Result resultIn = session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                throw Util.sqlException(resultIn);
-            }
-
-//            blob.setLength(((ResultLob) resultIn).getBlockLength());
+            blob.truncate(session, len);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }

@@ -37,6 +37,7 @@ import java.io.Reader;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.*;
 
 /**
  * This class is used as an InputStream to retrieve data from a Blob.
@@ -48,22 +49,26 @@ import org.hsqldb.HsqlException;
  */
 public final class ClobInputStream extends Reader {
 
-    final ClobData clob;
-    final long     availableLength;
-    long           bufferOffset;
-    long           currentPosition;
-    char[]         buffer;
-    boolean        isClosed;
+    final ClobData   clob;
+    final long       availableLength;
+    long             bufferOffset;
+    long             currentPosition;
+    char[]           buffer;
+    boolean          isClosed;
+    SessionInterface session;
 
-    public ClobInputStream(ClobData clob, long offset, long length) {
+    public ClobInputStream(SessionInterface session, ClobData clob,
+                           long offset, long length) throws HsqlException {
 
-        if (!isInLimits(clob.length(), offset, length)) {
+        long clobLength = clob.length(session);
+        if (!isInLimits(clobLength, offset, length)) {
             throw new IndexOutOfBoundsException();
         }
 
         this.clob            = clob;
         this.availableLength = offset + length;
         this.currentPosition = offset;
+        this.session         = session;
     }
 
     public int read() throws IOException {
@@ -129,7 +134,7 @@ public final class ClobInputStream extends Reader {
 
     private void checkClosed() throws IOException {
 
-        if (isClosed || clob.isClosed()) {
+        if (isClosed) {
             throw new IOException(
                 Error.getMessage(ErrorCode.BLOB_STREAM_IS_CLOSED));
         }
@@ -141,11 +146,11 @@ public final class ClobInputStream extends Reader {
 
         if (readLength <= 0) {}
 
-        if (readLength > clob.getStreamBlockSize()) {
-            readLength = clob.getStreamBlockSize();
+        if (readLength > session.getStreamBlockSize()) {
+            readLength = session.getStreamBlockSize();
         }
 
-        buffer       = clob.getChars(currentPosition, (int) readLength);
+        buffer = clob.getChars(session, currentPosition, (int) readLength);
         bufferOffset = currentPosition;
     }
 

@@ -457,14 +457,14 @@ public class CharacterType extends Type {
                 return convertToTypeLimits(a);
 
             case Types.SQL_CLOB : {
-                long length = ((ClobData) a).length();
+                long length = ((ClobData) a).length(session);
 
                 if (precision != 0 && length > precision) {
-                    if (((ClobData) a).nonSpaceLength() > precision) {
+                    if (((ClobData) a).nonSpaceLength(session) > precision) {
                         session.addWarning(Error.error(ErrorCode.W_01004));
                     }
 
-                    return ((ClobData) a).getSubString(0, (int) precision);
+                    return ((ClobData) a).getSubString(session, 0, (int) precision);
                 }
 
                 return convertToTypeLimits(a);
@@ -503,11 +503,11 @@ public class CharacterType extends Type {
                     return convertToTypeLimits(a);
                 }
 
-                if (precision != 0 && c.nonSpaceLength() > precision) {
+                if (precision != 0 && c.nonSpaceLength(session) > precision) {
                     throw Error.error(ErrorCode.X_22001);
                 }
 
-                String s = c.getSubString(0, (int) precision);
+                String s = c.getSubString(session, 0, (int) precision);
 
                 return convertToTypeLimits(s);
             }
@@ -628,22 +628,21 @@ public class CharacterType extends Type {
         return typeCode == Types.VARCHAR_IGNORECASE;
     }
 
-    public long position(Object data, Object otherData, Type otherType,
-                         long offset) throws HsqlException {
+    public long position(SessionInterface session, Object data, Object otherData,
+                         Type otherType, long offset) throws HsqlException {
 
         if (data == null || otherData == null) {
             return -1L;
         }
 
         if (otherType.typeCode == Types.SQL_CLOB) {
-            long otherLength = ((ClobData) data).length();
+            long otherLength = ((ClobData) data).length(session);
 
             if (offset + otherLength > ((String) data).length()) {
                 return -1;
             }
 
-            String otherString = ((ClobData) otherData).getSubString(0,
-                (int) otherLength);
+            String otherString = ((ClobData) otherData).getSubString(session, 0, (int) otherLength);
 
             return ((String) data).indexOf(otherString, (int) offset);
         } else if (otherType.isCharacterType()) {
@@ -665,7 +664,7 @@ public class CharacterType extends Type {
 
         long end;
         long dataLength = typeCode == Types.SQL_CLOB
-                          ? ((ClobData) data).length()
+                          ? ((ClobData) data).length(session)
                           : ((String) data).length();
 
         if (trailing) {
@@ -712,10 +711,9 @@ public class CharacterType extends Type {
             ClobData clob = session.createClob();
 
             // todo - change to support long strings
-            String result = ((ClobData) data).getSubString(offset,
-                (int) length);
+            String result = ((ClobData) data).getSubString(session, offset, (int) length);
 
-            clob.setString(0, result);
+            clob.setString(session, 0, result);
 
             return clob;
         } else {
@@ -733,14 +731,13 @@ public class CharacterType extends Type {
         }
 
         if (typeCode == Types.SQL_CLOB) {
-            String result = ((ClobData) data).getSubString(0,
-                (int) ((ClobData) data).length());
+            String result = ((ClobData) data).getSubString(session, 0, (int) ((ClobData) data).length(session));
 
             result = collation.toUpperCase(result);
 
             ClobData clob = session.createClob();
 
-            clob.setString(0, result);
+            clob.setString(session, 0, result);
 
             return clob;
         }
@@ -755,14 +752,13 @@ public class CharacterType extends Type {
         }
 
         if (typeCode == Types.SQL_CLOB) {
-            String result = ((ClobData) data).getSubString(0,
-                (int) ((ClobData) data).length());
+            String result = ((ClobData) data).getSubString(session, 0, (int) ((ClobData) data).length(session));
 
             result = collation.toLowerCase(result);
 
             ClobData clob = session.createClob();
 
-            clob.setString(0, result);
+            clob.setString(session, 0, result);
 
             return clob;
         }
@@ -782,7 +778,7 @@ public class CharacterType extends Type {
 
         if (typeCode == Types.SQL_CLOB) {
             s = ((ClobData) data).getSubString(
-                0, (int) ((ClobData) data).length());
+                session, 0, (int) ((ClobData) data).length(session));
         } else {
             s = (String) data;
         }
@@ -813,7 +809,7 @@ public class CharacterType extends Type {
         if (typeCode == Types.SQL_CLOB) {
             ClobData clob = session.createClob();
 
-            clob.setString(0, s);
+            clob.setString(session, 0, s);
 
             return clob;
         } else {
@@ -830,7 +826,7 @@ public class CharacterType extends Type {
         }
 
         if (!hasLength) {
-            length = typeCode == Types.SQL_CLOB ? ((ClobData) overlay).length()
+            length = typeCode == Types.SQL_CLOB ? ((ClobData) overlay).length(session)
                                                 : ((String) overlay).length();
         }
 
@@ -855,14 +851,14 @@ public class CharacterType extends Type {
 
         if (a instanceof ClobData) {
             left = ((ClobData) a).getSubString(
-                0, (int) ((ClobData) a).length());
+                session, 0, (int) ((ClobData) a).length(session));
         } else {
             left = (String) a;
         }
 
         if (b instanceof ClobData) {
             right =
-                ((ClobData) b).getSubString(0, (int) ((ClobData) b).length());
+                ((ClobData) b).getSubString(session, 0, (int) ((ClobData) b).length(session));
         } else {
             right = (String) b;
         }
@@ -870,8 +866,8 @@ public class CharacterType extends Type {
         if (typeCode == Types.SQL_CLOB) {
             ClobData clob = session.createClob();
 
-            clob.setString(0, left);
-            clob.setString(left.length(), right);
+            clob.setString(session, 0, left);
+            clob.setString(session, left.length(), right);
 
             return clob;
         } else {
@@ -879,10 +875,10 @@ public class CharacterType extends Type {
         }
     }
 
-    public long size(Object data) throws HsqlException {
+    public long size(SessionInterface session, Object data) throws HsqlException {
 
         if (typeCode == Types.SQL_CLOB) {
-            return ((ClobData) data).length();
+            return ((ClobData) data).length(session);
         }
 
         return ((String) data).length();

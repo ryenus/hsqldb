@@ -40,8 +40,6 @@ import java.sql.SQLException;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.ClobDataID;
 
 public class JDBCClobClient implements Clob {
@@ -87,7 +85,12 @@ public class JDBCClobClient implements Clob {
      *   <code>CLOB</code> value
      */
     public String getSubString(long pos, int length) throws SQLException {
-        return new String(getChars(pos, length));
+
+        try {
+            return clob.getSubString(session, pos - 1, length);
+        } catch (HsqlException e) {
+            throw Util.sqlException(e);
+        }
     }
 
     /**
@@ -100,16 +103,8 @@ public class JDBCClobClient implements Clob {
      */
     public long length() throws SQLException {
 
-        ResultLob resultOut = ResultLob.newLobGetLengthRequest(clob.getId());
-
         try {
-            Result resultIn = session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                throw Util.sqlException(resultIn);
-            }
-
-            return ((ResultLob) resultIn).getBlockLength();
+            return clob.length(session);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -130,18 +125,8 @@ public class JDBCClobClient implements Clob {
      */
     public long position(String searchstr, long start) throws SQLException {
 
-        ResultLob resultOut =
-            ResultLob.newLobGetCharPatternPositionRequest(clob.getId(),
-                searchstr.toCharArray(), start - 1);
-
         try {
-            Result resultIn = session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                throw Util.sqlException(resultIn);
-            }
-
-            return ((ResultLob) resultIn).getOffset();
+            return clob.position(session, searchstr, start - 1);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -232,9 +217,11 @@ public class JDBCClobClient implements Clob {
     public int setString(long pos, String str, int offset,
                          int len) throws SQLException {
 
-        setChars(pos, str.substring(offset, len).toCharArray());
-
-        return len;
+        try {
+            return clob.setString(session, pos - 1, str, offset, len);
+        } catch (HsqlException e) {
+            throw Util.sqlException(e);
+        }
     }
 
     /**
@@ -248,17 +235,8 @@ public class JDBCClobClient implements Clob {
      */
     public void truncate(long len) throws SQLException {
 
-        ResultLob resultOut = ResultLob.newLobTruncateRequest(clob.getId(),
-            len);
-
         try {
-            Result resultIn = session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                throw Util.sqlException(resultIn);
-            }
-
-//            clob.setLength(((ResultLob) resultIn).getBlockLength());
+            clob.truncate(session, len);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -317,44 +295,6 @@ public class JDBCClobClient implements Clob {
     JDBCClobClient(SessionInterface session, ClobDataID clob) {
         this.session = session;
         this.clob    = clob;
-    }
-
-    public char[] getChars(final long position,
-                           int length) throws SQLException {
-
-        ResultLob resultOut = ResultLob.newLobGetCharsRequest(clob.getId(),
-            position - 1, length);
-
-        try {
-            Result resultIn = session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                throw Util.sqlException(resultIn);
-            }
-
-            return ((ResultLob) resultIn).getCharArray();
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
-        }
-    }
-
-    public void setChars(final long position,
-                         char[] chars) throws SQLException {
-
-        ResultLob resultOut = ResultLob.newLobSetCharsRequest(clob.getId(),
-            position - 1, chars);
-
-        try {
-            Result resultIn = session.execute(resultOut);
-
-            if (resultIn.isError()) {
-                throw Util.sqlException(resultIn);
-            }
-
-//            clob.setLength(((ResultLob) resultIn).getBlockLength());
-        } catch (HsqlException e) {
-            throw Util.sqlException(e);
-        }
     }
 
     public boolean isClosed() {

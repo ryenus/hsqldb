@@ -92,11 +92,11 @@ public class RowOutputTextLog extends RowOutputBase {
 
     protected void writeBit(BinaryData o) {
 
-        ensureRoom((int) (o.length() * 2 + 2));
+        ensureRoom((int) (o.length(null) * 8 + 2));
         write('\'');
 
         String s = StringConverter.byteArrayToBitString(o.getBytes(),
-            (int) o.bitLength());
+            (int) o.bitLength(null));
 
         writeBytes(s);
         write('\'');
@@ -104,11 +104,11 @@ public class RowOutputTextLog extends RowOutputBase {
 
     protected void writeBinary(BinaryData o) {
 
-        ensureRoom((int) (o.length() * 2 + 2));
+        ensureRoom((int) (o.length(null) * 2 + 2));
         write('\'');
         StringConverter.writeHexBytes(getBuffer(), count, o.getBytes());
 
-        count += (o.length() * 2);
+        count += (o.length(null) * 2);
 
         write('\'');
     }

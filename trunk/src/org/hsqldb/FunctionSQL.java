@@ -562,7 +562,7 @@ public class FunctionSQL extends Expression {
 
                 long result =
                     ((CharacterType) nodes[1].dataType).position(
-                        data[1], data[0], nodes[0].dataType, 0) + 1;
+                        session, data[1], data[0], nodes[0].dataType, 0) + 1;
 
                 if (nodes[2] != null
                         && ((Number) nodes[2].valueData).intValue()
@@ -579,8 +579,8 @@ public class FunctionSQL extends Expression {
 
                 long result =
                     ((BinaryType) nodes[1].dataType).position(
-                        (BlobData) data[1], (BlobData) data[0],
-                        nodes[0].dataType, 0) + 1;
+                        session, (BlobData) data[1],
+                        (BlobData) data[0], nodes[0].dataType, 0) + 1;
 
                 if (nodes[2] != null
                         && ((Number) nodes[2].valueData).intValue()
@@ -623,7 +623,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 long result =
-                    ((CharacterType) nodes[0].dataType).size(data[0]);
+                    ((CharacterType) nodes[0].dataType).size(session, data[0]);
 
                 return ValuePool.getLong(result);
             }
@@ -635,10 +635,10 @@ public class FunctionSQL extends Expression {
                 long result;
 
                 if (nodes[0].dataType.isBinaryType()) {
-                    result = ((BlobData) data[0]).bitLength();
+                    result = ((BlobData) data[0]).bitLength(session);
                 } else {
                     result =
-                        16 * ((CharacterType) nodes[0].dataType).size(data[0]);
+                        16 * ((CharacterType) nodes[0].dataType).size(session, data[0]);
                 }
 
                 return ValuePool.getLong(result);
@@ -651,10 +651,10 @@ public class FunctionSQL extends Expression {
                 long result;
 
                 if (nodes[0].dataType.isBinaryType()) {
-                    result = ((BlobData) data[0]).length();
+                    result = ((BlobData) data[0]).length(session);
                 } else {
                     result =
-                        2 * ((CharacterType) nodes[0].dataType).size(data[0]);
+                        2 * ((CharacterType) nodes[0].dataType).size(session, data[0]);
                 }
 
                 return ValuePool.getLong(result);
@@ -916,8 +916,7 @@ public class FunctionSQL extends Expression {
                     length = ((Number) value).intValue();
                 }
 
-                return ((BinaryType) dataType).substring((BlobData) data[0],
-                        offset, length, nodes[2] != null);
+                return ((BinaryType) dataType).substring(session, (BlobData) data[0], offset, length, nodes[2] != null);
             }
             case FUNC_TRIM_BINARY : {
                 if (data[1] == null || data[2] == null) {
@@ -949,7 +948,7 @@ public class FunctionSQL extends Expression {
 
                 BlobData string = (BlobData) data[1];
 
-                if (string.length() != 1) {
+                if (string.length(session) != 1) {
                     throw Error.error(ErrorCode.X_22027);
                 }
 

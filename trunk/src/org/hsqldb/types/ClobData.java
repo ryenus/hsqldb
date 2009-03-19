@@ -46,51 +46,48 @@ import org.hsqldb.SessionInterface;
  */
 public interface ClobData {
 
-    char[] getChars(final long position, int length) throws HsqlException;
+    char[] getChars(SessionInterface session, final long position,
+                    int length) throws HsqlException;
 
-    char[] getClonedChars();
+    long length(SessionInterface session) throws HsqlException;
 
-    long length();
+    String getSubString(SessionInterface session, final long pos,
+                        final int length) throws HsqlException;
 
-    String getSubString(final long pos, final int length) throws HsqlException;
+    void truncate(SessionInterface session, long len) throws HsqlException;
 
-    void truncate(long len) throws HsqlException;
+    Reader getCharacterStream(SessionInterface session) throws HsqlException;
 
-    Reader getCharacterStream() throws HsqlException;
+    Writer setCharacterStream(SessionInterface session,
+                              long pos) throws HsqlException;
 
-    Writer setCharacterStream(long pos) throws HsqlException;
+    int setString(SessionInterface session, long pos,
+                  String str) throws HsqlException;
 
-    int setString(long pos, String str) throws HsqlException;
-
-    int setString(long pos, String str, int offset,
+    int setString(SessionInterface session, long pos, String str, int offset,
                   int len) throws HsqlException;
 
-    int setChars(long pos, char[] chars, int offset,
+    int setChars(SessionInterface session, long pos, char[] chars, int offset,
                  int len) throws HsqlException;
 
-    public long setCharacterStream(long pos, Reader in);
+    public long setCharacterStream(SessionInterface session, long pos,
+                                   Reader in) throws HsqlException;
 
-    long position(String searchstr, long start) throws HsqlException;
+    long position(SessionInterface session, String searchstr,
+                  long start) throws HsqlException;
 
-    long position(ClobData searchstr, long start) throws HsqlException;
+    long position(SessionInterface session, ClobData searchstr,
+                  long start) throws HsqlException;
 
-    long nonSpaceLength();
+    long nonSpaceLength(SessionInterface session) throws HsqlException;
 
-    Reader getCharacterStream(long pos, long length);
+    Reader getCharacterStream(SessionInterface session, long pos, long length) throws HsqlException;
 
     long getId();
 
     void setId(long id);
 
-    void free();
-
-    boolean isClosed();
-
-    void setSession(SessionInterface session);
-
-    int getStreamBlockSize();
-
-    long getRightTrimSize();
+    long getRightTrimSize(SessionInterface session) throws HsqlException;
 
     byte getClobType();
 }

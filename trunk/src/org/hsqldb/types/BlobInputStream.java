@@ -37,6 +37,7 @@ import java.io.InputStream;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.SessionInterface;
 
 /**
  * This class is used as an InputStream to retrieve data from a Blob.
@@ -54,11 +55,12 @@ public class BlobInputStream extends InputStream {
     long           currentPosition;
     byte[]         buffer;
     boolean        isClosed;
+    SessionInterface session;
 
-    public BlobInputStream(BlobData blob, long offset,
+    public BlobInputStream(SessionInterface session, BlobData blob, long offset,
                            long length) throws HsqlException {
 
-        if (!isInLimits(blob.length(), offset, length)) {
+        if (!isInLimits(blob.length(session), offset, length)) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -126,11 +128,11 @@ public class BlobInputStream extends InputStream {
 
         if (readLength <= 0) {}
 
-        if (readLength > blob.getStreamBlockSize()) {
-            readLength = blob.getStreamBlockSize();
+        if (readLength > session.getStreamBlockSize()) {
+            readLength = session.getStreamBlockSize();
         }
 
-        buffer       = blob.getBytes(currentPosition, (int) readLength);
+        buffer       = blob.getBytes(session, currentPosition, (int) readLength);
         bufferOffset = currentPosition;
     }
 

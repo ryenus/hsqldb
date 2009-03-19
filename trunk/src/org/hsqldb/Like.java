@@ -161,7 +161,7 @@ class Like {
             o = ((CharacterType) dataType).upper(session, o);
         }
 
-        return compareAt(o, 0, 0, getLength(o)) ? Boolean.TRUE
+        return compareAt(o, 0, 0, getLength(session, o, "")) ? Boolean.TRUE
                                                 : Boolean.FALSE;
     }
 
@@ -178,12 +178,12 @@ class Like {
         return c;
     }
 
-    int getLength(Object o) {
+    int getLength(SessionInterface session, Object o, String s) {
 
         int l;
 
         if (isBinary) {
-            l = (int) ((BinaryData) o).length();
+            l = (int) ((BinaryData) o).length(session);
         } else {
             l = ((String) o).length();
         }
@@ -246,7 +246,7 @@ class Like {
 
                 return;
             } else {
-                int length = getLength(escape);
+                int length = getLength(session, escape, "");
 
                 if (length != 1) {
                     if (isBinary) {
@@ -271,7 +271,7 @@ class Like {
         iLen           = 0;
         iFirstWildCard = -1;
 
-        int l = getLength(pattern);
+        int l = getLength(session, pattern, "");
 
         cLike        = new char[l];
         wildCardType = new int[l];
@@ -384,7 +384,7 @@ class Like {
         }
 
         if (isBinary) {
-            return new BinaryData((BinaryData) o, maxByteValue);
+            return new BinaryData(session, (BinaryData) o, maxByteValue);
         } else {
             return dataType.concat(session, o, "\uffff");
         }
