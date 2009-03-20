@@ -36,9 +36,8 @@ import java.io.Writer;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.result.ResultLob;
-import org.hsqldb.jdbc.Util;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultLob;
 
 /**
  * Implementation of CLOB for client and server.<p>
