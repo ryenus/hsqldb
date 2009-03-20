@@ -287,6 +287,15 @@ public class JDBCClobClient implements Clob {
                                    session.getStreamBlockSize());
     }
 
+    char[] getChars(long position, int length) throws SQLException {
+
+        try {
+            return clob.getChars(session, position - 1, length);
+        } catch (HsqlException e) {
+            throw Util.sqlException(e);
+        }
+    }
+
     //
     ClobDataID       clob;
     SessionInterface session;
