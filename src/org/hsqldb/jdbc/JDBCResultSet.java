@@ -7383,7 +7383,6 @@ public class JDBCResultSet implements ResultSet {
      *   <code>JDBCResultSet</code> represents
      * @param metaData ResultMetaData
      * @param props the connection properties
-     * @param isNetConnection boolean
      * @throws SQLException when the supplied Result is of type
      *   org.hsqldb.Result.ERROR
      */

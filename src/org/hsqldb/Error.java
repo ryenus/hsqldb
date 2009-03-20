@@ -115,10 +115,7 @@ public class Error {
      * $$ markers for each context variable. Context variables are supplied in
      * the add parameters.
      *
-     * @param code      main error code
-     * @param subCode   sub error code (if 0 => no subMessage!)
-     * @param   add     optional parameters
-     *
+     * @see HsqlException#HsqlException(String, String, int)
      * @return an <code>HsqlException</code>
      */
     public static HsqlException error(String message, String sqlState, int i) {
