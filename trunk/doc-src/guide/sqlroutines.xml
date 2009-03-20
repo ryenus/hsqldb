@@ -33,9 +33,9 @@
     <legalnotice>
       <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
       this document without any alteration under the terms of the HSQLDB
-      license. Additional permission is granted to the HSQL Development
-      Group to distribute this document with or without alterations under the
-      terms of the HSQLDB license.</para>
+      license. Additional permission is granted to the HSQL Development Group
+      to distribute this document with or without alterations under the terms
+      of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -180,7 +180,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     <simpara><literal>&lt;signal statement&gt;</literal></simpara>
 
     <section>
-      <title>COMPOUND STATEMENT</title>
+      <title>Compound Statement</title>
 
       <para>A compound statement is enclosed in a BEGIN / END block with
       optional labels. It can contain one or more <literal>&lt;SQL variable
@@ -194,14 +194,11 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
       &lt;semicolon&gt;}...] {&lt;SQL procedure statement&gt;
       &lt;semicolon&gt;} ... END [ &lt;ending label&gt; ]</literal></simpara>
 
-      <para>A <literal>&lt;handler declaration&gt;</literal> defines the
-      course of action when an exception or warning is raised during the
-      execution of the compound statement.</para>
-
-      <para>An example of a simple compound statement body is given below. A
-      row is inserted in each table. The IDENTITY value that is automatically
-      inserted in the first table is retrieved using the IDENTITY() function
-      and inserted into the second table.</para>
+      <para>An example of a simple compound statement body is given below. It
+      performs the common task of inserting related data into two table. The
+      IDENTITY value that is automatically inserted in the first table is
+      retrieved using the IDENTITY() function and inserted into the second
+      table.</para>
 
       <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname  VARCHAR(50), address VARCHAR(100))
     MODIFIES SQL DATA
@@ -209,14 +206,19 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     INSERT INTO customers VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     INSERT INTO addresses VALUES (DEFAULT, IDENTITY(), address);
     END</programlisting>
+    </section>
+
+    <section>
+      <title>Variables</title>
 
       <para>A <literal>&lt;variable declaration&gt;</literal> defines the name
       and data type of the variable and, optionally, its default value. In the
       next example, a variable is used to hold the IDENTITY value. In
       addition, the formal parameters of the procedure are identified as input
-      parameters with the use of the optional IN keyword.</para>
+      parameters with the use of the optional IN keyword. This procedure does
+      exactly the same job as the other procedure.</para>
 
-      <programlisting>CREATE PROCEDURE NEW_CUSTOMER(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
+      <programlisting>CREATE PROCEDURE new_customer(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
     MODIFIES SQL DATA
     BEGIN ATOMIC
     DECLARE temp_id INTEGER;
@@ -236,7 +238,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     </section>
 
     <section>
-      <title>HANDLERS</title>
+      <title>Handlers</title>
 
       <para>A <literal>&lt;handler declaration&gt;</literal> defines the
       course of action when an exception or warning is raised during the
@@ -249,10 +251,10 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
       <para>In the previous example, if an exception is thrown during the
       execution of either SQL statement, the execution of the compound
       statement is terminated and the exception is propagated and thrown by
-      the CALL statement for the procedure. If the exception is thrown by the
-      second statement, then the INSERT in the first table will not be rolled
-      backed. A handler declaration can resolve the thrown exception within
-      the compound statement without propagating it.</para>
+      the CALL statement for the procedure. A handler declaration can resolve
+      the thrown exception within the compound statement without propagating
+      it, and allow the execution of the &lt;compound statement&gt; to
+      continue.</para>
 
       <para>In the example below, the UNDO handler declaration catches any
       exception that is thrown during the execution of the compound statement
@@ -297,7 +299,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
 
       <simpara><literal>&lt;handler declaration&gt; ::= DECLARE {UNDO |
       CONTINUE | EXIT} HANDLER FOR {SQLEXCEPTION | SQLWARNING | NOT FOUND} | {
-      SQL_STATE &lt;state value&gt; [, …]} [&lt;SQL procedure
+      SQL_STATE &lt;state value&gt; [, ...]} [&lt;SQL procedure
       statement&gt;];</literal></simpara>
 
       <para>A handler declaration may specify an SQL procedure statement to be
@@ -318,7 +320,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     </section>
 
     <section>
-      <title>ASSIGNMENT STATEMENT</title>
+      <title>Assignment Statement</title>
 
       <para>The SET command is used for assignment. It can be used flexibly
       with rows or single values. The BNF is given below:</para>
@@ -337,7 +339,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
 
       <para>In the example below, the result of the SELECT is assigned to two
       OUT or INOUT  parameters. The SELECT must return one row. If it returns
-      more than one, an exception is raised. If it returns no row, now change
+      more than one, an exception is raised. If it returns no row, no change
       is made to ARG1 and ARG2.</para>
 
       <programlisting>SET (arg1, arg2) = (SELECT col1, col2 FROM atable WHERE id = 10);</programlisting>
@@ -349,7 +351,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     </section>
 
     <section>
-      <title>PROCEDURE FORMAL PARAMETERS</title>
+      <title>Formal Parameters</title>
 
       <para>Each parameter of a procedure can be defined as IN, OUT or INOUT.
       An IN parameter is an input to the procedure and is passed by value. The
@@ -362,7 +364,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     </section>
 
     <section>
-      <title>ITERATED STATEMENTS</title>
+      <title>Iterated Statements</title>
 
       <para>Various iterated statements can be used in routines. In these
       statements, the <literal>&lt;SQL statement list&gt;</literal> consists
@@ -386,7 +388,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     </section>
 
     <section>
-      <title>CONDITIONAL STATEMENTS</title>
+      <title>Conditional Statements</title>
 
       <para>There are two types of CASE ... WHEN statement and the IF ... THEN
       statement.</para>
@@ -451,7 +453,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     </section>
 
     <section>
-      <title>CONTROL STATEMENTS</title>
+      <title>Control Statements</title>
 
       <para>These statements can be used in specific contexts.</para>
 
@@ -501,7 +503,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     </section>
 
     <section>
-      <title>GENERAL SQL STATEMENTS</title>
+      <title>General SQL Statements</title>
 
       <para><literal>&lt;call statement&gt;</literal></para>
 
@@ -518,7 +520,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     </section>
 
     <section>
-      <title>ROUTINE OVERLOADING</title>
+      <title>Routine Overloading</title>
 
       <para>More than one version of a routine can be created.</para>
 
