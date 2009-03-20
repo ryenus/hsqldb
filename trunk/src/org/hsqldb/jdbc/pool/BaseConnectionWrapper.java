@@ -56,7 +56,7 @@ import java.sql.SQLXML;
 
 //#endif JAVA6
 
-/* $Id */
+/* $Id$ */
 
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060523 - patch 1.9.0 full synch up to Mustang Build 84
