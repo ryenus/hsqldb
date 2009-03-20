@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
 <!-- author fredt@users.sourceforge.net 2001 - 2009 -->
-<!-- additional targets by unsaved@users.sourceforge.net 2004 - 2009 -->
+<!-- additional targets 2004-2009: blaine (dot) simpson (at) admc (dot) com -->
 <project name="hsqldb" default="help" basedir="../">
    <!-- This loads properties in the same exact way as if you ran
         "ant -Dprop1name=val1 -Dprop2name=val2...", etc.  To use all
@@ -22,7 +22,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="1.9.0-prealpha"/>
+   <property name="hsqldb.version" value="1.9.0-alpha1"/>
 
    <tstamp>
        <format property="_tmpstamp" pattern="yyyy/MM/dd-hh:mm:ss"
