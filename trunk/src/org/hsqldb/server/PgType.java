@@ -95,7 +95,7 @@ public class PgType {
      *              a unique method signature.  If non-null, will be treated
      *              exactly the same as the typeWidthObject from the 3-param
      *              constructor.
-     * @see #PgType(hType, int, Integer, Integer)
+     * @see #PgType(Type, int, Integer, Integer)
      */
     protected PgType(Type hType, int oid, Integer dummy, long lpConstraint)
     throws RecoverableOdbcFailure {
@@ -114,8 +114,8 @@ public class PgType {
     /**
      * @param hType HyperSQL data type
      * @param oid Numeric Object ID for the driver-side type.
-     * @param typeWidth Fixed width for the type
-     * @param lpConstraint Either length or Precision setting for this
+     * @param typeWidthObject Fixed width for the type
+     * @param lpConstraintObject Either length or Precision setting for this
      *                     instance of the type.
      *                     <b>IMPORTANT!</b> for all types with positive
      *                     lpConstraint other than Timestamps and Times,

@@ -48,7 +48,7 @@ class StatementPortal {
     /**
      * Convenience wrapper for the 3-param constructor.
      *
-     * @see #StatementPortal(String, OdbcPreparedStatement, String[], Map)
+     * @see #StatementPortal(String, OdbcPreparedStatement, Object[], Map)
      */
     public StatementPortal(String handle,
     OdbcPreparedStatement odbcPs, Map containingMap)

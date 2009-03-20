@@ -546,7 +546,6 @@ public class StatementDML extends StatementDMQL {
      * @param session Session
      * @param table Table
      * @param updateList HashMappedList
-     * @param cols int[]
      * @throws HsqlException
      * @return int
      */
