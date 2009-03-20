@@ -14,12 +14,17 @@ $Id$
          1: Set up your desired build environment (Ant in search path,
             JAVA_HOME set, etc.).
          2: Do a Subversion export with the release tag to a NEW directory
-         3: Copy or edit your build/build.properties file to specify
-            properties "build.label", "build.vendor", "dbimage.path"
-            (See following section about optional properties).
-            (Save this file off to a permanent location and you can just copy
-            it into place the next time!)
-         4: Run "ant -f build-dist.xml" from the build directory.
+         3: If you don't have a .properties file set up for this purpose
+            already, then make one outside of this work area (so you can
+            archive it and/or re-use it for future distribution builds).
+            IMPORTANT QUIRK:  This file may not use ${} properties in values,
+            since that feature is incompatible with the "-propertyfile"
+            switch that we will use below.
+            This file must set Ant properties "build.label", "build.vendor",
+            "dbimage.path".  (See following section about optional properties).
+            4: Run
+                ant -propertyfile path/to/file.properties -f build-dist.xml
+            from the build directory.
             If you don't have Ivy in your CLASSPATH, you will be instructed
             how to satisfy that requirement.
 
@@ -32,14 +37,19 @@ $Id$
            These values point to DocBook-privided resources that you should
            be able to figure out between the property name and the usage of
            them in the "build-docbook.xml" file.
-         Add settings for build.debug and build.optimize to "build.properties"
-           to change the default compilation settings.
-         As noted above, if you will be doing this again in the future, you
-           may want to copy off your properties file(s) once you are satisfied.
+         Add settings for build.debug and build.optimize to change the default
+           compilation settings.
+
+     You could just put these settings into "build.properties", drop the
+     "-propertyfile" switch, and things would work correctly.  However, you are
+     advised to use a .properties file external to your export directory for
+     retension purposes.
 
      You may add or edit some files without them being added to the
      distribution that you build:  build/build.properties,
      build/local*.properties, tmp/*, classes/*, dist/*.
+     (But, as just noted, you are advised against making
+     "build/build.properties").
      If you don't know if something will have an effect on the distribution
      you are building, then *don't do it*.
      If you were to add a "todo.txt" file to the main or build directory;
@@ -58,14 +68,14 @@ $Id$
       <equals arg1="${hsqldb.version}" arg2="${build.label}"/>
     </condition>
     <fail unless="_label.ok">Ant properties 'build.label' and 'hsqldb.version' must be equal.
-I suggest setting the value(s) in a properties file names 'build.properties'.
-(build.properties will not be included in any distribution).</fail>
+I suggest setting the value(s) in an external properties file and using the Ant
+"-propertyfile" switch.</fail>
     <condition property="_vendor.ok">
       <equals arg1="${hsqldb.vendor}" arg2="${build.vendor}"/>
     </condition>
     <fail unless="_vendor.ok">Ant properties 'build.vendor' and 'hsqldb.vendor' must be equal.
-I suggest setting the value(s) in a properties file names 'build.properties'.
-(build.properties will not be included in any distribution).</fail>
+I suggest setting the value(s) in an external properties file and using the Ant
+"-propertyfile" switch.</fail>
 
     <copy file="doc-src/readme-template.txt" tofile="tmp/readme-generated.txt"
           overwrite="true">
