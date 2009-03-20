@@ -361,6 +361,36 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
       only a dynamic parameter argument or a variable within an enclosing
       procedure can be passed for it. The assignment statement is used to
       assign a value to an OUT or INOUT parameter.</para>
+
+      <para>In the example below, the procedure is declared with an OUT
+      parameter.</para>
+
+      <programlisting>CREATE PROCEDURE new_customer(OUT newid INT, IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
+    MODIFIES SQL DATA
+    BEGIN ATOMIC
+    DECLARE temp_id INTEGER;
+    INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
+    SET temp_id = IDENTITY();
+    INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
+    SET newid = temp_id;
+    END</programlisting>
+
+      <para>In the SQL session, or in the body of another stored procedure, a
+      variable must be assigned to the OUT parameter. After the procedure
+      call, this variable will hold the new identity value that was generated
+      inside the procedure. </para>
+
+      <para>In the example below, a session variable,
+      <literal>the_new_id</literal> is declared. Afther the call to
+      <literal>new_customer</literal>, the value for the identity is stored in
+      <literal>the_new_id</literal> variable. This is returned via the next
+      CALL statement. Alternatively, <literal>the_new_id</literal> can be used
+      as an argument to another CALL statement.</para>
+
+      <programlisting>DECLARE the_new_id INT DEFAULT NULL;
+CALL new_customer(the_new_id, 'John', 'Smith', '10 Parliament Square'); 
+CALL the_new_id;
+</programlisting>
     </section>
 
     <section>

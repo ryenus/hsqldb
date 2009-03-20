@@ -45,8 +45,8 @@
     <para>All SQL statements are executed in sessions. When a connection is
     established to the database, a session is started. The authorization of
     the session is the name of the user that started the session. A session
-    has some properties, some of these properties are set by default at the
-    start according to database settings.</para>
+    has several properties. These properties are set by default at the start
+    according to database settings.</para>
 
     <para>SQL Statements are generally transactional statements. When a
     transactional statement is executed, it starts a transaction if no
@@ -56,24 +56,27 @@
     fails, the transaction is not normally terminated. However, some failures
     are caused by execution of statements that are in conflict with statements
     executed in other concurrent sessions. Such failures result in an implicit
-    ROLLBACK, in addition to the exception that is raised. cause the
-    transaction to roll.</para>
+    ROLLBACK, in addition to the exception that is raised.</para>
+
+    <para>Schema definition and manipulation statements are also transactional
+    according to the SQL Standard. HyperSQL 1.9 performs automatic commits
+    before and after the execution of such transactions. Therefore,
+    schema-related statements cannot be rolled back. This is likely to change
+    in future versions.</para>
 
     <para>Some statements are not transactional. Most of these statements are
-    used to the change the properties of the session.</para>
+    used to change the properties of the session. These statements begin with
+    the SET keyword.</para>
 
     <para>If the AUTOCOMMIT property of a session is TRUE, then each
-    transactional statement is followed by an implicit COMMIT. In the current
-    version of HSQLDB, data definition language (statements used to create or
-    modify tables or other schema objects) cause an automatic COMMIT to be
-    executed. This is likely to change in future versions.</para>
+    transactional statement is followed by an implicit COMMIT.</para>
 
     <simpara>The default isolation level for a session is READ COMMITTED. This
     can be changed using the JDBC <classname>java.sql.Connection</classname>
     object and its <methodname>setTransactionIsolation(int level)</methodname>
     method. The session can be put in read-only mode using the
     <methodname>setReadOnly(boolean readOnly)</methodname> method. Both
-    methods can be invoked only after a commit or a rollback. </simpara>
+    methods can be invoked only after a commit or a rollback.</simpara>
 
     <simpara>The isolation level and / or the read only mode of a transaction
     can be modified using an SQL statement. You can use the statement to
@@ -84,7 +87,36 @@
     <simpara><literal>SET TRANSACTION &lt;transaction characteristic&gt; [
     &lt;comma&gt; &lt;transaction characteristic&gt; ]</literal></simpara>
 
-    <para>Details of the statement is described in the next section.</para>
+    <para>Details of the statement is described later in this chapter.</para>
+  </section>
+
+  <section>
+    <title>Session Attributes and Variables</title>
+
+    <para>Each session has several properties. Some of these properties, like
+    the transaction mode, can be changed but cannot be explicitly read. Other
+    attributes have names and can be referenced in queries. They can be
+    returned using the <literal>VALUES &lt;attribute name&gt;, ...</literal>
+    statement.</para>
+
+    <para>The named attributes such as CURRENT_USER, CURRENT_SCHEMA, etc. are
+    listed in the Built In Functions section.</para>
+
+    <para>The attributes for default session time zone, current session time
+    zone, current default transaction isolation mode and read only mode cannot
+    be read.</para>
+
+    <section>
+      <title>Session Variables</title>
+
+      <para>Session variables are user-defined variables created the same way
+      as the variables for for stored procedures and functions. Currently,
+      these variables cannot be used in general SQL statements. They can be
+      assigned to IN, INOUT and OUT arguments of stored procedures. This
+      allows calling stored procedures which have INOUT or OUT arguments. See
+      the example in the SQL Invoked Routines Chapter, under Formal
+      Parameters.</para>
+    </section>
   </section>
 
   <section xml:id="sqlgeneral_trans_cc-sect">
@@ -103,7 +135,8 @@
     levels. The concurrency control strategy governs all the sessions and is
     set for the database, as opposed for individual sessions. Isolation levels
     above READ UNCOMMITTED avoid the "dirty read" phenomenon and do not read
-    uncommitted changes made to rows by other transactions.</para>
+    uncommitted changes made to rows by other transactions. HyperSQL 1.9
+    supports only two-phase-locking (2PL).</para>
 
     <section>
       <title>Two Phased Locking</title>
@@ -114,7 +147,14 @@
       then both go through simultaneously. If one session tries to lock a
       table that has been exclusively locked by the other, the engine will put
       it in wait, or it will invalidate the action it is attempting to
-      perform, depending on the locks.</para>
+      perform, depending on the current locks. This avoids any
+      deadlock.</para>
+
+      <para>HyperSQL also supports explicit locking of a group of tables for
+      the duration of the current transaction. Use of this command blocks
+      access to the locked tables by other sessions and ensures the current
+      session can complete the intended reads and writes on the locked
+      tables.</para>
 
       <para>When a transaction is running in read-only mode (or the session is
       in read-only mode), then it will not lock the tables and will go ahead
@@ -261,7 +301,7 @@
     <simpara><literal>&lt;number of conditions&gt; ::= &lt;simple value
     specification&gt;</literal></simpara>
 
-    <simpara>Specify transaction characteristics. </simpara>
+    <simpara>Specify transaction characteristics.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET CONSTRAINTS</primary>
@@ -282,7 +322,7 @@
     <simpara>If the statement is issued during a transaction, it applies to
     the rest of the current transaction. If the statement is issued when a
     transaction is not active then it applies only to the next transaction in
-    the current session.</simpara>
+    the current session. HyperSQL does not yet support this feature.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SAVEPOINT</primary>
