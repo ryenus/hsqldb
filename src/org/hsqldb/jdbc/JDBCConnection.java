@@ -74,7 +74,7 @@ import java.sql.SQLData;
 import java.sql.SQLOutput;
 import java.sql.SQLInput;
 
-/* $Id */
+/* $Id$ */
 
 // fredt@users    20020320 - patch 1.7.0 - JDBC 2 support and error trapping
 //
