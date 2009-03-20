@@ -1027,7 +1027,8 @@ examples:
            (Can't actually change readme.txt when assembling, since tagging
            must be completed before-hand).
       -->
-      <copy file="doc-src/readme-template.txt" tofile="readme.txt">
+      <copy file="doc-src/readme-template.txt" tofile="readme.txt"
+            overwrite="true">
         <filterchain> <expandproperties/> </filterchain>
       </copy>
     </target>
