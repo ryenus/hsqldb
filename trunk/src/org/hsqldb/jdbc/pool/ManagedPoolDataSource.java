@@ -56,11 +56,10 @@ import org.hsqldb.jdbc.Util;
 // patch 1.9.0
 // - full synch up to Mustang b90
 
+/** @todo configurable: rollback() exceptions passed on to the client? */
+
 /**
- *
  * Connection pool manager.
- *
- * todo configurable: rollback() exceptions passed on to the client?
  *
  * @author Jakob Jenkov
  */
@@ -712,7 +711,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
 
     private boolean isInvalid(PooledConnection pooledConnection) {
 
-        //todo add  || pooledConnection.getConnection.isValid()   when JDBC 4.0 arrives.
+        /** @todo: add  || pooledConnection.getConnection.isValid()   when JDBC 4.0 arrives. */
         try {
             return pooledConnection.getConnection().isClosed();
         } catch (SQLException e) {
@@ -980,7 +979,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
             return;
         }
 
-        // TODO:  Use a HSQLDB RuntimeException subclass
+        /** @todo: Use a HSQLDB RuntimeException subclass */
         throw new RuntimeException("This class only supports JDBC driver '"
                                    + JDBCConnectionPoolDataSource.driver
                                    + "'");
@@ -1038,7 +1037,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
     }
 
     /**
-     * TODO:  Implement
+     * @todo:  Implement
      * public void setMaxIdle(int maxIdle) {
      * }
      * public int getMaxIdle() {
@@ -1047,13 +1046,13 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
      */
 
     /**
-     * TODO:  Implement
+     * @todo:  Implement
      * public void setMaxWait(long maxWait) {
      * }
      */
 
     /**
-     * TODO:  Implement
+     * @todo:  Implement
      * public void setMinIdle(int minIdle) {
      * }
      */
@@ -1191,8 +1190,7 @@ public class ManagedPoolDataSource implements javax.sql.DataSource,
             sb.append("\n    Default catalog: " + getDefaultCatalog());
         }
 
-        // TODO:  Add report for max and min settings which aren't
-        // implemented yet.
+        /** @todo:  Add report for max and min settings which aren't implemented yet. */
         return sb.toString() + "\n    Max Active: " + getMaxActive()
                + "\n    Init Size: " + getInitialSize() + "\n    Conn Props: "
                + getConnectionProperties() + "\n    Validation Query: "

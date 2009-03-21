@@ -710,7 +710,7 @@ public class CharacterType extends Type {
         } else if (data instanceof ClobData) {
             ClobData clob = session.createClob();
 
-            // todo - change to support long strings
+            /** @todo - change to support long strings */
             String result = ((ClobData) data).getSubString(session, offset, (int) length);
 
             clob.setString(session, 0, result);
@@ -800,7 +800,7 @@ public class CharacterType extends Type {
             }
         }
 
-        // todo - change to support long strings
+        /** @todo - change to support long strings */
         if (startindex == 0 && endindex == s.length()) {}
         else {
             s = s.substring(startindex, endindex);

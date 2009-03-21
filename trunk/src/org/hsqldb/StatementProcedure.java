@@ -184,12 +184,15 @@ public class StatementProcedure extends StatementDMQL {
             getResultMetaData();
         }
 
-        // TODO: Now that JDBCResultSet has a RowSetNavigator instead of
-        // Result, then how to let stored procedure implemented using JDBC
-        // to generate result sets for the client?
-        // else if (o instanceof JDBCResultSet) {
-        //    return ((JDBCResultSet) o).getResult();
-        //}
+        /**
+         * @todo 1.9.0 For table functions implment handling of Result objects
+         * returned from Java functions. Review and document instantiation and usage
+         * of relevant implementation of Result and JDBCResultSet for returning
+         * from Java functions?
+         * else if (o instanceof JDBCResultSet) {
+         *   return ((JDBCResultSet) o).getResult();
+         * }
+         */
         r = Result.newSingleColumnResult(resultMetaData);
 
         Object[] row = new Object[1];

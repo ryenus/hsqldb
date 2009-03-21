@@ -4694,7 +4694,7 @@ public class ParserDDL extends ParserRoutine {
                 isGrantOption = true;
             }
 
-            // todo
+            /** @todo - implement */
             if (token.tokenType == Tokens.GRANTED) {
                 read();
                 readThis(Tokens.BY);

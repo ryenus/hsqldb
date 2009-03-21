@@ -93,7 +93,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
 
             this.method = method;
             this.args   = (args == null) ? null
-                    : (Object[]) args.clone();
+                                         : (Object[]) args.clone();
         }
 
         /**
@@ -119,6 +119,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
                         }
                     }
                 }
+
                 hashCode = h;
             }
 
@@ -176,6 +177,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
                                   : (Object[]) args.clone();
         }
     }
+
 
     /**
      * Interface required to cooperate with a <tt>Statement</tt> pool
@@ -259,25 +261,24 @@ public class WrapperInvocationHandler implements InvocationHandler {
     protected static final IntValueHashMap methodMap = new IntValueHashMap();
 
     // ------- Interfaces having methods that are sensitive to pooling ---------
-    protected static final Class[] arrayInterface = new Class[] {
-        Array.class };
-    protected static final Class[] connectionInterface = new Class[] {
+    protected static final Class[] arrayInterface = new Class[]{ Array.class };
+    protected static final Class[] connectionInterface = new Class[]{
         Connection.class };
-    protected static final Class[] callableStatementInterface = new Class[] {
+    protected static final Class[] callableStatementInterface = new Class[]{
         CallableStatement.class };
-    protected static final Class[] databaseMetaDataInterface = new Class[] {
+    protected static final Class[] databaseMetaDataInterface = new Class[]{
         DatabaseMetaData.class };
 
     //protected static final Class[] parameterMetaDataInterface
     //        = new Class[]{ParameterMetaData.class};
-    protected static final Class[] preparedStatementInterface = new Class[] {
+    protected static final Class[] preparedStatementInterface = new Class[]{
         PreparedStatement.class };
 
     //protected static final Class[] resultSetMetaDataInterface
     //        = new Class[]{ResultSetMetaData.class};
-    protected static final Class[] resultSetInterface = new Class[] {
+    protected static final Class[] resultSetInterface = new Class[]{
         ResultSet.class };
-    protected static final Class[] statementInterface = new Class[] {
+    protected static final Class[] statementInterface = new Class[]{
         Statement.class };
 
     // ------------------ Static Initialization Helper Methods -----------------
@@ -292,9 +293,9 @@ public class WrapperInvocationHandler implements InvocationHandler {
     protected static boolean _isCloseSurrogateMethod(final Class clazz,
             final Method method) {
 
-        return ((Connection.class.isAssignableFrom(clazz)
-                 || Statement.class.isAssignableFrom(clazz)) && "close".equals(
-                     method.getName()));
+        return ((Connection.class.isAssignableFrom(
+            clazz) || Statement.class.isAssignableFrom(
+            clazz)) && "close".equals(method.getName()));
     }
 
     /**
@@ -307,9 +308,9 @@ public class WrapperInvocationHandler implements InvocationHandler {
     protected static boolean _isIsClosedSurrogateMethod(final Class clazz,
             final Method method) {
 
-        return ((Connection.class.isAssignableFrom(clazz)
-                 || Statement.class.isAssignableFrom(
-                     clazz)) && "isClosed".equals(method.getName()));
+        return ((Connection.class.isAssignableFrom(
+            clazz) || Statement.class.isAssignableFrom(
+            clazz)) && "isClosed".equals(method.getName()));
     }
 
 //    /**
@@ -468,9 +469,10 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * @param statementPool interface to an external statement pool; may be null
      * @throws java.lang.IllegalArgumentException if connection is null
      */
-    public WrapperInvocationHandler(
-            Connection connection, ConnectionPool connectionPool,
-            StatementPool statementPool) throws IllegalArgumentException {
+    public WrapperInvocationHandler(Connection connection,
+                                    ConnectionPool connectionPool,
+                                    StatementPool statementPool)
+                                    throws IllegalArgumentException {
 
         this(connection, null);
 
@@ -489,9 +491,9 @@ public class WrapperInvocationHandler implements InvocationHandler {
      *      parameters that may be passed to <code>Proxy.newProxyInstance</code>
      *      are violated
      */
-    public WrapperInvocationHandler(
-            Object delegate,
-            WrapperInvocationHandler parent) throws IllegalArgumentException {
+    public WrapperInvocationHandler(Object delegate,
+                                    WrapperInvocationHandler parent)
+                                    throws IllegalArgumentException {
 
         if (delegate == null) {
             throw new IllegalArgumentException("delegate: null");
@@ -502,6 +504,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
         if (proxiedInterface == null) {
             throw new IllegalArgumentException("delegate: " + delegate);
         }
+
         this.delegate      = delegate;
         this.parentHandler = parent;
         this.surrogate =
@@ -560,11 +563,14 @@ public class WrapperInvocationHandler implements InvocationHandler {
      *
      * @see Throwable
      */
-    // TODO: - Synchronization can be made more granular if performance suffers.
-    //       - Requires some private lock objects and synchronized blocks in
-    //         certain methods.
-    //       - This was the obvious and easy synchronization point to pick
-    //         initially for prototyping purposes
+
+    /**
+     * @todo: - Synchronization can be made more granular if performance suffers.
+     *      - Requires some private lock objects and synchronized blocks in
+     *        certain methods.
+     *      - This was the obvious and easy synchronization point to pick
+     *        initially for prototyping purposes
+     */
     public synchronized Object invoke(final Object proxy, final Method method,
                                       final Object[] args) throws Throwable {
 
@@ -581,7 +587,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
             }
             case WIH_IS_CLOSED_SURROGATE : {
                 result = isClosedSurrogate() ? Boolean.TRUE
-                        : Boolean.FALSE;
+                                             : Boolean.FALSE;
 
                 break;
             }
@@ -699,13 +705,11 @@ public class WrapperInvocationHandler implements InvocationHandler {
 
                 try {
                     ((ResultSet) handler.delegate).close();
-                } catch (Exception ex) {
-                }
+                } catch (Exception ex) {}
 
                 try {
                     handler.closeSurrogate();
-                } catch (Exception e) {
-                }
+                } catch (Exception e) {}
             }
         }
 
@@ -718,16 +722,14 @@ public class WrapperInvocationHandler implements InvocationHandler {
 
                 try {
                     handler.closeSurrogate();
-                } catch (Exception e) {
-                }
+                } catch (Exception e) {}
             }
         }
 
         if (this.dbmdHandler != null) {
             try {
                 this.dbmdHandler.closeSurrogate();
-            } catch (Throwable ex) {
-            }
+            } catch (Throwable ex) {}
         }
 
         Object delegate = this.delegate;
@@ -772,8 +774,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
 
             try {
                 connection.close();
-            } catch (SQLException ex) {
-            }
+            } catch (SQLException ex) {}
         } else {
             Connection    connection    = (Connection) this.delegate;
             StatementPool statementPool = this.statementPool;
@@ -796,14 +797,14 @@ public class WrapperInvocationHandler implements InvocationHandler {
         Statement     stmt          = (Statement) this.delegate;
         StatementKey  key           = this.statementKey;
         StatementPool statementPool = (this.parentHandler == null) ? null
-                : this.parentHandler.statementPool;
+                                                                   : this.parentHandler
+                                                                       .statementPool;
 
         if (key == null || statementPool == null
                 || !statementPool.isPoolable(stmt)) {
             try {
                 stmt.close();
-            } catch (Exception ex) {
-            }
+            } catch (Exception ex) {}
         } else {
             statementPool.checkIn(key, stmt);
         }
@@ -824,11 +825,14 @@ public class WrapperInvocationHandler implements InvocationHandler {
         // This part is overkill now, but does not introduce
         // incorrect operation.
         //
-        // TODO:  Special handling to check the parent is still desirable
-        //        for Array surrogates (and any other proxied delegate
-        //        that has a parent whose valid lifetime is at most the
-        //        life of the parent and does not expose a public close()
-        //        method through the JDBC API
+
+        /**
+         * @todo:  Special handling to check the parent is still desirable
+         *       for Array surrogates (and any other proxied delegate
+         *       that has a parent whose valid lifetime is at most the
+         *       life of the parent and does not expose a public close()
+         *       method through the JDBC API
+         */
         WrapperInvocationHandler parent = this.parentHandler;
 
         if (parent != null && parent.isClosedSurrogate()) {
@@ -904,12 +908,14 @@ public class WrapperInvocationHandler implements InvocationHandler {
         if (stmt == null) {
             stmt = method.invoke(this.delegate, args);
         }
+
         handler              = new WrapperInvocationHandler(stmt, this);
         handler.statementKey = key;
 
         if (this.statements == null) {
             this.statements = new HashSet();
         }
+
         statements.add(handler);
 
         return handler.surrogate;
@@ -926,7 +932,8 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * @return surrogate for the underlying ResultSet object
      */
     protected Object getResultSetSurrogate(final Method method,
-            final Object[] args) throws Throwable {
+                                           final Object[] args)
+                                           throws Throwable {
 
         Object rs = method.invoke(this.delegate, args);
         WrapperInvocationHandler handler = new WrapperInvocationHandler(rs,
@@ -962,7 +969,7 @@ public class WrapperInvocationHandler implements InvocationHandler {
         Object result = method.invoke(this.delegate, args);
 
         return (result == this.delegate) ? this.surrogate
-                : result;
+                                         : result;
     }
 
     /**
@@ -975,9 +982,9 @@ public class WrapperInvocationHandler implements InvocationHandler {
      * the given method with the given arguments upon the delegate
      * @return surrogate for the underlying Array object
      */
-    protected Object getArraySurrogate(
-            final Method method,
-            final Object[] args) throws java.lang.Throwable {
+    protected Object getArraySurrogate(final Method method,
+                                       final Object[] args)
+                                       throws java.lang.Throwable {
 
         Object array = method.invoke(this.delegate, args);
         WrapperInvocationHandler handler = new WrapperInvocationHandler(array,

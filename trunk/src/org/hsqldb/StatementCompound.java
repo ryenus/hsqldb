@@ -342,10 +342,12 @@ public class StatementCompound extends Statement {
 
                 session.clearWarnings();
 
-                // todo - if condition is "transaction rollback" promote to
-                // top call level without any further action
-                // if condition is system related promote to top level
-                // schema manipulation conditions are never handled
+                /**
+                 * @todo - if condition is "transaction rollback" promote to
+                 * top call level without any further action
+                 * if condition is system related promote to top level
+                 * schema manipulation conditions are never handled
+                 */
                 if (handler.handlesCondition(result.getSubString())) {
                     session.resetSchema();
 
@@ -672,5 +674,4 @@ public class StatementCompound extends Statement {
     public RangeVariable[] getRangeVariables() {
         return rangeVariables;
     }
-
 }

@@ -526,7 +526,8 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-    // todo build this once for reuse
+    /** @todo 1.9.0 - build the metadata only once and reuse */
+
     /**
      * Returns the metadata for the placeholder parameters.
      */
@@ -572,18 +573,6 @@ public abstract class StatementDMQL extends Statement {
             metaData.columnLabels[idx] = StatementDMQL.PCOL_PREFIX + (i + 1);
             metaData.columnTypes[idx]  = parameters[i].dataType;
 
-            // TODO: The rules should be: - always nullable unless:
-            //
-            //                              1.) type of site is Java primitive,
-            //                              e.g. a SQL-invoked routine
-            //                              parameter that maps to a
-            //                              primitive Java method argument
-            //
-            //                              2.) (future) the site is declared
-            //                              not null, e.g. a SQL language
-            //                              routine parameter explicitly
-            //                              declared not null.
-            // currently will always be Expression.PARAM_IN
             metaData.paramModes[idx] =
                 parameters[i].column == null
                 ? SchemaObject.ParameterModes.PARAM_UNKNOWN

@@ -275,7 +275,8 @@ public class BinaryType extends Type {
             if (typeCode == Types.SQL_BINARY) {
 
                 // Standard disallows type length reduction
-                // todo - better error message
+
+                /** @todo - better error message */
                 throw Error.error(ErrorCode.X_42561);
             } else if (typeCode == Types.SQL_VARBINARY) {
                 newPrecision = maxBinaryPrecision;
@@ -658,9 +659,7 @@ public class BinaryType extends Type {
         }
     }
 
-    /**
-     * todo check and adjust max precision
-     */
+    /** @todo check and adjust max precision */
     public static BinaryType getBinaryType(int type, long precision) {
 
         switch (type) {

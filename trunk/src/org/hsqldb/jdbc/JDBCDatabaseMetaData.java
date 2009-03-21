@@ -63,8 +63,11 @@ import org.hsqldb.FunctionCustom;
 // boucherb@users 20051207 - update to JDK 1.6 JDBC 4.0 methods and docs
 //              - 20060709
 // fredt@users    20080805 - full review and update to doc and method return values
-// todo - 1.9.0 - fredt - revise all selects from system tables to use
-// SQL/SCHEMATA views with column renaming to JDBC spec
+
+/**
+ * @todo 1.9.0 - fredt - revise all selects from system tables to use
+ *  SQL/SCHEMATA views with column renaming to JDBC spec
+ */
 // Revision 1.20  2006/07/12 12:06:54  boucherb
 // patch 1.9.0
 // - java.sql.Wrapper implementation section title added
@@ -302,7 +305,6 @@ import org.hsqldb.FunctionCustom;
  * @see org.hsqldb.dbinfo.DatabaseInformationMain
  * @see org.hsqldb.dbinfo.DatabaseInformationFull
  */
-
 //#ifdef JAVA6
 public class JDBCDatabaseMetaData implements DatabaseMetaData,
         java.sql.Wrapper {
@@ -1336,6 +1338,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return true;
     }
 
+    /** @todo 1.9.0 - return according to multiple result set cpability */
+
     /**
      * Retrieves whether this database supports getting multiple
      * <code>ResultSet</code> objects from a single call to the
@@ -1351,7 +1355,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *
      * This behaviour <i>may</i> change in a future release.
      *
-     * TODO: resolve whether 1.9.0 will support multiple result sets per call.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -2665,10 +2668,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information</h3>
      *
-     * up to and including 1.8.0.x, HSQLDB supports only
-     * TRANSACTION_READ_UNCOMMITED and <em>always</em> returns this value here.
-     *
-     * TODO: resolve for 1.9.0.
+     * Default isolation mode in version 1.9.0 is TRANSACTION_READ_COMMITED.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5210,10 +5210,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             + "CAST(0 AS INTEGER) AS ATTR_SIZE, CAST(0 AS INTEGER) AS DECIMAL_DIGITS, "
             + "CAST(0 AS INTEGER) AS NUM_PREC_RADIX, CAST(0 AS INTEGER) AS NULLABLE, "
             + "'' AS REMARK, '' AS ATTR_DEF, CAST(0 AS INTEGER) AS SQL_DATA_TYPE, "
-            +"CAST(0 AS INTEGER) AS SQL_DATETIME_SUB, CAST(0 AS INTEGER) AS CHAR_OCTECT_LENGTH, "
-            +"CAST(0 AS INTEGER) AS ORDINAL_POSITION, '' AS NULLABLE, "
-            +"'' AS SCOPE_CATALOG, '' AS SCOPE_SCHEMA, '' AS SCOPE_TABLE, "
-            +"CAST(0 AS SMALLINT) AS SCOPE_DATA_TYPE "
+            + "CAST(0 AS INTEGER) AS SQL_DATETIME_SUB, CAST(0 AS INTEGER) AS CHAR_OCTECT_LENGTH, "
+            + "CAST(0 AS INTEGER) AS ORDINAL_POSITION, '' AS NULLABLE, "
+            + "'' AS SCOPE_CATALOG, '' AS SCOPE_SCHEMA, '' AS SCOPE_TABLE, "
+            + "CAST(0 AS SMALLINT) AS SCOPE_DATA_TYPE "
             + "FROM INFORMATION_SCHEMA.TABLES ").append(
                 and("TABLE_NAME", "=", ""));
 

@@ -732,9 +732,11 @@ class DatabaseInformationMain extends DatabaseInformation {
         Boolean inKey;           // column participates in PK or AK?
 
         //-------------------------------------------
-        // TODO:  Maybe include:
-        //        - backing index (constraint) name?
-        //        - column sequence in index (constraint)?
+
+        /**
+         * @todo -  Maybe include: - backing index (constraint) name?
+         *       - column sequence in index (constraint)?
+         */
         //-------------------------------------------
         // Intermediate holders
         Iterator       tables;
@@ -768,7 +770,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            // todo - requires access to the actual columns
+            /** @todo - requires access to the actual columns */
             if (table.isView() || !isAccessibleTable(table)) {
                 continue;
             }
@@ -964,7 +966,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            // todo - requires access to the actual columns
+            /** @todo - requires access to the actual columns */
             if (!isAccessibleTable(table)) {
                 continue;
             }
@@ -1714,8 +1716,11 @@ class DatabaseInformationMain extends DatabaseInformation {
         ti.setTypeSub(Types.TYPE_SUB_DEFAULT);
 
         // JDBC 4.0
-        // TODO: we do not yet support declarative p-column defaults.
-        //       In essence, the default value for a procedure column is NULL
+
+        /**
+         * @todo we do not yet support declarative p-column defaults.
+         * In essence, the default value for a procedure column is NULL
+         */
         colDefault       = null;
         procedureCatalog = database.getCatalogName().name;
         procedureSchema =

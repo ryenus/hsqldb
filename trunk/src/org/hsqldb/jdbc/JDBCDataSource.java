@@ -106,7 +106,6 @@ import javax.sql.CommonDataSource;
  * @version 1.9.0
  * @revised JDK 1.6, HSQLDB 1.9.0
  */
-
 //#ifdef JAVA6
 @SuppressWarnings("serial")
 

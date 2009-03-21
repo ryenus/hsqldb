@@ -1558,7 +1558,7 @@ public class Server implements HsqlSocketRequestHandler {
                 sb.append(r.getStatementID());
 
 /**
- * todo - fredt - NOW - fix this without appendStringValueOf
+ * @todo 1.9.0 - fredt - fix this without appendStringValueOf - use type to convert to string
  */
 /*
                 if (r.getSize() == 1) {

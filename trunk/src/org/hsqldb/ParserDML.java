@@ -52,10 +52,6 @@ public class ParserDML extends ParserDQL {
 
     /**
      * Retrieves an INSERT Statement from this parse context.
-     *
-     * todo: DEFAULT VALUES expression instead of source
-     *
-     *
      */
     StatementDMQL compileInsertStatement(RangeVariable[] outerRanges)
     throws HsqlException {

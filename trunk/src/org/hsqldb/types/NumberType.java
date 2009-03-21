@@ -586,7 +586,7 @@ public final class NumberType extends Type {
             case Types.SQL_FLOAT :
             case Types.SQL_DOUBLE : {
 
-                // todo big-decimal etc
+                /** @todo big-decimal etc */
                 double ad = ((Number) a).doubleValue();
                 double bd = ((Number) b).doubleValue();
 
@@ -1008,7 +1008,7 @@ public final class NumberType extends Type {
             case Types.SQL_DOUBLE :
                 double value = ((Double) a).doubleValue();
 
-                // todo - java 5 format change
+                /** @todo - java 5 format change */
                 if (value == Double.NEGATIVE_INFINITY) {
                     return "-1E0/0";
                 }

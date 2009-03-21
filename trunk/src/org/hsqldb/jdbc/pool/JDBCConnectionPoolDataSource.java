@@ -50,22 +50,24 @@ import org.hsqldb.jdbc.JDBCConnection;
  */
 public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
 
-    /* TODO:  Break off code used here and in JDBCXADataSource into an
+    /**
+     * @todo:  Break off code used here and in JDBCXADataSource into an
      *        abstract class, and have these classes extend the abstract
-     *        class. */
-    public static final String   driver             = "org.hsqldb.jdbc.JDBCDriver";
+     *        class.
+     */
+    public static final String   driver = "org.hsqldb.jdbc.JDBCDriver";
     protected String             url                = null;
     protected ConnectionDefaults connectionDefaults = null;
     private int                  loginTimeout       = 0;
     private PrintWriter          logWriter          = null;
     protected Properties         connProperties = new java.util.Properties();
 
-    public JDBCConnectionPoolDataSource() {
-    }
+    public JDBCConnectionPoolDataSource() {}
 
-    public JDBCConnectionPoolDataSource(
-            String url, String user, String password,
-            ConnectionDefaults connectionDefaults) throws SQLException {
+    public JDBCConnectionPoolDataSource(String url, String user,
+                                        String password,
+                                        ConnectionDefaults connectionDefaults)
+                                        throws SQLException {
 
         this.url                = url;
         this.connectionDefaults = connectionDefaults;
@@ -165,12 +167,11 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
         String configuredUser     = connProperties.getProperty("user");
         String configuredPassword = connProperties.getProperty("password");
 
-        if (((user == null && configuredUser != null)
-                || (user != null && configuredUser == null)) || (user != null
-                   && !user.equals(configuredUser)) || ((password == null
-                       && configuredPassword != null) || (password != null
-                           && configuredPassword == null)) || (password
-                               != null && !password.equals(configuredPassword))) {
+        if (((user == null && configuredUser != null) || (user != null && configuredUser == null))
+                || (user != null && !user.equals(configuredUser))
+                || ((password == null && configuredPassword != null) || (password != null && configuredPassword == null))
+                || (password != null
+                    && !password.equals(configuredPassword))) {
             throw new SQLException("Given user name or password does not "
                                    + "match those configured for this object");
         }
@@ -195,8 +196,7 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
         return getPooledConnection();
     }
 
-    public void close() {
-    }
+    public void close() {}
 
     protected void logInfo(String message) {
 
@@ -287,8 +287,8 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
 
 //#endif JAVA6BETA
     // ------------------------ internal implementation ------------------------
-    private PooledConnection createPooledConnection(
-            JDBCConnection connection) throws SQLException {
+    private PooledConnection createPooledConnection(JDBCConnection connection)
+    throws SQLException {
 
         LifeTimeConnectionWrapper connectionWrapper =
             new LifeTimeConnectionWrapper(connection, this.connectionDefaults);

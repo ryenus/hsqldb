@@ -76,8 +76,9 @@ import java.sql.SQLException;
  */
 public class JDBCXAResource implements XAResource {
 
-    // TODO:  Make thread safe.
-    /* TODO:
+    /**
+     * @todo:
+     * Make thread safe.
      * Figure out how to ensure that orphaned transactions to do not make
      * a memory leak in JDBCXADataSource.resources.  I.e.,
      * JDBCXADataSource.removeResource() must be called even for all
@@ -150,13 +151,15 @@ public class JDBCXAResource implements XAResource {
 
         // Comment out following debug statement before public release:
         System.err.println("Performing a " + (onePhase ? "1-phase"
-                : "2-phase") + " commit on " + xid);
+                                                       : "2-phase") + " commit on "
+                                                       + xid);
 
         JDBCXAResource resource = xaDataSource.getResource(xid);
 
         if (resource == null) {
             throw new XAException("The XADataSource has no such Xid:  " + xid);
         }
+
         resource.commitThis(onePhase);
     }
 
@@ -191,12 +194,17 @@ public class JDBCXAResource implements XAResource {
         //}
         try {
 
-            // TODO:  Determine if work was committed, rolled back, or both,
-            // and return appropriate Heuristic*Exception.
-            connection.commit();    // Commits the real, physical conn.
+            /**
+             * @todo:  Determine if work was committed, rolled back, or both,
+             * and return appropriate Heuristic*Exception.
+             * connection.commit();
+             *  Commits the real, physical conn.
+             */
+            connection.commit();
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
+
         dispose();
     }
 
@@ -222,6 +230,7 @@ public class JDBCXAResource implements XAResource {
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
+
         state = XA_STATE_ENDED;
     }
 
@@ -251,14 +260,13 @@ public class JDBCXAResource implements XAResource {
                 "Attempted to forget a XAResource that "
                 + "is not in a heuristically completed state");
         }
+
         dispose();
 
         state = XA_STATE_INITIAL;
     }
 
-    /**
-     * TODO:  Implement
-     */
+    /** @todo:  Implement */
     public int getTransactionTimeout() throws XAException {
         throw new XAException("Transaction timeouts not implemented yet");
     }
@@ -288,13 +296,18 @@ public class JDBCXAResource implements XAResource {
 
         validateXid(xid);
 
-        /* TODO:  This is where the real 2-phase work should be done to
-         * determine if a commit done here would succeed or not.  */
-        /* TODO:  May improve performance to return XA_RDONLY whenever
+        /**
+         * @todo:  This is where the real 2-phase work should be done to
+         * determine if a commit done here would succeed or not.
+         */
+
+        /**
+         * @todo:  May improve performance to return XA_RDONLY whenever
          * possible, but I don't know.
          * Could determine this by checking if DB instance is in RO mode,
          * or perhaps (with much difficulty) to determine if there have
-         * been any modifications performed. */
+         * been any modifications performed.
+         */
         if (state != XA_STATE_ENDED) {
             throw new XAException("Invalid XAResource state");
         }
@@ -330,6 +343,7 @@ public class JDBCXAResource implements XAResource {
             throw new XAException(
                 "The XADataSource has no such Xid in prepared state:  " + xid);
         }
+
         resource.rollbackThis();
     }
 
@@ -352,17 +366,20 @@ public class JDBCXAResource implements XAResource {
 
         try {
 
-            // TODO:  Determine if work was committed, rolled back, or both,
-            // and return appropriate Heuristic*Exception.
+            /**
+             * @todo:  Determine if work was committed, rolled back, or both,
+             * and return appropriate Heuristic Exception.
+             */
             connection.rollback();    // real/phys.
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
+
         dispose();
     }
 
     /**
-     * TODO:  Implement
+     * @todo:  Implement
      */
     public boolean setTransactionTimeout(int seconds) throws XAException {
         throw new XAException("Transaction timeouts not implemented yet");
@@ -396,6 +413,7 @@ public class JDBCXAResource implements XAResource {
         } catch (SQLException se) {
             throw new XAException(se.getMessage());
         }
+
         this.xid = xid;
         state    = XA_STATE_STARTED;
 

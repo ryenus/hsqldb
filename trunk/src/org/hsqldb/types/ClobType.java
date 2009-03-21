@@ -143,10 +143,9 @@ public final class ClobType extends CharacterType {
                                         : 0);
     }
 
-/** @todo implement */
+    /** @todo - implement */
     public Object convertToTypeLimits(Object a) throws HsqlException {
 
-        // todo
         return a;
     }
 

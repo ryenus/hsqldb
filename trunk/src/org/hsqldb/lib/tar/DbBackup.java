@@ -325,6 +325,13 @@ public class DbBackup {
     }
 
     /**
+     * @todo - Supply a version of my MemTest program which people can run
+     * one time when the server can be starved of RAM, and save the available
+     * RAM quantity to a text file.  We can then really crank up the buffer
+     * size to make transfers really efficient.
+     */
+
+    /**
      * Return a 512-block buffer size suggestion, based on the size of what
      * needs to be read or written, and default and typical JVM constraints.
      * <P/>
@@ -341,11 +348,6 @@ public class DbBackup {
      * This allows 20 MB for us to use.  User can easily use more than this
      * by raising JVM settings and/or getting more PRAM or VRAM.
      * Therefore, ceiling = 20MB = 20 MB / .5 Kb = 40 k blocks
-     * <P/>
-     * TODO:  Supply a version of my MemTest program which people can run
-     * one time when the server can be starved of RAM, and save the available
-     * RAM quantity to a text file.  We can then really crank up the buffer
-     * size to make transfers really efficient.
      * <P/>
      * We make the conservative simplification that each data file contains
      * just one huge data entry component.  This is a good estimation, since in

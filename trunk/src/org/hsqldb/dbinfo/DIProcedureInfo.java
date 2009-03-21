@@ -46,8 +46,6 @@ import org.hsqldb.types.Type;
 
 /* $Id$ */
 
-/**@todo fredt - move Trace.doAssert() literals to Trace*/
-
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // Revision 1.7  2006/07/12 11:27:53  boucherb
 // patch 1.9.0
@@ -113,7 +111,6 @@ final class DIProcedureInfo {
         return (HsqlArrayList) nameSpace.getInverseAliasMap().get(getFQN());
     }
 */
-
     Class getColClass(int i) {
         return colClasses[i + colOffset()];
     }
@@ -128,8 +125,7 @@ final class DIProcedureInfo {
     }
 
     Integer getColJDBCDataType(int i) {
-        return ValuePool.getInt(
-            Type.getJDBCTypeCode(getColTypeCode(i)));
+        return ValuePool.getInt(Type.getJDBCTypeCode(getColTypeCode(i)));
     }
 
     Integer getColLen(int i) {
@@ -264,8 +260,10 @@ final class DIProcedureInfo {
                 return ValuePool.getInt(procedureColumnResult);
             }
 
-            // todo: registration and reporting on result columns for routines
-            //       that generate real" result sets
+            /**
+             * @todo - registration and reporting on result columns for routines
+             *      that generate real" result sets
+             */
             default : {
 
                 // We could get religious here and maybe report IN OUT
@@ -335,9 +333,9 @@ final class DIProcedureInfo {
         int type;
 
         type = !"ROUTINE".equals(origin) ? procedureResultUnknown
-                                         : method.getReturnType()
-                                           == Void.TYPE ? procedureNoResult
-                                                        : procedureReturnsResult;
+                                         : method.getReturnType() == Void.TYPE
+                                           ? procedureNoResult
+                                           : procedureReturnsResult;
 
         return ValuePool.getInt(type);
     }
@@ -612,7 +610,7 @@ final class DIProcedureInfo {
         // Also, it's just friendly to show what "would"
         // be required if/when we support ARRAY in a broader
         // sense
-        if (c.isArray() &&!c.getComponentType().isArray()) {
+        if (c.isArray() && !c.getComponentType().isArray()) {
             return Types.SQL_ARRAY;
         }
 

@@ -74,18 +74,13 @@ public class JDBCPooledConnection implements PooledConnection {
         this.connectionWrapper.removeConnectionEventListener(listener);
     }
 
+/** @todo - implement methods */
+
 //#ifdef JAVA6
-    public void addStatementEventListener(StatementEventListener listener) {
+    public void addStatementEventListener(StatementEventListener listener) {}
 
-        // TODO:
-    }
-
-//#endif JAVA6
-//#ifdef JAVA6
-    public void removeStatementEventListener(StatementEventListener listener) {
-
-        // TODO:
-    }
+    public void removeStatementEventListener(
+            StatementEventListener listener) {}
 
 //#endif JAVA6
 }

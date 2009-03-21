@@ -162,7 +162,7 @@ public class Session implements SessionInterface {
     //
     public SessionData sessionData;
 
-    /** @todo fredt - clarify in which circumstances Session has to disconnect */
+    /** @todo 1.9.0 fredt - clarify in which circumstances Session has to disconnect */
     Session getSession() {
         return this;
     }
@@ -1101,7 +1101,7 @@ public class Session implements SessionInterface {
                     throw Error.error(ErrorCode.X_25006);
                 }
 
-                // todo - special autocommit for backward compatibility
+                /** @todo - special autocommit for backward compatibility */
                 commit(false);
             } catch (HsqlException e) {}
 

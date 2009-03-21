@@ -37,8 +37,10 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlProperties;
 
-//TODO:  move to here from Server and WebServer the remaining extraneous code
-//       dealing primarily with reading/setting properties from files, etc.
+/**
+ * @todo:  move to here from Server and WebServer the remaining extraneous code
+ *          dealing primarily with reading/setting properties from files, etc.
+ */
 
 /**
  * Assists with Server and WebServer configuration tasks.
@@ -191,17 +193,16 @@ public final class ServerConfiguration implements ServerConstants {
         p.setProperty(SC_KEY_ADDRESS, SC_DEFAULT_ADDRESS);
         p.setProperty(SC_KEY_NO_SYSTEM_EXIT, SC_DEFAULT_NO_SYSTEM_EXIT);
         p.setProperty(SC_KEY_MAX_DATABASES, SC_DEFAULT_MAX_DATABASES);
-
         p.setProperty(SC_KEY_SILENT, SC_DEFAULT_SILENT);
         p.setProperty(SC_KEY_TLS, SC_DEFAULT_TLS);
         p.setProperty(SC_KEY_TRACE, SC_DEFAULT_TRACE);
         p.setProperty(SC_KEY_WEB_DEFAULT_PAGE, SC_DEFAULT_WEB_PAGE);
         p.setProperty(SC_KEY_WEB_ROOT, SC_DEFAULT_WEB_ROOT);
+
         // Purposefully do not set a default Port because the default is
         // derived from TLS, which is runtime-configurable.
         // Things work very well if we leave it unset here and use the
         // getDefaultPort() method above to get the correct value.
-
         return p;
     }
 

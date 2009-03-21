@@ -205,9 +205,8 @@ public final class ClobDataMemory implements ClobData {
         return data.length;
     }
 
+    /** @todo - implement */
     public long getRightTrimSize(SessionInterface session) {
-
-        // todo
         return 0;
     }
 

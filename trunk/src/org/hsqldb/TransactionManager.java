@@ -274,7 +274,10 @@ public class TransactionManager {
 
                 try {
                     session.logSequences();
-                    database.logger.writeCommitStatement(session);
+
+                    if (mvcc) {
+                        database.logger.writeCommitStatement(session);
+                    }
                 } catch (HsqlException e) {}
 
                 return true;
@@ -716,8 +719,10 @@ public class TransactionManager {
             liveTransactionTimestamps.addLast(session.actionTimestamp);
 
             try {
-                database.logger.writeToLog(session,
-                                           session.getStartTransactionSQL());
+                if (mvcc) {
+                    database.logger.writeToLog(
+                        session, session.getStartTransactionSQL());
+                }
             } catch (HsqlException e) {}
         }
     }
@@ -738,8 +743,10 @@ public class TransactionManager {
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
 
                 try {
-                    database.logger.writeToLog(
-                        session, session.getStartTransactionSQL());
+                    if (this.mvcc) {
+                        database.logger.writeToLog(
+                            session, session.getStartTransactionSQL());
+                    }
                 } catch (HsqlException e) {}
             }
         }

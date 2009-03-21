@@ -58,8 +58,6 @@ public class TestDbBackup extends junit.framework.TestCase {
     static {
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
-
-            // TODO:  Rename to upper-class JDBC driver class name
         } catch (ClassNotFoundException cnfe) {
             throw new RuntimeException(
                 "<clinit> failed.  JDBC Driver class not in CLASSPATH");

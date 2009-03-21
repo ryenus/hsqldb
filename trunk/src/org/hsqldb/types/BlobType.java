@@ -134,9 +134,8 @@ public final class BlobType extends BinaryType {
                                         : 0);
     }
 
+    /** @todo - implement */
     public Object convertToTypeLimits(Object a) throws HsqlException {
-
-        // todo
         return a;
     }
 

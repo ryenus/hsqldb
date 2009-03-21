@@ -856,17 +856,6 @@ public class Result {
         return result;
     }
 
-    public static Result newErrorResult(String error, String state, int code) {
-
-        Result result = newResult(ResultConstants.ERROR);
-
-        result.mainString = error;
-        result.subString  = state;
-        result.errorCode  = code;
-
-        return result;
-    }
-
     public static Result newRequestDataResult(long id, int offset, int count) {
 
         Result result = newResult(ResultConstants.REQUESTDATA);
@@ -989,7 +978,7 @@ public class Result {
         return newErrorResult(t, null);
     }
 
-    /** @todo fredt - move the messages to Error.java */
+    /** @todo 1.9.0 fredt - move the messages to Error.java */
     public static Result newErrorResult(Throwable t, String statement) {
 
         Result result = newResult(ResultConstants.ERROR);
@@ -1007,7 +996,7 @@ public class Result {
         } else if (t instanceof OutOfMemoryError) {
 
             // gc() at this point may clear the memory allocated so far
-            // todo - review if it's better to gc higher up the stack
+            /** @todo 1.9.0 - review if it's better to gc higher up the stack */
             System.gc();
             t.printStackTrace();
 

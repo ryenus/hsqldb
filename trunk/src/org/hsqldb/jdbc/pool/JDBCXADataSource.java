@@ -61,11 +61,12 @@ import javax.sql.XAConnection;
  */
 public class JDBCXADataSource extends JDBCConnectionPoolDataSource implements XADataSource {
 
-    /* TODO:  Break off code used here and in JDBCConnectionPoolDataSource
+    /** @todo:  Break off code used here and in JDBCConnectionPoolDataSource
      *        into an abstract class, and have these classes extend the
      *        abstract class.  This class should NOT extend
      *        JDBCConnectionPoolDataSource (notice the masked
-     *        pool-specific methods below).  */
+     *        pool-specific methods below).
+     */
     private HashMap resources = new HashMap();
 
     public void addResource(Xid xid, JDBCXAResource xaResource) {

@@ -163,7 +163,7 @@ public class DatabaseURL {
             extraProps = HsqlProperties.delimitedArgPairsToProps(arguments,
                     "=", ";", null);
 
-            //todo - check if properties have valid names / values
+            /** @todo 1.9.0 - check if properties have valid names / values */
             props.addProperties(extraProps);
         }
 

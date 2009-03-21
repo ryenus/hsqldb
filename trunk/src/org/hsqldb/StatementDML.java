@@ -561,8 +561,10 @@ public class StatementDML extends StatementDMQL {
             Row      row  = (Row) updateList.getKey(i);
             Object[] data = (Object[]) updateList.get(i);
 
-            // todo - make optional using database property - this means the identity column can be set to null to force
-            // creation of a new identity value
+            /**
+             * @todo 1.9.0 - make optional using database property - this means the identity column can be set to null to force
+             * creation of a new identity value
+             */
             table.setIdentityColumn(session, data);
 
             if (table.triggerLists[Trigger.UPDATE_BEFORE].length != 0) {

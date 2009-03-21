@@ -1301,9 +1301,7 @@ public class ExpressionLogical extends Expression {
         return result;
     }
 
-    /**
-     * todo - null value in rows
-     */
+    /** @todo - null value in rows */
     private Boolean getAllAnyValue(Session session, Object[] data,
                                    SubQuery subquery) throws HsqlException {
 

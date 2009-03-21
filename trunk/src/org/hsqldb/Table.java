@@ -1829,7 +1829,7 @@ public class Table extends TableBase implements SchemaObject {
 
                 Row newrow = (Row) store.getNewCachedObject(session, data);
 
-                // todo 190 - change transaction row id to new row only when finished whole operation successfully
+                /** @todo 1.9.0 - change transaction row id to new row only when finished whole operation successfully */
                 newrow.rowAction = row.rowAction;
 
                 indexRow(store, newrow);
