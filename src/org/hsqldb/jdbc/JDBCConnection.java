@@ -811,7 +811,8 @@ public class JDBCConnection implements Connection {
         final int inside_escape_inside_single_quotes = 4;
         final int inside_escape_inside_double_quotes = 5;
 
-        // TODO:
+        /** @todo */
+
         // final int inside_single_line_comment          = 6;
         // final int inside_multi_line_comment           = 7;
         // Better than old way for large inputs and for avoiding GC overhead;
@@ -881,8 +882,7 @@ public class JDBCConnection implements Connection {
     }
 
     /**
-     * @todo semantics of autocommit regarding commit when the ResultSet
-     * is closed
+     * @todo - semantics of autocommit regarding commit when the ResultSet is closed
      */
 
     /**
@@ -2791,7 +2791,7 @@ public class JDBCConnection implements Connection {
             return false;
         } else {
 
-            // TODO:  ThreadPool? HsqlTimer with callback?
+            /** @todo:  ThreadPool? HsqlTimer with callback? */
             Thread t = new Thread() {
 
                 public void run() {
@@ -2957,7 +2957,7 @@ public class JDBCConnection implements Connection {
 
 //#endif JAVA6
 
-    /** @todo 20051207 */
+    /** @todo 1.9.0 */
 
     /**
      * Returns the value of the client info property specified by name.  This
@@ -2991,7 +2991,7 @@ public class JDBCConnection implements Connection {
 
 //#endif JAVA6
 
-    /** @todo 20051207 */
+    /** @todo - 1.9 */
 
     /**
      * Returns a list containing the name and current value of each client info

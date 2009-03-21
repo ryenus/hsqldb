@@ -53,7 +53,6 @@ import java.sql.SQLException;
 //             - added support for clients to decide whether getBinaryStream
 //               uses copy of internal byte buffer
 
-
 /**
  * The representation (mapping) in
  * the Java<sup><font size=-2>TM</font></sup> programming
@@ -509,7 +508,7 @@ public class JDBCBlob implements Blob {
 
         if (!this.createdByConnection) {
 
-            // TODO - better error message
+            /** @todo - better error message */
             throw Util.notSupported();
         }
 
@@ -627,7 +626,7 @@ public class JDBCBlob implements Blob {
 
         if (!this.createdByConnection) {
 
-            // TODO - Better error message
+            /** @todo - Better error message */
             throw Util.notSupported();
         }
 

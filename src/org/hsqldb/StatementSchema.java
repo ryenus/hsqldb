@@ -308,7 +308,10 @@ public class StatementSchema extends Statement {
 
                         case SchemaObject.SCHEMA :
 
-                            // todo 190 - check schema is referenced in external view or trigger definitions
+                            /**
+                             * @todo 1.9.0 - review for schemas referenced in
+                             *  external view or trigger definitions
+                             */
                             session.database.schemaManager.renameSchema(name,
                                     newName);
                             break;
@@ -976,9 +979,7 @@ public class StatementSchema extends Statement {
         Grantee grantee = session.database.getUserManager().get(name.name);
 
         if (session.database.getSessionManager().isUserActive(name.name)) {
-
-            // todo - new error message "cannot drop a user that is currently connected."    // NOI18N
-            throw Error.error(ErrorCode.ACCESS_IS_DENIED);
+            throw Error.error(ErrorCode.X_42539);
         }
 
         if (!cascade && session.database.schemaManager.hasSchemas(grantee)) {

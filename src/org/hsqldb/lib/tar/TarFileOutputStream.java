@@ -89,10 +89,10 @@ public class TarFileOutputStream {
      * the inside implementation of this class is intimately dependent upon
      * the nature of the write buffer. */
     final public static byte[] ZERO_BLOCK       = new byte[512];
+
+    /** @todo 1.9.0 use a single set of static finals here and in TarFileInputStream */
     final static public int    NO_COMPRESSION   = 0;
     final static public int    GZIP_COMPRESSION = 1;
-
-    //TODO:  Use an enum once Java 1.5 is required.
     final static public int DEFAULT_COMPRESSION       = NO_COMPRESSION;
     final static public int DEFAULT_BLOCKS_PER_RECORD = 20;
 

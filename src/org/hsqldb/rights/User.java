@@ -82,7 +82,7 @@ public class User extends Grantee {
 
     public void setPassword(String password) throws HsqlException {
 
-        // TODO:
+        /** @todo - introduce complexity interface */
         // checkComplexity(password);
         // requires: UserManager.createSAUser(), UserManager.createPublicUser()
         this.password = password;

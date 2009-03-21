@@ -136,7 +136,6 @@ import org.hsqldb.result.Result;
  * @see JDBCConnection#createStatement
  * @see JDBCResultSet
  */
-
 //#ifdef JAVA6
 public class JDBCStatement extends JDBCStatementBase implements Statement,
         java.sql.Wrapper {
@@ -557,6 +556,8 @@ public class JDBCStatement extends StatementBase implements Statement {
         checkClosed();
     }
 
+    /** @todo 1.9.0 - implement */
+
     /**
      * <!-- start generic documentation -->
      * Sets the SQL cursor name to the given <code>String</code>, which
@@ -592,10 +593,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      */
     public void setCursorName(String name) throws SQLException {
-
         checkClosed();
-
-        // TODO:  Throw SQLFeatureNotSupportedException under JDBC 4
     }
 
     //----------------------- Multiple Results --------------------------
@@ -718,14 +716,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB supports only <code>FETCH_FORWARD</code>. <p>
-     *
-     * Setting any other value will throw an <code>SQLException</code>
-     * stating that the operation is not supported. <p>
-     *
-     * TODO: resolve for 1.9.0 (current implementation is not in agreement
-     * with that for JDBCParameterMetaData).
-     * </div>
+     * HSQLDB accepts all valid parameters. <p>
      * <!-- end release-specific documentation -->
      *
      * @param direction the initial direction for processing rows
@@ -741,9 +732,18 @@ public class JDBCStatement extends StatementBase implements Statement {
     public void setFetchDirection(int direction) throws SQLException {
 
         checkClosed();
+        checkClosed();
 
-        if (direction != JDBCResultSet.FETCH_FORWARD) {
-            throw Util.notSupported();
+        switch (direction) {
+
+            case JDBCResultSet.FETCH_FORWARD :
+            case JDBCResultSet.FETCH_REVERSE :
+            case JDBCResultSet.FETCH_UNKNOWN :
+                fetchDirection = direction;
+
+                break;
+            default :
+                throw Util.invalidArgument();
         }
     }
 
@@ -761,10 +761,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB always returns FETCH_FORWARD. <p>
-     *
-     * TODO: resolve for 1.9.0 (current setFecthDirection implementation is
-     * not in agreement with that for JDBCParameterMetaData).
+     * HSQLDB returns the fetch direction. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -864,10 +861,8 @@ public class JDBCStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.8.0.x, HSQLDB supports only
-     * <code>CONCUR_READ_ONLY</code> concurrency.
-     *
-     * TODO: resolve for 1.9.0.
+     * HSQLDB supports <code>CONCUR_READ_ONLY</code> and
+     * <code>CONCUR_UPDATABLE</code> concurrency.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1158,11 +1153,7 @@ public class JDBCStatement extends StatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.8.0.x, HSQLDB does not support this feature; calling this method
-     * always throws an <code>SQLException</code> stating that the function is
-     * not supported. <p>
-     *
-     * TODO: resolve for 1.9.0
+     * HSQLDB moves to the next ResultSet and returns the correct result. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *

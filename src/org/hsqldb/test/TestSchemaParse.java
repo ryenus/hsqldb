@@ -921,7 +921,7 @@ public class TestSchemaParse extends junit.framework.TestCase {
                                       + "joinedtbl\n" + ")"));
     }
 
-/** @todo fredt - need to define additional identifiers to use for all cases of expect */
+    /** @todo fredt - need to define additional identifiers to use for all cases of expect */
     private static final int SQL_ABORT   = -1234;
     private static final int SQL_INITIAL = -1233;
     private static final int SQL_FAIL    = -1;

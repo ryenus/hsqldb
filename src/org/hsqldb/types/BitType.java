@@ -183,7 +183,7 @@ public final class BitType extends BinaryType {
             if (typeCode == Types.SQL_BIT) {
 
                 // Standard disallows type length reduction
-                // todo - better error message
+                /** @todo - better error message */
                 throw Error.error(ErrorCode.X_42562);
             }
 
@@ -358,7 +358,7 @@ public final class BitType extends BinaryType {
                || otherType.isBinaryType();
     }
 
-// todo
+    /** @todo - implement */
     public long position(SessionInterface session, BlobData data, BlobData otherData,
                          Type otherType, long offset) throws HsqlException {
 

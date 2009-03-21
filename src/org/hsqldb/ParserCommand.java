@@ -1340,10 +1340,10 @@ public class ParserCommand extends ParserDDL {
             }
         }
 
-        // TODO:  Code above works, but replace with much more concise
-        // readIfThis()s.
-        // This block is TEMPORARY.  Will be removed when we implement
-        // Non-Blocking and SCRIPT mode.
+        /**
+         * @todo: This block is TEMPORARY.  Will be removed when we implement
+         * Non-Blocking and SCRIPT mode.
+         */
         if (scriptMode != null) {
             throw unsupportedFeature("SCRIPT");
         }

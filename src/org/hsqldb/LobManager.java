@@ -594,7 +594,7 @@ public class LobManager {
                 Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
         }
 
-        // todo - scale offset for clob
+        /** @todo 1.9.0 - double offset for clob */
         long length          = ((Long) data[1]).longValue();
         int  blockOffset     = (int) (offset / lobBlockSize);
         int  blockLimit      = (int) ((offset + length) / lobBlockSize);

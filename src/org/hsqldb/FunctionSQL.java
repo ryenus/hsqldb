@@ -675,7 +675,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 // non-integral arguments are accepted with conversion
-                // todo - check if widening has an effect
+                /** @todo - check if widening has an effect */
                 Object value =
                     ((NumberType) nodes[0].dataType).divide(nodes[0],
                         nodes[1]);

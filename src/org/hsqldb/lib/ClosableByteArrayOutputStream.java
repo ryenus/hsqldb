@@ -39,7 +39,10 @@ import java.io.UnsupportedEncodingException;
 
 /* $Id$ */
 
-// TODO: finer-grained synchronization to reduce average potential monitor contention
+/**
+ * @todo - finer-grained synchronization to reduce average
+ * potential monitor contention
+ */
 
 /**
  * Provides true Closable semantics ordinarily missing in a
@@ -69,7 +72,6 @@ import java.io.UnsupportedEncodingException;
  * @version 1.9.0
  * @since 1.9.0
  */
-
 public class ClosableByteArrayOutputStream extends OutputStream {
 
     /**
@@ -111,9 +113,10 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      */
     public ClosableByteArrayOutputStream(int size)
     throws IllegalArgumentException {
+
         if (size < 0) {
             throw new IllegalArgumentException("Negative initial size: "
-                    + size); // NOI18N
+                                               + size);    // NOI18N
         }
 
         buf = new byte[size];
@@ -128,6 +131,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      if this output stream has been {@link #close() closed}.
      */
     public synchronized void write(int b) throws IOException {
+
         checkClosed();
 
         int newcount = count + 1;
@@ -136,7 +140,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
             buf = copyOf(buf, Math.max(buf.length << 1, newcount));
         }
 
-        buf[count] = (byte)b;
+        buf[count] = (byte) b;
         count      = newcount;
     }
 
@@ -150,12 +154,13 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      In particular, an <tt>IOException</tt> may be thrown
      *      if this output stream has been {@link #close() closed}.
      */
-    public synchronized void write(byte b[], int off, int len)
-    throws IOException {
+    public synchronized void write(byte b[], int off,
+                                   int len) throws IOException {
+
         checkClosed();
 
-        if ((off < 0) || (off > b.length) || (len < 0) ||
-                ((off + len) > b.length) || ((off + len) < 0)) {
+        if ((off < 0) || (off > b.length) || (len < 0)
+                || ((off + len) > b.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
             return;
@@ -196,7 +201,6 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      */
     public synchronized void writeTo(OutputStream out) throws IOException {
         checkFreed();
-
         out.write(buf, 0, count);
     }
 
@@ -209,9 +213,10 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized int capacity() throws IOException {
+
         checkFreed();
 
-	return buf.length;
+        return buf.length;
     }
 
     /**
@@ -226,6 +231,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      if this output stream has been {@link #close() closed}.
      */
     public synchronized void reset() throws IOException {
+
         checkClosed();
 
         count = 0;
@@ -244,6 +250,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized void trimToSize() throws IOException {
+
         checkFreed();
 
         if (buf.length > count) {
@@ -261,6 +268,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized byte[] toByteArray() throws IOException {
+
         checkFreed();
 
         return copyOf(buf, count);
@@ -285,11 +293,12 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @throws  ArrayIndexOutOfBoundsException if new size is negative
      */
     public synchronized void setSize(int newSize) {
+
         if (newSize < 0) {
             throw new ArrayIndexOutOfBoundsException(newSize);
         } else if (newSize > buf.length) {
-	    buf = copyOf(buf, Math.max(buf.length << 1, newSize));
-	}
+            buf = copyOf(buf, Math.max(buf.length << 1, newSize));
+        }
 
         count = newSize;
     }
@@ -309,10 +318,11 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      */
     public synchronized ByteArrayInputStream toByteArrayInputStream()
     throws IOException {
+
         checkFreed();
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(buf, 0,
-                count);
+            count);
 
         free();
 
@@ -328,6 +338,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      {@link #free() freed}.
      */
     public synchronized String toString() {
+
         try {
             checkFreed();
         } catch (IOException ex) {
@@ -349,8 +360,8 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      supported.
      */
     public synchronized String toString(String enc)
-        throws IOException,
-               UnsupportedEncodingException {
+    throws IOException, UnsupportedEncodingException {
+
         checkFreed();
 
         return new String(buf, 0, count, enc);
@@ -384,6 +395,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      this stream (default: never).
      */
     public synchronized void free() throws IOException {
+
         closed = true;
         freed  = true;
         buf    = null;
@@ -405,8 +417,9 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @throws java.io.IOException if this stream is closed.
      */
     protected synchronized void checkClosed() throws IOException {
+
         if (closed) {
-            throw new IOException("stream is closed."); // NOI18N
+            throw new IOException("stream is closed.");    // NOI18N
         }
     }
 
@@ -416,8 +429,9 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @throws java.io.IOException if this stream is freed.
      */
     protected synchronized void checkFreed() throws IOException {
+
         if (freed) {
-            throw new IOException("stream buffer is freed."); // NOI18N
+            throw new IOException("stream buffer is freed.");    // NOI18N
         }
     }
 
@@ -430,10 +444,12 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @return copy of <tt>original</tt> with the given <tt>newLength</tt>
      */
     protected byte[] copyOf(byte[] original, int newLength) {
+
         byte[] copy = new byte[newLength];
 
         System.arraycopy(original, 0, copy, 0,
                          Math.min(original.length, newLength));
+
         return copy;
     }
 }

@@ -1593,9 +1593,10 @@ public class Scanner {
 
             case '_' :
 
-                // identifier chain must not have catalog identifier
-                // todo
-                // character set specification to be included in the token.dataType
+                /** @todo 1.9.0 - review following
+                 * identifier chain must not have catalog identifier
+                 * character set specification to be included in the token.dataType
+                 */
                 currentPosition++;
 
                 scanIdentifierChain();
@@ -1607,7 +1608,7 @@ public class Scanner {
                 if (token.tokenType != Tokens.X_IDENTIFIER
                         || token.namePrePrefix != null) {
 
-                    // todo - message malformed character set identifier
+                    /** @todo 1.9.0 - review message malformed character set identifier */
                     token.tokenType   = Tokens.X_MALFORMED_STRING;
                     token.isMalformed = true;
 
@@ -2030,7 +2031,8 @@ public class Scanner {
     }
 
     /**
-     * todo - misses nano fractions
+     * @todo 1.9.0 - review the following
+     *      - misses nano fractions
      *      - misses displacement
      *      - doesn't allow single digit components
      */

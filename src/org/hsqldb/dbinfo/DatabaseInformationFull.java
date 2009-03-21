@@ -3031,8 +3031,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             String tableCatalog = database.getCatalogName().name;
             String tableSchema  = table.getSchemaName().name;
             String tableName    = table.getName().name;
+            /** @todo - requires access to the actual columns */
 
-            // todo - requires access to the actual columns
             if (table.isView() || !isAccessibleTable(table)) {
                 continue;
             }
@@ -4525,7 +4525,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            // todo requires table level INSERT or UPDATE or DELETE or REFERENCES (not SELECT) right
+            /** @todo - requires table level INSERT or UPDATE or DELETE or REFERENCES (not SELECT) right             */
+
             if (table.isView() || !isAccessibleTable(table)) {
                 continue;
             }

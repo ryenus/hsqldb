@@ -56,8 +56,11 @@ import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 
 //import org.hsqldb.lib.StopWatch;
-// todo - can lock the database engine as readonly in a wrapper for this when
-// used at checkpoint
+
+/**
+ * @todo - can lock the database engine as readonly in a wrapper for this when
+ * used at checkpoint
+ */
 
 /**
  * Handles all logging to file operations. A log consists of three blocks:<p>
@@ -399,8 +402,9 @@ public abstract class ScriptWriterBase implements Runnable {
                 sync();
             }
 
-            // todo: try to do Cache.cleanUp() here, too
+            /** @todo: try to do Cache.cleanUp() here, too */
         } catch (Exception e) {
+
             // ignore exceptions
             // may be InterruptedException or IOException
         }

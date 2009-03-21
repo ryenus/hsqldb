@@ -97,6 +97,7 @@ public class StatementSimple extends Statement {
 
         switch (type) {
 
+            /** @todo 1.9.0 - add the exception */
             case StatementTypes.SIGNAL :
                 sb.append(Tokens.T_SIGNAL);
                 break;
@@ -105,7 +106,6 @@ public class StatementSimple extends Statement {
                 sb.append(Tokens.T_RESIGNAL);
                 break;
 
-            // todo
             case StatementTypes.ITERATE :
                 sb.append(Tokens.T_ITERATE).append(' ').append(label);
                 break;
@@ -131,7 +131,7 @@ public class StatementSimple extends Statement {
 
             case StatementTypes.ASSIGNMENT :
 
-                // todo - row assignment
+                /** @todo - implement row assignment */
                 sb.append(Tokens.T_SET).append(' ');
                 sb.append(variables[0].getName().statementName).append(' ');
                 sb.append('=').append(' ').append(expression.getSQL());
@@ -171,6 +171,7 @@ public class StatementSimple extends Statement {
 
         switch (type) {
 
+            /** @todo - check sqlState against allowed values */
             case StatementTypes.SIGNAL :
             case StatementTypes.RESIGNAL :
                 HsqlException ex = Error.error("sql routine error", sqlState,
@@ -178,7 +179,6 @@ public class StatementSimple extends Statement {
 
                 return Result.newErrorResult(ex);
 
-            // todo
             case StatementTypes.ITERATE :
             case StatementTypes.LEAVE :
             case StatementTypes.RETURN :

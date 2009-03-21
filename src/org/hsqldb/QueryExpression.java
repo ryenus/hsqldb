@@ -53,8 +53,8 @@ import org.hsqldb.types.Type;
  * @version 1.9.0
  * @since 1.9.0
  */
-/*
- * todo / review
+/**
+ * @todo 1.9.0 - review these
  * - work out usage of getMainSelect etc and add relevant methods
  * - Result metadata for the final result of QueryExpression
  *
@@ -527,7 +527,7 @@ public class QueryExpression {
         return leftQueryExpression.getMainSelect();
     }
 
-    /** @todo -- */
+    /** @todo 1.9.0 review */
     public String describe(Session session) {
         return leftQueryExpression.describe(session);
     }

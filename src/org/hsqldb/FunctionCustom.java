@@ -961,7 +961,7 @@ public class FunctionCustom extends FunctionSQL {
                     return ValuePool.getInt(v);
                 } else {
 
-                    // todo for binary
+                    /** @todo - for binary */
                     return null;
                 }
             }

@@ -67,7 +67,7 @@ public class ScriptWriterText extends ScriptWriterBase {
 
     RowOutputTextLog rowOut;
 
-    // todo - perhaps move this global into a lib utility class
+    /** @todo - perhaps move this global into a lib utility class */
     public static final byte[] BYTES_LINE_SEP;
 
     static {

@@ -990,7 +990,7 @@ public class Expression {
 
             case OpTypes.TABLE :
 
-                // todo - should it fall through
+                /** @todo - should it fall through */
                 break;
 
             case OpTypes.ROW :

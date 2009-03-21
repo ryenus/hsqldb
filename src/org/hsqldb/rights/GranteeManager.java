@@ -280,7 +280,7 @@ public class GranteeManager {
         if (role.hasRole(grantee)) {
 
             // boucherb@users
-            // TODO: Correct reporting of actual grant path
+            /** @todo: Correct reporting of actual grant path */
             throw Error.error(ErrorCode.X_0P501, roleName);
         }
 

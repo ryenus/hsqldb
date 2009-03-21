@@ -71,6 +71,8 @@ import org.hsqldb.types.Type;
 
 /* $Id$ */
 
+/** todo fredt 1.9.0 - review wrt multiple result sets, named parameters etc. */
+
 // boucherb@users patch 1.7.2 - CallableStatement impl removed
 // from JDBCParameterMetaData and moved here; sundry changes elsewhere to
 // comply
@@ -314,6 +316,7 @@ import org.hsqldb.types.Type;
  * <!-- end Release-specific documentation -->
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt{@users dot sourceforge.net
  * @version 1.9.0
  * @since 1.7.2
  * @revised JDK 1.6, HSQLDB 1.9.0
@@ -374,9 +377,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     public void registerOutParameter(int parameterIndex,
                                      int sqlType) throws SQLException {
+
         checkGetParameterIndex(parameterIndex);
 
-        if(parameterModes[--parameterIndex] == SchemaObject.ParameterModes.PARAM_IN) {
+        if (parameterModes[--parameterIndex]
+                == SchemaObject.ParameterModes.PARAM_IN) {
             throw Util.invalidArgument();
         }
     }
@@ -526,6 +531,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setBoolean
      */
     public boolean getBoolean(int parameterIndex) throws SQLException {
+
         Object o = getColumnInType(parameterIndex, Type.SQL_BOOLEAN);
 
         return o == null ? false
@@ -559,6 +565,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setByte
      */
     public byte getByte(int parameterIndex) throws SQLException {
+
         Object o = getColumnInType(parameterIndex, Type.TINYINT);
 
         return o == null ? 0
@@ -660,6 +667,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setLong
      */
     public long getLong(int parameterIndex) throws SQLException {
+
         Object o = getColumnInType(parameterIndex, Type.SQL_BIGINT);
 
         return o == null ? 0
@@ -693,6 +701,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setFloat
      */
     public float getFloat(int parameterIndex) throws SQLException {
+
         Object o = getColumnInType(parameterIndex, Type.SQL_DOUBLE);
 
         return o == null ? (float) 0.0
@@ -726,6 +735,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setDouble
      */
     public double getDouble(int parameterIndex) throws SQLException {
+
         Object o = getColumnInType(parameterIndex, Type.SQL_DOUBLE);
 
         return o == null ? 0.0
@@ -768,6 +778,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 //#ifdef DEPRECATEDJDBC
     public BigDecimal getBigDecimal(int parameterIndex,
                                     int scale) throws SQLException {
+
         if (scale < 0) {
             throw Util.outOfRangeArgument();
         }
@@ -812,6 +823,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setBytes
      */
     public byte[] getBytes(int parameterIndex) throws SQLException {
+
         Object x = getColumnInType(parameterIndex, Type.SQL_VARBINARY);
 
         if (x == null) {
@@ -847,6 +859,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setDate
      */
     public Date getDate(int parameterIndex) throws SQLException {
+
         TimestampData t = (TimestampData) getColumnInType(parameterIndex,
             Type.SQL_DATE);
 
@@ -884,6 +897,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setTime
      */
     public Time getTime(int parameterIndex) throws SQLException {
+
         TimeData t = (TimeData) getColumnInType(parameterIndex, Type.SQL_TIME);
 
         if (t == null) {
@@ -920,6 +934,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setTimestamp
      */
     public Timestamp getTimestamp(int parameterIndex) throws SQLException {
+
         TimestampData t = (TimestampData) getColumnInType(parameterIndex,
             Type.SQL_TIMESTAMP);
 
@@ -1156,6 +1171,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  JDBCParameterMetaData)
      */
     public Blob getBlob(int parameterIndex) throws SQLException {
+
         Object o = getObject(parameterIndex);
 
         if (o == null) {
@@ -1200,6 +1216,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  JDBCParameterMetaData)
      */
     public Clob getClob(int parameterIndex) throws SQLException {
+
         Object o = getObject(parameterIndex);
 
         if (o == null) {
@@ -1244,7 +1261,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  JDBCParameterMetaData)
      */
     public Array getArray(int parameterIndex) throws SQLException {
+
         checkGetParameterIndex(parameterIndex);
+
         throw Util.notSupported();
     }
 
@@ -1285,6 +1304,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *      JDBCParameterMetaData)
      */
     public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
+
         TimestampData t = (TimestampData) getColumnInType(parameterIndex,
             Type.SQL_DATE);
         long millis     = t.getSeconds() * 1000;
@@ -1339,8 +1359,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         long millis = t.getSeconds() * 1000;
 
-        if (parameterTypes[--parameterIndex]
-                .isDateTimeTypeWithZone()) {}
+        if (parameterTypes[--parameterIndex].isDateTimeTypeWithZone()) {}
         else {
 
             // UTC - calZO == (UTC - sessZO) + (sessionZO - calZO)
@@ -1402,8 +1421,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         long millis = t.getSeconds() * 1000;
 
-        if (parameterTypes[--parameterIndex]
-                .isDateTimeTypeWithZone()) {}
+        if (parameterTypes[--parameterIndex].isDateTimeTypeWithZone()) {}
         else {
 
             // UTC - calZO == (UTC - sessZO) + (sessionZO - calZO)
@@ -3216,7 +3234,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setObject
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//TODO: How to use CodeSwitcher and +JDBC4 to specifiy Map<String,Class<?>> ?
+
+    /** @todo: how to use CodeSwitcher and +JAVA6 to specifiy Map<String,Class<?>> */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
 
@@ -4570,8 +4589,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 // --------------------------- Internal Implementation -------------------------
 
     /** parameter name => parameter index */
-    private IntValueHashMap parameterNameMap;
-    private boolean wasNullValue;
+    private IntValueHashMap  parameterNameMap;
+    private boolean          wasNullValue;
     private SessionInterface session;
 
     /** parameter index => registered OUT type */
@@ -4598,6 +4617,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
               ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
 
         session = c.sessionProxy;
+
         String[] names;
         String   name;
 
@@ -4619,19 +4639,18 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
     }
 
+    void fetchResult() throws SQLException {
 
-     void fetchResult() throws SQLException {
+        super.fetchResult();
 
-         super.fetchResult();
+        if (resultIn.getType() == ResultConstants.CALL_RESPONSE) {
+            Object[] data = resultIn.getParameterData();
 
-         if (resultIn.getType() == ResultConstants.CALL_RESPONSE ) {
-             Object[] data = resultIn.getParameterData();
-
-             for (int i = 0; i < parameterValues.length; i++) {
-                 parameterValues[i] = data[i];
-             }
-         }
-     }
+            for (int i = 0; i < parameterValues.length; i++) {
+                parameterValues[i] = data[i];
+            }
+        }
+    }
 
     /**
      * Retrieves the parameter index corresponding to the given
@@ -4699,59 +4718,58 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 */
 
-/**
- * Internal value converter. Similar to its counterpart in JDBCResultSet <p>
- *
- * All trivially successful getXXX methods eventually go through this
- * method, converting if neccessary from the source type to the
- * requested type.  <p>
- *
- * Conversion to the JDBC representation, if different, is handled by the
- * calling methods.
- *
- * @param columnIndex of the column value for which to perform the
- *                 conversion
- * @param targetType the org.hsqldb.types.Type object for targetType
- * @return an Object of the requested targetType, representing the value of the
- *       specified column
- * @throws SQLException when there is no rowData, the column index is
- *    invalid, or the conversion cannot be performed
- */
-private Object getColumnInType(int columnIndex,
-                               Type targetType) throws SQLException {
+    /**
+     * Internal value converter. Similar to its counterpart in JDBCResultSet <p>
+     *
+     * All trivially successful getXXX methods eventually go through this
+     * method, converting if neccessary from the source type to the
+     * requested type.  <p>
+     *
+     * Conversion to the JDBC representation, if different, is handled by the
+     * calling methods.
+     *
+     * @param columnIndex of the column value for which to perform the
+     *                 conversion
+     * @param targetType the org.hsqldb.types.Type object for targetType
+     * @return an Object of the requested targetType, representing the value of the
+     *       specified column
+     * @throws SQLException when there is no rowData, the column index is
+     *    invalid, or the conversion cannot be performed
+     */
+    private Object getColumnInType(int columnIndex,
+                                   Type targetType) throws SQLException {
 
-    Type     sourceType;
-    Object   value;
+        Type   sourceType;
+        Object value;
 
-    sourceType = parameterTypes[--columnIndex];
-    value      = parameterValues[columnIndex];
+        sourceType = parameterTypes[--columnIndex];
+        value      = parameterValues[columnIndex];
 
-    if (trackNull(value)) {
-        return null;
-    }
-
-    if (sourceType.typeCode != targetType.typeCode) {
-        try {
-            value = targetType.convertToTypeJDBC(session, value,
-                    sourceType);
-        } catch (Exception e) {
-            String stringValue =
-                (value instanceof Number || value instanceof String
-                 || value instanceof java.util.Date) ? value.toString()
-                    : "instance of " + value.getClass().getName();
-            String msg = "from SQL type " + sourceType.getNameString()
-                         + " to " + targetType.getJDBCClassName()
-                         + ", value: " + stringValue;
-
-            Util.throwError(Error.error(ErrorCode.X_42561, msg));
+        if (trackNull(value)) {
+            return null;
         }
+
+        if (sourceType.typeCode != targetType.typeCode) {
+            try {
+                value = targetType.convertToTypeJDBC(session, value,
+                        sourceType);
+            } catch (Exception e) {
+                String stringValue =
+                    (value instanceof Number || value instanceof String
+                     || value instanceof java.util.Date) ? value.toString()
+                        : "instance of " + value.getClass().getName();
+                String msg = "from SQL type " + sourceType.getNameString()
+                             + " to " + targetType.getJDBCClassName()
+                             + ", value: " + stringValue;
+
+                Util.throwError(Error.error(ErrorCode.X_42561, msg));
+            }
+        }
+
+        return value;
     }
 
-    return value;
-}
-
-private boolean trackNull(Object o) {
-    return (wasNullValue = (o == null));
-}
-
+    private boolean trackNull(Object o) {
+        return (wasNullValue = (o == null));
+    }
 }

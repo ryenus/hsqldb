@@ -448,6 +448,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return typeCode + (int) precision << 8 + scale << 16;
     }
 
+    /** @todo 1.9.0 - review all needs max implementation defined lengths, used for parameters */
     // null type
     public static final Type SQL_ALL_TYPES = NullType.getNullType();
 
@@ -467,7 +468,7 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final BitType SQL_BIT_VARYING =
         new BitType(Types.SQL_BIT_VARYING, 0);
     public static final BitType SQL_BIT_VARYING_MAX_LENGTH =
-        new BitType(Types.SQL_BIT_VARYING, 0);      // todo - needs max implementation defined length. used for parameters
+        new BitType(Types.SQL_BIT_VARYING, 32*1024);
 
     // binary types
     public static final BinaryType SQL_BINARY =

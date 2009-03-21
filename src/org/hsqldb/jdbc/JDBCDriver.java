@@ -290,7 +290,7 @@ public class JDBCDriver implements Driver {
             return new JDBCConnection(props);
         }
 
-        // TODO:  Better: ThreadPool? HsqlTimer with callback?
+        /** @todo:  Better: ThreadPool? HsqlTimer with callback? */
         final JDBCConnection[] conn = new JDBCConnection[1];
         final SQLException[]   ex   = new SQLException[1];
         Thread                 t    = new Thread() {

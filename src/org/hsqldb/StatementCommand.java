@@ -442,7 +442,7 @@ public class StatementCommand extends Statement {
 
                 if (session.getGrantee().hasRole(role)) {
 
-                    // todo - implementation
+                    /** @todo 1.9.0 - implement */
                     return Result.updateZeroResult;
                 } else {
                     return Result.newErrorResult(
@@ -685,7 +685,7 @@ public class StatementCommand extends Statement {
                 try {
                     String name = (String) parameters[0];
 
-                    // todo - ensure no data in character columns
+                    /** @todo 1.9.0 - ensure no data in character columns */
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.collation.setCollation(name);
@@ -741,7 +741,6 @@ public class StatementCommand extends Statement {
                 try {
                     int value = ((Integer) parameters[0]).intValue();
 
-                    // todo - ensure no data in character columns
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.logger.writeToLog(session, sql);
@@ -997,7 +996,7 @@ public class StatementCommand extends Statement {
                             || session.isProcessingScript()) {
                         session.addWarning((HsqlException) e);
 
-                        // todo - add an entry to applog too
+                        //* @todo - add an entry to applog too */
                         return Result.updateZeroResult;
                     } else {
                         return Result.newErrorResult(e, sql);

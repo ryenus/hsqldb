@@ -41,9 +41,10 @@ import org.hsqldb.types.Type;
 
 /* $Id$ */
 
+/** @todo 1.9.0 - implement internal support for INOUT, OUT return parameter */
+
 // fredt@users 20040412 - removed DITypeInfo dependencies
 // fredt@usres 1.9.0 - utilise the new type support
-// TODO: implement internal support for at least OUT return parameter
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
 // Revision 1.14  2006/07/12 12:20:49  boucherb
@@ -67,7 +68,6 @@ import org.hsqldb.types.Type;
  * @since JDK 1.4, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 1.9.0
  */
-
 //#ifdef JAVA6
 public class JDBCParameterMetaData implements ParameterMetaData,
         java.sql.Wrapper {

@@ -84,10 +84,8 @@ public class TarFileInputStream {
     protected byte[]        readBuffer;
     protected int           readBufferBlocks;
     protected int           compressionType;
-    final static public int NO_COMPRESSION   = 0;
-    final static public int GZIP_COMPRESSION = 1;
-
-    //TODO:  Use an enum once Java 1.5 is required.
+    final static public int NO_COMPRESSION            = 0;
+    final static public int GZIP_COMPRESSION          = 1;
     final static public int DEFAULT_COMPRESSION       = NO_COMPRESSION;
     final static public int DEFAULT_BLOCKS_PER_RECORD = 20;
 

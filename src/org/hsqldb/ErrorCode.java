@@ -47,7 +47,7 @@ public interface ErrorCode {
     int TOKEN_REQUIRED = 1;
     int CONSTRAINT     = 2;
 
-    // todo - all SQL-state for legacy messages to be reviewed
+    /** @todo - all SQL-state for legacy messages to be reviewed */
     int LOCK_FILE_ACQUISITION_FAILURE = 11;
 
     //
@@ -126,7 +126,7 @@ public interface ErrorCode {
     //
     int BLOB_IS_NO_LONGER_VALID         = 291;
     int BLOB_STREAM_IS_CLOSED           = 292;
-    int BLOB_INCOMPATIBLE_SET_OPERATION = 293;    // todo
+    int BLOB_INCOMPATIBLE_SET_OPERATION = 293;    /**@todo - use */
 
     //
     int INVALID_LIMIT = 153;
@@ -513,7 +513,8 @@ public interface ErrorCode {
     int X_42536 = 5536;                           // column is referenced in
     int X_42537 = 5537;                           // cannot use WITH CHECK option for read-only view
     int X_42538 = 5538;                           // TRIGGER definition not compatible with table
-
+    int X_42539 = 5539;                           // cannot drop a user that is currently connected
+   
     // DML
     int X_42541 = 5541;                           // requires DEFAULT keyword
     int X_42542 = 5542;                           // requires OVERRIDING clause

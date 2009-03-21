@@ -226,7 +226,7 @@ public class Library {
 // fredt@users 20020305 - patch 460907 by fredt - soundex
     public static int difference(String s1, String s2) {
 
-        // todo: check if this is the standard algorithm
+        /** @todo: check if this is the standard algorithm */
         if ((s1 == null) || (s2 == null)) {
             return 0;
         }

@@ -630,7 +630,8 @@ public class LockFile {
         try {
             lockFile = LockFile.newLockFile(path + ".lck");
         } catch (LockFile.BaseException e) {
-            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE, e.getMessage());
+            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+                              e.getMessage());
         }
 
         boolean locked = false;
@@ -638,7 +639,8 @@ public class LockFile {
         try {
             locked = lockFile.tryLock();
         } catch (LockFile.BaseException e) {
-            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE, e.getMessage());
+            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+                              e.getMessage());
         }
 
         // Paranoia mode: In theory, this case can't happen, given the way
@@ -1598,9 +1600,11 @@ public class LockFile {
             }
         }
 
-        // TODO:
-        // Do not want to specify just BaseException in the throws clause.
-        // Is this really the cleanest way?
+        /**
+         * @todo:
+         * Do not want to specify just BaseException in the throws clause.
+         * Is this really the cleanest way?
+         */
         if (!success) {
             if (reason instanceof FileSecurityException) {
                 throw (FileSecurityException) reason;

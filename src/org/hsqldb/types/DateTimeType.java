@@ -667,7 +667,7 @@ public final class DateTimeType extends DTIType {
         throw Error.error(ErrorCode.X_42561);
     }
 
-    /** @todo do the time zone */
+    /** @todo - do the time zone */
     public Object convertJavaToSQL(SessionInterface session,
                                    Object a) throws HsqlException {
 
@@ -979,7 +979,7 @@ public final class DateTimeType extends DTIType {
 
         switch (typeCode) {
 
-            // todo - range checks for units added
+            /** @todo -  range checks for units added */
             case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIME :
                 if (b instanceof IntervalMonthData) {
@@ -1466,7 +1466,7 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    // todo - overflow
+        /** @todo - overflow */
     public static TimeData addSeconds(TimeData source, int seconds,
                                       int nanos) throws HsqlException {
 
@@ -1488,7 +1488,7 @@ public final class DateTimeType extends DTIType {
         return ti;
     }
 
-    // todo - overflow
+    /** @todo - overflow */
     public static TimestampData addMonths(TimestampData source,
                                           int months) throws HsqlException {
 
@@ -1507,7 +1507,7 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    // todo - overflow
+    /** @todo - overflow */
     public static TimestampData addSeconds(TimestampData source, int seconds,
                                            int nanos) throws HsqlException {
 

@@ -50,12 +50,12 @@ public class SessionManager {
     private LongKeyHashMap sessionMap     = new LongKeyHashMap();
     private Session        sysSession;
 
-// TODO:
-//
-// Eliminate the Database-centric nature of SessionManager.
-// e.g. Sessions should be able to migrate from one Database instance
-// to another using session control language moderated by
-// SessionManager
+    /**
+     * @todo:
+     * Eliminate the Database-centric nature of SessionManager.
+     * e.g. Sessions should be able to migrate from one Database instance
+     * to another using session control language moderated by SessionManager
+     */
 
     /**
      * Constructs an new SessionManager handling the specified Database.
@@ -68,18 +68,19 @@ public class SessionManager {
         sysSession = new Session(db, sysUser, false, false, 0, 0);
     }
 
-// TODO:
-//
-// It should be possible to create an initially 'disconnected' Session that
-// can execute general commands using a SessionCommandInterpreter.
-//
-// EXAMPLES: Open a Session to start a Server, add/remove
-//           databases hosted by an existing Server, connect to a
-//           Database...
-//
-// REQUIRES:  auth scheme independent of any particular Database instance
-//            e.g. provide service to use /etc/passwd and /etc/groups,
-//                 JAAS-plugin, etc.
+    /**
+     *  @todo:
+     * It should be possible to create an initially 'disconnected' Session that
+     * can execute general commands using a SessionCommandInterpreter.
+     *
+     * EXAMPLES: Open a Session to start a Server, add/remove
+     *          databases hosted by an existing Server, connect to a
+     *          Database...
+     *
+     * REQUIRES:  auth scheme independent of any particular Database instance
+     *           e.g. provide service to use /etc/passwd and /etc/groups,
+     *                JAAS-plugin, etc.
+     */
 
     /**
      * Binds the specified Session object into this SessionManager's active
