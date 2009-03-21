@@ -122,11 +122,11 @@ public class TarGenerator {
         // Do this so we can be sure .getParent*() is non-null.  (Also allows
         // us to use .getPath() instead of very long .getAbsolutePath() for
         // error messages.
-        int compression = TarFileOutputStream.NO_COMPRESSION;
+        int compression = TarFileOutputStream.Compression.NO_COMPRESSION;
 
         if (archiveFile.getName().endsWith(".tgz")
                 || archiveFile.getName().endsWith(".tar.gz")) {
-            compression = TarFileOutputStream.GZIP_COMPRESSION;
+            compression = TarFileOutputStream.Compression.GZIP_COMPRESSION;
         } else if (archiveFile.getName().endsWith(".tar")) {
             // purposefully do nothing
         }

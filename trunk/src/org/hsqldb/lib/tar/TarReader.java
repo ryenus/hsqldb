@@ -32,6 +32,7 @@
 package org.hsqldb.lib.tar;
 
 import org.hsqldb.lib.StringUtil;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -163,11 +164,12 @@ public class TarReader {
         extractBaseDir = (inDir == null) ? null
                                          : inDir.getAbsoluteFile();
 
-        int compression = TarFileOutputStream.NO_COMPRESSION;
+        int compression =
+            TarFileOutputStream.Compression.NO_COMPRESSION;
 
         if (archiveFile.getName().endsWith(".tgz")
                 || archiveFile.getName().endsWith(".gz")) {
-            compression = TarFileOutputStream.GZIP_COMPRESSION;
+            compression = TarFileOutputStream.Compression.GZIP_COMPRESSION;
         }
 
         if (patternStrings != null) {
@@ -433,6 +435,7 @@ public class TarReader {
         FileOutputStream outStream = new FileOutputStream(newFile);
 
         try {
+
 //#ifdef JAVA6
             // Don't know exactly why I am still able to write to the file
             // after removing read and write privs from myself, but it does
@@ -443,6 +446,7 @@ public class TarReader {
             newFile.setExecutable(((fileMode & 0100) != 0), true);
             newFile.setReadable((fileMode & 0400) != 0, true);
             newFile.setWritable((fileMode & 0200) != 0, true);
+
 //#endif
             while (readBlocks > 0) {
                 readNow = (readBlocks > archive.getReadBufferBlocks())
@@ -667,19 +671,23 @@ public class TarReader {
          */
         public String toString() {
 
-            StringBuffer sb = new StringBuffer(
-                    sdf.format(new Long(modTime * 1000L)) + ' ');
+            StringBuffer sb =
+                new StringBuffer(sdf.format(new Long(modTime * 1000L)) + ' ');
 
             sb.append((entryType == '\0') ? ' '
                                           : entryType);
             sb.append(ustar ? '*'
                             : ' ');
-            sb.append(" " + StringUtil.toPaddedString(
+            sb.append(
+                " "
+                + StringUtil.toPaddedString(
                     Integer.toOctalString(fileMode), 4, ' ', false) + ' '
-                    + StringUtil.toPaddedString(
-                    Long.toString(dataSize), 11, ' ', false) + "  ");
-            sb.append(StringUtil.toPaddedString(
-                    ((ownerName == null) ? "-" : ownerName), 8, ' ', true));
+                        + StringUtil.toPaddedString(
+                            Long.toString(dataSize), 11, ' ', false) + "  ");
+            sb.append(StringUtil.toPaddedString(((ownerName == null) ? "-"
+                                                                     : ownerName), 8,
+                                                                     ' ',
+                                                                     true));
             sb.append("  " + path);
 
             return sb.toString();

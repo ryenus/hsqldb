@@ -74,7 +74,15 @@ import java.util.zip.GZIPOutputStream;
  */
 public class TarFileOutputStream {
 
-    static public boolean debug = Boolean.getBoolean("DEBUG");
+    public interface Compression {
+
+        public static final int NO_COMPRESSION            = 0;
+        public static final int GZIP_COMPRESSION          = 1;
+        public static final int DEFAULT_COMPRESSION       = NO_COMPRESSION;
+        public static final int DEFAULT_BLOCKS_PER_RECORD = 20;
+    }
+
+    public static boolean debug = Boolean.getBoolean("DEBUG");
     protected int         blocksPerRecord;
     protected long        bytesWritten = 0;
     private OutputStream  writeStream;
@@ -88,13 +96,7 @@ public class TarFileOutputStream {
      * array is a direct, optimally efficient byte array.  No setter because
      * the inside implementation of this class is intimately dependent upon
      * the nature of the write buffer. */
-    final public static byte[] ZERO_BLOCK       = new byte[512];
-
-    /** @todo 1.9.0 use a single set of static finals here and in TarFileInputStream */
-    final static public int    NO_COMPRESSION   = 0;
-    final static public int    GZIP_COMPRESSION = 1;
-    final static public int DEFAULT_COMPRESSION       = NO_COMPRESSION;
-    final static public int DEFAULT_BLOCKS_PER_RECORD = 20;
+    public static final byte[] ZERO_BLOCK = new byte[512];
 
     /**
      * Convenience wrapper to use default blocksPerRecord and compressionType.
@@ -102,7 +104,7 @@ public class TarFileOutputStream {
      * @see #TarFileOutputStream(File, int, int)
      */
     public TarFileOutputStream(File targetFile) throws IOException {
-        this(targetFile, DEFAULT_COMPRESSION);
+        this(targetFile, Compression.DEFAULT_COMPRESSION);
     }
 
     /**
@@ -113,7 +115,7 @@ public class TarFileOutputStream {
     public TarFileOutputStream(File targetFile,
                                int compressionType) throws IOException {
         this(targetFile, compressionType,
-             TarFileOutputStream.DEFAULT_BLOCKS_PER_RECORD);
+             TarFileOutputStream.Compression.DEFAULT_BLOCKS_PER_RECORD);
     }
 
     /**
@@ -157,11 +159,11 @@ public class TarFileOutputStream {
 
         switch (compressionType) {
 
-            case TarFileOutputStream.NO_COMPRESSION :
+            case TarFileOutputStream.Compression.NO_COMPRESSION :
                 writeStream = new FileOutputStream(writeFile);
                 break;
 
-            case TarFileOutputStream.GZIP_COMPRESSION :
+            case TarFileOutputStream.Compression.GZIP_COMPRESSION :
                 writeStream =
                     new GZIPOutputStream(new FileOutputStream(writeFile),
                                          writeBuffer.length);
@@ -172,6 +174,7 @@ public class TarFileOutputStream {
                     RB.singleton.getString(
                         RB.COMPRESSION_UNKNOWN, compressionType));
         }
+
 //#ifdef JAVA6
         writeFile.setExecutable(false, true);
         writeFile.setExecutable(false, false);
@@ -179,8 +182,8 @@ public class TarFileOutputStream {
         writeFile.setReadable(true, true);
         writeFile.setWritable(false, false);
         writeFile.setWritable(true, true);
-//#endif
 
+//#endif
         // We restrict permissions to the file owner before writing
         // anything, in case we will be writing anything private into this
         // file.
