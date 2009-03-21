@@ -81,13 +81,9 @@ public class TarFileInputStream {
     private InputStream readStream;
 
     /* This is not a "Reader", but the byte "Stream" that we read() from. */
-    protected byte[]        readBuffer;
-    protected int           readBufferBlocks;
-    protected int           compressionType;
-    final static public int NO_COMPRESSION            = 0;
-    final static public int GZIP_COMPRESSION          = 1;
-    final static public int DEFAULT_COMPRESSION       = NO_COMPRESSION;
-    final static public int DEFAULT_BLOCKS_PER_RECORD = 20;
+    protected byte[] readBuffer;
+    protected int    readBufferBlocks;
+    protected int    compressionType;
 
     /**
      * Convenience wrapper to use default readBufferBlocks and compressionType.
@@ -95,7 +91,7 @@ public class TarFileInputStream {
      * @see #TarFileInputStream(File, int, int)
      */
     public TarFileInputStream(File sourceFile) throws IOException {
-        this(sourceFile, DEFAULT_COMPRESSION);
+        this(sourceFile, TarFileOutputStream.Compression.DEFAULT_COMPRESSION);
     }
 
     /**
@@ -106,7 +102,7 @@ public class TarFileInputStream {
     public TarFileInputStream(File sourceFile,
                               int compressionType) throws IOException {
         this(sourceFile, compressionType,
-             TarFileInputStream.DEFAULT_BLOCKS_PER_RECORD);
+             TarFileOutputStream.Compression.DEFAULT_BLOCKS_PER_RECORD);
     }
 
     public int getReadBufferBlocks() {
@@ -144,11 +140,11 @@ public class TarFileInputStream {
 
         switch (compressionType) {
 
-            case TarFileInputStream.NO_COMPRESSION :
+            case TarFileOutputStream.Compression.NO_COMPRESSION :
                 readStream = new FileInputStream(sourceFile);
                 break;
 
-            case TarFileInputStream.GZIP_COMPRESSION :
+            case TarFileOutputStream.Compression.GZIP_COMPRESSION :
                 readStream =
                     new GZIPInputStream(new FileInputStream(sourceFile),
                                         readBuffer.length);
@@ -186,7 +182,8 @@ public class TarFileInputStream {
 
         /* int for blocks should support sizes up to about 1T, according to
          * my off-the-cuff calculations */
-        if (compressionType != NO_COMPRESSION) {
+        if (compressionType
+                != TarFileOutputStream.Compression.NO_COMPRESSION) {
             readCompressedBlocks(blocks);
 
             return;
