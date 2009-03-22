@@ -126,7 +126,7 @@ public class BlobInputStream extends InputStream {
 
         if (isClosed || blob.isClosed()) {
             throw new IOException(
-                Error.getMessage(ErrorCode.BLOB_STREAM_IS_CLOSED));
+                Error.getMessage(ErrorCode.X_22523));
         }
     }
 

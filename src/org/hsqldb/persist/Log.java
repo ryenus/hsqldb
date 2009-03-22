@@ -827,8 +827,8 @@ public class Log {
                                    database.getFileAccess(),
                                    FileArchiver.COMPRESSION_ZIP);
         } catch (Exception e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.Message_Pair,
-                              new Object[] {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.M_Message_Pair, new Object[] {
                 fileName + ".backup", e.toString()
             });
         }

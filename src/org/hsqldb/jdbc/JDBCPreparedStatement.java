@@ -687,9 +687,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             setParameter(parameterIndex, s);
 
-//            checkSetParameterIndex2(parameterIndex, true);
         } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_CHARACTER_ENCODING);
+            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR);
         }
     }
 
@@ -2616,7 +2615,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                                    long length) throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
-            Util.sqlException(ErrorCode.JDBC_STRING_DATA_TRUNCATION);
+            Util.invalidArgument("value too long");
         }
         setCharacterStream(parameterIndex, reader, (int) length);
     }

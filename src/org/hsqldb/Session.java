@@ -832,7 +832,7 @@ public class Session implements SessionInterface {
 
         if (isClosed) {
             return Result.newErrorResult(
-                Error.error(ErrorCode.ACCESS_IS_DENIED));
+                Error.error(ErrorCode.X_08503));
         }
 
 //        synchronized (database) {

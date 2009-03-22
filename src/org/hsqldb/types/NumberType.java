@@ -84,10 +84,8 @@ public final class NumberType extends Type {
         BigDecimal.valueOf(Integer.MIN_VALUE);
 
     //
-    public static final BigInteger MIN_LONG_BI =
-        MIN_LONG.toBigInteger();
-    public static final BigInteger MAX_LONG_BI =
-        MAX_LONG.toBigInteger();
+    public static final BigInteger MIN_LONG_BI = MIN_LONG.toBigInteger();
+    public static final BigInteger MAX_LONG_BI = MAX_LONG.toBigInteger();
 
     //
     final int typeWidth;
@@ -701,7 +699,8 @@ public final class NumberType extends Type {
         switch (otherType.typeCode) {
 
             case Types.SQL_CLOB :
-                a = ((ClobData) a).getSubString(session, 0L, (int) ((ClobData) a).length(session));
+                a = ((ClobData) a).getSubString(
+                    session, 0L, (int) ((ClobData) a).length(session));
 
             // fall through
             case Types.SQL_CHAR :

@@ -7150,13 +7150,13 @@ public class JDBCResultSet implements ResultSet {
         if (lnavigator == null) {
             throw Util.sqlException(ErrorCode.X_24501);
         } else if (lnavigator.isEmpty()) {
-            throw Util.sqlException(ErrorCode.X_24504, ErrorCode.RS_EMPTY);
+            throw Util.sqlException(ErrorCode.X_24504, ErrorCode.M_RS_EMPTY);
         } else if (lnavigator.isBeforeFirst()) {
             throw Util.sqlException(ErrorCode.X_24504,
-                                    ErrorCode.RS_BEFORE_FIRST);
+                                    ErrorCode.M_RS_BEFORE_FIRST);
         } else if (lnavigator.isAfterLast()) {
             throw Util.sqlException(ErrorCode.X_24504,
-                                    ErrorCode.RS_AFTER_LAST);
+                                    ErrorCode.M_RS_AFTER_LAST);
         }
 
         Object[] data = (Object[]) lnavigator.getCurrent();

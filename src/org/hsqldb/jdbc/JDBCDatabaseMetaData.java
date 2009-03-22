@@ -3717,7 +3717,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
                 break;
             default :
-                throw Util.sqlException(ErrorCode.JDBC_ILLEGAL_BRI_SCOPE);
+                throw Util.invalidArgument("scope");
         }
         schema = translateSchema(schema);
 

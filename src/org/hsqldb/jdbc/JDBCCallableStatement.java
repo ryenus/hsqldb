@@ -4753,7 +4753,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             try {
                 value = targetType.convertToTypeJDBC(session, value,
                         sourceType);
-            } catch (Exception e) {
+            } catch (HsqlException e) {
                 String stringValue =
                     (value instanceof Number || value instanceof String
                      || value instanceof java.util.Date) ? value.toString()
@@ -4762,7 +4762,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                              + " to " + targetType.getJDBCClassName()
                              + ", value: " + stringValue;
 
-                Util.throwError(Error.error(ErrorCode.X_42561, msg));
+                HsqlException err = Error.error(ErrorCode.X_42561, msg);
+                throw Util.sqlException(err, e);
             }
         }
 

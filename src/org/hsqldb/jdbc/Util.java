@@ -112,6 +112,22 @@ public class Util {
 //#endif JAVA6
     }
 
+    public static final SQLException sqlException(HsqlException e,
+            Throwable cause) {
+
+//#ifdef JAVA6
+        return sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
+                            cause);
+
+//#else
+/*
+        return new SQLException(e.getMessage(), e.getSQLState(),
+                                e.getErrorCode());
+*/
+
+//#endif JAVA6
+    }
+
     public static final SQLException sqlException(int id) {
         return sqlException(Error.error(id));
     }
@@ -122,6 +138,11 @@ public class Util {
 
     public static final SQLException sqlException(int id, String message) {
         return sqlException(Error.error(id, message));
+    }
+
+    public static final SQLException sqlException(int id, String message,
+            Exception cause) {
+        return sqlException(Error.error(id, message), cause);
     }
 
     public static final SQLException sqlException(int id, int add) {

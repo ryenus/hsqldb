@@ -93,7 +93,7 @@ public class DataFileCacheSession extends DataFileCache {
             database.logger.appLog.logContext(e, null);
             close(false);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.DataFileCache_open,
+            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.M_DataFileCache_open,
                               new Object[] {
                 e, fileName
             });
@@ -121,7 +121,7 @@ public class DataFileCacheSession extends DataFileCache {
         } catch (Throwable e) {
             database.logger.appLog.logContext(e, null);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.DataFileCache_close,
+            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.M_DataFileCache_close,
                               new Object[] {
                 e, fileName
             });

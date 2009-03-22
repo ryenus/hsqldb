@@ -239,7 +239,7 @@ public class DatabaseManager {
                 // it is here simply as a placeholder for future development
                 case Database.DATABASE_OPENING :
                     throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
-                                      ErrorCode.DatabaseManager_getDatabase);
+                                      ErrorCode.M_DatabaseManager_getDatabase);
             }
         }
 

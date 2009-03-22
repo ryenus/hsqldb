@@ -77,7 +77,7 @@ public class RowInputTextQuoted extends RowInputText {
         try {
             field++;
 
-            StringBuffer sb   = new StringBuffer();
+            StringBuffer sb    = new StringBuffer();
             boolean      done  = false;
             int          state = NORMAL_FIELD;
             int          end   = -1;
@@ -140,7 +140,7 @@ public class RowInputTextQuoted extends RowInputText {
         } catch (Exception e) {
             throw new IOException(
                 Error.getMessage(
-                    ErrorCode.TEXT_SOURCE_FIELD_ERROR, 0, new Object[] {
+                    ErrorCode.M_TEXT_SOURCE_FIELD_ERROR, 0, new Object[] {
                 new Integer(field), e.toString()
             }));
         }

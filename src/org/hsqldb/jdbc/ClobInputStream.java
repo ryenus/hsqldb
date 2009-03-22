@@ -137,7 +137,7 @@ public final class ClobInputStream extends Reader {
 
         if (isClosed || clob.isClosed()) {
             throw new IOException(
-                Error.getMessage(ErrorCode.BLOB_STREAM_IS_CLOSED));
+                Error.getMessage(ErrorCode.X_22523));
         }
     }
 

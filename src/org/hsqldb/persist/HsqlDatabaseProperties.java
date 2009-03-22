@@ -459,7 +459,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             exists = super.load();
         } catch (Exception e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.LOAD_SAVE_PROPERTIES, new Object[] {
+                              ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {
                 fileName, e
             });
         }
@@ -530,7 +530,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             database.logger.appLog.logContext(SimpleLog.LOG_ERROR, "failed");
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.LOAD_SAVE_PROPERTIES, new Object[] {
+                              ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {
                 fileName, e
             });
         }
