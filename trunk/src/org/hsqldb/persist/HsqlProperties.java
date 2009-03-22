@@ -249,7 +249,7 @@ public class HsqlProperties {
 
         if (fileName == null || fileName.length() == 0) {
             throw new FileNotFoundException(
-                Error.getMessage(ErrorCode.HsqlProperties_load));
+                Error.getMessage(ErrorCode.M_HsqlProperties_load));
         }
 
         InputStream fis           = null;
@@ -277,7 +277,7 @@ public class HsqlProperties {
 
         if (fileName == null || fileName.length() == 0) {
             throw new java.io.FileNotFoundException(
-                Error.getMessage(ErrorCode.HsqlProperties_load));
+                Error.getMessage(ErrorCode.M_HsqlProperties_load));
         }
 
         String filestring = fileName + ".properties";

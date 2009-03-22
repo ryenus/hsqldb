@@ -128,7 +128,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
 
             if (j != checkCount) {
                 throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
-                                  ErrorCode.ERROR_IN_BINARY_SCRIPT_1,
+                                  ErrorCode.M_ERROR_IN_BINARY_SCRIPT_1,
                                   new Object[] {
                     s, new Integer(j), new Integer(checkCount)
                 });
@@ -183,7 +183,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
         if (checkOp != ScriptWriterBase.INSERT
                 && checkOp != ScriptWriterBase.INSERT_WITH_SCHEMA) {
             throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
-                              ErrorCode.ERROR_IN_BINARY_SCRIPT_2);
+                              ErrorCode.M_ERROR_IN_BINARY_SCRIPT_2);
         }
 
         return s;

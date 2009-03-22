@@ -546,7 +546,7 @@ public class Routine implements SchemaObject {
         try {
             classinstance = Class.forName(classname);
         } catch (Exception e) {
-            throw Error.error(ErrorCode.X_42501, ErrorCode.Message_Pair,
+            throw Error.error(ErrorCode.X_42501, ErrorCode.M_Message_Pair,
                               new Object[] {
                 classname, e
             });

@@ -1835,7 +1835,7 @@ public class Server implements HsqlSocketRequestHandler {
         if (!success && getServerError() == null) {
 
             // database alias / path list is empty or without full info for any DB
-            setServerError(Error.error(ErrorCode.SERVER_NO_DATABASE));
+            setServerError(Error.error(ErrorCode.M_SERVER_NO_DATABASE));
         }
 
         return success;
@@ -1981,7 +1981,7 @@ public class Server implements HsqlSocketRequestHandler {
                 Object[] messageParameters;
 
                 if (candidateAddrs.length > 0) {
-                    messageID = ErrorCode.SERVER_OPEN_SERVER_SOCKET_1;
+                    messageID = ErrorCode.M_SERVER_OPEN_SERVER_SOCKET_1;
 
                     StringBuffer sb = new StringBuffer();
 
@@ -1997,7 +1997,7 @@ public class Server implements HsqlSocketRequestHandler {
                         address, sb.toString()
                     };
                 } else {
-                    messageID         = ErrorCode.SERVER_OPEN_SERVER_SOCKET_2;
+                    messageID         = ErrorCode.M_SERVER_OPEN_SERVER_SOCKET_2;
                     messageParameters = new Object[]{ address };
                 }
 

@@ -275,7 +275,7 @@ public class DataFileCache {
             close(false);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.DataFileCache_open, new Object[] {
+                              ErrorCode.M_DataFileCache_open, new Object[] {
                 e, fileName
             });
         }
@@ -370,7 +370,7 @@ public class DataFileCache {
             appLog.logContext(e, null);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.DataFileCache_close, new Object[] {
+                              ErrorCode.M_DataFileCache_close, new Object[] {
                 e, fileName
             });
         }
@@ -599,7 +599,7 @@ public class DataFileCache {
             database.logger.appLog.logContext(e, fileName + " get pos: " + i);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR,
-                              ErrorCode.DataFileCache_makeRow, new Object[] {
+                              ErrorCode.M_DataFileCache_makeRow, new Object[] {
                 e, fileName
             });
         } finally {

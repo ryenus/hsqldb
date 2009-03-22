@@ -161,7 +161,9 @@ public final class ClobType extends CharacterType {
         }
 
         if (otherType.isCharacterType()) {
-            return new ClobDataMemory(((String) a).toCharArray(), false);
+            ClobData clob = session.createClob();
+            clob.setString(session, 0, (String) a);
+            return clob;
         }
 
         throw Error.error(ErrorCode.X_42561);
@@ -171,12 +173,13 @@ public final class ClobType extends CharacterType {
                                        Object a) throws HsqlException {
 
         if (a == null) {
-            return a;
+            return null;
         }
 
-        // conversion to Clob via PreparedStatement.setObject();
         if (a instanceof String) {
-            return new ClobDataMemory(((String) a).toCharArray(), false);
+            ClobData clob = session.createClob();
+            clob.setString(session, 0, (String) a);
+            return clob;
         }
 
         throw Error.error(ErrorCode.X_42561);

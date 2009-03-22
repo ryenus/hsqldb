@@ -71,7 +71,7 @@ class ScriptWriterZipped extends ScriptWriterBinary {
             fileStreamOut = new DeflaterOutputStream(fos,
                     new Deflater(Deflater.DEFAULT_COMPRESSION), bufferSize);
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.Message_Pair,
+            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.M_Message_Pair,
                               new Object[] {
                 e.toString(), outFile
             });

@@ -335,7 +335,7 @@ implements HandshakeCompletedListener {
 
         if (start < 0) {
             throw new UnknownHostException(
-                Error.getMessage(ErrorCode.SERVER_SECURE_VERIFY_1));
+                Error.getMessage(ErrorCode.M_SERVER_SECURE_VERIFY_1));
         }
 
         start += 3;
@@ -345,7 +345,7 @@ implements HandshakeCompletedListener {
 
         if (CN.length() < 1) {
             throw new UnknownHostException(
-                Error.getMessage(ErrorCode.SERVER_SECURE_VERIFY_2));
+                Error.getMessage(ErrorCode.M_SERVER_SECURE_VERIFY_2));
         }
 
         if (!CN.equalsIgnoreCase(host)) {
@@ -353,7 +353,7 @@ implements HandshakeCompletedListener {
             // TLS_HOSTNAME_MISMATCH
             throw new UnknownHostException(
                 Error.getMessage(
-                    ErrorCode.SERVER_SECURE_VERIFY_3, 0,
+                    ErrorCode.M_SERVER_SECURE_VERIFY_3, 0,
                     new Object[] {
                 CN, host
             }));

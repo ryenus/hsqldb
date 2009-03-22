@@ -464,7 +464,8 @@ public class CharacterType extends Type {
                         session.addWarning(Error.error(ErrorCode.W_01004));
                     }
 
-                    return ((ClobData) a).getSubString(session, 0, (int) precision);
+                    return ((ClobData) a).getSubString(session, 0,
+                                                       (int) precision);
                 }
 
                 return convertToTypeLimits(a);
@@ -511,11 +512,9 @@ public class CharacterType extends Type {
 
                 return convertToTypeLimits(s);
             }
-
             case Types.SQL_BLOB : {
                 throw Error.error(ErrorCode.X_42561);
             }
-
             default : {
                 String s = otherType.convertToString(a);
 
@@ -628,8 +627,9 @@ public class CharacterType extends Type {
         return typeCode == Types.VARCHAR_IGNORECASE;
     }
 
-    public long position(SessionInterface session, Object data, Object otherData,
-                         Type otherType, long offset) throws HsqlException {
+    public long position(SessionInterface session, Object data,
+                         Object otherData, Type otherType,
+                         long offset) throws HsqlException {
 
         if (data == null || otherData == null) {
             return -1L;
@@ -642,7 +642,8 @@ public class CharacterType extends Type {
                 return -1;
             }
 
-            String otherString = ((ClobData) otherData).getSubString(session, 0, (int) otherLength);
+            String otherString = ((ClobData) otherData).getSubString(session,
+                0, (int) otherLength);
 
             return ((String) data).indexOf(otherString, (int) offset);
         } else if (otherType.isCharacterType()) {
@@ -711,7 +712,8 @@ public class CharacterType extends Type {
             ClobData clob = session.createClob();
 
             /** @todo - change to support long strings */
-            String result = ((ClobData) data).getSubString(session, offset, (int) length);
+            String result = ((ClobData) data).getSubString(session, offset,
+                (int) length);
 
             clob.setString(session, 0, result);
 
@@ -731,7 +733,8 @@ public class CharacterType extends Type {
         }
 
         if (typeCode == Types.SQL_CLOB) {
-            String result = ((ClobData) data).getSubString(session, 0, (int) ((ClobData) data).length(session));
+            String result = ((ClobData) data).getSubString(session, 0,
+                (int) ((ClobData) data).length(session));
 
             result = collation.toUpperCase(result);
 
@@ -752,7 +755,8 @@ public class CharacterType extends Type {
         }
 
         if (typeCode == Types.SQL_CLOB) {
-            String result = ((ClobData) data).getSubString(session, 0, (int) ((ClobData) data).length(session));
+            String result = ((ClobData) data).getSubString(session, 0,
+                (int) ((ClobData) data).length(session));
 
             result = collation.toLowerCase(result);
 
@@ -826,8 +830,9 @@ public class CharacterType extends Type {
         }
 
         if (!hasLength) {
-            length = typeCode == Types.SQL_CLOB ? ((ClobData) overlay).length(session)
-                                                : ((String) overlay).length();
+            length = typeCode == Types.SQL_CLOB
+                     ? ((ClobData) overlay).length(session)
+                     : ((String) overlay).length();
         }
 
         Object temp = concat(null,
@@ -857,8 +862,8 @@ public class CharacterType extends Type {
         }
 
         if (b instanceof ClobData) {
-            right =
-                ((ClobData) b).getSubString(session, 0, (int) ((ClobData) b).length(session));
+            right = ((ClobData) b).getSubString(
+                session, 0, (int) ((ClobData) b).length(session));
         } else {
             right = (String) b;
         }
@@ -875,7 +880,8 @@ public class CharacterType extends Type {
         }
     }
 
-    public long size(SessionInterface session, Object data) throws HsqlException {
+    public long size(SessionInterface session,
+                     Object data) throws HsqlException {
 
         if (typeCode == Types.SQL_CLOB) {
             return ((ClobData) data).length(session);

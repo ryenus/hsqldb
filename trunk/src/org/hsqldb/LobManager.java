@@ -287,7 +287,7 @@ public class LobManager {
 
         if (data == null) {
             Result.newErrorResult(
-                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
+                Error.error(ErrorCode.X_22522));
         }
 
         long length = ((Long) data[1]).longValue();
@@ -340,7 +340,7 @@ public class LobManager {
 
         if (blockAddresses.length == 0) {
             return Result.newErrorResult(
-                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
+                Error.error(ErrorCode.X_22522));
         }
 
         //
@@ -400,7 +400,7 @@ public class LobManager {
 
         if (data == null) {
             return Result.newErrorResult(
-                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
+                Error.error(ErrorCode.X_22522));
         }
         long oldLength = ((Long) data[1]).longValue();
 
@@ -503,7 +503,7 @@ public class LobManager {
 
         if (data == null) {
             return Result.newErrorResult(
-                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
+                Error.error(ErrorCode.X_22522));
         }
 
         long length = ((Long) data[1]).longValue();
@@ -542,7 +542,7 @@ public class LobManager {
 
         if (data == null) {
             return Result.newErrorResult(
-                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
+                Error.error(ErrorCode.X_22522));
         }
 
         long length = ((Long) data[1]).longValue();
@@ -589,7 +589,7 @@ public class LobManager {
 
         if (data == null) {
             return Result.newErrorResult(
-                Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID));
+                Error.error(ErrorCode.X_22522));
         }
 
         /** @todo 1.9.0 - double offset for clob */

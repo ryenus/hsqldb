@@ -142,11 +142,13 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
             if (isEnd) {
                 if ((next >= textLen) && (sepLen > 0)) {
-                    throw Error.error(ErrorCode.TEXT_SOURCE_NO_END_SEPARATOR);
+                    throw Error.error(
+                        ErrorCode.M_TEXT_SOURCE_NO_END_SEPARATOR);
                 } else if (text.endsWith(sep)) {
                     next = textLen - sepLen;
                 } else {
-                    throw Error.error(ErrorCode.TEXT_SOURCE_NO_END_SEPARATOR);
+                    throw Error.error(
+                        ErrorCode.M_TEXT_SOURCE_NO_END_SEPARATOR);
                 }
             } else {
                 next = text.indexOf(sep, start);
@@ -170,7 +172,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         } catch (Exception e) {
             throw new IOException(
                 Error.getMessage(
-                    ErrorCode.TEXT_SOURCE_FIELD_ERROR, 0, new Object[] {
+                    ErrorCode.M_TEXT_SOURCE_FIELD_ERROR, 0, new Object[] {
                 new Integer(field), e.toString()
             }));
         }
@@ -464,6 +466,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         }
 
         BinaryData data = scanner.convertToBit(s);
+
         return data;
     }
 
@@ -476,6 +479,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         }
 
         BinaryData data = scanner.convertToBinary(s);
+
         return data;
     }
 

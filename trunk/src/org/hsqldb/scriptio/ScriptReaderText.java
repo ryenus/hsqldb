@@ -128,7 +128,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                                             result.getMainString());
 
                 throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
-                                  ErrorCode.DatabaseScriptReader_readDDL,
+                                  ErrorCode.M_DatabaseScriptReader_readDDL,
                                   new Object[] {
                     new Integer(lineCount), result.getMainString()
                 });
@@ -171,9 +171,10 @@ public class ScriptReaderText extends ScriptReaderBase {
         } catch (Exception e) {
             db.logger.appLog.logContext(e, null);
 
-            throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
-                              ErrorCode.DatabaseScriptReader_readExistingData,
-                              new Object[] {
+            throw Error.error(
+                ErrorCode.ERROR_IN_SCRIPT_FILE,
+                ErrorCode.M_DatabaseScriptReader_readExistingData,
+                new Object[] {
                 new Integer(lineCount), e.toString()
             });
         }
