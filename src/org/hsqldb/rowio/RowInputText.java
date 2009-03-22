@@ -143,12 +143,12 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             if (isEnd) {
                 if ((next >= textLen) && (sepLen > 0)) {
                     throw Error.error(
-                        ErrorCode.M_TEXT_SOURCE_NO_END_SEPARATOR);
+                        ErrorCode.TEXT_SOURCE_NO_END_SEPARATOR);
                 } else if (text.endsWith(sep)) {
                     next = textLen - sepLen;
                 } else {
                     throw Error.error(
-                        ErrorCode.M_TEXT_SOURCE_NO_END_SEPARATOR);
+                        ErrorCode.TEXT_SOURCE_NO_END_SEPARATOR);
                 }
             } else {
                 next = text.indexOf(sep, start);
