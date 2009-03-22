@@ -233,8 +233,7 @@ public class LobManager {
             return null;
         }
 
-        long     length = ((Long) data[1]).longValue();
-        BlobData blob   = new BlobDataID(lobID, length);
+        BlobData blob   = new BlobDataID(lobID);
 
         return blob;
     }
@@ -247,7 +246,6 @@ public class LobManager {
             return null;
         }
 
-        long     length = ((Long) data[1]).longValue();
         ClobData clob   = new ClobDataID(lobID);
 
         return clob;

@@ -46,7 +46,7 @@ public class BlobDataID implements BlobData {
 
     public BlobDataID() {}
 
-    public BlobDataID(long id, long length) {
+    public BlobDataID(long id) {
         this.id = id;
     }
 

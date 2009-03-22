@@ -31,7 +31,6 @@
 
 package org.hsqldb.jdbc;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.sql.NClob;
 
 /**

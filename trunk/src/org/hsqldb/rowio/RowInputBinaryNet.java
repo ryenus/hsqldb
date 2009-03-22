@@ -53,7 +53,7 @@ public class RowInputBinaryNet extends RowInputBinary {
 
         long id = super.readLong();
 
-        return new BlobDataID(id, 0);
+        return new BlobDataID(id);
     }
 
     protected ClobData readClob() throws IOException, HsqlException {

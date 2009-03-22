@@ -1510,22 +1510,22 @@ public class Tokens {
     static final int X_POS_INTEGER = 733;
 
     //
-    static final int X_VALUE                    = 734;
-    static final int X_IDENTIFIER               = 735;
-    static final int X_DELIMITED_IDENTIFIER     = 736;
-    static final int X_ENDPARSE                 = 737;
-    static final int X_STARTPARSE               = 738;
-    static final int X_REMARK                   = 739;
-    static final int X_NULL                     = 730;
-    static final int X_LOB_SIZE                 = 731;
-    static final int X_MALFORMED_STRING         = 732;
-    static final int X_MALFORMED_NUMERIC        = 733;
-    static final int X_MALFORMED_BIT_STRING     = 734;
-    static final int X_MALFORMED_BINARY_STRING  = 735;
-    static final int X_MALFORMED_UNICODE_STRING = 736;
-    static final int X_MALFORMED_COMMENT        = 737;
-    static final int X_MALFORMED_IDENTIFIER     = 738;
-    static final int X_MALFORMED_UNICODE_ESCAPE = 739;
+    public static final int X_VALUE                    = 734;
+    public static final int X_IDENTIFIER               = 735;
+    public static final int X_DELIMITED_IDENTIFIER     = 736;
+    public static final int X_ENDPARSE                 = 737;
+    public static final int X_STARTPARSE               = 738;
+    public static final int X_REMARK                   = 739;
+    public static final int X_NULL                     = 730;
+    public static final int X_LOB_SIZE                 = 731;
+    public static final int X_MALFORMED_STRING         = 732;
+    public static final int X_MALFORMED_NUMERIC        = 733;
+    public static final int X_MALFORMED_BIT_STRING     = 734;
+    public static final int X_MALFORMED_BINARY_STRING  = 735;
+    public static final int X_MALFORMED_UNICODE_STRING = 736;
+    public static final int X_MALFORMED_COMMENT        = 737;
+    public static final int X_MALFORMED_IDENTIFIER     = 738;
+    public static final int X_MALFORMED_UNICODE_ESCAPE = 739;
 
     //
     public static final int X_UNKNOWN_TOKEN = -1;

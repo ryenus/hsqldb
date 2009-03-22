@@ -419,6 +419,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     protected synchronized void checkClosed() throws IOException {
 
         if (closed) {
+
             throw new IOException("stream is closed.");    // NOI18N
         }
     }

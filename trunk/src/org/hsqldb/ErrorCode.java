@@ -202,6 +202,10 @@ public interface ErrorCode {
     int X_08006 = 1305;                           // connection exception: connection failure
     int X_08007 = 1306;                           // connection exception: transaction resolution unknown
 
+    // HSQLDB connection
+    int X_08501 = 1351;                           // connection exception: timed out
+    int X_08502 = 1352;                           // warning: unsupported client info
+
     // triggered action exception - 200x
     int X_09000 = 1400;                           // triggered action exception
 
@@ -210,7 +214,7 @@ public interface ErrorCode {
     int X_0A001 = 1501;                           // feature not supported: multiple server transactions
 
     // HSQLDB feature not supported
-    int X_0A501 = 1511;                           // feature not supported:
+    int X_0A501 = 1551;                           // feature not supported:
 
     // invalid target type specification - 200x
     int X_0D000 = 1600;                           // invalid target type specification
@@ -229,7 +233,7 @@ public interface ErrorCode {
     int X_0L000 = 2000;                           // invalid grantor
 
     // HSQLDB
-    int X_0L501 = 2001;                           // invalid grantor - lacks CREATE_SCHEMA privilege
+    int X_0L501 = 2051;                           // invalid grantor - lacks CREATE_SCHEMA privilege
 
     // invalid SQL-invoked procedure reference - 2003
     int X_0M000 = 2100;                           // invalid SQL-invoked procedure reference
@@ -238,9 +242,9 @@ public interface ErrorCode {
     int X_0P000 = 2200;                           // invalid role specification
 
     // HSQLDB
-    int X_0P501 = 2201;                           // invalid role specification - circular grant
-    int X_0P502 = 2202;                           // invalid role specification - already granted
-    int X_0P503 = 2203;                           // invalid role specification - does not have role
+    int X_0P501 = 2251;                           // invalid role specification - circular grant
+    int X_0P502 = 2252;                           // invalid role specification - already granted
+    int X_0P503 = 2253;                           // invalid role specification - does not have role
 
     // invalid transform group name specification - 2003
     int X_0S000 = 2300;                           // invalid transform group name specification
@@ -514,7 +518,7 @@ public interface ErrorCode {
     int X_42537 = 5537;                           // cannot use WITH CHECK option for read-only view
     int X_42538 = 5538;                           // TRIGGER definition not compatible with table
     int X_42539 = 5539;                           // cannot drop a user that is currently connected
-   
+
     // DML
     int X_42541 = 5541;                           // requires DEFAULT keyword
     int X_42542 = 5542;                           // requires OVERRIDING clause

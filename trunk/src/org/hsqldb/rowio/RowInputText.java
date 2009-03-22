@@ -440,22 +440,19 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
     protected Object readOther() throws IOException, HsqlException {
 
-        byte[] data;
         String s = readString();
 
         if (s == null) {
             return null;
         }
 
-        s = s.trim();
+        BinaryData data = scanner.convertToBinary(s);
 
-        if (s.length() == 0) {
+        if (data.length(null) == 0) {
             return null;
         }
 
-        data = StringConverter.hexStringToByteArray(s);
-
-        return new JavaObjectData(data);
+        return new JavaObjectData(data.getBytes());
     }
 
     protected BinaryData readBit() throws IOException, HsqlException {
@@ -466,15 +463,8 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        s = s.trim();
-
-        if (s.length() == 0) {
-            return null;
-        }
-
-        BitMap map = StringConverter.sqlBitStringToBitMap(s);
-
-        return new BinaryData(map.getBytes(), map.size());
+        BinaryData data = scanner.convertToBit(s);
+        return data;
     }
 
     protected BinaryData readBinary() throws IOException, HsqlException {
@@ -485,13 +475,8 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        s = s.trim();
-
-        if (s.length() == 0) {
-            return null;
-        }
-
-        return new BinaryData(StringConverter.hexStringToByteArray(s), false);
+        BinaryData data = scanner.convertToBinary(s);
+        return data;
     }
 
     protected ClobData readClob() throws IOException, HsqlException {
@@ -529,7 +514,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         long id = Long.parseLong(s);
 
-        return new BlobDataID(id, 0);
+        return new BlobDataID(id);
     }
 
     public int getLineNumber() {
