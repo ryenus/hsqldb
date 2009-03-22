@@ -499,7 +499,7 @@ public class ClientConnection implements SessionInterface {
 
     public BlobDataID createBlob() {
 
-        BlobDataID blob = new BlobDataID(getLobId(), 0);
+        BlobDataID blob = new BlobDataID(getLobId());
 
         return blob;
     }

@@ -267,6 +267,10 @@ public class Scanner {
         }
     }
 
+    public Token getToken() {
+        return token;
+    }
+
     public String getString() {
         return token.tokenString;
     }
@@ -308,7 +312,7 @@ public class Scanner {
         return sqlString.charAt(i);
     }
 
-    public void scanBinaryString() {
+    void scanBinaryString() {
 
         byteOutputStream.reset(byteBuffer);
 
@@ -328,6 +332,8 @@ public class Scanner {
 
         token.tokenValue = new BinaryData(byteOutputStream.toByteArray(),
                                           false);
+
+        byteOutputStream.reset(byteBuffer);
     }
 
     /**
@@ -350,6 +356,21 @@ public class Scanner {
         }
 
         return c;
+    }
+
+    public void scanBinaryStringWithQuote() {
+
+        resetState();
+        scanSeparator();
+
+        if (charAt(currentPosition) != '\'') {
+            token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
+            token.isMalformed = true;
+
+            return;
+        }
+
+        scanBinaryString();
     }
 
     void scanBinaryStringPart() {
@@ -417,7 +438,7 @@ public class Scanner {
         }
     }
 
-    public void scanBitString() {
+    void scanBitString() {
 
         BitMap map = new BitMap(32);
 
@@ -436,6 +457,21 @@ public class Scanner {
         }
 
         token.tokenValue = new BinaryData(map.getBytes(), map.size());
+    }
+
+    public void scanBitStringWithQuote() {
+
+        resetState();
+        scanSeparator();
+
+        if (charAt(currentPosition) != '\'') {
+            token.tokenType   = Tokens.X_MALFORMED_BIT_STRING;
+            token.isMalformed = true;
+
+            return;
+        }
+
+        scanBitString();
     }
 
     void scanBitStringPart(BitMap map) {
@@ -1593,7 +1629,8 @@ public class Scanner {
 
             case '_' :
 
-                /** @todo 1.9.0 - review following
+                /**
+                 * @todo 1.9.0 - review following
                  * identifier chain must not have catalog identifier
                  * character set specification to be included in the token.dataType
                  */
@@ -2366,7 +2403,7 @@ public class Scanner {
         int currentValue  = 0;
         int currentDigits = 0;
 
-        for (; intervalPosition < intervalString.length();) {
+        for (; intervalPosition < intervalString.length(); ) {
             int character = intervalString.charAt(intervalPosition);
 
             if (character >= '0' && character <= '9') {

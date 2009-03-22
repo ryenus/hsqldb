@@ -1628,7 +1628,7 @@ public class Session implements SessionInterface {
         if (lobID == 0) {
             throw Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID);
         }
-        return new BlobDataID(lobID, 0);
+        return new BlobDataID(lobID);
     }
 
     public ClobDataID createClob() throws HsqlException {

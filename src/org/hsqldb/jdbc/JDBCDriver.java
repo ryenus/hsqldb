@@ -39,8 +39,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.hsqldb.DatabaseURL;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.HsqlException;
 
 // fredt@users 20011220 - patch 1.7.0 by fredt
 // new version numbering scheme
@@ -335,7 +338,7 @@ public class JDBCDriver implements Driver {
             return conn[0];
         }
 
-        throw new SQLException("Operation timed out.");    //NOI18N
+        throw Util.sqlException(ErrorCode.X_08501);
     }
 
     /**

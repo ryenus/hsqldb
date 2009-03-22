@@ -640,8 +640,7 @@ public class Types {
         int    type;
 
         if (c == null) {
-            throw Error.runtimeError(ErrorCode.U_S0500,
-                                     "Types");    //NOI18N
+            throw Error.runtimeError(ErrorCode.U_S0500, "Types");
         }
 
         if (Void.TYPE.equals(c)) {

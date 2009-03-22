@@ -31,18 +31,12 @@
 
 package org.hsqldb.jdbc;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.hsqldb.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
 import java.sql.RowId;
 import java.sql.SQLException;
-
 import java.util.Arrays;
 
 /* $Id$ */
@@ -85,6 +79,7 @@ import java.util.Arrays;
  * @author boucherb@users
  */
 public final class JDBCRowId implements RowId {
+
     private int hash;
 
     // ------------------------- Internal Implementation -----------------------
@@ -105,10 +100,10 @@ public final class JDBCRowId implements RowId {
      * @throws SQLException if the argument is null
      */
     public JDBCRowId(final byte[] id) throws SQLException {
+
         if (id == null) {
             throw Util.nullArgument("id");
         }
-
         this.id = id;
     }
 
@@ -132,6 +127,7 @@ public final class JDBCRowId implements RowId {
      *         hexadecimal character sequence
      */
     public JDBCRowId(final String hex) throws SQLException {
+
         if (hex == null) {
             throw Util.nullArgument("hex");
         }
@@ -139,7 +135,8 @@ public final class JDBCRowId implements RowId {
         try {
             this.id = StringConverter.hexStringToByteArray(hex);
         } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, "hex: " + e);
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "hex: " + e);
 
             // .illegalHexadecimalCharacterSequenceArgumentException("hex", e);
         }
@@ -166,7 +163,8 @@ public final class JDBCRowId implements RowId {
      * @since JDK 1.6, HSQLDB 1.9.0
      */
     public boolean equals(Object obj) {
-        return (obj instanceof JDBCRowId) && Arrays.equals(this.id, ((JDBCRowId) obj).id);
+        return (obj instanceof JDBCRowId)
+               && Arrays.equals(this.id, ((JDBCRowId) obj).id);
     }
 
     /**
@@ -206,6 +204,7 @@ public final class JDBCRowId implements RowId {
      * @return a hash code for the <code>RowId</code>
      */
     public int hashCode() {
+
         if (hash == 0) {
             hash = Arrays.hashCode(id);
         }

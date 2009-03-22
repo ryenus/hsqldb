@@ -344,7 +344,11 @@ implements RowInputInterface {
             return null;
         }
 
-        scanner.scanBinaryString();
+        scanner.scanBinaryStringWithQuote();
+
+        if (scanner.getTokenType() == Tokens.X_MALFORMED_BINARY_STRING ) {
+            throw Error.error(ErrorCode.X_42587);
+        }
 
         value = scanner.getValue();
 
@@ -359,7 +363,11 @@ implements RowInputInterface {
             return null;
         }
 
-        scanner.scanBitString();
+        scanner.scanBitStringWithQuote();
+
+        if (scanner.getTokenType() == Tokens.X_MALFORMED_BIT_STRING ) {
+            throw Error.error(ErrorCode.X_42587);
+        }
 
         value = scanner.getValue();
 
@@ -374,7 +382,11 @@ implements RowInputInterface {
             return null;
         }
 
-        scanner.scanBinaryString();
+        scanner.scanBinaryStringWithQuote();
+
+        if (scanner.getTokenType() == Tokens.X_MALFORMED_BINARY_STRING ) {
+            throw Error.error(ErrorCode.X_42587);
+        }
 
         value = scanner.getValue();
 
@@ -404,6 +416,6 @@ implements RowInputInterface {
 
         long id = ((Number) value).longValue();
 
-        return new BlobDataID(id, 0);
+        return new BlobDataID(id);
     }
 }

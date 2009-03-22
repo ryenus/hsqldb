@@ -1939,7 +1939,7 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && getAutoCommit()) {
-            throw Util.sqlException(ErrorCode.X_3B001);    // NOI18N
+            throw Util.sqlException(ErrorCode.X_3B001);
         }
 
         try {
@@ -1996,7 +1996,7 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && getAutoCommit()) {
-            throw Util.sqlException(ErrorCode.X_3B001);    // NOI18N
+            throw Util.sqlException(ErrorCode.X_3B001);
         }
 
         if (name == null) {
@@ -2063,7 +2063,6 @@ public class JDBCConnection implements Connection {
             Savepoint savepoint) throws SQLException {
 
         JDBCSavepoint sp;
-        Result        req;
 
         checkClosed();
 
@@ -2072,20 +2071,20 @@ public class JDBCConnection implements Connection {
         }
 
         if (!(savepoint instanceof JDBCSavepoint)) {
-            String msg = savepoint + " was not issued on this connection";    //NOI18N
+            String msg = Error.getMessage(ErrorCode.X_3B001);
 
             throw Util.invalidArgument(msg);
         }
         sp = (JDBCSavepoint) savepoint;
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && sp.name == null) {
-            String msg = savepoint + " is no longer valid";    //NOI18N
+            String msg = Error.getMessage(ErrorCode.X_3B001);
 
             throw Util.invalidArgument(msg);
         }
 
         if (this != sp.connection) {
-            String msg = savepoint + " was not issued on this connection";    //NOI18N
+            String msg = Error.getMessage(ErrorCode.X_3B001);
 
             throw Util.invalidArgument(msg);
         }
@@ -2094,7 +2093,7 @@ public class JDBCConnection implements Connection {
             sp.name       = null;
             sp.connection = null;
 
-            throw Util.sqlException(ErrorCode.X_3B001);    // NOI18N
+            throw Util.sqlException(ErrorCode.X_3B001);
         }
 
         try {
@@ -2161,22 +2160,20 @@ public class JDBCConnection implements Connection {
         }
 
         if (!(savepoint instanceof JDBCSavepoint)) {
-            String msg = savepoint.getSavepointName()
-                         + " was not issued on this connection";    //NOI18N
+            String msg = Error.getMessage(ErrorCode.X_3B001);
 
             throw Util.invalidArgument(msg);
         }
         sp = (JDBCSavepoint) savepoint;
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && sp.name == null) {
-            String msg = savepoint + " is no longer valid";    //NOI18N
+            String msg = Error.getMessage(ErrorCode.X_3B001);
 
             throw Util.invalidArgument(msg);
         }
 
         if (this != sp.connection) {
-            String msg = savepoint.getSavepointName()
-                         + " was not issued on this connection";
+            String msg = Error.getMessage(ErrorCode.X_3B001);
 
             throw Util.invalidArgument(msg);
         }
@@ -2185,7 +2182,7 @@ public class JDBCConnection implements Connection {
             sp.name       = null;
             sp.connection = null;
 
-            throw Util.sqlException(ErrorCode.X_3B001);    // NOI18N
+            throw Util.sqlException(ErrorCode.X_3B001);
         }
 
         try {
@@ -2899,7 +2896,7 @@ public class JDBCConnection implements Connection {
             + name);
 
         warning.initCause(Util.notSupported());
-        addWarning(warning);    // NOI18N
+        addWarning(warning);
     }
 
 //#endif JAVA6

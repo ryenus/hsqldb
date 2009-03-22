@@ -31,7 +31,6 @@
 
 package org.hsqldb.jdbc;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayReader;
@@ -57,6 +56,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
 import javax.xml.bind.util.JAXBResult;
 import javax.xml.bind.util.JAXBSource;
 import javax.xml.parsers.DocumentBuilder;
@@ -84,7 +84,6 @@ import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-//~--- non-JDK imports --------------------------------------------------------
 import org.hsqldb.ErrorCode;
 import org.hsqldb.lib.ClosableByteArrayOutputStream;
 import org.hsqldb.lib.StringConverter;
@@ -351,7 +350,8 @@ import org.xml.sax.SAXException;
  * @revised Mustang Build 79
  */
 public class JDBCSQLXML implements SQLXML {
-    private static String                    domFeatures = "XML 3.0 Traversal +Events 2.0";
+
+    private static String domFeatures = "XML 3.0 Traversal +Events 2.0";
     private static DOMImplementation         domImplementation;
     private static DOMImplementationRegistry domImplementationRegistry;
     private static ThreadPoolExecutor        executorService;
@@ -370,8 +370,8 @@ public class JDBCSQLXML implements SQLXML {
 
         try {
             charset = Charset.forName("UTF8");
-        } catch (Exception e) {}
-
+        } catch (Exception e) {
+        }
         utf8Charset = charset;
     }
 
@@ -562,7 +562,8 @@ public class JDBCSQLXML implements SQLXML {
      * @throws SQLException if the argument does not represent a
      *      valid SQLXML value
      */
-    protected JDBCSQLXML(InputStream inputStream, String systemId) throws SQLException {
+    protected JDBCSQLXML(InputStream inputStream,
+                         String systemId) throws SQLException {
         this(new StreamSource(inputStream, systemId));
     }
 
@@ -616,16 +617,20 @@ public class JDBCSQLXML implements SQLXML {
      * @throws SQLException if the argument does not represent a
      *      valid SQLXML value
      */
-    protected JDBCSQLXML(byte[] bytes, boolean clone, String systemId, String publicId) throws SQLException {
-        this.setGZipData(clone
-                         ? bytes.clone()
-                         : bytes);
+    protected JDBCSQLXML(byte[] bytes, boolean clone, String systemId,
+                         String publicId) throws SQLException {
+
+        this.setGZipData(clone ? bytes.clone()
+                               : bytes);
+
         this.systemId = systemId;
         this.publicId = publicId;
     }
 
-    protected JDBCSQLXML(char[] chars, int offset, int length, String systemId) throws SQLException {
-        this(new StreamSource(new CharArrayReader(chars, offset, length), systemId));
+    protected JDBCSQLXML(char[] chars, int offset, int length,
+                         String systemId) throws SQLException {
+        this(new StreamSource(new CharArrayReader(chars, offset, length),
+                              systemId));
     }
 
     /**
@@ -663,6 +668,7 @@ public class JDBCSQLXML implements SQLXML {
      * @since JDK 1.6
      */
     public synchronized InputStream getBinaryStream() throws SQLException {
+
         checkClosed();
         checkReadable();
 
@@ -692,6 +698,7 @@ public class JDBCSQLXML implements SQLXML {
      * @since JDK 1.6
      */
     public synchronized OutputStream setBinaryStream() throws SQLException {
+
         checkClosed();
         checkWritable();
 
@@ -726,6 +733,7 @@ public class JDBCSQLXML implements SQLXML {
      * @since JDK 1.6
      */
     public synchronized Reader getCharacterStream() throws SQLException {
+
         checkClosed();
         checkReadable();
 
@@ -760,6 +768,7 @@ public class JDBCSQLXML implements SQLXML {
      * @since JDK 1.6 Build 79
      */
     public synchronized Writer setCharacterStream() throws SQLException {
+
         checkClosed();
         checkWritable();
 
@@ -794,6 +803,7 @@ public class JDBCSQLXML implements SQLXML {
      * @since JDK 1.6
      */
     public synchronized String getString() throws SQLException {
+
         checkClosed();
         checkReadable();
 
@@ -828,10 +838,10 @@ public class JDBCSQLXML implements SQLXML {
      * @since JDK 1.6
      */
     public synchronized void setString(String value) throws SQLException {
+
         if (value == null) {
             throw Util.nullArgument("value");
         }
-
         checkWritable();
         setStringImpl(value);
         setReadable(true);
@@ -879,7 +889,9 @@ public class JDBCSQLXML implements SQLXML {
      * @since JDK 1.6 Build 79
      */
     @SuppressWarnings("unchecked")
-    public synchronized <T extends Source>T getSource(Class<T> sourceClass) throws SQLException {
+    public synchronized <T extends Source>T getSource(
+            Class<T> sourceClass) throws SQLException {
+
         checkClosed();
         checkReadable();
 
@@ -930,7 +942,9 @@ public class JDBCSQLXML implements SQLXML {
      * this method
      * @since JDK 1.6 Build 79
      */
-    public synchronized <T extends Result>T setResult(Class<T> resultClass) throws SQLException {
+    public synchronized <T extends Result>T setResult(
+            Class<T> resultClass) throws SQLException {
+
         checkClosed();
         checkWritable();
 
@@ -946,15 +960,16 @@ public class JDBCSQLXML implements SQLXML {
      * @return that may be used to perform processesing asynchronously.
      */
     protected static ExecutorService getExecutorService() {
+
         if (JDBCSQLXML.executorService == null) {
             int      corePoolSize    = 1;
             int      maximumPoolSize = 10;
             long     keepAliveTime   = 1;
             TimeUnit unit            = TimeUnit.SECONDS;
 
-            JDBCSQLXML.workQueue       = new ArrayBlockingQueue<Runnable>(10);
-            JDBCSQLXML.executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit,
-                    workQueue);
+            JDBCSQLXML.workQueue = new ArrayBlockingQueue<Runnable>(10);
+            JDBCSQLXML.executorService = new ThreadPoolExecutor(corePoolSize,
+                    maximumPoolSize, keepAliveTime, unit, workQueue);
         }
 
         return executorService;
@@ -965,9 +980,11 @@ public class JDBCSQLXML implements SQLXML {
      * @throws java.sql.SQLException when unable to obtain a factory instance.
      */
     protected static TransformerFactory getTransformerFactory() throws SQLException {
+
         if (JDBCSQLXML.transformerFactory == null) {
             try {
-                JDBCSQLXML.transformerFactory = TransformerFactory.newInstance();
+                JDBCSQLXML.transformerFactory =
+                    TransformerFactory.newInstance();
             } catch (TransformerFactoryConfigurationError ex) {
                 throw Exceptions.transformFailed(ex);
             }
@@ -981,9 +998,11 @@ public class JDBCSQLXML implements SQLXML {
      * @throws java.sql.SQLException when unable to obtain the instance.
      */
     protected static Transformer getIdentityTransformer() throws SQLException {
+
         if (JDBCSQLXML.identityTransformer == null) {
             try {
-                JDBCSQLXML.identityTransformer = getTransformerFactory().newTransformer();
+                JDBCSQLXML.identityTransformer =
+                    getTransformerFactory().newTransformer();
             } catch (TransformerConfigurationException ex) {
                 throw Exceptions.transformFailed(ex);
             }
@@ -997,9 +1016,11 @@ public class JDBCSQLXML implements SQLXML {
      * @throws java.sql.SQLException when unable to obtain a factory instance.
      */
     protected static DOMImplementationRegistry getDOMImplementationRegistry() throws SQLException {
+
         if (domImplementationRegistry == null) {
             try {
-                domImplementationRegistry = DOMImplementationRegistry.newInstance();
+                domImplementationRegistry =
+                    DOMImplementationRegistry.newInstance();
             } catch (ClassCastException ex) {
                 throw Exceptions.domInstantiation(ex);
             } catch (InstantiationException ex) {
@@ -1020,12 +1041,16 @@ public class JDBCSQLXML implements SQLXML {
      *         implementation instance.
      */
     protected static DOMImplementation getDOMImplementation() throws SQLException {
+
         if (domImplementation == null) {
-            domImplementation = getDOMImplementationRegistry().getDOMImplementation(domFeatures);
+            domImplementation =
+                getDOMImplementationRegistry().getDOMImplementation(
+                    domFeatures);
         }
 
         if (domImplementation == null) {
-            Exception ex = new RuntimeException("Not supported: " + domFeatures);
+            Exception ex = new RuntimeException("Not supported: "
+                + domFeatures);
 
             throw Exceptions.domInstantiation(ex);
         }
@@ -1047,10 +1072,12 @@ public class JDBCSQLXML implements SQLXML {
      * @throws java.sql.SQLException wrapping any internal exception that occurs.
      * @see org.w3c.dom.DOMImplementation#createDocument(String,String,DocumentType)
      */
-    protected static Document createDocument(String namespaceURI, String qualifiedName, DocumentType docType)
-            throws SQLException {
+    protected static Document createDocument(String namespaceURI,
+            String qualifiedName, DocumentType docType) throws SQLException {
+
         try {
-            return getDOMImplementation().createDocument(namespaceURI, qualifiedName, docType);
+            return getDOMImplementation().createDocument(namespaceURI,
+                    qualifiedName, docType);
         } catch (DOMException ex) {
             throw Exceptions.domInstantiation(ex);
         }
@@ -1073,11 +1100,13 @@ public class JDBCSQLXML implements SQLXML {
      *      valid SQLXML value
      */
     protected void init(Source source) throws SQLException {
+
         if (source == null) {
             throw Util.nullArgument("source");
         }
 
-        Transformer           transformer = JDBCSQLXML.getIdentityTransformer();
+        Transformer           transformer =
+            JDBCSQLXML.getIdentityTransformer();
         StreamResult          result      = new StreamResult();
         ByteArrayOutputStream baos        = new ByteArrayOutputStream();
         GZIPOutputStream      gzos;
@@ -1087,7 +1116,6 @@ public class JDBCSQLXML implements SQLXML {
         } catch (IOException ex) {
             throw Exceptions.transformFailed(ex);
         }
-
         result.setOutputStream(gzos);
 
         try {
@@ -1118,10 +1146,10 @@ public class JDBCSQLXML implements SQLXML {
      *      valid SQLXML value
      */
     protected void setGZipData(byte[] data) throws SQLException {
+
         if (data == null) {
             throw Util.nullArgument("data");
         }
-
         this.gzdata = data;
     }
 
@@ -1147,13 +1175,15 @@ public class JDBCSQLXML implements SQLXML {
      * @return this object's SQLXML value
      */
     protected byte[] getGZipData() throws SQLException {
+
         byte[] bytes = gZipData();
 
         if (bytes != null) {
             return bytes;
         }
 
-        if ((this.outputStream == null) ||!this.outputStream.isClosed() || this.outputStream.isFreed()) {
+        if ((this.outputStream == null) || !this.outputStream.isClosed()
+                || this.outputStream.isFreed()) {
             throw Exceptions.notReadable();
         }
 
@@ -1172,11 +1202,14 @@ public class JDBCSQLXML implements SQLXML {
      * closes this object and releases the resources that it holds.
      */
     protected synchronized void close() {
+
         this.closed = true;
+
         setReadable(false);
         setWritable(false);
         freeOutputStream();
         freeInputStream();
+
         this.gzdata = null;
     }
 
@@ -1186,6 +1219,7 @@ public class JDBCSQLXML implements SQLXML {
      * for subsequent garbage collection.
      */
     protected void freeInputStream() {
+
         if (this.inputStream != null) {
             try {
                 this.inputStream.close();
@@ -1207,6 +1241,7 @@ public class JDBCSQLXML implements SQLXML {
      * the output stream.
      */
     protected void freeOutputStream() {
+
         if (this.outputStream != null) {
             try {
                 this.outputStream.free();
@@ -1214,7 +1249,6 @@ public class JDBCSQLXML implements SQLXML {
 
                 // ex.printStackTrace();
             }
-
             this.outputStream = null;
         }
     }
@@ -1225,6 +1259,7 @@ public class JDBCSQLXML implements SQLXML {
      * @throws java.sql.SQLException if this object is closed.
      */
     protected synchronized void checkClosed() throws SQLException {
+
         if (this.closed) {
             throw Exceptions.inFreedState();
         }
@@ -1236,6 +1271,7 @@ public class JDBCSQLXML implements SQLXML {
      * @throws java.sql.SQLException if this object is not readable.
      */
     protected synchronized void checkReadable() throws SQLException {
+
         if (!this.isReadable()) {
             throw Exceptions.notReadable();
         }
@@ -1256,6 +1292,7 @@ public class JDBCSQLXML implements SQLXML {
      * @throws java.sql.SQLException if this object is not writable.
      */
     protected synchronized void checkWritable() throws SQLException {
+
         if (!this.isWritable()) {
             throw Exceptions.notWritable();
         }
@@ -1296,8 +1333,10 @@ public class JDBCSQLXML implements SQLXML {
      * @throws SQLException if there is an error processing the XML value.
      */
     protected InputStream getBinaryStreamImpl() throws SQLException {
+
         try {
-            return new GZIPInputStream(new ByteArrayInputStream(getGZipData()));
+            return new GZIPInputStream(
+                new ByteArrayInputStream(getGZipData()));
         } catch (IOException ex) {
             throw Exceptions.transformFailed(ex);
         }
@@ -1322,10 +1361,10 @@ public class JDBCSQLXML implements SQLXML {
      * @throws SQLException if there is an error processing the XML value.
      */
     protected String getStringImpl() throws SQLException {
-        try {
 
+        try {
             return StringConverter.inputStreamToString(getBinaryStreamImpl(),
-                "US-ASCII");
+                    "US-ASCII");
         } catch (IOException ex) {
             throw Exceptions.transformFailed(ex);
         }
@@ -1339,6 +1378,7 @@ public class JDBCSQLXML implements SQLXML {
      * @throws SQLException if there is an error processing the XML value.
      */
     protected OutputStream setBinaryStreamImpl() throws SQLException {
+
         this.outputStream = new ClosableByteArrayOutputStream();
 
         try {
@@ -1386,7 +1426,9 @@ public class JDBCSQLXML implements SQLXML {
      * @throws SQLException if there is an error processing the XML value
      *   or if the given <tt>sourceClass</tt> is not supported.
      */
-    protected <T extends Source>T getSourceImpl(Class<T> sourceClass) throws SQLException {
+    protected <T extends Source>T getSourceImpl(
+            Class<T> sourceClass) throws SQLException {
+
         if (JAXBSource.class.isAssignableFrom(sourceClass)) {
 
             // Must go first presently, since JAXBSource extends SAXSource
@@ -1397,7 +1439,8 @@ public class JDBCSQLXML implements SQLXML {
             // FALL THROUGH... will throw an exception
         } else if (StreamSource.class.isAssignableFrom(sourceClass)) {
             return createStreamSource(sourceClass);
-        } else if ((sourceClass == null) || DOMSource.class.isAssignableFrom(sourceClass)) {
+        } else if ((sourceClass == null)
+                   || DOMSource.class.isAssignableFrom(sourceClass)) {
             return createDOMSource(sourceClass);
         } else if (SAXSource.class.isAssignableFrom(sourceClass)) {
             return createSAXSource(sourceClass);
@@ -1419,13 +1462,14 @@ public class JDBCSQLXML implements SQLXML {
      *      SQLXML instance
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Source>T createStreamSource(Class<T> sourceClass) throws SQLException {
+    protected <T extends Source>T createStreamSource(
+            Class<T> sourceClass) throws SQLException {
+
         StreamSource source = null;
 
         try {
-            source = (sourceClass == null)
-                     ? new StreamSource()
-                     : (StreamSource) sourceClass.newInstance();
+            source = (sourceClass == null) ? new StreamSource()
+                    : (StreamSource) sourceClass.newInstance();
         } catch (SecurityException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1454,13 +1498,14 @@ public class JDBCSQLXML implements SQLXML {
      *      SQLXML instance
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Source>T createDOMSource(Class<T> sourceClass) throws SQLException {
+    protected <T extends Source>T createDOMSource(
+            Class<T> sourceClass) throws SQLException {
+
         DOMSource source = null;
 
         try {
-            source = (sourceClass == null)
-                     ? new DOMSource()
-                     : (DOMSource) sourceClass.newInstance();
+            source = (sourceClass == null) ? new DOMSource()
+                    : (DOMSource) sourceClass.newInstance();
         } catch (SecurityException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (IllegalAccessException ex) {
@@ -1483,7 +1528,6 @@ public class JDBCSQLXML implements SQLXML {
         } catch (TransformerException ex) {
             throw Exceptions.transformFailed(ex);
         }
-
         source.setNode(domResult.getNode());
 
         return (T) source;
@@ -1500,13 +1544,14 @@ public class JDBCSQLXML implements SQLXML {
      *      SQLXML instance
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Source>T createSAXSource(Class<T> sourceClass) throws SQLException {
+    protected <T extends Source>T createSAXSource(
+            Class<T> sourceClass) throws SQLException {
+
         SAXSource source = null;
 
         try {
-            source = (sourceClass == null)
-                     ? new SAXSource()
-                     : (SAXSource) sourceClass.newInstance();
+            source = (sourceClass == null) ? new SAXSource()
+                    : (SAXSource) sourceClass.newInstance();
         } catch (SecurityException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1536,7 +1581,9 @@ public class JDBCSQLXML implements SQLXML {
      *      SQLXML instance
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Source>T createStAXSource(Class<T> sourceClass) throws SQLException {
+    protected <T extends Source>T createStAXSource(
+            Class<T> sourceClass) throws SQLException {
+
         StAXSource      source      = null;
         Constructor     sourceCtor  = null;
         Reader          reader      = null;
@@ -1550,15 +1597,15 @@ public class JDBCSQLXML implements SQLXML {
         }
 
         try {
-            sourceCtor = (sourceClass == null)
-                         ? StAXSource.class.getConstructor(XMLEventReader.class)
-                         : sourceClass.getConstructor(XMLEventReader.class);
+            sourceCtor =
+                (sourceClass == null)
+                ? StAXSource.class.getConstructor(XMLEventReader.class)
+                : sourceClass.getConstructor(XMLEventReader.class);
         } catch (SecurityException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (NoSuchMethodException ex) {
             throw Exceptions.sourceInstantiation(ex);
         }
-
         reader = getCharacterStreamImpl();
 
         try {
@@ -1595,7 +1642,9 @@ public class JDBCSQLXML implements SQLXML {
      *         value or the state is not writable
      * @return for setting the XML value designated by this SQLXML instance.
      */
-    protected <T extends Result>T createResult(Class<T> resultClass) throws SQLException {
+    protected <T extends Result>T createResult(
+            Class<T> resultClass) throws SQLException {
+
         checkWritable();
         setWritable(false);
         setReadable(true);
@@ -1608,7 +1657,8 @@ public class JDBCSQLXML implements SQLXML {
             // constructor(or any subclass thereof, due to the finality of
             // its private UnmarshallerHandler)
             // FALL THROUGH... will throw an exception
-        } else if ((resultClass == null) || StreamResult.class.isAssignableFrom(resultClass)) {
+        } else if ((resultClass == null)
+                   || StreamResult.class.isAssignableFrom(resultClass)) {
             return createStreamResult(resultClass);
         } else if (DOMResult.class.isAssignableFrom(resultClass)) {
             return createDOMResult(resultClass);
@@ -1632,13 +1682,14 @@ public class JDBCSQLXML implements SQLXML {
      */
 
 //  @SuppressWarnings("unchecked")
-    protected <T extends Result>T createStreamResult(Class<T> resultClass) throws SQLException {
+    protected <T extends Result>T createStreamResult(
+            Class<T> resultClass) throws SQLException {
+
         StreamResult result = null;
 
         try {
-            result = (resultClass == null)
-                     ? new StreamResult()
-                     : (StreamResult) resultClass.newInstance();
+            result = (resultClass == null) ? new StreamResult()
+                    : (StreamResult) resultClass.newInstance();
         } catch (SecurityException ex) {
             throw Exceptions.resultInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1666,11 +1717,12 @@ public class JDBCSQLXML implements SQLXML {
      * @return for setting the XML value designated by this SQLXML instance.
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Result>T createDOMResult(Class<T> resultClass) throws SQLException {
+    protected <T extends Result>T createDOMResult(
+            Class<T> resultClass) throws SQLException {
+
         try {
-            return (resultClass == null)
-                   ? ((T) new DOMResult())
-                   : resultClass.newInstance();
+            return (resultClass == null) ? ((T) new DOMResult())
+                    : resultClass.newInstance();
         } catch (SecurityException ex) {
             throw Exceptions.resultInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1692,13 +1744,14 @@ public class JDBCSQLXML implements SQLXML {
      *  @return for setting the XML value designated by this SQLXML instance.
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Result>T createSAXResult(Class<T> resultClass) throws SQLException {
+    protected <T extends Result>T createSAXResult(
+            Class<T> resultClass) throws SQLException {
+
         SAXResult result = null;
 
         try {
-            result = (resultClass == null)
-                     ? new SAXResult()
-                     : (SAXResult) resultClass.newInstance();
+            result = (resultClass == null) ? new SAXResult()
+                    : (SAXResult) resultClass.newInstance();
         } catch (SecurityException ex) {
             throw Exceptions.resultInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1728,7 +1781,9 @@ public class JDBCSQLXML implements SQLXML {
      *  @return for setting the XML value designated by this SQLXML instance.
      */
     @SuppressWarnings("unchecked")
-    protected <T extends Result>T createStAXResult(Class<T> resultClass) throws SQLException {
+    protected <T extends Result>T createStAXResult(
+            Class<T> resultClass) throws SQLException {
+
         StAXResult       result       = null;
         OutputStream     outputStream = this.setBinaryStreamImpl();
         Constructor      ctor;
@@ -1774,7 +1829,8 @@ public class JDBCSQLXML implements SQLXML {
         /**
          * Construction Disabled.
          */
-        private Exceptions() {}
+        private Exceptions() {
+        }
 
         /**
          *  Retrieves a new SQLXML DOM instantiation exception.
@@ -1782,7 +1838,9 @@ public class JDBCSQLXML implements SQLXML {
          * @param cause of the exception
          */
         static SQLException domInstantiation(Throwable cause) {
-            SQLException ex = Util.sqlException(ErrorCode.GENERAL_ERROR, "SQLXML DOM instantiation failed: " + cause);
+
+            SQLException ex = Util.sqlException(ErrorCode.GENERAL_ERROR,
+                "SQLXML DOM instantiation failed: " + cause);
 
             ex.initCause(cause);
 
@@ -1796,7 +1854,9 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML source instantiation exception
          */
         static SQLException sourceInstantiation(Throwable cause) {
-            SQLException ex = Util.sqlException(ErrorCode.GENERAL_ERROR, "SQLXML Source instantiation failed: " + cause);
+
+            SQLException ex = Util.sqlException(ErrorCode.GENERAL_ERROR,
+                "SQLXML Source instantiation failed: " + cause);
 
             ex.initCause(cause);
 
@@ -1810,7 +1870,9 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML result instantiation exception
          */
         static SQLException resultInstantiation(Throwable cause) {
-            SQLException ex = Util.sqlException(ErrorCode.GENERAL_ERROR, "SQLXML Result instantiation failed: " + cause);
+
+            SQLException ex = Util.sqlException(ErrorCode.GENERAL_ERROR,
+                "SQLXML Result instantiation failed: " + cause);
 
             ex.initCause(cause);
 
@@ -1824,7 +1886,9 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML parse failed exception
          */
         static SQLException parseFailed(Throwable cause) {
-            SQLException ex = Util.sqlException(ErrorCode.GENERAL_IO_ERROR, "parse failed: " + cause);
+
+            SQLException ex = Util.sqlException(ErrorCode.GENERAL_IO_ERROR,
+                "parse failed: " + cause);
 
             ex.initCause(cause);
 
@@ -1838,7 +1902,9 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML parse failed exception
          */
         static SQLException transformFailed(Throwable cause) {
-            SQLException ex = Util.sqlException(ErrorCode.GENERAL_IO_ERROR, "transform failed: " + cause);
+
+            SQLException ex = Util.sqlException(ErrorCode.GENERAL_IO_ERROR,
+                "transform failed: " + cause);
 
             ex.initCause(cause);
 
@@ -1851,7 +1917,8 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML not readable exception
          */
         static SQLException notReadable() {
-            return Util.sqlException(ErrorCode.GENERAL_IO_ERROR, "SQLXML in not readable state");
+            return Util.sqlException(ErrorCode.GENERAL_IO_ERROR,
+                                     "SQLXML in not readable state");
         }
 
         /**
@@ -1860,7 +1927,8 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML not writable exception
          */
         static SQLException notWritable() {
-            return Util.sqlException(ErrorCode.GENERAL_IO_ERROR, "SQLXML in not writable state");
+            return Util.sqlException(ErrorCode.GENERAL_IO_ERROR,
+                                     "SQLXML in not writable state");
         }
 
         /**
@@ -1869,7 +1937,8 @@ public class JDBCSQLXML implements SQLXML {
          * @return never
          */
         static SQLException directUpdateByLocatorNotSupported() {
-            return Util.sqlException(ErrorCode.X_0A000, "SQLXML direct update by locator");
+            return Util.sqlException(ErrorCode.X_0A000,
+                                     "SQLXML direct update by locator");
         }
 
         /**
@@ -1878,17 +1947,18 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML in freed state exception
          */
         static SQLException inFreedState() {
-            return Util.sqlException(ErrorCode.GENERAL_ERROR, "SQLXML in freed state");
+            return Util.sqlException(ErrorCode.GENERAL_ERROR,
+                                     "SQLXML in freed state");
         }
     }
-
 
     // -------------------------------------------------------------------------
 
     /**
      * Builds a DOM from SAX events.
      */
-    protected static class SAX2DOMBuilder implements ContentHandler, Closeable {
+    protected static class SAX2DOMBuilder implements ContentHandler,
+            Closeable {
 
         /**
          *
@@ -1924,12 +1994,15 @@ public class JDBCSQLXML implements SQLXML {
          * @throws javax.xml.parsers.ParserConfigurationException
          */
         public SAX2DOMBuilder() throws ParserConfigurationException {
+
             DocumentBuilderFactory documentBuilderFactory;
             DocumentBuilder        documentBuilder;
 
             documentBuilderFactory = DocumentBuilderFactory.newInstance();
+
             documentBuilderFactory.setValidating(false);
             documentBuilderFactory.setNamespaceAware(true);
+
             documentBuilder  = documentBuilderFactory.newDocumentBuilder();
             this.document    = documentBuilder.newDocument();
             this.currentNode = this.document;
@@ -2052,7 +2125,8 @@ public class JDBCSQLXML implements SQLXML {
          * @see #endPrefixMapping
          * @see #startElement
          */
-        public void startPrefixMapping(String prefix, String uri) throws SAXException {
+        public void startPrefixMapping(String prefix,
+                                       String uri) throws SAXException {
             checkClosed();
         }
 
@@ -2140,7 +2214,9 @@ public class JDBCSQLXML implements SQLXML {
          * @see org.xml.sax.Attributes
          * @see org.xml.sax.helpers.AttributesImpl
          */
-        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+        public void startElement(String uri, String localName, String qName,
+                                 Attributes atts) throws SAXException {
+
             checkClosed();
 
             Element element;
@@ -2164,7 +2240,6 @@ public class JDBCSQLXML implements SQLXML {
                     }
                 }
             }
-
             getCurrentNode().appendChild(element);
             setCurrentNode(element);
 
@@ -2194,7 +2269,8 @@ public class JDBCSQLXML implements SQLXML {
          * @throws org.xml.sax.SAXException any SAX exception, possibly
          *            wrapping another exception
          */
-        public void endElement(String uri, String localName, String qName) throws SAXException {
+        public void endElement(String uri, String localName,
+                               String qName) throws SAXException {
             checkClosed();
             setCurrentNode(getCurrentNode().getParentNode());
         }
@@ -2242,7 +2318,9 @@ public class JDBCSQLXML implements SQLXML {
          * @see #ignorableWhitespace
          * @see org.xml.sax.Locator
          */
-        public void characters(char[] ch, int start, int length) throws SAXException {
+        public void characters(char[] ch, int start,
+                               int length) throws SAXException {
+
             checkClosed();
 
             Node   node = getCurrentNode().getLastChild();
@@ -2282,7 +2360,8 @@ public class JDBCSQLXML implements SQLXML {
          *            wrapping another exception
          * @see #characters
          */
-        public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+        public void ignorableWhitespace(char[] ch, int start,
+                                        int length) throws SAXException {
             characters(ch, start, length);
         }
 
@@ -2308,12 +2387,16 @@ public class JDBCSQLXML implements SQLXML {
          * @throws org.xml.sax.SAXException any SAX exception, possibly
          *            wrapping another exception
          */
-        public void processingInstruction(String target, String data) throws SAXException {
+        public void processingInstruction(String target,
+                String data) throws SAXException {
+
             checkClosed();
 
             ProcessingInstruction processingInstruction;
 
-            processingInstruction = getDocument().createProcessingInstruction(target, data);
+            processingInstruction =
+                getDocument().createProcessingInstruction(target, data);
+
             getCurrentNode().appendChild(processingInstruction);
         }
 
@@ -2343,9 +2426,11 @@ public class JDBCSQLXML implements SQLXML {
          *            wrapping another exception
          */
         public void skippedEntity(String name) throws SAXException {
+
             checkClosed();
 
-            EntityReference entityReference = getDocument().createEntityReference(name);
+            EntityReference entityReference =
+                getDocument().createEntityReference(name);
 
             getCurrentNode().appendChild(entityReference);
         }
@@ -2354,6 +2439,7 @@ public class JDBCSQLXML implements SQLXML {
          * Closes this DOMBuilder.
          */
         public void close() {
+
             this.closed         = true;
             this.document       = null;
             this.currentElement = null;
@@ -2374,6 +2460,7 @@ public class JDBCSQLXML implements SQLXML {
          * @throws SAXException if this DOMBuilder is closed.
          */
         protected void checkClosed() throws SAXException {
+
             if (isClosed()) {
                 throw new SAXException("content handler is closed.");    // NOI18N
             }
@@ -2417,17 +2504,18 @@ public class JDBCSQLXML implements SQLXML {
         }
     }
 
-
     /**
      * Writes to a {@link javax.xml.stream.XMLStreamWriter XMLStreamWriter}
      * from SAX events.
      */
-    public static class SAX2XMLStreamWriter implements ContentHandler, Closeable {
+    public static class SAX2XMLStreamWriter implements ContentHandler,
+            Closeable {
 
         /**
          * Namespace declarations for an upcoming element.
          */
-        private List<QualifiedName> namespaces = new ArrayList<QualifiedName>();
+        private List<QualifiedName> namespaces =
+            new ArrayList<QualifiedName>();
 
         /**
          * Whether this object is closed.
@@ -2451,10 +2539,10 @@ public class JDBCSQLXML implements SQLXML {
          * @param writer the writer to which to write SAX events
          */
         public SAX2XMLStreamWriter(XMLStreamWriter writer) {
+
             if (writer == null) {
                 throw new NullPointerException("writer");
             }
-
             this.writer = writer;
         }
 
@@ -2470,6 +2558,7 @@ public class JDBCSQLXML implements SQLXML {
          * @see #endDocument
          */
         public void startDocument() throws SAXException {
+
             checkClosed();
 
             try {
@@ -2501,6 +2590,7 @@ public class JDBCSQLXML implements SQLXML {
          * @see #startDocument
          */
         public void endDocument() throws SAXException {
+
             checkClosed();
 
             try {
@@ -2554,13 +2644,14 @@ public class JDBCSQLXML implements SQLXML {
          * @see #ignorableWhitespace
          * @see org.xml.sax.Locator
          */
-        public void characters(char[] ch, int start, int length) throws SAXException {
+        public void characters(char[] ch, int start,
+                               int length) throws SAXException {
+
             checkClosed();
 
             try {
                 this.writer.writeCharacters(ch, start, length);
             } catch (XMLStreamException e) {
-
                 throw new SAXException(e);
             }
         }
@@ -2629,15 +2720,16 @@ public class JDBCSQLXML implements SQLXML {
          * @see org.xml.sax.Attributes
          * @see org.xml.sax.helpers.AttributesImpl
          */
-        public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
-                throws SAXException {
+        public void startElement(String namespaceURI, String localName,
+                                 String qName,
+                                 Attributes atts) throws SAXException {
+
             checkClosed();
 
             try {
                 int    qi     = qName.indexOf(':');
-                String prefix = (qi > 0)
-                                ? qName.substring(0, qi)
-                                : "";
+                String prefix = (qi > 0) ? qName.substring(0, qi)
+                        : "";
 
                 this.writer.writeStartElement(prefix, localName, namespaceURI);
 
@@ -2648,12 +2740,13 @@ public class JDBCSQLXML implements SQLXML {
 
                     this.writer.writeNamespace(ns.prefix, ns.namespaceName);
                 }
-
                 namespaces.clear();
+
                 length = atts.getLength();
 
                 for (int i = 0; i < length; i++) {
-                    this.writer.writeAttribute(atts.getURI(i), atts.getLocalName(i), atts.getValue(i));
+                    this.writer.writeAttribute(atts.getURI(i),
+                            atts.getLocalName(i), atts.getValue(i));
                 }
             } catch (XMLStreamException e) {
                 throw new SAXException(e);
@@ -2681,7 +2774,9 @@ public class JDBCSQLXML implements SQLXML {
          * @throws org.xml.sax.SAXException any SAX exception, possibly
          *            wrapping another exception
          */
-        public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
+        public void endElement(String namespaceURI, String localName,
+                               String qName) throws SAXException {
+
             checkClosed();
 
             try {
@@ -2729,7 +2824,9 @@ public class JDBCSQLXML implements SQLXML {
          * @see #endPrefixMapping
          * @see #startElement
          */
-        public void startPrefixMapping(String prefix, String uri) throws SAXException {
+        public void startPrefixMapping(String prefix,
+                                       String uri) throws SAXException {
+
             checkClosed();
 
             try {
@@ -2757,6 +2854,7 @@ public class JDBCSQLXML implements SQLXML {
          * @see #endElement
          */
         public void endPrefixMapping(String prefix) throws SAXException {
+
             checkClosed();
 
             //
@@ -2787,7 +2885,8 @@ public class JDBCSQLXML implements SQLXML {
          *            wrapping another exception
          * @see #characters
          */
-        public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+        public void ignorableWhitespace(char[] ch, int start,
+                                        int length) throws SAXException {
             characters(ch, start, length);
         }
 
@@ -2813,7 +2912,9 @@ public class JDBCSQLXML implements SQLXML {
          * @throws org.xml.sax.SAXException any SAX exception, possibly
          *            wrapping another exception
          */
-        public void processingInstruction(String target, String data) throws SAXException {
+        public void processingInstruction(String target,
+                String data) throws SAXException {
+
             checkClosed();
 
             try {
@@ -2888,12 +2989,15 @@ public class JDBCSQLXML implements SQLXML {
          *            wrapping another exception
          */
         public void skippedEntity(String name) throws SAXException {
+
             checkClosed();
 
             //
         }
 
-        public void comment(char[] ch, int start, int length) throws SAXException {
+        public void comment(char[] ch, int start,
+                            int length) throws SAXException {
+
             checkClosed();
 
             try {
@@ -2915,6 +3019,7 @@ public class JDBCSQLXML implements SQLXML {
          * Closes this object.
          */
         public void close() throws IOException {
+
             if (!this.closed) {
                 this.closed = true;
 
@@ -2943,6 +3048,7 @@ public class JDBCSQLXML implements SQLXML {
          * @throws SAXException if this DOMBuilder is closed.
          */
         protected void checkClosed() throws SAXException {
+
             if (isClosed()) {
                 throw new SAXException("content handler is closed.");    // NOI18N
             }
@@ -2950,10 +3056,12 @@ public class JDBCSQLXML implements SQLXML {
 
         // --------------------- internal implementation -----------------------
         protected class QualifiedName {
+
             public final String namespaceName;
             public final String prefix;
 
-            public QualifiedName(final String prefix, final String namespaceName) {
+            public QualifiedName(final String prefix,
+                                 final String namespaceName) {
                 this.prefix        = prefix;
                 this.namespaceName = namespaceName;
             }

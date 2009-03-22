@@ -216,7 +216,7 @@ implements org.hsqldb.rowio.RowInputInterface {
     protected BlobData readBlob() throws IOException, HsqlException {
 
         long id     = super.readLong();
-        return new BlobDataID(id, 0);
+        return new BlobDataID(id);
     }
 
     // helper methods
