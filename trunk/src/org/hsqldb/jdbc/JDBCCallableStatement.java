@@ -71,7 +71,7 @@ import org.hsqldb.types.Type;
 
 /* $Id$ */
 
-/** todo fredt 1.9.0 - review wrt multiple result sets, named parameters etc. */
+/** @todo fredt 1.9.0 - review wrt multiple result sets, named parameters etc. */
 
 // boucherb@users patch 1.7.2 - CallableStatement impl removed
 // from JDBCParameterMetaData and moved here; sundry changes elsewhere to

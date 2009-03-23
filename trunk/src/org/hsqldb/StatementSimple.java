@@ -131,7 +131,7 @@ public class StatementSimple extends Statement {
 
             case StatementTypes.ASSIGNMENT :
 
-                /** @todo - implement row assignment */
+                /** @todo - cover row assignment */
                 sb.append(Tokens.T_SET).append(' ');
                 sb.append(variables[0].getName().statementName).append(' ');
                 sb.append('=').append(' ').append(expression.getSQL());

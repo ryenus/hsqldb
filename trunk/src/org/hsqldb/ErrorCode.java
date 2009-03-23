@@ -368,6 +368,7 @@ public interface ErrorCode {
     int X_24504 = 3603;                                   // invalid cursor state: identifier cursor not positioned on row in UPDATE, DELETE, SET, or GET statement
     int X_24513 = 3604;                                   // invalid cursor state: cannot FETCH NEXT, PRIOR, CURRENT, or RELATIVE, cursor position is unknown
     int X_24514 = 3605;                                   // invalid cursor state: cursor disabled by previous error
+    int X_24515 = 3606;                                   // invalid cursor state: all column must be set before insert
 
     // invalid transaction state - 200x
     int X_25000 = 3700;                                   // invalid transaction state
@@ -535,7 +536,7 @@ public interface ErrorCode {
     int X_42567 = 5567;                                   // data type cast needed for parameter or null literal
     int X_42568 = 5568;                                   // data type of expression is not boolean
     int X_42569 = 5569;                                   // quoted identifier required
-
+    int X_42570 = 5570;                                   // concatenation exceeds maximum type length
     //
     int X_42571 = 5571;                                   // NULL literal not allowed
     int X_42572 = 5572;                                   // invalid GROUP BY expression

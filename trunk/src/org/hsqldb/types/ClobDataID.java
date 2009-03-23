@@ -95,11 +95,6 @@ public class ClobDataID implements ClobData {
         return 0;
     }
 
-    public Writer setCharacterStream(SessionInterface session,
-                                     long pos) throws HsqlException {
-        return null;
-    }
-
     public int setString(SessionInterface session, long pos,
                          String str) throws HsqlException {
         return str.length();

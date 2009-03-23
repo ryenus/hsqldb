@@ -158,10 +158,6 @@ public final class ClobDataMemory implements ClobData {
         return 0;
     }
 
-    public Writer setCharacterStream(SessionInterface session, long pos) {
-        return null;
-    }
-
     public int setString(SessionInterface session, long pos, String str) {
         return setString(session, 0, str, 0, str.length());
     }
