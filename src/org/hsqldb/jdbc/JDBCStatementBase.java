@@ -64,7 +64,7 @@ import org.hsqldb.result.ResultConstants;
  * and the various ResultSets that it may have returned for different queries.
  */
 /**
- * *todo 1.9.0 - review the following issues:
+ * @todo 1.9.0 - review the following issues:
  *
  * Does not always close ResultSet object directly when closed. Although RS
  * objects will eventually be closed when accessed, the change is not reflected

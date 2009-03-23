@@ -183,8 +183,7 @@ public final class BitType extends BinaryType {
             if (typeCode == Types.SQL_BIT) {
 
                 // Standard disallows type length reduction
-                /** @todo - better error message */
-                throw Error.error(ErrorCode.X_42562);
+                throw Error.error(ErrorCode.X_42570);
             }
 
             newPrecision = maxBitPrecision;

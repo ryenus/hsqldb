@@ -58,9 +58,6 @@ public interface ClobData {
 
     Reader getCharacterStream(SessionInterface session) throws HsqlException;
 
-    Writer setCharacterStream(SessionInterface session,
-                              long pos) throws HsqlException;
-
     int setString(SessionInterface session, long pos,
                   String str) throws HsqlException;
 

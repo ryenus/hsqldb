@@ -128,12 +128,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         switch (tableIndex) {
 
-            case SYSTEM_PROCEDURECOLUMNS :
-                return SYSTEM_PROCEDURECOLUMNS();
-
-            case SYSTEM_PROCEDURES :
-                return SYSTEM_PROCEDURES();
-
             case SYSTEM_UDTS :
                 return SYSTEM_UDTS();
 
@@ -1177,11 +1171,32 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * Returns current user's roles.
+     * APPLICABLE_ROLES<p>
      *
-     * @throws HsqlException
-     * @return Table
+     * <b>Function</b><p>
+     *
+     * Identifies the applicable roles for the current user.<p>
+     *
+     * <b>Definition</b><p>
+     *
+     * <pre class="SqlCodeExample">
+     * CREATE RECURSIVE VIEW APPLICABLE_ROLES ( GRANTEE, ROLE_NAME, IS_GRANTABLE ) AS
+     *      ( ( SELECT GRANTEE, ROLE_NAME, IS_GRANTABLE
+     *            FROM DEFINITION_SCHEMA.ROLE_AUTHORIZATION_DESCRIPTORS
+     *           WHERE ( GRANTEE IN ( CURRENT_USER, 'PUBLIC' )
+     *                OR GRANTEE IN ( SELECT ROLE_NAME
+     *                                  FROM ENABLED_ROLES ) ) )
+     *      UNION
+     *      ( SELECT RAD.GRANTEE, RAD.ROLE_NAME, RAD.IS_GRANTABLE
+     *          FROM DEFINITION_SCHEMA.ROLE_AUTHORIZATION_DESCRIPTORS RAD
+     *          JOIN APPLICABLE_ROLES R
+     *            ON RAD.GRANTEE = R.ROLE_NAME ) );
+     *
+     * GRANT SELECT ON TABLE APPLICABLE_ROLES
+     *    TO PUBLIC WITH GRANT OPTION;
+     * </pre>
      */
+
     Table APPLICABLE_ROLES() throws HsqlException {
 
         Table t = sysTables[APPLICABLE_ROLES];
@@ -1893,6 +1908,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
+    /**
+     * For generated columns
+     * <p>
+     *
+     * @throws HsqlException
+     * @return Table
+     */
     Table COLUMN_COLUMN_USAGE() throws HsqlException {
 
         Table t = sysTables[COLUMN_COLUMN_USAGE];
@@ -2902,7 +2924,30 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ENABLED_ROLES() throws HsqlException {
+    /**
+     * ENABLED_ROLES<p>
+     *
+     * <b>Function</b><p>
+     *
+     * Identify the enabled roles for the current SQL-session.<p>
+     *
+     * Definition<p>
+     *
+     * <pre class="SqlCodeExample">
+     * CREATE RECURSIVE VIEW ENABLED_ROLES ( ROLE_NAME ) AS
+     *      VALUES ( CURRENT_ROLE )
+     *      UNION
+     *      SELECT RAD.ROLE_NAME
+     *        FROM DEFINITION_SCHEMA.ROLE_AUTHORIZATION_DESCRIPTORS RAD
+     *        JOIN ENABLED_ROLES R
+     *          ON RAD.GRANTEE = R.ROLE_NAME;
+     *
+     * GRANT SELECT ON TABLE ENABLED_ROLES
+     *    TO PUBLIC WITH GRANT OPTION;
+     * </pre>
+     */
+
+   Table ENABLED_ROLES() throws HsqlException {
 
         Table t = sysTables[ENABLED_ROLES];
 
@@ -3224,55 +3269,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    /**
-     * ENABLED_ROLES<p>
-     *
-     * <b>Function</b><p>
-     *
-     * Identify the enabled roles for the current SQL-session.<p>
-     *
-     * Definition<p>
-     *
-     * <pre class="SqlCodeExample">
-     * CREATE RECURSIVE VIEW ENABLED_ROLES ( ROLE_NAME ) AS
-     *      VALUES ( CURRENT_ROLE )
-     *      UNION
-     *      SELECT RAD.ROLE_NAME
-     *        FROM DEFINITION_SCHEMA.ROLE_AUTHORIZATION_DESCRIPTORS RAD
-     *        JOIN ENABLED_ROLES R
-     *          ON RAD.GRANTEE = R.ROLE_NAME;
-     *
-     * GRANT SELECT ON TABLE ENABLED_ROLES
-     *    TO PUBLIC WITH GRANT OPTION;
-     * </pre>
-     */
-
-    /**
-     * APPLICABLE_ROLES<p>
-     *
-     * <b>Function</b><p>
-     *
-     * Identifies the applicable roles for the current user.<p>
-     *
-     * <b>Definition</b><p>
-     *
-     * <pre class="SqlCodeExample">
-     * CREATE RECURSIVE VIEW APPLICABLE_ROLES ( GRANTEE, ROLE_NAME, IS_GRANTABLE ) AS
-     *      ( ( SELECT GRANTEE, ROLE_NAME, IS_GRANTABLE
-     *            FROM DEFINITION_SCHEMA.ROLE_AUTHORIZATION_DESCRIPTORS
-     *           WHERE ( GRANTEE IN ( CURRENT_USER, 'PUBLIC' )
-     *                OR GRANTEE IN ( SELECT ROLE_NAME
-     *                                  FROM ENABLED_ROLES ) ) )
-     *      UNION
-     *      ( SELECT RAD.GRANTEE, RAD.ROLE_NAME, RAD.IS_GRANTABLE
-     *          FROM DEFINITION_SCHEMA.ROLE_AUTHORIZATION_DESCRIPTORS RAD
-     *          JOIN APPLICABLE_ROLES R
-     *            ON RAD.GRANTEE = R.ROLE_NAME ) );
-     *
-     * GRANT SELECT ON TABLE APPLICABLE_ROLES
-     *    TO PUBLIC WITH GRANT OPTION;
-     * </pre>
-     */
     Table ROLE_COLUMN_GRANTS() throws HsqlException {
 
         Table t = sysTables[ROLE_COLUMN_GRANTS];
@@ -4213,7 +4209,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             "VALUES "
             + "( 'PKG001', 'Enhanced datetime facilities','YES', CAST(NULL AS CHARACTER), '' ),"
             + "( 'PKG002', 'Enhanced integrity management','YES', NULL, '' ),"
-            + "( 'PKG004', 'PSM', 'NO', NULL, '' ),"
+            + "( 'PKG004', 'PSM', 'YES', NULL, '' ),"
             + "( 'PKG006', 'Basic object support', 'NO', NULL, '' ),"
             + "( 'PKG007', 'Enhanced object support','NO', NULL, '' ),"
             + "( 'PKG008', 'Active database', 'YES', NULL, '' ),"
@@ -4253,11 +4249,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             "VALUES ( 'ISO9075-1', 'Framework','YES', CAST(NULL AS CHARACTER), '' ),"
             + "( 'ISO9075-2', 'Foundation','YES', NULL, '' ),"
             + "( 'ISO9075-3', 'Call-level interface','YES', NULL, '' ),"
-            + "( 'ISO9075-4', 'Persistent Stored Modules', 'NO', NULL, '' ),"
+            + "( 'ISO9075-4', 'Persistent Stored Modules', 'YES', NULL, '' ),"
             + "( 'ISO9075-9', 'Management of External Data', 'NO', NULL, '' ),"
             + "( 'ISO9075-10', 'Object Language Bindings,','NO', NULL, '' ),"
             + "( 'ISO9075-11', 'Information and Definition Schemas', 'YES', NULL, '' ),"
-            + "( 'ISO9075-13', 'Routines & Types Using the Java Programming', 'NO', NULL, ''),"
+            + "( 'ISO9075-13', 'Routines & Types Using the Java Programming', 'YES', NULL, ''),"
             + "( 'ISO9075-14', 'XML-Related Specifications', 'NO', NULL, ''),"
             + ";");
 

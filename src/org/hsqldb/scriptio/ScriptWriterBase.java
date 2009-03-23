@@ -63,18 +63,18 @@ import org.hsqldb.result.Result;
  */
 
 /**
- * Handles all logging to file operations. A log consists of three blocks:<p>
+ * Handles all logging to file operations. A log consists of three kinds of
+ * blocks:<p>
  *
  * DDL BLOCK: definition of DB objects, users and rights at startup time<br>
  * DATA BLOCK: all data for MEMORY tables at startup time<br>
  * LOG BLOCK: SQL statements logged since startup or the last CHECKPOINT<br>
  *
  * The implementation of this class and its subclasses support the formats
- * used for writing the data. In versions up to 1.7.2, this data is written
- * to the *.script file for the database. Since 1.7.2 the data can also be
+ * used for writing the data. Since 1.7.2 the data can also be
  * written as binray in order to speed up shutdown and startup.<p>
  *
- * In 1.7.2, two separate files are used, one for the DDL + DATA BLOCK and
+ * From 1.7.2, two separate files are used, one for the DDL + DATA BLOCK and
  * the other for the LOG BLOCK.<p>
  *
  * A related use for this class is for saving a current snapshot of the

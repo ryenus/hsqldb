@@ -258,7 +258,7 @@ public class StatementProcedure extends StatementDMQL {
      */
     public ResultMetaData getParametersMetaData() {
 
-        // todo - change the auto-names to the names of params
+        /** @todo - change the auto-names to the names of params */
         return super.getParametersMetaData();
     }
 

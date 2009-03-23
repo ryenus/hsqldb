@@ -7364,9 +7364,7 @@ public class JDBCResultSet implements ResultSet {
                           || preparedStatement.parameterStream[i];
 
             if (!set) {
-
-                // todo - correct exception  messary
-                throw Util.invalidArgument();
+                throw Util.sqlException(ErrorCode.X_24515);
             }
             preparedStatement.resultOut.metaData.columnTypes[i] =
                 preparedStatement.parameterTypes[i];
