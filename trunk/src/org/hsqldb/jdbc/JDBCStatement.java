@@ -142,7 +142,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
 
 //#else
 /*
-public class JDBCStatement extends StatementBase implements Statement {
+public class JDBCStatement extends JDBCStatementBase implements Statement {
 */
 
 //#endif JAVA6

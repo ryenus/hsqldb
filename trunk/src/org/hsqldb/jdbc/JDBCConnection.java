@@ -2750,6 +2750,8 @@ public class JDBCConnection implements Connection {
 
 //#endif JAVA6
 
+    /** @todo:  ThreadPool? HsqlTimer with callback? */
+
     /**
      * Returns true if the connection has not been closed and is still valid.
      * The driver shall submit a query on the connection or use some other
@@ -2788,7 +2790,6 @@ public class JDBCConnection implements Connection {
             return false;
         } else {
 
-            /** @todo:  ThreadPool? HsqlTimer with callback? */
             Thread t = new Thread() {
 
                 public void run() {

@@ -1626,7 +1626,7 @@ public class Session implements SessionInterface {
         long lobID = database.lobManager.createBlob(this);
 
         if (lobID == 0) {
-            throw Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID);
+            throw Error.error(ErrorCode.X_22522);
         }
         return new BlobDataID(lobID);
     }
@@ -1636,7 +1636,7 @@ public class Session implements SessionInterface {
         long lobID = database.lobManager.createClob(this);
 
         if (lobID == 0) {
-            throw Error.error(ErrorCode.BLOB_IS_NO_LONGER_VALID);
+            throw Error.error(ErrorCode.X_22522);
         }
 
         return new ClobDataID(lobID);
