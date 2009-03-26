@@ -164,6 +164,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.max_char_or_varchar_display_size";
 
     //
+    public static final String hsqldb_inc_backup = "hsqldb.incremental_backup";
+
+    //
     public static final String  db_version  = "version";
     private static final String db_readonly = "readonly";
     private static final String db_modified = "modified";
@@ -259,6 +262,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                  getMeta(textdb_allow_full_path, FILE_PROPERTY, false));
 
         // boolean defaults for user defined props
+        meta.put(hsqldb_inc_backup,
+                 getMeta(hsqldb_inc_backup, SET_PROPERTY, false));
         meta.put(hsqldb_lock_file,
                  getMeta(hsqldb_lock_file, SET_PROPERTY, true));
         meta.put(hsqldb_nio_data_file,
@@ -281,7 +286,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             0, 1, 2
         }));
         meta.put(hsqldb_cache_file_scale,
-                 getMeta(hsqldb_cache_file_scale, SET_PROPERTY, 1, new int[] {
+                 getMeta(hsqldb_cache_file_scale, SET_PROPERTY, 8, new int[] {
             1, 8
         }));
         meta.put(hsqldb_script_format,
@@ -387,7 +392,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         setProperty(runtime_gc_interval, 0);
 
         // this property is either 1 or 8
-        setProperty(hsqldb_cache_file_scale, 1);
+        setProperty(hsqldb_cache_file_scale, 8);
 
         // this property is between 6 - 20, default 8
         setProperty(hsqldb_cache_size_scale, 8);

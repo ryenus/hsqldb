@@ -37,7 +37,7 @@ package org.hsqldb.lib;
  * specific element positions will be made.
  *
  * @author jcpeck@users
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class HsqlLinkedList extends BaseList implements HsqlList {

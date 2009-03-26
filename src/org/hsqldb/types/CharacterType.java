@@ -56,10 +56,10 @@ import org.hsqldb.store.ValuePool;
  */
 public class CharacterType extends Type {
 
-    Collation        collation;
-    boolean          isEqualIdentical;
-    final static int sqlDefaultCharPrecision = 1;
-    static final long maxCharacterPrecision = Integer.MAX_VALUE;
+    Collation         collation;
+    boolean           isEqualIdentical;
+    final static int  sqlDefaultCharPrecision = 1;
+    static final long maxCharacterPrecision   = Integer.MAX_VALUE;
 
     public CharacterType(Collation collation, int type, long precision) {
 
@@ -332,13 +332,11 @@ public class CharacterType extends Type {
             if (typeCode == Types.SQL_BINARY) {
 
                 // Standard disallows type length reduction
-
                 throw Error.error(ErrorCode.X_42570);
             } else if (typeCode == Types.SQL_CHAR) {
                 newPrecision = maxCharacterPrecision;
             }
         }
-
 
         return getCharacterType(newType.typeCode, precision + other.precision);
     }

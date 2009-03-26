@@ -33,14 +33,14 @@ package org.hsqldb.lib;
 
 import java.lang.reflect.Array;
 
-// fredt@users - 1.8.0 - enhancements
+// fredt@users - 1.8.0, 1.9.0 - enhancements
 
 /**
  * Intended as an asynchronous alternative to Vector.  Use HsqlLinkedList
  * instead if its better suited.
  *
  * @author dnordahl@users
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.7.0
  */
 public class HsqlArrayList extends BaseList implements HsqlList {

@@ -122,6 +122,7 @@ import org.hsqldb.scriptio.ScriptWriterBase;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
 public class Log {
@@ -138,6 +139,7 @@ public class Log {
     private int                    writeDelay;
     private int                    scriptFormat;
     private DataFileCache          cache;
+    private boolean                incBackup;
 
     Log(Database db) throws HsqlException {
 
@@ -157,6 +159,8 @@ public class Log {
         scriptFormat = properties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_script_format,
             ScriptWriterBase.SCRIPT_TEXT_170);
+        incBackup = properties.isPropertyTrue(
+            HsqlDatabaseProperties.hsqldb_inc_backup);
         writeDelay     = properties.getDefaultWriteDelay();
         filesReadOnly  = database.isFilesReadOnly();
         scriptFileName = fileName + ".script";
@@ -319,6 +323,12 @@ public class Log {
     }
 
     void backupData() throws IOException {
+
+        if (incBackup) {
+            fa.removeElement(fileName + ".backup");
+
+            return;
+        }
 
         if (fa.isStreamElement(fileName + ".data")) {
             FileArchiver.archive(fileName + ".data", fileName + ".backup.new",
@@ -611,6 +621,28 @@ public class Log {
         }
     }
 
+    public void setIncrementalBackup(boolean val) throws HsqlException {
+
+        if (incBackup == val) {
+            return;
+        }
+
+        incBackup = val;
+
+        database.getProperties().setProperty(
+            HsqlDatabaseProperties.hsqldb_inc_backup, String.valueOf(val));
+        database.getProperties().save();
+
+        if (cache != null) {
+
+            // need to set file modified to force a backup if necessary
+            cache.incBackup    = true;
+            cache.fileModified = true;
+        }
+
+        database.logger.needsCheckpoint = true;
+    }
+
     /**
      * Various writeXXX() methods are used for logging statements.
      */
@@ -819,6 +851,12 @@ public class Log {
      */
     private void restoreBackup() throws HsqlException {
 
+        if (incBackup) {
+            restoreBackupIncremental();
+
+            return;
+        }
+
         // in case data file cannot be deleted, reset it
         DataFileCache.deleteOrResetFreePos(database, fileName + ".data");
 
@@ -831,6 +869,36 @@ public class Log {
                               ErrorCode.M_Message_Pair, new Object[] {
                 fileName + ".backup", e.toString()
             });
+        }
+    }
+
+    /**
+     * Restores in from an incremental backup
+     */
+    private void restoreBackupIncremental() throws HsqlException {
+
+        try {
+            if (fa.isStreamElement(fileName + ".backup")) {
+                RAShadowFile.restoreFile(fileName + ".backup",
+                                         fileName + ".data");
+            } else {
+/*
+                // this is to ensure file has been written fully but it is not necessary
+                // as semantics dictate that if a backup does not exist, the file
+                // was never changed or was fully written to
+                if (FileUtil.exists(cacheFileName)) {
+                    int flags = DataFileCache.getFlags(cacheFileName);
+
+                    if (!BitMap.isSet(flags, DataFileCache.FLAG_ISSAVED)) {
+                        FileUtil.delete(cacheFileName);
+                    }
+                }
+*/
+            }
+
+            deleteBackup();
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, fileName + ".backup");
         }
     }
 

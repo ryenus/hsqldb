@@ -329,56 +329,6 @@ public class ParserCommand extends ParserDDL {
 
         switch (token.tokenType) {
 
-            case Tokens.PROPERTY : {
-                read();
-
-                String                 property;
-                Object                 value;
-                HsqlDatabaseProperties props;
-
-                checkIsSimpleName();
-                checkIsDelimitedIdentifier();
-
-                property = token.tokenString;
-                props    = database.getProperties();
-
-                boolean isboolean  = props.isBoolean(token.tokenString);
-                boolean isintegral = props.isIntegral(token.tokenString);
-                boolean isstring   = props.isString(token.tokenString);
-
-                if (!(isboolean || isintegral || isstring)) {
-                    throw Error.error(ErrorCode.X_42511);
-                }
-
-                int typeCode = isboolean ? Types.SQL_BOOLEAN
-                                         : isintegral ? Types.SQL_INTEGER
-                                                      : Types.SQL_CHAR;
-
-                read();
-
-                if (token.tokenType == Tokens.TRUE) {
-                    value = Boolean.TRUE;
-                } else if (token.tokenType == Tokens.FALSE) {
-                    value = Boolean.FALSE;
-                } else {
-                    checkIsValue();
-
-                    value = token.tokenValue;
-
-                    if (token.dataType.typeCode != typeCode) {
-                        throw Error.error(ErrorCode.X_42565,
-                                          token.tokenString);
-                    }
-                }
-
-                read();
-
-                Object[] args = new Object[] {
-                    property, value
-                };
-
-                return new StatementCommand(StatementTypes.SET_PROPERTY, args);
-            }
             case Tokens.SCHEMA : {
                 read();
 
@@ -405,19 +355,6 @@ public class ParserCommand extends ParserDDL {
                 Expression[] args = new Expression[]{ e };
 
                 return new StatementCommand(StatementTypes.SET_SCHEMA, args);
-            }
-            case Tokens.PASSWORD : {
-                String password;
-
-                read();
-
-                password = readPassword();
-
-                Object[] args = new Object[] {
-                    null, password
-                };
-
-                return new StatementCommand(StatementTypes.SET_PASSWORD, args);
             }
             case Tokens.TIME : {
                 read();
@@ -447,6 +384,15 @@ public class ParserCommand extends ParserDDL {
                                             args);
             }
 
+            case Tokens.AUTOCOMMIT : {
+                read();
+
+                boolean  mode = processTrueOrFalse();
+                Object[] args = new Object[]{ Boolean.valueOf(mode) };
+
+                return new StatementCommand(StatementTypes.SET_AUTOCOMMIT,
+                                            args);
+            }
             // deprecated
             case Tokens.READONLY : {
                 read();
@@ -456,6 +402,19 @@ public class ParserCommand extends ParserDDL {
 
                 return new StatementCommand(
                     StatementTypes.SET_SESSION_CHARACTERISTICS, args);
+            }
+            case Tokens.INCREMENT : {
+                read();
+                checkDatabaseUpdateAuthorisation();
+
+                readThis(Tokens.BACKUP);
+
+                boolean  value = processTrueOrFalse();
+                Object[] args     = new Object[]{ Boolean.valueOf(value) };
+
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_INCREMENT_BACKUP, args);
             }
             case Tokens.LOGSIZE : {
                 read();
@@ -514,15 +473,6 @@ public class ParserCommand extends ParserDDL {
 
                 return new StatementCommand(
                     StatementTypes.SET_SESSION_RESULT_MAX_ROWS, args);
-            }
-            case Tokens.AUTOCOMMIT : {
-                read();
-
-                boolean  mode = processTrueOrFalse();
-                Object[] args = new Object[]{ Boolean.valueOf(mode) };
-
-                return new StatementCommand(StatementTypes.SET_AUTOCOMMIT,
-                                            args);
             }
             case Tokens.DEFAULT : {
                 read();
@@ -735,6 +685,41 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_WRITE_DELAY, args);
             }
+            case Tokens.PASSWORD : {
+                String password;
+
+                read();
+
+                password = readPassword();
+
+                Object[] args = new Object[] {
+                    null, password
+                };
+
+                return new StatementCommand(StatementTypes.SET_PASSWORD, args);
+            }
+            case Tokens.INITIAL : {
+                read();
+                readThis(Tokens.SCHEMA);
+
+                HsqlName schema;
+
+                if (token.tokenType == Tokens.DEFAULT) {
+                    schema = null;
+                } else {
+                    schema = database.schemaManager.getSchemaHsqlName(
+                        token.tokenString);
+                }
+
+                read();
+
+                Object[] args = new Object[] {
+                    null, schema
+                };
+
+                return new StatementCommand(StatementTypes.SET_INITIAL_SCHEMA,
+                                            args);
+            }
             case Tokens.DATABASE : {
                 read();
 
@@ -791,27 +776,55 @@ public class ParserCommand extends ParserDDL {
                     }
                 }
             }
-            case Tokens.INITIAL : {
+            case Tokens.PROPERTY : {
                 read();
-                readThis(Tokens.SCHEMA);
 
-                HsqlName schema;
+                String                 property;
+                Object                 value;
+                HsqlDatabaseProperties props;
 
-                if (token.tokenType == Tokens.DEFAULT) {
-                    schema = null;
+                checkIsSimpleName();
+                checkIsDelimitedIdentifier();
+
+                property = token.tokenString;
+                props    = database.getProperties();
+
+                boolean isboolean  = props.isBoolean(token.tokenString);
+                boolean isintegral = props.isIntegral(token.tokenString);
+                boolean isstring   = props.isString(token.tokenString);
+
+                if (!(isboolean || isintegral || isstring)) {
+                    throw Error.error(ErrorCode.X_42511);
+                }
+
+                int typeCode = isboolean ? Types.SQL_BOOLEAN
+                                         : isintegral ? Types.SQL_INTEGER
+                                                      : Types.SQL_CHAR;
+
+                read();
+
+                if (token.tokenType == Tokens.TRUE) {
+                    value = Boolean.TRUE;
+                } else if (token.tokenType == Tokens.FALSE) {
+                    value = Boolean.FALSE;
                 } else {
-                    schema = database.schemaManager.getSchemaHsqlName(
-                        token.tokenString);
+                    checkIsValue();
+
+                    value = token.tokenValue;
+
+                    if (token.dataType.typeCode != typeCode) {
+                        throw Error.error(ErrorCode.X_42565,
+                                          token.tokenString);
+                    }
                 }
 
                 read();
 
                 Object[] args = new Object[] {
-                    null, schema
+                    property, value
                 };
 
-                return new StatementCommand(StatementTypes.SET_INITIAL_SCHEMA,
-                                            args);
+                return new StatementCommand(StatementTypes.SET_PROPERTY, args);
             }
             default : {
                 rewind(position);

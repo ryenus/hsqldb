@@ -81,6 +81,13 @@ public class Error {
         return error(code, 0, null);
     }
 
+    public static HsqlException error(int code, Throwable t) {
+        String message = getMessage(code, 0, null);
+
+        return new HsqlException(t, message.substring(0, SQL_STATE_DIGITS),
+                                 -code);
+    }
+
     /**
      * Compose error message by inserting the strings in the add parameters
      * in placeholders within the error message. The message string contains

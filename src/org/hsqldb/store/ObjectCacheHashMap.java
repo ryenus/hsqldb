@@ -39,7 +39,7 @@ import org.hsqldb.lib.Set;
  * Maps integer keys to Objects. Hashes the keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.8.0
  */
 public final class ObjectCacheHashMap extends BaseHashMap {

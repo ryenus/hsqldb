@@ -93,6 +93,7 @@ public class ParserDQL extends ParserBase {
     void reset(String sql) {
         super.reset(sql);
         compileContext.reset();
+        lastError = null;
     }
 
     void checkIsSchemaObjectName() throws HsqlException {
