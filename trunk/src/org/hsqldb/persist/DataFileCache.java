@@ -60,7 +60,7 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 together with Cache.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -68,6 +68,7 @@ public class DataFileCache {
     protected FileAccess fa;
 
     // flags
+//    public static final int FLAG_ISSHADOWED = 1;
     public static final int FLAG_ISSAVED = 2;
     public static final int FLAG_ROWINFO = 3;
 
@@ -109,12 +110,18 @@ public class DataFileCache {
     public long maxDataFileSize;
 
     //
+    boolean incBackup;
+
+    //
     protected Storage       dataFile;
     protected volatile long fileFreePosition;
     protected int           maxCacheSize;          // number of Rows
     protected long          maxCacheBytes;         // number of bytes
     protected int           maxFreeBlocks;
     protected Cache         cache;
+
+    //
+    private RAShadowFile shadowFile;
 
     //
     ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
@@ -148,8 +155,10 @@ public class DataFileCache {
         int cacheFreeCountScale = props.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_cache_free_count_scale, 9, 6, 12);
 
+        incBackup = database.getProperties().isPropertyTrue(
+            HsqlDatabaseProperties.hsqldb_inc_backup);
         cacheFileScale = database.getProperties().getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_cache_file_scale, 1);
+            HsqlDatabaseProperties.hsqldb_cache_file_scale, 8);
 
         if (cacheFileScale != 1) {
             cacheFileScale = 8;
@@ -163,9 +172,11 @@ public class DataFileCache {
         maxCacheSize    = lookupTableLength * 3;
         maxCacheBytes   = maxCacheSize * avgRowBytes;
         maxDataFileSize = cacheFileScale == 1 ? Integer.MAX_VALUE
-                                              : (long) Integer.MAX_VALUE * 4;
-        maxFreeBlocks   = 1 << cacheFreeCountScale;
-        dataFile        = null;
+                                              : (long) Integer.MAX_VALUE
+                                              * cacheFileScale;
+        maxFreeBlocks = 1 << cacheFreeCountScale;
+        dataFile      = null;
+        shadowFile    = null;
     }
 
     /**
@@ -251,6 +262,13 @@ public class DataFileCache {
 
                 if (fileFreePosition < INITIAL_FREE_POS) {
                     fileFreePosition = INITIAL_FREE_POS;
+                }
+
+                if (!readonly && fileFreePosition != INITIAL_FREE_POS
+                        && incBackup) {
+                    shadowFile = new RAShadowFile(database, dataFile,
+                                                  backupFileName,
+                                                  fileFreePosition, 1 << 14);
                 }
             } else {
                 fileFreePosition = INITIAL_FREE_POS;
@@ -663,6 +681,9 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            setFileModified();
+            copyShadow(rows, offset, count);
+
             for (int i = offset; i < offset + count; i++) {
                 CachedObject r = rows[i];
 
@@ -706,6 +727,21 @@ public class DataFileCache {
         }
     }
 
+    protected void copyShadow(CachedObject[] rows, int offset,
+                              int count) throws IOException {
+
+        if (shadowFile != null) {
+            for (int i = offset; i < offset + count; i++) {
+                CachedObject row     = rows[i];
+                long         seekpos = (long) row.getPos() * cacheFileScale;
+
+                shadowFile.copy(seekpos, row.getStorageSize());
+            }
+
+            shadowFile.close();
+        }
+    }
+
     /**
      *  Saves the *.data file as compressed *.backup.
      *
@@ -716,6 +752,14 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            if (incBackup) {
+                if (fa.isStreamElement(backupFileName)) {
+                    fa.removeElement(backupFileName);
+                }
+
+                return;
+            }
+
             if (fa.isStreamElement(fileName)) {
                 FileArchiver.archive(fileName, backupFileName + ".new",
                                      database.getFileAccess(),
@@ -735,6 +779,14 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            if (incBackup) {
+                if (fa.isStreamElement(backupFileName)) {
+                    fa.removeElement(backupFileName);
+                }
+
+                return;
+            }
+
             if (fa.isStreamElement(backupFileName + ".new")) {
                 fa.removeElement(backupFileName);
                 fa.renameElement(backupFileName + ".new", backupFileName);
@@ -896,7 +948,7 @@ public class DataFileCache {
 
         try {
             if (!fileModified) {
-
+/*
                 // unset saved flag;
                 dataFile.seek(FLAGS_POS);
 
@@ -907,11 +959,9 @@ public class DataFileCache {
                 }
 
                 dataFile.writeInt(flag);
-
+*/
                 fileModified = true;
             }
-        } catch (IOException e) {
-            throw new HsqlException(e.getMessage(), "", 0);
         } finally {
             writeLock.unlock();
         }

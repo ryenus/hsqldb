@@ -3600,8 +3600,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             "SELECT TABLE_CATALOG TABLE_CAT, TABLE_SCHEMA TABLE_SCHEM,"
             + "TABLE_NAME, GRANTOR, GRANTEE, PRIVILEGE_TYPE PRIVILEGE, IS_GRANTABLE "
             + "FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES WHERE TRUE "
-            + and("TABLE_CAT", "=", catalog)
-            + and("TABLE_SCHEM", "LIKE", schemaPattern)
+            + and("TABLE_CATALOG", "=", catalog)
+            + and("TABLE_SCHEMA", "LIKE", schemaPattern)
             + and("TABLE_NAME", "LIKE", tableNamePattern);
 
 /*

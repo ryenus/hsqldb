@@ -78,7 +78,7 @@ public class HsqlException extends Exception {
     }
 
     public HsqlException(Throwable t, String errorState, int errorCode) {
-
+        super(t);
         this.message = t.toString();
         this.state   = errorState;
         this.code    = errorCode;

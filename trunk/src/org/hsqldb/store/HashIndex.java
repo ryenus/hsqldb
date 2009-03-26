@@ -50,7 +50,7 @@ package org.hsqldb.store;
  * as a node and their contents is not significant.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 class HashIndex {

@@ -256,7 +256,7 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
      * Many app servers call the URL setting "database".
      */
     public void setDatabase(String url) {
-        setDatabase(url);
+        setUrl(url);
     }
 
     /**

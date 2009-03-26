@@ -197,6 +197,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_DEFRAG :
             case StatementTypes.SET_DATABASE_LOG_SIZE :
             case StatementTypes.SET_DATABASE_IGNORECASE :
+            case StatementTypes.SET_DATABASE_INCREMENT_BACKUP :
             case StatementTypes.SET_DATABASE_SCRIPT_FORMAT :
             case StatementTypes.SET_DATABASE_REFERENTIAL_INTEGRITY :
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
@@ -759,6 +760,19 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.setIgnoreCase(mode);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_INCREMENT_BACKUP : {
+                try {
+                    boolean mode = ((Boolean) parameters[0]).booleanValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setIncrementalBackup(mode);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

@@ -37,7 +37,7 @@ import java.util.NoSuchElementException;
  * Abstract base for Lists
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.0
  */
 abstract class BaseList {

@@ -46,7 +46,7 @@ import org.hsqldb.HsqlDateTime;
  * and minor errors.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.8.0
  */
 public class SimpleLog {

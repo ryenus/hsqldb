@@ -65,7 +65,7 @@ import org.hsqldb.lib.tar.TarMalformatException;
  *  long-term code flexibility.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.7.0
  */
 public class Logger {
@@ -405,6 +405,14 @@ public class Logger {
     public int getScriptType() {
         return log != null ? log.getScriptType()
                            : 0;
+    }
+
+    public synchronized void setIncrementalBackup(boolean val)
+    throws HsqlException {
+
+        if (log != null) {
+            log.setIncrementalBackup(val);
+        }
     }
 
     /**

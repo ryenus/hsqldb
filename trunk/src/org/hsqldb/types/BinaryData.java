@@ -110,7 +110,7 @@ public class BinaryData implements BlobData {
         try {
             stream.readFully(data);
         } catch (IOException e) {
-            throw new HsqlException(e, null, 0);
+            throw Error.error(ErrorCode.GENERAL_IO_ERROR,  e);
         }
     }
 
