@@ -83,11 +83,11 @@ public final class NullType extends Type {
     }
 
     public int compare(Object a, Object b) {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "NullType");
+        throw Error.runtimeError(ErrorCode.U_S0500, "NullType");
     }
 
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
         return null;
     }
 
@@ -102,13 +102,11 @@ public final class NullType extends Type {
     }
 
     public String convertToString(Object a) {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "NullType");
+        throw Error.runtimeError(ErrorCode.U_S0500, "NullType");
     }
 
     public String convertToSQLString(Object a) {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "NullType");
+        throw Error.runtimeError(ErrorCode.U_S0500, "NullType");
     }
 
     public boolean canConvertFrom(Type otherType) {

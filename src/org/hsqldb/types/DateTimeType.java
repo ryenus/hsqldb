@@ -383,7 +383,8 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
 
         if (a == null) {
             return null;
@@ -461,7 +462,7 @@ public final class DateTimeType extends DTIType {
                         a = session.getScanner().convertToDatetimeInterval(
                             (String) a, this);
 
-                        return convertToTypeLimits(a);
+                        return convertToTypeLimits(session, a);
                     }
                 }
                 break;
@@ -506,7 +507,7 @@ public final class DateTimeType extends DTIType {
                 switch (otherType.typeCode) {
 
                     case Types.SQL_TIME_WITH_TIME_ZONE :
-                        return convertToTypeLimits(a);
+                        return convertToTypeLimits(session, a);
 
                     case Types.SQL_TIME : {
                         TimeData ti = (TimeData) a;
@@ -552,7 +553,7 @@ public final class DateTimeType extends DTIType {
                                             scaleNanos(ti.getNanos()), 0);
                     }
                     case Types.SQL_TIME :
-                        return convertToTypeLimits(a);
+                        return convertToTypeLimits(session, a);
 
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
                         TimestampData ts      = (TimestampData) a;
@@ -600,7 +601,7 @@ public final class DateTimeType extends DTIType {
                                                  session.getZoneSeconds());
                     }
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                        return convertToTypeLimits(a);
+                        return convertToTypeLimits(session, a);
 
                     case Types.SQL_TIMESTAMP : {
                         TimestampData ts = (TimestampData) a;
@@ -649,7 +650,7 @@ public final class DateTimeType extends DTIType {
                                                  scaleNanos(ts.getNanos()));
                     }
                     case Types.SQL_TIMESTAMP :
-                        return convertToTypeLimits(a);
+                        return convertToTypeLimits(session, a);
 
                     case Types.SQL_DATE :
                         return a;
@@ -1466,7 +1467,7 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-        /** @todo - overflow */
+    /** @todo - overflow */
     public static TimeData addSeconds(TimeData source, int seconds,
                                       int nanos) throws HsqlException {
 

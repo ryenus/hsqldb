@@ -120,7 +120,8 @@ public final class OtherType extends Type {
         return 0;
     }
 
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
         return a;
     }
 

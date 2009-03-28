@@ -34,10 +34,13 @@ package org.hsqldb.types;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
+import org.hsqldb.lib.ArrayUtil;
 
 /**
  * Implementation of CLOB for client and server.<p>
@@ -71,7 +74,14 @@ public class ClobDataID implements ClobData {
     }
 
     public long length(SessionInterface session) throws HsqlException {
-        return 0;
+        ResultLob resultOut = ResultLob.newLobGetLengthRequest(id);
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return ((ResultLob) resultIn).getBlockLength();
     }
 
     public String getSubString(SessionInterface session, long pos,
@@ -80,6 +90,11 @@ public class ClobDataID implements ClobData {
         char[] chars = getChars(session, pos, length);
 
         return new String(chars);
+    }
+
+    public ClobData getSubString(SessionInterface session, long pos,
+                                 long length) throws HsqlException {
+        return null;
     }
 
     public void truncate(SessionInterface session,
@@ -97,18 +112,48 @@ public class ClobDataID implements ClobData {
 
     public int setString(SessionInterface session, long pos,
                          String str) throws HsqlException {
+
+        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos,
+            str.toCharArray());
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
         return str.length();
     }
 
     public int setString(SessionInterface session, long pos, String str,
                          int offset, int len) throws HsqlException {
-        return 0;
+
+        if (!isInLimits(str.length(), offset, len)) {
+            throw Error.error(ErrorCode.X_22001);
+        }
+
+        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos,
+            str.substring(offset, len).toCharArray());
+        Result resultIn = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return str.length();
     }
 
     public int setChars(SessionInterface session, long pos, char[] chars,
                         int offset, int len) throws HsqlException {
 
-        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos - 1,
+        if (!isInLimits(chars.length, offset, len)) {
+            throw Error.error(ErrorCode.X_22001);
+        }
+
+        char[] newChars = new char[len];
+
+        System.arraycopy(chars, offset, newChars, 0, len);
+
+        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos,
             chars);
         Result resultIn = session.execute(resultOut);
 
@@ -161,5 +206,9 @@ public class ClobDataID implements ClobData {
 
     public byte getClobType() {
         return 0;
+    }
+
+    static boolean isInLimits(long fullLength, long pos, long len) {
+        return pos >= 0 && len >= 0 && pos + len <= fullLength;
     }
 }

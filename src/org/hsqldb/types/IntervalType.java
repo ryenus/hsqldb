@@ -230,6 +230,7 @@ public final class IntervalType extends DTIType {
         }
 
         StringBuffer sb = new StringBuffer(32);
+
         sb.append(Tokens.T_INTERVAL).append(' ');
         sb.append(getQualifier(startIntervalType));
 
@@ -436,7 +437,8 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
 
         if (a == null) {
             return null;

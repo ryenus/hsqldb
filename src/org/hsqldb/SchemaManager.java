@@ -300,7 +300,7 @@ public class SchemaManager {
     }
 
     public boolean isLobsSchema(String schema) {
-        return "SYSTEM_LOBS".equals(schema);
+        return SqlInvariants.LOBS_SCHEMA.equals(schema);
     }
 
     /**
@@ -1502,7 +1502,7 @@ public class SchemaManager {
             }
 
             if (isLobsSchema(schema.name.name)) {
-//                continue;
+                continue;
             }
 
             list.addAll(schema.getSQLArray(resolved, unresolved));

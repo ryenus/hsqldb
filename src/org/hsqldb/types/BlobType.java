@@ -96,7 +96,7 @@ public final class BlobType extends BinaryType {
         sb.append(factor);
 
         if (multiplier != null) {
-            sb.append(' ').append(multiplier);
+            sb.append(multiplier);
         }
 
         sb.append(')');
@@ -135,7 +135,8 @@ public final class BlobType extends BinaryType {
     }
 
     /** @todo - implement */
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
         return a;
     }
 

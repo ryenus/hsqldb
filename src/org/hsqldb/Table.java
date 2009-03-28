@@ -2052,7 +2052,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < defaultColumnMap.length; i++) {
             Type type = colTypes[i];
 
-            data[i] = type.convertToTypeLimits(data[i]);
+            data[i] = type.convertToTypeLimits(session, data[i]);
 
             if (type.isDomainType()) {
                 Constraint[] constraints =

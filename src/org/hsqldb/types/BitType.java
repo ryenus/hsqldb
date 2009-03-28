@@ -201,15 +201,16 @@ public final class BitType extends BinaryType {
                 return 0;
             }
 
-            return ((BinaryData) a).bitLength(null) > ((BinaryData) b).bitLength(null)
-                   ? 1
-                   : -1;
+            return ((BinaryData) a).bitLength(null)
+                   > ((BinaryData) b).bitLength(null) ? 1
+                                                      : -1;
         }
 
         return i;
     }
 
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
         return castOrConvertToType(null, a, this, false);
     }
 
@@ -237,12 +238,12 @@ public final class BitType extends BinaryType {
 
             case Types.SQL_VARCHAR :
             case Types.SQL_CHAR : {
-                b         = session.getScanner().convertToBit((String) a);
-                otherType = getBitType(Types.SQL_BIT_VARYING, b.length(session));
+                b = session.getScanner().convertToBit((String) a);
+                otherType = getBitType(Types.SQL_BIT_VARYING,
+                                       b.length(session));
 
                 break;
             }
-
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
             case Types.SQL_BINARY :
@@ -338,8 +339,9 @@ public final class BitType extends BinaryType {
             return null;
         }
 
-        return StringConverter.byteArrayToBitString(((BinaryData) a).getBytes(),
-                (int) ((BinaryData) a).bitLength(null));
+        return StringConverter.byteArrayToBitString(
+            ((BinaryData) a).getBytes(),
+            (int) ((BinaryData) a).bitLength(null));
     }
 
     public String convertToSQLString(Object a) {
@@ -358,8 +360,9 @@ public final class BitType extends BinaryType {
     }
 
     /** @todo - implement */
-    public long position(SessionInterface session, BlobData data, BlobData otherData,
-                         Type otherType, long offset) throws HsqlException {
+    public long position(SessionInterface session, BlobData data,
+                         BlobData otherData, Type otherType,
+                         long offset) throws HsqlException {
 
         if (data == null || otherData == null) {
             return -1L;
@@ -374,8 +377,9 @@ public final class BitType extends BinaryType {
         throw Error.runtimeError(ErrorCode.U_S0500, "BitType");
     }
 
-    public BlobData substring(SessionInterface session, BlobData data, long offset,
-                              long length, boolean hasLength) throws HsqlException {
+    public BlobData substring(SessionInterface session, BlobData data,
+                              long offset, long length,
+                              boolean hasLength) throws HsqlException {
 
         long end;
         long dataLength = data.bitLength(session);
@@ -465,7 +469,8 @@ public final class BitType extends BinaryType {
                     BitMap.overlay(data, pos, overlaydata[i], count);
                 }
 
-                BinaryData binary = new BinaryData(data, value.bitLength(session));
+                BinaryData binary = new BinaryData(data,
+                                                   value.bitLength(session));
 
                 return binary;
             }
@@ -481,7 +486,8 @@ public final class BitType extends BinaryType {
             return null;
         }
 
-        long length = ((BlobData) a).bitLength(session) + ((BlobData) b).bitLength(session);
+        long length = ((BlobData) a).bitLength(session)
+                      + ((BlobData) b).bitLength(session);
 
         if (length > Integer.MAX_VALUE) {
             throw Error.error(ErrorCode.W_01000);

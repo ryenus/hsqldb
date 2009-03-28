@@ -579,8 +579,8 @@ public class FunctionSQL extends Expression {
 
                 long result =
                     ((BinaryType) nodes[1].dataType).position(
-                        session, (BlobData) data[1],
-                        (BlobData) data[0], nodes[0].dataType, 0) + 1;
+                        session, (BlobData) data[1], (BlobData) data[0],
+                        nodes[0].dataType, 0) + 1;
 
                 if (nodes[2] != null
                         && ((Number) nodes[2].valueData).intValue()
@@ -622,8 +622,8 @@ public class FunctionSQL extends Expression {
                     return null;
                 }
 
-                long result =
-                    ((CharacterType) nodes[0].dataType).size(session, data[0]);
+                long result = ((CharacterType) nodes[0].dataType).size(session,
+                    data[0]);
 
                 return ValuePool.getLong(result);
             }
@@ -638,7 +638,8 @@ public class FunctionSQL extends Expression {
                     result = ((BlobData) data[0]).bitLength(session);
                 } else {
                     result =
-                        16 * ((CharacterType) nodes[0].dataType).size(session, data[0]);
+                        16 * ((CharacterType) nodes[0].dataType).size(session,
+                            data[0]);
                 }
 
                 return ValuePool.getLong(result);
@@ -654,7 +655,8 @@ public class FunctionSQL extends Expression {
                     result = ((BlobData) data[0]).length(session);
                 } else {
                     result =
-                        2 * ((CharacterType) nodes[0].dataType).size(session, data[0]);
+                        2 * ((CharacterType) nodes[0].dataType).size(session,
+                            data[0]);
                 }
 
                 return ValuePool.getLong(result);
@@ -675,6 +677,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 // non-integral arguments are accepted with conversion
+
                 /** @todo - check if widening has an effect */
                 Object value =
                     ((NumberType) nodes[0].dataType).divide(nodes[0],
@@ -684,7 +687,8 @@ public class FunctionSQL extends Expression {
                         value, nodes[1].dataType);
 
                 // result type is the same as argList[1]
-                return ((NumberType) dataType).convertToTypeLimits(value);
+                return ((NumberType) dataType).convertToTypeLimits(session,
+                        value);
             }
             case FUNC_LN : {
                 if (data[0] == null) {
@@ -916,7 +920,8 @@ public class FunctionSQL extends Expression {
                     length = ((Number) value).intValue();
                 }
 
-                return ((BinaryType) dataType).substring(session, (BlobData) data[0], offset, length, nodes[2] != null);
+                return ((BinaryType) dataType).substring(session,
+                        (BlobData) data[0], offset, length, nodes[2] != null);
             }
             case FUNC_TRIM_BINARY : {
                 if (data[1] == null || data[2] == null) {
@@ -1024,19 +1029,19 @@ public class FunctionSQL extends Expression {
 
             case FUNC_CURRENT_TIME :
                 return dataType.convertToTypeLimits(
-                    session.getCurrentTime(true));
+                    session, session.getCurrentTime(true));
 
             case FUNC_CURRENT_TIMESTAMP :
                 return dataType.convertToTypeLimits(
-                    session.getCurrentTimestamp(true));
+                    session, session.getCurrentTimestamp(true));
 
             case FUNC_LOCALTIME :
                 return dataType.convertToTypeLimits(
-                    session.getCurrentTime(false));
+                    session, session.getCurrentTime(false));
 
             case FUNC_LOCALTIMESTAMP :
                 return dataType.convertToTypeLimits(
-                    session.getCurrentTimestamp(false));
+                    session, session.getCurrentTimestamp(false));
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionSQL");
