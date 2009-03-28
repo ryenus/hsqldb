@@ -76,14 +76,6 @@ public final class ClobType extends CharacterType {
         return typeCode;
     }
 
-    public String getNameString() {
-        return Tokens.T_CLOB;
-    }
-
-    public String getFullNameString() {
-        return "CHARACTER LARGE OBJECT";
-    }
-
     public String getDefinition() {
 
         long   factor     = precision;
@@ -109,7 +101,7 @@ public final class ClobType extends CharacterType {
         sb.append(factor);
 
         if (multiplier != null) {
-            sb.append(' ').append(multiplier);
+            sb.append(multiplier);
         }
 
         sb.append(')');
@@ -143,32 +135,6 @@ public final class ClobType extends CharacterType {
                                         : 0);
     }
 
-    /** @todo - implement */
-    public Object convertToTypeLimits(Object a) throws HsqlException {
-
-        return a;
-    }
-
-    public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) throws HsqlException {
-
-        if (a == null) {
-            return null;
-        }
-
-        if (otherType.typeCode == Types.SQL_CLOB) {
-            return a;
-        }
-
-        if (otherType.isCharacterType()) {
-            ClobData clob = session.createClob();
-            clob.setString(session, 0, (String) a);
-            return clob;
-        }
-
-        throw Error.error(ErrorCode.X_42561);
-    }
-
     public Object convertToDefaultType(SessionInterface session,
                                        Object a) throws HsqlException {
 
@@ -176,9 +142,15 @@ public final class ClobType extends CharacterType {
             return null;
         }
 
+        if (a instanceof ClobData) {
+            return a;
+        }
+
         if (a instanceof String) {
             ClobData clob = session.createClob();
+
             clob.setString(session, 0, (String) a);
+
             return clob;
         }
 
@@ -205,16 +177,18 @@ public final class ClobType extends CharacterType {
         return StringConverter.toQuotedString(s, '\'', true);
     }
 
-    public long position(SessionInterface session, Object data, Object otherData,
-                         Type otherType, long start) throws HsqlException {
+    public long position(SessionInterface session, Object data,
+                         Object otherData, Type otherType,
+                         long start) throws HsqlException {
 
         if (otherType.typeCode == Types.SQL_CLOB) {
-            return ((ClobData) data).position(session, (ClobData) otherData, start);
+            return ((ClobData) data).position(session, (ClobData) otherData,
+                                              start);
         } else if (otherType.isCharacterType()) {
-            return ((ClobData) data).position(session, (String) otherData, start);
+            return ((ClobData) data).position(session, (String) otherData,
+                                              start);
         } else {
-            throw Error.runtimeError(
-                ErrorCode.U_S0500,  "ClobType");
+            throw Error.runtimeError(ErrorCode.U_S0500, "ClobType");
         }
     }
 }

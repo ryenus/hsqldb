@@ -207,8 +207,7 @@ public class StatementInsert extends StatementDMQL {
 
         //
         Expression[] list = insertExpression.nodes;
-        RowSetNavigatorClient newData =
-            session.sessionContext.actionNavigator;
+        RowSetNavigatorClient newData = new RowSetNavigatorClient();
 
         newData.setData(new Object[list.length][]);
 

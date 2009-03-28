@@ -130,6 +130,11 @@ public final class ClobDataMemory implements ClobData {
         return new String(data, (int) offset, length);
     }
 
+    public ClobData getSubString(SessionInterface session, long offset,
+                               long length) {
+        return null;
+    }
+
     public String toString() {
         return new String(data);
     }

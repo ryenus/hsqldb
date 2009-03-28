@@ -275,7 +275,6 @@ public class BinaryType extends Type {
             if (typeCode == Types.SQL_BINARY) {
 
                 // Standard disallows type length reduction
-
                 throw Error.error(ErrorCode.X_42570);
             } else if (typeCode == Types.SQL_VARBINARY) {
                 newPrecision = maxBinaryPrecision;
@@ -326,8 +325,9 @@ public class BinaryType extends Type {
         throw Error.runtimeError(ErrorCode.U_S0500, "BinaryType");
     }
 
-    public Object convertToTypeLimits(Object a) throws HsqlException {
-        return castOrConvertToType(null, a, this, false);
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
+        return castOrConvertToType(session, a, this, false);
     }
 
     public Object castToType(SessionInterface session, Object a,

@@ -128,7 +128,8 @@ public final class BooleanType extends Type {
                                          : 1);
     }
 
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
         return a;
     }
 
@@ -162,7 +163,8 @@ public final class BooleanType extends Type {
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {
-                a = ((CharacterType) otherType).trim(session, a, (int) ' ', true, true);
+                a = ((CharacterType) otherType).trim(session, a, (int) ' ',
+                                                     true, true);
 
                 if (((String) a).equalsIgnoreCase("TRUE")) {
                     return Boolean.TRUE;

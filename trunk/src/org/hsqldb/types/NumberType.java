@@ -607,7 +607,8 @@ public final class NumberType extends Type {
     }
 
     /** @todo - review usage to see if range enforcement / java type conversion is necessary */
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
 
         if (a == null) {
             return null;
@@ -744,7 +745,7 @@ public final class NumberType extends Type {
             case Types.SQL_DECIMAL :
                 BigDecimal value = convertToDecimal(a);
 
-                return convertToTypeLimits(value);
+                return convertToTypeLimits(session, value);
 
             default :
                 throw Error.error(ErrorCode.X_42561);
@@ -801,7 +802,7 @@ public final class NumberType extends Type {
             } else if (a instanceof BigDecimal) {
                 if (typeCode == Types.SQL_DECIMAL
                         || typeCode == Types.SQL_NUMERIC) {
-                    return convertToTypeLimits(a);
+                    return convertToTypeLimits(session, a);
                 }
 
                 BigDecimal val = (BigDecimal) a;

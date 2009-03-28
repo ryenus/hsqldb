@@ -38,6 +38,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Random;
+import org.hsqldb.jdbc.JDBCBlob;
 
 /**
  * Test with small cache and very large row inserts
@@ -45,10 +46,12 @@ import java.util.Random;
 public class TestStressInsert {
 
     private Connection        con;
-    private PreparedStatement insertStmt;
-    private static final int  MAX_SIZE = 800000;
+    private PreparedStatement insertStmtA;
+    private PreparedStatement insertStmtB;
+    private static final int  LOB_SIZE = 800000;
+    private static final int  MAX_SIZE = 24000;
     private final Random      random   = new Random(0);
-    byte[]                    data     = getRandomBytes(MAX_SIZE);
+    byte[]                    data     = getRandomBytes(LOB_SIZE);
 
     public void init() throws Exception {
 
@@ -67,14 +70,16 @@ public class TestStressInsert {
         try {
 
 //            stmt.execute("set property \"hsqldb.nio_data_file\" false");
+            stmt.execute("set property \"hsqldb.applog\" 1");
             stmt.execute("set property \"hsqldb.cache_scale\" 8");
             stmt.execute("set property \"hsqldb.cache_size_scale\" 10");
-            stmt.execute("set write_delay 0");
-            stmt.execute("set logsize " + 0);
-            stmt.execute("set property \"hsqldb.cache_file_scale\" 8");
+            stmt.execute("set write_delay 10000 millis");
+            stmt.execute("set logsize " + 20);
+//            stmt.execute("set property \"hsqldb.cache_file_scale\" 8");
+            stmt.execute("set property \"hsqldb.incremental_backup\" true");
 
             DatabaseMetaData metaData = con.getMetaData();
-            ResultSet        rs = metaData.getTables(null, null, "A", null);
+            ResultSet        rs = metaData.getTables(null, null, "B", null);
             boolean          schemaExists;
 
             try {
@@ -86,6 +91,8 @@ public class TestStressInsert {
             if (!schemaExists) {
                 stmt.execute(
                     "create cached table A (ID binary(16) PRIMARY KEY, DATA varbinary not null)");
+                stmt.execute(
+                    "create cached table B (ID binary(16) PRIMARY KEY, DATA BLOB(10M) not null)");
             }
 
             stmt.execute("checkpoint");
@@ -94,56 +101,104 @@ public class TestStressInsert {
         }
 
         // prepare statements
-        insertStmt =
+        insertStmtA =
             con.prepareStatement("insert into A (DATA, ID) values (?, ?)");
+        insertStmtB =
+            con.prepareStatement("insert into B (DATA, ID) values (?, ?)");
     }
 
     public void shutdown() throws Exception {
-        insertStmt.close();
+
+        insertStmtA.close();
+        insertStmtB.close();
 
         Statement stmt = con.createStatement();
+
         stmt.executeUpdate("SHUTDOWN");
         con.close();
     }
 
-    public void insert(byte[] id) throws Exception {
+    public void insertA(byte[] id) throws Exception {
 
         try {
-            insertStmt.setBytes(1, data);
-            insertStmt.setBytes(2, id);
-            insertStmt.execute();
+            insertStmtA.setBytes(1, data);
+            insertStmtA.setBytes(2, id);
+            insertStmtA.execute();
         } finally {
-            insertStmt.clearParameters();
-            insertStmt.clearWarnings();
+            insertStmtA.clearParameters();
+            insertStmtA.clearWarnings();
         }
+    }
+
+    public void insertB(byte[] id) throws Exception {
+
+        try {
+            insertStmtB.setBlob(1, new JDBCBlob(data));
+            insertStmtB.setBytes(2, id);
+            insertStmtB.execute();
+        } finally {
+            insertStmtB.clearParameters();
+            insertStmtB.clearWarnings();
+        }
+    }
+
+    private void stressInsertA() throws Exception {
+
+        long t1 = System.currentTimeMillis();
+        long t2 = System.currentTimeMillis();
+
+        System.out.println("done " + (t2 - t1));
+
+        for (int i = 0; i < MAX_SIZE; i++) {
+            insertA(getRandomBytes(16));
+
+            if (i % 100 == 0) {
+                long t3 = System.currentTimeMillis();
+
+                System.out.println("inserted " + i + " in " + (t3 - t2));
+
+                t2 = t3;
+            }
+        }
+
+        System.out.println("total inserted " + MAX_SIZE + " in " + (t2 - t1));
+
+        shutdown();
+    }
+
+    private void stressInsertB() throws Exception {
+
+        long t1 = System.currentTimeMillis();
+        long t2 = System.currentTimeMillis();
+
+        System.out.println("done " + (t2 - t1));
+
+        for (int i = 0; i < MAX_SIZE; i++) {
+            insertB(getRandomBytes(16));
+
+            if (i % 100 == 0) {
+                long t3 = System.currentTimeMillis();
+
+                System.out.println("inserted " + i + " in " + (t3 - t2));
+
+                t2 = t3;
+            }
+        }
+
+        System.out.println("total inserted " + MAX_SIZE + " in " + (t2 - t1));
+
+        shutdown();
     }
 
     public static void main(String[] args) {
 
         try {
-            TestStressInsert test = new TestStressInsert();
-            long             t1   = System.currentTimeMillis();
-
             System.out.print("Initializing...");
+
+            TestStressInsert test = new TestStressInsert();
+
             test.init();
-
-            long t2 = System.currentTimeMillis();
-
-            System.out.println("done " + (t2 - t1));
-
-            for (int i = 0; i < MAX_SIZE; i++) {
-                test.insert(test.getRandomBytes(16));
-
-                if (i % 100 == 0) {
-                    long t3 = System.currentTimeMillis();
-
-                    System.out.println("inserted " + i + " in " + (t3 - t2));
-
-                    t2 = t3;
-                }
-            }
-
-            test.shutdown();
+            test.stressInsertB();
         } catch (Exception e) {
             e.printStackTrace();
         }

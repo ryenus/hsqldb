@@ -390,7 +390,8 @@ public class CharacterType extends Type {
         }
     }
 
-    public Object convertToTypeLimits(Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session,
+                                      Object a) throws HsqlException {
 
         if (a == null) {
             return a;
@@ -441,6 +442,11 @@ public class CharacterType extends Type {
 
                 return a;
             }
+            case Types.SQL_CLOB :
+
+                /** @todo implement */
+                return a;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
@@ -453,46 +459,114 @@ public class CharacterType extends Type {
             return a;
         }
 
+        return castOrConvertToType(session, a, otherType, true);
+    }
+
+    public Object castOrConvertToType(SessionInterface session, Object a,
+                                      Type otherType,
+                                      boolean cast) throws HsqlException {
+
         switch (otherType.typeCode) {
 
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
-                if (precision != 0 && ((String) a).length() > precision) {
+            case Types.VARCHAR_IGNORECASE : {
+                int length = ((String) a).length();
+
+                if (precision != 0 && length > precision) {
                     if (StringUtil.rightTrimSize((String) a) > precision) {
+                        if (!cast) {
+                            throw Error.error(ErrorCode.X_22001);
+                        }
+
                         session.addWarning(Error.error(ErrorCode.W_01004));
                     }
 
-                    return ((String) a).substring(0, (int) precision);
+                    a = ((String) a).substring(0, (int) precision);
                 }
 
-                return convertToTypeLimits(a);
+                switch (typeCode) {
 
+                    case Types.SQL_CHAR :
+                        return convertToTypeLimits(session, a);
+
+                    case Types.SQL_VARCHAR :
+                    case Types.VARCHAR_IGNORECASE :
+                        return a;
+
+                    case Types.SQL_CLOB : {
+                        ClobData clob = session.createClob();
+
+                        clob.setString(session, 0, (String) a);
+
+                        return clob;
+                    }
+                    default :
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "CharacterType");
+                }
+            }
             case Types.SQL_CLOB : {
                 long length = ((ClobData) a).length(session);
 
                 if (precision != 0 && length > precision) {
                     if (((ClobData) a).nonSpaceLength(session) > precision) {
+                        if (!cast) {
+                            throw Error.error(ErrorCode.X_22001);
+                        }
+
                         session.addWarning(Error.error(ErrorCode.W_01004));
                     }
-
-                    return ((ClobData) a).getSubString(session, 0,
-                                                       (int) precision);
                 }
 
-                return convertToTypeLimits(a);
+                switch (typeCode) {
+
+                    case Types.SQL_CHAR :
+                    case Types.SQL_VARCHAR :
+                    case Types.VARCHAR_IGNORECASE : {
+                        if (length > maxCharacterPrecision) {
+                            if (!cast) {
+                                throw Error.error(ErrorCode.X_22001);
+                            }
+
+                            length = maxCharacterPrecision;
+                        }
+
+                        a = ((ClobData) a).getSubString(session, 0,
+                                                        (int) length);
+
+                        return convertToTypeLimits(session, a);
+                    }
+                    case Types.SQL_CLOB : {
+                        if (precision != 0 && length > precision) {
+                            return ((ClobData) a).getSubString(session, 0,
+                                                               precision);
+                        }
+
+                        return a;
+                    }
+                    default :
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "CharacterType");
+                }
             }
+            case Types.OTHER :
             case Types.SQL_BLOB :
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY : {
                 throw Error.error(ErrorCode.X_42561);
             }
             default :
+                String s = otherType.convertToString(a);
+
+                if (precision != 0 && s.length() > precision) {
+                    throw Error.error(ErrorCode.X_22001);
+                }
+
+                a = s;
+
+                return convertToTypeLimits(session, a);
         }
-
-        String s = otherType.convertToString(a);
-
-        return convertToTypeLimits(s);
     }
 
     public Object convertToType(SessionInterface session, Object a,
@@ -502,37 +576,7 @@ public class CharacterType extends Type {
             return a;
         }
 
-        switch (otherType.typeCode) {
-
-            case Types.SQL_CHAR :
-            case Types.SQL_VARCHAR :
-            case Types.VARCHAR_IGNORECASE :
-                return convertToTypeLimits(a);
-
-            case Types.SQL_CLOB : {
-                ClobData c = (ClobData) a;
-
-                if (typeCode == Types.SQL_CLOB) {
-                    return convertToTypeLimits(a);
-                }
-
-                if (precision != 0 && c.nonSpaceLength(session) > precision) {
-                    throw Error.error(ErrorCode.X_22001);
-                }
-
-                String s = c.getSubString(session, 0, (int) precision);
-
-                return convertToTypeLimits(s);
-            }
-            case Types.SQL_BLOB : {
-                throw Error.error(ErrorCode.X_42561);
-            }
-            default : {
-                String s = otherType.convertToString(a);
-
-                return convertToTypeLimits(s);
-            }
-        }
+        return castOrConvertToType(session, a, otherType, false);
     }
 
     public Object convertToTypeJDBC(SessionInterface session, Object a,

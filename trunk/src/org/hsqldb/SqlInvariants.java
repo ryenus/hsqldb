@@ -69,6 +69,7 @@ public class SqlInvariants {
     /** The role name reserved for the special PUBLIC pseudo-user. */
     public static final String   PUBLIC_ROLE_NAME   = "PUBLIC";
     public static final String   SYSTEM_SCHEMA      = "SYSTEM_SCHEMA";
+    public static final String   LOBS_SCHEMA        = "SYSTEM_LOBS";
     public static final String   DEFINITION_SCHEMA  = "DEFINITION_SCHEMA";
     public static final String   INFORMATION_SCHEMA = "INFORMATION_SCHEMA";
     public static final String   SQLJ_SCHEMA        = "SQLJ";
@@ -76,6 +77,7 @@ public class SqlInvariants {
     public static final String   CLASSPATH_NAME     = "CLASSPATH";
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
+    public static final HsqlName LOBS_SCHEMA_HSQLNAME;
     public static final HsqlName SQLJ_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SUBQUERY_HSQLNAME;
 
@@ -85,6 +87,8 @@ public class SqlInvariants {
                 SchemaObject.SCHEMA);
         SYSTEM_SCHEMA_HSQLNAME =
             HsqlNameManager.newSystemObjectName(SYSTEM_SCHEMA,
+                SchemaObject.SCHEMA);
+        LOBS_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(LOBS_SCHEMA,
                 SchemaObject.SCHEMA);
         SQLJ_SCHEMA_HSQLNAME = HsqlNameManager.newSystemObjectName(SQLJ_SCHEMA,
                 SchemaObject.SCHEMA);

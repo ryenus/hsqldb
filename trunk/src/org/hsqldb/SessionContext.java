@@ -92,9 +92,6 @@ public class SessionContext {
     HashSet subqueryPopSet;
 
     //
-    RowSetNavigatorClient actionNavigator = new RowSetNavigatorClient();
-
-    //
     StatementResultUpdate rowUpdateStatement = new StatementResultUpdate();
 
     /**
@@ -165,7 +162,7 @@ public class SessionContext {
         }
 
         if (cs.type == StatementTypes.INSERT) {
-            actionNavigator.clear();
+            //
         }
 
         // opportunity to combine the two clearance ops
