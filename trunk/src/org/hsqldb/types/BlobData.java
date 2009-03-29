@@ -50,8 +50,9 @@ public interface BlobData {
 
     byte[] getBytes();
 
-    /** @todo - new method to return BlobData with long length arg */
     byte[] getBytes(SessionInterface session, long pos, int length) throws HsqlException;
+
+    BlobData getBlob(SessionInterface session, long pos, long length) throws HsqlException;
 
     InputStream getBinaryStream(SessionInterface session) throws HsqlException;
 

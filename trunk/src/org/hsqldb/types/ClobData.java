@@ -54,7 +54,7 @@ public interface ClobData {
     String getSubString(SessionInterface session, final long pos,
                         final int length) throws HsqlException;
 
-    ClobData getSubString(SessionInterface session, final long pos,
+    ClobData getClob(SessionInterface session, final long pos,
                         final long length) throws HsqlException;
 
     void truncate(SessionInterface session, long len) throws HsqlException;

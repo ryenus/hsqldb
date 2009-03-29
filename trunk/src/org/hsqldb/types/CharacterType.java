@@ -539,7 +539,7 @@ public class CharacterType extends Type {
                     }
                     case Types.SQL_CLOB : {
                         if (precision != 0 && length > precision) {
-                            return ((ClobData) a).getSubString(session, 0,
+                            return ((ClobData) a).getClob(session, 0,
                                                                precision);
                         }
 
