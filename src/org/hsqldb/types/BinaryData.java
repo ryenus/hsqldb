@@ -143,6 +143,10 @@ public class BinaryData implements BlobData {
         return bytes;
     }
 
+    public BlobData getBlob(SessionInterface session, long pos, long length) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "BinaryData");
+    }
+
     public InputStream getBinaryStream(SessionInterface session)
     throws HsqlException {
         return new BlobInputStream(session, this, 0L, length(session));

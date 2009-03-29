@@ -42,9 +42,9 @@ import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.LineGroupReader;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.persist.LobStore;
 import org.hsqldb.persist.LobStoreMem;
 import org.hsqldb.persist.LobStoreRAFile;
-import org.hsqldb.persist.LobStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
@@ -308,6 +308,40 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, length);
     }
 
+    /** @todo - implement copying the lob */
+    public Result getLob(Session session, long lobID, long offset,
+                         long length) {
+
+        Object[] data = getLobHeader(session, lobID);
+
+        if (data == null) {
+            Result.newErrorResult(Error.error(ErrorCode.X_22522));
+        }
+
+        long lobLength = ((Long) data[1]).longValue();
+        int  lobType   = ((Integer) data[1]).intValue();
+        long newID;
+
+        if (lobType == Types.SQL_BLOB) {
+            newID = createBlob(session);
+        } else {
+            lobLength *= 2;
+            newID     = createClob(session);
+        }
+
+        int newBlockCount = (int) length / lobBlockSize;
+
+        if (length % lobBlockSize != 0) {
+            newBlockCount++;
+        }
+
+        createBlockAddresses(session, lobID, 0, newBlockCount);
+
+        // copy the contents
+
+        return ResultLob.newLobSetResponse(newID, length);
+    }
+
     public Result getChars(Session session, long lobID, long offset,
                            int length) {
 
@@ -482,9 +516,7 @@ public class LobManager {
         }
 
         createBlockAddresses(session, lobID, blockOffset,
-                             blockLimit - blockOffset, length);
-
-
+                             blockLimit - blockOffset);
         System.arraycopy(dataBytes, 0, newBytes, byteBlockOffset, length);
 
         blockAddresses = getBlockAddresses(session, lobID, blockOffset,
@@ -521,7 +553,7 @@ public class LobManager {
             blockLimit++;
         }
 
-        createBlockAddresses(session, lobID, 0, blockLimit, length);
+        createBlockAddresses(session, lobID, 0, blockLimit);
 
         int[][] blockAddresses = getBlockAddresses(session, lobID, 0,
             blockLimit);
@@ -758,7 +790,7 @@ public class LobManager {
     }
 
     void createBlockAddresses(Session session, long lobID, int offset,
-                              int count, long length) {
+                              int count) {
 
         ResultMetaData meta     = createLobPart.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];

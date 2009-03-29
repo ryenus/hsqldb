@@ -44,8 +44,6 @@ public class BlobDataID implements BlobData {
 
     long id;
 
-    public BlobDataID() {}
-
     public BlobDataID(long id) {
         this.id = id;
     }
@@ -81,6 +79,20 @@ public class BlobDataID implements BlobData {
         }
 
         return ((ResultLob) resultIn).getByteArray();
+    }
+
+    public BlobData getBlob(SessionInterface session, long pos,
+                        long length) throws HsqlException {
+
+        ResultLob resultOut = ResultLob.newLobGetRequest(id, pos, length);
+        Result    resultIn  = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw Error.error(resultIn);
+        }
+
+        long lobID = ((ResultLob) resultIn).getLobID();
+        return new BlobDataID(lobID);
     }
 
     public long getId() {

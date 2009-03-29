@@ -53,24 +53,27 @@ public final class ResultLob extends Result {
 
     public static interface LobResultTypes {
 
-        int REQUEST_GET_BYTES                  = 1;
-        int REQUEST_SET_BYTES                  = 2;
-        int REQUEST_GET_CHARS                  = 3;
-        int REQUEST_SET_CHARS                  = 4;
-        int REQUEST_GET_BYTE_PATTERN_POSITION  = 5;
-        int REQUEST_GET_CHAR_PATTERN_POSITION  = 6;
-        int REQUEST_CREATE_BYTES               = 7;
-        int REQUEST_CREATE_CHARS               = 8;
-        int REQUEST_TRUNCATE                   = 9;
-        int REQUEST_GET_LENGTH                 = 10;
-        int RESPONSE_GET_BYTES                 = 11;
-        int RESPONSE_SET                       = 12;
-        int RESPONSE_GET_CHARS                 = 13;
-        int RESPONSE_GET_BYTE_PATTERN_POSITION = 15;
-        int RESPONSE_GET_CHAR_PATTERN_POSITION = 16;
-        int RESPONSE_CREATE_BYTES              = 17;
-        int RESPONSE_CREATE_CHARS              = 18;
-        int RESPONSE_TRUNCATE                  = 19;
+        int REQUEST_GET_BYTES                 = 1;
+        int REQUEST_SET_BYTES                 = 2;
+        int REQUEST_GET_CHARS                 = 3;
+        int REQUEST_SET_CHARS                 = 4;
+        int REQUEST_GET_BYTE_PATTERN_POSITION = 5;
+        int REQUEST_GET_CHAR_PATTERN_POSITION = 6;
+        int REQUEST_CREATE_BYTES              = 7;
+        int REQUEST_CREATE_CHARS              = 8;
+        int REQUEST_TRUNCATE                  = 9;
+        int REQUEST_GET_LENGTH                = 10;
+        int REQUEST_GET_LOB                   = 11;
+
+        //
+        int RESPONSE_GET_BYTES                 = 21;
+        int RESPONSE_SET                       = 22;
+        int RESPONSE_GET_CHARS                 = 23;
+        int RESPONSE_GET_BYTE_PATTERN_POSITION = 25;
+        int RESPONSE_GET_CHAR_PATTERN_POSITION = 26;
+        int RESPONSE_CREATE_BYTES              = 27;
+        int RESPONSE_CREATE_CHARS              = 28;
+        int RESPONSE_TRUNCATE                  = 29;
     }
 
     long        lobID;
@@ -90,8 +93,8 @@ public final class ResultLob extends Result {
 
         ResultLob result = new ResultLob();
 
-        result.subType     = LobResultTypes.REQUEST_GET_LENGTH;
-        result.lobID       = id;
+        result.subType = LobResultTypes.REQUEST_GET_LENGTH;
+        result.lobID   = id;
 
         return result;
     }
@@ -193,9 +196,10 @@ public final class ResultLob extends Result {
 
         ResultLob result = new ResultLob();
 
-        result.subType = LobResultTypes.RESPONSE_SET;
-        result.lobID   = id;
+        result.subType     = LobResultTypes.RESPONSE_SET;
+        result.lobID       = id;
         result.blockLength = length;
+
         return result;
     }
 
@@ -283,6 +287,19 @@ public final class ResultLob extends Result {
         return result;
     }
 
+    public static ResultLob newLobGetRequest(long id, long offset,
+            long length) {
+
+        ResultLob result = new ResultLob();
+
+        result.subType     = LobResultTypes.REQUEST_GET_LOB;
+        result.lobID       = id;
+        result.blockOffset = offset;
+        result.blockLength = length;
+
+        return result;
+    }
+
     public static ResultLob newLob(DataInput dataInput,
                                    boolean readTerminate)
                                    throws IOException, HsqlException {
@@ -302,6 +319,9 @@ public final class ResultLob extends Result {
                 result.blockLength = dataInput.readLong();
                 break;
 
+            case LobResultTypes.REQUEST_GET_LOB :
+
+            //
             case LobResultTypes.REQUEST_GET_BYTES :
             case LobResultTypes.REQUEST_GET_CHARS :
                 result.blockOffset = dataInput.readLong();
@@ -422,6 +442,9 @@ public final class ResultLob extends Result {
                 dataOut.writeChars(charBlock);
                 break;
 
+            case LobResultTypes.REQUEST_GET_LOB :
+
+            //
             case LobResultTypes.REQUEST_GET_BYTES :
             case LobResultTypes.REQUEST_GET_CHARS :
                 dataOut.writeLong(blockOffset);

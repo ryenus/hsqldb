@@ -243,8 +243,10 @@ public final class HsqlNameManager {
         return String.valueOf(i);
     }
 
-    static public String getAutoSavepointNameString(long i) {
-        return "S" + i;
+    static public String getAutoSavepointNameString(long i, int j) {
+        StringBuffer sb = new StringBuffer("S");
+        sb.append(i).append('_').append(j);
+        return sb.toString();
     }
 
     /**

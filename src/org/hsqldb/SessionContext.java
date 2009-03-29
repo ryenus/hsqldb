@@ -62,6 +62,7 @@ public class SessionContext {
     public Object[]       routineArguments = ValuePool.emptyObjectArray;
     public Object[]       routineVariables = ValuePool.emptyObjectArray;
     Object[]              dynamicArguments = ValuePool.emptyObjectArray;
+    public int            depth;
 
     //
     HashMappedList savepoints;
@@ -128,9 +129,11 @@ public class SessionContext {
         savepointTimestamps = new LongDeque();
 
         String name = HsqlNameManager.getAutoSavepointNameString(
-            session.actionTimestamp);
+            session.actionTimestamp, depth);
 
         session.savepoint(name);
+
+        depth++;
     }
 
     public void pop() {
@@ -140,6 +143,8 @@ public class SessionContext {
         rangeIterators      = (RangeIterator[]) stack.remove(stack.size() - 1);
         routineVariables    = (Object[]) stack.remove(stack.size() - 1);
         routineArguments    = (Object[]) stack.remove(stack.size() - 1);
+
+        depth--;
     }
 
     void clearStructures(StatementDMQL cs) {
@@ -162,6 +167,7 @@ public class SessionContext {
         }
 
         if (cs.type == StatementTypes.INSERT) {
+
             //
         }
 

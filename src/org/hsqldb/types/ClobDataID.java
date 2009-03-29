@@ -53,8 +53,6 @@ public class ClobDataID implements ClobData {
 
     long id;
 
-    public ClobDataID() {}
-
     public ClobDataID(long id) {
         this.id = id;
     }
@@ -74,8 +72,9 @@ public class ClobDataID implements ClobData {
     }
 
     public long length(SessionInterface session) throws HsqlException {
+
         ResultLob resultOut = ResultLob.newLobGetLengthRequest(id);
-        Result resultIn = session.execute(resultOut);
+        Result    resultIn  = session.execute(resultOut);
 
         if (resultIn.isError()) {
             throw resultIn.getException();
@@ -92,9 +91,17 @@ public class ClobDataID implements ClobData {
         return new String(chars);
     }
 
-    public ClobData getSubString(SessionInterface session, long pos,
+    public ClobData getClob(SessionInterface session, long position,
                                  long length) throws HsqlException {
-        return null;
+
+        ResultLob resultOut = ResultLob.newLobGetRequest(id, position, length);
+        Result    resultIn  = session.execute(resultOut);
+
+        if (resultIn.isError()) {
+            throw resultIn.getException();
+        }
+
+        return new ClobDataID(((ResultLob) resultIn).getLobID());
     }
 
     public void truncate(SessionInterface session,
@@ -153,9 +160,8 @@ public class ClobDataID implements ClobData {
 
         System.arraycopy(chars, offset, newChars, 0, len);
 
-        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos,
-            chars);
-        Result resultIn = session.execute(resultOut);
+        ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos, chars);
+        Result    resultIn  = session.execute(resultOut);
 
         if (resultIn.isError()) {
             throw resultIn.getException();

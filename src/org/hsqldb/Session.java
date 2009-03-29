@@ -1175,7 +1175,7 @@ public class Session implements SessionInterface {
             }
         }
 
-        if (isAutoCommit) {
+        if (sessionContext.depth == 0 && isAutoCommit) {
             try {
                 commit(false);
             } catch (Exception e) {
@@ -1658,6 +1658,11 @@ public class Session implements SessionInterface {
 
         switch (operation) {
 
+            case ResultLob.LobResultTypes.REQUEST_GET_LOB : {
+                return database.lobManager.getLob(
+                    this, id, cmd.getOffset(),  cmd.getBlockLength());
+
+            }
             case ResultLob.LobResultTypes.REQUEST_GET_LENGTH : {
                 return database.lobManager.getLength(this, id);
             }
