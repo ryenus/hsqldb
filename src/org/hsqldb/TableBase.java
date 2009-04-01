@@ -103,7 +103,7 @@ public class TableBase {
     public boolean    isSessionBased;
     protected boolean isSchemaBased;
     protected boolean isLogged;
-    public boolean    isTransactional = true;
+    private boolean    isTransactional = true;
 
     //
     TableBase() {}
@@ -236,6 +236,11 @@ public class TableBase {
     public boolean isTransactional() {
         return isTransactional;
     }
+
+    public void setTransactional(boolean value) {
+        isTransactional = value;
+    }
+
 
     /**
      * This method is called whenever there is a change to table structure and

@@ -47,6 +47,9 @@ import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.types.Type;
+import org.hsqldb.types.ClobData;
+import org.hsqldb.types.BlobData;
 
 /**
  * Manages rows involved in transactions
@@ -134,10 +137,49 @@ public class TransactionManager {
                 }
             }
 
+            for (int i = session.actionIndex; i < limit; i++) {
+                RowAction action = (RowAction) list[i];
+
+                if (!action.table.isLogged) {
+                    continue;
+                }
+
+                if (!canComplete && action.table.isTransactional() ) {
+                    continue;
+                }
+
+                Row row = action.memoryRow;
+
+                if (row == null) {
+                    PersistentStore store =
+                        session.sessionData.getRowStore(action.table);
+
+                    row = (Row) store.get(action.getPos());
+                }
+
+                Object[] data = row.getData();
+
+                try {
+                    RowActionBase last =
+                        action.getAction(session.actionTimestamp);
+
+                    if (last.type == RowActionBase.ACTION_INSERT) {
+                        database.logger.writeInsertStatement(
+                            session, (Table) action.table, data);
+                    } else {
+                        database.logger.writeDeleteStatement(
+                            session, (Table) action.table, data);
+                    }
+                } catch (HsqlException e) {
+
+                    // can put db in special state
+                }
+            }
+
             if (!canComplete && !session.abortTransaction) {
                 session.redoAction = true;
 
-                rollbackNested(session);
+                rollbackAction(session);
 
                 if (!session.tempSet.isEmpty()) {
                     session.latch.setCount(session.tempSet.size());
@@ -147,48 +189,13 @@ public class TransactionManager {
 
                         current.waitingSessions.add(session);
 
-//                        waitedSessions.put(current, session);
+                        // waitedSessions.put(current, session);
                         // waitingSessions.put(session, current);
                     }
                 }
             }
 
-            if (canComplete) {
-                for (int i = session.actionIndex; i < limit; i++) {
-                    RowAction action = (RowAction) list[i];
 
-                    if (!action.table.isLogged) {
-                        continue;
-                    }
-
-                    Row row = action.memoryRow;
-
-                    if (row == null) {
-                        PersistentStore store =
-                            session.sessionData.getRowStore(action.table);
-
-                        row = (Row) store.get(action.getPos());
-                    }
-
-                    Object[] data = row.getData();
-
-                    try {
-                        RowActionBase last =
-                            action.getAction(session.actionTimestamp);
-
-                        if (last.type == RowActionBase.ACTION_INSERT) {
-                            database.logger.writeInsertStatement(
-                                session, (Table) action.table, data);
-                        } else {
-                            database.logger.writeDeleteStatement(
-                                session, (Table) action.table, data);
-                        }
-                    } catch (HsqlException e) {
-
-                        // can put db in special state
-                    }
-                }
-            }
         } finally {
             writeLock.unlock();
             session.tempSet.clear();
@@ -325,7 +332,8 @@ public class TransactionManager {
             }
 
             if (getFirstLiveTransactionTimestamp() > session.actionTimestamp) {
-                mergeTransaction(list, 0, limit, session.actionTimestamp);
+                mergeTransaction(session, list, 0, limit,
+                                 session.actionTimestamp);
                 rowActionMapRemoveTransaction(list, 0, limit);
             } else {
                 list = session.rowActionList.toArray();
@@ -394,7 +402,7 @@ public class TransactionManager {
         rollbackPartial(session, start, timestamp);
     }
 
-    public void rollbackNested(Session session) {
+    public void rollbackAction(Session session) {
         rollbackPartial(session, session.actionIndex, session.actionTimestamp);
     }
 
@@ -432,16 +440,6 @@ public class TransactionManager {
 
     public RowAction addDeleteAction(Session session, Table table, Row row) {
 
-        if (!table.isTransactional()) {
-            PersistentStore store = session.sessionData.getRowStore(table);
-
-            try {
-                table.delete(store, row);
-            } catch (Exception e) {}
-
-            return null;
-        }
-
         RowAction action;
 
         synchronized (row) {
@@ -459,10 +457,6 @@ public class TransactionManager {
     }
 
     public void addInsertAction(Session session, Table table, Row row) {
-
-        if (!table.isTransactional()) {
-            return;
-        }
 
         RowAction action = row.rowAction;
 
@@ -522,7 +516,7 @@ public class TransactionManager {
                                == RowActionBase.ACTION_DELETE_FINAL) {
                         int pos = rowact.getPos();
 
-                        // can move the logic into the map class
+                        // can move the logic                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       into the map class
                         //                    if (rowact == rowActionMap.get(pos)) {
                         rowActionMap.remove(pos);
 
@@ -624,7 +618,7 @@ public class TransactionManager {
     /**
      * expire all committed transactions that are no longer in scope
      */
-    void mergeExpiredTransactions() {
+    void mergeExpiredTransactions(Session session) {
 
         long timestamp = getFirstLiveTransactionTimestamp();
 
@@ -648,7 +642,8 @@ public class TransactionManager {
                 }
             }
 
-            mergeTransaction(actions, 0, actions.length, commitTimestamp);
+            mergeTransaction(session, actions, 0, actions.length,
+                             commitTimestamp);
             rowActionMapRemoveTransaction(actions, 0, actions.length);
         }
     }
@@ -656,8 +651,8 @@ public class TransactionManager {
     /**
      * merge a transaction committed at a given timestamp.
      */
-    void mergeTransaction(Object[] list, int start, int limit,
-                          long timestamp) {
+    void mergeTransaction(Session session, Object[] list, int start,
+                          int limit, long timestamp) {
 
         for (int i = start; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
@@ -694,6 +689,22 @@ public class TransactionManager {
                     int pos = rowact.getPos();
 
                     rowact.table.delete(store, row);
+
+                    Type[] types = rowact.table.getColumnTypes();
+
+                    for (int j = 0; j < types.length; j++) {
+                        if (types[j].typeCode == Types.SQL_CLOB) {
+                            ClobData lob = (ClobData) row.getData()[j];
+
+                            database.lobManager.deleteLob(session,
+                                                          lob.getId());
+                        } else if (types[j].typeCode == Types.SQL_BLOB) {
+                            BlobData lob = (BlobData) row.getData()[j];
+
+                            database.lobManager.deleteLob(session,
+                                                          lob.getId());
+                        }
+                    }
                 } catch (HsqlException e) {
 
 //                    throw unexpectedException(e.getMessage());
@@ -1028,7 +1039,7 @@ public class TransactionManager {
                 liveTransactionTimestamps.remove(index);
             }
 
-            mergeExpiredTransactions();
+            mergeExpiredTransactions(session);
         } finally {
             writeLock.unlock();
         }

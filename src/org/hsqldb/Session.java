@@ -476,7 +476,7 @@ public class Session implements SessionInterface {
         sessionData.persistentStoreCollection.clearStatementTables();
 
         if (r.isError()) {
-            database.txManager.rollbackNested(this);
+            database.txManager.rollbackAction(this);
         } else {
             database.txManager.completeActions(this);
         }

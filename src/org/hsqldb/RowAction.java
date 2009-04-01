@@ -31,9 +31,7 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.persist.PersistentStore;
 
 /**
  * Represents the chain of insert / delete / rollback / commit actions on a row.
@@ -53,7 +51,7 @@ public class RowAction extends RowActionBase {
                                       TableBase table, Row row) {
 
         if (!table.isTransactional()) {
-            return null;
+            //
         }
 
         RowAction action = row.rowAction;

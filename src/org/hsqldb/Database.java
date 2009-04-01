@@ -304,8 +304,7 @@ public class Database {
             String version = databaseProperties.getProperty(
                 HsqlDatabaseProperties.db_version);
 
-            if ("1.7.0".equals(version) || "1.7.1".equals(version)
-                    || "1.7.2".equals(version) || "1.7.3".equals(version)) {
+            if (version.substring(0, 3).equals("1.7")) {
                 schemaManager.createPublicSchema();
             }
 
@@ -315,6 +314,15 @@ public class Database {
                 logger.openLog(this);
             }
 
+            if (version.substring(0, 3).equals("1.7")
+                    || version.substring(0, 5).equals("1.8.0")) {
+                HsqlName name = schemaManager.findSchemaHsqlName(
+                    SqlInvariants.PUBLIC_SCHEMA);
+
+                if (name != null) {
+                    schemaManager.setDefaultSchemaHsqlName(name);
+                }
+            }
 
             if (isNew) {
                 HsqlName name = nameManager.newHsqlName("SA", false,
@@ -339,7 +347,6 @@ public class Database {
             }
 
             lobManager.open();
-
             dbInfo.setWithContent(true);
         } catch (Throwable e) {
             logger.closeLog(Database.CLOSEMODE_IMMEDIATELY);
@@ -596,11 +603,13 @@ public class Database {
             closemode = CLOSEMODE_IMMEDIATELY;
         }
 
-        /** @todo  fredt - impact of possible error conditions in closing the log
+        /**
+         * @todo  fredt - impact of possible error conditions in closing the log
          * should be investigated for the CLOSEMODE_COMPACT mode
          */
         logger.closeLog(closemode);
         lobManager.close();
+
         try {
             if (closemode == CLOSEMODE_COMPACT) {
                 clearStructures();
