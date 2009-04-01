@@ -5,9 +5,9 @@
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
-<h2>HyperSQL 1.9 Alpha 1</h2>
-<p>19 March 2009</p>
-<p>This is the first alpha release of HyperSQL 1.9. Please use this version in 
+<h2>HyperSQL 1.9 Alpha 2</h2>
+<p>1 April 2009</p>
+<p>This is the second alpha release of HyperSQL 1.9. Please use this version in 
   testing and report any issues.</p>
 <h3>Feedback</h3>
 <p>We are releasing this alpha version only to get feedback, bug reports, reports 
@@ -27,14 +27,29 @@
     after a week or two.</li>
   <li>The release version has been scheduled for May.</li>
 </ul>
-<h3>Known missing features in this alpha version</h3>
+<h3>Known missing features in this alpha version and changes from the last alpha</h3>
 <ul>
-  <li>This alpha version does not persist BLOB and CLOB values. JDBC BLOB and 
-    CLOB are supported only as non-persistent, memory object for testing purposes.</li>
+  <li>Most errors and minor issues reported by users have been fixed.</li>
+  <li>Sources can be compiled with JDK 1.5 or 1.6</li>
+  <li>New features for incremental backup of the .data file allow speedy handling 
+    of huge databases up to 16GB.</li>
+  <li>Database files created with Alpha 1 cannot be opened with this alpha without 
+    manual modification. The statements for creating the SYSTEM_LOBS schema and 
+    its tables and procedures should be deleted fromt the .script file before 
+    opening the database.</li>
+  <li>This alpha version persists BLOB and CLOB values. A database file with the 
+    extension .lobs is used for LOB objects. LOB support is not yet transactional. 
+    Therefore only one connection at a time can safely work on LOB objects in 
+    transactions. When the transaction is committed, or in auto-commit, the lob 
+    values are stored correctly. Apart from that, operations on lobs, including 
+    modifying the contents of an existing lobs, should work and can be rolled 
+    back. The maximum total size of LOBs is currently 32TB. Access speed looks 
+    very good in our tests.</li>
   <li>This alpha version lacks some minor features planned for Java and SQL stored 
     procedures and functions.</li>
   <li>This alpha version has been compiled with debug information. The jar size 
-    is therefore much larger than the forthcoming release version.</li>
+    is therefore much larger than the forthcoming release version. The jar can 
+    be used with JDK 1.6 only.</li>
 </ul>
 <h3>Differences to version 1.8.0</h3>
 <ul>

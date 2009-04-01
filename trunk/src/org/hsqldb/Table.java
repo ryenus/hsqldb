@@ -520,7 +520,7 @@ public class Table extends TableBase implements SchemaObject {
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());
-        sb.append(' ').append(Tokens.T_INDEX).append('\'');
+        sb.append(' ').append(Tokens.T_INDEX).append(' ').append('\'');
         sb.append(getIndexRoots());
         sb.append('\'');
 

@@ -74,6 +74,7 @@ public class LobManager {
     //
     Statement getLob;
     Statement getLobPart;
+    Statement deleteLob;
     Statement deleteLobPart;
     Statement divideLobPart;
     Statement createLob;
@@ -120,6 +121,7 @@ public class LobManager {
         "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND ? > BLOCK_OFFSET AND ? < BLOCK_OFFSET + BLOCK_COUNT";
     private static String getNextLobIdSQL =
         "VALUES NEXT VALUE FOR SYSTEM_LOBS.LOB_ID";
+    private static String deleteLobSQL = "CALL SYSTEM_LOBS.DELETE_LOB(?, ?)";
 
     //    (OUT L_ADDR INT, IN B_COUNT INT, IN B_OFFSET INT, IN L_ID BIGINT, IN L_LENGTH BIGINT)
     public LobManager(Database database) {
@@ -156,6 +158,7 @@ public class LobManager {
         createLob     = session.compileStatement(createLobSQL);
         createLobPart = session.compileStatement(createLobPartSQL);
         divideLobPart = session.compileStatement(divideLobPartSQL);
+        deleteLob     = session.compileStatement(deleteLobSQL);
         deleteLobPart = session.compileStatement(deleteLobPartSQL);
         setLobLength  = session.compileStatement(updateLobLengthSQL);
         getNextLobId  = session.compileStatement(getNextLobIdSQL);
@@ -295,6 +298,17 @@ public class LobManager {
         return lobID;
     }
 
+    public void deleteLob(Session session, long lobID) {
+
+        ResultMetaData meta     = deleteLob.getParametersMetaData();
+        Object         params[] = new Object[meta.getColumnCount()];
+
+        params[0] = Long.valueOf(lobID);
+        params[1] = Long.valueOf(session.transactionTimestamp);
+
+        Result result = session.executeCompiledStatement(createLob, params);
+    }
+
     public Result getLength(Session session, long lobID) {
 
         Object[] data = getLobHeader(session, lobID);
@@ -338,7 +352,6 @@ public class LobManager {
         createBlockAddresses(session, lobID, 0, newBlockCount);
 
         // copy the contents
-
         return ResultLob.newLobSetResponse(newID, length);
     }
 

@@ -82,7 +82,7 @@ public final class HsqlNameManager {
     }
 
     private int      serialNumber = 1;    // 0 is reserved in lookups
-    private int      sysNumber    = 1000; // avoid name clash in older scripts
+    private int      sysNumber    = 10000; // avoid name clash in older scripts
     private HsqlName catalogName;
 
     public HsqlNameManager(Database database) {
