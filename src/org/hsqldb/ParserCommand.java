@@ -403,19 +403,6 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(
                     StatementTypes.SET_SESSION_CHARACTERISTICS, args);
             }
-            case Tokens.INCREMENT : {
-                read();
-                checkDatabaseUpdateAuthorisation();
-
-                readThis(Tokens.BACKUP);
-
-                boolean  value = processTrueOrFalse();
-                Object[] args     = new Object[]{ Boolean.valueOf(value) };
-
-
-                return new StatementCommand(
-                    StatementTypes.SET_DATABASE_INCREMENT_BACKUP, args);
-            }
             case Tokens.LOGSIZE : {
                 read();
                 checkDatabaseUpdateAuthorisation();
@@ -634,15 +621,6 @@ public class ParserCommand extends ParserDDL {
                     }
                 }
             }
-            case Tokens.REFERENTIAL_INTEGRITY : {
-                read();
-
-                boolean  mode = processTrueOrFalse();
-                Object[] args = new Object[]{ Boolean.valueOf(mode) };
-
-                return new StatementCommand(
-                    StatementTypes.SET_DATABASE_REFERENTIAL_INTEGRITY, args);
-            }
             case Tokens.CHECKPOINT : {
                 read();
                 readThis(Tokens.DEFRAG);
@@ -727,6 +705,19 @@ public class ParserCommand extends ParserDDL {
 
                 switch (token.tokenType) {
 
+                    case Tokens.BACKUP : {
+                        read();
+                        checkDatabaseUpdateAuthorisation();
+
+                        readThis(Tokens.INCREMENT);
+
+                        boolean  value = processTrueOrFalse();
+                        Object[] args     = new Object[]{ Boolean.valueOf(value) };
+
+
+                        return new StatementCommand(
+                            StatementTypes.SET_DATABASE_BACKUP_INCREMENT, args);
+                    }
                     case Tokens.COLLATION : {
                         read();
                         checkIsSimpleName();
@@ -750,6 +741,15 @@ public class ParserCommand extends ParserDDL {
 
                         return new StatementCommand(
                             StatementTypes.SET_DATABASE_EVENT_LOG, args);
+                    }
+                    case Tokens.REFERENTIAL_INTEGRITY : {
+                        read();
+
+                        boolean  mode = processTrueOrFalse();
+                        Object[] args = new Object[]{ Boolean.valueOf(mode) };
+
+                        return new StatementCommand(
+                            StatementTypes.SET_DATABASE_REFERENTIAL_INTEGRITY, args);
                     }
                     case Tokens.TRANSACTION : {
                         read();

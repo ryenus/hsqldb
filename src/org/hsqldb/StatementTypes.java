@@ -166,7 +166,7 @@ public interface StatementTypes {
     int SET_DATABASE_DEFRAG                = 1018;
     int SET_DATABASE_EVENT_LOG             = 1019;
     int SET_DATABASE_IGNORECASE            = 1020;
-    int SET_DATABASE_INCREMENT_BACKUP      = 1021;
+    int SET_DATABASE_BACKUP_INCREMENT      = 1021;
     int SET_DATABASE_LOG_SIZE              = 1022;
     int SET_DATABASE_REFERENTIAL_INTEGRITY = 1023;
     int SET_DATABASE_RESULT_MEMORY_ROWS    = 1024;

@@ -197,7 +197,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_DEFRAG :
             case StatementTypes.SET_DATABASE_LOG_SIZE :
             case StatementTypes.SET_DATABASE_IGNORECASE :
-            case StatementTypes.SET_DATABASE_INCREMENT_BACKUP :
+            case StatementTypes.SET_DATABASE_BACKUP_INCREMENT :
             case StatementTypes.SET_DATABASE_SCRIPT_FORMAT :
             case StatementTypes.SET_DATABASE_REFERENTIAL_INTEGRITY :
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
@@ -766,7 +766,7 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.SET_DATABASE_INCREMENT_BACKUP : {
+            case StatementTypes.SET_DATABASE_BACKUP_INCREMENT : {
                 try {
                     boolean mode = ((Boolean) parameters[0]).booleanValue();
 
