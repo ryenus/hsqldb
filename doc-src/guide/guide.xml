@@ -52,8 +52,6 @@
 
       <keyword>HyperSQL</keyword>
 
-      <keyword>Hypersonic</keyword>
-
       <keyword>Database</keyword>
 
       <keyword>JDBC</keyword>
@@ -99,8 +97,6 @@
   <xi:include href="sqlroutines.xml" />
 
   <xi:include href="builtinfunctions.xml" />
-
-  <xi:include href="system.xml" />
 
   <xi:include href="deployment.xml" />
 

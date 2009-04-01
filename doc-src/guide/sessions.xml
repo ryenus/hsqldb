@@ -325,6 +325,27 @@
     the current session. HyperSQL does not yet support this feature.</simpara>
 
     <indexterm significance="preferred" type="sql">
+      <primary>LOCK TABLE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOCK TABLE</emphasis></simpara>
+
+    <simpara><emphasis>lock table statement</emphasis></simpara>
+
+    <simpara><literal>&lt;lock table statement&gt; ::= LOCK TABLE &lt;table
+    name&gt; { READ | WRITE} [, &lt;table name&gt; { READ | WRITE}
+    ...]}</literal></simpara>
+
+    <simpara>In some cirsumstance, where multiple simultaneous transactions
+    are in progress, it may be necessary to ensure a transaction consisting of
+    several statements is completed, without being terminated due to possible
+    deadlock. When this statement is executed, it waits until it can obtain
+    all the listed locks, then returns. The SQL statements following this
+    statements use the locks already obtained (and obtain new locks if
+    necessary) and can proceed without waiting. All the locks are released
+    when a COMMIT or ROLLBACK statement is issued.</simpara>
+
+    <indexterm significance="preferred" type="sql">
       <primary>SAVEPOINT</primary>
     </indexterm>
 
@@ -362,7 +383,7 @@
       <primary>COMMIT</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">COMMIT WORK</emphasis></simpara>
+    <simpara><emphasis role="bold">COMMIT</emphasis></simpara>
 
     <simpara><emphasis>commit statement</emphasis></simpara>
 

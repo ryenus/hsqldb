@@ -175,6 +175,10 @@
       <listitem>
         <para><filename>test.backup</filename></para>
       </listitem>
+
+      <listitem>
+        <para><filename>test.lobs</filename></para>
+      </listitem>
     </itemizedlist>
 
     <para>The properties file contains general settings about the database.
@@ -404,8 +408,7 @@
 
       <para>Note in the above connection URL, there is no mention of the
       database file, as this was specified when running the server. Instead,
-      the public name defined for dbname.0 is used. Also, see the
-      **todo**
+      the public name defined for dbname.0 is used. Also, see the **todo**
       chapter for the connection URL when there is more than one database per
       server instance.</para>
     </section>
@@ -444,8 +447,8 @@
     Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "SA", "");
 </programlisting>
         </example>The security features are discussed in detail in the <link
-      endterm="listeners-title" xlink:href="#listeners-chapt"></link>
-      chapter</para>
+      endterm="listeners-title" xlink:href="#listeners-chapt">listeners</link>
+      chapter.</para>
     </section>
 
     <section xml:id="running_multiple_db-sect">
@@ -567,7 +570,7 @@
         <title>specifying a connection property to shutdown the database when
         the last connection is closed</title>
 
-      <programlisting>    Connection c = DriverManager.getConnection(
+        <programlisting>    Connection c = DriverManager.getConnection(
             "jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
       </example>This feature is useful for running tests, where it may not be
     practical to shutdown the database after each test. But it is not
