@@ -1836,7 +1836,15 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
     <para><glossterm>PROJECTION</glossterm></para>
 
+    <para><glossterm>COMPUTING</glossterm></para>
+
     <para><glossterm>COLUMN NAMING</glossterm></para>
+
+    <para><glossterm>GROUPING and AGGREGATION</glossterm></para>
+
+    <para><glossterm>SET OPERATIONS</glossterm></para>
+
+    <para><glossterm>ORDERING</glossterm></para>
 
     <section>
       <title>Joined Table</title>
@@ -1847,7 +1855,9 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       first join operator becomes an operand of the next join operator.
       Parentheses can be used to group sequences of joined tables and change
       the evaluation order. So if more than two tables are joined together
-      with join operators, the end result is also a joined table.</para>
+      with join operators, the end result is also a joined table. There are
+      different types of join, each producing the result table in a different
+      way.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>CROSS JOIN</primary>
@@ -1865,7 +1875,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
       <para>The CROSS JOIN can be expressed in two forms. The first form is
       <literal>A CROSS JOIN B</literal>. The second form is <literal>A,
-      B</literal>.</para>
+      B</literal>. This type of join is not genrally very useful, as it
+      returns large result tables.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>UNION JOIN</primary>
@@ -1879,7 +1890,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       the second table is extended to the left with nulls and added to the new
       table. The UNION JOIN is expressed as <literal>A UNION JOIN B</literal>.
       This should not be confused with <literal>A UNION B</literal>, which is
-      a set operation.</para>
+      a set operation. Union join is for special applications and is not
+      commonly used.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>JOIN with condition</primary>
@@ -1894,7 +1906,7 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
       <para>Equijoin is a condition join in which the search condition is an
       equality condition between on or more pairs of columns from the two
-      table.</para>
+      table. Equijoin is the most commonly used type of join.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>JOIN USING</primary>
@@ -1908,15 +1920,15 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
       <simpara><emphasis role="bold">NATURAL JOIN</emphasis></simpara>
 
-      <para>These joins are similar to an equijoin but they cannot be
-      expressed simply with an equijoin. The new table is formed with the
-      specified or implied shared columns of the two tables, followed by the
-      rest of the columns from each table. In NATURAL JOIN, the shared columns
-      are all the column pairs that have the same name in the first and second
-      table. In JOIN USING, only columns names that are specified by the USING
-      clause are shared. The joins are expressed as <literal>A NATURAL JOIN
-      B</literal>, and <literal>A JOIN B USING (&lt;comma separated column
-      name list&gt;)</literal>.</para>
+      <para>Joins with USING or NATURAL keywords joins are similar to an
+      equijoin but they cannot be replaced simply with an equijoin. The new
+      table is formed with the specified or implied shared columns of the two
+      tables, followed by the rest of the columns from each table. In NATURAL
+      JOIN, the shared columns are all the column pairs that have the same
+      name in the first and second table. In JOIN USING, only columns names
+      that are specified by the USING clause are shared. The joins are
+      expressed as <literal>A NATURAL JOIN B</literal>, and <literal>A JOIN B
+      USING (&lt;comma separated column name list&gt;)</literal>.</para>
 
       <para>The columns of the joined table are formed by the following
       prodecures: In JOIN ... USING the shared columns are added to the joined
@@ -1969,15 +1981,16 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       columns). In SQL, simple selection is expressed with a WHERE condition
       appended to a single table or a joined table. In some cases, this method
       of selection is the only method available. But when it is possible to
-      performed the selection with join conditions, this is the better method,
+      perform the selection with join conditions, this is the better method,
       as it results in a clearer expression of the query.</para>
 
       <para>A different form of selection can also be performed on the result
-      table after it has been formed according to all the other operations.
-      This form of selection is specified by the FETCH ... ROWS and OFFSET
-      clauses of a SELECT statement. In this form, the specified OFFSET rows
-      are removed from start of the table, then up to the specified FETCH rows
-      are kept and the rest of the rows are discarded.</para>
+      table after it has been formed according to all the other operations
+      (selection, grouping, ordering etc.). This form of selection is
+      specified by the FETCH ... ROWS and OFFSET clauses of a SELECT
+      statement. In this form, the specified OFFSET rows are removed from
+      start of the table, then up to the specified FETCH rows are kept and the
+      rest of the rows are discarded.</para>
     </section>
 
     <section>
@@ -1987,6 +2000,24 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       table to form a result table. Explicit projection is performed in the
       SELECT statement by specifying the select column list. Some form of
       projection is also performed in JOIN ... USING and NATURAL JOIN.</para>
+
+      <para>The joined table has columns that are formed according to the
+      rules mentioned above. But in many cases, not all the columns are
+      necessary for the intended operation. If the statement is in the form,
+      SELECT * FROM &lt;joined table&gt;, then all the columns of &lt;joined
+      table&gt; are returned. But normally, the columns to be returned are
+      specified after the SELECT keyword, separated from each other with
+      commas.</para>
+    </section>
+
+    <section>
+      <title>Computed Columns</title>
+
+      <para>In the select list, it is possible to use expressions that
+      reference any columns of &lt;joined table&gt;. Each of these expressions
+      forms a computed column. It is computed for each row of the result
+      table, using the values of the columns of the &lt;joined table&gt; for
+      that row.</para>
     </section>
 
     <section>
@@ -2060,7 +2091,39 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
 
       <simpara><emphasis role="bold">Name Resolution</emphasis></simpara>
 
-      <simpara>In a joined table, if a column name appears in</simpara>
+      <simpara>In a joined table, if a column name appears in tables on both
+      sides then any reference to the name must use the table name in order to
+      specify which table is being refered to.</simpara>
+    </section>
+
+    <section>
+      <title>Grouping Operations</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>GROUPING OPERATIONS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">Grouping Operations</emphasis></simpara>
+
+      <para>Grouping results in the elimination of duplicate rows. A grouping
+      operation is performed after the operations discussed above. A simple
+      form of grouping is performed by the use of DISTINCT after SELECT. This
+      eliminates all the duplicate rows (rows that have the same value in each
+      of their columns when compared to another row). The other form of
+      grouping is performed with the GROUP BY clause. This form is usaully
+      used together with aggregation.</para>
+    </section>
+
+    <section>
+      <title>Aggregation</title>
+
+      <para>Aggregation is an operation that computes a single value from the
+      values of a column over several rows. The operation is performed with an
+      aggregate function. The simplest form of aggregation is counting,
+      performed by the COUNT function.</para>
+
+      <para>Other common aggregate functions return the maximum, minimum and
+      average value among the values in different rows.</para>
     </section>
 
     <section>
@@ -2106,6 +2169,16 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       first table which do not exist in the second table. If n copies of a row
       exist in the first table and m copies in the second table the number of
       copies in the result table is n-m, or if n &lt; m, then zero.</para>
+    </section>
+
+    <section>
+      <title>Ordering</title>
+
+      <para>When the rows of the result table have been formed, it is possible
+      to specify the order in which they are returned to the user. The ORDER
+      BY clause is used to specify the columns used for ordering, and whether
+      ascending or descending ordering is used. It can also specify whether
+      NULL values are returned first or last.</para>
     </section>
   </section>
 
