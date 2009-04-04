@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.hsqldb.HsqlException;
+import org.hsqldb.Row;
 import org.hsqldb.lib.HsqlLinkedList;
 import org.hsqldb.lib.HsqlLinkedList.Node;
 import org.hsqldb.result.ResultMetaData;
@@ -67,8 +68,12 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
     /**
      * Returns the current row object. Type of object is implementation defined.
      */
-    public Object getCurrent() {
-        return current.data;
+    public Object[] getCurrent() {
+        return ((Row) current.data).getData();
+    }
+
+    public Row getCurrentRow() {
+        return (Row) current.data;
     }
 
     public void remove() {
@@ -123,7 +128,7 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
         out.writeInt(size);
 
         while (hasNext()) {
-            Object[] data = (Object[]) getNext();
+            Object[] data = getNext();
 
             out.writeData(meta.getColumnCount(), meta.columnTypes, data, null,
                           null);

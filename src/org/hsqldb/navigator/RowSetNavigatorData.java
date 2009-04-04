@@ -209,8 +209,12 @@ public class RowSetNavigatorData extends RowSetNavigator {
         reset();
     }
 
-    public Object getCurrent() {
+    public Object[] getCurrent() {
         return currentRow.getData();
+    }
+
+    public Row getCurrentRow() {
+        return currentRow;
     }
 
     public boolean next() {

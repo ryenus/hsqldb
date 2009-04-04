@@ -55,10 +55,15 @@ public interface PersistentStore {
 
     int getStorageSize(int key);
 
+    /** add new object */
+    void add(CachedObject object) throws HsqlException;
+
     /** add object previously removed from persistnce */
     void restore(CachedObject object) throws HsqlException;
 
     CachedObject get(RowInputInterface in) throws HsqlException;
+
+    CachedObject getNewInstance(int size);
 
     CachedObject getNewCachedObject(Session session,
                                     Object object) throws HsqlException;

@@ -141,4 +141,11 @@ public class RowStoreMemory implements PersistentStore {
 
         accessorMap.put(index.getPersistenceId(), accessor);
     }
+
+    public void add(CachedObject object) throws HsqlException {
+    }
+
+    public CachedObject getNewInstance(int size) {
+        return null;
+    }
 }

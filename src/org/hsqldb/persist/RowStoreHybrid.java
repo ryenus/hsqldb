@@ -144,7 +144,7 @@ public class RowStoreHybrid implements PersistentStore {
         }
     }
 
-    private void add(CachedObject object) throws HsqlException {
+    public void add(CachedObject object) throws HsqlException {
 
         if (isCached) {
             int size = cache.rowOut.getSize((CachedRow) object)
@@ -329,5 +329,9 @@ public class RowStoreHybrid implements PersistentStore {
         }
 
         maxMemoryRowCount = Integer.MAX_VALUE;
+    }
+
+    public CachedObject getNewInstance(int size) {
+        return null;
     }
 }

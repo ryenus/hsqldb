@@ -7159,7 +7159,7 @@ public class JDBCResultSet implements ResultSet {
                                     ErrorCode.M_RS_AFTER_LAST);
         }
 
-        Object[] data = (Object[]) lnavigator.getCurrent();
+        Object[] data = lnavigator.getCurrent();
 
         if (data == null) {
             throw Util.sqlException(ErrorCode.X_24501);

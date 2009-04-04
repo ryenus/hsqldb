@@ -128,8 +128,9 @@ public class SessionContext {
         savepoints          = new HashMappedList(4);
         savepointTimestamps = new LongDeque();
 
-        String name = HsqlNameManager.getAutoSavepointNameString(
-            session.actionTimestamp, depth);
+        String name =
+            HsqlNameManager.getAutoSavepointNameString(session.actionTimestamp,
+                depth);
 
         session.savepoint(name);
 

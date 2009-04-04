@@ -469,7 +469,7 @@ class DatabaseInformationMain extends DatabaseInformation {
     protected final Table createBlankTable(HsqlName name)
     throws HsqlException {
 
-        Table table = new Table(database, name, Table.SYSTEM_TABLE);
+        Table table = new Table(database, name, TableBase.SYSTEM_TABLE);
 
         return table;
     }
@@ -3469,14 +3469,14 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             switch (table.getTableType()) {
 
-                case Table.SYSTEM_TABLE :
+                case TableBase.SYSTEM_TABLE :
                 case TableBase.VIEW_TABLE :
                     row[table_type]         = "VIEW";
                     row[is_insertable_into] = "NO";
                     break;
 
-                case Table.TEMP_TABLE :
-                case Table.TEMP_TEXT_TABLE :
+                case TableBase.TEMP_TABLE :
+                case TableBase.TEMP_TEXT_TABLE :
                     row[table_type]         = "GLOBAL TEMPORARY";
                     row[is_insertable_into] = "YES";
                     break;

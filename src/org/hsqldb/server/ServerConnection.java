@@ -779,7 +779,7 @@ class ServerConnection implements Runnable {
                         while (navData.next()) {
                             rowNum++;
 
-                            Object[] rowData = (Object[]) navData.getCurrent();
+                            Object[] rowData = navData.getCurrent();
 
                             // Row.getData().  Don't know why *Data.getCurrent()
                             //                 method returns Object instead of O[].
@@ -1301,7 +1301,7 @@ class ServerConnection implements Runnable {
                     while (navData.next()) {
                         rowNum++;
 
-                        Object[] rowData = (Object[]) navData.getCurrent();
+                        Object[] rowData = navData.getCurrent();
 
                         // Row.getData().  Don't know why *Data.getCurrent()
                         //                 method returns Object instead of O[].

@@ -103,7 +103,7 @@ public class TableBase {
     public boolean    isSessionBased;
     protected boolean isSchemaBased;
     protected boolean isLogged;
-    private boolean    isTransactional = true;
+    private boolean   isTransactional = true;
 
     //
     TableBase() {}
@@ -241,7 +241,6 @@ public class TableBase {
         isTransactional = value;
     }
 
-
     /**
      * This method is called whenever there is a change to table structure and
      * serves two porposes: (a) to reset the best set of columns that identify
@@ -371,6 +370,73 @@ public class TableBase {
         addIndex(newindex);
     }
 
+    public final Index createAndAddIndexStructure(HsqlName name,
+            int[] columns, boolean[] descending, boolean[] nullsLast,
+            boolean unique, boolean constraint, boolean forward) {
+
+        Index newindex = createIndexStructure(name, columns, descending,
+                                              nullsLast, unique, constraint,
+                                              forward);
+
+        addIndex(newindex);
+
+        return newindex;
+    }
+
+    final Index createIndexStructure(HsqlName name, int[] columns,
+                                     boolean[] descending,
+                                     boolean[] nullsLast, boolean unique,
+                                     boolean constraint, boolean forward) {
+
+        if (primaryKeyCols == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "createIndex");
+        }
+
+        int    s     = columns.length;
+        int[]  cols  = new int[s];
+        Type[] types = new Type[s];
+
+        for (int j = 0; j < s; j++) {
+            cols[j]  = columns[j];
+            types[j] = colTypes[cols[j]];
+        }
+
+        long id = database.persistentStoreCollection.getNextId();
+        Index newIndex = new Index(name, id, this, cols, descending,
+                                   nullsLast, types, unique, constraint,
+                                   forward);
+
+        return newIndex;
+    }
+
+    final void addIndex(Index index) {
+
+        int i = 0;
+
+        for (; i < indexList.length; i++) {
+            Index current = indexList[i];
+            int order = index.getIndexOrderValue()
+                        - current.getIndexOrderValue();
+
+            if (order < 0) {
+                break;
+            }
+        }
+
+        indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, index, i,
+                1);
+
+        for (i = 0; i < indexList.length; i++) {
+            indexList[i].setPosition(i);
+        }
+
+        setBestRowIdentifiers();
+    }
+
+    public final Object[] getEmptyRowData() {
+        return new Object[getDataColumnCount()];
+    }
+
     /**
      *  Create new memory-resident index. For MEMORY and TEXT tables.
      */
@@ -454,73 +520,6 @@ public class TableBase {
 
             newIndex.insert(null, store, row, newindexNo);
         }
-    }
-
-    public final Index createAndAddIndexStructure(HsqlName name,
-            int[] columns, boolean[] descending, boolean[] nullsLast,
-            boolean unique, boolean constraint, boolean forward) {
-
-        Index newindex = createIndexStructure(name, columns, descending,
-                                              nullsLast, unique, constraint,
-                                              forward);
-
-        addIndex(newindex);
-
-        return newindex;
-    }
-
-    final Index createIndexStructure(HsqlName name, int[] columns,
-                                     boolean[] descending,
-                                     boolean[] nullsLast, boolean unique,
-                                     boolean constraint, boolean forward) {
-
-        if (primaryKeyCols == null) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "createIndex");
-        }
-
-        int    s     = columns.length;
-        int[]  cols  = new int[s];
-        Type[] types = new Type[s];
-
-        for (int j = 0; j < s; j++) {
-            cols[j]  = columns[j];
-            types[j] = colTypes[cols[j]];
-        }
-
-        long id = database.persistentStoreCollection.getNextId();
-        Index newIndex = new Index(name, id, this, cols, descending,
-                                   nullsLast, types, unique, constraint,
-                                   forward);
-
-        return newIndex;
-    }
-
-    final void addIndex(Index index) {
-
-        int i = 0;
-
-        for (; i < indexList.length; i++) {
-            Index current = indexList[i];
-            int order = index.getIndexOrderValue()
-                        - current.getIndexOrderValue();
-
-            if (order < 0) {
-                break;
-            }
-        }
-
-        indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, index, i,
-                1);
-
-        for (i = 0; i < indexList.length; i++) {
-            indexList[i].setPosition(i);
-        }
-
-        setBestRowIdentifiers();
-    }
-
-    public final Object[] getEmptyRowData() {
-        return new Object[getDataColumnCount()];
     }
 
     public void clearAllData(Session session) {

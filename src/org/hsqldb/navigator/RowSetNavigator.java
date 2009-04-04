@@ -77,7 +77,7 @@ public abstract class RowSetNavigator implements RangeIterator {
     /**
      * Returns the current row object. Type of object is implementation defined.
      */
-    public abstract Object getCurrent();
+    public abstract Object[] getCurrent();
 
     public long getRowid() {
         return 0;
@@ -87,9 +87,7 @@ public abstract class RowSetNavigator implements RangeIterator {
         return null;
     }
 
-    public Row getCurrentRow() {
-        return null;
-    }
+    public abstract Row getCurrentRow();
 
     /**
      * Add row to the end
@@ -136,7 +134,7 @@ public abstract class RowSetNavigator implements RangeIterator {
         return size == 0;
     }
 
-    public Object getNext() {
+    public Object[] getNext() {
         return next() ? getCurrent()
                       : null;
     }

@@ -47,7 +47,7 @@ public interface RangeIterator {
 
     Row getCurrentRow();
 
-    Object getCurrent();
+    Object[] getCurrent();
 
     long getRowid();
 

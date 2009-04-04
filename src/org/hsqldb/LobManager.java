@@ -210,7 +210,7 @@ public class LobManager {
             return 0;
         }
 
-        Object[] data = (Object[]) navigator.getCurrent();
+        Object[] data = navigator.getCurrent();
 
         return ((Long) data[0]).longValue();
     }
@@ -237,7 +237,7 @@ public class LobManager {
             return null;
         }
 
-        Object[] data = (Object[]) navigator.getCurrent();
+        Object[] data = navigator.getCurrent();
 
         return data;
     }
@@ -764,7 +764,7 @@ public class LobManager {
         for (int i = 0; i < size; i++) {
             navigator.absolute(i);
 
-            Object[] data = (Object[]) navigator.getCurrent();
+            Object[] data = navigator.getCurrent();
 
             blocks[i][0] = ((Integer) data[LOBS.BLOCK_ADDR]).intValue();
             blocks[i][1] = ((Integer) data[LOBS.BLOCK_COUNT]).intValue();
