@@ -204,16 +204,16 @@ public class Result {
 
             case ResultConstants.BATCHEXECUTE :
             case ResultConstants.BATCHEXECDIRECT :
-            case ResultConstants.SETSESSIONATTR :
-                navigator = new RowSetNavigatorLinkedList();
+                navigator = new RowSetNavigatorClient(4);
                 break;
 
+            case ResultConstants.SETSESSIONATTR :
             case ResultConstants.PARAM_METADATA :
-                navigator = new RowSetNavigatorLinkedList();
+                navigator = new RowSetNavigatorClient(1);
                 break;
 
             case ResultConstants.BATCHEXECRESPONSE :
-                navigator = new RowSetNavigatorClient();
+                navigator = new RowSetNavigatorClient(4);
                 break;
 
             case ResultConstants.DATA :
@@ -744,7 +744,7 @@ public class Result {
         Result result = newResult(ResultConstants.DATA);
 
         result.metaData  = meta;
-        result.navigator = new RowSetNavigatorLinkedList();
+        result.navigator = new RowSetNavigatorClient();
 
         return result;
     }
@@ -760,7 +760,7 @@ public class Result {
         result.metaData.prepareData();
 
         //
-        result.navigator = new RowSetNavigatorLinkedList();
+        result.navigator = new RowSetNavigatorClient(8);
 
         return result;
     }
@@ -871,7 +871,7 @@ public class Result {
 
         Result result = newResult(ResultConstants.DATA);
 
-        result.navigator = new RowSetNavigatorLinkedList();
+        result.navigator = new RowSetNavigatorClient();
         result.metaData  = md;
 
         return result;
@@ -966,7 +966,7 @@ public class Result {
 
         Result result = newResult(ResultConstants.DATA);
 
-        result.navigator = new RowSetNavigatorLinkedList();
+        result.navigator = new RowSetNavigatorClient(1);
         result.metaData  = sessionAttributesMetaData;
 
         result.navigator.add(new Object[SessionInterface.INFO_LIMIT]);

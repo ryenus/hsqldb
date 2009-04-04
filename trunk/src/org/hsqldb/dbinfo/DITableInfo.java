@@ -396,7 +396,7 @@ final class DITableInfo {
 
         String key;
 
-        if (table.getTableType() != Table.SYSTEM_TABLE) {
+        if (table.getTableType() != TableBase.SYSTEM_TABLE) {
             return null;
         }
 
@@ -539,16 +539,16 @@ final class DITableInfo {
 
         switch (table.getTableType()) {
 
-            case Table.MEMORY_TABLE :
-            case Table.TEMP_TABLE :
-            case Table.SYSTEM_TABLE :
+            case TableBase.MEMORY_TABLE :
+            case TableBase.TEMP_TABLE :
+            case TableBase.SYSTEM_TABLE :
                 return "MEMORY";
 
-            case Table.CACHED_TABLE :
+            case TableBase.CACHED_TABLE :
                 return "CACHED";
 
-            case Table.TEMP_TEXT_TABLE :
-            case Table.TEXT_TABLE :
+            case TableBase.TEMP_TEXT_TABLE :
+            case TableBase.TEXT_TABLE :
                 return "TEXT";
 
             case TableBase.VIEW_TABLE :
@@ -674,7 +674,7 @@ final class DITableInfo {
      */
     String getRemark() {
 
-        return (table.getTableType() == Table.SYSTEM_TABLE)
+        return (table.getTableType() == TableBase.SYSTEM_TABLE)
                ? BundleHandler.getString(hnd_table_remarks, getName())
                : null;
     }
@@ -694,11 +694,11 @@ final class DITableInfo {
             case TableBase.VIEW_TABLE :
                 return "VIEW";
 
-            case Table.TEMP_TABLE :
-            case Table.TEMP_TEXT_TABLE :
+            case TableBase.TEMP_TABLE :
+            case TableBase.TEMP_TEXT_TABLE :
                 return "GLOBAL TEMPORARY";
 
-            case Table.SYSTEM_TABLE :
+            case TableBase.SYSTEM_TABLE :
                 return "SYSTEM TABLE";
 
             default :

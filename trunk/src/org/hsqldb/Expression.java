@@ -1231,8 +1231,8 @@ public class Expression {
 
             case OpTypes.SIMPLE_COLUMN : {
                 Object[] data =
-                    (Object[]) session.sessionContext
-                        .rangeIterators[rangePosition].getCurrent();
+                    session.sessionContext.rangeIterators[rangePosition]
+                        .getCurrent();
 
                 return data[columnIndex];
             }

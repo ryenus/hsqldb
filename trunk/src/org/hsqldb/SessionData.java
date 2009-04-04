@@ -359,7 +359,7 @@ public class SessionData {
         RowSetNavigator navigator = result.getNavigator();
 
         while (navigator.next()) {
-            Object[] data = (Object[]) navigator.getCurrent();
+            Object[] data = navigator.getCurrent();
 
             for (int i = 0; i < data.length; i++) {
                 if (data[i] instanceof BlobData) {

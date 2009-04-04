@@ -36,6 +36,7 @@ import java.io.IOException;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.Row;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -52,6 +53,7 @@ import org.hsqldb.rowio.RowOutputInterface;
 public class RowSetNavigatorClient extends RowSetNavigator {
 
     public static final Object[][] emptyTable = new Object[0][];
+
     //
     int currentOffset;
     int baseBlockSize;
@@ -60,7 +62,9 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     Object[][] table;
 
     //
-    public RowSetNavigatorClient() {}
+    public RowSetNavigatorClient() {
+        table = emptyTable;
+    }
 
     public RowSetNavigatorClient(int blockSize) {
         table = new Object[blockSize][];
@@ -77,7 +81,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         source.absolute(offset);
 
         for (int count = 0; count < blockSize; count++) {
-            table[count] = (Object[]) source.getCurrent();
+            table[count] = source.getCurrent();
 
             source.next();
         }
@@ -104,7 +108,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     /**
      * Returns the current row object. Type of object is implementation defined.
      */
-    public Object getCurrent() {
+    public Object[] getCurrent() {
 
         if (currentPos < 0 || currentPos >= size) {
             return null;
@@ -117,11 +121,17 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         return table[currentPos - currentOffset];
     }
 
+    public Row getCurrentRow() {
+        throw Error.runtimeError(ErrorCode.U_S0500, "ClientRowSetNavigator");
+    }
+
     public void remove() {
         throw Error.runtimeError(ErrorCode.U_S0500, "ClientRowSetNavigator");
     }
 
     public void add(Object data) {
+
+        ensureCapacity();
 
         table[size] = (Object[]) data;
 
@@ -187,12 +197,18 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     public void write(RowOutputInterface out,
                       ResultMetaData meta) throws HsqlException, IOException {
 
+        int limit = size - currentOffset;
+
+        if (limit > table.length) {
+            limit = table.length;
+        }
+
         out.writeLong(id);
         out.writeInt(size);
         out.writeInt(currentOffset);
-        out.writeInt(table.length);
+        out.writeInt(limit);
 
-        for (int i = 0; i < table.length; i++) {
+        for (int i = 0; i < limit; i++) {
             Object[] data = table[i];
 
             out.writeData(meta.getColumnCount(), meta.columnTypes, data, null,
@@ -212,5 +228,18 @@ public class RowSetNavigatorClient extends RowSetNavigator {
             table         = source.table;
             currentOffset = source.currentOffset;
         } catch (HsqlException e) {}
+    }
+
+    private void ensureCapacity() {
+
+        if (size == table.length) {
+            int        newSize  = size == 0 ? 1
+                                            : size * 2;
+            Object[][] newTable = new Object[newSize][];
+
+            System.arraycopy(table, 0, newTable, 0, size);
+
+            table = newTable;
+        }
     }
 }

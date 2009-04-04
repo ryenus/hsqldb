@@ -42,6 +42,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.navigator.RowSetNavigatorLinkedList;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
@@ -436,7 +437,7 @@ public class StatementDML extends StatementDMQL {
         int count = 0;
 
         // data generated for non-matching rows
-        RowSetNavigatorLinkedList newData = new RowSetNavigatorLinkedList();
+        RowSetNavigatorClient newData = new RowSetNavigatorClient(8);
 
         // rowset for update operation
         HashMappedList  updateRowSet       = new HashMappedList();
@@ -669,7 +670,9 @@ public class StatementDML extends StatementDMQL {
             oldRows.beforeFirst();
 
             while (oldRows.hasNext()) {
-                Row row = (Row) oldRows.getNext();
+                oldRows.next();
+
+                Row row = oldRows.getCurrentRow();
 
                 path.clear();
                 checkCascadeDelete(session, table, tableUpdateList, row,
@@ -681,7 +684,9 @@ public class StatementDML extends StatementDMQL {
             oldRows.beforeFirst();
 
             while (oldRows.hasNext()) {
-                Row row = (Row) oldRows.getNext();
+                oldRows.next();
+
+                Row row = oldRows.getCurrentRow();
 
                 path.clear();
                 checkCascadeDelete(session, table, tableUpdateList, row, true,
@@ -692,7 +697,9 @@ public class StatementDML extends StatementDMQL {
         oldRows.beforeFirst();
 
         while (oldRows.hasNext()) {
-            Row row = (Row) oldRows.getNext();
+            oldRows.next();
+
+            Row row = oldRows.getCurrentRow();
 
             if (!row.isCascadeDeleted()) {
                 table.deleteNoRefCheck(session, row);
@@ -709,6 +716,8 @@ public class StatementDML extends StatementDMQL {
                 updateList.clear();
             }
         }
+
+        oldRows.beforeFirst();
 
         if (table.hasTrigger(Trigger.DELETE_AFTER)) {
             table.fireAfterTriggers(session, Trigger.DELETE_AFTER, oldRows);

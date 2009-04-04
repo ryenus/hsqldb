@@ -108,7 +108,7 @@ public class RowStoreCached implements PersistentStore {
         }
     }
 
-    void add(CachedObject object) throws HsqlException {
+    public void add(CachedObject object) throws HsqlException {
 
         int size = cache.rowOut.getSize((CachedRow) object)
                    + table.getIndexCount() * DiskNode.SIZE_IN_BYTE;
@@ -206,5 +206,9 @@ public class RowStoreCached implements PersistentStore {
         Index index = (Index) key;
 
         accessorMap.put(index.getPersistenceId(), accessor);
+    }
+
+    public CachedObject getNewInstance(int size) {
+        return null;
     }
 }

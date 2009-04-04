@@ -885,8 +885,6 @@ public class Table extends TableBase implements SchemaObject {
         return -1;
     }
 
-// fredt@users 20020220 - patch 475199 - duplicate column
-
     /**
      *  Performs the table level checks and adds a column to the table at the
      *  DDL level. Only used at table creation, not at alter column.
@@ -1308,31 +1306,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Used to create an index automatically for system tables.
-     */
-    Index createIndexForColumns(int[] columns) {
-
-        HsqlName indexName = database.nameManager.newAutoName("IDX_T",
-            getSchemaName(), getName(), SchemaObject.INDEX);
-        Index index = createAndAddIndexStructure(indexName, columns, null,
-            null, false, false, false);
-
-        if (tableType == SYSTEM_TABLE) {
-            PersistentStore store =
-                database.persistentStoreCollection.getStore(
-                    this.getPersistenceId());
-
-            try {
-                insertIndexNodes(store, index, index.getPosition());
-            } catch (Throwable t) {
-                return null;
-            }
-        }
-
-        return index;
-    }
-
-    /**
      *  Finds an existing index for a column
      */
     Index getIndexForColumn(int col) {
@@ -1343,73 +1316,8 @@ public class Table extends TableBase implements SchemaObject {
                        : this.indexList[i];
     }
 
-    /**
-     *  Finds an existing index for a column group
-     */
-    Index getIndexForColumns(int[] cols) {
-
-        int i = bestIndexForColumn[cols[0]];
-
-        if (i > -1) {
-            return indexList[i];
-        }
-
-        switch (tableType) {
-
-            case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE :
-
-//            case TableBase.VIEW_TABLE :
-//            case TableBase.TEMP_TABLE :
-                return createIndexForColumns(cols);
-        }
-
-        return null;
-    }
-
     boolean isIndexed(int colIndex) {
         return bestIndexForColumn[colIndex] != -1;
-    }
-
-    /**
-     * Finds an existing index for a column set or create one for temporary
-     * tables
-     */
-    Index getIndexForColumns(OrderedIntHashSet set) {
-
-        int   maxMatchCount = 0;
-        Index selected      = null;
-
-        if (set.isEmpty()) {
-            return null;
-        }
-
-        for (int i = 0, count = indexList.length; i < count; i++) {
-            Index currentindex = getIndex(i);
-            int[] indexcols    = currentindex.getColumns();
-            int   matchCount   = set.getOrderedMatchCount(indexcols);
-
-            if (matchCount == 0) {
-                continue;
-            }
-
-            if (matchCount == indexcols.length) {
-                return currentindex;
-            }
-
-            if (matchCount > maxMatchCount) {
-                maxMatchCount = matchCount;
-                selected      = currentindex;
-            }
-        }
-
-        if (selected == null
-                && (tableType == TableBase.SYSTEM_SUBQUERY
-                    || tableType == TableBase.SYSTEM_TABLE)) {
-            return createIndexForColumns(set.toArray());
-        }
-
-        return selected;
     }
 
     int[] getUniqueNotNullColumnGroup(boolean[] usedColumns) {
@@ -1441,99 +1349,6 @@ public class Table extends TableBase implements SchemaObject {
 
     boolean areColumnsNotNull(int[] indexes) {
         return ArrayUtil.areIntIndexesInBooleanArray(indexes, colNotNull);
-    }
-
-    /**
-     *  Return the list of file pointers to root nodes for this table's
-     *  indexes.
-     */
-    public final int[] getIndexRootsArray() {
-
-        PersistentStore store = database.persistentStoreCollection.getStore(
-            this.getPersistenceId());
-        int[] roots = new int[getIndexCount()];
-
-        for (int i = 0; i < getIndexCount(); i++) {
-            Node node = (Node) store.getAccessor(indexList[i]);
-
-            roots[i] = node.getPos();
-        }
-
-        return roots;
-    }
-
-    /**
-     * Returns the string consisting of file pointers to roots of indexes
-     * plus the next identity value (hidden or user defined). This is used
-     * with CACHED tables.
-     */
-    String getIndexRoots() {
-
-        String       roots = StringUtil.getList(getIndexRootsArray(), " ", "");
-        StringBuffer s     = new StringBuffer(roots);
-
-/*
-        s.append(' ');
-        s.append(identitySequence.peek());
-*/
-        return s.toString();
-    }
-
-    /**
-     *  Sets the index roots of a cached/text table to specified file
-     *  pointers. If a
-     *  file pointer is -1 then the particular index root is null. A null index
-     *  root signifies an empty table. Accordingly, all index roots should be
-     *  null or all should be a valid file pointer/reference.
-     */
-    public void setIndexRoots(int[] roots) throws HsqlException {
-
-        if (!isCached) {
-            throw Error.error(ErrorCode.X_42501, tableName.name);
-        }
-
-        PersistentStore store = database.persistentStoreCollection.getStore(
-            this.getPersistenceId());
-
-        for (int i = 0; i < getIndexCount(); i++) {
-            int p = roots[i];
-            Row r = null;
-
-            if (p != -1) {
-                r = (CachedRow) store.get(p);
-            }
-
-            Node f = null;
-
-            if (r != null) {
-                f = r.getNode(i);
-            }
-
-            store.setAccessor(indexList[i], f);
-        }
-    }
-
-    /**
-     *  Sets the index roots and next identity.
-     */
-    void setIndexRoots(Session session, String s) throws HsqlException {
-
-        if (!isCached) {
-            throw Error.error(ErrorCode.X_42501, tableName.name);
-        }
-
-        ParserDQL p     = new ParserDQL(session, new Scanner(s));
-        int[]     roots = new int[getIndexCount()];
-
-        p.read();
-
-        for (int i = 0; i < getIndexCount(); i++) {
-            int v = p.readInteger();
-
-            roots[i] = v;
-        }
-
-        setIndexRoots(roots);
     }
 
     /**
@@ -1752,6 +1567,442 @@ public class Table extends TableBase implements SchemaObject {
         return data;
     }
 
+    boolean hasTrigger(int trigVecIndex) {
+        return triggerLists[trigVecIndex].length != 0;
+    }
+
+    /**
+     * Adds a trigger.
+     */
+    void addTrigger(TriggerDef td, HsqlName otherName) {
+
+        int index = triggerList.length;
+
+        if (otherName != null) {
+            for (int i = 0; i < triggerList.length; i++) {
+                if (triggerList[i].name.name.equals(otherName.name)) {
+                    index = i + 1;
+
+                    break;
+                }
+            }
+        }
+
+        triggerList = (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
+                td, index, 1);
+
+        TriggerDef[] list = triggerLists[td.vectorIndex];
+
+        index = list.length;
+
+        if (otherName != null) {
+            for (int i = 0; i < list.length; i++) {
+                TriggerDef trigger = list[i];
+
+                if (trigger.name.name.equals(otherName.name)) {
+                    index = i + 1;
+
+                    break;
+                }
+            }
+        }
+
+        list = (TriggerDef[]) ArrayUtil.toAdjustedArray(list, td, index, 1);
+        triggerLists[td.vectorIndex] = list;
+    }
+
+    /**
+     * Returns a trigger.
+     */
+    TriggerDef getTrigger(String name) {
+
+        for (int i = triggerList.length - 1; i >= 0; i--) {
+            if (triggerList[i].name.name.equals(name)) {
+                return triggerList[i];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Drops a trigger.
+     */
+    void removeTrigger(String name) {
+
+        TriggerDef td = null;
+
+        for (int i = 0; i < triggerList.length; i++) {
+            td = triggerList[i];
+
+            if (td.name.name.equals(name)) {
+                td.terminate();
+
+                triggerList =
+                    (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
+                        null, i, -1);
+
+                break;
+            }
+        }
+
+        if (td == null) {
+            return;
+        }
+
+        int index = td.vectorIndex;
+
+        // look in each trigger list of each type of trigger
+        for (int j = 0; j < triggerLists[index].length; j++) {
+            td = triggerLists[index][j];
+
+            if (td.name.name.equals(name)) {
+                td.terminate();
+
+                triggerLists[index] = (TriggerDef[]) ArrayUtil.toAdjustedArray(
+                    triggerLists[index], null, j, -1);
+
+                break;
+            }
+        }
+    }
+
+    /**
+     * Drops all triggers.
+     */
+    void releaseTriggers() {
+
+        // look in each trigger list of each type of trigger
+        for (int i = 0; i < TriggerDef.NUM_TRIGS; i++) {
+            for (int j = 0; j < triggerLists[i].length; j++) {
+                triggerLists[i][j].terminate();
+            }
+
+            triggerLists[i] = TriggerDef.emptyArray;
+        }
+    }
+
+    /**
+     * Returns the index of the Index object of the given name or -1 if not found.
+     */
+    int getIndexIndex(String indexName) {
+
+        Index[] indexes = indexList;
+
+        for (int i = 0; i < indexes.length; i++) {
+            if (indexName.equals(indexes[i].getName().name)) {
+                return i;
+            }
+        }
+
+        // no such index
+        return -1;
+    }
+
+    /**
+     * Returns the Index object of the given name or null if not found.
+     */
+    Index getIndex(String indexName) {
+
+        Index[] indexes = indexList;
+        int     i       = getIndexIndex(indexName);
+
+        return i == -1 ? null
+                       : indexes[i];
+    }
+
+    /**
+     *  Return the position of the constraint within the list
+     */
+    int getConstraintIndex(String constraintName) {
+
+        for (int i = 0, size = constraintList.length; i < size; i++) {
+            if (constraintList[i].getName().name.equals(constraintName)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     *  return the named constriant
+     */
+    public Constraint getConstraint(String constraintName) {
+
+        int i = getConstraintIndex(constraintName);
+
+        return (i < 0) ? null
+                       : constraintList[i];
+    }
+
+    /**
+     * remove a named constraint
+     */
+    void removeConstraint(String name) {
+
+        int index = getConstraintIndex(name);
+
+        if (index != -1) {
+            removeConstraint(index);
+        }
+    }
+
+    void removeConstraint(int index) {
+
+        constraintList =
+            (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, null,
+                index, -1);
+
+        updateConstraintLists();
+    }
+
+    void renameColumn(ColumnSchema column, String newName,
+                      boolean isquoted) throws HsqlException {
+
+        String oldname = column.getName().name;
+        int    i       = getColumnIndex(oldname);
+
+        columnList.setKey(i, newName);
+        column.getName().rename(newName, isquoted);
+    }
+
+    void renameColumn(ColumnSchema column,
+                      HsqlName newName) throws HsqlException {
+
+        String oldname = column.getName().name;
+        int    i       = getColumnIndex(oldname);
+
+        columnList.setKey(i, newName);
+        column.getName().rename(newName);
+    }
+
+    public TriggerDef[] getTriggers() {
+        return triggerList;
+    }
+
+    public boolean isWritable() {
+        return !isReadOnly && !database.databaseReadOnly
+               && !(database.isFilesReadOnly() && (isCached || isText));
+    }
+
+    public boolean isInsertable() {
+        return isWritable();
+    }
+
+    public boolean isUpdatable() {
+        return isWritable();
+    }
+
+    public int[] getUpdatableColumns() {
+        return defaultColumnMap;
+    }
+
+    public Table getBaseTable() {
+        return this;
+    }
+
+    public int[] getBaseTableColumnMap() {
+        return defaultColumnMap;
+    }
+
+//
+
+    /**
+     *  Used to create an index automatically for system tables.
+     */
+    Index createIndexForColumns(int[] columns) {
+
+        HsqlName indexName = database.nameManager.newAutoName("IDX_T",
+            getSchemaName(), getName(), SchemaObject.INDEX);
+        Index index = createAndAddIndexStructure(indexName, columns, null,
+            null, false, false, false);
+
+        return index;
+    }
+
+    /**
+     *  Finds an existing index for a column group
+     */
+    Index getIndexForColumns(int[] cols) {
+
+        int i = bestIndexForColumn[cols[0]];
+
+        if (i > -1) {
+            return indexList[i];
+        }
+
+        switch (tableType) {
+
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.SYSTEM_TABLE :
+
+//            case TableBase.VIEW_TABLE :
+//            case TableBase.TEMP_TABLE :
+                Index index = createIndexForColumns(cols);
+
+                if (tableType == SYSTEM_TABLE) {
+                    PersistentStore store =
+                        database.persistentStoreCollection.getStore(
+                            this.getPersistenceId());
+
+                    try {
+                        insertIndexNodes(store, index, index.getPosition());
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                }
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds an existing index for a column set or create one for temporary
+     * tables
+     */
+    Index getIndexForColumns(OrderedIntHashSet set) {
+
+        int   maxMatchCount = 0;
+        Index selected      = null;
+
+        if (set.isEmpty()) {
+            return null;
+        }
+
+        for (int i = 0, count = indexList.length; i < count; i++) {
+            Index currentindex = getIndex(i);
+            int[] indexcols    = currentindex.getColumns();
+            int   matchCount   = set.getOrderedMatchCount(indexcols);
+
+            if (matchCount == 0) {
+                continue;
+            }
+
+            if (matchCount == indexcols.length) {
+                return currentindex;
+            }
+
+            if (matchCount > maxMatchCount) {
+                maxMatchCount = matchCount;
+                selected      = currentindex;
+            }
+        }
+
+        if (selected == null
+                && (tableType == SYSTEM_SUBQUERY
+                    || tableType == SYSTEM_TABLE)) {
+            selected = createIndexForColumns(set.toArray());
+
+            if (tableType == SYSTEM_TABLE) {
+                PersistentStore store =
+                    database.persistentStoreCollection.getStore(
+                        this.getPersistenceId());
+
+                try {
+                    insertIndexNodes(store, selected, selected.getPosition());
+                } catch (Throwable t) {
+                    return null;
+                }
+            }
+        }
+
+        return selected;
+    }
+
+    /**
+     *  Return the list of file pointers to root nodes for this table's
+     *  indexes.
+     */
+    public final int[] getIndexRootsArray() {
+
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this.getPersistenceId());
+        int[] roots = new int[getIndexCount()];
+
+        for (int i = 0; i < getIndexCount(); i++) {
+            Node node = (Node) store.getAccessor(indexList[i]);
+
+            roots[i] = node.getPos();
+        }
+
+        return roots;
+    }
+
+    /**
+     * Returns the string consisting of file pointers to roots of indexes
+     * plus the next identity value (hidden or user defined). This is used
+     * with CACHED tables.
+     */
+    String getIndexRoots() {
+
+        String       roots = StringUtil.getList(getIndexRootsArray(), " ", "");
+        StringBuffer s     = new StringBuffer(roots);
+
+/*
+        s.append(' ');
+        s.append(identitySequence.peek());
+*/
+        return s.toString();
+    }
+
+    /**
+     *  Sets the index roots of a cached/text table to specified file
+     *  pointers. If a
+     *  file pointer is -1 then the particular index root is null. A null index
+     *  root signifies an empty table. Accordingly, all index roots should be
+     *  null or all should be a valid file pointer/reference.
+     */
+    public void setIndexRoots(int[] roots) throws HsqlException {
+
+        if (!isCached) {
+            throw Error.error(ErrorCode.X_42501, tableName.name);
+        }
+
+        PersistentStore store = database.persistentStoreCollection.getStore(
+            this.getPersistenceId());
+
+        for (int i = 0; i < getIndexCount(); i++) {
+            int p = roots[i];
+            Row r = null;
+
+            if (p != -1) {
+                r = (CachedRow) store.get(p);
+            }
+
+            Node f = null;
+
+            if (r != null) {
+                f = r.getNode(i);
+            }
+
+            store.setAccessor(indexList[i], f);
+        }
+    }
+
+    /**
+     *  Sets the index roots and next identity.
+     */
+    void setIndexRoots(Session session, String s) throws HsqlException {
+
+        if (!isCached) {
+            throw Error.error(ErrorCode.X_42501, tableName.name);
+        }
+
+        ParserDQL p     = new ParserDQL(session, new Scanner(s));
+        int[]     roots = new int[getIndexCount()];
+
+        p.read();
+
+        for (int i = 0; i < getIndexCount(); i++) {
+            int v = p.readInteger();
+
+            roots[i] = v;
+        }
+
+        setIndexRoots(roots);
+    }
+
     /**
      *  Performs Table structure modification and changes to the index nodes
      *  to remove a given index from a MEMORY or TEXT table. Not for PK index.
@@ -1844,6 +2095,8 @@ public class Table extends TableBase implements SchemaObject {
             throw new HsqlException(t, "", 0);
         }
     }
+
+    //
 
     /**
      *  Mid level method for inserting rows. Performs constraint checks and
@@ -2085,10 +2338,6 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    boolean hasTrigger(int trigVecIndex) {
-        return triggerLists[trigVecIndex].length != 0;
-    }
-
     void fireAfterTriggers(Session session, int trigVecIndex,
                            RowSetNavigator rowSet) throws HsqlException {
 
@@ -2115,7 +2364,7 @@ public class Table extends TableBase implements SchemaObject {
                     switch (td.triggerType) {
 
                         case Trigger.DELETE_AFTER_ROW :
-                            oldData = (Object[]) rowSet.getNext();
+                            oldData = rowSet.getNext();
 
                             if (!sqlTrigger) {
                                 oldData = (Object[]) ArrayUtil.duplicateArray(
@@ -2124,7 +2373,7 @@ public class Table extends TableBase implements SchemaObject {
                             break;
 
                         case Trigger.INSERT_AFTER_ROW :
-                            newData = (Object[]) rowSet.getNext();
+                            newData = rowSet.getNext();
 
                             if (!sqlTrigger) {
                                 newData = (Object[]) ArrayUtil.duplicateArray(
@@ -2187,120 +2436,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Adds a trigger.
-     */
-    void addTrigger(TriggerDef td, HsqlName otherName) {
-
-        int index = triggerList.length;
-
-        if (otherName != null) {
-            for (int i = 0; i < triggerList.length; i++) {
-                if (triggerList[i].name.name.equals(otherName.name)) {
-                    index = i + 1;
-
-                    break;
-                }
-            }
-        }
-
-        triggerList = (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
-                td, index, 1);
-
-        TriggerDef[] list = triggerLists[td.vectorIndex];
-
-        index = list.length;
-
-        if (otherName != null) {
-            for (int i = 0; i < list.length; i++) {
-                TriggerDef trigger = list[i];
-
-                if (trigger.name.name.equals(otherName.name)) {
-                    index = i + 1;
-
-                    break;
-                }
-            }
-        }
-
-        list = (TriggerDef[]) ArrayUtil.toAdjustedArray(list, td, index, 1);
-        triggerLists[td.vectorIndex] = list;
-    }
-
-    /**
-     * Drops a trigger.
-     */
-    TriggerDef getTrigger(String name) {
-
-        for (int i = triggerList.length - 1; i >= 0; i--) {
-            if (triggerList[i].name.name.equals(name)) {
-                return triggerList[i];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Drops a trigger.
-     */
-    void removeTrigger(String name) {
-
-        TriggerDef td = null;
-
-        for (int i = 0; i < triggerList.length; i++) {
-            td = triggerList[i];
-
-            if (td.name.name.equals(name)) {
-                td.terminate();
-
-                triggerList =
-                    (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
-                        null, i, -1);
-
-                break;
-            }
-        }
-
-        if (td == null) {
-            return;
-        }
-
-        int index = td.vectorIndex;
-
-        // look in each trigger list of each type of trigger
-        for (int j = 0; j < triggerLists[index].length; j++) {
-            td = triggerLists[index][j];
-
-            if (td.name.name.equals(name)) {
-                td.terminate();
-
-                triggerLists[index] = (TriggerDef[]) ArrayUtil.toAdjustedArray(
-                    triggerLists[index], null, j, -1);
-
-                break;
-            }
-        }
-    }
-
-    //list = (TriggerDef[]) ArrayUtil.toAdjustedArray(list, trigDef, list.length, 1);
-
-    /**
-     * Drops all triggers.
-     */
-    void releaseTriggers() {
-
-        // look in each trigger list of each type of trigger
-        for (int i = 0; i < TriggerDef.NUM_TRIGS; i++) {
-            for (int j = 0; j < triggerLists[i].length; j++) {
-                triggerLists[i][j].terminate();
-            }
-
-            triggerLists[i] = TriggerDef.emptyArray;
-        }
-    }
-
-    /**
-     *  Delete method for referential  triggered actions.
+     *  Delete method for referential triggered actions.
      */
     void deleteRowAsTriggeredAction(Session session,
                                     Row row) throws HsqlException {
@@ -2459,105 +2595,6 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    /**
-     * Returns the index of the Index object of the given name or -1 if not found.
-     */
-    int getIndexIndex(String indexName) {
-
-        Index[] indexes = indexList;
-
-        for (int i = 0; i < indexes.length; i++) {
-            if (indexName.equals(indexes[i].getName().name)) {
-                return i;
-            }
-        }
-
-        // no such index
-        return -1;
-    }
-
-    /**
-     * Returns the Index object of the given name or null if not found.
-     */
-    Index getIndex(String indexName) {
-
-        Index[] indexes = indexList;
-        int     i       = getIndexIndex(indexName);
-
-        return i == -1 ? null
-                       : indexes[i];
-    }
-
-    /**
-     *  Return the position of the constraint within the list
-     */
-    int getConstraintIndex(String constraintName) {
-
-        for (int i = 0, size = constraintList.length; i < size; i++) {
-            if (constraintList[i].getName().name.equals(constraintName)) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    /**
-     *  return the named constriant
-     */
-    public Constraint getConstraint(String constraintName) {
-
-        int i = getConstraintIndex(constraintName);
-
-        return (i < 0) ? null
-                       : constraintList[i];
-    }
-
-    /**
-     * remove a named constraint
-     */
-    void removeConstraint(String name) {
-
-        int index = getConstraintIndex(name);
-
-        if (index != -1) {
-            removeConstraint(index);
-        }
-    }
-
-    void removeConstraint(int index) {
-
-        constraintList =
-            (Constraint[]) ArrayUtil.toAdjustedArray(constraintList, null,
-                index, -1);
-
-        updateConstraintLists();
-    }
-
-    void renameColumn(ColumnSchema column, String newName,
-                      boolean isquoted) throws HsqlException {
-
-        String oldname = column.getName().name;
-        int    i       = getColumnIndex(oldname);
-
-        columnList.setKey(i, newName);
-        column.getName().rename(newName, isquoted);
-    }
-
-    void renameColumn(ColumnSchema column,
-                      HsqlName newName) throws HsqlException {
-
-        String oldname = column.getName().name;
-        int    i       = getColumnIndex(oldname);
-
-        columnList.setKey(i, newName);
-        column.getName().rename(newName);
-    }
-
-    public TriggerDef[] getTriggers() {
-        return triggerList;
-    }
-
     public void indexRow(Session session, Row row) throws HsqlException {
 
         int             i     = 0;
@@ -2628,31 +2665,6 @@ public class Table extends TableBase implements SchemaObject {
         if (identitySequence != null) {
             identitySequence.reset();
         }
-    }
-
-    public boolean isWritable() {
-        return !isReadOnly && !database.databaseReadOnly
-               && !(database.isFilesReadOnly() && (isCached || isText));
-    }
-
-    public boolean isInsertable() {
-        return isWritable();
-    }
-
-    public boolean isUpdatable() {
-        return isWritable();
-    }
-
-    public int[] getUpdatableColumns() {
-        return defaultColumnMap;
-    }
-
-    public Table getBaseTable() {
-        return this;
-    }
-
-    public int[] getBaseTableColumnMap() {
-        return defaultColumnMap;
     }
 
     /**

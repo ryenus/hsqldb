@@ -35,10 +35,9 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
-import org.hsqldb.navigator.RowSetNavigatorLinkedList;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.types.Type;
-import org.hsqldb.persist.PersistentStore;
 
 /**
  * Implementation of Statement for INSERT statements.<p>
@@ -132,7 +131,7 @@ public class StatementInsert extends StatementDMQL {
         }
 
         while (newDataNavigator.hasNext()) {
-            Object[] data = (Object[]) newDataNavigator.getNext();
+            Object[] data = newDataNavigator.getNext();
 
             if (checkCondition != null) {
                 checkIterator.currentData = data;
@@ -176,10 +175,10 @@ public class StatementInsert extends StatementDMQL {
         int[]  columnMap = insertColumnMap;
 
         //
-        Result result = queryExpression.getResult(session, 0);
-        RowSetNavigator           nav         = result.initialiseNavigator();
-        Type[]                    sourceTypes = result.metaData.columnTypes;
-        RowSetNavigatorLinkedList newData = new RowSetNavigatorLinkedList();
+        Result                result = queryExpression.getResult(session, 0);
+        RowSetNavigator       nav         = result.initialiseNavigator();
+        Type[]                sourceTypes = result.metaData.columnTypes;
+        RowSetNavigatorClient newData     = new RowSetNavigatorClient(2);
 
         while (nav.hasNext()) {
             Object[] data       = baseTable.getNewRowData(session);
@@ -206,10 +205,8 @@ public class StatementInsert extends StatementDMQL {
         int[]  columnMap = insertColumnMap;
 
         //
-        Expression[] list = insertExpression.nodes;
-        RowSetNavigatorClient newData = new RowSetNavigatorClient();
-
-        newData.setData(new Object[list.length][]);
+        Expression[]          list    = insertExpression.nodes;
+        RowSetNavigatorClient newData = new RowSetNavigatorClient(list.length);
 
         for (int j = 0; j < list.length; j++) {
             Expression[] rowArgs = list[j].nodes;
@@ -236,7 +233,7 @@ public class StatementInsert extends StatementDMQL {
                         e.getValue(session), e.getDataType());
             }
 
-            newData.setData(j, data);
+            newData.add(data);
         }
 
         return newData;

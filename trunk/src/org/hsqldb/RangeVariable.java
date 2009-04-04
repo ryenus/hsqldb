@@ -682,7 +682,7 @@ final class RangeVariable {
             return currentRow;
         }
 
-        public Object getCurrent() {
+        public Object[] getCurrent() {
             return currentData;
         }
 
