@@ -116,7 +116,12 @@ public class FunctionSQLInvoked extends Expression {
                 }
             }
 
-            data[i + extraArg] = e.dataType.convertSQLToJava(session, value);
+            if (routine.isPSM() ) {
+                data[i] = value;
+            } else {
+                data[i + extraArg] = e.dataType.convertSQLToJava(session,
+                        value);
+            }
         }
 
         if (push) {
