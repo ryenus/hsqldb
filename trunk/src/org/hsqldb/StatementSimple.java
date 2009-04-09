@@ -316,10 +316,6 @@ public class StatementSimple extends Statement {
         return false;
     }
 
-    public ResultMetaData generatedResultMetaData() {
-        return null;
-    }
-
     public String describe(Session session) {
         return "";
     }

@@ -72,8 +72,9 @@ public class TableBase {
     public static final int COLUMNS_REFERENCED   = 16;
 
     //
-    public int  persistenceScope;
-    public long persistenceId;
+    public PersistentStore store;
+    public int             persistenceScope;
+    public long            persistenceId;
 
     // columns in table
     int[]  primaryKeyCols;                      // column numbers for primary key
@@ -210,6 +211,13 @@ public class TableBase {
      */
     public final Index getIndex(int i) {
         return indexList[i];
+    }
+
+    /**
+     *  Returns the indexes
+     */
+    public final Index[] getIndexList() {
+        return indexList;
     }
 
     /**
@@ -367,12 +375,15 @@ public class TableBase {
         Index newindex = new Index(name, id, this, pkcols, null, null,
                                    pktypes, true, true, false);
 
-        addIndex(newindex);
+        try {
+            addIndex(newindex);
+        } catch (HsqlException e) {}
     }
 
     public final Index createAndAddIndexStructure(HsqlName name,
             int[] columns, boolean[] descending, boolean[] nullsLast,
-            boolean unique, boolean constraint, boolean forward) {
+            boolean unique, boolean constraint,
+            boolean forward) throws HsqlException {
 
         Index newindex = createIndexStructure(name, columns, descending,
                                               nullsLast, unique, constraint,
@@ -409,7 +420,7 @@ public class TableBase {
         return newIndex;
     }
 
-    final void addIndex(Index index) {
+    final void addIndex(Index index) throws HsqlException {
 
         int i = 0;
 
@@ -430,6 +441,25 @@ public class TableBase {
             indexList[i].setPosition(i);
         }
 
+        if (store != null) {
+            try {
+                store.resetAccessorKeys(indexList);
+            } catch (HsqlException e) {
+                indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList,
+                        null, index.getPosition(), -1);
+
+                for (i = 0; i < indexList.length; i++) {
+                    indexList[i].setPosition(i);
+                }
+
+                throw e;
+            }
+        }
+
+        setBestRowIdentifiers();
+    }
+
+    final void removeIndex(int position) {
         setBestRowIdentifiers();
     }
 
@@ -448,8 +478,6 @@ public class TableBase {
 
         Index newIndex = createAndAddIndexStructure(name, columns, descending,
             nullsLast, unique, constraint, forward);
-
-        insertIndexNodes(store, newIndex, newIndex.getPosition());
 
         return newIndex;
     }
@@ -507,19 +535,6 @@ public class TableBase {
         setBestRowIdentifiers();
 
         throw error;
-    }
-
-    void indexNodes(PersistentStore store, Index newIndex,
-                    int newindexNo) throws HsqlException {
-
-        Index       primaryindex = getPrimaryIndex();
-        RowIterator it           = primaryindex.firstRow(store);
-
-        while (it.hasNext()) {
-            Row row = it.getNextRow();
-
-            newIndex.insert(null, store, row, newindexNo);
-        }
     }
 
     public void clearAllData(Session session) {

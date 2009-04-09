@@ -44,13 +44,13 @@ import org.hsqldb.lib.HsqlArrayList;
 public final class SortAndSlice {
 
     final static SortAndSlice noSort = new SortAndSlice();
-    public int[]        sortOrder;
-    public boolean[]    sortDescending;
-    public boolean[]    sortNullsLast;
-    boolean             sortUnion;
-    HsqlArrayList       exprList = new HsqlArrayList();
-    Expression          limitCondition;
-    public Index        index;
+    public int[]              sortOrder;
+    public boolean[]          sortDescending;
+    public boolean[]          sortNullsLast;
+    boolean                   sortUnion;
+    HsqlArrayList             exprList = new HsqlArrayList();
+    Expression                limitCondition;
+    public Index              index;
 
     SortAndSlice() {}
 
@@ -136,7 +136,12 @@ public final class SortAndSlice {
     }
 
     public void setIndex(TableBase table) {
-        index = table.createAndAddIndexStructure(null, sortOrder,
-                sortDescending, sortNullsLast, false, false, false);
+
+        try {
+            index = table.createAndAddIndexStructure(null, sortOrder,
+                    sortDescending, sortNullsLast, false, false, false);
+        } catch (Throwable t) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "SortAndSlice");
+        }
     }
 }

@@ -136,47 +136,6 @@ implements PersistentStoreCollection {
     public PersistentStore getStore(long persistenceId) {
 
         throw Error.runtimeError(ErrorCode.U_S0500, "PSCS");
-/*
-        BaseTable       table = (BaseTable) key;
-        PersistentStore store;
-
-        switch (table.persistenceScope) {
-
-            case BaseTable.SCOPE_STATEMENT :
-                store = (PersistentStore) rowStoreMapStatement.get(
-                    table.getPersistenceId());
-
-                if (store == null) {
-                    store = new RowStoreHybrid(session, this, table);
-                }
-
-                return store;
-
-            case BaseTable.SCOPE_TRANSACTION :
-                store = (PersistentStore) rowStoreMapTransaction.get(
-                    table.getPersistenceId());
-
-                if (store == null) {
-                    store = new RowStoreHybrid(session, this, table);
-                }
-
-                return store;
-
-            case BaseTable.SCOPE_SESSION :
-                store = (PersistentStore) rowStoreMapSession.get(
-                    table.getPersistenceId());
-
-                if (store == null) {
-                    store = new RowStoreHybrid(session, this, table);
-                }
-
-                return store;
-
-            default :
-                throw Error.runtimeError(ErrorCode.UNSUPPORTED_INTERNAL_OPERATION,
-                                         "PSCS");
-        }
-*/
     }
 
     public void clearAllTables() {

@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAction;
@@ -38,9 +40,11 @@ import org.hsqldb.Session;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.Node;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
-import org.hsqldb.lib.LongKeyHashMap;
+import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.store.ValuePool;
 
 /*
  * Implementation of PersistentStore for MEMORY tables.
@@ -53,14 +57,18 @@ public class RowStoreMemory implements PersistentStore {
 
     TableBase                       table;
     PersistentStoreCollection       manager;
-    private LongKeyHashMap          accessorMap   = new LongKeyHashMap();
-    private IntKeyHashMapConcurrent rowIdMap = new IntKeyHashMapConcurrent();
+    private Index[]                 indexList    = Index.emptyArray;
+    private Object[]                accessorList = ValuePool.emptyObjectArray;
+    private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
     public RowStoreMemory(PersistentStoreCollection manager, TableBase table) {
 
-        this.manager = manager;
-        this.table   = table;
+        this.manager      = manager;
+        this.table        = table;
+        this.indexList    = table.getIndexList();
+        this.accessorList = new Object[indexList.length];
+        rowIdMap          = new IntKeyHashMapConcurrent();
 
         manager.setStore(table, this);
     }
@@ -76,6 +84,8 @@ public class RowStoreMemory implements PersistentStore {
     public int getStorageSize(int i) {
         return 0;
     }
+
+    public void add(CachedObject object) throws HsqlException {}
 
     public void restore(CachedObject row) throws HsqlException {
         row.restore();
@@ -105,7 +115,7 @@ public class RowStoreMemory implements PersistentStore {
 
     public void removeAll() {
         rowIdMap.clear();
-        accessorMap.clear();
+        ArrayUtil.fillArray(accessorList, null);
     }
 
     public void remove(int i) {
@@ -125,27 +135,141 @@ public class RowStoreMemory implements PersistentStore {
     public void setCache(DataFileCache cache) {}
 
     public void release() {
-        accessorMap.clear();
+        ArrayUtil.fillArray(accessorList, null);
+        rowIdMap.clear();
     }
 
-    public Object getAccessor(Object key) {
+    public Object getAccessor(Index key) {
+
+        Index index    = (Index) key;
+        int   position = index.getPosition();
+
+        if (position >= accessorList.length) {
+            return null;
+        }
+
+        return accessorList[position];
+    }
+
+    public void setAccessor(Index key, Object accessor) {
 
         Index index = (Index) key;
 
-        return (Node) accessorMap.get(index.getPersistenceId());
+        accessorList[index.getPosition()] = accessor;
     }
 
-    public void setAccessor(Object key, Object accessor) {
+    // doesn't support removing indexes
+    public void resetAccessorKeys(Index[] keys) throws HsqlException {
 
-        Index index = (Index) key;
+        if (indexList.length == 0 || indexList[0] == null
+                || accessorList[0] == null) {
+            indexList    = keys;
+            accessorList = new Object[indexList.length];
 
-        accessorMap.put(index.getPersistenceId(), accessor);
-    }
+            return;
+        }
 
-    public void add(CachedObject object) throws HsqlException {
+        Object[] oldAccessors = accessorList;
+        Index[]  oldIndexList = indexList;
+        int      limit        = indexList.length;
+        int      diff         = 1;
+        int      position     = 0;
+
+        if (keys.length < indexList.length) {
+            diff  = -1;
+            limit = keys.length;
+        }
+
+        for (; position < limit; position++) {
+            if (indexList[position] != keys[position]) {
+                break;
+            }
+        }
+
+        accessorList = (Object[]) ArrayUtil.toAdjustedArray(accessorList,
+                null, position, diff);
+        indexList = keys;
+
+        try {
+            if (diff > 0) {
+                insertIndexNodes(indexList[0], indexList[position]);
+            } else {
+                dropIndexFromRows(indexList[0], oldIndexList[position]);
+            }
+        } catch (HsqlException e) {
+            accessorList = oldAccessors;
+            indexList    = oldIndexList;
+
+            throw e;
+        }
     }
 
     public CachedObject getNewInstance(int size) {
         return null;
+    }
+
+    void dropIndexFromRows(Index primaryIndex,
+                           Index oldIndex) throws HsqlException {
+
+        RowIterator it       = primaryIndex.firstRow(this);
+        int         position = oldIndex.getPosition() - 1;
+
+        while (it.hasNext()) {
+            Row  row      = it.getNextRow();
+            int  i        = position - 1;
+            Node backnode = row.getNode(0);
+
+            while (i-- > 0) {
+                backnode = backnode.nNext;
+            }
+
+            backnode.nNext = backnode.nNext.nNext;
+        }
+    }
+
+    boolean insertIndexNodes(Index primaryIndex,
+                             Index newIndex) throws HsqlException {
+
+        int           position = newIndex.getPosition();
+        RowIterator   it       = primaryIndex.firstRow(this);
+        int           rowCount = 0;
+        HsqlException error    = null;
+
+        try {
+            while (it.hasNext()) {
+                Row row = it.getNextRow();
+
+                row.insertNode(position);
+
+                // count before inserting
+                rowCount++;
+
+                newIndex.insert(null, this, row, position);
+            }
+
+            return true;
+        } catch (java.lang.OutOfMemoryError e) {
+            error = Error.error(ErrorCode.OUT_OF_MEMORY);
+        } catch (HsqlException e) {
+            error = e;
+        }
+
+        // backtrack on error
+        // rowCount rows have been modified
+        it = primaryIndex.firstRow(this);
+
+        for (int i = 0; i < rowCount; i++) {
+            Row  row      = it.getNextRow();
+            Node backnode = row.getNode(0);
+            int  j        = position;
+
+            while (--j > 0) {
+                backnode = backnode.nNext;
+            }
+
+            backnode.nNext = backnode.nNext.nNext;
+        }
+
+        throw error;
     }
 }

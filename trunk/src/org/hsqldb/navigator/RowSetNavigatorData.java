@@ -66,6 +66,8 @@ public class RowSetNavigatorData extends RowSetNavigator {
     boolean                isDiskBased;
     boolean                isClosed;
     int                    visibleColumnCount;
+    boolean                isSimpleAggregate;
+    Row                    simpleAggregateRow;
 
     //
     boolean reindexTable;
@@ -83,22 +85,15 @@ public class RowSetNavigatorData extends RowSetNavigator {
         this.session       = session;
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         visibleColumnCount = select.indexLimitVisible;
-
-        if (select.resultTable.getTableType() == TableBase.SYSTEM_SUBQUERY) {
-            table               = select.resultTable;
-            table.persistenceId = select.resultTable.getPersistenceId();
-            store = session.sessionData.getSubqueryRowStore(table, false);
-        } else {
-            table = select.resultTable.duplicate();
-            store = session.sessionData.getNewResultRowStore(table,
-                    !select.isAggregated);
-        }
-
-        reindexTable = select.isGrouped;
-        mainIndex    = select.mainIndex;
-        fullIndex    = select.fullIndex;
-        orderIndex   = select.orderIndex;
-        groupIndex   = select.groupIndex;
+        table              = select.resultTable.duplicate();
+        table.store = store = session.sessionData.getNewResultRowStore(table,
+                !select.isAggregated);
+        isSimpleAggregate = select.isAggregated && !select.isGrouped;
+        reindexTable      = select.isGrouped;
+        mainIndex         = select.mainIndex;
+        fullIndex         = select.fullIndex;
+        orderIndex        = select.orderIndex;
+        groupIndex        = select.groupIndex;
     }
 
     public RowSetNavigatorData(Session session,
@@ -109,9 +104,10 @@ public class RowSetNavigatorData extends RowSetNavigator {
         maxMemoryRowCount  = session.getResultMemoryRowCount();
         table              = queryExpression.resultTable.duplicate();
         visibleColumnCount = table.getColumnCount();
-        store = session.sessionData.getNewResultRowStore(table, true);
-        mainIndex          = queryExpression.mainIndex;
-        fullIndex          = queryExpression.fullIndex;
+        table.store = store = session.sessionData.getNewResultRowStore(table,
+                true);
+        mainIndex = queryExpression.mainIndex;
+        fullIndex = queryExpression.fullIndex;
     }
 
     public RowSetNavigatorData(Session session,
@@ -573,10 +569,18 @@ public class RowSetNavigatorData extends RowSetNavigator {
 
     public Row getGroupRow(Object[] data) throws HsqlException {
 
+        if (simpleAggregateRow != null) {
+            return simpleAggregateRow;
+        }
+
         RowIterator it = groupIndex.findFirstRow(session, store, data);
 
         if (it.hasNext()) {
             Row row = it.getNextRow();
+
+            if (isSimpleAggregate) {
+                simpleAggregateRow = row;
+            }
 
             return row;
         }

@@ -40,6 +40,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.store.ValuePool;
 
 /**
  * Statement implementation for DML and base DQL statements.
@@ -216,13 +217,6 @@ public abstract class StatementDMQL extends Statement {
     }
 
     abstract Result getResult(Session session) throws HsqlException;
-
-    /**
-     * For the output of the statement
-     */
-    public ResultMetaData getGeneratedColumnMetaData() {
-        return generatedResultMetaData;
-    }
 
     /**
      * For the creation of the statement
@@ -573,10 +567,15 @@ public abstract class StatementDMQL extends Statement {
             metaData.columnLabels[idx] = StatementDMQL.PCOL_PREFIX + (i + 1);
             metaData.columnTypes[idx]  = parameters[i].dataType;
 
-            metaData.paramModes[idx] =
-                parameters[i].column == null
-                ? SchemaObject.ParameterModes.PARAM_UNKNOWN
-                : parameters[i].column.getParameterMode();
+            byte parameterMode = SchemaObject.ParameterModes.PARAM_IN;
+
+            if (parameters[i].column != null
+                    && parameters[i].column.getParameterMode()
+                       != SchemaObject.ParameterModes.PARAM_UNKNOWN) {
+                parameterMode = parameters[i].column.getParameterMode();
+            }
+
+            metaData.paramModes[idx] = parameterMode;
             metaData.paramNullable[idx] = parameters[i].column == null
                                           ? SchemaObject.Nullability.NULLABLE
                                           : parameters[i].column
@@ -801,9 +800,5 @@ public abstract class StatementDMQL extends Statement {
 
     public RangeVariable[] getRangeVariables() {
         return rangeVariables;
-    }
-
-    public ResultMetaData generatedResultMetaData() {
-        return this.generatedResultMetaData;
     }
 }

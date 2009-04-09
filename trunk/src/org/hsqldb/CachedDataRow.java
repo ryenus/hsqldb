@@ -96,7 +96,7 @@ public class CachedDataRow extends CachedRow {
         }
     }
 
-    Node insertNode(int index) {
+    public Node insertNode(int index) {
 
         Node backnode = getNode(index - 1);
         Node newnode  = new PointerNode(this);
