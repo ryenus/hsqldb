@@ -7360,6 +7360,7 @@ public class JDBCResultSet implements ResultSet {
             ResultConstants.UPDATE_CURSOR);
         preparedStatement.fetchResult();
         preparedStatement.clearParameters();
+        isRowUpdated = false;
     }
 
     private void performInsert() throws SQLException {
