@@ -67,7 +67,7 @@ public class RowStoreHybrid implements PersistentStore {
     private int                     memoryRowCount;
     private boolean                 isCached;
     private final boolean           isTempTable;
-    private IntKeyHashMapConcurrent rowIdMap = new IntKeyHashMapConcurrent();
+    private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
     public RowStoreHybrid(Session session, PersistentStoreCollection manager,
@@ -77,8 +77,8 @@ public class RowStoreHybrid implements PersistentStore {
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
+        this.rowIdMap = new IntKeyHashMapConcurrent();
         isTempTable            = table.getTableType() == TableBase.TEMP_TABLE;
-
         manager.setStore(table, this);
     }
 
@@ -89,6 +89,7 @@ public class RowStoreHybrid implements PersistentStore {
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
+        this.rowIdMap = new IntKeyHashMapConcurrent();
         isTempTable            = table.getTableType() == TableBase.TEMP_TABLE;
 
         if (isCached) {
@@ -280,7 +281,7 @@ public class RowStoreHybrid implements PersistentStore {
         manager.setStore(table, null);
     }
 
-    public Object getAccessor(Object key) {
+    public Object getAccessor(Index key) {
 
         Index index = (Index) key;
         Node  node  = (Node) accessorMap.get(index.getPersistenceId());
@@ -298,11 +299,15 @@ public class RowStoreHybrid implements PersistentStore {
         return node;
     }
 
-    public void setAccessor(Object key, Object accessor) {
+    public void setAccessor(Index key, Object accessor) {
 
         Index index = (Index) key;
 
         accessorMap.put(index.getPersistenceId(), accessor);
+    }
+
+    public void resetAccessorKeys(Index[] keys) {
+
     }
 
     public void changeToDiskTable() throws HsqlException {

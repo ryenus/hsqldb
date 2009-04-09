@@ -831,8 +831,7 @@ public class Session implements SessionInterface {
     public Result execute(Result cmd) {
 
         if (isClosed) {
-            return Result.newErrorResult(
-                Error.error(ErrorCode.X_08503));
+            return Result.newErrorResult(Error.error(ErrorCode.X_08503));
         }
 
 //        synchronized (database) {
@@ -898,9 +897,14 @@ public class Session implements SessionInterface {
 
                 ResultMetaData rmd = cs.getResultMetaData();
                 ResultMetaData pmd = cs.getParametersMetaData();
+                Result result = Result.newPrepareResponse(cs.getID(),
+                    cs.getType(), rmd, pmd);
 
-                return Result.newPrepareResponse(cs.getID(), cs.getType(),
-                                                 rmd, pmd);
+                if (cs.getType() == StatementTypes.SELECT_CURSOR) {
+                    sessionData.setResultSetProperties(cmd, result);
+                }
+
+                return result;
             }
             case ResultConstants.CLOSE_RESULT : {
                 closeNavigator(cmd.getResultId());
@@ -1628,6 +1632,7 @@ public class Session implements SessionInterface {
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_22522);
         }
+
         return new BlobDataID(lobID);
     }
 
@@ -1659,9 +1664,8 @@ public class Session implements SessionInterface {
         switch (operation) {
 
             case ResultLob.LobResultTypes.REQUEST_GET_LOB : {
-                return database.lobManager.getLob(
-                    this, id, cmd.getOffset(),  cmd.getBlockLength());
-
+                return database.lobManager.getLob(this, id, cmd.getOffset(),
+                                                  cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_GET_LENGTH : {
                 return database.lobManager.getLength(this, id);

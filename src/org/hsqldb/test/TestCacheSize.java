@@ -186,6 +186,7 @@ public class TestCacheSize {
                                    + cacheSizeScale);
                 sStatement.execute("SET PROPERTY \"hsqldb.nio_data_file\" "
                                    + nioMode);
+                sStatement.execute("SET DATABASE BACKUP INCREMENT " + true);
                 sStatement.execute("SHUTDOWN");
                 cConnection.close();
             }
@@ -332,7 +333,7 @@ public class TestCacheSize {
         }
 
         ps.close();
-        sStatement.execute("SET REFERENTIAL_INTEGRITY " + this.refIntegrity);
+        sStatement.execute("SET DATABASE REFERENTIAL_INTEGRITY " + this.refIntegrity);
 
         ps = cConnection.prepareStatement(
             "INSERT INTO test (firstname,lastname,zip,filler) VALUES (?,?,?,?)");

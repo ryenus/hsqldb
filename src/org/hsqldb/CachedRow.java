@@ -166,7 +166,7 @@ public class CachedRow extends Row {
         oData = in.readData(tTable.getColumnTypes());
     }
 
-    Node insertNode(int index) {
+    public Node insertNode(int index) {
         return null;
     }
 

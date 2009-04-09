@@ -158,7 +158,7 @@ public class Row implements CachedObject {
         return n;
     }
 
-    Node insertNode(int index) {
+    public Node insertNode(int index) {
 
         Node backnode = getNode(index - 1);
         Node newnode  = new MemoryNode(this);

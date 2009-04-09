@@ -92,6 +92,10 @@ public class SessionData {
     // transitional feature
     public PersistentStore getRowStore(TableBase table) {
 
+        if (table.store != null) {
+            return table.store;
+        }
+
         if (table.isSessionBased) {
             return persistentStoreCollection.getSessionStore(table,
                     table.getPersistenceId());
@@ -130,6 +134,29 @@ public class SessionData {
     }
 
     // result
+    void setResultSetProperties(Result command, Result result) {
+
+        /**
+         * @todo - fredt - this does not work with different prepare calls
+         * with the same SQL statement, but different generated column requests
+         * To fix, add comment encapsulating the generated column list to SQL
+         * to differentiate between the two invocations
+         */
+        if (command.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
+            result.setDataResultConcurrency(ResultConstants.CONCUR_READ_ONLY);
+            result.setDataResultHoldability(command.rsHoldability);
+        } else {
+            if (result.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
+                result.setDataResultHoldability(command.rsHoldability);
+
+                // add warning for concurrency conflict
+            } else {
+                result.setDataResultHoldability(
+                    ResultConstants.CLOSE_CURSORS_AT_COMMIT);
+            }
+        }
+    }
+
     Result getDataResultHead(Result command, Result result,
                              boolean isNetwork) {
 
@@ -314,13 +341,13 @@ public class SessionData {
         switch (result.getSubType()) {
 
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES : {
-                long     blobId;
+                long blobId;
 
                 if (dataInput == null) {
                     blobId    = resultLobId;
                     dataInput = new DataInputStream(result.getInputStream());
                 } else {
-                    blobId   = database.lobManager.createBlob(session);
+                    blobId = database.lobManager.createBlob(session);
 
                     lobs.put(resultLobId, blobId);
                 }
@@ -331,17 +358,19 @@ public class SessionData {
                 break;
             }
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
-                long     clobId;
+                long clobId;
 
                 if (dataInput == null) {
-                    clobId    = resultLobId;
-                    if(result.getReader() != null) {
+                    clobId = resultLobId;
+
+                    if (result.getReader() != null) {
                         dataInput = new ReaderDataInput(result.getReader());
                     } else {
-                        dataInput = new DataInputStream(result.getInputStream());
+                        dataInput =
+                            new DataInputStream(result.getInputStream());
                     }
                 } else {
-                    clobId   = database.lobManager.createClob(session);
+                    clobId = database.lobManager.createClob(session);
 
                     lobs.put(resultLobId, clobId);
                 }

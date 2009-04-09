@@ -475,7 +475,7 @@ public class TableWorks {
     /**
      * Because of the way indexes and column data are held in memory and on
      * disk, it is necessary to recreate the table when an index is added to a
-     * non-empty table cached table.
+     * non-empty cached table.
      *
      * <p> With empty tables, Index objects are simply added
      *

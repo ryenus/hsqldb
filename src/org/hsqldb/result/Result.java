@@ -47,7 +47,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
-import org.hsqldb.navigator.RowSetNavigatorLinkedList;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.store.ValuePool;
@@ -239,8 +238,7 @@ public class Result {
         return newResult(dataInput.readByte(), dataInput, in);
     }
 
-    public static Result newResult(int mode,
-                                   DataInput dataInput,
+    public static Result newResult(int mode, DataInput dataInput,
                                    RowInputBinary in)
                                    throws IOException, HsqlException {
 
@@ -274,8 +272,10 @@ public class Result {
                 ResultLob resultLob = ResultLob.newLob(dataInput, false);
 
                 if (session instanceof Session) {
-                    ((Session)session).allocateResultLob(resultLob, dataInput);
+                    ((Session) session).allocateResultLob(resultLob,
+                                                          dataInput);
                 }
+
                 currentResult.addLobResult(resultLob);
 
                 hasLob = true;
@@ -438,6 +438,9 @@ public class Result {
             case ResultConstants.PREPARE_ACK :
                 result.statementReturnType = in.readByte();
                 result.statementID         = in.readLong();
+                result.rsScrollability     = in.readShort();
+                result.rsConcurrency       = in.readShort();
+                result.rsHoldability       = in.readShort();
                 result.metaData            = new ResultMetaData(in);
                 result.parameterMetaData   = new ResultMetaData(in);
                 break;
@@ -570,8 +573,8 @@ public class Result {
      * For CALL_RESPONSE
      * For execution of SQL callable statements.
      */
-    public static Result newCallResponse(Type[] types,
-            long statementId, Object[] values) {
+    public static Result newCallResponse(Type[] types, long statementId,
+                                         Object[] values) {
 
         Result result = newResult(ResultConstants.CALL_RESPONSE);
 
@@ -893,6 +896,7 @@ public class Result {
     public void setDataResultScrollability(int resultSetScrollability) {
         rsScrollability = resultSetScrollability;
     }
+
     /**
      * For DATA
      */
@@ -996,6 +1000,7 @@ public class Result {
         } else if (t instanceof OutOfMemoryError) {
 
             // gc() at this point may clear the memory allocated so far
+
             /** @todo 1.9.0 - review if it's better to gc higher up the stack */
             System.gc();
             t.printStackTrace();
@@ -1131,6 +1136,9 @@ public class Result {
             case ResultConstants.PREPARE_ACK :
                 rowOut.writeByte(statementReturnType);
                 rowOut.writeLong(statementID);
+                rowOut.writeShort(rsScrollability);
+                rowOut.writeShort(rsConcurrency);
+                rowOut.writeShort(rsHoldability);
                 metaData.write(rowOut);
                 parameterMetaData.write(rowOut);
                 break;

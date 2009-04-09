@@ -33,6 +33,7 @@ package org.hsqldb.persist;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
+import org.hsqldb.index.Index;
 import org.hsqldb.rowio.RowInputInterface;
 
 /**
@@ -88,7 +89,9 @@ public interface PersistentStore {
 
     void release();
 
-    Object getAccessor(Object key);
+    Object getAccessor(Index key);
 
-    void setAccessor(Object key, Object accessor);
+    void setAccessor(Index key, Object accessor);
+
+    void resetAccessorKeys(Index[] keys) throws HsqlException;
 }

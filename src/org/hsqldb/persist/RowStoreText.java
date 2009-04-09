@@ -35,14 +35,14 @@ import java.io.IOException;
 
 import org.hsqldb.CachedDataRow;
 import org.hsqldb.HsqlException;
+import org.hsqldb.Row;
+import org.hsqldb.RowAction;
+import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.Node;
-import org.hsqldb.lib.LongKeyHashMap;
-import org.hsqldb.Session;
-import org.hsqldb.RowAction;
-import org.hsqldb.Row;
+import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.rowio.RowInputInterface;
 
 /*
  * Implementation of PersistentStore for TEXT tables.
@@ -92,6 +92,7 @@ public class RowStoreText extends RowStoreCached implements PersistentStore {
     }
 
     public void removeAll() {
+
         // does not yet clear the storage
     }
 
@@ -134,16 +135,23 @@ public class RowStoreText extends RowStoreCached implements PersistentStore {
 
     public void release() {
 
-        accessorMap.clear();
+        ArrayUtil.fillArray(accessorList, null);
         table.database.logger.closeTextCache((Table) table);
 
         cache = null;
     }
 
-    public Object getAccessor(Object key) {
+    public Object getAccessor(Index key) {
 
-        Index index = (Index) key;
+        Index index    = (Index) key;
+        int   position = index.getPosition();
 
-        return (Node) accessorMap.get(index.getPersistenceId());
+        if (position >= accessorList.length) {
+            return null;
+        }
+
+        Node node = (Node) accessorList[position];
+
+        return node;
     }
 }

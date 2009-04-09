@@ -158,10 +158,9 @@ class DatabaseManagerCommon {
         + "SET PASSWORD <password>\n"                                     //
         + "SET PROPERTY \"<propname>\" <propvalue>\n"
         + "SET READONLY { TRUE | FALSE }\n"
-        + "SET REFERENTIAL_INTEGRITY { TRUE | FALSE }\n"
+        + "SET DATABASE REFERENTIAL_INTEGRITY { TRUE | FALSE }\n"
         + "SET SCHEMA <schemaname>\n"
-        + "SET SCRIPTFORMAT { TEXT | BINARY | COMPRESSED }\n"
-        + "SET TABLE INDEX <tablename> '<index1rootPos>...'\n"
+        + "SET DATABASE SCRIPTFORMAT { TEXT | BINARY | COMPRESSED }\n"
         + "SET TABLE <tablename> READONLY { TRUE | FALSE }\n"
         + "SET TABLE <tablename> SOURCE \"<file>\" [DESC]\n"
         + "SET WRITE_DELAY { TRUE | FALSE | <seconds> | <ms> MILLIS }"    //
@@ -185,8 +184,8 @@ class DatabaseManagerCommon {
         + "- lines starting with --#<count> means set new count\n"
     };
     static String[] testDataSql = {
-        "SELECT * FROM Product",                                   //
-        "SELECT * FROM Invoice",                                   //
+        "SELECT * FROM Product",                                          //
+        "SELECT * FROM Invoice",                                          //
         "SELECT * FROM Item",
         "SELECT * FROM Customer a INNER JOIN Invoice i ON a.ID=i.CustomerID",
         "SELECT * FROM Customer a LEFT OUTER JOIN Invoice i ON a.ID=i.CustomerID",
@@ -265,8 +264,6 @@ class DatabaseManagerCommon {
         };
         int      max     = 50;
 
-        sStatement.execute("SET REFERENTIAL_INTEGRITY FALSE");
-
         for (int i = 0; i < max; i++) {
             sStatement.execute("INSERT INTO Customer VALUES(" + i + ",'"
                                + random(firstname) + "','" + random(name)
@@ -275,6 +272,9 @@ class DatabaseManagerCommon {
             sStatement.execute("INSERT INTO Product VALUES(" + i + ",'"
                                + random(product) + " " + random(product)
                                + "'," + (20 + 2 * random(120)) + ")");
+        }
+
+        for (int i = 0; i < max; i++) {
             sStatement.execute("INSERT INTO Invoice VALUES(" + i + ","
                                + random(max) + ",0.0)");
 
@@ -285,13 +285,13 @@ class DatabaseManagerCommon {
             }
         }
 
-        sStatement.execute("SET REFERENTIAL_INTEGRITY TRUE");
         sStatement.execute("UPDATE Product SET Price=ROUND(Price*.1,2)");
         sStatement.execute(
             "UPDATE Item SET Cost=Cost*"
             + "(SELECT Price FROM Product prod WHERE ProductID=prod.ID)");
-        sStatement.execute("UPDATE Invoice SET Total=(SELECT SUM(Cost*"
-                           + "Quantity) FROM Item WHERE InvoiceID=Invoice.ID)");
+        sStatement.execute(
+            "UPDATE Invoice SET Total=(SELECT SUM(Cost*"
+            + "Quantity) FROM Item WHERE InvoiceID=Invoice.ID)");
 
         return ("SELECT * FROM Customer");
     }

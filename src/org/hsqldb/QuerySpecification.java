@@ -685,9 +685,8 @@ public class QuerySpecification extends QueryExpression {
         resolveAggregates();
 
         for (int i = 0; i < unionColumnMap.length; i++) {
-            unionColumnTypes[i] = Type.getAggregateType(
-                unionColumnTypes[i],
-                exprColumns[i].getDataType());
+            unionColumnTypes[i] = Type.getAggregateType(unionColumnTypes[i],
+                    exprColumns[i].getDataType());
         }
     }
 
@@ -1049,16 +1048,17 @@ public class QuerySpecification extends QueryExpression {
     private Result getSingleResult(Session session,
                                    int rowCount) throws HsqlException {
 
-        int                 maxRows = getMaxRowCount(session, rowCount);
-        Result              r       = buildResult(session, maxRows);
-        RowSetNavigatorData nav     = (RowSetNavigatorData) r.getNavigator();
+        int                 maxRows   = getMaxRowCount(session, rowCount);
+        Result              r         = buildResult(session, maxRows);
+        RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
 
         if (isDistinctSelect) {
-            nav.removeDuplicates();
+            navigator.removeDuplicates();
         }
 
-        nav.sortOrder();
-        nav.trim(getLimitStart(session), getLimitCount(session, rowCount));
+        navigator.sortOrder();
+        navigator.trim(getLimitStart(session),
+                       getLimitCount(session, rowCount));
 
         return r;
     }

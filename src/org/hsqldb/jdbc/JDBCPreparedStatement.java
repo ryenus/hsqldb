@@ -85,8 +85,6 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.Expression;
-import org.hsqldb.ExpressionColumn;
 import org.hsqldb.SchemaObject;
 
 /* $Id$ */
@@ -1517,7 +1515,21 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (rsmd == null) {
-            rsmd = new JDBCResultSetMetaData(rsmdDescriptor,
+
+            boolean isUpdatable = rsConcurrency == ResultSet.CONCUR_UPDATABLE;
+            boolean isInsertable = isUpdatable;
+
+            if (isInsertable) {
+                for (int i = 0; i < rsmdDescriptor.colIndexes.length ; i++) {
+                    if (rsmdDescriptor.colIndexes[i] < 0 ) {
+                        isInsertable = false;
+                        break;
+                    }
+                }
+            }
+
+
+            rsmd = new JDBCResultSetMetaData(rsmdDescriptor, isUpdatable, isInsertable,
                     connection.connProperties);
         }
 
@@ -3664,9 +3676,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         pmdDescriptor    = in.parameterMetaData;
         parameterTypes   = pmdDescriptor.getParameterTypes();
         parameterModes   = pmdDescriptor.paramModes;
-        rsScrollability  = resultSetType;
-        rsConcurrency    = resultSetConcurrency;
-        rsHoldability    = resultSetHoldability;
+        rsScrollability  = in.rsScrollability;
+        rsConcurrency    = in.rsConcurrency;
+        rsHoldability    = in.rsHoldability;
 
         //
         int paramCount = pmdDescriptor.getColumnCount();
@@ -3705,16 +3717,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         pmdDescriptor   = result.metaData;
         parameterTypes  = result.metaData.columnTypes;
+        parameterModes  = new byte[paramCount];
         parameterValues = new Object[paramCount];
         parameterSet    = new boolean[paramCount];
         parameterStream = new boolean[paramCount];
 
         //
         for (int i = 0; i < paramCount; i++) {
+            parameterModes[i] = SchemaObject.ParameterModes.PARAM_IN;
             if (parameterTypes[i].isLobType()) {
                 hasLOBs = true;
-
-                break;
             }
         }
 

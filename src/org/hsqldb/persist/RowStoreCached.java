@@ -34,6 +34,8 @@ package org.hsqldb.persist;
 import java.io.IOException;
 
 import org.hsqldb.CachedRow;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAction;
@@ -42,8 +44,9 @@ import org.hsqldb.TableBase;
 import org.hsqldb.index.DiskNode;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.Node;
-import org.hsqldb.lib.LongKeyHashMap;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.store.ValuePool;
 
 /*
  * Implementation of PersistentStore for CACHED tables.
@@ -54,17 +57,20 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreCached implements PersistentStore {
 
-    DataFileCache                   cache;
     final TableBase                 table;
     final PersistentStoreCollection manager;
-    LongKeyHashMap                  accessorMap = new LongKeyHashMap();
+    private Index[]                 indexList    = Index.emptyArray;
+    Object[]                        accessorList = ValuePool.emptyObjectArray;
+    DataFileCache                   cache;
 
     public RowStoreCached(PersistentStoreCollection manager,
                           DataFileCache cache, TableBase table) {
 
-        this.manager = manager;
-        this.cache   = cache;
-        this.table   = table;
+        this.manager      = manager;
+        this.table        = table;
+        this.indexList    = table.getIndexList();
+        this.accessorList = new Object[indexList.length];
+        this.cache        = cache;
 
         manager.setStore(table, this);
     }
@@ -152,7 +158,7 @@ public class RowStoreCached implements PersistentStore {
     }
 
     public void removeAll() {
-        accessorMap.clear();
+        ArrayUtil.fillArray(accessorList, null);
     }
 
     public void remove(int i) {
@@ -180,15 +186,21 @@ public class RowStoreCached implements PersistentStore {
 
     public void release() {
 
-        accessorMap.clear();
+        ArrayUtil.fillArray(accessorList, null);
 
         cache = null;
     }
 
-    public Object getAccessor(Object key) {
+    public Object getAccessor(Index key) {
 
-        Index index = (Index) key;
-        Node  node  = (Node) accessorMap.get(index.getPersistenceId());
+        Index index    = (Index) key;
+        int   position = index.getPosition();
+
+        if (position >= accessorList.length) {
+            return null;
+        }
+
+        Node node = (Node) accessorList[position];
 
         if (node == null) {
             return null;
@@ -201,11 +213,24 @@ public class RowStoreCached implements PersistentStore {
         return node;
     }
 
-    public void setAccessor(Object key, Object accessor) {
+    public void setAccessor(Index key, Object accessor) {
 
         Index index = (Index) key;
 
-        accessorMap.put(index.getPersistenceId(), accessor);
+        accessorList[index.getPosition()] = accessor;
+    }
+
+    public void resetAccessorKeys(Index[] keys) {
+
+        if (indexList.length == 0 || indexList[0] == null
+                || accessorList[0] == null) {
+            indexList    = keys;
+            accessorList = new Object[indexList.length];
+
+            return;
+        }
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreCached");
     }
 
     public CachedObject getNewInstance(int size) {

@@ -159,28 +159,21 @@ public class Table extends TableBase implements SchemaObject {
         switch (type) {
 
             case SYSTEM_SUBQUERY :
-                persistenceScope = TableBase.SCOPE_STATEMENT;
+                persistenceScope = SCOPE_STATEMENT;
                 isSessionBased   = true;
                 break;
 
             case SYSTEM_TABLE :
-                persistenceScope = TableBase.SCOPE_FULL;
-
-                new RowStoreMemory(database.persistentStoreCollection, this);
-
-                isSchemaBased = true;
+                persistenceScope = SCOPE_FULL;
+                isSchemaBased    = true;
                 break;
 
             case CACHED_TABLE :
                 if (DatabaseURL.isFileBasedDatabaseType(database.getType())) {
-                    persistenceScope = TableBase.SCOPE_FULL;
-
-                    new RowStoreCached(database.persistentStoreCollection,
-                                       database.logger.getCache(), this);
-
-                    isSchemaBased = true;
-                    isCached      = true;
-                    isLogged      = !database.isFilesReadOnly();
+                    persistenceScope = SCOPE_FULL;
+                    isSchemaBased    = true;
+                    isCached         = true;
+                    isLogged         = !database.isFilesReadOnly();
 
                     break;
                 }
@@ -189,23 +182,20 @@ public class Table extends TableBase implements SchemaObject {
 
             // fall through
             case MEMORY_TABLE :
-                persistenceScope = TableBase.SCOPE_FULL;
-
-                new RowStoreMemory(database.persistentStoreCollection, this);
-
-                isSchemaBased = true;
-                isLogged      = !database.isFilesReadOnly();
+                persistenceScope = SCOPE_FULL;
+                isSchemaBased    = true;
+                isLogged         = !database.isFilesReadOnly();
                 break;
 
             case TEMP_TABLE :
-                persistenceScope = TableBase.SCOPE_TRANSACTION;
+                persistenceScope = SCOPE_TRANSACTION;
                 isTemp           = true;
                 isSchemaBased    = true;
                 isSessionBased   = true;
                 break;
 
             case TEMP_TEXT_TABLE :
-                persistenceScope = TableBase.SCOPE_SESSION;
+                persistenceScope = SCOPE_SESSION;
 
                 if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
                     throw Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY);
@@ -219,7 +209,7 @@ public class Table extends TableBase implements SchemaObject {
                 break;
 
             case TEXT_TABLE :
-                persistenceScope = TableBase.SCOPE_FULL;
+                persistenceScope = SCOPE_FULL;
 
                 if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
                     throw Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY);
@@ -227,18 +217,16 @@ public class Table extends TableBase implements SchemaObject {
 
                 isSchemaBased = true;
                 isText        = true;
-
-                new RowStoreText(database.persistentStoreCollection, this);
                 break;
 
-            case TableBase.VIEW_TABLE :
-                persistenceScope = TableBase.SCOPE_STATEMENT;
+            case VIEW_TABLE :
+                persistenceScope = SCOPE_STATEMENT;
                 isSchemaBased    = true;
                 isSessionBased   = true;
                 isView           = true;
                 break;
 
-            case TableBase.RESULT_TABLE :
+            case RESULT_TABLE :
                 isSessionBased = true;
                 break;
 
@@ -268,21 +256,45 @@ public class Table extends TableBase implements SchemaObject {
         if (database.isFilesReadOnly() && isFileBased()) {
             this.isReadOnly = true;
         }
+
+        createDefaultStore();
     }
 
     public Table(Table table, HsqlName name) {
 
-        persistenceScope    = TableBase.SCOPE_STATEMENT;
+        persistenceScope    = SCOPE_STATEMENT;
         name.schema         = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
         this.tableName      = name;
         this.database       = table.database;
-        this.tableType      = TableBase.RESULT_TABLE;
+        this.tableType      = RESULT_TABLE;
         this.columnList     = table.columnList;
         this.columnCount    = table.columnCount;
         this.indexList      = Index.emptyArray;
         this.constraintList = Constraint.emptyArray;
 
         createPrimaryKey();
+    }
+
+    public void createDefaultStore() throws HsqlException {
+
+        switch (tableType) {
+
+            case CACHED_TABLE :
+                store = new RowStoreCached(database.persistentStoreCollection,
+                                           database.logger.getCache(), this);
+                break;
+
+            case MEMORY_TABLE :
+            case SYSTEM_TABLE :
+                store = new RowStoreMemory(database.persistentStoreCollection,
+                                           this);
+                break;
+
+            case TEXT_TABLE :
+                store = new RowStoreText(database.persistentStoreCollection,
+                                         this);
+                break;
+        }
     }
 
     public int getType() {
@@ -988,7 +1000,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Table tn = new Table(database, tableName, newType);
 
-        if (tableType == TableBase.TEMP_TABLE) {
+        if (tableType == TEMP_TABLE) {
             tn.persistenceScope = persistenceScope;
         }
 
@@ -1815,10 +1827,155 @@ public class Table extends TableBase implements SchemaObject {
 
         HsqlName indexName = database.nameManager.newAutoName("IDX_T",
             getSchemaName(), getName(), SchemaObject.INDEX);
-        Index index = createAndAddIndexStructure(indexName, columns, null,
-            null, false, false, false);
 
-        return index;
+        try {
+            Index index = createAndAddIndexStructure(indexName, columns, null,
+                null, false, false, false);
+
+            return index;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    void fireAfterTriggers(Session session, int trigVecIndex,
+                           RowSetNavigator rowSet) throws HsqlException {
+
+        if (!database.isReferentialIntegrity()) {
+            return;
+        }
+
+        TriggerDef[] trigVec = triggerLists[trigVecIndex];
+
+        for (int i = 0, size = trigVec.length; i < size; i++) {
+            TriggerDef td         = trigVec[i];
+            boolean    sqlTrigger = td instanceof TriggerDefSQL;
+
+            if (td.hasOldTable()) {
+
+                //
+            }
+
+            if (td.isForEachRow()) {
+                while (rowSet.hasNext()) {
+                    Object[] oldData = null;
+                    Object[] newData = null;
+
+                    switch (td.triggerType) {
+
+                        case Trigger.DELETE_AFTER_ROW :
+                            oldData = rowSet.getNext();
+
+                            if (!sqlTrigger) {
+                                oldData = (Object[]) ArrayUtil.duplicateArray(
+                                    oldData);
+                            }
+                            break;
+
+                        case Trigger.INSERT_AFTER_ROW :
+                            newData = rowSet.getNext();
+
+                            if (!sqlTrigger) {
+                                newData = (Object[]) ArrayUtil.duplicateArray(
+                                    newData);
+                            }
+                            break;
+                    }
+
+                    td.pushPair(session, oldData, newData);
+                }
+
+                rowSet.beforeFirst();
+            } else {
+                td.pushPair(session, null, null);
+            }
+        }
+    }
+
+    /**
+     *  Fires all row-level triggers of the given set (trigger type)
+     *
+     */
+    void fireBeforeTriggers(Session session, int trigVecIndex,
+                            Object[] oldData, Object[] newData,
+                            int[] cols) throws HsqlException {
+
+        if (!database.isReferentialIntegrity()) {
+            return;
+        }
+
+        TriggerDef[] trigVec = triggerLists[trigVecIndex];
+
+        for (int i = 0, size = trigVec.length; i < size; i++) {
+            TriggerDef td         = trigVec[i];
+            boolean    sqlTrigger = td instanceof TriggerDefSQL;
+
+            if (cols != null && td.getUpdateColumns() != null
+                    && !ArrayUtil.haveCommonElement(td.getUpdateColumns(),
+                        cols, cols.length)) {
+                continue;
+            }
+
+            if (td.isForEachRow()) {
+                switch (td.triggerType) {
+
+                    case Trigger.UPDATE_BEFORE_ROW :
+                    case Trigger.DELETE_BEFORE_ROW :
+                        if (!sqlTrigger) {
+                            oldData =
+                                (Object[]) ArrayUtil.duplicateArray(oldData);
+                        }
+                        break;
+                }
+
+                td.pushPair(session, oldData, newData);
+            } else {
+                td.pushPair(session, null, null);
+            }
+        }
+    }
+
+    /**
+     *  Enforce max field sizes according to SQL column definition.
+     *  SQL92 13.8
+     */
+    void enforceRowConstraints(Session session,
+                               Object[] data) throws HsqlException {
+
+        for (int i = 0; i < defaultColumnMap.length; i++) {
+            Type type = colTypes[i];
+
+            data[i] = type.convertToTypeLimits(session, data[i]);
+
+            if (type.isDomainType()) {
+                Constraint[] constraints =
+                    type.userTypeModifier.getConstraints();
+
+                for (int j = 0; j < constraints.length; j++) {
+                    constraints[j].checkCheckConstraint(session, this,
+                                                        (Object) data[i]);
+                }
+            }
+
+            if (data[i] == null) {
+                if (colNotNull[i]) {
+                    Constraint c = getNotNullConstraintForColumn(i);
+
+                    if (c == null) {
+                        if (getColumn(i).isPrimaryKey()) {
+                            c = this.getPrimaryConstraint();
+                        }
+                    }
+
+                    String[] info = new String[] {
+                        c.getName().name, tableName.name
+                    };
+
+                    throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT,
+                                      info);
+                }
+            }
+        }
     }
 
     /**
@@ -1835,23 +1992,14 @@ public class Table extends TableBase implements SchemaObject {
         switch (tableType) {
 
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE :
+            case TableBase.SYSTEM_TABLE : {
 
 //            case TableBase.VIEW_TABLE :
 //            case TableBase.TEMP_TABLE :
                 Index index = createIndexForColumns(cols);
 
-                if (tableType == SYSTEM_TABLE) {
-                    PersistentStore store =
-                        database.persistentStoreCollection.getStore(
-                            this.getPersistenceId());
-
-                    try {
-                        insertIndexNodes(store, index, index.getPosition());
-                    } catch (Throwable t) {
-                        return null;
-                    }
-                }
+                //               return index;
+            }
         }
 
         return null;
@@ -1893,18 +2041,6 @@ public class Table extends TableBase implements SchemaObject {
                 && (tableType == SYSTEM_SUBQUERY
                     || tableType == SYSTEM_TABLE)) {
             selected = createIndexForColumns(set.toArray());
-
-            if (tableType == SYSTEM_TABLE) {
-                PersistentStore store =
-                    database.persistentStoreCollection.getStore(
-                        this.getPersistenceId());
-
-                try {
-                    insertIndexNodes(store, selected, selected.getPosition());
-                } catch (Throwable t) {
-                    return null;
-                }
-            }
         }
 
         return selected;
@@ -2022,7 +2158,10 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         setBestRowIdentifiers();
-        dropIndexFromRows(session, todrop);
+
+        if (store != null) {
+            store.resetAccessorKeys(indexList);
+        }
     }
 
     void dropIndexFromRows(Session session, int index) throws HsqlException {
@@ -2296,146 +2435,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Enforce max field sizes according to SQL column definition.
-     *  SQL92 13.8
-     */
-    void enforceRowConstraints(Session session,
-                               Object[] data) throws HsqlException {
-
-        for (int i = 0; i < defaultColumnMap.length; i++) {
-            Type type = colTypes[i];
-
-            data[i] = type.convertToTypeLimits(session, data[i]);
-
-            if (type.isDomainType()) {
-                Constraint[] constraints =
-                    type.userTypeModifier.getConstraints();
-
-                for (int j = 0; j < constraints.length; j++) {
-                    constraints[j].checkCheckConstraint(session, this,
-                                                        (Object) data[i]);
-                }
-            }
-
-            if (data[i] == null) {
-                if (colNotNull[i]) {
-                    Constraint c = getNotNullConstraintForColumn(i);
-
-                    if (c == null) {
-                        if (getColumn(i).isPrimaryKey()) {
-                            c = this.getPrimaryConstraint();
-                        }
-                    }
-
-                    String[] info = new String[] {
-                        c.getName().name, tableName.name
-                    };
-
-                    throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT,
-                                      info);
-                }
-            }
-        }
-    }
-
-    void fireAfterTriggers(Session session, int trigVecIndex,
-                           RowSetNavigator rowSet) throws HsqlException {
-
-        if (!database.isReferentialIntegrity()) {
-            return;
-        }
-
-        TriggerDef[] trigVec = triggerLists[trigVecIndex];
-
-        for (int i = 0, size = trigVec.length; i < size; i++) {
-            TriggerDef td         = trigVec[i];
-            boolean    sqlTrigger = td instanceof TriggerDefSQL;
-
-            if (td.hasOldTable()) {
-
-                //
-            }
-
-            if (td.isForEachRow()) {
-                while (rowSet.hasNext()) {
-                    Object[] oldData = null;
-                    Object[] newData = null;
-
-                    switch (td.triggerType) {
-
-                        case Trigger.DELETE_AFTER_ROW :
-                            oldData = rowSet.getNext();
-
-                            if (!sqlTrigger) {
-                                oldData = (Object[]) ArrayUtil.duplicateArray(
-                                    oldData);
-                            }
-                            break;
-
-                        case Trigger.INSERT_AFTER_ROW :
-                            newData = rowSet.getNext();
-
-                            if (!sqlTrigger) {
-                                newData = (Object[]) ArrayUtil.duplicateArray(
-                                    newData);
-                            }
-                            break;
-                    }
-
-                    td.pushPair(session, oldData, newData);
-                }
-
-                rowSet.beforeFirst();
-            } else {
-                td.pushPair(session, null, null);
-            }
-        }
-    }
-
-    /**
-     *  Fires all row-level triggers of the given set (trigger type)
-     *
-     */
-    void fireBeforeTriggers(Session session, int trigVecIndex,
-                            Object[] oldData, Object[] newData,
-                            int[] cols) throws HsqlException {
-
-        if (!database.isReferentialIntegrity()) {
-            return;
-        }
-
-        TriggerDef[] trigVec = triggerLists[trigVecIndex];
-
-        for (int i = 0, size = trigVec.length; i < size; i++) {
-            TriggerDef td         = trigVec[i];
-            boolean    sqlTrigger = td instanceof TriggerDefSQL;
-
-            if (cols != null && td.getUpdateColumns() != null
-                    && !ArrayUtil.haveCommonElement(td.getUpdateColumns(),
-                        cols, cols.length)) {
-                continue;
-            }
-
-            if (td.isForEachRow()) {
-                switch (td.triggerType) {
-
-                    case Trigger.UPDATE_BEFORE_ROW :
-                    case Trigger.DELETE_BEFORE_ROW :
-                        if (!sqlTrigger) {
-                            oldData =
-                                (Object[]) ArrayUtil.duplicateArray(oldData);
-                        }
-                        break;
-                }
-
-                td.pushPair(session, oldData, newData);
-            } else {
-                td.pushPair(session, null, null);
-            }
-        }
-    }
-
-    /**
      *  Delete method for referential triggered actions.
      */
     void deleteRowAsTriggeredAction(Session session,
@@ -2666,28 +2665,4 @@ public class Table extends TableBase implements SchemaObject {
             identitySequence.reset();
         }
     }
-
-    /**
-     * Necessary when over Integer.MAX_VALUE Row objects have been generated
-     * for a memory table.
-     */
-/*
-    public void resetRowId(Session session) throws HsqlException {
-
-        if (isCached) {
-            return;
-        }
-
-        rowIdSequence = new NumberSequence(null, 0, 1, Type.SQL_BIGINT);
-
-        RowIterator it = rowIterator(session);;
-
-        while (it.hasNext()) {
-            Row row = it.getNextRow();
-            int pos = (int) rowIdSequence.getValue();
-
-            row.setPos(pos);
-        }
-    }
-*/
 }
