@@ -1730,228 +1730,6 @@ public class Scanner {
         }
     }
 
-    public Number convertToNumber(String s,
-                                  NumberType numberType) throws HsqlException {
-
-        Number  number;
-        boolean minus = false;
-        Type    type;
-
-        reset(s);
-        resetState();
-        scanWhitespace();
-        scanToken();
-        scanWhitespace();
-
-        if (token.tokenType == Tokens.PLUS) {
-            scanToken();
-            scanWhitespace();
-        } else if (token.tokenType == Tokens.MINUS) {
-            minus = true;
-
-            scanToken();
-            scanWhitespace();
-        }
-
-        if (!hasNonSpaceSeparator && token.tokenType == Tokens.X_VALUE
-                && token.tokenValue instanceof Number) {
-            number = (Number) token.tokenValue;
-            type   = token.dataType;
-
-            if (minus) {
-                number = (Number) token.dataType.negate(number);
-            }
-
-            scanEnd();
-
-            if (token.tokenType == Tokens.X_ENDPARSE) {
-                number = (Number) numberType.convertToType(null, number, type);
-
-                return number;
-            }
-        }
-
-        throw Error.error(ErrorCode.X_22018);
-    }
-
-    public BinaryData convertToBinary(String s) throws HsqlException {
-
-        boolean hi = true;
-        byte    b  = 0;
-
-        reset(s);
-        resetState();
-        byteOutputStream.reset(byteBuffer);
-
-        for (; currentPosition < limit; currentPosition++, hi = !hi) {
-            int c = sqlString.charAt(currentPosition);
-
-            c = getHexValue(c);
-
-            if (c == -1) {
-
-                // bad character
-                token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
-                token.isMalformed = true;
-
-                break;
-            }
-
-            if (hi) {
-                b = (byte) (c << 4);
-            } else {
-                b += (byte) c;
-
-                byteOutputStream.writeByte(b);
-            }
-        }
-
-        if (!hi) {
-
-            // odd nibbles
-            token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
-            token.isMalformed = true;
-        }
-
-        if (token.isMalformed) {
-            throw Error.error(ErrorCode.X_22018);
-        }
-
-        BinaryData data = new BinaryData(byteOutputStream.toByteArray(),
-                                         false);
-
-        byteOutputStream.reset(byteBuffer);
-
-        return data;
-    }
-
-    public BinaryData convertToBit(String s) throws HsqlException {
-
-        BitMap map      = new BitMap(32);
-        int    bitIndex = map.size();
-
-        reset(s);
-        resetState();
-        byteOutputStream.reset(byteBuffer);
-
-        for (; currentPosition < limit; currentPosition++) {
-            int c = sqlString.charAt(currentPosition);
-
-            if (c == '0') {
-                bitIndex++;
-            } else if (c == '1') {
-                map.set(bitIndex);
-
-                bitIndex++;
-            } else {
-                token.tokenType   = Tokens.X_MALFORMED_BIT_STRING;
-                token.isMalformed = true;
-
-                throw Error.error(ErrorCode.X_22018);
-            }
-        }
-
-        map.setSize(bitIndex);
-
-        return new BinaryData(map.getBytes(), map.size());
-    }
-
-    // should perform range checks etc.
-    public Object convertToDatetimeInterval(String s,
-            DTIType type) throws HsqlException {
-
-        Object       value;
-        IntervalType intervalType  = null;
-        int          dateTimeToken = -1;
-        int          errorCode     = type.isDateTimeType() ? ErrorCode.X_22007
-                                                           : ErrorCode.X_22006;
-
-        reset(s);
-        resetState();
-        scanToken();
-        scanWhitespace();
-
-        switch (token.tokenType) {
-
-            case Tokens.INTERVAL :
-            case Tokens.DATE :
-            case Tokens.TIME :
-            case Tokens.TIMESTAMP :
-                dateTimeToken = token.tokenType;
-
-                scanToken();
-
-                if (token.tokenType != Tokens.X_VALUE
-                        || token.dataType.typeCode != Types.SQL_CHAR) {
-
-                    // error datetime bad literal
-                    throw Error.error(errorCode);
-                }
-
-                s = token.tokenString;
-
-                scanNext(ErrorCode.X_22007);
-
-                if (type.isIntervalType()) {
-                    intervalType = scanIntervalType();
-                }
-
-                if (token.tokenType != Tokens.X_ENDPARSE) {
-                    throw Error.error(errorCode);
-                }
-
-            // fall through
-            default :
-        }
-
-        switch (type.typeCode) {
-
-            case Types.SQL_DATE :
-                if (dateTimeToken != -1 && dateTimeToken != Tokens.DATE) {
-                    throw Error.error(errorCode);
-                }
-
-                return newDate(s);
-
-            case Types.SQL_TIME :
-            case Types.SQL_TIME_WITH_TIME_ZONE : {
-                if (dateTimeToken != -1 && dateTimeToken != Tokens.TIME) {
-                    throw Error.error(errorCode);
-                }
-
-                return newTime(s);
-            }
-            case Types.SQL_TIMESTAMP :
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                if (dateTimeToken != -1 && dateTimeToken != Tokens.TIMESTAMP) {
-                    throw Error.error(errorCode);
-                }
-
-                return newTimestamp(s);
-            }
-            default :
-                if (dateTimeToken != -1 && dateTimeToken != Tokens.INTERVAL) {
-                    throw Error.error(errorCode);
-                }
-
-                if (type.isIntervalType()) {
-                    value = newInterval(s, (IntervalType) type);
-
-                    if (intervalType != null) {
-                        if (intervalType.startIntervalType != type
-                                .startIntervalType || intervalType
-                                .endIntervalType != type.endIntervalType) {
-                            throw Error.error(errorCode);
-                        }
-                    }
-
-                    return value;
-                }
-
-                throw Error.runtimeError(ErrorCode.U_S0500, "Scanner");
-        }
-    }
-
     /**
      * Reads the type part of the INTERVAL
      */
@@ -2438,6 +2216,234 @@ public class Scanner {
             if (intervalString.charAt(intervalPosition) != ' ') {
                 break;
             }
+        }
+    }
+
+    /*
+     * synchronized methods for use with shared Scanner objects used for type
+     *  conversion
+     */
+    public synchronized Number convertToNumber(String s,
+            NumberType numberType) throws HsqlException {
+
+        Number  number;
+        boolean minus = false;
+        Type    type;
+
+        reset(s);
+        resetState();
+        scanWhitespace();
+        scanToken();
+        scanWhitespace();
+
+        if (token.tokenType == Tokens.PLUS) {
+            scanToken();
+            scanWhitespace();
+        } else if (token.tokenType == Tokens.MINUS) {
+            minus = true;
+
+            scanToken();
+            scanWhitespace();
+        }
+
+        if (!hasNonSpaceSeparator && token.tokenType == Tokens.X_VALUE
+                && token.tokenValue instanceof Number) {
+            number = (Number) token.tokenValue;
+            type   = token.dataType;
+
+            if (minus) {
+                number = (Number) token.dataType.negate(number);
+            }
+
+            scanEnd();
+
+            if (token.tokenType == Tokens.X_ENDPARSE) {
+                number = (Number) numberType.convertToType(null, number, type);
+
+                return number;
+            }
+        }
+
+        throw Error.error(ErrorCode.X_22018);
+    }
+
+    public synchronized BinaryData convertToBinary(String s)
+    throws HsqlException {
+
+        boolean hi = true;
+        byte    b  = 0;
+
+        reset(s);
+        resetState();
+        byteOutputStream.reset(byteBuffer);
+
+        for (; currentPosition < limit; currentPosition++, hi = !hi) {
+            int c = sqlString.charAt(currentPosition);
+
+            c = getHexValue(c);
+
+            if (c == -1) {
+
+                // bad character
+                token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
+                token.isMalformed = true;
+
+                break;
+            }
+
+            if (hi) {
+                b = (byte) (c << 4);
+            } else {
+                b += (byte) c;
+
+                byteOutputStream.writeByte(b);
+            }
+        }
+
+        if (!hi) {
+
+            // odd nibbles
+            token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
+            token.isMalformed = true;
+        }
+
+        if (token.isMalformed) {
+            throw Error.error(ErrorCode.X_22018);
+        }
+
+        BinaryData data = new BinaryData(byteOutputStream.toByteArray(),
+                                         false);
+
+        byteOutputStream.reset(byteBuffer);
+
+        return data;
+    }
+
+    public synchronized BinaryData convertToBit(String s)
+    throws HsqlException {
+
+        BitMap map      = new BitMap(32);
+        int    bitIndex = map.size();
+
+        reset(s);
+        resetState();
+        byteOutputStream.reset(byteBuffer);
+
+        for (; currentPosition < limit; currentPosition++) {
+            int c = sqlString.charAt(currentPosition);
+
+            if (c == '0') {
+                bitIndex++;
+            } else if (c == '1') {
+                map.set(bitIndex);
+
+                bitIndex++;
+            } else {
+                token.tokenType   = Tokens.X_MALFORMED_BIT_STRING;
+                token.isMalformed = true;
+
+                throw Error.error(ErrorCode.X_22018);
+            }
+        }
+
+        map.setSize(bitIndex);
+
+        return new BinaryData(map.getBytes(), map.size());
+    }
+
+    // should perform range checks etc.
+    public synchronized Object convertToDatetimeInterval(String s,
+            DTIType type) throws HsqlException {
+
+        Object       value;
+        IntervalType intervalType  = null;
+        int          dateTimeToken = -1;
+        int          errorCode     = type.isDateTimeType() ? ErrorCode.X_22007
+                                                           : ErrorCode.X_22006;
+
+        reset(s);
+        resetState();
+        scanToken();
+        scanWhitespace();
+
+        switch (token.tokenType) {
+
+            case Tokens.INTERVAL :
+            case Tokens.DATE :
+            case Tokens.TIME :
+            case Tokens.TIMESTAMP :
+                dateTimeToken = token.tokenType;
+
+                scanToken();
+
+                if (token.tokenType != Tokens.X_VALUE
+                        || token.dataType.typeCode != Types.SQL_CHAR) {
+
+                    // error datetime bad literal
+                    throw Error.error(errorCode);
+                }
+
+                s = token.tokenString;
+
+                scanNext(ErrorCode.X_22007);
+
+                if (type.isIntervalType()) {
+                    intervalType = scanIntervalType();
+                }
+
+                if (token.tokenType != Tokens.X_ENDPARSE) {
+                    throw Error.error(errorCode);
+                }
+
+            // fall through
+            default :
+        }
+
+        switch (type.typeCode) {
+
+            case Types.SQL_DATE :
+                if (dateTimeToken != -1 && dateTimeToken != Tokens.DATE) {
+                    throw Error.error(errorCode);
+                }
+
+                return newDate(s);
+
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE : {
+                if (dateTimeToken != -1 && dateTimeToken != Tokens.TIME) {
+                    throw Error.error(errorCode);
+                }
+
+                return newTime(s);
+            }
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                if (dateTimeToken != -1 && dateTimeToken != Tokens.TIMESTAMP) {
+                    throw Error.error(errorCode);
+                }
+
+                return newTimestamp(s);
+            }
+            default :
+                if (dateTimeToken != -1 && dateTimeToken != Tokens.INTERVAL) {
+                    throw Error.error(errorCode);
+                }
+
+                if (type.isIntervalType()) {
+                    value = newInterval(s, (IntervalType) type);
+
+                    if (intervalType != null) {
+                        if (intervalType.startIntervalType != type
+                                .startIntervalType || intervalType
+                                .endIntervalType != type.endIntervalType) {
+                            throw Error.error(errorCode);
+                        }
+                    }
+
+                    return value;
+                }
+
+                throw Error.runtimeError(ErrorCode.U_S0500, "Scanner");
         }
     }
 }

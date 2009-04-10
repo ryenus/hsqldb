@@ -53,7 +53,7 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public InputStream getAsciiStream() throws SQLException {
+    public synchronized InputStream getAsciiStream() throws SQLException {
         throw Util.notSupported();
     }
 
@@ -67,7 +67,7 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public Reader getCharacterStream() throws SQLException {
+    public synchronized Reader getCharacterStream() throws SQLException {
         return new ClobInputStream(this, 0, length(),
                                    session.getStreamBlockSize());
     }
@@ -84,7 +84,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public String getSubString(long pos, int length) throws SQLException {
+    public synchronized String getSubString(long pos,
+            int length) throws SQLException {
 
         try {
             return clob.getSubString(session, pos - 1, length);
@@ -101,7 +102,7 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the length of the
      *   <code>CLOB</code> value
      */
-    public long length() throws SQLException {
+    public synchronized long length() throws SQLException {
 
         try {
             return clob.length(session);
@@ -123,7 +124,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public long position(String searchstr, long start) throws SQLException {
+    public synchronized long position(String searchstr,
+                                      long start) throws SQLException {
 
         try {
             return clob.position(session, searchstr, start - 1);
@@ -145,7 +147,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public long position(Clob searchstr, long start) throws SQLException {
+    public synchronized long position(Clob searchstr,
+                                      long start) throws SQLException {
         return position(searchstr.getSubString(0, (int) searchstr.length()),
                         start);
     }
@@ -161,7 +164,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public OutputStream setAsciiStream(long pos) throws SQLException {
+    public synchronized OutputStream setAsciiStream(
+            long pos) throws SQLException {
         throw Util.notSupported();
     }
 
@@ -176,7 +180,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public Writer setCharacterStream(long pos) throws SQLException {
+    public synchronized Writer setCharacterStream(
+            long pos) throws SQLException {
         throw Util.notSupported();
     }
 
@@ -194,7 +199,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public int setString(long pos, String str) throws SQLException {
+    public synchronized int setString(long pos,
+                                      String str) throws SQLException {
         return setString(pos, str, 0, str.length());
     }
 
@@ -214,8 +220,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public int setString(long pos, String str, int offset,
-                         int len) throws SQLException {
+    public synchronized int setString(long pos, String str, int offset,
+                                      int len) throws SQLException {
 
         try {
             return clob.setString(session, pos - 1, str, offset, len);
@@ -233,7 +239,7 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public void truncate(long len) throws SQLException {
+    public synchronized void truncate(long len) throws SQLException {
 
         try {
             clob.truncate(session, len);
@@ -261,7 +267,7 @@ public class JDBCClobClient implements Clob {
      * this method
      * @since JDK 1.6, HSQLDB 1.9.0
      */
-    public void free() throws SQLException {
+    public synchronized void free() throws SQLException {
         isClosed = true;
     }
 
@@ -281,8 +287,8 @@ public class JDBCClobClient implements Clob {
      * this method
      * @since JDK 1.6, HSQLDB 1.9.0
      */
-    public Reader getCharacterStream(long pos,
-                                     long length) throws SQLException {
+    public synchronized Reader getCharacterStream(long pos,
+            long length) throws SQLException {
         return new ClobInputStream(this, pos - 1, length,
                                    session.getStreamBlockSize());
     }
@@ -306,7 +312,7 @@ public class JDBCClobClient implements Clob {
         this.clob    = clob;
     }
 
-    public boolean isClosed() {
+    public synchronized boolean isClosed() {
         return isClosed;
     }
 

@@ -173,7 +173,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *            SQL statement produces anything other than a single
      *            <code>ResultSet</code> object
      */
-    public ResultSet executeQuery(String sql) throws SQLException {
+    public synchronized ResultSet executeQuery(
+            String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_RESULT,
                     JDBCStatementBase.NO_GENERATED_KEYS, null, null);
@@ -199,7 +200,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * this method is called on a closed <code>Statement</code> or the given
      *            SQL statement produces a <code>ResultSet</code> object
      */
-    public int executeUpdate(String sql) throws SQLException {
+    public synchronized int executeUpdate(String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_COUNT,
                     JDBCStatementBase.NO_GENERATED_KEYS, null, null);
@@ -271,7 +272,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * this method is called on a closed <code>Statement</code>
      * @see #setMaxFieldSize
      */
-    public int getMaxFieldSize() throws SQLException {
+    public synchronized int getMaxFieldSize() throws SQLException {
 
         checkClosed();
 
@@ -342,7 +343,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * this method is called on a closed <code>Statement</code>
      * @see #setMaxRows
      */
-    public int getMaxRows() throws SQLException {
+    public synchronized int getMaxRows() throws SQLException {
 
         checkClosed();
 
@@ -365,7 +366,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *            or the condition max >= 0 is not satisfied
      * @see #getMaxRows
      */
-    public void setMaxRows(int max) throws SQLException {
+    public synchronized void setMaxRows(int max) throws SQLException {
 
         checkClosed();
 
@@ -421,7 +422,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * this method is called on a closed <code>Statement</code>
      * @see #setQueryTimeout
      */
-    public int getQueryTimeout() throws SQLException {
+    public synchronized int getQueryTimeout() throws SQLException {
 
         checkClosed();
 
@@ -488,7 +489,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-    public void cancel() throws SQLException {
+    public synchronized void cancel() throws SQLException {
         checkClosed();
     }
 
@@ -523,7 +524,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      */
-    public SQLWarning getWarnings() throws SQLException {
+    public synchronized SQLWarning getWarnings() throws SQLException {
 
         checkClosed();
 
@@ -552,7 +553,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
      */
-    public void clearWarnings() throws SQLException {
+    public synchronized void clearWarnings() throws SQLException {
         checkClosed();
     }
 
@@ -624,7 +625,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @see #getUpdateCount
      * @see #getMoreResults
      */
-    public boolean execute(String sql) throws SQLException {
+    public synchronized boolean execute(String sql) throws SQLException {
 
         fetchResult(sql, StatementTypes.RETURN_ANY,
                     JDBCStatementBase.NO_GENERATED_KEYS, null, null);
@@ -651,7 +652,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * this method is called on a closed <code>Statement</code>
      * @see #execute
      */
-    public ResultSet getResultSet() throws SQLException {
+    public synchronized ResultSet getResultSet() throws SQLException {
         return super.getResultSet();
     }
 
@@ -668,7 +669,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * this method is called on a closed <code>Statement</code>
      * @see #execute
      */
-    public int getUpdateCount() throws SQLException {
+    public synchronized int getUpdateCount() throws SQLException {
         return super.getUpdateCount();
     }
 
@@ -693,7 +694,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * this method is called on a closed <code>Statement</code>
      * @see #execute
      */
-    public boolean getMoreResults() throws SQLException {
+    public synchronized boolean getMoreResults() throws SQLException {
         return getMoreResults(JDBCStatementBase.CLOSE_CURRENT_RESULT);
     }
 
@@ -729,7 +730,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *    for JDBCStatement)
      * @see #getFetchDirection
      */
-    public void setFetchDirection(int direction) throws SQLException {
+    public synchronized void setFetchDirection(
+            int direction) throws SQLException {
 
         checkClosed();
         checkClosed();
@@ -808,7 +810,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *   for JDBCStatement)
      * @see #getFetchSize
      */
-    public void setFetchSize(int rows) throws SQLException {
+    public synchronized void setFetchSize(int rows) throws SQLException {
 
         checkClosed();
 
@@ -844,7 +846,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *  for JDBCStatement)
      * @see #setFetchSize
      */
-    public int getFetchSize() throws SQLException {
+    public synchronized int getFetchSize() throws SQLException {
 
         checkClosed();
 
@@ -873,7 +875,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
      *  for JDBCStatement)
      */
-    public int getResultSetConcurrency() throws SQLException {
+    public synchronized int getResultSetConcurrency() throws SQLException {
 
         checkClosed();
 
@@ -903,7 +905,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
      *   for JDBCStatement)
      */
-    public int getResultSetType() throws SQLException {
+    public synchronized int getResultSetType() throws SQLException {
 
         checkClosed();
 
@@ -939,7 +941,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
      *   for JDBCStatement)
      */
-    public void addBatch(String sql) throws SQLException {
+    public synchronized void addBatch(String sql) throws SQLException {
 
         checkClosed();
 
@@ -977,7 +979,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
      *   for JDBCStatement)
      */
-    public void clearBatch() throws SQLException {
+    public synchronized void clearBatch() throws SQLException {
 
         checkClosed();
 
@@ -1062,7 +1064,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.3 (JDK 1.1.x developers: read the overview for
      * JDBCStatement)
      */
-    public int[] executeBatch() throws SQLException {
+    public synchronized int[] executeBatch() throws SQLException {
 
         checkClosed();
         connection.clearWarningsNoCheck();
@@ -1126,7 +1128,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
      *    for JDBCStatement)
      */
-    public Connection getConnection() throws SQLException {
+    public synchronized Connection getConnection() throws SQLException {
 
         checkClosed();
 
@@ -1177,7 +1179,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @see #execute
      */
 //#ifdef JAVA4
-    public boolean getMoreResults(int current) throws SQLException {
+    public synchronized boolean getMoreResults(
+            int current) throws SQLException {
         return super.getMoreResults(current);
     }
 
@@ -1214,7 +1217,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
-    public ResultSet getGeneratedKeys() throws SQLException {
+    public synchronized ResultSet getGeneratedKeys() throws SQLException {
         return getGeneratedResultSet();
     }
 
@@ -1262,8 +1265,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
-    public int executeUpdate(String sql,
-                             int autoGeneratedKeys) throws SQLException {
+    public synchronized int executeUpdate(String sql,
+            int autoGeneratedKeys) throws SQLException {
 
         if (autoGeneratedKeys != Statement.RETURN_GENERATED_KEYS
                 && autoGeneratedKeys != Statement.NO_GENERATED_KEYS) {
@@ -1322,8 +1325,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
-    public int executeUpdate(String sql,
-                             int[] columnIndexes) throws SQLException {
+    public synchronized int executeUpdate(String sql,
+            int[] columnIndexes) throws SQLException {
 
         if (columnIndexes == null || columnIndexes.length == 0) {
             throw Util.invalidArgument("columnIndexes");
@@ -1374,8 +1377,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
-    public int executeUpdate(String sql,
-                             String[] columnNames) throws SQLException {
+    public synchronized int executeUpdate(String sql,
+            String[] columnNames) throws SQLException {
 
         if (columnNames == null || columnNames.length == 0) {
             throw Util.invalidArgument("columnIndexes");
@@ -1443,8 +1446,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
-    public boolean execute(String sql,
-                           int autoGeneratedKeys) throws SQLException {
+    public synchronized boolean execute(
+            String sql, int autoGeneratedKeys) throws SQLException {
 
         if (autoGeneratedKeys != Statement.RETURN_GENERATED_KEYS
                 && autoGeneratedKeys != Statement.NO_GENERATED_KEYS) {
@@ -1510,8 +1513,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
-    public boolean execute(String sql,
-                           int[] columnIndexes) throws SQLException {
+    public synchronized boolean execute(
+            String sql, int[] columnIndexes) throws SQLException {
 
         if (columnIndexes == null || columnIndexes.length == 0) {
             throw Util.invalidArgument("columnIndexes");
@@ -1576,8 +1579,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
-    public boolean execute(String sql,
-                           String[] columnNames) throws SQLException {
+    public synchronized boolean execute(
+            String sql, String[] columnNames) throws SQLException {
 
         if (columnNames == null || columnNames.length == 0) {
             throw Util.invalidArgument("columnIndexes");
@@ -1611,7 +1614,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
-    public int getResultSetHoldability() throws SQLException {
+    public synchronized int getResultSetHoldability() throws SQLException {
         return rsHoldability;
     }
 
@@ -1656,7 +1659,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      */
 
 //#ifdef JAVA6
-    public void setPoolable(boolean poolable) throws SQLException {
+    public synchronized void setPoolable(
+            boolean poolable) throws SQLException {
 
         checkClosed();
 
@@ -1679,7 +1683,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @see #setPoolable(boolean) setPoolable(boolean)
      */
 //#ifdef JAVA6
-    public boolean isPoolable() throws SQLException {
+    public synchronized boolean isPoolable() throws SQLException {
 
         checkClosed();
 

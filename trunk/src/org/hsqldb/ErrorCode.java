@@ -217,6 +217,10 @@ public interface ErrorCode {
     int X_0F000 = 1800;                                   // locator exception
     int X_0F001 = 1801;                                   // locator exception: invalid specification
 
+    // HSQLDB locator
+    int X_0F502 = 3474;                                   // lob is no long valid
+    int X_0F503 = 3475;                                   // lob stream is closed
+
     // resignal when handler not active - xxxx
     int X_0K000 = 1900;                                   // resignal when handler not active
 
@@ -341,8 +345,6 @@ public interface ErrorCode {
     int X_22501 = 3471;                                   // value cannot be converted to target type
     int X_22511 = 3472;                                   // invalid function argument
     int X_22521 = 3473;                                   // object serialization failure
-    int X_22522 = 3474;                                   // lob is no long valid
-    int X_22523 = 3475;                                   // lob stream is closed
 
     // 04-PSM - xxxx
     int X_2202A = 3488;                                   // data exception: null value in field reference
