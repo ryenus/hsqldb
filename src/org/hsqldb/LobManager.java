@@ -314,7 +314,7 @@ public class LobManager {
         Object[] data = getLobHeader(session, lobID);
 
         if (data == null) {
-            Result.newErrorResult(Error.error(ErrorCode.X_22522));
+            Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
         long length = ((Long) data[1]).longValue();
@@ -329,7 +329,7 @@ public class LobManager {
         Object[] data = getLobHeader(session, lobID);
 
         if (data == null) {
-            Result.newErrorResult(Error.error(ErrorCode.X_22522));
+            Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
         long lobLength = ((Long) data[1]).longValue();
@@ -399,7 +399,7 @@ public class LobManager {
             blockOffset, blockLimit);
 
         if (blockAddresses.length == 0) {
-            return Result.newErrorResult(Error.error(ErrorCode.X_22522));
+            return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
         //
@@ -471,7 +471,7 @@ public class LobManager {
         Object[] data = getLobHeader(session, lobID);
 
         if (data == null) {
-            return Result.newErrorResult(Error.error(ErrorCode.X_22522));
+            return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
         long oldLength       = ((Long) data[1]).longValue();
@@ -615,7 +615,7 @@ public class LobManager {
         Object[] data = getLobHeader(session, lobID);
 
         if (data == null) {
-            return Result.newErrorResult(Error.error(ErrorCode.X_22522));
+            return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
         long length = ((Long) data[1]).longValue();
@@ -653,7 +653,7 @@ public class LobManager {
         Object[] data = getLobHeader(session, lobID);
 
         if (data == null) {
-            return Result.newErrorResult(Error.error(ErrorCode.X_22522));
+            return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
         long length = ((Long) data[1]).longValue();
@@ -704,7 +704,7 @@ public class LobManager {
         Object[] data = getLobHeader(session, lobID);
 
         if (data == null) {
-            return Result.newErrorResult(Error.error(ErrorCode.X_22522));
+            return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
         /** @todo 1.9.0 - double offset for clob */

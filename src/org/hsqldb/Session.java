@@ -215,7 +215,7 @@ public class Session implements SessionInterface {
     /**
      * Closes this Session.
      */
-    public void close() {
+    public synchronized void close() {
 
         if (isClosed) {
             return;
@@ -253,7 +253,7 @@ public class Session implements SessionInterface {
         return isClosed;
     }
 
-    public void setIsolationDefault(int level) throws HsqlException {
+    public synchronized void setIsolationDefault(int level) throws HsqlException {
 
         if (level == SessionInterface.TX_READ_UNCOMMITTED) {
             isReadOnlyDefault = true;
@@ -288,7 +288,7 @@ public class Session implements SessionInterface {
         isolationMode = level;
     }
 
-    public int getIsolation() throws HsqlException {
+    public synchronized int getIsolation() throws HsqlException {
         return isolationMode;
     }
 
@@ -448,7 +448,7 @@ public class Session implements SessionInterface {
      * @param  autocommit the new value
      * @throws  HsqlException
      */
-    public void setAutoCommit(boolean autocommit) throws HsqlException {
+    public synchronized void setAutoCommit(boolean autocommit) throws HsqlException {
 
         if (isClosed) {
             return;
@@ -492,10 +492,11 @@ public class Session implements SessionInterface {
         database.txManager.beginTransaction(this);
     }
 
-    public void startPhasedTransaction() throws HsqlException {}
+    public synchronized void startPhasedTransaction() throws HsqlException {}
 
-    /** for two phased pre-commit */
-    public void prepareCommit() throws HsqlException {
+    /** @todo - fredt - for two phased pre-commit - after this call, further
+     * state changing calls should fail */
+    public synchronized void prepareCommit() throws HsqlException {
 
         if (isClosed) {
             throw Error.error(ErrorCode.X_08003);
@@ -515,7 +516,7 @@ public class Session implements SessionInterface {
      *
      * @throws  HsqlException
      */
-    public void commit(boolean chain) throws HsqlException {
+    public synchronized void commit(boolean chain) throws HsqlException {
 
 //        tempActionHistory.add("commit " + actionTimestamp);
         if (isClosed) {
@@ -545,7 +546,7 @@ public class Session implements SessionInterface {
      *
      * @throws  HsqlException
      */
-    public void rollback(boolean chain) {
+    public synchronized void rollback(boolean chain) {
 
         //        tempActionHistory.add("rollback " + actionTimestamp);
         if (isClosed) {
@@ -585,9 +586,9 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * No-op in this implementation. To be implemented for connection pooling
+     * @todo no-op in this implementation. To be implemented for connection pooling
      */
-    public void resetSession() throws HsqlException {
+    public synchronized void resetSession() throws HsqlException {
         throw new HsqlException("", "", 0);
     }
 
@@ -598,7 +599,7 @@ public class Session implements SessionInterface {
      * @param  name name of the savepoint
      * @throws  HsqlException if there is no current transaction
      */
-    public void savepoint(String name) {
+    public synchronized void savepoint(String name) {
 
         int index = sessionContext.savepoints.getIndex(name);
 
@@ -622,7 +623,7 @@ public class Session implements SessionInterface {
      * @param  name name of savepoint
      * @throws  HsqlException
      */
-    public void rollbackToSavepoint(String name) throws HsqlException {
+    public synchronized void rollbackToSavepoint(String name) throws HsqlException {
 
         if (isClosed) {
             return;
@@ -646,7 +647,7 @@ public class Session implements SessionInterface {
      *
      * @throws  HsqlException
      */
-    public void rollbackToSavepoint() {
+    public synchronized void rollbackToSavepoint() {
 
         if (isClosed) {
             return;
@@ -667,7 +668,7 @@ public class Session implements SessionInterface {
      * @param  name name of savepoint
      * @throws  HsqlException if name does not correspond to a savepoint
      */
-    public void releaseSavepoint(String name) throws HsqlException {
+    public synchronized void releaseSavepoint(String name) throws HsqlException {
 
         // remove this and all later savepoints
         int index = sessionContext.savepoints.getIndex(name);
@@ -701,7 +702,7 @@ public class Session implements SessionInterface {
         isReadOnly = readonly;
     }
 
-    public void setReadOnlyDefault(boolean readonly) throws HsqlException {
+    public synchronized void setReadOnlyDefault(boolean readonly) throws HsqlException {
 
         if (!readonly && database.databaseReadOnly) {
             throw Error.error(ErrorCode.DATABASE_IS_READONLY);
@@ -723,7 +724,7 @@ public class Session implements SessionInterface {
         return isReadOnly;
     }
 
-    public boolean isReadOnlyDefault() {
+    public synchronized boolean isReadOnlyDefault() {
         return isReadOnlyDefault;
     }
 
@@ -732,11 +733,11 @@ public class Session implements SessionInterface {
      *
      * @return the current value
      */
-    public boolean isAutoCommit() {
+    public synchronized boolean isAutoCommit() {
         return isAutoCommit;
     }
 
-    public int getStreamBlockSize() {
+    public synchronized int getStreamBlockSize() {
         return 512 * 1024;
     }
 
@@ -828,7 +829,7 @@ public class Session implements SessionInterface {
      * @param cmd the command to execute
      * @return the result of executing the command
      */
-    public Result execute(Result cmd) {
+    public synchronized Result execute(Result cmd) {
 
         if (isClosed) {
             return Result.newErrorResult(Error.error(ErrorCode.X_08503));
@@ -1038,7 +1039,7 @@ public class Session implements SessionInterface {
         return sessionData.getRowSetSlice(navigatorId, offset, blockSize);
     }
 
-    public void closeNavigator(long id) {
+    public synchronized void closeNavigator(long id) {
         sessionData.closeNavigator(id);
     }
 
@@ -1396,7 +1397,7 @@ public class Session implements SessionInterface {
      * CURRENT_XXXX calls in this scope will use this millisecond value.
      * (fredt@users)
      */
-    public TimestampData getCurrentDate() {
+    public synchronized TimestampData getCurrentDate() {
 
         resetCurrentTimestamp();
 
@@ -1412,7 +1413,7 @@ public class Session implements SessionInterface {
      * Returns the current time, unchanged for the duration of the current
      * execution unit (statement)
      */
-    TimeData getCurrentTime(boolean withZone) {
+    synchronized TimeData getCurrentTime(boolean withZone) {
 
         resetCurrentTimestamp();
 
@@ -1445,7 +1446,7 @@ public class Session implements SessionInterface {
      * Returns the current timestamp, unchanged for the duration of the current
      * execution unit (statement)
      */
-    TimestampData getCurrentTimestamp(boolean withZone) {
+    synchronized TimestampData getCurrentTimestamp(boolean withZone) {
 
         resetCurrentTimestamp();
 
@@ -1570,7 +1571,7 @@ public class Session implements SessionInterface {
         return Result.updateZeroResult;
     }
 
-    public Object getAttribute(int id) {
+    public synchronized Object getAttribute(int id) {
 
         switch (id) {
 
@@ -1630,7 +1631,7 @@ public class Session implements SessionInterface {
         long lobID = database.lobManager.createBlob(this);
 
         if (lobID == 0) {
-            throw Error.error(ErrorCode.X_22522);
+            throw Error.error(ErrorCode.X_0F502);
         }
 
         return new BlobDataID(lobID);
@@ -1641,7 +1642,7 @@ public class Session implements SessionInterface {
         long lobID = database.lobManager.createClob(this);
 
         if (lobID == 0) {
-            throw Error.error(ErrorCode.X_22522);
+            throw Error.error(ErrorCode.X_0F502);
         }
 
         return new ClobDataID(lobID);

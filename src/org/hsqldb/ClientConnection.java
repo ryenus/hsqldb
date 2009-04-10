@@ -199,7 +199,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public RowSetNavigatorClient getRows(long navigatorId, int offset,
+    public synchronized RowSetNavigatorClient getRows(long navigatorId, int offset,
                                          int size) throws HsqlException {
 
         try {
@@ -216,7 +216,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public void closeNavigator(long navigatorId) {
+    public synchronized void closeNavigator(long navigatorId) {
 
         try {
             resultOut.setResultType(ResultConstants.CLOSE_RESULT);
@@ -243,7 +243,7 @@ public class ClientConnection implements SessionInterface {
         } catch (Exception e) {}
     }
 
-    public Object getAttribute(int id) throws HsqlException {
+    public synchronized Object getAttribute(int id) throws HsqlException {
 
         resultOut.setResultType(ResultConstants.GETSESSIONATTR);
         resultOut.setStatementType(id);
@@ -274,7 +274,7 @@ public class ClientConnection implements SessionInterface {
         return null;
     }
 
-    public void setAttribute(int id, Object value) throws HsqlException {
+    public synchronized void setAttribute(int id, Object value) throws HsqlException {
 
         resultOut.setResultType(ResultConstants.SETSESSIONATTR);
 
@@ -489,7 +489,7 @@ public class ClientConnection implements SessionInterface {
     /**
      * Never called on this class
      */
-    public String getInternalConnectionURL() {
+    public synchronized String getInternalConnectionURL() {
         return null;
     }
 

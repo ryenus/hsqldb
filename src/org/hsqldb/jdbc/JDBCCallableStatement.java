@@ -132,10 +132,7 @@ import org.hsqldb.types.Type;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Since 1.7.2, the JDBC CallableStatement interface implementation has been
- * broken out of the JDBCParameterMetaData class into this one. <p>
- *
- * With 1.7.2, some of the previously unsupported features of this interface
+ * Some of the previously unsupported features of this interface
  * are now supported, such as the parameterName-based setter methods. <p>
  *
  * More importantly, JDBCCallableStatement objects are now backed by a true
@@ -165,56 +162,23 @@ import org.hsqldb.types.Type;
  * from one DBMS product line to another almost invariably involves complex
  * porting issues and often may not be possible at all. <em>Be warned</em>. <p>
  *
- * At present, HSQLDB stored procedures map directly onto the methods of
- * compiled Java classes found on the classpath of the engine at runtime. This
- * is done in a non-standard but fairly efficient way by issuing a class
- * grant (and possibly method aliases) of the form: <p>
+ * One kind of HSQLDB stored procedures is Java routines that map directly onto
+ * the static methods of compiled Java classes found on the classpath of the
+ * engine at runtime. <p>
  *
- * <PRE class="SqlCodeExample">
- * GRANT ALL ON CLASS &quot;package.class&quot; TO [&lt;user-name&gt; | PUBLIC]
- * CREATE ALIAS &ltcall-alias&gt; FOR &quot;package.class.method&quot; -- optional
- * </PRE>
+ * Overloaded methods are supported and resolved according to the type of
+ * para;meters.
  *
- * This has the effect of allowing the specified user(s) to access the
- * set of uniquely named public static methods of the specified class,
- * in either the role of SQL functions or stored procedures.
+ * The other kind of HSQLDB stored procedures is SQL routines that are created
+ * as part of schemas.
  *
- * For example: <p>
+ * With SQL routines, <code>OUT</code> and <code>IN OUT</code> parameters
+ * are also supported. <p>
  *
- * <PRE class="SqlCodeExample">
- * CONNECT &lt;admin-user&gt; PASSWORD &lt;admin-user-password&gt;;
- * GRANT ALL ON CLASS &quot;org.myorg.MyClass&quot; TO PUBLIC;
- * CREATE ALIAS sp_my_method FOR &quot;org.myorg.MyClass.myMethod&quot;
- * CONNECT &lt;any-user&gt; PASSWORD &lt;any-user-password&gt;;
- * SELECT &quot;org.myorg.MyClass.myMethod&quot;(column_1) FROM table_1;
- * SELECT sp_my_method(column_1) FROM table_1;
- * CALL 2 + &quot;org.myorg.MyClass.myMethod&quot;(-5);
- * CALL 2 + sp_my_method(-5);
- * </PRE>
- *
- * Please note the use of the term &quot;uniquely named&quot; above. Including
- * the present release, no support is provided to deterministically resolve overloaded
- * method names, and there can be issues with inherited methods as well;
- * currently, it is strongly recommended that developers creating stored
- * procedure library classes for HSQLDB simply avoid designs such that SQL
- * stored procedure calls attempt to resolve to: <p>
- *
- * <ol>
- * <li>inherited public static methods
- * <li>overloaded public static methods
- * </ol>
- *
- * Also, please note that <code>OUT</code> and <code>IN OUT</code> parameters
- * are not yet supported due to some unresolved low level support issues. <p>
- *
- * Including the present release, the HSQLDB stored procedure call mechanism is essentially a
- * thin wrap of the HSQLDB SQL function call mechanism, extended to include the
- * more general HSQLDB SQL expression evaluation mechanism.  In addition to
- * stored procedure calls that resolve directly to Java method invocations, the
+ * In addition, HSQLDB stored procedure call mechanism allows the
+ * more general HSQLDB SQL expression evaluation mechanism.  This
  * extension provides the ability to evaluate simple SQL expressions, possibly
- * containing Java method invocations, outside any <code>INSERT</code>,
- * <code>UPDATE</code>, <code>DELETE</code> or <code>SELECT</code> statement
- * context. <p>
+ * containing Java method invocations. <p>
  *
  * With HSQLDB, executing a <code>CALL</code> statement that produces an opaque
  * (OTHER) or known scalar object reference has virtually the same effect as:
@@ -350,9 +314,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
-     *
-     * Calling this method always throws an <code>SQLException</code>.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -375,8 +337,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this data type
      * @see java.sql.Types
      */
-    public void registerOutParameter(int parameterIndex,
-                                     int sqlType) throws SQLException {
+    public synchronized void registerOutParameter(int parameterIndex,
+            int sqlType) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
@@ -408,9 +370,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -430,8 +391,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this data type
      * @see java.sql.Types
      */
-    public void registerOutParameter(int parameterIndex, int sqlType,
-                                     int scale) throws SQLException {
+    public synchronized void registerOutParameter(int parameterIndex,
+            int sqlType, int scale) throws SQLException {
         registerOutParameter(parameterIndex, sqlType);
     }
 
@@ -449,9 +410,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
-     *
-     * Calling this method always throws an <code>SQLException</code>.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -460,7 +419,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      */
-    public boolean wasNull() throws SQLException {
+    public synchronized boolean wasNull() throws SQLException {
         return wasNullValue;
     }
 
@@ -483,9 +442,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -498,7 +456,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setString
      */
-    public String getString(int parameterIndex) throws SQLException {
+    public synchronized String getString(
+            int parameterIndex) throws SQLException {
         return (String) getColumnInType(parameterIndex, Type.SQL_VARCHAR);
     }
 
@@ -516,9 +475,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -530,7 +488,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setBoolean
      */
-    public boolean getBoolean(int parameterIndex) throws SQLException {
+    public synchronized boolean getBoolean(
+            int parameterIndex) throws SQLException {
 
         Object o = getColumnInType(parameterIndex, Type.SQL_BOOLEAN);
 
@@ -550,9 +509,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -564,7 +522,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setByte
      */
-    public byte getByte(int parameterIndex) throws SQLException {
+    public synchronized byte getByte(int parameterIndex) throws SQLException {
 
         Object o = getColumnInType(parameterIndex, Type.TINYINT);
 
@@ -584,9 +542,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -598,7 +555,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setShort
      */
-    public short getShort(int parameterIndex) throws SQLException {
+    public synchronized short getShort(
+            int parameterIndex) throws SQLException {
 
         Object o = getColumnInType(parameterIndex, Type.SQL_SMALLINT);
 
@@ -618,9 +576,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -632,7 +589,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setInt
      */
-    public int getInt(int parameterIndex) throws SQLException {
+    public synchronized int getInt(int parameterIndex) throws SQLException {
 
         Object o = getColumnInType(parameterIndex, Type.SQL_INTEGER);
 
@@ -652,9 +609,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -666,7 +622,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setLong
      */
-    public long getLong(int parameterIndex) throws SQLException {
+    public synchronized long getLong(int parameterIndex) throws SQLException {
 
         Object o = getColumnInType(parameterIndex, Type.SQL_BIGINT);
 
@@ -686,9 +642,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -700,7 +655,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setFloat
      */
-    public float getFloat(int parameterIndex) throws SQLException {
+    public synchronized float getFloat(
+            int parameterIndex) throws SQLException {
 
         Object o = getColumnInType(parameterIndex, Type.SQL_DOUBLE);
 
@@ -720,9 +676,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -734,7 +689,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setDouble
      */
-    public double getDouble(int parameterIndex) throws SQLException {
+    public synchronized double getDouble(
+            int parameterIndex) throws SQLException {
 
         Object o = getColumnInType(parameterIndex, Type.SQL_DOUBLE);
 
@@ -755,9 +711,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -776,8 +731,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 
 //#ifdef DEPRECATEDJDBC
-    public BigDecimal getBigDecimal(int parameterIndex,
-                                    int scale) throws SQLException {
+    public synchronized BigDecimal getBigDecimal(int parameterIndex,
+            int scale) throws SQLException {
 
         if (scale < 0) {
             throw Util.outOfRangeArgument();
@@ -809,9 +764,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @param parameterIndex the first parameter is 1, the second is 2,
@@ -822,7 +776,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setBytes
      */
-    public byte[] getBytes(int parameterIndex) throws SQLException {
+    public synchronized byte[] getBytes(
+            int parameterIndex) throws SQLException {
 
         Object x = getColumnInType(parameterIndex, Type.SQL_VARBINARY);
 
@@ -845,9 +800,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @param parameterIndex the first parameter is 1, the second is 2,
@@ -858,7 +812,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setDate
      */
-    public Date getDate(int parameterIndex) throws SQLException {
+    public synchronized Date getDate(int parameterIndex) throws SQLException {
 
         TimestampData t = (TimestampData) getColumnInType(parameterIndex,
             Type.SQL_DATE);
@@ -882,9 +836,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -896,7 +849,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setTime
      */
-    public Time getTime(int parameterIndex) throws SQLException {
+    public synchronized Time getTime(int parameterIndex) throws SQLException {
 
         TimeData t = (TimeData) getColumnInType(parameterIndex, Type.SQL_TIME);
 
@@ -919,9 +872,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -933,7 +885,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setTimestamp
      */
-    public Timestamp getTimestamp(int parameterIndex) throws SQLException {
+    public synchronized Timestamp getTimestamp(
+            int parameterIndex) throws SQLException {
 
         TimestampData t = (TimestampData) getColumnInType(parameterIndex,
             Type.SQL_TIMESTAMP);
@@ -967,9 +920,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -981,7 +933,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see java.sql.Types
      * @see #setObject
      */
-    public Object getObject(int parameterIndex) throws SQLException {
+    public synchronized Object getObject(
+            int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
@@ -1034,9 +987,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1050,7 +1002,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *  JDBCParameterMetaData)
      */
-    public BigDecimal getBigDecimal(int parameterIndex) throws SQLException {
+    public synchronized BigDecimal getBigDecimal(
+            int parameterIndex) throws SQLException {
         return (BigDecimal) getColumnInType(parameterIndex, Type.SQL_DECIMAL);
     }
 
@@ -1152,9 +1105,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1170,7 +1122,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *  JDBCParameterMetaData)
      */
-    public Blob getBlob(int parameterIndex) throws SQLException {
+    public synchronized Blob getBlob(int parameterIndex) throws SQLException {
 
         Object o = getObject(parameterIndex);
 
@@ -1197,9 +1149,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1215,7 +1166,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *  JDBCParameterMetaData)
      */
-    public Clob getClob(int parameterIndex) throws SQLException {
+    public synchronized Clob getClob(int parameterIndex) throws SQLException {
 
         Object o = getObject(parameterIndex);
 
@@ -1242,9 +1193,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1285,9 +1235,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1303,7 +1252,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *      JDBCParameterMetaData)
      */
-    public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
+    public synchronized Date getDate(int parameterIndex,
+                                     Calendar cal) throws SQLException {
 
         TimestampData t = (TimestampData) getColumnInType(parameterIndex,
             Type.SQL_DATE);
@@ -1331,9 +1281,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1349,7 +1298,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *    JDBCParameterMetaData)
      */
-    public Time getTime(int parameterIndex, Calendar cal) throws SQLException {
+    public synchronized Time getTime(int parameterIndex,
+                                     Calendar cal) throws SQLException {
 
         TimeData t = (TimeData) getColumnInType(parameterIndex, Type.SQL_TIME);
 
@@ -1391,9 +1341,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1409,8 +1358,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
      *    JDBCParameterMetaData)
      */
-    public Timestamp getTimestamp(int parameterIndex,
-                                  Calendar cal) throws SQLException {
+    public synchronized Timestamp getTimestamp(int parameterIndex,
+            Calendar cal) throws SQLException {
 
         TimestampData t = (TimestampData) getColumnInType(parameterIndex,
             Type.SQL_TIMESTAMP);
@@ -1474,9 +1423,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1497,8 +1445,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  JDBCParameterMetaData)
      *
      */
-    public void registerOutParameter(int parameterIndex, int sqlType,
-                                     String typeName) throws SQLException {
+    public synchronized void registerOutParameter(int parameterIndex,
+            int sqlType, String typeName) throws SQLException {
         registerOutParameter(parameterIndex, sqlType);
     }
 
@@ -1527,9 +1475,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1553,8 +1500,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see java.sql.Types
      */
 //#ifdef JAVA4
-    public void registerOutParameter(String parameterName,
-                                     int sqlType) throws SQLException {
+    public synchronized void registerOutParameter(String parameterName,
+            int sqlType) throws SQLException {
         registerOutParameter(findParameterIndex(parameterName), sqlType);
     }
 
@@ -1582,9 +1529,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1606,8 +1552,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see java.sql.Types
      */
 //#ifdef JAVA4
-    public void registerOutParameter(String parameterName, int sqlType,
-                                     int scale) throws SQLException {
+    public synchronized void registerOutParameter(String parameterName,
+            int sqlType, int scale) throws SQLException {
         registerOutParameter(findParameterIndex(parameterName), sqlType);
     }
 
@@ -1649,9 +1595,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1672,8 +1617,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQL 1.7.0
      */
 //#ifdef JAVA4
-    public void registerOutParameter(String parameterName, int sqlType,
-                                     String typeName) throws SQLException {
+    public synchronized void registerOutParameter(String parameterName,
+            int sqlType, String typeName) throws SQLException {
         registerOutParameter(findParameterIndex(parameterName), sqlType);
     }
 
@@ -1767,7 +1712,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1780,8 +1725,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setNull(String parameterName,
-                        int sqlType) throws SQLException {
+    public synchronized void setNull(String parameterName,
+                                     int sqlType) throws SQLException {
         setNull(findParameterIndex(parameterName), sqlType);
     }
 
@@ -1803,7 +1748,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1818,8 +1763,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setBoolean(String parameterName,
-                           boolean x) throws SQLException {
+    public synchronized void setBoolean(String parameterName,
+                                        boolean x) throws SQLException {
         setBoolean(findParameterIndex(parameterName), x);
     }
 
@@ -1838,7 +1783,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1852,7 +1797,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setByte(String parameterName, byte x) throws SQLException {
+    public synchronized void setByte(String parameterName,
+                                     byte x) throws SQLException {
         setByte(findParameterIndex(parameterName), x);
     }
 
@@ -1871,7 +1817,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1885,7 +1831,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setShort(String parameterName, short x) throws SQLException {
+    public synchronized void setShort(String parameterName,
+                                      short x) throws SQLException {
         setShort(findParameterIndex(parameterName), x);
     }
 
@@ -1904,7 +1851,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1918,7 +1865,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setInt(String parameterName, int x) throws SQLException {
+    public synchronized void setInt(String parameterName,
+                                    int x) throws SQLException {
         setInt(findParameterIndex(parameterName), x);
     }
 
@@ -1937,7 +1885,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1951,7 +1899,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setLong(String parameterName, long x) throws SQLException {
+    public synchronized void setLong(String parameterName,
+                                     long x) throws SQLException {
         setLong(findParameterIndex(parameterName), x);
     }
 
@@ -1970,7 +1919,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1984,7 +1933,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setFloat(String parameterName, float x) throws SQLException {
+    public synchronized void setFloat(String parameterName,
+                                      float x) throws SQLException {
         setFloat(findParameterIndex(parameterName), x);
     }
 
@@ -2003,7 +1953,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2017,7 +1967,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setDouble(String parameterName, double x) throws SQLException {
+    public synchronized void setDouble(String parameterName,
+                                       double x) throws SQLException {
         setDouble(findParameterIndex(parameterName), x);
     }
 
@@ -2037,7 +1988,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2051,8 +2002,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setBigDecimal(String parameterName,
-                              BigDecimal x) throws SQLException {
+    public synchronized void setBigDecimal(String parameterName,
+            BigDecimal x) throws SQLException {
         setBigDecimal(findParameterIndex(parameterName), x);
     }
 
@@ -2074,7 +2025,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2088,7 +2039,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setString(String parameterName, String x) throws SQLException {
+    public synchronized void setString(String parameterName,
+                                       String x) throws SQLException {
         setString(findParameterIndex(parameterName), x);
     }
 
@@ -2109,7 +2061,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2123,7 +2075,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setBytes(String parameterName, byte[] x) throws SQLException {
+    public synchronized void setBytes(String parameterName,
+                                      byte[] x) throws SQLException {
         setBytes(findParameterIndex(parameterName), x);
     }
 
@@ -2145,7 +2098,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2159,7 +2112,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setDate(String parameterName, Date x) throws SQLException {
+    public synchronized void setDate(String parameterName,
+                                     Date x) throws SQLException {
         setDate(findParameterIndex(parameterName), x);
     }
 
@@ -2178,7 +2132,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2192,7 +2146,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setTime(String parameterName, Time x) throws SQLException {
+    public synchronized void setTime(String parameterName,
+                                     Time x) throws SQLException {
         setTime(findParameterIndex(parameterName), x);
     }
 
@@ -2212,7 +2167,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2226,8 +2181,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setTimestamp(String parameterName,
-                             Timestamp x) throws SQLException {
+    public synchronized void setTimestamp(String parameterName,
+            Timestamp x) throws SQLException {
         setTimestamp(findParameterIndex(parameterName), x);
     }
 
@@ -2254,7 +2209,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2268,8 +2223,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setAsciiStream(String parameterName, java.io.InputStream x,
-                               int length) throws SQLException {
+    public synchronized void setAsciiStream(String parameterName,
+            java.io.InputStream x, int length) throws SQLException {
         setAsciiStream(findParameterIndex(parameterName), x, length);
     }
 
@@ -2295,7 +2250,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2309,8 +2264,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setBinaryStream(String parameterName, java.io.InputStream x,
-                                int length) throws SQLException {
+    public synchronized void setBinaryStream(String parameterName,
+            java.io.InputStream x, int length) throws SQLException {
         setBinaryStream(findParameterIndex(parameterName), x, length);
     }
 
@@ -2345,7 +2300,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2370,8 +2325,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setObject(String parameterName, Object x, int targetSqlType,
-                          int scale) throws SQLException {
+    public synchronized void setObject(String parameterName, Object x,
+                                       int targetSqlType,
+                                       int scale) throws SQLException {
         setObject(findParameterIndex(parameterName), x, targetSqlType, scale);
     }
 
@@ -2390,7 +2346,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2411,8 +2367,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setObject(String parameterName, Object x,
-                          int targetSqlType) throws SQLException {
+    public synchronized void setObject(String parameterName, Object x,
+                                       int targetSqlType) throws SQLException {
         setObject(findParameterIndex(parameterName), x, targetSqlType);
     }
 
@@ -2452,7 +2408,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2467,7 +2423,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setObject(String parameterName, Object x) throws SQLException {
+    public synchronized void setObject(String parameterName,
+                                       Object x) throws SQLException {
         setObject(findParameterIndex(parameterName), x);
     }
 
@@ -2494,7 +2451,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2509,9 +2466,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setCharacterStream(String parameterName,
-                                   java.io.Reader reader,
-                                   int length) throws SQLException {
+    public synchronized void setCharacterStream(String parameterName,
+            java.io.Reader reader, int length) throws SQLException {
         setCharacterStream(findParameterIndex(parameterName), reader, length);
     }
 
@@ -2535,7 +2491,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2551,8 +2507,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setDate(String parameterName, Date x,
-                        Calendar cal) throws SQLException {
+    public synchronized void setDate(String parameterName, Date x,
+                                     Calendar cal) throws SQLException {
         setDate(findParameterIndex(parameterName), x, cal);
     }
 
@@ -2576,7 +2532,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2592,8 +2548,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setTime(String parameterName, Time x,
-                        Calendar cal) throws SQLException {
+    public synchronized void setTime(String parameterName, Time x,
+                                     Calendar cal) throws SQLException {
         setTime(findParameterIndex(parameterName), x, cal);
     }
 
@@ -2617,7 +2573,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2633,8 +2589,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setTimestamp(String parameterName, Timestamp x,
-                             Calendar cal) throws SQLException {
+    public synchronized void setTimestamp(String parameterName, Timestamp x,
+            Calendar cal) throws SQLException {
         setTimestamp(findParameterIndex(parameterName), x, cal);
     }
 
@@ -2668,7 +2624,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, HSLQDB supports this.
+     * HSQLDB supports this feature. <p>
+     *
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2684,8 +2641,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public void setNull(String parameterName, int sqlType,
-                        String typeName) throws SQLException {
+    public synchronized void setNull(String parameterName, int sqlType,
+                                     String typeName) throws SQLException {
         setNull(findParameterIndex(parameterName), sqlType, typeName);
     }
 
@@ -2710,7 +2667,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2727,7 +2684,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public String getString(String parameterName) throws SQLException {
+    public synchronized String getString(
+            String parameterName) throws SQLException {
         return getString(findParameterIndex(parameterName));
     }
 
@@ -2747,9 +2705,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2764,7 +2721,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public boolean getBoolean(String parameterName) throws SQLException {
+    public synchronized boolean getBoolean(
+            String parameterName) throws SQLException {
         return getBoolean(findParameterIndex(parameterName));
     }
 
@@ -2782,9 +2740,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2799,7 +2756,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public byte getByte(String parameterName) throws SQLException {
+    public synchronized byte getByte(
+            String parameterName) throws SQLException {
         return getByte(findParameterIndex(parameterName));
     }
 
@@ -2817,9 +2775,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2834,7 +2791,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public short getShort(String parameterName) throws SQLException {
+    public synchronized short getShort(
+            String parameterName) throws SQLException {
         return getShort(findParameterIndex(parameterName));
     }
 
@@ -2852,7 +2810,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
      * Calling this method always throws an <code>SQLException</code>.
      * </div>
@@ -2869,7 +2827,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public int getInt(String parameterName) throws SQLException {
+    public synchronized int getInt(String parameterName) throws SQLException {
         return getInt(findParameterIndex(parameterName));
     }
 
@@ -2887,9 +2845,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2904,7 +2861,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public long getLong(String parameterName) throws SQLException {
+    public synchronized long getLong(
+            String parameterName) throws SQLException {
         return getLong(findParameterIndex(parameterName));
     }
 
@@ -2922,9 +2880,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2939,7 +2896,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public float getFloat(String parameterName) throws SQLException {
+    public synchronized float getFloat(
+            String parameterName) throws SQLException {
         return getFloat(findParameterIndex(parameterName));
     }
 
@@ -2957,9 +2915,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2974,7 +2931,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public double getDouble(String parameterName) throws SQLException {
+    public synchronized double getDouble(
+            String parameterName) throws SQLException {
         return getDouble(findParameterIndex(parameterName));
     }
 
@@ -2993,9 +2951,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3010,7 +2967,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public byte[] getBytes(String parameterName) throws SQLException {
+    public synchronized byte[] getBytes(
+            String parameterName) throws SQLException {
         return getBytes(findParameterIndex(parameterName));
     }
 
@@ -3028,9 +2986,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3045,7 +3002,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Date getDate(String parameterName) throws SQLException {
+    public synchronized Date getDate(
+            String parameterName) throws SQLException {
         return getDate(findParameterIndex(parameterName));
     }
 
@@ -3063,9 +3021,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3080,7 +3037,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Time getTime(String parameterName) throws SQLException {
+    public synchronized Time getTime(
+            String parameterName) throws SQLException {
         return getTime(findParameterIndex(parameterName));
     }
 
@@ -3098,9 +3056,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3115,7 +3072,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Timestamp getTimestamp(String parameterName) throws SQLException {
+    public synchronized Timestamp getTimestamp(
+            String parameterName) throws SQLException {
         return getTimestamp(findParameterIndex(parameterName));
     }
 
@@ -3140,9 +3098,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3157,7 +3114,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Object getObject(String parameterName) throws SQLException {
+    public synchronized Object getObject(
+            String parameterName) throws SQLException {
         return getObject(findParameterIndex(parameterName));
     }
 
@@ -3176,9 +3134,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3193,7 +3150,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public BigDecimal getBigDecimal(String parameterName) throws SQLException {
+    public synchronized BigDecimal getBigDecimal(
+            String parameterName) throws SQLException {
         return getBigDecimal(findParameterIndex(parameterName));
     }
 
@@ -3218,9 +3176,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3241,8 +3198,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
 //#endif JAVA6
 //#ifdef JAVA4
-    public Object getObject(String parameterName,
-                            Map map) throws SQLException {
+    public synchronized Object getObject(String parameterName,
+            Map map) throws SQLException {
         return getObject(findParameterIndex(parameterName), map);
     }
 
@@ -3260,9 +3217,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3277,7 +3233,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Ref getRef(String parameterName) throws SQLException {
+    public synchronized Ref getRef(String parameterName) throws SQLException {
         return getRef(findParameterIndex(parameterName));
     }
 
@@ -3295,9 +3251,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3312,7 +3267,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Blob getBlob(String parameterName) throws SQLException {
+    public synchronized Blob getBlob(
+            String parameterName) throws SQLException {
         return getBlob(findParameterIndex(parameterName));
     }
 
@@ -3330,9 +3286,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3347,7 +3302,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Clob getClob(String parameterName) throws SQLException {
+    public synchronized Clob getClob(
+            String parameterName) throws SQLException {
         return getClob(findParameterIndex(parameterName));
     }
 
@@ -3365,9 +3321,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3382,7 +3337,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Array getArray(String parameterName) throws SQLException {
+    public synchronized Array getArray(
+            String parameterName) throws SQLException {
         return getArray(findParameterIndex(parameterName));
     }
 
@@ -3406,9 +3362,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3425,8 +3380,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Date getDate(String parameterName,
-                        Calendar cal) throws SQLException {
+    public synchronized Date getDate(String parameterName,
+                                     Calendar cal) throws SQLException {
         return getDate(findParameterIndex(parameterName), cal);
     }
 
@@ -3450,9 +3405,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3469,8 +3423,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Time getTime(String parameterName,
-                        Calendar cal) throws SQLException {
+    public synchronized Time getTime(String parameterName,
+                                     Calendar cal) throws SQLException {
         return getTime(findParameterIndex(parameterName), cal);
     }
 
@@ -3494,9 +3448,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3514,8 +3467,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.4, HSQLDB 1.7.0
      */
 //#ifdef JAVA4
-    public Timestamp getTimestamp(String parameterName,
-                                  Calendar cal) throws SQLException {
+    public synchronized Timestamp getTimestamp(String parameterName,
+            Calendar cal) throws SQLException {
         return getTimestamp(findParameterIndex(parameterName), cal);
     }
 
@@ -3533,9 +3486,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3571,9 +3523,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3606,9 +3557,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3623,7 +3573,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public RowId getRowId(String parameterName) throws SQLException {
+    public synchronized RowId getRowId(
+            String parameterName) throws SQLException {
         return getRowId(findParameterIndex(parameterName));
     }
 
@@ -3642,9 +3593,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3657,7 +3607,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setRowId(String parameterName, RowId x) throws SQLException {
+    public synchronized void setRowId(String parameterName,
+                                      RowId x) throws SQLException {
         super.setRowId(findParameterIndex(parameterName), x);
     }
 
@@ -3678,8 +3629,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setNString(String parameterName,
-                           String value) throws SQLException {
+    public synchronized void setNString(String parameterName,
+                                        String value) throws SQLException {
         super.setNString(findParameterIndex(parameterName), value);
     }
 
@@ -3702,8 +3653,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setNCharacterStream(String parameterName, Reader value,
-                                    long length) throws SQLException {
+    public synchronized void setNCharacterStream(String parameterName,
+            Reader value, long length) throws SQLException {
         super.setNCharacterStream(findParameterIndex(parameterName), value,
                                   length);
     }
@@ -3725,8 +3676,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setNClob(String parameterName,
-                         NClob value) throws SQLException {
+    public synchronized void setNClob(String parameterName,
+                                      NClob value) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), value);
     }
 
@@ -3754,8 +3705,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setClob(String parameterName, Reader reader,
-                        long length) throws SQLException {
+    public synchronized void setClob(String parameterName, Reader reader,
+                                     long length) throws SQLException {
         super.setClob(findParameterIndex(parameterName), reader, length);
     }
 
@@ -3788,8 +3739,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setBlob(String parameterName, InputStream inputStream,
-                        long length) throws SQLException {
+    public synchronized void setBlob(String parameterName,
+                                     InputStream inputStream,
+                                     long length) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), inputStream, length);
     }
 
@@ -3819,8 +3771,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setNClob(String parameterName, Reader reader,
-                         long length) throws SQLException {
+    public synchronized void setNClob(String parameterName, Reader reader,
+                                      long length) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), reader, length);
     }
 
@@ -3895,7 +3847,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public NClob getNClob(String parameterName) throws SQLException {
+    public synchronized NClob getNClob(
+            String parameterName) throws SQLException {
         return getNClob(findParameterIndex(parameterName));
     }
 
@@ -3916,8 +3869,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setSQLXML(String parameterName,
-                          SQLXML xmlObject) throws SQLException {
+    public synchronized void setSQLXML(String parameterName,
+                                       SQLXML xmlObject) throws SQLException {
         super.setSQLXML(findParameterIndex(parameterName), xmlObject);
     }
 
@@ -3983,7 +3936,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public SQLXML getSQLXML(String parameterName) throws SQLException {
+    public synchronized SQLXML getSQLXML(
+            String parameterName) throws SQLException {
         return getSQLXML(findParameterIndex(parameterName));
     }
 
@@ -4069,7 +4023,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setNString
      */
 //#ifdef JAVA6
-    public String getNString(String parameterName) throws SQLException {
+    public synchronized String getNString(
+            String parameterName) throws SQLException {
         return getNString(findParameterIndex(parameterName));
     }
 
@@ -4145,7 +4100,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public Reader getNCharacterStream(
+    public synchronized Reader getNCharacterStream(
             String parameterName) throws SQLException {
         return getNCharacterStream(findParameterIndex(parameterName));
     }
@@ -4197,9 +4152,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not yet support this feature. <p>
+     * HSQLDB supports this feature. <p>
      *
-     * Calling this method always throws an <code>SQLException</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4214,7 +4168,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public Reader getCharacterStream(
+    public synchronized Reader getCharacterStream(
             String parameterName) throws SQLException {
         return getCharacterStream(findParameterIndex(parameterName));
     }
@@ -4235,7 +4189,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setBlob(String parameterName, Blob x) throws SQLException {
+    public synchronized void setBlob(String parameterName,
+                                     Blob x) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), x);
     }
 
@@ -4255,7 +4210,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setClob(String parameterName, Clob x) throws SQLException {
+    public synchronized void setClob(String parameterName,
+                                     Clob x) throws SQLException {
         super.setClob(findParameterIndex(parameterName), x);
     }
 
@@ -4285,8 +4241,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setAsciiStream(String parameterName, java.io.InputStream x,
-                               long length) throws SQLException {
+    public synchronized void setAsciiStream(String parameterName,
+            java.io.InputStream x, long length) throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum ASCII input octet length exceeded: "
@@ -4321,8 +4277,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setBinaryStream(String parameterName, java.io.InputStream x,
-                                long length) throws SQLException {
+    public synchronized void setBinaryStream(String parameterName,
+            java.io.InputStream x, long length) throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum Binary input octet length exceeded: "
@@ -4359,9 +4315,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 1.9.0
      */
 //#ifdef JAVA6
-    public void setCharacterStream(String parameterName,
-                                   java.io.Reader reader,
-                                   long length) throws SQLException {
+    public synchronized void setCharacterStream(String parameterName,
+            java.io.Reader reader, long length) throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum character input length exceeded: " + length;    // NOI18N
@@ -4397,8 +4352,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *   @since 1.6
      */
 //#ifdef JAVA6
-    public void setAsciiStream(String parameterName,
-                               java.io.InputStream x) throws SQLException {
+    public synchronized void setAsciiStream(String parameterName,
+            java.io.InputStream x) throws SQLException {
         super.setAsciiStream(findParameterIndex(parameterName), x);
     }
 
@@ -4427,8 +4382,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.6
      */
 //#ifdef JAVA6
-    public void setBinaryStream(String parameterName,
-                                java.io.InputStream x) throws SQLException {
+    public synchronized void setBinaryStream(String parameterName,
+            java.io.InputStream x) throws SQLException {
         super.setBinaryStream(findParameterIndex(parameterName), x);
     }
 
@@ -4460,8 +4415,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.6
      */
 //#ifdef JAVA6
-    public void setCharacterStream(String parameterName,
-                                   java.io.Reader reader) throws SQLException {
+    public synchronized void setCharacterStream(String parameterName,
+            java.io.Reader reader) throws SQLException {
         super.setCharacterStream(findParameterIndex(parameterName), reader);
     }
 
@@ -4491,8 +4446,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *   @since 1.6
      */
 //#ifdef JAVA6
-    public void setNCharacterStream(String parameterName,
-                                    Reader value) throws SQLException {
+    public synchronized void setNCharacterStream(String parameterName,
+            Reader value) throws SQLException {
         super.setNCharacterStream(findParameterIndex(parameterName), value);
     }
 
@@ -4520,8 +4475,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.6
      */
 //#ifdef JAVA6
-    public void setClob(String parameterName,
-                        Reader reader) throws SQLException {
+    public synchronized void setClob(String parameterName,
+                                     Reader reader) throws SQLException {
         super.setClob(findParameterIndex(parameterName), reader);
     }
 
@@ -4550,8 +4505,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.6
      */
 //#ifdef JAVA6
-    public void setBlob(String parameterName,
-                        InputStream inputStream) throws SQLException {
+    public synchronized void setBlob(
+            String parameterName,
+            InputStream inputStream) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), inputStream);
     }
 
@@ -4580,8 +4536,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.6
      */
 //#ifdef JAVA6
-    public void setNClob(String parameterName,
-                         Reader reader) throws SQLException {
+    public synchronized void setNClob(String parameterName,
+                                      Reader reader) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), reader);
     }
 
@@ -4680,7 +4636,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * @throws SQLException if a database access error occurs
      */
-    public void close() throws SQLException {
+    public synchronized void close() throws SQLException {
 
         if (isClosed()) {
             return;

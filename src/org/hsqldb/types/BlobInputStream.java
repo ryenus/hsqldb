@@ -118,7 +118,7 @@ public class BlobInputStream extends InputStream {
     private void checkClosed() throws HsqlException {
 
         if (isClosed || blob.isClosed()) {
-            throw Error.error(ErrorCode.X_22523);
+            throw Error.error(ErrorCode.X_0F503);
         }
     }
 

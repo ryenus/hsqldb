@@ -146,7 +146,7 @@ class JDBCStatementBase {
 
         if (connection.isClosed) {
             close();
-            throw Util.sqlException(ErrorCode.X_07501);
+            throw Util.sqlException(ErrorCode.X_08503);
         }
     }
 
