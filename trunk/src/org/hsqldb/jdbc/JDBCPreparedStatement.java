@@ -684,7 +684,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 s = s.substring(0, length);
             }
             setParameter(parameterIndex, s);
-
         } catch (IOException e) {
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR);
         }
@@ -1515,22 +1514,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (rsmd == null) {
-
-            boolean isUpdatable = rsConcurrency == ResultSet.CONCUR_UPDATABLE;
+            boolean isUpdatable  = rsConcurrency == ResultSet.CONCUR_UPDATABLE;
             boolean isInsertable = isUpdatable;
 
             if (isInsertable) {
-                for (int i = 0; i < rsmdDescriptor.colIndexes.length ; i++) {
-                    if (rsmdDescriptor.colIndexes[i] < 0 ) {
+                for (int i = 0; i < rsmdDescriptor.colIndexes.length; i++) {
+                    if (rsmdDescriptor.colIndexes[i] < 0) {
                         isInsertable = false;
+
                         break;
                     }
                 }
             }
-
-
-            rsmd = new JDBCResultSetMetaData(rsmdDescriptor, isUpdatable, isInsertable,
-                    connection.connProperties);
+            rsmd = new JDBCResultSetMetaData(rsmdDescriptor, isUpdatable,
+                    isInsertable, connection.connProperties);
         }
 
         return rsmd;
@@ -2234,7 +2231,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
 //#ifdef JAVA4
     public boolean getMoreResults(int current) throws SQLException {
-        return super.getMoreResults();
+        return super.getMoreResults(current);
     }
 
 //#endif JAVA4
@@ -3240,7 +3237,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see #execute
      */
     public boolean getMoreResults() throws SQLException {
-        return super.getMoreResults();
+        return getMoreResults(JDBCStatementBase.CLOSE_CURRENT_RESULT);
     }
 
     //--------------------------JDBC 2.0-----------------------------
@@ -3725,6 +3722,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         //
         for (int i = 0; i < paramCount; i++) {
             parameterModes[i] = SchemaObject.ParameterModes.PARAM_IN;
+
             if (parameterTypes[i].isLobType()) {
                 hasLOBs = true;
             }

@@ -1472,8 +1472,7 @@ public class JDBCResultSet implements ResultSet {
             boolean isUpdatable = rsConcurrency == ResultSet.CONCUR_UPDATABLE;
 
             resultSetMetaData = new JDBCResultSetMetaData(resultMetaData,
-            isUpdatable, rsInsertability,
-                    connProperties);
+                    isUpdatable, rsInsertability, connProperties);
         }
 
         return resultSetMetaData;
@@ -7091,8 +7090,7 @@ public class JDBCResultSet implements ResultSet {
 
     /** The insertability of this result. */
     boolean rsInsertability;
-
-    int fetchSize;
+    int     fetchSize;
 
     /** Statement is closed when its result set is closed */
     boolean autoClose;
@@ -7360,6 +7358,7 @@ public class JDBCResultSet implements ResultSet {
             ResultConstants.UPDATE_CURSOR);
         preparedStatement.fetchResult();
         preparedStatement.clearParameters();
+
         isRowUpdated = false;
     }
 
@@ -7441,9 +7440,11 @@ public class JDBCResultSet implements ResultSet {
 
         if (rsConcurrency == ResultSet.CONCUR_UPDATABLE) {
             rsInsertability = true;
-            for (int i = 0; i < metaData.colIndexes.length ; i++) {
-                if (metaData.colIndexes[i] < 0 ) {
+
+            for (int i = 0; i < metaData.colIndexes.length; i++) {
+                if (metaData.colIndexes[i] < 0) {
                     rsInsertability = false;
+
                     break;
                 }
             }

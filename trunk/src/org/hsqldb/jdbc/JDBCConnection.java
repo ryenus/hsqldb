@@ -2789,7 +2789,6 @@ public class JDBCConnection implements Connection {
         } else if (this.isClosed()) {
             return false;
         } else {
-
             Thread t = new Thread() {
 
                 public void run() {
