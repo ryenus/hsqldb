@@ -4761,8 +4761,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 String msg = "from SQL type " + sourceType.getNameString()
                              + " to " + targetType.getJDBCClassName()
                              + ", value: " + stringValue;
-
                 HsqlException err = Error.error(ErrorCode.X_42561, msg);
+
                 throw Util.sqlException(err, e);
             }
         }

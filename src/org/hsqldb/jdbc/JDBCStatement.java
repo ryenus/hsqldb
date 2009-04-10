@@ -694,7 +694,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @see #execute
      */
     public boolean getMoreResults() throws SQLException {
-        return super.getMoreResults();
+        return getMoreResults(JDBCStatementBase.CLOSE_CURRENT_RESULT);
     }
 
     //--------------------------JDBC 2.0-----------------------------

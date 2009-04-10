@@ -751,8 +751,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        return resultMetaData.colIndexes != null &&
-            resultMetaData.colIndexes[--column] > -1;
+        return resultMetaData.colIndexes != null
+               && resultMetaData.colIndexes[--column] > -1;
     }
 
     /**
@@ -778,8 +778,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        return resultMetaData.colIndexes != null &&
-            resultMetaData.colIndexes[--column] > -1;
+        return resultMetaData.colIndexes != null
+               && resultMetaData.colIndexes[--column] > -1;
     }
 
     //--------------------------JDBC 2.0-----------------------------------
@@ -898,7 +898,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *        new JDBCResultSetMetaData object
      * @throws SQLException if a database access error occurs
      */
-    JDBCResultSetMetaData(ResultMetaData meta, boolean isUpdatable, 
+    JDBCResultSetMetaData(ResultMetaData meta, boolean isUpdatable,
                           boolean isInsertable,
                           HsqlProperties props) throws SQLException {
         init(meta, props);
