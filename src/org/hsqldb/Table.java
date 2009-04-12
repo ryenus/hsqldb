@@ -2482,7 +2482,7 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store = session.sessionData.getRowStore(this);
 
         if (hasPrimaryKey()) {
-            RowIterator it = getPrimaryIndex().findFirstRowIterator(session,
+            RowIterator it = getPrimaryIndex().findFirstRow(session,
                 store, data, primaryKeyColsSequence);
 
             row = it.getNextRow();

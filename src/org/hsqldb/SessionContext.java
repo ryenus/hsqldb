@@ -31,15 +31,12 @@
 
 package org.hsqldb;
 
-import org.hsqldb.index.Index;
-import org.hsqldb.index.Index.IndexRowIterator;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.navigator.RangeIterator;
-import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.store.ValuePool;
 
 /*
@@ -87,12 +84,6 @@ public class SessionContext {
     HashMappedList tableUpdateList;
 
     //
-    HsqlArrayList updatedIterators;
-
-    //
-    HashSet subqueryPopSet;
-
-    //
     StatementResultUpdate rowUpdateStatement = new StatementResultUpdate();
 
     /**
@@ -104,7 +95,6 @@ public class SessionContext {
 
         this.session             = session;
         rangeIterators           = new RangeIterator[4];
-        subqueryPopSet           = new HashSet();
         savepoints               = new HashMappedList(4);
         savepointTimestamps      = new LongDeque();
         sessionVariables         = new HashMappedList();
@@ -172,8 +162,6 @@ public class SessionContext {
             //
         }
 
-        // opportunity to combine the two clearance ops
-        // updatedIterators may contain iterators not in range Iterator list
         int count = cs.rangeIteratorCount;
 
         if (count > rangeIterators.length) {
@@ -185,19 +173,6 @@ public class SessionContext {
                 rangeIterators[i].reset();
             }
         }
-
-        if (updatedIterators != null) {
-            for (int i = 0; i < updatedIterators.size(); i++) {
-                IndexRowIterator it =
-                    (IndexRowIterator) updatedIterators.get(i);
-
-                it.release();
-            }
-
-            updatedIterators.clear();
-        }
-
-        subqueryPopSet.clear();
     }
 
     public RangeIterator getCheckIterator() {
@@ -243,18 +218,6 @@ public class SessionContext {
         }
 
         return constraintPath;
-    }
-
-    /**
-     * add updatable iterators to be released in case of incomplete execution
-     */
-    public void addUpdatableIterator(IndexRowIterator it) {
-
-        if (updatedIterators == null) {
-            updatedIterators = new HsqlArrayList();
-        }
-
-        updatedIterators.add(it);
     }
 
     public void addSessionVariable(ColumnSchema variable)

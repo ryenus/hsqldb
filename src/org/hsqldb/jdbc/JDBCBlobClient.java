@@ -36,10 +36,10 @@ import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.types.BlobDataID;
-import org.hsqldb.ErrorCode;
 
 /**
  * A wrapper for HSQLDB BlobData objects.
@@ -215,8 +215,8 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
      */
-    public synchronized OutputStream setBinaryStream(
-            long pos) throws SQLException {
+    public synchronized OutputStream setBinaryStream(long pos)
+    throws SQLException {
         throw Util.notSupported();
     }
 

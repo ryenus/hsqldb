@@ -34,13 +34,12 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.Set;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Statement implementation for DML and base DQL statements.
@@ -339,7 +338,7 @@ public abstract class StatementDMQL extends Statement {
 
         session.sessionContext.dynamicArguments = args;
 
-        Set subqueryPopFlags = session.sessionContext.subqueryPopSet;
+        HashSet subqueryPopFlags = new HashSet();
 
         for (int i = 0; i < subqueries.length; i++) {
             SubQuery sq = subqueries[i];

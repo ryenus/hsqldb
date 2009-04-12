@@ -49,6 +49,7 @@ import org.hsqldb.lib.Iterator;
  * @since 1.7.2
  */
 public class BaseHashMap {
+
 /*
 
     data store:
@@ -881,17 +882,13 @@ public class BaseHashMap {
             while (--counter >= from) {
                 intKeyTable[counter] = 0;
             }
-        }
-
-        if (isLongKey) {
+        } else if (isLongKey) {
             int counter = to;
 
             while (--counter >= from) {
                 longKeyTable[counter] = 0;
             }
-        }
-
-        if (isObjectKey) {
+        } else if (isObjectKey) {
             int counter = to;
 
             while (--counter >= from) {
@@ -905,17 +902,13 @@ public class BaseHashMap {
             while (--counter >= from) {
                 intValueTable[counter] = 0;
             }
-        }
-
-        if (isLongValue) {
+        } else if (isLongValue) {
             int counter = to;
 
             while (--counter >= from) {
                 longValueTable[counter] = 0;
             }
-        }
-
-        if (isObjectValue) {
+        } else if (isObjectValue) {
             int counter = to;
 
             while (--counter >= from) {
@@ -1074,16 +1067,18 @@ public class BaseHashMap {
      */
     public void clear() {
 
-        accessCount  = 0;
-        accessMin    = accessCount;
-        hasZeroKey   = false;
-        zeroKeyIndex = -1;
+        if (hashIndex.modified) {
+            accessCount  = 0;
+            accessMin    = accessCount;
+            hasZeroKey   = false;
+            zeroKeyIndex = -1;
 
-        clearElementArrays(0, hashIndex.linkTable.length);
-        hashIndex.clear();
+            clearElementArrays(0, hashIndex.linkTable.length);
+            hashIndex.clear();
 
-        if (minimizeOnEmpty) {
-            rehash(initialCapacity);
+            if (minimizeOnEmpty) {
+                rehash(initialCapacity);
+            }
         }
     }
 

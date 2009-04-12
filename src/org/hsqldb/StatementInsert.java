@@ -163,8 +163,6 @@ public class StatementInsert extends StatementDMQL {
             resultOut.setUpdateCount(newDataNavigator.getSize());
         }
 
-        newDataNavigator.clear();
-
         return resultOut;
     }
 

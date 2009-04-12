@@ -61,6 +61,7 @@ class HashIndex {
     int     elementCount;
     int     reclaimedNodePointer = -1;
     boolean fixedSize;
+    boolean modified;
 
     HashIndex(int hashTableSize, int capacity, boolean fixedSize) {
 
@@ -99,6 +100,7 @@ class HashIndex {
         newNodePointer       = 0;
         elementCount         = 0;
         reclaimedNodePointer = -1;
+        modified             = false;
     }
 
     /**
@@ -180,6 +182,8 @@ class HashIndex {
         linkTable[lookup] = -1;
 
         elementCount++;
+
+        modified = true;
 
         return lookup;
     }

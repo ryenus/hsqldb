@@ -856,10 +856,7 @@ public final class Constraint implements SchemaObject {
 
         PersistentStore store = session.sessionData.getRowStore(core.refTable);
 
-        return delete
-               ? core.refIndex.findFirstRowForDelete(session, store, row,
-                   core.mainCols)
-               : core.refIndex.findFirstRowIterator(session, store, row,
+        return  core.refIndex.findFirstRow(session, store, row,
                 core.mainCols);
     }
 
