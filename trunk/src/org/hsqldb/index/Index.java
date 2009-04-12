@@ -115,6 +115,7 @@ public class Index implements SchemaObject {
     private final HsqlName  name;
     private final boolean[] colCheck;
     private final int[]     colIndex;
+    private final int[]     defaultColMap;
     private final Type[]    colTypes;
     private final boolean[] colDesc;
     private final boolean[] nullsLast;
@@ -159,9 +160,9 @@ public class Index implements SchemaObject {
 
         persistenceId  = id;
         this.name      = name;
-        colIndex       = columns;
+        this.colIndex       = columns;
         this.colTypes  = colTypes;
-        colDesc        = descending == null ? new boolean[columns.length]
+        this.colDesc        = descending == null ? new boolean[columns.length]
                                             : descending;
         this.nullsLast = nullsLast == null ? new boolean[columns.length]
                                            : nullsLast;
@@ -175,6 +176,10 @@ public class Index implements SchemaObject {
         colCheck       = table.getNewColumnCheckList();
 
         ArrayUtil.intIndexesToBooleanArray(colIndex, colCheck);
+
+        defaultColMap = new int[columns.length];
+
+        ArrayUtil.fillSequence(defaultColMap);
     }
 
     public int getType() {
@@ -615,50 +620,11 @@ public class Index implements SchemaObject {
         }
     }
 
-    public RowIterator findFirstRowIterator(Session session,
-            PersistentStore store, Object[] rowdata,
-            int[] rowColMap) throws HsqlException {
-
-        Node node = findNotNull(session, store, rowdata, rowColMap, true);
-
-        return getIterator(session, store, node);
-    }
-
-    public RowIterator findFirstRowForDelete(Session session,
-            PersistentStore store, Object[] rowdata,
-            int[] rowColMap) throws HsqlException {
-
-        Node node = findNotNull(session, store, rowdata, rowColMap, true);
-
-        return getIterator(session, store, node);
-    }
-
-    public Row findFirstRow(Session session, PersistentStore store,
-                            Object[] rowdata,
-                            int[] rowColMap) throws HsqlException {
-
-        Node node = findNotNull(session, store, rowdata, rowColMap, true);
-
-        return node == null ? null
-                            : node.getRow(store);
-    }
-
-    /**
-     * Finds an existing row
-     */
-    public Row findRow(Session session, PersistentStore store,
-                       Row row) throws HsqlException {
-
-        Node node = search(session, store, row);
-
-        return node == null ? null
-                            : node.getRow(store);
-    }
-
     public boolean exists(Session session, PersistentStore store,
                           Object[] rowdata,
                           int[] rowColMap) throws HsqlException {
-        return findNotNull(session, store, rowdata, rowColMap, true) != null;
+        return findNode(session, store, rowdata, rowColMap, rowColMap.length)
+               != null;
     }
 
     /**
@@ -690,6 +656,7 @@ public class Index implements SchemaObject {
 
         return true;
     }
+
     /**
      * Determines if a table row has a null column for any of the indexed
      * columns.
@@ -706,8 +673,8 @@ public class Index implements SchemaObject {
     }
 
     /**
-     * Return the first node equal to the indexdata object. Use visible columns
-     * only. The coldata has the same column mapping as this index.
+     * Return the first node equal to the indexdata object. The rowdata has
+     * the same column mapping as this index.
      *
      * @param session session object
      * @param store store object
@@ -717,48 +684,17 @@ public class Index implements SchemaObject {
      * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] coldata,
+                                    Object[] rowdata,
                                     int match) throws HsqlException {
 
-        readLock.lock();
+        Node node = findNode(session, store, rowdata, defaultColMap, match);
 
-        try {
-            Node x     = (Node) store.getAccessor(this);
-            Node found = null;
-            boolean unique = isUnique && match == colIndex.length
-                             && !hasNull(coldata);
-
-            while (x != null) {
-                int c = compareRowNonUnique(coldata,
-                                            x.getRow(store).getData(), match);
-
-                if (c == 0) {
-                    found = x;
-
-/*
-// MVCC
-                    if (unique) {
-                        break;
-                    }
-*/
-
-                    x = x.getLeft(store);
-                } else if (c < 0) {
-                    x = x.getLeft(store);
-                } else {
-                    x = x.getRight(store);
-                }
-            }
-
-            return getIterator(session, store, found);
-        } finally {
-            readLock.unlock();
-        }
+        return getIterator(session, store, node);
     }
 
     /**
-     * Return the first node equal to the rowdata object. Use visible columns
-     * only. The rowdata has the same column mapping as this table.
+     * Return the first node equal to the rowdata object.
+     * The rowdata has the same column mapping as this table.
      *
      * @param session session object
      * @param store store object
@@ -769,56 +705,30 @@ public class Index implements SchemaObject {
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata) throws HsqlException {
 
-        readLock.lock();
+        Node node = findNode(session, store, rowdata, colIndex,
+                             colIndex.length);
 
-        try {
-            Node    x      = (Node) store.getAccessor(this);
-            Node    found  = null;
-            boolean unique = isUnique && !hasNull(rowdata, colIndex);
+        return getIterator(session, store, node);
+    }
 
-            while (x != null) {
-                int c = compareRowNonUnique(rowdata, colIndex,
-                                            x.getRow(store).getData());
+    /**
+     * Return the first node equal to the rowdata object.
+     * The rowdata has the column mapping privided in rowColMap.
+     *
+     * @param session session object
+     * @param store store object
+     * @param rowdata array containing table row data
+     * @return iterator
+     * @throws HsqlException
+     */
+    public RowIterator findFirstRow(Session session, PersistentStore store,
+                                    Object[] rowdata,
+                                    int[] rowColMap) throws HsqlException {
 
-                if (c == 0) {
-                    found = x;
-/*
-// MVCC
-                if (unique) {
-                    break;
-                }
-*/
-                    x = x.getLeft(store);
-                } else if (c < 0) {
-                    x = x.getLeft(store);
-                } else {
-                    x = x.getRight(store);
-                }
-            }
+        Node node = findNode(session, store, rowdata, rowColMap,
+                             rowColMap.length);
 
-// MVCC
-            while (found != null) {
-                Row row = found.getRow(store);
-
-                if (compareRowNonUnique(rowdata, colIndex, row.getData())
-                        != 0) {
-                    found = null;
-
-                    break;
-                }
-
-                if (session == null
-                        || session.database.txManager.canRead(session, row)) {
-                    break;
-                }
-
-                found = next(store, found);
-            }
-
-            return getIterator(session, store, found);
-        } finally {
-            readLock.unlock();
-        }
+        return getIterator(session, store, node);
     }
 
     /**
@@ -859,16 +769,15 @@ public class Index implements SchemaObject {
                 return emptyIterator;
             }
 
-/*
-        // this method returns the correct node only with the following conditions
-        boolean check = compare == OpCodes.BIGGER
-                        || compare == OpCodes.EQUAL
-                        || compare == OpCodes.BIGGER_EQUAL;
+            // this method returns the correct node only with the following conditions
+            boolean check = compare == OpTypes.GREATER
+                            || compare == OpTypes.EQUAL
+                            || compare == OpTypes.GREATER_EQUAL;
 
-        if (!check) {
-            Trace.doAssert(false, "Index.findFirst");
-        }
-*/
+            if (!check) {
+                Error.runtimeError(ErrorCode.U_S0500, "Index.findFirst");
+            }
+
             while (x != null) {
                 boolean t = colTypes[0].compare(
                     value, x.getRow(store).getData()[colIndex[0]]) >= iTest;
@@ -921,7 +830,11 @@ public class Index implements SchemaObject {
             }
 
 // MVCC
-            while (session != null && x != null) {
+            if (session == null || x == null) {
+                return getIterator(session, store, x);
+            }
+
+            while (x != null) {
                 Row row = x.getRow(store);
 
                 if (compare == OpTypes.EQUAL
@@ -1163,7 +1076,8 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    private Node next(PersistentStore store, Node x) throws HsqlException {
+    private Node next(Session session, PersistentStore store,
+                      Node x) throws HsqlException {
 
         if (x == null) {
             return null;
@@ -1172,34 +1086,55 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node r = x.getRight(store);
+            while (true) {
+                x = next(store, x);
 
-            if (r != null) {
-                x = r;
-
-                Node l = x.getLeft(store);
-
-                while (l != null) {
-                    x = l;
-                    l = x.getLeft(store);
+                if (x == null) {
+                    return x;
                 }
 
-                return x;
+                if (session == null) {
+                    return x;
+                }
+
+                Row row = x.getRow(store);
+
+                if (session.database.txManager.canRead(session, row)) {
+                    return x;
+                }
             }
-
-            Node ch = x;
-
-            x = x.getParent(store);
-
-            while (x != null && ch.equals(x.getRight(store))) {
-                ch = x;
-                x  = x.getParent(store);
-            }
-
-            return x;
         } finally {
             readLock.unlock();
         }
+    }
+
+    private Node next(PersistentStore store, Node x) throws HsqlException {
+
+        Node r = x.getRight(store);
+
+        if (r != null) {
+            x = r;
+
+            Node l = x.getLeft(store);
+
+            while (l != null) {
+                x = l;
+                l = x.getLeft(store);
+            }
+
+            return x;
+        }
+
+        Node ch = x;
+
+        x = x.getParent(store);
+
+        while (x != null && ch.equals(x.getRight(store))) {
+            ch = x;
+            x  = x.getParent(store);
+        }
+
+        return x;
     }
 
     private Node last(PersistentStore store, Node x) throws HsqlException {
@@ -1305,42 +1240,6 @@ public class Index implements SchemaObject {
     }
 
     /**
-     * Find a node with matching data
-     *
-     * @param row row data
-     *
-     * @return matching node
-     *
-     * @throws HsqlException
-     */
-    private Node search(Session session, PersistentStore store,
-                        Row row) throws HsqlException {
-
-        readLock.lock();
-
-        try {
-            Node x = (Node) store.getAccessor(this);
-
-            while (x != null) {
-                int c = compareRowForInsertOrDelete(session, row,
-                                                    x.getRow(store));
-
-                if (c == 0) {
-                    return x;
-                } else if (c < 0) {
-                    x = x.getLeft(store);
-                } else {
-                    x = x.getRight(store);
-                }
-            }
-
-            return null;
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    /**
      * Compares two table rows based on the columns of this index. The rowColMap
      * parameter specifies which columns of the other table are to be compared
      * with the colIndex columns of this index. The rowColMap can cover all
@@ -1359,6 +1258,20 @@ public class Index implements SchemaObject {
         int fieldcount = rowColMap.length;
 
         for (int j = 0; j < fieldcount; j++) {
+            int i = colTypes[j].compare(a[rowColMap[j]], b[colIndex[j]]);
+
+            if (i != 0) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    public int compareRowNonUnique(Object[] a, int[] rowColMap, Object[] b,
+                                   int fieldCount) throws HsqlException {
+
+        for (int j = 0; j < fieldCount; j++) {
             int i = colTypes[j].compare(a[rowColMap[j]], b[colIndex[j]]);
 
             if (i != 0) {
@@ -1506,7 +1419,7 @@ public class Index implements SchemaObject {
     }
 
     /**
-     * Finds a foreign key referencing rows (in child table)
+     * Finds a match with a row from a different table
      *
      * @param rowdata array containing data for the index columns
      * @param rowColMap map of the data to columns
@@ -1514,68 +1427,64 @@ public class Index implements SchemaObject {
      * @return matching node or null
      * @throws HsqlException
      */
-    private Node findNotNull(Session session, PersistentStore store,
-                             Object[] rowdata, int[] rowColMap,
-                             boolean first) throws HsqlException {
+    private Node findNode(Session session, PersistentStore store,
+                          Object[] rowdata, int[] rowColMap,
+                          int fieldCount) throws HsqlException {
 
-        Node x = (Node) store.getAccessor(this);
-        Node n;
-        Node result = null;
+        readLock.lock();
 
-        if (hasNull(rowdata, rowColMap)) {
-            return null;
-        }
+        try {
+            Node x = (Node) store.getAccessor(this);
+            Node n;
+            Node result = null;
 
-        while (x != null) {
-            int i = this.compareRowNonUnique(rowdata, rowColMap,
-                                             x.getRow(store).getData());
+            while (x != null) {
+                int i = this.compareRowNonUnique(rowdata, rowColMap,
+                                                 x.getRow(store).getData(),
+                                                 fieldCount);
 
-            if (i == 0) {
-                if (!first) {
+                if (i == 0) {
                     result = x;
+                    n      = x.getLeft(store);
+                } else if (i > 0) {
+                    n = x.getRight(store);
+                } else {
+                    n = x.getLeft(store);
+                }
 
-                    break;
-                } else if (result == x) {
+                if (n == null) {
                     break;
                 }
 
-                result = x;
-                n      = x.getLeft(store);
-            } else if (i > 0) {
-                n = x.getRight(store);
-            } else {
-                n = x.getLeft(store);
+                x = n;
             }
 
-            if (n == null) {
-                break;
+            // MVCC 190
+            if (session == null) {
+                return result;
             }
 
-            x = n;
-        }
+            while (result != null) {
+                Row row = result.getRow(store);
 
-// MVCC 190
-        if (session == null) {
+                if (compareRowNonUnique(rowdata, rowColMap, row.getData())
+                        != 0) {
+                    result = null;
+
+                    break;
+                }
+
+                if (session.database.txManager.canRead(session, row)) {
+                    break;
+                }
+
+                result = next(store, result);
+            }
+
             return result;
+        } finally {
+            readLock.unlock();
         }
-
-        while (result != null) {
-            Row row = result.getRow(store);
-
-            if (compareRowNonUnique(rowdata, rowColMap, row.getData()) != 0) {
-                result = null;
-
-                break;
-            }
-
-            if (session.database.txManager.canRead(session, row)) {
-                break;
-            }
-
-            result = next(store, result);
-        }
-
-        return result;
     }
 
     /**
@@ -1651,38 +1560,6 @@ public class Index implements SchemaObject {
         }
     }
 
-    Node getVisibleNode(Session session, PersistentStore store, Node node) {
-
-        readLock.lock();
-
-        try {
-            if (session == null) {
-                return node;
-            }
-
-            while (node != null) {
-                try {
-                    Row row = node.getRow(store);
-
-                    if (session.database.txManager.canRead(session, row)) {
-                        break;
-                    }
-
-                    node = Index.this.next(store, node);
-                } catch (Exception e) {
-
-                    //* debug 190
-//                    e.printStackTrace();
-                    throw new NoSuchElementException(e.getMessage());
-                }
-            }
-
-            return node;
-        } finally {
-            readLock.unlock();
-        }
-    }
-
     public IndexRowIterator getIterator(Session session,
                                         PersistentStore store, Node x) {
 
@@ -1722,7 +1599,7 @@ public class Index implements SchemaObject {
                 return;
             }
 
-            nextnode = index.getVisibleNode(session, store, node);
+            nextnode = node;
         }
 
         public boolean hasNext() {
@@ -1735,11 +1612,7 @@ public class Index implements SchemaObject {
                 return null;
             }
 
-            index.readLock.lock();
-
             try {
-                nextnode = index.getVisibleNode(session, store, nextnode);
-
                 if (nextnode == null) {
                     release();
 
@@ -1747,8 +1620,7 @@ public class Index implements SchemaObject {
                 }
 
                 lastrow  = nextnode.getRow(store);
-                nextnode = index.next(store, nextnode);
-                nextnode = index.getVisibleNode(session, store, nextnode);
+                nextnode = index.next(session, store, nextnode);
 
                 if (nextnode == null) {
                     release();
@@ -1757,8 +1629,6 @@ public class Index implements SchemaObject {
                 return lastrow;
             } catch (Exception e) {
                 throw new NoSuchElementException(e.getMessage());
-            } finally {
-                index.readLock.unlock();
             }
         }
 

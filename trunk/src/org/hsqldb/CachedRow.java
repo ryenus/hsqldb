@@ -102,6 +102,7 @@ public class CachedRow extends Row {
     //
     protected TableBase tTable;
     int                 storageSize;
+    int                 keepCount;
 
     /**
      *  Flag indicating unwritten data.
@@ -245,19 +246,7 @@ public class CachedRow extends Row {
      * @throws HsqlException
      */
     public boolean isKeepInMemory() {
-
-        Node n = nPrimaryNode;
-
-/*
-        while (n != null) {
-            if (n.isRoot()) {
-                return true;
-            }
-
-            n = n.nNext;
-        }
-*/
-        return false;
+        return keepCount > 0;
     }
 
     public void destroy() {
@@ -267,10 +256,25 @@ public class CachedRow extends Row {
         tTable = null;
     }
 
+    public void keepInMemory(boolean keep) {
+
+        if (keep) {
+            keepCount++;
+        } else {
+            keepCount--;
+
+            if (keepCount < 0) {
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "CachedRow keep count");
+            }
+        }
+    }
+
     /**
      * used in CachedDataRow
      */
     void setNewNodes() {
+
         int indexcount = tTable.getIndexCount();
 
         nPrimaryNode = new DiskNode(this, 0);

@@ -303,7 +303,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
             other.getNext();
 
             Object[] currentData = other.currentRow.getData();
-            RowIterator it = fullIndex.findFirstRowIterator(session, store,
+            RowIterator it = fullIndex.findFirstRow(session, store,
                 currentData, rightColumnIndexes);
 
             if (!it.hasNext()) {
