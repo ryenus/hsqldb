@@ -709,6 +709,37 @@ public class ArrayUtil {
     }
 
     /**
+     * Determines if the array has a null column for any of the positions given
+     * in the rowColMap array.
+     */
+    public static boolean hasNull(Object[] array, int[] columnMap) {
+
+        int count = columnMap.length;
+
+        for (int i = 0; i < count; i++) {
+            if (array[columnMap[i]] == null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean hasAllNull(Object[] array, int[] columnMap) {
+
+        int count = columnMap.length;
+
+        for (int i = 0; i < count; i++) {
+            if (array[columnMap[i]] != null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
      * Returns true if arra from position start contains all elements of arrb
      * in sequential order.
      */

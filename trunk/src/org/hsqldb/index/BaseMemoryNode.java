@@ -164,5 +164,5 @@ abstract class BaseMemoryNode extends Node {
         return n == this;
     }
 
-    public void write(RowOutputInterface out) throws IOException {}
+    public void write(RowOutputInterface out) {}
 }

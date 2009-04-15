@@ -43,9 +43,8 @@ import org.hsqldb.Session;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.DiskNode;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.Node;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
-import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 
@@ -62,7 +61,8 @@ public class RowStoreHybrid implements PersistentStore {
     DataFileCacheSession            cache;
     final TableBase                 table;
     final PersistentStoreCollection manager;
-    private LongKeyHashMap          accessorMap = new LongKeyHashMap();
+    private Index[]                 indexList    = Index.emptyArray;
+    CachedObject[]                  accessorList = CachedObject.emptyArray;
     private int                     maxMemoryRowCount;
     private int                     memoryRowCount;
     private boolean                 isCached;
@@ -77,8 +77,10 @@ public class RowStoreHybrid implements PersistentStore {
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
-        this.rowIdMap = new IntKeyHashMapConcurrent();
+        this.rowIdMap          = new IntKeyHashMapConcurrent();
         isTempTable            = table.getTableType() == TableBase.TEMP_TABLE;
+
+        resetAccessorKeys(table.getIndexList());
         manager.setStore(table, this);
     }
 
@@ -89,7 +91,7 @@ public class RowStoreHybrid implements PersistentStore {
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
-        this.rowIdMap = new IntKeyHashMapConcurrent();
+        this.rowIdMap          = new IntKeyHashMapConcurrent();
         isTempTable            = table.getTableType() == TableBase.TEMP_TABLE;
 
         if (isCached) {
@@ -103,6 +105,7 @@ public class RowStoreHybrid implements PersistentStore {
             }
         }
 
+        resetAccessorKeys(table.getIndexList());
         manager.setStore(table, this);
     }
 
@@ -224,22 +227,20 @@ public class RowStoreHybrid implements PersistentStore {
 
     public void removeAll() {
 
-        accessorMap.clear();
-
         if (!isCached) {
             rowIdMap.clear();
         }
+
+        ArrayUtil.fillArray(accessorList, null);
     }
 
     public void remove(int i) {
 
-        try {
-            if (isCached) {
-                cache.remove(i, this);
-            } else {
-                rowIdMap.remove(i);
-            }
-        } catch (HsqlException e) {}
+        if (isCached) {
+            cache.remove(i, this);
+        } else {
+            rowIdMap.remove(i);
+        }
     }
 
     public void removePersistence(int i) {}
@@ -263,7 +264,7 @@ public class RowStoreHybrid implements PersistentStore {
 
     public void release() {
 
-        accessorMap.clear();
+        ArrayUtil.fillArray(accessorList, null);
 
         if (isCached) {
             cache.storeCount--;
@@ -281,33 +282,33 @@ public class RowStoreHybrid implements PersistentStore {
         manager.setStore(table, null);
     }
 
-    public Object getAccessor(Index key) {
+    public CachedObject getAccessor(Index key) {
 
-        Index index = (Index) key;
-        Node  node  = (Node) accessorMap.get(index.getPersistenceId());
-
-        if (node == null) {
-            return null;
-        }
-
-        if (isCached) {
-            Row row = (Row) get(node.getPos());
-
-            node = row.getNode(index.getPosition());
-        }
-
-        return node;
+        Index index    = (Index) key;
+        int   position = index.getPosition();
+        return accessorList[position];
     }
 
-    public void setAccessor(Index key, Object accessor) {
+    public void setAccessor(Index key, CachedObject accessor) {
 
         Index index = (Index) key;
 
-        accessorMap.put(index.getPersistenceId(), accessor);
+        accessorList[index.getPosition()] = accessor;
     }
+
+    public void setAccessor(Index key, int accessor) {}
 
     public void resetAccessorKeys(Index[] keys) {
 
+        if (indexList.length == 0 || indexList[0] == null
+                || accessorList[0] == null) {
+            indexList    = keys;
+            accessorList = new CachedObject[indexList.length];
+
+            return;
+        }
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreCached");
     }
 
     public void changeToDiskTable() throws HsqlException {
@@ -317,7 +318,7 @@ public class RowStoreHybrid implements PersistentStore {
         if (cache != null) {
             RowIterator iterator = table.rowIterator(this);
 
-            accessorMap.clear();
+            ArrayUtil.fillArray(accessorList, null);
 
             isCached = true;
 

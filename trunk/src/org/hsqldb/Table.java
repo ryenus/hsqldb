@@ -78,6 +78,7 @@ import org.hsqldb.lib.Set;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.RowStoreCached;
 import org.hsqldb.persist.RowStoreMemory;
@@ -1050,7 +1051,7 @@ public class Table extends TableBase implements SchemaObject {
             idx = tn.createIndexStructure(idx.getName(), colarr,
                                           idx.getColumnDesc(), null,
                                           idx.isUnique(), idx.isConstraint(),
-                                          idx.isForward);
+                                          idx.isForward());
 
             tn.addIndex(idx);
         }
@@ -2057,9 +2058,10 @@ public class Table extends TableBase implements SchemaObject {
         int[] roots = new int[getIndexCount()];
 
         for (int i = 0; i < getIndexCount(); i++) {
-            Node node = (Node) store.getAccessor(indexList[i]);
+            CachedObject accessor = store.getAccessor(indexList[i]);
 
-            roots[i] = node.getPos();
+            roots[i] = accessor == null ? -1
+                                        : accessor.getPos();
         }
 
         return roots;
@@ -2099,20 +2101,7 @@ public class Table extends TableBase implements SchemaObject {
             this.getPersistenceId());
 
         for (int i = 0; i < getIndexCount(); i++) {
-            int p = roots[i];
-            Row r = null;
-
-            if (p != -1) {
-                r = (CachedRow) store.get(p);
-            }
-
-            Node f = null;
-
-            if (r != null) {
-                f = r.getNode(i);
-            }
-
-            store.setAccessor(indexList[i], f);
+            store.setAccessor(indexList[i], roots[i]);
         }
     }
 
@@ -2161,23 +2150,6 @@ public class Table extends TableBase implements SchemaObject {
 
         if (store != null) {
             store.resetAccessorKeys(indexList);
-        }
-    }
-
-    void dropIndexFromRows(Session session, int index) throws HsqlException {
-
-        RowIterator it = rowIterator(session);
-
-        while (it.hasNext()) {
-            Row  row      = it.getNextRow();
-            int  i        = index - 1;
-            Node backnode = row.getNode(0);
-
-            while (i-- > 0) {
-                backnode = backnode.nNext;
-            }
-
-            backnode.nNext = backnode.nNext.nNext;
         }
     }
 
@@ -2482,8 +2454,8 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store = session.sessionData.getRowStore(this);
 
         if (hasPrimaryKey()) {
-            RowIterator it = getPrimaryIndex().findFirstRow(session,
-                store, data, primaryKeyColsSequence);
+            RowIterator it = getPrimaryIndex().findFirstRow(session, store,
+                data, primaryKeyColsSequence);
 
             row = it.getNextRow();
         } else if (bestIndex == null) {

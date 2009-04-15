@@ -197,7 +197,7 @@ public final class NumberSequence implements SchemaObject {
         //
         sb.append(Tokens.T_START).append(' ');
         sb.append(Tokens.T_WITH).append(' ');
-        sb.append(peek());
+        sb.append(startValue);
 
         if (getIncrement() != 1) {
             sb.append(' ').append(Tokens.T_INCREMENT).append(' ');

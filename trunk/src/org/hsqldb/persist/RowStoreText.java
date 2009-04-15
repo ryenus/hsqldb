@@ -40,7 +40,6 @@ import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.Node;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
 
@@ -98,11 +97,9 @@ public class RowStoreText extends RowStoreCached implements PersistentStore {
 
     public void remove(int i) {
 
-        try {
-            if (cache != null) {
-                cache.remove(i, this);
-            }
-        } catch (HsqlException e) {}
+        if (cache != null) {
+            cache.remove(i, this);
+        }
     }
 
     public void removePersistence(int i) {
@@ -141,7 +138,7 @@ public class RowStoreText extends RowStoreCached implements PersistentStore {
         cache = null;
     }
 
-    public Object getAccessor(Index key) {
+    public CachedObject getAccessor(Index key) {
 
         Index index    = (Index) key;
         int   position = index.getPosition();
@@ -150,8 +147,6 @@ public class RowStoreText extends RowStoreCached implements PersistentStore {
             return null;
         }
 
-        Node node = (Node) accessorList[position];
-
-        return node;
+        return accessorList[position];
     }
 }

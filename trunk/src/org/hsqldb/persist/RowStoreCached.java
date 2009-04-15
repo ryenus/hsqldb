@@ -46,7 +46,6 @@ import org.hsqldb.index.Index;
 import org.hsqldb.index.Node;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.store.ValuePool;
 
 /*
  * Implementation of PersistentStore for CACHED tables.
@@ -60,7 +59,7 @@ public class RowStoreCached implements PersistentStore {
     final TableBase                 table;
     final PersistentStoreCollection manager;
     private Index[]                 indexList    = Index.emptyArray;
-    Object[]                        accessorList = ValuePool.emptyObjectArray;
+    CachedObject[]                  accessorList = CachedObject.emptyArray;
     DataFileCache                   cache;
 
     public RowStoreCached(PersistentStoreCollection manager,
@@ -69,7 +68,7 @@ public class RowStoreCached implements PersistentStore {
         this.manager      = manager;
         this.table        = table;
         this.indexList    = table.getIndexList();
-        this.accessorList = new Object[indexList.length];
+        this.accessorList = new CachedObject[indexList.length];
         this.cache        = cache;
 
         manager.setStore(table, this);
@@ -162,10 +161,7 @@ public class RowStoreCached implements PersistentStore {
     }
 
     public void remove(int i) {
-
-        try {
-            cache.remove(i, this);
-        } catch (HsqlException e) {}
+        cache.remove(i, this);
     }
 
     public void removePersistence(int i) {}
@@ -191,7 +187,7 @@ public class RowStoreCached implements PersistentStore {
         cache = null;
     }
 
-    public Object getAccessor(Index key) {
+    public CachedObject getAccessor(Index key) {
 
         Index index    = (Index) key;
         int   position = index.getPosition();
@@ -200,24 +196,27 @@ public class RowStoreCached implements PersistentStore {
             return null;
         }
 
-        Node node = (Node) accessorList[position];
-
-        if (node == null) {
-            return null;
-        }
-
-        Row row = (Row) get(node.getPos());
-
-        node = row.getNode(index.getPosition());
-
-        return node;
+        return accessorList[position];
     }
 
-    public void setAccessor(Index key, Object accessor) {
+    public void setAccessor(Index key, CachedObject accessor) {
 
         Index index = (Index) key;
 
         accessorList[index.getPosition()] = accessor;
+    }
+
+    public void setAccessor(Index key, int accessor) {
+
+        CachedObject object = get(accessor);
+
+        if (object != null) {
+            Node node = ((Row) object).getNode(key.getPosition());
+
+            object = node;
+        }
+
+        setAccessor(key, object);
     }
 
     public void resetAccessorKeys(Index[] keys) {
@@ -225,7 +224,7 @@ public class RowStoreCached implements PersistentStore {
         if (indexList.length == 0 || indexList[0] == null
                 || accessorList[0] == null) {
             indexList    = keys;
-            accessorList = new Object[indexList.length];
+            accessorList = new CachedObject[indexList.length];
 
             return;
         }

@@ -735,7 +735,7 @@ public final class Constraint implements SchemaObject {
                 PersistentStore store =
                     session.sessionData.getRowStore(core.mainTable);
 
-                if (Index.hasNull(row, core.refCols)) {
+                if (ArrayUtil.hasNull(row, core.refCols)) {
                     if (core.matchType == OpTypes.MATCH_SIMPLE) {
                         return;
                     }
@@ -744,7 +744,7 @@ public final class Constraint implements SchemaObject {
                         return;
                     }
 
-                    if (Index.hasAllNull(row, core.refCols)) {
+                    if (ArrayUtil.hasAllNull(row, core.refCols)) {
                         return;
                     }
 
@@ -850,7 +850,7 @@ public final class Constraint implements SchemaObject {
     RowIterator findFkRef(Session session, Object[] row,
                           boolean delete) throws HsqlException {
 
-        if (row == null || Index.hasNull(row, core.mainCols)) {
+        if (row == null || ArrayUtil.hasNull(row, core.mainCols)) {
             return core.refIndex.emptyIterator();
         }
 
@@ -870,7 +870,7 @@ public final class Constraint implements SchemaObject {
     boolean checkHasMainRef(Session session,
                             Object[] row) throws HsqlException {
 
-        if (Index.hasNull(row, core.refCols)) {
+        if (ArrayUtil.hasNull(row, core.refCols)) {
             return false;
         }
 
@@ -911,7 +911,7 @@ public final class Constraint implements SchemaObject {
 
             Object[] rowData = row.getData();
 
-            if (Index.hasNull(rowData, rowColArray)) {
+            if (ArrayUtil.hasNull(rowData, rowColArray)) {
                 if (core.matchType == OpTypes.MATCH_SIMPLE) {
                     continue;
                 }
@@ -920,7 +920,7 @@ public final class Constraint implements SchemaObject {
                 continue;
             }
 
-            if (Index.hasAllNull(rowData, rowColArray)) {
+            if (ArrayUtil.hasAllNull(rowData, rowColArray)) {
                 continue;
             }
 
