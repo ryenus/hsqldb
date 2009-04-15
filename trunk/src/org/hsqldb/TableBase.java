@@ -538,9 +538,7 @@ public class TableBase {
 
             // unique index violation - rollback insert
             for (--i; i >= 0; i--) {
-                Node n = row.getNode(i);
-
-                indexList[i].delete(store, n);
+                indexList[i].delete(store, row);
             }
 
             row.delete();

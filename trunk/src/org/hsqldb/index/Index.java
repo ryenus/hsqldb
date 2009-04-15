@@ -140,6 +140,90 @@ public class Index implements SchemaObject {
     public static final Index[] emptyArray = new Index[]{};
 
     /**
+     * Set a node as child of another
+     *
+     * @param x parent node
+     * @param isleft boolean
+     * @param n child node
+     *
+     * @throws HsqlException
+     */
+    private static Node set(PersistentStore store, Node x, boolean isleft,
+                            Node n) throws HsqlException {
+
+        if (isleft) {
+            x = x.setLeft(store, n);
+        } else {
+            x = x.setRight(store, n);
+        }
+
+        if (n != null) {
+            n.setParent(store, x);
+        }
+
+        return x;
+    }
+
+    /**
+     * Returns either child node
+     *
+     * @param x node
+     * @param isleft boolean
+     *
+     * @return child node
+     *
+     * @throws HsqlException
+     */
+    private static Node child(PersistentStore store, Node x,
+                              boolean isleft) throws HsqlException {
+        return isleft ? x.getLeft(store)
+                      : x.getRight(store);
+    }
+
+    private static void getColumnList(Table t, int[] col, int len,
+                                      StringBuffer a) {
+
+        a.append('(');
+
+        for (int i = 0; i < len; i++) {
+            a.append(t.getColumn(col[i]).getName().statementName);
+
+            if (i < len - 1) {
+                a.append(',');
+            }
+        }
+
+        a.append(')');
+    }
+
+    /**
+     * compares two full table rows based on a set of columns
+     *
+     * @param a a full row
+     * @param b a full row
+     * @param cols array of column indexes to compare
+     * @param coltypes array of column types for the full row
+     *
+     * @return comparison result, -1,0,+1
+     * @throws HsqlException
+     */
+    public static int compareRows(Object[] a, Object[] b, int[] cols,
+                                  Type[] coltypes) throws HsqlException {
+
+        int fieldcount = cols.length;
+
+        for (int j = 0; j < fieldcount; j++) {
+            int i = coltypes[cols[j]].compare(a[cols[j]], b[cols[j]]);
+
+            if (i != 0) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
      * Constructor declaration
      *
      * @param name HsqlName of the index
@@ -160,9 +244,9 @@ public class Index implements SchemaObject {
 
         persistenceId  = id;
         this.name      = name;
-        this.colIndex       = columns;
+        this.colIndex  = columns;
         this.colTypes  = colTypes;
-        this.colDesc        = descending == null ? new boolean[columns.length]
+        this.colDesc   = descending == null ? new boolean[columns.length]
                                             : descending;
         this.nullsLast = nullsLast == null ? new boolean[columns.length]
                                            : nullsLast;
@@ -182,13 +266,11 @@ public class Index implements SchemaObject {
         ArrayUtil.fillSequence(defaultColMap);
     }
 
+    // SchemaObject implementation
     public int getType() {
         return SchemaObject.INDEX;
     }
 
-    /**
-     * Returns the HsqlName object
-     */
     public HsqlName getName() {
         return name;
     }
@@ -240,24 +322,9 @@ public class Index implements SchemaObject {
         return sb.toString();
     }
 
-    private static void getColumnList(Table t, int[] col, int len,
-                                      StringBuffer a) {
-
-        a.append('(');
-
-        for (int i = 0; i < len; i++) {
-            a.append(t.getColumn(col[i]).getName().statementName);
-
-            if (i < len - 1) {
-                a.append(',');
-            }
-        }
-
-        a.append(')');
-    }
-
-    public boolean isForward() {
-        return isForward;
+    // IndexInterface
+    public RowIterator emptyIterator() {
+        return emptyIterator;
     }
 
     public int getPosition() {
@@ -347,6 +414,10 @@ public class Index implements SchemaObject {
         }
     }
 
+    public boolean isForward() {
+        return isForward;
+    }
+
     /**
      * Returns the node count.
      */
@@ -371,6 +442,10 @@ public class Index implements SchemaObject {
         }
     }
 
+    public int sizeEstimate(PersistentStore store) throws HsqlException {
+        return (int) (1L << depth);
+    }
+
     public boolean isEmpty(PersistentStore store) {
 
         readLock.lock();
@@ -382,21 +457,39 @@ public class Index implements SchemaObject {
         }
     }
 
-    public int sizeEstimate(PersistentStore store) throws HsqlException {
+    public void checkIndex(PersistentStore store) {
 
         readLock.lock();
 
         try {
-            firstRow(store);
+            Node x = getAccessor(store);
 
-            return (int) (1L << depth);
+            checkNodes(x, null);
+
+            Node l = x;
+            Node r = null;
+
+            while (l != null) {
+                x = l;
+                l = x.getLeft(store);
+                r = x.getRight(store);
+
+                checkNodes(l, r);
+            }
+
+            while (x != null) {
+                l = x.getLeft(store);
+                r = x.getLeft(store);
+
+                checkNodes(l, r);
+
+                try {
+                    x = next(store, x);
+                } catch (HsqlException e) {}
+            }
         } finally {
             readLock.unlock();
         }
-    }
-
-    public RowIterator emptyIterator() {
-        return emptyIterator;
     }
 
     /**
@@ -639,57 +732,12 @@ public class Index implements SchemaObject {
     }
 
     /**
-     * Determines if a table row has a null column for any of the columns given
-     * in the rowColMap array.
-     */
-    public static boolean hasNull(Object[] row, int[] rowColMap) {
-
-        int count = rowColMap.length;
-
-        for (int i = 0; i < count; i++) {
-            if (row[rowColMap[i]] == null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static boolean hasAllNull(Object[] row, int[] rowColMap) {
-
-        int count = rowColMap.length;
-
-        for (int i = 0; i < count; i++) {
-            if (row[rowColMap[i]] != null) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Determines if a table row has a null column for any of the indexed
-     * columns.
-     */
-    boolean hasNull(Object[] data) {
-
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] == null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Return the first node equal to the indexdata object. The rowdata has
      * the same column mapping as this index.
      *
      * @param session session object
      * @param store store object
-     * @param coldata array containing index column data
+     * @param rowdata array containing index column data
      * @param match count of columns to match
      * @return iterator
      * @throws HsqlException
@@ -935,41 +983,6 @@ public class Index implements SchemaObject {
         }
     }
 
-    public void checkIndex(PersistentStore store) {
-
-        readLock.lock();
-
-        try {
-            Node x = getAccessor(store);
-
-            checkNodes(x, null);
-
-            Node l = x;
-            Node r = null;
-
-            while (l != null) {
-                x = l;
-                l = x.getLeft(store);
-                r = x.getRight(store);
-
-                checkNodes(l, r);
-            }
-
-            while (x != null) {
-                l = x.getLeft(store);
-                r = x.getLeft(store);
-
-                checkNodes(l, r);
-
-                try {
-                    x = next(store, x);
-                } catch (HsqlException e) {}
-            }
-        } finally {
-            readLock.unlock();
-        }
-    }
-
     /**
      * Returns the row for the first node of the index
      *
@@ -1020,8 +1033,6 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            depth = 0;
-
             Node x = getAccessor(store);
             Node l = x;
 
@@ -1188,22 +1199,6 @@ public class Index implements SchemaObject {
     }
 
     /**
-     * Returns either child node
-     *
-     * @param x node
-     * @param isleft boolean
-     *
-     * @return child node
-     *
-     * @throws HsqlException
-     */
-    private static Node child(PersistentStore store, Node x,
-                              boolean isleft) throws HsqlException {
-        return isleft ? x.getLeft(store)
-                      : x.getRight(store);
-    }
-
-    /**
      * Replace x with n
      *
      * @param x node
@@ -1223,31 +1218,6 @@ public class Index implements SchemaObject {
         } else {
             set(store, x.getParent(store), x.isFromLeft(store), n);
         }
-    }
-
-    /**
-     * Set a node as child of another
-     *
-     * @param x parent node
-     * @param isleft boolean
-     * @param n child node
-     *
-     * @throws HsqlException
-     */
-    private static Node set(PersistentStore store, Node x, boolean isleft,
-                            Node n) throws HsqlException {
-
-        if (isleft) {
-            x = x.setLeft(store, n);
-        } else {
-            x = x.setRight(store, n);
-        }
-
-        if (n != null) {
-            n.setParent(store, x);
-        }
-
-        return x;
     }
 
     /**
@@ -1301,33 +1271,6 @@ public class Index implements SchemaObject {
 
         for (int j = 0; j < fieldcount; j++) {
             int i = colTypes[j].compare(a[j], b[colIndex[j]]);
-
-            if (i != 0) {
-                return i;
-            }
-        }
-
-        return 0;
-    }
-
-    /**
-     * compares two full table rows based on a set of columns
-     *
-     * @param a a full row
-     * @param b a full row
-     * @param cols array of column indexes to compare
-     * @param coltypes array of column types for the full row
-     *
-     * @return comparison result, -1,0,+1
-     * @throws HsqlException
-     */
-    public static int compareRows(Object[] a, Object[] b, int[] cols,
-                                  Type[] coltypes) throws HsqlException {
-
-        int fieldcount = cols.length;
-
-        for (int j = 0; j < fieldcount; j++) {
-            int i = coltypes[cols[j]].compare(a[cols[j]], b[cols[j]]);
 
             if (i != 0) {
                 return i;
@@ -1478,8 +1421,8 @@ public class Index implements SchemaObject {
             while (result != null) {
                 Row row = result.getRow(store);
 
-                if (compareRowNonUnique(rowdata, rowColMap, row.getData())
-                        != 0) {
+                if (compareRowNonUnique(
+                        rowdata, rowColMap, row.getData(), fieldCount) != 0) {
                     result = null;
 
                     break;
@@ -1560,7 +1503,7 @@ public class Index implements SchemaObject {
         }
     }
 
-    void checkNodes(Node l, Node r) {
+    private void checkNodes(Node l, Node r) {
 
         if (l != null && l.getBalance() == -2) {
             System.out.print("broken");
@@ -1576,7 +1519,6 @@ public class Index implements SchemaObject {
         Node node = (Node) store.getAccessor(this);
 
         if (node != null && node instanceof DiskNode) {
-
             Row row = node.getRow(store);
 
             node = row.getNode(position);
@@ -1585,8 +1527,8 @@ public class Index implements SchemaObject {
         return node;
     }
 
-    public IndexRowIterator getIterator(Session session,
-                                        PersistentStore store, Node x) {
+    private IndexRowIterator getIterator(Session session,
+                                         PersistentStore store, Node x) {
 
         if (x == null) {
             return emptyIterator;
