@@ -124,7 +124,7 @@ public class Index implements SchemaObject {
     private final boolean   isUnique;    // DDL uniqueness
     private final boolean   useRowId;
     private final boolean   isConstraint;
-    public final boolean    isForward;
+    private final boolean   isForward;
     private int             depth;
     private static final IndexRowIterator emptyIterator =
         new IndexRowIterator(null, (PersistentStore) null, null, null);
@@ -256,6 +256,10 @@ public class Index implements SchemaObject {
         a.append(')');
     }
 
+    public boolean isForward() {
+        return isForward;
+    }
+
     public int getPosition() {
         return position;
     }
@@ -372,7 +376,7 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            return store.getAccessor(this) == null;
+            return getAccessor(store) == null;
         } finally {
             readLock.unlock();
         }
@@ -409,7 +413,7 @@ public class Index implements SchemaObject {
         writeLock.lock();
 
         try {
-            n = (Node) store.getAccessor(this);
+            n = getAccessor(store);
             x = n;
 
             if (n == null) {
@@ -443,6 +447,13 @@ public class Index implements SchemaObject {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    public void delete(PersistentStore store, Row row) throws HsqlException {
+
+        Node node = row.getNode(position);
+
+        delete(store, node);
     }
 
     public void delete(PersistentStore store, Node x) throws HsqlException {
@@ -758,7 +769,7 @@ public class Index implements SchemaObject {
 
             boolean isEqual = compare == OpTypes.EQUAL
                               || compare == OpTypes.IS_NULL;
-            Node x     = (Node) store.getAccessor(this);
+            Node x     = getAccessor(store);
             int  iTest = 1;
 
             if (compare == OpTypes.GREATER) {
@@ -872,7 +883,7 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = (Node) store.getAccessor(this);
+            Node x = getAccessor(store);
 
             while (x != null) {
                 boolean t = colTypes[0].compare(
@@ -929,7 +940,7 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = (Node) store.getAccessor(this);
+            Node x = getAccessor(store);
 
             checkNodes(x, null);
 
@@ -974,7 +985,7 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = (Node) store.getAccessor(this);
+            Node x = getAccessor(store);
             Node l = x;
 
             while (l != null) {
@@ -1011,7 +1022,7 @@ public class Index implements SchemaObject {
         try {
             depth = 0;
 
-            Node x = (Node) store.getAccessor(this);
+            Node x = getAccessor(store);
             Node l = x;
 
             while (l != null) {
@@ -1042,7 +1053,7 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = (Node) store.getAccessor(this);
+            Node x = getAccessor(store);
             Node l = x;
 
             while (l != null) {
@@ -1434,7 +1445,7 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = (Node) store.getAccessor(this);
+            Node x = getAccessor(store);
             Node n;
             Node result = null;
 
@@ -1558,6 +1569,20 @@ public class Index implements SchemaObject {
         if (r != null && r.getBalance() == -2) {
             System.out.print("broken");
         }
+    }
+
+    private Node getAccessor(PersistentStore store) {
+
+        Node node = (Node) store.getAccessor(this);
+
+        if (node != null && node instanceof DiskNode) {
+
+            Row row = node.getRow(store);
+
+            node = row.getNode(position);
+        }
+
+        return node;
     }
 
     public IndexRowIterator getIterator(Session session,

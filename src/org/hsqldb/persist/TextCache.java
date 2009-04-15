@@ -402,9 +402,7 @@ public class TextCache extends DataFileCache {
     /**
      *
      */
-    public synchronized void remove(int pos,
-                                    PersistentStore store)
-                                    throws HsqlException {
+    public synchronized void remove(int pos, PersistentStore store) {
 
         CachedObject row = (CachedObject) uncommittedCache.remove(pos);
 
@@ -418,7 +416,7 @@ public class TextCache extends DataFileCache {
         release(pos);
     }
 
-    private void clearRowImage(CachedObject row) throws HsqlException {
+    private void clearRowImage(CachedObject row) {
 
         try {
             int length = row.getStorageSize()
@@ -433,7 +431,7 @@ public class TextCache extends DataFileCache {
             dataFile.seek(row.getPos());
             dataFile.write(out.getBuffer(), 0, out.size());
         } catch (IOException e) {
-            throw new HsqlException(e.getMessage(), "", 0);
+            throw Error.runtimeError(ErrorCode.U_S0500, e.getMessage());
         }
     }
 

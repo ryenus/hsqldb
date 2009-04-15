@@ -289,39 +289,10 @@ public class DiskNode extends Node {
     }
 
     boolean equals(Node n) {
-
-/*
-        if (Trace.DOASSERT) {
-            Trace.doAssert(iBalance != -2);
-
-            if (n != this) {
-                boolean test = (getKey() == NO_POS) || (n == null)
-                               || (n.getKey() != getKey());
-
-                if (test == false) {
-                    test = iParent == ((DiskNode) n).iParent
-                           && iLeft == ((DiskNode) n).iLeft
-                           && iRight == ((DiskNode) n).iRight;
-
-                    if (test == false) {
-                        int aA = ((CachedRow) getRow()).iLastAccess;
-                        int bA = ((CachedRow) n.getRow()).iLastAccess;
-
-                        Trace.doAssert(test,
-                                       "a: " + aA + ", " + iParent + ", "
-                                       + iLeft + ", " + iRight + " b: " + bA
-                                       + ", " + ((DiskNode) n).iParent + ", "
-                                       + ((DiskNode) n).iLeft + ", "
-                                       + ((DiskNode) n).iRight);
-                    }
-                }
-            }
-        }
-*/
         return this == n || (n != null && getPos() == ((DiskNode) n).getPos());
     }
 
-    public void write(RowOutputInterface out) throws IOException {
+    public void write(RowOutputInterface out) {
 
         out.writeInt(iBalance);
         out.writeInt((iLeft == NO_POS) ? 0

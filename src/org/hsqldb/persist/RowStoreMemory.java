@@ -44,7 +44,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.store.ValuePool;
 
 /*
  * Implementation of PersistentStore for MEMORY tables.
@@ -58,7 +57,7 @@ public class RowStoreMemory implements PersistentStore {
     TableBase                       table;
     PersistentStoreCollection       manager;
     private Index[]                 indexList    = Index.emptyArray;
-    private Object[]                accessorList = ValuePool.emptyObjectArray;
+    private CachedObject[]          accessorList = CachedObject.emptyArray;
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
@@ -67,7 +66,7 @@ public class RowStoreMemory implements PersistentStore {
         this.manager      = manager;
         this.table        = table;
         this.indexList    = table.getIndexList();
-        this.accessorList = new Object[indexList.length];
+        this.accessorList = new CachedObject[indexList.length];
         rowIdMap          = new IntKeyHashMapConcurrent();
 
         manager.setStore(table, this);
@@ -139,37 +138,34 @@ public class RowStoreMemory implements PersistentStore {
         rowIdMap.clear();
     }
 
-    public Object getAccessor(Index key) {
+    public CachedObject getAccessor(Index key) {
 
         Index index    = (Index) key;
         int   position = index.getPosition();
 
-        if (position >= accessorList.length) {
-            return null;
-        }
-
         return accessorList[position];
     }
 
-    public void setAccessor(Index key, Object accessor) {
+    public void setAccessor(Index key, CachedObject accessor) {
 
         Index index = (Index) key;
 
         accessorList[index.getPosition()] = accessor;
     }
 
-    // doesn't support removing indexes
+    public void setAccessor(Index key, int accessor) {}
+
     public void resetAccessorKeys(Index[] keys) throws HsqlException {
 
         if (indexList.length == 0 || indexList[0] == null
                 || accessorList[0] == null) {
             indexList    = keys;
-            accessorList = new Object[indexList.length];
+            accessorList = new CachedObject[indexList.length];
 
             return;
         }
 
-        Object[] oldAccessors = accessorList;
+        CachedObject[] oldAccessors = accessorList;
         Index[]  oldIndexList = indexList;
         int      limit        = indexList.length;
         int      diff         = 1;
@@ -186,7 +182,7 @@ public class RowStoreMemory implements PersistentStore {
             }
         }
 
-        accessorList = (Object[]) ArrayUtil.toAdjustedArray(accessorList,
+        accessorList = (CachedObject[]) ArrayUtil.toAdjustedArray(accessorList,
                 null, position, diff);
         indexList = keys;
 

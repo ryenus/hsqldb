@@ -461,7 +461,7 @@ public class DataFileCache {
      * Removes the row from the cache data structures.
      * Adds the file space for the row to the list of free positions.
      */
-    public void remove(int i, PersistentStore store) throws HsqlException {
+    public void remove(int i, PersistentStore store) {
 
         writeLock.lock();
 

@@ -66,12 +66,12 @@
 
 package org.hsqldb.index;
 
-import java.io.IOException;
-
 import org.hsqldb.CachedRow;
 import org.hsqldb.Row;
+import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.lib.IntLookup;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 // fredt@users 20020920 - path 1.7.1 - refactoring to cut mamory footprint
@@ -93,10 +93,10 @@ import org.hsqldb.rowio.RowOutputInterface;
  * @version 1.9.0
  * @since Hypersonic SQL
  */
-public abstract class Node {
+public abstract class Node implements CachedObject {
 
     static final int NO_POS = CachedRow.NO_POS;
-    public int              iBalance;    // currently, -2 means 'deleted'
+    public int       iBalance;    // currently, -2 means 'deleted'
     public Node      nNext;       // node of next index (nNext==null || nNext.iId=iId+1)
 
     /**
@@ -146,8 +146,36 @@ public abstract class Node {
 
     abstract boolean equals(Node n);
 
-    /**
-     *  Writes out the node in an implementation dependent way.
-     */
-    public abstract void write(RowOutputInterface out) throws IOException;
+    public void setStorageSize(int size) {}
+
+    public int getStorageSize() {
+        return 0;
+    }
+
+    public void setPos(int pos) {}
+
+    public boolean hasChanged() {
+        return false;
+    }
+
+    public boolean isKeepInMemory() {
+        return false;
+    }
+    ;
+
+    public void keepInMemory(boolean keep) {}
+
+    public boolean isInMemory() {
+        return false;
+    }
+
+    public void setInMemory(boolean in) {}
+
+    public void restore() {}
+
+    public void destroy() {}
+
+    abstract public void write(RowOutputInterface out);
+
+    public void write(RowOutputInterface out, IntLookup lookup) {}
 }

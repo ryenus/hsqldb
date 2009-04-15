@@ -43,6 +43,8 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public interface CachedObject {
 
+    CachedObject[] emptyArray = new CachedObject[]{};
+
     void setStorageSize(int size);
 
     int getStorageSize();

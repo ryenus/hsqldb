@@ -64,7 +64,7 @@ public interface PersistentStore {
 
     CachedObject get(RowInputInterface in) throws HsqlException;
 
-    CachedObject getNewInstance(int size);
+    CachedObject getNewInstance(int size) throws HsqlException;
 
     CachedObject getNewCachedObject(Session session,
                                     Object object) throws HsqlException;
@@ -89,9 +89,11 @@ public interface PersistentStore {
 
     void release();
 
-    Object getAccessor(Index key);
+    CachedObject getAccessor(Index key);
 
-    void setAccessor(Index key, Object accessor);
+    void setAccessor(Index key, CachedObject accessor);
+
+    void setAccessor(Index key, int accessor);
 
     void resetAccessorKeys(Index[] keys) throws HsqlException;
 }

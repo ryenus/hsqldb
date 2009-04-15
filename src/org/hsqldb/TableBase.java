@@ -482,61 +482,6 @@ public class TableBase {
         return newIndex;
     }
 
-    void insertIndexNodes(PersistentStore store, Index newIndex,
-                          int newindexNo) throws HsqlException {
-
-        Index         primaryindex = getPrimaryIndex();
-        RowIterator   it           = primaryindex.firstRow(store);
-        int           rowCount     = 0;
-        HsqlException error        = null;
-
-        try {
-            while (it.hasNext()) {
-                Row row = it.getNextRow();
-
-                row.insertNode(newindexNo);
-
-                // count before inserting
-                rowCount++;
-
-                newIndex.insert(null, store, row, newindexNo);
-            }
-
-            return;
-        } catch (java.lang.OutOfMemoryError e) {
-            error = Error.error(ErrorCode.OUT_OF_MEMORY);
-        } catch (HsqlException e) {
-            error = e;
-        }
-
-        // backtrack on error
-        // rowCount rows have been modified
-        it = primaryindex.firstRow(store);
-
-        for (int i = 0; i < rowCount; i++) {
-            Row  row      = it.getNextRow();
-            Node backnode = row.getNode(0);
-            int  j        = newindexNo;
-
-            while (--j > 0) {
-                backnode = backnode.nNext;
-            }
-
-            backnode.nNext = backnode.nNext.nNext;
-        }
-
-        indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
-                newindexNo, -1);
-
-        for (int i = 0; i < indexList.length; i++) {
-            indexList[i].setPosition(i);
-        }
-
-        setBestRowIdentifiers();
-
-        throw error;
-    }
-
     public void clearAllData(Session session) {
 
         PersistentStore store = session.sessionData.getRowStore(this);
@@ -569,9 +514,7 @@ public class TableBase {
                              Row row) throws HsqlException {
 
         for (int i = indexList.length - 1; i >= 0; i--) {
-            Node node = row.getNode(i);
-
-            indexList[i].delete(store, node);
+            indexList[i].delete(store, row);
         }
 
         row.delete();

@@ -108,6 +108,13 @@ public class Row implements CachedObject {
     protected Row() {}
 
     /**
+     *  Constructor for MEMORY table Row. .
+     */
+    public Row(Object[] o) {
+        oData = o;
+    }
+
+    /**
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
      *  are not yet linked with other Nodes in the AVL indexes.
      */
