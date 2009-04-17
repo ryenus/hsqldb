@@ -116,6 +116,10 @@ public class CachedDataRow extends CachedRow {
         nPrimaryNode = primary;
     }
 
+    public int getRealSize(RowOutputInterface out) {
+        return out.getSize((CachedRow) this);
+    }
+
     /**
      *  Writes the data to disk. Unlike CachedRow, hasChanged is never set
      *  to true when changes are made to the Nodes. (Nodes are in-memory).

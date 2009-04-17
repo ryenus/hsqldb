@@ -67,6 +67,8 @@ public interface CachedObject {
 
     void destroy();
 
+    int getRealSize(RowOutputInterface out);
+
     void write(RowOutputInterface out);
 
     void write(RowOutputInterface out, IntLookup lookup);

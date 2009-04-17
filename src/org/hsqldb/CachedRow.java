@@ -287,6 +287,14 @@ public class CachedRow extends Row {
         }
     }
 
+    public int getRealSize(RowOutputInterface out) {
+
+        int size = out.getSize((CachedRow) this)
+                   + tTable.getIndexCount() * DiskNode.SIZE_IN_BYTE;
+
+        return size;
+    }
+
     /**
      * Used exclusively by Cache to save the row to disk. New implementation in
      * 1.7.2 writes out only the Node data if the table row data has not

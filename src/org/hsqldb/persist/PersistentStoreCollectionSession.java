@@ -88,6 +88,10 @@ implements PersistentStoreCollection {
                     rowStoreMapSession.put(table.getPersistenceId(), store);
                 }
                 break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "PersistentStoreCollection");
         }
     }
 
@@ -134,7 +138,6 @@ implements PersistentStoreCollection {
     }
 
     public PersistentStore getStore(long persistenceId) {
-
         throw Error.runtimeError(ErrorCode.U_S0500, "PSCS");
     }
 

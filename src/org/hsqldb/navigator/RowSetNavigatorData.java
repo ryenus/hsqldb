@@ -67,7 +67,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
     boolean                isClosed;
     int                    visibleColumnCount;
     boolean                isSimpleAggregate;
-    Row                    simpleAggregateRow;
+    Object[]               simpleAggregateData;
 
     //
     boolean reindexTable;
@@ -567,10 +567,19 @@ public class RowSetNavigatorData extends RowSetNavigator {
         return true;
     }
 
-    public Row getGroupRow(Object[] data) throws HsqlException {
+    /**
+     * Special case for isSimpleAggregate cannot use index lookup.
+     */
+    public Object[] getGroupData(Object[] data) throws HsqlException {
 
-        if (simpleAggregateRow != null) {
-            return simpleAggregateRow;
+        if (isSimpleAggregate) {
+            if (simpleAggregateData == null) {
+                simpleAggregateData = data;
+
+                return null;
+            }
+
+            return simpleAggregateData;
         }
 
         RowIterator it = groupIndex.findFirstRow(session, store, data);
@@ -578,11 +587,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         if (it.hasNext()) {
             Row row = it.getNextRow();
 
-            if (isSimpleAggregate) {
-                simpleAggregateRow = row;
-            }
-
-            return row;
+            return row.getData();
         }
 
         return null;

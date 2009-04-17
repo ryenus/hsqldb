@@ -292,6 +292,10 @@ public class DiskNode extends Node {
         return this == n || (n != null && getPos() == ((DiskNode) n).getPos());
     }
 
+    public int getRealSize(RowOutputInterface out) {
+        return DiskNode.SIZE_IN_BYTE;
+    }
+
     public void write(RowOutputInterface out) {
 
         out.writeInt(iBalance);

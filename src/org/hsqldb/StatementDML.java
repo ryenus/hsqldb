@@ -46,6 +46,7 @@ import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.navigator.RowSetNavigatorLinkedList;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
+import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.types.Type;
 
 /**
@@ -56,6 +57,11 @@ import org.hsqldb.types.Type;
  * @since 1.9.0
  */
 public class StatementDML extends StatementDMQL {
+
+    StatementDML(int type, int group, HsqlName schemaName) {
+
+        super(type, group, schemaName);
+    }
 
     /**
      * Instantiate this as a DELETE statement
@@ -191,7 +197,6 @@ public class StatementDML extends StatementDMQL {
     }
 
     // this fk references -> other  :  other read lock
-    // other fk references this :  if constraint trigger action  : other write lock
     void getTableNamesForRead(OrderedHashSet set) {
 
         if (!baseTable.isTemp()) {
@@ -199,13 +204,7 @@ public class StatementDML extends StatementDMQL {
                 set.add(baseTable.fkConstraints[i].getMain().getName());
             }
 
-            for (int i = 0; i < baseTable.triggerList.length; i++) {
-                TriggerDef td = baseTable.triggerList[i];
-
-                for (int j = 0; j < td.statements.length; j++) {
-                    set.addAll(td.statements[j].getTableNamesForRead());
-                }
-            }
+            getTriggerTableNames(set, false);
         }
 
         for (int i = 0; i < rangeVariables.length; i++) {
@@ -230,6 +229,7 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
+    // other fk references this :  if constraint trigger action  : other write lock
     void getTableNamesForWrite(OrderedHashSet set) {
 
         if (baseTable.isTemp()) {
@@ -242,11 +242,53 @@ public class StatementDML extends StatementDMQL {
             set.add(baseTable.fkPath[i].getMain().getName());
         }
 
+        getTriggerTableNames(set, true);
+    }
+
+    void getTriggerTableNames(OrderedHashSet set, boolean write) {
+
         for (int i = 0; i < baseTable.triggerList.length; i++) {
             TriggerDef td = baseTable.triggerList[i];
 
+            switch (type) {
+
+                case StatementTypes.INSERT :
+                    if (td.getPrivilegeType() == GrantConstants.INSERT) {
+                        break;
+                    }
+
+                    continue;
+                case StatementTypes.UPDATE_WHERE :
+                    if (td.getPrivilegeType() == GrantConstants.UPDATE) {
+                        break;
+                    }
+
+                    continue;
+                case StatementTypes.DELETE_WHERE :
+                    if (td.getPrivilegeType() == GrantConstants.DELETE) {
+                        break;
+                    }
+
+                    continue;
+                case StatementTypes.MERGE :
+                    if (td.getPrivilegeType() == GrantConstants.INSERT
+                            || td.getPrivilegeType()
+                               == GrantConstants.UPDATE) {
+                        break;
+                    }
+
+                    continue;
+                default :
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "StatementDML");
+            }
+
             for (int j = 0; j < td.statements.length; j++) {
-                td.statements[j].getTableNamesForRead(set);
+                if (write) {
+                    set.addAll(td.statements[j].getTableNamesForRead());
+                } else {
+                    set.addAll(td.statements[j].getTableNamesForRead());
+                }
             }
         }
     }

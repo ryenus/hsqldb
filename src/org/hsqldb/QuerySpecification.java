@@ -1136,14 +1136,14 @@ public class QuerySpecification extends QueryExpression {
                 data[i] = it.getRowidObject();
             }
 
-            Row row = null;
+            Object[] groupData = null;
 
             if (isAggregated || isGrouped) {
-                row = navigator.getGroupRow(data);
-            }
+                groupData = navigator.getGroupData(data);
 
-            if (row != null) {
-                data = row.getData();
+                if (groupData != null) {
+                    data = groupData;
+                }
             }
 
             for (int i = indexStartAggregates; i < indexLimitExpressions;
@@ -1153,7 +1153,7 @@ public class QuerySpecification extends QueryExpression {
                         .updateAggregatingValue(session, data[i]);
             }
 
-            if (row == null) {
+            if (groupData == null) {
                 navigator.add(data);
             }
 

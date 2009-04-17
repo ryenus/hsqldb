@@ -175,6 +175,10 @@ public abstract class Node implements CachedObject {
 
     public void destroy() {}
 
+    public int getRealSize(RowOutputInterface out) {
+        return 0;
+    }
+
     abstract public void write(RowOutputInterface out);
 
     public void write(RowOutputInterface out, IntLookup lookup) {}
