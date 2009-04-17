@@ -267,6 +267,10 @@ public class Row implements CachedObject {
 
     public void setInMemory(boolean in) {}
 
+    public int getRealSize(RowOutputInterface out) {
+        return 0;
+    }
+
     public void write(RowOutputInterface out) {}
 
     public void write(RowOutputInterface out, IntLookup lookup) {}

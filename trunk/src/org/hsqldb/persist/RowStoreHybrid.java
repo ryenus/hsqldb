@@ -151,8 +151,7 @@ public class RowStoreHybrid implements PersistentStore {
     public void add(CachedObject object) throws HsqlException {
 
         if (isCached) {
-            int size = cache.rowOut.getSize((CachedRow) object)
-                       + table.getIndexCount() * DiskNode.SIZE_IN_BYTE;
+            int size = object.getRealSize(cache.rowOut);
 
             size = ((size + cache.cachedRowPadding - 1) / cache.cachedRowPadding)
                    * cache.cachedRowPadding;

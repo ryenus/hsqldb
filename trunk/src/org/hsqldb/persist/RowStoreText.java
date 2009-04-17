@@ -58,10 +58,7 @@ public class RowStoreText extends RowStoreCached implements PersistentStore {
 
     public void add(CachedObject object) throws HsqlException {
 
-        int size = cache.rowOut.getSize((CachedDataRow) object);
-
-        size = ((size + cache.cachedRowPadding - 1) / cache.cachedRowPadding)
-               * cache.cachedRowPadding;
+        int size = object.getRealSize(cache.rowOut);
 
         object.setStorageSize(size);
         cache.add(object);

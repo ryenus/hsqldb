@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class StatementInsert extends StatementDMQL {
+public class StatementInsert extends StatementDML {
 
     /**
      * Instantiate this as an INSERT_VALUES statement.
@@ -58,7 +58,6 @@ public class StatementInsert extends StatementDMQL {
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
               session.currentSchema);
 
-        this.schemaName             = session.currentSchema;
         this.targetTable            = targetTable;
         this.baseTable              = targetTable.getBaseTable();
         this.insertColumnMap        = columnMap;
@@ -80,7 +79,6 @@ public class StatementInsert extends StatementDMQL {
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
               session.currentSchema);
 
-        this.schemaName             = session.currentSchema;
         this.targetTable            = targetTable;
         this.baseTable              = targetTable.getBaseTable();
         this.insertColumnMap        = columnMap;

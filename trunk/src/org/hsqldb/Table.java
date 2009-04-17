@@ -228,6 +228,7 @@ public class Table extends TableBase implements SchemaObject {
                 break;
 
             case RESULT_TABLE :
+                persistenceScope = SCOPE_SESSION;
                 isSessionBased = true;
                 break;
 
@@ -1993,13 +1994,13 @@ public class Table extends TableBase implements SchemaObject {
         switch (tableType) {
 
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE : {
+            case TableBase.SYSTEM_TABLE :
 
-//            case TableBase.VIEW_TABLE :
-//            case TableBase.TEMP_TABLE :
+            case TableBase.VIEW_TABLE :
+            case TableBase.TEMP_TABLE : {
                 Index index = createIndexForColumns(cols);
 
-                //               return index;
+                return index;
             }
         }
 
@@ -2038,10 +2039,19 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        if (selected == null
-                && (tableType == SYSTEM_SUBQUERY
-                    || tableType == SYSTEM_TABLE)) {
-            selected = createIndexForColumns(set.toArray());
+        if (selected != null) {
+            return selected;
+        }
+
+        switch (tableType) {
+
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.SYSTEM_TABLE :
+
+            case TableBase.VIEW_TABLE :
+            case TableBase.TEMP_TABLE : {
+                selected = createIndexForColumns(set.toArray());
+            }
         }
 
         return selected;
