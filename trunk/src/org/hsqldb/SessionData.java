@@ -97,40 +97,32 @@ public class SessionData {
         }
 
         if (table.isSessionBased) {
-            return persistentStoreCollection.getSessionStore(table,
-                    table.getPersistenceId());
+            return persistentStoreCollection.getStore(table);
         }
 
-        return database.persistentStoreCollection.getStore(
-            table.getPersistenceId());
+        return database.persistentStoreCollection.getStore(table);
     }
 
-    public PersistentStore getSubqueryRowStore(TableBase table,
-            boolean isCached) {
+    public PersistentStore getSubqueryRowStore(TableBase table)
+    throws HsqlException {
 
-        RowStoreHybrid store =
-            (RowStoreHybrid) persistentStoreCollection.getSessionStore(table,
-                table.getPersistenceId());
+        PersistentStore store = persistentStoreCollection.getStore(table);
 
-        if (store != null) {
-            store.removeAll();
+        store.removeAll();
 
-            return store;
-        }
-
-        return new RowStoreHybrid(session, persistentStoreCollection, table,
-                                  isCached);
+        return store;
     }
 
     public PersistentStore getNewResultRowStore(TableBase table,
             boolean isCached) {
 
-        if (isCached) {
-            return new RowStoreHybrid(session, persistentStoreCollection,
-                                      table);
-        } else {
-            return new RowStoreMemory(persistentStoreCollection, table);
-        }
+//        return persistentStoreCollection.getStore(table);
+        try {
+            return session.database.logger.newStore(session,
+                    persistentStoreCollection, table, isCached);
+        } catch (HsqlException e) {}
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "SessionData");
     }
 
     // result
@@ -201,7 +193,7 @@ public class SessionData {
                 hold = true;
             }
         } else {
-            if (result.getNavigator().isDiskBased()) {
+            if (!result.getNavigator().isMemory()) {
                 hold = true;
             }
         }

@@ -712,8 +712,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // calculated column values
         Integer scope;           // { temp, transaction, session }
@@ -913,8 +912,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // calculated column values
         String tableCatalog;
@@ -1089,8 +1087,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // calculated column values
         String  pkTableCatalog;
@@ -1303,8 +1300,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // calculated column values
         String  tableCatalog;
@@ -1471,8 +1467,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // calculated column values
         String tableCatalog;
@@ -1809,8 +1804,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                Integer pType, String specificName,
                                String origin) throws HsqlException {
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // column number mappings
         final int icat          = 0;
@@ -2045,8 +2039,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                String specificName,
                                int jdbcSequence) throws HsqlException {
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // column number mappings
         final int icat       = 0;
@@ -2184,10 +2177,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
-        Iterator schemas;
-        Object[] row;
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+        Iterator        schemas;
+        Object[]        row;
 
         // Initialization
         schemas = database.schemaManager.fullSchemaNamesIterator();
@@ -2291,8 +2283,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // intermediate holders
         Iterator    tables;
@@ -2408,9 +2399,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
-        Object[] row;
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+        Object[]        row;
 
         for (int i = 0; i < tableTypes.length; i++) {
             row    = t.getEmptyRowData();
@@ -2517,8 +2507,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         Result rs = sys.executeDirectStatement(
@@ -2721,11 +2710,10 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
-        Object[]   row;
-        int        type;
-        DITypeInfo ti;
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+        Object[]        row;
+        int             type;
+        DITypeInfo      ti;
 
         //-----------------------------------------
         // Same as SYSTEM_TYPEINFO
@@ -2899,8 +2887,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // Intermediate holders
         HsqlArrayList users;
@@ -2986,8 +2973,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
 // calculated column values
         String  tableCatalog;
@@ -3190,8 +3176,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         //
         final int sequence_catalog           = 0;
@@ -3316,8 +3301,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // calculated column values
         String  tableCatalog;
@@ -3431,8 +3415,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
 
         // intermediate holders
         Iterator  tables;
@@ -3543,9 +3526,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(t.getPersistenceId());
-        Object[] row = t.getEmptyRowData();
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+        Object[]        row   = t.getEmptyRowData();
 
         row[0] = database.getCatalogName().name;
 

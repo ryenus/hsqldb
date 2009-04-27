@@ -48,6 +48,8 @@ public interface PersistentStore {
     int INT_STORE_SIZE  = 4;
     int LONG_STORE_SIZE = 8;
 
+    boolean isMemory();
+
     /** get object */
     CachedObject get(int key);
 
@@ -58,9 +60,6 @@ public interface PersistentStore {
 
     /** add new object */
     void add(CachedObject object) throws HsqlException;
-
-    /** add object previously removed from persistnce */
-    void restore(CachedObject object) throws HsqlException;
 
     CachedObject get(RowInputInterface in) throws HsqlException;
 
@@ -93,7 +92,7 @@ public interface PersistentStore {
 
     void setAccessor(Index key, CachedObject accessor);
 
-    void setAccessor(Index key, int accessor);
+    void setAccessor(Index key, int accessor) throws HsqlException;
 
     void resetAccessorKeys(Index[] keys) throws HsqlException;
 }

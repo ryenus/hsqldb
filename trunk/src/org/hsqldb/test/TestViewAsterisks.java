@@ -76,6 +76,7 @@ public class TestViewAsterisks extends TestBase {
             executeStatement("DROP TABLE ABC IF EXISTS CASCADE");
             executeStatement("DROP TABLE TABLE_A IF EXISTS CASCADE");
             executeStatement("DROP TABLE TABLE_B IF EXISTS CASCADE");
+            executeStatement("DROP VIEW V1 IF EXISTS CASCADE"); // V1 is created by a previous test case
             executeStatement(
                 "CREATE TABLE ABC (ID INTEGER NOT NULL PRIMARY KEY, A VARCHAR(50), B VARCHAR(50), C VARCHAR(50))");
             executeStatement("INSERT INTO ABC VALUES (1, 'a', 'b', 'c')");

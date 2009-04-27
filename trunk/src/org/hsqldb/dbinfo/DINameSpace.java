@@ -260,6 +260,8 @@ final class DINameSpace {
                               : builtin.contains(name);
     }
 
+/** @todo - fredt - there are no class grants in 1.9 */
+
     /**
      * @return a composite <code>Iterator</code>
      * @param session The context in which to produce the iterator
@@ -278,11 +280,11 @@ final class DINameSpace {
         String   className;
 
         out          = new WrapperIterator();
-        classNameSet = session.getGrantee().getGrantedClassNames(true);
+//        classNameSet = session.getGrantee().getGrantedClassNames(true);
 
-        addBuiltinToSet(classNameSet);
+//        addBuiltinToSet(classNameSet);
 
-        classNames = classNameSet.iterator();
+//        classNames = classNameSet.iterator();
 
 /*
         while (classNames.hasNext()) {

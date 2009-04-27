@@ -373,7 +373,7 @@ public class TableBase {
 
         long id = database.persistentStoreCollection.getNextId();
         Index newindex = new Index(name, id, this, pkcols, null, null,
-                                   pktypes, true, true, false);
+                                   pktypes, true, true, true, false);
 
         try {
             addIndex(newindex);
@@ -414,7 +414,7 @@ public class TableBase {
 
         long id = database.persistentStoreCollection.getNextId();
         Index newIndex = new Index(name, id, this, cols, descending,
-                                   nullsLast, types, unique, constraint,
+                                   nullsLast, types, false, unique, constraint,
                                    forward);
 
         return newIndex;
@@ -532,7 +532,7 @@ public class TableBase {
 
         try {
             for (; i < indexList.length; i++) {
-                indexList[i].insert(null, store, row, i);
+                indexList[i].insert(null, store, row);
             }
         } catch (HsqlException e) {
 
@@ -563,7 +563,7 @@ public class TableBase {
             row.clearNonPrimaryNodes();
 
             for (int i = 1; i < indexList.length; i++) {
-                indexList[i].insert(null, store, row, i);
+                indexList[i].insert(null, store, row);
             }
         }
     }

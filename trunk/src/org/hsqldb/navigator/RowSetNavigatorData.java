@@ -63,9 +63,9 @@ public class RowSetNavigatorData extends RowSetNavigator {
     RowIterator            iterator;
     Row                    currentRow;
     int                    maxMemoryRowCount;
-    boolean                isDiskBased;
     boolean                isClosed;
     int                    visibleColumnCount;
+    boolean                isAggregate;
     boolean                isSimpleAggregate;
     Object[]               simpleAggregateData;
 
@@ -88,6 +88,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         table              = select.resultTable.duplicate();
         table.store = store = session.sessionData.getNewResultRowStore(table,
                 !select.isAggregated);
+        isAggregate       = select.isAggregated;
         isSimpleAggregate = select.isAggregated && !select.isGrouped;
         reindexTable      = select.isGrouped;
         mainIndex         = select.mainIndex;
@@ -181,7 +182,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
                 data = (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
                         table.getColumnCount());
             } else {
-                Object[] newData = new Object[visibleColumnCount];
+                Object[] newData = new Object[table.getColumnCount()];
 
                 ArrayUtil.projectRow(data, columnMap, newData);
 
@@ -253,8 +254,8 @@ public class RowSetNavigatorData extends RowSetNavigator {
         isClosed = true;
     }
 
-    public boolean isDiskBased() {
-        return isDiskBased;
+    public boolean isMemory() {
+        return store.isMemory();
     }
 
     public void read(RowInputInterface in,
@@ -586,6 +587,10 @@ public class RowSetNavigatorData extends RowSetNavigator {
 
         if (it.hasNext()) {
             Row row = it.getNextRow();
+
+            if (isAggregate) {
+                row.setChanged();
+            }
 
             return row.getData();
         }

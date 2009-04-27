@@ -160,7 +160,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                         currentTable = db.schemaManager.getUserTable(session,
                                 tablename, schema);
                         currentStore = db.persistentStoreCollection.getStore(
-                            currentTable.getPersistenceId());
+                            currentTable);
                     }
 
                     currentTable.insertFromScript(currentStore, rowData);
@@ -237,8 +237,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
             currentTable = db.schemaManager.getUserTable(session, name,
                     schema);
-            currentStore = db.persistentStoreCollection.getStore(
-                currentTable.getPersistenceId());
+            currentStore = db.persistentStoreCollection.getStore(currentTable);
 
             Type[] colTypes;
 

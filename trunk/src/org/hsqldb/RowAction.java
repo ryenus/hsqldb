@@ -59,7 +59,7 @@ public class RowAction extends RowActionBase {
         if (action == null) {
             action = new RowAction(session, table, type);
 
-            if (!(row instanceof CachedRow)) {
+            if (row.isMemory()) {
                 action.memoryRow = row;
             }
 
@@ -476,7 +476,7 @@ public class RowAction extends RowActionBase {
         RowActionBase tail   = null;
         boolean       exists = true;
 
-//* debug 190
+/* debug 190
         if (row.rowActionB == null) {
 
 //            row.rowActionB = this.duplicate(timestamp);
@@ -490,7 +490,8 @@ public class RowAction extends RowActionBase {
 //            tailB.next = this.duplicate(timestamp);
         }
 
-//* debug 190
+// debug 190
+*/
         if (type == RowActionBase.ACTION_DELETE_FINAL
                 || type == RowActionBase.ACTION_NONE) {
             return;

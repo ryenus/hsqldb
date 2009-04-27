@@ -45,6 +45,8 @@ public interface CachedObject {
 
     CachedObject[] emptyArray = new CachedObject[]{};
 
+    boolean isMemory();
+
     void setStorageSize(int size);
 
     int getStorageSize();

@@ -82,7 +82,7 @@ import org.hsqldb.types.Type;
 
 /* $Id$ */
 
-//boucherb@users 20051207 - patch 1.8.0.x - initial JDBC 4.0 support work
+//boucherb@users 20051207 - patch 1.9.0 - initial JDBC 4.0 support work
 //fredt@users    20060431 - patch 1.9.0 rewrite with RowSetNavigator
 //boucherb@users 20060522 - doc   1.9.0 - full synch up to Mustang Build 84
 // Revision 1.21  2006/07/12 12:27:25  boucherb
@@ -1584,7 +1584,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.8.0.x, HSQLDB does an exhaustive search, backed by
+     * Starting with 1.9.x, HSQLDB does an exhaustive search, backed by
      * a cache lookup (to improve performance for subsequent invocations with
      * a given input). <p>
      *

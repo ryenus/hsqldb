@@ -115,7 +115,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
 
             String          schema = session.getSchemaName(currentSchema);
             Table t = db.schemaManager.getUserTable(session, s, schema);
-            PersistentStore store  = db.persistentStoreCollection.getStore(t.getPersistenceId());
+            PersistentStore store  = db.persistentStoreCollection.getStore(t);
             int             j      = 0;
 
             for (j = 0; ; j++) {

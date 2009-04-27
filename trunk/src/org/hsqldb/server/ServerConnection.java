@@ -699,6 +699,7 @@ class ServerConnection implements Runnable {
                         org.hsqldb.navigator.RowSetNavigator navigator =
                             rOut.getNavigator();
 
+                        // todo - fredt - this check may not hold
                         if (!(navigator
                                 instanceof org.hsqldb.navigator
                                     .RowSetNavigatorData)) {
@@ -1285,6 +1286,7 @@ class ServerConnection implements Runnable {
                     org.hsqldb.navigator.RowSetNavigator navigator =
                         rOut.getNavigator();
 
+                    // todo - fredt - this check may not hold
                     if (!(navigator
                             instanceof org.hsqldb.navigator
                                 .RowSetNavigatorData)) {

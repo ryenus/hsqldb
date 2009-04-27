@@ -31,10 +31,10 @@
 
 package org.hsqldb.rowio;
 
-import org.hsqldb.CachedRow;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.types.Type;
+import org.hsqldb.Row;
 
 /**
  * Public interface for writing the data for a database row.
@@ -72,7 +72,9 @@ public interface RowOutputInterface {
                    int[] primarykeys);
 
     // independent of the this object, calls only a static method
-    int getSize(CachedRow row);
+    int getSize(Row row);
+
+    int getStorageSize(int size);
 
     // returns the underlying HsqlByteArrayOutputStream
     HsqlByteArrayOutputStream getOutputStream();

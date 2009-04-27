@@ -98,8 +98,7 @@ public class Row implements CachedObject {
     public volatile RowAction rowAction;
 
     //* debug 190
-    protected RowActionBase rowActionB;
-
+    // protected RowActionBase rowActionB;
     //* debug 190
 
     /**
@@ -207,9 +206,9 @@ public class Row implements CachedObject {
         return isDeleted;
     }
 
-    public void setStorageSize(int size) {
-        ;
-    }
+    public void setChanged() {}
+
+    public void setStorageSize(int size) {}
 
     public int getStorageSize() {
         return 0;
@@ -221,6 +220,10 @@ public class Row implements CachedObject {
 
     public Object getRowidObject() {
         return ValuePool.getLong(getId());
+    }
+
+    public boolean isMemory() {
+        return true;
     }
 
     public int getPos() {
@@ -269,6 +272,10 @@ public class Row implements CachedObject {
 
     public int getRealSize(RowOutputInterface out) {
         return 0;
+    }
+
+    public TableBase getTable() {
+        return null;
     }
 
     public void write(RowOutputInterface out) {}

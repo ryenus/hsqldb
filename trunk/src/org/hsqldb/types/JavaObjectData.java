@@ -61,12 +61,14 @@ import org.hsqldb.lib.InOutUtil;
  * PreparedStatement variables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class JavaObjectData {
 
     private byte[] data;
+
+    JavaObjectData() {}
 
     /**
      * Constructor used inside the engine when an already serialized
@@ -87,7 +89,6 @@ public class JavaObjectData {
         try {
             data = InOutUtil.serialize(o);
         } catch (Exception e) {
-
             throw Error.error(ErrorCode.X_22521, e.toString());
         }
     }
@@ -111,7 +112,6 @@ public class JavaObjectData {
         try {
             return InOutUtil.deserialize(data);
         } catch (Exception e) {
-
             throw Error.error(ErrorCode.X_22521, e.toString());
         }
     }

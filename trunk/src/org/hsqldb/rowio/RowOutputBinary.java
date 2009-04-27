@@ -34,7 +34,7 @@ package org.hsqldb.rowio;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.hsqldb.CachedRow;
+import org.hsqldb.Row;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.Types;
@@ -64,13 +64,20 @@ public class RowOutputBinary extends RowOutputBase {
 
     private static final int INT_STORE_SIZE = 4;
     int                      storageSize;
+    final int                scale;
 
     public RowOutputBinary() {
+
         super();
+
+        scale = 1;
     }
 
-    public RowOutputBinary(int initialSize) {
+    public RowOutputBinary(int initialSize, int scale) {
+
         super(initialSize);
+
+        this.scale = scale;
     }
 
     /**
@@ -79,7 +86,10 @@ public class RowOutputBinary extends RowOutputBase {
      * @param buffer byte[]
      */
     public RowOutputBinary(byte[] buffer) {
+
         super(buffer);
+
+        scale = 1;
     }
 
 // fredt@users - comment - methods for writing column type, name and data size
@@ -137,7 +147,7 @@ public class RowOutputBinary extends RowOutputBase {
      * @return  size of byte array
      * @exception  HsqlException When data is inconsistent
      */
-    public int getSize(CachedRow row) {
+    public int getSize(Row row) {
 
         Object[] data  = row.getData();
         Type[]   types = row.getTable().getColumnTypes();
@@ -146,14 +156,10 @@ public class RowOutputBinary extends RowOutputBase {
         return INT_STORE_SIZE + getSize(data, cols, types);
     }
 
-    public static int getRowSize(CachedRow row) {
-
-        Object[] data  = row.getData();
-        Type[]   types = row.getTable().getColumnTypes();
-        int      cols  = row.getTable().getDataColumnCount();
-
-        return getSize(data, cols, types);
-    }
+    public int getStorageSize(int size) {
+        return scale == 1 ? size
+                          : ((size + scale - 1) / scale) * scale;
+   }
 
     protected void writeFieldType(Type type) {
         write(1);
@@ -380,7 +386,6 @@ public class RowOutputBinary extends RowOutputBase {
                     case Types.SQL_BLOB :
                         s += 8;
                         break;
-
 
                     case Types.OTHER :
                         JavaObjectData jo = (JavaObjectData) o;

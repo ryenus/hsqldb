@@ -41,7 +41,6 @@ import org.hsqldb.Row;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
-import org.hsqldb.index.DiskNode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
@@ -65,48 +64,43 @@ public class RowStoreHybrid implements PersistentStore {
     CachedObject[]                  accessorList = CachedObject.emptyArray;
     private int                     maxMemoryRowCount;
     private int                     memoryRowCount;
+    private boolean                 useCache;
     private boolean                 isCached;
     private final boolean           isTempTable;
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
-    public RowStoreHybrid(Session session, PersistentStoreCollection manager,
-                          TableBase table) {
+    public RowStoreHybrid(Session session,
+                             PersistentStoreCollection manager,
+                             TableBase table, boolean useCache) {
 
         this.session           = session;
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
         this.rowIdMap          = new IntKeyHashMapConcurrent();
+        this.useCache          = useCache;
         isTempTable            = table.getTableType() == TableBase.TEMP_TABLE;
 
-        resetAccessorKeys(table.getIndexList());
-        manager.setStore(table, this);
-    }
-
-    public RowStoreHybrid(Session session, PersistentStoreCollection manager,
-                          TableBase table, boolean isCached) {
-
-        this.session           = session;
-        this.manager           = manager;
-        this.table             = table;
-        this.maxMemoryRowCount = session.getResultMemoryRowCount();
-        this.rowIdMap          = new IntKeyHashMapConcurrent();
-        isTempTable            = table.getTableType() == TableBase.TEMP_TABLE;
-
-        if (isCached) {
+// temp code to force use of cache
+/*
+        if (useCache) {
             cache = session.sessionData.getResultCache();
 
             if (cache != null) {
-                this.maxMemoryRowCount = Integer.MAX_VALUE;
-                this.isCached          = true;
+                isCached = useCache;
 
                 cache.storeCount++;
             }
         }
-
+*/
+//
         resetAccessorKeys(table.getIndexList());
         manager.setStore(table, this);
+    }
+
+    public boolean isMemory() {
+        return !isCached;
     }
 
     public CachedObject get(int i) {
@@ -153,20 +147,10 @@ public class RowStoreHybrid implements PersistentStore {
         if (isCached) {
             int size = object.getRealSize(cache.rowOut);
 
-            size = ((size + cache.cachedRowPadding - 1) / cache.cachedRowPadding)
-                   * cache.cachedRowPadding;
+            size = cache.rowOut.getStorageSize(size);
 
             object.setStorageSize(size);
             cache.add(object);
-        }
-    }
-
-    public void restore(CachedObject row) throws HsqlException {
-
-        row.restore();
-
-        if (isCached) {
-            cache.restore(row);
         }
     }
 
@@ -203,7 +187,7 @@ public class RowStoreHybrid implements PersistentStore {
         } else {
             memoryRowCount++;
 
-            if (memoryRowCount > maxMemoryRowCount) {
+            if (useCache && memoryRowCount > maxMemoryRowCount) {
                 changeToDiskTable();
 
                 return getNewCachedObject(session, object);
@@ -285,6 +269,7 @@ public class RowStoreHybrid implements PersistentStore {
 
         Index index    = (Index) key;
         int   position = index.getPosition();
+
         return accessorList[position];
     }
 

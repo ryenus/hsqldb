@@ -80,9 +80,6 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.persist.RowStoreCached;
-import org.hsqldb.persist.RowStoreMemory;
-import org.hsqldb.persist.RowStoreText;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.ValuePool;
@@ -229,7 +226,7 @@ public class Table extends TableBase implements SchemaObject {
 
             case RESULT_TABLE :
                 persistenceScope = SCOPE_SESSION;
-                isSessionBased = true;
+                isSessionBased   = true;
                 break;
 
             default :
@@ -279,24 +276,9 @@ public class Table extends TableBase implements SchemaObject {
 
     public void createDefaultStore() throws HsqlException {
 
-        switch (tableType) {
-
-            case CACHED_TABLE :
-                store = new RowStoreCached(database.persistentStoreCollection,
-                                           database.logger.getCache(), this);
-                break;
-
-            case MEMORY_TABLE :
-            case SYSTEM_TABLE :
-                store = new RowStoreMemory(database.persistentStoreCollection,
-                                           this);
-                break;
-
-            case TEXT_TABLE :
-                store = new RowStoreText(database.persistentStoreCollection,
-                                         this);
-                break;
-        }
+        store = database.logger.newStore(null,
+                                         database.persistentStoreCollection,
+                                         this, true);
     }
 
     public int getType() {
@@ -1995,7 +1977,6 @@ public class Table extends TableBase implements SchemaObject {
 
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.SYSTEM_TABLE :
-
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
                 Index index = createIndexForColumns(cols);
@@ -2047,7 +2028,6 @@ public class Table extends TableBase implements SchemaObject {
 
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.SYSTEM_TABLE :
-
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
                 selected = createIndexForColumns(set.toArray());
@@ -2063,8 +2043,8 @@ public class Table extends TableBase implements SchemaObject {
      */
     public final int[] getIndexRootsArray() {
 
-        PersistentStore store = database.persistentStoreCollection.getStore(
-            this.getPersistenceId());
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(this);
         int[] roots = new int[getIndexCount()];
 
         for (int i = 0; i < getIndexCount(); i++) {
@@ -2107,8 +2087,8 @@ public class Table extends TableBase implements SchemaObject {
             throw Error.error(ErrorCode.X_42501, tableName.name);
         }
 
-        PersistentStore store = database.persistentStoreCollection.getStore(
-            this.getPersistenceId());
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(this);
 
         for (int i = 0; i < getIndexCount(); i++) {
             store.setAccessor(indexList[i], roots[i]);
@@ -2269,7 +2249,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, data);
 
-        indexRow(session, row);
+        indexRow(session, store, row);
         session.addInsertAction(this, row);
     }
 
@@ -2284,7 +2264,7 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store = session.sessionData.getRowStore(this);
         Row             row   = (Row) store.getNewCachedObject(session, data);
 
-        indexRow(session, row);
+        indexRow(session, store, row);
         session.addInsertAction(this, row);
     }
 
@@ -2576,26 +2556,20 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    public void indexRow(Session session, Row row) throws HsqlException {
+    public void indexRow(Session session, PersistentStore store,
+                         Row row) throws HsqlException {
 
-        int             i     = 0;
-        PersistentStore store = session.sessionData.getRowStore(this);
+        int i = 0;
 
         try {
             for (; i < indexList.length; i++) {
-                indexList[i].insert(session, store, row, i);
+                indexList[i].insert(session, store, row);
             }
         } catch (HsqlException e) {
 
-            //* debug 190
-//            String tname = tableName.name;
-//            System.out.println(tname + " violation of unique index");
-            //* debug 190
             // unique index violation - rollback insert
             for (--i; i >= 0; i--) {
-                Node n = row.getNode(i);
-
-                indexList[i].delete(store, n);
+                indexList[i].delete(store, row);
             }
 
             row.delete();
@@ -2603,30 +2577,6 @@ public class Table extends TableBase implements SchemaObject {
             row.destroy();
 
             throw e;
-        }
-    }
-
-    void reindex(Session session, Index index) throws HsqlException {
-
-        PersistentStore store  = session.sessionData.getRowStore(this);
-        int             offset = -1;
-
-        for (int i = 0; i < indexList.length; i++) {
-            if (indexList[i] == index) {
-                offset = i;
-
-                break;
-            }
-        }
-
-        store.setAccessor(indexList[offset], null);
-
-        RowIterator it = rowIterator(session);
-
-        while (it.hasNext()) {
-            Row row = it.getNextRow();
-
-            indexList[offset].insert(session, store, row, offset);
         }
     }
 

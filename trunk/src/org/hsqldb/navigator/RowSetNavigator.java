@@ -288,8 +288,8 @@ public abstract class RowSetNavigator implements RangeIterator {
                               ResultMetaData meta)
                               throws HsqlException, IOException;
 
-    public boolean isDiskBased() {
-        return false;
+    public boolean isMemory() {
+        return true;
     }
 
     public int getRangePosition() {

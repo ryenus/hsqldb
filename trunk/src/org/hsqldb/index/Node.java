@@ -105,7 +105,11 @@ public abstract class Node implements CachedObject {
      *
      *  It must keep the links between the Nodes in different Indexes.
      */
-    public abstract void delete();
+    abstract public void delete();
+
+    public boolean isMemory() {
+        return true;
+    }
 
     /**
      *  File offset of Node. Used with CachedRow objects only

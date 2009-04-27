@@ -144,7 +144,7 @@ public class TransactionManager {
                     continue;
                 }
 
-                if (!canComplete && action.table.isTransactional() ) {
+                if (!canComplete && action.table.isTransactional()) {
                     continue;
                 }
 
@@ -194,8 +194,6 @@ public class TransactionManager {
                     }
                 }
             }
-
-
         } finally {
             writeLock.unlock();
             session.tempSet.clear();
@@ -311,7 +309,7 @@ public class TransactionManager {
                 if (action.table.tableType == TableBase.TEXT_TABLE) {
                     PersistentStore store =
                         database.persistentStoreCollection.getStore(
-                            action.table.getPersistenceId());
+                            action.table);
                     int type = action.getCommitType(session.actionTimestamp);
 
                     switch (type) {
@@ -502,6 +500,14 @@ public class TransactionManager {
 
             return action.canRead(session);
         }
+    }
+
+    public boolean canRead(Session session, int id) {
+
+        RowAction action = (RowAction) rowActionMap.get(id);
+
+        return action == null ? true
+                              : action.canRead(session);
     }
 
     void rowActionMapRemoveTransaction(Object[] list, int start, int limit) {

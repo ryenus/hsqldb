@@ -42,6 +42,7 @@ import org.hsqldb.Table;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.TableBase;
 
 /*
  * Implementation of PersistentStore for TEXT tables.
@@ -52,8 +53,12 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreText extends RowStoreCached implements PersistentStore {
 
-    public RowStoreText(PersistentStoreCollection manager, Table table) {
+    public RowStoreText(PersistentStoreCollection manager, TableBase table) {
         super(manager, null, table);
+    }
+
+    public boolean isMemory() {
+        return false;
     }
 
     public void add(CachedObject object) throws HsqlException {

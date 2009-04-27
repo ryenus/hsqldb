@@ -31,9 +31,11 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.HsqlException;
+
 public interface PersistentStoreCollection {
 
-    PersistentStore getStore(long persistenceId);
+    PersistentStore getStore(Object key) throws HsqlException;
 
     void setStore(Object key, PersistentStore store);
 }
