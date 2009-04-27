@@ -40,6 +40,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
+import org.hsqldb.TableBase;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.Error;
@@ -466,6 +467,58 @@ public class Logger {
         lockFile = null;
     }
 
+    public PersistentStore newStore(Session session,
+                                    PersistentStoreCollection collection,
+                                    TableBase table,
+                                    boolean diskBased) throws HsqlException {
+
+        switch (table.getTableType()) {
+
+            case TableBase.CACHED_TABLE :
+                DataFileCache cache = getCache();
+
+                if (cache == null) {
+                    break;
+                }
+
+                return new RowStoreCached(collection, cache, table);
+
+            case TableBase.MEMORY_TABLE :
+            case TableBase.SYSTEM_TABLE :
+                return new RowStoreMemory(collection, table);
+
+            case TableBase.TEXT_TABLE :
+                return new RowStoreText(collection, table);
+
+            case TableBase.RESULT_TABLE :
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.TEMP_TABLE :
+            case TableBase.VIEW_TABLE :
+            case TableBase.TRANSITION_TABLE :
+                if (session == null) {
+                    return null;
+                }
+
+                switch (table.persistenceScope) {
+
+                    case TableBase.SCOPE_STATEMENT :
+                        return new RowStoreHybrid(session, collection,
+                                                     table, diskBased);
+
+                    case TableBase.SCOPE_TRANSACTION :
+                        return new RowStoreHybrid(session, collection,
+                                                     table, diskBased);
+
+                    case TableBase.SCOPE_SESSION :
+                        return new RowStoreHybrid(session, collection,
+                                                     table, diskBased);
+                }
+        }
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "PSCS");
+    }
+
+    //
     static private SimpleDateFormat backupFileFormat =
         new SimpleDateFormat("yyyyMMdd'T'HHmmss");
     static private Character runtimeFileDelim = null;

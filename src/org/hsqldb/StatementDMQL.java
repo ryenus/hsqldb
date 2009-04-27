@@ -338,6 +338,10 @@ public abstract class StatementDMQL extends Statement {
 
         session.sessionContext.dynamicArguments = args;
 
+        if (subqueries.length == 0) {
+            return;
+        }
+
         HashSet subqueryPopFlags = new HashSet();
 
         for (int i = 0; i < subqueries.length; i++) {

@@ -192,6 +192,10 @@ public class CachedRow extends Row {
         return storageSize;
     }
 
+    public boolean isMemory() {
+        return false;
+    }
+
     /**
      * Sets the file position for the row
      *

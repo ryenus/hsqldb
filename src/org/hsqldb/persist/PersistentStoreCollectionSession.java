@@ -37,10 +37,12 @@ import org.hsqldb.Session;
 import org.hsqldb.TableBase;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
+import org.hsqldb.HsqlException;
 
 /**
- * Collection of PersistenceStore itmes currently used by session. An item is
- * retrieved based on key returned by TableBase.getPersistenceId().
+ * Collection of PersistenceStore itmes currently used by a session.
+ * An item is retrieved based on key returned by
+ * TableBase.getPersistenceId().
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
@@ -95,49 +97,49 @@ implements PersistentStoreCollection {
         }
     }
 
-    public PersistentStore getSessionStore(Object key, long persistenceId) {
+    public PersistentStore getStore(Object key) {
 
-        TableBase       table = (TableBase) key;
-        PersistentStore store;
+        try {
+            TableBase       table = (TableBase) key;
+            PersistentStore store;
 
-        switch (table.persistenceScope) {
+            switch (table.persistenceScope) {
 
-            case TableBase.SCOPE_STATEMENT :
-                store = (PersistentStore) rowStoreMapStatement.get(
-                    table.getPersistenceId());
+                case TableBase.SCOPE_STATEMENT :
+                    store = (PersistentStore) rowStoreMapStatement.get(
+                        table.getPersistenceId());
 
-                if (store == null) {
-                    store = new RowStoreHybrid(session, this, table);
-                }
+                    if (store == null) {
+                        store = session.database.logger.newStore(session,
+                                this, table, true);
+                    }
 
-                return store;
+                    return store;
 
-            case TableBase.SCOPE_TRANSACTION :
-                store = (PersistentStore) rowStoreMapTransaction.get(
-                    table.getPersistenceId());
+                case TableBase.SCOPE_TRANSACTION :
+                    store = (PersistentStore) rowStoreMapTransaction.get(
+                        table.getPersistenceId());
 
-                if (store == null) {
-                    store = new RowStoreHybrid(session, this, table);
-                }
+                    if (store == null) {
+                        store = session.database.logger.newStore(session,
+                                this, table, true);
+                    }
 
-                return store;
+                    return store;
 
-            case TableBase.SCOPE_SESSION :
-                store = (PersistentStore) rowStoreMapSession.get(
-                    table.getPersistenceId());
+                case TableBase.SCOPE_SESSION :
+                    store = (PersistentStore) rowStoreMapSession.get(
+                        table.getPersistenceId());
 
-                if (store == null) {
-                    store = new RowStoreHybrid(session, this, table);
-                }
+                    if (store == null) {
+                        store = session.database.logger.newStore(session,
+                                this, table, true);
+                    }
 
-                return store;
+                    return store;
+            }
+        } catch (HsqlException e) {}
 
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "PSCS");
-        }
-    }
-
-    public PersistentStore getStore(long persistenceId) {
         throw Error.runtimeError(ErrorCode.U_S0500, "PSCS");
     }
 

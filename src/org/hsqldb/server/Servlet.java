@@ -147,7 +147,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
         try {
             super.init(config);
 
-            rowOut = new RowOutputBinary(BUFFER_SIZE);
+            rowOut = new RowOutputBinary(BUFFER_SIZE, 1);
             rowIn  = new RowInputBinary(rowOut);
         } catch (ServletException e) {
             log(e.toString());

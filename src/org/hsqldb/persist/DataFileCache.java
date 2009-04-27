@@ -104,7 +104,7 @@ public class DataFileCache {
 
     // reusable input / output streams
     protected RowInputInterface  rowIn;
-    protected RowOutputInterface rowOut;
+    public    RowOutputInterface rowOut;
 
     //
     public long maxDataFileSize;
@@ -162,6 +162,12 @@ public class DataFileCache {
 
         if (cacheFileScale != 1) {
             cacheFileScale = 8;
+        }
+
+        cachedRowPadding = 8;
+
+        if (cacheFileScale > 8) {
+            cachedRowPadding = cacheFileScale;
         }
 
         cacheReadonly = database.isFilesReadOnly();
@@ -399,7 +405,7 @@ public class DataFileCache {
         if (rowOut == null
                 || rowOut.getOutputStream().getBuffer().length
                    > initIOBufferSize) {
-            rowOut = new RowOutputBinary(256);
+            rowOut = new RowOutputBinary(256, cachedRowPadding);
         }
 
         if (rowIn == null || rowIn.getBuffer().length > initIOBufferSize) {
@@ -687,7 +693,7 @@ public class DataFileCache {
             for (int i = offset; i < offset + count; i++) {
                 CachedObject r = rows[i];
 
-                saveRow(r);
+                saveRowNoLock(r);
 
                 rows[i] = null;
             }
@@ -714,6 +720,15 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            saveRowNoLock(row);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public void saveRowNoLock(CachedObject row) throws HsqlException {
+
+        try {
             setFileModified();
             rowOut.reset();
             row.write(rowOut);
@@ -722,8 +737,6 @@ public class DataFileCache {
                            rowOut.getOutputStream().size());
         } catch (IOException e) {
             throw new HsqlException(e.getMessage(), "", 0);
-        } finally {
-            writeLock.unlock();
         }
     }
 

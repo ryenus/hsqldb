@@ -42,6 +42,7 @@ import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
+import java.io.Serializable;
 
 /**
  * Implementation of SQL set functions (currently only aggregate functions).
@@ -54,7 +55,7 @@ import org.hsqldb.types.Type;
  * @since 1.7.2
  *
  */
-public class SetFunction {
+public class SetFunction implements Serializable {
 
     private HashSet distinctValues;
     private boolean isDistinct;

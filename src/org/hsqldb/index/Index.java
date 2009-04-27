@@ -102,9 +102,12 @@ import org.hsqldb.types.Type;
  * Index has a root Node that is linked with other nodes using Java Object
  * references or file pointers, depending on Node implementation.<p>
  * An Index object also holds information on table columns (in the form of int
- * indexes) that are covered by it.(fredt@users)
+ * indexes) that are covered by it.<p>
+ *
+ *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since Hypersonic SQL
  */
@@ -240,7 +243,7 @@ public class Index implements SchemaObject {
      */
     public Index(HsqlName name, long id, TableBase table, int[] columns,
                  boolean[] descending, boolean[] nullsLast, Type[] colTypes,
-                 boolean unique, boolean constraint, boolean forward) {
+                 boolean pk, boolean unique, boolean constraint, boolean forward) {
 
         persistenceId  = id;
         this.name      = name;
@@ -457,46 +460,62 @@ public class Index implements SchemaObject {
         }
     }
 
-    public void checkIndex(PersistentStore store) {
+    public void checkIndex(PersistentStore store) throws HsqlException {
 
         readLock.lock();
 
         try {
-            Node x = getAccessor(store);
+            Node p = getAccessor(store);
+            Node f = null;
 
-            checkNodes(x, null);
+            while (p != null) {
+                f = p;
+                checkNodes(store, p);
 
-            Node l = x;
-            Node r = null;
-
-            while (l != null) {
-                x = l;
-                l = x.getLeft(store);
-                r = x.getRight(store);
-
-                checkNodes(l, r);
+                p = p.getLeft(store);
             }
 
-            while (x != null) {
-                l = x.getLeft(store);
-                r = x.getLeft(store);
+            p = f;
 
-                checkNodes(l, r);
+            while (f != null) {
 
-                try {
-                    x = next(store, x);
-                } catch (HsqlException e) {}
+                checkNodes(store, f);
+
+                f = next(store, f);
             }
+
         } finally {
             readLock.unlock();
+        }
+    }
+
+    private void checkNodes(PersistentStore store, Node p) {
+
+        Node l = p.getLeft(store);
+        Node r = p.getRight(store);
+
+        if (l != null && l.getBalance() == -2) {
+            System.out.print("broken index - deleted");
+        }
+
+        if (r != null && r.getBalance() == -2) {
+            System.out.print("broken index -deleted");
+        }
+
+        if (l != null && !p.equals(l.getParent(store))) {
+            System.out.print("broken index - no parent");
+        }
+
+        if (r != null && !p.equals(r.getParent(store))) {
+            System.out.print("broken index - no parent");
         }
     }
 
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, PersistentStore store, Row row,
-                       int offset) throws HsqlException {
+    public void insert(Session session, PersistentStore store,
+                       Row row) throws HsqlException {
 
         Node    n;
         Node    x;
@@ -510,7 +529,7 @@ public class Index implements SchemaObject {
             x = n;
 
             if (n == null) {
-                store.setAccessor(this, row.getNode(offset));
+                store.setAccessor(this, row.getNode(position));
 
                 return;
             }
@@ -534,7 +553,7 @@ public class Index implements SchemaObject {
                 }
             }
 
-            x = set(store, x, isleft, row.getNode(offset));
+            x = set(store, x, isleft, row.getNode(position));
 
             balance(store, x, isleft);
         } finally {
@@ -1500,17 +1519,6 @@ public class Index implements SchemaObject {
 
             isleft = x.isFromLeft(store);
             x      = x.getParent(store);
-        }
-    }
-
-    private void checkNodes(Node l, Node r) {
-
-        if (l != null && l.getBalance() == -2) {
-            System.out.print("broken");
-        }
-
-        if (r != null && r.getBalance() == -2) {
-            System.out.print("broken");
         }
     }
 

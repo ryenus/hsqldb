@@ -74,12 +74,16 @@ public class RowStoreCached implements PersistentStore {
         manager.setStore(table, this);
     }
 
+    public boolean isMemory() {
+        return false;
+    }
+
     public CachedObject get(int i) {
 
         try {
             CachedObject object = cache.get(i, this, false);
 
-            if (object instanceof Row && ((Row) object).rowAction == null) {
+            if (object != null && ((Row) object).rowAction == null) {
                 table.database.txManager.setTransactionInfo((Row) object);
             }
 
@@ -94,7 +98,7 @@ public class RowStoreCached implements PersistentStore {
         try {
             CachedObject object = cache.get(i, this, true);
 
-            if (object instanceof Row && ((Row) object).rowAction == null) {
+            if (object != null && ((Row) object).rowAction == null) {
                 table.database.txManager.setTransactionInfo((Row) object);
             }
 
@@ -117,16 +121,10 @@ public class RowStoreCached implements PersistentStore {
 
         int size = object.getRealSize(cache.rowOut);
 
-        size = ((size + cache.cachedRowPadding - 1) / cache.cachedRowPadding)
-               * cache.cachedRowPadding;
+        size = cache.rowOut.getStorageSize(size);
 
         object.setStorageSize(size);
         cache.add(object);
-    }
-
-    public void restore(CachedObject row) throws HsqlException {
-        row.restore();
-        cache.restore(row);
     }
 
     public CachedObject get(RowInputInterface in) {
@@ -205,7 +203,7 @@ public class RowStoreCached implements PersistentStore {
         accessorList[index.getPosition()] = accessor;
     }
 
-    public void setAccessor(Index key, int accessor) {
+    public void setAccessor(Index key, int accessor) throws HsqlException {
 
         CachedObject object = get(accessor);
 

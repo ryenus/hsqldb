@@ -253,7 +253,8 @@ public class Session implements SessionInterface {
         return isClosed;
     }
 
-    public synchronized void setIsolationDefault(int level) throws HsqlException {
+    public synchronized void setIsolationDefault(int level)
+    throws HsqlException {
 
         if (level == SessionInterface.TX_READ_UNCOMMITTED) {
             isReadOnlyDefault = true;
@@ -448,7 +449,8 @@ public class Session implements SessionInterface {
      * @param  autocommit the new value
      * @throws  HsqlException
      */
-    public synchronized void setAutoCommit(boolean autocommit) throws HsqlException {
+    public synchronized void setAutoCommit(boolean autocommit)
+    throws HsqlException {
 
         if (isClosed) {
             return;
@@ -494,8 +496,10 @@ public class Session implements SessionInterface {
 
     public synchronized void startPhasedTransaction() throws HsqlException {}
 
-    /** @todo - fredt - for two phased pre-commit - after this call, further
-     * state changing calls should fail */
+    /**
+     * @todo - fredt - for two phased pre-commit - after this call, further
+     * state changing calls should fail
+     */
     public synchronized void prepareCommit() throws HsqlException {
 
         if (isClosed) {
@@ -623,7 +627,8 @@ public class Session implements SessionInterface {
      * @param  name name of savepoint
      * @throws  HsqlException
      */
-    public synchronized void rollbackToSavepoint(String name) throws HsqlException {
+    public synchronized void rollbackToSavepoint(String name)
+    throws HsqlException {
 
         if (isClosed) {
             return;
@@ -668,7 +673,8 @@ public class Session implements SessionInterface {
      * @param  name name of savepoint
      * @throws  HsqlException if name does not correspond to a savepoint
      */
-    public synchronized void releaseSavepoint(String name) throws HsqlException {
+    public synchronized void releaseSavepoint(String name)
+    throws HsqlException {
 
         // remove this and all later savepoints
         int index = sessionContext.savepoints.getIndex(name);
@@ -702,7 +708,8 @@ public class Session implements SessionInterface {
         isReadOnly = readonly;
     }
 
-    public synchronized void setReadOnlyDefault(boolean readonly) throws HsqlException {
+    public synchronized void setReadOnlyDefault(boolean readonly)
+    throws HsqlException {
 
         if (!readonly && database.databaseReadOnly) {
             throw Error.error(ErrorCode.DATABASE_IS_READONLY);
@@ -1777,7 +1784,7 @@ public class Session implements SessionInterface {
     public void setResultMemoryRowCount(int count) {
 
         if (database.getTempDirectoryPath() != null) {
-            if (count == 0) {
+            if (count <= 0) {
                 count = Integer.MAX_VALUE;
             }
 

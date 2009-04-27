@@ -33,7 +33,7 @@ package org.hsqldb.rowio;
 
 import java.math.BigDecimal;
 
-import org.hsqldb.CachedRow;
+import org.hsqldb.Row;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
@@ -125,8 +125,12 @@ public class RowOutputTextLog extends RowOutputBase {
 
     public void writeSize(int size) {}
 
-    public int getSize(CachedRow row) {
+    public int getSize(Row row) {
         return 0;
+    }
+
+    public int getStorageSize(int size) {
+        return size;
     }
 
     protected void writeInteger(Number o) {

@@ -573,42 +573,6 @@ public class GranteeManager {
         return rightsStringLookup.get(right, 0);
     }
 
-    /**
-     * Retrieves the set of distinct, fully qualified Java <code>Class</code>
-     * names upon which any grants currently exist to elements in
-     * this collection. <p>
-     * @return the set of distinct, fully qualified Java Class names, as
-     *        <code>String</code> objects, upon which grants currently exist
-     *        to the elements of this collection
-     *
-     */
-    HashSet getGrantedClassNames() throws HsqlException {
-
-        int      size;
-        Grantee  grantee;
-        HashSet  out;
-        Iterator it;
-
-        size = map.size();
-        out  = new HashSet();
-
-        for (int i = 0; i < size; i++) {
-            grantee = (Grantee) map.get(i);
-
-            if (grantee == null) {
-                continue;
-            }
-
-            it = grantee.getGrantedClassNames(false).iterator();
-
-            while (it.hasNext()) {
-                out.add(it.next());
-            }
-        }
-
-        return out;
-    }
-
     public Grantee get(String name) {
         return (Grantee) map.get(name);
     }

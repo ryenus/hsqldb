@@ -61,7 +61,8 @@ public class RowStoreMemory implements PersistentStore {
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
-    public RowStoreMemory(PersistentStoreCollection manager, TableBase table) {
+    public RowStoreMemory(PersistentStoreCollection manager,
+                             TableBase table) {
 
         this.manager      = manager;
         this.table        = table;
@@ -70,6 +71,10 @@ public class RowStoreMemory implements PersistentStore {
         rowIdMap          = new IntKeyHashMapConcurrent();
 
         manager.setStore(table, this);
+    }
+
+    public boolean isMemory() {
+        return true;
     }
 
     public CachedObject get(int i) {
@@ -85,10 +90,6 @@ public class RowStoreMemory implements PersistentStore {
     }
 
     public void add(CachedObject object) throws HsqlException {}
-
-    public void restore(CachedObject row) throws HsqlException {
-        row.restore();
-    }
 
     public CachedObject get(RowInputInterface in) {
         return null;
@@ -166,10 +167,10 @@ public class RowStoreMemory implements PersistentStore {
         }
 
         CachedObject[] oldAccessors = accessorList;
-        Index[]  oldIndexList = indexList;
-        int      limit        = indexList.length;
-        int      diff         = 1;
-        int      position     = 0;
+        Index[]        oldIndexList = indexList;
+        int            limit        = indexList.length;
+        int            diff         = 1;
+        int            position     = 0;
 
         if (keys.length < indexList.length) {
             diff  = -1;
@@ -240,7 +241,7 @@ public class RowStoreMemory implements PersistentStore {
                 // count before inserting
                 rowCount++;
 
-                newIndex.insert(null, this, row, position);
+                newIndex.insert(null, this, row);
             }
 
             return true;
@@ -267,5 +268,22 @@ public class RowStoreMemory implements PersistentStore {
         }
 
         throw error;
+    }
+
+    /**
+     * for result tables
+     */
+    void reindex(Session session, Index index) throws HsqlException {
+
+        setAccessor(index, null);
+
+        RowIterator it = table.rowIterator(session);
+
+        while (it.hasNext()) {
+            Row row = it.getNextRow();
+
+            // may need to clear the node before insert
+            index.insert(session, this, row);
+        }
     }
 }

@@ -141,6 +141,11 @@ public class DiskNode extends Node {
         iBalance = -2;
     }
 
+
+    public boolean isMemory() {
+        return false;
+    }
+
     public int getPos() {
         return iData;
     }

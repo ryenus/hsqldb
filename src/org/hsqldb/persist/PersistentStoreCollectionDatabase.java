@@ -42,17 +42,18 @@ implements PersistentStoreCollection {
 
     public void setStore(Object key, PersistentStore store) {
 
-        TableBase table = (TableBase) key;
+        long persistenceId = ((TableBase) key).getPersistenceId();
 
         if (store == null) {
-            rowStoreMap.remove(table.getPersistenceId());
+            rowStoreMap.remove(persistenceId);
         } else {
-            rowStoreMap.put(table.getPersistenceId(), store);
+            rowStoreMap.put(persistenceId, store);
         }
     }
 
-    public PersistentStore getStore(long persistenceId) {
+    public PersistentStore getStore(Object key) {
 
+        long persistenceId = ((TableBase) key).getPersistenceId();
         PersistentStore store =
             (PersistentStore) rowStoreMap.get(persistenceId);
 

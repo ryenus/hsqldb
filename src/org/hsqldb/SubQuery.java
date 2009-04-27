@@ -180,7 +180,7 @@ class SubQuery implements ObjectComparator {
 
         // table constructors
         if (isDataExpression) {
-            store = session.sessionData.getSubqueryRowStore(table, false);
+            store = session.sessionData.getSubqueryRowStore(table);
 
             dataExpression.insertValuesIntoSubqueryTable(session, store);
 
@@ -197,10 +197,7 @@ class SubQuery implements ObjectComparator {
             navigator.removeDuplicates();
         }
 
-        boolean cached = navigator.getSize()
-                         > session.getResultMemoryRowCount();
-
-        store = session.sessionData.getSubqueryRowStore(table, cached);
+        store = session.sessionData.getSubqueryRowStore(table);
 
         table.insertResult(store, result);
         result.getNavigator().close();

@@ -94,8 +94,8 @@ public class TextTable extends org.hsqldb.Table {
             return;
         }
 
-        PersistentStore store = database.persistentStoreCollection.getStore(
-            this.getPersistenceId());
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(this);
         DataFileCache cache = null;
 
         try {
@@ -105,7 +105,7 @@ public class TextTable extends org.hsqldb.Table {
             store.setCache(cache);
 
             // read and insert all the rows from the source file
-            CachedRow row     = null;
+            Row row     = null;
             int       nextpos = 0;
 
             if (((TextCache) cache).ignoreFirst) {
@@ -113,7 +113,7 @@ public class TextTable extends org.hsqldb.Table {
             }
 
             while (true) {
-                row = (CachedRow) store.get(nextpos);
+                row = (Row) store.get(nextpos);
 
                 if (row == null) {
                     break;
@@ -123,12 +123,12 @@ public class TextTable extends org.hsqldb.Table {
 
                 nextpos = row.getPos() + row.getStorageSize();
 
-                row.setNewNodes();
+                ((CachedDataRow) row).setNewNodes();
                 systemUpdateIdentityValue(data);
                 enforceRowConstraints(session, data);
 
                 for (int i = 0; i < indexList.length; i++) {
-                    indexList[i].insert(null, store, row, i);
+                    indexList[i].insert(null, store, row);
                 }
             }
         } catch (Exception e) {
@@ -160,8 +160,8 @@ public class TextTable extends org.hsqldb.Table {
      */
     public void disconnect() {
 
-        PersistentStore store = database.persistentStoreCollection.getStore(
-            this.getPersistenceId());
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(this);
 
         store.release();
 
@@ -247,8 +247,8 @@ public class TextTable extends org.hsqldb.Table {
 
     public void setHeader(String header) throws HsqlException {
 
-        PersistentStore store = database.persistentStoreCollection.getStore(
-            this.getPersistenceId());
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(this);
         TextCache cache = (TextCache) store.getCache();
 
         if (cache != null && cache.ignoreFirst) {
@@ -262,8 +262,8 @@ public class TextTable extends org.hsqldb.Table {
 
     public String getHeader() {
 
-        PersistentStore store = database.persistentStoreCollection.getStore(
-            this.getPersistenceId());
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(this);
         TextCache cache  = (TextCache) store.getCache();
         String    header = cache == null ? null
                                          : cache.getHeader();
