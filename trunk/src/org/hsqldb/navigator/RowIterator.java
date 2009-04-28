@@ -44,9 +44,13 @@ public interface RowIterator {
 
     Row getNextRow();
 
-    void remove() throws HsqlException;
-
     boolean hasNext();
 
+    void remove() throws HsqlException;
+
+    boolean setRowColumns(boolean[] columns);
+
     void release();
+
+    long getPos();
 }

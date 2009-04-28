@@ -48,6 +48,8 @@ public interface PersistentStore {
     int INT_STORE_SIZE  = 4;
     int LONG_STORE_SIZE = 8;
 
+    PersistentStore[] emptyArray = new PersistentStore[]{};
+
     boolean isMemory();
 
     /** get object */
@@ -87,6 +89,8 @@ public interface PersistentStore {
     void setCache(DataFileCache cache);
 
     void release();
+
+    PersistentStore getAccessorStore(Index index);
 
     CachedObject getAccessor(Index key);
 

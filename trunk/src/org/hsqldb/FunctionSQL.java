@@ -603,18 +603,24 @@ public class FunctionSQL extends Expression {
 
                 part = DTIType.getFieldNameTypeForToken(part);
 
-                if (part == Types.SQL_INTERVAL_SECOND) {
-                    return ((DTIType) nodes[1].dataType).getSecondPart(
-                        data[1]);
-                } else if (part == DTIType.MONTH_NAME
-                           || part == DTIType.DAY_NAME) {
-                    return ((DateTimeType) nodes[1].dataType).getPartString(
-                        session, data[1], part);
-                } else {
-                    long value = ((DTIType) nodes[1].dataType).getPart(session,
-                        data[1], part);
+                switch (part) {
 
-                    return ValuePool.getLong(value);
+                    case Types.SQL_INTERVAL_SECOND : {
+                        return ((DTIType) nodes[1].dataType).getSecondPart(
+                            data[1]);
+                    }
+                    case DTIType.MONTH_NAME :
+                    case DTIType.DAY_NAME : {
+                        return ((DateTimeType) nodes[1].dataType)
+                            .getPartString(session, data[1], part);
+                    }
+                    default : {
+                        int value =
+                            ((DTIType) nodes[1].dataType).getPart(session,
+                                data[1], part);
+
+                        return ValuePool.getInt(value);
+                    }
                 }
             }
             case FUNC_CHAR_LENGTH : {

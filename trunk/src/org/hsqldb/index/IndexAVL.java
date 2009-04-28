@@ -1587,10 +1587,6 @@ public class IndexAVL implements Index {
 
         public Row getNextRow() {
 
-            if (nextnode == null) {
-                return null;
-            }
-
             try {
                 if (nextnode == null) {
                     release();
@@ -1616,5 +1612,13 @@ public class IndexAVL implements Index {
         }
 
         public void release() {}
+
+        public boolean setRowColumns(boolean[] columns) {
+            return false;
+        }
+
+        public long getPos() {
+            return nextnode.getPos();
+        }
     }
 }
