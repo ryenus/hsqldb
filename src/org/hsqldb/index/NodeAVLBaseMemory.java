@@ -76,28 +76,28 @@ import org.hsqldb.persist.*;
  *  memory so an Object reference is used to access the other Nodes in the
  *  AVL tree.
  *
- *  New class derived from the Hypersonic code
+ *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version    1.7.2
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
-abstract class BaseMemoryNode extends Node {
+abstract class NodeAVLBaseMemory extends NodeAVL {
 
-    protected Node nLeft;
-    protected Node nRight;
-    protected Node nParent;
+    protected NodeAVL nLeft;
+    protected NodeAVL nRight;
+    protected NodeAVL nParent;
 
     public void delete() {
         iBalance = -2;
         nLeft    = nRight = nParent = null;
     }
 
-    Node getLeft(PersistentStore store) {
+    NodeAVL getLeft(PersistentStore store) {
         return nLeft;
     }
 
-    Node setLeft(PersistentStore persistentStore, Node n) {
+    NodeAVL setLeft(PersistentStore persistentStore, NodeAVL n) {
 
         nLeft = n;
 
@@ -108,26 +108,26 @@ abstract class BaseMemoryNode extends Node {
         return iBalance;
     }
 
-    boolean isLeft(Node node) {
+    boolean isLeft(NodeAVL node) {
         return nLeft == node;
     }
 
-    boolean isRight(Node node) {
+    boolean isRight(NodeAVL node) {
         return nRight == node;
     }
 
-    Node getRight(PersistentStore persistentStore) {
+    NodeAVL getRight(PersistentStore persistentStore) {
         return nRight;
     }
 
-    Node setRight(PersistentStore persistentStore, Node n) {
+    NodeAVL setRight(PersistentStore persistentStore, NodeAVL n) {
 
         nRight = n;
 
         return this;
     }
 
-    Node getParent(PersistentStore store) {
+    NodeAVL getParent(PersistentStore store) {
         return nParent;
     }
 
@@ -135,14 +135,14 @@ abstract class BaseMemoryNode extends Node {
         return nParent == null;
     }
 
-    Node setParent(PersistentStore persistentStore, Node n) {
+    NodeAVL setParent(PersistentStore persistentStore, NodeAVL n) {
 
         nParent = n;
 
         return this;
     }
 
-    public Node setBalance(PersistentStore store, int b) {
+    public NodeAVL setBalance(PersistentStore store, int b) {
 
         iBalance = b;
 
@@ -155,12 +155,12 @@ abstract class BaseMemoryNode extends Node {
             return true;
         }
 
-        Node parent = getParent(store);
+        NodeAVL parent = getParent(store);
 
         return equals(parent.getLeft(store));
     }
 
-    boolean equals(Node n) {
+    boolean equals(NodeAVL n) {
         return n == this;
     }
 

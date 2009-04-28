@@ -66,7 +66,7 @@
 
 package org.hsqldb.index;
 
-import org.hsqldb.CachedRow;
+import org.hsqldb.RowAVLDisk;
 import org.hsqldb.Row;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
@@ -87,17 +87,17 @@ import org.hsqldb.lib.IntLookup;
  *  table row. It is used solely by Row to locate the node belonging to a
  *  particular index.<br>
  *
- *  Enhanced in various versions of HSQLDB
+ *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 1.9.0
  * @since Hypersonic SQL
  */
-public abstract class Node implements CachedObject {
+public abstract class NodeAVL implements CachedObject {
 
-    static final int NO_POS = CachedRow.NO_POS;
+    static final int NO_POS = RowAVLDisk.NO_POS;
     public int       iBalance;    // currently, -2 means 'deleted'
-    public Node      nNext;       // node of next index (nNext==null || nNext.iId=iId+1)
+    public NodeAVL      nNext;       // node of next index (nNext==null || nNext.iId=iId+1)
 
     /**
      *  This method unlinks the Node from the other Nodes in the same Index
@@ -124,31 +124,31 @@ public abstract class Node implements CachedObject {
     /**
      *  Getters and setters for AVL index operations.
      */
-    abstract boolean isLeft(Node node);
+    abstract boolean isLeft(NodeAVL node);
 
-    abstract boolean isRight(Node node);
+    abstract boolean isRight(NodeAVL node);
 
-    abstract Node getLeft(PersistentStore store);
+    abstract NodeAVL getLeft(PersistentStore store);
 
-    abstract Node setLeft(PersistentStore store, Node n);
+    abstract NodeAVL setLeft(PersistentStore store, NodeAVL n);
 
-    abstract Node getRight(PersistentStore store);
+    abstract NodeAVL getRight(PersistentStore store);
 
-    abstract Node setRight(PersistentStore store, Node n);
+    abstract NodeAVL setRight(PersistentStore store, NodeAVL n);
 
-    abstract Node getParent(PersistentStore store);
+    abstract NodeAVL getParent(PersistentStore store);
 
-    abstract Node setParent(PersistentStore store, Node n);
+    abstract NodeAVL setParent(PersistentStore store, NodeAVL n);
 
     abstract int getBalance();
 
-    abstract public Node setBalance(PersistentStore store, int b);
+    abstract public NodeAVL setBalance(PersistentStore store, int b);
 
     abstract boolean isRoot();
 
     abstract boolean isFromLeft(PersistentStore store);
 
-    abstract boolean equals(Node n);
+    abstract boolean equals(NodeAVL n);
 
     public void setStorageSize(int size) {}
 

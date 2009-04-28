@@ -33,17 +33,17 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
-import org.hsqldb.CachedRow;
+import org.hsqldb.RowAVLDisk;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
+import org.hsqldb.RowAVL;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
-import org.hsqldb.index.DiskNode;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.Node;
+import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
 
@@ -54,7 +54,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreCached implements PersistentStore {
+public class RowStoreAVLDisk implements PersistentStore {
 
     final TableBase                 table;
     final PersistentStoreCollection manager;
@@ -62,7 +62,7 @@ public class RowStoreCached implements PersistentStore {
     CachedObject[]                  accessorList = CachedObject.emptyArray;
     DataFileCache                   cache;
 
-    public RowStoreCached(PersistentStoreCollection manager,
+    public RowStoreAVLDisk(PersistentStoreCollection manager,
                           DataFileCache cache, TableBase table) {
 
         this.manager      = manager;
@@ -130,7 +130,7 @@ public class RowStoreCached implements PersistentStore {
     public CachedObject get(RowInputInterface in) {
 
         try {
-            return new CachedRow(table, in);
+            return new RowAVLDisk(table, in);
         } catch (HsqlException e) {
             return null;
         } catch (IOException e1) {
@@ -142,7 +142,7 @@ public class RowStoreCached implements PersistentStore {
                                            Object object)
                                            throws HsqlException {
 
-        Row row = new CachedRow(table, (Object[]) object);
+        Row row = new RowAVLDisk(table, (Object[]) object);
 
         add(row);
 
@@ -208,7 +208,7 @@ public class RowStoreCached implements PersistentStore {
         CachedObject object = get(accessor);
 
         if (object != null) {
-            Node node = ((Row) object).getNode(key.getPosition());
+            NodeAVL node = ((RowAVL) object).getNode(key.getPosition());
 
             object = node;
         }

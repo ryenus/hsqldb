@@ -68,12 +68,13 @@ package org.hsqldb.index;
 
 import java.io.IOException;
 
-import org.hsqldb.CachedRow;
+import org.hsqldb.RowAVLDisk;
 import org.hsqldb.Row;
 import org.hsqldb.lib.IntLookup;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.RowAVL;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 // fredt@users 20020920 - path 1.7.1 - refactoring to cut mamory footprint
@@ -88,13 +89,13 @@ import org.hsqldb.rowio.RowOutputInterface;
  *  This fields can be eliminated in the future, by changing the
  *  method signatures to take a Index parameter from Index.java (fredt@users)
  *
- *  New class derived from the Hypersonic code
+ *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.2
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
-public class DiskNode extends Node {
+public class NodeAVLDisk extends NodeAVL {
 
     public int              iData;
     private int             iLeft   = NO_POS;
@@ -103,7 +104,7 @@ public class DiskNode extends Node {
     private int             iId;    // id of Index object for this Node
     public static final int SIZE_IN_BYTE = 4 * 4;
 
-    public DiskNode(CachedRow r, RowInputInterface in,
+    public NodeAVLDisk(RowAVLDisk r, RowInputInterface in,
                     int id) throws IOException {
 
         iId      = id;
@@ -128,7 +129,7 @@ public class DiskNode extends Node {
         }
     }
 
-    public DiskNode(CachedRow r, int id) {
+    public NodeAVLDisk(RowAVLDisk r, int id) {
         iId   = id;
         iData = r.getPos();
     }
@@ -154,10 +155,10 @@ public class DiskNode extends Node {
         return (Row) store.get(iData);
     }
 
-    private Node findNode(PersistentStore store, int pos) {
+    private NodeAVL findNode(PersistentStore store, int pos) {
 
-        Node ret = null;
-        Row  r   = (Row) store.get(pos);
+        NodeAVL ret = null;
+        RowAVL  r   = (RowAVL) store.get(pos);
 
         if (r != null) {
             ret = r.getNode(iId);
@@ -166,25 +167,25 @@ public class DiskNode extends Node {
         return ret;
     }
 
-    boolean isLeft(Node node) {
+    boolean isLeft(NodeAVL node) {
 
         if (node == null) {
             return iLeft == NO_POS;
         }
 
-        return iLeft == ((DiskNode) node).getPos();
+        return iLeft == ((NodeAVLDisk) node).getPos();
     }
 
-    boolean isRight(Node node) {
+    boolean isRight(NodeAVL node) {
 
         if (node == null) {
             return iRight == NO_POS;
         }
 
-        return iRight == ((DiskNode) node).getPos();
+        return iRight == ((NodeAVLDisk) node).getPos();
     }
 
-    Node getLeft(PersistentStore store) {
+    NodeAVL getLeft(PersistentStore store) {
 
         if (iLeft == NO_POS) {
             return null;
@@ -193,7 +194,7 @@ public class DiskNode extends Node {
         return findNode(store, iLeft);
     }
 
-    Node getRight(PersistentStore store) {
+    NodeAVL getRight(PersistentStore store) {
 
         if (iRight == NO_POS) {
             return null;
@@ -202,7 +203,7 @@ public class DiskNode extends Node {
         return findNode(store, iRight);
     }
 
-    Node getParent(PersistentStore store) {
+    NodeAVL getParent(PersistentStore store) {
 
         if (iParent == NO_POS) {
             return null;
@@ -216,7 +217,7 @@ public class DiskNode extends Node {
     }
 
     boolean isRoot() {
-        return iParent == Node.NO_POS;
+        return iParent == NodeAVL.NO_POS;
     }
 
     boolean isFromLeft(PersistentStore store) {
@@ -225,18 +226,18 @@ public class DiskNode extends Node {
             return true;
         }
 
-        DiskNode parent = (DiskNode) getParent(store);
+        NodeAVLDisk parent = (NodeAVLDisk) getParent(store);
 
         return getPos() == parent.iLeft;
     }
 
-    Node setParent(PersistentStore store, Node n) {
+    NodeAVL setParent(PersistentStore store, NodeAVL n) {
 
-        CachedRow row = (CachedRow) store.getKeep(iData);
+        RowAVLDisk row = (RowAVLDisk) store.getKeep(iData);
 
-        row.setChanged();
+        row.setNodesChanged();
 
-        DiskNode node = (DiskNode) row.getNode(iId);
+        NodeAVLDisk node = (NodeAVLDisk) row.getNode(iId);
 
         node.iParent = n == null ? NO_POS
                                  : n.getPos();
@@ -246,13 +247,13 @@ public class DiskNode extends Node {
         return node;
     }
 
-    public Node setBalance(PersistentStore store, int b) {
+    public NodeAVL setBalance(PersistentStore store, int b) {
 
-        CachedRow row = (CachedRow) store.getKeep(iData);
+        RowAVLDisk row = (RowAVLDisk) store.getKeep(iData);
 
-        row.setChanged();
+        row.setNodesChanged();
 
-        DiskNode node = (DiskNode) row.getNode(iId);
+        NodeAVLDisk node = (NodeAVLDisk) row.getNode(iId);
 
         node.iBalance = b;
 
@@ -261,13 +262,13 @@ public class DiskNode extends Node {
         return node;
     }
 
-    Node setLeft(PersistentStore store, Node n) {
+    NodeAVL setLeft(PersistentStore store, NodeAVL n) {
 
-        CachedRow row = (CachedRow) store.getKeep(iData);
+        RowAVLDisk row = (RowAVLDisk) store.getKeep(iData);
 
-        row.setChanged();
+        row.setNodesChanged();
 
-        DiskNode node = (DiskNode) row.getNode(iId);
+        NodeAVLDisk node = (NodeAVLDisk) row.getNode(iId);
 
         node.iLeft = n == null ? NO_POS
                                : n.getPos();
@@ -277,13 +278,13 @@ public class DiskNode extends Node {
         return node;
     }
 
-    Node setRight(PersistentStore store, Node n) {
+    NodeAVL setRight(PersistentStore store, NodeAVL n) {
 
-        CachedRow row = (CachedRow) store.getKeep(iData);
+        RowAVLDisk row = (RowAVLDisk) store.getKeep(iData);
 
-        row.setChanged();
+        row.setNodesChanged();
 
-        DiskNode node = (DiskNode) row.getNode(iId);
+        NodeAVLDisk node = (NodeAVLDisk) row.getNode(iId);
 
         node.iRight = n == null ? NO_POS
                                 : n.getPos();
@@ -293,12 +294,12 @@ public class DiskNode extends Node {
         return node;
     }
 
-    boolean equals(Node n) {
-        return this == n || (n != null && getPos() == ((DiskNode) n).getPos());
+    boolean equals(NodeAVL n) {
+        return this == n || (n != null && getPos() == ((NodeAVLDisk) n).getPos());
     }
 
     public int getRealSize(RowOutputInterface out) {
-        return DiskNode.SIZE_IN_BYTE;
+        return NodeAVLDisk.SIZE_IN_BYTE;
     }
 
     public void write(RowOutputInterface out) {
@@ -325,7 +326,7 @@ public class DiskNode extends Node {
 
         int newPointer = 0;
 
-        if (pointer != Node.NO_POS) {
+        if (pointer != NodeAVL.NO_POS) {
             newPointer = lookup.lookupFirstEqual(pointer);
         }
 

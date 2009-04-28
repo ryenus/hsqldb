@@ -68,8 +68,8 @@ package org.hsqldb;
 
 import java.io.IOException;
 
-import org.hsqldb.index.DiskNode;
-import org.hsqldb.index.Node;
+import org.hsqldb.index.NodeAVLDisk;
+import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.IntLookup;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -95,7 +95,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * @version 1.8.0
  * @since Hypersonic SQL
  */
-public class CachedRow extends Row {
+public class RowAVLDisk extends RowAVL {
 
     public static final int NO_POS = -1;
 
@@ -117,7 +117,7 @@ public class CachedRow extends Row {
     /**
      *  Default constructor used only in subclasses.
      */
-    CachedRow() {}
+    RowAVLDisk() {}
 
     /**
      *  Constructor for new Rows.  Variable hasDataChanged is set to true in
@@ -127,14 +127,14 @@ public class CachedRow extends Row {
      * @param o row data
      * @throws HsqlException if a database access error occurs
      */
-    public CachedRow(TableBase t, Object[] o) throws HsqlException {
+    public RowAVLDisk(TableBase t, Object[] o) throws HsqlException {
 
         tTable  = t;
         tableId = tTable.getId();
 
         setNewNodes();
 
-        oData          = o;
+        rowData          = o;
         hasDataChanged = hasNodesChanged = true;
     }
 
@@ -146,28 +146,28 @@ public class CachedRow extends Row {
      * @throws IOException
      * @throws HsqlException
      */
-    public CachedRow(TableBase t,
-                     RowInputInterface in) throws IOException, HsqlException {
+    public RowAVLDisk(TableBase t,
+                      RowInputInterface in) throws IOException, HsqlException {
 
         tTable      = t;
-        iPos        = in.getPos();
+        position        = in.getPos();
         storageSize = in.getSize();
 
         int indexcount = t.getIndexCount();
 
-        nPrimaryNode = new DiskNode(this, in, 0);
+        nPrimaryNode = new NodeAVLDisk(this, in, 0);
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         for (int i = 1; i < indexcount; i++) {
-            n.nNext = new DiskNode(this, in, i);
+            n.nNext = new NodeAVLDisk(this, in, i);
             n       = n.nNext;
         }
 
-        oData = in.readData(tTable.getColumnTypes());
+        rowData = in.readData(tTable.getColumnTypes());
     }
 
-    public Node insertNode(int index) {
+    public NodeAVL insertNode(int index) {
         return null;
     }
 
@@ -175,6 +175,13 @@ public class CachedRow extends Row {
     throws IOException, HsqlException {
 
         // for use when additional transaction info is attached to rows
+    }
+
+    /**
+     * Sets flag for Node data change.
+     */
+    public void setNodesChanged() {
+        hasNodesChanged = true;
     }
 
     /**
@@ -203,21 +210,21 @@ public class CachedRow extends Row {
      */
     public void setPos(int pos) {
 
-        iPos = pos;
+        position = pos;
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         while (n != null) {
-            ((DiskNode) n).iData = iPos;
-            n                    = n.nNext;
+            ((NodeAVLDisk) n).iData = position;
+            n                       = n.nNext;
         }
     }
 
     /**
-     * Sets flag for Node data change.
+     * Sets flag for row data change.
      */
     public void setChanged() {
-        hasNodesChanged = true;
+        hasDataChanged = true;
     }
 
     /**
@@ -226,7 +233,7 @@ public class CachedRow extends Row {
      * @return boolean
      */
     public boolean hasChanged() {
-        return hasNodesChanged;
+        return hasNodesChanged || hasDataChanged;
     }
 
     /**
@@ -281,20 +288,20 @@ public class CachedRow extends Row {
 
         int indexcount = tTable.getIndexCount();
 
-        nPrimaryNode = new DiskNode(this, 0);
+        nPrimaryNode = new NodeAVLDisk(this, 0);
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         for (int i = 1; i < indexcount; i++) {
-            n.nNext = new DiskNode(this, i);
+            n.nNext = new NodeAVLDisk(this, i);
             n       = n.nNext;
         }
     }
 
     public int getRealSize(RowOutputInterface out) {
 
-        int size = out.getSize((CachedRow) this)
-                   + tTable.getIndexCount() * DiskNode.SIZE_IN_BYTE;
+        int size = out.getSize((RowAVLDisk) this)
+                   + tTable.getIndexCount() * NodeAVLDisk.SIZE_IN_BYTE;
 
         return size;
     }
@@ -312,7 +319,7 @@ public class CachedRow extends Row {
             writeNodes(out);
 
             if (hasDataChanged) {
-                out.writeData(oData, tTable.colTypes);
+                out.writeData(rowData, tTable.colTypes);
                 out.writeEnd();
 
                 hasDataChanged = false;
@@ -329,10 +336,10 @@ public class CachedRow extends Row {
 
         out.writeSize(storageSize);
 
-        Node rownode = nPrimaryNode;
+        NodeAVL rownode = nPrimaryNode;
 
         while (rownode != null) {
-            ((DiskNode) rownode).writeTranslate(out, lookup);
+            ((NodeAVLDisk) rownode).writeTranslate(out, lookup);
 
             rownode = rownode.nNext;
         }
@@ -353,7 +360,7 @@ public class CachedRow extends Row {
 
         out.writeSize(storageSize);
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         while (n != null) {
             n.write(out);
@@ -379,8 +386,8 @@ public class CachedRow extends Row {
             return true;
         }
 
-        if (obj instanceof CachedRow) {
-            return ((CachedRow) obj).iPos == iPos;
+        if (obj instanceof RowAVLDisk) {
+            return ((RowAVLDisk) obj).position == position;
         }
 
         return false;
@@ -392,6 +399,6 @@ public class CachedRow extends Row {
      * @return file position of row
      */
     public int hashCode() {
-        return iPos;
+        return position;
     }
 }

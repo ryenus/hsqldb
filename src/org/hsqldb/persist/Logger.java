@@ -481,14 +481,14 @@ public class Logger {
                     break;
                 }
 
-                return new RowStoreCached(collection, cache, table);
+                return new RowStoreAVLDisk(collection, cache, table);
 
             case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_TABLE :
-                return new RowStoreMemory(collection, table);
+                return new RowStoreAVLMemory(collection, table);
 
             case TableBase.TEXT_TABLE :
-                return new RowStoreText(collection, table);
+                return new RowStoreAVLDiskData(collection, table);
 
             case TableBase.RESULT_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
@@ -502,15 +502,15 @@ public class Logger {
                 switch (table.persistenceScope) {
 
                     case TableBase.SCOPE_STATEMENT :
-                        return new RowStoreHybrid(session, collection,
+                        return new RowStoreAVLHybrid(session, collection,
                                                      table, diskBased);
 
                     case TableBase.SCOPE_TRANSACTION :
-                        return new RowStoreHybrid(session, collection,
+                        return new RowStoreAVLHybrid(session, collection,
                                                      table, diskBased);
 
                     case TableBase.SCOPE_SESSION :
-                        return new RowStoreHybrid(session, collection,
+                        return new RowStoreAVLHybrid(session, collection,
                                                      table, diskBased);
                 }
         }

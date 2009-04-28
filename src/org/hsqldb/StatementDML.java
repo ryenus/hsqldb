@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.index.Index;
+import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
@@ -1212,8 +1213,8 @@ public class StatementDML extends StatementDMQL {
         Object[] data = (Object[]) rowSet.get(row);
 
         if (data != null) {
-            if (Index.compareRows(row.getData(), newData, cols, colTypes) != 0
-                    && Index.compareRows(newData, data, cols, colTypes) != 0) {
+            if (IndexAVL.compareRows(row.getData(), newData, cols, colTypes) != 0
+                    && IndexAVL.compareRows(newData, data, cols, colTypes) != 0) {
                 return false;
             }
 

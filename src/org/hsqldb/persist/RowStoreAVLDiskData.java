@@ -33,7 +33,7 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
-import org.hsqldb.CachedDataRow;
+import org.hsqldb.RowAVLDiskData;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAction;
@@ -51,9 +51,11 @@ import org.hsqldb.TableBase;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreText extends RowStoreCached implements PersistentStore {
+public class RowStoreAVLDiskData extends RowStoreAVLDisk
+implements PersistentStore {
 
-    public RowStoreText(PersistentStoreCollection manager, TableBase table) {
+    public RowStoreAVLDiskData(PersistentStoreCollection manager,
+                               TableBase table) {
         super(manager, null, table);
     }
 
@@ -72,7 +74,7 @@ public class RowStoreText extends RowStoreCached implements PersistentStore {
     public CachedObject get(RowInputInterface in) {
 
         try {
-            return new CachedDataRow(table, in);
+            return new RowAVLDiskData(table, in);
         } catch (HsqlException e) {
             return null;
         } catch (IOException e1) {
@@ -84,7 +86,7 @@ public class RowStoreText extends RowStoreCached implements PersistentStore {
                                            Object object)
                                            throws HsqlException {
 
-        Row row = new CachedDataRow(table, (Object[]) object);
+        Row row = new RowAVLDiskData(table, (Object[]) object);
 
         add(row);
         RowAction.addAction(session, RowAction.ACTION_INSERT, table, row);

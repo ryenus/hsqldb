@@ -123,7 +123,7 @@ public class TextTable extends org.hsqldb.Table {
 
                 nextpos = row.getPos() + row.getStorageSize();
 
-                ((CachedDataRow) row).setNewNodes();
+                ((RowAVLDiskData) row).setNewNodes();
                 systemUpdateIdentityValue(data);
                 enforceRowConstraints(session, data);
 
@@ -370,5 +370,5 @@ public class TextTable extends org.hsqldb.Table {
      * file is first read.
      */
     protected void insertFromTextSource(Session session,
-                                        CachedRow row) throws HsqlException {}
+                                        RowAVLDisk row) throws HsqlException {}
 }

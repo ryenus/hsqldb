@@ -68,7 +68,7 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.Node;
+import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
@@ -2458,7 +2458,7 @@ public class Table extends TableBase implements SchemaObject {
                     break;
                 }
 
-                if (Index.compareRows(
+                if (IndexAVL.compareRows(
                         row.getData(), data, defaultColumnMap,
                         colTypes) == 0) {
                     break;
@@ -2484,7 +2484,7 @@ public class Table extends TableBase implements SchemaObject {
                     break;
                 }
 
-                if (Index.compareRows(
+                if (IndexAVL.compareRows(
                         rowdata, data, defaultColumnMap, colTypes) == 0) {
                     break;
                 }

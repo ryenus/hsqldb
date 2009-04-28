@@ -33,7 +33,7 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
-import org.hsqldb.CachedRow;
+import org.hsqldb.RowAVLDisk;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
@@ -46,6 +46,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.RowAVL;
 
 /*
  * Implementation of PersistentStore for result set and temporary tables.
@@ -54,7 +55,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreHybrid implements PersistentStore {
+public class RowStoreAVLHybrid implements PersistentStore {
 
     final Session                   session;
     DataFileCacheSession            cache;
@@ -70,7 +71,7 @@ public class RowStoreHybrid implements PersistentStore {
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
-    public RowStoreHybrid(Session session,
+    public RowStoreAVLHybrid(Session session,
                              PersistentStoreCollection manager,
                              TableBase table, boolean useCache) {
 
@@ -158,7 +159,7 @@ public class RowStoreHybrid implements PersistentStore {
 
         try {
             if (isCached) {
-                return new CachedRow(table, in);
+                return new RowAVLDisk(table, in);
             }
         } catch (HsqlException e) {
             return null;
@@ -174,7 +175,7 @@ public class RowStoreHybrid implements PersistentStore {
                                            throws HsqlException {
 
         if (isCached) {
-            Row row = new CachedRow(table, (Object[]) object);
+            Row row = new RowAVLDisk(table, (Object[]) object);
 
             add(row);
 
@@ -193,7 +194,7 @@ public class RowStoreHybrid implements PersistentStore {
                 return getNewCachedObject(session, object);
             }
 
-            Row row = new Row(table, (Object[]) object);
+            Row row = new RowAVL(table, (Object[]) object);
             int id  = rowIdSequence++;
 
             row.setPos(id);
