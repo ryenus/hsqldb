@@ -31,12 +31,11 @@
 
 package org.hsqldb;
 
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.ObjectComparator;
+import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
-import org.hsqldb.navigator.RowIterator;
 
 /**
  * Represents an SQL view or anonymous subquery (inline virtual table

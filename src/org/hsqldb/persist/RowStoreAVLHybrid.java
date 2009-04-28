@@ -266,6 +266,10 @@ public class RowStoreAVLHybrid implements PersistentStore {
         manager.setStore(table, null);
     }
 
+    public PersistentStore getAccessorStore(Index index) {
+        return null;
+    }
+
     public CachedObject getAccessor(Index key) {
 
         Index index    = (Index) key;

@@ -283,10 +283,6 @@ public abstract class DTIType extends Type {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if (part == startIntervalType && isIntervalType()) {
-                    return Type.SQL_BIGINT;
-                }
-
                 return Type.SQL_INTEGER;
 
             case SECONDS_MIDNIGHT :
@@ -474,7 +470,7 @@ public abstract class DTIType extends Type {
     public static final int maxFractionPrecision              = 9;
     public static final int limitNanoseconds                  = 1000000000;
 
-    abstract public long getPart(Session session, Object dateTime, int part);
+    abstract public int getPart(Session session, Object dateTime, int part);
 
     abstract public BigDecimal getSecondPart(Object dateTime);
 

@@ -1062,7 +1062,7 @@ public final class DateTimeType extends DTIType {
         return false;
     }
 
-    public long getPart(Session session, Object dateTime, int part) {
+    public int getPart(Session session, Object dateTime, int part) {
 
         int calendarPart;
         int increment = 0;

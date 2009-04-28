@@ -297,13 +297,16 @@ public class RowSetNavigatorData extends RowSetNavigator {
     public void union(RowSetNavigatorData other,
                       int[] rightColumnIndexes) throws HsqlException {
 
+        Object[] currentData;
+
         removeDuplicates();
         reset();
 
         while (other.hasNext()) {
             other.getNext();
 
-            Object[] currentData = other.currentRow.getData();
+            currentData = other.currentRow.getData();
+
             RowIterator it = fullIndex.findFirstRow(session, store,
                 currentData, rightColumnIndexes);
 

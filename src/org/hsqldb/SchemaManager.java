@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;

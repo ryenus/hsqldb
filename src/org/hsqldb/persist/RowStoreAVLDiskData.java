@@ -142,6 +142,10 @@ implements PersistentStore {
         cache = null;
     }
 
+    public PersistentStore getAccessorStore(Index index) {
+        return null;
+    }
+
     public CachedObject getAccessor(Index key) {
 
         Index index    = (Index) key;
