@@ -1,4 +1,39 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 1995-2000, The Hypersonic SQL Group.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the Hypersonic SQL Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE HYPERSONIC SQL GROUP,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * This software consists of voluntary contributions made by many individuals
+ * on behalf of the Hypersonic SQL Group.
+ *
+ *
+ * For work added by the HSQL Development Group:
+ *
+ * Copyright (c) 2001-2009, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +68,8 @@ package org.hsqldb;
 
 import java.io.IOException;
 
-import org.hsqldb.index.Node;
-import org.hsqldb.index.PointerNode;
+import org.hsqldb.index.NodeAVL;
+import org.hsqldb.index.NodeAVLMemoryPointer;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 
@@ -50,12 +85,12 @@ import org.hsqldb.rowio.RowOutputInterface;
  * @version 1.8.0
  * @version 1.7.0
  */
-public class CachedDataRow extends CachedRow {
+public class RowAVLDiskData extends RowAVLDisk {
 
     /**
      *  Constructor for new rows.
      */
-    public CachedDataRow(TableBase t, Object[] o) throws HsqlException {
+    public RowAVLDiskData(TableBase t, Object[] o) throws HsqlException {
 
         super(t, o);
 
@@ -66,15 +101,15 @@ public class CachedDataRow extends CachedRow {
      *  Constructor when read from the disk into the Cache. The link with
      *  the Nodes is made separetly.
      */
-    public CachedDataRow(TableBase t,
+    public RowAVLDiskData(TableBase t,
                          RowInputInterface in)
                          throws IOException, HsqlException {
 
         tTable         = t;
         tableId        = t.getId();
-        iPos           = in.getPos();
+        position           = in.getPos();
         storageSize    = in.getSize();
-        oData          = in.readData(tTable.getColumnTypes());
+        rowData          = in.readData(tTable.getColumnTypes());
         hasDataChanged = false;
     }
 
@@ -86,20 +121,20 @@ public class CachedDataRow extends CachedRow {
 
         int index = tTable.getIndexCount();
 
-        nPrimaryNode = new PointerNode(this);
+        nPrimaryNode = new NodeAVLMemoryPointer(this);
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         for (int i = 1; i < index; i++) {
-            n.nNext = new PointerNode(this);
+            n.nNext = new NodeAVLMemoryPointer(this);
             n       = n.nNext;
         }
     }
 
-    public Node insertNode(int index) {
+    public NodeAVL insertNode(int index) {
 
-        Node backnode = getNode(index - 1);
-        Node newnode  = new PointerNode(this);
+        NodeAVL backnode = getNode(index - 1);
+        NodeAVL newnode  = new NodeAVLMemoryPointer(this);
 
         newnode.nNext  = backnode.nNext;
         backnode.nNext = newnode;
@@ -112,12 +147,12 @@ public class CachedDataRow extends CachedRow {
      *  already indexed so it is linked with the Node in the primary index.
      *  the Nodes is made separetly.
      */
-    void setPrimaryNode(Node primary) {
+    void setPrimaryNode(NodeAVL primary) {
         nPrimaryNode = primary;
     }
 
     public int getRealSize(RowOutputInterface out) {
-        return out.getSize((CachedRow) this);
+        return out.getSize((RowAVLDisk) this);
     }
 
     /**
@@ -128,7 +163,7 @@ public class CachedDataRow extends CachedRow {
     public void write(RowOutputInterface out) {
 
         out.writeSize(storageSize);
-        out.writeData(oData, tTable.colTypes);
+        out.writeData(rowData, tTable.colTypes);
         out.writeEnd();
 
         hasDataChanged = false;
@@ -146,12 +181,12 @@ public class CachedDataRow extends CachedRow {
      */
     public void setPos(int pos) {
 
-        iPos = pos;
+        position = pos;
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         while (n != null) {
-            ((PointerNode) n).iData = iPos;
+            ((NodeAVLMemoryPointer) n).iData = position;
             n                       = n.nNext;
         }
     }
@@ -171,9 +206,9 @@ public class CachedDataRow extends CachedRow {
             return true;
         }
 
-        if (obj instanceof CachedDataRow) {
-            return ((CachedDataRow) obj).iPos == iPos
-                   && ((CachedDataRow) obj).tTable == tTable;
+        if (obj instanceof RowAVLDiskData) {
+            return ((RowAVLDiskData) obj).position == position
+                   && ((RowAVLDiskData) obj).tTable == tTable;
         }
 
         return false;

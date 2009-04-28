@@ -31,8 +31,8 @@
 
 package org.hsqldb.index;
 
-import org.hsqldb.CachedDataRow;
-import org.hsqldb.CachedRow;
+import org.hsqldb.RowAVLDiskData;
+import org.hsqldb.RowAVLDisk;
 import org.hsqldb.Row;
 import org.hsqldb.persist.PersistentStore;
 
@@ -48,18 +48,18 @@ import org.hsqldb.persist.PersistentStore;
  *  This differs from MemoryNode by maintaining an integral pointer for the
  *  Row data instead of a Java reference.
  *
- * New class based on Hypersonic SQL code.
+ *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.7.1
  */
-public class PointerNode extends BaseMemoryNode {
+public class NodeAVLMemoryPointer extends NodeAVLBaseMemory {
 
     public int   iData = NO_POS;
-    private Node nPrimary;    // node of key / primary index for this row
+    private NodeAVL nPrimary;    // node of key / primary index for this row
 
-    public PointerNode(CachedRow r) {
+    public NodeAVLMemoryPointer(RowAVLDisk r) {
 
         iData    = r.getPos();
         nPrimary = r.nPrimaryNode == null ? this
@@ -80,7 +80,7 @@ public class PointerNode extends BaseMemoryNode {
             return null;
         }
 
-        CachedDataRow row = (CachedDataRow) store.get(iData);
+        RowAVLDiskData row = (RowAVLDiskData) store.get(iData);
 
         row.nPrimaryNode = nPrimary;
 

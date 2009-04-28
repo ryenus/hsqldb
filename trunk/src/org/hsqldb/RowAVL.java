@@ -66,12 +66,11 @@
 
 package org.hsqldb;
 
-import org.hsqldb.index.Node;
+import org.hsqldb.index.NodeAVL;
+import org.hsqldb.index.NodeAVLMemory;
 import org.hsqldb.lib.IntLookup;
 import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.persist.CachedObject;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.index.MemoryNode;
 import org.hsqldb.store.ValuePool;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
@@ -88,59 +87,50 @@ import org.hsqldb.store.ValuePool;
  * @version 1.8.0
  * @since Hypersonic SQL
  */
-public class Row implements CachedObject {
+public class RowAVL extends Row {
 
-    int                       tableId;
-    int                       iPos;
-    protected Object[]        oData;
-    public Node               nPrimaryNode;
-    boolean                   isDeleted;
-    public volatile RowAction rowAction;
-
-    //* debug 190
-    // protected RowActionBase rowActionB;
-    //* debug 190
+    public NodeAVL               nPrimaryNode;
 
     /**
      *  Default constructor used only in subclasses.
      */
-    protected Row() {}
+    protected RowAVL() {}
 
     /**
      *  Constructor for MEMORY table Row. .
      */
-    public Row(Object[] o) {
-        oData = o;
+    public RowAVL(Object[] o) {
+        rowData = o;
     }
 
     /**
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
      *  are not yet linked with other Nodes in the AVL indexes.
      */
-    public Row(TableBase t, Object[] o) throws HsqlException {
+    public RowAVL(TableBase t, Object[] o) throws HsqlException {
 
         int index = t.getIndexCount();
 
-        nPrimaryNode = new MemoryNode(this);
+        nPrimaryNode = new NodeAVLMemory(this);
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         for (int i = 1; i < index; i++) {
-            n.nNext = new MemoryNode(this);
+            n.nNext = new NodeAVLMemory(this);
             n       = n.nNext;
         }
 
         tableId = t.getId();
-        oData   = o;
+        rowData   = o;
     }
 
     /**
      * Returns the Node for a given Index, using the ordinal position of the
      * Index within the Table Object.
      */
-    public Node getNode(int index) {
+    public NodeAVL getNode(int index) {
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         while (index-- > 0) {
             n = n.nNext;
@@ -153,7 +143,7 @@ public class Row implements CachedObject {
      *  Returns the Node for the next Index on this database row, given the
      *  Node for any Index.
      */
-    Node getNextNode(Node n) {
+    NodeAVL getNextNode(NodeAVL n) {
 
         if (n == null) {
             n = nPrimaryNode;
@@ -164,10 +154,10 @@ public class Row implements CachedObject {
         return n;
     }
 
-    public Node insertNode(int index) {
+    public NodeAVL insertNode(int index) {
 
-        Node backnode = getNode(index - 1);
-        Node newnode  = new MemoryNode(this);
+        NodeAVL backnode = getNode(index - 1);
+        NodeAVL newnode  = new NodeAVLMemory(this);
 
         newnode.nNext  = backnode.nNext;
         backnode.nNext = newnode;
@@ -179,7 +169,7 @@ public class Row implements CachedObject {
      * Returns the array of fields in the database row.
      */
     public Object[] getData() {
-        return oData;
+        return rowData;
     }
 
     /**
@@ -192,7 +182,7 @@ public class Row implements CachedObject {
 
     void clearNonPrimaryNodes() throws HsqlException {
 
-        Node n = nPrimaryNode.nNext;
+        NodeAVL n = nPrimaryNode.nNext;
 
         while (n != null) {
             n.delete();
@@ -206,16 +196,16 @@ public class Row implements CachedObject {
         return isDeleted;
     }
 
-    public void setChanged() {}
-
-    public void setStorageSize(int size) {}
+    public void setStorageSize(int size) {
+        ;
+    }
 
     public int getStorageSize() {
         return 0;
     }
 
     public long getId() {
-        return ((long) tableId << 32) + ((long) iPos);
+        return ((long) tableId << 32) + ((long) position);
     }
 
     public Object getRowidObject() {
@@ -227,11 +217,11 @@ public class Row implements CachedObject {
     }
 
     public int getPos() {
-        return iPos;
+        return position;
     }
 
     public void setPos(int pos) {
-        iPos = pos;
+        position = pos;
     }
 
     public boolean hasChanged() {
@@ -250,7 +240,7 @@ public class Row implements CachedObject {
 
     public void restore() {
 
-        Node n = nPrimaryNode;
+        NodeAVL n = nPrimaryNode;
 
         while (n != null) {
             n.iBalance = 0;
@@ -264,52 +254,7 @@ public class Row implements CachedObject {
 
         JavaSystem.memoryRecords++;
 
-        oData        = null;
+        rowData        = null;
         nPrimaryNode = null;
-    }
-
-    public void setInMemory(boolean in) {}
-
-    public int getRealSize(RowOutputInterface out) {
-        return 0;
-    }
-
-    public TableBase getTable() {
-        return null;
-    }
-
-    public void write(RowOutputInterface out) {}
-
-    public void write(RowOutputInterface out, IntLookup lookup) {}
-
-    /**
-     * Lifetime scope of this method depends on the operations performed on
-     * any cached tables since this row or the parameter were constructed.
-     * If only deletes or only inserts have been performed, this method
-     * remains valid. Otherwise it can return invalid results.
-     *
-     * @param obj row to compare
-     * @return boolean
-     */
-    public boolean equals(Object obj) {
-
-        if (obj == this) {
-            return true;
-        }
-
-        if (obj instanceof Row) {
-            return ((Row) obj).iPos == iPos;
-        }
-
-        return false;
-    }
-
-    /**
-     * Hash code is valid only until a modification to the cache
-     *
-     * @return file position of row
-     */
-    public int hashCode() {
-        return iPos;
     }
 }

@@ -92,7 +92,7 @@ public class TestCacheSize {
     boolean nioMode        = false;
 
     // script format {TEXT | BINARY | COMPRESSED}
-    String  logType       = "BINARY";
+    String  logType       = "TEXT";
     int     writeDelay    = 60;
     boolean indexZip      = false;
     boolean indexLastName = false;
@@ -186,7 +186,7 @@ public class TestCacheSize {
                                    + cacheSizeScale);
                 sStatement.execute("SET PROPERTY \"hsqldb.nio_data_file\" "
                                    + nioMode);
-                sStatement.execute("SET DATABASE BACKUP INCREMENT " + true);
+                sStatement.execute("SET DATABASE BACKUP INCREMENT " + false);
                 sStatement.execute("SHUTDOWN");
                 cConnection.close();
             }

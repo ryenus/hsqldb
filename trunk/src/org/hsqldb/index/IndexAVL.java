@@ -76,6 +76,7 @@ import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Row;
+import org.hsqldb.RowAVL;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
@@ -111,7 +112,7 @@ import org.hsqldb.types.Type;
  * @version 1.9.0
  * @since Hypersonic SQL
  */
-public class Index implements SchemaObject {
+public class IndexAVL implements Index {
 
     // fields
     private final long      persistenceId;
@@ -151,8 +152,9 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    private static Node set(PersistentStore store, Node x, boolean isleft,
-                            Node n) throws HsqlException {
+    private static NodeAVL set(PersistentStore store, NodeAVL x,
+                               boolean isleft,
+                               NodeAVL n) throws HsqlException {
 
         if (isleft) {
             x = x.setLeft(store, n);
@@ -177,8 +179,8 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    private static Node child(PersistentStore store, Node x,
-                              boolean isleft) throws HsqlException {
+    private static NodeAVL child(PersistentStore store, NodeAVL x,
+                                 boolean isleft) throws HsqlException {
         return isleft ? x.getLeft(store)
                       : x.getRight(store);
     }
@@ -241,9 +243,10 @@ public class Index implements SchemaObject {
      * @param forward is this an auto-index for an FK that refers to a table
      *   defined after this table
      */
-    public Index(HsqlName name, long id, TableBase table, int[] columns,
-                 boolean[] descending, boolean[] nullsLast, Type[] colTypes,
-                 boolean pk, boolean unique, boolean constraint, boolean forward) {
+    public IndexAVL(HsqlName name, long id, TableBase table, int[] columns,
+                    boolean[] descending, boolean[] nullsLast,
+                    Type[] colTypes, boolean pk, boolean unique,
+                    boolean constraint, boolean forward) {
 
         persistenceId  = id;
         this.name      = name;
@@ -465,11 +468,12 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node p = getAccessor(store);
-            Node f = null;
+            NodeAVL p = getAccessor(store);
+            NodeAVL f = null;
 
             while (p != null) {
                 f = p;
+
                 checkNodes(store, p);
 
                 p = p.getLeft(store);
@@ -478,21 +482,19 @@ public class Index implements SchemaObject {
             p = f;
 
             while (f != null) {
-
                 checkNodes(store, f);
 
                 f = next(store, f);
             }
-
         } finally {
             readLock.unlock();
         }
     }
 
-    private void checkNodes(PersistentStore store, Node p) {
+    private void checkNodes(PersistentStore store, NodeAVL p) {
 
-        Node l = p.getLeft(store);
-        Node r = p.getRight(store);
+        NodeAVL l = p.getLeft(store);
+        NodeAVL r = p.getRight(store);
 
         if (l != null && l.getBalance() == -2) {
             System.out.print("broken index - deleted");
@@ -517,8 +519,8 @@ public class Index implements SchemaObject {
     public void insert(Session session, PersistentStore store,
                        Row row) throws HsqlException {
 
-        Node    n;
-        Node    x;
+        NodeAVL n;
+        NodeAVL x;
         boolean isleft  = true;
         int     compare = -1;
 
@@ -529,7 +531,7 @@ public class Index implements SchemaObject {
             x = n;
 
             if (n == null) {
-                store.setAccessor(this, row.getNode(position));
+                store.setAccessor(this, ((RowAVL) row).getNode(position));
 
                 return;
             }
@@ -553,7 +555,7 @@ public class Index implements SchemaObject {
                 }
             }
 
-            x = set(store, x, isleft, row.getNode(position));
+            x = set(store, x, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
         } finally {
@@ -563,18 +565,18 @@ public class Index implements SchemaObject {
 
     public void delete(PersistentStore store, Row row) throws HsqlException {
 
-        Node node = row.getNode(position);
+        NodeAVL node = ((RowAVL) row).getNode(position);
 
         delete(store, node);
     }
 
-    public void delete(PersistentStore store, Node x) throws HsqlException {
+    public void delete(PersistentStore store, NodeAVL x) throws HsqlException {
 
         if (x == null) {
             return;
         }
 
-        Node n;
+        NodeAVL n;
 
         writeLock.lock();
 
@@ -584,12 +586,12 @@ public class Index implements SchemaObject {
             } else if (x.getRight(store) == null) {
                 n = x.getLeft(store);
             } else {
-                Node d = x;
+                NodeAVL d = x;
 
                 x = x.getLeft(store);
 
                 while (true) {
-                    Node temp = x.getRight(store);
+                    NodeAVL temp = x.getRight(store);
 
                     if (temp == null) {
                         break;
@@ -608,8 +610,8 @@ public class Index implements SchemaObject {
                 d = d.setBalance(store, b);
 
                 // set x.parent
-                Node xp = x.getParent(store);
-                Node dp = d.getParent(store);
+                NodeAVL xp = x.getParent(store);
+                NodeAVL dp = d.getParent(store);
 
                 if (d.isRoot()) {
                     store.setAccessor(this, x);
@@ -632,13 +634,13 @@ public class Index implements SchemaObject {
                     if (d.isLeft(x)) {
                         x = x.setLeft(store, d);
 
-                        Node dr = d.getRight(store);
+                        NodeAVL dr = d.getRight(store);
 
                         x = x.setRight(store, dr);
                     } else {
                         x = x.setRight(store, d);
 
-                        Node dl = d.getLeft(store);
+                        NodeAVL dl = d.getLeft(store);
 
                         x = x.setLeft(store, dl);
                     }
@@ -646,8 +648,8 @@ public class Index implements SchemaObject {
                     d  = d.setParent(store, xp);
                     xp = xp.setRight(store, d);
 
-                    Node dl = d.getLeft(store);
-                    Node dr = d.getRight(store);
+                    NodeAVL dl = d.getLeft(store);
+                    NodeAVL dr = d.getRight(store);
 
                     x = x.setLeft(store, dl);
                     x = x.setRight(store, dr);
@@ -694,8 +696,8 @@ public class Index implements SchemaObject {
                         return;
 
                     case 1 :
-                        Node r = child(store, x, !isleft);
-                        int  b = r.getBalance();
+                        NodeAVL r = child(store, x, !isleft);
+                        int     b = r.getBalance();
 
                         if (b * sign >= 0) {
                             replace(store, x, r);
@@ -715,7 +717,7 @@ public class Index implements SchemaObject {
                             r = r.setBalance(store, 0);
                             x = r;
                         } else {
-                            Node l = child(store, r, isleft);
+                            NodeAVL l = child(store, r, isleft);
 
                             replace(store, x, l);
 
@@ -765,7 +767,7 @@ public class Index implements SchemaObject {
                                     Object[] rowdata,
                                     int match) throws HsqlException {
 
-        Node node = findNode(session, store, rowdata, defaultColMap, match);
+        NodeAVL node = findNode(session, store, rowdata, defaultColMap, match);
 
         return getIterator(session, store, node);
     }
@@ -783,8 +785,8 @@ public class Index implements SchemaObject {
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata) throws HsqlException {
 
-        Node node = findNode(session, store, rowdata, colIndex,
-                             colIndex.length);
+        NodeAVL node = findNode(session, store, rowdata, colIndex,
+                                colIndex.length);
 
         return getIterator(session, store, node);
     }
@@ -803,8 +805,8 @@ public class Index implements SchemaObject {
                                     Object[] rowdata,
                                     int[] rowColMap) throws HsqlException {
 
-        Node node = findNode(session, store, rowdata, rowColMap,
-                             rowColMap.length);
+        NodeAVL node = findNode(session, store, rowdata, rowColMap,
+                                rowColMap.length);
 
         return getIterator(session, store, node);
     }
@@ -836,8 +838,8 @@ public class Index implements SchemaObject {
 
             boolean isEqual = compare == OpTypes.EQUAL
                               || compare == OpTypes.IS_NULL;
-            Node x     = getAccessor(store);
-            int  iTest = 1;
+            NodeAVL x     = getAccessor(store);
+            int     iTest = 1;
 
             if (compare == OpTypes.GREATER) {
                 iTest = 0;
@@ -861,7 +863,7 @@ public class Index implements SchemaObject {
                     value, x.getRow(store).getData()[colIndex[0]]) >= iTest;
 
                 if (t) {
-                    Node r = x.getRight(store);
+                    NodeAVL r = x.getRight(store);
 
                     if (r == null) {
                         break;
@@ -869,7 +871,7 @@ public class Index implements SchemaObject {
 
                     x = r;
                 } else {
-                    Node l = x.getLeft(store);
+                    NodeAVL l = x.getLeft(store);
 
                     if (l == null) {
                         break;
@@ -950,14 +952,14 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = getAccessor(store);
+            NodeAVL x = getAccessor(store);
 
             while (x != null) {
                 boolean t = colTypes[0].compare(
                     null, x.getRow(store).getData()[colIndex[0]]) >= 0;
 
                 if (t) {
-                    Node r = x.getRight(store);
+                    NodeAVL r = x.getRight(store);
 
                     if (r == null) {
                         break;
@@ -965,7 +967,7 @@ public class Index implements SchemaObject {
 
                     x = r;
                 } else {
-                    Node l = x.getLeft(store);
+                    NodeAVL l = x.getLeft(store);
 
                     if (l == null) {
                         break;
@@ -1017,8 +1019,8 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = getAccessor(store);
-            Node l = x;
+            NodeAVL x = getAccessor(store);
+            NodeAVL l = x;
 
             while (l != null) {
                 x = l;
@@ -1052,8 +1054,8 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = getAccessor(store);
-            Node l = x;
+            NodeAVL x = getAccessor(store);
+            NodeAVL l = x;
 
             while (l != null) {
                 x = l;
@@ -1083,8 +1085,8 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node x = getAccessor(store);
-            Node l = x;
+            NodeAVL x = getAccessor(store);
+            NodeAVL l = x;
 
             while (l != null) {
                 x = l;
@@ -1117,8 +1119,8 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    private Node next(Session session, PersistentStore store,
-                      Node x) throws HsqlException {
+    private NodeAVL next(Session session, PersistentStore store,
+                         NodeAVL x) throws HsqlException {
 
         if (x == null) {
             return null;
@@ -1149,14 +1151,15 @@ public class Index implements SchemaObject {
         }
     }
 
-    private Node next(PersistentStore store, Node x) throws HsqlException {
+    private NodeAVL next(PersistentStore store,
+                         NodeAVL x) throws HsqlException {
 
-        Node r = x.getRight(store);
+        NodeAVL r = x.getRight(store);
 
         if (r != null) {
             x = r;
 
-            Node l = x.getLeft(store);
+            NodeAVL l = x.getLeft(store);
 
             while (l != null) {
                 x = l;
@@ -1166,7 +1169,7 @@ public class Index implements SchemaObject {
             return x;
         }
 
-        Node ch = x;
+        NodeAVL ch = x;
 
         x = x.getParent(store);
 
@@ -1178,7 +1181,8 @@ public class Index implements SchemaObject {
         return x;
     }
 
-    private Node last(PersistentStore store, Node x) throws HsqlException {
+    private NodeAVL last(PersistentStore store,
+                         NodeAVL x) throws HsqlException {
 
         if (x == null) {
             return null;
@@ -1187,12 +1191,12 @@ public class Index implements SchemaObject {
         readLock.lock();
 
         try {
-            Node left = x.getLeft(store);
+            NodeAVL left = x.getLeft(store);
 
             if (left != null) {
                 x = left;
 
-                Node right = x.getRight(store);
+                NodeAVL right = x.getRight(store);
 
                 while (right != null) {
                     x     = right;
@@ -1202,7 +1206,7 @@ public class Index implements SchemaObject {
                 return x;
             }
 
-            Node ch = x;
+            NodeAVL ch = x;
 
             x = x.getParent(store);
 
@@ -1225,8 +1229,8 @@ public class Index implements SchemaObject {
      *
      * @throws HsqlException
      */
-    private void replace(PersistentStore store, Node x,
-                         Node n) throws HsqlException {
+    private void replace(PersistentStore store, NodeAVL x,
+                         NodeAVL n) throws HsqlException {
 
         if (x.isRoot()) {
             if (n != null) {
@@ -1400,16 +1404,16 @@ public class Index implements SchemaObject {
      * @return matching node or null
      * @throws HsqlException
      */
-    private Node findNode(Session session, PersistentStore store,
-                          Object[] rowdata, int[] rowColMap,
-                          int fieldCount) throws HsqlException {
+    private NodeAVL findNode(Session session, PersistentStore store,
+                             Object[] rowdata, int[] rowColMap,
+                             int fieldCount) throws HsqlException {
 
         readLock.lock();
 
         try {
-            Node x = getAccessor(store);
-            Node n;
-            Node result = null;
+            NodeAVL x = getAccessor(store);
+            NodeAVL n;
+            NodeAVL result = null;
 
             while (x != null) {
                 int i = this.compareRowNonUnique(rowdata, rowColMap,
@@ -1463,7 +1467,7 @@ public class Index implements SchemaObject {
     /**
      * Balances part of the tree after an alteration to the index.
      */
-    private void balance(PersistentStore store, Node x,
+    private void balance(PersistentStore store, NodeAVL x,
                          boolean isleft) throws HsqlException {
 
         while (true) {
@@ -1482,7 +1486,7 @@ public class Index implements SchemaObject {
                     break;
 
                 case -1 :
-                    Node l = child(store, x, isleft);
+                    NodeAVL l = child(store, x, isleft);
 
                     if (l.getBalance() == -sign) {
                         replace(store, x, l);
@@ -1492,7 +1496,7 @@ public class Index implements SchemaObject {
                         x = x.setBalance(store, 0);
                         l = l.setBalance(store, 0);
                     } else {
-                        Node r = child(store, l, !isleft);
+                        NodeAVL r = child(store, l, !isleft);
 
                         replace(store, x, r);
 
@@ -1522,21 +1526,21 @@ public class Index implements SchemaObject {
         }
     }
 
-    private Node getAccessor(PersistentStore store) {
+    private NodeAVL getAccessor(PersistentStore store) {
 
-        Node node = (Node) store.getAccessor(this);
+        NodeAVL node = (NodeAVL) store.getAccessor(this);
 
-        if (node != null && node instanceof DiskNode) {
+        if (node != null && node instanceof NodeAVLDisk) {
             Row row = node.getRow(store);
 
-            node = row.getNode(position);
+            node = ((RowAVL) row).getNode(position);
         }
 
         return node;
     }
 
     private IndexRowIterator getIterator(Session session,
-                                         PersistentStore store, Node x) {
+                                         PersistentStore store, NodeAVL x) {
 
         if (x == null) {
             return emptyIterator;
@@ -1552,8 +1556,8 @@ public class Index implements SchemaObject {
 
         final Session         session;
         final PersistentStore store;
-        final Index           index;
-        Node                  nextnode;
+        final IndexAVL        index;
+        NodeAVL               nextnode;
         Row                   lastrow;
         IndexRowIterator      last;
         IndexRowIterator      next;
@@ -1564,7 +1568,7 @@ public class Index implements SchemaObject {
          * When session == null, rows from all sessions are returned
          */
         public IndexRowIterator(Session session, PersistentStore store,
-                                Index index, Node node) {
+                                IndexAVL index, NodeAVL node) {
 
             this.session = session;
             this.store   = store;

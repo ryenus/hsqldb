@@ -545,7 +545,7 @@ public class TransactionManager {
             return;
         }
 
-        RowAction rowact = (RowAction) rowActionMap.get(row.iPos);
+        RowAction rowact = (RowAction) rowActionMap.get(row.position);
 
         row.rowAction = rowact;
     }

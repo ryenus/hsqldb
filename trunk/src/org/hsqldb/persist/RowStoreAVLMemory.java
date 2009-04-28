@@ -39,11 +39,12 @@ import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.Node;
+import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.RowAVL;
 
 /*
  * Implementation of PersistentStore for MEMORY tables.
@@ -52,7 +53,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreMemory implements PersistentStore {
+public class RowStoreAVLMemory implements PersistentStore {
 
     TableBase                       table;
     PersistentStoreCollection       manager;
@@ -61,7 +62,7 @@ public class RowStoreMemory implements PersistentStore {
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
-    public RowStoreMemory(PersistentStoreCollection manager,
+    public RowStoreAVLMemory(PersistentStoreCollection manager,
                              TableBase table) {
 
         this.manager      = manager;
@@ -99,7 +100,7 @@ public class RowStoreMemory implements PersistentStore {
                                            Object object)
                                            throws HsqlException {
 
-        Row row = new Row(table, (Object[]) object);
+        Row row = new RowAVL(table, (Object[]) object);
 
         if (session != null) {
             RowAction.addAction(session, RowAction.ACTION_INSERT, table, row);
@@ -212,9 +213,9 @@ public class RowStoreMemory implements PersistentStore {
         int         position = oldIndex.getPosition() - 1;
 
         while (it.hasNext()) {
-            Row  row      = it.getNextRow();
-            int  i        = position - 1;
-            Node backnode = row.getNode(0);
+            Row     row      = it.getNextRow();
+            int     i        = position - 1;
+            NodeAVL backnode = ((RowAVL) row).getNode(0);
 
             while (i-- > 0) {
                 backnode = backnode.nNext;
@@ -236,7 +237,7 @@ public class RowStoreMemory implements PersistentStore {
             while (it.hasNext()) {
                 Row row = it.getNextRow();
 
-                row.insertNode(position);
+                ((RowAVL) row).insertNode(position);
 
                 // count before inserting
                 rowCount++;
@@ -256,9 +257,9 @@ public class RowStoreMemory implements PersistentStore {
         it = primaryIndex.firstRow(this);
 
         for (int i = 0; i < rowCount; i++) {
-            Row  row      = it.getNextRow();
-            Node backnode = row.getNode(0);
-            int  j        = position;
+            Row     row      = it.getNextRow();
+            NodeAVL backnode = ((RowAVL) row).getNode(0);
+            int     j        = position;
 
             while (--j > 0) {
                 backnode = backnode.nNext;

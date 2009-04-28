@@ -33,7 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.Node;
+import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -372,8 +372,8 @@ public class TableBase {
                                          HsqlName name) {
 
         long id = database.persistentStoreCollection.getNextId();
-        Index newindex = new Index(name, id, this, pkcols, null, null,
-                                   pktypes, true, true, true, false);
+        Index newindex = new IndexAVL(name, id, this, pkcols, null, null,
+                                      pktypes, true, true, true, false);
 
         try {
             addIndex(newindex);
@@ -413,9 +413,9 @@ public class TableBase {
         }
 
         long id = database.persistentStoreCollection.getNextId();
-        Index newIndex = new Index(name, id, this, cols, descending,
-                                   nullsLast, types, false, unique, constraint,
-                                   forward);
+        Index newIndex = new IndexAVL(name, id, this, cols, descending,
+                                      nullsLast, types, false, unique,
+                                      constraint, forward);
 
         return newIndex;
     }
@@ -560,7 +560,7 @@ public class TableBase {
         while (it.hasNext()) {
             Row row = it.getNextRow();
 
-            row.clearNonPrimaryNodes();
+            ((RowAVL) row).clearNonPrimaryNodes();
 
             for (int i = 1; i < indexList.length; i++) {
                 indexList[i].insert(null, store, row);

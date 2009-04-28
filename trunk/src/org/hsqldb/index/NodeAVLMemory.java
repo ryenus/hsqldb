@@ -74,13 +74,13 @@ import org.hsqldb.persist.PersistentStore;
 /**
  *  Memory table node implementation.
  *
- * New class by fredt@users based on original Hypersonic code.
+ *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.1
+ * @version 1.9.0
  * @since 1.7.1
  */
-public class MemoryNode extends BaseMemoryNode {
+public class NodeAVLMemory extends NodeAVLBaseMemory {
 
     protected Row rData;
 
@@ -89,7 +89,7 @@ public class MemoryNode extends BaseMemoryNode {
      *
      * @param r Row
      */
-    public MemoryNode(Row r) {
+    public NodeAVLMemory(Row r) {
         rData = r;
     }
 
