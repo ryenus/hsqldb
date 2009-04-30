@@ -366,9 +366,14 @@ public class TextTable extends org.hsqldb.Table {
     }
 
     /**
-     * Used by TextCache to insert a row into the indexes when the source
-     * file is first read.
+     * Adds commitPersistence() call
      */
-    protected void insertFromTextSource(Session session,
-                                        RowAVLDisk row) throws HsqlException {}
+    public void insertData(PersistentStore store,
+                           Object[] data) throws HsqlException {
+
+        Row row = (Row) store.getNewCachedObject(null, data);
+
+        store.indexRow(null, row);
+        store.commitPersistence(row);
+    }
 }

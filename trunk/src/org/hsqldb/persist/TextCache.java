@@ -413,8 +413,22 @@ public class TextCache extends DataFileCache {
         row = cache.release(pos);
 
         clearRowImage(row);
-        release(pos);
+//        release(pos);
     }
+
+    public synchronized void removePersistence(int pos) {
+
+        CachedObject row = (CachedObject) uncommittedCache.get(pos);
+
+        if (row != null) {
+            return;
+        }
+
+        row = cache.get(pos);
+
+        clearRowImage(row);
+    }
+
 
     private void clearRowImage(CachedObject row) {
 
@@ -433,19 +447,6 @@ public class TextCache extends DataFileCache {
         } catch (IOException e) {
             throw Error.runtimeError(ErrorCode.U_S0500, e.getMessage());
         }
-    }
-
-    public synchronized void removePersistence(int pos) throws HsqlException {
-
-        CachedObject row = (CachedObject) uncommittedCache.get(pos);
-
-        if (row != null) {
-            return;
-        }
-
-        row = cache.get(pos);
-
-        clearRowImage(row);
     }
 
     protected synchronized RowInputInterface readObject(int pos)

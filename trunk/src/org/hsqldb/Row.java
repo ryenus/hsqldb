@@ -71,7 +71,7 @@ public class Row implements CachedObject {
      *  Is used only when the database row is deleted, not when it is freed
      *  from the Cache.
      */
-    void delete() throws HsqlException {
+    public void delete() throws HsqlException {
         isDeleted = true;
     }
 

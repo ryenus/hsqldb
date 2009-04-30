@@ -33,11 +33,12 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
-import org.hsqldb.RowAVLDisk;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
+import org.hsqldb.RowAVL;
+import org.hsqldb.RowAVLDisk;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
@@ -46,7 +47,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.RowAVL;
 
 /*
  * Implementation of PersistentStore for result set and temporary tables.
@@ -55,14 +55,10 @@ import org.hsqldb.RowAVL;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreAVLHybrid implements PersistentStore {
+public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     final Session                   session;
     DataFileCacheSession            cache;
-    final TableBase                 table;
-    final PersistentStoreCollection manager;
-    private Index[]                 indexList    = Index.emptyArray;
-    CachedObject[]                  accessorList = CachedObject.emptyArray;
     private int                     maxMemoryRowCount;
     private int                     memoryRowCount;
     private boolean                 useCache;
@@ -95,6 +91,7 @@ public class RowStoreAVLHybrid implements PersistentStore {
             }
         }
 */
+
 //
         resetAccessorKeys(table.getIndexList());
         manager.setStore(table, this);
@@ -236,7 +233,7 @@ public class RowStoreAVLHybrid implements PersistentStore {
         }
     }
 
-    public void commit(CachedObject row) {}
+    public void commitPersistence(CachedObject row) {}
 
     public DataFileCache getCache() {
         return cache;
@@ -264,18 +261,6 @@ public class RowStoreAVLHybrid implements PersistentStore {
         }
 
         manager.setStore(table, null);
-    }
-
-    public PersistentStore getAccessorStore(Index index) {
-        return null;
-    }
-
-    public CachedObject getAccessor(Index key) {
-
-        Index index    = (Index) key;
-        int   position = index.getPosition();
-
-        return accessorList[position];
     }
 
     public void setAccessor(Index key, CachedObject accessor) {
@@ -317,7 +302,7 @@ public class RowStoreAVLHybrid implements PersistentStore {
                 Row row    = iterator.getNextRow();
                 Row newRow = (Row) getNewCachedObject(session, row.getData());
 
-                table.indexRow(this, newRow);
+                indexRow(null, newRow);
             }
 
             rowIdMap.clear();

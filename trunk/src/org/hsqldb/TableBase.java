@@ -494,6 +494,8 @@ public class TableBase {
     }
 
     /**
+     * @todo - this is wrong, as it returns true when table has no rows,
+     * but not where it has rows that are not visible by session
      *  Returns true if the table has any rows at all.
      */
     public final boolean isEmpty(Session session) {
@@ -505,67 +507,6 @@ public class TableBase {
         PersistentStore store = session.sessionData.getRowStore(this);
 
         return getIndex(0).isEmpty(store);
-    }
-
-    /**
-     * Basic delete with no logging or referential checks.
-     */
-    public final void delete(PersistentStore store,
-                             Row row) throws HsqlException {
-
-        for (int i = indexList.length - 1; i >= 0; i--) {
-            indexList[i].delete(store, row);
-        }
-
-        row.delete();
-        store.remove(row.getPos());
-        row.destroy();
-    }
-
-    public final Row getRow(PersistentStore store, long rowId) {
-        return (Row) store.get((int) rowId);
-    }
-
-    public void indexRow(PersistentStore store, Row row) throws HsqlException {
-
-        int i = 0;
-
-        try {
-            for (; i < indexList.length; i++) {
-                indexList[i].insert(null, store, row);
-            }
-        } catch (HsqlException e) {
-
-            // unique index violation - rollback insert
-            for (--i; i >= 0; i--) {
-                indexList[i].delete(store, row);
-            }
-
-            row.delete();
-            store.remove(row.getPos());
-            row.destroy();
-
-            throw e;
-        }
-    }
-
-    public void indexRows(PersistentStore store) throws HsqlException {
-
-        RowIterator it = rowIterator(store);
-
-        for (int i = 1; i < indexList.length; i++) {
-            store.setAccessor(indexList[i], null);
-        }
-
-        while (it.hasNext()) {
-            Row row = it.getNextRow();
-
-            ((RowAVL) row).clearNonPrimaryNodes();
-
-            for (int i = 1; i < indexList.length; i++) {
-                indexList[i].insert(null, store, row);
-            }
-        }
     }
 
     public int getRowCount(PersistentStore store) throws HsqlException {

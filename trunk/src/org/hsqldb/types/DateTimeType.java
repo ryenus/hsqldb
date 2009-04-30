@@ -1283,28 +1283,6 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    public Object changeToNoZone(Object a) {
-
-        if (a == null) {
-            return null;
-        }
-
-        switch (typeCode) {
-
-            case Types.SQL_TIME_WITH_TIME_ZONE :
-            case Types.SQL_TIME : {
-                TimeData value = (TimeData) a;
-
-                if (value.zone != 0) {
-                    return new TimeData(value.getSeconds() + value.getZone(),
-                                        value.getNanos());
-                }
-            }
-        }
-
-        return a;
-    }
-
     public Object changeZone(Object a, Type otherType, int targetZone,
                              int localZone) throws HsqlException {
 

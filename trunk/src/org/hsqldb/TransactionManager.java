@@ -321,7 +321,7 @@ public class TransactionManager {
                         case RowActionBase.ACTION_INSERT :
                             Row row = (Row) store.get(action.getPos());
 
-                            store.commit(row);
+                            store.commitPersistence(row);
                             break;
 
                         default :
@@ -587,7 +587,7 @@ public class TransactionManager {
 
             if (delete) {
                 try {
-                    rowact.table.delete(store, row);
+                    store.delete(row);
                 } catch (HsqlException e) {
 
                     //                    throw unexpectedException(e.getMessage());
@@ -694,7 +694,7 @@ public class TransactionManager {
                 try {
                     int pos = rowact.getPos();
 
-                    rowact.table.delete(store, row);
+                    store.delete(row);
 
                     Type[] types = rowact.table.getColumnTypes();
 
