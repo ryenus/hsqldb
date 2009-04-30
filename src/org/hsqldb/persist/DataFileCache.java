@@ -484,7 +484,7 @@ public class DataFileCache {
         }
     }
 
-    public void removePersistence(int i) throws HsqlException {}
+    public void removePersistence(int i) {}
 
     /**
      * Allocates file space for the row. <p>

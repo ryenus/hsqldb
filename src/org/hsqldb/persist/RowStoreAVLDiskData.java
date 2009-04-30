@@ -33,16 +33,15 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
-import org.hsqldb.RowAVLDiskData;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
+import org.hsqldb.RowAVLDiskData;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.index.Index;
+import org.hsqldb.TableBase;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.TableBase;
 
 /*
  * Implementation of PersistentStore for TEXT tables.
@@ -108,13 +107,8 @@ implements PersistentStore {
 
     public void removePersistence(int i) {
 
-        try {
-            if (cache != null) {
-                cache.removePersistence(i);
-            }
-        } catch (HsqlException e) {
-
-            //
+        if (cache != null) {
+            cache.removePersistence(i);
         }
     }
 
@@ -125,7 +119,7 @@ implements PersistentStore {
         }
     }
 
-    public void commit(CachedObject row) {
+    public void commitPersistence(CachedObject row) {
 
         try {
             if (cache != null) {
@@ -140,21 +134,5 @@ implements PersistentStore {
         table.database.logger.closeTextCache((Table) table);
 
         cache = null;
-    }
-
-    public PersistentStore getAccessorStore(Index index) {
-        return null;
-    }
-
-    public CachedObject getAccessor(Index key) {
-
-        Index index    = (Index) key;
-        int   position = index.getPosition();
-
-        if (position >= accessorList.length) {
-            return null;
-        }
-
-        return accessorList[position];
     }
 }

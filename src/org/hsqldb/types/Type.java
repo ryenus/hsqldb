@@ -581,6 +581,31 @@ public abstract class Type implements SchemaObject, Cloneable {
                                      DTIType.defaultIntervalPrecision,
                                      DTIType.defaultIntervalFractionPrecision);
 
+    //
+    public static final IntervalType SQL_INTERVAL_YEAR_MAX_PRECISION =
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_YEAR,
+                                     DTIType.maxIntervalPrecision, 0);
+    public static final IntervalType SQL_INTERVAL_MONTH_MAX_PRECISION =
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_MONTH,
+                                     DTIType.maxIntervalPrecision, 0);
+    public static final IntervalType SQL_INTERVAL_DAY_MAX_PRECISION =
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY,
+                                     DTIType.maxIntervalPrecision, 0);
+    public static final IntervalType SQL_INTERVAL_HOUR_MAX_PRECISION =
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_HOUR,
+                                     DTIType.maxIntervalPrecision, 0);
+    public static final IntervalType SQL_INTERVAL_MINUTE_MAX_PRECISION =
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_MINUTE,
+                                     DTIType.maxIntervalPrecision, 0);
+    public static final IntervalType SQL_INTERVAL_SECOND_MAX_PRECISION =
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
+                                     DTIType.maxIntervalPrecision,
+                                     DTIType.defaultIntervalFractionPrecision);
+    public static final IntervalType SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION =
+        IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
+                                     DTIType.maxIntervalPrecision,
+                                     DTIType.maxFractionPrecision);
+
     public static Type getDefaultType(int type) {
 
         try {

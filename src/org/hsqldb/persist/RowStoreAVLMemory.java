@@ -35,6 +35,7 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
+import org.hsqldb.RowAVL;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
@@ -44,7 +45,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.RowAVL;
 
 /*
  * Implementation of PersistentStore for MEMORY tables.
@@ -53,12 +53,9 @@ import org.hsqldb.RowAVL;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreAVLMemory implements PersistentStore {
+public class RowStoreAVLMemory
+    extends RowStoreAVL implements PersistentStore {
 
-    TableBase                       table;
-    PersistentStoreCollection       manager;
-    private Index[]                 indexList    = Index.emptyArray;
-    private CachedObject[]          accessorList = CachedObject.emptyArray;
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
@@ -127,7 +124,7 @@ public class RowStoreAVLMemory implements PersistentStore {
 
     public void release(int i) {}
 
-    public void commit(CachedObject row) {}
+    public void commitPersistence(CachedObject row) {}
 
     public DataFileCache getCache() {
         return null;
@@ -138,18 +135,6 @@ public class RowStoreAVLMemory implements PersistentStore {
     public void release() {
         ArrayUtil.fillArray(accessorList, null);
         rowIdMap.clear();
-    }
-
-    public PersistentStore getAccessorStore(Index index) {
-        return null;
-    }
-
-    public CachedObject getAccessor(Index key) {
-
-        Index index    = (Index) key;
-        int   position = index.getPosition();
-
-        return accessorList[position];
     }
 
     public void setAccessor(Index key, CachedObject accessor) {

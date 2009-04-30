@@ -1139,7 +1139,7 @@ public class Expression {
             Row row = (Row) store.getNewCachedObject(session, data);
 
             try {
-                table.indexRow(store, row);
+                store.indexRow(session, row);
             } catch (HsqlException e) {}
         }
     }

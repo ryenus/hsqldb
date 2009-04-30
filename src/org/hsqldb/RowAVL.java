@@ -176,11 +176,11 @@ public class RowAVL extends Row {
      *  Is used only when the database row is deleted, not when it is freed
      *  from the Cache.
      */
-    void delete() throws HsqlException {
+    public void delete() throws HsqlException {
         isDeleted = true;
     }
 
-    void clearNonPrimaryNodes() throws HsqlException {
+    public void clearNonPrimaryNodes() throws HsqlException {
 
         NodeAVL n = nPrimaryNode.nNext;
 

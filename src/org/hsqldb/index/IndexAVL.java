@@ -1608,7 +1608,7 @@ public class IndexAVL implements Index {
         }
 
         public void remove() throws HsqlException {
-            index.table.delete(store, lastrow);
+            store.delete(lastrow);
         }
 
         public void release() {}

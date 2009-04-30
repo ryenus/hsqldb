@@ -32,8 +32,10 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.HsqlException;
+import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.index.Index;
+import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 
 /**
@@ -45,10 +47,9 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public interface PersistentStore {
 
-    int INT_STORE_SIZE  = 4;
-    int LONG_STORE_SIZE = 8;
-
-    PersistentStore[] emptyArray = new PersistentStore[]{};
+    int               INT_STORE_SIZE  = 4;
+    int               LONG_STORE_SIZE = 8;
+    PersistentStore[] emptyArray      = new PersistentStore[]{};
 
     boolean isMemory();
 
@@ -82,8 +83,17 @@ public interface PersistentStore {
     void release(int i);
 
     /** commit persisted image */
-    void commit(CachedObject object);
+    void commitPersistence(CachedObject object);
 
+    void delete(Row row) throws HsqlException;
+
+    void indexRow(Session session, Row row) throws HsqlException;
+
+    void indexRows() throws HsqlException;
+
+    RowIterator rowIterator();
+
+    //
     DataFileCache getCache();
 
     void setCache(DataFileCache cache);

@@ -127,7 +127,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
     public void sortFull() throws HsqlException {
 
         if (reindexTable) {
-            table.indexRows(store);
+            store.indexRows();
         }
 
         mainIndex = fullIndex;
@@ -139,7 +139,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
 
         if (orderIndex != null) {
             if (reindexTable) {
-                table.indexRows(store);
+                store.indexRows();
             }
 
             mainIndex = orderIndex;
@@ -169,7 +169,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         try {
             Row row = (Row) store.getNewCachedObject(session, data);
 
-            table.indexRow(store, row);
+            store.indexRow(null, row);
 
             size++;
         } catch (HsqlException e) {}
@@ -191,7 +191,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
 
             Row row = (Row) store.getNewCachedObject(session, data);
 
-            table.indexRow(store, row);
+            store.indexRow(null, row);
 
             size++;
         } catch (HsqlException e) {}

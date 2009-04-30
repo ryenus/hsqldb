@@ -2184,7 +2184,7 @@ public class Table extends TableBase implements SchemaObject {
                 /** @todo 1.9.0 - change transaction row id to new row only when finished whole operation successfully */
                 newrow.rowAction = row.rowAction;
 
-                indexRow(store, newrow);
+                store.indexRow(null, newrow);
             }
         } catch (Throwable t) {
             store.release();
@@ -2249,7 +2249,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, data);
 
-        indexRow(session, store, row);
+        store.indexRow(session, row);
         session.addInsertAction(this, row);
     }
 
@@ -2264,7 +2264,7 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store = session.sessionData.getRowStore(this);
         Row             row   = (Row) store.getNewCachedObject(session, data);
 
-        indexRow(session, store, row);
+        store.indexRow(session, row);
         session.addInsertAction(this, row);
     }
 
@@ -2316,13 +2316,15 @@ public class Table extends TableBase implements SchemaObject {
         insertData(store, data);
     }
 
+    /**
+     * For system operations outside transaction constrol
+     */
     public void insertData(PersistentStore store,
                            Object[] data) throws HsqlException {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 
-        indexRow(store, row);
-        store.commit(row);
+        store.indexRow(null, row);
     }
 
     /**
@@ -2333,12 +2335,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 
-        indexRow(store, row);
-/*
-        for (int i = 0; i < indexList.length; i++) {
-            indexList[i].insert(store, row, i);
-        }
-*/
+        store.indexRow(null, row);
     }
 
     /**
@@ -2523,7 +2520,7 @@ public class Table extends TableBase implements SchemaObject {
             Row      row  = (Row) rowSet.getKey(i);
             Object[] data = (Object[]) rowSet.get(i);
 
-            checkRowData(session, data, cols);
+            checkRowData(session, data, cols); // ??
             deleteNoCheck(session, row);
         }
 
@@ -2553,30 +2550,6 @@ public class Table extends TableBase implements SchemaObject {
 
         for (int i = 0; i < checkConstraints.length; i++) {
             checkConstraints[i].checkCheckConstraint(session, this, data);
-        }
-    }
-
-    public void indexRow(Session session, PersistentStore store,
-                         Row row) throws HsqlException {
-
-        int i = 0;
-
-        try {
-            for (; i < indexList.length; i++) {
-                indexList[i].insert(session, store, row);
-            }
-        } catch (HsqlException e) {
-
-            // unique index violation - rollback insert
-            for (--i; i >= 0; i--) {
-                indexList[i].delete(store, row);
-            }
-
-            row.delete();
-            store.remove(row.getPos());
-            row.destroy();
-
-            throw e;
         }
     }
 
