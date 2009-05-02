@@ -107,7 +107,7 @@ public class SessionContext {
         if (stack == null) {
             stack = new HsqlArrayList(true);
         }
-
+        stack.add(dynamicArguments);
         stack.add(routineArguments);
         stack.add(routineVariables);
         stack.add(rangeIterators);
@@ -134,6 +134,7 @@ public class SessionContext {
         rangeIterators      = (RangeIterator[]) stack.remove(stack.size() - 1);
         routineVariables    = (Object[]) stack.remove(stack.size() - 1);
         routineArguments    = (Object[]) stack.remove(stack.size() - 1);
+        dynamicArguments    = (Object[]) stack.remove(stack.size() - 1);
 
         depth--;
     }

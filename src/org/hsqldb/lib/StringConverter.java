@@ -571,7 +571,7 @@ public class StringConverter {
         int c,
             count  = 0;
 
-        if (out.count + strlen + 8 > out.buf.length) {
+        if (out.count + strlen + 8 > out.buffer.length) {
             out.ensureRoom(strlen + 8);
         }
 
@@ -581,21 +581,21 @@ public class StringConverter {
             c = arr[i];
 
             if (c >= 0x0001 && c <= 0x007F) {
-                out.buf[out.count++] = (byte) c;
+                out.buffer[out.count++] = (byte) c;
 
                 count++;
             } else if (c > 0x07FF) {
-                out.buf[out.count++] = (byte) (0xE0 | ((c >> 12) & 0x0F));
-                out.buf[out.count++] = (byte) (0x80 | ((c >> 6) & 0x3F));
-                out.buf[out.count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
-                count                += 3;
+                out.buffer[out.count++] = (byte) (0xE0 | ((c >> 12) & 0x0F));
+                out.buffer[out.count++] = (byte) (0x80 | ((c >> 6) & 0x3F));
+                out.buffer[out.count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
+                count                   += 3;
             } else {
-                out.buf[out.count++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
-                out.buf[out.count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
-                count                += 2;
+                out.buffer[out.count++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
+                out.buffer[out.count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
+                count                   += 2;
             }
 
-            if (out.count + 8 > out.buf.length) {
+            if (out.count + 8 > out.buffer.length) {
                 out.ensureRoom(strlen - i + 8);
             }
         }

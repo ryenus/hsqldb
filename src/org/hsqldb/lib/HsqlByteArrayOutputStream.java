@@ -33,6 +33,7 @@ package org.hsqldb.lib;
 
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UTFDataFormatException;
 import java.io.UnsupportedEncodingException;
@@ -48,7 +49,7 @@ import java.io.UnsupportedEncodingException;
 public class HsqlByteArrayOutputStream extends java.io.OutputStream
 implements DataOutput {
 
-    protected byte[] buf;
+    protected byte[] buffer;
     protected int    count;
 
     public HsqlByteArrayOutputStream() {
@@ -61,11 +62,38 @@ implements DataOutput {
             size = 128;
         }
 
-        buf = new byte[size];
+        buffer = new byte[size];
     }
 
     public HsqlByteArrayOutputStream(byte[] buffer) {
-        buf = buffer;
+        this.buffer = buffer;
+    }
+
+    /**
+     * Constructor from an InputStream limits size to the length argument but
+     * does not throw if the actual length of the InputStream is smaller than
+     * length value.
+     */
+    public HsqlByteArrayOutputStream(InputStream input,
+                                     int length) throws IOException {
+
+        buffer = new byte[length];
+
+        try {
+            for (int left = length; left > 0; ) {
+                int read = input.read(buffer, count, left);
+
+                if (read == -1) {
+                    break;
+                }
+
+                left  -= read;
+                count += read;
+            }
+        } finally {
+            input.close();
+        }
+
     }
 
     // methods that implement dataOutput
@@ -73,20 +101,20 @@ implements DataOutput {
 
         ensureRoom(2);
 
-        buf[count++] = (byte) (v >>> 8);
-        buf[count++] = (byte) v;
+        buffer[count++] = (byte) (v >>> 8);
+        buffer[count++] = (byte) v;
     }
 
     public void writeInt(int v) {
 
-        if (count + 4 > buf.length) {
+        if (count + 4 > buffer.length) {
             ensureRoom(4);
         }
 
-        buf[count++] = (byte) (v >>> 24);
-        buf[count++] = (byte) (v >>> 16);
-        buf[count++] = (byte) (v >>> 8);
-        buf[count++] = (byte) v;
+        buffer[count++] = (byte) (v >>> 24);
+        buffer[count++] = (byte) (v >>> 16);
+        buffer[count++] = (byte) (v >>> 8);
+        buffer[count++] = (byte) v;
     }
 
     public void writeLong(long v) {
@@ -101,7 +129,7 @@ implements DataOutput {
         ensureRoom(len);
 
         for (int i = 0; i < len; i++) {
-            buf[count++] = (byte) s.charAt(i);
+            buffer[count++] = (byte) s.charAt(i);
         }
     }
 
@@ -117,7 +145,7 @@ implements DataOutput {
 
         ensureRoom(1);
 
-        buf[count++] = (byte) (v ? 1
+        buffer[count++] = (byte) (v ? 1
                                  : 0);
     }
 
@@ -125,15 +153,15 @@ implements DataOutput {
 
         ensureRoom(1);
 
-        buf[count++] = (byte) (v);
+        buffer[count++] = (byte) (v);
     }
 
     public void writeChar(int v) {
 
         ensureRoom(2);
 
-        buf[count++] = (byte) (v >>> 8);
-        buf[count++] = (byte) v;
+        buffer[count++] = (byte) (v >>> 8);
+        buffer[count++] = (byte) v;
     }
 
     public void writeChars(String s) {
@@ -145,8 +173,8 @@ implements DataOutput {
         for (int i = 0; i < len; i++) {
             int v = s.charAt(i);
 
-            buf[count++] = (byte) (v >>> 8);
-            buf[count++] = (byte) v;
+            buffer[count++] = (byte) (v >>> 8);
+            buffer[count++] = (byte) v;
         }
     }
 
@@ -175,8 +203,8 @@ implements DataOutput {
             throw new UTFDataFormatException();
         }
 
-        buf[initpos++] = (byte) (bytecount >>> 8);
-        buf[initpos]   = (byte) bytecount;
+        buffer[initpos++] = (byte) (bytecount >>> 8);
+        buffer[initpos]   = (byte) bytecount;
     }
 
     /**
@@ -189,11 +217,11 @@ implements DataOutput {
 
         ensureRoom(1);
 
-        buf[count++] = (byte) b;
+        buffer[count++] = (byte) b;
     }
 
     public void writeNoCheck(int b) {
-        buf[count++] = (byte) b;
+        buffer[count++] = (byte) b;
     }
 
     public void write(byte[] b) {
@@ -203,13 +231,13 @@ implements DataOutput {
     public void write(byte[] b, int off, int len) {
 
         ensureRoom(len);
-        System.arraycopy(b, off, buf, count, len);
+        System.arraycopy(b, off, buffer, count, len);
 
         count += len;
     }
 
     public void writeTo(OutputStream out) throws IOException {
-        out.write(buf, 0, count);
+        out.write(buffer, 0, count);
     }
 
     public void reset() {
@@ -220,7 +248,7 @@ implements DataOutput {
 
         byte[] newbuf = new byte[count];
 
-        System.arraycopy(buf, 0, newbuf, 0, count);
+        System.arraycopy(buffer, 0, newbuf, 0, count);
 
         return newbuf;
     }
@@ -231,7 +259,7 @@ implements DataOutput {
 
     public void setPosition(int newPos) {
 
-        if (newPos > buf.length) {
+        if (newPos > buffer.length) {
             throw new ArrayIndexOutOfBoundsException();
         }
 
@@ -239,11 +267,11 @@ implements DataOutput {
     }
 
     public String toString() {
-        return new String(buf, 0, count);
+        return new String(buffer, 0, count);
     }
 
     public String toString(String enc) throws UnsupportedEncodingException {
-        return new String(buf, 0, count, enc);
+        return new String(buffer, 0, count, enc);
     }
 
     public void close() throws IOException {}
@@ -256,8 +284,8 @@ implements DataOutput {
         for (int i = off; i < len; i++) {
             int v = c[i];
 
-            buf[count++] = (byte) (v >>> 8);
-            buf[count++] = (byte) v;
+            buffer[count++] = (byte) (v >>> 8);
+            buffer[count++] = (byte) v;
         }
     }
 
@@ -266,23 +294,23 @@ implements DataOutput {
         ensureRoom(len);
 
         for (int i = 0; i < len; i++) {
-            buf[count++] = (byte) b;
+            buffer[count++] = (byte) b;
         }
     }
 
     public byte[] getBuffer() {
-        return this.buf;
+        return this.buffer;
     }
 
     public void setBuffer(byte[] buffer) {
         count = 0;
-        buf = buffer;
+        this.buffer   = buffer;
     }
 
     public void ensureRoom(int extra) {
 
         int newcount = count + extra;
-        int newsize  = buf.length;
+        int newsize  = buffer.length;
 
         if (newcount > newsize) {
             while (newcount > newsize) {
@@ -291,9 +319,9 @@ implements DataOutput {
 
             byte[] newbuf = new byte[newsize];
 
-            System.arraycopy(buf, 0, newbuf, 0, count);
+            System.arraycopy(buffer, 0, newbuf, 0, count);
 
-            buf = newbuf;
+            buffer = newbuf;
         }
     }
 
@@ -301,13 +329,13 @@ implements DataOutput {
 
         count = 0;
 
-        if (newSize > buf.length) {
-            buf = new byte[newSize];
+        if (newSize > buffer.length) {
+            buffer = new byte[newSize];
         }
     }
 
     public void reset(byte[] buffer) {
         count = 0;
-        buf   = buffer;
+        this.buffer   = buffer;
     }
 }

@@ -31,6 +31,9 @@
 
 package org.hsqldb.lib;
 
+import java.io.IOException;
+import java.io.Reader;
+
 /**
  * A writer for char strings.
  *
@@ -38,14 +41,33 @@ package org.hsqldb.lib;
  * @version 1.9.0
  * @since 1.9.0
  */
-
 public class CharArrayWriter {
 
     protected char[] buffer;
-    protected int  count;
+    protected int    count;
 
     public CharArrayWriter(char[] buffer) {
         this.buffer = buffer;
+    }
+
+    public CharArrayWriter(Reader reader, int length) throws IOException {
+
+        buffer = new char[length];
+
+        try {
+            for (int left = length; left > 0; ) {
+                int read = reader.read(buffer, count, left);
+
+                if (read == -1) {
+                    break;
+                }
+
+                left  -= read;
+                count += read;
+            }
+        } finally {
+            reader.close();
+        }
     }
 
     public void write(int c) {

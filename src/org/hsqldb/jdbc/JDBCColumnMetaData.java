@@ -33,12 +33,16 @@ package org.hsqldb.jdbc;
 
 import java.lang.reflect.Field;
 
+// fredt@users - 1.9.0 rewritten as simple structure derived from JDBCResultSetMetaData
+
 /**
  * Provides a site for holding the ResultSetMetaData for individual ResultSet
- * columns. Rewritten for 1.9.0 as a simple data structure for reporting
+ * columns. In 1.9.0 it is implemented as a simple data structure derived
+ * from calls to JDBCResultSetMetaData methods.
  * purposes.<p>
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since HSQLDB 1.7.2
  */

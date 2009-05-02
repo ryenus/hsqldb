@@ -288,6 +288,7 @@ public class TransactionManager {
                 return true;
             }
 
+            // new actionTimestamp used for commitTimestamp
             session.actionTimestamp = nextChangeTimestamp();
 
             for (int i = 0; i < limit; i++) {
@@ -329,6 +330,8 @@ public class TransactionManager {
                 }
             }
 
+            // no new transactionTimestamp would have been issued since
+            // session.actionTimestamp due to locks - this test would use Long.MAX_VALUE
             if (getFirstLiveTransactionTimestamp() > session.actionTimestamp) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
@@ -766,6 +769,10 @@ public class TransactionManager {
                     }
                 } catch (HsqlException e) {}
             }
+        }
+
+        if(session.isReadOnly()) {
+            return;
         }
 
         if (!mvcc) {
