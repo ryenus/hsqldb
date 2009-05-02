@@ -159,7 +159,7 @@ public class RowOutputBinary extends RowOutputBase {
     public int getStorageSize(int size) {
         return scale == 1 ? size
                           : ((size + scale - 1) / scale) * scale;
-   }
+    }
 
     protected void writeFieldType(Type type) {
         write(1);
@@ -427,7 +427,7 @@ public class RowOutputBinary extends RowOutputBase {
 
     public void setBuffer(byte[] buffer) {
 
-        buf = buffer;
+        this.buffer = buffer;
 
         reset();
     }

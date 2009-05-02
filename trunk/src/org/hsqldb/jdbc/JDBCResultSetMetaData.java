@@ -50,7 +50,7 @@ import org.hsqldb.types.CharacterType;
 //                             javadoc updates
 // boucherb@users - 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users - 20060522 - doc   1.9.0 full synch up to Mustang Build 84
-// fredt@users - 1.9.0 usage of types and new ResultMetadata
+// fredt@users - 1.9.0 usage of types and new ResultMetadata and ColumnMetaData
 // Revision 1.15  2006/07/12 12:29:42  boucherb
 // patch 1.9.0
 // - full synch up to Mustang b90
@@ -97,6 +97,7 @@ import org.hsqldb.types.CharacterType;
  * <!-- end release-specific documentation -->
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @revised JDK 1.6, HSQLDB 1.8.x
  * @see JDBCStatement#executeQuery

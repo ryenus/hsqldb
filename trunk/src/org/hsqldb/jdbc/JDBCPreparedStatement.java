@@ -71,6 +71,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.Types;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.StringConverter;
@@ -834,39 +835,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setBinaryStream(int parameterIndex,
             java.io.InputStream x, int length) throws SQLException {
 
-        checkSetParameterIndex(parameterIndex, true);
-
-        if (x == null) {
-            throw Util.nullArgument("x");
-        }
-
-        HsqlByteArrayOutputStream out  = new HsqlByteArrayOutputStream();
-        final int                 size = 2048;
-        byte[]                    buff = new byte[size];
-
-        try {
-            for (int left = length; left > 0; ) {
-                int read = x.read(buff, 0, left > size ? size
-                        : left);
-
-                if (read == -1) {
-                    break;
-                }
-                out.write(buff, 0, read);
-
-                left -= read;
-            }
-            setParameter(parameterIndex, out.toByteArray());
-        } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                    e.toString());
-        } finally {
-            try {
-                out.flush();
-                out.close();
-            } catch (IOException e1) {
-            }
-        }
+        setBinaryStream(parameterIndex, x, (long) length);
     }
 
     /**
@@ -889,6 +858,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN, parameterSet, 0,
                              parameterSet.length);
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN, parameterStream, 0,
+                             parameterStream.length);
+        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_LONG, streamLengths, 0,
                              parameterStream.length);
     }
 
@@ -1175,41 +1146,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setCharacterStream(int parameterIndex,
             java.io.Reader reader, int length) throws SQLException {
 
-        checkSetParameterIndex(parameterIndex, true);
+        setCharacterStream(parameterIndex, reader, (long) length);
 
-        if (reader == null) {
-            throw Util.nullArgument("reader");
-        }
-
-        if (reader instanceof java.io.StringReader) {
-            java.io.StringReader sr = (java.io.StringReader) reader;
-
-            setParameter(parameterIndex, sr.toString());
-
-            return;
-        }
-
-        final StringBuffer sb   = new StringBuffer();
-        final int          size = 2048;
-        final char[]       buff = new char[size];
-
-        try {
-            for (int left = length; left > 0; ) {
-                final int read = reader.read(buff, 0, left > size ? size
-                        : left);
-
-                if (read == -1) {
-                    break;
-                }
-                sb.append(buff, 0, read);
-
-                left -= read;
-            }
-        } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
-                                    e.toString());
-        }
-        setParameter(parameterIndex, sb.toString());
     }
 
     /**
@@ -1295,9 +1233,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 setBlobParameter(parameterIndex, x);
 
                 break;
+            default :
+                throw Util.invalidArgument();
         }
     }
 
+    /**
+     * Converts a blob to binary data for non-blob binary parameters.
+     */
     private void setBlobForBinaryParameter(int parameterIndex,
             Blob x) throws SQLException {
 
@@ -1320,34 +1263,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
 
-        HsqlByteArrayOutputStream out      = new HsqlByteArrayOutputStream();
-        final int                 buffSize = 2048;
-        final byte[]              buff     = new byte[buffSize];
-
         try {
             java.io.InputStream in = x.getBinaryStream();
 
-            for (int left = (int) length; left > 0; ) {
-                int read = in.read(buff, 0, left > buffSize ? buffSize
-                        : left);
-
-                if (read == -1) {
-                    break;
-                }
-                out.write(buff, 0, read);
-
-                left -= read;
-            }
+            HsqlByteArrayOutputStream out = new HsqlByteArrayOutputStream(in,(int) length);
             setParameter(parameterIndex, out.toByteArray());
         } catch (IOException e) {
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString());
-        } finally {
-            try {
-                out.flush();
-                out.close();
-            } catch (IOException e1) {
-            }
         }
     }
 
@@ -1387,7 +1310,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *  JDBCParameterMetaData)
      */
 
-// boucherb@users 20030801 - method implemented
     public synchronized void setClob(int parameterIndex,
                                      Clob x) throws SQLException {
 
@@ -1405,7 +1327,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_CLOB :
                 setClobParameter(parameterIndex, x);
 
-                break;
+                return;
+            default :
+                throw Util.invalidArgument();
         }
     }
 
@@ -1431,28 +1355,15 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
         }
 
-        java.io.Reader     reader = x.getCharacterStream();
-        final StringBuffer sb     = new StringBuffer();
-        final int          size   = 2048;
-        final char[]       buff   = new char[size];
 
         try {
-            for (int left = (int) length; left > 0; ) {
-                final int read = reader.read(buff, 0, left > size ? size
-                        : left);
-
-                if (read == -1) {
-                    break;
-                }
-                sb.append(buff, 0, read);
-
-                left -= read;
-            }
+            java.io.Reader     reader = x.getCharacterStream();
+            CharArrayWriter writer = new CharArrayWriter(reader, (int) length);
+            setParameter(parameterIndex, writer.toString());
         } catch (IOException e) {
             throw Util.sqlException(ErrorCode.SERVER_TRANSFER_CORRUPTED,
                                     e.toString());
         }
-        setParameter(parameterIndex, sb.toString());
     }
 
     /**
@@ -2396,15 +2307,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setNCharacterStream(int parameterIndex,
             Reader value, long length) throws SQLException {
 
-        if (length < 0) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                    "length: " + length);
-        } else if (length > Integer.MAX_VALUE) {
-            String msg = "Max Clob input character length exceeded: " + length;
-
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
-        }
-        this.setCharacterStream(parameterIndex, value, (int) length);
+        setCharacterStream(parameterIndex, value, length);
     }
 
     /**
@@ -2452,15 +2355,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setClob(int parameterIndex, Reader reader,
                                      long length) throws SQLException {
 
-        if (length < 0) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                    "length: " + length);
-        } else if (length > Integer.MAX_VALUE) {
-            String msg = "Max Clob input character length exceeded: " + length;
-
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
-        }
-        this.setCharacterStream(parameterIndex, reader, (int) length);
+        setCharacterStream(parameterIndex, reader, length);
     }
 
     /** @todo 1.9.0 - implement streaming and remove length limits */
@@ -2493,15 +2388,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                                      InputStream inputStream,
                                      long length) throws SQLException {
 
-        if (length < 0) {
-            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                    "length: " + length);
-        } else if (length > Integer.MAX_VALUE) {
-            String msg = "Maximum Blob input octet length exceeded: " + length;
-
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
-        }
-        this.setBinaryStream(parameterIndex, inputStream, (int) length);
+        setBinaryStream(parameterIndex, inputStream, length);
     }
 
     /**
@@ -2613,10 +2500,39 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setBinaryStream(int parameterIndex,
             java.io.InputStream x, long length) throws SQLException {
 
-        if (length > Integer.MAX_VALUE) {
-            Util.sqlException(ErrorCode.X_22001);
+        if (length < 0) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "length: " + length);
         }
-        setAsciiStream(parameterIndex, x, (int) length);
+
+        if (x instanceof BlobInputStream ) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "invalid InputStream");
+        }
+
+        checkSetParameterIndex(parameterIndex, true);
+
+        if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BLOB ) {
+            streamLengths[parameterIndex-1] = length;
+            setParameter(parameterIndex, x);
+            return;
+        }
+
+        try {
+
+            if (length > Integer.MAX_VALUE) {
+                String msg = "Maximum Blob input length exceeded: " + length;
+
+                throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            }
+
+            HsqlByteArrayOutputStream output =
+                new HsqlByteArrayOutputStream(x, (int) length);
+            setParameter(parameterIndex, output.toByteArray());
+        } catch (IOException e) {
+            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                                    e.toString());
+        }
     }
 
     /** @todo 1.9.0 - implement streaming and remove length limits */
@@ -2645,10 +2561,38 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setCharacterStream(int parameterIndex,
             java.io.Reader reader, long length) throws SQLException {
 
-        if (length > Integer.MAX_VALUE) {
-            Util.invalidArgument("value too long");
+        if (length < 0) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "length: " + length);
         }
-        setCharacterStream(parameterIndex, reader, (int) length);
+
+        if (reader instanceof ClobInputStream ) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "invalid Reader");
+        }
+
+        checkSetParameterIndex(parameterIndex, true);
+
+        if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_CLOB ) {
+            streamLengths[parameterIndex-1] = length;
+            setParameter(parameterIndex, reader);
+            return;
+        }
+
+        try {
+
+            if (length > Integer.MAX_VALUE) {
+                String msg = "Maximum Clob input length exceeded: " + length;
+
+                throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
+            }
+
+            CharArrayWriter writer = new CharArrayWriter(reader, (int) length);
+            setParameter(parameterIndex, writer.toString());
+        } catch (IOException e) {
+            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                                    e.toString());
+        }
     }
 
     /** @todo 1.9.0 - implement streaming and remove length limits */
@@ -3707,6 +3651,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         parameterValues = new Object[paramCount];
         parameterSet    = new boolean[paramCount];
         parameterStream = new boolean[paramCount];
+        streamLengths   = new long[paramCount];
 
         //
         //
@@ -3742,6 +3687,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         parameterValues = new Object[paramCount];
         parameterSet    = new boolean[paramCount];
         parameterStream = new boolean[paramCount];
+        streamLengths   = new long[paramCount];
 
         //
         for (int i = 0; i < paramCount; i++) {
@@ -3955,13 +3901,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 break;
             case Types.SQL_BLOB :
-                setBlobParameter(i, o);
+                setBlobParameter(i + 1, o);
 
-                break;
+                return;
             case Types.SQL_CLOB :
-                setClobParameter(i, o);
+                setClobParameter(i + 1, o);
 
-                break;
+                return;
             case Types.SQL_DATE :
             case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
@@ -4029,11 +3975,23 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @throws SQLException
      */
     void setClobParameter(int i, Object o) throws SQLException {
-
-        if (o instanceof Clob) {
+        if (o instanceof JDBCClobClient) {
+            if (o instanceof JDBCClobClient) {
+                throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                        "invalid Clob");
+            }
+        } else if (o instanceof Clob) {
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;
 
+            return;
+        } else if (o instanceof ClobInputStream) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "invalid Reader");
+
+        } else if (o instanceof Reader) {
+            parameterValues[i - 1] = o;
+            parameterStream[i - 1]    = true;
             return;
         }
 
@@ -4048,10 +4006,22 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     void setBlobParameter(int i, Object o) throws SQLException {
 
-        if (o instanceof Blob) {
+        if (o instanceof JDBCBlobClient) {
+            if (o instanceof JDBCClobClient) {
+                throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                        "invalid Clob");
+            }
+        } else if (o instanceof Blob) {
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;
 
+            return;
+        } else if (o instanceof BlobInputStream) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "invalid InputStream");
+        } else if (o instanceof InputStream) {
+            parameterValues[i - 1] = o;
+            parameterStream[i - 1]    = true;
             return;
         }
 
@@ -4148,7 +4118,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 if (value instanceof JDBCBlobClient) {
                     blob = ((JDBCBlobClient) value).blob;
                     id   = blob.getId();
-                } else {
+                } else if (value instanceof Blob) {
                     blob = connection.sessionProxy.createBlob();
                     id   = blob.getId();
 
@@ -4159,9 +4129,22 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     connection.sessionProxy.allocateResultLob(resultLob, null);
 
-//                    blob.setLength(length);
+                    resultOut.addLobResult(resultLob);
+                } else if (value instanceof InputStream) {
+                    blob = connection.sessionProxy.createBlob();
+                    id   = blob.getId();
+
+                    long        length = streamLengths[i];
+
+                    InputStream stream = (InputStream) value;
+                    ResultLob resultLob = ResultLob.newLobCreateBlobRequest(
+                        connection.sessionProxy.getId(), id, stream, length);
+
+                    connection.sessionProxy.allocateResultLob(resultLob, null);
+
                     resultOut.addLobResult(resultLob);
                 }
+
                 parameterValues[i] = blob;
             } else if (parameterTypes[i].typeCode == Types.SQL_CLOB) {
                 long       id;
@@ -4170,9 +4153,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 if (value instanceof JDBCClobClient) {
 
                     // fix id mismatch
-//                    clob   = ((JDBCClobClient) value).clob;
-//                    id     = clob.getId();
-                } else {
+                    clob   = ((JDBCClobClient) value).clob;
+                    id     = clob.getId();
+                } else if (value instanceof Clob) {
                     clob = connection.sessionProxy.createClob();
                     id   = clob.getId();
 
@@ -4183,7 +4166,18 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     connection.sessionProxy.allocateResultLob(resultLob, null);
 
-//                    clob.setLength(length);
+                    resultOut.addLobResult(resultLob);
+                } else if (value instanceof Reader) {
+                    clob = connection.sessionProxy.createClob();
+                    id   = clob.getId();
+
+                    long        length = streamLengths[i];
+                    Reader reader = (Reader) value;
+                    ResultLob resultLob = ResultLob.newLobCreateClobRequest(
+                        connection.sessionProxy.getId(), id, reader, length);
+
+                    connection.sessionProxy.allocateResultLob(resultLob, null);
+
                     resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = clob;
@@ -4254,7 +4248,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     protected byte[] parameterModes;
 
     /** Lengths for streams. */
-    protected int[] streamLengths;
+    protected long[] streamLengths;
 
     /** Has a stream on one or more CLOB / BLOB parameter value. */
     protected boolean hasStreams;

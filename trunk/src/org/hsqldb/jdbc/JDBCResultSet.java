@@ -4925,6 +4925,11 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateBlob(int columnIndex,
                            java.sql.Blob x) throws SQLException {
+        if (x instanceof JDBCBlobClient) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "invalid Blob");
+        }
+
         startUpdate(columnIndex);
         preparedStatement.setBlobParameter(columnIndex, x);
     }
@@ -4962,9 +4967,7 @@ public class JDBCResultSet implements ResultSet {
                            java.sql.Blob x) throws SQLException {
 
         int columnIndex = findColumn(columnLabel);
-
-        startUpdate(columnIndex);
-        preparedStatement.setBlobParameter(columnIndex, x);
+        updateBlob(columnIndex, x );
     }
 
 //#endif JAVA4
@@ -4998,6 +5001,10 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateClob(int columnIndex,
                            java.sql.Clob x) throws SQLException {
+        if (x instanceof JDBCClobClient) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "invalid Clob");
+        }
         startUpdate(columnIndex);
         preparedStatement.setClobParameter(columnIndex, x);
     }
@@ -5037,9 +5044,7 @@ public class JDBCResultSet implements ResultSet {
                            java.sql.Clob x) throws SQLException {
 
         int columnIndex = findColumn(columnLabel);
-
-        startUpdate(columnIndex);
-        preparedStatement.setClobParameter(columnIndex, x);
+        updateClob(columnIndex, x);
     }
 
 //#endif JAVA4
@@ -5461,7 +5466,7 @@ public class JDBCResultSet implements ResultSet {
 
         switch (type) {
 
-            case Types.SQLXML : {
+            case Types.SQL_XML : {
                 Object object = getObject(columnIndex);
 
                 if (object == null) {
@@ -5474,18 +5479,7 @@ public class JDBCResultSet implements ResultSet {
 
                 break;
             }
-            case Types.NCLOB : {
-                NClob nclob = getNClob(columnIndex);
-
-                if (nclob == null) {
-                    sqlxml = null;
-                } else {
-                    sqlxml = new JDBCSQLXML(nclob.getCharacterStream());
-                }
-
-                break;
-            }
-            case Types.CLOB : {
+            case Types.SQL_CLOB : {
                 Clob clob = getClob(columnIndex);
 
                 if (clob == null) {
@@ -5496,9 +5490,8 @@ public class JDBCResultSet implements ResultSet {
 
                 break;
             }
-            case Types.CHAR :
-            case Types.VARCHAR :
-            case Types.LONGVARCHAR :
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {
                 java.io.Reader reader = getCharacterStream(columnIndex);
 
@@ -5510,9 +5503,8 @@ public class JDBCResultSet implements ResultSet {
 
                 break;
             }
-            case Types.NCHAR :
-            case Types.NVARCHAR :
-            case Types.LONGNVARCHAR : {
+            case Types.SQL_NCHAR :
+            case Types.SQL_NVARCHAR : {
                 java.io.Reader nreader = getNCharacterStream(columnIndex);
 
                 if (nreader == null) {
@@ -5523,7 +5515,7 @@ public class JDBCResultSet implements ResultSet {
 
                 break;
             }
-            case Types.BLOB : {
+            case Types.SQL_BLOB : {
                 Blob blob = getBlob(columnIndex);
 
                 if (blob == null) {
@@ -5534,9 +5526,8 @@ public class JDBCResultSet implements ResultSet {
 
                 break;
             }
-            case Types.BINARY :
-            case Types.VARBINARY :
-            case Types.LONGVARBINARY : {
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY : {
                 java.io.InputStream inputStream = getBinaryStream(columnIndex);
 
                 if (inputStream == null) {

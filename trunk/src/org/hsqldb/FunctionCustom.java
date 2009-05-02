@@ -576,9 +576,14 @@ public class FunctionCustom extends FunctionSQL {
                 return session.getDatabase().isFilesReadOnly() ? Boolean.TRUE
                                                                : Boolean.FALSE;
 
-            case FUNC_IDENTITY :
-                return session.getLastIdentity();
-
+            case FUNC_IDENTITY : {
+                Number id = session.getLastIdentity();
+                if (id instanceof Long) {
+                    return id;
+                } else {
+                    return ValuePool.getLong(id.longValue());
+                }
+            }
             case FUNC_TIMESTAMPADD : {
                 if (data[1] == null || data[2] == null) {
                     return null;

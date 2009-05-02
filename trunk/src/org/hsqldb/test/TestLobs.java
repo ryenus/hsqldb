@@ -46,6 +46,7 @@ import java.sql.Clob;
 import javax.sql.rowset.serial.SerialBlob;
 
 import java.sql.DriverManager;
+import java.io.Reader;
 
 public class TestLobs extends TestBase {
 
@@ -55,6 +56,7 @@ public class TestLobs extends TestBase {
     public TestLobs(String name) {
 
         super(name);
+
 //        super(name, "jdbc:hsqldb:file:test3", false, false);
     }
 
@@ -137,7 +139,7 @@ public class TestLobs extends TestBase {
             String dml0 = "insert into clobtest(clobfield) values(?)";
             String            dql0 = "select * from clobtest;";
             PreparedStatement ps   = connection.prepareStatement(dml0);
-            String            data = "Testing blob insert and select ops";
+            String            data = "Testing clob insert and select ops";
             Clob              clob = new JDBCClob(data);
 
             ps.setClob(1, clob);
@@ -167,6 +169,160 @@ public class TestLobs extends TestBase {
             assertTrue(data1 == data2 && data1 > 0);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void testClobB() {
+
+        try {
+            String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
+            String ddl1 =
+                "CREATE TABLE CLOBTEST(ID IDENTITY, V VARCHAR(10), I INT, CLOBFIELD CLOB(1000))";
+
+            statement.execute(ddl0);
+            statement.execute(ddl1);
+        } catch (SQLException e) {}
+
+        try {
+            String dml0 = "insert into clobtest values(default, ?, ?, ?)";
+            String            dql0 = "select * from clobtest;";
+            PreparedStatement ps   = connection.prepareStatement(dml0);
+            String            data = "Testing clob insert and select ops";
+            Clob              clob = new JDBCClob(data);
+
+            ps.setString(1, "test");
+            ps.setInt(2, 5);
+            ps.setClob(3, clob);
+            ps.executeUpdate();
+
+            data = data.replaceFirst("insert", "INSERT");
+            clob = new JDBCClob(data);
+
+            ps.setClob(3, clob);
+            ps.executeUpdate();
+
+            PreparedStatement ps2 = connection.prepareStatement(dql0);
+
+            ResultSet rs = ps2.executeQuery();
+
+            rs.next();
+
+            Clob clob1 = rs.getClob(4);
+
+            rs.next();
+
+            Clob clob2 = rs.getClob(4);
+            int data1 = clob1.getSubString(1, data.length()).indexOf("insert");
+            int data2 = clob2.getSubString(1, data.length()).indexOf("INSERT");
+
+            assertTrue(data1 == data2 && data1 > 0);
+
+            //
+            Clob clob3 = new JDBCClob(data);
+            Reader reader = clob3.getCharacterStream();
+
+            ps.setCharacterStream(3, reader, (int) clob3.length());
+            ps.executeUpdate();
+
+            //
+            reader = clob2.getCharacterStream();
+
+            try {
+                ps.setCharacterStream(3, reader, (int) clob3.length());
+                assertTrue(false);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+            }
+
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testBlobB() {
+
+        ResultSet rs;
+        byte[]    ba;
+        byte[]    baR1 = new byte[] {
+            (byte) 0xF1, (byte) 0xF2, (byte) 0xF3, (byte) 0xF4, (byte) 0xF5,
+            (byte) 0xF6, (byte) 0xF7, (byte) 0xF8, (byte) 0xF9, (byte) 0xFA
+        };
+        byte[] baR2 = new byte[] {
+            (byte) 0xE1, (byte) 0xE2, (byte) 0xE3, (byte) 0xE4, (byte) 0xE5,
+            (byte) 0xE6, (byte) 0xE7, (byte) 0xE8, (byte) 0xE9, (byte) 0xEA
+        };
+
+        try {
+            connection.setAutoCommit(false);
+
+            Statement st = connection.createStatement();
+
+            st.executeUpdate("CREATE TABLE blo (id INTEGER, b blob( 100))");
+
+            PreparedStatement ps = connection.prepareStatement(
+                "INSERT INTO blo(id, b) values(2, ?)");
+
+            //st.executeUpdate("INSERT INTO blo (id, b) VALUES (1, x'A003')");
+            ps.setBlob(1, new SerialBlob(baR1));
+            ps.executeUpdate();
+
+            rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
+
+            if (!rs.next()) {
+                assertTrue("No row with id 2", false);
+            }
+
+            java.sql.Blob blob1 = rs.getBlob("b");
+
+            System.out.println("Size of retrieved blob: " + blob1.length());
+
+            //System.out.println("Value = (" + rs.getString("b") + ')');
+            byte[] baOut = blob1.getBytes(1, (int) blob1.length());
+
+            if (baOut.length != baR1.length) {
+                assertTrue("Expected array len " + baR1.length + ", got len "
+                           + baOut.length, false);
+            }
+
+            for (int i = 0; i < baOut.length; i++) {
+                if (baOut[i] != baR1[i]) {
+                    assertTrue("Expected array len " + baR1.length
+                               + ", got len " + baOut.length, false);
+                }
+            }
+
+            rs.close();
+            /*
+                     rs = st.executeQuery("SELECT b FROM blo WHERE id = 1");
+                     if (!rs.next())
+                throw new Exception("No row with id 1");
+                     ba = rs.getBytes("b");
+                     if (ba.length != baR1.length)
+                throw new Exception("row1 byte length differs");
+                     for (int i = 0; i < ba.length; i++)
+                if (ba[i] != baR1[i])
+                    throw new Exception("row1 byte " + i + " differs");
+                     rs.close();
+
+                     rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
+                     if (!rs.next())
+                throw new Exception("No row with id 2");
+                     ba = rs.getBytes("b");
+                     if (ba.length != baR2.length)
+                throw new Exception("row2 byte length differs");
+                     for (int i = 0; i < ba.length; i++)
+                if (ba[i] != baR2[i])
+                    throw new Exception("row2 byte " + i + " differs");
+             */
+            rs.close();
+            st.close();
+            connection.rollback();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            assertTrue(false);
         }
     }
 
@@ -266,7 +422,7 @@ public class TestLobs extends TestBase {
         */
         rs.close();
         st.close();
-        dbConn.commit();
+        dbConn.rollback();
         dbConn.close();
     }
 }

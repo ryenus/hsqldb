@@ -307,7 +307,7 @@ public class Session implements SessionInterface {
      *
      * @return the current value
      */
-    public Object getLastIdentity() {
+    public Number getLastIdentity() {
         return lastIdentity;
     }
 
@@ -1145,8 +1145,7 @@ public class Session implements SessionInterface {
                 latch.await();
             } catch (InterruptedException e) {
 
-                //
-                System.out.println("interrupted");
+                // System.out.println("interrupted");
             }
 
             if (abortTransaction) {

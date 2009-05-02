@@ -187,8 +187,6 @@ public class LobManager {
         } else {
             lobStore = new LobStoreMem();
         }
-
-//        lobStore = new LobMemStore();
     }
 
     void close() {}
