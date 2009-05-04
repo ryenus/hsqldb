@@ -573,7 +573,7 @@ public class Session implements SessionInterface {
     }
 
     private void endTransaction() {
-
+        sessionData.deleteLobs();
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
         rowActionList.clear();

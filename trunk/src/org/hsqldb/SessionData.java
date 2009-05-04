@@ -52,6 +52,7 @@ import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.lib.CountdownInputStream;
+import org.hsqldb.lib.LongDeque;
 
 /*
  * Session semi-persistent data structures
@@ -72,6 +73,9 @@ public class SessionData {
 
     // lobs
     LongKeyLongValueHashMap lobs = new LongKeyLongValueHashMap();
+
+    // deleted lobs
+    LongDeque deletedLobs = new LongDeque();
 
     // VALUE
     Object currentValue;
@@ -320,6 +324,19 @@ public class SessionData {
 
     // LOBs
 
+    public void deleteLobs(){
+        for(;  deletedLobs.size() > 0;) {
+            long lobID = deletedLobs.removeLast();
+
+            database.lobManager.deleteLob(session, lobID);
+        }
+
+        deletedLobs.clear();
+    }
+
+    public void addToDeletedLobs(long lobID){
+        deletedLobs.add(lobID);
+    }
     /**
      * allocate storage for a new LOB
      */
