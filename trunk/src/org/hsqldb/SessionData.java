@@ -373,7 +373,7 @@ public class SessionData {
                 countStream = new CountdownInputStream(inputStream);
 
                 countStream.setCount(2 * result.getBlockLength());
-                database.lobManager.setChars(session, clobId, inputStream,
+                database.lobManager.setChars(session, clobId, countStream,
                                              result.getBlockLength());
 
                 break;

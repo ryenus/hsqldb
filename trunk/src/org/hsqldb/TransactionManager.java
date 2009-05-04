@@ -706,11 +706,10 @@ public class TransactionManager {
                 delete = rowact.type == RowActionBase.ACTION_DELETE_FINAL;
             }
 
+/*
             if (delete) {
                 try {
                     int pos = rowact.getPos();
-
-                    store.delete(row);
 
                     Type[] types = rowact.table.getColumnTypes();
 
@@ -727,11 +726,14 @@ public class TransactionManager {
                                                           lob.getId());
                         }
                     }
+                    store.delete(row);
+
                 } catch (HsqlException e) {
 
 //                    throw unexpectedException(e.getMessage());
                 }
             }
+*/
         }
     }
 

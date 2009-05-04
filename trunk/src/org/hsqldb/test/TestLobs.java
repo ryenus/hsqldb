@@ -31,25 +31,22 @@
 
 package org.hsqldb.test;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.hsqldb.jdbc.JDBCBlob;
-import org.hsqldb.jdbc.JDBCClob;
-
-import java.sql.Clob;
-
 import javax.sql.rowset.serial.SerialBlob;
 
-import java.sql.DriverManager;
-import java.io.Reader;
-import java.io.InputStreamReader;
-import java.io.InputStream;
-import java.io.File;
+import org.hsqldb.jdbc.JDBCBlob;
+import org.hsqldb.jdbc.JDBCClob;
 
 public class TestLobs extends TestBase {
 
@@ -256,6 +253,9 @@ public class TestLobs extends TestBase {
 
         try {
             String dml0 = "INSERT INTO VARIABLE VALUES (?, ?, 'N', ?, ?)";
+            String dml1 =
+                "UPDATE VARIABLE SET value = ? WHERE stateid = ? AND "
+                + "varid = ? AND scalabilitypassivated = 'N' AND scopeguid = ?";
             PreparedStatement ps = connection.prepareStatement(dml0);
 
             //
@@ -267,11 +267,34 @@ public class TestLobs extends TestBase {
                 reader = new InputStreamReader(fis, "ISO-8859-1");
             } catch (Exception e) {}
 
-            ps.setString(1, "test string");
+            ps.setString(1, "test-id-1");
             ps.setLong(2, 23456789123456L);
             ps.setCharacterStream(3, reader, 1000);
-            ps.setString(4, "another test string");
+            ps.setString(4, "test-scope-1");
             ps.executeUpdate();
+            ps.close();
+
+            try {
+                reader.close();
+            } catch (Exception e) {}
+            //
+            try {
+                fis = getClass().getResourceAsStream(resourceFileName);
+                reader = new InputStreamReader(fis, "ISO-8859-1");
+
+                for (int i = 0; i < 100; i++) {
+                    reader.read();
+                }
+            } catch (Exception e) {}
+
+            ps = connection.prepareStatement(dml1);
+
+            ps.setCharacterStream(1, reader, 500);
+            ps.setString(2, "test-id-1");
+            ps.setLong(3, 23456789123456L);
+            ps.setString(4, "test-scope-1");
+            ps.executeUpdate();
+            ps.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

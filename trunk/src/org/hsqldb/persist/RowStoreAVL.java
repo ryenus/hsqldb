@@ -119,7 +119,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         row.delete();
         remove(row.getPos());
-        row.destroy();
+//        row.destroy();
     }
 
     public final void indexRow(Session session, Row row) throws HsqlException {
@@ -139,7 +139,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
             row.delete();
             remove(row.getPos());
-            row.destroy();
+//            row.destroy();
 
             throw e;
         }

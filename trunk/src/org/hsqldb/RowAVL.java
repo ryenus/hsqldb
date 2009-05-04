@@ -254,7 +254,7 @@ public class RowAVL extends Row {
 
         JavaSystem.memoryRecords++;
 
-        rowData        = null;
+//        rowData        = null;
         nPrimaryNode = null;
     }
 }

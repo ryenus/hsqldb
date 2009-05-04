@@ -34,6 +34,8 @@ package org.hsqldb.lib;
 import java.io.IOException;
 import java.io.InputStream;
 
+// fredt@users - 1.9.0 corrected read(byte[], int, int)
+
 /**
  * Counts down from a specified value the number of bytes actually read
  * from the wrapped InputStream. <p>
@@ -106,7 +108,7 @@ public final class CountdownInputStream extends InputStream {
             len = (int) this.count;
         }
 
-        final int r = this.input.read(buf, 0, len);
+        final int r = this.input.read(buf, off, len);
 
         if (r > 0) {
             this.count -= r;
