@@ -706,7 +706,6 @@ public class TransactionManager {
                 delete = rowact.type == RowActionBase.ACTION_DELETE_FINAL;
             }
 
-/*
             if (delete) {
                 try {
                     int pos = rowact.getPos();
@@ -716,14 +715,10 @@ public class TransactionManager {
                     for (int j = 0; j < types.length; j++) {
                         if (types[j].typeCode == Types.SQL_CLOB) {
                             ClobData lob = (ClobData) row.getData()[j];
-
-                            database.lobManager.deleteLob(session,
-                                                          lob.getId());
+                            session.sessionData.addToDeletedLobs(lob.getId());
                         } else if (types[j].typeCode == Types.SQL_BLOB) {
                             BlobData lob = (BlobData) row.getData()[j];
-
-                            database.lobManager.deleteLob(session,
-                                                          lob.getId());
+                            session.sessionData.addToDeletedLobs(lob.getId());
                         }
                     }
                     store.delete(row);
@@ -733,7 +728,6 @@ public class TransactionManager {
 //                    throw unexpectedException(e.getMessage());
                 }
             }
-*/
         }
     }
 
