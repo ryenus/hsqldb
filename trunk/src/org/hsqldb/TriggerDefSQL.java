@@ -114,7 +114,7 @@ public class TriggerDefSQL extends TriggerDef {
         }
 
         for (int i = 0; i < statements.length; i++) {
-            statements[i].execute(session, null);
+            statements[i].execute(session);
         }
     }
 

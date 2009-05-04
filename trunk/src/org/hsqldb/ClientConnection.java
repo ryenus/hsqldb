@@ -32,9 +32,9 @@
 package org.hsqldb;
 
 import java.io.BufferedInputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 
 import org.hsqldb.lib.DataOutputStream;
@@ -514,7 +514,7 @@ public class ClientConnection implements SessionInterface {
     /**
      * Does nothing here
      */
-    public void allocateResultLob(ResultLob resultLob, DataInput dataInput) {}
+    public void allocateResultLob(ResultLob resultLob, InputStream dataInput) {}
 
     public Scanner getScanner() {
 

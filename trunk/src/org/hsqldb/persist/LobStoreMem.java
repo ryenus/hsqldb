@@ -33,6 +33,11 @@ package org.hsqldb.persist;
 
 import org.hsqldb.lib.HsqlArrayList;
 
+/**
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class LobStoreMem implements LobStore {
 
     int           lobBlockSize         = 1024 * 32;
@@ -45,7 +50,7 @@ public class LobStoreMem implements LobStore {
         byteStoreList = new HsqlArrayList();
     }
 
-    public byte[] getBlockBytes(long lobID, int blockAddress, int blockCount) {
+    public byte[] getBlockBytes(int blockAddress, int blockCount) {
 
         byte[] dataBytes       = new byte[blockCount * lobBlockSize];
         int    dataBlockOffset = 0;
@@ -72,7 +77,7 @@ public class LobStoreMem implements LobStore {
         return dataBytes;
     }
 
-    public void setBlockBytes(long lobID, byte[] dataBytes, int blockAddress,
+    public void setBlockBytes(byte[] dataBytes, int blockAddress,
                               int blockCount) {
 
         int dataBlockOffset = 0;

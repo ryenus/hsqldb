@@ -107,6 +107,7 @@ public class SessionContext {
         if (stack == null) {
             stack = new HsqlArrayList(true);
         }
+
         stack.add(dynamicArguments);
         stack.add(routineArguments);
         stack.add(routineVariables);
@@ -137,6 +138,21 @@ public class SessionContext {
         dynamicArguments    = (Object[]) stack.remove(stack.size() - 1);
 
         depth--;
+    }
+
+    public void pushDynamicArguments(Object[] args) {
+
+        if (stack == null) {
+            stack = new HsqlArrayList(true);
+        }
+
+        stack.add(dynamicArguments);
+
+        dynamicArguments = args;
+    }
+
+    public void popDynamicArguments() {
+        dynamicArguments = (Object[]) stack.remove(stack.size() - 1);
     }
 
     void clearStructures(StatementDMQL cs) {

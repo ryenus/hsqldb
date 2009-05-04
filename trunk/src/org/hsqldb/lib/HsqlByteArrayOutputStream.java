@@ -32,6 +32,7 @@
 package org.hsqldb.lib;
 
 import java.io.DataOutput;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,8 +71,8 @@ implements DataOutput {
     }
 
     /**
-     * Constructor from an InputStream limits size to the length argument but
-     * does not throw if the actual length of the InputStream is smaller than
+     * Constructor from an InputStream limits size to the length argument.
+     * Throws if the actual length of the InputStream is smaller than
      * length value.
      */
     public HsqlByteArrayOutputStream(InputStream input,
@@ -84,6 +85,10 @@ implements DataOutput {
                 int read = input.read(buffer, count, left);
 
                 if (read == -1) {
+                    if (left > 0) {
+                        throw new EOFException();
+                    }
+
                     break;
                 }
 
@@ -93,7 +98,6 @@ implements DataOutput {
         } finally {
             input.close();
         }
-
     }
 
     // methods that implement dataOutput
@@ -146,7 +150,7 @@ implements DataOutput {
         ensureRoom(1);
 
         buffer[count++] = (byte) (v ? 1
-                                 : 0);
+                                    : 0);
     }
 
     public void writeByte(int v) {
@@ -303,8 +307,8 @@ implements DataOutput {
     }
 
     public void setBuffer(byte[] buffer) {
-        count = 0;
-        this.buffer   = buffer;
+        count       = 0;
+        this.buffer = buffer;
     }
 
     public void ensureRoom(int extra) {
@@ -335,7 +339,7 @@ implements DataOutput {
     }
 
     public void reset(byte[] buffer) {
-        count = 0;
-        this.buffer   = buffer;
+        count       = 0;
+        this.buffer = buffer;
     }
 }

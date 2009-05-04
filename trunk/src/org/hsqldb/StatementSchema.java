@@ -228,7 +228,7 @@ public class StatementSchema extends Statement {
         }
     }
 
-    public Result execute(Session session, Object[] args) {
+    public Result execute(Session session) {
 
         Result result = getResult(session);
 
@@ -752,7 +752,7 @@ public class StatementSchema extends Statement {
                     session.database.logger.writeToLog(session, sql);
 
                     if (statement != null) {
-                        Result result = statement.execute(session, null);
+                        Result result = statement.execute(session);
 
                         table.insertIntoTable(session, result);
                     }

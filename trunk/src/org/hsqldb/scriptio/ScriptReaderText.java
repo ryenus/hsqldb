@@ -50,6 +50,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputTextLog;
 import org.hsqldb.types.Type;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.store.ValuePool;
 
 /**
  * Handles operations involving reading back a script or log file written
@@ -99,7 +100,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
             try {
                 cs     = session.compileStatement(statement);
-                result = session.executeCompiledStatement(cs, null);
+                result = session.executeCompiledStatement(cs, ValuePool.emptyObjectArray);
 
                 if (cs.getType() == StatementTypes.CREATE_SCHEMA) {
                     HsqlName name = cs.getSchemalName();

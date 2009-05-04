@@ -57,18 +57,20 @@ public class StatementResultUpdate extends StatementDML {
         return "";
     }
 
-    public Result execute(Session session, Object[] args) {
+    public Result execute(Session session) {
 
         try {
-            return getResult(session, args);
+            return getResult(session);
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
         }
     }
 
-    Result getResult(Session session, Object[] args) throws HsqlException {
+    Result getResult(Session session) throws HsqlException {
 
         checkAccessRights(session);
+
+        Object[] args = session.sessionContext.dynamicArguments;
 
         switch (actionType) {
 
@@ -98,12 +100,10 @@ public class StatementResultUpdate extends StatementDML {
                 Long id = (Long) args[args.length - 1];
                 PersistentStore store =
                     session.sessionData.getRowStore(baseTable);
-                Row row = (Row) store.get((int) id.longValue());
-
-
+                Row             row = (Row) store.get((int) id.longValue());
                 RowSetNavigator navigator = new RowSetNavigatorLinkedList();
-                navigator.add(row);
 
+                navigator.add(row);
                 delete(session, baseTable, navigator);
 
                 break;

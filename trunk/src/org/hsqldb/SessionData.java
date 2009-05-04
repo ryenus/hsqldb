@@ -31,8 +31,8 @@
 
 package org.hsqldb;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.InputStream;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HashMap;
@@ -40,18 +40,18 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.ReaderDataInput;
+import org.hsqldb.lib.ReaderInputStream;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.DataFileCacheSession;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.PersistentStoreCollectionSession;
-import org.hsqldb.persist.RowStoreAVLHybrid;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
+import org.hsqldb.lib.CountdownInputStream;
 
 /*
  * Session semi-persistent data structures
@@ -324,26 +324,30 @@ public class SessionData {
      * allocate storage for a new LOB
      */
     public void allocateLobForResult(ResultLob result,
-                                     DataInput dataInput)
+                                     InputStream inputStream)
                                      throws HsqlException {
 
-        long resultLobId = result.getLobID();
+        long                 resultLobId = result.getLobID();
+        CountdownInputStream countStream;
 
         switch (result.getSubType()) {
 
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES : {
                 long blobId;
 
-                if (dataInput == null) {
-                    blobId    = resultLobId;
-                    dataInput = new DataInputStream(result.getInputStream());
+                if (inputStream == null) {
+                    blobId      = resultLobId;
+                    inputStream = result.getInputStream();
                 } else {
                     blobId = database.lobManager.createBlob(session);
 
                     lobs.put(resultLobId, blobId);
                 }
 
-                database.lobManager.setBytes(session, blobId, dataInput,
+                countStream = new CountdownInputStream(inputStream);
+
+                countStream.setCount(result.getBlockLength());
+                database.lobManager.setBytes(session, blobId, countStream,
                                              result.getBlockLength());
 
                 break;
@@ -351,14 +355,14 @@ public class SessionData {
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
                 long clobId;
 
-                if (dataInput == null) {
+                if (inputStream == null) {
                     clobId = resultLobId;
 
                     if (result.getReader() != null) {
-                        dataInput = new ReaderDataInput(result.getReader());
+                        inputStream =
+                            new ReaderInputStream(result.getReader());
                     } else {
-                        dataInput =
-                            new DataInputStream(result.getInputStream());
+                        inputStream = result.getInputStream();
                     }
                 } else {
                     clobId = database.lobManager.createClob(session);
@@ -366,7 +370,10 @@ public class SessionData {
                     lobs.put(resultLobId, clobId);
                 }
 
-                database.lobManager.setChars(session, clobId, 0, dataInput,
+                countStream = new CountdownInputStream(inputStream);
+
+                countStream.setCount(2 * result.getBlockLength());
+                database.lobManager.setChars(session, clobId, inputStream,
                                              result.getBlockLength());
 
                 break;

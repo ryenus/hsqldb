@@ -136,10 +136,10 @@ public class StatementHandler extends Statement {
             new String[conditionStates.size()]);
     }
 
-    public Result execute(Session session, Object[] args) {
+    public Result execute(Session session) {
 
         if (statement != null) {
-            return statement.execute(session, null);
+            return statement.execute(session);
         } else {
             return Result.updateZeroResult;
         }

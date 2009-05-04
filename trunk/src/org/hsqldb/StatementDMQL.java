@@ -178,7 +178,7 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-    public Result execute(Session session, Object[] args) {
+    public Result execute(Session session) {
 
         Result result = getAccessRightsResult(session);
 
@@ -191,8 +191,13 @@ public abstract class StatementDMQL extends Statement {
                     describe(session));
         }
 
+        if (session.sessionContext.dynamicArguments.length
+                != parameters.length) {
+//            return Result.newErrorResult(Error.error(ErrorCode.X_42575));
+        }
+
         try {
-            materializeSubQueries(session, args);
+            materializeSubQueries(session);
 
             result = getResult(session);
         } catch (Throwable t) {
@@ -329,14 +334,7 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-    void materializeSubQueries(Session session,
-                               Object[] args) throws HsqlException {
-
-        if (args == null && parameters.length != 0) {
-            throw Error.error(ErrorCode.X_42575);
-        }
-
-        session.sessionContext.dynamicArguments = args;
+    void materializeSubQueries(Session session) throws HsqlException {
 
         if (subqueries.length == 0) {
             return;

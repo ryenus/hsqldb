@@ -121,12 +121,11 @@ public class StatementProcedure extends StatementDMQL {
                 new Object[variableCount];
         }
 
-        // temp until assignment of dynamicArguments in materialiseSubqueries is fixed
-        Object[] args   = session.sessionContext.dynamicArguments;
-        Result   result = procedure.statement.execute(session, null);
+        // fixed? temp until assignment of dynamicArguments in materialiseSubqueries is fixed
+//        Object[] args   = session.sessionContext.dynamicArguments;
+        Result result = procedure.statement.execute(session);
 
-        session.sessionContext.dynamicArguments = args;
-
+//        session.sessionContext.dynamicArguments = args;
         if (!result.isError()) {
             result = Result.updateZeroResult;
         }

@@ -47,8 +47,8 @@ import java.io.InputStream;
  * {@link java.io.InputStreamReader InputStreamReader}.
  *
  * @author boucherb@users
- * @version 1.8.x
- * @since 1.8.x
+ * @version 1.9.0
+ * @since 1.9.0
  */
 public final class CountdownInputStream extends InputStream {
 

@@ -138,7 +138,7 @@ public class FunctionSQLInvoked extends Expression {
                     new Object[variableCount];
             }
 
-            result = routine.statement.execute(session, null);
+            result = routine.statement.execute(session);
 
             if (result.isError()) {}
             else if (result.isSimpleValue()) {

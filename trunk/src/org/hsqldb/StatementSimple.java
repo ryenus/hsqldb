@@ -156,7 +156,7 @@ public class StatementSimple extends Statement {
         return sb.toString();
     }
 
-    public Result execute(Session session, Object[] args) {
+    public Result execute(Session session) {
 
         Result result = getResult(session);
 

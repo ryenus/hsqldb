@@ -60,7 +60,6 @@ import org.hsqldb.types.Type;
 public class StatementDML extends StatementDMQL {
 
     StatementDML(int type, int group, HsqlName schemaName) {
-
         super(type, group, schemaName);
     }
 
@@ -667,7 +666,7 @@ public class StatementDML extends StatementDMQL {
     }
 
     // fredt - currently deletes that fail due to referential constraints are caught
-// prior to actual delete operation, so no nested transaction is required
+    // prior to actual delete operation
 
     /**
      * Executes a DELETE statement.  It is assumed that the argument is
@@ -1213,8 +1212,10 @@ public class StatementDML extends StatementDMQL {
         Object[] data = (Object[]) rowSet.get(row);
 
         if (data != null) {
-            if (IndexAVL.compareRows(row.getData(), newData, cols, colTypes) != 0
-                    && IndexAVL.compareRows(newData, data, cols, colTypes) != 0) {
+            if (IndexAVL
+                    .compareRows(row
+                        .getData(), newData, cols, colTypes) != 0 && IndexAVL
+                            .compareRows(newData, data, cols, colTypes) != 0) {
                 return false;
             }
 

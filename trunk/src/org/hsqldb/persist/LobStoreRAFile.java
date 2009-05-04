@@ -39,6 +39,11 @@ import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.lib.HsqlArrayList;
 
+/**
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class LobStoreRAFile implements LobStore {
 
     int              lobBlockSize  = 1024 * 32;
@@ -75,7 +80,7 @@ public class LobStoreRAFile implements LobStore {
         }
     }
 
-    public byte[] getBlockBytes(long lobID, int blockAddress,
+    public byte[] getBlockBytes(int blockAddress,
                                 int blockCount) throws HsqlException {
 
         if (file == null) {
@@ -96,7 +101,7 @@ public class LobStoreRAFile implements LobStore {
         }
     }
 
-    public void setBlockBytes(long lobID, byte[] dataBytes, int blockAddress,
+    public void setBlockBytes(byte[] dataBytes, int blockAddress,
                               int blockCount) throws HsqlException {
 
         if (file == null) {

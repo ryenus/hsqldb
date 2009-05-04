@@ -53,7 +53,7 @@ public class StatementSchemaDefinition extends StatementSchema {
         this.statements = statements;
     }
 
-    public Result execute(Session session, Object[] args) {
+    public Result execute(Session session) {
 
         Result result = getResult(session);
 
@@ -86,7 +86,7 @@ public class StatementSchemaDefinition extends StatementSchema {
 
 */
         StatementSchema cs;
-        Result          result      = statements[0].execute(session, null);
+        Result          result      = statements[0].execute(session);
         HsqlArrayList   constraints = new HsqlArrayList();
 
         if (statements.length == 1 || result.isError()) {
@@ -117,7 +117,7 @@ public class StatementSchemaDefinition extends StatementSchema {
 
                     case StatementTypes.GRANT :
                     case StatementTypes.GRANT_ROLE :
-                        result = statements[i].execute(session, null);
+                        result = statements[i].execute(session);
                         break;
 
                     case StatementTypes.CREATE_TABLE :
@@ -131,7 +131,7 @@ public class StatementSchemaDefinition extends StatementSchema {
                             throw session.parser.unexpectedToken();
                         }
 
-                        result = cs.execute(session, null);
+                        result = cs.execute(session);
 
                         constraints.addAll((HsqlArrayList) cs.arguments[1]);
                         ((HsqlArrayList) cs.arguments[1]).clear();
@@ -142,7 +142,7 @@ public class StatementSchemaDefinition extends StatementSchema {
                     case StatementTypes.CREATE_TYPE :
                     case StatementTypes.CREATE_CHARACTER_SET :
                     case StatementTypes.CREATE_COLLATION :
-                        result = statements[i].execute(session, null);
+                        result = statements[i].execute(session);
                         break;
 
                     case StatementTypes.CREATE_INDEX :
@@ -160,7 +160,7 @@ public class StatementSchemaDefinition extends StatementSchema {
                             throw session.parser.unexpectedToken();
                         }
 
-                        result = cs.execute(session, null);
+                        result = cs.execute(session);
                         break;
 
                     case StatementTypes.CREATE_ASSERTION :
