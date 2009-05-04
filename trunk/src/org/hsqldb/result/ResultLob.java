@@ -418,14 +418,12 @@ public final class ResultLob extends Result {
                 dataOut.writeLong(blockOffset);
                 dataOut.writeLong(blockLength);
                 dataOut.write(stream, blockLength);
-                stream.close();
                 break;
 
             case LobResultTypes.REQUEST_CREATE_CHARS :
                 dataOut.writeLong(blockOffset);
                 dataOut.writeLong(blockLength);
                 dataOut.write(reader, blockLength);
-                reader.close();
                 break;
 
             case LobResultTypes.REQUEST_SET_BYTES :

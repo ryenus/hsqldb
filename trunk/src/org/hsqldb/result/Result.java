@@ -264,10 +264,10 @@ public class Result {
 
         setSession(session);
 
-        Result  currentResult = this;
-        boolean hasLob        = false;
+        Result    currentResult = this;
+        boolean   hasLob        = false;
+        DataInput dataInput     = new DataInputStream(inputStream);
 
-        DataInput dataInput = new DataInputStream(inputStream);
         while (true) {
             int addedResultMode = dataInput.readByte();
 
@@ -567,7 +567,7 @@ public class Result {
         result.metaData    = ResultMetaData.newSimpleResultMetaData(types);
         result.statementID = statementId;
 
-        result.navigator.add(new Object[]{});
+        result.navigator.add(ValuePool.emptyObjectArray);
 
         return result;
     }
@@ -609,8 +609,19 @@ public class Result {
      * For UPDATE_RESULT results
      * The parameters are set by this method as the Result is reused
      */
-    public void setResultUpdateProperties(Object[] parameterValues) {
-        ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
+    public void setPreparedResultUpdateProperties(Object[] parameterValues) {
+
+        mode = ResultConstants.EXECUTE;
+
+        if (navigator.getSize() == 1) {
+            ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
+        } else {
+            navigator.clear();
+            navigator.add(parameterValues);
+        }
+
+        updateCount    = 0;
+        this.fetchSize = 0;
     }
 
     /**
@@ -620,7 +631,14 @@ public class Result {
     public void setPreparedExecuteProperties(Object[] parameterValues,
             int maxRows, int fetchSize) {
 
-        ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
+        mode = ResultConstants.EXECUTE;
+
+        if (navigator.getSize() == 1) {
+            ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
+        } else {
+            navigator.clear();
+            navigator.add(parameterValues);
+        }
 
         updateCount    = maxRows;
         this.fetchSize = fetchSize;
@@ -629,15 +647,18 @@ public class Result {
     /**
      * For BATCHEXECUTE
      */
-    public static Result newBatchedPreparedExecuteRequest(Type[] types,
-            long statementId) {
+    public void setBatchedPreparedExecuteRequest() {
 
-        Result result = newResult(ResultConstants.BATCHEXECUTE);
+        mode = ResultConstants.BATCHEXECUTE;
 
-        result.metaData    = ResultMetaData.newSimpleResultMetaData(types);
-        result.statementID = statementId;
+        ((RowSetNavigatorClient) navigator).clear();
 
-        return result;
+        updateCount    = 0;
+        this.fetchSize = 0;
+    }
+
+    public void addBatchedPreparedExecuteRequest(Object[] parameterValues) {
+        ((RowSetNavigatorClient) navigator).add(parameterValues);
     }
 
     /**

@@ -182,6 +182,8 @@ public interface ErrorCode {
     int X_07502 = 1252;                                   // statement is invalid
     int X_07503 = 1253;                                   // statement generates a result set
     int X_07504 = 1254;                                   // statement does not generate a result set
+    int X_07505 = 1255;                                   // statement is in batch mode
+    int X_07506 = 1256;                                   // statement is not in batch mode
 
     // connection exception - 200x
     int X_08000 = 1300;                                   // connection exception
