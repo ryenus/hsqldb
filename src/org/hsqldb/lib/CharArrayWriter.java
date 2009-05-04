@@ -55,23 +55,21 @@ public class CharArrayWriter {
 
         buffer = new char[length];
 
-        try {
-            for (int left = length; left > 0; ) {
-                int read = reader.read(buffer, count, left);
+        for (int left = length; left > 0; ) {
+            int read = reader.read(buffer, count, left);
 
-                if (read == -1) {
-                    if (left > 0) {
-                        throw new EOFException();
-                    }
+            if (read == -1) {
+                if (left > 0) {
+                    reader.close();
 
-                    break;
+                    throw new EOFException();
                 }
 
-                left  -= read;
-                count += read;
+                break;
             }
-        } finally {
-            reader.close();
+
+            left  -= read;
+            count += read;
         }
     }
 

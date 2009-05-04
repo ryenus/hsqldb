@@ -1095,17 +1095,22 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         connection.clearWarningsNoCheck();
         checkParametersSet();
 
+        if (!isBatch) {
+            resultOut.setBatchedPreparedExecuteRequest();
+            isBatch = true;
+        }
+        try {
+            performPreExecute();
+        } catch (HsqlException e) {
+            throw Util.sqlException(e);
+        }
+
         int      len              = parameterValues.length;
         Object[] batchParamValues = new Object[len];
 
         System.arraycopy(parameterValues, 0, batchParamValues, 0, len);
 
-        if (batchResultOut == null) {
-            batchResultOut =
-                Result.newBatchedPreparedExecuteRequest(parameterTypes,
-                    statementID);
-        }
-        batchResultOut.getNavigator().add(batchParamValues);
+        resultOut.addBatchedPreparedExecuteRequest(batchParamValues);
     }
 
     /** @todo 1.9.0 - implement streaming */
@@ -1797,27 +1802,24 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         connection.clearWarningsNoCheck();
         checkStatementType(StatementTypes.RETURN_COUNT);
 
-        generatedResult = null;
-
-        if (batchResultOut == null) {
-            batchResultOut =
-                Result.newBatchedPreparedExecuteRequest(parameterTypes,
-                    statementID);
+        if (!isBatch) {
+            throw Util.sqlExceptionSQL(ErrorCode.X_07506);
         }
 
-        int batchCount = batchResultOut.getNavigator().getSize();
+        generatedResult = null;
+
+        int batchCount = resultOut.getNavigator().getSize();
 
         resultIn = null;
 
         try {
-            performPreExecute();
-
-            resultIn = connection.sessionProxy.execute(batchResultOut);
+            resultIn = connection.sessionProxy.execute(resultOut);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         } finally {
             performPostExecute();
-            batchResultOut.getNavigator().clear();
+            resultOut.getNavigator().clear();
+            isBatch = false;
         }
 
         if (resultIn.isError()) {
@@ -1953,7 +1955,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         pmdDescriptor   = null;
         rsmd            = null;
         pmd             = null;
-        batchResultOut  = null;
         connection      = null;
         resultIn        = null;
         resultOut       = null;
@@ -3454,8 +3455,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         checkClosed();
 
-        if (batchResultOut != null) {
-            batchResultOut.getNavigator().clear();
+        if (isBatch) {
+            resultOut.getNavigator().clear();
         }
     }
 
@@ -4196,9 +4197,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         closeResultData();
         checkParametersSet();
 
+        if (isBatch) {
+            throw Util.sqlExceptionSQL(ErrorCode.X_07505);
+        }
+
         //
         if (isResult) {
-            resultOut.setResultUpdateProperties(parameterValues);
+            resultOut.setPreparedResultUpdateProperties(parameterValues);
         } else {
             resultOut.setPreparedExecuteProperties(parameterValues, maxRows,
                     fetchSize);
@@ -4253,6 +4258,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /** Has one or more CLOB / BLOB type parameters. */
     protected boolean hasLOBs;
+
+    /** Is in batch mode. */
+    protected boolean isBatch;
 
     /** Description of result set metadata. */
     protected ResultMetaData rsmdDescriptor;

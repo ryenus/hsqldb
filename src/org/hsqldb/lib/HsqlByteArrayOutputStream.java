@@ -80,23 +80,21 @@ implements DataOutput {
 
         buffer = new byte[length];
 
-        try {
-            for (int left = length; left > 0; ) {
-                int read = input.read(buffer, count, left);
+        for (int left = length; left > 0; ) {
+            int read = input.read(buffer, count, left);
 
-                if (read == -1) {
-                    if (left > 0) {
-                        throw new EOFException();
-                    }
+            if (read == -1) {
+                if (left > 0) {
+                    input.close();
 
-                    break;
+                    throw new EOFException();
                 }
 
-                left  -= read;
-                count += read;
+                break;
             }
-        } finally {
-            input.close();
+
+            left  -= read;
+            count += read;
         }
     }
 
