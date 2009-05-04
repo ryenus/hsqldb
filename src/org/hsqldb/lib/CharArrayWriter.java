@@ -33,6 +33,7 @@ package org.hsqldb.lib;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.EOFException;
 
 /**
  * A writer for char strings.
@@ -59,6 +60,10 @@ public class CharArrayWriter {
                 int read = reader.read(buffer, count, left);
 
                 if (read == -1) {
+                    if (left > 0) {
+                        throw new EOFException();
+                    }
+
                     break;
                 }
 

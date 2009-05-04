@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -123,29 +124,31 @@ public class DataOutputStream {
         stream.write(b, off, len);
     }
 
-    public void write(Reader reader) throws IOException {
+    public void write(Reader reader, long length) throws IOException {
 
-        char[] data = new char[128];
+        InputStream inputStream = new ReaderInputStream(reader);
 
-        while (true) {
-            int count = reader.read(data);
-
-            if (count < 1) {
-                break;
-            }
-
-            writeChars(data, count);
-        }
+        write(inputStream, length * 2);
     }
 
-    public void write(InputStream inputStream) throws IOException {
+    public void write(InputStream inputStream,
+                      long length) throws IOException {
+
+        CountdownInputStream countStream =
+            new CountdownInputStream(inputStream);
+
+        countStream.setCount(length);
 
         byte[] data = new byte[128];
 
         while (true) {
-            int count = inputStream.read(data);
+            int count = countStream.read(data);
 
             if (count < 1) {
+                if (countStream.getCount() != 0) {
+                    throw new EOFException();
+                }
+
                 break;
             }
 

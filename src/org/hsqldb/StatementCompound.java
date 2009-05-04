@@ -252,7 +252,7 @@ public class StatementCompound extends Statement {
         this.condition = condition;
     }
 
-    public Result execute(Session session, Object[] args) {
+    public Result execute(Session session) {
 
         Result result;
 
@@ -296,7 +296,7 @@ public class StatementCompound extends Statement {
         session.sessionContext.push();
 
         for (; i < statements.length; i++) {
-            result = statements[i].execute(session, null);
+            result = statements[i].execute(session);
             result = handleCondition(session, result);
 
             if (result.isError()) {
@@ -370,8 +370,8 @@ public class StatementCompound extends Statement {
                             break;
                     }
 
-                    Result actionResult = handler.statement.execute(session,
-                        null);
+                    Result actionResult = handler.statement.execute(session
+                        );
 
                     if (actionResult.isError()) {
                         result = actionResult;
@@ -399,7 +399,7 @@ public class StatementCompound extends Statement {
 
         while (true) {
             if (type == StatementTypes.WHILE) {
-                result = condition.execute(session, null);
+                result = condition.execute(session);
 
                 if (result.isError()) {
                     break;
@@ -413,7 +413,7 @@ public class StatementCompound extends Statement {
             }
 
             for (int i = 0; i < statements.length; i++) {
-                result = statements[i].execute(session, null);
+                result = statements[i].execute(session);
 
                 if (result.isError()) {
                     break;
@@ -461,7 +461,7 @@ public class StatementCompound extends Statement {
             }
 
             if (type == StatementTypes.REPEAT) {
-                result = condition.execute(session, null);
+                result = condition.execute(session);
 
                 if (result.isError()) {
                     break;
@@ -489,7 +489,7 @@ public class StatementCompound extends Statement {
                     break;
                 }
 
-                result = statements[i].execute(session, null);
+                result = statements[i].execute(session);
 
                 if (result.isError()) {
                     break;
@@ -508,7 +508,7 @@ public class StatementCompound extends Statement {
                 continue;
             }
 
-            result = statements[i].execute(session, null);
+            result = statements[i].execute(session);
 
             if (result.isError()) {
                 break;

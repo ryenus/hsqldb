@@ -260,10 +260,6 @@ public class BinaryData implements BlobData {
 
     public void setSession(SessionInterface session) {}
 
-    public byte getBlobType() {
-        return 1;
-    }
-
     //---
     static boolean isInLimits(long fullLength, long pos, long len) {
         return pos >= 0 && len >= 0 && pos + len <= fullLength;

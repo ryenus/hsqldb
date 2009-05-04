@@ -47,6 +47,9 @@ import javax.sql.rowset.serial.SerialBlob;
 
 import java.sql.DriverManager;
 import java.io.Reader;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.File;
 
 public class TestLobs extends TestBase {
 
@@ -202,8 +205,7 @@ public class TestLobs extends TestBase {
             ps.executeUpdate();
 
             PreparedStatement ps2 = connection.prepareStatement(dql0);
-
-            ResultSet rs = ps2.executeQuery();
+            ResultSet         rs  = ps2.executeQuery();
 
             rs.next();
 
@@ -218,7 +220,7 @@ public class TestLobs extends TestBase {
             assertTrue(data1 == data2 && data1 > 0);
 
             //
-            Clob clob3 = new JDBCClob(data);
+            Clob   clob3  = new JDBCClob(data);
             Reader reader = clob3.getCharacterStream();
 
             ps.setCharacterStream(3, reader, (int) clob3.length());
@@ -231,17 +233,51 @@ public class TestLobs extends TestBase {
                 ps.setCharacterStream(3, reader, (int) clob3.length());
                 assertTrue(false);
                 ps.executeUpdate();
-            } catch (SQLException e) {
-            }
+            } catch (SQLException e) {}
 
-
-
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void testBlobB() {
+    public void testClobC() {
+
+        try {
+            String ddl0 = "DROP TABLE VARIABLE IF EXISTS";
+            String ddl1 =
+                "CREATE TABLE VARIABLE (stateid varchar(128), varid numeric(16,0), "
+                + "scalabilitypassivated char(1) DEFAULT 'N', value clob (2G), scopeguid varchar(128),"
+                + "primary key (stateid, varid, scalabilitypassivated, scopeguid))";
+
+            statement.execute(ddl0);
+            statement.execute(ddl1);
+        } catch (SQLException e) {}
+
+        try {
+            String dml0 = "INSERT INTO VARIABLE VALUES (?, ?, 'N', ?, ?)";
+            PreparedStatement ps = connection.prepareStatement(dml0);
+
+            //
+            String resourceFileName  = "/org/hsqldb/resources/lob-schema.sql";
+            InputStream fis = getClass().getResourceAsStream(resourceFileName);
+            InputStreamReader reader = null;
+
+            try {
+                reader = new InputStreamReader(fis, "ISO-8859-1");
+            } catch (Exception e) {}
+
+            ps.setString(1, "test string");
+            ps.setLong(2, 23456789123456L);
+            ps.setCharacterStream(3, reader, 1000);
+            ps.setString(4, "another test string");
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void atestBlobB() {
 
         ResultSet rs;
         byte[]    ba;

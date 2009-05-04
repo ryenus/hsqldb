@@ -89,6 +89,4 @@ public interface ClobData {
     void setId(long id);
 
     long getRightTrimSize(SessionInterface session) throws HsqlException;
-
-    byte getClobType();
 }

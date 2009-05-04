@@ -32,7 +32,9 @@
 package org.hsqldb.result;
 
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 
@@ -256,7 +258,7 @@ public class Result {
     }
 
     public void readAdditionalResults(SessionInterface session,
-                                      DataInput dataInput,
+                                      InputStream inputStream,
                                       RowInputBinary in)
                                       throws IOException, HsqlException {
 
@@ -265,6 +267,7 @@ public class Result {
         Result  currentResult = this;
         boolean hasLob        = false;
 
+        DataInput dataInput = new DataInputStream(inputStream);
         while (true) {
             int addedResultMode = dataInput.readByte();
 
@@ -273,7 +276,7 @@ public class Result {
 
                 if (session instanceof Session) {
                     ((Session) session).allocateResultLob(resultLob,
-                                                          dataInput);
+                                                          inputStream);
                 }
 
                 currentResult.addLobResult(resultLob);

@@ -190,8 +190,4 @@ public class BlobDataID implements BlobData {
             throw resultIn.getException();
         }
     }
-
-    public byte getBlobType() {
-        return 0;
-    }
 }

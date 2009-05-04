@@ -505,6 +505,19 @@ public class TransactionManager {
         }
     }
 
+    public boolean isDeleted(Session session, Row row) {
+
+        synchronized (row) {
+            RowAction action = row.rowAction;
+
+            if (action == null) {
+                return false;
+            }
+
+            return !action.canRead(session);
+        }
+    }
+
     public boolean canRead(Session session, int id) {
 
         RowAction action = (RowAction) rowActionMap.get(id);

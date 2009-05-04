@@ -31,7 +31,7 @@
 
 package org.hsqldb;
 
-import java.io.DataInput;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -143,14 +143,11 @@ public class LobManager {
         HashMappedList   map        = lg.getAsMap();
         String           sql = (String) map.get("/*lob_schema_definition*/");
         Statement        statement  = session.compileStatement(sql);
-
-//            database.logger.stopLogging();
-        Result result = statement.execute(session, null);
+        Result           result     = statement.execute(session);
         Table table = database.schemaManager.getTable(session, "BLOCKS",
             "SYSTEM_LOBS");
 
 //            table.isTransactional = false;
-//            database.logger.restartLogging();
         session.commit(false);
 
         getLob        = session.compileStatement(getLobSQL);
@@ -178,7 +175,7 @@ public class LobManager {
         session.commit(false);
     }
 
-    void initializeLobStore() throws HsqlException {}
+    void initialiseLobStore() throws HsqlException {}
 
     void open() throws HsqlException {
 
@@ -193,7 +190,7 @@ public class LobManager {
 
     long getNewLobID(Session session) {
 
-        Result result = getNextLobId.execute(session, null);
+        Result result = getNextLobId.execute(session);
 
         if (result.isError()) {
             return 0;
@@ -220,7 +217,11 @@ public class LobManager {
 
         params[0] = Long.valueOf(lobID);
 
-        Result result = getLob.execute(session, params);
+        session.sessionContext.pushDynamicArguments(params);
+
+        Result result = getLob.execute(session);
+
+        session.sessionContext.popDynamicArguments();
 
         if (result.isError()) {
             return null;
@@ -304,25 +305,43 @@ public class LobManager {
         params[0] = Long.valueOf(lobID);
         params[1] = Long.valueOf(session.transactionTimestamp);
 
-        Result result = session.executeCompiledStatement(createLob, params);
+        Result result = session.executeCompiledStatement(deleteLob, params);
     }
 
     public Result getLength(Session session, long lobID) {
 
+        try {
+            long length = getLengthValue(session, lobID);
+
+            return ResultLob.newLobSetResponse(lobID, length);
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e);
+        }
+    }
+
+    public long getLengthValue(Session session,
+                               long lobID) throws HsqlException {
+
         Object[] data = getLobHeader(session, lobID);
 
         if (data == null) {
-            Result.newErrorResult(Error.error(ErrorCode.X_0F502));
+            throw Error.error(ErrorCode.X_0F502);
         }
 
         long length = ((Long) data[1]).longValue();
 
-        return ResultLob.newLobSetResponse(lobID, length);
+        return length;
     }
 
-    /** @todo - implement copying the lob */
+    /**
+     * Used for SUBSTRING
+     */
     public Result getLob(Session session, long lobID, long offset,
                          long length) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "LobManager");
+    }
+
+    public Result createDuplicateLob(Session session, long lobID) {
 
         Object[] data = getLobHeader(session, lobID);
 
@@ -330,27 +349,84 @@ public class LobManager {
             Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
-        long lobLength = ((Long) data[1]).longValue();
-        int  lobType   = ((Integer) data[1]).intValue();
-        long newID;
+        long   newLobID = getNewLobID(session);
+        Object params[] = new Object[data.length];
 
-        if (lobType == Types.SQL_BLOB) {
-            newID = createBlob(session);
-        } else {
-            lobLength *= 2;
-            newID     = createClob(session);
+        params[0] = Long.valueOf(newLobID);
+        params[1] = data[1];
+        params[2] = data[2];
+
+        Result result = session.executeCompiledStatement(createLob, params);
+
+        if (result.isError()) {
+            return result;
         }
 
-        int newBlockCount = (int) length / lobBlockSize;
+        long length     = ((Long) data[1]).longValue();
+        long byteLength = length;
+        int  lobType    = ((Integer) data[1]).intValue();
 
-        if (length % lobBlockSize != 0) {
+        if (lobType == Types.SQL_CLOB) {
+            byteLength *= 2;
+        }
+
+        int newBlockCount = (int) byteLength / lobBlockSize;
+
+        if (byteLength % lobBlockSize != 0) {
             newBlockCount++;
         }
 
-        createBlockAddresses(session, lobID, 0, newBlockCount);
+        createBlockAddresses(session, newLobID, 0, newBlockCount);
 
         // copy the contents
-        return ResultLob.newLobSetResponse(newID, length);
+        int[][] sourceBlocks = getBlockAddresses(session, lobID, 0,
+            Integer.MAX_VALUE);
+        int[][] targetBlocks = getBlockAddresses(session, newLobID, 0,
+            Integer.MAX_VALUE);
+
+        try {
+            copyBlockSet(sourceBlocks, targetBlocks);
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e);
+        }
+
+        return ResultLob.newLobSetResponse(newLobID, length);
+    }
+
+    private void copyBlockSet(int[][] source,
+                              int[][] target) throws HsqlException {
+
+        int sourceIndex = 0;
+        int targetIndex = 0;
+
+        while (true) {
+            int sourceOffset = source[sourceIndex][LOBS.BLOCK_OFFSET]
+                               + sourceIndex;
+            int targetOffset = target[targetIndex][LOBS.BLOCK_OFFSET]
+                               + targetIndex;
+            byte[] bytes = lobStore.getBlockBytes(sourceOffset, 1);
+
+            lobStore.setBlockBytes(bytes, targetOffset, 1);
+
+            sourceOffset++;
+            targetOffset++;
+
+            if (sourceOffset == source[sourceIndex][LOBS.BLOCK_COUNT]) {
+                sourceOffset = 0;
+
+                sourceIndex++;
+            }
+
+            if (targetOffset == target[sourceIndex][LOBS.BLOCK_COUNT]) {
+                targetOffset = 0;
+
+                targetIndex++;
+            }
+
+            if (sourceIndex == source.length) {
+                break;
+            }
+        }
     }
 
     public Result getChars(Session session, long lobID, long offset,
@@ -413,8 +489,7 @@ public class LobManager {
         byte[] bytes;
 
         try {
-            bytes = lobStore.getBlockBytes(lobID,
-                                           blockAddresses[i][0] + blockOffset,
+            bytes = lobStore.getBlockBytes(blockAddresses[i][0] + blockOffset,
                                            blockCount);
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
@@ -442,7 +517,7 @@ public class LobManager {
             }
 
             try {
-                bytes = lobStore.getBlockBytes(lobID, blockAddresses[i][0],
+                bytes = lobStore.getBlockBytes(blockAddresses[i][0],
                                                blockCount);
             } catch (HsqlException e) {
                 return Result.newErrorResult(e);
@@ -493,7 +568,7 @@ public class LobManager {
                                + (blockOffset - blockAddresses[0][2]);
 
             try {
-                byte[] block = lobStore.getBlockBytes(lobID, blockAddress, 1);
+                byte[] block = lobStore.getBlockBytes(blockAddress, 1);
 
                 System.arraycopy(block, 0, newBytes, 0, lobBlockSize);
 
@@ -502,7 +577,7 @@ public class LobManager {
                         blockAddresses[blockAddresses.length - 1][0]
                         + (blockLimit
                            - blockAddresses[blockAddresses.length - 1][2] - 1);
-                    block = lobStore.getBlockBytes(lobID, blockAddress, 1);
+                    block = lobStore.getBlockBytes(blockAddress, 1);
 
                     System.arraycopy(block, 0, newBytes,
                                      blockLimit - blockOffset - 1,
@@ -510,7 +585,7 @@ public class LobManager {
                 } else if (blockLimit - blockOffset > 1) {
                     blockAddress = blockAddresses[0][0]
                                    + (blockLimit - blockAddresses[0][2] - 1);
-                    block = lobStore.getBlockBytes(lobID, blockAddress, 1);
+                    block = lobStore.getBlockBytes(blockAddress, 1);
 
                     System.arraycopy(block, 0, newBytes,
                                      (blockLimit - blockOffset - 1)
@@ -536,7 +611,7 @@ public class LobManager {
         //
         try {
             for (int i = 0; i < blockAddresses.length; i++) {
-                lobStore.setBlockBytes(lobID, newBytes, blockAddresses[i][0],
+                lobStore.setBlockBytes(newBytes, blockAddresses[i][0],
                                        blockAddresses[i][1]);
             }
         } catch (HsqlException e) {
@@ -553,7 +628,7 @@ public class LobManager {
     }
 
     private Result setBytesDI(Session session, long lobID,
-                              DataInput dataInput, long length) {
+                              InputStream inputStream, long length) {
 
         int blockLimit      = (int) (length / lobBlockSize);
         int byteLimitOffset = (int) (length % lobBlockSize);
@@ -584,7 +659,21 @@ public class LobManager {
                 }
 
                 try {
-                    dataInput.readFully(dataBytes, 0, localLength);
+                    int count = 0;
+
+                    while (localLength > 0) {
+                        int read = inputStream.read(dataBytes, count,
+                                                    localLength);
+
+                        if (read == -1) {
+                            return Result.newErrorResult(new EOFException());
+                        }
+
+                        localLength -= read;
+                        count       += read;
+                    }
+
+                    // read more
                 } catch (IOException e) {
 
                     // deallocate
@@ -592,7 +681,7 @@ public class LobManager {
                 }
 
                 try {
-                    lobStore.setBlockBytes(lobID, dataBytes,
+                    lobStore.setBlockBytes(dataBytes,
                                            blockAddresses[i][0] + j, 1);
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e);
@@ -627,14 +716,15 @@ public class LobManager {
         return result;
     }
 
-    public Result setBytes(Session session, long lobID, DataInput dataInput,
+    public Result setBytes(Session session, long lobID,
+                           InputStream inputStream,
                            long length) throws HsqlException {
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
-        Result result = setBytesDI(session, lobID, dataInput, length);
+        Result result = setBytesDI(session, lobID, inputStream, length);
 
         setLength(session, lobID, length);
 
@@ -678,15 +768,15 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, 0);
     }
 
-    public Result setChars(Session session, long lobID, long offset,
-                           DataInput dataInput,
+    public Result setChars(Session session, long lobID,
+                           InputStream inputStream,
                            long length) throws HsqlException {
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
-        Result result = setBytes(session, lobID, dataInput, length * 2);
+        Result result = setBytes(session, lobID, inputStream, length * 2);
 
         if (result.isError()) {
             return result;
@@ -754,7 +844,12 @@ public class LobManager {
         params[1] = Integer.valueOf(offset);
         params[2] = Integer.valueOf(limit);
 
-        Result          result    = getLobPart.execute(session, params);
+        session.sessionContext.pushDynamicArguments(params);
+
+        Result result = getLobPart.execute(session);
+
+        session.sessionContext.popDynamicArguments();
+
         RowSetNavigator navigator = result.getNavigator();
         int             size      = navigator.getSize();
         int[][]         blocks    = new int[size][3];

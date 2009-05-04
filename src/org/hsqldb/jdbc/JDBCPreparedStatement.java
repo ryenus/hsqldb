@@ -68,6 +68,7 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.Types;
 import org.hsqldb.lib.ArrayUtil;
@@ -86,7 +87,6 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.SchemaObject;
 
 /* $Id$ */
 
@@ -4007,10 +4007,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     void setBlobParameter(int i, Object o) throws SQLException {
 
         if (o instanceof JDBCBlobClient) {
-            if (o instanceof JDBCClobClient) {
-                throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                        "invalid Clob");
-            }
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "invalid Clob");
         } else if (o instanceof Blob) {
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;

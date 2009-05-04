@@ -210,10 +210,6 @@ public class ClobDataID implements ClobData {
         return 0;
     }
 
-    public byte getClobType() {
-        return 0;
-    }
-
     static boolean isInLimits(long fullLength, long pos, long len) {
         return pos >= 0 && len >= 0 && pos + len <= fullLength;
     }

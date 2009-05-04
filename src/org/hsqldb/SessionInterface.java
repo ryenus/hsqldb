@@ -31,7 +31,7 @@
 
 package org.hsqldb;
 
-import java.io.DataInput;
+import java.io.InputStream;
 
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
@@ -122,7 +122,7 @@ public interface SessionInterface {
     public ClobDataID createClob() throws HsqlException;
 
     void allocateResultLob(ResultLob result,
-                           DataInput dataInput) throws HsqlException;
+                           InputStream dataInput) throws HsqlException;
 
     Scanner getScanner();
 

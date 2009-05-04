@@ -66,7 +66,7 @@
 
 package org.hsqldb;
 
-import java.io.DataInput;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -1066,7 +1066,7 @@ public class Session implements SessionInterface {
         for (int i = 0; i < list.size(); i++) {
             Statement cs = (Statement) list.get(i);
 
-            result = executeCompiledStatement(cs, null);
+            result = executeCompiledStatement(cs, ValuePool.emptyObjectArray);
 
             if (result.isError()) {
                 break;
@@ -1088,7 +1088,8 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(e);
         }
 
-        Result result = executeCompiledStatement(cs, null);
+        Result result = executeCompiledStatement(cs,
+            ValuePool.emptyObjectArray);
 
         return result;
     }
@@ -1117,14 +1118,14 @@ public class Session implements SessionInterface {
                 commit(false);
             } catch (HsqlException e) {}
 
-            r                = cs.execute(this, null);
+            r                = cs.execute(this);
             currentStatement = null;
 
             return r;
         }
 
         if (!cs.isTransactionStatement()) {
-            r                = cs.execute(this, null);
+            r                = cs.execute(this);
             currentStatement = null;
 
             return r;
@@ -1157,7 +1158,12 @@ public class Session implements SessionInterface {
             }
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
-            r             = cs.execute(this, pvals);
+            sessionContext.pushDynamicArguments(pvals);
+
+            r = cs.execute(this);
+
+            sessionContext.popDynamicArguments();
+
             lockStatement = currentStatement;
 
             //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
@@ -1659,8 +1665,8 @@ public class Session implements SessionInterface {
     }
 
     public void allocateResultLob(ResultLob result,
-                                  DataInput dataInput) throws HsqlException {
-        sessionData.allocateLobForResult(result, dataInput);
+                                  InputStream inputStream) throws HsqlException {
+        sessionData.allocateLobForResult(result, inputStream);
     }
 
     Result performLOBOperation(ResultLob cmd) {

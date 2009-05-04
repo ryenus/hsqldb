@@ -221,7 +221,7 @@ public class StatementCommand extends Statement {
         }
     }
 
-    public Result execute(Session session, Object[] args) {
+    public Result execute(Session session) {
 
         Result result = getResult(session);
 
