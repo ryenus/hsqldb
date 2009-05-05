@@ -383,6 +383,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             case SYSTEM_USERS :
                 return SYSTEM_USERS();
 
+            case SYSTEM_SEQUENCES :
+                return SYSTEM_SEQUENCES();
+
             case COLUMN_PRIVILEGES :
                 return COLUMN_PRIVILEGES();
 
@@ -3168,6 +3171,112 @@ class DatabaseInformationMain extends DatabaseInformation {
             // false PK, as CATALOG may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[SEQUENCES].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[] {
+                0, 1, 2
+            }, false);
+
+            return t;
+        }
+
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+
+        //
+        final int sequence_catalog           = 0;
+        final int sequence_schema            = 1;
+        final int sequence_name              = 2;
+        final int data_type                  = 3;
+        final int numeric_precision          = 4;
+        final int numeric_precision_radix    = 5;
+        final int numeric_scale              = 6;
+        final int maximum_value              = 7;
+        final int minimum_value              = 8;
+        final int increment                  = 9;
+        final int cycle_option               = 10;
+        final int declared_data_type         = 11;
+        final int declared_numeric_precision = 12;
+        final int declared_numeric_scale     = 13;
+        final int start_with                 = 14;
+        final int next_value                 = 15;
+
+        //
+        Iterator       it;
+        Object[]       row;
+        NumberSequence sequence;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.SEQUENCE);
+
+        while (it.hasNext()) {
+            sequence = (NumberSequence) it.next();
+
+            if (!session.getGrantee().isAccessible(sequence)) {
+                continue;
+            }
+
+            row = t.getEmptyRowData();
+
+            NumberType type = (NumberType) sequence.getDataType();
+            int radix =
+                (type.typeCode == Types.SQL_NUMERIC || type.typeCode == Types
+                    .SQL_DECIMAL) ? 10
+                                  : 2;
+
+            row[sequence_catalog] = database.getCatalogName().name;
+            row[sequence_schema]  = sequence.getSchemaName().name;
+            row[sequence_name]    = sequence.getName().name;
+            row[data_type]        = sequence.getDataType().getFullNameString();
+            row[numeric_precision] =
+                ValuePool.getInt((int) type.getPrecision());
+            row[numeric_precision_radix]    = ValuePool.getInt(radix);
+            row[numeric_scale]              = ValuePool.INTEGER_0;
+            row[maximum_value] = String.valueOf(sequence.getMaxValue());
+            row[minimum_value] = String.valueOf(sequence.getMinValue());
+            row[increment] = String.valueOf(sequence.getIncrement());
+            row[cycle_option]               = sequence.isCycle() ? "YES"
+                                                                 : "NO";
+            row[declared_data_type]         = row[data_type];
+            row[declared_numeric_precision] = row[numeric_precision];
+            row[declared_numeric_scale]     = row[declared_numeric_scale];
+            row[start_with] = String.valueOf(sequence.getStartValue());
+            row[next_value]                 = String.valueOf(sequence.peek());
+
+            t.insertSys(store, row);
+        }
+
+        return t;
+    }
+
+    final Table SYSTEM_SEQUENCES() throws HsqlException {
+
+        Table t = sysTables[SYSTEM_SEQUENCES];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_SEQUENCES]);
+
+            addColumn(t, "SEQUENCE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "SEQUENCE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "SEQUENCE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "DATA_TYPE", CHARACTER_DATA);
+            addColumn(t, "NUMERIC_PRECISION", CARDINAL_NUMBER);
+            addColumn(t, "NUMERIC_PRECISION_RADIX", CARDINAL_NUMBER);
+            addColumn(t, "NUMERIC_SCALE", CARDINAL_NUMBER);
+            addColumn(t, "MAXIMUM_VALUE", CHARACTER_DATA);
+            addColumn(t, "MINIMUM_VALUE", CHARACTER_DATA);
+            addColumn(t, "INCREMENT", CHARACTER_DATA);
+            addColumn(t, "CYCLE_OPTION", YES_OR_NO);
+            addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
+            addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
+            addColumn(t, "DECLARED_NUMERIC_SCLAE", CARDINAL_NUMBER);
+
+            // HSQLDB-specific
+            addColumn(t, "START_WITH", CHARACTER_DATA);
+            addColumn(t, "NEXT_VALUE", CHARACTER_DATA);
+
+            // order SEQUENCE_CATALOG, SEQUENCE_SCHEMA, SEQUENCE_NAME
+            // false PK, as CATALOG may be null
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_SEQUENCES].name, false, SchemaObject.INDEX);
 
             t.createPrimaryKey(name, new int[] {
                 0, 1, 2
