@@ -516,7 +516,7 @@ public class BinaryType extends Type {
                                       : offset;
         }
 
-        if (end < offset) {
+        if (offset > end) {
             throw Error.error(ErrorCode.X_22011);
         }
 
@@ -590,7 +590,7 @@ public class BinaryType extends Type {
         }
 
         if (typeCode == Types.SQL_BLOB) {
-            BlobData blob = session.createBlob();
+            BlobData blob = session.createBlob(newBytes.length);
 
             blob.setBytes(session, 0, newBytes);
 
@@ -628,9 +628,11 @@ public class BinaryType extends Type {
                 return binary;
             }
             case Types.SQL_BLOB : {
-                BlobData blob = session.createBlob();
                 byte[] bytes = substring(session, data, 0, offset,
                                          false).getBytes();
+                long blobLength = data.length(session)
+                                  + overlay.length(session) - length;
+                BlobData blob = session.createBlob(blobLength);
 
                 blob.setBytes(session, 0, bytes);
                 blob.setBytes(session, blob.length(session),
@@ -655,15 +657,18 @@ public class BinaryType extends Type {
             return null;
         }
 
-        if (((BlobData) a).length(session) + ((BlobData) b).length(session)
-                > precision) {
+        long length = ((BlobData) a).length(session)
+                      + ((BlobData) b).length(session);
+
+        if (length > precision) {
             throw Error.error(ErrorCode.X_22001);
         }
 
         if (typeCode == Types.SQL_BLOB) {
-            BlobData blob = session.createBlob();
+            BlobData blob = session.createBlob(length);
 
-            blob.setBytes(session, blob.length(session),
+            blob.setBytes(session, 0, ((BlobData) b).getBytes());
+            blob.setBytes(session, ((BlobData) a).length(session),
                           ((BlobData) b).getBytes());
 
             return blob;

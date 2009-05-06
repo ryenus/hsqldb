@@ -31,6 +31,7 @@
 
 package org.hsqldb.test;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -40,9 +41,6 @@ import java.sql.Statement;
 import java.util.Random;
 
 import org.hsqldb.lib.StopWatch;
-import org.hsqldb.persist.HsqlProperties;
-
-import java.io.File;
 
 /**
  * Test large tables containing columns of different types.

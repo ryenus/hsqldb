@@ -323,9 +323,9 @@ public class SessionData {
     }
 
     // LOBs
+    public void deleteLobs() {
 
-    public void deleteLobs(){
-        for(;  deletedLobs.size() > 0;) {
+        for (; deletedLobs.size() > 0; ) {
             long lobID = deletedLobs.removeLast();
 
             database.lobManager.deleteLob(session, lobID);
@@ -334,9 +334,10 @@ public class SessionData {
         deletedLobs.clear();
     }
 
-    public void addToDeletedLobs(long lobID){
+    public void addToDeletedLobs(long lobID) {
         deletedLobs.add(lobID);
     }
+
     /**
      * allocate storage for a new LOB
      */
@@ -351,26 +352,29 @@ public class SessionData {
 
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES : {
                 long blobId;
+                long blobLength = result.getBlockLength();
 
                 if (inputStream == null) {
                     blobId      = resultLobId;
                     inputStream = result.getInputStream();
                 } else {
-                    blobId = database.lobManager.createBlob(session);
+                    blobId = database.lobManager.createBlob(session,
+                            blobLength);
 
                     lobs.put(resultLobId, blobId);
                 }
 
                 countStream = new CountdownInputStream(inputStream);
 
-                countStream.setCount(result.getBlockLength());
-                database.lobManager.setBytes(session, blobId, countStream,
+                countStream.setCount(blobLength);
+                database.lobManager.setBytesForNewClob(session, blobId, countStream,
                                              result.getBlockLength());
 
                 break;
             }
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
                 long clobId;
+                long clobLength = result.getBlockLength();
 
                 if (inputStream == null) {
                     clobId = resultLobId;
@@ -382,15 +386,16 @@ public class SessionData {
                         inputStream = result.getInputStream();
                     }
                 } else {
-                    clobId = database.lobManager.createClob(session);
+                    clobId = database.lobManager.createClob(session,
+                            clobLength);
 
                     lobs.put(resultLobId, clobId);
                 }
 
                 countStream = new CountdownInputStream(inputStream);
 
-                countStream.setCount(2 * result.getBlockLength());
-                database.lobManager.setChars(session, clobId, countStream,
+                countStream.setCount(clobLength * 2);
+                database.lobManager.setCharsForNewClob(session, clobId, countStream,
                                              result.getBlockLength());
 
                 break;

@@ -87,6 +87,10 @@ public class JDBCBlobClient implements Blob {
     public synchronized byte[] getBytes(long pos,
                                         int length) throws SQLException {
 
+        if (!isInLimits(Long.MAX_VALUE, pos - 1, length)) {
+            throw Util.outOfRangeArgument();
+        }
+
         try {
             return blob.getBytes(session, pos - 1, length);
         } catch (HsqlException e) {
@@ -121,6 +125,10 @@ public class JDBCBlobClient implements Blob {
      */
     public synchronized long position(byte[] pattern,
                                       long start) throws SQLException {
+
+        if (!isInLimits(Long.MAX_VALUE, start, 0)) {
+            throw Util.outOfRangeArgument();
+        }
 
         try {
             return blob.position(session, pattern, start - 1);
@@ -166,6 +174,10 @@ public class JDBCBlobClient implements Blob {
     public synchronized int setBytes(long pos,
                                      byte[] bytes) throws SQLException {
 
+        if (!isInLimits(Long.MAX_VALUE, pos - 1, bytes.length)) {
+            throw Util.outOfRangeArgument();
+        }
+
         try {
             return blob.setBytes(session, pos - 1, bytes);
         } catch (HsqlException e) {
@@ -192,6 +204,10 @@ public class JDBCBlobClient implements Blob {
      */
     public synchronized int setBytes(long pos, byte[] bytes, int offset,
                                      int len) throws SQLException {
+
+        if (!isInLimits(bytes.length, offset, len)) {
+            throw Util.outOfRangeArgument();
+        }
 
         if (offset != 0 || len != bytes.length) {
             byte[] newBytes = new byte[len];
@@ -277,6 +293,11 @@ public class JDBCBlobClient implements Blob {
      */
     public synchronized InputStream getBinaryStream(long pos,
             long length) throws SQLException {
+
+        if (!isInLimits(Long.MAX_VALUE, pos - 1, length)) {
+            throw Util.outOfRangeArgument();
+        }
+
         return new BlobInputStream(this, pos - 1, length,
                                    session.getStreamBlockSize());
     }
