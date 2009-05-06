@@ -40,14 +40,16 @@ import org.hsqldb.lib.HsqlArrayList;
  */
 public class LobStoreMem implements LobStore {
 
-    int           lobBlockSize         = 1024 * 32;
-    int           blocksInLargeBlock   = 128;
-    int           largeBlockSize       = lobBlockSize * blocksInLargeBlock;
-    int           totalBlockLimitCount = 1024 * 1024;
+    int           lobBlockSize;
+    int           blocksInLargeBlock = 128;
+    int           largeBlockSize;
     HsqlArrayList byteStoreList;
 
-    public LobStoreMem() {
-        byteStoreList = new HsqlArrayList();
+    public LobStoreMem(int lobBlockSize) {
+
+        this.lobBlockSize = lobBlockSize;
+        largeBlockSize    = lobBlockSize * blocksInLargeBlock;
+        byteStoreList     = new HsqlArrayList();
     }
 
     public byte[] getBlockBytes(int blockAddress, int blockCount) {

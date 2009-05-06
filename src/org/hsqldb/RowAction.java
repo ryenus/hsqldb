@@ -51,6 +51,7 @@ public class RowAction extends RowActionBase {
                                       TableBase table, Row row) {
 
         if (!table.isTransactional()) {
+
             //
         }
 
@@ -312,7 +313,7 @@ public class RowAction extends RowActionBase {
         return result;
     }
 
-    synchronized RowActionBase getAction(long timestamp) {
+    synchronized RowActionBase getFirstAction(long timestamp) {
 
         RowActionBase action = this;
         RowActionBase last   = null;
@@ -328,6 +329,31 @@ public class RowAction extends RowActionBase {
         } while (action != null);
 
         return last;
+    }
+
+    synchronized int getActionType(long timestamp) {
+
+        int           actionType = ACTION_NONE;
+        RowActionBase action     = this;
+
+        do {
+            if (action.actionTimestamp == timestamp) {
+                if (action.type == RowActionBase.ACTION_DELETE) {
+                    if (actionType == RowActionBase.ACTION_INSERT) {
+                        actionType = RowActionBase.ACTION_NONE;
+
+                        action = action.next;
+                        continue;
+                    }
+                }
+
+                actionType = action.type;
+            }
+
+            action = action.next;
+        } while (action != null);
+
+        return actionType;
     }
 
     synchronized int getPos() {

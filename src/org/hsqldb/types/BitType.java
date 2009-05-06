@@ -325,8 +325,12 @@ public final class BitType extends BinaryType {
         if (a == null) {
             return a;
         }
-
-        if (a instanceof String) {
+        if (a instanceof byte[]) {
+            BinaryData data = new BinaryData((byte[]) a,((byte[]) a).length );
+            return convertToTypeLimits(session, data);
+        } else if (a instanceof BinaryData) {
+            return convertToTypeLimits(session, a);
+        } else if (a instanceof String) {
             return convertToType(session, a, Type.SQL_VARCHAR);
         }
 

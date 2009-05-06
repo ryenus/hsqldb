@@ -147,7 +147,7 @@ public final class ClobType extends CharacterType {
         }
 
         if (a instanceof String) {
-            ClobData clob = session.createClob();
+            ClobData clob = session.createClob(((String) a).length());
 
             clob.setString(session, 0, (String) a);
 

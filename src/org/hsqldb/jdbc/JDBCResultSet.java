@@ -4925,11 +4925,11 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateBlob(int columnIndex,
                            java.sql.Blob x) throws SQLException {
+
         if (x instanceof JDBCBlobClient) {
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "invalid Blob");
         }
-
         startUpdate(columnIndex);
         preparedStatement.setBlobParameter(columnIndex, x);
     }
@@ -4967,7 +4967,8 @@ public class JDBCResultSet implements ResultSet {
                            java.sql.Blob x) throws SQLException {
 
         int columnIndex = findColumn(columnLabel);
-        updateBlob(columnIndex, x );
+
+        updateBlob(columnIndex, x);
     }
 
 //#endif JAVA4
@@ -5001,6 +5002,7 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateClob(int columnIndex,
                            java.sql.Clob x) throws SQLException {
+
         if (x instanceof JDBCClobClient) {
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "invalid Clob");
@@ -5044,6 +5046,7 @@ public class JDBCResultSet implements ResultSet {
                            java.sql.Clob x) throws SQLException {
 
         int columnIndex = findColumn(columnLabel);
+
         updateClob(columnIndex, x);
     }
 

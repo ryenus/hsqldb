@@ -51,9 +51,11 @@ public class LobStoreRAFile implements LobStore {
     RandomAccessFile file;
     Database         database;
 
-    public LobStoreRAFile(Database database) throws HsqlException {
+    public LobStoreRAFile(Database database,
+                          int lobBlockSize) throws HsqlException {
 
-        this.database = database;
+        this.lobBlockSize = lobBlockSize;
+        this.database     = database;
 
         try {
             String  name   = database.getPath() + ".lobs";

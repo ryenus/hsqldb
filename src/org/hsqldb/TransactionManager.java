@@ -160,15 +160,20 @@ public class TransactionManager {
                 Object[] data = row.getData();
 
                 try {
-                    RowActionBase last =
-                        action.getAction(session.actionTimestamp);
+                    int actionType =
+                        action.getActionType(session.actionTimestamp);
 
-                    if (last.type == RowActionBase.ACTION_INSERT) {
+                    if (actionType == RowActionBase.ACTION_INSERT) {
                         database.logger.writeInsertStatement(
                             session, (Table) action.table, data);
-                    } else {
+                    } else if (actionType == RowActionBase.ACTION_DELETE) {
                         database.logger.writeDeleteStatement(
                             session, (Table) action.table, data);
+                    } else if (actionType == RowActionBase.ACTION_NONE) {
+                        // no logging
+                    } else {
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "TransactionManager");
                     }
                 } catch (HsqlException e) {
 
@@ -708,21 +713,22 @@ public class TransactionManager {
 
             if (delete) {
                 try {
-                    int pos = rowact.getPos();
-
+                    int    pos   = rowact.getPos();
                     Type[] types = rowact.table.getColumnTypes();
 
                     for (int j = 0; j < types.length; j++) {
                         if (types[j].typeCode == Types.SQL_CLOB) {
                             ClobData lob = (ClobData) row.getData()[j];
+
                             session.sessionData.addToDeletedLobs(lob.getId());
                         } else if (types[j].typeCode == Types.SQL_BLOB) {
                             BlobData lob = (BlobData) row.getData()[j];
+
                             session.sessionData.addToDeletedLobs(lob.getId());
                         }
                     }
-                    store.delete(row);
 
+                    store.delete(row);
                 } catch (HsqlException e) {
 
 //                    throw unexpectedException(e.getMessage());
@@ -780,7 +786,7 @@ public class TransactionManager {
             }
         }
 
-        if(session.isReadOnly()) {
+        if (session.isReadOnly()) {
             return;
         }
 

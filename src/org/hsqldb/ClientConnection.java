@@ -497,14 +497,14 @@ public class ClientConnection implements SessionInterface {
         return lobIDSequence++;
     }
 
-    public BlobDataID createBlob() {
+    public BlobDataID createBlob(long length) {
 
         BlobDataID blob = new BlobDataID(getLobId());
 
         return blob;
     }
 
-    public ClobDataID createClob() {
+    public ClobDataID createClob(long length) {
 
         ClobDataID clob = new ClobDataID(getLobId());
 

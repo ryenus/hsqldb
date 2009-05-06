@@ -495,7 +495,7 @@ public class CharacterType extends Type {
                         return a;
 
                     case Types.SQL_CLOB : {
-                        ClobData clob = session.createClob();
+                        ClobData clob = session.createClob(((String)a).length());
 
                         clob.setString(session, 0, (String) a);
 
@@ -765,7 +765,7 @@ public class CharacterType extends Type {
             return ((String) data).substring((int) offset,
                                              (int) (offset + length));
         } else if (data instanceof ClobData) {
-            ClobData clob = session.createClob();
+            ClobData clob = session.createClob(length);
 
             /** @todo - change to support long strings */
             String result = ((ClobData) data).getSubString(session, offset,
@@ -794,7 +794,7 @@ public class CharacterType extends Type {
 
             result = collation.toUpperCase(result);
 
-            ClobData clob = session.createClob();
+            ClobData clob = session.createClob(result.length());
 
             clob.setString(session, 0, result);
 
@@ -816,7 +816,7 @@ public class CharacterType extends Type {
 
             result = collation.toLowerCase(result);
 
-            ClobData clob = session.createClob();
+            ClobData clob = session.createClob(result.length());
 
             clob.setString(session, 0, result);
 
@@ -867,7 +867,7 @@ public class CharacterType extends Type {
         }
 
         if (typeCode == Types.SQL_CLOB) {
-            ClobData clob = session.createClob();
+            ClobData clob = session.createClob(s.length());
 
             clob.setString(session, 0, s);
 
@@ -925,7 +925,7 @@ public class CharacterType extends Type {
         }
 
         if (typeCode == Types.SQL_CLOB) {
-            ClobData clob = session.createClob();
+            ClobData clob = session.createClob(left.length() + right.length());
 
             clob.setString(session, 0, left);
             clob.setString(session, left.length(), right);

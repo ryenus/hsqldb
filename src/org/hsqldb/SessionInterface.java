@@ -117,9 +117,9 @@ public interface SessionInterface {
 
     String getInternalConnectionURL();
 
-    public BlobDataID createBlob() throws HsqlException;
+    public BlobDataID createBlob(long length) throws HsqlException;
 
-    public ClobDataID createClob() throws HsqlException;
+    public ClobDataID createClob(long length) throws HsqlException;
 
     void allocateResultLob(ResultLob result,
                            InputStream dataInput) throws HsqlException;

@@ -180,9 +180,9 @@ public class LobManager {
     void open() throws HsqlException {
 
         if (DatabaseURL.isFileBasedDatabaseType(database.getType())) {
-            lobStore = new LobStoreRAFile(database);
+            lobStore = new LobStoreRAFile(database, lobBlockSize);
         } else {
-            lobStore = new LobStoreMem();
+            lobStore = new LobStoreMem(lobBlockSize);
         }
     }
 
@@ -267,14 +267,14 @@ public class LobManager {
         return clob;
     }
 
-    public long createBlob(Session session) {
+    public long createBlob(Session session, long length) {
 
         long           lobID    = getNewLobID(session);
         ResultMetaData meta     = createLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
-        params[1] = Long.valueOf(0);
+        params[1] = Long.valueOf(length);
         params[2] = Integer.valueOf(Types.SQL_BLOB);
 
         Result result = session.executeCompiledStatement(createLob, params);
@@ -282,14 +282,14 @@ public class LobManager {
         return lobID;
     }
 
-    public long createClob(Session session) {
+    public long createClob(Session session, long length) {
 
         long           lobID    = getNewLobID(session);
         ResultMetaData meta     = createLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
-        params[1] = Long.valueOf(0);
+        params[1] = Long.valueOf(length);
         params[2] = Integer.valueOf(Types.SQL_CLOB);
 
         Result result = session.executeCompiledStatement(createLob, params);
@@ -716,9 +716,9 @@ public class LobManager {
         return result;
     }
 
-    public Result setBytes(Session session, long lobID,
-                           InputStream inputStream,
-                           long length) throws HsqlException {
+    public Result setBytesForNewClob(Session session, long lobID,
+                                     InputStream inputStream,
+                                     long length) throws HsqlException {
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
@@ -726,7 +726,7 @@ public class LobManager {
 
         Result result = setBytesDI(session, lobID, inputStream, length);
 
-        setLength(session, lobID, length);
+//        setLength(session, lobID, length);
 
         return result;
     }
@@ -768,21 +768,22 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, 0);
     }
 
-    public Result setChars(Session session, long lobID,
-                           InputStream inputStream,
-                           long length) throws HsqlException {
+    public Result setCharsForNewClob(Session session, long lobID,
+                                     InputStream inputStream,
+                                     long length) throws HsqlException {
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
-        Result result = setBytes(session, lobID, inputStream, length * 2);
+        Result result = setBytesForNewClob(session, lobID, inputStream,
+                                           length * 2);
 
         if (result.isError()) {
             return result;
         }
 
-        setLength(session, lobID, length);
+//        setLength(session, lobID, length);
 
         return ResultLob.newLobSetResponse(lobID, 0);
     }

@@ -37,16 +37,15 @@ import java.io.Reader;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.hsqldb.jdbc.JDBCBlob;
 import org.hsqldb.jdbc.JDBCClob;
+import org.hsqldb.lib.StopWatch;
 
 public class TestLobs extends TestBase {
 
@@ -55,9 +54,10 @@ public class TestLobs extends TestBase {
 
     public TestLobs(String name) {
 
-        super(name);
+       super(name);
 
 //        super(name, "jdbc:hsqldb:file:test3", false, false);
+//       super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
     protected void setUp() {
@@ -321,7 +321,52 @@ public class TestLobs extends TestBase {
         }
     }
 
-    public void atestBlobB() {
+    public void testClobD() {
+
+        try {
+            String ddl0 = "DROP TABLE VARIABLE IF EXISTS";
+            String ddl1 =
+                "CREATE TABLE VARIABLE (stateid varchar(128), varid numeric(16,0), "
+                + "scalabilitypassivated char(1) DEFAULT 'N', value longvarchar(2000), scopeguid varchar(128),"
+                + "primary key (stateid, varid, scalabilitypassivated, scopeguid))";
+
+            statement.execute(ddl0);
+            statement.execute(ddl1);
+        } catch (SQLException e) {}
+
+        try {
+            String dml0 = "INSERT INTO VARIABLE VALUES (?, ?, 'N', ?, ?)";
+            String dml1 =
+                "UPDATE VARIABLE SET value = ? WHERE stateid = ? AND "
+                + "varid = ? AND scalabilitypassivated = 'N' AND scopeguid = ?";
+            PreparedStatement ps = connection.prepareStatement(dml0);
+            connection.setAutoCommit(false);
+            //
+            JDBCClob dataClob = new JDBCClob("the quick brown fox jumps on the lazy dog");
+
+            Reader reader = null;
+
+            StopWatch sw = new StopWatch();
+            sw.start();
+            for (int i = 0; i < 1000; i++) {
+
+                reader = dataClob.getCharacterStream();
+                ps.setString(1, "test-id-1" + i);
+                ps.setLong(2, 23456789123456L + i);
+                ps.setCharacterStream(3, reader, dataClob.length());
+                ps.setString(4, "test-scope-1" + i);
+                ps.executeUpdate();
+                connection.commit();
+            }
+            connection.commit();
+            sw.stop();
+            System.out.println(sw.elapsedTimeToMessage("Time for 10000 iterations"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testBlobB() {
 
         ResultSet rs;
         byte[]    ba;
@@ -375,40 +420,22 @@ public class TestLobs extends TestBase {
 
             rs.close();
 
-            rs = st.executeQuery("SELECT b FROM blo WHERE id = 1");
-
-            if (!rs.next()) {
-                assertTrue("No row with id 1", false);
-            }
-
-            ba = rs.getBytes("b");
-
-            if (ba.length != baR1.length) {
-                assertTrue("row1 byte length differs", false);
-            }
-
-            for (int i = 0; i < ba.length; i++) {
-                if (ba[i] != baR1[i]) {
-                    assertTrue("row1 byte " + i + " differs", false);
-                }
-            }
-
-            rs.close();
-
             rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
 
             if (!rs.next()) {
                 assertTrue("No row with id 2", false);
             }
 
-            ba = rs.getBytes("b");
+//            ba = rs.getBytes("b"); doesn't convert but throws ClassCast
 
+            blob1 = rs.getBlob("b");
+            ba = blob1.getBytes(1,baR2.length);
             if (ba.length != baR2.length) {
                 assertTrue("row2 byte length differs", false);
             }
 
             for (int i = 0; i < ba.length; i++) {
-                if (ba[i] != baR2[i]) {
+                if (ba[i] != baR1[i]) {
                     assertTrue("row2 byte " + i + " differs", false);
                 }
             }

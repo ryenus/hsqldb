@@ -87,6 +87,10 @@ public class JDBCClobClient implements Clob {
     public synchronized String getSubString(long pos,
             int length) throws SQLException {
 
+        if (!isInLimits(Long.MAX_VALUE, pos - 1, length)) {
+            throw Util.outOfRangeArgument();
+        }
+
         try {
             return clob.getSubString(session, pos - 1, length);
         } catch (HsqlException e) {
@@ -126,6 +130,10 @@ public class JDBCClobClient implements Clob {
      */
     public synchronized long position(String searchstr,
                                       long start) throws SQLException {
+
+        if (!isInLimits(Long.MAX_VALUE, start - 1, 0)) {
+            throw Util.outOfRangeArgument();
+        }
 
         try {
             return clob.position(session, searchstr, start - 1);
@@ -222,6 +230,10 @@ public class JDBCClobClient implements Clob {
      */
     public synchronized int setString(long pos, String str, int offset,
                                       int len) throws SQLException {
+
+        if (!isInLimits(Long.MAX_VALUE, pos - 1, len)) {
+            throw Util.outOfRangeArgument();
+        }
 
         try {
             return clob.setString(session, pos - 1, str, offset, len);

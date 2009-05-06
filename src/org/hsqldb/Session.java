@@ -1638,9 +1638,9 @@ public class Session implements SessionInterface {
     }
 
     // lobs
-    public BlobDataID createBlob() throws HsqlException {
+    public BlobDataID createBlob(long length) throws HsqlException {
 
-        long lobID = database.lobManager.createBlob(this);
+        long lobID = database.lobManager.createBlob(this, length);
 
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_0F502);
@@ -1649,9 +1649,9 @@ public class Session implements SessionInterface {
         return new BlobDataID(lobID);
     }
 
-    public ClobDataID createClob() throws HsqlException {
+    public ClobDataID createClob(long length) throws HsqlException {
 
-        long lobID = database.lobManager.createClob(this);
+        long lobID = database.lobManager.createClob(this, length);
 
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_0F502);
