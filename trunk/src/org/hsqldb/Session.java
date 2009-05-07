@@ -573,6 +573,7 @@ public class Session implements SessionInterface {
     }
 
     private void endTransaction() {
+
         sessionData.deleteLobs();
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
@@ -1640,7 +1641,7 @@ public class Session implements SessionInterface {
     // lobs
     public BlobDataID createBlob(long length) throws HsqlException {
 
-        long lobID = database.lobManager.createBlob(this, length);
+        long lobID = database.lobManager.createBlob(length);
 
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_0F502);
@@ -1651,7 +1652,7 @@ public class Session implements SessionInterface {
 
     public ClobDataID createClob(long length) throws HsqlException {
 
-        long lobID = database.lobManager.createClob(this, length);
+        long lobID = database.lobManager.createClob(length);
 
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_0F502);
@@ -1665,7 +1666,8 @@ public class Session implements SessionInterface {
     }
 
     public void allocateResultLob(ResultLob result,
-                                  InputStream inputStream) throws HsqlException {
+                                  InputStream inputStream)
+                                  throws HsqlException {
         sessionData.allocateLobForResult(result, inputStream);
     }
 

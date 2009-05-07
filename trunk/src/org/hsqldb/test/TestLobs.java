@@ -54,9 +54,9 @@ public class TestLobs extends TestBase {
 
     public TestLobs(String name) {
 
-       super(name);
+//       super(name);
 
-//        super(name, "jdbc:hsqldb:file:test3", false, false);
+        super(name, "jdbc:hsqldb:file:test3", false, false);
 //       super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
@@ -327,7 +327,7 @@ public class TestLobs extends TestBase {
             String ddl0 = "DROP TABLE VARIABLE IF EXISTS";
             String ddl1 =
                 "CREATE TABLE VARIABLE (stateid varchar(128), varid numeric(16,0), "
-                + "scalabilitypassivated char(1) DEFAULT 'N', value longvarchar(2000), scopeguid varchar(128),"
+                + "scalabilitypassivated char(1) DEFAULT 'N', value clob(2000), scopeguid varchar(128),"
                 + "primary key (stateid, varid, scalabilitypassivated, scopeguid))";
 
             statement.execute(ddl0);
@@ -348,6 +348,7 @@ public class TestLobs extends TestBase {
 
             StopWatch sw = new StopWatch();
             sw.start();
+
             for (int i = 0; i < 1000; i++) {
 
                 reader = dataClob.getCharacterStream();
@@ -358,9 +359,27 @@ public class TestLobs extends TestBase {
                 ps.executeUpdate();
                 connection.commit();
             }
+
+            sw.stop();
+            System.out.println(sw.elapsedTimeToMessage("Time for inserts"));
+            ps = connection.prepareStatement(dml1);
+
+            sw.zero();
+            sw.start();
+            for (int i = 100; i < 200; i++) {
+
+                reader = dataClob.getCharacterStream();
+                ps.setCharacterStream(1, reader, dataClob.length());
+                ps.setString(2, "test-id-1" + i);
+                ps.setLong(3, 23456789123456L + i);
+                ps.setString(4, "test-scope-1" + i);
+                ps.executeUpdate();
+                connection.commit();
+            }
+
             connection.commit();
             sw.stop();
-            System.out.println(sw.elapsedTimeToMessage("Time for 10000 iterations"));
+            System.out.println(sw.elapsedTimeToMessage("Time for updates"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -455,7 +474,7 @@ public class TestLobs extends TestBase {
         try {
             statement = connection.createStatement();
 
-            statement.execute("SHUTDOWN");
+//            statement.execute("SHUTDOWN IMMEDIATELY");
             statement.close();
             connection.close();
         } catch (Exception e) {}

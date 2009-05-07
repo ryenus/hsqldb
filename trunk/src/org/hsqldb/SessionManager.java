@@ -41,14 +41,15 @@ import org.hsqldb.rights.User;
  * Responsible for managing opening and closing of sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class SessionManager {
 
-    long                   sessionIdCount = 1;
+    long                   sessionIdCount = 0;
     private LongKeyHashMap sessionMap     = new LongKeyHashMap();
     private Session        sysSession;
+    private Session        sysLobSession;
 
     /**
      * @todo:
@@ -65,7 +66,10 @@ public class SessionManager {
 
         User sysUser = db.getUserManager().getSysUser();
 
-        sysSession = new Session(db, sysUser, false, false, 0, 0);
+        sysSession = new Session(db, sysUser, false, false, sessionIdCount++,
+                                 0);
+        sysLobSession = new Session(db, sysUser, true, false, sessionIdCount++,
+                                 0);
     }
 
     /**
@@ -121,6 +125,10 @@ public class SessionManager {
         session.isProcessingScript = true;
 
         return session;
+    }
+
+    public Session getSysLobSession() {
+        return sysLobSession;
     }
 
     /**
