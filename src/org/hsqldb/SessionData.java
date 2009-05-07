@@ -328,7 +328,7 @@ public class SessionData {
         for (; deletedLobs.size() > 0; ) {
             long lobID = deletedLobs.removeLast();
 
-            database.lobManager.deleteLob(session, lobID);
+            database.lobManager.deleteLob(lobID);
         }
 
         deletedLobs.clear();
@@ -358,8 +358,7 @@ public class SessionData {
                     blobId      = resultLobId;
                     inputStream = result.getInputStream();
                 } else {
-                    blobId = database.lobManager.createBlob(session,
-                            blobLength);
+                    blobId = database.lobManager.createBlob(blobLength);
 
                     lobs.put(resultLobId, blobId);
                 }
@@ -367,8 +366,8 @@ public class SessionData {
                 countStream = new CountdownInputStream(inputStream);
 
                 countStream.setCount(blobLength);
-                database.lobManager.setBytesForNewClob(session, blobId, countStream,
-                                             result.getBlockLength());
+                database.lobManager.setBytesForNewBlob(
+                    blobId, countStream, result.getBlockLength());
 
                 break;
             }
@@ -386,8 +385,7 @@ public class SessionData {
                         inputStream = result.getInputStream();
                     }
                 } else {
-                    clobId = database.lobManager.createClob(session,
-                            clobLength);
+                    clobId = database.lobManager.createClob(clobLength);
 
                     lobs.put(resultLobId, clobId);
                 }
@@ -395,8 +393,8 @@ public class SessionData {
                 countStream = new CountdownInputStream(inputStream);
 
                 countStream.setCount(clobLength * 2);
-                database.lobManager.setCharsForNewClob(session, clobId, countStream,
-                                             result.getBlockLength());
+                database.lobManager.setCharsForNewClob(
+                    clobId, countStream, result.getBlockLength());
 
                 break;
             }

@@ -62,6 +62,7 @@ public class LobManager {
 
     Database database;
     LobStore lobStore;
+    Session  sysLobSession;
 
     //
     int lobBlockSize         = 1024 * 32;
@@ -130,7 +131,9 @@ public class LobManager {
 
     void createSchema() throws HsqlException {
 
-        Session           session = database.sessionManager.getSysSession();
+        sysLobSession = database.sessionManager.getSysLobSession();
+
+        Session           session = sysLobSession;
         InputStream fis = getClass().getResourceAsStream(resourceFileName);
         InputStreamReader reader  = null;
 
@@ -148,7 +151,6 @@ public class LobManager {
             "SYSTEM_LOBS");
 
 //            table.isTransactional = false;
-        session.commit(false);
 
         getLob        = session.compileStatement(getLobSQL);
         getLobPart    = session.compileStatement(getLobPartSQL);
@@ -163,16 +165,14 @@ public class LobManager {
 
     void initialiseLobSpace() throws HsqlException {
 
-        Session   session   = database.sessionManager.getSysSession();
-        Statement statement = session.compileStatement(initialiseBlocksSQL);
+        Statement statement = sysLobSession.compileStatement(initialiseBlocksSQL);
         Object[]  args      = new Object[3];
 
         args[0] = Integer.valueOf(0);
         args[1] = Integer.valueOf(totalBlockLimitCount);
         args[2] = Long.valueOf(0);
 
-        session.executeCompiledStatement(statement, args);
-        session.commit(false);
+        sysLobSession.executeCompiledStatement(statement, args);
     }
 
     void initialiseLobStore() throws HsqlException {}
@@ -188,7 +188,7 @@ public class LobManager {
 
     void close() {}
 
-    long getNewLobID(Session session) {
+    private long getNewLobID(Session session) {
 
         Result result = getNextLobId.execute(session);
 
@@ -210,7 +210,7 @@ public class LobManager {
         return ((Long) data[0]).longValue();
     }
 
-    Object[] getLobHeader(Session session, long lobID) {
+    private Object[] getLobHeader(Session session, long lobID) {
 
         ResultMetaData meta     = getLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -267,8 +267,9 @@ public class LobManager {
         return clob;
     }
 
-    public long createBlob(Session session, long length) {
+    public long createBlob(long length) {
 
+        Session        session  = sysLobSession;
         long           lobID    = getNewLobID(session);
         ResultMetaData meta     = createLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -282,8 +283,9 @@ public class LobManager {
         return lobID;
     }
 
-    public long createClob(Session session, long length) {
+    public long createClob(long length) {
 
+        Session        session  = sysLobSession;
         long           lobID    = getNewLobID(session);
         ResultMetaData meta     = createLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -297,13 +299,14 @@ public class LobManager {
         return lobID;
     }
 
-    public void deleteLob(Session session, long lobID) {
+    public void deleteLob(long lobID) {
 
+        Session session = this.sysLobSession;
         ResultMetaData meta     = deleteLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
-        params[1] = Long.valueOf(session.transactionTimestamp);
+        params[1] = Long.valueOf(session.actionTimestamp);
 
         Result result = session.executeCompiledStatement(deleteLob, params);
     }
@@ -627,7 +630,7 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, 0);
     }
 
-    private Result setBytesDI(Session session, long lobID,
+    private Result setBytesIS(Session session, long lobID,
                               InputStream inputStream, long length) {
 
         int blockLimit      = (int) (length / lobBlockSize);
@@ -716,18 +719,16 @@ public class LobManager {
         return result;
     }
 
-    public Result setBytesForNewClob(Session session, long lobID,
-                                     InputStream inputStream,
+    public Result setBytesForNewBlob(long lobID, InputStream inputStream,
                                      long length) throws HsqlException {
+
+        Session session = sysLobSession;
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
-        Result result = setBytesDI(session, lobID, inputStream, length);
-
-//        setLength(session, lobID, length);
-
+        Result result = setBytesIS(session, lobID, inputStream, length);
         return result;
     }
 
@@ -768,22 +769,21 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, 0);
     }
 
-    public Result setCharsForNewClob(Session session, long lobID,
-                                     InputStream inputStream,
+    public Result setCharsForNewClob(long lobID, InputStream inputStream,
                                      long length) throws HsqlException {
+
+        Session session = sysLobSession;
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
         }
 
-        Result result = setBytesForNewClob(session, lobID, inputStream,
-                                           length * 2);
+        Result result = setBytesIS(session, lobID, inputStream, length * 2);
 
         if (result.isError()) {
             return result;
         }
 
-//        setLength(session, lobID, length);
 
         return ResultLob.newLobSetResponse(lobID, 0);
     }
