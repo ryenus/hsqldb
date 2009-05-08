@@ -162,16 +162,19 @@ public class ClientConnection implements SessionInterface {
         try {
             socket = HsqlSocketFactory.getInstance(isTLS).createSocket(host,
                                                    port);
+
+//            socket.setTcpNoDelay(true);
             dataOutput = new DataOutputStream(socket.getOutputStream());
             dataInput = new DataInputStream(
                 new BufferedInputStream(socket.getInputStream()));
 
             handshake();
         } catch (Exception e) {
-            throw Error.error(ErrorCode.X_08001, e.getMessage());
 
             // The details from "e" should not be thrown away here.  This is
             // very useful info for end users to diagnose the runtime problem.
+            throw new HsqlException(e, Error.getStateString(ErrorCode.X_08001),
+                                    -ErrorCode.X_08001);
         }
     }
 
@@ -199,8 +202,8 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized RowSetNavigatorClient getRows(long navigatorId, int offset,
-                                         int size) throws HsqlException {
+    public synchronized RowSetNavigatorClient getRows(long navigatorId,
+            int offset, int size) throws HsqlException {
 
         try {
             resultOut.setResultType(ResultConstants.REQUESTDATA);
@@ -274,7 +277,8 @@ public class ClientConnection implements SessionInterface {
         return null;
     }
 
-    public synchronized void setAttribute(int id, Object value) throws HsqlException {
+    public synchronized void setAttribute(int id,
+                                          Object value) throws HsqlException {
 
         resultOut.setResultType(ResultConstants.SETSESSIONATTR);
 
@@ -514,7 +518,8 @@ public class ClientConnection implements SessionInterface {
     /**
      * Does nothing here
      */
-    public void allocateResultLob(ResultLob resultLob, InputStream dataInput) {}
+    public void allocateResultLob(ResultLob resultLob,
+                                  InputStream dataInput) {}
 
     public Scanner getScanner() {
 

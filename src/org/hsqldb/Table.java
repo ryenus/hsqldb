@@ -2244,13 +2244,14 @@ public class Table extends TableBase implements SchemaObject {
      *  UNIQUE or PRIMARY constraints are enforced by attempting to
      *  add the row to the indexes.
      */
-    private void insertNoCheck(Session session, PersistentStore store,
+    private Row insertNoCheck(Session session, PersistentStore store,
                                Object[] data) throws HsqlException {
 
         Row row = (Row) store.getNewCachedObject(session, data);
 
         store.indexRow(session, row);
         session.addInsertAction(this, row);
+        return row;
     }
 
     /**
@@ -2527,7 +2528,15 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < rowSet.size(); i++) {
             Object[] data = (Object[]) rowSet.get(i);
 
-            insertNoCheck(session, store, data);
+            Row oldRow  = (Row) rowSet.getKey(i);
+            Row newRow = insertNoCheck(session, store, data);
+
+            RowActionBase oldAction = oldRow.rowAction.getLastAction(session.actionTimestamp);
+            RowAction newAction = newRow.rowAction;
+            oldAction.memoryRowUpdate = newRow.rowAction.memoryRow;
+            oldAction.rowIdUpdate = newRow.rowAction.rowId;
+
+
         }
     }
 

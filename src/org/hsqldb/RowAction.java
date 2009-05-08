@@ -331,6 +331,22 @@ public class RowAction extends RowActionBase {
         return last;
     }
 
+    synchronized RowActionBase getLastAction(long timestamp) {
+
+        RowActionBase action = this;
+        RowActionBase last   = null;
+
+        do {
+            if (action.actionTimestamp == timestamp) {
+                last = action;
+            }
+
+            action = action.next;
+        } while (action != null);
+
+        return last;
+    }
+
     synchronized int getActionType(long timestamp) {
 
         int           actionType = ACTION_NONE;

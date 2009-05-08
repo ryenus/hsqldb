@@ -814,12 +814,16 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * Getter for transactionSise attribute.
+     * Count of acctions in current transaction.
      *
      * @return the current value
      */
     public int getTransactionSize() {
         return rowActionList.size();
+    }
+
+    public long getTransactionTimestamp() {
+        return transactionTimestamp;
     }
 
     public Statement compileStatement(String sql) throws HsqlException {

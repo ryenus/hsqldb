@@ -75,6 +75,7 @@ import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.LobManager;
 import org.hsqldb.persist.Logger;
 import org.hsqldb.persist.PersistentStoreCollectionDatabase;
 import org.hsqldb.result.Result;

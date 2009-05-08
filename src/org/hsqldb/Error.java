@@ -82,6 +82,7 @@ public class Error {
     }
 
     public static HsqlException error(int code, Throwable t) {
+
         String message = getMessage(code, 0, null);
 
         return new HsqlException(t, message.substring(0, SQL_STATE_DIGITS),
@@ -181,6 +182,17 @@ public class Error {
      */
     public static String getMessage(final int errorCode) {
         return getMessage(errorCode, 0, null);
+    }
+
+    /**
+     * Returns the error SQL STATE sting given the error code.<br/>
+     * This method is be used when throwing exception based on other exceptions.
+     *
+     * @param errorCode    the error code associated to the error message
+     * @return  the error message associated with the error code
+     */
+    public static String getStateString(final int errorCode) {
+        return getMessage(errorCode, 0, null).substring(0, SQL_STATE_DIGITS);
     }
 
     /**
