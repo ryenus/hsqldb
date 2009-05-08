@@ -31,12 +31,13 @@
 
 package org.hsqldb;
 
-import java.io.DataInputStream;
 import java.io.InputStream;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
@@ -51,8 +52,6 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
-import org.hsqldb.lib.CountdownInputStream;
-import org.hsqldb.lib.LongDeque;
 
 /*
  * Session semi-persistent data structures

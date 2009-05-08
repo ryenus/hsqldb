@@ -66,6 +66,10 @@ class RowActionBase {
     long tempCreationTimestamp;
     long tempMergeTimestamp;
 
+    //
+    Row             memoryRowUpdate;
+    int             rowIdUpdate;
+
     /**
      * constructor, used for delete actions only
      */
