@@ -2531,10 +2531,10 @@ public class Table extends TableBase implements SchemaObject {
             Row oldRow  = (Row) rowSet.getKey(i);
             Row newRow = insertNoCheck(session, store, data);
 
-            RowActionBase oldAction = oldRow.rowAction.getLastAction(session.actionTimestamp);
-            RowAction newAction = newRow.rowAction;
-            oldAction.memoryRowUpdate = newRow.rowAction.memoryRow;
-            oldAction.rowIdUpdate = newRow.rowAction.rowId;
+//            RowActionBase oldAction = oldRow.rowAction.getLastAction(session.actionTimestamp);
+//            RowAction newAction = newRow.rowAction;
+//            oldAction.memoryRowUpdate = newRow.rowAction.memoryRow;
+//           oldAction.rowIdUpdate = newRow.rowAction.rowId;
 
 
         }
