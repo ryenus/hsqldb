@@ -66,6 +66,7 @@
 
 package org.hsqldb.server;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -242,7 +243,8 @@ class ServerConnection implements Runnable {
         try {
             socket.setTcpNoDelay(true);
 
-            dataInput  = new DataInputStream(socket.getInputStream());
+            dataInput = new DataInputStream(
+                new BufferedInputStream(socket.getInputStream()));
             dataOutput = new DataOutputStream(socket.getOutputStream());
 
             int firstInt = handshake();
