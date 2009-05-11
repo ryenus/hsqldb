@@ -76,7 +76,7 @@ import org.hsqldb.result.Result;
  * @version 1.9.0
  * @since 1.7.2
  */
-final class StatementManager {
+public final class StatementManager {
 
     /**
      * The Database for which this object is managing
@@ -195,7 +195,7 @@ final class StatementManager {
      * @param csid the identifier of the requested CompiledStatement object
      * @return the requested CompiledStatement object
      */
-    synchronized Statement getStatement(Session session, long csid) {
+    public synchronized Statement getStatement(Session session, long csid) {
 
         Statement cs = (Statement) csidMap.get(csid);
 

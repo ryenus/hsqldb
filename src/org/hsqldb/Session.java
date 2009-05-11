@@ -908,10 +908,7 @@ public class Session implements SessionInterface {
                 cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
                                           cmd.getGeneratedResultMetaData());
 
-                ResultMetaData rmd = cs.getResultMetaData();
-                ResultMetaData pmd = cs.getParametersMetaData();
-                Result result = Result.newPrepareResponse(cs.getID(),
-                    cs.getType(), rmd, pmd);
+                Result result = Result.newPrepareResponse(cs);
 
                 if (cs.getType() == StatementTypes.SELECT_CURSOR) {
                     sessionData.setResultSetProperties(cmd, result);
@@ -1342,14 +1339,18 @@ public class Session implements SessionInterface {
      */
     private Result executeCompiledStatement(Result cmd) {
 
-        long csid = cmd.getStatementID();
-        Statement cs = database.compiledStatementManager.getStatement(this,
-            csid);
+        Statement cs = cmd.getStatement();
 
-        if (cs == null) {
+        if (!cs.isValid()) {
+            long csid = cmd.getStatementID();
 
-            // invalid sql has been removed already
-            return Result.newErrorResult(Error.error(ErrorCode.X_07502));
+            cs = database.compiledStatementManager.getStatement(this, csid);
+
+            if (cs == null) {
+
+                // invalid sql has been removed already
+                return Result.newErrorResult(Error.error(ErrorCode.X_07502));
+            }
         }
 
         Object[] pvals = cmd.getParameterData();
@@ -1375,7 +1376,7 @@ public class Session implements SessionInterface {
 
         Object[]        pvals     = cmd.getParameterData();
         Type[]          types     = cmd.metaData.columnTypes;
-        StatementQuery  statement = (StatementQuery) result.getValueObject();
+        StatementQuery  statement = (StatementQuery) result.getStatement();
         QueryExpression qe        = statement.queryExpression;
         Table           baseTable = qe.getBaseTable();
         int[]           columnMap = qe.getBaseTableColumnMap();

@@ -132,6 +132,7 @@ class ServerConnection implements Runnable {
     Thread                   runnerThread;
     protected static String  TEXTBANNER_PART1 = null;
     protected static String  TEXTBANNER_PART2 = null;
+    Result                   result;
 
     static {
         int serverBundleHandle =
@@ -175,6 +176,10 @@ class ServerConnection implements Runnable {
         rowIn  = new RowInputBinaryNet(rowOutTemp);
         rowOut = rowOutTemp;
 
+        //
+        result = Result.newResult(ResultConstants.EXECUTE);
+
+        //
         Thread runnerThread;
 
         this.socket = socket;
@@ -321,24 +326,38 @@ class ServerConnection implements Runnable {
     private void receiveResult(int resultMode)
     throws CleanExit, IOException, HsqlException {
 
-        Result resultIn = Result.newResult(resultMode, dataInput, rowIn);
+        Result resultIn;
+
+        if (resultMode == ResultConstants.EXECUTE) {
+            Result.readExecuteProperties(session, result, dataInput, rowIn);
+
+            resultIn = result;
+        } else {
+            resultIn = Result.newResult(session, resultMode, dataInput, rowIn);
+        }
 
         resultIn.readAdditionalResults(session, dataInput, rowIn);
         server.printRequest(mThread, resultIn);
 
         Result resultOut = null;
-        int    type      = resultIn.getType();
 
-        if (type == ResultConstants.CONNECT) {
-            resultOut = setDatabase(resultIn);
-        } else if (type == ResultConstants.DISCONNECT) {
-            throw cleanExit;
-        } else if (type == ResultConstants.RESETSESSION) {
-            resetSession();
+        switch (resultMode) {
 
-            return;
-        } else {
-            resultOut = session.execute(resultIn);
+            case ResultConstants.CONNECT : {
+                resultOut = setDatabase(resultIn);
+
+                break;
+            }
+            case ResultConstants.DISCONNECT : {
+                throw cleanExit;
+            }
+            case ResultConstants.RESETSESSION : {
+                resetSession();
+
+                return;
+            }
+            default :
+                resultOut = session.execute(resultIn);
         }
 
         resultOut.write(dataOutput, rowOut);
@@ -1506,9 +1525,7 @@ class ServerConnection implements Runnable {
                 while (keepAlive) {
                     msgType = dataInput.readByte();
 
-                    if ((msgType < '0' || msgType > '9')
-                            && (msgType < 'a' || msgType > 'z')
-                            && (msgType < 'A' || msgType > 'Z')) {
+                    if (msgType < ResultConstants.MODE_UPPER_LIMIT) {
                         receiveResult(msgType);
                     } else {
                         receiveOdbcPacket((char) msgType);

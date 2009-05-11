@@ -193,6 +193,7 @@ public abstract class StatementDMQL extends Statement {
 
         if (session.sessionContext.dynamicArguments.length
                 != parameters.length) {
+
 //            return Result.newErrorResult(Error.error(ErrorCode.X_42575));
         }
 
@@ -327,7 +328,7 @@ public abstract class StatementDMQL extends Statement {
         return null;
     }
 
-    public void setParameters() {
+    private void setParameters() {
 
         for (int i = 0; i < parameters.length; i++) {
             parameters[i].parameterIndex = i;
@@ -379,6 +380,7 @@ public abstract class StatementDMQL extends Statement {
         parameters = compileContext.getParameters();
 
         setParameters();
+        setParameterMetaData();
 
         subqueries         = compileContext.getSubqueries();
         rangeIteratorCount = compileContext.getRangeVarCount();
@@ -527,16 +529,21 @@ public abstract class StatementDMQL extends Statement {
      * Returns the metadata for the placeholder parameters.
      */
     public ResultMetaData getParametersMetaData() {
+        return parameterMetaData;
+    }
 
-        ResultMetaData metaData;
-        int            offset;
-        int            idx;
-        boolean        hasReturnValue;
+    void setParameterMetaData() {
+
+        int     offset;
+        int     idx;
+        boolean hasReturnValue;
 
         offset = 0;
 
         if (parameters.length == 0) {
-            return ResultMetaData.emptyParamMetaData;
+            parameterMetaData = ResultMetaData.emptyParamMetaData;
+
+            return;
         }
 
 // NO:  Not yet
@@ -546,7 +553,8 @@ public abstract class StatementDMQL extends Statement {
 //            outlen++;
 //            offset = 1;
 //        }
-        metaData = ResultMetaData.newParameterMetaData(parameters.length);
+        parameterMetaData =
+            ResultMetaData.newParameterMetaData(parameters.length);
 
 // NO: Not yet
 //        if (hasReturnValue) {
@@ -565,8 +573,9 @@ public abstract class StatementDMQL extends Statement {
 
             // always i + 1.  We currently use the convention of @p0 to name the
             // return value OUT parameter
-            metaData.columnLabels[idx] = StatementDMQL.PCOL_PREFIX + (i + 1);
-            metaData.columnTypes[idx]  = parameters[i].dataType;
+            parameterMetaData.columnLabels[idx] = StatementDMQL.PCOL_PREFIX
+                                                  + (i + 1);
+            parameterMetaData.columnTypes[idx] = parameters[i].dataType;
 
             byte parameterMode = SchemaObject.ParameterModes.PARAM_IN;
 
@@ -576,14 +585,12 @@ public abstract class StatementDMQL extends Statement {
                 parameterMode = parameters[i].column.getParameterMode();
             }
 
-            metaData.paramModes[idx] = parameterMode;
-            metaData.paramNullable[idx] = parameters[i].column == null
-                                          ? SchemaObject.Nullability.NULLABLE
-                                          : parameters[i].column
-                                              .getNullability();
+            parameterMetaData.paramModes[idx] = parameterMode;
+            parameterMetaData.paramNullable[idx] =
+                parameters[i].column == null
+                ? SchemaObject.Nullability.NULLABLE
+                : parameters[i].column.getNullability();
         }
-
-        return metaData;
     }
 
     /**

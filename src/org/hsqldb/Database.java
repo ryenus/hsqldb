@@ -166,7 +166,7 @@ public class Database {
     // session related objects
     public SessionManager     sessionManager;
     public TransactionManager txManager;
-    StatementManager          compiledStatementManager;
+    public StatementManager   compiledStatementManager;
 
     // schema objects
     public SchemaManager schemaManager;
@@ -326,6 +326,13 @@ public class Database {
             }
 
             if (isNew) {
+                String tableType = urlProperties.getProperty(
+                    HsqlDatabaseProperties.hsqldb_default_table_type, "MEMORY");
+
+                if ("CACHED".equalsIgnoreCase(tableType)) {
+                    schemaManager.setDefaultTableType("CACHED");
+                }
+
                 HsqlName name = nameManager.newHsqlName("SA", false,
                     SchemaObject.GRANTEE);
 
@@ -341,8 +348,8 @@ public class Database {
                 schemaManager.createPublicSchema();
                 logger.writeToLog(session,
                                   "CREATE SCHEMA PUBLIC AUTHORIZATION DBA");
-                logger.writeToLog(session,
-                                  "SET DEFAULT INITIAL SCHEMA PUBLIC");
+                logger.writeToLog(
+                    session, "SET DATABASE DEFAULT INITIAL SCHEMA PUBLIC");
                 lobManager.initialiseLobSpace();
                 logger.synchLogForce();
             }
@@ -538,18 +545,6 @@ public class Database {
     }
 
     /**
-     * Obtain default table types from database properties
-     */
-    int getDefaultTableType() {
-
-        String dttName = getProperties().getProperty(
-            HsqlDatabaseProperties.hsqldb_default_table_type);
-
-        return Tokens.T_CACHED.equalsIgnoreCase(dttName) ? Table.CACHED_TABLE
-                                                         : Table.MEMORY_TABLE;
-    }
-
-    /**
      *  Called by the garbage collector on this Databases object when garbage
      *  collection determines that there are no more references to it.
      */
@@ -724,6 +719,12 @@ public class Database {
 
     public String[] getPropertiesSQL() {
 
+        HsqlArrayList list = new HsqlArrayList();
+
+        if (schemaManager.getDefaultTableType() == TableBase.CACHED_TABLE) {
+            list.add("SET DATABASE DEFAULT TABLE TYPE CACHED");
+        }
+
         if (logger.hasLog()) {
             int     delay  = logger.getWriteDelay();
             boolean millis = delay < 1000;
@@ -736,13 +737,15 @@ public class Database {
                 delay /= 1000;
             }
 
-            String statement = "SET WRITE_DELAY " + delay + (millis ? " MILLIS"
-                                                                    : "");
-
-            return new String[]{ statement };
+            list.add("SET WRITE_DELAY " + delay + (millis ? " MILLIS"
+                                                          : ""));
         }
 
-        return new String[0];
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
     }
 
     /**

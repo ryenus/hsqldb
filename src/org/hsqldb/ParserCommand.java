@@ -320,6 +320,119 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
+    private Statement compileSetDefault() throws HsqlException {
+
+        read();
+
+        switch (token.tokenType) {
+
+            case Tokens.INITIAL : {
+                read();
+                readThis(Tokens.SCHEMA);
+
+                HsqlName schema = database.schemaManager.getSchemaHsqlName(
+                    token.tokenString);
+
+                read();
+
+                Object[] args = new Object[]{ schema };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA, args);
+            }
+            case Tokens.RESULT : {
+                read();
+                readThis(Tokens.MEMORY);
+                readThis(Tokens.SIZE);
+
+                int      size = readInteger();
+                Object[] args = new Object[]{ new Integer(size) };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS, args);
+            }
+            case Tokens.TABLE : {
+                read();
+                readThis(Tokens.TYPE);
+
+                String type = Tokens.T_MEMORY;
+
+                switch (token.tokenType) {
+
+                    case Tokens.MEMORY :
+                        break;
+
+                    case Tokens.CACHED :
+                        type = Tokens.T_CACHED;
+                        break;
+
+                    default :
+                        throw unexpectedToken();
+                }
+
+                read();
+
+                Object[] args = new Object[]{ type };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args);
+            }
+            default :
+                throw unexpectedToken();
+        }
+    }
+
+    private Statement compileSetProperty() throws HsqlException {
+
+        read();
+
+        String                 property;
+        Object                 value;
+        HsqlDatabaseProperties props;
+
+        checkIsSimpleName();
+        checkIsDelimitedIdentifier();
+
+        property = token.tokenString;
+        props    = database.getProperties();
+
+        boolean isboolean  = props.isBoolean(token.tokenString);
+        boolean isintegral = props.isIntegral(token.tokenString);
+        boolean isstring   = props.isString(token.tokenString);
+
+        if (!(isboolean || isintegral || isstring)) {
+            throw Error.error(ErrorCode.X_42511);
+        }
+
+        int typeCode = isboolean ? Types.SQL_BOOLEAN
+                                 : isintegral ? Types.SQL_INTEGER
+                                              : Types.SQL_CHAR;
+
+        read();
+
+        if (token.tokenType == Tokens.TRUE) {
+            value = Boolean.TRUE;
+        } else if (token.tokenType == Tokens.FALSE) {
+            value = Boolean.FALSE;
+        } else {
+            checkIsValue();
+
+            value = token.tokenValue;
+
+            if (token.dataType.typeCode != typeCode) {
+                throw Error.error(ErrorCode.X_42565, token.tokenString);
+            }
+        }
+
+        read();
+
+        Object[] args = new Object[] {
+            property, value
+        };
+
+        return new StatementCommand(StatementTypes.SET_PROPERTY, args);
+    }
+
     private Statement compileSet() throws HsqlException {
 
         int position = super.getPosition();
@@ -383,7 +496,6 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(StatementTypes.SET_TRANSACTION,
                                             args);
             }
-
             case Tokens.AUTOCOMMIT : {
                 read();
 
@@ -393,6 +505,7 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(StatementTypes.SET_AUTOCOMMIT,
                                             args);
             }
+
             // deprecated
             case Tokens.READONLY : {
                 read();
@@ -461,70 +574,34 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(
                     StatementTypes.SET_SESSION_RESULT_MAX_ROWS, args);
             }
+
+            // for backward compatibility
             case Tokens.DEFAULT : {
                 read();
+                readThis(Tokens.TABLE);
+                readThis(Tokens.TYPE);
+
+                String type = Tokens.T_MEMORY;
 
                 switch (token.tokenType) {
 
-                    case Tokens.INITIAL : {
-                        read();
-                        readThis(Tokens.SCHEMA);
+                    case Tokens.MEMORY :
+                        break;
 
-                        HsqlName schema =
-                            database.schemaManager.getSchemaHsqlName(
-                                token.tokenString);
+                    case Tokens.CACHED :
+                        type = Tokens.T_CACHED;
+                        break;
 
-                        read();
-
-                        Object[] args = new Object[]{ schema };
-
-                        return new StatementCommand(
-                            StatementTypes.SET_DEFAULT_INITIAL_SCHEMA, args);
-                    }
-                    case Tokens.RESULT : {
-                        read();
-                        readThis(Tokens.MEMORY);
-                        readThis(Tokens.SIZE);
-
-                        int      size = readInteger();
-                        Object[] args = new Object[]{ new Integer(size) };
-
-                        return new StatementCommand(
-                            StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS,
-                            args);
-                    }
-                    case Tokens.TABLE : {
-                        read();
-                        readThis(Tokens.TYPE);
-
-                        String type = Tokens.T_MEMORY;
-
-                        switch (token.tokenType) {
-
-                            case Tokens.MEMORY :
-                                break;
-
-                            case Tokens.CACHED :
-                                type = Tokens.T_CACHED;
-                                break;
-
-                            default :
-                                throw unexpectedToken();
-                        }
-
-                        read();
-
-                        Object[] args = new Object[] {
-                            HsqlDatabaseProperties.hsqldb_default_table_type,
-                            type
-                        };
-
-                        return new StatementCommand(
-                            StatementTypes.SET_PROPERTY, args);
-                    }
                     default :
                         throw unexpectedToken();
                 }
+
+                read();
+
+                Object[] args = new Object[]{ type };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args);
             }
             case Tokens.RESULT : {
                 read();
@@ -708,15 +785,14 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.BACKUP : {
                         read();
                         checkDatabaseUpdateAuthorisation();
-
                         readThis(Tokens.INCREMENT);
 
                         boolean  value = processTrueOrFalse();
-                        Object[] args     = new Object[]{ Boolean.valueOf(value) };
-
+                        Object[] args = new Object[]{ Boolean.valueOf(value) };
 
                         return new StatementCommand(
-                            StatementTypes.SET_DATABASE_BACKUP_INCREMENT, args);
+                            StatementTypes.SET_DATABASE_BACKUP_INCREMENT,
+                            args);
                     }
                     case Tokens.COLLATION : {
                         read();
@@ -749,7 +825,8 @@ public class ParserCommand extends ParserDDL {
                         Object[] args = new Object[]{ Boolean.valueOf(mode) };
 
                         return new StatementCommand(
-                            StatementTypes.SET_DATABASE_REFERENTIAL_INTEGRITY, args);
+                            StatementTypes.SET_DATABASE_REFERENTIAL_INTEGRITY,
+                            args);
                     }
                     case Tokens.TRANSACTION : {
                         read();
@@ -771,60 +848,19 @@ public class ParserCommand extends ParserDDL {
                             StatementTypes.SET_DATABASE_TRANSACTION_CONTROL,
                             args);
                     }
+                    case Tokens.DEFAULT : {
+                        return compileSetDefault();
+                    }
+                    case Tokens.PROPERTY : {
+                        return compileSetProperty();
+                    }
                     default : {
                         throw unexpectedToken();
                     }
                 }
             }
             case Tokens.PROPERTY : {
-                read();
-
-                String                 property;
-                Object                 value;
-                HsqlDatabaseProperties props;
-
-                checkIsSimpleName();
-                checkIsDelimitedIdentifier();
-
-                property = token.tokenString;
-                props    = database.getProperties();
-
-                boolean isboolean  = props.isBoolean(token.tokenString);
-                boolean isintegral = props.isIntegral(token.tokenString);
-                boolean isstring   = props.isString(token.tokenString);
-
-                if (!(isboolean || isintegral || isstring)) {
-                    throw Error.error(ErrorCode.X_42511);
-                }
-
-                int typeCode = isboolean ? Types.SQL_BOOLEAN
-                                         : isintegral ? Types.SQL_INTEGER
-                                                      : Types.SQL_CHAR;
-
-                read();
-
-                if (token.tokenType == Tokens.TRUE) {
-                    value = Boolean.TRUE;
-                } else if (token.tokenType == Tokens.FALSE) {
-                    value = Boolean.FALSE;
-                } else {
-                    checkIsValue();
-
-                    value = token.tokenValue;
-
-                    if (token.dataType.typeCode != typeCode) {
-                        throw Error.error(ErrorCode.X_42565,
-                                          token.tokenString);
-                    }
-                }
-
-                read();
-
-                Object[] args = new Object[] {
-                    property, value
-                };
-
-                return new StatementCommand(StatementTypes.SET_PROPERTY, args);
+                return compileSetProperty();
             }
             default : {
                 rewind(position);

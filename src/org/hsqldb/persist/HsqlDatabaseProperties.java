@@ -213,8 +213,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "sql.compare_in_locale";
     private static final String sql_enforce_strict_size =
         "sql.enforce_strict_size";
-    public static final String sql_tx_no_multi_write =
-        "sql.tx_no_multi_rewrite";
     public static final String sql_enforce_keywords = "sql.enforce_keywords";
 
     //
@@ -244,8 +242,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         meta.put(db_modified, getMeta(db_modified, FILE_PROPERTY, null));
 
         // string defaults for user defined props
-        meta.put(hsqldb_default_table_type,
-                 getMeta(hsqldb_default_table_type, SET_PROPERTY, "memory"));
         meta.put(hsqldb_temp_directory,
                  getMeta(hsqldb_temp_directory, SET_PROPERTY, null));
         meta.put(textdb_fs, getMeta(textdb_fs, SET_PROPERTY, ","));
@@ -263,17 +259,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         // boolean defaults for user defined props
         meta.put(hsqldb_inc_backup,
-                 getMeta(hsqldb_inc_backup, SET_PROPERTY, false));
+                 getMeta(hsqldb_inc_backup, SET_PROPERTY, true));
         meta.put(hsqldb_lock_file,
                  getMeta(hsqldb_lock_file, SET_PROPERTY, true));
         meta.put(hsqldb_nio_data_file,
                  getMeta(hsqldb_nio_data_file, SET_PROPERTY, false));
         meta.put(sql_enforce_strict_size,
-                 getMeta(sql_enforce_strict_size, SET_PROPERTY, false));
+                 getMeta(sql_enforce_strict_size, SET_PROPERTY, true));
         meta.put(sql_enforce_keywords,
                  getMeta(sql_enforce_keywords, SET_PROPERTY, false));
-        meta.put(sql_tx_no_multi_write,
-                 getMeta(sql_tx_no_multi_write, SET_PROPERTY, false));
         meta.put(textdb_quoted, getMeta(textdb_quoted, SET_PROPERTY, false));
         meta.put(textdb_all_quoted,
                  getMeta(textdb_all_quoted, SET_PROPERTY, false));
@@ -416,9 +410,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // initial method of data file access
         setProperty(hsqldb_nio_data_file, true);
 
-        // set default table type to MEMORY
-        setProperty(hsqldb_default_table_type, "memory");
-
         // set lock file true
         setProperty(hsqldb_lock_file, true);
 
@@ -438,7 +429,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         //
         // OOo related code
         if (db.isStoredFileAccess()) {
-            setProperty(hsqldb_default_table_type, "cached");
             setProperty(hsqldb_cache_scale, 13);
             setProperty(hsqldb_log_size, 10);
             setProperty(sql_enforce_strict_size, true);
