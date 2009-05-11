@@ -136,7 +136,7 @@ public class ParserDDL extends ParserRoutine {
                 read();
 
                 isTable   = true;
-                tableType = database.getDefaultTableType();
+                tableType = database.schemaManager.getDefaultTableType();
                 break;
 
             default :

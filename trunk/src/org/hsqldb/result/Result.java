@@ -34,7 +34,6 @@ package org.hsqldb.result;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 
@@ -44,6 +43,7 @@ import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.Statement;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
@@ -177,6 +177,9 @@ public class Result {
     // simple value for PSM
     Object valueData;
 
+    //
+    Statement statement;
+
     public static Result newResult(RowSetNavigator nav) {
 
         Result result = new Result();
@@ -187,7 +190,7 @@ public class Result {
         return result;
     }
 
-    private static Result newResult(int type) {
+    public static Result newResult(int type) {
 
         RowSetNavigator navigator = null;
         Result          result    = null;
@@ -237,10 +240,11 @@ public class Result {
     public static Result newResult(DataInput dataInput,
                                    RowInputBinary in)
                                    throws IOException, HsqlException {
-        return newResult(dataInput.readByte(), dataInput, in);
+        return newResult(null, dataInput.readByte(), dataInput, in);
     }
 
-    public static Result newResult(int mode, DataInput dataInput,
+    public static Result newResult(Session session, int mode,
+                                   DataInput dataInput,
                                    RowInputBinary in)
                                    throws IOException, HsqlException {
 
@@ -249,7 +253,7 @@ public class Result {
                 return ResultLob.newLob(dataInput, false);
             }
 
-            Result result = newResult(dataInput, in, mode);
+            Result result = newResult(session, dataInput, in, mode);
 
             return result;
         } catch (IOException e) {
@@ -258,21 +262,20 @@ public class Result {
     }
 
     public void readAdditionalResults(SessionInterface session,
-                                      InputStream inputStream,
+                                      DataInputStream inputStream,
                                       RowInputBinary in)
                                       throws IOException, HsqlException {
 
         setSession(session);
 
-        Result    currentResult = this;
-        boolean   hasLob        = false;
-        DataInput dataInput     = new DataInputStream(inputStream);
+        Result  currentResult = this;
+        boolean hasLob        = false;
 
         while (true) {
-            int addedResultMode = dataInput.readByte();
+            int addedResultMode = inputStream.readByte();
 
             if (addedResultMode == ResultConstants.LARGE_OBJECT_OP) {
-                ResultLob resultLob = ResultLob.newLob(dataInput, false);
+                ResultLob resultLob = ResultLob.newLob(inputStream, false);
 
                 if (session instanceof Session) {
                     ((Session) session).allocateResultLob(resultLob,
@@ -298,13 +301,48 @@ public class Result {
                 return;
             }
 
-            currentResult = newResult(dataInput, in, addedResultMode);
+            currentResult = newResult(null, inputStream, in, addedResultMode);
 
             addChainedResult(currentResult);
         }
     }
 
-    private static Result newResult(DataInput dataInput, RowInputBinary in,
+    public static void readExecuteProperties(Session session, Result result,
+                                             DataInputStream dataInput,
+                                             RowInputBinary in) throws HsqlException {
+
+        try {
+            int length = dataInput.readInt();
+
+            in.resetRow(0, length);
+
+            byte[] byteArray = in.getBuffer();
+            final int offset = 4;
+
+            dataInput.readFully(byteArray, offset, length - offset);
+
+            result.updateCount     = in.readInt();
+            result.fetchSize       = in.readInt();
+            result.statementID     = in.readLong();
+            result.rsScrollability = in.readShort();
+            result.rsConcurrency   = in.readShort();
+            result.rsHoldability   = in.readShort();
+
+            Statement statement =
+                session.database.compiledStatementManager.getStatement(
+                    session, result.statementID);
+
+            result.statement = statement;
+            result.metaData  = result.statement.getParametersMetaData();
+
+            result.navigator.read(in, result.metaData);
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.X_08000);
+        }
+    }
+
+    private static Result newResult(Session session, DataInput dataInput,
+                                    RowInputBinary in,
                                     int mode)
                                     throws IOException, HsqlException {
 
@@ -449,7 +487,6 @@ public class Result {
                 break;
 
             case ResultConstants.CALL_RESPONSE :
-            case ResultConstants.EXECUTE :
                 result.updateCount     = in.readInt();
                 result.fetchSize       = in.readInt();
                 result.statementID     = in.readLong();
@@ -457,6 +494,24 @@ public class Result {
                 result.rsConcurrency   = in.readShort();
                 result.rsHoldability   = in.readShort();
                 result.metaData        = new ResultMetaData(in);
+
+                result.navigator.read(in, result.metaData);
+                break;
+
+            case ResultConstants.EXECUTE :
+                result.updateCount     = in.readInt();
+                result.fetchSize       = in.readInt();
+                result.statementID     = in.readLong();
+                result.rsScrollability = in.readShort();
+                result.rsConcurrency   = in.readShort();
+                result.rsHoldability   = in.readShort();
+
+                Statement statement =
+                    session.database.compiledStatementManager.getStatement(
+                        session, result.statementID);
+
+                result.statement = statement;
+                result.metaData  = result.statement.getParametersMetaData();
 
                 result.navigator.read(in, result.metaData);
                 break;
@@ -611,17 +666,12 @@ public class Result {
      */
     public void setPreparedResultUpdateProperties(Object[] parameterValues) {
 
-        mode = ResultConstants.EXECUTE;
-
         if (navigator.getSize() == 1) {
             ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
         } else {
             navigator.clear();
             navigator.add(parameterValues);
         }
-
-        updateCount    = 0;
-        this.fetchSize = 0;
     }
 
     /**
@@ -817,18 +867,21 @@ public class Result {
         return result;
     }
 
-    public static Result newPrepareResponse(long csID, int csType,
-            ResultMetaData rsmd, ResultMetaData pmd) {
+    public static Result newPrepareResponse(Statement statement) {
 
         Result r = newResult(ResultConstants.PREPARE_ACK);
 
-        r.statementID = csID;
+        r.statement   = statement;
+        r.statementID = statement.getID();
+
+        int csType = statement.getType();
+
         r.statementReturnType =
             (csType == StatementTypes.SELECT_CURSOR || csType == StatementTypes
                 .CALL) ? StatementTypes.RETURN_RESULT
                        : StatementTypes.RETURN_COUNT;
-        r.metaData          = rsmd;
-        r.parameterMetaData = pmd;
+        r.metaData          = statement.getResultMetaData();
+        r.parameterMetaData = statement.getParametersMetaData();
 
         return r;
     }
@@ -1168,7 +1221,6 @@ public class Result {
                 break;
 
             case ResultConstants.CALL_RESPONSE :
-            case ResultConstants.EXECUTE :
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
                 rowOut.writeLong(statementID);
@@ -1176,6 +1228,16 @@ public class Result {
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
                 metaData.write(rowOut);
+                navigator.write(rowOut, metaData);
+                break;
+
+            case ResultConstants.EXECUTE :
+                rowOut.writeInt(updateCount);
+                rowOut.writeInt(fetchSize);
+                rowOut.writeLong(statementID);
+                rowOut.writeShort(rsScrollability);
+                rowOut.writeShort(rsConcurrency);
+                rowOut.writeShort(rsHoldability);
                 navigator.write(rowOut, metaData);
                 break;
 
@@ -1307,8 +1369,8 @@ public class Result {
         return statementID;
     }
 
-    public void setStatementID(int statementId) {
-        statementID = statementId;
+    public void setStatementID(long statementId) {
+        this.statementID = statementId;
     }
 
     public String getMainString() {
@@ -1316,7 +1378,7 @@ public class Result {
     }
 
     public void setMainString(String sql) {
-        mainString = sql;
+        this.mainString = sql;
     }
 
     public String getSubString() {
@@ -1333,6 +1395,14 @@ public class Result {
 
     public void setValueObject(Object value) {
         valueData = value;
+    }
+
+    public Statement getStatement() {
+        return statement;
+    }
+
+    public void setStatement(Statement statement) {
+        this.statement = statement;
     }
 
     public String getDatabaseName() {

@@ -187,7 +187,10 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         size          = in.readInt();
         currentOffset = in.readInt();
         baseBlockSize = in.readInt();
-        table         = new Object[baseBlockSize][];
+
+        if (table.length < baseBlockSize) {
+            table = new Object[baseBlockSize][];
+        }
 
         for (int i = 0; i < baseBlockSize; i++) {
             table[i] = in.readData(meta.columnTypes);

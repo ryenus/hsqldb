@@ -163,7 +163,7 @@ public class ClientConnection implements SessionInterface {
             socket = HsqlSocketFactory.getInstance(isTLS).createSocket(host,
                                                    port);
 
-//            socket.setTcpNoDelay(true);
+            socket.setTcpNoDelay(true);
             dataOutput = new DataOutputStream(socket.getOutputStream());
             dataInput = new DataInputStream(
                 new BufferedInputStream(socket.getInputStream()));

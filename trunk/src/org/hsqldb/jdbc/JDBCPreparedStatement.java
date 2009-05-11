@@ -3665,6 +3665,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         resultOut = Result.newPreparedExecuteRequest(parameterTypes,
                 statementID);
 
+        resultOut.setStatement(in.getStatement());
+
         // for toString()
         this.sql = sql;
     }
@@ -3823,8 +3825,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
             }
         }
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN, parameterStream, 0,
-                             parameterStream.length);
     }
 
     /**

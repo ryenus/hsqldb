@@ -235,6 +235,8 @@ public interface ResultConstants {
      */
     int CALL_RESPONSE = HSQL_API_BASE + 43;
 
+    int MODE_UPPER_LIMIT =  HSQL_API_BASE + 44;
+
 //    /** The offset at which the standard SQL API Result mode values start. */
 //    int SQL_API_BASE = 0x00010000;
 //

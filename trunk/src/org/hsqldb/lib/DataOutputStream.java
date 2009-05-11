@@ -44,17 +44,16 @@ import java.io.Reader;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class DataOutputStream {
+public class DataOutputStream extends java.io.BufferedOutputStream {
 
-    OutputStream stream;
-    byte[]       buf = new byte[8];
+    byte[] buf = new byte[8];
 
     public DataOutputStream(OutputStream stream) {
-        this.stream = stream;
+        super(stream);
     }
 
     public final void writeByte(int v) throws IOException {
-        stream.write(v);
+        write(v);
     }
 
     public final void writeInt(int v) throws IOException {
@@ -66,7 +65,7 @@ public class DataOutputStream {
         buf[count++] = (byte) (v >>> 8);
         buf[count++] = (byte) v;
 
-        stream.write(buf, 0, count);
+        write(buf, 0, count);
     }
 
     public final void writeLong(long v) throws IOException {
@@ -81,7 +80,7 @@ public class DataOutputStream {
         buf[count++] = (byte) (v >>> 8);
         buf[count++] = (byte) v;
 
-        stream.write(buf, 0, count);
+        write(buf, 0, count);
     }
 
     public void writeChars(String s) throws IOException {
@@ -95,7 +94,7 @@ public class DataOutputStream {
             buf[count++] = (byte) (v >>> 8);
             buf[count++] = (byte) v;
 
-            stream.write(buf, 0, count);
+            write(buf, 0, count);
         }
     }
 
@@ -112,16 +111,8 @@ public class DataOutputStream {
             buf[count++] = (byte) (v >>> 8);
             buf[count++] = (byte) v;
 
-            stream.write(buf, 0, count);
+            write(buf, 0, count);
         }
-    }
-
-    public void write(byte[] b) throws IOException {
-        stream.write(b, 0, b.length);
-    }
-
-    public void write(byte[] b, int off, int len) throws IOException {
-        stream.write(b, off, len);
     }
 
     public void write(Reader reader, long length) throws IOException {
@@ -154,13 +145,5 @@ public class DataOutputStream {
 
             write(data, 0, count);
         }
-    }
-
-    public void flush() throws IOException {
-        stream.flush();
-    }
-
-    public void close() throws IOException {
-        stream.close();
     }
 }

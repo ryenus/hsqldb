@@ -202,7 +202,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_REFERENTIAL_INTEGRITY :
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_DATABASE_WRITE_DELAY :
-            case StatementTypes.SET_DEFAULT_INITIAL_SCHEMA :
+            case StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA :
+            case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE :
             case StatementTypes.SET_INITIAL_SCHEMA :
             case StatementTypes.SET_PASSWORD :
             case StatementTypes.SET_PROPERTY :
@@ -799,7 +800,7 @@ public class StatementCommand extends Statement {
 
                 return Result.updateZeroResult;
             }
-            case StatementTypes.SET_DEFAULT_INITIAL_SCHEMA : {
+            case StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA : {
                 try {
                     HsqlName schema = (HsqlName) parameters[0];
 
@@ -808,6 +809,20 @@ public class StatementCommand extends Statement {
                         schema);
                     session.database.logger.writeToLog(session, sql);
                     session.database.setMetaDirty(true);
+
+                    //
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE : {
+                try {
+                    String type = (String) parameters[0];
+
+                    //
+                    session.database.schemaManager.setDefaultTableType(type);
+                    session.database.logger.writeToLog(session, sql);
 
                     //
                     return Result.updateZeroResult;

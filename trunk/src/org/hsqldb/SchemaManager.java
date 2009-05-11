@@ -52,13 +52,15 @@ public class SchemaManager {
 
     Database          database;
     HsqlName          defaultSchemaHsqlName;
-    HashMappedList    schemaMap    = new HashMappedList();
-    MultiValueHashMap referenceMap = new MultiValueHashMap();
+    HashMappedList    schemaMap        = new HashMappedList();
+    MultiValueHashMap referenceMap     = new MultiValueHashMap();
+    int               defaultTableType = TableBase.MEMORY_TABLE;
 
     SchemaManager(Database database) {
 
-        this.database = database;
+        this.database         = database;
         defaultSchemaHsqlName = SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
+
         Schema schema =
             new Schema(SqlInvariants.INFORMATION_SCHEMA_HSQLNAME,
                        SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner);
@@ -1558,21 +1560,21 @@ public class SchemaManager {
             }
 
             if (database.schemaManager.isLobsSchema(schema.name.name)) {
+
 //                continue;
             }
 
             list.addAll(schema.getTriggerSQL());
-
             list.addAll(schema.getSequenceRestartSQL());
         }
 
         if (defaultSchemaHsqlName != null) {
             StringBuffer sb = new StringBuffer();
 
-            sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DEFAULT);
-            sb.append(' ').append(Tokens.T_INITIAL).append(' ');
-            sb.append(Tokens.T_SCHEMA).append(' ');
-            sb.append(defaultSchemaHsqlName.statementName);
+            sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
+            sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
+            sb.append(Tokens.T_INITIAL).append(' ').append(Tokens.T_SCHEMA);
+            sb.append(' ').append(defaultSchemaHsqlName.statementName);
             list.add(sb.toString());
         }
 
@@ -1606,5 +1608,16 @@ public class SchemaManager {
         list.toArray(array);
 
         return array;
+    }
+
+    public void setDefaultTableType(String type) {
+
+        defaultTableType = Tokens.T_CACHED.equalsIgnoreCase(type)
+                           ? Table.CACHED_TABLE
+                           : Table.MEMORY_TABLE;
+    }
+
+    int getDefaultTableType() {
+        return defaultTableType;
     }
 }
